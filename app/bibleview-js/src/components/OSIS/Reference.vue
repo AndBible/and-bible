@@ -23,7 +23,7 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
 import {computed, ref, inject} from "vue";
-import {osisFragmentKey} from "@/constants";
+import {osisFragmentKey} from "@/types/constants";
 
 export default {
   name: "Reference",

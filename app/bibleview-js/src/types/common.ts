@@ -15,30 +15,21 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {OsisFragment} from "@/types";
-import {InjectionKey} from "@vue/runtime-core";
-
-export const osisFragmentKey: InjectionKey<OsisFragment> = Symbol();
-
-export const DocumentTypes = {
-    BIBLE_DOCUMENT: "bible",
-    OSIS_DOCUMENT: "osis",
-    ERROR_DOCUMENT: "error",
-    MY_NOTES: "notes",
-    JOURNAL: "journal",
-    MULTI: "multi",
-    NONE: "none",
+export type ReloadAddonsParams = {
+    fontModuleNames: string[],
+    featureModuleNames: string[],
+    styleModuleNames: string[],
 }
 
-export const StudyPadEntryTypes = {
-    BOOKMARK: "bookmark",
-    JOURNAL_TEXT: "journal",
+export type LogEntry = {
+    msg: string,
+    type: "ERROR" | "WARN"
 }
 
-export const BookCategories = {
-    BIBLE: "BIBLE",
-    COMMENTARIES: "COMMENTARY",
-    GENERAL_BOOK: "GENERAL_BOOK",
-}
-
-export const fadeReferenceDelay = -1;
+export type JSONString = string
+export type AsyncFunc = (callId: number) => void
+export type JournalEntryType = "bookmark" | "journal" | "none"
+export type Bookmark = any
+export type JournalEntry = any
+export type Config = any
+export type ABDocument = any

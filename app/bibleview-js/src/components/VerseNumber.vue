@@ -20,7 +20,7 @@
 <script>
 import {useCommon} from "@/composables";
 import {inject, computed, ref} from "vue";
-import {BookCategories, osisFragmentKey} from "@/constants";
+import {BookCategories, osisFragmentKey} from "@/types/constants";
 
 export default {
   name: "VerseNumber",

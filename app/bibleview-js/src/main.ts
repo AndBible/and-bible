@@ -18,12 +18,17 @@
 console.log("main.ts begin");
 
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
-import {patchAndroidConsole} from "@/composables/android";
+import {AndroidInterface, patchAndroidConsole} from "@/composables/android";
 
 declare global {
     interface Window {
         bibleView: any;
         bibleViewDebug: any,
+        android: AndroidInterface,
+        console: Console & {
+            _msg: (s: string, args: string[][]) => string,
+            flog: (s: string, args: string[]) => void,
+        }
     }
 }
 

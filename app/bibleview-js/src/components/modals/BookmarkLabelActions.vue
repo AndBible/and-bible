@@ -65,6 +65,7 @@ import Modal from "@/components/modals/Modal";
 import {computed, ref, inject} from "vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {androidKey} from "@/types/constants";
 export default {
   name: "BookmarkLabelActions",
   components: {Modal, FontAwesomeIcon},
@@ -74,7 +75,7 @@ export default {
   setup(props) {
     const showModal = ref(false);
     const {bookmarkMap} = inject("globalBookmarks");
-    const android = inject("android");
+    const android = inject(androidKey);
     const locateTop = ref(true);
 
     const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));

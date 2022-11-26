@@ -24,7 +24,7 @@
 <script>
 import {useCommon} from "@/composables";
 import {inject} from "vue";
-import {osisFragmentKey} from "@/constants";
+import {osisFragmentKey} from "@/types/constants";
 
 export default {
   name: "Figure",

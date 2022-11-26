@@ -27,8 +27,8 @@ import {computed, ref, inject, defineComponent} from "vue";
 import {strongsModes} from "@/composables/config";
 import {useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
-import {OsisFragment} from "@/types";
-import {osisFragmentKey} from "@/constants";
+import {osisFragmentKey} from "@/types/constants";
+import {OsisFragment} from "@/types/client-objects";
 
 export default defineComponent({
   name: "S",

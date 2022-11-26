@@ -94,6 +94,7 @@ import AreYouSure from "@/components/modals/AreYouSure";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Color from "color";
 import {sortBy} from "lodash";
+import {androidKey} from "@/types/constants";
 
 export default {
   name: "BookmarkButtons",
@@ -107,7 +108,7 @@ export default {
   setup(props, {emit}) {
     const areYouSure = ref(null);
     const bookmark = computed(() => props.bookmark);
-    const android = inject("android");
+    const android = inject(androidKey);
 
     function toggleWholeVerse() {
       android.setBookmarkWholeVerse(bookmark.value.id, !bookmark.value.wholeVerse);

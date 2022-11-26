@@ -57,7 +57,7 @@ import BookmarkModal from "@/components/modals/BookmarkModal";
 import DevelopmentMode from "@/components/DevelopmentMode";
 import Color from "color";
 import {useStrings} from "@/composables/strings";
-import {DocumentTypes} from "@/constants";
+import {androidKey, DocumentTypes} from "@/types/constants";
 import {useKeyboard} from "@/composables/keyboard";
 import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
@@ -188,7 +188,7 @@ export default defineComponent({
     provide("calculatedConfig", calculatedConfig);
 
     provide("strings", strings);
-    provide("android", android);
+    provide(androidKey, android);
 
     const ambiguousSelection = ref(null);
 
