@@ -98,14 +98,13 @@ import BookmarkText from "@/components/BookmarkText";
 import BookmarkButtons from "@/components/BookmarkButtons";
 import {clickWaiter} from "@/utils";
 import {sortBy} from "lodash";
-import {androidKey} from "@/types/constants";
 
 export default {
   name: "BookmarkModal",
   components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, BookmarkButtons},
   setup() {
     const showBookmark = ref(false);
-    const android = inject(androidKey);
+    const android = inject("android");
     const areYouSure = ref(null);
     const infoShown = ref(false);
     const bookmarkId = ref(null);

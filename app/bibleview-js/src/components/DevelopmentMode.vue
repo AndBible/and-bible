@@ -30,7 +30,6 @@
 import {useCommon} from "@/composables";
 import {emit, Events} from "@/eventbus";
 import {inject} from "vue";
-import {androidKey} from "@/types/constants";
 
 export default {
   name: "DevelopmentMode",
@@ -38,7 +37,7 @@ export default {
     currentVerse: {type: Number, default: null}
   },
   setup() {
-    const android = inject(androidKey);
+    const android = inject("android");
 
     let lblCount = 0;
 

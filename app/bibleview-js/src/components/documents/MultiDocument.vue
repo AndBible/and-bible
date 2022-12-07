@@ -52,7 +52,7 @@ import OsisFragment from "@/components/documents/OsisFragment";
 import {inject, computed, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import FeaturesLink from "@/components/FeaturesLink";
-import {BookCategories} from "@/types/constants";
+import {BookCategories} from "@/constants";
 
 export default {
   name: "MultiDocument",

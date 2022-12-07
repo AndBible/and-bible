@@ -299,7 +299,7 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun speak(bookInitials: String, ordinal: Int) {
+    fun speak(bookInitials: String?, ordinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials) as SwordBook
             val verse = Verse(book.versification, ordinal)

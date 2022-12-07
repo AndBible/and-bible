@@ -23,7 +23,7 @@
 
 import {nextTick, onMounted} from "vue";
 import {setupWindowEventListener} from "@/utils";
-import {DocumentTypes} from "@/types/constants";
+import {DocumentTypes} from "@/constants";
 
 export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}, documents) {
     let

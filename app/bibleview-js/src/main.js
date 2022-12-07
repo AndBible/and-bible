@@ -15,44 +15,32 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-console.log("main.ts begin");
+console.log("main.js begin");
 
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
-import {AndroidInterface, patchAndroidConsole} from "@/composables/android";
-
-declare global {
-    interface Window {
-        bibleView: any;
-        bibleViewDebug: any,
-        android: AndroidInterface,
-        console: Console & {
-            _msg: (s: string, args: string[][]) => string,
-            flog: (s: string, args: string[]) => void,
-        }
-    }
-}
+import {patchAndroidConsole} from "@/composables/android";
 
 window.bibleView = {};
 window.bibleViewDebug = {};
 
 patchAndroidConsole();
 
-console.log("main.ts after patching console");
+console.log("main.js after patching console");
 
 import { createApp } from 'vue'
 
-import BibleView from "@/components/BibleView.vue";
-import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
-import LabelList from "@/components/LabelList.vue";
-import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
+import BibleView from "@/components/BibleView";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
+import LabelList from "@/components/LabelList";
+import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions";
 
-console.log("main.ts After imports");
+console.log("main.js After imports");
 
 const app = createApp(BibleView);
 app.component("AmbiguousSelection", AmbiguousSelection);
 app.component("LabelList", LabelList);
 app.component("BookmarkLabelActions", BookmarkLabelActions);
-console.log("main.ts After vue bootstrap. Mounting.");
+console.log("main.js After vue bootstrap. Mounting.");
 app.mount('#app')
-console.log("main.ts After vue mount.");
+console.log("main.js After vue mount.");
 

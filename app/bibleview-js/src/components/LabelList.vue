@@ -41,7 +41,6 @@ import {inject, watch, computed, ref} from "vue";
 import {addAll, clickWaiter, removeAll} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
-import {androidKey} from "@/types/constants";
 
 export default {
   props: {
@@ -61,7 +60,7 @@ export default {
   setup(props, {emit}) {
     const {adjustedColor, ...common} = useCommon();
     const appSettings = inject("appSettings");
-    const android = inject(androidKey);
+    const android = inject("android");
     const actions = ref(null);
 
     function labelStyle(label) {

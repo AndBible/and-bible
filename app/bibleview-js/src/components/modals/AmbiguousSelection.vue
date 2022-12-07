@@ -80,7 +80,6 @@ import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelec
 import {emit, Events} from "@/eventbus";
 import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
 import {sortBy} from "lodash";
-import {androidKey} from "@/types/constants";
 
 export default {
   name: "AmbiguousSelection",
@@ -102,7 +101,7 @@ export default {
     });
     const {bookmarkMap, bookmarkIdsByOrdinal} = inject("globalBookmarks");
     const {strings, ...common} = useCommon();
-    const android = inject(androidKey);
+    const android = inject("android");
     const multiSelectionMode = ref(false);
 
     const {resetHighlights, highlightVerse, hasHighlights} = inject("verseHighlight");

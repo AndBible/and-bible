@@ -69,7 +69,7 @@ import {Events, setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
 import StudyPadRow from "@/components/StudyPadRow";
 import draggable from "vuedraggable";
-import {androidKey, StudyPadEntryTypes} from "@/types/constants";
+import {StudyPadEntryTypes} from "@/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
 import {useJournal} from "@/composables/journal";
@@ -86,7 +86,7 @@ export default {
     const journal = useJournal(label);
     provide("journal", journal);
     const {scrollToId} = inject("scroll");
-    const android = inject(androidKey);
+    const android = inject("android");
     const studyPadRowRefs = [];
     const exportMode = inject("exportMode", ref(false));
 

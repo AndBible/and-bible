@@ -22,7 +22,6 @@ import {
 } from "vue";
 import {abbreviated, sprintf, adjustedColor} from "@/utils";
 import {emit, Events} from "@/eventbus";
-import {androidKey} from "@/types/constants";
 
 export function useCommon() {
     const currentInstance = getCurrentInstance();
@@ -30,7 +29,7 @@ export function useCommon() {
     const config = inject("config");
     const appSettings = inject("appSettings");
     const calculatedConfig = inject("calculatedConfig");
-    const android = inject(androidKey);
+    const android = inject("android");
 
     const strings = inject("strings");
 

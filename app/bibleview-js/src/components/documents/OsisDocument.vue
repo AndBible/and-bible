@@ -28,7 +28,7 @@ import OsisFragment from "@/components/documents/OsisFragment";
 import FeaturesLink from "@/components/FeaturesLink";
 import OpenAllLink from "@/components/OpenAllLink";
 import {useReferenceCollector} from "@/composables";
-import {BookCategories} from "@/types/constants";
+import {BookCategories} from "@/constants";
 import {provide} from "vue";
 import {osisToTemplateString} from "@/utils";
 

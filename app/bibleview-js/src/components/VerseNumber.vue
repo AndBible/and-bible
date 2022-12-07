@@ -20,7 +20,7 @@
 <script>
 import {useCommon} from "@/composables";
 import {inject, computed, ref} from "vue";
-import {BookCategories, osisFragmentKey} from "@/types/constants";
+import {BookCategories} from "@/constants";
 
 export default {
   name: "VerseNumber",
@@ -28,7 +28,7 @@ export default {
     verseNum: {type: Number, required: true}
   },
   setup() {
-    const fragment = inject(osisFragmentKey);
+    const fragment = inject("osisFragment");
     const show = computed(() => fragment.bookCategory === BookCategories.BIBLE)
     const exportMode = inject("exportMode", ref(false));
     return {show, fragment, exportMode, ...useCommon()};

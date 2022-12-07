@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -15,26 +15,25 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import Color from "color";
-
-export type ReloadAddonsParams = {
-    fontModuleNames: string[],
-    featureModuleNames: string[],
-    styleModuleNames: string[],
+export const DocumentTypes = {
+    BIBLE_DOCUMENT: "bible",
+    OSIS_DOCUMENT: "osis",
+    ERROR_DOCUMENT: "error",
+    MY_NOTES: "notes",
+    JOURNAL: "journal",
+    MULTI: "multi",
+    NONE: "none",
 }
 
-export type LogEntry = {
-    msg: string,
-    type: "ERROR" | "WARN"
+export const StudyPadEntryTypes = {
+    BOOKMARK: "bookmark",
+    JOURNAL_TEXT: "journal",
 }
 
-export type JSONString = string
-export type AsyncFunc = (callId: number) => void
-export type JournalEntryType = "bookmark" | "journal" | "none"
+export const BookCategories = {
+    BIBLE: "BIBLE",
+    COMMENTARIES: "COMMENTARY",
+    GENERAL_BOOK: "GENERAL_BOOK",
+}
 
-export type Config = any
-export type AppSettings = any
-export type ABDocument = any
-export type ColorInt = number
-export type ColorString = string
-export type ColorParam = Color | ColorString | ArrayLike<number> | ColorInt | { [key: string]: any };
+export const fadeReferenceDelay = -1;

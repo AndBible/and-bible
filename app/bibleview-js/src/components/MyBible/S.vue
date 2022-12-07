@@ -21,22 +21,20 @@
   </template>
 </template>
 
-<script lang="ts">
+<script>
 
-import {computed, ref, inject, defineComponent} from "vue";
+import {computed, ref, inject} from "vue";
 import {strongsModes} from "@/composables/config";
 import {useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
-import {osisFragmentKey} from "@/types/constants";
-import {OsisFragment} from "@/types/client-objects";
 
-export default defineComponent({
+export default {
   name: "S",
   setup() {
-    const slot = ref<HTMLElement|null>(null);
+    const slot = ref(null);
 
-    const osisFragment = inject<OsisFragment>(osisFragmentKey)
-    const letter = osisFragment?.isNewTestament ? "G": "H";
+    const {isNewTestament} = inject("osisFragment", {})
+    const letter = isNewTestament ? "G": "H";
 
     const link = computed(() => {
       if(slot.value === null) return null;
@@ -47,7 +45,7 @@ export default defineComponent({
 
     const exportMode = inject("exportMode", ref(false));
     const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
-    function openLink(event: MouseEvent) {
+    function openLink(event) {
       addEventFunction(event, () => {
         if (link.value) {
           window.location.assign(link.value);
@@ -57,7 +55,7 @@ export default defineComponent({
 
     return {slot, openLink, link, common, showStrongs};
   },
-})
+}
 </script>
 
 <style scoped>

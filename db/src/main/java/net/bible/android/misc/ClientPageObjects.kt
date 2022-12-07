@@ -92,10 +92,7 @@ class OsisFragment(
             else -> null
         }
         return if (type != null) {
-            hashMapOf(
-                "type" to type,
-                "keyName" to key.name
-            )
+            hashMapOf("type" to type, "keyName" to key.name)
         } else emptyMap()
     }
 
