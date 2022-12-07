@@ -26,7 +26,7 @@
 <script>
 import ErrorDocument from "@/components/documents/ErrorDocument";
 import OsisDocument from "@/components/documents/OsisDocument";
-import {DocumentTypes} from "@/constants";
+import {DocumentTypes} from "@/types/constants";
 import BibleDocument from "@/components/documents/BibleDocument";
 import MyNotesDocument from "@/components/documents/MyNotesDocument";
 import StudyPadDocument from "@/components/documents/StudyPadDocument";

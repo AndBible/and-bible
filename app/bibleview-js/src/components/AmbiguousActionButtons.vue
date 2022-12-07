@@ -54,6 +54,7 @@
 import {computed, inject} from "vue";
 import {FontAwesomeIcon, FontAwesomeLayers} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
+import {androidKey} from "@/types/constants";
 
 export default {
   name: "AmbiguousActionButtons",
@@ -72,7 +73,7 @@ export default {
   setup(props, {emit}) {
     const {strings, ...common} = useCommon()
     const selectionInfo = computed(() => props.selectionInfo);
-    const android = inject("android");
+    const android = inject(androidKey);
 
     const v11n = computed(() => selectionInfo.value && selectionInfo.value.v11n);
     const bookInitials = computed(() => selectionInfo.value && selectionInfo.value.bookInitials);

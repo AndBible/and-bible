@@ -23,12 +23,13 @@
 import {useCommon} from "@/composables";
 import {inject} from "vue";
 import {addEventFunction, EventPriorities} from "@/utils";
+import {androidKey} from "@/types/constants";
 
 export default {
   name: "A",
   props: {href: {type: String, required: true}},
   setup() {
-    const {openExternalLink} = inject("android");
+    const {openExternalLink} = inject(androidKey);
     const {strings, ...common} = useCommon()
     function openLink(event, url) {
       addEventFunction(event, () => openExternalLink(url), {title: strings.externalLink, priority: EventPriorities.EXTERNAL_LINK});

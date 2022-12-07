@@ -64,6 +64,7 @@ import {computed, ref, inject} from "vue";
 import EditableText from "@/components/EditableText";
 import AreYouSure from "@/components/modals/AreYouSure";
 import {isBottomHalfClicked} from "@/utils";
+import {androidKey} from "@/types/constants";
 
 export default {
   name: "MyNoteRow",
@@ -72,7 +73,7 @@ export default {
     bookmark: {type: Object, required: true},
   },
   setup: function (props) {
-    const android = inject("android");
+    const android = inject(androidKey);
     const expanded = ref(false);
 
     function editBookmark(event) {

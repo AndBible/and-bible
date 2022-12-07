@@ -24,12 +24,13 @@
 <script>
 import {useCommon} from "@/composables";
 import {inject} from "vue";
+import {osisFragmentKey} from "@/types/constants";
 
 export default {
   name: "Figure",
   props: {src: {type: String, required: true}},
   setup() {
-    const {bookInitials} = inject("osisFragment");
+    const {bookInitials} = inject(osisFragmentKey);
     return {...useCommon(), bookInitials};
   },
 }

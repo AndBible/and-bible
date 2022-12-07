@@ -46,6 +46,7 @@ import {get} from "lodash";
 import {ref, provide, inject, computed} from "vue";
 import {addEventFunction, EventPriorities, isBottomHalfClicked} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink";
+import {osisFragmentKey} from "@/types/constants";
 
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
 
@@ -104,7 +105,7 @@ export default {
       variant: strings.footnoteTypeVariant,
       alternative: strings.footnoteTypeAlternative,
     };
-    const {v11n} = inject("osisFragment", {})
+    const {v11n} = inject(osisFragmentKey, {})
     const referenceCollector = useReferenceCollector();
     provide("referenceCollector", referenceCollector);
 

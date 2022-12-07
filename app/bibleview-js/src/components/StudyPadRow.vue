@@ -77,7 +77,7 @@ import ButtonRow from "@/components/ButtonRow";
 import {emit as ebEmit, Events} from "@/eventbus";
 import {inject, computed, ref} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure";
-import {StudyPadEntryTypes} from "@/constants";
+import {androidKey, StudyPadEntryTypes} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {isBottomHalfClicked} from "@/utils";
@@ -91,7 +91,7 @@ export default {
     label: {type: Object, required:true}
   },
   setup: function (props, {emit}) {
-    const android = inject("android");
+    const android = inject(androidKey);
     const areYouSureDelete = ref(null);
     const {strings, ...common} = useCommon();
     const editor = ref(null);

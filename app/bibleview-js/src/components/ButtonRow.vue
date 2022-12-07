@@ -44,6 +44,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ref, inject, watch} from "vue";
 import {useCommon} from "@/composables";
 import {eventBus, Events} from "@/eventbus";
+import {androidKey} from "@/types/constants";
 
 let cancel = () => {}
 
@@ -55,7 +56,7 @@ export default {
   },
   components: {FontAwesomeIcon},
   setup(props) {
-    const android = inject("android");
+    const android = inject(androidKey);
     const {strings, ...common} = useCommon();
     const expanded = ref(false);
     const element = ref(null);
