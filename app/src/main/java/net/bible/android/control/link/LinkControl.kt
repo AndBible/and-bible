@@ -73,6 +73,7 @@ class LinkControl @Inject constructor(
 	private val swordDocumentFacade: SwordDocumentFacade,
 )  {
     private var windowMode = WINDOW_MODE_UNDEFINED
+    private var targetWindowIndex: Int? = null
 
     fun openMulti(links: List<BibleView.BibleLink>): Boolean {
         val key = BookAndKeyList()
@@ -295,10 +296,60 @@ class LinkControl @Inject constructor(
         }
     }
 
-    private fun showLink(document: Book?, key: Key) { // ask window controller to open link in desired window
+        val key = try { PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef) } catch (e: NoSuchVerseException) {null}?:
+        try {
+            if (searchDoc.language.code != MyLocaleProvider.userLocale.language) {
+                synchronized(BookName::class.java) {
+                    MyLocaleProvider.override = Locale(searchDoc.language.code)
+                    val k = PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef)
+                    MyLocaleProvider.override = null
+                    k
+                }
+            } else null
+        } catch (e: NoSuchVerseException) {null}
+
+        return key
+    }
+
+    fun tryToOpenRef(searchRef: String, doc: SwordBook? = null): Boolean {
+        val key = resolveRef(searchRef, doc)
+        if (key != null) {
+            showLink(doc, key)
+            return true
+        }
+        return false
+    }
+
+    fun showLink(document: Book?, key: Key) { // ask window controller to open link in desired window
+
         val currentPageManager = currentPageManager
         val defaultDocument = currentPageManager.currentBible.currentDocument!!
-        if (windowMode == WINDOW_MODE_NEW) {
+
+        // This has to be declared here otherwise the window changes to the correct verse and then changes back to the original verse. I don't know why.
+
+        if (windowMode==WINDOW_MODE_SPECIFIC) {
+            if (this.targetWindowIndex != null) {
+                var targetWindow = windowControl.windowRepository.windowList[this.targetWindowIndex!!]
+                val originalActiveWindow = currentPageManager.window
+                if (!targetWindow.isVisible) windowControl.restoreWindow(targetWindow)
+                if (targetWindow.isSynchronised && originalActiveWindow.isSynchronised) {
+                    // I am not sure of the best way to handle syncrhonised windows. Say the 1st and 2nd windows are synced and the ref link is in the 2nd window.
+                    // And I want to open the link in the 1st window. If I change the 1st window to the new ref it works momentarily and then changes back to the 2nd
+                    // window's reference because the 1st & 2nd windows are synced and I assume the active window determines the reference. So instead of changing
+                    // the target window i change the active window reference and specify its current document. This works well.
+                    currentPageManager.window.pageManager.setCurrentDocumentAndKey(document?: if (windowMode== WINDOW_MODE_THIS) defaultDocument else currentPageManager.currentPassageDocument, key)
+
+                    // An alternative is to change the active window to the target window which also works. But I can't change it back easily.
+                    // windowControl.activeWindow =  targetWindow
+                    // targetWindow.pageManager.setCurrentDocumentAndKey(document ?: defaultDocument, key)
+                    // windowControl.activeWindow =  originalActiveWindow  // this happens too quickly and so the new reference is not kept
+
+                } else {
+                    targetWindow.pageManager.setCurrentDocumentAndKey(document ?: defaultDocument, key)
+                }
+            }
+        }
+        else if (windowMode == WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow()) {
             if (document == null) {
@@ -328,6 +379,11 @@ class LinkControl @Inject constructor(
         this.windowMode = windowMode
     }
 
+    fun setTargetWindow(targetWindow: Int) {
+        this.targetWindowIndex = targetWindow
+    }
+
+
     fun openMyNotes(v11nName: String, ordinal: Int): Boolean {
         val v11n = Versifications.instance().getVersification(v11nName)
         val verse = Verse(v11n, ordinal)
@@ -345,10 +401,12 @@ class LinkControl @Inject constructor(
     companion object {
         private val IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_")
         private const val TAG = "LinkControl"
+        const val WINDOW_MODE_FIRST = "first"
         const val WINDOW_MODE_THIS = "this"
         const val WINDOW_MODE_SPECIAL = "special"
         const val WINDOW_MODE_NEW = "new"
         const val WINDOW_MODE_UNDEFINED = "undefined"
+        const val WINDOW_MODE_SPECIFIC = "specific"
     }
 
 }
