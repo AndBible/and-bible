@@ -951,6 +951,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 R.id.open_link_in_special_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_SPECIAL)
                 R.id.open_link_in_new_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_NEW)
                 R.id.open_link_in_this_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_THIS)
+                R.id.open_link_in_first_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_FIRST)
             }
             openLink(Uri.parse(targetLink))
             linkControl.setWindowMode(LinkControl.WINDOW_MODE_UNDEFINED)

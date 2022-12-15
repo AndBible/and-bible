@@ -326,9 +326,19 @@ class LinkControl @Inject constructor(
     }
 
     fun showLink(document: Book?, key: Key) { // ask window controller to open link in desired window
+
+
+//        for (window in windowControl.windowRepository.visibleWindows) {
+//            val bookCategory = window.pageManager.currentPage.currentDocument?.bookCategory
+//        }
+        val targetWindow = windowControl.windowRepository.visibleWindows[0]
+
         val currentPageManager = currentPageManager
         val defaultDocument = currentPageManager.currentBible.currentDocument!!
-        if (windowMode == WINDOW_MODE_NEW) {
+        if (windowMode==WINDOW_MODE_FIRST) {
+            targetWindow.pageManager.setCurrentDocumentAndKey(document?: defaultDocument, key)
+        }
+        else if (windowMode == WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow()) {
             if (document == null) {
@@ -375,6 +385,7 @@ class LinkControl @Inject constructor(
     companion object {
         private val IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_")
         private const val TAG = "LinkControl"
+        const val WINDOW_MODE_FIRST = "first"
         const val WINDOW_MODE_THIS = "this"
         const val WINDOW_MODE_SPECIAL = "special"
         const val WINDOW_MODE_NEW = "new"
