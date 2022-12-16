@@ -37,9 +37,8 @@
 
 <script>
 import {clearLog, enableLogSync, logEntries} from "@/composables/android";
-import {onMounted, onUnmounted} from "vue";
+import {onMounted, onUnmounted, computed} from "vue";
 import {useCommon} from "@/composables";
-import {computed} from "vue";
 
 export default {
   name: "ErrorBox",

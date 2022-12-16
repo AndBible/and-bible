@@ -28,10 +28,9 @@
 </template>
 
 <script>
-import {inject, ref} from "vue";
+import {inject, ref, computed} from "vue";
 import VerseNumber from "@/components/VerseNumber";
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed} from "vue";
 
 export default {
   name: "Div",

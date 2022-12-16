@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.SettingsBundle
@@ -35,7 +36,6 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
@@ -45,6 +45,7 @@ import net.bible.android.view.util.widget.TopMarginWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.FeatureType
+import javax.inject.Inject
 
 interface OptionsMenuItemInterface {
     var value: Any
@@ -73,9 +74,14 @@ abstract class GeneralPreference(
     val subMenu: Boolean = false,
     override val enabled: Boolean = true
 ) : OptionsMenuItemInterface {
+    @Inject lateinit var documentControl: DocumentControl
+    init {
+        CommonUtils.buildActivityComponent().inject(this)
+    }
+
     override val inherited: Boolean = false
     override val visible: Boolean
-        get() = if (onlyBibles) _mainBibleActivity?.documentControl?.isBibleBook?: true else true
+        get() = if (onlyBibles) documentControl.isBibleBook else true
 
     override var value: Any = false
     override fun handle() {}
@@ -205,7 +211,7 @@ open class Preference(val settings: SettingsBundle,
 
     override val icon: Int?
         get() = when(type) {
-            TextDisplaySettings.Types.STRONGS -> if(_mainBibleActivity?.documentControl?.isNewTestament != false) R.drawable.ic_strongs_greek else R.drawable.ic_strongs_hebrew
+            TextDisplaySettings.Types.STRONGS -> if(documentControl.isNewTestament) R.drawable.ic_strongs_greek else R.drawable.ic_strongs_hebrew
             TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.drawable.ic_bookmarks_show_24dp
             TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.drawable.ic_labels_hide_24dp
             TextDisplaySettings.Types.MORPH -> R.drawable.ic_morphology_24dp
@@ -227,10 +233,10 @@ open class Preference(val settings: SettingsBundle,
         }
 }
 
-class TiltToScrollPreference:
+class TiltToScrollPreference(val mainBibleActivity: MainBibleActivity):
     GeneralPreference() {
     private val wsBehaviorSettings = windowRepository.workspaceSettings
-    override fun handle() { _mainBibleActivity?.invalidateOptionsMenu() }
+    override fun handle() { mainBibleActivity.invalidateOptionsMenu() }
     override var value: Any
         get() = wsBehaviorSettings.enableTiltToScroll
         set(value) {
@@ -268,8 +274,8 @@ open class SubMenuPreference(onlyBibles: Boolean = false, enabled: Boolean = tru
     override val isBoolean: Boolean = false
 }
 
-class NightModePreference : RealSharedPreferencesPreference("night_mode_pref", false) {
-    override fun handle() { _mainBibleActivity?.refreshIfNightModeChange() }
+class NightModePreference(val mainBibleActivity: MainBibleActivity) : RealSharedPreferencesPreference("night_mode_pref", false) {
+    override fun handle() { mainBibleActivity.refreshIfNightModeChange() }
     override var value: Any
         get() = ScreenSettings.nightMode
         set(value) {
@@ -477,12 +483,12 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     }
 }
 
-class SplitModePreference :
+class SplitModePreference(val mainBibleActivity: MainBibleActivity) :
     GeneralPreference() {
     private val wsBehaviorSettings = windowRepository.workspaceSettings
     override fun handle() {
         windowControl.windowSizesChanged()
-        ABEventBus.post(MainBibleActivity.ConfigurationChanged(_mainBibleActivity!!.resources.configuration))
+        ABEventBus.post(MainBibleActivity.ConfigurationChanged(mainBibleActivity.resources.configuration))
     }
 
     override var value: Any

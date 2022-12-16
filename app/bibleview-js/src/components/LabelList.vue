@@ -37,8 +37,7 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {inject, watch} from "vue";
-import {computed, ref} from "vue";
+import {inject, watch, computed, ref} from "vue";
 import {addAll, clickWaiter, removeAll} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";

@@ -13,6 +13,7 @@ on:
     paths:
     - '**/*.vue'
     - '**/*.js'
+  workflow_dispatch:
 
 permissions:
   contents: read

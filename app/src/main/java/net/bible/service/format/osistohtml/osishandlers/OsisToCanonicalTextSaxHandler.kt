@@ -154,10 +154,17 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
         }
     }
 
+    private fun isWhitespace(s: String): Boolean {
+        if(s.isEmpty()) return false
+        return StringUtils.isWhitespace(s)
+    }
+
     override fun write(s: String?): Boolean {
-        // reduce amount of whitespace becasue a lot of space was occurring between verses in ESVS and several other books
+        if((compatibleOffsets && !insideVerse) || s == null || s.isEmpty()) return false
+
+        // reduce amount of whitespace because a lot of space was occurring between verses in ESVS and several other books
         var rv = false
-        if (!StringUtils.isWhitespace(s) && s !== null) {
+        if (!isWhitespace(s)) {
             rv = super.write(s)
             spaceJustWritten = Character.isWhitespace(s[s.length - 1])
         } else if (!spaceJustWritten) {

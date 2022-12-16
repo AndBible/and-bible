@@ -32,17 +32,14 @@ import net.bible.android.BibleApplication
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.DaggerMainBibleActivityComponent
-import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import javax.inject.Inject
 
-class WindowButtonGestureListener: GestureDetector.SimpleOnGestureListener() {
+class WindowButtonGestureListener(private val mainBibleActivity: MainBibleActivity): GestureDetector.SimpleOnGestureListener() {
     var gesturePerformed = BibleFrame.GestureType.UNSET
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
@@ -86,7 +83,8 @@ class WindowButtonGestureListener: GestureDetector.SimpleOnGestureListener() {
 @SuppressLint("ViewConstructor")
 class BibleFrame(
     val window: Window,
-    private val allViews: SplitBibleArea
+    private val allViews: SplitBibleArea,
+    private val mainBibleActivity: MainBibleActivity,
 ): FrameLayout(allViews.context) {
     @Inject
     lateinit var windowControl: WindowControl
@@ -96,11 +94,7 @@ class BibleFrame(
     }
 
     init {
-        DaggerMainBibleActivityComponent.builder()
-            .applicationComponent(BibleApplication.application.applicationComponent)
-            .mainBibleActivityModule(MainBibleActivityModule(mainBibleActivity))
-            .build()
-            .inject(this)
+        CommonUtils.buildActivityComponent().inject(this)
     }
 
     fun updatePaddings() {
@@ -161,7 +155,7 @@ class BibleFrame(
                 else -> createWindowMenuButton(window)
             }
 
-        if (!isSplitVertically) {
+        if (!mainBibleActivity.isSplitVertically) {
             button.translationY = mainBibleActivity.topOffset2.toFloat()
         } else {
             if (windowRepository.firstVisibleWindow.id == window.id) {
@@ -179,7 +173,7 @@ class BibleFrame(
 
 
     private fun createWindowMenuButton(window: Window): WindowButtonWidget {
-        val gestureListener = WindowButtonGestureListener()
+        val gestureListener = WindowButtonGestureListener(mainBibleActivity)
         val gestureDetector = GestureDetectorCompat(allViews.context, gestureListener)
 
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="

@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.readingplan.actionbar
 
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 
 import org.crosswire.jsword.book.Book
 
@@ -28,10 +27,10 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class ReadingPlanDictionaryActionBarButton @Inject constructor(activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) : ReadingPlanQuickDocumentChangeButton() {
+class ReadingPlanDictionaryActionBarButton @Inject constructor() : ReadingPlanQuickDocumentChangeButton() {
 
     override fun getSuggestedDocument(): Book? {
-        return activeWindowPageManagerProvider.activeWindowPageManager.currentDictionary.currentDocument
+        return windowControl.activeWindowPageManager.currentDictionary.currentDocument
     }
 
     /** return true if Strongs are relevant to this doc & screen  */

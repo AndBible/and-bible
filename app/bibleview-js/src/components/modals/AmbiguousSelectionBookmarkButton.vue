@@ -41,8 +41,7 @@
 
 <script>
 import LabelList from "@/components/LabelList";
-import {inject} from "vue";
-import {computed} from "vue";
+import {inject, computed} from "vue";
 import {useCommon} from "@/composables";
 import {Events, emit} from "@/eventbus";
 import {adjustedColor} from "@/utils";

@@ -27,7 +27,7 @@ import android.view.MenuItem
 import android.view.View
 
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
@@ -53,7 +53,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
     private var mBibleBook = BibleBook.GEN
 
     @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
 
     private var navigateToVerse = false
     // background goes white in some circumstances if theme changes so prevent theme change
@@ -104,7 +104,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         } catch (nsve: Exception) {
             -1
         }
-        val currentVerse = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.singleKey as Verse
+        val currentVerse = windowControl.activeWindowPageManager.currentPage.singleKey as Verse
         val bookColorAndGroup = GridChoosePassageBook.getBookColorAndGroup(book.ordinal)
 
         val keys = ArrayList<ButtonInfo>()
@@ -128,7 +128,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         val chapter = buttonInfo.id
         Log.i(TAG, "Chapter selected:$chapter")
         try {
-            val currentPageControl = activeWindowPageManagerProvider.activeWindowPageManager
+            val currentPageControl = windowControl.activeWindowPageManager
             if (!navigateToVerse && !currentPageControl.currentPage.isSingleKey) {
                 val verse = Verse(navigationControl.versification, mBibleBook, chapter, 1)
                 val resultIntent = Intent(this, GridChoosePassageBook::class.java)

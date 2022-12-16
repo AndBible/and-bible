@@ -32,7 +32,7 @@ constructor() : ReadingPlanQuickDocumentChangeButton() {
 
 
     override fun getSuggestedDocument(): Book? =
-        activeWindowPageManagerProvider.activeWindowPageManager.currentCommentary.currentDocument
+        windowControl.activeWindowPageManager.currentCommentary.currentDocument
 
     /**
      * Portrait actionbar is a bit squashed if speak controls are displayed so hide commentary

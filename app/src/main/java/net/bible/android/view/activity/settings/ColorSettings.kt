@@ -23,13 +23,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 
 class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDataStore() {
@@ -43,6 +43,7 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_color_night" -> colors.nightBackground = value
             "noise_day" -> colors.dayNoise = value
             "noise_night" -> colors.nightNoise = value
+            "workspace_color" -> colors.workspaceColor = value
         }
         activity.setDirty()
     }
@@ -55,17 +56,19 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_color_night" -> colors.nightBackground?: defValue
             "noise_day" -> colors.dayNoise?: defValue
             "noise_night" -> colors.nightNoise?: defValue
+            "workspace_color" -> colors.workspaceColor?: defValue
             else -> defValue
         }
     }
 }
 
-@ActivityScope
 class ColorSettingsActivity: ActivityBase() {
     private lateinit var binding: SettingsDialogBinding
 
     private lateinit var settingsBundle: SettingsBundle
+
     internal lateinit var colors: WorkspaceEntities.Colors
+    internal var workspaceSettings: WorkspaceEntities.WorkspaceSettings? = null
     private var dirty = false
     private var reset = false
 
@@ -115,6 +118,7 @@ class ColorSettingsActivity: ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
         colors = settingsBundle.actualSettings.colors!!
+        colors.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor
 
         super.onCreate(savedInstanceState)
 
@@ -126,7 +130,7 @@ class ColorSettingsActivity: ActivityBase() {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings_container, ColorSettingsFragment())
+            .replace(R.id.settings_container, ColorSettingsFragment(isWindow = settingsBundle.windowId != null))
             .commit()
 
         if(settingsBundle.windowId != null) {
@@ -150,17 +154,21 @@ class ColorSettingsActivity: ActivityBase() {
         resultIntent.putExtra("reset", reset)
         resultIntent.putExtra("windowId", settingsBundle.windowId)
         resultIntent.putExtra("colors", colors.toJson())
+        resultIntent.putExtra("workspaceColor", workspaceSettings?.workspaceColor)
 
         setResult(Activity.RESULT_OK, resultIntent)
     }
 }
 
 
-class ColorSettingsFragment: PreferenceFragmentCompat() {
+class ColorSettingsFragment(val isWindow: Boolean = false): PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val activity = activity as ColorSettingsActivity
 
         preferenceManager.preferenceDataStore = ColorSettingsDataStore(activity)
         setPreferencesFromResource(R.xml.color_settings, rootKey)
+        if(isWindow) {
+            findPreference<Preference>("workspace_color")?.isVisible = false
+        }
     }
 }

@@ -31,7 +31,7 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.firstBibleDoc
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
@@ -69,17 +69,18 @@ class CurrentGeneralBookPage internal constructor(
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
     override fun startKeyChooser(context: ActivityBase) {
+        if(context !is MainBibleActivity) return
         context.lifecycleScope.launch(Dispatchers.Main) {
             when (currentDocument) {
                 FakeBookFactory.journalDocument -> {
                     val result = context.awaitIntent(Intent(context, ManageLabels::class.java)
                         .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
-                            .applyFrom(_mainBibleActivity?.workspaceSettings)
+                            .applyFrom(context.workspaceSettings)
                             .toJSON())
                     )
                     if(result.resultCode == Activity.RESULT_OK) {
                         val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
-                        _mainBibleActivity?.workspaceSettings?.updateFrom(resultData)
+                        context.workspaceSettings.updateFrom(resultData)
                     }
                 }
                 FakeBookFactory.multiDocument -> {

@@ -26,12 +26,10 @@ import net.bible.android.activity.R
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object UiUtils {
-
     private val ACTIONBAR_BACKGROUND_NIGHT get() = CommonUtils.getResourceColor(R.color.actionbar_background_night)
     private val ACTIONBAR_BACKGROUND_DAY get() = CommonUtils.getResourceColor(R.color.actionbar_background_day)
 

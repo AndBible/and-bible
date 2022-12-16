@@ -74,10 +74,10 @@ const osisComponents = {
   ...teiComponents, ...andBibleComponents, ...myBibleComponents,
 }
 
-function prefixComponents() {
+function prefixComponents(components) {
   const result = {}
-  for(const name in osisComponents) {
-    result["Osis" + name] = osisComponents[name]
+  for(const name in components) {
+    result["Osis" + name] = components[name]
   }
   return result;
 }

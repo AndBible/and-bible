@@ -30,7 +30,7 @@ import android.view.MenuItem
 import net.bible.android.activity.R
 import net.bible.android.control.navigation.BibleBookSortOrder
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.util.buttongrid.ButtonGrid
@@ -61,7 +61,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     private var isCurrentlyShowingScripture = false
 
     @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
 
     data class ExtraBookInfo(val Color: Int, val GroupA: String, val GroupB: String)
 
@@ -69,7 +69,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     private val bibleBookButtonInfo: List<ButtonInfo>
         get() {
             val isShortBookNamesAvailable = isShortBookNames
-            val currentBibleBook = KeyUtil.getVerse(activeWindowPageManagerProvider.activeWindowPageManager.currentBible.key).book
+            val currentBibleBook = KeyUtil.getVerse(windowControl.activeWindowPageManager.currentBible.key).book
 
             val bibleBookList = navigationControl.getBibleBooks(isCurrentlyShowingScripture)
             val keys = ArrayList<ButtonInfo>(bibleBookList.size)

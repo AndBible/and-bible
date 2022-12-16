@@ -15,8 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {reactive} from "vue";
-import {computed} from "vue";
+import {reactive, computed} from "vue";
 
 export function useVerseHighlight() {
     const highlightedVerses = reactive(new Set());

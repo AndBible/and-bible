@@ -25,7 +25,7 @@ import android.util.Log
 import android.view.MenuItem
 
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
@@ -50,7 +50,7 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
     private var mBibleChapterNo = 1
 
     @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
 
     // background goes white in some circumstances if theme changes so prevent theme change
     override val allowThemeChange = false
@@ -100,7 +100,7 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
         }
 
         val bookColorAndGroup = GridChoosePassageBook.getBookColorAndGroup(book.ordinal)
-        val currentVerse = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.singleKey as Verse
+        val currentVerse = windowControl.activeWindowPageManager.currentPage.singleKey as Verse
 
         val keys = ArrayList<ButtonInfo>()
         for (i in 1..verses) {

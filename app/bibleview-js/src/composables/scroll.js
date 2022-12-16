@@ -15,9 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {nextTick, watch} from "vue";
+import {nextTick, watch, computed, ref} from "vue";
 import {Events, setupEventBusListener} from "@/eventbus";
-import {computed, ref} from "vue";
 import {isInViewport} from "@/utils";
 
 export function useScroll(config, appSettings, calculatedConfig, {highlightVerse, resetHighlights}, documentPromise) {

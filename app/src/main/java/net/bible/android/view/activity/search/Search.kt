@@ -41,7 +41,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 
 import org.apache.commons.lang3.StringUtils
-import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.search.SearchType
 
 import javax.inject.Inject
@@ -62,8 +62,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var pageControl: PageControl
 
-    private val documentToSearch: Book?
-        get() = pageControl.currentPageManager.currentPage.currentDocument
+    private val documentToSearch: SwordBook
+        get() = pageControl.currentPageManager.currentPage.currentDocument as SwordBook
 
     /** get all, any, phrase query limitation
      */
@@ -142,9 +142,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             Dialogs.showErrorMsg(R.string.error_occurred) { finish() }
         }
 
-        title = getString(R.string.search_in, documentToSearch!!.abbreviation)
-
-        // Add all listeners
+        title = getString(R.string.search_in, documentToSearch.abbreviation)
         binding.searchText.setOnEditorActionListener {v, actionId, event ->
             return@setOnEditorActionListener when (actionId) {
                 EditorInfo.IME_ACTION_SEARCH -> {
@@ -388,7 +386,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
             val intent = Intent(this, MySearchResults::class.java)
             intent.putExtra(SearchControl.SEARCH_TEXT, text)
-            val currentDocInitials = documentToSearch?.initials
+            val currentDocInitials = documentToSearch.initials
             intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)
             intent.putExtra(SearchControl.TARGET_DOCUMENT, currentDocInitials)
             startActivityForResult(intent, 1)

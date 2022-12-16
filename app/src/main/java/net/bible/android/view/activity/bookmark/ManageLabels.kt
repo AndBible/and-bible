@@ -38,7 +38,6 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
@@ -46,7 +45,6 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
@@ -67,10 +65,10 @@ import kotlin.random.Random.Default.nextInt
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
+import net.bible.android.control.page.window.WindowControl
 import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.displayName
@@ -113,7 +111,7 @@ class ManageLabels : ListActivityBase() {
     private val shownLabels: MutableList<Any> = ArrayList()
 
     @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windownControl: WindowControl
 
     enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS}
 
@@ -355,7 +353,7 @@ class ManageLabels : ListActivityBase() {
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         updateLabelList(rePopulate = true)
 
-        val key = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.key
+        val key = windownControl.activeWindowPageManager.currentPage.key
         if(key is StudyPadKey) {
             highlightLabel = key.label
         }
@@ -364,10 +362,7 @@ class ManageLabels : ListActivityBase() {
 
         highlightLabel?.also {
             val pos = shownLabels.indexOf(it)
-            lifecycleScope.launch(Dispatchers.Main) {
-                delay(100)
-                listView.smoothScrollToPosition(pos)
-            }
+            listView.setSelection(pos)
         }
 
         binding.run {
@@ -516,7 +511,7 @@ class ManageLabels : ListActivityBase() {
     private fun studyPadSelected(journal: BookmarkEntities.Label) {
         Log.i(TAG, "Journal selected:" + journal.name)
         try {
-            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
+            windownControl.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show journal", e)
             Dialogs.showErrorMsg(R.string.error_occurred, e)
@@ -632,7 +627,7 @@ class ManageLabels : ListActivityBase() {
                 }
                 updateLabelList(rePopulate = true, reOrder = isNew)
                 if(isNew) {
-                    listView.smoothScrollToPosition(shownLabels.indexOf(label))
+                    listView.setSelection(shownLabels.indexOf(label))
                 }
             }
         }

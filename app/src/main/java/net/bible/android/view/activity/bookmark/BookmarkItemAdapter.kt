@@ -17,8 +17,6 @@
 package net.bible.android.view.activity.bookmark
 
 import android.content.Context
-import android.os.Build
-import android.text.Html
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
@@ -31,7 +29,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarkListItemBinding
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.common.htmlToSpan
 
@@ -44,7 +42,7 @@ class BookmarkItemAdapter(
     context: Context,
     items: List<Bookmark>,
     private val bookmarkControl: BookmarkControl,
-    private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    private val windowControl: WindowControl,
 ) : ArrayAdapter<Bookmark>(context, R.layout.bookmark_list_item, items) {
     private lateinit var bindings: BookmarkListItemBinding
 
@@ -80,7 +78,7 @@ class BookmarkItemAdapter(
         }
 
         // Set value for the first text field
-        val versification = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.versification
+        val versification = windowControl.activeWindowPageManager.currentBible.versification
         val verseName = item.verseRange.toV11n(versification).name
         val book = item.speakBook
         if (isSpeak && book != null) {

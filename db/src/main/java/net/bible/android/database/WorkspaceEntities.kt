@@ -17,11 +17,13 @@
 
 package net.bible.android.database
 
+import android.graphics.Color
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
@@ -30,13 +32,13 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import org.crosswire.jsword.passage.Verse as JswordVerse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
-
 import java.util.*
 
 val json = Json {
     allowStructuredMapKeys = true
     encodeDefaults = true
 }
+val defaultWorkspaceColor = Color.parseColor("#ff444444")
 
 class WorkspaceEntities {
     data class Page(
@@ -111,13 +113,18 @@ class WorkspaceEntities {
 
     @Serializable
     data class Colors(
+        // Workspace colors (dayWorkspaceColor and nightWorkspaceColor) are not really a TextDisplaySetting but a
+        // WorkspaceSetting. But for convenience reason they are held here as UI-wise they need to be held in
+        // Color settings.
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayNoise: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightBackground: Int?,
-        @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?
+        @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?,
     ) {
+        // This is saved to database in WorkspaceSettings. Here just to get it through to activities in SettingsBundle
+        @Ignore var workspaceColor: Int? = null
         fun toJson(): String {
             return json.encodeToString(serializer(), this)
         }
@@ -149,6 +156,9 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showAll") var deprecatedBookmarksShowAllLabels: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
+
+        @ColumnInfo(defaultValue = "NULL", name = "colors_dayWorkspaceColor") var deprecatedDayWorkspaceColor: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "colors_nightWorkspaceColor") var deprecatedNightWorkspaceColor: Int? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -243,7 +253,7 @@ class WorkspaceEntities {
                     nightBackground = black,
                     nightTextColor = white,
                     nightNoise = 0,
-                    dayNoise = 0
+                    dayNoise = 0,
                 ),
                 marginSize = MarginSize(
                     marginLeft = 3,
@@ -303,6 +313,7 @@ class WorkspaceEntities {
     @Serializable
     data class RecentLabel(val labelId: Long, var lastAccess: Long)
 
+    @Serializable
     data class WorkspaceSettings(
         @ColumnInfo(defaultValue = "0") var enableTiltToScroll: Boolean = false,
         @ColumnInfo(defaultValue = "0") var enableReverseSplitMode: Boolean = false,
@@ -315,6 +326,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
     ) {
         companion object {
             val default get() = WorkspaceSettings()
@@ -394,9 +406,11 @@ data class SettingsBundle (
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
     val windowId: Long? = null
 ) {
-    val actualSettings: WorkspaceEntities.TextDisplaySettings get() {
-        return if(windowId == null) WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings) else WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
-    }
+    val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
+        if(windowId == null)
+            WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings)
+        else
+            WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
 
     fun toJson(): String {
         return json.encodeToString(serializer(), this)

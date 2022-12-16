@@ -17,6 +17,8 @@
 
 package net.bible.android.control.page.window
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
@@ -26,6 +28,7 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordDocumentFacade
@@ -50,7 +53,7 @@ import javax.inject.Provider
 class WindowTest {
     private lateinit var mockCurrentPageManagerProvider: Provider<CurrentPageManager>
     private var windowControl: WindowControl? = null
-    var windowRepository: WindowRepository? = null
+    private val windowRepository: WindowRepository get() = windowControl!!.windowRepository
 
     @Before
     @Throws(Exception::class)
@@ -59,13 +62,11 @@ class WindowTest {
 
         val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
         mockCurrentPageManagerProvider = Provider {
-            CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowRepository!!)
+            CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowControl!!)
         }
-        val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
-        windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
-        windowControl = WindowControl(windowRepository!!)
-        windowRepository!!.initialize()
-        windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
+        windowControl = CommonUtils.windowControl
+        windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowRepository.initialize()
     }
 
     @After
@@ -90,7 +91,7 @@ class WindowTest {
                 id = 2
             ),
             pageManager,
-            windowRepository!!
+            windowRepository
         )
         window.isSynchronised = true
         window.weight = 1.23456f
@@ -105,7 +106,7 @@ class WindowTest {
 
         val newPm = mockCurrentPageManagerProvider.get()
         // recreate window from saved state
-        window = Window(entity, newPm, windowRepository!!)
+        window = Window(entity, newPm, windowRepository)
         assertThat(window.id, equalTo(2L))
         assertThat(window.windowState, equalTo(WindowState.MINIMISED))
         assertThat(window.isSynchronised, equalTo(true))

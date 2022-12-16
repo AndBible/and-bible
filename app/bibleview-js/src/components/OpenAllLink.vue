@@ -22,8 +22,7 @@
 </template>
 
 <script>
-import {computed} from "vue";
-import {inject} from "vue";
+import {computed, inject} from "vue";
 import {useCommon} from "@/composables";
 
 export default {

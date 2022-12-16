@@ -40,7 +40,7 @@ class ChooseGeneralBookKey : ChooseKeyBase() {
     }
 
     private val currentGeneralBookPage: CurrentGeneralBookPage
-        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentGeneralBook
+        get() = windowControl.activeWindowPageManager.currentGeneralBook
 
     companion object {
         private const val TAG = "ChooseGeneralBookKey"

@@ -39,6 +39,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.page.application
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
@@ -167,11 +168,39 @@ object BugReport {
         return returnedBitmap
     }
 
+    private val logDir get() = File(application.filesDir, "/log")
+
+    fun saveLogcat() {
+        Log.i(TAG, "Trying to save logcat")
+        val f = File(logDir, "logcat.txt.gz")
+        val log = StringBuilder()
+        try {
+            val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
+            val bufferedReader = BufferedReader(
+                InputStreamReader(process.inputStream))
+
+            var line = bufferedReader.readLine()
+            while (line != null) {
+                log.append(line + '\n');
+                line = bufferedReader.readLine()
+            }
+        } catch (_: IOException) {}
+
+        logDir.mkdirs()
+
+        val fOut = FileOutputStream(f)
+        val osw = GZIPOutputStream(fOut)
+
+        osw.write(log.toString().toByteArray());
+        osw.flush()
+        osw.close()
+    }
+
     fun saveScreenshot() {
+        Log.i(TAG, "Trying to save screenshot")
         val activity = CurrentActivityHolder.currentActivity?: return
-        val dir = File(activity.filesDir, "/log")
-        dir.mkdirs()
-        val screenshotFile = File(dir, SCREENSHOT_FILE)
+        logDir.mkdirs()
+        val screenshotFile = File(logDir, SCREENSHOT_FILE)
         try {
             val screenShot = getScreenShot(activity) ?: return
             val screenshotOutputStream = FileOutputStream(screenshotFile)
@@ -186,25 +215,24 @@ object BugReport {
         }
     }
 
-    private fun getBugReportMessage(context: Context, exception: Throwable?): String =
-        context.run {
-            val bigHeading = getString(R.string.report_bug_big_heading)
-            val heading1 = getString(R.string.report_bug_heading1)
-            val heading2 = getString(R.string.report_bug_heading2)
-            val heading3 = getString(R.string.report_bug_heading_3)
-            val heading4 = getString(R.string.report_bug_heading_4)
-            val instruction1 = getString(R.string.report_bug_instructions1)
-            val instruction2 = getString(R.string.report_bug_instructions2)
-            val instruction3 = getString(R.string.report_bug_instructions3)
-            val line1 = getString(R.string.report_bug_line_1)
-            val line2 = getString(R.string.report_bug_line_2)
-            val line3 = getString(R.string.report_bug_line_3)
-            val line4 = getString(R.string.report_bug_line_4)
-            val line5 = getString(R.string.bug_report_attachment_line_1)
-            val logcat = getString(R.string.bug_report_logcat)
-            val screenShot = getString(R.string.bug_report_screenshot)
+    private fun getBugReportMessage(context: Context, exception: Throwable?): String = context.run {
+        val bigHeading = getString(R.string.report_bug_big_heading)
+        val heading1 = getString(R.string.report_bug_heading1)
+        val heading2 = getString(R.string.report_bug_heading2)
+        val heading3 = getString(R.string.report_bug_heading_3)
+        val heading4 = getString(R.string.report_bug_heading_4)
+        val instruction1 = getString(R.string.report_bug_instructions1)
+        val instruction2 = getString(R.string.report_bug_instructions2)
+        val instruction3 = getString(R.string.report_bug_instructions3)
+        val line1 = getString(R.string.report_bug_line_1)
+        val line2 = getString(R.string.report_bug_line_2)
+        val line3 = getString(R.string.report_bug_line_3)
+        val line4 = getString(R.string.report_bug_line_4)
+        val line5 = getString(R.string.bug_report_attachment_line_1)
+        val logcat = getString(R.string.bug_report_logcat)
+        val screenShot = getString(R.string.bug_report_screenshot)
 
-            "\n\n" +
+        "\n\n" +
             """
             --- $bigHeading ---
             
@@ -227,41 +255,20 @@ object BugReport {
             $heading4
             
             """.trimIndent() +
-                createErrorText(exception)
-        }
+            createErrorText(exception)
+    }
 
     suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false, source: String) {
         val activity = context_ ?: CurrentActivityHolder.currentActivity!!
-        val dir = File(activity.filesDir, "/log")
-        val f = File(dir, "logcat.txt.gz")
-        val screenshotFile = File(dir, SCREENSHOT_FILE)
+        val screenshotFile = File(logDir, SCREENSHOT_FILE)
+        val logcatFile = File(logDir, "logcat.txt.gz")
 
         val hourglass = Hourglass(activity)
         hourglass.show()
         withContext(Dispatchers.IO) {
-            val log = StringBuilder()
-            try {
-                val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
-                val bufferedReader = BufferedReader(
-                    InputStreamReader(process.inputStream))
-
-                var line = bufferedReader.readLine()
-                while (line != null) {
-                    log.append(line + '\n');
-                    line = bufferedReader.readLine()
-                }
-            } catch (_: IOException) {}
-
-            dir.mkdirs()
-
-            val fOut = FileOutputStream(f)
-            val osw = GZIPOutputStream(fOut)
-
-            osw.write(log.toString().toByteArray());
-            osw.flush()
-            osw.close()
             if(!useSaved) {
                 delay(1000)
+                saveLogcat()
                 saveScreenshot()
             }
         }
@@ -273,11 +280,11 @@ object BugReport {
                 activity.getString(R.string.bug_report_email_title),
                 activity.getString(R.string.bug_report_email_text)
             )
-            if(!result) return@withContext 
+            if(!result) return@withContext
             val subject = activity.getString(R.string.report_bug_email_subject_3, source, CommonUtils.applicationNameMedium, getSubject(exception))
             val message = getBugReportMessage(activity, exception)
 
-            val uris = ArrayList(listOf(f, screenshotFile).filter { it.canRead() }.map {
+            val uris = ArrayList(listOf(logcatFile, screenshotFile).filter { it.canRead() }.map {
                 FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", it)
             })
             val email = Intent(Intent.ACTION_SEND_MULTIPLE).apply {

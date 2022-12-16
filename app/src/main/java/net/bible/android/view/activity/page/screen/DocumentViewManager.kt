@@ -25,9 +25,9 @@ import net.bible.android.control.event.passage.PassageChangeStartedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils
 import javax.inject.Inject
 
 class WebViewsBuiltEvent
@@ -38,14 +38,14 @@ class AfterRemoveWebViewEvent
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@MainBibleActivityScope
-class DocumentViewManager @Inject constructor(
-	val mainBibleActivity: MainBibleActivity,
-	private val windowControl: WindowControl
-) {
+class DocumentViewManager (val mainBibleActivity: MainBibleActivity) {
+    @Inject lateinit var windowControl: WindowControl
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
     private var lastView: View? = null
     var splitBibleArea: SplitBibleArea? = null
+    init {
+        CommonUtils.buildActivityComponent().inject(this)
+    }
 
 	fun destroy() {
         removeView()
@@ -71,7 +71,7 @@ class DocumentViewManager @Inject constructor(
     }
 
     private fun buildWebViews(forceUpdate: Boolean): SplitBibleArea {
-        val topView = splitBibleArea?: SplitBibleArea().also {
+        val topView = splitBibleArea?: SplitBibleArea(mainBibleActivity).also {
             splitBibleArea = it
         }
         topView.update(forceUpdate)

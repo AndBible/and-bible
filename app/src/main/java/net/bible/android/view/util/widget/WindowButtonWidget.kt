@@ -61,7 +61,7 @@ class WindowButtonWidget(
     }
 
     fun onEvent(event: WindowChangedEvent) {
-        if(event.window.id == window?.id) {
+        if(event.window == window) {
             updateSettings()
         }
     }
@@ -218,7 +218,7 @@ class AddNewWindowButtonWidget(
             docType.visibility = View.GONE
             pinMode.visibility = View.GONE
             unMaximiseImage.visibility = View.GONE
-            windowButton.setBackgroundResource(R.drawable.new_window_button)
+            windowButton.setBackgroundResource(R.drawable.window_button_visible)
         }
     }
 

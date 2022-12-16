@@ -50,9 +50,8 @@
 </template>
 <script>
 
-import {inject, nextTick, onMounted, onUnmounted} from "vue";
+import {inject, nextTick, onMounted, onUnmounted, ref} from "vue";
 import {useCommon} from "@/composables";
-import {ref} from "vue";
 import {
   draggableElement,
   setupDocumentEventListener,

@@ -52,18 +52,21 @@ import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import org.crosswire.jsword.versification.BibleBook
 import java.util.Locale
 
-class MyLocaleProvider: LocaleProvider {
+object MyLocaleProvider: LocaleProvider {
     /**
      * Allow hardcoding exceptions for JSword locales, as
      * it does not support all Android locale variants.
      */
     override fun getUserLocale(): Locale {
+        this.override?.run {return this}
         val default = Locale.getDefault()
         if(default.language == "sr" && default.script == "Latn") {
             return Locale.forLanguageTag("sr-LT")
         }
         return default
     }
+
+    var override: Locale? = null
 }
 
 /** Main AndBible application singleton object
@@ -93,6 +96,7 @@ open class BibleApplication : Application() {
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             BugReport.saveScreenshot()
+            BugReport.saveLogcat()
             CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
         }
@@ -105,7 +109,7 @@ open class BibleApplication : Application() {
         BookType.addSupportedBookType(myBibleCommentary)
         BookType.addSupportedBookType(myBibleDictionary)
 
-        LocaleProviderManager.setLocaleProvider(MyLocaleProvider())
+        LocaleProviderManager.setLocaleProvider(MyLocaleProvider)
 
         Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))
         Log.i(TAG, "Java:" + System.getProperty("java.vendor") + " ver " + System.getProperty("java.version"))

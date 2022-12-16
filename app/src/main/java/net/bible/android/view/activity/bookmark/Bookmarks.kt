@@ -38,7 +38,6 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarksBinding
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.base.ListActionModeHelper
@@ -79,7 +78,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     private val labelList: MutableList<Label> = ArrayList()
     private var selectedLabelNo = 0
@@ -135,7 +133,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
         // prepare the document list view
         val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(
-            this, bookmarkList, bookmarkControl, activeWindowPageManagerProvider
+            this, bookmarkList, bookmarkControl, windowControl
         )
         listAdapter = bookmarkArrayAdapter
         loadBookmarkList()
@@ -173,7 +171,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             selectedLabels = labels
         ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
         val result = awaitIntent(intent)
-        if(result?.resultCode == RESULT_OK) {
+        if(result.resultCode == RESULT_OK) {
             val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
             for (b in bookmarks) {
                 bookmarkControl.changeLabelsForBookmark(b, resultData.selectedLabels.toList())

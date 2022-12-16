@@ -37,7 +37,6 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_SOURCE_TYPE
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import java.util.*
@@ -218,8 +217,14 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
 }
 
 @Serializable
-data class ClientBookmarkStyle(val color: Int, val icon: String?, val noHighlight: Boolean,
-                               val underline: Boolean, val underlineWholeVerse: Boolean)
+data class ClientBookmarkStyle(
+    val color: Int,
+    val isSpeak: Boolean,
+    val underline: Boolean,
+    val underlineWholeVerse: Boolean,
+    val markerStyle: Boolean,
+    val markerStyleWholeVerse: Boolean,
+)
 
 @Serializable
 data class ClientBookmarkLabel(
@@ -232,8 +237,12 @@ data class ClientBookmarkLabel(
         label.id,
         label.displayName.trim(),
         ClientBookmarkStyle(
-            label.color, if(label.isSpeakLabel) "headphones" else null, label.isSpeakLabel,
-            label.underlineStyle, label.underlineStyleWholeVerse
+            color = label.color,
+            isSpeak = label.isSpeakLabel,
+            underline = label.underlineStyle,
+            underlineWholeVerse = label.underlineStyleWholeVerse,
+            markerStyle = label.markerStyle,
+            markerStyleWholeVerse = label.markerStyleWholeVerse,
         ),
         !label.isSpecialLabel && label.id > 0
     )
