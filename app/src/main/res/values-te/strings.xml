@@ -2,8 +2,7 @@
 <resources>
   <string name="app_name_short">బైబిల్ అధ్యయనం</string>
   <string name="app_name_medium">బైబిల్ అధ్యయనం (అండ్ బైబిల్)</string>
-  <string name="app_name_long">AndBible: బైబిల్
-</string>
+  <string name="app_name_long">అండ్ బైబిల్: బైబిల్ స్టడీ</string>
   <string name="project">అండ్ బైబిల్ ఒపెన్ సోర్స్ ప్రాజెక్ట్</string>
   <string name="version_text">వర్షన్ %s</string>
   <string name="no_sdcard_error">దయచేసి SD కార్డ్‌ని చొప్పించి, అప్లికేషన్‌ను పునఃప్రారంభించండి.</string>
@@ -172,6 +171,8 @@
   <string name="pref_font_family_label_name">ఫాంట్ కుటుంబం (%s)</string>
   <string name="prefs_font_family_summary">ఫాంట్ కుటుంబాన్ని మార్చండి. చిట్కా: డౌన్‌లోడ్ పత్రాలు / యాడ్-ఆన్‌ల ద్వారా మరిన్ని ఫాంట్‌లను ఇన్‌స్టాల్ చేయవచ్చు.</string>
   <string name="prefs_text_bookmarks_title">బుక్‌మార్క్ &amp; నా నోట్స్ సెట్టింగ్‌లు</string>
+  <string name="prefs_enable_bluetooth_title">బ్లూటూత్ మీడియా బటన్‌లను ప్రారంభించండి</string>
+  <string name="prefs_enable_bluetooth_summary">మాట్లాడటం ప్రారంభించడానికి/ఆపివేయడానికి బ్లూటూత్ మీడియా బటన్‌లను నిర్వహించండి.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">రంగు సెట్టింగులు</string>
   <string name="window_color_settings_title">విండో రంగు సెట్టింగులు</string>
@@ -207,6 +208,7 @@
   <string name="next">తరువాతి విషయానికి</string>
   <!--Strongs-->
   <string name="strongs_not_installed">దయచేసి స్ట్రాంగ్ గారి హెబ్రీ మరియు గ్రీకు నిఘంటువులను డౌవ్న్‌లోడ్ చేయండి</string>
+  <string name="no_indexed_bible_with_strongs_ref">మీరు తప్పనిసరిగా స్త్రోంగ్స్ సంఖ్యలను కలిగి ఉన్న బైబిల్‌ను డౌన్‌లోడ్ చేసుకోవాలి మరియు శోధన ద్వారా దాని సూచికను రూపొందించాలి</string>
   <string name="morph_robinson_not_installed">దయచేసి రాబిన్ సన్ గారి పదనిర్మాణ విశ్లేషణ కోడ్స్ గల నిఘంటువును డవున్ లోడ్ చేసుకోండి</string>
   <string name="go_to_downloads">డౌన్‌లోడ్‌లకు వెళ్లండి</string>
   <!--Module download-->

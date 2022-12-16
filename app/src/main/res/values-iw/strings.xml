@@ -423,15 +423,33 @@
   <!--param is bookmark icon-->
   <string name="assing_labels_help2">השתמש ב \"%s\" כדי לציין את צבע התוית המוצג.</string>
   <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">לחץ על האייקון \"%s\" להשמה אוטומטית של תווית זו לסימניות חדשות.</string>
   <!--param is heart icon-->
+  <string name="assing_labels_help4">לחץ על האייקון \"%s\" לסימון התווית כמועדפת, לגישה מהירה.</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">לחץ על האייקון \"%s\" לסידור הרשימה מחדש על פי בחירותיך.</string>
+  <string name="workspace_text_options_help_title">אפשרויות טקסט למסך עבודה</string>
+  <string name="workspace_text_options_help1">הגדרות אלו קובעות את ברירת המחדל עבור כל מסכי העבודה.</string>
+  <string name="workspace_text_options_help2">ניתן לשנות אותן בחלון מסויים עבור אותו חלון.</string>
   <string name="window_text_options_help_title">הגדרות טקסט של החלון</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">האייקון \"%s\" מציין שהבחירה מגיעה מהגדרות מסך העבודה.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">האייקון  \"%s\" מציין שההגדרה שונתה עבור חלון מסויים זה.</string>
+  <string name="window_text_options_help3">ההגדרה במסך העבודה לא תשפיע על חלון זה.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">השתמש בכפתור \"%s\" כדי לאפס את כל ההגדרות האלו חזרה ל\"%s\".</string>
   <string name="reset_defaults">ערכי ברירת מחדל</string>
   <string name="reset_workspace_defaults">ערכי ברירת מחדל של סביבת העבודה</string>
   <string name="speak_bookmark_help">עזרה לגבי סימניית השמעה</string>
+  <string name="speak_help_auto_bookmark">
+סימניית השמעה תיתוסף אוטומטית כשההשמעה נעצרת או מופסקת.
+סימניות אוטומטיות מקבלות אוטומטית את \"תווית ההשמעה\".
+אם מתחילים השמעה מסימניית השמעה, הסימנייה תועבר אוטומטית אל הפסוק בו עוצרים או מפסיקים. רק תווית ההשמעה תועבר, תוויות אחרות תישארנה במקומן.</string>
+  <string name="speak_help_playback_settings">
+הגדרות השמעה מיוחדות (תחת \"הגדרות השמעה\" במסך ההשמעה) נשמרות כחלק מ\"סימניות ההשמעה\", כשהגדרה זו מופעלת.
+עם התחלת השמעה מסימניית השמעה, ההגדרות השמורות איתה נטענות ומופעלות.</string>
+  <string name="speak_help_playback_settings_example">לדוגמה, אם מאזינים ל\"בראשית\", וגם ל\"איגרת אל הרומיים\", ומעוניינים לשמוע את בראשית במהירות ללא צלילים של שינוי פרק, אבל את אל הרומיים יותר לאט וכן עם צלילים כאלה, אפשר לשנות את ההגדרות עבור כל ספר, ולשמור אותן אל סימניות מתאימות.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -464,14 +482,25 @@
   <string name="speak_third">שלישי</string>
   <string name="speak_fourth">רביעי</string>
   <string name="speak_fifth">חמישי</string>
+  <string name="verse_range_mode_disabled">
+מצב \"חזרה על קטע\" לא הופעל אוטומטית כי ההשמעה התחילה מחוץ לטווח הפסוקים המוגדר.</string>
   <!--User Notes-->
   <string name="mynotes">הערות אישיות</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">גיבוי ושחזור</string>
+  <string name="backup_modules">שיתוף או גיבוי של מסמכים אל...</string>
+  <string name="backup_app_database">שיתוף או גיבוי של מסד נתוני היישום אל...</string>
+  <string name="backup_app">שתף או גבה את היישום (קובץ ‎.apk) אל...</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">מה לשחזר?</string>
+  <string name="restore_app_database">שחזר את מסד נתוני היישום מתוך...</string>
   <string name="restore_database">שחזור קובץ מסד נתונים</string>
+  <string name="restore_confirmation">שחזור ידרוס את כל הנתונים הבאים: הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה, מסכי עבודה. האם לשחזר?</string>
   <string name="reading_plans_plural">תוכניות קריאה</string>
+  <string name="restore_success">הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה ומסכי עבודה שוחזרו בהצלחה.</string>
   <string name="loading_backup">טוען נתונים מהגיבוי....</string>
+  <string name="backup_success2">הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה ומסכי עבודה גובו בהצלחה.</string>
+  <string name="backup_modules_success">המודולים הנבחרים גובו בהצלחה.</string>
   <string name="backup_modules_email_subject_2">גיבוי %s מודולים</string>
   <string name="backup_modules_email_message_2">מצורף גיבוי  %s של המודולים שלך, שמכיל את המודולים הבאים: %s</string>
   <string name="backup_email_subject_2">%s גיבוי מסד נתונים</string>
@@ -496,10 +525,21 @@
   <string name="send_bug_report_title1">דווח שגיאה</string>
   <string name="send_feedback_title">משוב</string>
   <string name="send_bug_report_title">משוב / דווח שגיאה</string>
+  <string name="report_bug_email_subject_3">[ %s ] דוח תקלה עבור %s %s</string>
+  <string name="report_bug_big_heading">נא לכתוב את המשוב או דוח התקלה מעל שורה זו</string>
   <string name="report_bug_heading1">הוראות:</string>
   <string name="report_bug_line_1">ספר בקצרה מה עשית או מה קרה, כשהאירוע התרחש</string>
   <string name="report_bug_heading2">לדוגמה:</string>
+  <string name="report_bug_instructions1">1. היישום הופעל</string>
+  <string name="report_bug_instructions2">2. נלחץ תפריט החלון</string>
+  <string name="report_bug_instructions3">-&gt; היישום קרס</string>
+  <string name="report_bug_line_2">לעיתים גם צילומי מסך יכולים לעזור בפתרון בעיות.</string>
+  <string name="report_bug_line_3">אנא השתמשו באפשרות זו מייד כשנתקלים בבעייה.</string>
+  <string name="report_bug_line_4">אפשר להשתמש באפשרות זו גם לאחר פתיחת היישום, אחרי שהיישום קרס.</string>
   <string name="report_bug_heading_3">מסמכים מצורפים:</string>
+  <string name="bug_report_logcat">קובץ הודעות שנוצר על ידי יישום זה. הוא אינו מכיל מידע על אף יישום אחר.</string>
+  <string name="bug_report_screenshot">צילום מסך של היישום כשקרס, או עם יצירת דוח התקלה.</string>
+  <string name="bug_report_attachment_line_1">צירוף קבצים אלו עוזר מאוד למפתחי היישום בתיקון התקלה.</string>
   <string name="report_bug_heading_4">מידע על המכשיר:</string>
   <!--Document types-->
   <string name="doc_type_all">כל הסוגים</string>
@@ -527,6 +567,7 @@
   <!--Errors-->
   <string name="report_error">שלח דוון</string>
   <string name="error_occurred">אירעה שגיאה</string>
+  <string name="error_occurred_crash_last_time">בפעם האחרונה שהשתמשת ביישום, הוא קרס. על מנת לעזור בפתרון התקלה, נעריך את זה אם תשלחו אלינו דוח תקלה.</string>
   <string name="error_occurred_with_link">אירעה תקלה %s</string>
   <string name="error_no_content">אין תוכן עבור הפסוק הנבחר</string>
   <string name="error_page_too_large">העמוד גדול מדי ולא ניתן לטעון אותו</string>
@@ -574,35 +615,85 @@
   <string name="beta_notice_dismiss">התעלם</string>
   <string name="beta_notice_dismiss_until_update">התעלם עד לעדכון הבא</string>
   <string name="stable_notice_title">האפליקציה עברה שדרוג!</string>
+  <string name="upgrade_video_message">אנא צפו בסרטון המדגים יכולות חדשות בגירסה זו (%s).</string>
+  <string name="stable_notice_par1">גירסה חדשה %s של %s הותקנה בהצלחה!</string>
   <!--History-->
   <string name="history_for">היסטוריה (%s: חלון %d)</string>
   <!--Help-->
   <string name="help_nav_title">נווט</string>
+  <string name="help_nav_text">מעבר לפרק הבא או הקודם ע\"י החלקה על המסך ימינה או שמאלה.
+לחיצה כפולה על הטקסט למעבר למסך מלא או חזרה ממנו.
+במסכים מפוצלים - הנקראים גם \"חלונות\" - ישנו כפתור תפריט בפינה השמאלית למעלה, המאפשר פעולות והתאמות מסויימות עבור אותו חלון.</string>
   <string name="help_contextmenus_title">תפריטי הקשר</string>
+  <string name="help_contextmenus_text">
+במספר מקומות, לחיצה ארוכה פותחת תפריט תלוי הקשר או מצב פעולה.
+לחיצה ארוכה על טקסט מסמנת חלק מהטקסט, מאפשרת לשנות את הקטע הנבחר, ופותחת מצב פעולה.
+לחיצה ארוכה על פריט ב\"בחירת מסמך\" או ב\"הורדת טקסטים\" מאפשרת מחיקה של המסמך או הצגת של מידע עליו.
+לחיצה ארוכה על קישורים מאפשרת לבחור אם לפתוח אותם בחלון בנוכחי, בחלון חדש, או בחלון קישורים מיוחד.</string>
   <string name="help_bookmarks_title">סימניות וההערות שלי</string>
+  <string name="help_studypads_text">
+פנקסי לימוד מתוכננים לאפשר בקלות הכנת דרשות או הערות אישיות הכוללות מספר מראי מקומות. כל פנקס לימוד מקושר לתווית אחת. כל הסימניות המקושרות לתווית זו יופיעו בפנקס הלימוד. ניתן להוסיף לפנקס לימוד גם טקסט חופשי.</string>
   <string name="help_search_title">חיפוש</string>
   <string name="help_search_text">חיפוש טקסט יכול לכלול סימנים מיוחדים כגון  *, ?, AND, OR, NOT
         (קרא את \"Apache Lucene - Query Parser Syntax\" למידע נוסף [באנגלית[))
     </string>
   <string name="help_workspaces_title">סביבות עבודה</string>
+  <string name="help_workspaces_text">ניתן לנהל סביבות עבודה מתוך תפריט האופציות - שלוש נקודות, פינה ימנית עליונה. החלקה שמאלה על סרגל הכלים מעבירה בין סביבות עבודה.</string>
   <string name="help_hidden_features_title">קיצורים חבויים</string>
+  <string name="help_hidden_features_text">
+החלקה מסרגל הכלים למטה לבחירת סביבת עבודה.
+לחיצה ארוכה על כפתור חלון להקטנתו.
+לחיצה ארוכה על כפתור סרגל כלי הקראה למעבר לאפשרויות הקראה.
+לחיצה ארוכה על מיקום הפסוק בסרגל הכלים לבחירת מסמך.
+לחיצה ארוכה על כפתור \"חזרה\" להצגת היסטוריה.</string>
   <string name="help_window_pinning_title">נעיצת חלון</string>
+  <string name="help_window_pinning_text">ניתן להפעיל נעיצת חלון מתפריט האפשרויות - שלוש נקודות, פינה שמאלית עליונה.
+אם נעיצת חלון מופעלת, ניתן להציג כמה חלונות נעוצים, ורק חלון אחד לא-נעוץ. חלונות נעוצים מופיעים תחילה, ואז חלונות לא-נעוצים.
+אפשר, למשל, לפתוח מסמכי תנ\"ך כחלונות נעוצים, ופרושים/מפות/וכו\' כחלונות לא-נעוצים. אז, חלונות התנ\"ך ישארו פתוחים כל הזמן, ואפשר לעבור במהירות בין שאר החלונות.</string>
   <!--Welcome text-->
   <string name="redownload_documents">הורדה מהירה</string>
+  <string name="welcome_message">תודה על הורדת %s. לא מותקנים כרגע תנ\"כים או מסמכים אחרים. כדי להמשיך, נא להתקין לפחות מסמך אחד, ע\"י הורדה מהאינטרנט, או טעינה מקובץ ZIP/גיבוי מסמכים.</string>
+  <string name="redownload_message">נמצאה רשימה קודמת של ספרים/מסמכים. נא ללחוץ למטה כדי לטעון אותם מחדש בקלות.</string>
   <!--Uncategorized-->
   <string name="close">סגירה</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">אני מבין</string>
   <string name="first_time_help_show_next_time">הצג שוב בפעם הבאה</string>
+  <string name="strongs_mode_title">בחירת מצב סטרונג</string>
+  <string name="download_dialog_message">הספרים הבאים לא הורדו:</string>
+  <string name="select_multiple">לבחור כמה</string>
+  <string name="journal_description">פנקסי לימוד ניתנים-לעריכה עם טקסט וסימניות</string>
+  <string name="my_notes_description">הערות ניתנות-לעריכה מצורפות לסימניות</string>
   <string name="my_notes_abbreviation">הערות אישיות</string>
+  <string name="studypads">פנקסי לימוד</string>
+  <string name="multi_description">מספר מראי מקום</string>
+  <string name="multi_abbreviation">כמה</string>
   <string name="compare_description">השוואת תרגומים</string>
   <string name="compare_abbreviation">השוואה</string>
   <string name="compare">השוואה</string>
   <string name="http_forbidden">אסור</string>
   <string name="http_not_found">לא נמצא</string>
   <string name="http_unknown">שגיאה אחרת</string>
+  <string name="give_passphrase_for_module">המסמך %s מוצפן ונדרשת סיסמה לפתיחתו</string>
+  <string name="unlocking_failed">הפתיחה נכשלה, סיסמה לא תקינה</string>
+  <string name="unlock_module">קביעת סיסמה למסמך</string>
+  <string name="unlock_info">מידע לפתיחת מסמך מוצפן</string>
+  <string name="try_again_passphrase">הסיסמה לא עבדה, לנסות שוב?</string>
+  <string name="cant_delete_last_bible">אי אפשר למחוק את מסמך התנ\"ך האחרון שנשאר מותקן.</string>
+  <string name="show_unlock_info">מידע על פתיחת מסמך</string>
+  <string name="prefs_show_error_box_title">הצג תיבת שגיאות ג\'אווהסקריפט</string>
+  <string name="prefs_show_error_box_summary">שימושי למפתחים לפענוח שגיאות ג\'אווהסקריפט. גורם ליישום לפעול יותר לאט.</string>
+  <string name="active_window_indicator_title">הצג את החלון הפעיל באופן שונה</string>
+  <string name="active_window_indicator_summary">הדגש את פינות החלון הפעיל להקלת זיהויו</string>
+  <string name="app_licence_title">רשיון קוד פתוח</string>
+  <string name="how_to_contribute">איך לתרום?</string>
+  <string name="confirm_delete_bookmarks">למחוק %d סימניה/ות ואת ההערות שלה/ן?</string>
   <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">להמליץ לחבר/ה</string>
   <string name="tell_friend_message1">רציתי להמליץ לך על %s.</string>
+  <string name="tell_friend_message2">זהו יישום ללימוד כתבי הקודש, יכול לעבוד ללא חיבור לאינטרנט, רב-יכולות - ועם זאת קל לשימוש, עבור אנדרואיד.</string>
+  <string name="tell_friend_message3">להתקנה מחנות היישומים: %s</string>
+  <string name="tell_friend_message4">לקריאה נוספת ואפשרויות התקנה נוספות: %s</string>
   <string name="share_verse_ok">שיתוף / העתקה</string>
   <string name="verse_action_copy">העתק</string>
   <string name="share_verse_menu_title">שיתוף / העתקה ...</string>
