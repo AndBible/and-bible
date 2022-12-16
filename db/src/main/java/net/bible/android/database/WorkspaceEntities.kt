@@ -363,7 +363,6 @@ class WorkspaceEntities {
             Index("windowId")
         ]
     )
-
     data class HistoryItem(
         val windowId: Long,
         val createdAt: Date,

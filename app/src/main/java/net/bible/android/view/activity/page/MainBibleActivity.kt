@@ -528,6 +528,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onPause() {
+        CommonUtils.windowControl.windowRepository.saveIntoDb(false)
         fullScreen = false;
         if(CommonUtils.showCalculator) {
             (window.decorView as ViewGroup).removeView(binding.root)

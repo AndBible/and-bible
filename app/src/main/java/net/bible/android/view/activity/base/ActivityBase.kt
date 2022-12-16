@@ -242,12 +242,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     override fun onPause() {
-        if(CommonUtils.initialized &&
-            CommonUtils.windowControl.isReady &&
-            CommonUtils.windowControl.windowRepository.initialized
-        ) {
-            CommonUtils.windowControl.windowRepository.saveIntoDb(false)
-        }
         super.onPause()
         if(!doNotMarkPaused) {
             wasPaused = true
