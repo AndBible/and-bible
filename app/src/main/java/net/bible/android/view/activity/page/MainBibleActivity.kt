@@ -527,6 +527,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onPause() {
+        CommonUtils.windowControl.windowRepository.saveIntoDb(false)
         fullScreen = false;
         isPaused = true;
         super.onPause()
