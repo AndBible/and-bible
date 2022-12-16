@@ -44,6 +44,7 @@ import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.versification.BibleNames
@@ -135,7 +136,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                     synchronized(bibleNames) {
                         val orig = bibleNames.enableFuzzy
                         bibleNames.enableFuzzy = false
-                        val k = PassageKeyFactory.instance().getKey(doc.versification, searchText)
+                        val k = try { PassageKeyFactory.instance().getKey(doc.versification, searchText)}
+                                catch (e: NoSuchKeyException) {null}
                         bibleNames.enableFuzzy = orig
                         k
                     }
@@ -146,7 +148,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                             val orig = bibleNames.enableFuzzy
                             bibleNames.enableFuzzy = false
                             MyLocaleProvider.override = Locale(doc.language.code)
-                            val k = PassageKeyFactory.instance().getKey(doc.versification, searchText)
+                            val k = try { PassageKeyFactory.instance().getKey(doc.versification, searchText)}
+                                    catch (e: NoSuchKeyException) {null}
                             MyLocaleProvider.override = null
                             bibleNames.enableFuzzy = orig
                             k
