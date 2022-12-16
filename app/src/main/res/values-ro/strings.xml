@@ -744,7 +744,7 @@
   <string name="app_licence_title">Licență liberă</string>
   <string name="how_to_contribute">Cum să contribui?</string>
   <string name="confirm_delete_bookmarks">Vrei să elimini %dsemne de carte și notițele lor?</string>
-  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="module_size_megabytes">%.1f Mo</string>
   <string name="tell_friend_title">Recomandă unui prieten</string>
   <string name="tell_friend_message1">Îți recomand %s.</string>
   <string name="tell_friend_message2">Este o aplicație pentru Android ușor de folosit și care nu are nevoie de conexiune la internet pentru a studia biblia.</string>
