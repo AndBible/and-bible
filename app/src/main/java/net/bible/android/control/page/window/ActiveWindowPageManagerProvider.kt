@@ -22,3 +22,7 @@ import net.bible.android.control.page.CurrentPageManager
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+//interface ActiveWindowPageManagerProvider {
+//    val activeWindowPageManager: CurrentPageManager
+//}

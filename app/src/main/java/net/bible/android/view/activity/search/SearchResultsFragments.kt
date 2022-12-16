@@ -25,12 +25,14 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.android.control.page.window.WindowControl
+import javax.inject.Inject
 
 private lateinit var displayedResultsArray: ArrayList<SearchResultsData>
 private var isSearchResultsFiltered = false
+
 
 class PlaceholderFragment: Fragment() {
 
@@ -95,7 +97,7 @@ class SearchResultsFragment(val mSearchResultsArray:ArrayList<SearchResultsData>
 
     var searchControl: SearchControl? = null
     lateinit var intent: Intent
-    lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    lateinit var windowControl: WindowControl
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -128,14 +130,14 @@ class SearchResultsFragment(val mSearchResultsArray:ArrayList<SearchResultsData>
     private fun verseSelected(key: Key?) {
         Log.i("SearchResults.TAG", "chose:$key")
         if (key != null) { // which doc do we show
-
+            searchControl
             var targetDocInitials = intent.extras!!.getString(SearchControl.TARGET_DOCUMENT)
             if (StringUtils.isEmpty(targetDocInitials)) {
-                targetDocInitials = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
+                targetDocInitials = windowControl.activeWindowPageManager.currentPage.currentDocument!!.initials
             }
             val swordDocumentFacade = SwordDocumentFacade()
             val targetBook = swordDocumentFacade.getDocumentByInitials(targetDocInitials)
-            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
+            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
             // this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
             val intent = Intent(this.context, MainBibleActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)

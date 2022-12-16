@@ -12,6 +12,7 @@ import android.text.style.StyleSpan
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.view.Window
 import android.widget.Toast
 import androidx.core.text.toHtml
 import com.google.android.material.tabs.TabLayout
@@ -28,10 +29,11 @@ import java.util.ArrayList
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
-import net.bible.android.control.search.SearchResultsDto
+//import net.bible.android.view.activity.search.SearchResultsDto
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -44,6 +46,7 @@ import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.resources
+
 
 
 private var TAB_TITLES = arrayOf(
@@ -138,7 +141,8 @@ class MySearchResults : CustomTitlebarActivityBase() {
     private var isScriptureResultsCurrentlyShown = true
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
     @Inject lateinit var searchControl: SearchControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var linkControl: LinkControl
+    @Inject lateinit var windowControl: WindowControl
 
     private val versification get() = navigationControl.versification
 
@@ -166,7 +170,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
         bundle.putString("edttext", "From Activity")
 
         sectionsPagerAdapter = SearchResultsPagerAdapter(this,
-            supportFragmentManager, searchControl, activeWindowPageManagerProvider, intent,
+            supportFragmentManager, searchControl, windowControl, intent,
             mSearchResultsArray, bookStatistics, wordStatistics, keyWordStatistics
         )
 
@@ -208,7 +212,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
             val searchText = extras.getString(SearchControl.SEARCH_TEXT)
             var searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT)
             if (StringUtils.isEmpty(searchDocument)) {
-                searchDocument = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
+                searchDocument = windowControl.activeWindowPageManager.currentPage.currentDocument!!.initials
             }
             mSearchResultsHolder = searchControl.getSearchResults(searchDocument, searchText)
             // tell user how many results were returned
@@ -376,7 +380,7 @@ class MySearchResults : CustomTitlebarActivityBase() {
 
 class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManager,
                                 searchControl: SearchControl,
-                                activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
+                                windowControl: WindowControl,
                                 intent: Intent,
                                 private val mSearchResultsArray:ArrayList<SearchResultsData>,
                                 private val bookStatistics: MutableList<BookStat>,
@@ -385,9 +389,11 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
 ) :
     FragmentPagerAdapter(fm) {
     val searchControl = searchControl
-    val activeWindowPageManagerProvider = activeWindowPageManagerProvider
+    val activeWindowPageManagerProvider = windowControl.activeWindowPageManager
     val intent = intent
+    val windowControl = windowControl
     lateinit var verseListFrag: SearchResultsFragment
+
 
     override fun getItem(position: Int): Fragment {
         // getItem is called to instantiate the fragment for the given page.
@@ -404,7 +410,8 @@ class SearchResultsPagerAdapter(private val context: Context, fm: FragmentManage
 //                bundle.putParcelableArrayList("VerseResultList", mSearchResultsArray)
 //                frag.setArguments(bundle)
                 frag.searchControl = searchControl
-                frag.activeWindowPageManagerProvider = activeWindowPageManagerProvider
+                frag.windowControl = windowControl
+//                frag.activeWindowPageManagerProvider = activeWindowPageManagerProvider
                 frag.intent = intent
                 verseListFrag = frag
             }
