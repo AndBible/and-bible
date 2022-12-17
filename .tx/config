@@ -16,7 +16,7 @@ source_lang = en
 minimum_perc = 100
 
 [andbible.bibleview-js]
-lang_map = az@latin: az, zh_TW: zh, zh_CN: zh-rCN, en_GB: en, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, he: iw, id: in
+lang_map = az@latin: az, zh_TW: zh, zh_CN: zh-rCN, en_GB: en, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, id: in
 file_filter = app/bibleview-js/src/lang/<lang>.yaml
 source_file = app/bibleview-js/src/lang/default.yaml
 source_lang = en
