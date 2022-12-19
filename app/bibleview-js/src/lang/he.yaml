@@ -1,6 +1,6 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 openMyNotes: פתח ב"הערות שלי"
-openStudyPad: ""
+openStudyPad: פתח בפנקס לימוד (%s)
 noteText: הערות שוליים (%s)
 noteTextWithoutType: הערות שוליים
 crossReferenceText: מראי מקום
@@ -24,7 +24,7 @@ inputReference: הכנס מראה מקום
 invalidReference: הפסוק לא נמצא
 assignLabels: תוויות
 bookmarkAccurate: הסימניה נוצרה ב %s
-bookmarkInaccurate: ""
+bookmarkInaccurate: "הסימניה לא מכילה את שם הספר, התוכן מוצג ב\"%s\"."
 defaultBook: טקסט מקראי ברירת מחדל
 ok: אישור
 yes: "כן"
@@ -38,27 +38,29 @@ lastUpdatedOn: "עודכן לאחרונה: %s"
 strongsLink: הגדרות של סטרונג (%s)
 morphLink: קוד מורפולוגי (%s)
 strongsAndMorph: הגדרה ומורפולוגיה
-studyPadLink: ""
+studyPadLink: פתח פנקס לימוד
 externalLink: פתח קישור חיצוני
 referenceLink: פתח קישור מראה מקום
 openFootnote: פתח הערת שוליים
 openBookmark: פתח סימניה (%s)
 noMyNotesTitle: פתח את ההערות שלי לפרק
 noMyNotesDescription: >
+  כדי להתחיל, יש ליצור סימניות במסמך תנ"ך. הסימניות תופענה כאן, ואז אפשר להוסיף אליהן הערות אישיות.
 emptyStudyPad: >
-studyPadModalTitle: ""
-doYouWantToDeleteEntry: ""
-removeStudyPadConfirmationTitle: ""
+  זהו פנקס לימוד ריק. לשם התחלה, יש להוסיף טקסט, או ליצור סימניות עם תווית התואמת את הפנקס הזה.
+studyPadModalTitle: ערוך רשימת פנקס לימוד
+doYouWantToDeleteEntry: "למחוק מפנקס הלימוד את הרשימה הזו?"
+removeStudyPadConfirmationTitle: מחיקת רשומה מפנקס הלימוד
 dragHelp: גרור כדי לסדר מחדש
 saved: נשמר
 openAll: פתח את כל מראי המקומות
 editBookmarkPlaceholder: לחץ על "הערות שלי" כדי לערוך
-onlyLabel: ""
+onlyLabel: תווית בלבד
 wholeBookmark: כל הסימניה
 otherNoteText: הערה אחרת
 assignLabelsMenuEntry: הוסף תוויות
 assignLabelsMenuEntry1: בחירת או עריכת תגיות...
-jumpToStudyPad: ""
+jumpToStudyPad: מעבר אל פנקס הלימוד
 setAsPrimaryLabel: הגדר תגית ברירת מחדל
 removeBookmarkLabel: מחיקת תגית
 addBookmarkLabel: הוספת תגית
@@ -66,7 +68,7 @@ favouriteLabels: תגיות מועדפות
 recentLabels: תגיות אחרונות
 frequentlyUsedLabels: תגיות בשימוש נפוץ
 bookmarkLabels: תגיות של סימניות
-refParserHelp: ""
+refParserHelp: נא להתקין את המסמך "%s" כדי להשתמש במראי מקומות בשפות שונות מאנגלית.
 openDownloads: לך להורדת תוספים
 verseShare: שתף
 verseCompare: השוואה

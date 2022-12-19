@@ -631,6 +631,7 @@
 לחיצה ארוכה על פריט ב\"בחירת מסמך\" או ב\"הורדת טקסטים\" מאפשרת מחיקה של המסמך או הצגת של מידע עליו.
 לחיצה ארוכה על קישורים מאפשרת לבחור אם לפתוח אותם בחלון בנוכחי, בחלון חדש, או בחלון קישורים מיוחד.</string>
   <string name="help_bookmarks_title">סימניות וההערות שלי</string>
+  <string name="help_bookmarks_text">ניתן ליצור סימניות ע\"י לחיצה על טקסט ובחירת \"סימניה\" מהתפריט שנפתח. אפשר להוסיף הערות  לסימניה החדשה ע\"י לחיצה על הטקסט, שעכשיו מודגש. ישנו גם מסמך מיוחד \"הערות אישיות\" המאפשר לראות את ההערות בחלון נפרד.</string>
   <string name="help_studypads_text">
 פנקסי לימוד מתוכננים לאפשר בקלות הכנת דרשות או הערות אישיות הכוללות מספר מראי מקומות. כל פנקס לימוד מקושר לתווית אחת. כל הסימניות המקושרות לתווית זו יופיעו בפנקס הלימוד. ניתן להוסיף לפנקס לימוד גם טקסט חופשי.</string>
   <string name="help_search_title">חיפוש</string>
@@ -701,6 +702,7 @@
   <string name="show_full_verses">הצג פסוקים מלאים</string>
   <string name="advertise_app">פרסם את האפליקציה</string>
   <string name="verse_share_advertise">שותף עם %s.</string>
+  <string name="abbreviate_reference">לקצר מראה מקום</string>
   <string name="version_name">שם הגרסה</string>
   <string name="backup_button">גיבוי</string>
   <string name="back_button">חזרה</string>
@@ -708,31 +710,65 @@
   <string name="initializing_app">מאתחל את היישום</string>
   <string name="show_notes">הצג הערות</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">חבילת Android WebView ישנה מדי (%s). יש לשדרג אותה לגירסה %s לפחות כדי להשתמש ב %s. עבור רוב המכשירים אפשר לעשות את זה דרך %s.</string>
   <string name="play">חנות גוגל</string>
   <string name="proceed_anyway">המשך בכל זאת</string>
   <string name="rate_title">דירוג וביקורת האפליקציה</string>
+  <string name="rate_message5">
+סקירות חיוביות ומפורטות עוזרות מאוד לפרוייקט הקוד הפתוח And Bible. תודה!</string>
+  <string name="rate_message6">
+בטרם תכתבו סקירה שלילית, אנא שקלו את הדברים הבאים:</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+אם יש לכם בעיה עם היישום, אנא דווחו ב %s או %s.</string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+אם יש בעיה באחד הטקסטים/תנ\"כים, %s.</string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+אם טקסט מסויים אינו זמין ביישום, %s.</string>
+  <string name="rate_message4">
+המפתחים של יישום זה אינם אחראים על תחזוקת מסמכים/תנ\"כים.</string>
+  <string name="bug_report">
+שלחו דו\"ח תקלה, מהתפריט הראשי</string>
+  <string name="how_to_help">
+אנא קראו מה אתם יכולים לעשות כדי לעזור</string>
+  <string name="send_email">
+לשלוח אימייל אל המפתחים</string>
+  <string name="proceed_google_play">
+להמשיך אל Google Play</string>
+  <string name="text_maintainers">
+אנא דווחו על בעיות אל המתחזקים של הטקסט/מסמך/תנ\"ך</string>
+  <string name="does_not_exist_abbreviation">אינו קיים</string>
+  <string name="cant_change_wholeverse">אי אפשר לבטל סימון פסוק שלם עבור סימנייה זו</string>
+  <string name="whole_verse_turned_on">הסימנייה היא כעת עבור פסוק שלם</string>
   <string name="this_bookmark">סימניה זו</string>
   <string name="this_workspace">סביבת עבודה זו</string>
   <string name="primary_label">תגית ראשית</string>
   <string name="highlight_entire_verse">הדגשת הפסוק כולו</string>
   <string name="favourite_label">תגית מועדפת</string>
   <string name="edit_label">עריכת תגית</string>
+  <string name="delete_label_confirmation">האם ברצונך למחוק את התווית \"%s\"? בנוסף, יימחקו כל רשימות פנקסי הלימוד המקושרים אליה.</string>
+  <string name="bookmark_underline_style_arbitrary">סגנון הדגשה לסימניות של קטעים נבחרים</string>
+  <string name="bookmark_underline_style_whole_verse">סגנון הדגשה לסימניות של פסוקים שלמים</string>
   <string name="active_labels">תגיות נבחרות</string>
   <string name="recent_labels">תגיות אחרונות</string>
   <string name="other_labels">תגיות אחרות</string>
+  <string name="book_menu_sort_row_opt">סדר ספרים אופקית</string>
+  <string name="reset_workspace_labels">האם לאפס הגדרות העדפות והשמה אוטומטית עבור סביבת עבודה זו?</string>
+  <string name="reset_hide_labels">האם לבטל הסתרה של תוויות מסויימות?</string>
   <string name="reorder">סידור מחדש</string>
   <string name="system_items">פעולות מערכת</string>
   <string name="system_items1">עוד</string>
   <string name="system_action2">פעולות אנדרואיד</string>
   <string name="text_copied_to_clicpboard">הטקסט הועתק</string>
   <string name="prefs_disable_two_step_bookmarking_title">סימניה מהירה</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">הצגת אפשרויות \"בחירה\" ו\"פסוקים\" בתפריט הנפתח ע\"י לחיצה ארוכה על הטקסט. אפשרויות אלה יוצרות במהירות סימניות - הראשונה עבור החלק הנבחר, השניה עבור פסוקים שלמים.</string>
   <string name="prefs_double_tap_to_fullscreen_title">הקשה כפולה למסך מלא</string>
   <string name="prefs_double_tap_to_fullscreen_summary">עבור לתצוגה במסך מלא ע\"י הקשה כפולה</string>
   <string name="toggle_fullscreen">מסך מלא</string>
   <string name="exit_fullscreen">הקשה כפולה כדי לצאת ממסך מלא</string>
+  <string name="reset_app_prefs">האם ברצונך לאפס את כל ההגדרות הכלליות, המוצגות במסך זה, לברירת המחדל שלהן?</string>
   <string name="label_red">אדום</string>
   <string name="label_green">ירוק</string>
   <string name="label_blue">כחול</string>
@@ -741,6 +777,8 @@
   <string name="import_menu">ייבוא וייצוא</string>
   <string name="export_fileformat">ייצוא כ %s</string>
   <string name="import_items">ייבוא %s</string>
+  <string name="import_from_db">טעינה מקובץ גיבוי של מסד נתוני היישום</string>
+  <string name="import_error">נכשלה טעינת נתונים מקובץ מסד נתוני היישום. ייתכן שהקובץ בפורמט לא תקין או נשמר ע\"י גרסה ישנה מדי של %s.</string>
   <string name="chooser_range">טווח</string>
   <string name="chooser_jump">עבור אל</string>
   <string name="chooser_OT_abbrev">התנ\"ך</string>
@@ -748,6 +786,7 @@
   <string name="chooser_style_grid">תצוגת רשת</string>
   <string name="chooser_style_lists">רשימו</string>
   <string name="chooser_select">בחירת %s</string>
+  <string name="chooser_pref_reset">לא לאפס פרק/פסוק ל 1 כשבוחרים ספר/פרק</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">אנו מצטערים, אך יש לנו תרגום ממשק משתמש חלקי בלבד בשפת %s. הסיבה לכך היא ש %s מפותח כולו על ידי מתנדבים. אם אתה יכול לעזור בתרגום, ראה %s.</string>
   <!--will be added to incomplete_translation as a link-->
@@ -759,5 +798,7 @@
   <string name="strongs_off">מכובה</string>
   <string name="strongs_links">קישורים</string>
   <string name="strongs_text_and_links">טקסט וקישורים</string>
+  <string name="verse_tip">ניתן ללחוץ לחיצה ארוכה כדי לבחור חלק של פסוק או מספר פסוקים</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">נדרשת הרשאה</string>
 </resources>
