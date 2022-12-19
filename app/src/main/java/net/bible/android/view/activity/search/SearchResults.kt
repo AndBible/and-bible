@@ -47,6 +47,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.versification.BibleNames
 import java.util.*
 import javax.inject.Inject
@@ -131,13 +132,24 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             val doc = Books.installed().getBook(searchDocument)
 
             if(doc is SwordBook) {
+                fun getKey(): Key? {
+                    val k = try {
+                        PassageKeyFactory.instance().getKey(doc.versification, searchText)
+                    } catch (e: NoSuchKeyException) {
+                        null
+                    }
+                    if(k != null && k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter == 0)  {
+                        return null
+                    }
+                    return k
+                }
+
                 val bibleNames = BibleNames.instance();
                 val key = try {
                     synchronized(bibleNames) {
                         val orig = bibleNames.enableFuzzy
                         bibleNames.enableFuzzy = false
-                        val k = try { PassageKeyFactory.instance().getKey(doc.versification, searchText)}
-                                catch (e: NoSuchKeyException) {null}
+                        val k = getKey()
                         bibleNames.enableFuzzy = orig
                         k
                     }
@@ -148,8 +160,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                             val orig = bibleNames.enableFuzzy
                             bibleNames.enableFuzzy = false
                             MyLocaleProvider.override = Locale(doc.language.code)
-                            val k = try { PassageKeyFactory.instance().getKey(doc.versification, searchText)}
-                                    catch (e: NoSuchKeyException) {null}
+                            val k = getKey()
                             MyLocaleProvider.override = null
                             bibleNames.enableFuzzy = orig
                             k
