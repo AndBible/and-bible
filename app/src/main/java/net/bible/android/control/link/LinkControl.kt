@@ -301,12 +301,21 @@ class LinkControl @Inject constructor(
     }
     fun resolveRef(searchRef: String, doc: SwordBook? = null): Key? {
         val searchDoc = doc ?: windowControl.defaultBibleDoc(useLinks = true)
-        val bibleNames = BibleNames.instance();
+        val bibleNames = BibleNames.instance()
+
+        fun getKey(): Key? {
+            val k = PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef)
+            if(k != null && k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter == 0)  {
+                return null
+            }
+            return k
+        }
+
         val key = try {
             synchronized(bibleNames) {
                 val orig = bibleNames.enableFuzzy
                 bibleNames.enableFuzzy = false
-                val k = PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef)
+                val k = getKey()
                 bibleNames.enableFuzzy = orig
                 k
             }
@@ -317,7 +326,7 @@ class LinkControl @Inject constructor(
                     MyLocaleProvider.override = Locale(searchDoc.language.code)
                     val orig = bibleNames.enableFuzzy
                     bibleNames.enableFuzzy = false
-                    val k = PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef)
+                    val k = getKey()
                     bibleNames.enableFuzzy = orig
                     MyLocaleProvider.override = null
                     k

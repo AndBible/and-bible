@@ -1,8 +1,8 @@
 ---
-name: Bug report (Production)
+name: Bug report (Alpha)
 about: Create a report to help us improve
 title: ''
-labels: 'Type: Bug'
+labels: 'Type: Bug, Affects: Alpha'
 
 ---
 
