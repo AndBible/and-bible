@@ -1128,7 +1128,7 @@ object CommonUtils : CommonUtilsBase() {
 
         val goodLanguages = listOf(
             "af", "cs", "de", "en", "eo", "es", "fi", "fr", "hi", "hu", "it", "kk", "lt", "my", "nl", "pl", "pt", "ro", "ru",
-            "sk", "sl", "te", "uk", "zh-Hans-CN", "zh-Hant-TW",
+            "sk", "sl", "te", "uk", "zh-Hans-CN", "zh-Hant-TW", "he", "iw"
             // almost: "ko", "he" (hebrew, check...)
         )
 
