@@ -67,6 +67,8 @@ import kotlinx.serialization.serializer
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
+import net.bible.service.download.urlPrefix
+import java.text.Collator
 
 /**
  * Choose Document (Book) to download
@@ -297,13 +299,10 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     }
 
     override fun showPreLoadMessage(refresh: Boolean) {
-        val repositories = """
-                https://crosswire.org
-                https://ibtrussia.org
-                https://ebible.org
-                https://public.modules.stepbible.org
-                https://andbible.github.io
-                """.trimIndent()
+        val repositories = repoFactory.repositories.asSequence()
+            .mapNotNull { downloadManager.getInstallerFor(it)?.urlPrefix }
+            .toSortedSet( Collator.getInstance() )
+            .joinToString("\n")
 
         val repoRefreshDate = settings.getLong(REPO_REFRESH_DATE, 0)
         val date = SimpleDateFormat.getDateInstance().format(Date(repoRefreshDate))
