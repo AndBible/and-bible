@@ -32,6 +32,7 @@ import android.widget.ListView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -102,10 +103,16 @@ data class PseudoBook(
     val suggested: String,
 )
 
-abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
+abstract class DocumentSelectionBase(
+    optionsMenuId: Int,
+    private val actionModeMenuId: Int,
+    private val enableLoadingIndicator: Boolean = true,
+    ) : ListActivityBase(optionsMenuId), ActionModeActivity {
     @Inject lateinit var downloadControl: DownloadControl
 
     protected lateinit var binding: DocumentSelectionBinding
+
+    protected val isLoading = MutableStateFlow(false)
 
     protected lateinit var documentItemAdapter: ArrayAdapter<Book>
     protected var selectedDocumentFilterNo = 0
@@ -141,6 +148,16 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         super.onCreate(savedDialogsState)
         binding = DocumentSelectionBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        if (enableLoadingIndicator)
+            {
+            lifecycleScope.launchWhenResumed {
+                isLoading.collect {
+                    binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
+                    }
+                }
+            }
+        else
+            { binding.loadingIndicator.visibility = View.GONE }
     }
 
     protected fun initialiseView() {
@@ -346,7 +363,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         Log.i(TAG, "populate Master Document List")
 
         withContext(Dispatchers.Main) {
-            binding.loadingIndicator.visibility = View.VISIBLE
+            isLoading.value = true
             showPreLoadMessage(refresh)
             filterMutex.withLock {
                 documentItemAdapter.clear()
@@ -381,7 +398,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 isPopulated = true
                 filterDocuments()
             } finally {
-                binding.loadingIndicator.visibility = View.GONE
+                isLoading.value = false
             }
         }
     }
