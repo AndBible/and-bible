@@ -26,12 +26,17 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 abstract class RepoBase(
     val repoName: String,
+    private val supportedDocumentsFilter: BookFilter,
     ) {
     lateinit var repoFactory: RepoFactory
 
     private val downloadManager get() = repoFactory.downloadManager
 
-    abstract fun getRepoBooks(refresh: Boolean): List<Book>
+    fun getRepoBooks(refresh: Boolean): List<Book> {
+        val bookList = getBookList(supportedDocumentsFilter, refresh)
+        storeRepoNameInMetaData(bookList)
+        return bookList
+    }
 
     fun getBookList(bookFilter: BookFilter, refresh: Boolean): List<Book> {
         return downloadManager.getDownloadableBooks(bookFilter, repoName, refresh)
@@ -54,52 +59,28 @@ abstract class RepoBase(
     }
 }
 
-class AndBibleRepo : RepoBase(REPOSITORY) {
-    override fun getRepoBooks(refresh: Boolean): List<Book> {
-        val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
-        storeRepoNameInMetaData(bookList)
-        return bookList
-    }
-
+class AndBibleRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
     companion object {
         private const val REPOSITORY = "AndBible"
         private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
     }
 }
 
-class StepRepo : RepoBase(REPOSITORY) {
-    override fun getRepoBooks(refresh: Boolean): List<Book> {
-        val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
-        storeRepoNameInMetaData(bookList)
-        return bookList
-    }
-
+class StepRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
     companion object {
         private const val REPOSITORY = "STEP Bible (Tyndale)"
         private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
     }
 }
 
-class AndBibleExtraRepo : RepoBase(REPOSITORY) {
-    override fun getRepoBooks(refresh: Boolean): List<Book> {
-        val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
-        storeRepoNameInMetaData(bookList)
-        return bookList
-    }
-
+class AndBibleExtraRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
     companion object {
         private const val REPOSITORY = "AndBible Extra"
         private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
     }
 }
 
-class AndBibleBetaRepo : RepoBase(REPONAME) {
-    override fun getRepoBooks(refresh: Boolean): List<Book> {
-        val books: List<Book> = getBookList(SUPPORTED_DOCUMENTS, refresh)
-        storeRepoNameInMetaData(books)
-        return books
-    }
-
+class AndBibleBetaRepo : RepoBase(REPONAME, SUPPORTED_DOCUMENTS) {
     private class BetaBookFilter : AcceptableBookTypeFilter() {
         override fun test(book: Book): Boolean = CommonUtils.isBeta
     }
@@ -111,13 +92,7 @@ class AndBibleBetaRepo : RepoBase(REPONAME) {
 }
 
 
-class CrosswireBetaRepo : RepoBase(REPONAME) {
-    override fun getRepoBooks(refresh: Boolean): List<Book> {
-        val books: List<Book> = getBookList(SUPPORTED_DOCUMENTS, refresh)
-        storeRepoNameInMetaData(books)
-        return books
-    }
-
+class CrosswireBetaRepo : RepoBase(REPONAME, SUPPORTED_DOCUMENTS) {
     private class BetaBookFilter : AcceptableBookTypeFilter() {
         override fun test(book: Book): Boolean {
             // just Calvin Commentaries for now to see how we go
@@ -135,13 +110,7 @@ class CrosswireBetaRepo : RepoBase(REPONAME) {
     }
 }
 
-class CrosswireRepo : RepoBase(REPOSITORY) {
-    override fun getRepoBooks(refresh: Boolean): List<Book> {
-        val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
-        storeRepoNameInMetaData(books)
-        return books
-    }
-
+class CrosswireRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
     companion object {
         // see here for info ftp://ftp.xiphos.org/mods.d/
         private const val REPOSITORY = "CrossWire"
@@ -149,39 +118,21 @@ class CrosswireRepo : RepoBase(REPOSITORY) {
     }
 }
 
-class LockmanRepo : RepoBase(REPOSITORY) {
-    override fun getRepoBooks(refresh: Boolean): List<Book> {
-        val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
-        storeRepoNameInMetaData(books)
-        return books
-    }
-
+class LockmanRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
     companion object {
         private const val REPOSITORY = "Lockman (CrossWire)"
         private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
     }
 }
 
-class WycliffeRepo : RepoBase(REPOSITORY) {
-    override fun getRepoBooks(refresh: Boolean): List<Book> {
-        val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
-        storeRepoNameInMetaData(books)
-        return books
-    }
-
+class WycliffeRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
     companion object {
         private const val REPOSITORY = "Wycliffe (CrossWire)"
         private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
     }
 }
 
-class EBibleRepo : RepoBase(REPOSITORY) {
-    override fun getRepoBooks(refresh: Boolean): List<Book> {
-        val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
-        storeRepoNameInMetaData(bookList)
-        return bookList
-    }
-
+class EBibleRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
     companion object {
         const val REPOSITORY = "eBible"
         private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
@@ -189,13 +140,7 @@ class EBibleRepo : RepoBase(REPOSITORY) {
     }
 }
 
-class IBTRepo : RepoBase(REPOSITORY) {
-    override fun getRepoBooks(refresh: Boolean): List<Book> {
-        val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
-        storeRepoNameInMetaData(books)
-        return books
-    }
-
+class IBTRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
     companion object {
         const val REPOSITORY = "IBT"
         private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
