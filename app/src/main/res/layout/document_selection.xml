@@ -93,6 +93,24 @@
 		app:layout_constraintTop_toTopOf="@id/filters"
 		android:paddingEnd="3dip"
 		/>
+
+	<!--
+	The layout XML does not support conditional logic to customize it.
+	When used by the ChooseDocument activity, the SwipeRefreshLayout is not used.
+	When used by the DownloadActivity activity, the ListView will be moved into
+	the SwipeRefreshLayout and it will be made visible.
+	-->
+	<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+		android:id="@+id/swipeRefresh"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:visibility="gone"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/filters"
+		>
+	</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 	<ListView android:id="@android:id/list"
 		android:layout_width="match_parent"
 		android:layout_height="0dp"

@@ -26,6 +26,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
@@ -80,7 +82,11 @@ import net.bible.service.common.CommonUtils
 val Book.isInstalled: Boolean get() = Books.installed().getBook(initials) != null
 
 
-open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R.menu.document_context_menu) {
+open class DownloadActivity : DocumentSelectionBase(
+    R.menu.download_documents, R.menu.document_context_menu,
+    enableLoadingIndicator = false,
+    ) {
+
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
         if(selectedItemPositions.isNotEmpty()) {
             val isInstalled = displayedDocuments[selectedItemPositions[0]].isInstalled
@@ -167,6 +173,31 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
 
+        // reconfigure the layout:
+        //  * ensure the ProgressBar for the ChooseDocument activity is hidden
+        //  * make the SwipeRefreshLayout visible
+        //  * reparent the ListView to be in the SwipeRefreshLayout
+        binding.loadingIndicator.visibility = View.GONE
+        binding.swipeRefresh.visibility = View.VISIBLE
+        with(binding.list) {
+            (parent as? ViewGroup)?.removeView(this)
+            binding.swipeRefresh.addView(this)
+            }
+        // configure the SwipeRefreshLayout
+        lifecycleScope.launchWhenResumed {
+            isLoading.collect { binding.swipeRefresh.isRefreshing = it }
+            }
+        binding.swipeRefresh.setOnRefreshListener {
+            binding.freeTextSearch.setText("")
+            // prepare the document list view - done in another thread
+            lifecycleScope.launch {
+                downloadDocJson()
+                populateMasterDocumentList(true)
+                updateLastRepoRefreshDate()
+                notifyDataSetChanged()
+                }
+            }
+
         lifecycleScope.launch {
 
             if (!askIfWantToProceed()) {
@@ -178,7 +209,6 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
             withContext(Dispatchers.Default) {
                 withContext(Dispatchers.Main) {
-                    isRefreshing = true
                     invalidateOptionsMenu()
                 }
                 downloadDocJson()
@@ -201,7 +231,6 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                     populateMasterDocumentList(false)
                 }
                 withContext(Dispatchers.Main) {
-                    isRefreshing = false
                     invalidateOptionsMenu()
                     val bookStr = intent.extras?.getString(DOCUMENT_IDS_EXTRA)
                     if (bookStr != null) {
@@ -397,11 +426,9 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         menu.findItem(R.id.errors).isVisible = hasErrors
-        menu.findItem(R.id.refresh).isVisible = !isRefreshing
         return true
     }
 
-    private var isRefreshing = false
     /**
      * on Click handlers
      */
@@ -417,32 +444,6 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = false
         when (item.itemId) {
-            R.id.refresh -> {
-                // normal user downloading but need to refresh the document list
-                if(isRefreshing) return false
-
-                isRefreshing = true
-                invalidateOptionsMenu()
-
-                binding.freeTextSearch.setText("")
-
-                // prepare the document list view - done in another thread
-                lifecycleScope.launch {
-                    downloadDocJson()
-                    populateMasterDocumentList(true)
-                    updateLastRepoRefreshDate()
-
-                    withContext(Dispatchers.Main) {
-                        notifyDataSetChanged()
-
-                        isRefreshing = false
-                        invalidateOptionsMenu()
-
-                    }
-                }
-
-                isHandled = true
-            }
             R.id.errors -> {
                 var message = ""
                 if(downloadManager.failedRepos.isNotEmpty()) {
