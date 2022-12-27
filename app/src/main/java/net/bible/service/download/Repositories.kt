@@ -24,7 +24,7 @@ import org.crosswire.jsword.book.BookFilter
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 
-class RepoBase(
+class Repository(
     val repoName: String,
     private val supportedDocumentsFilter: BookFilter,
     ) {
@@ -59,13 +59,13 @@ class RepoBase(
     }
 }
 
-fun AndBibleRepo() = RepoBase("AndBible", AcceptableBookTypeFilter())
+fun AndBibleRepo() = Repository("AndBible", AcceptableBookTypeFilter())
 
-fun StepRepo() = RepoBase("STEP Bible (Tyndale)", AcceptableBookTypeFilter())
+fun StepRepo() = Repository("STEP Bible (Tyndale)", AcceptableBookTypeFilter())
 
-fun AndBibleExtraRepo() = RepoBase("AndBible Extra", AcceptableBookTypeFilter())
+fun AndBibleExtraRepo() = Repository("AndBible Extra", AcceptableBookTypeFilter())
 
-fun AndBibleBetaRepo() = RepoBase(
+fun AndBibleBetaRepo() = Repository(
     "AndBible Beta",
     object: AcceptableBookTypeFilter() {
         override fun test(book: Book): Boolean = CommonUtils.isBeta
@@ -73,7 +73,7 @@ fun AndBibleBetaRepo() = RepoBase(
     )
 
 
-fun CrosswireBetaRepo() = RepoBase(
+fun CrosswireBetaRepo() = Repository(
     "Crosswire Beta",
     object : AcceptableBookTypeFilter() {
         override fun test(book: Book): Boolean {
@@ -88,12 +88,12 @@ fun CrosswireBetaRepo() = RepoBase(
     )
 
         // see here for info ftp://ftp.xiphos.org/mods.d/
-fun CrosswireRepo() = RepoBase("CrossWire", AcceptableBookTypeFilter())
+fun CrosswireRepo() = Repository("CrossWire", AcceptableBookTypeFilter())
 
-fun LockmanRepo() = RepoBase("Lockman (CrossWire)", AcceptableBookTypeFilter())
+fun LockmanRepo() = Repository("Lockman (CrossWire)", AcceptableBookTypeFilter())
 
-fun WycliffeRepo() = RepoBase("Wycliffe (CrossWire)", AcceptableBookTypeFilter())
+fun WycliffeRepo() = Repository("Wycliffe (CrossWire)", AcceptableBookTypeFilter())
 
-fun EBibleRepo() = RepoBase("eBible", AcceptableBookTypeFilter())
+fun EBibleRepo() = Repository("eBible", AcceptableBookTypeFilter())
 
-fun IBTRepo() = RepoBase("IBT", AcceptableBookTypeFilter())
+fun IBTRepo() = Repository("IBT", AcceptableBookTypeFilter())

@@ -40,10 +40,10 @@ class RepoFactory(val downloadManager: DownloadManager) {
         }
     }
 
-    fun getRepoForBook(document: Book): RepoBase {
+    fun getRepoForBook(document: Book): Repository {
         return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY))
     }
 
-    private fun getRepo(repoName: String): RepoBase =
+    private fun getRepo(repoName: String): Repository =
         repositories.find { it.repoName == repoName } ?: defaultRepo
 }
