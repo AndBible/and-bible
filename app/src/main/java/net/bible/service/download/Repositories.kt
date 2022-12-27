@@ -24,13 +24,14 @@ import org.crosswire.jsword.book.BookFilter
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 
-abstract class RepoBase {
+abstract class RepoBase(
+    val repoName: String,
+    ) {
     lateinit var repoFactory: RepoFactory
 
     private val downloadManager get() = repoFactory.downloadManager
 
     abstract fun getRepoBooks(refresh: Boolean): List<Book>
-    abstract val repoName: String
 
     fun getBookList(bookFilter: BookFilter, refresh: Boolean): List<Book> {
         return downloadManager.getDownloadableBooks(bookFilter, repoName, refresh)
@@ -53,14 +54,12 @@ abstract class RepoBase {
     }
 }
 
-class AndBibleRepo : RepoBase() {
+class AndBibleRepo : RepoBase(REPOSITORY) {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(bookList)
         return bookList
     }
-
-    override val repoName: String get() = REPOSITORY
 
     companion object {
         private const val REPOSITORY = "AndBible"
@@ -68,14 +67,12 @@ class AndBibleRepo : RepoBase() {
     }
 }
 
-class StepRepo : RepoBase() {
+class StepRepo : RepoBase(REPOSITORY) {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(bookList)
         return bookList
     }
-
-    override val repoName: String get() = REPOSITORY
 
     companion object {
         private const val REPOSITORY = "STEP Bible (Tyndale)"
@@ -83,14 +80,12 @@ class StepRepo : RepoBase() {
     }
 }
 
-class AndBibleExtraRepo : RepoBase() {
+class AndBibleExtraRepo : RepoBase(REPOSITORY) {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(bookList)
         return bookList
     }
-
-    override val repoName: String get() = REPOSITORY
 
     companion object {
         private const val REPOSITORY = "AndBible Extra"
@@ -98,15 +93,12 @@ class AndBibleExtraRepo : RepoBase() {
     }
 }
 
-class AndBibleBetaRepo : RepoBase() {
+class AndBibleBetaRepo : RepoBase(REPONAME) {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books: List<Book> = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
         return books
     }
-
-    override val repoName: String
-        get() = REPONAME
 
     private class BetaBookFilter : AcceptableBookTypeFilter() {
         override fun test(book: Book): Boolean = CommonUtils.isBeta
@@ -119,15 +111,12 @@ class AndBibleBetaRepo : RepoBase() {
 }
 
 
-class CrosswireBetaRepo : RepoBase() {
+class CrosswireBetaRepo : RepoBase(REPONAME) {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books: List<Book> = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
         return books
     }
-
-    override val repoName: String
-        get() = REPONAME
 
     private class BetaBookFilter : AcceptableBookTypeFilter() {
         override fun test(book: Book): Boolean {
@@ -146,14 +135,12 @@ class CrosswireBetaRepo : RepoBase() {
     }
 }
 
-class CrosswireRepo : RepoBase() {
+class CrosswireRepo : RepoBase(REPOSITORY) {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
         return books
     }
-
-    override val repoName: String get() = REPOSITORY
 
     companion object {
         // see here for info ftp://ftp.xiphos.org/mods.d/
@@ -162,14 +149,12 @@ class CrosswireRepo : RepoBase() {
     }
 }
 
-class LockmanRepo : RepoBase() {
+class LockmanRepo : RepoBase(REPOSITORY) {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
         return books
     }
-
-    override val repoName: String get() = REPOSITORY
 
     companion object {
         private const val REPOSITORY = "Lockman (CrossWire)"
@@ -177,14 +162,12 @@ class LockmanRepo : RepoBase() {
     }
 }
 
-class WycliffeRepo : RepoBase() {
+class WycliffeRepo : RepoBase(REPOSITORY) {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
         return books
     }
-
-    override val repoName: String get() = REPOSITORY
 
     companion object {
         private const val REPOSITORY = "Wycliffe (CrossWire)"
@@ -192,14 +175,12 @@ class WycliffeRepo : RepoBase() {
     }
 }
 
-class EBibleRepo : RepoBase() {
+class EBibleRepo : RepoBase(REPOSITORY) {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(bookList)
         return bookList
     }
-
-    override val repoName: String get() = REPOSITORY
 
     companion object {
         const val REPOSITORY = "eBible"
@@ -208,14 +189,12 @@ class EBibleRepo : RepoBase() {
     }
 }
 
-class IBTRepo : RepoBase() {
+class IBTRepo : RepoBase(REPOSITORY) {
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
         return books
     }
-
-    override val repoName: String get() = REPOSITORY
 
     companion object {
         const val REPOSITORY = "IBT"
