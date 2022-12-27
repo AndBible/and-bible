@@ -24,7 +24,7 @@ import org.crosswire.jsword.book.BookFilter
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 
-abstract class RepoBase(
+class RepoBase(
     val repoName: String,
     private val supportedDocumentsFilter: BookFilter,
     ) {
@@ -59,41 +59,23 @@ abstract class RepoBase(
     }
 }
 
-class AndBibleRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
-    companion object {
-        private const val REPOSITORY = "AndBible"
-        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
-    }
-}
+fun AndBibleRepo() = RepoBase("AndBible", AcceptableBookTypeFilter())
 
-class StepRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
-    companion object {
-        private const val REPOSITORY = "STEP Bible (Tyndale)"
-        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
-    }
-}
+fun StepRepo() = RepoBase("STEP Bible (Tyndale)", AcceptableBookTypeFilter())
 
-class AndBibleExtraRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
-    companion object {
-        private const val REPOSITORY = "AndBible Extra"
-        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
-    }
-}
+fun AndBibleExtraRepo() = RepoBase("AndBible Extra", AcceptableBookTypeFilter())
 
-class AndBibleBetaRepo : RepoBase(REPONAME, SUPPORTED_DOCUMENTS) {
-    private class BetaBookFilter : AcceptableBookTypeFilter() {
+fun AndBibleBetaRepo() = RepoBase(
+    "AndBible Beta",
+    object: AcceptableBookTypeFilter() {
         override fun test(book: Book): Boolean = CommonUtils.isBeta
     }
-
-    companion object {
-        const val REPONAME = "AndBible Beta"
-        private val SUPPORTED_DOCUMENTS: BookFilter = BetaBookFilter()
-    }
-}
+    )
 
 
-class CrosswireBetaRepo : RepoBase(REPONAME, SUPPORTED_DOCUMENTS) {
-    private class BetaBookFilter : AcceptableBookTypeFilter() {
+fun CrosswireBetaRepo() = RepoBase(
+    "Crosswire Beta",
+    object : AcceptableBookTypeFilter() {
         override fun test(book: Book): Boolean {
             // just Calvin Commentaries for now to see how we go
             //
@@ -103,47 +85,15 @@ class CrosswireBetaRepo : RepoBase(REPONAME, SUPPORTED_DOCUMENTS) {
                 book.initials == "CalvinCommentaries"
         }
     }
+    )
 
-    companion object {
-        const val REPONAME = "Crosswire Beta"
-        private val SUPPORTED_DOCUMENTS: BookFilter = BetaBookFilter()
-    }
-}
-
-class CrosswireRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
-    companion object {
         // see here for info ftp://ftp.xiphos.org/mods.d/
-        private const val REPOSITORY = "CrossWire"
-        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
-    }
-}
+fun CrosswireRepo() = RepoBase("CrossWire", AcceptableBookTypeFilter())
 
-class LockmanRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
-    companion object {
-        private const val REPOSITORY = "Lockman (CrossWire)"
-        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
-    }
-}
+fun LockmanRepo() = RepoBase("Lockman (CrossWire)", AcceptableBookTypeFilter())
 
-class WycliffeRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
-    companion object {
-        private const val REPOSITORY = "Wycliffe (CrossWire)"
-        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
-    }
-}
+fun WycliffeRepo() = RepoBase("Wycliffe (CrossWire)", AcceptableBookTypeFilter())
 
-class EBibleRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
-    companion object {
-        const val REPOSITORY = "eBible"
-        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
-        private const val TAG = "EBibleRepo"
-    }
-}
+fun EBibleRepo() = RepoBase("eBible", AcceptableBookTypeFilter())
 
-class IBTRepo : RepoBase(REPOSITORY, SUPPORTED_DOCUMENTS) {
-    companion object {
-        const val REPOSITORY = "IBT"
-        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
-    }
-}
-
+fun IBTRepo() = RepoBase("IBT", AcceptableBookTypeFilter())
