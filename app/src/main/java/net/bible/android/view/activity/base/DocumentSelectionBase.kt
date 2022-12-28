@@ -107,7 +107,8 @@ abstract class DocumentSelectionBase(
     optionsMenuId: Int,
     private val actionModeMenuId: Int,
     private val enableLoadingIndicator: Boolean = true,
-    ) : ListActivityBase(optionsMenuId), ActionModeActivity {
+    ) : ListActivityBase(optionsMenuId), ActionModeActivity
+{
     @Inject lateinit var downloadControl: DownloadControl
 
     protected lateinit var binding: DocumentSelectionBinding
@@ -148,16 +149,16 @@ abstract class DocumentSelectionBase(
         super.onCreate(savedDialogsState)
         binding = DocumentSelectionBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        if (enableLoadingIndicator)
-            {
+        if (enableLoadingIndicator) {
             lifecycleScope.launchWhenResumed {
                 isLoading.collect {
                     binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
-                    }
                 }
             }
-        else
-            { binding.loadingIndicator.visibility = View.GONE }
+        }
+        else {
+            binding.loadingIndicator.visibility = View.GONE
+        }
     }
 
     protected fun initialiseView() {
@@ -166,7 +167,9 @@ abstract class DocumentSelectionBase(
         listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId, true)
         //listView.choiceMode = AbsListView.CHOICE_MODE_SINGLE
         // trigger action mode on long press
-        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id -> listActionModeHelper.startActionMode(this@DocumentSelectionBase, position) }
+        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id ->
+            listActionModeHelper.startActionMode(this@DocumentSelectionBase, position)
+        }
         languageList.clear()
         displayedDocuments.clear()
 

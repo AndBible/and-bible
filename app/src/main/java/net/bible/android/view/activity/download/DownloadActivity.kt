@@ -85,8 +85,7 @@ val Book.isInstalled: Boolean get() = Books.installed().getBook(initials) != nul
 open class DownloadActivity : DocumentSelectionBase(
     R.menu.download_documents, R.menu.document_context_menu,
     enableLoadingIndicator = false,
-    ) {
-
+) {
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
         if(selectedItemPositions.isNotEmpty()) {
             val isInstalled = displayedDocuments[selectedItemPositions[0]].isInstalled
@@ -182,11 +181,11 @@ open class DownloadActivity : DocumentSelectionBase(
         with(binding.list) {
             (parent as? ViewGroup)?.removeView(this)
             binding.swipeRefresh.addView(this)
-            }
+        }
         // configure the SwipeRefreshLayout
         lifecycleScope.launchWhenResumed {
             isLoading.collect { binding.swipeRefresh.isRefreshing = it }
-            }
+        }
         binding.swipeRefresh.setOnRefreshListener {
             binding.freeTextSearch.setText("")
             // prepare the document list view - done in another thread
@@ -195,11 +194,10 @@ open class DownloadActivity : DocumentSelectionBase(
                 populateMasterDocumentList(true)
                 updateLastRepoRefreshDate()
                 notifyDataSetChanged()
-                }
             }
+        }
 
         lifecycleScope.launch {
-
             if (!askIfWantToProceed()) {
                 finish()
                 return@launch
