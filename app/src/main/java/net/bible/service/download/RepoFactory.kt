@@ -22,15 +22,15 @@ import org.crosswire.jsword.book.Book
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class RepoFactory(val downloadManager: DownloadManager) {
-    private val defaultRepo = AndBibleRepo()
+    private val defaultRepo = andBibleRepo
 
     // In priority order (if the same version of module is found in many, it will be picked up
     // from the earlier of the repository list).
     val normalRepositories = listOf(
-        defaultRepo, CrosswireRepo(), EBibleRepo(), LockmanRepo(), WycliffeRepo(), AndBibleExtraRepo(), IBTRepo(), StepRepo()
+        defaultRepo, crosswireRepo, eBibleRepo, lockmanRepo, wycliffeRepo, andBibleExtraRepo, ibtRepo, stepRepo
     )
 
-    val betaRepositories = listOf(CrosswireBetaRepo(), AndBibleBetaRepo())
+    val betaRepositories = listOf(crosswireBetaRepo, andBibleBetaRepo)
 
     val repositories = normalRepositories + betaRepositories
 

@@ -27,7 +27,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 class Repository(
     val repoName: String,
     private val supportedDocumentsFilter: BookFilter,
-    ) {
+) {
     lateinit var repoFactory: RepoFactory
 
     private val downloadManager get() = repoFactory.downloadManager
@@ -46,7 +46,7 @@ class Repository(
         downloadManager.installBook(repoName, document)
     }
 
-    fun storeRepoNameInMetaData(bookList: List<Book>) {
+    private fun storeRepoNameInMetaData(bookList: List<Book>) {
         for (book in bookList) {
             // SwordBookMetaData must not persist these properties because many downloadable books may have the same name,
             // and we set the props every time so they do not need to be persisted
@@ -59,21 +59,18 @@ class Repository(
     }
 }
 
-fun AndBibleRepo() = Repository("AndBible", AcceptableBookTypeFilter())
-
-fun StepRepo() = Repository("STEP Bible (Tyndale)", AcceptableBookTypeFilter())
-
-fun AndBibleExtraRepo() = Repository("AndBible Extra", AcceptableBookTypeFilter())
-
-fun AndBibleBetaRepo() = Repository(
+val andBibleRepo = Repository("AndBible", AcceptableBookTypeFilter())
+val stepRepo = Repository("STEP Bible (Tyndale)", AcceptableBookTypeFilter())
+val andBibleExtraRepo = Repository("AndBible Extra", AcceptableBookTypeFilter())
+val andBibleBetaRepo = Repository(
     "AndBible Beta",
     object: AcceptableBookTypeFilter() {
         override fun test(book: Book): Boolean = CommonUtils.isBeta
     }
-    )
+)
 
 
-fun CrosswireBetaRepo() = Repository(
+val crosswireBetaRepo = Repository(
     "Crosswire Beta",
     object : AcceptableBookTypeFilter() {
         override fun test(book: Book): Boolean {
@@ -85,15 +82,11 @@ fun CrosswireBetaRepo() = Repository(
                 book.initials == "CalvinCommentaries"
         }
     }
-    )
+)
 
-        // see here for info ftp://ftp.xiphos.org/mods.d/
-fun CrosswireRepo() = Repository("CrossWire", AcceptableBookTypeFilter())
-
-fun LockmanRepo() = Repository("Lockman (CrossWire)", AcceptableBookTypeFilter())
-
-fun WycliffeRepo() = Repository("Wycliffe (CrossWire)", AcceptableBookTypeFilter())
-
-fun EBibleRepo() = Repository("eBible", AcceptableBookTypeFilter())
-
-fun IBTRepo() = Repository("IBT", AcceptableBookTypeFilter())
+// see here for info ftp://ftp.xiphos.org/mods.d/
+val crosswireRepo = Repository("CrossWire", AcceptableBookTypeFilter())
+val lockmanRepo = Repository("Lockman (CrossWire)", AcceptableBookTypeFilter())
+val wycliffeRepo = Repository("Wycliffe (CrossWire)", AcceptableBookTypeFilter())
+val eBibleRepo = Repository("eBible", AcceptableBookTypeFilter())
+val ibtRepo = Repository("IBT", AcceptableBookTypeFilter())
