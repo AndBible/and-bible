@@ -308,6 +308,7 @@ dependencies {
     implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.5.0")
     implementation("net.objecthunter:exp4j:0.4.8")
 
