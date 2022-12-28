@@ -27,6 +27,7 @@ import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_C
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.doesNotExist
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -209,7 +210,7 @@ class CurrentBiblePage(
      */
     override val isSearchable: Boolean
         get() = try { //TODO allow japanese search - japanese bibles use smartcn which is not available
-            "ja" != currentDocument!!.language.code
+            !currentDocument!!.doesNotExist && "ja" != currentDocument!!.language.code
         } catch (e: Exception) {
             Log.w(TAG, "Missing language code", e)
             true
