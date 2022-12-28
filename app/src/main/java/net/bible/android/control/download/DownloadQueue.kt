@@ -25,7 +25,7 @@ import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.Logger
 import net.bible.service.download.DownloadManager
-import net.bible.service.download.RepoBase
+import net.bible.service.download.Repository
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.install.DownloadCancelledException
 import org.crosswire.jsword.book.install.DownloadException
@@ -52,7 +52,7 @@ class DownloadQueue {
         return application.getString(msgId)
     }
 
-    suspend fun addDocumentToDownloadQueue(document: Book, repo: RepoBase) {
+    suspend fun addDocumentToDownloadQueue(document: Book, repo: Repository) {
         val repoIdentity = document.repoIdentity
         if (!beingQueued.contains(repoIdentity)) {
             beingQueued.add(repoIdentity)
