@@ -55,7 +55,7 @@ class DownloadManager(
         onFailedReposChange?.invoke()
     }
 
-    fun getInstallerFor(repo: RepoBase): Installer?
+    fun getInstallerFor(repo: Repository): Installer?
         = installManager.getInstaller(repo.repoName)
 
     @Throws(InstallException::class)
