@@ -139,6 +139,7 @@ open class BibleApplication : Application() {
         Log.i(TAG, "Java home:" + System.getProperty("java.home")!!)
         Log.i(TAG, "User dir:" + System.getProperty("user.dir") + " Timezone:" + System.getProperty("user.timezone"))
         logSqliteVersion()
+        Log.i(TAG, BugReport.createErrorText())
     }
 
     var sqliteVersion = ""
