@@ -117,7 +117,7 @@ object ErrorReportControl {
 const val SCREENSHOT_FILE = "screenshot.webp"
 
 object BugReport {
-    private fun createErrorText(exception: Throwable? = null) = try {
+    fun createErrorText(exception: Throwable? = null) = try {
         StringBuilder().run {
             append("Version: ").append(applicationVersionName).append("\n")
             append("Android version: ").append(Build.VERSION.RELEASE).append("\n")
