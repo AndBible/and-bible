@@ -55,6 +55,9 @@ class DownloadManager(
         onFailedReposChange?.invoke()
     }
 
+    fun getInstallerFor(repo: RepoBase): Installer?
+        = installManager.getInstaller(repo.repoName)
+
     @Throws(InstallException::class)
     fun getDownloadableBooks(filter: BookFilter?, repo: String, refresh: Boolean): List<Book> {
         var documents: List<Book> = emptyList()
