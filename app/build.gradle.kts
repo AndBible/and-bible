@@ -294,6 +294,7 @@ dependencies {
     val jdomVersion: String by rootProject.extra
     val jswordVersion: String by rootProject.extra
     val kotlinVersion: String by rootProject.extra
+    val coroutinesVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
     val roomVersion: String by rootProject.extra
 
@@ -323,7 +324,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
 
     implementation("com.madgag.spongycastle:core:1.58.0.0")
     //implementation("com.madgag.spongycastle:prov:1.58.0.0")
