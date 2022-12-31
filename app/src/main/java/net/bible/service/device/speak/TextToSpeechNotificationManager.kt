@@ -24,7 +24,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -134,7 +133,11 @@ class TextToSpeechNotificationManager {
 
             Log.i(TAG, "STOP_SERVICE")
             wakeLock.release()
-            stopForeground(removeNotification)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                stopForeground(if(removeNotification) STOP_FOREGROUND_REMOVE else STOP_FOREGROUND_DETACH)
+            } else {
+                stopForeground(removeNotification)
+            }
             foreground = false
         }
 
@@ -237,7 +240,7 @@ class TextToSpeechNotificationManager {
     }
 
     fun onEventMainThread(ev: SpeakEvent) {
-        Log.i(TAG, "SpeakEvent $ev")
+        Log.i(TAG, "SpeakEvent ${ev.speakState}")
         if(!ev.isSpeaking && ev.isPaused) {
             Log.i(TAG, "Stop foreground (pause)")
             buildNotification(false)
