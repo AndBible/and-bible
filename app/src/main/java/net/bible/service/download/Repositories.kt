@@ -17,8 +17,6 @@
 
 package net.bible.service.download
 
-import net.bible.service.common.CommonUtils
-import net.bible.service.sword.AcceptableBookTypeFilter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookFilter
 import org.crosswire.jsword.book.sword.SwordBook
@@ -58,35 +56,3 @@ class Repository(
         }
     }
 }
-
-val andBibleRepo = Repository("AndBible", AcceptableBookTypeFilter())
-val stepRepo = Repository("STEP Bible (Tyndale)", AcceptableBookTypeFilter())
-val andBibleExtraRepo = Repository("AndBible Extra", AcceptableBookTypeFilter())
-val andBibleBetaRepo = Repository(
-    "AndBible Beta",
-    object: AcceptableBookTypeFilter() {
-        override fun test(book: Book): Boolean = CommonUtils.isBeta
-    }
-)
-
-
-val crosswireBetaRepo = Repository(
-    "Crosswire Beta",
-    object : AcceptableBookTypeFilter() {
-        override fun test(book: Book): Boolean {
-            // just Calvin Commentaries for now to see how we go
-            //
-            // Cannot include Jasher, Jub, EEnochCharles because they are displayed as page per verse for some reason which looks awful.
-            if(CommonUtils.isBeta) return true
-            return super.test(book) &&
-                book.initials == "CalvinCommentaries"
-        }
-    }
-)
-
-// see here for info ftp://ftp.xiphos.org/mods.d/
-val crosswireRepo = Repository("CrossWire", AcceptableBookTypeFilter())
-val lockmanRepo = Repository("Lockman (CrossWire)", AcceptableBookTypeFilter())
-val wycliffeRepo = Repository("Wycliffe (CrossWire)", AcceptableBookTypeFilter())
-val eBibleRepo = Repository("eBible", AcceptableBookTypeFilter())
-val ibtRepo = Repository("IBT", AcceptableBookTypeFilter())
