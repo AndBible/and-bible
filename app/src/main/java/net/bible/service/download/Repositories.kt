@@ -25,10 +25,8 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 class Repository(
     val repoName: String,
     private val supportedDocumentsFilter: BookFilter,
+    private val downloadManager: DownloadManager,
 ) {
-    lateinit var repoFactory: RepoFactory
-
-    private val downloadManager get() = repoFactory.downloadManager
 
     fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(supportedDocumentsFilter, refresh)

@@ -24,22 +24,23 @@ import org.crosswire.jsword.book.Book
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class RepoFactory(val downloadManager: DownloadManager) {
+class RepoFactory(downloadManager: DownloadManager) {
 
-    private val andBibleRepo = Repository("AndBible", AcceptableBookTypeFilter())
-    private val andBibleExtraRepo = Repository("AndBible Extra", AcceptableBookTypeFilter())
+    private val andBibleRepo = Repository("AndBible", AcceptableBookTypeFilter(), downloadManager)
+    private val andBibleExtraRepo = Repository("AndBible Extra", AcceptableBookTypeFilter(), downloadManager)
     private val andBibleBetaRepo = Repository(
         "AndBible Beta",
         object: AcceptableBookTypeFilter() {
             override fun test(book: Book): Boolean = CommonUtils.isBeta
         }
+        , downloadManager
     )
 
     // see here for info ftp://ftp.xiphos.org/mods.d/
     @VisibleForTesting
-    val crosswireRepo = Repository("CrossWire", AcceptableBookTypeFilter())
-    private val lockmanRepo = Repository("Lockman (CrossWire)", AcceptableBookTypeFilter())
-    private val wycliffeRepo = Repository("Wycliffe (CrossWire)", AcceptableBookTypeFilter())
+    val crosswireRepo = Repository("CrossWire", AcceptableBookTypeFilter(), downloadManager)
+    private val lockmanRepo = Repository("Lockman (CrossWire)", AcceptableBookTypeFilter(), downloadManager)
+    private val wycliffeRepo = Repository("Wycliffe (CrossWire)", AcceptableBookTypeFilter(), downloadManager)
     private val crosswireBetaRepo = Repository(
         "Crosswire Beta",
         object : AcceptableBookTypeFilter() {
@@ -52,11 +53,12 @@ class RepoFactory(val downloadManager: DownloadManager) {
                     book.initials == "CalvinCommentaries"
             }
         }
+        , downloadManager
     )
 
-    private val eBibleRepo = Repository("eBible", AcceptableBookTypeFilter())
-    private val stepRepo = Repository("STEP Bible (Tyndale)", AcceptableBookTypeFilter())
-    private val ibtRepo = Repository("IBT", AcceptableBookTypeFilter())
+    private val eBibleRepo = Repository("eBible", AcceptableBookTypeFilter(), downloadManager)
+    private val stepRepo = Repository("STEP Bible (Tyndale)", AcceptableBookTypeFilter(), downloadManager)
+    private val ibtRepo = Repository("IBT", AcceptableBookTypeFilter(), downloadManager)
 
 
     private val defaultRepo = andBibleRepo
@@ -70,12 +72,6 @@ class RepoFactory(val downloadManager: DownloadManager) {
     val betaRepositories = listOf(crosswireBetaRepo, andBibleBetaRepo)
 
     val repositories = normalRepositories + betaRepositories
-
-    init {
-        for(r in repositories) {
-            r.repoFactory = this
-        }
-    }
 
     fun getRepoForBook(document: Book): Repository {
         return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY))
