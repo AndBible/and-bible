@@ -68,7 +68,7 @@ class TextToSpeechNotificationManager {
         private var foregroundNotification: Notification? = null
 
         private var instance: TextToSpeechNotificationManager? = null
-        private var wakelockAcquired = false
+        private var foreground = false
     }
 
     class ForegroundService: Service() {
@@ -76,11 +76,6 @@ class TextToSpeechNotificationManager {
             const val START_SERVICE="action_start_service"
             const val STOP_FOREGROUND="action_stop_foreground"
             const val STOP_FOREGROUND_REMOVE_NOTIFICATION="action_stop_foreground_remove_notification"
-        }
-
-        override fun onCreate() {
-            Log.i(TAG, "onCreate")
-            startForeground(NOTIFICATION_ID, foregroundNotification)
         }
 
         override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -98,11 +93,12 @@ class TextToSpeechNotificationManager {
 
         @SuppressLint("WakelockTimeout")
         private fun start() {
-            if(wakelockAcquired) {
+            if(foreground) {
                 return
             }
             Log.i(TAG, "START_SERVICE")
-            wakelockAcquired = true
+            startForeground(NOTIFICATION_ID, foregroundNotification!!)
+            foreground = true
             wakeLock.acquire()
         }
 
@@ -125,14 +121,14 @@ class TextToSpeechNotificationManager {
 
         override fun onTaskRemoved(rootIntent: Intent?) {
             Log.i(TAG, "Task removed")
-            if(!wakelockAcquired) {
+            if(!foreground) {
                 stopSelf()
             }
             super.onTaskRemoved(rootIntent)
         }
 
         private fun stop(removeNotification: Boolean = false) {
-            if(!wakelockAcquired) {
+            if(!foreground) {
                 return
             }
 
@@ -143,7 +139,7 @@ class TextToSpeechNotificationManager {
             } else {
                 stopForeground(removeNotification)
             }
-            wakelockAcquired = false
+            foreground = false
         }
 
         override fun onBind(intent: Intent?): IBinder? {
@@ -237,7 +233,7 @@ class TextToSpeechNotificationManager {
         currentText = ""
 
         // In case service was no longer foreground, we need do this here.
-        if(wakelockAcquired) {
+        if(foreground) {
             stopForeground(true)
         }
         else {
@@ -246,7 +242,7 @@ class TextToSpeechNotificationManager {
     }
 
     fun onEventMainThread(ev: SpeakEvent) {
-        Log.i(TAG, "SpeakEvent $ev")
+        Log.i(TAG, "SpeakEvent ${ev.speakState}")
         if(!ev.isSpeaking && ev.isPaused) {
             Log.i(TAG, "Stop foreground (pause)")
             buildNotification(false)
