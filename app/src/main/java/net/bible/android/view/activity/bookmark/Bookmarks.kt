@@ -144,6 +144,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         try {
             // check to see if Action Mode is in operation
             if (!listActionModeHelper!!.isInActionMode) {
+                intent.putExtra("listPosition", position)
                 bookmarkSelected(bookmarkList[position])
             }
         } catch (e: Exception) {
@@ -238,6 +239,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             binding.loadingIndicator.visibility = View.GONE
             binding.list.visibility = View.VISIBLE
             binding.empty.visibility = View.VISIBLE
+            listView.setSelection(intent.getIntExtra("listPosition", 0))
         }
     }
 
