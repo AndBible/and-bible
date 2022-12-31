@@ -24,4 +24,4 @@ import net.bible.android.control.page.window.Window
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-data class CurrentVerseChangedEvent(val window: Window? = null)
+data class CurrentVerseChangedEvent(val window: Window)

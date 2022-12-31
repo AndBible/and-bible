@@ -42,7 +42,7 @@ object PassageChangeMediator {
 
     /** the document has changed so ask the view to refresh itself
      */
-    fun onCurrentPageChanged(window: Window? = null) {
+    fun onCurrentPageChanged(window: Window) {
         if (mBibleContentManager != null) {
             mBibleContentManager!!.updateText(window)
         } else {

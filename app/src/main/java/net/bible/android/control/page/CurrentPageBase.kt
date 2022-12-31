@@ -99,7 +99,7 @@ abstract class CurrentPageBase protected constructor(
      */
     private fun pageChange() {
         if (!isInhibitChangeNotifications) {
-            PassageChangeMediator.onCurrentPageChanged()
+            PassageChangeMediator.onCurrentPageChanged(pageManager.window)
         }
     }
 
@@ -141,7 +141,7 @@ abstract class CurrentPageBase protected constructor(
         }
 
         annotateKey = frag.annotateRef
-        ABEventBus.post(CurrentVerseChangedEvent())
+        ABEventBus.post(CurrentVerseChangedEvent(pageManager.window))
 
         OsisDocument(
             book = currentDocument,
