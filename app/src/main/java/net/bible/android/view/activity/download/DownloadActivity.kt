@@ -205,15 +205,15 @@ open class DownloadActivity : DocumentSelectionBase(
 
             CommonUtils.requestNotificationPermission(this@DownloadActivity)
 
-                    invalidateOptionsMenu()
+            invalidateOptionsMenu()
 
-                downloadDocJson()
+            downloadDocJson()
 
-                    documentItemAdapter = DocumentDownloadItemAdapter(
-                        this@DownloadActivity, downloadControl, recommendedDocuments)
-                    initialiseView()
-                    // in the basic flow we force the user to download a bible
-                    binding.documentTypeSpinner.isEnabled = true
+            documentItemAdapter = DocumentDownloadItemAdapter(
+                this@DownloadActivity, downloadControl, recommendedDocuments)
+            initialiseView()
+            // in the basic flow we force the user to download a bible
+            binding.documentTypeSpinner.isEnabled = true
 
             withContext(Dispatchers.Default) {
                 if (isRepoBookListOld) {
