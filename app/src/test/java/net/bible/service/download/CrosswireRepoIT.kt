@@ -34,11 +34,13 @@ import org.robolectric.annotation.Config
 @Config(sdk=[TEST_SDK])
 class CrosswireRepoIT {
 
+    private lateinit var crosswireRepo: Repository
+
     @Before
     @Throws(Exception::class)
     fun setUp() {
         val repoFactory = RepoFactory(DownloadManager(null))
-        crosswireRepo.repoFactory = repoFactory
+        crosswireRepo = repoFactory.crosswireRepo
     }
 
     @Test
