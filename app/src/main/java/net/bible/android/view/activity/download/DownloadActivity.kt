@@ -205,18 +205,17 @@ open class DownloadActivity : DocumentSelectionBase(
 
             CommonUtils.requestNotificationPermission(this@DownloadActivity)
 
-            withContext(Dispatchers.Default) {
-                withContext(Dispatchers.Main) {
                     invalidateOptionsMenu()
-                }
+
                 downloadDocJson()
-                withContext(Dispatchers.Main) {
+
                     documentItemAdapter = DocumentDownloadItemAdapter(
                         this@DownloadActivity, downloadControl, recommendedDocuments)
                     initialiseView()
                     // in the basic flow we force the user to download a bible
                     binding.documentTypeSpinner.isEnabled = true
-                }
+
+            withContext(Dispatchers.Default) {
                 if (isRepoBookListOld) {
                     // prepare the document list view - done in another thread
                     populateMasterDocumentList(true)
@@ -228,6 +227,7 @@ open class DownloadActivity : DocumentSelectionBase(
                     // normal user downloading with recent doc list
                     populateMasterDocumentList(false)
                 }
+
                 withContext(Dispatchers.Main) {
                     invalidateOptionsMenu()
                     val bookStr = intent.extras?.getString(DOCUMENT_IDS_EXTRA)
