@@ -16,7 +16,6 @@
  */
 package net.bible.android.control.page
 
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import net.bible.android.common.toV11n
@@ -61,7 +60,7 @@ open class CurrentCommentaryPage internal constructor(
     override val currentPageContent: Document
         get() {
             return if(currentDocument == FakeBookFactory.compareDocument) {
-                val key: VerseRange = when(val origKey = originalKey ?: singleKey) {
+                val key: VerseRange = when(val origKey = originalCompareKey ?: singleKey) {
                     is VerseRange -> origKey
                     is Verse -> VerseRange(origKey.versification, origKey, origKey)
                     else -> throw RuntimeException("Invalid type")
@@ -95,10 +94,12 @@ open class CurrentCommentaryPage internal constructor(
     }
 
     private fun nextVerse() {
+        originalCompareKey = null
         setKey(getKeyPlus(1))
     }
 
     private fun previousVerse() {
+        originalCompareKey = null
         setKey(getKeyPlus(-1))
     }
 
@@ -129,10 +130,13 @@ open class CurrentCommentaryPage internal constructor(
     }
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
-    var originalKey: Key? = null
+    // If a passage (that is not just a single verse) is displayed, it is stored here.
+    var originalCompareKey: VerseRange? = null
 
     override fun doSetKey(key: Key?) {
-        originalKey = key
+        if(key is VerseRange) {
+            originalCompareKey = key
+        }
         if(key != null) {
             val verse = KeyUtil.getVerse(key)
             currentBibleVerse.setVerseSelected(versification, verse)
