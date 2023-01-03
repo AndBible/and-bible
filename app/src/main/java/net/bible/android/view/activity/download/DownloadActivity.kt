@@ -109,6 +109,15 @@ open class DownloadActivity : DocumentSelectionBase(
     private val booksNotFound = ArrayList<String>()
     private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
+    /**
+     * Load each of the document lists in parallel.
+     */
+    private suspend fun downloadDocJson() = coroutineScope {
+        launch { loadRecommendedDocuments() }
+        launch { loadDefaultDocuments() }
+        launch { loadPseudoBooks() }
+    }
+
     private suspend fun loadRecommendedDocuments() = withContext(Dispatchers.IO) {
         val source = URI("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
         val target = File(SharedConstants.MODULE_DIR, SharedConstants.RECOMMENDED_JSON)
@@ -422,18 +431,6 @@ open class DownloadActivity : DocumentSelectionBase(
         super.onCreateOptionsMenu(menu)
         menu.findItem(R.id.errors).isVisible = hasErrors
         return true
-    }
-
-    /**
-     * on Click handlers
-     */
-
-    private suspend fun downloadDocJson() = coroutineScope {
-        awaitAll(
-            async { loadRecommendedDocuments() },
-            async { loadDefaultDocuments() },
-            async { loadPseudoBooks() }
-        )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
