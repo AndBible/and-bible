@@ -138,15 +138,6 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.min
 
-import net.bible.android.control.page.CurrentPageManager
-import android.os.Bundle
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import net.bible.android.view.activity.search.SearchResults
-import net.bible.android.view.activity.search.SearchIndex
-import org.crosswire.jsword.index.IndexStatus
-import org.crosswire.jsword.index.search.SearchType
-
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
 
