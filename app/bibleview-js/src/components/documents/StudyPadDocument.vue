@@ -76,6 +76,7 @@ import {useJournal} from "@/composables/journal";
 import {StudyPadDocument} from "@/types/documents";
 import {BookmarkToLabel, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
 import Color from "color";
+import draggable from "vuedraggable";
 
 const props = defineProps<{ document: StudyPadDocument }>();
 
