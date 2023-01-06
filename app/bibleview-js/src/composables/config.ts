@@ -17,7 +17,7 @@
 
 
 import {computed, nextTick, reactive, Ref} from "vue";
-import {emit, Events, setupEventBusListener} from "@/eventbus";
+import {emit, setupEventBusListener} from "@/eventbus";
 import {isEqual} from "lodash";
 import {Deferred} from "@/utils";
 import {BibleViewDocumentType} from "@/types/documents";
@@ -199,11 +199,11 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
     window.bibleViewDebug.config = config;
     window.bibleViewDebug.appSettings = appSettings;
 
-    setupEventBusListener(Events.SET_ACTION_MODE, (value: boolean) => {
+    setupEventBusListener("set_action_mode", (value: boolean) => {
         appSettings.actionMode = value;
     });
 
-    setupEventBusListener(Events.SET_ACTIVE,
+    setupEventBusListener("set_active",
         ({hasActiveIndicator, isActive}: {hasActiveIndicator: boolean, isActive: boolean}) =>
         {
             appSettings.activeWindow = isActive;
@@ -243,7 +243,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         return compareConfig(newConfig, keys);
     }
 
-    setupEventBusListener(Events.SET_CONFIG,
+    setupEventBusListener("set_config",
         async function setConfig(
             {
                 config: newConfig,
@@ -260,7 +260,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
             const needsRefreshLocation = !initial && (isBible || documentType.value === "osis") && getNeedRefreshLocation(newConfig);
             const needBookmarkRefresh = getNeedBookmarkRefresh(newConfig);
 
-            if (needsRefreshLocation) emit(Events.CONFIG_CHANGED, defer)
+            if (needsRefreshLocation) emit("config_changed", defer)
 
             if(isBible && needBookmarkRefresh) {
                 config.disableBookmarking = true;

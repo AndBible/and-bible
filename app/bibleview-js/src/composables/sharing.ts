@@ -16,7 +16,7 @@
  */
 
 import {nextTick, provide, Ref, ref} from "vue";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {exportModeKey} from "@/types/constants";
 import {useAndroid} from "@/composables/android";
 
@@ -45,5 +45,5 @@ export function useSharing(
         exportMode.value = false;
         android.shareHtml(html);
     }
-    setupEventBusListener(Events.EXPORT_HTML, shareDocument)
+    setupEventBusListener("export_html", shareDocument)
 }

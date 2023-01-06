@@ -16,7 +16,7 @@
  */
 
 import {onUnmounted, reactive, watch, computed} from "vue";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {useAndroid} from "@/composables/android";
 
 export type ModalOpts = {
@@ -46,7 +46,7 @@ export function useModal(android: ReturnType<typeof useAndroid>) {
             close();
     }
 
-    setupEventBusListener(Events.CLOSE_MODALS, closeModals)
+    setupEventBusListener("close_modals", closeModals)
 
     watch(modalOpen, v => android.reportModalState(v), {flush: "sync"})
 

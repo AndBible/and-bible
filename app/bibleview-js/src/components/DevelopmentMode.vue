@@ -28,7 +28,7 @@
 
 <script lang="ts" setup>
 import {useCommon} from "@/composables";
-import {emit, Events} from "@/eventbus";
+import {emit} from "@/eventbus";
 import {inject} from "vue";
 import {androidKey} from "@/types/constants";
 import {QuerySelection} from "@/composables/android";
@@ -51,8 +51,8 @@ function testMakeBookmark() {
     note: "Test!",
     labels: [-(lblCount++ % 5) - 1]
   }
-  emit(Events.ADD_OR_UPDATE_BOOKMARKS, [bookmark])
-  emit(Events.REMOVE_RANGES)
+  emit("add_or_update_bookmarks", [bookmark])
+  emit("remove_ranges")
 }
 const {config, appSettings} = useCommon();
 

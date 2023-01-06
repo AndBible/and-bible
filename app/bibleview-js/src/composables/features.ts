@@ -17,7 +17,7 @@
 
 import {onBeforeMount, reactive, ref} from "vue";
 import {Deferred} from "@/utils";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {useParsers} from "@/composables/parsers";
 import {ReloadAddonsParams} from "@/types/common";
 import {UseAndroid} from "@/composables/android";
@@ -39,7 +39,7 @@ export function useCustomFeatures(android: UseAndroid) {
         }
     }
 
-    setupEventBusListener(Events.RELOAD_ADDONS, ({featureModuleNames}: ReloadAddonsParams) => {
+    setupEventBusListener("reload_addons", ({featureModuleNames}: ReloadAddonsParams) => {
         reloadFeatures(featureModuleNames)
     })
 

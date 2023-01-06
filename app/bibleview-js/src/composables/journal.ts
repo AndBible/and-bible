@@ -16,14 +16,14 @@
  */
 
 import {reactive} from "vue";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {Bookmark, BookmarkToLabel, Label, StudyPadTextItem} from "@/types/client-objects";
 
 export function useJournal(label: Label) {
     const journalTextEntries = reactive(new Map());
     const bookmarkToLabels = reactive(new Map());
 
-    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, (bookmarks: Bookmark[]) => {
+    setupEventBusListener("add_or_update_bookmarks", (bookmarks: Bookmark[]) => {
         for(const b of bookmarks) {
             if(b.bookmarkToLabels) {
                 updateBookmarkToLabels(...b.bookmarkToLabels);

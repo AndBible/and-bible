@@ -48,7 +48,7 @@ import {nextTick, onMounted, onUnmounted, provide, reactive, watch, computed, re
 import {testBookmarkLabels, testData} from "@/testdata";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {useScroll} from "@/composables/scroll";
 import {clearLog, useAndroid} from "@/composables/android";
 import {Deferred, setupWindowEventListener, waitNextAnimationFrame} from "@/utils";
@@ -147,13 +147,13 @@ function addDocuments(...docs: AnyDocument[]) {
     documentPromise.value = doAddDocuments()
 }
 
-setupEventBusListener(Events.CONFIG_CHANGED, async (deferred: Deferred) => {
+setupEventBusListener("config_changed", async (deferred: Deferred) => {
     const verseBeforeConfigChange = currentVerse.value;
     await deferred.wait();
     scrollToId(`o-${verseBeforeConfigChange}`, {now: true})
 })
 
-setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
+setupEventBusListener("clear_document", function clearDocument() {
     footNoteCount = 0;
     resetHighlights();
     closeModals();
@@ -162,7 +162,7 @@ setupEventBusListener(Events.CLEAR_DOCUMENT, function clearDocument() {
     documents.splice(0)
 });
 
-setupEventBusListener(Events.ADD_DOCUMENTS, addDocuments);
+setupEventBusListener("add_documents", addDocuments);
 setupWindowEventListener("error", (e) => {
     console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
 });
@@ -174,7 +174,7 @@ if(config.developmentMode) {
 }
 
 let titlePrefix = ""
-setupEventBusListener(Events.SET_TITLE, function setTitle(title: string) {
+setupEventBusListener("set_title", function setTitle(title: string) {
     titlePrefix = title;
 });
 
@@ -259,7 +259,7 @@ const topStyle = computed(() => {
           `;
 });
 
-setupEventBusListener(Events.ADJUST_LOADING_COUNT, (a: number) => {
+setupEventBusListener("adjust_loading_count", (a: number) => {
     loadingCount.value += a;
     if(loadingCount.value < 0) {
         console.error("Loading count now below zero, setting to 0", loadingCount.value);
@@ -274,8 +274,8 @@ function scrollUpDown(up = false) {
     doScrolling(window.pageYOffset + (up ? -amount: amount), 500)
 }
 
-setupEventBusListener(Events.SCROLL_DOWN, () => scrollUpDown());
-setupEventBusListener(Events.SCROLL_UP, () => scrollUpDown(true));
+setupEventBusListener("scroll_down", () => scrollUpDown());
+setupEventBusListener("scroll_up", () => scrollUpDown(true));
 
 useSharing({topElement, android});
 const direction = computed(() => appSettings.rightToLeft ? "rtl": "ltr");

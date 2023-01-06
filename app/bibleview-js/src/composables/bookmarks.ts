@@ -25,7 +25,7 @@ import {
     intersection,
     rangesOverlap
 } from "@/utils";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
 import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {Icon, icon} from "@fortawesome/fontawesome-svg-core";
@@ -182,11 +182,11 @@ export function useGlobalBookmarks(config: Config) {
         bookmarkIdsByOrdinal.clear();
     }
 
-    setupEventBusListener(Events.REMOVE_RANGES, function removeRanges() {
+    setupEventBusListener("remove_ranges", function removeRanges() {
         window.getSelection()!.removeAllRanges();
     })
 
-    setupEventBusListener(Events.DELETE_BOOKMARKS, function deleteBookmarks(bookmarkIds: number[]) {
+    setupEventBusListener("delete_bookmarks", function deleteBookmarks(bookmarkIds: number[]) {
         for (const bId of bookmarkIds) {
             const bookmark = bookmarks.get(bId)!;
             removeBookmarkFromOrdinalMap(bookmark);
@@ -194,11 +194,11 @@ export function useGlobalBookmarks(config: Config) {
         }
     });
 
-    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, function addOrUpdateBookmarks(bookmarks: Bookmark[]) {
+    setupEventBusListener("add_or_update_bookmarks", function addOrUpdateBookmarks(bookmarks: Bookmark[]) {
         updateBookmarks(bookmarks)
     });
 
-    setupEventBusListener(Events.BOOKMARK_NOTE_MODIFIED,
+    setupEventBusListener("bookmark_note_modified",
         ({id, notes, lastUpdatedOn}: {id: number, notes: string, lastUpdatedOn: number}) =>
         {
             const b = bookmarks.get(id);
@@ -209,7 +209,7 @@ export function useGlobalBookmarks(config: Config) {
             }
         });
 
-    setupEventBusListener(Events.UPDATE_LABELS, function updateLabels(labels: Label[]) {
+    setupEventBusListener("update_labels", function updateLabels(labels: Label[]) {
         return updateBookmarkLabels(labels);
     })
 

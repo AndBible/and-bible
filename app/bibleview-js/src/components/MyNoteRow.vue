@@ -59,7 +59,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import LabelList from "@/components/LabelList.vue";
 import BookmarkText from "@/components/BookmarkText.vue";
 import {useCommon} from "@/composables";
-import {emit as ebEmit, Events} from "@/eventbus";
+import {emit as ebEmit} from "@/eventbus";
 import {computed, ref, inject} from "vue";
 import EditableText from "@/components/EditableText.vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
@@ -73,7 +73,7 @@ const android = inject(androidKey)!;
 const expanded = ref(false);
 
 function editBookmark(event: MouseEvent) {
-  ebEmit(Events.BOOKMARK_CLICKED, props.bookmark.id, {locateTop: isBottomHalfClicked(event)})
+  ebEmit("bookmark_clicked", props.bookmark.id, {locateTop: isBottomHalfClicked(event)})
 }
 
 function save(newText: string) {

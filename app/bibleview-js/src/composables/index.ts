@@ -21,7 +21,7 @@ import {
     reactive, Ref,
 } from "vue";
 import {abbreviated, sprintf, adjustedColor} from "@/utils";
-import {emit, Events} from "@/eventbus";
+import {emit} from "@/eventbus";
 import {androidKey, appSettingsKey, calculatedConfigKey, configKey, stringsKey, verseInfoKey} from "@/types/constants";
 
 export function useCommon() {
@@ -49,7 +49,7 @@ export function useCommon() {
     }
 
     return {config, appSettings, calculatedConfig, strings, sprintf, split,
-        adjustedColor, formatTimestamp, abbreviated, emit, Events, android,
+        adjustedColor, formatTimestamp, abbreviated, emit, android,
     }
 }
 

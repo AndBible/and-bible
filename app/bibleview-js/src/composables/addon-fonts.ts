@@ -15,13 +15,13 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {onBeforeMount} from "vue";
 
 export function useAddonFonts() {
     const elements: HTMLElement[] = [];
 
-    setupEventBusListener(Events.RELOAD_ADDONS, ({fontModuleNames}: {fontModuleNames: string[]}) => {
+    setupEventBusListener("reload_addons", ({fontModuleNames}: {fontModuleNames: string[]}) => {
         reloadFonts(fontModuleNames)
     })
 

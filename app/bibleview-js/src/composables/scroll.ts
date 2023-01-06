@@ -16,7 +16,7 @@
  */
 
 import {nextTick, watch, computed, ref, Ref} from "vue";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {isInViewport} from "@/utils";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
 import {useVerseHighlight} from "@/composables/verse-highlight";
@@ -203,9 +203,9 @@ export function useScroll(
         console.log("Content is set ready!");
     }
 
-    setupEventBusListener(Events.SET_OFFSETS, setToolbarOffset)
-    setupEventBusListener(Events.SCROLL_TO_VERSE, scrollToId)
-    setupEventBusListener(Events.SETUP_CONTENT, setupContent)
+    setupEventBusListener("set_offsets", setToolbarOffset)
+    setupEventBusListener("scroll_to_verse", scrollToId)
+    setupEventBusListener("setup_content", setupContent)
     return {scrollToId, isScrolling, doScrolling}
 }
 

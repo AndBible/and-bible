@@ -79,7 +79,7 @@ import {
     Callback,
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton.vue";
-import {emit, Events} from "@/eventbus";
+import {emit} from "@/eventbus";
 import AmbiguousActionButtons from "@/components/AmbiguousActionButtons.vue";
 import {sortBy} from "lodash";
 import {
@@ -260,7 +260,7 @@ async function handle(event: MouseEvent) {
         return;
     }
     if(!isActive && !hasParticularClicks) return;
-    emit(Events.WINDOW_CLICKED);
+    emit("back_clicked");
     const _verseInfo: Nullable<EventVerseInfo> = getEventVerseInfo(event);
     if (multiSelectionMode.value && multiSelect(_verseInfo)) {
         return;
@@ -274,7 +274,7 @@ async function handle(event: MouseEvent) {
             || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs)
         ) {
             if (eventFunctions[0].options.bookmarkId) {
-                emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId, {locateTop: isBottomHalfClicked(event)});
+                emit("bookmark_clicked", eventFunctions[0].options.bookmarkId, {locateTop: isBottomHalfClicked(event)});
             } else {
                 const cb = eventFunctions[0].callback;
                 if(cb) {

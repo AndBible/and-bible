@@ -74,7 +74,7 @@
 import BookmarkText from "@/components/BookmarkText.vue";
 import EditableText from "@/components/EditableText.vue";
 import ButtonRow from "@/components/ButtonRow.vue";
-import {emit as ebEmit, Events} from "@/eventbus";
+import {emit as ebEmit} from "@/eventbus";
 import {inject, computed, ref} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
 import {androidKey, exportModeKey} from "@/types/constants";
@@ -124,7 +124,7 @@ const journalText = computed(() => {
 });
 
 function editBookmark(event: MouseEvent) {
-  ebEmit(Events.BOOKMARK_CLICKED, props.journalEntry.id, {openInfo: true, locateTop: isBottomHalfClicked(event)})
+  ebEmit("bookmark_clicked", props.journalEntry.id, {openInfo: true, locateTop: isBottomHalfClicked(event)})
 }
 
 function addNewEntryAfter() {

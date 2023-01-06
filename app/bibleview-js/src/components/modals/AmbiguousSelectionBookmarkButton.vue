@@ -43,7 +43,7 @@
 import LabelList from "@/components/LabelList.vue";
 import {inject, computed} from "vue";
 import {useCommon} from "@/composables";
-import {Events, emit} from "@/eventbus";
+import {emit} from "@/eventbus";
 import Color from "color";
 import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -71,12 +71,12 @@ const buttonStyle = computed(() => {
 const locateTop = inject(locateTopKey)!;
 function editNotes() {
     $emit("selected");
-    emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openNotes: true, locateTop: locateTop.value});
+    emit("bookmark_clicked", bookmark.value.id, {openNotes: true, locateTop: locateTop.value});
 }
 
 function openBookmark(openInfo = false) {
     $emit("selected");
-    emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openInfo, locateTop: locateTop.value});
+    emit("bookmark_clicked", bookmark.value.id, {openInfo, locateTop: locateTop.value});
 }
 
 function htmlToString(html: string) {

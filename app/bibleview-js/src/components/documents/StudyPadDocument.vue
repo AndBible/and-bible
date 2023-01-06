@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import {computed, ref, inject, provide, nextTick, onBeforeUpdate, Ref} from "vue";
 import {useCommon} from "@/composables";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
 import StudyPadRow from "@/components/StudyPadRow.vue";
 import draggable from "vuedraggable";
@@ -164,7 +164,7 @@ const adding = ref(false);
 
 const lastEntry = computed(() => journalEntries.value[journalEntries.value.length - 1]);
 
-setupEventBusListener(Events.ADD_OR_UPDATE_JOURNAL, async (
+setupEventBusListener("add_or_update_journal", async (
   {
     journal,
     bookmarkToLabelsOrdered,
@@ -191,11 +191,11 @@ setupEventBusListener(Events.ADD_OR_UPDATE_JOURNAL, async (
   }
 })
 
-setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARK_TO_LABEL, (bookmarkToLabel: BookmarkToLabel) => {
+setupEventBusListener("add_or_update_bookmark_to_label", (bookmarkToLabel: BookmarkToLabel) => {
   updateBookmarkToLabels(bookmarkToLabel);
 })
 
-setupEventBusListener(Events.DELETE_JOURNAL, (journalId: number) => {
+setupEventBusListener("delete_journal", (journalId: number) => {
   deleteJournal(journalId)
 })
 

@@ -43,7 +43,7 @@
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ref, inject, watch} from "vue";
 import {useCommon} from "@/composables";
-import {eventBus, Events} from "@/eventbus";
+import {eventBus} from "@/eventbus";
 import {androidKey} from "@/types/constants";
 
 let cancel = () => {}
@@ -74,10 +74,10 @@ async function clicked(event: MouseEvent|TouchEvent) {
 watch(expanded, v => {
   if(v) {
     cancel()
-    eventBus.on(Events.WINDOW_CLICKED, close);
+    eventBus.on("back_clicked", close);
     cancel = close
   } else {
-    eventBus.off(Events.WINDOW_CLICKED, close);
+    eventBus.off("back_clicked", close);
     if(cancel === close) {
       cancel = () => {}
     }

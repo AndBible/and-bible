@@ -17,7 +17,7 @@
 
 import {Deferred} from "@/utils";
 import {onUnmounted, reactive} from "vue";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 
 export function useCustomCss() {
     const cssNodes = new Map();
@@ -84,7 +84,7 @@ export function useCustomCss() {
         reloadStyles(styleModuleNames.split(","))
     }
 
-    setupEventBusListener(Events.RELOAD_ADDONS, ({styleModuleNames}: {styleModuleNames: string[]}) => {
+    setupEventBusListener("reload_addons", ({styleModuleNames}: {styleModuleNames: string[]}) => {
         reloadStyles(styleModuleNames)
     })
 

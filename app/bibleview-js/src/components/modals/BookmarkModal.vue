@@ -88,7 +88,7 @@
 
 <script lang="ts" setup>
 import ModalDialog from "@/components/modals/ModalDialog.vue";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {computed, ref, inject, provide, nextTick} from "vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -124,7 +124,7 @@ const labels = computed(() => {
 const bookmarkNotes = computed(() => bookmark.value!.notes);
 let originalNotes: string|null = null;
 
-setupEventBusListener(Events.BOOKMARK_CLICKED,
+setupEventBusListener("bookmark_clicked",
     async (
         bookmarkId_: number,
         {
