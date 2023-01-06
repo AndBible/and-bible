@@ -296,7 +296,7 @@ async function handle(event: MouseEvent) {
                 const s = await select(event, allEventFunctions);
                 if (s && s.type === "callback" && s.callback) s.callback();
             } else {
-                console.error("")
+                console.error("Should not end up here")
             }
         }
     } else {
