@@ -9,10 +9,12 @@ on:
     paths:
       - '**/*.vue'
       - '**/*.js'
+      - '**/*.ts'
   pull_request:
     paths:
     - '**/*.vue'
     - '**/*.js'
+    - '**/*.ts'
   workflow_dispatch:
 
 permissions:
