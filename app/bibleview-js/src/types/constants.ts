@@ -15,12 +15,39 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {InjectionKey} from "@vue/runtime-core";
+import {InjectionKey, Ref} from "vue";
 import {OsisFragment} from "@/types/client-objects";
-import {UseAndroid} from "@/composables/android";
+import {useAndroid} from "@/composables/android";
+import {BibleDocumentInfo, FootNoteCount, VerseInfo} from "@/types/common";
+import {useVerseHighlight} from "@/composables/verse-highlight";
+import {useGlobalBookmarks} from "@/composables/bookmarks";
+import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
+import {useCustomCss} from "@/composables/custom-css";
+import {useScroll} from "@/composables/scroll";
+import {useModal} from "@/composables/modal";
+import {useStrings} from "@/composables/strings";
+import {useCustomFeatures} from "@/composables/features";
+import {useReferenceCollector} from "@/composables";
 
-export const osisFragmentKey: InjectionKey<OsisFragment> = Symbol();
-export const androidKey: InjectionKey<UseAndroid> = Symbol();
+export const osisFragmentKey: InjectionKey<OsisFragment> = Symbol("osisFragment");
+export const androidKey: InjectionKey<ReturnType<typeof useAndroid>> = Symbol("android");
+export const bibleDocumentInfoKey: InjectionKey<BibleDocumentInfo> = Symbol("bibleDocumentInfo");
+export const verseInfoKey: InjectionKey<VerseInfo> = Symbol("verseInfo");
+export const modalKey: InjectionKey<ReturnType<typeof useModal>> = Symbol("modal");
+export const footnoteCountKey: InjectionKey<FootNoteCount> = Symbol("footnoteCount");
+export const referenceCollectorKey: InjectionKey<ReturnType<typeof useReferenceCollector>> = Symbol("referenceCollector");
+export const verseHighlightKey: InjectionKey<ReturnType<typeof useVerseHighlight>> = Symbol("verseHighlight");
+export const globalBookmarksKey: InjectionKey<ReturnType<typeof useGlobalBookmarks>> = Symbol("globalBookmarks");
+export const configKey: InjectionKey<Config> = Symbol("config");
+export const appSettingsKey: InjectionKey<AppSettings> = Symbol("appSettings");
+export const calculatedConfigKey: InjectionKey<CalculatedConfig> = Symbol("calculatedConfig");
+export const customCssKey: InjectionKey<ReturnType<typeof useCustomCss>> = Symbol("customCss");
+export const scrollKey: InjectionKey<ReturnType<typeof useScroll>> = Symbol("scroll");
+export const stringsKey: InjectionKey<ReturnType<typeof useStrings>> = Symbol("strings");
+export const exportModeKey: InjectionKey<Ref<boolean>> = Symbol("exportMode");
+export const customFeaturesKey: InjectionKey<ReturnType<typeof useCustomFeatures>> = Symbol("customFeatures");
+export const locateTopKey: InjectionKey<Ref<boolean>> = Symbol("locateTop");
+
 
 export const DocumentTypes = {
     BIBLE_DOCUMENT: "bible",
@@ -42,5 +69,3 @@ export const BookCategories = {
     COMMENTARIES: "COMMENTARY",
     GENERAL_BOOK: "GENERAL_BOOK",
 }
-
-export const fadeReferenceDelay = -1;

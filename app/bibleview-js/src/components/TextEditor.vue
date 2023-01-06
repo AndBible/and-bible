@@ -16,13 +16,13 @@
   -->
 
 <template>
-  <Modal v-if="showHelp" @close="showHelp = false" blocking locate-top>
+  <ModalDialog v-if="showHelp" @close="showHelp = false" blocking locate-top>
     {{sprintf(strings.refParserHelp, "RefParser")}}
     <a @click="openDownloads">{{strings.openDownloads}}</a>
     <template #title>
       {{strings.inputReference}}
     </template>
-  </Modal>
+  </ModalDialog>
   <InputText ref="inputText">
     {{strings.inputReference}}
     <template #buttons>
@@ -42,184 +42,176 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {inject, onBeforeUnmount, onMounted, onUnmounted, watch, computed, ref} from "vue";
 import {useCommon} from "@/composables";
 import {init, exec, queryCommandState} from "@/lib/pell/pell";
-import InputText from "@/components/modals/InputText";
+import InputText from "@/components/modals/InputText.vue";
 import {useStrings} from "@/composables/strings";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {
-  faBible,
-  faIndent,
-  faListOl,
-  faListUl,
-  faOutdent,
-  faTimes,
+    faBible,
+    faIndent,
+    faListOl,
+    faListUl,
+    faOutdent,
+    faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
-import Modal from "@/components/modals/Modal";
+import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {setupElementEventListener} from "@/utils";
-import {androidKey} from "@/types/constants";
+import {androidKey, customFeaturesKey} from "@/types/constants";
 
-export default {
-  name: "TextEditor",
-  components: {InputText, FontAwesomeIcon, Modal},
-  props: {
-    text: {type: String, required: true}
-  },
-  emits: ['save', "close"],
-  setup(props, {emit}) {
-    const android = inject(androidKey);
-    const {parse, features} = inject('customFeatures')
-    const hasRefParser = computed(() => features.has("RefParser"));
-    const editorElement = ref(null);
-    const editor = ref(null);
-    const inputText = ref(null);
-    const strings = useStrings();
-    const showHelp = ref(false);
+const props = defineProps<{text: string}>();
+const emit = defineEmits(["save", "close"]);
 
-    // TODO: probably this hack can be removed.
-    function setFocus(value) {
-      android.reportInputFocus(value);
-    }
-    const oList = {
-      icon: icon(faListOl).html,
-      title: 'Ordered List',
-      state: () => queryCommandState('insertOrderedList'),
-      result: () => exec('insertOrderedList')
-    };
+const android = inject(androidKey)!;
+const {parse, features} = inject(customFeaturesKey)!
+const hasRefParser = computed(() => features.has("RefParser"));
+const editorElement = ref<HTMLElement|null>(null);
 
-    const uList = {
-      icon: icon(faListUl).html,
-      title: 'Unordered List',
-      state: () => queryCommandState('insertUnorderedList'),
-      result: () => exec('insertUnorderedList')
-    }
+type EditorElement = HTMLElement & {content: HTMLElement}
 
-    const indent = {
-      icon: icon(faIndent).html,
-      title: 'Indent',
-      result: () => exec('indent')
-    }
+const editor = ref<EditorElement|null>(null);
+const inputText = ref<InstanceType<typeof InputText>|null>(null);
+const strings = useStrings();
+const showHelp = ref(false);
 
-    const outdent = {
-      icon: icon(faOutdent).html,
-      title: 'Indent',
-      result: () => exec('outdent')
-    }
+const oList = {
+    icon: icon(faListOl).html,
+    title: 'Ordered List',
+    state: () => queryCommandState('insertOrderedList'),
+    result: () => exec('insertOrderedList')
+};
 
-    const close = {
-      icon: icon(faTimes).html,
-      class: "end",
-      title: 'Close',
-      result: () => {
+const uList = {
+    icon: icon(faListUl).html,
+    title: 'Unordered List',
+    state: () => queryCommandState('insertUnorderedList'),
+    result: () => exec('insertUnorderedList')
+}
+
+const indent = {
+    icon: icon(faIndent).html,
+    title: 'Indent',
+    result: () => exec('indent')
+}
+
+const outdent = {
+    icon: icon(faOutdent).html,
+    title: 'Indent',
+    result: () => exec('outdent')
+}
+
+const close = {
+    icon: icon(faTimes).html,
+    class: "end",
+    title: 'Close',
+    result: () => {
         save();
         emit('close')
-      }
     }
+}
 
-    const bibleLink = {
-      name: 'bibleLink',
-      icon: icon(faBible).html,
-      title: 'Insert bible reference',
-      result: async () => {
-        const originalRange = document.getSelection().getRangeAt(0);
+const bibleLink = {
+    name: 'bibleLink',
+    icon: icon(faBible).html,
+    title: 'Insert bible reference',
+    result: async () => {
+        const originalRange = document.getSelection()?.getRangeAt(0);
         //Always add the "en" language, so at least the english parser always exists.
         let error = ""
 
         if(originalRange) {
-          let text = originalRange.toString();
-          let parsed = "";
-          //Keep trying to get a bible reference until either
-          //    * It is successfully parsed (parsed != "") or
-          //    * The user cancels (text === null)
-          while (parsed === "" && text !== null) {
-            text = await inputText.value.inputText(text, error);
+            let text: string|null = originalRange.toString();
+            let parsed = "";
+            //Keep trying to get a bible reference until either
+            //    * It is successfully parsed (parsed != "") or
+            //    * The user cancels (text === null)
+            while (parsed === "" && text !== null) {
+                text = await inputText.value!.inputText(text, error);
+                if (text !== null) {
+                    parsed = parse(text)
+                    if (parsed === "") {
+                        error = strings.invalidReference;
+                    } else {
+                        error = "";
+                    }
+                }
+            }
             if (text !== null) {
-              parsed = parse(text)
-              if (parsed === "") {
-                error = strings.invalidReference;
-              } else {
-                error = "";
-              }
+                document.getSelection()!.removeAllRanges();
+                if(originalRange) {
+                    document.getSelection()!.addRange(originalRange);
+                }
+                if(!originalRange || originalRange.collapsed) {
+                    exec('insertHTML', `<a href="osis://?osis=${parsed}">${text}</a>`);
+                } else {
+                    exec('createLink', `osis://?osis=${parsed}`)
+                }
             }
-          }
-          if (text !== null) {
-            document.getSelection().removeAllRanges();
-            if(originalRange) {
-              document.getSelection().addRange(originalRange);
-            }
-            if(!originalRange || originalRange.collapsed) {
-              exec('insertHTML', `<a href="osis://?osis=${parsed}">${text}</a>`);
-            } else {
-              exec('createLink', `osis://?osis=${parsed}`)
-            }
-          }
-          editor.value.content.focus();
+            editor.value!.content.focus();
         }
-      }
     }
+}
 
-    const editText = ref(props.text);
-    const dirty = ref(false);
+const editText = ref(props.text);
+const dirty = ref(false);
 
-    function save() {
-      if(dirty.value) {
+function save() {
+    if(dirty.value) {
         emit('save', editText.value)
         dirty.value = false;
-      }
     }
+}
 
-    watch(editText, debounce(save, 2000))
+watch(editText, debounce(save, 2000))
 
-    const divider = {divider: true};
+const divider = {divider: true};
 
-    function openDownloads() {
-      showHelp.value = false;
-      android.openDownloads();
-    }
+function openDownloads() {
+    showHelp.value = false;
+    android.openDownloads();
+}
 
-    async function refChooserDialog() {
-      inputText.value.text = await android.refChooserDialog();
-    }
+async function refChooserDialog() {
+    inputText.value!.setText(await android.refChooserDialog());
+}
 
-    onMounted(() => {
-      editor.value = init({
-        element: editorElement.value,
-        onChange: html => {
-          editText.value = html;
-          dirty.value = true;
+onMounted(() => {
+    editor.value = init({
+        element: editorElement.value!,
+        onChange: (html: string) => {
+            editText.value = html;
+            dirty.value = true;
         },
         actions: [
-          'bold', 'italic', 'underline', divider, oList, uList, divider, outdent, indent, divider, bibleLink, divider, close
+            'bold', 'italic', 'underline', divider, oList, uList, divider, outdent, indent, divider, bibleLink, divider, close
         ],
-      });
-      editor.value.content.innerHTML = editText.value;
-      editor.value.content.focus();
-      android.setEditing(true);
     });
+    editor.value!.content.innerHTML = editText.value;
+    editor.value!.content.focus();
+    android.setEditing(true);
+});
 
-    setupElementEventListener(editorElement, "keyup", e => {
-      if(e.key === "Escape") {
+setupElementEventListener(editorElement, "keyup", e => {
+    if(e.key === "Escape") {
         save();
         emit('close')
         e.stopPropagation()
-      }
-    })
+    }
+})
 
-    onBeforeUnmount(() => {
-      save();
-    });
+onBeforeUnmount(() => {
+    save();
+});
 
-    onUnmounted(() => {
-      android.setEditing(false);
-    })
+onUnmounted(() => {
+    android.setEditing(false);
+})
 
-    return {setFocus, editorElement, dirty, inputText, showHelp, openDownloads, hasRefParser, refChooserDialog, ...useCommon()}
-  }
-}
+const {sprintf} = useCommon();
 </script>
 <style lang="scss">
 @import '~@/lib/pell/pell.scss';
@@ -302,7 +294,7 @@ export default {
   position: relative;
 }
 .edit-area,.pell {
-  margin: 0px;
+  margin: 0;
 }
 .header {
   display: flex;

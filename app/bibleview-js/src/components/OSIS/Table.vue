@@ -19,19 +19,14 @@
   <table :border="border"><slot/></table>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 
-export default {
-  name: "Table",
-  props: {
-    border: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "border", ["1", "0"])
-    return useCommon();
-  },
-}
+const props = defineProps({
+  border: {type: String, default: null},
+});
+checkUnsupportedProps(props, "border", ["1", "0"])
+useCommon();
 </script>
 
 <style scoped>

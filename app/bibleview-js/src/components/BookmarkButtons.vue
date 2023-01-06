@@ -87,83 +87,77 @@
   </AreYouSure>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {useCommon} from "@/composables";
 import {computed, ref, inject} from "vue";
-import AreYouSure from "@/components/modals/AreYouSure";
+import AreYouSure from "@/components/modals/AreYouSure.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Color from "color";
 import {sortBy} from "lodash";
-import {androidKey} from "@/types/constants";
+import {androidKey, globalBookmarksKey} from "@/types/constants";
+import {ColorParam} from "@/types/common";
+import {Bookmark, LabelAndStyle} from "@/types/client-objects";
 
-export default {
-  name: "BookmarkButtons",
-  props: {
-    bookmark: {type: Object, required: true},
-    showStudyPadButtons: {type: Boolean, default: false},
-    inBookmarkModal: {type: Boolean, default: false},
-  },
-  emits: ["close-bookmark", "edit-clicked", 'info-clicked'],
-  components: {AreYouSure, FontAwesomeIcon},
-  setup(props, {emit}) {
-    const areYouSure = ref(null);
-    const bookmark = computed(() => props.bookmark);
-    const android = inject(androidKey);
+const props = withDefaults(defineProps<{
+    bookmark: Bookmark
+    showStudyPadButtons: boolean
+    inBookmarkModal: boolean
+}>(), {
+    showStudyPadButtons: false,
+    inBookmarkModal: false
+});
 
-    function toggleWholeVerse() {
-      android.setBookmarkWholeVerse(bookmark.value.id, !bookmark.value.wholeVerse);
-    }
+const emit = defineEmits(["close-bookmark", "edit-clicked", 'info-clicked']);
 
-    function shareVerse() {
-      android.shareBookmarkVerse(bookmark.value.id);
-    }
+const areYouSure = ref<InstanceType<typeof AreYouSure>|null>(null);
+const bookmark = computed(() => props.bookmark);
+const android = inject(androidKey)!;
 
-    function assignLabels() {
-      android.assignLabels(bookmark.value.id);
-    }
+function toggleWholeVerse() {
+  android.setBookmarkWholeVerse(bookmark.value.id, !bookmark.value.wholeVerse);
+}
 
-    const {bookmarkLabels} = inject("globalBookmarks");
+function shareVerse() {
+  android.shareBookmarkVerse(bookmark.value.id);
+}
 
-    const labels = computed(() => {
-      return sortBy(bookmark.value.labels.map(id => bookmarkLabels.get(id)), ["name"]);
-    });
+const {bookmarkLabels} = inject(globalBookmarksKey)!;
 
-    const primaryLabel = computed(() => {
-      const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
-      return bookmarkLabels.get(primaryLabelId);
-    });
+const labels = computed<LabelAndStyle[]>(() => {
+  return sortBy(bookmark.value.labels.map((id: number) => bookmarkLabels.get(id)!), ["name"]);
+});
 
-    function openStudyPad(labelId) {
-      android.openStudyPad(labelId, bookmark.value.id);
-    }
+const primaryLabel = computed(() => {
+  const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
+  return bookmarkLabels.get(primaryLabelId)!;
+});
 
-    async function removeBookmark() {
-      if(await areYouSure.value.areYouSure()) {
-        emit("close-bookmark");
-        android.removeBookmark(bookmark.value.id);
-      }
-    }
+function openStudyPad(labelId: number) {
+  android.openStudyPad(labelId, bookmark.value.id);
+}
 
-    function buttonColor(color, highlighted = false) {
-      if(props.inBookmarkModal) {
-        return ""
-      }
-      let col = Color(color);
-      if(col.isLight()) {
-        col = col.darken(0.5);
-      }
-      if(highlighted) {
-        col = col.alpha(0.7);
-      }
-      return `color:${col.hsl().string()};`;
-    }
-
-    return {
-      toggleWholeVerse, shareVerse, assignLabels, removeBookmark, areYouSure, labels, openStudyPad,
-      primaryLabel, buttonColor, ...useCommon()
-    }
+async function removeBookmark() {
+  if(await areYouSure.value!.areYouSure()) {
+    emit("close-bookmark");
+    android.removeBookmark(bookmark.value.id);
   }
 }
+
+function buttonColor(color: ColorParam, highlighted = false) {
+  if(props.inBookmarkModal) {
+    return ""
+  }
+  let col = Color(color);
+  if(col.isLight()) {
+    col = col.darken(0.5);
+  }
+  if(highlighted) {
+    col = col.alpha(0.7);
+  }
+  return `color:${col.hsl().string()};`;
+}
+
+const {strings} = useCommon();
 </script>
 
 <style scoped lang="scss">

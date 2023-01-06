@@ -22,25 +22,23 @@ import {onMounted, reactive, Ref} from "vue";
 import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {StudyPadEntryTypes} from "@/types/constants";
-import {errorBox} from "@/composables/config";
+import {Config, errorBox} from "@/composables/config";
 import {
-    ABDocument,
     AsyncFunc,
-    Config,
-    JournalEntryType,
-    JSONString,
+    JournalEntryType, JSONString,
     LogEntry
 } from "@/types/common";
-import {Bookmark, JournalEntry} from "@/types/client-objects";
+import {Bookmark, CombinedRange, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
+import {BibleDocumentType} from "@/types/documents";
 
-export type AndroidInterface = {
+export type BibleJavascriptInterface = {
     scrolledToOrdinal: (ordinal: number) => void,
     setClientReady: () => void,
     setLimitAmbiguousModalSize: (value: boolean) => void,
     requestPreviousChapter: AsyncFunc,
     requestNextChapter: AsyncFunc,
     refChooserDialog: AsyncFunc,
-    saveBookmarkNote: (bookmarkId: number, note: string) => void,
+    saveBookmarkNote: (bookmarkId: number, note: string|null) => void,
     removeBookmark: (bookmarkId: number) => void,
     assignLabels: (bookmarkId: number) => void,
     console: (loggerName: string, message: string) => void
@@ -49,7 +47,7 @@ export type AndroidInterface = {
     openExternalLink: (link: string) => void,
     openDownloads: () => void,
     setEditing: (enabled: boolean) => void,
-    createNewJournalEntry: (labelId: number, entryType: JournalEntryType, afterEntryId: number) => void,
+    createNewJournalEntry: (labelId: number, entryType?: JournalEntryType, afterEntryId?: number) => void,
     deleteJournalEntry: (journalId: number) => void,
     removeBookmarkLabel: (bookmarkId: number, labelId: number) => void,
     updateOrderNumber: (labelId: number, data: JSONString) => void,
@@ -76,26 +74,27 @@ export type AndroidInterface = {
     onKeyDown: (key: string) => void,
 }
 
-type NotInJsSide =
-    "updateJournalTextEntry" |
-    "updateOrderNumber" |
-    "console"|
-    "selectionCleared"|
-    "updateBookmarkToLabel"
+//type NotInJsSide =
+//    "updateJournalTextEntry" |
+//    "updateOrderNumber" |
+//    "console"|
+//    "selectionCleared"|
+//    "updateBookmarkToLabel"
 
-export type UseAndroid = Omit<AndroidInterface, NotInJsSide> & {
-    updateOrderNumber: (labelId: number, bookmarks: Bookmark[], journals: JournalEntry[]) => void
-    updateJournalEntry: (entry: JournalEntry, changes: Partial<JournalEntry>) => void
-}
+//export type UseAndroid = Omit<AndroidInterface, NotInJsSide> & {
+//    updateOrderNumber: (labelId: number, bookmarks: StudyPadBookmarkItem[], journals: StudyPadTextItem[]) => void
+//    updateJournalEntry: (entry: StudyPadItem, changes: Partial<StudyPadItem>) => void
+//}
+
+export type UseAndroid = ReturnType<typeof useAndroid>
 
 let callId = 0;
 
 export const logEntries = reactive<LogEntry[]>([])
 
+const logEntriesTemp: LogEntry[] = [];
 
-const logEntriesTemp: (LogEntry & {count: number})[] = [];
-
-function addLog(logEntry: LogEntry) {
+function addLog(logEntry: Pick<LogEntry, "type"|"msg">) {
     const previous = logEntriesTemp.find(v => v.msg === logEntry.msg && v.type === logEntry.type);
     if(previous) {
         previous.count ++;
@@ -157,7 +156,17 @@ export function patchAndroidConsole() {
     }
 }
 
-export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Config): UseAndroid {
+export type QuerySelection = {
+    bookInitials: string
+    startOrdinal: number,
+    startOffset: number,
+    endOrdinal: number,
+    endOffset: number,
+    bookmarks: number[],
+    text: string
+}
+
+export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Config) {
     const responsePromises = new Map();
 
     function response(callId: number, returnValue: any) {
@@ -172,7 +181,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         }
     }
 
-    function querySelection() {
+    function querySelection(): QuerySelection|string|null {
         const selection = window.getSelection()!;
         if (selection.rangeCount < 1 || selection.isCollapsed) return null;
         const selectionOnly = selection.toString();
@@ -180,7 +189,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         const documentElem: HTMLElement = range.startContainer.parentElement!.closest(".bible-document")!;
         if(!documentElem) return selectionOnly
 
-        const bookInitials = documentElem.dataset.bookInitials;
+        const bookInitials = documentElem.dataset.bookInitials!;
         let startOrdinal: number, startOffset: number, endOrdinal: number, endOffset: number;
 
         try {
@@ -198,7 +207,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
             }
         }
 
-        function bookmarkRange(b: Bookmark) {
+        function bookmarkRange(b: Bookmark): CombinedRange {
             const offsetRange = b.offsetRange || [0, null]
             if(b.bookInitials !== bookInitials) {
                 offsetRange[0] = 0;
@@ -239,11 +248,11 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         return returnValue
     }
 
-    async function requestPreviousChapter(): Promise<ABDocument> {
+    async function requestPreviousChapter(): Promise<BibleDocumentType> {
         return deferredCall((callId) => window.android.requestPreviousChapter(callId));
     }
 
-    async function requestNextChapter(): Promise<ABDocument> {
+    async function requestNextChapter(): Promise<BibleDocumentType> {
         return deferredCall((callId) => window.android.requestNextChapter(callId));
     }
 
@@ -251,12 +260,12 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         return deferredCall((callId) => window.android.refChooserDialog(callId));
     }
 
-    function scrolledToOrdinal(ordinal: number) {
-        if(ordinal < 0) return;
+    function scrolledToOrdinal(ordinal: number|null) {
+        if(ordinal == null || ordinal < 0) return;
         window.android.scrolledToOrdinal(ordinal)
     }
 
-    function saveBookmarkNote(bookmarkId: number, noteText: string) {
+    function saveBookmarkNote(bookmarkId: number, noteText: string|null) {
         window.android.saveBookmarkNote(bookmarkId, noteText);
     }
 
@@ -296,7 +305,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         window.android.deleteJournalEntry(journalId);
     }
 
-    function getActiveLanguages() {
+    function getActiveLanguages(): string[] {
         return JSON.parse(window.android.getActiveLanguages());
     }
 
@@ -336,9 +345,9 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         window.android.openDownloads();
     }
 
-    function updateOrderNumber(labelId: number, bookmarks: Bookmark[], journals: JournalEntry[]) {
-        const orderNumberPairs: (l: Bookmark | JournalEntry) => [number, number][] =
-                l => l.map((v: Bookmark|JournalEntry) => [v.id, v.orderNumber])
+    function updateOrderNumber(labelId: number, bookmarks: StudyPadBookmarkItem[], journals: StudyPadTextItem[]) {
+        const orderNumberPairs: (l: StudyPadItem[]) => [number, number][] =
+                l => l.map((v: StudyPadItem) => [v.id, v.orderNumber])
         window.android.updateOrderNumber(labelId, JSON.stringify(
             {
                 bookmarks: orderNumberPairs(bookmarks),
@@ -351,17 +360,18 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         window.android.toast(text);
     }
 
-    function updateJournalEntry(entry: JournalEntry, changes: Partial<JournalEntry>) {
+    function updateJournalEntry(entry: StudyPadItem, changes: Partial<StudyPadItem>) {
         const changedEntry = {...entry, ...changes}
         if(entry.type === StudyPadEntryTypes.JOURNAL_TEXT) {
-            window.android.updateJournalTextEntry(JSON.stringify(changedEntry));
+            window.android.updateJournalTextEntry(JSON.stringify(changedEntry as StudyPadTextItem));
         } else if(entry.type === StudyPadEntryTypes.BOOKMARK) {
+            const changedBookmarkItem = changedEntry as StudyPadBookmarkItem
             const entry = {
-                bookmarkId: changedEntry.id,
-                labelId: changedEntry.bookmarkToLabel.labelId,
-                indentLevel: changedEntry.indentLevel,
-                orderNumber: changedEntry.orderNumber,
-                expandContent: changedEntry.expandContent,
+                bookmarkId: changedBookmarkItem.id,
+                labelId: changedBookmarkItem.bookmarkToLabel.labelId,
+                indentLevel: changedBookmarkItem.indentLevel,
+                orderNumber: changedBookmarkItem.orderNumber,
+                expandContent: changedBookmarkItem.expandContent,
             }
             window.android.updateBookmarkToLabel(JSON.stringify(entry));
         }
@@ -401,7 +411,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         window.android.onKeyDown(key);
     }
 
-    const exposed: UseAndroid = {
+    const exposed = {
         shareHtml,
         helpBookmarks,
         setLimitAmbiguousModalSize,
@@ -441,13 +451,12 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         onKeyDown,
     }
 
-    // @ts-ignore
     if(config.developmentMode) return {
         ...stubsFor(exposed, {
             getActiveLanguages: ['he', 'nl', 'en'],
         }),
         querySelection
-    }
+    } as typeof exposed
 
     setupDocumentEventListener("selectionchange" , () => {
         const sel = window.getSelection()!;

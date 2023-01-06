@@ -24,10 +24,11 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
-import {computed} from "vue";
-import OsisSegment from "@/components/documents/OsisSegment";
+import {computed, Ref} from "vue";
+import OsisSegment from "@/components/documents/OsisSegment.vue";
+import {ErrorDocument} from "@/types/documents";
 
 const ErrorSeverity = {
   NORMAL: 1,
@@ -35,16 +36,8 @@ const ErrorSeverity = {
   ERROR: 3,
 }
 
-export default {
-  name: "ErrorDocument",
-  components: {OsisSegment},
-  props: {
-    document: {type: Object, required: true},
-  },
-  setup(props) {
-    const severity = computed(() => ErrorSeverity[props.document.severity]);
-    return {severity, ...useCommon(), ErrorSeverity}
-  }
-}
+const props = defineProps<{document: ErrorDocument}>()
+const severity: Ref<number> = computed(() => ErrorSeverity[props.document.severity]);
+const {strings} = useCommon();
 </script>
 

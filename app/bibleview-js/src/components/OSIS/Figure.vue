@@ -21,19 +21,14 @@
   </p>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 import {inject} from "vue";
 import {osisFragmentKey} from "@/types/constants";
 
-export default {
-  name: "Figure",
-  props: {src: {type: String, required: true}},
-  setup() {
-    const {bookInitials} = inject(osisFragmentKey);
-    return {...useCommon(), bookInitials};
-  },
-}
+defineProps({src: {type: String, required: true}});
+const {bookInitials} = inject(osisFragmentKey)!;
+useCommon();
 </script>
 
 <style scoped>

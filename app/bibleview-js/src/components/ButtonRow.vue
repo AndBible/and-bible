@@ -39,7 +39,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {ref, inject, watch} from "vue";
 import {useCommon} from "@/composables";
@@ -48,64 +48,57 @@ import {androidKey} from "@/types/constants";
 
 let cancel = () => {}
 
-export default {
-  name: "ButtonRow",
-  props: {
-    showDragHandle: {type: Boolean, default: false},
-    handleTouch: {type: Boolean, default: false},
-  },
-  components: {FontAwesomeIcon},
-  setup(props) {
-    const android = inject(androidKey);
-    const {strings, ...common} = useCommon();
-    const expanded = ref(false);
-    const element = ref(null);
-    function close() {
-      expanded.value = false
-    }
-    async function clicked(event) {
-      if(event.type === "touchstart" && !props.handleTouch) {
-        return;
-      }
-      if(event.type === "click" && props.handleTouch) {
-        return
-      }
-      event.stopPropagation();
-      expanded.value = !expanded.value;
-    }
+const props = withDefaults(
+  defineProps<{showDragHandle: boolean, handleTouch: boolean}>(),
+  {showDragHandle: false, handleTouch: false}
+)
 
-    watch(expanded, v => {
-      if(v) {
-        cancel()
-        eventBus.on(Events.WINDOW_CLICKED, close);
-        cancel = close
-      } else {
-        eventBus.off(Events.WINDOW_CLICKED, close);
-        if(cancel === close) {
-          cancel = () => {}
-        }
-      }
-    })
-    function showHelp() {
-      android.toast(strings.dragHelp);
-    }
-
-    let startTime = 0;
-    function dragEnd() {
-      const delta = Date.now() - startTime;
-      if(delta > 200) {
-        expanded.value = false;
-      } else {
-        showHelp();
-      }
-    }
-
-    function dragStart() {
-      startTime = Date.now();
-    }
-
-    return {expanded, strings, clicked, dragStart, dragEnd, element, ...common};
+const android = inject(androidKey)!;
+const {strings} = useCommon();
+const expanded = ref(false);
+const element = ref(null);
+function close() {
+  expanded.value = false
+}
+async function clicked(event: MouseEvent|TouchEvent) {
+  if(event.type === "touchstart" && !props.handleTouch) {
+    return;
   }
+  if(event.type === "click" && props.handleTouch) {
+    return
+  }
+  event.stopPropagation();
+  expanded.value = !expanded.value;
+}
+
+watch(expanded, v => {
+  if(v) {
+    cancel()
+    eventBus.on(Events.WINDOW_CLICKED, close);
+    cancel = close
+  } else {
+    eventBus.off(Events.WINDOW_CLICKED, close);
+    if(cancel === close) {
+      cancel = () => {}
+    }
+  }
+})
+function showHelp() {
+  android.toast(strings.dragHelp);
+}
+
+let startTime = 0;
+function dragEnd() {
+  const delta = Date.now() - startTime;
+  if(delta > 200) {
+    expanded.value = false;
+  } else {
+    showHelp();
+  }
+}
+
+function dragStart() {
+  startTime = Date.now();
 }
 </script>
 

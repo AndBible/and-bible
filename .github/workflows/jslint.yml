@@ -43,6 +43,10 @@ jobs:
         working-directory: app/bibleview-js
         run: npm run lint:ci
 
+      - name: Run type-check
+        working-directory: app/bibleview-js
+        run: npm run type-check
+
       - name: Run js unit tests
         working-directory: app/bibleview-js
         run: npm run test:ci

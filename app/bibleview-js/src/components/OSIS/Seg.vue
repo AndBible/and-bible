@@ -19,19 +19,14 @@
   <slot/>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 
-export default {
-  name: "Seg",
-  props: {
-    type: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "type", ["x-chronology", "font-size: -1;"]);
-    return useCommon();
-  },
-}
+const props = defineProps({
+  type: {type: String, default: null},
+});
+checkUnsupportedProps(props, "type", ["x-chronology", "font-size: -1;"]);
+useCommon();
 </script>
 
 <style scoped>

@@ -19,15 +19,9 @@
   <li><slot/></li>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
-
-export default {
-  name: "Item",
-  setup() {
-    return useCommon();
-  },
-}
+useCommon()
 </script>
 
 <style scoped>

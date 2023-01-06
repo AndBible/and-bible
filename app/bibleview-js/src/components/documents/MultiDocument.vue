@@ -46,46 +46,40 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
-import OsisFragment from "@/components/documents/OsisFragment";
+import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {inject, computed, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import FeaturesLink from "@/components/FeaturesLink";
-import {BookCategories} from "@/types/constants";
+import FeaturesLink from "@/components/FeaturesLink.vue";
+import {appSettingsKey, BookCategories, exportModeKey} from "@/types/constants";
+import {OsisFragment as OsisFragmentType} from "@/types/client-objects";
+import {MultiFragmentDocument} from "@/types/documents";
 
-export default {
-  name: "MultiDocument",
-  components: {FeaturesLink, OsisFragment, FontAwesomeIcon},
-  props: {
-    document: {type: Object, required: true},
-  },
-  setup(props) {
-    // eslint-disable-next-line vue/no-setup-props-destructure
-    const {osisFragments} = props.document;
-    const exportMode = inject("exportMode", ref(false));
-    const appSettings = inject("appSettings");
+const props = defineProps<{document: MultiFragmentDocument}>();
+  
+// eslint-disable-next-line vue/no-setup-props-destructure
+const {osisFragments} = props.document;
+const exportMode = inject(exportModeKey, ref(false));
+const appSettings = inject(appSettingsKey)!;
 
-    const filteredOsisFragments = computed(() => {
-      if(props.document.compare) {
-        return osisFragments.filter(v => !appSettings.hideCompareDocuments.includes(v.bookInitials))
-      } else {
-        return osisFragments;
-      }
-    });
-    const hiddenOsisFragments = computed(() => {
-      return osisFragments.filter(v => appSettings.hideCompareDocuments.includes(v.bookInitials))
-    });
-
-    function link(frag, compare = false) {
-      const isBible = frag.bookCategory === BookCategories.BIBLE
-      const osis = (compare || !isBible) ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) + "&force-doc" : encodeURI(frag.osisRef);
-      return `osis://?osis=${osis}&v11n=${frag.v11n}`
-    }
-
-    return {hiddenOsisFragments, filteredOsisFragments, osisFragments, link, exportMode, ...useCommon()}
+const filteredOsisFragments = computed(() => {
+  if(props.document.compare) {
+    return osisFragments.filter(v => !appSettings.hideCompareDocuments.includes(v.bookInitials))
+  } else {
+    return osisFragments;
   }
+});
+const hiddenOsisFragments = computed(() => {
+  return osisFragments.filter(v => appSettings.hideCompareDocuments.includes(v.bookInitials))
+});
+
+function link(frag: OsisFragmentType, compare = false) {
+  const isBible = frag.bookCategory === BookCategories.BIBLE
+  const osis = (compare || !isBible) ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) + "&force-doc" : encodeURI(frag.osisRef);
+  return `osis://?osis=${osis}&v11n=${frag.v11n}`
 }
+const {android, sprintf, strings} = useCommon();
 </script>
 
 <style scoped lang="scss">

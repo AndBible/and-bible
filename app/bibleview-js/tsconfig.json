@@ -12,10 +12,10 @@
     "forceConsistentCasingInFileNames": true,
     "useDefineForClassFields": true,
     "sourceMap": true,
+    "outDir": "./build",
     "baseUrl": ".",
     "types": [
-      "webpack-env",
-      "jest"
+      "node",
     ],
     "paths": {
       "@/*": [
@@ -26,15 +26,16 @@
       "esnext",
       "dom",
       "dom.iterable",
-      "scripthost"
+      "scripthost",
     ]
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "src/**/*.scss",
+    "src/__tests__/tests/**/*.ts",
+    "src/__tests__/tests/**/*.tsx"
   ],
   "exclude": [
     "node_modules"

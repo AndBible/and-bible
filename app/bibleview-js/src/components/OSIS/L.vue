@@ -37,30 +37,25 @@
   <slot/>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed, toRefs} from "vue";
 
-export default {
-  name: "L",
-  props: {
-    sID: {type: String, default: null},
-    eID: {type: String, default: null},
-    level: {type: String, default: "1"},
-    type: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "type", ["x-br", "x-indent"]);
-    const {sID, eID, level, type} = toRefs(props);
-    const levelInt = computed(() => parseInt(level.value));
-    const isBreakLine = computed(() => {
-      const allNull = sID.value === null && eID.value === null && level.value === "1" && type.value === null;
-      return type.value === 'x-br' || eID.value || allNull;
-    })
-    const isIndent = computed(() => type.value === "x-indent");
-    return {levelInt, isBreakLine, isIndent, ...useCommon()};
-  },
-}
+const props = defineProps({
+  sID: {type: String, default: null},
+  eID: {type: String, default: null},
+  level: {type: String, default: "1"},
+  type: {type: String, default: null},
+});
+checkUnsupportedProps(props, "type", ["x-br", "x-indent"]);
+const {sID, eID, level, type} = toRefs(props);
+const levelInt = computed(() => parseInt(level.value));
+const isBreakLine = computed(() => {
+  const allNull = sID.value === null && eID.value === null && level.value === "1" && type.value === null;
+  return type.value === 'x-br' || eID.value || allNull;
+})
+const isIndent = computed(() => type.value === "x-indent");
+useCommon();
 </script>
 
 <style scoped>

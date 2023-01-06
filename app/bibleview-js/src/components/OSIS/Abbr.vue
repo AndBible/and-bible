@@ -19,16 +19,10 @@
   <span class="abbreviation"><slot/></span>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
-
-export default {
-  name: "Abbr",
-  props: {expansion: {type: String, required: true}},
-  setup() {
-    return useCommon();
-  },
-}
+defineProps({expansion: {type: String, required: true}})
+useCommon();
 </script>
 
 <style scoped>

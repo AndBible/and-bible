@@ -19,16 +19,9 @@
   <h3><slot/></h3>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import {useCommon} from "@/composables";
-import {defineComponent} from "vue";
-
-export default defineComponent({
-  name: "H3",
-  setup() {
-    return useCommon();
-  },
-})
+useCommon()
 </script>
 
 <style lang="scss" scoped>

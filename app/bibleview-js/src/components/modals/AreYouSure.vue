@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="show" @close="show=false" blocking locate-top>
+  <ModalDialog v-if="show" @close="show=false" blocking locate-top>
     <template #title>
       <slot name="title"/>
     </template>
@@ -25,47 +25,45 @@
       <button class="button" @click="cancel">{{strings.cancel}}</button>
       <button v-for="b in buttons" :key="b.result" class="button" :class="b.class" @click="buttonClicked(b.result)">{{b.title}}</button>
     </template>
-  </Modal>
+  </ModalDialog>
 </template>
 
-<script>
-import Modal from "@/components/modals/Modal";
+<script setup lang="ts">
+import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {ref} from "vue";
 import {useCommon} from "@/composables";
 import {Deferred} from "@/utils";
-export default {
-  name: "AreYouSure",
-  components: {Modal},
-  setup() {
-    const show = ref(false);
-    let promise = null;
-    const {strings, ...common} = useCommon();
+import {AreYouSureButton} from "@/types/common";
 
-    const okButton = {
-      title: strings.yes,
-      class: "warning",
-      result: true
-    }
+const show = ref(false);
+let promise: Deferred|null = null;
+const {strings} = useCommon();
 
-    const buttons = ref(null);
-
-    async function areYouSure(btns = [okButton]) {
-      buttons.value = btns;
-      show.value = true;
-      promise = new Deferred();
-      const result = await promise.wait()
-      show.value = false;
-      return result;
-    }
-    function buttonClicked(result) {
-      promise.resolve(result);
-    }
-    function cancel() {
-      promise.resolve(false);
-    }
-    return {show, areYouSure, buttonClicked, cancel, strings, common, buttons};
-  }
+const okButton: AreYouSureButton = {
+  title: strings.yes,
+  class: "warning",
+  result: true
 }
+
+const buttons = ref<AreYouSureButton[]|null>(null);
+
+async function areYouSure(btns = [okButton]) {
+  buttons.value = btns;
+  show.value = true;
+  promise = new Deferred();
+  const result = await promise.wait()
+  show.value = false;
+  return result;
+}
+
+function buttonClicked(result: any) {
+  promise!.resolve(result);
+}
+function cancel() {
+  promise!.resolve();
+}
+
+defineExpose({areYouSure})
 </script>
 
 <style scoped lang="scss">

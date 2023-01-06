@@ -19,13 +19,8 @@
   <span :id="`o-${ordinal}`" :data-ordinal="ordinal" class="ordinal"><slot/></span>
 </template>
 
-<script>
-export default {
-  name: "BibleViewAnchor",
-  props: {
-    ordinal: {type: String, required: true}
-  },
-}
+<script lang="ts" setup>
+defineProps<{ordinal: string}>();
 </script>
 
 <style scoped>

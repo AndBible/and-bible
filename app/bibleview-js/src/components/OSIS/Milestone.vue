@@ -19,26 +19,21 @@
   <span :class="{paragraphBreak}">{{marker}}<slot/></span>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed} from "vue";
 
-export default {
-  name: "Milestone",
-  props: {
-    subType: {type: String, default: null},
-    type: {type: String, default: null},
-    marker: {type: String, default: ""},
-    resp: {type: String, default: ""},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "resp");
-    checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
-    checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
-    const paragraphBreak = computed(() => props.type === "line");
-    return {paragraphBreak, ...useCommon()};
-  },
-}
+const props = defineProps({
+  subType: {type: String, default: null},
+  type: {type: String, default: null},
+  marker: {type: String, default: ""},
+  resp: {type: String, default: ""},
+});
+checkUnsupportedProps(props, "resp");
+checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
+checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
+const paragraphBreak = computed(() => props.type === "line");
+useCommon();
 </script>
 
 <style scoped lang="scss">

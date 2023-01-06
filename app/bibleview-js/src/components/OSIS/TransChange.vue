@@ -19,23 +19,17 @@
   <span v-if="show" :class="{nonCanonical: config.makeNonCanonicalItalic && isNonCanonical}"><slot/></span>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed} from "vue";
 
-export default {
-  name: "TransChange",
-  props: {
-    type: {type: String, default: null}
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "type", ["added"]);
-    const {config, ...common} = useCommon();
-    const isNonCanonical = computed(() => props.type.toLowerCase() === "added");
-    const show = computed(() => (!isNonCanonical.value) || (isNonCanonical.value && config.showNonCanonical));
-    return {show, isNonCanonical, config, ...common};
-  },
-}
+const props = defineProps({
+  type: {type: String, default: null}
+});
+checkUnsupportedProps(props, "type", ["added"]);
+const {config} = useCommon();
+const isNonCanonical = computed(() => props.type.toLowerCase() === "added");
+const show = computed(() => (!isNonCanonical.value) || (isNonCanonical.value && config.showNonCanonical));
 </script>
 
 <style scoped>

@@ -20,59 +20,20 @@
     <span v-if="verseInfo" class="paragraphBreak">&nbsp;</span>
     <div v-else class="paragraphBreak">&nbsp;</div>
   </template>
-  <VerseNumber v-else-if="isPreVerse && shown" :verse-num="verseInfo.verse"/>
+  <VerseNumber v-else-if="isPreVerse && shown" :verse-num="verseNum"/>
   <template v-else-if="isCanonical || (!isCanonical && config.showNonCanonical)">
     <span v-if="verseInfo" :class="{'skip-offset': !isCanonical}"><slot/></span>
     <div v-else :class="{'skip-offset': !isCanonical}"><slot/></div>
   </template>
 </template>
 
-<script>
+<script setup lang="ts">
 import {inject, ref, computed} from "vue";
-import VerseNumber from "@/components/VerseNumber";
+import VerseNumber from "@/components/VerseNumber.vue";
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {verseInfoKey} from "@/types/constants";
 
-export default {
-  name: "Div",
-  components: {VerseNumber},
-  setup(props) {
-    checkUnsupportedProps(props, "type",
-                          ["x-p", "x-gen", "x-milestone", "section", "majorSection",
-                           "paragraph", "book", "variant", "introduction", "colophon"]);
-    checkUnsupportedProps(props, "canonical", ["true", "false"]);
-    checkUnsupportedProps(props, "subType", ["x-preverse"]);
-    checkUnsupportedProps(props, "annotateRef");
-    checkUnsupportedProps(props, "annotateType");
-
-    const verseInfo = inject("verseInfo", null);
-    let shown = false;
-
-    function isPreVerse(type, subType) {
-      return type === "x-milestone" && subType === "x-preverse";
-    }
-
-    if(isPreVerse(props) && verseInfo) {
-      // eslint-disable-next-line vue/no-ref-as-operand
-      shown = ref(true);
-      for (const oldValue of verseInfo.showStack) {
-        oldValue.value = false;
-      }
-      verseInfo.showStack.push(shown);
-    }
-    const common = useCommon();
-    const isParagraph = computed(() => ['x-p', 'paragraph', 'colophon'].includes(props.type) && props.sID);
-    const isCanonical = computed(() => props.canonical !== "false");
-
-    return {
-      verseInfo,
-      isPreVerse: computed(() => isPreVerse(props.type, props.subType)),
-      isParagraph,
-      isCanonical,
-      shown,
-      ...common
-    };
-  },
-  props: {
+const props = defineProps({
     osisID: {type: String, default: null},
     sID: {type: String, default: null},
     eID: {type: String, default: null},
@@ -81,10 +42,41 @@ export default {
     annotateRef: {type: String, default: null},
     canonical: {type: String, default: null},
     annotateType: {type: String, default: null},
-  },
+});
+
+checkUnsupportedProps(
+    props,
+    "type",
+    [
+        "x-p", "x-gen", "x-milestone", "section", "majorSection", "paragraph", "book",
+        "variant", "introduction", "colophon"
+    ]);
+checkUnsupportedProps(props, "canonical", ["true", "false"]);
+checkUnsupportedProps(props, "subType", ["x-preverse"]);
+checkUnsupportedProps(props, "annotateRef");
+checkUnsupportedProps(props, "annotateType");
+
+const verseInfo = inject(verseInfoKey, null);
+let shown = ref(false);
+
+function getIsPreVerse(type: string, subType: string) {
+    return type === "x-milestone" && subType === "x-preverse";
 }
+
+if(getIsPreVerse(props.type, props.subType) && verseInfo) {
+    shown = ref(true);
+    for (const oldValue of verseInfo.showStack) {
+        oldValue.value = false;
+    }
+    verseInfo.showStack.push(shown);
+}
+const {config} = useCommon();
+const isParagraph = computed(() => ['x-p', 'paragraph', 'colophon'].includes(props.type) && props.sID);
+const isCanonical = computed(() => props.canonical !== "false");
+const isPreVerse = computed(() => getIsPreVerse(props.type, props.subType));
+const verseNum = computed(() => verseInfo!.verse);
 </script>
 
 <style lang="scss" scoped>
-  @import "~@/common.scss";
+@import "~@/common.scss";
 </style>

@@ -35,28 +35,19 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {clearLog, enableLogSync, logEntries} from "@/composables/android";
-import {onMounted, onUnmounted, computed} from "vue";
+import {onMounted, onUnmounted, computed, ref} from "vue";
 import {useCommon} from "@/composables";
 
-export default {
-  name: "ErrorBox",
-  setup() {
-    onMounted(() => enableLogSync(true));
-    onUnmounted(() => enableLogSync(false));
-    const buttonStyle = computed(() => {
-      if (logEntries.find(v => v.type === "ERROR")) return "error";
-      return "warn";
-    });
-    return {buttonStyle, logEntries, clearLog, ...useCommon()};
-  },
-  data() {
-    return {
-      showLog: false
-    }
-  }
-}
+onMounted(() => enableLogSync(true));
+onUnmounted(() => enableLogSync(false));
+const buttonStyle = computed(() => {
+  if (logEntries.find(v => v.type === "ERROR")) return "error";
+  return "warn";
+});
+const {strings} = useCommon();
+const showLog = ref(false);
 </script>
 
 <style scoped lang="scss">

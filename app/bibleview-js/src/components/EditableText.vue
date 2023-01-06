@@ -33,67 +33,70 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {ref, inject, watch} from "vue";
-import TextEditor from "@/components/TextEditor";
+import TextEditor from "@/components/TextEditor.vue";
 import {useCommon} from "@/composables";
+import {exportModeKey} from "@/types/constants";
+import {Nullable} from "@/types/common";
 
 let cancelOpen = () => {}
 
-export default {
-  name: "EditableText",
-  components: {TextEditor},
-  emits: ["closed", "save", "opened"],
-  props: {
-    editDirectly:{type: Boolean, default: false},
-    showPlaceholder:{type: Boolean, default: false},
-    text:{type: String, default: null},
-    maxEditorHeight: {type: String, default: "inherit"}, // for editor
-    constraintDisplayHeight: {type: Boolean, default: false},
-  },
-  setup(props, {emit}) {
-    const editMode = ref(props.editDirectly);
-    const parentStyle = ref(`--max-height: ${props.maxEditorHeight}; font-family: var(--font-family); font-size: var(--font-size);`);
-    const editText = ref(props.text);
-    const exportMode = inject("exportMode", ref(false));
+const emit = defineEmits(["closed", "save", "opened"]);
+const props = withDefaults(defineProps<{
+    editDirectly:boolean
+    showPlaceholder:boolean
+    text:Nullable<string>
+    maxEditorHeight: string
+    constraintDisplayHeight: boolean
+}>(), {
+    editDirectly: false,
+    showPlaceholder: false,
+    text: null,
+    maxEditorHeight: "inherit",
+    constraintDisplayHeight: false
+})
 
-    function cancelFunc() {
-      editMode.value = false;
+const editMode = ref<boolean>(props.editDirectly);
+const parentStyle = ref(`--max-height: ${props.maxEditorHeight}; font-family: var(--font-family); font-size: var(--font-size);`);
+const editText = ref(props.text);
+const exportMode = inject(exportModeKey, ref(false));
+
+function cancelFunc() {
+  editMode.value = false;
+}
+watch(editMode, mode => {
+  if(!mode) emit("closed", editText.value);
+  else {
+    emit("opened")
+    if(cancelFunc !== cancelOpen) {
+      cancelOpen()
     }
-    watch(editMode, mode => {
-      if(!mode) emit("closed", editText.value);
-      else {
-        emit("opened")
-        if(cancelFunc !== cancelOpen) {
-          cancelOpen()
-        }
-        cancelOpen = cancelFunc
-      }
-    }, {immediate: true})
-    watch(() => props.text, t => {
-      editText.value = t;
-    })
+    cancelOpen = cancelFunc
+  }
+}, {immediate: true})
+watch(() => props.text, t => {
+  editText.value = t;
+})
 
-    watch(exportMode, mode => {
-      if(mode) {
-        editMode.value = false;
-      }
-    });
+watch(exportMode, mode => {
+  if(mode) {
+    editMode.value = false;
+  }
+});
 
-    function textChanged(newText) {
-      editText.value = newText
-      emit("save", newText);
-    }
+function textChanged(newText: string) {
+  editText.value = newText
+  emit("save", newText);
+}
 
-    function handleClicks(event) {
-      if(event.target.nodeName !== "A") {
-        editMode.value = true;
-      }
-    }
-
-    return {editMode, parentStyle, editText, textChanged, handleClicks, exportMode, ...useCommon()}
+function handleClicks(event: MouseEvent) {
+  if((event.target! as HTMLElement).nodeName !== "A") {
+    editMode.value = true;
   }
 }
+const {strings} = useCommon();
+defineExpose({editMode});
 </script>
 
 <style lang="scss" scoped>
@@ -118,7 +121,7 @@ export default {
   max-width: 100%;
   padding-top: 8pt;
   padding-bottom: 3pt;
-  padding-inline-start: 0pt;
+  padding-inline-start: 0;
   &.constraintDisplayHeight {
     padding-top: 0;
     padding-bottom: 0;

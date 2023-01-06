@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled" :limit="limitAmbiguousModalSize">
+  <ModalDialog ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled" :limit="limitAmbiguousModalSize">
     <template #extra-buttons>
       <button class="modal-action-button right" @touchstart.stop @click="multiSelectionButtonClicked">
         <FontAwesomeIcon icon="plus-circle"/>
@@ -61,247 +61,257 @@
         {{ strings.ambiguousSelection }}
       </template>
     </template>
-  </Modal>
+  </ModalDialog>
 </template>
 
-<script>
-import Modal from "@/components/modals/Modal";
+<script lang="ts" setup>
+import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {provide, inject, ref, computed} from "vue";
+import {provide, inject, ref, computed, Ref} from "vue";
 import {
-  Deferred,
-  getHighestPriorityEventFunctions,
-  getEventVerseInfo,
-  getAllEventFunctions, isBottomHalfClicked,
-  //createDoubleClickDetector
+    Deferred,
+    getHighestPriorityEventFunctions,
+    getEventVerseInfo,
+    getAllEventFunctions,
+    isBottomHalfClicked,
+    EventVerseInfo,
+    Callback,
 } from "@/utils";
-import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton";
+import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton.vue";
 import {emit, Events} from "@/eventbus";
-import AmbiguousActionButtons from "@/components/AmbiguousActionButtons";
+import AmbiguousActionButtons from "@/components/AmbiguousActionButtons.vue";
 import {sortBy} from "lodash";
-import {androidKey} from "@/types/constants";
+import {
+    androidKey,
+    appSettingsKey,
+    globalBookmarksKey,
+    locateTopKey,
+    modalKey,
+    verseHighlightKey
+} from "@/types/constants";
+import {Bookmark} from "@/types/client-objects";
+import {Nullable, Optional, SelectionInfo} from "@/types/common";
 
-export default {
-  name: "AmbiguousSelection",
-  props: {
-    blocking: {type: Boolean, default: false},
-    doNotCloseModals: {type: Boolean, default: false},
-  },
-  emits: ["back-clicked"],
-  components: {Modal, FontAwesomeIcon, AmbiguousSelectionBookmarkButton, AmbiguousActionButtons},
-  setup(props, {emit: $emit}) {
-    const appSettings = inject("appSettings");
-    const limitAmbiguousModalSize = computed({
-      get() {
+const props = withDefaults(
+    defineProps<{blocking: boolean, doNotCloseModals: boolean}>(),
+    {blocking: false, doNotCloseModals: false}
+);
+
+const $emit = defineEmits(["back-clicked"])
+
+const appSettings = inject(appSettingsKey)!;
+const limitAmbiguousModalSize = computed({
+    get() {
         return appSettings.limitAmbiguousModalSize;
-      },
-      set(value) {
+    },
+    set(value) {
         android.setLimitAmbiguousModalSize(value);
-      }
-    });
-    const {bookmarkMap, bookmarkIdsByOrdinal} = inject("globalBookmarks");
-    const {strings, ...common} = useCommon();
-    const android = inject(androidKey);
-    const multiSelectionMode = ref(false);
+    }
+});
+const {bookmarkMap, bookmarkIdsByOrdinal} = inject(globalBookmarksKey)!;
+const {strings} = useCommon();
+const android = inject(androidKey)!;
+const multiSelectionMode = ref(false);
 
-    const {resetHighlights, highlightVerse, hasHighlights} = inject("verseHighlight");
-    const {modalOpen, closeModals} = inject("modal");
+const {resetHighlights, highlightVerse, hasHighlights} = inject(verseHighlightKey)!;
+const {modalOpen, closeModals} = inject(modalKey)!;
 
-    const showModal = ref(false);
-    const locateTop = ref(false);
-    provide("locateTop", locateTop);
-    const verseInfo = ref(null);
+const showModal = ref(false);
+const locateTop = ref(false);
+provide(locateTopKey, locateTop);
 
-    const selectionInfo = computed(() => {
-      if(!verseInfo.value) return null;
-      return {
+const verseInfo: Ref<Nullable<EventVerseInfo>> = ref(null);
+
+const selectionInfo = computed<Nullable<SelectionInfo>>(() => {
+    if(!verseInfo.value) return null;
+    return {
         ...verseInfo.value,
-        startOrdinal: startOrdinal.value,
-        endOrdinal: endOrdinal.value,
-      }
-    });
-
-    const originalSelections = ref(null);
-    const bibleBookName = computed(() => verseInfo.value && verseInfo.value.bibleBookName);
-
-    const selectedActions = computed(() => {
-      if (originalSelections.value === null) return [];
-      return originalSelections.value.filter(v => !v.options.bookmarkId)
-    });
-
-    const clickedBookmarks = computed(() => {
-      if (originalSelections.value === null) return [];
-
-      return sortBy(originalSelections.value
-        .filter(v => v.options.bookmarkId && !v.options.hidden && bookmarkMap.has(v.options.bookmarkId))
-        .map(v => bookmarkMap.get(v.options.bookmarkId)), v => v.text.length);
-    });
-
-    let deferred = null;
-
-    async function select(event, sel) {
-      originalSelections.value = sel;
-      locateTop.value = isBottomHalfClicked(event);
-      showModal.value = true;
-
-      deferred = new Deferred();
-      return await deferred.wait();
+        startOrdinal: startOrdinal.value!,
+        endOrdinal: endOrdinal.value!,
     }
+});
 
-    function selected(s) {
-      deferred.resolve(s);
+const originalSelections = ref<Callback[]|null>(null);
+const bibleBookName = computed(() => verseInfo.value && verseInfo.value.bibleBookName);
+
+const selectedActions = computed<Callback[]>(() => {
+    if (originalSelections.value === null) return [];
+    return originalSelections.value.filter(v => !v.options.bookmarkId)
+});
+
+const clickedBookmarks = computed<Bookmark[]>(() => {
+    if (originalSelections.value === null) return [];
+
+    return sortBy(
+        originalSelections.value
+            .filter(v => v.options.bookmarkId && !v.options.hidden && bookmarkMap.has(v.options.bookmarkId))
+            .map(v => bookmarkMap.get(v.options.bookmarkId)!),
+        v => v.text.length
+    );
+});
+
+let deferred: Nullable<Deferred<Bookmark|Callback|undefined>> = null;
+
+async function select(event: MouseEvent, sel: Callback[]): Promise<Callback|Bookmark|undefined> {
+    originalSelections.value = sel;
+    locateTop.value = isBottomHalfClicked(event);
+    showModal.value = true;
+
+    deferred = new Deferred();
+    return await deferred.wait();
+}
+
+function selected(s: Callback|Bookmark) {
+    deferred!.resolve(s);
+}
+
+function cancelled() {
+    if (deferred) {
+        deferred.resolve();
     }
+}
 
-    function cancelled() {
-      if (deferred) {
-        deferred.resolve(null);
-      }
-    }
+function close() {
+    multiSelectionMode.value = false;
+    showModal.value = false;
+    resetHighlights(true);
+}
 
-    function close() {
-      multiSelectionMode.value = false;
-      showModal.value = false;
-      resetHighlights(true);
-    }
+//const {isDoubleClick} = createDoubleClickDetector();
 
-    //const {isDoubleClick} = createDoubleClickDetector();
-
-    function updateHighlight() {
-      resetHighlights();
-      for(let o of ordinalRange()) {
+function updateHighlight() {
+    resetHighlights();
+    for(let o of ordinalRange()) {
         highlightVerse(o);
-      }
-      if (endOrdinal.value == null || endOrdinal.value === startOrdinal.value){
+    }
+    if(!verseInfo.value) return;
+    if (endOrdinal.value == null || endOrdinal.value === startOrdinal.value){
         verseInfo.value.verseTo = "";
-      } else {
-        const {ordinalRange: [, chapterEnd]} = verseInfo.value.bibleDocumentInfo;
+    } else {
+        const {ordinalRange: [, chapterEnd]} = verseInfo.value.bibleDocumentInfo!;
 
         const endOrd = chapterEnd > endOrdinal.value ? endOrdinal.value: chapterEnd;
-        verseInfo.value.verseTo = `${verseInfo.value.verse + endOrd - startOrdinal.value}${endOrdinal.value > chapterEnd ? "+" : ""}`;
-      }
+        verseInfo.value.verseTo = `${verseInfo.value.verse + endOrd - startOrdinal.value!}${endOrdinal.value > chapterEnd ? "+" : ""}`;
     }
+}
 
-    function multiSelect(_verseInfo) {
-      if(!_verseInfo) return false;
-      if(_verseInfo.ordinal < startOrdinal.value) {
+function multiSelect(_verseInfo: Optional<EventVerseInfo>) {
+    if(!_verseInfo) return false;
+    if(_verseInfo.ordinal < startOrdinal.value!) {
         endOrdinal.value = null;
         return false
-      } else {
+    } else {
         endOrdinal.value = _verseInfo.ordinal;
-      }
-      updateHighlight();
-      return true;
     }
+    updateHighlight();
+    return true;
+}
 
-    const startOrdinal = ref(null);
-    const endOrdinal = ref(null);
+const startOrdinal = ref<number|null>(null);
+const endOrdinal = ref<number|null>(null);
 
-    function* ordinalRange() {
-      const _endOrdinal = endOrdinal.value || startOrdinal.value;
-      for(let o = startOrdinal.value; o<=_endOrdinal; o++) {
+function* ordinalRange(): Generator<number> {
+    const _endOrdinal = endOrdinal.value || startOrdinal.value;
+    for(let o = startOrdinal.value!; o<=_endOrdinal!; o++) {
         yield o;
-      }
     }
+}
 
-    const selectedBookmarks = computed(() => {
-      const clickedIds = new Set(clickedBookmarks.value.map(b => b.id));
-      const result = [];
-      for(const o of ordinalRange()) {
+const selectedBookmarks = computed<Bookmark[]>(() => {
+    const clickedIds = new Set(clickedBookmarks.value.map(b => b.id));
+    const result: number[] = [];
+    for(const o of ordinalRange()) {
         result.push(
-          ...Array.from(bookmarkIdsByOrdinal.get(o) || [])
-            .filter(bId => !clickedIds.has(bId) && !result.includes(bId)))
-      }
-      return result.map(bId => bookmarkMap.get(bId)).filter(b => b);
-    });
-
-    function setInitialVerse(_verseInfo) {
-      verseInfo.value = _verseInfo;
-      startOrdinal.value = _verseInfo.ordinal;
-      endOrdinal.value = null;
-      updateHighlight();
+            ...Array.from(bookmarkIdsByOrdinal.get(o) || [])
+                .filter(bId => !clickedIds.has(bId) && !result.includes(bId)))
     }
+    return result.map(bId => bookmarkMap.get(bId)).filter(b => b) as Bookmark[];
+});
 
-    function multiSelectionButtonClicked() {
-      if(multiSelectionMode.value) {
-        endOrdinal.value += 1;
-      } else {
+function setInitialVerse(_verseInfo: EventVerseInfo) {
+    verseInfo.value = _verseInfo;
+    startOrdinal.value = _verseInfo.ordinal;
+    endOrdinal.value = null;
+    updateHighlight();
+}
+
+function multiSelectionButtonClicked() {
+    if(multiSelectionMode.value) {
+        endOrdinal.value! += 1;
+    } else {
         multiSelectionMode.value = true;
-        endOrdinal.value = startOrdinal.value + 1;
-      }
-
-      updateHighlight();
+        endOrdinal.value = startOrdinal.value! + 1;
     }
 
-    async function handle(event) {
-      //if(await isDoubleClick()) return;
+    updateHighlight();
+}
 
-      console.log("AmbiguousSelection handling", event);
-      const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
-      const eventFunctions = getHighestPriorityEventFunctions(event);
-      const allEventFunctions = getAllEventFunctions(event);
-      const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
-      if(appSettings.actionMode) return;
-      const hadHighlights = hasHighlights.value;
-      resetHighlights();
-      if(hadHighlights && !showModal.value && !hasParticularClicks) {
+async function handle(event: MouseEvent) {
+    console.log("AmbiguousSelection handling", event);
+    const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
+    const eventFunctions = getHighestPriorityEventFunctions(event);
+    const allEventFunctions = getAllEventFunctions(event);
+    const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
+    if(appSettings.actionMode) return;
+    const hadHighlights = hasHighlights.value;
+    resetHighlights();
+    if(hadHighlights && !showModal.value && !hasParticularClicks) {
         return;
-      }
-      if(!isActive && !hasParticularClicks) return;
-      emit(Events.WINDOW_CLICKED);
-      const _verseInfo = getEventVerseInfo(event);
-      if (multiSelectionMode.value && multiSelect(_verseInfo)) {
+    }
+    if(!isActive && !hasParticularClicks) return;
+    emit(Events.WINDOW_CLICKED);
+    const _verseInfo: Nullable<EventVerseInfo> = getEventVerseInfo(event);
+    if (multiSelectionMode.value && multiSelect(_verseInfo)) {
         return;
-      }
-      multiSelectionMode.value = false;
+    }
+    multiSelectionMode.value = false;
 
-      if(eventFunctions.length > 0 || _verseInfo != null) {
+    if(eventFunctions.length > 0 || _verseInfo != null) {
         const firstFunc = eventFunctions[0];
         if(
-          (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs)
-          || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs)
+            (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs)
+            || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs)
         ) {
-          if (eventFunctions[0].options.bookmarkId) {
-            emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId, {locateTop: isBottomHalfClicked(event)});
-          } else {
-            eventFunctions[0].callback();
-          }
+            if (eventFunctions[0].options.bookmarkId) {
+                emit(Events.BOOKMARK_CLICKED, eventFunctions[0].options.bookmarkId, {locateTop: isBottomHalfClicked(event)});
+            } else {
+                const cb = eventFunctions[0].callback;
+                if(cb) {
+                    cb();
+                }
+            }
         }
         else {
-          if (modalOpen.value && !hasParticularClicks) {
-            if(!props.doNotCloseModals) {
-              closeModals();
+            if (modalOpen.value && !hasParticularClicks) {
+                if(!props.doNotCloseModals) {
+                    closeModals();
+                }
+            } else if(_verseInfo) {
+                setInitialVerse(_verseInfo);
+                const s = await select(event, allEventFunctions);
+                if (s && s.type === "callback" && s.callback) s.callback();
+            } else {
+                console.error("")
             }
-          } else {
-            setInitialVerse(_verseInfo);
-            const s = await select(event, allEventFunctions);
-            if (s && s.callback) s.callback();
-          }
         }
-      } else {
+    } else {
         $emit("back-clicked");
         if(!props.doNotCloseModals) {
-          closeModals();
+            closeModals();
         }
-      }
-      close();
     }
-
-    const noActions = computed(() => selectedActions.value.length === 0);
-
-    function help() {
-      android.helpBookmarks()
-    }
-
-    return {
-      help, selectionInfo, locateTop, limitAmbiguousModalSize,
-      bibleBookName, verseInfo, selected, handle, cancelled, noActions,
-      showModal, selectedActions, selectedBookmarks, clickedBookmarks,
-      bookmarkMap, common, strings, multiSelectionMode, multiSelectionButtonClicked,
-      modal: ref(null),
-    };
-  }
+    close();
 }
+
+const noActions = computed(() => selectedActions.value.length === 0);
+
+function help() {
+    android.helpBookmarks()
+}
+
+const modal = ref<InstanceType<typeof ModalDialog>|null>(null);
+defineExpose({handle});
 </script>
 
 <style scoped lang="scss">

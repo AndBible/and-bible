@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal blocking v-if="showModal" @close="showModal = false" :locate-top="locateTop">
+  <ModalDialog blocking v-if="showModal" @close="showModal = false" :locate-top="locateTop">
     <template #title>
       {{ strings.bookmarkLabels }}
     </template>
@@ -57,43 +57,38 @@
         {{ strings.assignLabelsMenuEntry1 }}
       </button>
     </div>
-  </Modal>
+  </ModalDialog>
 </template>
 
-<script>
-import Modal from "@/components/modals/Modal";
+<script lang="ts" setup>
+import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {computed, ref, inject} from "vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {androidKey} from "@/types/constants";
-export default {
-  name: "BookmarkLabelActions",
-  components: {Modal, FontAwesomeIcon},
-  props: {
-    bookmarkId: {type: Number, required: true},
-  },
-  setup(props) {
-    const showModal = ref(false);
-    const {bookmarkMap} = inject("globalBookmarks");
-    const android = inject(androidKey);
-    const locateTop = ref(true);
+import {androidKey, globalBookmarksKey} from "@/types/constants";
 
-    const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
+const props = defineProps<{bookmarkId: number}>();
 
-    function assignLabels() {
-      if(bookmark.value) {
-        android.assignLabels(bookmark.value.id);
-      }
-    }
-    const hasFavourites = ref(false);
-    const hasRecent = ref(false);
-    function showActions({locateTop: locateTop_ = true} = {}) {
-      locateTop.value = locateTop_;
-      showModal.value = true;
-    }
-    return {showModal, showActions, assignLabels, hasFavourites, hasRecent, ...useCommon()}
+const showModal = ref(false);
+const {bookmarkMap} = inject(globalBookmarksKey)!;
+const android = inject(androidKey)!;
+const locateTop = ref(true);
+
+const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
+
+function assignLabels() {
+  if(bookmark.value) {
+    android.assignLabels(bookmark.value.id);
   }
 }
+const hasFavourites = ref(false);
+const hasRecent = ref(false);
+function showActions({locateTop: locateTop_ = true} = {}) {
+  locateTop.value = locateTop_;
+  showModal.value = true;
+}
+defineExpose({showActions});
+const {strings} = useCommon();
 </script>
 
 <style scoped lang="scss">

@@ -29,15 +29,15 @@ import {Events, setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
 import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {Icon, icon} from "@fortawesome/fontawesome-svg-core";
-import {testMode} from "@/composables/config";
+import {AppSettings, Config, testMode} from "@/composables/config";
 import {
     Bookmark,
     CombinedRange,
     Label,
     LabelAndStyle,
-    OrdinalOffset,
+    OrdinalOffset, OrdinalRange,
 } from "@/types/client-objects";
-import {AppSettings, ColorParam, Config} from "@/types/common";
+import {ColorParam} from "@/types/common";
 import Color from "color";
 
 type LabelId = number
@@ -135,13 +135,13 @@ export function verseHighlighting({highlightLabels, highlightLabelCount, underli
 export function useGlobalBookmarks(config: Config) {
     const bookmarkLabels = reactive<Map<number, LabelAndStyle>>(new Map());
     const bookmarks = reactive<Map<number, Bookmark>>(new Map());
-    const bookmarkIdsByOrdinal = reactive(new Map());
+    const bookmarkIdsByOrdinal: Map<number, Set<number>> = reactive(new Map());
 
     function addBookmarkToOrdinalMap(b: Bookmark) {
         for(let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
-            let bSet = bookmarkIdsByOrdinal.get(o);
+            let bSet: Set<number>|undefined = bookmarkIdsByOrdinal.get(o);
             if(!bSet) {
-                bSet = reactive(new Set());
+                bSet = reactive<Set<number>>(new Set());
                 bookmarkIdsByOrdinal.set(o, bSet);
             }
             bSet.add(b.id);
@@ -161,7 +161,7 @@ export function useGlobalBookmarks(config: Config) {
 
     const labelsUpdated = ref<number>(0);
 
-    function updateBookmarkLabels(...inputData: Label[]) {
+    function updateBookmarkLabels(inputData: Label[]) {
         if(!inputData.length) return
         for(const v of inputData) {
             bookmarkLabels.set(v.id || -(count++), {...v, ...v.style})
@@ -169,7 +169,7 @@ export function useGlobalBookmarks(config: Config) {
         labelsUpdated.value ++;
     }
 
-    function updateBookmarks(...inputData: Bookmark[]) {
+    function updateBookmarks(inputData: Bookmark[]) {
         for(const v of inputData) {
             const bmark = {...v, hasNote: !!v.notes};
             bookmarks.set(v.id, bmark);
@@ -195,7 +195,7 @@ export function useGlobalBookmarks(config: Config) {
     });
 
     setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, function addOrUpdateBookmarks(bookmarks: Bookmark[]) {
-        updateBookmarks(...bookmarks)
+        updateBookmarks(bookmarks)
     });
 
     setupEventBusListener(Events.BOOKMARK_NOTE_MODIFIED,
@@ -210,7 +210,7 @@ export function useGlobalBookmarks(config: Config) {
         });
 
     setupEventBusListener(Events.UPDATE_LABELS, function updateLabels(labels: Label[]) {
-        return updateBookmarkLabels(...labels);
+        return updateBookmarkLabels(labels);
     })
 
     window.bibleViewDebug.bookmarks = bookmarks;
@@ -225,12 +225,16 @@ export function useGlobalBookmarks(config: Config) {
             return Array.from(bookmarks.values());
         }),
         labelsUpdated,
-        updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks, bookmarkIdsByOrdinal,
+        updateBookmarkLabels,
+        updateBookmarks,
+        allStyleRanges,
+        clearBookmarks,
+        bookmarkIdsByOrdinal,
     }
 }
 
 export function useBookmarks(documentId: string,
-                             ordinalRange: [number, number],
+                             ordinalRange: OrdinalRange,
                              {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated}: {
                                  bookmarks: Ref<Bookmark[]>,
                                  bookmarkMap: Map<number, Bookmark>,
@@ -256,7 +260,7 @@ export function useBookmarks(documentId: string,
 
     const checkOrdinalEnd = (b: Bookmark) => {
         if(b.ordinalRange == null && ordinalRange == null) return false
-        const bOrdinalRange = [b.ordinalRange[1], b.ordinalRange[1]]
+        const bOrdinalRange: OrdinalRange = [b.ordinalRange[1], b.ordinalRange[1]]
         return rangesOverlap(bOrdinalRange, ordinalRange, {addRange: true, inclusive: true})
     };
 
@@ -500,7 +504,7 @@ export function useBookmarks(documentId: string,
 
     function highlightStyleRange(styleRange: StyleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
-        let firstElement, lastElement;
+        let firstElement: Element, lastElement: Element;
         const style = config.showBookmarks ? styleForStyleRange(styleRange) : "";
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId)!);
 
@@ -542,15 +546,15 @@ export function useBookmarks(documentId: string,
                 console.error("Element is not found!", documentId, startOrdinal, endOrdinal);
                 return;
             }
-            const [first, startOff1] = findNodeAtOffsetWithNullOffset(firstElem, startOff);
-            const [second, endOff1] = findNodeAtOffsetWithNullOffset(secondElem, endOff);
-            if(!(first instanceof Node && second instanceof Node)) {
+            const first = findNodeAtOffsetWithNullOffset(firstElem, startOff);
+            const second = findNodeAtOffsetWithNullOffset(secondElem, endOff);
+            if(!(first && second)) {
                 console.error("Node not found!");
                 return;
             }
             const range = new Range();
-            range.setStart(first, startOff1);
-            range.setEnd(second, endOff1);
+            range.setStart(first.node, first.offset);
+            range.setEnd(second.node, second.offset);
             if(!range.collapsed) {
                 const highlightResult = highlightRange(range, 'span', {style});
                 if (highlightResult) {
@@ -564,7 +568,6 @@ export function useBookmarks(documentId: string,
                         first, second,
                         firstElem, secondElem,
                         startOff, endOff,
-                        startOff1, endOff1,
                         startOrdinal, endOrdinal,
                         range,
                         style,
@@ -586,7 +589,7 @@ export function useBookmarks(documentId: string,
 
                     iconElement.addEventListener("click", event => addEventFunction(event,
                         null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
-                    firstElement.parentElement.insertBefore(iconElement, firstElement);
+                    firstElement.parentElement!.insertBefore(iconElement, firstElement);
                     undoHighlights.push(() => iconElement.remove());
                 }
             }
@@ -613,7 +616,7 @@ export function useBookmarks(documentId: string,
                 const iconElement = getIconElement(hasNote ? editIcon : bookmarkIcon, color);
                 iconElement.addEventListener("click", event => addEventFunction(event,
                     null, {bookmarkId: bookmark.id, priority: EventPriorities.BOOKMARK_MARKER}));
-                lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
+                lastElement!.parentNode!.insertBefore(iconElement, lastElement!.nextSibling);
                 if (bookmarkList.length > 1) {
                     iconElement.appendChild(document.createTextNode(`×${bookmarkList.length}`));
                 }

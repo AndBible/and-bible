@@ -19,19 +19,12 @@
   <span class="foreign-style>"><slot/></span>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 
-export default {
-  name: "Foreign",
-  props: {
-    type: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "type");
-    return useCommon();
-  },
-}
+const props = defineProps({type: String, default: null});
+checkUnsupportedProps(props, "type");
+useCommon();
 </script>
 
 <style scoped>

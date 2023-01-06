@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="showBookmark && bookmark" @close="closeBookmark" wide :locate-top="locateTop" :edit="!infoShown">
+  <ModalDialog v-if="showBookmark && bookmark" @close="closeBookmark" wide :locate-top="locateTop" :edit="!infoShown">
     <template #title-div>
       <div class="bookmark-title" style="width: calc(100% - 80px);">
         <div class="overlay"/>
@@ -83,104 +83,101 @@
         {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
       </div>
     </div>
-  </Modal>
+  </ModalDialog>
 </template>
 
-<script>
-import Modal from "@/components/modals/Modal";
+<script lang="ts" setup>
+import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref, inject, provide, nextTick} from "vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import EditableText from "@/components/EditableText";
-import LabelList from "@/components/LabelList";
-import BookmarkText from "@/components/BookmarkText";
-import BookmarkButtons from "@/components/BookmarkButtons";
+import EditableText from "@/components/EditableText.vue";
+import LabelList from "@/components/LabelList.vue";
+import BookmarkText from "@/components/BookmarkText.vue";
+import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {clickWaiter} from "@/utils";
 import {sortBy} from "lodash";
-import {androidKey} from "@/types/constants";
+import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
+import {Bookmark} from "@/types/client-objects";
 
-export default {
-  name: "BookmarkModal",
-  components: {BookmarkText, LabelList, EditableText, Modal, FontAwesomeIcon, BookmarkButtons},
-  setup() {
-    const showBookmark = ref(false);
-    const android = inject(androidKey);
-    const areYouSure = ref(null);
-    const infoShown = ref(false);
-    const bookmarkId = ref(null);
-    const labelList = ref(null);
-    const locateTop = ref(false);
-    provide("locateTop", locateTop);
+const showBookmark = ref(false);
+const android = inject(androidKey)!;
+const infoShown = ref(false);
+const bookmarkId = ref<number|null>(null);
+const labelList = ref<InstanceType<typeof LabelList>|null>(null);
+const locateTop = ref(false);
+provide(locateTopKey, locateTop);
 
-    const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
+const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
 
-    const bookmark = computed(() => {
-      return bookmarkMap.get(bookmarkId.value);
-    });
+const bookmark = computed<Bookmark|null>(() => {
+    if(!bookmarkId.value) return null;
+    return bookmarkMap.get(bookmarkId.value)!;
+});
 
-    const labels = computed(() => {
-      if(!bookmark.value) return [];
-      return sortBy(bookmark.value.labels.map(l => bookmarkLabels.get(l)), ["name"])
-    });
+const labels = computed(() => {
+    if(!bookmark.value) return [];
+    return sortBy(bookmark.value.labels.map(l => bookmarkLabels.get(l)!), ["name"])
+});
 
-    const label = computed(() => labels.value[0]);
-    const bookmarkNotes = computed(() => bookmark.value.notes);
-    let originalNotes = null;
+const bookmarkNotes = computed(() => bookmark.value!.notes);
+let originalNotes: string|null = null;
 
-    setupEventBusListener(Events.BOOKMARK_CLICKED, async (bookmarkId_, {locateTop: _locateTop = false, openLabels = false, openInfo = false, openNotes = false} = {}) => {
-      bookmarkId.value = bookmarkId_;
-      originalNotes = bookmarkNotes.value;
-      infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
-      console.log({openNotes, openInfo, asdf: bookmarkNotes.value});
-      editDirectly.value = !infoShown.value && !bookmarkNotes.value;
-      locateTop.value = _locateTop;
-      showBookmark.value = true;
-      if(openLabels && !openNotes) {
-        await nextTick();
-        labelList.value.openActions();
-      }
-    });
-
-    function closeBookmark() {
-      showBookmark.value = false;
-      if(originalNotes !== bookmarkNotes.value)
-        android.saveBookmarkNote(bookmark.value.id, bookmarkNotes.value);
-
-      originalNotes = null;
+setupEventBusListener(Events.BOOKMARK_CLICKED,
+    async (
+        bookmarkId_: number,
+        {
+            locateTop: _locateTop = false,
+            openLabels = false,
+            openInfo = false,
+            openNotes = false
+        } = {}) =>
+    {
+        bookmarkId.value = bookmarkId_;
+        originalNotes = bookmarkNotes.value;
+        infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
+        editDirectly.value = !infoShown.value && !bookmarkNotes.value;
+        locateTop.value = _locateTop;
+        showBookmark.value = true;
+        if(openLabels && !openNotes) {
+            await nextTick();
+            labelList.value!.openActions();
+        }
     }
+);
 
-    const {adjustedColor, strings, ...common} = useCommon();
+function closeBookmark() {
+    showBookmark.value = false;
+    if(originalNotes !== bookmarkNotes.value)
+        android.saveBookmarkNote(bookmark.value!.id, bookmarkNotes.value);
 
-    const labelColor = computed(() => {
-      return adjustedColor(label.value.color).string();
-    });
+    originalNotes = null;
+}
 
-    const changeNote = text => {
-      android.saveBookmarkNote(bookmark.value.id, text);
+const {adjustedColor, strings, sprintf, formatTimestamp} = useCommon();
+
+const changeNote = (text: string) => {
+    if(bookmark.value) {
+        android.saveBookmarkNote(bookmark.value.id, text);
     }
+}
 
-    const originalBookLink = computed(() => {
-      const prefix = bookmark.value.bookInitials ? bookmark.value.bookInitials: "";
-      const bibleUrl = encodeURI(`osis://?osis=${prefix}:${bookmark.value.osisRef}&v11n=${bookmark.value.v11n}`)
-      return `<a href="${bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`;
-    })
+const originalBookLink = computed(() => {
+    if(!bookmark.value) return ""
+    const prefix = bookmark.value.bookInitials ? bookmark.value.bookInitials: "";
+    const bibleUrl = encodeURI(`osis://?osis=${prefix}:${bookmark.value.osisRef}&v11n=${bookmark.value.v11n}`)
+    return `<a href="${bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`;
+})
 
-    const editDirectly = ref(false);
+const editDirectly = ref(false);
 
-    const {waitForClick} = clickWaiter();
+const {waitForClick} = clickWaiter();
 
-    async function toggleInfo(event) {
-      if(!await waitForClick(event)) return;
-      infoShown.value = !infoShown.value
-      editDirectly.value = !infoShown.value && !bookmarkNotes.value;
-    }
-
-    return {
-      locateTop, showBookmark, closeBookmark, areYouSure, infoShown, bookmarkNotes,  bookmark, labelColor,
-      changeNote, labels, originalBookLink, strings, adjustedColor, editDirectly, toggleInfo, labelList, ...common
-    };
-  },
+async function toggleInfo(event: MouseEvent|TouchEvent) {
+    if(!await waitForClick(event)) return;
+    infoShown.value = !infoShown.value
+    editDirectly.value = !infoShown.value && !bookmarkNotes.value;
 }
 </script>
 

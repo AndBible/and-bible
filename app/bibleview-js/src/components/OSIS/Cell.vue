@@ -19,20 +19,16 @@
   <td :colspan="cols"><slot/></td>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 
-export default {
-  name: "Cell",
-  props: {
-    role: {type: String, default: null},
-    cols: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "role")
-    return useCommon();
-  },
-}
+const props = defineProps({
+  role: {type: String, default: null},
+  cols: {type: String, default: null},
+});
+
+checkUnsupportedProps(props, "role")
+useCommon();
 </script>
 
 <style scoped>

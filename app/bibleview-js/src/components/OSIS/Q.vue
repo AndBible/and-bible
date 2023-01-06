@@ -17,32 +17,28 @@
 
 <template><span :class="{redLetters: config.showRedLetters && isJesus}">{{displayMarker}}<slot/></span></template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed} from "vue";
 
-export default {
-  name: "Q",
-  props: {
-    marker: {type: String, default: null},
-    sID: {type: String, default: null},
-    eID: {type: String, default: null},
-    who: {type: String, default: null},
-    level: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "who", ["jesus", "Jesus"]);
-    const isJesus = computed(() => props.who && props.who.toLowerCase() === "jesus");
-    const displayMarker = computed(() => {
-      if(props.marker) {
-        return props.marker;
-      } else {
-        return "";
-      }
-    });
-    return {isJesus, displayMarker, ...useCommon()};
-  },
-}
+const props = defineProps({
+  marker: {type: String, default: null},
+  sID: {type: String, default: null},
+  eID: {type: String, default: null},
+  who: {type: String, default: null},
+  level: {type: String, default: null},
+});
+
+checkUnsupportedProps(props, "who", ["jesus", "Jesus"]);
+const isJesus = computed(() => props.who && props.who.toLowerCase() === "jesus");
+const displayMarker = computed(() => {
+  if(props.marker) {
+    return props.marker;
+  } else {
+    return "";
+  }
+});
+const {config} = useCommon();
 </script>
 
 <style scoped lang="scss">

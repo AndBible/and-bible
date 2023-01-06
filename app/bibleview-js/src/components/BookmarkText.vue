@@ -18,7 +18,7 @@
 <template>
   <template v-if="bookmark.text">
     <AmbiguousSelection ref="ambiguousSelection" @back-clicked="$emit('change-expanded', false)"/>
-    <div v-if="expanded" @click.stop="ambiguousSelection.handle">
+    <div v-if="expanded" @click.stop="ambiguousSelection?.handle">
       <OsisFragment
         :highlight-ordinal-range="bookmark.originalOrdinalRange"
         :highlight-offset-range="highlightOffset"
@@ -32,30 +32,29 @@
   </template>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {useCommon} from "@/composables";
-import OsisFragment from "@/components/documents/OsisFragment";
+import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {computed, ref} from "vue";
+import {Bookmark} from "@/types/client-objects";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 
-export default {
-  name: "BookmarkText",
-  components: {OsisFragment},
-  props: {
-    bookmark: {type: Object, required: true},
-    expanded: {type: Boolean, default: false},
-  },
-  setup(props) {
-    const ambiguousSelection = ref(null);
+const props = withDefaults(defineProps<{
+    bookmark: Bookmark,
+    expanded: boolean
+}>(), {
+    expanded: false
+});
 
-    const highlightOffset = computed(() => {
-      //const highlightedLength = props.bookmark.text.length;
-      //const fullLength = props.bookmark.fullText.length;
-      //if(highlightedLength > 0.95*fullLength || highlightedLength > fullLength - 5) return null
-      return props.bookmark.offsetRange
-    });
-    return {ambiguousSelection, highlightOffset, ...useCommon()};
-  }
-}
+const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection>|null>(null);
+
+const highlightOffset = computed(() => {
+  //const highlightedLength = props.bookmark.text.length;
+  //const fullLength = props.bookmark.fullText.length;
+  //if(highlightedLength > 0.95*fullLength || highlightedLength > fullLength - 5) return null
+  return props.bookmark.offsetRange
+});
+useCommon();
 </script>
 
 <style scoped lang="scss">

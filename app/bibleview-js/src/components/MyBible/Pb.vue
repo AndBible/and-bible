@@ -19,16 +19,9 @@
   <div class="paragraphBreak">&nbsp;</div>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
-import {defineComponent} from "vue";
-
-export default defineComponent({
-  name: "Pb",
-  setup() {
-    return useCommon();
-  },
-})
+useCommon();
 </script>
 
 <style lang="scss" scoped>

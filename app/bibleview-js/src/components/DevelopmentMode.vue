@@ -17,7 +17,7 @@
 
 <template>
   <div :style="`position: fixed; top:0; width:100%;  background-color: rgba(100, 255, 100, 0.7);
-               height:${config.topOffset}px`"
+               height:${appSettings.topOffset}px`"
   >
     Current verse: {{currentVerse}}
   </div>
@@ -26,40 +26,36 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {useCommon} from "@/composables";
 import {emit, Events} from "@/eventbus";
 import {inject} from "vue";
 import {androidKey} from "@/types/constants";
+import {QuerySelection} from "@/composables/android";
 
-export default {
-  name: "DevelopmentMode",
-  props: {
-    currentVerse: {type: Number, default: null}
-  },
-  setup() {
-    const android = inject(androidKey);
+withDefaults(defineProps<{currentVerse: number|null}>(), {currentVerse: null});
 
-    let lblCount = 0;
+const android = inject(androidKey)!;
 
-    function testMakeBookmark() {
-      const selection = android.querySelection()
-      if(!selection) return
-      const bookmark = {
-        id: -lblCount -1,
-        ordinalRange: [selection.startOrdinal, selection.endOrdinal],
-        offsetRange: [selection.startOffset, selection.endOffset],
-        bookInitials: selection.bookInitials,
-        note: "Test!",
-        labels: [-(lblCount++ % 5) - 1]
-      }
-      emit(Events.ADD_OR_UPDATE_BOOKMARKS, [bookmark])
-      emit(Events.REMOVE_RANGES)
-    }
+let lblCount = 0;
 
-    return {testMakeBookmark, ...useCommon()};
-  },
+function testMakeBookmark() {
+  const selection = android.querySelection()
+  if(!selection || selection instanceof String) return
+  const s = selection as QuerySelection
+  const bookmark = {
+    id: -lblCount -1,
+    ordinalRange: [s.startOrdinal, s.endOrdinal],
+    offsetRange: [s.startOffset, s.endOffset],
+    bookInitials: s.bookInitials,
+    note: "Test!",
+    labels: [-(lblCount++ % 5) - 1]
+  }
+  emit(Events.ADD_OR_UPDATE_BOOKMARKS, [bookmark])
+  emit(Events.REMOVE_RANGES)
 }
+const {config, appSettings} = useCommon();
+
 </script>
 
 <style scoped>

@@ -21,43 +21,36 @@
   </template>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 
-import {computed, ref, inject, defineComponent} from "vue";
+import {computed, ref, inject} from "vue";
 import {strongsModes} from "@/composables/config";
 import {useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
-import {osisFragmentKey} from "@/types/constants";
+import {exportModeKey, osisFragmentKey} from "@/types/constants";
 import {OsisFragment} from "@/types/client-objects";
 
-export default defineComponent({
-  name: "S",
-  setup() {
-    const slot = ref<HTMLElement|null>(null);
+const slot = ref<HTMLElement|null>(null);
 
-    const osisFragment = inject<OsisFragment>(osisFragmentKey)
-    const letter = osisFragment?.isNewTestament ? "G": "H";
+const osisFragment = inject<OsisFragment>(osisFragmentKey)
+const letter = osisFragment?.isNewTestament ? "G": "H";
 
-    const link = computed(() => {
-      if(slot.value === null) return null;
-      const strongsNum = slot.value.innerText
-      return `ab-w://?strong=${letter}${strongsNum}`
-    });
-    const {config, strings, ...common} = useCommon();
+const link = computed(() => {
+  if(slot.value === null) return;
+  const strongsNum = slot.value.innerText
+  return `ab-w://?strong=${letter}${strongsNum}`
+});
+const {config, strings} = useCommon();
 
-    const exportMode = inject("exportMode", ref(false));
-    const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
-    function openLink(event: MouseEvent) {
-      addEventFunction(event, () => {
-        if (link.value) {
-          window.location.assign(link.value);
-        }
-      }, {priority: EventPriorities.STRONGS_LINK, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: false});
+const exportMode = inject(exportModeKey, ref(false));
+const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
+function openLink(event: MouseEvent) {
+  addEventFunction(event, () => {
+    if (link.value) {
+      window.location.assign(link.value);
     }
-
-    return {slot, openLink, link, common, showStrongs};
-  },
-})
+  }, {priority: EventPriorities.STRONGS_LINK, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: false});
+}
 </script>
 
 <style scoped>

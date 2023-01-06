@@ -16,25 +16,61 @@
  */
 
 import Color from "color";
+import {OrdinalRange} from "@/types/client-objects";
+import {Ref} from "vue";
+import {EventVerseInfo} from "@/utils";
 
 export type ReloadAddonsParams = {
-    fontModuleNames: string[],
-    featureModuleNames: string[],
-    styleModuleNames: string[],
+    readonly fontModuleNames: string[],
+    readonly featureModuleNames: string[],
+    readonly styleModuleNames: string[],
 }
 
 export type LogEntry = {
     msg: string,
     type: "ERROR" | "WARN"
+    count: number
 }
 
 export type JSONString = string
 export type AsyncFunc = (callId: number) => void
 export type JournalEntryType = "bookmark" | "journal" | "none"
 
-export type Config = any
-export type AppSettings = any
-export type ABDocument = any
 export type ColorInt = number
 export type ColorString = string
 export type ColorParam = Color | ColorString | ArrayLike<number> | ColorInt | { [key: string]: any };
+export type BibleDocumentInfo = {
+    bibleBookName: string,
+    bookInitials: string,
+    ordinalRange: OrdinalRange,
+    originalOrdinalRange: OrdinalRange,
+    v11n: string
+}
+
+export type VerseInfo = {
+    ordinal: number
+    osisID: string
+    book: string
+    chapter: number
+    verse: number
+    v11n?: string
+    showStack: Ref<boolean>[]
+}
+
+export type FootNoteCount = {
+    getFootNoteCount: () => number
+}
+
+export type AreYouSureButton = {
+  title: string
+  class: "warning"
+  result: any
+}
+
+export type SelectionInfo = EventVerseInfo & {
+    startOrdinal: number
+    endOrdinal: number
+}
+
+export type Nullable<T> = T | null;
+export type Optional<T> = Nullable<T> | undefined;

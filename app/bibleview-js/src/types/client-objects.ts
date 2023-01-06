@@ -18,77 +18,105 @@
 export type BookCategory = "BIBLE"|"COMMENTARY"|"GENERAL_BOOK"
 export type V11N = string
 export type Features = {
-    type?: "hebrew-and-greek" | "hebrew" | "greek" | null,
-    keyName?: string | null
+    readonly type?: "hebrew-and-greek" | "hebrew" | "greek" | null,
+    readonly keyName?: string | null
 }
 
 // ClientObjects.kt: OsisFragment
 export type OsisFragment = {
     xml: string,
-    key: string,
-    keyName: string,
-    v11n: V11N,
-    bookCategory: BookCategory,
-    bookInitials: string,
-    bookAbbreviation: string,
-    osisRef: string,
-    isNewTestament: boolean,
-    features: Features,
-    ordinalRange: number[],
-    language: string,
-    direction: "rtl" | "ltr",
+    originalXml?: string
+    readonly key: string,
+    readonly keyName: string,
+    readonly v11n: V11N,
+    readonly bookCategory: BookCategory,
+    readonly bookInitials: string,
+    readonly bookAbbreviation: string,
+    readonly osisRef: string,
+    readonly isNewTestament: boolean,
+    readonly features: Features,
+    readonly ordinalRange: number[],
+    readonly language: string,
+    readonly direction: "rtl" | "ltr",
 }
 
-export type NumberRange = [number, number]
+export type NumberRange = [start: number, end: number]
 export type OrdinalRange = NumberRange
-export type OffsetRange = [number, number|null]
-export type OrdinalOffset = [number, number | null]
-export type CombinedRange = [OrdinalOffset, OrdinalOffset]
-export type BookmarkToLabel = any
+export type OffsetRange = [start: number, end: number|null]
+export type OrdinalOffset = [start: number, end: number | null]
+export type CombinedRange = [start: OrdinalOffset, end: OrdinalOffset]
+
+export type BookmarkToLabel = {
+    readonly bookmarkId: number
+    readonly labelId: number
+    readonly orderNumber: number
+    readonly indentLevel: number
+    readonly expandContent: boolean
+}
 
 export type Bookmark = {
-    id: number
-    ordinalRange: OrdinalRange
-    originalOrdinalRange: OrdinalRange
-    offsetRange: OffsetRange
-    labels: number[]
-    bookInitials: string
-    bookName: string
-    bookAbbreviation: string
-    createdAt: number
+    readonly id: number
+    readonly type: "bookmark"
+    readonly ordinalRange: OrdinalRange
+    readonly originalOrdinalRange: OrdinalRange
+    readonly offsetRange: OffsetRange
+    readonly labels: number[]
+    readonly bookInitials: string
+    readonly bookName: string
+    readonly bookAbbreviation: string
+    readonly createdAt: number
+    readonly verseRange: string
+    readonly verseRangeOnlyNumber: string
+    readonly verseRangeAbbreviated: string
+    readonly text: string
+    readonly osisRef: string
+    readonly v11n: string
+    readonly fullText: string
+    readonly bookmarkToLabels: BookmarkToLabel[]
+    readonly osisFragment: OsisFragment
+    readonly primaryLabelId: number
     lastUpdatedOn: number
     notes: string | null
     hasNote: boolean
-    verseRange: string
-    verseRangeOnlyNumber: string
-    verseRangeAbbreviated: string
-    text: string
-    osisRef: string
-    v11n: string
-    fullText: string
-    bookmarkToLabels: BookmarkToLabel[]
-    osisFragment: OsisFragment
-    type: "bookmark"
-    primaryLabelId: number
     wholeVerse: boolean
 }
 
-export type JournalEntry = any
+export type StudyPadTextItem = {
+    readonly id: number
+    readonly type: "journal"
+    readonly labelId: number
+    text: string
+    orderNumber: number
+    indentLevel: number
+    new?: boolean
+}
 
-export type BookmarkStyle = {
+export type StudyPadBookmarkItem = Bookmark & {
+    orderNumber: number
+    indentLevel: number
+    expandContent: boolean
+    bookmarkToLabel: BookmarkToLabel
+}
+
+export type StudyPadItem = StudyPadBookmarkItem|StudyPadTextItem
+
+export type StudyPadItemOf<T> =
+    T extends "journal" ? StudyPadTextItem: StudyPadBookmarkItem
+
+export type BookmarkStyle = Readonly<{
     color: number
     isSpeak: boolean
     underline: boolean
     underlineWholeVerse: boolean
     markerStyle: boolean
     markerStyleWholeVerse: boolean
-}
+}>
 
-export type Label = {
+export type Label = Readonly<{
     id: number
     name: string
     style: BookmarkStyle
     isRealLabel: boolean
-}
+}>
 
 export type LabelAndStyle = Label & BookmarkStyle

@@ -18,13 +18,13 @@
 console.log("main.ts begin");
 
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
-import {AndroidInterface, patchAndroidConsole} from "@/composables/android";
+import {BibleJavascriptInterface, patchAndroidConsole} from "@/composables/android";
 
 declare global {
     interface Window {
         bibleView: any;
         bibleViewDebug: any,
-        android: AndroidInterface,
+        android: BibleJavascriptInterface,
         console: Console & {
             _msg: (s: string, args: string[][]) => string,
             flog: (s: string, args: string[]) => void,
@@ -55,4 +55,5 @@ app.component("BookmarkLabelActions", BookmarkLabelActions);
 console.log("main.ts After vue bootstrap. Mounting.");
 app.mount('#app')
 console.log("main.ts After vue mount.");
+console.log("NODE_ENV", process.env.NODE_ENV);
 

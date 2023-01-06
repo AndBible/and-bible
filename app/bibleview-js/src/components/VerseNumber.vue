@@ -17,23 +17,17 @@
 
 <template><span :dir="fragment.direction" v-if="show" class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}<template v-if="exportMode">.&nbsp;</template></span></template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 import {inject, computed, ref} from "vue";
-import {BookCategories, osisFragmentKey} from "@/types/constants";
+import {BookCategories, exportModeKey, osisFragmentKey} from "@/types/constants";
 
-export default {
-  name: "VerseNumber",
-  props: {
-    verseNum: {type: Number, required: true}
-  },
-  setup() {
-    const fragment = inject(osisFragmentKey);
-    const show = computed(() => fragment.bookCategory === BookCategories.BIBLE)
-    const exportMode = inject("exportMode", ref(false));
-    return {show, fragment, exportMode, ...useCommon()};
-  }
-}
+defineProps<{verseNum: number}>()
+
+const fragment = inject(osisFragmentKey)!;
+const show = computed(() => fragment.bookCategory === BookCategories.BIBLE)
+const exportMode = inject(exportModeKey, ref(false));
+const {sprintf, strings} = useCommon();
 </script>
 
 <style scoped lang="scss">

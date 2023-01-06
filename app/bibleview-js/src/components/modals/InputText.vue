@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="show" @close="show=false" blocking locate-top>
+  <ModalDialog v-if="show" @close="show=false" blocking locate-top>
     <template #title>
       <slot/>
     </template>
@@ -31,43 +31,42 @@
       <button class="button" @click="cancel">{{strings.cancel}}</button>
       <button class="button" @click="ok">{{strings.ok}}</button>
     </template>
-  </Modal>
+  </ModalDialog>
 </template>
 
-<script>
-import Modal from "@/components/modals/Modal";
+<script lang="ts" setup>
+import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {ref} from "vue";
 import {useCommon} from "@/composables";
 import {Deferred, waitUntilRefValue} from "@/utils";
-export default {
-  name: "InputText",
-  components: {Modal},
-  setup() {
-    const text = ref("");
-    const error = ref("");
-    const show = ref(false);
-    const inputElement = ref(null);
-    let promise = null;
-    async function inputText(initialValue="", _error = "") {
-      text.value =initialValue;
-      error.value = _error;
-      show.value = true;
-      promise = new Deferred();
-      await waitUntilRefValue(inputElement)
-      inputElement.value.focus();
-      const result = await promise.wait()
-      show.value = false;
-      return result;
-    }
-    function ok() {
-      promise.resolve(text.value);
-    }
-    function cancel() {
-      promise.resolve(null);
-    }
-    return {show, inputText, ok, cancel, text, error, inputElement, ...useCommon()};
-  }
+
+const text = ref("");
+const error = ref("");
+const show = ref(false);
+const inputElement = ref<HTMLElement|null>(null);
+let promise: Deferred<string>|null = null;
+
+async function inputText(initialValue="", _error = ""): Promise<string|null> {
+  text.value =initialValue;
+  error.value = _error;
+  show.value = true;
+  promise = new Deferred<string>();
+  await waitUntilRefValue(inputElement)
+  inputElement.value!.focus();
+  const result = await promise.wait()
+  show.value = false;
+  return result || null;
 }
+
+function ok() {
+  promise!.resolve(text.value);
+}
+function cancel() {
+  promise!.resolve();
+}
+const {strings} = useCommon();
+
+defineExpose({inputText, setText: (v: string) => text.value = v});
 </script>
 
 <style scoped>
