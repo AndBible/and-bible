@@ -25,11 +25,11 @@ import {
     StudyPadTextItem
 } from "@/types/client-objects";
 
-type DocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal"
+export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal" | "none"
 
 export type BaseDocument = {
     id: string
-    type: DocumentType
+    type: BibleViewDocumentType
 }
 
 export type MultiFragmentDocument = {
@@ -85,7 +85,7 @@ export type StudyPadDocument = BaseDocument & {
 
 export type AnyDocument = StudyPadDocument|MyNotesDocument|BibleDocumentType|ErrorDocument|OsisDocument|MultiFragmentDocument
 
-export type DocumentOfType<T extends DocumentType> =
+export type DocumentOfType<T extends BibleViewDocumentType> =
     T extends "journal" ? StudyPadDocument:
         T extends "notes" ? MyNotesDocument:
             T extends "bible"? BibleDocumentType:

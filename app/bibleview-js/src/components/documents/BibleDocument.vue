@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div :id="`doc-${document?.id}`"
+  <div :id="`doc-${document.id}`"
        class="bible-document"
        :data-book-initials="bookInitials"
   >

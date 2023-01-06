@@ -17,10 +17,10 @@
 
 
 import {computed, nextTick, reactive, Ref} from "vue";
-import {DocumentTypes} from "@/types/constants";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {isEqual} from "lodash";
 import {Deferred} from "@/utils";
+import {BibleViewDocumentType} from "@/types/documents";
 
 export const strongsModes: Record<string, StrongsMode> = {off: 0,inline:1,links:2}
 
@@ -108,7 +108,7 @@ export type CalculatedConfig = Ref<{
     topMargin: number
 }>
 
-export function useConfig(documentType: Ref<string>) {
+export function useConfig(documentType: Ref<BibleViewDocumentType>) {
     // text display settings only here. TODO: rename
     const config: Config = reactive({
         developmentMode,
@@ -184,7 +184,7 @@ export function useConfig(documentType: Ref<string>) {
     }
     const mmInPx = calcMmInPx();
 
-    const isBible = computed(() => documentType.value === DocumentTypes.BIBLE_DOCUMENT);
+    const isBible = computed(() => documentType.value === "bible");
 
     const calculatedConfig = computed(() => {
         let topOffset = appSettings.topOffset;
@@ -256,8 +256,8 @@ export function useConfig(documentType: Ref<string>) {
             }
         ) {
             const defer = new Deferred();
-            const isBible = documentType.value === DocumentTypes.BIBLE_DOCUMENT
-            const needsRefreshLocation = !initial && (isBible || documentType.value === DocumentTypes.OSIS_DOCUMENT) && getNeedRefreshLocation(newConfig);
+            const isBible = documentType.value === "bible"
+            const needsRefreshLocation = !initial && (isBible || documentType.value === "osis") && getNeedRefreshLocation(newConfig);
             const needBookmarkRefresh = getNeedBookmarkRefresh(newConfig);
 
             if (needsRefreshLocation) emit(Events.CONFIG_CHANGED, defer)

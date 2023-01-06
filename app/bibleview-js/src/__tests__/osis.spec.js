@@ -33,8 +33,12 @@ import {
     BookCategories,
     calculatedConfigKey,
     configKey,
-    DocumentTypes, footnoteCountKey, globalBookmarksKey, modalKey,
-    osisFragmentKey, stringsKey, verseHighlightKey
+    footnoteCountKey,
+    globalBookmarksKey,
+    modalKey,
+    osisFragmentKey,
+    stringsKey,
+    verseHighlightKey
 } from "@/types/constants";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
@@ -47,7 +51,7 @@ window.bibleViewDebug = {}
 window.bibleView = {}
 
 function verifyXmlRendering(xmlTemplate, renderedHtml) {
-    const {config, appSettings, calculatedConfig} = useConfig(ref(DocumentTypes.BIBLE_DOCUMENT));
+    const {config, appSettings, calculatedConfig} = useConfig(ref("bible"));
     const osisFragment = {
         bookCategory: BookCategories.BIBLE,
     };

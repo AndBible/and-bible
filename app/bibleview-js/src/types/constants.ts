@@ -47,18 +47,6 @@ export const stringsKey: InjectionKey<ReturnType<typeof useStrings>> = Symbol("s
 export const exportModeKey: InjectionKey<Ref<boolean>> = Symbol("exportMode");
 export const customFeaturesKey: InjectionKey<ReturnType<typeof useCustomFeatures>> = Symbol("customFeatures");
 export const locateTopKey: InjectionKey<Ref<boolean>> = Symbol("locateTop");
-
-
-export const DocumentTypes = {
-    BIBLE_DOCUMENT: "bible",
-    OSIS_DOCUMENT: "osis",
-    ERROR_DOCUMENT: "error",
-    MY_NOTES: "notes",
-    JOURNAL: "journal",
-    MULTI: "multi",
-    NONE: "none",
-}
-
 export const StudyPadEntryTypes = {
     BOOKMARK: "bookmark",
     JOURNAL_TEXT: "journal",

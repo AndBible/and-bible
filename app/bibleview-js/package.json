@@ -8,7 +8,7 @@
     "preview": "vite preview",
     "test:unit": "vitest --root src/",
     "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit -p tsconfig.json --composite false",
+    "type-check": "vue-tsc -p tsconfig.json",
     "type-check:ci": "vue-tsc -p tsconfig.json > type-check-results.txt",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore",
     "build-debug": "cross-env NODE_ENV=debug vite build --mode debug",
