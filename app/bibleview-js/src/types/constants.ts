@@ -47,13 +47,3 @@ export const stringsKey: InjectionKey<ReturnType<typeof useStrings>> = Symbol("s
 export const exportModeKey: InjectionKey<Ref<boolean>> = Symbol("exportMode");
 export const customFeaturesKey: InjectionKey<ReturnType<typeof useCustomFeatures>> = Symbol("customFeatures");
 export const locateTopKey: InjectionKey<Ref<boolean>> = Symbol("locateTop");
-export const StudyPadEntryTypes = {
-    BOOKMARK: "bookmark",
-    JOURNAL_TEXT: "journal",
-}
-
-export const BookCategories = {
-    BIBLE: "BIBLE",
-    COMMENTARIES: "COMMENTARY",
-    GENERAL_BOOK: "GENERAL_BOOK",
-}

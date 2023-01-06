@@ -21,7 +21,6 @@ import {Deferred, rangeInside, setupDocumentEventListener, sleep, stubsFor} from
 import {onMounted, reactive, Ref} from "vue";
 import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
-import {StudyPadEntryTypes} from "@/types/constants";
 import {Config, errorBox} from "@/composables/config";
 import {
     AsyncFunc,
@@ -362,9 +361,9 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
 
     function updateJournalEntry(entry: StudyPadItem, changes: Partial<StudyPadItem>) {
         const changedEntry = {...entry, ...changes}
-        if(entry.type === StudyPadEntryTypes.JOURNAL_TEXT) {
+        if(entry.type === "journal") {
             window.android.updateJournalTextEntry(JSON.stringify(changedEntry as StudyPadTextItem));
-        } else if(entry.type === StudyPadEntryTypes.BOOKMARK) {
+        } else if(entry.type === "bookmark") {
             const changedBookmarkItem = changedEntry as StudyPadBookmarkItem
             const entry = {
                 bookmarkId: changedBookmarkItem.id,

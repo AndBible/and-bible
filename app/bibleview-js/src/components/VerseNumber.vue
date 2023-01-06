@@ -20,12 +20,12 @@
 <script setup lang="ts">
 import {useCommon} from "@/composables";
 import {inject, computed, ref} from "vue";
-import {BookCategories, exportModeKey, osisFragmentKey} from "@/types/constants";
+import {exportModeKey, osisFragmentKey} from "@/types/constants";
 
 defineProps<{verseNum: number}>()
 
 const fragment = inject(osisFragmentKey)!;
-const show = computed(() => fragment.bookCategory === BookCategories.BIBLE)
+const show = computed(() => fragment.bookCategory === "BIBLE")
 const exportMode = inject(exportModeKey, ref(false));
 const {sprintf, strings} = useCommon();
 </script>

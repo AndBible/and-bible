@@ -52,7 +52,7 @@
       </template>
     </draggable>
     <div v-if="journalEntries.length > 0 && !exportMode">
-      <span v-if="lastEntry.type === StudyPadEntryTypes.BOOKMARK && !asBookmarkItem(lastEntry).hasNote" class="journal-button" @click="editLastNote">
+      <span v-if="lastEntry.type === 'bookmark' && !asBookmarkItem(lastEntry).hasNote" class="journal-button" @click="editLastNote">
         <FontAwesomeIcon icon="edit"/>
       </span>
       <span class="journal-button" @click="appendNewEntry">
@@ -69,7 +69,7 @@ import {Events, setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
 import StudyPadRow from "@/components/StudyPadRow.vue";
 import draggable from "vuedraggable";
-import {androidKey, exportModeKey, globalBookmarksKey, scrollKey, StudyPadEntryTypes} from "@/types/constants";
+import {androidKey, exportModeKey, globalBookmarksKey, scrollKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
 import {useJournal} from "@/composables/journal";
@@ -142,21 +142,21 @@ const journalEntries: Ref<StudyPadItem[]> = computed({
     },
   set(values) {
     let count = 0;
-    const changed = [];
+    const changed: StudyPadItem[] = [];
     for(const v of values) {
       const newOrder = count++
       if(v.orderNumber !== newOrder) {
         changed.push(v);
       }
-      if(v.type === StudyPadEntryTypes.BOOKMARK) {
+      if(v.type === "bookmark") {
         v.bookmarkToLabel.orderNumber = newOrder;
       }
       v.orderNumber = newOrder;
 
     }
     const grouped = groupBy(changed, "type");
-    const bookmarks: StudyPadBookmarkItem[] = grouped[StudyPadEntryTypes.BOOKMARK] || [];
-    const journals: StudyPadTextItem[] = grouped[StudyPadEntryTypes.JOURNAL_TEXT] || [];
+    const bookmarks: StudyPadBookmarkItem[] = (grouped["bookmark"] || []) as StudyPadBookmarkItem[];
+    const journals: StudyPadTextItem[] = (grouped["journal"] || []) as StudyPadTextItem[];
     android.updateOrderNumber(label.id, bookmarks, journals);
   }
 });
@@ -222,7 +222,7 @@ const labelNameStyle = computed(() => {
 });
 
 function studyPadOrdinal(journalEntry: StudyPadItem) {
-  if(journalEntry.type === StudyPadEntryTypes.BOOKMARK) {
+  if(journalEntry.type === "bookmark") {
     return journalEntry.id;
   } else {
     return journalEntry.id + 10000;

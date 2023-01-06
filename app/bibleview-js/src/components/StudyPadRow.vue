@@ -23,7 +23,7 @@
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
   <div class="entry" :class="{editMode}">
-    <div class="menu" :class="{isText: journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT}">
+    <div class="menu" :class="{isText: journalEntry.type === 'journal'}">
       <ButtonRow show-drag-handle v-if="!exportMode">
         <div class="journal-button" @click="addNewEntryAfter">
           <FontAwesomeIcon icon="plus-circle"/>
@@ -40,27 +40,27 @@
           <FontAwesomeIcon icon="indent"/>
         </div>
 
-        <div v-if="journalEntry.type===StudyPadEntryTypes.BOOKMARK" class="journal-button" @click="changeExpanded(!bookmarkEntry.expandContent)">
+        <div v-if="journalEntry.type==='bookmark'" class="journal-button" @click="changeExpanded(!bookmarkEntry.expandContent)">
           <FontAwesomeIcon :icon="bookmarkEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
         </div>
 
         <div class="journal-button" @click="deleteEntry">
           <FontAwesomeIcon icon="trash"/>
         </div>
-        <div v-if="journalEntry.type===StudyPadEntryTypes.BOOKMARK" class="journal-button" @click.stop="editBookmark">
+        <div v-if="journalEntry.type==='bookmark'" class="journal-button" @click.stop="editBookmark">
           <FontAwesomeIcon icon="info-circle"/>
         </div>
       </ButtonRow>
     </div>
-    <template v-if="journalEntry.type===StudyPadEntryTypes.BOOKMARK">
+    <template v-if="journalEntry.type==='bookmark'">
       <b><a :href="bibleUrl">{{ bookmarkEntry.bookInitials ? sprintf(strings.multiDocumentLink, bookmarkEntry.verseRangeAbbreviated, bookmarkEntry.bookAbbreviation ) : bookmarkEntry.verseRangeAbbreviated }}</a></b>&nbsp;
       <BookmarkText :expanded="bookmarkEntry.expandContent" :bookmark="bookmarkEntry"/>
       <div v-if="(bookmarkEntry.hasNote || editMode) && bookmarkEntry.expandContent" class="note-separator"/>
     </template>
-    <div :class="{'studypad-text-entry': journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT, notes: journalEntry.type === StudyPadEntryTypes.BOOKMARK}">
+    <div :class="{'studypad-text-entry': journalEntry.type === 'journal', notes: journalEntry.type === 'bookmark'}">
       <EditableText
         ref="editor"
-        :show-placeholder="journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT"
+        :show-placeholder="journalEntry.type === 'journal'"
         :edit-directly="textEntry.new"
         :text="journalText"
         @opened="$emit('edit-opened')"
@@ -77,7 +77,7 @@ import ButtonRow from "@/components/ButtonRow.vue";
 import {emit as ebEmit, Events} from "@/eventbus";
 import {inject, computed, ref} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
-import {androidKey, exportModeKey, StudyPadEntryTypes} from "@/types/constants";
+import {androidKey, exportModeKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {isBottomHalfClicked} from "@/utils";
@@ -110,16 +110,16 @@ const editMode = computed<boolean>({
 });
 
 function journalTextChanged(newText: string) {
-  if (props.journalEntry.type === StudyPadEntryTypes.BOOKMARK) {
+  if (props.journalEntry.type === "bookmark") {
     android.saveBookmarkNote(props.journalEntry.id, newText);
-  } else if (props.journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT) {
+  } else if (props.journalEntry.type === "journal") {
     android.updateJournalEntry(props.journalEntry, {text: newText});
   }
 }
 
 const journalText = computed(() => {
-  if (props.journalEntry.type === StudyPadEntryTypes.BOOKMARK) return (props.journalEntry as StudyPadBookmarkItem).notes;
-  else if (props.journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT) return (props.journalEntry as StudyPadTextItem).text;
+  if (props.journalEntry.type === "bookmark") return (props.journalEntry as StudyPadBookmarkItem).notes;
+  else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
   return null;
 });
 
@@ -133,10 +133,10 @@ function addNewEntryAfter() {
 }
 
 async function deleteEntry() {
-  if (props.journalEntry.type === StudyPadEntryTypes.JOURNAL_TEXT) {
+  if (props.journalEntry.type === "journal") {
     const answer = await areYouSureDelete.value!.areYouSure();
     if (answer) android.deleteJournalEntry((props.journalEntry as StudyPadTextItem).id);
-  } else if (props.journalEntry.type === StudyPadEntryTypes.BOOKMARK) {
+  } else if (props.journalEntry.type === "bookmark") {
     const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
     let answer: "bookmark"|"only_label"|undefined;
     if (bookmarkItem.labels.length > 1) {

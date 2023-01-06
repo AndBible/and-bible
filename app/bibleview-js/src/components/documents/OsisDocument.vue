@@ -28,7 +28,7 @@ import OsisFragment from "@/components/documents/OsisFragment.vue";
 import FeaturesLink from "@/components/FeaturesLink.vue";
 import OpenAllLink from "@/components/OpenAllLink.vue";
 import {useReferenceCollector} from "@/composables";
-import {BookCategories, referenceCollectorKey} from "@/types/constants";
+import {referenceCollectorKey} from "@/types/constants";
 import {provide} from "vue";
 import {osisToTemplateString} from "@/utils";
 import {OsisDocument} from "@/types/documents";
@@ -44,7 +44,7 @@ const props = defineProps<{document: OsisDocument}>();
 const {osisFragment, bookCategory} = props.document;
 const referenceCollector = useReferenceCollector();
 
-if(bookCategory === BookCategories.COMMENTARIES || bookCategory === BookCategories.GENERAL_BOOK) {
+if(bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
   provide(referenceCollectorKey, referenceCollector);
 }
 

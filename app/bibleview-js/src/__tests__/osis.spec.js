@@ -30,7 +30,6 @@ import {ref} from "vue";
 import {
     androidKey,
     appSettingsKey,
-    BookCategories,
     calculatedConfigKey,
     configKey,
     footnoteCountKey,
@@ -53,7 +52,7 @@ window.bibleView = {}
 function verifyXmlRendering(xmlTemplate, renderedHtml) {
     const {config, appSettings, calculatedConfig} = useConfig(ref("bible"));
     const osisFragment = {
-        bookCategory: BookCategories.BIBLE,
+        bookCategory: "BIBLE",
     };
 
     const android = useAndroid({bookmarks: null}, config);

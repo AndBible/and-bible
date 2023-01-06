@@ -52,7 +52,7 @@ import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {inject, computed, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import FeaturesLink from "@/components/FeaturesLink.vue";
-import {appSettingsKey, BookCategories, exportModeKey} from "@/types/constants";
+import {appSettingsKey, exportModeKey} from "@/types/constants";
 import {OsisFragment as OsisFragmentType} from "@/types/client-objects";
 import {MultiFragmentDocument} from "@/types/documents";
 
@@ -75,7 +75,7 @@ const hiddenOsisFragments = computed(() => {
 });
 
 function link(frag: OsisFragmentType, compare = false) {
-  const isBible = frag.bookCategory === BookCategories.BIBLE
+  const isBible = frag.bookCategory === "BIBLE"
   const osis = (compare || !isBible) ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) + "&force-doc" : encodeURI(frag.osisRef);
   return `osis://?osis=${osis}&v11n=${frag.v11n}`
 }
