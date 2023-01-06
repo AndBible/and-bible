@@ -22,7 +22,7 @@ import {get, sortBy} from "lodash";
 import {highlightRange} from "@/lib/highlight-range";
 import {findNodeAtOffset, lastTextNode} from "./dom";
 import {sprintf as sprintfOrig} from "sprintf-js";
-import {Bookmark, CombinedRange, NumberRange, OffsetRange, OrdinalOffset, OrdinalRange} from "@/types/client-objects";
+import {CombinedRange, NumberRange, OffsetRange, OrdinalOffset, OrdinalRange} from "@/types/client-objects";
 import {BibleDocumentInfo, ColorParam, Nullable, VerseInfo} from "@/types/common";
 
 type EventHandler = ((event: any) => void) |(() => void)

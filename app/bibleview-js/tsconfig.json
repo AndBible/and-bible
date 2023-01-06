@@ -12,7 +12,8 @@
     "forceConsistentCasingInFileNames": true,
     "useDefineForClassFields": true,
     "sourceMap": true,
-    "outDir": "./build",
+    "noEmit": true,
+    "composite": false,
     "baseUrl": ".",
     "types": [
       "node",
@@ -29,15 +30,4 @@
       "scripthost",
     ]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "src/**/*.scss",
-    "src/__tests__/tests/**/*.ts",
-    "src/__tests__/tests/**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
 }
