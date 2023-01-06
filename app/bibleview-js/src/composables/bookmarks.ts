@@ -527,7 +527,6 @@ export function useBookmarks(documentId: string,
                 const oldStyle = elem.style.backgroundImage;
                 elem.classList.add("bookmarked")
                 elem.style.backgroundImage = style;
-                console.log("Elem backgroundImage", {style})
                 elem.addEventListener("click", addBookmarkEventFunctions)
                 undoHighlights.push(() => {
                     elem.style.backgroundImage = oldStyle;

@@ -40,7 +40,7 @@ const ordinal = computed(() => {
     const ordinalRange = bibleDocumentInfo.originalOrdinalRange || bibleDocumentInfo.ordinalRange;
     return ordinalRange[0];
 });
-const startTag = computed(() => props.eID === undefined);
+const startTag = computed(() => !props.eID);
 const chapterNum = computed(() => {
     return (props.n || props.osisID!.split(".")[1]).trim()
 });

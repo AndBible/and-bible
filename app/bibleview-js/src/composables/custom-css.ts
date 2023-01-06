@@ -22,7 +22,7 @@ import {setupEventBusListener} from "@/eventbus";
 export function useCustomCss() {
     const cssNodes = new Map();
     const count = new Map();
-    const customCssPromises: Promise<any>[] = [];
+    const customCssPromises: Promise<undefined>[] = [];
 
     function addCss(bookInitials: string) {
         console.log(`Adding style for ${bookInitials}`);

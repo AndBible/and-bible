@@ -127,9 +127,3 @@ declare module '@/lang/*.yaml' {
     const content: TranslatedStrings
     export default content;
 }
-
-
-//{
-//    const content: string; //Record<string, string>;
-//    export default content;
-//}

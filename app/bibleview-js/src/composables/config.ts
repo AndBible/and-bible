@@ -22,6 +22,7 @@ import {isEqual} from "lodash";
 import {Deferred} from "@/utils";
 import {BibleViewDocumentType} from "@/types/documents";
 
+export type StrongsMode = 0 | 1 | 2
 export const strongsModes: Record<string, StrongsMode> = {off: 0, inline: 1, links: 2}
 
 export let errorBox = false;
@@ -37,8 +38,6 @@ if (process.env.NODE_ENV === "development") {
 if (process.env.NODE_ENV === "test") {
     testMode = true;
 }
-
-export type StrongsMode = 0 | 1 | 2
 
 export type Config = {
     developmentMode: boolean,
@@ -57,7 +56,7 @@ export type Config = {
     showStrongsSeparately: boolean,
     showFootNotes: boolean,
     fontFamily: string,
-    fontSize: 16,
+    fontSize: number,
 
     disableBookmarking: boolean,
 
@@ -277,7 +276,6 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
                     console.error("Unknown setting", i, newConfig[i]);
                 }
             }
-            // eslint-disable-next-line require-atomic-updates
             config.showChapterNumbers = config.showVerseNumbers;
             for (const j in newAppSettings) {
                 // @ts-ignore
@@ -292,7 +290,6 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
 
             errorBox = appSettings.errorBox;
             if (isBible && needBookmarkRefresh) {
-                // eslint-disable-next-line require-atomic-updates
                 config.disableBookmarking = false
             }
 

@@ -69,18 +69,6 @@ export type BibleJavascriptInterface = {
     onKeyDown: (key: string) => void,
 }
 
-//type NotInJsSide =
-//    "updateJournalTextEntry" |
-//    "updateOrderNumber" |
-//    "console"|
-//    "selectionCleared"|
-//    "updateBookmarkToLabel"
-
-//export type UseAndroid = Omit<AndroidInterface, NotInJsSide> & {
-//    updateOrderNumber: (labelId: number, bookmarks: StudyPadBookmarkItem[], journals: StudyPadTextItem[]) => void
-//    updateJournalEntry: (entry: StudyPadItem, changes: Partial<StudyPadItem>) => void
-//}
-
 export type UseAndroid = ReturnType<typeof useAndroid>
 
 let callId = 0;

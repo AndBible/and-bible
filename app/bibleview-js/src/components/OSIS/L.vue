@@ -59,7 +59,7 @@ checkUnsupportedProps(props, "type", ["x-br", "x-indent"]);
 const {sID, eID, level, type} = toRefs(props);
 const levelInt = computed(() => parseInt(level.value));
 const isBreakLine = computed(() => {
-    const allNull = sID.value === undefined && eID.value === null && level.value === "1" && type.value === null;
+    const allNull = sID.value === null && eID.value === null && level.value === "1" && type.value === null;
     return type.value === 'x-br' || eID.value || allNull;
 })
 const isIndent = computed(() => type.value === "x-indent");
