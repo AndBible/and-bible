@@ -74,5 +74,6 @@ describe("OsisSegment.vue", () => {
     // Skipping this now. Need to figure out how to make sure scoped css do not break our test
     // This does not seem to work, for some reason
     // https://runthatline.com/test-css-module-classes-in-vue-with-vitest/
+    // https://github.com/AndBible/and-bible/issues/2434
     it.skip("Test rendering of Eph 2:8 in KJVA, #1985", () => verifyXmlRendering(test1Xml, test1Result));
 });
