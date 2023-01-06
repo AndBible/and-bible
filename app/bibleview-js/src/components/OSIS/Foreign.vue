@@ -29,6 +29,6 @@ useCommon();
 
 <style scoped>
 .foreign-style {
-  font-style: italic;
+    font-style: italic;
 }
 </style>

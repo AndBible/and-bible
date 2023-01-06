@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {nextTick, watch, computed, ref, Ref} from "vue";
+import {computed, nextTick, ref, Ref, watch} from "vue";
 import {setupEventBusListener} from "@/eventbus";
 import {isInViewport} from "@/utils";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
@@ -26,14 +26,14 @@ export function useScroll(
     appSettings: AppSettings,
     calculatedConfig: CalculatedConfig,
     highlight: ReturnType<typeof useVerseHighlight>,
-    documentPromise: Ref<Promise<void>|null>
+    documentPromise: Ref<Promise<void> | null>
 ) {
     const {highlightVerse, resetHighlights} = highlight;
-    const currentScrollAnimation = ref<number|null>(null);
+    const currentScrollAnimation = ref<number | null>(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
     watch(isScrolling, v => {
-        if(v) {
+        if (v) {
             document.addEventListener("touchstart", () => stopScrolling())
         } else {
             document.removeEventListener("touchstart", () => stopScrolling())
@@ -47,16 +47,16 @@ export function useScroll(
         appSettings.bottomOffset = bottomOffset;
         const delay = immediate ? 0 : 500;
 
-        if(diff !== 0 && !doNotScroll) {
+        if (diff !== 0 && !doNotScroll) {
             doScrolling(window.scrollY + diff, delay)
         }
     }
 
     function stopScrolling(nullify = true) {
         console.log("stopScrolling!");
-        if(currentScrollAnimation.value != null) {
+        if (currentScrollAnimation.value != null) {
             window.cancelAnimationFrame(currentScrollAnimation.value);
-            if(nullify) {
+            if (nullify) {
                 currentScrollAnimation.value = null;
             } else {
                 currentScrollAnimation.value = -1;
@@ -73,7 +73,7 @@ export function useScroll(
         const diff = elementY - startingY;
         let start: number;
 
-        if(noScrolling) {
+        if (noScrolling) {
             window.scrollTo(0, elementY);
             return;
         }
@@ -112,7 +112,7 @@ export function useScroll(
     }
 
     function scrollToId(
-        toId: string|null,
+        toId: string | null,
         {
             onlyIfInvisible = false,
             now = false,
@@ -125,44 +125,43 @@ export function useScroll(
             onlyIfInvisible: boolean,
             now: boolean,
             highlight: boolean,
-            ordinalStart: number|null,
-            ordinalEnd: number|null,
+            ordinalStart: number | null,
+            ordinalEnd: number | null,
             force: boolean,
-            duration: undefined|number,
+            duration: undefined | number,
         }> = {}) {
         console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
         stopScrolling();
         let delta = calculatedConfig.value.topOffset;
-        if(highlight && ordinalStart) {
+        if (highlight && ordinalStart) {
             resetHighlights();
-            if(!ordinalEnd) {
+            if (!ordinalEnd) {
                 ordinalEnd = ordinalStart;
             }
-            for(let ordinal = ordinalStart; ordinal <= ordinalEnd; ordinal ++) {
+            for (let ordinal = ordinalStart; ordinal <= ordinalEnd; ordinal++) {
                 highlightVerse(ordinal);
             }
         }
-        let toElement = toId ? document.getElementById(toId): null;
-        if(onlyIfInvisible && toElement && isInViewport(toElement)) return;
+        let toElement = toId ? document.getElementById(toId) : null;
+        if (onlyIfInvisible && toElement && isInViewport(toElement)) return;
 
-        if(force && toElement == null) {
+        if (force && toElement == null) {
             toElement = document.getElementById("top")
         }
 
         if (toElement != null) {
             const diff = toElement.offsetTop - window.scrollY;
-            if(Math.abs(diff) > 800 / window.devicePixelRatio) {
+            if (Math.abs(diff) > 800 / window.devicePixelRatio) {
                 now = true;
             }
             console.log("Scrolling to", toElement, attributesToString(toElement), toElement.offsetTop - delta);
             const style = window.getComputedStyle(toElement);
             const lineHeight = parseFloat(style.getPropertyValue('line-height'));
             const fontSize = parseFloat(style.getPropertyValue('font-size'));
-            delta += 0.5*(lineHeight - fontSize);
-            if(now) {
+            delta += 0.5 * (lineHeight - fontSize);
+            if (now) {
                 window.scrollTo(0, toElement.offsetTop - delta);
-            }
-            else {
+            } else {
                 doScrolling(toElement.offsetTop - delta, duration);
             }
         }
@@ -176,9 +175,9 @@ export function useScroll(
             topOffset,
             bottomOffset
         }: {
-            jumpToOrdinal: number|null,
-            jumpToAnchor: number|null,
-            jumpToId: string|null,
+            jumpToOrdinal: number | null,
+            jumpToAnchor: number | null,
+            jumpToId: string | null,
             topOffset: number,
             bottomOffset: number
         }) {
@@ -193,7 +192,7 @@ export function useScroll(
             scrollToId(`o-${jumpToOrdinal}`, {now: true, force: true});
         } else if (jumpToAnchor !== null) {
             scrollToId(`o-${jumpToAnchor}`, {now: true, force: true});
-        } else if(jumpToId !== null) {
+        } else if (jumpToId !== null) {
             scrollToId(jumpToId, {now: true, force: true});
         } else {
             console.log("scrolling to beginning of document (now)");

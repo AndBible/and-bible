@@ -23,7 +23,7 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 
 const props = defineProps({
-  type: {type: String, default: null},
+    type: {type: String, default: null},
 });
 checkUnsupportedProps(props, "type", ["x-chronology", "font-size: -1;"]);
 useCommon();

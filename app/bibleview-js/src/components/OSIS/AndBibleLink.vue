@@ -25,7 +25,7 @@ import {useCommon} from "@/composables";
 defineProps({href: {type: String, required: true}});
 
 function openLink(event: MouseEvent, url: string) {
-  window.location.assign(url);
+    window.location.assign(url);
 }
 
 useCommon();

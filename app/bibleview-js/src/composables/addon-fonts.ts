@@ -21,12 +21,12 @@ import {onBeforeMount} from "vue";
 export function useAddonFonts() {
     const elements: HTMLElement[] = [];
 
-    setupEventBusListener("reload_addons", ({fontModuleNames}: {fontModuleNames: string[]}) => {
+    setupEventBusListener("reload_addons", ({fontModuleNames}: { fontModuleNames: string[] }) => {
         reloadFonts(fontModuleNames)
     })
 
     function reloadFonts(fontModuleNames: string[]) {
-        for(const e of elements) {
+        for (const e of elements) {
             e.remove();
         }
         elements.splice(0);

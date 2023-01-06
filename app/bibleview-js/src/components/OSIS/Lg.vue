@@ -29,9 +29,9 @@ import {computed} from "vue";
  */
 
 const props = defineProps({
-  sID: {type: String, default: null},
-  eID: {type: String, default: null},
-  level: {type: String, default: null},
+    sID: {type: String, default: null},
+    eID: {type: String, default: null},
+    level: {type: String, default: null},
 });
 
 const show = computed(() => props.sID);
@@ -40,7 +40,7 @@ useCommon();
 
 <style scoped>
 .lg {
-  height: 0.3em;
-  display: block;
+    height: 0.3em;
+    display: block;
 }
 </style>

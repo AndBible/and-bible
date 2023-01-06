@@ -33,7 +33,7 @@ export function useCustomFeatures(android: UseAndroid) {
     // eslint-disable-next-line no-unused-vars
     async function reloadFeatures(featureModuleNames: string[]) {
         features.clear();
-        if(featureModuleNames.includes("RefParser")) {
+        if (featureModuleNames.includes("RefParser")) {
             await initialize();
             features.add("RefParser");
         }

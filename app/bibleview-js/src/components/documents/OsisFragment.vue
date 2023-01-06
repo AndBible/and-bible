@@ -16,13 +16,14 @@
   -->
 
 <template>
-  <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language" :dir="fragment.direction" >
-    <OsisSegment :osis-template="template" />
+  <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language"
+       :dir="fragment.direction">
+    <OsisSegment :osis-template="template"/>
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed, ref, inject, onMounted, provide, watch, toRefs} from "vue";
+import {computed, inject, onMounted, provide, ref, toRefs, watch} from "vue";
 import {highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment.vue";
 import {useCommon} from "@/composables";
@@ -30,46 +31,48 @@ import {customCssKey, osisFragmentKey} from "@/types/constants";
 import {OffsetRange, OrdinalRange, OsisFragment} from "@/types/client-objects";
 
 const props = withDefaults(defineProps<{
-  fragment: OsisFragment
-  highlightOrdinalRange?: OrdinalRange
-  highlightOffsetRange?: OffsetRange
-  hideTitles: boolean
-  doNotConvert: boolean
+    fragment: OsisFragment
+    highlightOrdinalRange?: OrdinalRange
+    highlightOffsetRange?: OffsetRange
+    hideTitles: boolean
+    doNotConvert: boolean
 }>(), {doNotConvert: false, hideTitles: false})
 
 const {bookInitials, osisRef} = toRefs(props.fragment);
 const uniqueId = ref(Date.now().toString());
 
-if(props.hideTitles) {
-  provide("hideTitles", true);
+if (props.hideTitles) {
+    provide("hideTitles", true);
 }
 
 provide(osisFragmentKey, props.fragment)
 const {registerBook} = inject(customCssKey)!;
 registerBook(bookInitials.value);
 
-let undo: () => void = () => {};
+let undo: () => void = () => {
+};
+
 function refreshHighlight() {
-  undo();
-  if(props.highlightOrdinalRange && props.highlightOffsetRange) {
-    try {
-      const undoFunc = highlightVerseRange(`#frag-${uniqueId.value}`, props.highlightOrdinalRange, props.highlightOffsetRange);
-      if(undoFunc) {
-        undo = undoFunc
-      }
-    } catch (e) {
-      console.error("Highlight failed for ", osisRef.value);
+    undo();
+    if (props.highlightOrdinalRange && props.highlightOffsetRange) {
+        try {
+            const undoFunc = highlightVerseRange(`#frag-${uniqueId.value}`, props.highlightOrdinalRange, props.highlightOffsetRange);
+            if (undoFunc) {
+                undo = undoFunc
+            }
+        } catch (e) {
+            console.error("Highlight failed for ", osisRef.value);
+        }
     }
-  }
 }
 
 onMounted(() => {
-  refreshHighlight();
+    refreshHighlight();
 });
 
 const template = computed(() => {
-  const xml = props.fragment.xml;
-  return !props.doNotConvert ? osisToTemplateString(xml) : xml;
+    const xml = props.fragment.xml;
+    return !props.doNotConvert ? osisToTemplateString(xml) : xml;
 });
 
 watch(props, () => refreshHighlight());
@@ -78,10 +81,11 @@ useCommon();
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.1s ease;
+    transition: opacity 0.1s ease;
 }
+
 .fade-enter-from, .fade-leave-to {
-  opacity: 0
+    opacity: 0
 }
 </style>
 <style lang="scss">

@@ -22,7 +22,7 @@ import {isEqual} from "lodash";
 import {Deferred} from "@/utils";
 import {BibleViewDocumentType} from "@/types/documents";
 
-export const strongsModes: Record<string, StrongsMode> = {off: 0,inline:1,links:2}
+export const strongsModes: Record<string, StrongsMode> = {off: 0, inline: 1, links: 2}
 
 export let errorBox = false;
 const white = -1;
@@ -31,10 +31,10 @@ const black = -16777216;
 let developmentMode: boolean = false;
 export let testMode: boolean = false;
 
-if(process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === "development") {
     developmentMode = true;
 }
-if(process.env.NODE_ENV === "test") {
+if (process.env.NODE_ENV === "test") {
     testMode = true;
 }
 
@@ -182,6 +182,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         document.body.removeChild(el);
         return pixels
     }
+
     const mmInPx = calcMmInPx();
 
     const isBible = computed(() => documentType.value === "bible");
@@ -189,7 +190,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
     const calculatedConfig = computed(() => {
         let topOffset = appSettings.topOffset;
         let topMargin = 0;
-        if(isBible.value) {
+        if (isBible.value) {
             topMargin = config.topMargin * mmInPx;
             topOffset += topMargin;
         }
@@ -204,20 +205,19 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
     });
 
     setupEventBusListener("set_active",
-        ({hasActiveIndicator, isActive}: {hasActiveIndicator: boolean, isActive: boolean}) =>
-        {
+        ({hasActiveIndicator, isActive}: { hasActiveIndicator: boolean, isActive: boolean }) => {
             appSettings.activeWindow = isActive;
             appSettings.hasActiveIndicator = hasActiveIndicator;
-            if(isActive) {
+            if (isActive) {
                 appSettings.activeSince = performance.now();
             }
         }
     );
 
     function compareConfig(newConfig: Config, checkedKeys: (keyof Config)[]) {
-        for(const key of checkedKeys) {
-            if(newConfig[key] === undefined) continue;
-            if(!isEqual(config[key], newConfig[key])) return true;
+        for (const key of checkedKeys) {
+            if (newConfig[key] === undefined) continue;
+            if (!isEqual(config[key], newConfig[key])) return true;
         }
         return false;
     }
@@ -262,7 +262,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
 
             if (needsRefreshLocation) emit("config_changed", defer)
 
-            if(isBible && needBookmarkRefresh) {
+            if (isBible && needBookmarkRefresh) {
                 config.disableBookmarking = true;
                 await nextTick();
             }
@@ -272,7 +272,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
                 if (config[i] !== undefined) {
                     // @ts-ignore
                     config[i] = newConfig[i];
-                } else if(!i.startsWith("deprecated")) {
+                } else if (!i.startsWith("deprecated")) {
                     // @ts-ignore
                     console.error("Unknown setting", i, newConfig[i]);
                 }
@@ -284,14 +284,14 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
                 if (appSettings[j] !== undefined) {
                     // @ts-ignore
                     appSettings[j] = newAppSettings[j];
-                } else if(!j.startsWith("deprecated")) {
+                } else if (!j.startsWith("deprecated")) {
                     // @ts-ignore
                     console.error("Unknown setting", j, appSettings[j]);
                 }
             }
 
             errorBox = appSettings.errorBox;
-            if(isBible && needBookmarkRefresh) {
+            if (isBible && needBookmarkRefresh) {
                 // eslint-disable-next-line require-atomic-updates
                 config.disableBookmarking = false
             }

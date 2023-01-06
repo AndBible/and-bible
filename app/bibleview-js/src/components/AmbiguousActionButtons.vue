@@ -29,7 +29,7 @@
         <FontAwesomeIcon icon="edit"/>
         <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
       </FontAwesomeLayers>
-      <div class="title">{{ vertical ? strings.verseNoteLong: strings.verseNote }}</div>
+      <div class="title">{{ vertical ? strings.verseNoteLong : strings.verseNote }}</div>
     </div>
     <div class="large-action" @click="openMyNotes">
       <FontAwesomeIcon icon="file-alt"/>
@@ -41,11 +41,11 @@
     </div -->
     <div class="large-action" @click="share">
       <FontAwesomeIcon icon="share-alt"/>
-      <div class="title">{{ vertical? strings.verseShareLong: strings.verseShare }}</div>
+      <div class="title">{{ vertical ? strings.verseShareLong : strings.verseShare }}</div>
     </div>
     <div class="large-action" @click="compare">
       <FontAwesomeIcon icon="custom-compare"/>
-      <div class="title">{{ vertical? strings.verseCompareLong: strings.verseCompare }}</div>
+      <div class="title">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</div>
     </div>
   </div>
 </template>
@@ -78,65 +78,72 @@ const startOrdinal = computed(() => selectionInfo.value && selectionInfo.value.s
 const endOrdinal = computed(() => selectionInfo.value && selectionInfo.value.endOrdinal);
 
 function share() {
-  android.shareVerse(bookInitials.value, startOrdinal.value, endOrdinal.value);
+    android.shareVerse(bookInitials.value, startOrdinal.value, endOrdinal.value);
 }
 
 function addBookmark() {
-  android.addBookmark(bookInitials.value, startOrdinal.value, endOrdinal.value, false);
-  emit("close");
+    android.addBookmark(bookInitials.value, startOrdinal.value, endOrdinal.value, false);
+    emit("close");
 }
 
 function compare() {
-  android.compare(bookInitials.value, startOrdinal.value, endOrdinal.value);
+    android.compare(bookInitials.value, startOrdinal.value, endOrdinal.value);
 }
 
 function addNote() {
-  android.addBookmark(bookInitials.value, startOrdinal.value, endOrdinal.value, true);
-  emit("close");
+    android.addBookmark(bookInitials.value, startOrdinal.value, endOrdinal.value, true);
+    emit("close");
 }
 
 function openMyNotes() {
-  android.openMyNotes(v11n.value, startOrdinal.value);
+    android.openMyNotes(v11n.value, startOrdinal.value);
 }
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .large-action {
-  min-width: 40px;  // Ensures dynamic plus icon has sufficient space to be appended
+  min-width: 40px; // Ensures dynamic plus icon has sufficient space to be appended
   display: flex;
   flex-direction: row;
+
   .horizontal & {
     flex-direction: column;
     font-size: 60%;
     margin: 0 auto 0 auto;
   }
+
   .vertical & {
     @extend .light;
     @extend .button;
   }
 
   .fa-layers, .svg-inline--fa {
-//    padding-inline-end: 14px;  // Causes non-alignment of the icons in the verse action dialog.
+    //    padding-inline-end: 14px;  // Causes non-alignment of the icons in the verse action dialog.
     .horizontal & {
       color: $button-grey;
       margin: 0 auto 0 auto;
       padding-bottom: 5px;
-    $size: 20px;
+      $size: 20px;
       width: $size;
       height: $size;
     }
   }
+
   .title {
     margin: 0 auto 0 auto;
   }
+
   padding-bottom: 0.5em;
+
   .horizontal & {
     .hasActions & {
       padding-bottom: 5px;
     }
   }
 }
+
 .horizontal {
   display: flex;
   flex-direction: row;

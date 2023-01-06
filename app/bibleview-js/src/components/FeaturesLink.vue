@@ -17,7 +17,7 @@
 
 <template>
   <div class="features-link" v-if="featuresLink">
-    <a :href="featuresLink">{{strings.findAllOccurrences}}</a>
+    <a :href="featuresLink">{{ strings.findAllOccurrences }}</a>
   </div>
 </template>
 
@@ -26,17 +26,17 @@ import {useCommon} from "@/composables";
 import {computed} from "vue";
 import {OsisFragment} from "@/types/client-objects";
 
-const props = defineProps<{fragment: OsisFragment}>()
+const props = defineProps<{ fragment: OsisFragment }>()
 const featuresLink = computed(() => {
-  const {type: featureType = null, keyName: featureKeyName = null} = props.fragment.features;
-  return featureType ? `ab-find-all://?type=${featureType}&name=${featureKeyName}` : null;
+    const {type: featureType = null, keyName: featureKeyName = null} = props.fragment.features;
+    return featureType ? `ab-find-all://?type=${featureType}&name=${featureKeyName}` : null;
 })
 const {strings} = useCommon();
 </script>
 
 <style scoped>
 .features-link {
-  padding-top: 1em;
-  text-align: right;
+    padding-top: 1em;
+    text-align: right;
 }
 </style>

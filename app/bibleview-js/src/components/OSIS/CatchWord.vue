@@ -21,12 +21,13 @@
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
+
 useCommon();
 </script>
 
 <style scoped>
 
 .catchWord {
-  font-weight: bold;
+    font-weight: bold;
 }
 </style>

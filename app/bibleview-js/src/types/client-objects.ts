@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-export type BookCategory = "BIBLE"|"COMMENTARY"|"GENERAL_BOOK"
+export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK"
 export type V11N = string
 export type Features = {
     readonly type?: "hebrew-and-greek" | "hebrew" | "greek" | null,
@@ -42,7 +42,7 @@ export type OsisFragment = {
 
 export type NumberRange = [start: number, end: number]
 export type OrdinalRange = NumberRange
-export type OffsetRange = [start: number, end: number|null]
+export type OffsetRange = [start: number, end: number | null]
 export type OrdinalOffset = [start: number, end: number | null]
 export type CombinedRange = [start: OrdinalOffset, end: OrdinalOffset]
 
@@ -98,10 +98,10 @@ export type StudyPadBookmarkItem = Bookmark & {
     bookmarkToLabel: BookmarkToLabel
 }
 
-export type StudyPadItem = StudyPadBookmarkItem|StudyPadTextItem
+export type StudyPadItem = StudyPadBookmarkItem | StudyPadTextItem
 
 export type StudyPadItemOf<T> =
-    T extends "journal" ? StudyPadTextItem: StudyPadBookmarkItem
+    T extends "journal" ? StudyPadTextItem : StudyPadBookmarkItem
 
 export type BookmarkStyle = Readonly<{
     color: number

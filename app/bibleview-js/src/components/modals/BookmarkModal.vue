@@ -41,20 +41,20 @@
     </template>
 
     <EditableText
-      v-if="!infoShown"
-      constraint-display-height
-      :text="bookmarkNotes || ''"
-      @save="changeNote"
-      show-placeholder
-      :edit-directly="editDirectly"
+        v-if="!infoShown"
+        constraint-display-height
+        :text="bookmarkNotes || ''"
+        @save="changeNote"
+        show-placeholder
+        :edit-directly="editDirectly"
     >
       {{ strings.editBookmarkPlaceholder }}
     </EditableText>
     <div v-if="infoShown" class="info">
       <BookmarkButtons
-        :bookmark="bookmark"
-        in-bookmark-modal
-        @close-bookmark="showBookmark = false"
+          :bookmark="bookmark"
+          in-bookmark-modal
+          @close-bookmark="showBookmark = false"
       />
       <div class="bible-text">
         <BookmarkText expanded :bookmark="bookmark"/>
@@ -62,11 +62,17 @@
       <div class="links">
         <div class="link-line">
           <span class="link-icon"><FontAwesomeIcon icon="file-alt"/></span>
-          <a :href="`my-notes://?ordinal=${bookmark.originalOrdinalRange[0]}&v11n=${bookmark.v11n}`">{{ strings.openMyNotes }}</a>
+          <a :href="`my-notes://?ordinal=${bookmark.originalOrdinalRange[0]}&v11n=${bookmark.v11n}`">{{
+              strings.openMyNotes
+            }}</a>
         </div>
-        <div v-for="label in labels.filter(l => l.isRealLabel)" :key="`label-${bookmark.id}-${label.id}`" class="link-line">
-          <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon icon="file-alt"/></span>
-          <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{ sprintf(strings.openStudyPad, label.name) }}</a>
+        <div v-for="label in labels.filter(l => l.isRealLabel)" :key="`label-${bookmark.id}-${label.id}`"
+             class="link-line">
+          <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon
+              icon="file-alt"/></span>
+          <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{
+              sprintf(strings.openStudyPad, label.name)
+            }}</a>
         </div>
       </div>
       <div class="info-text">
@@ -89,7 +95,7 @@
 <script lang="ts" setup>
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {setupEventBusListener} from "@/eventbus";
-import {computed, ref, inject, provide, nextTick} from "vue";
+import {computed, inject, nextTick, provide, ref} from "vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import EditableText from "@/components/EditableText.vue";
@@ -104,25 +110,25 @@ import {Bookmark} from "@/types/client-objects";
 const showBookmark = ref(false);
 const android = inject(androidKey)!;
 const infoShown = ref(false);
-const bookmarkId = ref<number|null>(null);
-const labelList = ref<InstanceType<typeof LabelList>|null>(null);
+const bookmarkId = ref<number | null>(null);
+const labelList = ref<InstanceType<typeof LabelList> | null>(null);
 const locateTop = ref(false);
 provide(locateTopKey, locateTop);
 
 const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
 
-const bookmark = computed<Bookmark|null>(() => {
-    if(!bookmarkId.value) return null;
+const bookmark = computed<Bookmark | null>(() => {
+    if (!bookmarkId.value) return null;
     return bookmarkMap.get(bookmarkId.value)!;
 });
 
 const labels = computed(() => {
-    if(!bookmark.value) return [];
+    if (!bookmark.value) return [];
     return sortBy(bookmark.value.labels.map(l => bookmarkLabels.get(l)!), ["name"])
 });
 
 const bookmarkNotes = computed(() => bookmark.value!.notes);
-let originalNotes: string|null = null;
+let originalNotes: string | null = null;
 
 setupEventBusListener("bookmark_clicked",
     async (
@@ -132,15 +138,14 @@ setupEventBusListener("bookmark_clicked",
             openLabels = false,
             openInfo = false,
             openNotes = false
-        } = {}) =>
-    {
+        } = {}) => {
         bookmarkId.value = bookmarkId_;
         originalNotes = bookmarkNotes.value;
         infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);
         editDirectly.value = !infoShown.value && !bookmarkNotes.value;
         locateTop.value = _locateTop;
         showBookmark.value = true;
-        if(openLabels && !openNotes) {
+        if (openLabels && !openNotes) {
             await nextTick();
             labelList.value!.openActions();
         }
@@ -149,7 +154,7 @@ setupEventBusListener("bookmark_clicked",
 
 function closeBookmark() {
     showBookmark.value = false;
-    if(originalNotes !== bookmarkNotes.value)
+    if (originalNotes !== bookmarkNotes.value)
         android.saveBookmarkNote(bookmark.value!.id, bookmarkNotes.value);
 
     originalNotes = null;
@@ -158,14 +163,14 @@ function closeBookmark() {
 const {adjustedColor, strings, sprintf, formatTimestamp} = useCommon();
 
 const changeNote = (text: string) => {
-    if(bookmark.value) {
+    if (bookmark.value) {
         android.saveBookmarkNote(bookmark.value.id, text);
     }
 }
 
 const originalBookLink = computed(() => {
-    if(!bookmark.value) return ""
-    const prefix = bookmark.value.bookInitials ? bookmark.value.bookInitials: "";
+    if (!bookmark.value) return ""
+    const prefix = bookmark.value.bookInitials ? bookmark.value.bookInitials : "";
     const bibleUrl = encodeURI(`osis://?osis=${prefix}:${bookmark.value.osisRef}&v11n=${bookmark.value.v11n}`)
     return `<a href="${bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`;
 })
@@ -174,8 +179,8 @@ const editDirectly = ref(false);
 
 const {waitForClick} = clickWaiter();
 
-async function toggleInfo(event: MouseEvent|TouchEvent) {
-    if(!await waitForClick(event)) return;
+async function toggleInfo(event: MouseEvent | TouchEvent) {
+    if (!await waitForClick(event)) return;
     infoShown.value = !infoShown.value
     editDirectly.value = !infoShown.value && !bookmarkNotes.value;
 }
@@ -206,7 +211,7 @@ async function toggleInfo(event: MouseEvent|TouchEvent) {
 }
 
 .info-text {
-font-size: 85%;
+  font-size: 85%;
 }
 
 .info {
@@ -216,13 +221,16 @@ font-size: 85%;
 
   max-height: calc(var(--max-height) - 25pt);
 }
+
 .links {
   padding-top: 10pt;
   padding-bottom: 5pt;
+
   .link-line {
     padding: 4px;
   }
 }
+
 //.action-buttons {
 //  position: relative;
 //  right: 0;
@@ -231,18 +239,23 @@ font-size: 85%;
   text-indent: 5pt;
   font-style: italic;
 }
+
 .overlay {
   position: absolute;
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), $modal-header-background-color 75%, $modal-header-background-color 100%);
+
   .night & {
     background: linear-gradient(90deg, rgba(0, 0, 0, 0), $night-modal-header-background-color 75%, $night-modal-header-background-color 100%);
   }
+
   [dir=ltr] & {
     right: 80px;
   }
+
   [dir=rtl] & {
     left: 80px;
   }
+
   top: 0;
   width: 20px;
   height: 2em;

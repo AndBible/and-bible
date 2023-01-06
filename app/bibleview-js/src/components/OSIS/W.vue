@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
-import {computed, ref, inject} from "vue";
+import {computed, inject, ref} from "vue";
 import {strongsModes} from "@/composables/config";
 import {exportModeKey, verseHighlightKey} from "@/types/constants";
 
@@ -57,21 +57,24 @@ checkUnsupportedProps(props, "subType")
 const {strings, config} = useCommon();
 const isHighlighted = ref(false);
 const {addCustom, resetHighlights} = inject(verseHighlightKey)!;
+
 function prep(string: string): string[] {
     let remainingString = string;
     const res: string[] = []
     do {
         const match = remainingString.match(/([^ :]+:)([^:]+)$/)
-        if(!match) return res;
+        if (!match) return res;
         const s = match[0]
         res.push(s);
         remainingString = remainingString.slice(0, remainingString.length - s.length)
-    } while(remainingString.trim().length > 0)
+    } while (remainingString.trim().length > 0)
     return res;
 }
+
 function formatName(string: string): string {
     return prep(string).filter(s => !s.startsWith("lemma.TR:")).map(s => s.match(/([^ :]+:)[HG0 ]*([^:]+) *$/)![2].trim()).join(",")
 }
+
 function formatLink(first: string, second?: string): string {
     const linkBodies = [];
 
@@ -79,18 +82,19 @@ function formatLink(first: string, second?: string): string {
         return prep(string).map(s => s.trim().replace(/ /g, "_").replace(/:/g, "=")).join("&");
     }
 
-    if(first) {
+    if (first) {
         linkBodies.push(toArgs(first))
     }
-    if(second) {
+    if (second) {
         linkBodies.push(toArgs(second))
     }
     // Link format:
     // ab-w://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
     return "ab-w://?" + linkBodies.join("&")
 }
+
 function goToLink(event: MouseEvent, url: string) {
-    const priority = showStrongsSeparately.value ? EventPriorities.STRONGS_LINK: EventPriorities.STRONGS_DOTTED;
+    const priority = showStrongsSeparately.value ? EventPriorities.STRONGS_LINK : EventPriorities.STRONGS_DOTTED;
     addEventFunction(event, () => {
         window.location.assign(url)
         resetHighlights();
@@ -107,18 +111,22 @@ const showStrongsSeparately = computed(() => !exportMode.value && config.strongs
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .link-style {
   text-decoration: underline dotted;
-  [lang=he],[lang=hbo] & {
+
+  [lang=he], [lang=hbo] & {
     text-decoration-style: solid;
     text-decoration-color: hsla(var(--text-color-h), var(--text-color-s), var(--text-color-l), 0.5);
   }
 }
+
 .base {
   font-size: 0.6em;
   text-decoration: none;
   color: gray;
 }
+
 .strongs, .morph {
   color: coral;
   text-decoration: none;

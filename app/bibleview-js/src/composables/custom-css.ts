@@ -23,6 +23,7 @@ export function useCustomCss() {
     const cssNodes = new Map();
     const count = new Map();
     const customCssPromises: Promise<any>[] = [];
+
     function addCss(bookInitials: string) {
         console.log(`Adding style for ${bookInitials}`);
         const c = count.get(bookInitials) || 0;
@@ -49,9 +50,9 @@ export function useCustomCss() {
     function removeCss(bookInitials: string) {
         console.log(`Removing style for ${bookInitials}`)
         const c = count.get(bookInitials) || 0;
-        if(c > 1) {
-            count.set(bookInitials, c-1);
-        } else if(c === 1){
+        if (c > 1) {
+            count.set(bookInitials, c - 1);
+        } else if (c === 1) {
             count.delete(bookInitials);
             cssNodes.get(bookInitials).remove();
             cssNodes.delete(bookInitials);
@@ -84,7 +85,7 @@ export function useCustomCss() {
         reloadStyles(styleModuleNames.split(","))
     }
 
-    setupEventBusListener("reload_addons", ({styleModuleNames}: {styleModuleNames: string[]}) => {
+    setupEventBusListener("reload_addons", ({styleModuleNames}: { styleModuleNames: string[] }) => {
         reloadStyles(styleModuleNames)
     })
 

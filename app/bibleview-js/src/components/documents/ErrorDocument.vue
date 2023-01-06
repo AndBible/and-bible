@@ -17,10 +17,11 @@
 
 <template>
   <div>
-    <h3 v-if="severity === ErrorSeverity.ERROR">{{strings.errorTitle}}</h3>
-    <h3 v-if="severity === ErrorSeverity.WARNING">{{strings.warningTitle}}</h3>
-    <h3 v-if="severity === ErrorSeverity.NORMAL">{{strings.normalTitle}}</h3>
-    <OsisSegment convert :osis-template="document.errorMessage"/> <a v-if="severity > ErrorSeverity.NORMAL" href="ab-error://">{{strings.reportError}}</a>
+    <h3 v-if="severity === ErrorSeverity.ERROR">{{ strings.errorTitle }}</h3>
+    <h3 v-if="severity === ErrorSeverity.WARNING">{{ strings.warningTitle }}</h3>
+    <h3 v-if="severity === ErrorSeverity.NORMAL">{{ strings.normalTitle }}</h3>
+    <OsisSegment convert :osis-template="document.errorMessage"/>
+    <a v-if="severity > ErrorSeverity.NORMAL" href="ab-error://">{{ strings.reportError }}</a>
   </div>
 </template>
 
@@ -31,12 +32,12 @@ import OsisSegment from "@/components/documents/OsisSegment.vue";
 import {ErrorDocument} from "@/types/documents";
 
 const ErrorSeverity = {
-  NORMAL: 1,
-  WARNING: 2,
-  ERROR: 3,
+    NORMAL: 1,
+    WARNING: 2,
+    ERROR: 3,
 }
 
-const props = defineProps<{document: ErrorDocument}>()
+const props = defineProps<{ document: ErrorDocument }>()
 const severity: Ref<number> = computed(() => ErrorSeverity[props.document.severity]);
 const {strings} = useCommon();
 </script>

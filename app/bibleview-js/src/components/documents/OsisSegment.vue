@@ -56,48 +56,48 @@ import {Component, defineComponent, h} from "vue";
 import {osisToTemplateString} from "@/utils";
 
 const teiComponents = {
-  Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
-  Rdg: Hi, Def: Div, Etym: Hi,
+    Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
+    Rdg: Hi, Def: Div, Etym: Hi,
 }
 
 const andBibleComponents = {
-  AndBibleLink
+    AndBibleLink
 }
 
 const myBibleComponents = {
-  S, M: NoOp, I, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3,
+    S, M: NoOp, I, J: Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3,
 }
 
 const osisComponents = {
-  Verse, W, Div, Chapter, Reference, Note, TransChange,
-  DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
-  Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
-  ...teiComponents, ...andBibleComponents, ...myBibleComponents,
+    Verse, W, Div, Chapter, Reference, Note, TransChange,
+    DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
+    Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
+    ...teiComponents, ...andBibleComponents, ...myBibleComponents,
 }
 
 function prefixComponents(components: Record<string, Component>): Record<string, Component> {
-  const result: Record<string, Component> = {}
-  for(const name in components) {
-    result["Osis" + name] = components[name]
-  }
-  return result;
+    const result: Record<string, Component> = {}
+    for (const name in components) {
+        result["Osis" + name] = components[name]
+    }
+    return result;
 }
 
 export default defineComponent({
-  name: "OsisSegment",
-  props: {
-    osisTemplate: {type: String, required: true},
-    convert: {type: Boolean, default: false},
-  },
-  render() {
-    return h({
-      template: this.convert ? osisToTemplateString(this.osisTemplate): this.osisTemplate,
-      components: {BWA: BibleViewAnchor, ...prefixComponents(osisComponents)},
-      compilerOptions: {
-        whitespace: 'preserve',
-      },
-    });
-  },
+    name: "OsisSegment",
+    props: {
+        osisTemplate: {type: String, required: true},
+        convert: {type: Boolean, default: false},
+    },
+    render() {
+        return h({
+            template: this.convert ? osisToTemplateString(this.osisTemplate) : this.osisTemplate,
+            components: {BWA: BibleViewAnchor, ...prefixComponents(osisComponents)},
+            compilerOptions: {
+                whitespace: 'preserve',
+            },
+        });
+    },
 })
 </script>
 

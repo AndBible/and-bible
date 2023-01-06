@@ -22,11 +22,7 @@ import {onMounted, reactive, Ref} from "vue";
 import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {Config, errorBox} from "@/composables/config";
-import {
-    AsyncFunc,
-    JournalEntryType, JSONString,
-    LogEntry
-} from "@/types/common";
+import {AsyncFunc, JournalEntryType, JSONString, LogEntry} from "@/types/common";
 import {Bookmark, CombinedRange, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
 import {BibleDocumentType} from "@/types/documents";
 
@@ -37,7 +33,7 @@ export type BibleJavascriptInterface = {
     requestPreviousChapter: AsyncFunc,
     requestNextChapter: AsyncFunc,
     refChooserDialog: AsyncFunc,
-    saveBookmarkNote: (bookmarkId: number, note: string|null) => void,
+    saveBookmarkNote: (bookmarkId: number, note: string | null) => void,
     removeBookmark: (bookmarkId: number) => void,
     assignLabels: (bookmarkId: number) => void,
     console: (loggerName: string, message: string) => void
@@ -67,7 +63,7 @@ export type BibleJavascriptInterface = {
     querySelection: (bookmarkId: number, value: boolean) => void,
     setBookmarkWholeVerse: (bookmarkId: number, value: boolean) => void,
     toggleCompareDocument: (documentId: string) => void,
-    helpDialog: (content: string, title: string|null) => void,
+    helpDialog: (content: string, title: string | null) => void,
     shareHtml: (html: string) => void,
     helpBookmarks: () => void,
     onKeyDown: (key: string) => void,
@@ -93,10 +89,10 @@ export const logEntries = reactive<LogEntry[]>([])
 
 const logEntriesTemp: LogEntry[] = [];
 
-function addLog(logEntry: Pick<LogEntry, "type"|"msg">) {
+function addLog(logEntry: Pick<LogEntry, "type" | "msg">) {
     const previous = logEntriesTemp.find(v => v.msg === logEntry.msg && v.type === logEntry.type);
-    if(previous) {
-        previous.count ++;
+    if (previous) {
+        previous.count++;
         return;
     }
     logEntriesTemp.push({...logEntry, count: 1});
@@ -106,9 +102,9 @@ let logSyncEnabled = false;
 
 export async function enableLogSync(value: boolean) {
     logSyncEnabled = value;
-    while(logSyncEnabled) {
+    while (logSyncEnabled) {
         await sleep(1000)
-        if(logEntriesTemp.length > logEntries.length) {
+        if (logEntriesTemp.length > logEntries.length) {
             logEntries.push(...logEntriesTemp.slice(logEntries.length, logEntriesTemp.length));
         }
     }
@@ -125,28 +121,28 @@ export function patchAndroidConsole() {
     // Override normal console, so that argument values also propagate to Android logcat
     const enableAndroidLogging = process.env.NODE_ENV !== "development";
     window.console = {
-        ... origConsole,
+        ...origConsole,
         _msg(s, args) {
-            const printableArgs = args.map(v => isFunction(v) ? v : v ? JSON.stringify(v).slice(0, 500): v);
+            const printableArgs = args.map(v => isFunction(v) ? v : v ? JSON.stringify(v).slice(0, 500) : v);
             return `${s} ${printableArgs}`
         },
         flog(s, ...args) {
-            if(enableAndroidLogging && errorBox) window.android.console('flog', this._msg(s, args))
+            if (enableAndroidLogging && errorBox) window.android.console('flog', this._msg(s, args))
             origConsole.log(this._msg(s, args))
         },
         log(s, ...args) {
-            if(enableAndroidLogging && errorBox) window.android.console('log', this._msg(s, args))
+            if (enableAndroidLogging && errorBox) window.android.console('log', this._msg(s, args))
             origConsole.log(s, ...args)
         },
         error(s, ...args) {
-            if(errorBox) {
+            if (errorBox) {
                 addLog({type: "ERROR", msg: this._msg(s, args)});
                 if (enableAndroidLogging) window.android.console('error', this._msg(s, args))
             }
             origConsole.error(s, ...args)
         },
         warn(s, ...args) {
-            if(errorBox) {
+            if (errorBox) {
                 addLog({type: "WARN", msg: this._msg(s, args)});
                 if (enableAndroidLogging) window.android.console('warn', this._msg(s, args))
             }
@@ -165,12 +161,12 @@ export type QuerySelection = {
     text: string
 }
 
-export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Config) {
+export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: Config) {
     const responsePromises = new Map();
 
     function response(callId: number, returnValue: any) {
         const val = responsePromises.get(callId);
-        if(val) {
+        if (val) {
             const {promise, func} = val;
             responsePromises.delete(callId);
             console.log("Returning response from async android function: ", func, callId, returnValue);
@@ -180,13 +176,13 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         }
     }
 
-    function querySelection(): QuerySelection|string|null {
+    function querySelection(): QuerySelection | string | null {
         const selection = window.getSelection()!;
         if (selection.rangeCount < 1 || selection.isCollapsed) return null;
         const selectionOnly = selection.toString();
         const range = selection.getRangeAt(0)!;
         const documentElem: HTMLElement = range.startContainer.parentElement!.closest(".bible-document")!;
-        if(!documentElem) return selectionOnly
+        if (!documentElem) return selectionOnly
 
         const bookInitials = documentElem.dataset.bookInitials!;
         let startOrdinal: number, startOffset: number, endOrdinal: number, endOffset: number;
@@ -199,7 +195,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
                 calculateOffsetToVerse(range.endContainer, range.endOffset));
 
         } catch (e) {
-            if(e instanceof ReachedRootError) {
+            if (e instanceof ReachedRootError) {
                 return selectionOnly
             } else {
                 throw e;
@@ -208,7 +204,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
 
         function bookmarkRange(b: Bookmark): CombinedRange {
             const offsetRange = b.offsetRange || [0, null]
-            if(b.bookInitials !== bookInitials) {
+            if (b.bookInitials !== bookInitials) {
                 offsetRange[0] = 0;
                 offsetRange[1] = null;
             }
@@ -238,7 +234,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
 
     async function deferredCall(func: AsyncFunc): Promise<any> {
         const promise = new Deferred();
-        const thisCall = callId ++;
+        const thisCall = callId++;
         responsePromises.set(thisCall, {func, promise});
         console.log("Calling async android function: ", func, thisCall);
         func(thisCall);
@@ -259,12 +255,12 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         return deferredCall((callId) => window.android.refChooserDialog(callId));
     }
 
-    function scrolledToOrdinal(ordinal: number|null) {
-        if(ordinal == null || ordinal < 0) return;
+    function scrolledToOrdinal(ordinal: number | null) {
+        if (ordinal == null || ordinal < 0) return;
         window.android.scrolledToOrdinal(ordinal)
     }
 
-    function saveBookmarkNote(bookmarkId: number, noteText: string|null) {
+    function saveBookmarkNote(bookmarkId: number, noteText: string | null) {
         window.android.saveBookmarkNote(bookmarkId, noteText);
     }
 
@@ -317,15 +313,15 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
     }
 
     function shareVerse(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
-        window.android.shareVerse(bookInitials, startOrdinal, endOrdinal ? endOrdinal: -1);
+        window.android.shareVerse(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
     function addBookmark(bookInitials: string, startOrdinal: number, endOrdinal?: number, addNote: boolean = false) {
-        window.android.addBookmark(bookInitials, startOrdinal, endOrdinal ? endOrdinal: -1, addNote);
+        window.android.addBookmark(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1, addNote);
     }
 
     function compare(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
-        window.android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal: -1);
+        window.android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
     function openStudyPad(labelId: number, bookmarkId: number) {
@@ -346,7 +342,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
 
     function updateOrderNumber(labelId: number, bookmarks: StudyPadBookmarkItem[], journals: StudyPadTextItem[]) {
         const orderNumberPairs: (l: StudyPadItem[]) => [number, number][] =
-                l => l.map((v: StudyPadItem) => [v.id, v.orderNumber])
+            l => l.map((v: StudyPadItem) => [v.id, v.orderNumber])
         window.android.updateOrderNumber(labelId, JSON.stringify(
             {
                 bookmarks: orderNumberPairs(bookmarks),
@@ -361,9 +357,9 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
 
     function updateJournalEntry(entry: StudyPadItem, changes: Partial<StudyPadItem>) {
         const changedEntry = {...entry, ...changes}
-        if(entry.type === "journal") {
+        if (entry.type === "journal") {
             window.android.updateJournalTextEntry(JSON.stringify(changedEntry as StudyPadTextItem));
-        } else if(entry.type === "bookmark") {
+        } else if (entry.type === "bookmark") {
             const changedBookmarkItem = changedEntry as StudyPadBookmarkItem
             const entry = {
                 bookmarkId: changedBookmarkItem.id,
@@ -379,9 +375,11 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
     function setAsPrimaryLabel(bookmarkId: number, labelId: number) {
         window.android.setAsPrimaryLabel(bookmarkId, labelId);
     }
+
     function setBookmarkWholeVerse(bookmarkId: number, value: boolean) {
         window.android.setBookmarkWholeVerse(bookmarkId, value);
     }
+
     function reportModalState(value: boolean) {
         window.android.reportModalState(value)
     }
@@ -390,7 +388,7 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         window.android.toggleCompareDocument(docId);
     }
 
-    function helpDialog(content: string, title: string|null = null) {
+    function helpDialog(content: string, title: string | null = null) {
         window.android.helpDialog(content, title);
     }
 
@@ -450,16 +448,16 @@ export function useAndroid({bookmarks}: {bookmarks: Ref<Bookmark[]>}, config: Co
         onKeyDown,
     }
 
-    if(config.developmentMode) return {
+    if (config.developmentMode) return {
         ...stubsFor(exposed, {
             getActiveLanguages: ['he', 'nl', 'en'],
         }),
         querySelection
     } as typeof exposed
 
-    setupDocumentEventListener("selectionchange" , () => {
+    setupDocumentEventListener("selectionchange", () => {
         const sel = window.getSelection()!;
-        if(sel.rangeCount > 0 && sel.getRangeAt(0).collapsed) {
+        if (sel.rangeCount > 0 && sel.getRangeAt(0).collapsed) {
             window.android.selectionCleared();
         }
     });

@@ -29,6 +29,6 @@ const show = computed(() => config.showNonCanonical);
 
 <style scoped>
 .nonCanonical {
-  font-style: italic;
+    font-style: italic;
 }
 </style>

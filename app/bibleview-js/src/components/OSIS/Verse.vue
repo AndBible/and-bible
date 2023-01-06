@@ -32,14 +32,14 @@
 </template>
 
 <script setup lang="ts">
-import {inject, provide, reactive, ref, computed} from "vue";
+import {computed, inject, provide, reactive, ref} from "vue";
 import VerseNumber from "@/components/VerseNumber.vue";
 import {useCommon} from "@/composables";
 import {addEventVerseInfo, getVerseInfo} from "@/utils";
 import {bibleDocumentInfoKey, verseHighlightKey, verseInfoKey} from "@/types/constants";
 import {VerseInfo} from "@/types/common";
 
-const props = defineProps<{osisID: string, verseOrdinal: string}>();
+const props = defineProps<{ osisID: string, verseOrdinal: string }>();
 
 const shown = ref(true);
 const bibleDocumentInfo = inject(bibleDocumentInfoKey);
@@ -51,29 +51,28 @@ provide(verseInfoKey, verseInfo);
 const {highlightedVerses, highlightVerse} = inject(verseHighlightKey)!;
 
 const ordinal = computed(() => {
-  return parseInt(props.verseOrdinal);
+    return parseInt(props.verseOrdinal);
 });
 
 const verse = computed(() => {
-  return parseInt(props.osisID.split(".")[2])
+    return parseInt(props.osisID.split(".")[2])
 });
 
 const fromBibleDocument = computed(() => !!bibleDocumentInfo?.ordinalRange);
 
 const highlighted = computed(() => highlightedVerses.has(ordinal.value))
 
-if(bibleDocumentInfo?.originalOrdinalRange &&
-  ordinal.value <= bibleDocumentInfo.originalOrdinalRange[1] &&
-  ordinal.value >= bibleDocumentInfo.originalOrdinalRange[0])
-{
-  highlightVerse(ordinal.value)
+if (bibleDocumentInfo?.originalOrdinalRange &&
+    ordinal.value <= bibleDocumentInfo.originalOrdinalRange[1] &&
+    ordinal.value >= bibleDocumentInfo.originalOrdinalRange[0]) {
+    highlightVerse(ordinal.value)
 }
 
 function verseClicked(event: Event) {
-  if(!fromBibleDocument.value) return;
-  const {bookInitials, bibleBookName} = bibleDocumentInfo!;
+    if (!fromBibleDocument.value) return;
+    const {bookInitials, bibleBookName} = bibleDocumentInfo!;
 
-  addEventVerseInfo(event, {bookInitials, bibleBookName, bibleDocumentInfo, ...verseInfo})
+    addEventVerseInfo(event, {bookInitials, bibleBookName, bibleDocumentInfo, ...verseInfo})
 }
 
 const {config} = useCommon();
@@ -81,6 +80,7 @@ const {config} = useCommon();
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .linebreak {
   display: block;
 }

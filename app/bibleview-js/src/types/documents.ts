@@ -83,13 +83,19 @@ export type StudyPadDocument = BaseDocument & {
     label: Label
 }
 
-export type AnyDocument = StudyPadDocument|MyNotesDocument|BibleDocumentType|ErrorDocument|OsisDocument|MultiFragmentDocument
+export type AnyDocument =
+    StudyPadDocument
+    | MyNotesDocument
+    | BibleDocumentType
+    | ErrorDocument
+    | OsisDocument
+    | MultiFragmentDocument
 
 export type DocumentOfType<T extends BibleViewDocumentType> =
-    T extends "journal" ? StudyPadDocument:
-        T extends "notes" ? MyNotesDocument:
-            T extends "bible"? BibleDocumentType:
-                T extends "error"? ErrorDocument:
-                    T extends "osis"? OsisDocument:
-                        T extends "multi"? MultiFragmentDocument:
-                           BaseDocument
+    T extends "journal" ? StudyPadDocument :
+        T extends "notes" ? MyNotesDocument :
+            T extends "bible" ? BibleDocumentType :
+                T extends "error" ? ErrorDocument :
+                    T extends "osis" ? OsisDocument :
+                        T extends "multi" ? MultiFragmentDocument :
+                            BaseDocument

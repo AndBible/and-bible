@@ -33,7 +33,7 @@ export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}: 
         addMoreAtTopOnTouchUp = false,
         bottomElem: HTMLElement,
         touchDown = false,
-        textToBeInsertedAtTop: AnyDocument|null = null;
+        textToBeInsertedAtTop: AnyDocument | null = null;
 
     const
         UP_MARGIN = 2,
@@ -44,11 +44,11 @@ export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}: 
         loadTextAtTop = async () => insertThisTextAtTop(await requestPreviousChapter()),
         loadTextAtEnd = async () => insertThisTextAtEnd(await requestNextChapter()),
         addMoreAtEnd = () => {
-            if(documents[0].type !== "bible") return;
+            if (documents[0].type !== "bible") return;
             return loadTextAtEnd();
         },
         addMoreAtTop = () => {
-            if(documents[0].type !== "bible") return;
+            if (documents[0].type !== "bible") return;
             if (touchDown) {
                 // adding at top is tricky and if the user is stil holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;
@@ -77,7 +77,7 @@ export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}: 
             const priorHeight = bodyHeight();
             const origPosition = scrollPosition();
 
-            if(document) documents.unshift({...document});
+            if (document) documents.unshift({...document});
             await nextTick();
 
             // do no try to get scrollPosition here because it has not settled
@@ -87,7 +87,7 @@ export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}: 
     }
 
     function insertThisTextAtEnd(document: AnyDocument) {
-        if(document) documents.push({...document});
+        if (document) documents.push({...document});
     }
 
     function scrollHandler() {
@@ -97,12 +97,10 @@ export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}: 
         const scrollingDown = currentPos > previousPos;
         if (scrollingDown
             && currentPos >= (bottomElem.offsetTop - window.innerHeight) - DOWN_MARGIN
-            && Date.now() > lastAddMoreTime + 1000)
-        {
+            && Date.now() > lastAddMoreTime + 1000) {
             lastAddMoreTime = Date.now();
             addMoreAtEnd();
-        } else if (scrollingUp && currentPos < UP_MARGIN && Date.now() > lastAddMoreTime + 1000)
-        {
+        } else if (scrollingUp && currentPos < UP_MARGIN && Date.now() > lastAddMoreTime + 1000) {
             lastAddMoreTime = Date.now();
             addMoreAtTop();
         }

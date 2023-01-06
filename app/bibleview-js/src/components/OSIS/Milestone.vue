@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span :class="{paragraphBreak}">{{marker}}<slot/></span>
+  <span :class="{paragraphBreak}">{{ marker }}<slot/></span>
 </template>
 
 <script setup lang="ts">
@@ -24,10 +24,10 @@ import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed} from "vue";
 
 const props = defineProps({
-  subType: {type: String, default: null},
-  type: {type: String, default: null},
-  marker: {type: String, default: ""},
-  resp: {type: String, default: ""},
+    subType: {type: String, default: null},
+    type: {type: String, default: null},
+    marker: {type: String, default: ""},
+    resp: {type: String, default: ""},
 });
 checkUnsupportedProps(props, "resp");
 checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);

@@ -20,14 +20,14 @@
     <AmbiguousSelection ref="ambiguousSelection" @back-clicked="$emit('change-expanded', false)"/>
     <div v-if="expanded" @click.stop="ambiguousSelection?.handle">
       <OsisFragment
-        :highlight-ordinal-range="bookmark.originalOrdinalRange"
-        :highlight-offset-range="highlightOffset"
-        :fragment="bookmark.osisFragment"
-        hide-titles
+          :highlight-ordinal-range="bookmark.originalOrdinalRange"
+          :highlight-offset-range="highlightOffset"
+          :fragment="bookmark.osisFragment"
+          hide-titles
       />
     </div>
     <div class="bookmark-text one-liner" v-if="!expanded">
-      <q @click.stop="$emit('change-expanded', true)" class="bible-text">{{bookmark.text}}</q>
+      <q @click.stop="$emit('change-expanded', true)" class="bible-text">{{ bookmark.text }}</q>
     </div>
   </template>
 </template>
@@ -46,13 +46,13 @@ const props = withDefaults(defineProps<{
     expanded: false
 });
 
-const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection>|null>(null);
+const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
 
 const highlightOffset = computed(() => {
-  //const highlightedLength = props.bookmark.text.length;
-  //const fullLength = props.bookmark.fullText.length;
-  //if(highlightedLength > 0.95*fullLength || highlightedLength > fullLength - 5) return null
-  return props.bookmark.offsetRange
+    //const highlightedLength = props.bookmark.text.length;
+    //const fullLength = props.bookmark.fullText.length;
+    //if(highlightedLength > 0.95*fullLength || highlightedLength > fullLength - 5) return null
+    return props.bookmark.offsetRange
 });
 useCommon();
 </script>

@@ -43,7 +43,7 @@
 import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composables";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {get} from "lodash";
-import {ref, provide, inject, computed} from "vue";
+import {computed, inject, provide, ref} from "vue";
 import {addEventFunction, EventPriorities, isBottomHalfClicked} from "@/utils";
 import OpenAllLink from "@/components/OpenAllLink.vue";
 import {exportModeKey, footnoteCountKey, osisFragmentKey, referenceCollectorKey} from "@/types/constants";
@@ -52,28 +52,28 @@ import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
 
 const props = defineProps({
-  osisID: {type: String, default: null},
-  osisRef: {type: String, default: null},
-  placement: {type: String, default: null},
-  type: {type: String, default: null},
-  subType: {type: String, default: null},
-  n: {type: String, default: null},
-  resp: {type: String, default: null},
+    osisID: {type: String, default: null},
+    osisRef: {type: String, default: null},
+    placement: {type: String, default: null},
+    type: {type: String, default: null},
+    subType: {type: String, default: null},
+    n: {type: String, default: null},
+    resp: {type: String, default: null},
 });
-const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection>|null>(null);
+const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
 checkUnsupportedProps(props, "resp");
 checkUnsupportedProps(props, "placement", ['foot']);
 checkUnsupportedProps(props, "type",
-                      ["explanation", "translation", "crossReference", "variant", "alternative", "study", "x-editor-correction"]);
+    ["explanation", "translation", "crossReference", "variant", "alternative", "study", "x-editor-correction"]);
 checkUnsupportedProps(props, "subType",
-                      ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
+    ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
 const {strings, config, sprintf} = useCommon();
 const showNote = ref(false);
 const locateTop = ref(false);
 const {getFootNoteCount} = inject(footnoteCountKey)!;
 
 function runningHandle() {
-  return alphabets[getFootNoteCount()%alphabets.length];
+    return alphabets[getFootNoteCount() % alphabets.length];
 }
 
 const handle = computed(() => props.n || runningHandle());
@@ -84,22 +84,23 @@ const isCrossReference = computed(() => props.type === "crossReference");
 const isOther = computed(() => !isCrossReference.value && !isFootNote.value);
 
 function noteClicked(event: MouseEvent) {
-  addEventFunction(event,
-                   () => {
-                     if(!showNote.value) {
-                       referenceCollector.clear();
-                       locateTop.value = isBottomHalfClicked(event);
-                       showNote.value = true;
-                     }
-                   },
-                   {title: strings.openFootnote, priority: EventPriorities.FOOTNOTE});
+    addEventFunction(event,
+        () => {
+            if (!showNote.value) {
+                referenceCollector.clear();
+                locateTop.value = isBottomHalfClicked(event);
+                showNote.value = true;
+            }
+        },
+        {title: strings.openFootnote, priority: EventPriorities.FOOTNOTE});
 }
+
 const typeStrings = {
-  explanation: strings.footnoteTypeExplanation,
-  translation: strings.footnoteTypeTranslation,
-  study: strings.footnoteTypeStudy,
-  variant: strings.footnoteTypeVariant,
-  alternative: strings.footnoteTypeAlternative,
+    explanation: strings.footnoteTypeExplanation,
+    translation: strings.footnoteTypeTranslation,
+    study: strings.footnoteTypeStudy,
+    variant: strings.footnoteTypeVariant,
+    alternative: strings.footnoteTypeAlternative,
 };
 const {v11n} = inject(osisFragmentKey)!
 const referenceCollector = useReferenceCollector();
@@ -108,12 +109,13 @@ provide(referenceCollectorKey, referenceCollector);
 const exportMode = inject(exportModeKey, ref(false));
 
 const showHandle = computed(() => {
-  return !exportMode.value && ((config.showFootNotes && isCrossReference) || config.showFootNotes);
+    return !exportMode.value && ((config.showFootNotes && isCrossReference) || config.showFootNotes);
 });
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .note-handle-base {
   @extend .superscript;
   padding: 0.2em;

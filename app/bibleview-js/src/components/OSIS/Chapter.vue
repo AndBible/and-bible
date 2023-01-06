@@ -22,27 +22,27 @@
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {inject, computed} from "vue";
+import {computed, inject} from "vue";
 import {bibleDocumentInfoKey} from "@/types/constants";
 
 const props = defineProps({
-  n: {type: String, default: null},
-  osisID: {type: String, default: null},
-  sID: {type: String, default: null},
-  eID: {type: String, default: null},
-  chapterTitle: {type: String, default: null},
+    n: {type: String, default: null},
+    osisID: {type: String, default: null},
+    sID: {type: String, default: null},
+    eID: {type: String, default: null},
+    chapterTitle: {type: String, default: null},
 });
 
 checkUnsupportedProps(props, "chapterTitle")
 const bibleDocumentInfo = inject(bibleDocumentInfoKey, null);
 const ordinal = computed(() => {
-  if(bibleDocumentInfo == null) return -1;
-  const ordinalRange = bibleDocumentInfo.originalOrdinalRange || bibleDocumentInfo.ordinalRange;
-  return ordinalRange[0];
+    if (bibleDocumentInfo == null) return -1;
+    const ordinalRange = bibleDocumentInfo.originalOrdinalRange || bibleDocumentInfo.ordinalRange;
+    return ordinalRange[0];
 });
 const startTag = computed(() => props.eID === null);
 const chapterNum = computed(() => {
-  return (props.n || props.osisID.split(".")[1]).trim()
+    return (props.n || props.osisID.split(".")[1]).trim()
 });
 const {config, sprintf, strings} = useCommon();
 

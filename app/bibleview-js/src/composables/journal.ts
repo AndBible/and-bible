@@ -24,33 +24,35 @@ export function useJournal(label: Label) {
     const bookmarkToLabels = reactive(new Map());
 
     setupEventBusListener("add_or_update_bookmarks", (bookmarks: Bookmark[]) => {
-        for(const b of bookmarks) {
-            if(b.bookmarkToLabels) {
+        for (const b of bookmarks) {
+            if (b.bookmarkToLabels) {
                 updateBookmarkToLabels(...b.bookmarkToLabels);
             }
         }
     });
 
     function updateJournalTextEntries(...entries: StudyPadTextItem[]) {
-        for(const e of entries)
-            if(e.labelId === label.id)
+        for (const e of entries)
+            if (e.labelId === label.id)
                 journalTextEntries.set(e.id, e);
     }
 
     function updateBookmarkToLabels(...entries: BookmarkToLabel[]) {
-        for(const e of entries)
-            if(e.labelId === label.id)
+        for (const e of entries)
+            if (e.labelId === label.id)
                 bookmarkToLabels.set(e.bookmarkId, e);
     }
 
     function updateJournalOrdering(...entries: StudyPadTextItem[]) {
-        for(const e of entries) {
+        for (const e of entries) {
             journalTextEntries.get(e.id).orderNumber = e.orderNumber;
         }
     }
+
     function deleteJournal(journalId: number) {
         journalTextEntries.delete(journalId)
     }
+
     return {
         journalTextEntries,
         updateJournalTextEntries,

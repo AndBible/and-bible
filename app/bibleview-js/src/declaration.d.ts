@@ -21,7 +21,7 @@ type BcvObject = {
 type BcvParserType = {
     include_apocrypha: (enabled: boolean) => void
     parse: (text: string) => BcvObject
-    new (): BcvParserType
+    new(): BcvParserType
 }
 
 type BcvModule = {

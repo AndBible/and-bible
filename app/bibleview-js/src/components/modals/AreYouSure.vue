@@ -22,8 +22,10 @@
     </template>
     <slot/>
     <template #footer>
-      <button class="button" @click="cancel">{{strings.cancel}}</button>
-      <button v-for="b in buttons" :key="b.result" class="button" :class="b.class" @click="buttonClicked(b.result)">{{b.title}}</button>
+      <button class="button" @click="cancel">{{ strings.cancel }}</button>
+      <button v-for="b in buttons" :key="b.result" class="button" :class="b.class" @click="buttonClicked(b.result)">
+        {{ b.title }}
+      </button>
     </template>
   </ModalDialog>
 </template>
@@ -36,31 +38,32 @@ import {Deferred} from "@/utils";
 import {AreYouSureButton} from "@/types/common";
 
 const show = ref(false);
-let promise: Deferred|null = null;
+let promise: Deferred | null = null;
 const {strings} = useCommon();
 
 const okButton: AreYouSureButton = {
-  title: strings.yes,
-  class: "warning",
-  result: true
+    title: strings.yes,
+    class: "warning",
+    result: true
 }
 
-const buttons = ref<AreYouSureButton[]|null>(null);
+const buttons = ref<AreYouSureButton[] | null>(null);
 
 async function areYouSure(btns = [okButton]) {
-  buttons.value = btns;
-  show.value = true;
-  promise = new Deferred();
-  const result = await promise.wait()
-  show.value = false;
-  return result;
+    buttons.value = btns;
+    show.value = true;
+    promise = new Deferred();
+    const result = await promise.wait()
+    show.value = false;
+    return result;
 }
 
 function buttonClicked(result: any) {
-  promise!.resolve(result);
+    promise!.resolve(result);
 }
+
 function cancel() {
-  promise!.resolve();
+    promise!.resolve();
 }
 
 defineExpose({areYouSure})

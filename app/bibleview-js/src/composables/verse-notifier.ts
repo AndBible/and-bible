@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-import {ref, watch, computed, Ref} from "vue";
+import {computed, ref, Ref, watch} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {throttle} from "lodash";
 import {CalculatedConfig, Config} from "@/composables/config";
@@ -26,24 +26,24 @@ export function useVerseNotifier(
     calculatedConfig: CalculatedConfig,
     mounted: Ref<boolean>,
     {scrolledToOrdinal}: UseAndroid,
-    topElement: Ref<HTMLElement|null>,
+    topElement: Ref<HTMLElement | null>,
     {isScrolling}: ReturnType<typeof useScroll>
 ) {
-    const currentVerse = ref<number|null>(null);
-    watch(() => currentVerse.value,  value => scrolledToOrdinal(value));
+    const currentVerse = ref<number | null>(null);
+    watch(() => currentVerse.value, value => scrolledToOrdinal(value));
 
     const lineHeight = computed(() => {
-        config; // Update also when font settings etc are changed
-        if(!mounted.value || !topElement.value) return 1;
-        return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
+            config; // Update also when font settings etc are changed
+            if (!mounted.value || !topElement.value) return 1;
+            return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
         }
     );
 
     let lastDirection = "ltr";
     const step = 10;
 
-    function *iterate(direction = "ltr") {
-        if(direction === "ltr") {
+    function* iterate(direction = "ltr") {
+        if (direction === "ltr") {
             for (let x = window.innerWidth - step; x > 0; x -= step) {
                 yield x;
             }
@@ -55,21 +55,21 @@ export function useVerseNotifier(
     }
 
     const onScroll = throttle(() => {
-        if(isScrolling.value) return;
-        const y = calculatedConfig.value.topOffset + lineHeight.value*0.8;
+        if (isScrolling.value) return;
+        const y = calculatedConfig.value.topOffset + lineHeight.value * 0.8;
 
         // Find element, starting from right
         let element: HTMLElement;
         let directionChanged = true;
-        while(directionChanged) {
+        while (directionChanged) {
             directionChanged = false;
-            for(const x of iterate(lastDirection)) {
+            for (const x of iterate(lastDirection)) {
                 element = document.elementFromPoint(x, y) as HTMLElement
                 if (element) {
                     element = element.closest(".ordinal") as HTMLElement;
                     if (element) {
                         const direction = window.getComputedStyle(element).getPropertyValue("direction");
-                        if(direction !== lastDirection) {
+                        if (direction !== lastDirection) {
                             directionChanged = true;
                             lastDirection = direction;
                             break;

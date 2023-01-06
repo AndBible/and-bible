@@ -23,8 +23,8 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 
 const props = defineProps({
-  role: {type: String, default: null},
-  cols: {type: String, default: null},
+    role: {type: String, default: null},
+    cols: {type: String, default: null},
 });
 
 checkUnsupportedProps(props, "role")
@@ -33,7 +33,7 @@ useCommon();
 
 <style scoped>
 td {
-  padding: 5px;
+    padding: 5px;
 
 }
 </style>

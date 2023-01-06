@@ -15,14 +15,16 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span :dir="fragment.direction" v-if="show" class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}<template v-if="exportMode">.&nbsp;</template></span></template>
+<template><span :dir="fragment.direction" v-if="show"
+                class="skip-offset verseNumber">{{ sprintf(strings.verseNum, verseNum) }}<template v-if="exportMode">.&nbsp;</template></span>
+</template>
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
-import {inject, computed, ref} from "vue";
+import {computed, inject, ref} from "vue";
 import {exportModeKey, osisFragmentKey} from "@/types/constants";
 
-defineProps<{verseNum: number}>()
+defineProps<{ verseNum: number }>()
 
 const fragment = inject(osisFragmentKey)!;
 const show = computed(() => fragment.bookCategory === "BIBLE")
@@ -32,6 +34,7 @@ const {sprintf, strings} = useCommon();
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .verseNumber {
   @extend .superscript;
   font-size: 60%;

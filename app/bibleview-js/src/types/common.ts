@@ -62,9 +62,9 @@ export type FootNoteCount = {
 }
 
 export type AreYouSureButton = {
-  title: string
-  class: "warning"
-  result: any
+    title: string
+    class: "warning"
+    result: any
 }
 
 export type SelectionInfo = EventVerseInfo & {

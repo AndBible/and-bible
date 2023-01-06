@@ -51,44 +51,40 @@
 <script setup lang="ts">
 import {inject, nextTick, onMounted, onUnmounted, ref} from "vue";
 import {useCommon} from "@/composables";
-import {
-  draggableElement,
-  setupDocumentEventListener,
-  setupWindowEventListener,
-} from "@/utils";
+import {draggableElement, setupDocumentEventListener, setupWindowEventListener,} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {modalKey} from "@/types/constants";
 
 const emit = defineEmits(["close"]);
 const props = defineProps({
-  blocking: {type: Boolean, default: false},
-  wide: {type: Boolean, default: false},
-  edit: {type: Boolean, default: false},
-  locateTop: {type: Boolean, default: false},
-  limit: {type: Boolean, default: false},
+    blocking: {type: Boolean, default: false},
+    wide: {type: Boolean, default: false},
+    edit: {type: Boolean, default: false},
+    locateTop: {type: Boolean, default: false},
+    limit: {type: Boolean, default: false},
 });
 
-const modal = ref<HTMLElement|null>(null);
+const modal = ref<HTMLElement | null>(null);
 const header = ref(null);
 const ready = ref(false);
 
 async function resetPosition(horizontal = false) {
-  const m = modal.value!;
-  if(horizontal) {
-    m.style.left = `var(--modal-left)`;
-  }
+    const m = modal.value!;
+    if (horizontal) {
+        m.style.left = `var(--modal-left)`;
+    }
 
-  if(props.locateTop) {
-    m.style.top = `calc(var(--top-offset) + var(--modal-top))`;
-  } else {
-    m.style.top = "";
-    m.style.bottom = `calc(var(--bottom-offset) + var(--modal-top))`;
+    if (props.locateTop) {
+        m.style.top = `calc(var(--top-offset) + var(--modal-top))`;
+    } else {
+        m.style.top = "";
+        m.style.bottom = `calc(var(--bottom-offset) + var(--modal-top))`;
+        await nextTick();
+        m.style.top = `${m.offsetTop}px`;
+        m.style.bottom = "";
+    }
     await nextTick();
-    m.style.top = `${m.offsetTop}px`;
-    m.style.bottom = "";
-  }
-  await nextTick();
-  height.value = m.clientHeight;
+    height.value = m.clientHeight;
 }
 
 const {register} = inject(modalKey)!;
@@ -96,30 +92,30 @@ register({blocking: props.blocking, close: () => emit("close")});
 
 setupWindowEventListener("resize", () => resetPosition(true));
 setupDocumentEventListener("keyup", (event: KeyboardEvent) => {
-  if(event.key === "Escape") {
-    emit("close");
-  }
+    if (event.key === "Escape") {
+        emit("close");
+    }
 });
 
 const height = ref(0);
 
 const observer = new ResizeObserver(() => {
-  resetPosition();
+    resetPosition();
 });
 
-const body = ref<HTMLElement|null>(null);
+const body = ref<HTMLElement | null>(null);
 
 onMounted(async () => {
-  await resetPosition(true)
-  const m = modal.value!
-  draggableElement(m, header.value!);
-  observer.observe(m);
-  ready.value = true;
-  body.value!.focus();
+    await resetPosition(true)
+    const m = modal.value!
+    draggableElement(m, header.value!);
+    observer.observe(m);
+    ready.value = true;
+    body.value!.focus();
 });
 
 onUnmounted(() => {
-  observer.disconnect();
+    observer.disconnect();
 });
 
 useCommon()
@@ -128,6 +124,7 @@ defineExpose({height});
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .modal-backdrop {
   display: block;
   position: fixed;
@@ -137,7 +134,7 @@ defineExpose({height});
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 $border-radius: 8pt;
@@ -147,20 +144,24 @@ $border-radius2: $border-radius - 1.5pt;
   font-family: sans-serif;
   font-size: 12pt;
   z-index: 5;
+
   .blocking & {
     z-index: 15;
   }
+
   position: fixed;
   background-color: $modal-content-background-color;
   padding: 0;
   border: 1px solid #888;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   animation-name: animatetop;
   animation-duration: 0.2s;
+
   .night & {
     background-color: $modal-content-background-color-night;
     color: #bdbdbd;
   }
+
   border-radius: $border-radius;
   width: var(--modal-width);
 
@@ -175,8 +176,12 @@ $border-radius2: $border-radius - 1.5pt;
 }
 
 @keyframes animatetop {
-  from {opacity:0}
-  to {opacity:1}
+  from {
+    opacity: 0
+  }
+  to {
+    opacity: 1
+  }
 }
 
 .title {
@@ -185,7 +190,7 @@ $border-radius2: $border-radius - 1.5pt;
 }
 
 .modal-header {
-  display:flex;
+  display: flex;
   justify-content: space-between;
   padding: 0.1em;
   padding-left: 0.5em;
@@ -209,16 +214,20 @@ $border-radius2: $border-radius - 1.5pt;
 
 .modal-body {
   --max-height: calc(100vh - var(--top-offset) - var(--bottom-offset) - 100px);
+
   .limit & {
     --max-height: min(calc(100vh - var(--top-offset) - var(--bottom-offset) - 100px), 165px);
   }
+
   //min-height: 60pt;
   padding: 5px 5px;
   margin: 5pt 5pt;
+
   .edit & {
     padding: 0 0;
     margin: 0 0;
   }
+
   .night & {
     background-color: $modal-content-background-color-night;
   }
@@ -233,6 +242,7 @@ $border-radius2: $border-radius - 1.5pt;
   padding-bottom: 2px;
   background-color: #acacac;
   color: white;
+
   .night & {
     background-color: #454545;
     color: #bdbdbd;

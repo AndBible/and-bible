@@ -15,12 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {
-    getCurrentInstance,
-    inject,
-    reactive, Ref,
-} from "vue";
-import {abbreviated, sprintf, adjustedColor} from "@/utils";
+import {getCurrentInstance, inject, reactive, Ref,} from "vue";
+import {abbreviated, adjustedColor, sprintf} from "@/utils";
 import {emit} from "@/eventbus";
 import {androidKey, appSettingsKey, calculatedConfigKey, configKey, stringsKey, verseInfoKey} from "@/types/constants";
 
@@ -35,7 +31,7 @@ export function useCommon() {
     const strings = inject(stringsKey)!;
 
     const unusedAttrs = Object.keys(currentInstance.attrs).filter(v => !v.startsWith("__") && v !== "onClose");
-    if(unusedAttrs.length > 0) {
+    if (unusedAttrs.length > 0) {
         console.error("Unhandled attributes", currentInstance.type.name, currentInstance.attrs);
     }
 
@@ -44,11 +40,18 @@ export function useCommon() {
     }
 
     function formatTimestamp(timestamp: number) {
-        const options: Intl.DateTimeFormatOptions = { year:'numeric', month:'numeric', day: 'numeric', hour:'numeric', minute:'2-digit'};
-        return new Date(timestamp).toLocaleString([],options)
+        const options: Intl.DateTimeFormatOptions = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+        };
+        return new Date(timestamp).toLocaleString([], options)
     }
 
-    return {config, appSettings, calculatedConfig, strings, sprintf, split,
+    return {
+        config, appSettings, calculatedConfig, strings, sprintf, split,
         adjustedColor, formatTimestamp, abbreviated, emit, android,
     }
 }
@@ -56,8 +59,8 @@ export function useCommon() {
 export function checkUnsupportedProps(props: Record<string, any>, attributeName: string, values: string[] = []) {
     const value = props[attributeName]
     const appSettings = inject(appSettingsKey);
-    if(!appSettings?.errorBox) return;
-    if(value && !values.includes(value)) {
+    if (!appSettings?.errorBox) return;
+    if (value && !values.includes(value)) {
         const tagName = getCurrentInstance()!.type.name
         const verseInfo = inject(verseInfoKey)
         const origin = verseInfo?.osisID;
@@ -67,11 +70,14 @@ export function checkUnsupportedProps(props: Record<string, any>, attributeName:
 
 export function useReferenceCollector() {
     const references: Ref<string>[] = reactive([]);
+
     function collect(linkRef: Ref<string>) {
         references.push(linkRef);
     }
+
     function clear() {
         references.splice(0);
     }
+
     return {references, collect, clear}
 }

@@ -24,7 +24,7 @@ import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed} from "vue";
 
 const props = defineProps({
-  type: {type: String, default: null}
+    type: {type: String, default: null}
 });
 checkUnsupportedProps(props, "type", ["added"]);
 const {config} = useCommon();
@@ -34,6 +34,6 @@ const show = computed(() => (!isNonCanonical.value) || (isNonCanonical.value && 
 
 <style scoped>
 .nonCanonical {
-  font-style: italic;
+    font-style: italic;
 }
 </style>

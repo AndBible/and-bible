@@ -16,15 +16,17 @@
   -->
 
 <template>
-  <h2 v-if="document.compare">{{osisFragments[0].keyName}}</h2>
+  <h2 v-if="document.compare">{{ osisFragments[0].keyName }}</h2>
   <div v-for="(fragment, index) in filteredOsisFragments" :key="fragment.key">
     <div class="ref-link">
       <div class="flex">
         <a :href="link(fragment, document.compare)">
-          <template v-if="document.compare">{{fragment.bookAbbreviation}}</template>
-          <template v-else>{{sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookAbbreviation )}}</template>
+          <template v-if="document.compare">{{ fragment.bookAbbreviation }}</template>
+          <template v-else>{{ sprintf(strings.multiDocumentLink, fragment.keyName, fragment.bookAbbreviation) }}
+          </template>
         </a>
-        <div v-if="document.compare && !exportMode" class="hide-button" @click="android.toggleCompareDocument(fragment.bookInitials)">
+        <div v-if="document.compare && !exportMode" class="hide-button"
+             @click="android.toggleCompareDocument(fragment.bookInitials)">
           <FontAwesomeIcon icon="eye-slash"/>
         </div>
       </div>
@@ -39,7 +41,8 @@
       <div class="restore-button">
         <FontAwesomeIcon icon="eye"/>
       </div>
-      <a @click="android.toggleCompareDocument(fragment.bookInitials)" v-for="fragment  in hiddenOsisFragments" :key="fragment.key">
+      <a @click="android.toggleCompareDocument(fragment.bookInitials)" v-for="fragment  in hiddenOsisFragments"
+         :key="fragment.key">
         {{ fragment.bookAbbreviation }} &nbsp;
       </a>
     </div>
@@ -49,54 +52,59 @@
 <script setup lang="ts">
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment.vue";
-import {inject, computed, ref} from "vue";
+import {computed, inject, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import FeaturesLink from "@/components/FeaturesLink.vue";
 import {appSettingsKey, exportModeKey} from "@/types/constants";
 import {OsisFragment as OsisFragmentType} from "@/types/client-objects";
 import {MultiFragmentDocument} from "@/types/documents";
 
-const props = defineProps<{document: MultiFragmentDocument}>();
-  
+const props = defineProps<{ document: MultiFragmentDocument }>();
+
 // eslint-disable-next-line vue/no-setup-props-destructure
 const {osisFragments} = props.document;
 const exportMode = inject(exportModeKey, ref(false));
 const appSettings = inject(appSettingsKey)!;
 
 const filteredOsisFragments = computed(() => {
-  if(props.document.compare) {
-    return osisFragments.filter(v => !appSettings.hideCompareDocuments.includes(v.bookInitials))
-  } else {
-    return osisFragments;
-  }
+    if (props.document.compare) {
+        return osisFragments.filter(v => !appSettings.hideCompareDocuments.includes(v.bookInitials))
+    } else {
+        return osisFragments;
+    }
 });
 const hiddenOsisFragments = computed(() => {
-  return osisFragments.filter(v => appSettings.hideCompareDocuments.includes(v.bookInitials))
+    return osisFragments.filter(v => appSettings.hideCompareDocuments.includes(v.bookInitials))
 });
 
 function link(frag: OsisFragmentType, compare = false) {
-  const isBible = frag.bookCategory === "BIBLE"
-  const osis = (compare || !isBible) ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) + "&force-doc" : encodeURI(frag.osisRef);
-  return `osis://?osis=${osis}&v11n=${frag.v11n}`
+    const isBible = frag.bookCategory === "BIBLE"
+    const osis = (compare || !isBible) ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) + "&force-doc" : encodeURI(frag.osisRef);
+    return `osis://?osis=${osis}&v11n=${frag.v11n}`
 }
+
 const {android, sprintf, strings} = useCommon();
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .ref-link {
   padding-bottom: 0.5em;
   font-weight: bold;
 }
+
 .restore {
   a {
     padding-inline-start: 0.5em;
   }
 }
+
 .flex {
   display: flex;
   justify-content: space-between;
 }
+
 .flex2 {
   display: flex;
   justify-content: flex-start;
@@ -106,11 +114,12 @@ const {android, sprintf, strings} = useCommon();
 .hide-button {
   justify-self: end;
   font-size: 120%;
-  color:$modal-header-background-color;
+  color: $modal-header-background-color;
 }
+
 .restore-button {
   justify-self: start;
   font-size: 120%;
-  color:$modal-header-background-color;
+  color: $modal-header-background-color;
 }
 </style>

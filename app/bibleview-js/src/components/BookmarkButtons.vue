@@ -20,18 +20,18 @@
     <div class="button-container">
       <div class="bookmark-buttons">
         <div
-          v-if="!inBookmarkModal"
-          @click.stop="$emit('info-clicked')"
-          class="bookmark-button"
-          :style="buttonColor(primaryLabel.color)"
+            v-if="!inBookmarkModal"
+            @click.stop="$emit('info-clicked')"
+            class="bookmark-button"
+            :style="buttonColor(primaryLabel.color)"
         >
           <FontAwesomeIcon icon="info-circle"/>
         </div>
         <div
-          v-if="!inBookmarkModal"
-          class="bookmark-button"
-          @click.stop="$emit('edit-clicked')"
-          :style="buttonColor(primaryLabel.color)"
+            v-if="!inBookmarkModal"
+            class="bookmark-button"
+            @click.stop="$emit('edit-clicked')"
+            :style="buttonColor(primaryLabel.color)"
         >
           <template v-if="bookmark.hasNote">
             <FontAwesomeIcon icon="pen-square"/>
@@ -41,16 +41,16 @@
           </template>
         </div>
         <div
-          class="bookmark-button"
-          @click.stop="shareVerse"
-          :style="buttonColor(primaryLabel.color)"
+            class="bookmark-button"
+            @click.stop="shareVerse"
+            :style="buttonColor(primaryLabel.color)"
         >
           <FontAwesomeIcon icon="share-alt"/>
         </div>
         <div
-          class="bookmark-button"
-          @click.stop="toggleWholeVerse"
-          :style="buttonColor(primaryLabel.color)"
+            class="bookmark-button"
+            @click.stop="toggleWholeVerse"
+            :style="buttonColor(primaryLabel.color)"
         >
           <template v-if="bookmark.wholeVerse">
             <FontAwesomeIcon icon="custom-whole-verse-true"/>
@@ -61,11 +61,11 @@
         </div>
         <template v-if="showStudyPadButtons">
           <div
-            v-for="label of labels.filter(l => l.isRealLabel)"
-            :key="label.id"
-            :style="buttonColor(label.color)"
-            class="bookmark-button"
-            @click.stop="openStudyPad(label.id)"
+              v-for="label of labels.filter(l => l.isRealLabel)"
+              :key="label.id"
+              :style="buttonColor(label.color)"
+              class="bookmark-button"
+              @click.stop="openStudyPad(label.id)"
           >
             <FontAwesomeIcon icon="file-alt"/>
           </div>
@@ -89,7 +89,7 @@
 
 <script lang="ts" setup>
 import {useCommon} from "@/composables";
-import {computed, ref, inject} from "vue";
+import {computed, inject, ref} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Color from "color";
@@ -109,52 +109,52 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits(["close-bookmark", "edit-clicked", 'info-clicked']);
 
-const areYouSure = ref<InstanceType<typeof AreYouSure>|null>(null);
+const areYouSure = ref<InstanceType<typeof AreYouSure> | null>(null);
 const bookmark = computed(() => props.bookmark);
 const android = inject(androidKey)!;
 
 function toggleWholeVerse() {
-  android.setBookmarkWholeVerse(bookmark.value.id, !bookmark.value.wholeVerse);
+    android.setBookmarkWholeVerse(bookmark.value.id, !bookmark.value.wholeVerse);
 }
 
 function shareVerse() {
-  android.shareBookmarkVerse(bookmark.value.id);
+    android.shareBookmarkVerse(bookmark.value.id);
 }
 
 const {bookmarkLabels} = inject(globalBookmarksKey)!;
 
 const labels = computed<LabelAndStyle[]>(() => {
-  return sortBy(bookmark.value.labels.map((id: number) => bookmarkLabels.get(id)!), ["name"]);
+    return sortBy(bookmark.value.labels.map((id: number) => bookmarkLabels.get(id)!), ["name"]);
 });
 
 const primaryLabel = computed(() => {
-  const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
-  return bookmarkLabels.get(primaryLabelId)!;
+    const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
+    return bookmarkLabels.get(primaryLabelId)!;
 });
 
 function openStudyPad(labelId: number) {
-  android.openStudyPad(labelId, bookmark.value.id);
+    android.openStudyPad(labelId, bookmark.value.id);
 }
 
 async function removeBookmark() {
-  if(await areYouSure.value!.areYouSure()) {
-    emit("close-bookmark");
-    android.removeBookmark(bookmark.value.id);
-  }
+    if (await areYouSure.value!.areYouSure()) {
+        emit("close-bookmark");
+        android.removeBookmark(bookmark.value.id);
+    }
 }
 
 function buttonColor(color: ColorParam, highlighted = false) {
-  if(props.inBookmarkModal) {
-    return ""
-  }
-  let col = Color(color);
-  if(col.isLight()) {
-    col = col.darken(0.5);
-  }
-  if(highlighted) {
-    col = col.alpha(0.7);
-  }
-  return `color:${col.hsl().string()};`;
+    if (props.inBookmarkModal) {
+        return ""
+    }
+    let col = Color(color);
+    if (col.isLight()) {
+        col = col.darken(0.5);
+    }
+    if (highlighted) {
+        col = col.alpha(0.7);
+    }
+    return `color:${col.hsl().string()};`;
 }
 
 const {strings} = useCommon();
@@ -162,6 +162,7 @@ const {strings} = useCommon();
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .button-container {
   display: flex;
   justify-content: space-between;
@@ -173,6 +174,7 @@ const {strings} = useCommon();
   border-radius: 0 0 $button-border-radius $button-border-radius;
   background-color: $modal-content-background-color;
   margin: calc(-#{$button-padding} + 1.5px);
+
   .night & {
     background-color: $modal-content-background-color-night;
   }
@@ -182,9 +184,11 @@ const {strings} = useCommon();
   font-size: 25px;
   color: $button-grey;
   padding: 5px;
+
   &.end {
     align-self: flex-end;
   }
+
   &.highlighted {
     opacity: 0.7;
   }

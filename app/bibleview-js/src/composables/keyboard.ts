@@ -23,9 +23,9 @@ const keys: Set<string> = new Set([]);
 
 export function useKeyboard({onKeyDown}: UseAndroid) {
     setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
-        if(keys.has(e.code) || (e.altKey && altKeys.has(e.code))) {
+        if (keys.has(e.code) || (e.altKey && altKeys.has(e.code))) {
             let key = e.code;
-            if(e.altKey) {
+            if (e.altKey) {
                 key = "Alt" + key;
             }
             onKeyDown(key);

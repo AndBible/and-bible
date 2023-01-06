@@ -20,16 +20,16 @@
 
   <div class="label-list" :class="{singleLine}">
     <div
-      @touchstart="labelClicked($event, label)"
-      @click="labelClicked($event, label)"
-      v-for="label in labels"
-      :key="label.id"
-      :style="labelStyle(label)"
-      class="label"
-      :class="{notAssigned: !isAssigned(label.id)}"
+        @touchstart="labelClicked($event, label)"
+        @click="labelClicked($event, label)"
+        v-for="label in labels"
+        :key="label.id"
+        :style="labelStyle(label)"
+        class="label"
+        :class="{notAssigned: !isAssigned(label.id)}"
     >
       <span v-if="isPrimary(label)" class="icon"><FontAwesomeIcon icon="bookmark"/></span>
-      {{label.name}}
+      {{ label.name }}
     </div>
     <div style="width: 30px;"/>
   </div>
@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
-import {inject, watch, computed, ref, Ref} from "vue";
+import {computed, inject, ref, Ref, watch} from "vue";
 import {addAll, clickWaiter, removeAll} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
@@ -52,7 +52,7 @@ const props = withDefaults(defineProps<{
     favourites: boolean
     frequent: boolean
     recent: boolean
-    inBookmark:boolean
+    inBookmark: boolean
     onlyAssign: boolean
     singleLine: boolean
 }>(), {
@@ -71,12 +71,12 @@ const emit = defineEmits(["has-entries"]);
 const {adjustedColor} = useCommon();
 const appSettings = inject(appSettingsKey)!;
 const android = inject(androidKey)!;
-const actions: Ref<InstanceType<typeof BookmarkLabelActions>|null> = ref(null);
+const actions: Ref<InstanceType<typeof BookmarkLabelActions> | null> = ref(null);
 
 function labelStyle(label: LabelAndStyle) {
     const color = adjustedColor(label.color);
     if (isAssigned(label.id)) {
-        const textColor = color.isLight() ? "var(--label-text-black)": "var(--label-text-white)";
+        const textColor = color.isLight() ? "var(--label-text-black)" : "var(--label-text-white)";
         return `background-color: ${color.string()}; color: ${textColor};`;
     } else {
         return `border-color: ${color.string()};`;
@@ -95,24 +95,24 @@ function isPrimary(label: LabelAndStyle) {
 }
 
 const labels = computed<LabelAndStyle[]>(() => {
-    if(!bookmark.value) return [];
+    if (!bookmark.value) return [];
     const shown: Set<number> = new Set();
     const earlier = new Set();
-    if(props.inBookmark) {
+    if (props.inBookmark) {
         addAll(shown, ...bookmark.value.labels);
     }
     addAll(earlier, ...bookmark.value.labels);
-    if(props.favourites) {
+    if (props.favourites) {
         addAll(shown, ...appSettings.favouriteLabels);
         removeAll(shown, ...earlier);
     }
     addAll(earlier, ...appSettings.favouriteLabels);
-    if(props.recent) {
+    if (props.recent) {
         addAll(shown, ...appSettings.recentLabels);
         removeAll(shown, ...earlier);
     }
     addAll(earlier, ...appSettings.recentLabels);
-    if(props.frequent) {
+    if (props.frequent) {
         addAll(shown, ...appSettings.frequentLabels);
         removeAll(shown, ...earlier);
     }
@@ -133,16 +133,16 @@ const {waitForClick} = clickWaiter(props.handleTouch);
 
 const locateTop = inject(locateTopKey, ref(true));
 
-async function labelClicked(event: MouseEvent|TouchEvent, label: LabelAndStyle) {
-    if(props.disableLinks) return;
-    if(!await waitForClick(event)) return;
+async function labelClicked(event: MouseEvent | TouchEvent, label: LabelAndStyle) {
+    if (props.disableLinks) return;
+    if (!await waitForClick(event)) return;
 
-    if(!isAssigned(label.id)) {
+    if (!isAssigned(label.id)) {
         android.toggleBookmarkLabel(bookmark.value.id, label.id);
-    } else if(!props.onlyAssign) {
+    } else if (!props.onlyAssign) {
         actions.value!.showActions({locateTop: locateTop.value})
     } else {
-        if(isAssigned(label.id) && !isPrimary(label)) {
+        if (isAssigned(label.id) && !isPrimary(label)) {
             android.setAsPrimaryLabel(bookmark.value.id, label.id);
         } else {
             android.toggleBookmarkLabel(bookmark.value.id, label.id);
@@ -159,9 +159,11 @@ defineExpose({openActions});
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .icon {
   font-size: 10px;
 }
+
 .label {
   position: relative;
   top: -2px;
@@ -179,27 +181,33 @@ defineExpose({openActions});
   white-space: nowrap;
   overflow: hidden;
   max-width: 150px;
+
   .night & {
     background-color: black;
     color: #bbbbbb;
   }
+
   &.notAssigned {
     border-style: solid;
 
     background-color: white;
     color: black;
+
     .night & {
       background-color: black;
       color: #bbbbbb;
     }
 
   }
+
   border-color: rgba(0, 0, 0, 0);
 }
+
 .label-list {
   line-height: 0.9em;
   display: inline-flex;
   flex-wrap: wrap;
+
   &.singleLine {
     flex-wrap: nowrap;
   }

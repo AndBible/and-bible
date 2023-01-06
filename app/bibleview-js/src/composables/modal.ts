@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onUnmounted, reactive, watch, computed} from "vue";
+import {computed, onUnmounted, reactive, watch} from "vue";
 import {setupEventBusListener} from "@/eventbus";
 import {useAndroid} from "@/composables/android";
 
@@ -29,7 +29,7 @@ export function useModal(android: ReturnType<typeof useAndroid>) {
     const modalOpen = computed(() => modalOptArray.length > 0);
 
     function register(opts: ModalOpts) {
-        if(!opts.blocking) {
+        if (!opts.blocking) {
             closeModals();
         }
 
@@ -42,7 +42,7 @@ export function useModal(android: ReturnType<typeof useAndroid>) {
     }
 
     function closeModals() {
-        for(const {close} of modalOptArray.filter(o => !o.blocking))
+        for (const {close} of modalOptArray.filter(o => !o.blocking))
             close();
     }
 

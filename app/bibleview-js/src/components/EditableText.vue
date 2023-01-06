@@ -34,19 +34,20 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, inject, watch} from "vue";
+import {inject, ref, watch} from "vue";
 import TextEditor from "@/components/TextEditor.vue";
 import {useCommon} from "@/composables";
 import {exportModeKey} from "@/types/constants";
 import {Nullable} from "@/types/common";
 
-let cancelOpen = () => {}
+let cancelOpen = () => {
+}
 
 const emit = defineEmits(["closed", "save", "opened"]);
 const props = withDefaults(defineProps<{
-    editDirectly:boolean
-    showPlaceholder:boolean
-    text:Nullable<string>
+    editDirectly: boolean
+    showPlaceholder: boolean
+    text: Nullable<string>
     maxEditorHeight: string
     constraintDisplayHeight: boolean
 }>(), {
@@ -63,38 +64,40 @@ const editText = ref(props.text);
 const exportMode = inject(exportModeKey, ref(false));
 
 function cancelFunc() {
-  editMode.value = false;
+    editMode.value = false;
 }
+
 watch(editMode, mode => {
-  if(!mode) emit("closed", editText.value);
-  else {
-    emit("opened")
-    if(cancelFunc !== cancelOpen) {
-      cancelOpen()
+    if (!mode) emit("closed", editText.value);
+    else {
+        emit("opened")
+        if (cancelFunc !== cancelOpen) {
+            cancelOpen()
+        }
+        cancelOpen = cancelFunc
     }
-    cancelOpen = cancelFunc
-  }
 }, {immediate: true})
 watch(() => props.text, t => {
-  editText.value = t;
+    editText.value = t;
 })
 
 watch(exportMode, mode => {
-  if(mode) {
-    editMode.value = false;
-  }
+    if (mode) {
+        editMode.value = false;
+    }
 });
 
 function textChanged(newText: string) {
-  editText.value = newText
-  emit("save", newText);
+    editText.value = newText
+    emit("save", newText);
 }
 
 function handleClicks(event: MouseEvent) {
-  if((event.target! as HTMLElement).nodeName !== "A") {
-    editMode.value = true;
-  }
+    if ((event.target! as HTMLElement).nodeName !== "A") {
+        editMode.value = true;
+    }
 }
+
 const {strings} = useCommon();
 defineExpose({editMode});
 </script>
@@ -102,10 +105,12 @@ defineExpose({editMode});
 <style lang="scss" scoped>
 @import '~@/lib/pell/pell.scss';
 @import "~@/common.scss";
+
 .notes-display {
-//  width: 100%;
+  //  width: 100%;
   margin-bottom: 8pt;
   padding: 1px 7px 10px 7px;
+
   &.constraintDisplayHeight {
     @extend .visible-scrollbar;
     overflow-y: auto;
@@ -122,24 +127,30 @@ defineExpose({editMode});
   padding-top: 8pt;
   padding-bottom: 3pt;
   padding-inline-start: 0;
+
   &.constraintDisplayHeight {
     padding-top: 0;
     padding-bottom: 0;
   }
 }
+
 .edit-button {
   @extend .journal-button;
   position: absolute;
   height: 20pt;
   width: 20pt;
+
   [dir=ltr] & {
     right: 0;
   }
+
   [dir=rtl] & {
     left: 0;
   }
+
   top: 0;
 }
+
 .editable-text {
   position: relative;
   color: var(--text-color);
@@ -150,20 +161,23 @@ defineExpose({editMode});
 div.pell-content, .pell-content div, .notes-display div {
   margin-top: 5px;
 }
-.editable-text ul,ol,blockquote {
+
+.editable-text ul, ol, blockquote {
   margin-top: 5pt;
   margin-bottom: 5pt;
-  margin-left: 0!important;
-  padding-left: 15pt!important;
+  margin-left: 0 !important;
+  padding-left: 15pt !important;
 
-  & ul,ol {
+  & ul, ol {
     margin-top: 0;
     margin-bottom: 0;
   }
 }
+
 .editable-text ul {
-  padding-left: 12pt!important;
+  padding-left: 12pt !important;
 }
+
 .editable-text .placeholder {
   padding: 15px;
 }

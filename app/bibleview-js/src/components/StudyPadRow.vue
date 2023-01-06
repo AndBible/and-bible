@@ -40,7 +40,8 @@
           <FontAwesomeIcon icon="indent"/>
         </div>
 
-        <div v-if="journalEntry.type==='bookmark'" class="journal-button" @click="changeExpanded(!bookmarkEntry.expandContent)">
+        <div v-if="journalEntry.type==='bookmark'" class="journal-button"
+             @click="changeExpanded(!bookmarkEntry.expandContent)">
           <FontAwesomeIcon :icon="bookmarkEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
         </div>
 
@@ -53,18 +54,20 @@
       </ButtonRow>
     </div>
     <template v-if="journalEntry.type==='bookmark'">
-      <b><a :href="bibleUrl">{{ bookmarkEntry.bookInitials ? sprintf(strings.multiDocumentLink, bookmarkEntry.verseRangeAbbreviated, bookmarkEntry.bookAbbreviation ) : bookmarkEntry.verseRangeAbbreviated }}</a></b>&nbsp;
+      <b><a :href="bibleUrl">{{
+          bookmarkEntry.bookInitials ? sprintf(strings.multiDocumentLink, bookmarkEntry.verseRangeAbbreviated, bookmarkEntry.bookAbbreviation) : bookmarkEntry.verseRangeAbbreviated
+        }}</a></b>&nbsp;
       <BookmarkText :expanded="bookmarkEntry.expandContent" :bookmark="bookmarkEntry"/>
       <div v-if="(bookmarkEntry.hasNote || editMode) && bookmarkEntry.expandContent" class="note-separator"/>
     </template>
     <div :class="{'studypad-text-entry': journalEntry.type === 'journal', notes: journalEntry.type === 'bookmark'}">
       <EditableText
-        ref="editor"
-        :show-placeholder="journalEntry.type === 'journal'"
-        :edit-directly="textEntry.new"
-        :text="journalText"
-        @opened="$emit('edit-opened')"
-        @save="journalTextChanged"
+          ref="editor"
+          :show-placeholder="journalEntry.type === 'journal'"
+          :edit-directly="textEntry.new"
+          :text="journalText"
+          @opened="$emit('edit-opened')"
+          @save="journalTextChanged"
       />
     </div>
   </div>
@@ -75,7 +78,7 @@ import BookmarkText from "@/components/BookmarkText.vue";
 import EditableText from "@/components/EditableText.vue";
 import ButtonRow from "@/components/ButtonRow.vue";
 import {emit as ebEmit} from "@/eventbus";
-import {inject, computed, ref} from "vue";
+import {computed, inject, ref} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
 import {androidKey, exportModeKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -96,95 +99,97 @@ const textEntry = computed(() => props.journalEntry as StudyPadTextItem)
 const android = inject(androidKey)!;
 const areYouSureDelete = ref<InstanceType<typeof AreYouSure> | null>(null);
 const {strings, sprintf} = useCommon();
-const editor = ref<InstanceType<typeof EditableText>|null>(null);
+const editor = ref<InstanceType<typeof EditableText> | null>(null);
 
 const exportMode = inject(exportModeKey, ref(false));
 
 const editMode = computed<boolean>({
-  get() {
-    return !!editor.value && editor.value.editMode;
-  },
-  set(value) {
-    editor.value!.editMode = value;
-  }
+    get() {
+        return !!editor.value && editor.value.editMode;
+    },
+    set(value) {
+        editor.value!.editMode = value;
+    }
 });
 
 function journalTextChanged(newText: string) {
-  if (props.journalEntry.type === "bookmark") {
-    android.saveBookmarkNote(props.journalEntry.id, newText);
-  } else if (props.journalEntry.type === "journal") {
-    android.updateJournalEntry(props.journalEntry, {text: newText});
-  }
+    if (props.journalEntry.type === "bookmark") {
+        android.saveBookmarkNote(props.journalEntry.id, newText);
+    } else if (props.journalEntry.type === "journal") {
+        android.updateJournalEntry(props.journalEntry, {text: newText});
+    }
 }
 
 const journalText = computed(() => {
-  if (props.journalEntry.type === "bookmark") return (props.journalEntry as StudyPadBookmarkItem).notes;
-  else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
-  return null;
+    if (props.journalEntry.type === "bookmark") return (props.journalEntry as StudyPadBookmarkItem).notes;
+    else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
+    return null;
 });
 
 function editBookmark(event: MouseEvent) {
-  ebEmit("bookmark_clicked", props.journalEntry.id, {openInfo: true, locateTop: isBottomHalfClicked(event)})
+    ebEmit("bookmark_clicked", props.journalEntry.id, {openInfo: true, locateTop: isBottomHalfClicked(event)})
 }
 
 function addNewEntryAfter() {
-  emit("add")
-  android.createNewJournalEntry(props.label.id, props.journalEntry.type, props.journalEntry.id);
+    emit("add")
+    android.createNewJournalEntry(props.label.id, props.journalEntry.type, props.journalEntry.id);
 }
 
 async function deleteEntry() {
-  if (props.journalEntry.type === "journal") {
-    const answer = await areYouSureDelete.value!.areYouSure();
-    if (answer) android.deleteJournalEntry((props.journalEntry as StudyPadTextItem).id);
-  } else if (props.journalEntry.type === "bookmark") {
-    const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
-    let answer: "bookmark"|"only_label"|undefined;
-    if (bookmarkItem.labels.length > 1) {
-      const buttons: AreYouSureButton[] = [{
-        title: strings.onlyLabel,
-        result: "only_label",
-        class: "warning",
-      }, {
-        title: strings.wholeBookmark,
-        result: "bookmark",
-        class: "warning",
-      }];
-      answer = await areYouSureDelete.value!.areYouSure(buttons);
-    } else if (await areYouSureDelete.value!.areYouSure()) {
-      answer = "bookmark"
+    if (props.journalEntry.type === "journal") {
+        const answer = await areYouSureDelete.value!.areYouSure();
+        if (answer) android.deleteJournalEntry((props.journalEntry as StudyPadTextItem).id);
+    } else if (props.journalEntry.type === "bookmark") {
+        const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
+        let answer: "bookmark" | "only_label" | undefined;
+        if (bookmarkItem.labels.length > 1) {
+            const buttons: AreYouSureButton[] = [{
+                title: strings.onlyLabel,
+                result: "only_label",
+                class: "warning",
+            }, {
+                title: strings.wholeBookmark,
+                result: "bookmark",
+                class: "warning",
+            }];
+            answer = await areYouSureDelete.value!.areYouSure(buttons);
+        } else if (await areYouSureDelete.value!.areYouSure()) {
+            answer = "bookmark"
+        }
+        if (answer === "only_label") {
+            android.removeBookmarkLabel(props.journalEntry.id, props.label.id);
+        } else if (answer === "bookmark") {
+            android.removeBookmark(props.journalEntry.id);
+        }
     }
-    if (answer === "only_label") {
-      android.removeBookmarkLabel(props.journalEntry.id, props.label.id);
-    } else if (answer === "bookmark") {
-      android.removeBookmark(props.journalEntry.id);
-    }
-  }
 }
 
 function indent(change: number) {
-  android.updateJournalEntry(props.journalEntry, {indentLevel: props.journalEntry.indentLevel + change})
+    android.updateJournalEntry(props.journalEntry, {indentLevel: props.journalEntry.indentLevel + change})
 }
 
 function changeExpanded(newValue: boolean) {
-  android.updateJournalEntry(props.journalEntry, {expandContent: newValue})
+    android.updateJournalEntry(props.journalEntry, {expandContent: newValue})
 }
 
 const bibleUrl = computed(
-  () => {
-    const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
-    const osis = bookmarkItem.osisRef;
-    return `osis://?osis=${osis}&v11n=${bookmarkItem.v11n}`;
-  }
+    () => {
+        const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
+        const osis = bookmarkItem.osisRef;
+        return `osis://?osis=${osis}&v11n=${bookmarkItem.v11n}`;
+    }
 );
 defineExpose({editor});
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .notes {
   text-indent: 2pt;
   margin-top: 4pt;
 }
+
 .entry {
   border-width: 2px;
 }

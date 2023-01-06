@@ -30,13 +30,7 @@ import {highlightRange} from "@/lib/highlight-range";
 import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {Icon, icon} from "@fortawesome/fontawesome-svg-core";
 import {AppSettings, Config, testMode} from "@/composables/config";
-import {
-    Bookmark,
-    CombinedRange,
-    Label,
-    LabelAndStyle,
-    OrdinalOffset, OrdinalRange,
-} from "@/types/client-objects";
+import {Bookmark, CombinedRange, Label, LabelAndStyle, OrdinalOffset, OrdinalRange,} from "@/types/client-objects";
 import {ColorParam} from "@/types/common";
 import Color from "color";
 
@@ -55,7 +49,7 @@ type StyleRange = {
     bookmarks: number[],
 }
 
-type LabelAndId = {id: number, label: LabelAndStyle}
+type LabelAndId = { id: number, label: LabelAndStyle }
 
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
@@ -64,13 +58,19 @@ const bookmarkIcon = icon(faBookmark);
 const allStyleRangeArrays = reactive<Set<Ref<StyleRange[]>>>(new Set());
 const allStyleRanges = computed(() => {
     const allStyles = [];
-    for(const a of allStyleRangeArrays) {
+    for (const a of allStyleRangeArrays) {
         allStyles.push(...a.value);
     }
     return allStyles;
 });
 
-export function verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount, highlightColorFn}: {
+export function verseHighlighting({
+                                      highlightLabels,
+                                      highlightLabelCount,
+                                      underlineLabels,
+                                      underlineLabelCount,
+                                      highlightColorFn
+                                  }: {
     highlightLabels: LabelAndId[],
     highlightLabelCount: LabelCountMap,
     underlineLabels: LabelAndId[],
@@ -105,7 +105,7 @@ export function verseHighlighting({highlightLabels, highlightLabelCount, underli
         const underlineColors = [];
         let span = 0;
         for (const {label: s, id} of underlineLabels) {
-            for(let i = 0; i < underlineLabelCount.get(id)!; i++) {
+            for (let i = 0; i < underlineLabelCount.get(id)!; i++) {
                 underlineColors.push(new Color(s.color).hsl().string());
             }
         }
@@ -127,7 +127,7 @@ export function verseHighlighting({highlightLabels, highlightLabelCount, underli
             }).join(", ")
         }
     }
-    if(gradientCSS === "") return "";
+    if (gradientCSS === "") return "";
     gradientCSS += `,transparent 0%`; // Fills the remainder of the background with a transparent color
     return `linear-gradient(to bottom, ${gradientCSS})`;
 }
@@ -138,9 +138,9 @@ export function useGlobalBookmarks(config: Config) {
     const bookmarkIdsByOrdinal: Map<number, Set<number>> = reactive(new Map());
 
     function addBookmarkToOrdinalMap(b: Bookmark) {
-        for(let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
-            let bSet: Set<number>|undefined = bookmarkIdsByOrdinal.get(o);
-            if(!bSet) {
+        for (let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
+            let bSet: Set<number> | undefined = bookmarkIdsByOrdinal.get(o);
+            if (!bSet) {
                 bSet = reactive<Set<number>>(new Set());
                 bookmarkIdsByOrdinal.set(o, bSet);
             }
@@ -149,9 +149,9 @@ export function useGlobalBookmarks(config: Config) {
     }
 
     function removeBookmarkFromOrdinalMap(b: Bookmark) {
-        for(let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
+        for (let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
             const bSet = bookmarkIdsByOrdinal.get(o)
-            if(bSet) {
+            if (bSet) {
                 bSet.delete(b.id);
             }
         }
@@ -162,15 +162,15 @@ export function useGlobalBookmarks(config: Config) {
     const labelsUpdated = ref<number>(0);
 
     function updateBookmarkLabels(inputData: Label[]) {
-        if(!inputData.length) return
-        for(const v of inputData) {
+        if (!inputData.length) return
+        for (const v of inputData) {
             bookmarkLabels.set(v.id || -(count++), {...v, ...v.style})
         }
-        labelsUpdated.value ++;
+        labelsUpdated.value++;
     }
 
     function updateBookmarks(inputData: Bookmark[]) {
-        for(const v of inputData) {
+        for (const v of inputData) {
             const bmark = {...v, hasNote: !!v.notes};
             bookmarks.set(v.id, bmark);
             addBookmarkToOrdinalMap(bmark);
@@ -199,10 +199,9 @@ export function useGlobalBookmarks(config: Config) {
     });
 
     setupEventBusListener("bookmark_note_modified",
-        ({id, notes, lastUpdatedOn}: {id: number, notes: string, lastUpdatedOn: number}) =>
-        {
+        ({id, notes, lastUpdatedOn}: { id: number, notes: string, lastUpdatedOn: number }) => {
             const b = bookmarks.get(id);
-            if(b) {
+            if (b) {
                 b.notes = notes;
                 b.hasNote = !!notes;
                 b.lastUpdatedOn = lastUpdatedOn
@@ -221,7 +220,7 @@ export function useGlobalBookmarks(config: Config) {
         bookmarkLabels,
         bookmarkMap: bookmarks,
         bookmarks: computed(() => {
-            if(config.disableBookmarking) return [];
+            if (config.disableBookmarking) return [];
             return Array.from(bookmarks.values());
         }),
         labelsUpdated,
@@ -243,23 +242,22 @@ export function useBookmarks(documentId: string,
                              },
                              bookInitials: string,
                              documentReady: Ref<boolean>,
-                             {adjustedColor}: {adjustedColor: (color: ColorParam) => Color },
+                             {adjustedColor}: { adjustedColor: (color: ColorParam) => Color },
                              config: Config,
-                             appSettings: AppSettings)
-{
+                             appSettings: AppSettings) {
     const isMounted = ref(0);
 
-    onMounted(() => isMounted.value ++);
-    onUnmounted( () => isMounted.value --);
+    onMounted(() => isMounted.value++);
+    onUnmounted(() => isMounted.value--);
 
     const noOrdinalNeeded = (b: Bookmark) => b.ordinalRange === null && ordinalRange === null
     const checkOrdinal = (b: Bookmark) => {
         return b.ordinalRange !== null && ordinalRange !== null
-        && rangesOverlap(b.ordinalRange, ordinalRange, {addRange: true, inclusive: true})
+            && rangesOverlap(b.ordinalRange, ordinalRange, {addRange: true, inclusive: true})
     };
 
     const checkOrdinalEnd = (b: Bookmark) => {
-        if(b.ordinalRange == null && ordinalRange == null) return false
+        if (b.ordinalRange == null && ordinalRange == null) return false
         const bOrdinalRange: OrdinalRange = [b.ordinalRange[1], b.ordinalRange[1]]
         return rangesOverlap(bOrdinalRange, ordinalRange, {addRange: true, inclusive: true})
     };
@@ -273,7 +271,7 @@ export function useBookmarks(documentId: string,
     }
 
     const documentBookmarks = computed(() => {
-        if(!documentReady.value) return [];
+        if (!documentReady.value) return [];
         return bookmarks.value.filter(b => (noOrdinalNeeded(b) || checkOrdinal(b)))
     });
 
@@ -283,11 +281,11 @@ export function useBookmarks(documentId: string,
             offsetRange: bookmark.offsetRange && bookmark.offsetRange.slice(),
         };
         b.offsetRange = b.offsetRange || [0, null]
-        if(b.ordinalRange[0] < ordinalRange[0]) {
+        if (b.ordinalRange[0] < ordinalRange[0]) {
             b.ordinalRange[0] = ordinalRange[0];
             b.offsetRange[0] = 0;
         }
-        if(b.ordinalRange[1] > ordinalRange[1]) {
+        if (b.ordinalRange[1] > ordinalRange[1]) {
             b.ordinalRange[1] = ordinalRange[1];
             b.offsetRange[1] = null;
         }
@@ -296,7 +294,7 @@ export function useBookmarks(documentId: string,
 
     function combinedRange(b: Bookmark): CombinedRange {
         const r = truncateToOrdinalRange(b);
-        if(b.bookInitials !== bookInitials) {
+        if (b.bookInitials !== bookInitials) {
             r.offsetRange[0] = 0;
             r.offsetRange[1] = null;
         }
@@ -306,7 +304,7 @@ export function useBookmarks(documentId: string,
     function removeZeroLengthRanges(splitPoints: OrdinalOffset[]) {
         const arr2 = [];
         for (let i = 0; i < splitPoints.length - 1; i++) {
-            const [[ord1, off1], [ord2, off2]] = [splitPoints[i], splitPoints[i+1]];
+            const [[ord1, off1], [ord2, off2]] = [splitPoints[i], splitPoints[i + 1]];
 
             if (!(ord2 === ord1 + 1 && off2 === 0 && off1 === null)) {
                 arr2.push(splitPoints[i]);
@@ -325,17 +323,17 @@ export function useBookmarks(documentId: string,
     */
     function splitMore(splitPoints: OrdinalOffset[]): OrdinalOffset[] {
         const arr2: OrdinalOffset[] = [];
-        for(let i = 0; i<splitPoints.length - 1; i++) {
-            const [[startOrd, startOff], [endOrd, endOff]] = [splitPoints[i], splitPoints[i+1]];
+        for (let i = 0; i < splitPoints.length - 1; i++) {
+            const [[startOrd, startOff], [endOrd, endOff]] = [splitPoints[i], splitPoints[i + 1]];
             arr2.push([startOrd, startOff])
 
-            if(startOrd !== endOrd) {
-                if(startOff) arr2.push([startOrd  + 1, 0]);
-                if(endOff && (!startOff || endOrd > startOrd + 1)) arr2.push([endOrd - 1, null]);
+            if (startOrd !== endOrd) {
+                if (startOff) arr2.push([startOrd + 1, 0]);
+                if (endOff && (!startOff || endOrd > startOrd + 1)) arr2.push([endOrd - 1, null]);
             }
         }
 
-        if(splitPoints.length > 0) {
+        if (splitPoints.length > 0) {
             arr2.push(splitPoints[splitPoints.length - 1]);
         }
         return arr2;
@@ -344,7 +342,7 @@ export function useBookmarks(documentId: string,
     function sortedUniqueSplitPoints(splitPoints: OrdinalOffset[]) {
         let sps = sortBy(splitPoints, [v => v[0], v => {
             const val = v[1];
-            if(val === null) return Number.MAX_VALUE;
+            if (val === null) return Number.MAX_VALUE;
             else return val;
         }
         ])
@@ -355,15 +353,15 @@ export function useBookmarks(documentId: string,
     }
 
     function startPoint(point: OrdinalOffset): OrdinalOffset {
-        if(point[1] === null) {
-            return [point[0] +1, 0];
+        if (point[1] === null) {
+            return [point[0] + 1, 0];
         } else
             return point;
     }
 
     function endPoint(point: OrdinalOffset): OrdinalOffset {
-        if(point[1] === 0) {
-            return [point[0] -1, null];
+        if (point[1] === 0) {
+            return [point[0] - 1, null];
         } else
             return point;
     }
@@ -392,12 +390,12 @@ export function useBookmarks(documentId: string,
 
     const styleRanges = computed<StyleRange[]>(function styleRanges(): StyleRange[] {
         isMounted.value;
-        if(!testMode && !isMounted.value) return [];
+        if (!testMode && !isMounted.value) return [];
         labelsUpdated.value;
 
         let splitPoints: OrdinalOffset[] = [];
 
-        for(const b of highlightBookmarks.value.map(v => {
+        for (const b of highlightBookmarks.value.map(v => {
             v.hasNote; // make hasNote a dependency for this styleRanges computed property
             return combinedRange(v)
         })) {
@@ -410,8 +408,8 @@ export function useBookmarks(documentId: string,
         const styleRanges: StyleRange[] = [];
         const hideLabels = new Set(config.bookmarksHideLabels);
 
-        for(let i = 0; i < splitPoints.length-1; i++) {
-            const ordinalAndOffsetRange: CombinedRange = [startPoint(splitPoints[i]), endPoint(splitPoints[i+1])];
+        for (let i = 0; i < splitPoints.length - 1; i++) {
+            const ordinalAndOffsetRange: CombinedRange = [startPoint(splitPoints[i]), endPoint(splitPoints[i + 1])];
             const highlightLabels: Set<number> = new Set();
             const underlineLabels: Set<number> = new Set();
 
@@ -429,11 +427,10 @@ export function useBookmarks(documentId: string,
                 const label = getBookmarkStyleLabel(b);
                 const labelId = label.id;
 
-                if(isMarkerBookmark(b, label) || intersection(new Set(b.labels), hideLabels).size > 0) {
+                if (isMarkerBookmark(b, label) || intersection(new Set(b.labels), hideLabels).size > 0) {
                     hiddenLabels.add(labelId);
                     hiddenLabelCount.set(labelId, (hiddenLabelCount.get(labelId) || 0) + 1);
-                }
-                else if((b.wholeVerse && label.underlineWholeVerse) || (!b.wholeVerse && label.underline)) {
+                } else if ((b.wholeVerse && label.underlineWholeVerse) || (!b.wholeVerse && label.underline)) {
                     underlineLabels.add(labelId);
                     underlineLabelCount.set(labelId, (underlineLabelCount.get(labelId) || 0) + 1);
                     highlightedBookmarkIds.add(b.id);
@@ -446,7 +443,7 @@ export function useBookmarks(documentId: string,
 
             const containedBookmarks = filteredBookmarks.map(b => b.id);
 
-            if(highlightLabels.size > 0 || underlineLabels.size > 0 || hiddenLabels.size > 0) {
+            if (highlightLabels.size > 0 || underlineLabels.size > 0 || hiddenLabels.size > 0) {
                 styleRanges.push({
                     highlightedBookmarkIds,
                     ordinalAndOffsetRange,
@@ -483,8 +480,8 @@ export function useBookmarks(documentId: string,
 
     function highlightColor(label: LabelAndStyle, count: number): Color {
         let c = new Color(label.color)
-        c = c.alpha(appSettings.nightMode? 0.4 : 0.3)
-        for(let i = 0; i<count-1; i++) {
+        c = c.alpha(appSettings.nightMode ? 0.4 : 0.3)
+        for (let i = 0; i < count - 1; i++) {
             c = c.opaquer(0.3).darken(0.2);
         }
         return c;
@@ -517,12 +514,12 @@ export function useBookmarks(documentId: string,
         }
 
         // Handle whole verse spanning styling
-        if(!startOff && !endOff) {
+        if (!startOff && !endOff) {
             firstElement = document.querySelector(`#doc-${documentId} #o-${startOrdinal}`) as HTMLElement;
             const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
-            for(let ord = startOrdinal; ord <= lastOrdinal; ord ++) {
+            for (let ord = startOrdinal; ord <= lastOrdinal; ord++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ord}`) as HTMLElement;
-                if(elem == null) {
+                if (elem == null) {
                     console.error("Element is not found!", documentId, ord);
                     return;
                 }
@@ -548,14 +545,14 @@ export function useBookmarks(documentId: string,
             }
             const first = findNodeAtOffsetWithNullOffset(firstElem, startOff);
             const second = findNodeAtOffsetWithNullOffset(secondElem, endOff);
-            if(!(first && second)) {
+            if (!(first && second)) {
                 console.error("Node not found!");
                 return;
             }
             const range = new Range();
             range.setStart(first.node, first.offset);
             range.setEnd(second.node, second.offset);
-            if(!range.collapsed) {
+            if (!range.collapsed) {
                 const highlightResult = highlightRange(range, 'span', {style});
                 if (highlightResult) {
                     const {undo, highlightElements} = highlightResult;
@@ -581,7 +578,7 @@ export function useBookmarks(documentId: string,
             }
         }
         // Add speak labels to the beginning of verse
-        if(config.showBookmarks) {
+        if (config.showBookmarks) {
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
                 if (hasSpeakLabel(b)) {
                     const color = adjustedColor("red").string()
@@ -595,7 +592,7 @@ export function useBookmarks(documentId: string,
             }
         }
         // Add bookmark marker for marker style bookmarks & My Notes symbols & to the end of bookmark
-        if(config.showBookmarks || config.showMyNotes) {
+        if (config.showBookmarks || config.showMyNotes) {
             const bookmarkList = [];
             let hasNote = false;
 
@@ -603,14 +600,14 @@ export function useBookmarks(documentId: string,
                 const bookmarkLabel = getBookmarkStyleLabel(b);
                 if ((config.showBookmarks && isMarkerBookmark(b, bookmarkLabel)) || (config.showMyNotes && b.hasNote)) {
                     bookmarkList.push(b)
-                    if(b.hasNote) {
+                    if (b.hasNote) {
                         hasNote = true;
                     }
                 }
             }
 
             const bookmark = bookmarkList[0];
-            if(bookmark) {
+            if (bookmark) {
                 const bookmarkLabel = getBookmarkStyleLabel(bookmark);
                 const color = adjustedColor(bookmarkLabel.color).string();
                 const iconElement = getIconElement(hasNote ? editIcon : bookmarkIcon, color);
@@ -632,11 +629,15 @@ export function useBookmarks(documentId: string,
 
         for (const b of markerBookmarks.value) {
             // Add event listener to all verses within bookmark range
-            for(let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
+            for (let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`) as HTMLElement;
-                if(!elem) continue;
+                if (!elem) continue;
                 const func = (event: MouseEvent) => {
-                    addEventFunction(event, null, {bookmarkId: b.id, hidden: true, priority: EventPriorities.HIDDEN_BOOKMARK})
+                    addEventFunction(event, null, {
+                        bookmarkId: b.id,
+                        hidden: true,
+                        priority: EventPriorities.HIDDEN_BOOKMARK
+                    })
                 };
                 elem.addEventListener("click", func)
                 undoMarkers.push(() => elem.removeEventListener("click", func));
@@ -644,24 +645,24 @@ export function useBookmarks(documentId: string,
 
             // Marker will be put to the last verse, collect those to a map.
             const key = b.ordinalRange[1];
-            if(intersection(new Set(b.labels), hideLabels).size === 0) {
+            if (intersection(new Set(b.labels), hideLabels).size === 0) {
                 const value = bookmarkMap.get(key) || [];
                 value.push(b);
                 bookmarkMap.set(key, value);
             }
         }
-        for(const [lastOrdinal, bookmarkList] of bookmarkMap) {
+        for (const [lastOrdinal, bookmarkList] of bookmarkMap) {
             const lastElement = document.querySelector(`#doc-${documentId} #o-${lastOrdinal}`) as HTMLElement;
             const b = bookmarkList[0];
             const bookmarkLabel = getBookmarkStyleLabel(b);
             const color = adjustedColor(bookmarkLabel.color).string();
             const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
             iconElement.addEventListener("click", event => {
-                for(const b of bookmarkList) {
+                for (const b of bookmarkList) {
                     addEventFunction(event, null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER});
                 }
             });
-            if (bookmarkList.length>1) {
+            if (bookmarkList.length > 1) {
                 iconElement.appendChild(document.createTextNode(`×${bookmarkList.length}`));
             }
             lastElement.parentNode!.insertBefore(iconElement, lastElement.nextSibling);
@@ -689,13 +690,13 @@ export function useBookmarks(documentId: string,
     window.bibleViewDebug.addHighLights = addHighLights;
 
     watch(styleRanges, () => {
-        if(!isMounted.value) return;
+        if (!isMounted.value) return;
         removeHighLights();
         addHighLights();
     }, {flush: 'post'});
 
     watch(markerBookmarks, () => {
-        if(!isMounted.value) return;
+        if (!isMounted.value) return;
         removeMarkers();
         addMarkers();
     }, {flush: 'post'});

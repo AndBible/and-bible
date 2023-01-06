@@ -30,10 +30,9 @@ import BibleDocument from "@/components/documents/BibleDocument.vue";
 import MyNotesDocument from "@/components/documents/MyNotesDocument.vue";
 import StudyPadDocument from "@/components/documents/StudyPadDocument.vue";
 import MultiDocument from "@/components/documents/MultiDocument.vue";
-import {BaseDocument} from "@/types/documents";
-import {DocumentOfType} from "@/types/documents";
+import {BaseDocument, DocumentOfType} from "@/types/documents";
 
-const props = defineProps<{document: BaseDocument}>()
+const props = defineProps<{ document: BaseDocument }>()
 
 const bible = props.document as DocumentOfType<"bible">
 const osis = props.document as DocumentOfType<"osis">

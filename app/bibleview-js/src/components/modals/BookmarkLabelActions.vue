@@ -28,22 +28,22 @@
 
     <div class="items">
       <div class="item">
-        <LabelList :bookmark-id="bookmarkId" only-assign in-bookmark />
+        <LabelList :bookmark-id="bookmarkId" only-assign in-bookmark/>
         <hr/>
       </div>
       <div class="item title top" v-if="hasFavourites">
         <FontAwesomeIcon icon="heart"/>
-        {{strings.favouriteLabels}}
+        {{ strings.favouriteLabels }}
       </div>
       <div class="item" v-show="hasFavourites">
         <LabelList :bookmark-id="bookmarkId" favourites only-assign @has-entries="hasFavourites = $event"/>
       </div>
       <div class="item title" v-if="hasRecent">
         <FontAwesomeIcon icon="history"/>
-        {{strings.recentLabels}}
+        {{ strings.recentLabels }}
       </div>
       <div class="item" v-show="hasRecent">
-        <LabelList :bookmark-id="bookmarkId" recent only-assign @has-entries="hasRecent = $event" />
+        <LabelList :bookmark-id="bookmarkId" recent only-assign @has-entries="hasRecent = $event"/>
       </div>
       <!--div class="item title">
         <FontAwesomeIcon icon="fire-alt"/>
@@ -62,12 +62,12 @@
 
 <script lang="ts" setup>
 import ModalDialog from "@/components/modals/ModalDialog.vue";
-import {computed, ref, inject} from "vue";
+import {computed, inject, ref} from "vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {androidKey, globalBookmarksKey} from "@/types/constants";
 
-const props = defineProps<{bookmarkId: number}>();
+const props = defineProps<{ bookmarkId: number }>();
 
 const showModal = ref(false);
 const {bookmarkMap} = inject(globalBookmarksKey)!;
@@ -77,22 +77,26 @@ const locateTop = ref(true);
 const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
 
 function assignLabels() {
-  if(bookmark.value) {
-    android.assignLabels(bookmark.value.id);
-  }
+    if (bookmark.value) {
+        android.assignLabels(bookmark.value.id);
+    }
 }
+
 const hasFavourites = ref(false);
 const hasRecent = ref(false);
+
 function showActions({locateTop: locateTop_ = true} = {}) {
-  locateTop.value = locateTop_;
-  showModal.value = true;
+    locateTop.value = locateTop_;
+    showModal.value = true;
 }
+
 defineExpose({showActions});
 const {strings} = useCommon();
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .items {
   @extend .visible-scrollbar;
   display: flex;
@@ -100,18 +104,22 @@ const {strings} = useCommon();
   max-height: calc(var(--max-height) - 25pt);
   overflow-y: auto;
 }
+
 .item {
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 2px;
+
   &.title {
     padding-top: 10px;
+
     &.top {
       padding-top: 0;
     }
   }
 
 }
+
 hr {
   border-top: 1px solid rgba(0, 0, 0, 0.2);
 }

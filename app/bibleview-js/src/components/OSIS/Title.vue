@@ -24,10 +24,10 @@ import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed, inject} from "vue";
 
 const props = defineProps({
-  type: {type: String, default: null},
-  subType: {type: String, default: null},
-  canonical: {type: String, default: "false"},
-  short: {type: String, default: null},
+    type: {type: String, default: null},
+    subType: {type: String, default: null},
+    canonical: {type: String, default: "false"},
+    short: {type: String, default: null},
 });
 checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
 checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
@@ -38,11 +38,11 @@ const hideTitles = inject("hideTitles", false);
 const isCanonical = computed(() => props.canonical === "true");
 
 const show = computed(() =>
-  !hideTitles && config.showSectionTitles
-  && ((config.showNonCanonical && !isCanonical.value) || isCanonical)
-  && !(props.type === "sub" && props.subType === "x-Chapter")
-  && props.type !== "chapter"
-  && props.type !== "x-gen",
+    !hideTitles && config.showSectionTitles
+    && ((config.showNonCanonical && !isCanonical.value) || isCanonical)
+    && !(props.type === "sub" && props.subType === "x-Chapter")
+    && props.type !== "chapter"
+    && props.type !== "x-gen",
 );
 
 const isSubTitle = computed(() => props.type === "sub");

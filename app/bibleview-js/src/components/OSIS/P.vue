@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
+
 useCommon();
 </script>
 

@@ -24,30 +24,32 @@ import {useCommon} from "@/composables";
 import {computed} from "vue";
 
 const props = defineProps({
-  type: {type: String, default: null},
-  rend: {type: String, default: null},
+    type: {type: String, default: null},
+    rend: {type: String, default: null},
 });
 const hiStyle = computed(() => {
-  const classes = [];
-  if(props.type) {
-    classes.push(`hi-${props.type}`);
-  }
-  if(props.rend) {
-    classes.push(`rend-${props.rend}`);
-  }
-  return classes;
+    const classes = [];
+    if (props.type) {
+        classes.push(`hi-${props.type}`);
+    }
+    if (props.rend) {
+        classes.push(`rend-${props.rend}`);
+    }
+    return classes;
 });
 useCommon();
 </script>
 
 <style scoped>
 .hi-italic, .rend-italic {
-  font-style: italic;
+    font-style: italic;
 }
+
 .hi-bold, .rend-italic {
-  font-weight: bold;
+    font-weight: bold;
 }
+
 .hi-super, .rend-super {
-  vertical-align: super;
+    vertical-align: super;
 }
 </style>

@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-defineProps<{ordinal: string}>();
+defineProps<{ ordinal: string }>();
 </script>
 
 <style scoped>

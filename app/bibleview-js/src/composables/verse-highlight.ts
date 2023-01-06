@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {reactive, computed} from "vue";
+import {computed, reactive} from "vue";
 
 export function useVerseHighlight() {
     const highlightedVerses: Set<number> = reactive(new Set());
@@ -25,7 +25,7 @@ export function useVerseHighlight() {
 
     function resetHighlights(onlyVerses = false) {
         highlightedVerses.clear();
-        if(!onlyVerses) {
+        if (!onlyVerses) {
             undoCustomHighlights.forEach(f => f())
             undoCustomHighlights.splice(0);
         }

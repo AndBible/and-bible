@@ -18,11 +18,11 @@
 <template>
   <div class="ambiguous-button" :style="buttonStyle" @click.stop="openBookmark(false)">
     <div class="verse-range one-liner">
-      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><em>{{ bookmark.text}}</em></q>
+      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><em>{{ bookmark.text }}</em></q>
     </div>
     <div v-if="bookmark.hasNote" class="note one-liner small">
       <FontAwesomeIcon icon="edit" size="xs"/>
-      {{ htmlToString(bookmarkNotes)}}
+      {{ htmlToString(bookmarkNotes) }}
     </div>
 
     <div style="overflow-x: auto" class="label-list">
@@ -31,17 +31,17 @@
 
     <div style="height: 7px"/>
     <BookmarkButtons
-      :bookmark="bookmark"
-      show-study-pad-buttons
-      @edit-clicked="editNotes"
-      @info-clicked="openBookmark(true)"
+        :bookmark="bookmark"
+        show-study-pad-buttons
+        @edit-clicked="editNotes"
+        @info-clicked="openBookmark(true)"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
 import LabelList from "@/components/LabelList.vue";
-import {inject, computed} from "vue";
+import {computed, inject} from "vue";
 import {useCommon} from "@/composables";
 import {emit} from "@/eventbus";
 import Color from "color";
@@ -50,7 +50,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {globalBookmarksKey, locateTopKey} from "@/types/constants";
 
 const $emit = defineEmits(["selected"]);
-const props = defineProps<{bookmarkId: number}>();
+const props = defineProps<{ bookmarkId: number }>();
 
 const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
 useCommon();
@@ -69,6 +69,7 @@ const buttonStyle = computed(() => {
 });
 
 const locateTop = inject(locateTopKey)!;
+
 function editNotes() {
     $emit("selected");
     emit("bookmark_clicked", bookmark.value.id, {openNotes: true, locateTop: locateTop.value});
@@ -88,15 +89,19 @@ function htmlToString(html: string) {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .ambiguous-button {
   color: black;
+
   .night & {
     color: #d7d7d7;
   }
+
   @extend .button;
   text-align: start;
 }
+
 .small {
-    font-size: 0.9em
+  font-size: 0.9em
 }
 </style>

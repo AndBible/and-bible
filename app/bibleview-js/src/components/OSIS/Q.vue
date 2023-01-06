@@ -15,28 +15,28 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span :class="{redLetters: config.showRedLetters && isJesus}">{{displayMarker}}<slot/></span></template>
+<template><span :class="{redLetters: config.showRedLetters && isJesus}">{{ displayMarker }}<slot/></span></template>
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed} from "vue";
 
 const props = defineProps({
-  marker: {type: String, default: null},
-  sID: {type: String, default: null},
-  eID: {type: String, default: null},
-  who: {type: String, default: null},
-  level: {type: String, default: null},
+    marker: {type: String, default: null},
+    sID: {type: String, default: null},
+    eID: {type: String, default: null},
+    who: {type: String, default: null},
+    level: {type: String, default: null},
 });
 
 checkUnsupportedProps(props, "who", ["jesus", "Jesus"]);
 const isJesus = computed(() => props.who && props.who.toLowerCase() === "jesus");
 const displayMarker = computed(() => {
-  if(props.marker) {
-    return props.marker;
-  } else {
-    return "";
-  }
+    if (props.marker) {
+        return props.marker;
+    } else {
+        return "";
+    }
 });
 const {config} = useCommon();
 </script>
@@ -46,6 +46,7 @@ $redLetters: rgb(215, 13, 13);
 .redLetters {
   color: $redLetters !important;
 }
+
 .redLetters > a:link, a:visited {
   color: $redLetters;
 }

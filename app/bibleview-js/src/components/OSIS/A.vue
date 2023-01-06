@@ -28,12 +28,13 @@ import {androidKey} from "@/types/constants";
 defineProps({href: {type: String, required: true}});
 const {openExternalLink} = inject(androidKey)!;
 const {strings} = useCommon()
+
 function openLink(event: MouseEvent, url: string) {
-  addEventFunction(
-    event,
-    () => openExternalLink(url),
-    {title: strings.externalLink, priority: EventPriorities.EXTERNAL_LINK}
-  );
+    addEventFunction(
+        event,
+        () => openExternalLink(url),
+        {title: strings.externalLink, priority: EventPriorities.EXTERNAL_LINK}
+    );
 }
 </script>
 

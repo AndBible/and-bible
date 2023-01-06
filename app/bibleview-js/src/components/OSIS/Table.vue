@@ -23,7 +23,7 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 
 const props = defineProps({
-  border: {type: String, default: null},
+    border: {type: String, default: null},
 });
 checkUnsupportedProps(props, "border", ["1", "0"])
 useCommon();

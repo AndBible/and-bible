@@ -17,7 +17,7 @@
 
 <template>
   <div class="open-all" v-if="openAllLink">
-    <a :href="openAllLink">{{strings.openAll}}</a>
+    <a :href="openAllLink">{{ strings.openAll }}</a>
   </div>
 </template>
 
@@ -26,14 +26,14 @@ import {computed, inject} from "vue";
 import {useCommon} from "@/composables";
 import {referenceCollectorKey} from "@/types/constants";
 
-const props = withDefaults(defineProps<{v11n: string|null}>(), {v11n: null});
+const props = withDefaults(defineProps<{ v11n: string | null }>(), {v11n: null});
 
 const referenceCollector = inject(referenceCollectorKey, null);
 const openAllLink = computed(() => {
-  if(referenceCollector === null) return null;
-  const refs = referenceCollector.references;
-  if(refs.length < 2) return null;
-  return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&") + (props.v11n ? "&v11n=" + encodeURI(props.v11n): "")
+    if (referenceCollector === null) return null;
+    const refs = referenceCollector.references;
+    if (refs.length < 2) return null;
+    return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&") + (props.v11n ? "&v11n=" + encodeURI(props.v11n) : "")
 });
 
 const {strings} = useCommon();
@@ -41,7 +41,7 @@ const {strings} = useCommon();
 
 <style scoped>
 .open-all {
-  padding-top: 1em;
-  text-align: right;
+    padding-top: 1em;
+    text-align: right;
 }
 </style>

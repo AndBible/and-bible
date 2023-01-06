@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
+
 defineProps({expansion: {type: String, required: true}})
 useCommon();
 </script>

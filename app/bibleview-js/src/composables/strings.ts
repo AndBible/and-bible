@@ -27,9 +27,9 @@ const untranslated = {
 
 const strings: Strings = reactive({...defaultStrings, ...untranslated});
 
-let k : keyof TranslatedStrings;
-for(k in enStrings) {
-    if(enStrings[k]) {
+let k: keyof TranslatedStrings;
+for (k in enStrings) {
+    if (enStrings[k]) {
         strings[k] = enStrings[k]
     }
 }
@@ -38,7 +38,7 @@ let stringsLoaded = false;
 
 async function loadStrings() {
     const langTag = new URLSearchParams(window.location.search).get("lang") || "";
-    if(langTag === "en-US") return;
+    if (langTag === "en-US") return;
     const langShort = langTag.split('-')[0]
     console.log(`Loading lang ${langTag}`)
     let translations: Partial<TranslatedStrings>;
@@ -47,22 +47,22 @@ async function loadStrings() {
     } catch (e) {
         try {
             translations = (await import(`@/lang/${langShort}.yaml`)).default;
-        } catch(e) {
+        } catch (e) {
             console.error(`Language ${langTag} not found, falling back to English!`)
             return;
         }
     }
     let k: keyof TranslatedStrings
-    for(k in translations) {
+    for (k in translations) {
         const t = translations[k]
-        if(t) {
+        if (t) {
             strings[k] = t
         }
     }
 }
 
 export function useStrings() {
-    if(!stringsLoaded) {
+    if (!stringsLoaded) {
         loadStrings();
         stringsLoaded = true;
     }

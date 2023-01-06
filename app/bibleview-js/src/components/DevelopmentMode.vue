@@ -19,7 +19,7 @@
   <div :style="`position: fixed; top:0; width:100%;  background-color: rgba(100, 255, 100, 0.7);
                height:${appSettings.topOffset}px`"
   >
-    Current verse: {{currentVerse}}
+    Current verse: {{ currentVerse }}
   </div>
   <div v-if="config.developmentMode" class="highlightButton">
     <span @mouseenter="testMakeBookmark">Get selection!</span>
@@ -33,37 +33,38 @@ import {inject} from "vue";
 import {androidKey} from "@/types/constants";
 import {QuerySelection} from "@/composables/android";
 
-withDefaults(defineProps<{currentVerse: number|null}>(), {currentVerse: null});
+withDefaults(defineProps<{ currentVerse: number | null }>(), {currentVerse: null});
 
 const android = inject(androidKey)!;
 
 let lblCount = 0;
 
 function testMakeBookmark() {
-  const selection = android.querySelection()
-  if(!selection || selection instanceof String) return
-  const s = selection as QuerySelection
-  const bookmark = {
-    id: -lblCount -1,
-    ordinalRange: [s.startOrdinal, s.endOrdinal],
-    offsetRange: [s.startOffset, s.endOffset],
-    bookInitials: s.bookInitials,
-    note: "Test!",
-    labels: [-(lblCount++ % 5) - 1]
-  }
-  emit("add_or_update_bookmarks", [bookmark])
-  emit("remove_ranges")
+    const selection = android.querySelection()
+    if (!selection || selection instanceof String) return
+    const s = selection as QuerySelection
+    const bookmark = {
+        id: -lblCount - 1,
+        ordinalRange: [s.startOrdinal, s.endOrdinal],
+        offsetRange: [s.startOffset, s.endOffset],
+        bookInitials: s.bookInitials,
+        note: "Test!",
+        labels: [-(lblCount++ % 5) - 1]
+    }
+    emit("add_or_update_bookmarks", [bookmark])
+    emit("remove_ranges")
 }
+
 const {config, appSettings} = useCommon();
 
 </script>
 
 <style scoped>
 .highlightButton {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  padding: 2em;
-  background: yellow;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 2em;
+    background: yellow;
 }
 </style>

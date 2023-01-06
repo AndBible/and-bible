@@ -45,9 +45,9 @@
     <div v-if="bookmark.hasNote && (expanded || exportMode)" class="note-separator"/>
     <div class="notes">
       <EditableText
-        ref="editor"
-        :text="bookmark.notes"
-        @save="save"
+          ref="editor"
+          :text="bookmark.notes"
+          @save="save"
       />
     </div>
   </div>
@@ -60,55 +60,57 @@ import LabelList from "@/components/LabelList.vue";
 import BookmarkText from "@/components/BookmarkText.vue";
 import {useCommon} from "@/composables";
 import {emit as ebEmit} from "@/eventbus";
-import {computed, ref, inject} from "vue";
+import {computed, inject, ref} from "vue";
 import EditableText from "@/components/EditableText.vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
 import {isBottomHalfClicked} from "@/utils";
 import {androidKey, exportModeKey} from "@/types/constants";
 import {Bookmark} from "@/types/client-objects";
 
-const props =  defineProps<{bookmark: Bookmark}>()
+const props = defineProps<{ bookmark: Bookmark }>()
 
 const android = inject(androidKey)!;
 const expanded = ref(false);
 
 function editBookmark(event: MouseEvent) {
-  ebEmit("bookmark_clicked", props.bookmark.id, {locateTop: isBottomHalfClicked(event)})
+    ebEmit("bookmark_clicked", props.bookmark.id, {locateTop: isBottomHalfClicked(event)})
 }
 
 function save(newText: string) {
-  android.saveBookmarkNote(props.bookmark.id, newText);
+    android.saveBookmarkNote(props.bookmark.id, newText);
 }
 
-const editor = ref<InstanceType<typeof EditableText>|null>(null);
+const editor = ref<InstanceType<typeof EditableText> | null>(null);
 
-function setEditMode(value: boolean){
+function setEditMode(value: boolean) {
     editor.value!.editMode = value;
 }
 
-const areYouSureDelete = ref<InstanceType<typeof AreYouSure>|null>(null);
+const areYouSureDelete = ref<InstanceType<typeof AreYouSure> | null>(null);
 
 async function deleteEntry() {
-  const answer = await areYouSureDelete.value!.areYouSure();
-  if (answer) {
-    android.removeBookmark(props.bookmark.id);
-  }
+    const answer = await areYouSureDelete.value!.areYouSure();
+    if (answer) {
+        android.removeBookmark(props.bookmark.id);
+    }
 }
+
 const exportMode = inject(exportModeKey, ref(false));
 const bibleUrl = computed(
-  () => {
-    const osis = props.bookmark.wholeVerse
-      ? props.bookmark.osisRef
-      : `${props.bookmark.bookInitials}:${props.bookmark.osisRef}`;
-    return `osis://?osis=${osis}&v11n=${props.bookmark.v11n}`;
-  }
+    () => {
+        const osis = props.bookmark.wholeVerse
+            ? props.bookmark.osisRef
+            : `${props.bookmark.bookInitials}:${props.bookmark.osisRef}`;
+        return `osis://?osis=${osis}&v11n=${props.bookmark.v11n}`;
+    }
 );
-    
+
 const {strings} = useCommon();
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .notes {
   text-indent: 2pt;
   margin-top: 4pt;
@@ -117,9 +119,11 @@ const {strings} = useCommon();
 .overlay {
   position: absolute;
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), var(--background-color) 50%, var(--background-color) 100%);
+
   .night & {
     background: linear-gradient(90deg, rgba(0, 0, 0, 0), var(--background-color) 75%, var(--background-color) 100%);
   }
+
   right: 0;
   top: 0;
   width: 50px;

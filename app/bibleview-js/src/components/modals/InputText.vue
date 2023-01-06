@@ -28,8 +28,8 @@
       <div v-if="error" class="error">{{ error }}</div>
     </slot>
     <template #footer>
-      <button class="button" @click="cancel">{{strings.cancel}}</button>
-      <button class="button" @click="ok">{{strings.ok}}</button>
+      <button class="button" @click="cancel">{{ strings.cancel }}</button>
+      <button class="button" @click="ok">{{ strings.ok }}</button>
     </template>
   </ModalDialog>
 </template>
@@ -43,27 +43,29 @@ import {Deferred, waitUntilRefValue} from "@/utils";
 const text = ref("");
 const error = ref("");
 const show = ref(false);
-const inputElement = ref<HTMLElement|null>(null);
-let promise: Deferred<string>|null = null;
+const inputElement = ref<HTMLElement | null>(null);
+let promise: Deferred<string> | null = null;
 
-async function inputText(initialValue="", _error = ""): Promise<string|null> {
-  text.value =initialValue;
-  error.value = _error;
-  show.value = true;
-  promise = new Deferred<string>();
-  await waitUntilRefValue(inputElement)
-  inputElement.value!.focus();
-  const result = await promise.wait()
-  show.value = false;
-  return result || null;
+async function inputText(initialValue = "", _error = ""): Promise<string | null> {
+    text.value = initialValue;
+    error.value = _error;
+    show.value = true;
+    promise = new Deferred<string>();
+    await waitUntilRefValue(inputElement)
+    inputElement.value!.focus();
+    const result = await promise.wait()
+    show.value = false;
+    return result || null;
 }
 
 function ok() {
-  promise!.resolve(text.value);
+    promise!.resolve(text.value);
 }
+
 function cancel() {
-  promise!.resolve();
+    promise!.resolve();
 }
+
 const {strings} = useCommon();
 
 defineExpose({inputText, setText: (v: string) => text.value = v});
@@ -71,10 +73,11 @@ defineExpose({inputText, setText: (v: string) => text.value = v});
 
 <style scoped>
 .text-input {
-  padding: 5pt;
-  margin: 5pt;
+    padding: 5pt;
+    margin: 5pt;
 }
+
 .error {
-  color:red;
+    color: red;
 }
 </style>

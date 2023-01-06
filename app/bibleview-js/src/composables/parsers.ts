@@ -20,7 +20,7 @@ import {useAndroid} from "@/composables/android";
 export function useParsers(android: ReturnType<typeof useAndroid>) {
     const parsers: BcvParserType[] = [];
 
-    let languages: string[]|null = null;
+    let languages: string[] | null = null;
 
     function getLanguages() {
         if (!languages) {

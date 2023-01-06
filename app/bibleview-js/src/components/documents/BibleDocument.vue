@@ -34,7 +34,7 @@ import Chapter from "@/components/OSIS/Chapter.vue";
 import {bibleDocumentInfoKey, footnoteCountKey, globalBookmarksKey} from "@/types/constants";
 import {BibleDocumentType} from "@/types/documents";
 
-const props = defineProps<{document: BibleDocumentType}>();
+const props = defineProps<{ document: BibleDocumentType }>();
 
 // eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
 const {id, bibleBookName, bookInitials, bookmarks, ordinalRange, originalOrdinalRange, v11n} = props.document;
@@ -51,7 +51,7 @@ useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common,
 let footNoteCount = ordinalRange[0] || 0;
 
 function getFootNoteCount() {
-    return footNoteCount ++;
+    return footNoteCount++;
 }
 
 provide(footnoteCountKey, {getFootNoteCount});

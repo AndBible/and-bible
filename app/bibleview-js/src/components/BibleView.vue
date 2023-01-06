@@ -36,7 +36,9 @@
     <div id="top"/>
     <div class="loading" v-if="isLoading"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
     <div id="content" ref="topElement" :style="contentStyle">
-      <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
+      <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load
+        properly
+      </div>
       <DocumentBroker v-for="document in documents" :key="document.id" :document="document"/>
     </div>
     <div id="bottom"/>
@@ -44,7 +46,7 @@
 </template>
 <script lang="ts" setup>
 import DocumentBroker from "@/components/documents/DocumentBroker.vue";
-import {nextTick, onMounted, onUnmounted, provide, reactive, watch, computed, ref, Ref} from "vue";
+import {computed, nextTick, onMounted, onUnmounted, provide, reactive, ref, Ref, watch} from "vue";
 import {testBookmarkLabels, testData} from "@/testdata";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
@@ -58,10 +60,17 @@ import DevelopmentMode from "@/components/DevelopmentMode.vue";
 import Color from "color";
 import {useStrings} from "@/composables/strings";
 import {
-    androidKey, appSettingsKey, calculatedConfigKey,
-    configKey, customCssKey, customFeaturesKey,
+    androidKey,
+    appSettingsKey,
+    calculatedConfigKey,
+    configKey,
+    customCssKey,
+    customFeaturesKey,
     footnoteCountKey,
-    globalBookmarksKey, modalKey, scrollKey, stringsKey,
+    globalBookmarksKey,
+    modalKey,
+    scrollKey,
+    stringsKey,
     verseHighlightKey
 } from "@/types/constants";
 import {useKeyboard} from "@/composables/keyboard";
@@ -82,7 +91,7 @@ useAddonFonts();
 useFontAwesome();
 const documents: AnyDocument[] = reactive([]);
 const documentType = computed<BibleViewDocumentType>(() => {
-    if(documents.length < 1) {
+    if (documents.length < 1) {
         return "none";
     }
     return documents[0].type;
@@ -90,8 +99,8 @@ const documentType = computed<BibleViewDocumentType>(() => {
 const {config, appSettings, calculatedConfig} = useConfig(documentType);
 const strings = useStrings();
 window.bibleViewDebug.documents = documents;
-const topElement = ref<HTMLElement|null>(null);
-const documentPromise: Ref<Promise<void>|null> = ref(null);
+const topElement = ref<HTMLElement | null>(null);
+const documentPromise: Ref<Promise<void> | null> = ref(null);
 const verseHighlight = useVerseHighlight();
 provide(verseHighlightKey, verseHighlight);
 const {resetHighlights} = verseHighlight;
@@ -108,7 +117,7 @@ provide(modalKey, modal);
 let footNoteCount = 0;
 
 function getFootNoteCount() {
-    return footNoteCount ++;
+    return footNoteCount++;
 }
 
 provide(footnoteCountKey, {getFootNoteCount});
@@ -134,7 +143,7 @@ const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {
     async function doAddDocuments() {
-        loadingCount.value ++;
+        loadingCount.value++;
         await document.fonts.ready;
         await nextTick();
         // 2 animation frames seem to make sure that loading indicator is visible.
@@ -142,8 +151,9 @@ function addDocuments(...docs: AnyDocument[]) {
         await waitNextAnimationFrame();
         documents.push(...docs);
         await nextTick();
-        loadingCount.value --;
+        loadingCount.value--;
     }
+
     documentPromise.value = doAddDocuments()
 }
 
@@ -167,7 +177,7 @@ setupWindowEventListener("error", (e) => {
     console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
 });
 
-if(config.developmentMode) {
+if (config.developmentMode) {
     console.log("populating test data");
     globalBookmarks.updateBookmarkLabels(testBookmarkLabels)
     addDocuments(...testData)
@@ -179,7 +189,7 @@ setupEventBusListener("set_title", function setTitle(title: string) {
 });
 
 watch(documents, () => {
-    if(documents.length > 0) {
+    if (documents.length > 0) {
         const id = documents[0].id;
         const type = documents[0].type;
         document.title = `${titlePrefix}/${type}/${id} (${process.env.NODE_ENV})`
@@ -194,11 +204,11 @@ provide(calculatedConfigKey, calculatedConfig);
 provide(stringsKey, strings);
 provide(androidKey, android);
 
-const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection>|null>(null);
+const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
 
 const backgroundStyle = computed(() => {
-    const colorInt = appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground;
-    if(colorInt === null) return "";
+    const colorInt = appSettings.nightMode ? config.colors.nightBackground : config.colors.dayBackground;
+    if (colorInt === null) return "";
     const backgroundColor = Color(colorInt).hsl().string();
     return `
             background-color: ${backgroundColor};
@@ -206,14 +216,14 @@ const backgroundStyle = computed(() => {
 });
 
 const contentStyle = computed(() => {
-    const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
+    const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor : config.colors.dayTextColor);
 
     let style = `
           max-width: ${config.marginSize.maxWidth}mm;
           margin-left: auto;
           margin-right: auto;
           color: ${textColor.hsl().string()};
-          hyphens: ${config.hyphenation ? "auto": "none"};
+          hyphens: ${config.hyphenation ? "auto" : "none"};
           line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
@@ -221,7 +231,7 @@ const contentStyle = computed(() => {
           font-size: ${config.fontSize}px;
           --font-size: ${config.fontSize}px;
           `;
-    if(config.marginSize.marginLeft || config.marginSize.marginRight) {
+    if (config.marginSize.marginLeft || config.marginSize.marginRight) {
         style += `
             margin-left: ${config.marginSize.marginLeft}mm;
             margin-right: ${config.marginSize.marginRight}mm;
@@ -239,16 +249,16 @@ const modalStyle = computed(() => {
 });
 
 const topStyle = computed(() => {
-    const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground: config.colors.dayBackground);
+    const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground : config.colors.dayBackground);
     const noiseOpacity = appSettings.nightMode ? config.colors.nightNoise : config.colors.dayNoise;
     const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor : config.colors.dayTextColor);
     const verseNumberColor = appSettings.nightMode ?
-        textColor.fade(0.2).hsl().string():
+        textColor.fade(0.2).hsl().string() :
         textColor.fade(0.5).hsl().string();
     return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
-          --noise-opacity: ${noiseOpacity/100};
+          --noise-opacity: ${noiseOpacity / 100};
           --text-max-width: ${config.marginSize.maxWidth}mm;
           --text-color: ${textColor.hsl().string()};
           --text-color-h: ${textColor.hsl().array()[0]};
@@ -261,7 +271,7 @@ const topStyle = computed(() => {
 
 setupEventBusListener("adjust_loading_count", (a: number) => {
     loadingCount.value += a;
-    if(loadingCount.value < 0) {
+    if (loadingCount.value < 0) {
         console.error("Loading count now below zero, setting to 0", loadingCount.value);
         loadingCount.value = 0;
     }
@@ -271,25 +281,25 @@ const isLoading = computed(() => documents.length === 0 || loadingCount.value > 
 
 function scrollUpDown(up = false) {
     const amount = window.innerHeight / 2;
-    doScrolling(window.pageYOffset + (up ? -amount: amount), 500)
+    doScrolling(window.pageYOffset + (up ? -amount : amount), 500)
 }
 
 setupEventBusListener("scroll_down", () => scrollUpDown());
 setupEventBusListener("scroll_up", () => scrollUpDown(true));
 
 useSharing({topElement, android});
-const direction = computed(() => appSettings.rightToLeft ? "rtl": "ltr");
+const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 </script>
 <style lang="scss" scoped>
 @import "~@/common.scss";
 
 $ring-size: 35px;
-$ring-thickness: calc(#{$ring-size}/12);
+$ring-thickness: calc(#{$ring-size} / 12);
 
 .loading {
   position: fixed;
-  left: calc(50% - #{$ring-size}/2);
-  top: calc(50% - #{$ring-size}/2);
+  left: calc(50% - #{$ring-size} / 2);
+  top: calc(50% - #{$ring-size} / 2);
 }
 
 $ring-color: $button-grey;
@@ -299,6 +309,7 @@ $ring-color: $button-grey;
   position: relative;
   width: $ring-size;
   height: $ring-size;
+
   & div {
     box-sizing: border-box;
     display: block;
@@ -310,12 +321,15 @@ $ring-color: $button-grey;
     border-radius: 50%;
     animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
     border-color: $ring-color transparent transparent transparent;
+
     &:nth-child(1) {
       animation-delay: -0.45s;
     }
+
     &:nth-child(2) {
       animation-delay: -0.3s;
     }
+
     &:nth-child(3) {
       animation-delay: -0.15s;
     }
@@ -352,9 +366,11 @@ $borderDistance: 0;
   height: 20px;
   width: 20px;
   border-width: 2.5px;
+
   .night & {
     border-color: rgba(196, 196, 255, 0.8);
   }
+
   border-color: rgba(0, 0, 255, 0.6);
 }
 
@@ -365,6 +381,7 @@ $borderDistance: 0;
   border-top-style: solid;
   border-left-style: solid;
 }
+
 .top-right-corner {
   @extend .active-window-corner;
   top: $borderDistance;
@@ -372,6 +389,7 @@ $borderDistance: 0;
   border-top-style: solid;
   border-right-style: solid;
 }
+
 .bottom-right-corner {
   @extend .active-window-corner;
   bottom: $borderDistance;
@@ -379,6 +397,7 @@ $borderDistance: 0;
   border-bottom-style: solid;
   border-right-style: solid;
 }
+
 .bottom-left-corner {
   @extend .active-window-corner;
   bottom: $borderDistance;
@@ -396,9 +415,11 @@ $borderDistance: 0;
   bottom: 0;
   border-style: solid;
   border-width: 15px;
+
   .night & {
     border-color: rgba(255, 255, 255, $nightAlpha);
   }
+
   border-color: rgba(0, 0, 0, $dayAlpha);
 }
 
@@ -408,17 +429,21 @@ $borderDistance: 0;
   top: 0;
   left: 0;
   right: 0;
+
   .night & {
     background-color: rgba(255, 255, 255, 0.15);
   }
+
   background-color: rgba(0, 0, 0, 0.15);
 }
 
 </style>
 <style lang="scss">
 @import "~@/common.scss";
+
 a {
   color: blue;
+
   .night & {
     color: #7b7bff;
   }
@@ -448,6 +473,7 @@ a {
   &.right {
     align-self: flex-end;
   }
+
   background-color: inherit;
   border: none;
   color: white;

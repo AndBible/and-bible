@@ -19,6 +19,12 @@ console.log("main.ts begin");
 
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
 import {BibleJavascriptInterface, patchAndroidConsole} from "@/composables/android";
+import {createApp} from 'vue'
+
+import BibleView from "@/components/BibleView.vue";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
+import LabelList from "@/components/LabelList.vue";
+import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
 
 declare global {
     interface Window {
@@ -38,13 +44,6 @@ window.bibleViewDebug = {};
 patchAndroidConsole();
 
 console.log("main.ts after patching console");
-
-import { createApp } from 'vue'
-
-import BibleView from "@/components/BibleView.vue";
-import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
-import LabelList from "@/components/LabelList.vue";
-import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
 
 console.log("main.ts After imports");
 

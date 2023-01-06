@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import {inject, ref, computed} from "vue";
+import {computed, inject, ref} from "vue";
 import VerseNumber from "@/components/VerseNumber.vue";
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {verseInfoKey} from "@/types/constants";
@@ -63,7 +63,7 @@ function getIsPreVerse(type: string, subType: string) {
     return type === "x-milestone" && subType === "x-preverse";
 }
 
-if(getIsPreVerse(props.type, props.subType) && verseInfo) {
+if (getIsPreVerse(props.type, props.subType) && verseInfo) {
     shown = ref(true);
     for (const oldValue of verseInfo.showStack) {
         oldValue.value = false;

@@ -17,8 +17,8 @@
 
 <template>
   <div v-if="notes.length === 0">
-    <h2>{{strings.noMyNotesTitle}}</h2>
-    <p>{{strings.noMyNotesDescription}}</p>
+    <h2>{{ strings.noMyNotesTitle }}</h2>
+    <p>{{ strings.noMyNotesDescription }}</p>
   </div>
   <div v-else>
     <h2>{{ document.verseRange }}</h2>
@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import {inject, computed} from "vue";
+import {computed, inject} from "vue";
 import {useCommon} from "@/composables";
 import MyNoteRow from "@/components/MyNoteRow.vue";
 import {sortBy} from "lodash";
@@ -38,7 +38,7 @@ import {globalBookmarksKey} from "@/types/constants";
 import {Bookmark} from "@/types/client-objects";
 import {MyNotesDocument} from "@/types/documents";
 
-const props = defineProps<{document: MyNotesDocument}>()
+const props = defineProps<{ document: MyNotesDocument }>()
 // eslint-disable-next-line vue/no-setup-props-destructure
 const {bookmarks} = props.document;
 
@@ -49,15 +49,15 @@ const globalBookmarks = inject(globalBookmarksKey)!;
 globalBookmarks.updateBookmarks(bookmarks);
 
 const notes = computed<Bookmark[]>(() => {
-  let bs = globalBookmarks.bookmarks.value;
+    let bs = globalBookmarks.bookmarks.value;
 
-  const hideLabels = new Set(config.bookmarksHideLabels);
-  bs = bs.filter(v => intersection(new Set(v.labels), hideLabels).size === 0)
+    const hideLabels = new Set(config.bookmarksHideLabels);
+    bs = bs.filter(v => intersection(new Set(v.labels), hideLabels).size === 0)
 
-  if(!config.showBookmarks) {
-    bs = bs.filter(v => v.hasNote)
-  }
-  return sortBy(bs, [o => o.ordinalRange[0], o => o.offsetRange && o.offsetRange[0]])
+    if (!config.showBookmarks) {
+        bs = bs.filter(v => v.hasNote)
+    }
+    return sortBy(bs, [o => o.ordinalRange[0], o => o.offsetRange && o.offsetRange[0]])
 });
 </script>
 

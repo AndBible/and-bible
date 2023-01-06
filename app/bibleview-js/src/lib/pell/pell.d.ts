@@ -15,16 +15,16 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-export function exec(command: string, value: string|null = null): boolean
+export function exec(command: string, value: string | null = null): boolean
 
-type EditorElement = HTMLElement & {content: HTMLElement}
-type Action = string|
-    {divider: boolean}|
+type EditorElement = HTMLElement & { content: HTMLElement }
+type Action = string |
+    { divider: boolean } |
     {
         icon: string[]
         title: string
         state?: () => boolean
-        result: () => boolean|Promise
+        result: () => boolean | Promise
     }
 
 type PellSettings = {
@@ -34,4 +34,5 @@ type PellSettings = {
 }
 
 export function init(settings: PellSettings): EditorElement
+
 export function queryCommandState(state: string): boolean

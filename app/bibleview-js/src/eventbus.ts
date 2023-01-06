@@ -18,15 +18,37 @@
 import mitt, {Emitter} from "mitt";
 import {onMounted, onUnmounted} from "vue";
 
-type EventTypeNames = "update_labels"|"clear_document"|"add_documents"|"set_config"|"set_action_mode"|"set_active"
-    |"set_title"|"setup_content"|"scroll_to_verse"|"add_or_update_bookmarks"|"delete_bookmarks"|"remove_ranges"
-    |"set_offsets"|"bookmark_clicked"|"close_modals"|"back_clicked"|"add_or_update_journal"
-    |"add_or_update_bookmark_to_label"|"delete_journal"|"config_changed"|"reload_addons"
-    |"bookmark_note_modified"|"scroll_up"|"scroll_down"|"adjust_loading_count"|"export_html"
+type EventTypeNames =
+    "update_labels"
+    | "clear_document"
+    | "add_documents"
+    | "set_config"
+    | "set_action_mode"
+    | "set_active"
+    | "set_title"
+    | "setup_content"
+    | "scroll_to_verse"
+    | "add_or_update_bookmarks"
+    | "delete_bookmarks"
+    | "remove_ranges"
+    | "set_offsets"
+    | "bookmark_clicked"
+    | "close_modals"
+    | "back_clicked"
+    | "add_or_update_journal"
+    | "add_or_update_bookmark_to_label"
+    | "delete_journal"
+    | "config_changed"
+    | "reload_addons"
+    | "bookmark_note_modified"
+    | "scroll_up"
+    | "scroll_down"
+    | "adjust_loading_count"
+    | "export_html"
 
 export const eventBus: Emitter<Record<EventTypeNames, any[]>> = mitt()
 
-export function emit(eventId: EventTypeNames, ...args: any[]){
+export function emit(eventId: EventTypeNames, ...args: any[]) {
     console.log(`Emitting ${eventId}`);
     eventBus.emit(eventId, args)
 }
@@ -36,6 +58,7 @@ export function setupEventBusListener(eventId: EventTypeNames, callback: (...arg
         console.log("Calling eventbus listener for", eventId, ...args);
         callback(...args);
     }
+
     onMounted(() => eventBus.on(eventId, eventCallback))
     onUnmounted(() => eventBus.off(eventId, eventCallback))
 }

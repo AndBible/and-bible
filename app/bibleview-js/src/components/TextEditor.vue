@@ -17,14 +17,14 @@
 
 <template>
   <ModalDialog v-if="showHelp" @close="showHelp = false" blocking locate-top>
-    {{sprintf(strings.refParserHelp, "RefParser")}}
-    <a @click="openDownloads">{{strings.openDownloads}}</a>
+    {{ sprintf(strings.refParserHelp, "RefParser") }}
+    <a @click="openDownloads">{{ strings.openDownloads }}</a>
     <template #title>
-      {{strings.inputReference}}
+      {{ strings.inputReference }}
     </template>
   </ModalDialog>
   <InputText ref="inputText">
-    {{strings.inputReference}}
+    {{ strings.inputReference }}
     <template #buttons>
       <button v-if="!hasRefParser" class="modal-action-button right" @touchstart.stop @click="showHelp = !showHelp">
         <FontAwesomeIcon icon="question-circle"/>
@@ -43,38 +43,31 @@
 </template>
 
 <script lang="ts" setup>
-import {inject, onBeforeUnmount, onMounted, onUnmounted, watch, computed, ref} from "vue";
+import {computed, inject, onBeforeUnmount, onMounted, onUnmounted, ref, watch} from "vue";
 import {useCommon} from "@/composables";
-import {init, exec, queryCommandState} from "@/lib/pell/pell";
+import {exec, init, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText.vue";
 import {useStrings} from "@/composables/strings";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {
-    faBible,
-    faIndent,
-    faListOl,
-    faListUl,
-    faOutdent,
-    faTimes,
-} from "@fortawesome/free-solid-svg-icons";
+import {faBible, faIndent, faListOl, faListUl, faOutdent, faTimes,} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {setupElementEventListener} from "@/utils";
 import {androidKey, customFeaturesKey} from "@/types/constants";
 
-const props = defineProps<{text: string}>();
+const props = defineProps<{ text: string }>();
 const emit = defineEmits(["save", "close"]);
 
 const android = inject(androidKey)!;
 const {parse, features} = inject(customFeaturesKey)!
 const hasRefParser = computed(() => features.has("RefParser"));
-const editorElement = ref<HTMLElement|null>(null);
+const editorElement = ref<HTMLElement | null>(null);
 
-type EditorElement = HTMLElement & {content: HTMLElement}
+type EditorElement = HTMLElement & { content: HTMLElement }
 
-const editor = ref<EditorElement|null>(null);
-const inputText = ref<InstanceType<typeof InputText>|null>(null);
+const editor = ref<EditorElement | null>(null);
+const inputText = ref<InstanceType<typeof InputText> | null>(null);
 const strings = useStrings();
 const showHelp = ref(false);
 
@@ -123,8 +116,8 @@ const bibleLink = {
         //Always add the "en" language, so at least the english parser always exists.
         let error = ""
 
-        if(originalRange) {
-            let text: string|null = originalRange.toString();
+        if (originalRange) {
+            let text: string | null = originalRange.toString();
             let parsed = "";
             //Keep trying to get a bible reference until either
             //    * It is successfully parsed (parsed != "") or
@@ -142,10 +135,10 @@ const bibleLink = {
             }
             if (text !== null) {
                 document.getSelection()!.removeAllRanges();
-                if(originalRange) {
+                if (originalRange) {
                     document.getSelection()!.addRange(originalRange);
                 }
-                if(!originalRange || originalRange.collapsed) {
+                if (!originalRange || originalRange.collapsed) {
                     exec('insertHTML', `<a href="osis://?osis=${parsed}">${text}</a>`);
                 } else {
                     exec('createLink', `osis://?osis=${parsed}`)
@@ -160,7 +153,7 @@ const editText = ref(props.text);
 const dirty = ref(false);
 
 function save() {
-    if(dirty.value) {
+    if (dirty.value) {
         emit('save', editText.value)
         dirty.value = false;
     }
@@ -196,7 +189,7 @@ onMounted(() => {
 });
 
 setupElementEventListener(editorElement, "keyup", e => {
-    if(e.key === "Escape") {
+    if (e.key === "Escape") {
         save();
         emit('close')
         e.stopPropagation()
@@ -219,28 +212,34 @@ const {sprintf} = useCommon();
 
 .pell-content {
   @extend .visible-scrollbar;
-  max-height: calc(var(--max-height) - #{$pell-button-height} - 2*#{$pell-content-padding});
+  max-height: calc(var(--max-height) - #{$pell-button-height} - 2 * #{$pell-content-padding});
   height: inherit;
   padding: 0 7px 5px 7px;
-  z-index:1;
+  z-index: 1;
   position: relative;
 }
+
 .pell-button {
   color: inherit;
   width: $pell-button-width *0.9;
   height: $pell-button-height *0.9;
   margin: 0 1px 0 1px;
+
   .night & {
     color: inherit;
   }
+
   &.end {
     position: absolute;
+
     [dir=ltr] & {
       right: 0;
     }
+
     [dir=rtl] & {
       left: 0;
     }
+
     //.studypad-text-entry & {
     //  [dir=ltr] & {
     //    right: 40px;
@@ -255,6 +254,7 @@ const {sprintf} = useCommon();
 .pell-button-selected {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 5px;
+
   .night & {
     background-color: rgba(255, 255, 255, 0.2);
   }
@@ -263,6 +263,7 @@ const {sprintf} = useCommon();
 .pell-actionbar {
   background-color: inherit;
   color: rgba(0, 0, 0, 0.6);
+
   .night & {
     color: rgba(255, 255, 255, 0.5);
   }
@@ -274,16 +275,19 @@ const {sprintf} = useCommon();
   bottom: $pell-button-height;
   padding-inline-end: 3pt;
   color: hsla(112, 40%, 33%, 0.8);
+
   .night & {
     color: hsla(112, 40%, 33%, 0.8);
   }
+
   opacity: 0.8;
   font-size: 10px;
-  z-index:0;
+  z-index: 0;
 }
 
 .pell-divider {
   background-color: hsla(0, 0%, 0%, 0.2);
+
   .night & {
     background-color: hsla(0, 0%, 100%, 0.2);
   }
@@ -293,9 +297,11 @@ const {sprintf} = useCommon();
   width: 100%;
   position: relative;
 }
-.edit-area,.pell {
+
+.edit-area, .pell {
   margin: 0;
 }
+
 .header {
   display: flex;
   justify-content: space-between;

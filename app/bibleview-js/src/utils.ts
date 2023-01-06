@@ -25,12 +25,12 @@ import {sprintf as sprintfOrig} from "sprintf-js";
 import {CombinedRange, NumberRange, OffsetRange, OrdinalOffset, OrdinalRange} from "@/types/client-objects";
 import {BibleDocumentInfo, ColorParam, Nullable, VerseInfo} from "@/types/common";
 
-type EventHandler = ((event: any) => void) |(() => void)
+type EventHandler = ((event: any) => void) | (() => void)
 
 export function setupWindowEventListener(
     eventType: string,
     handler: EventHandler,
-    options: AddEventListenerOptions|undefined|boolean = undefined
+    options: AddEventListenerOptions | undefined | boolean = undefined
 ) {
     onMounted(() => window.addEventListener(eventType, handler, options))
     onUnmounted(() => window.removeEventListener(eventType, handler, options))
@@ -39,17 +39,17 @@ export function setupWindowEventListener(
 export function setupDocumentEventListener(
     eventType: string,
     handler: EventHandler,
-    options: AddEventListenerOptions|undefined|boolean = undefined
+    options: AddEventListenerOptions | undefined | boolean = undefined
 ) {
     onMounted(() => document.addEventListener(eventType, handler, options))
     onUnmounted(() => document.removeEventListener(eventType, handler, options))
 }
 
 export function setupElementEventListener(
-    elementRef: Ref<HTMLElement|null>,
+    elementRef: Ref<HTMLElement | null>,
     eventType: string,
     handler: EventHandler,
-    options: AddEventListenerOptions|undefined|boolean = undefined
+    options: AddEventListenerOptions | undefined | boolean = undefined
 ) {
     onMounted(() => elementRef.value!.addEventListener(eventType, handler, options))
     onBeforeUnmount(() => elementRef.value!.removeEventListener(eventType, handler, options))
@@ -57,7 +57,7 @@ export function setupElementEventListener(
 
 export function stubsFor(object: Record<string, any>, defaults: Record<string, any> = {}) {
     const stubs: Record<string, any> = {};
-    for(const key in object) {
+    for (const key in object) {
         //Implement a separate stub for getActiveLanguages, since it needs to return data
         if (key in defaults) {
             let value = defaults[key]
@@ -76,7 +76,7 @@ export function stubsFor(object: Record<string, any>, defaults: Record<string, a
     return stubs;
 }
 
-export function getVerseInfo(props: {osisID: string, verseOrdinal: string}) {
+export function getVerseInfo(props: { osisID: string, verseOrdinal: string }) {
     const [book, chapter, verse] = props.osisID.split(".")
     return {
         ordinal: parseInt(props.verseOrdinal),
@@ -94,13 +94,13 @@ export function setFrom<T>(...args: T[]) {
 }
 
 export function removeAll<T>(set: Set<T>, ...args: T[]) {
-    for(const a of args) {
+    for (const a of args) {
         set.delete(a);
     }
 }
 
 export function addAll<T>(set: Set<T>, ...args: T[]) {
-    for(const a of args) {
+    for (const a of args) {
         set.add(a);
     }
 }
@@ -111,33 +111,33 @@ export function mapFrom<T, K, V>(arr: T[], keyFn: (v: T) => K, valueFn: (v: T) =
     return map;
 }
 
-function nm(v: number|null): number {
-    if(v === null) {
+function nm(v: number | null): number {
+    if (v === null) {
         return Number.MAX_VALUE
     } else return v;
 }
 
 export function arrayLeq([v11, v12]: OrdinalOffset, [v21, v22]: OrdinalOffset) {
-    if(v11 < v21) return true
-    if(v11 === v21) return nm(v12) <= nm(v22);
+    if (v11 < v21) return true
+    if (v11 === v21) return nm(v12) <= nm(v22);
     return false;
 }
 
 export function arrayGeq([v11, v12]: OrdinalOffset, [v21, v22]: OrdinalOffset) {
-    if(v11 > v21) return true
-    if(v11 === v21) return nm(v12) >= nm(v22);
+    if (v11 > v21) return true
+    if (v11 === v21) return nm(v12) >= nm(v22);
     return false;
 }
 
 export function arrayLe([v11, v12]: OrdinalOffset, [v21, v22]: OrdinalOffset) {
-    if(v11 < v21) return true
-    if(v11 === v21) return nm(v12) < nm(v22);
+    if (v11 < v21) return true
+    if (v11 === v21) return nm(v12) < nm(v22);
     return false;
 }
 
 export function arrayGe([v11, v12]: OrdinalOffset, [v21, v22]: OrdinalOffset) {
-    if(v11 > v21) return true
-    if(v11 === v21) return nm(v12) > nm(v22);
+    if (v11 > v21) return true
+    if (v11 === v21) return nm(v12) > nm(v22);
     return false;
 }
 
@@ -165,7 +165,7 @@ export function rangesOverlap(
     } = {}
 ) {
     let rs: OrdinalOffset, re: OrdinalOffset, bs: OrdinalOffset, be: OrdinalOffset;
-    if(addRange) {
+    if (addRange) {
         const tr = testRange as OrdinalRange
         const br = bookmarkRange as OrdinalRange
 
@@ -182,7 +182,7 @@ export function rangesOverlap(
     }
 
     //https://stackoverflow.com/questions/325933/determine-whether-two-date-ranges-overlap
-    if(inclusive) {
+    if (inclusive) {
         // Same condition as in kotlin side BookmarksDao.bookmarksForVerseRange
         return arrayLeq(rs, be) && arrayLeq(bs, re);
     } else {
@@ -206,7 +206,7 @@ export class AutoSleep {
     }
 
     async autoSleep() {
-        if(performance.now() - this.lastSleep > this._processTime) {
+        if (performance.now() - this.lastSleep > this._processTime) {
             // Give time for UI updates.
             await sleep(this._sleepTime);
             this.reset();
@@ -234,44 +234,50 @@ export function difference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
 }
 
 export class Deferred<T = undefined> {
-    _promise: Promise<T|undefined>
+    _promise: Promise<T | undefined>
     _waiting: boolean
     _resolve: (arg?: T) => void
     _reject: (arg?: T) => void
     _resolution?: T
 
     constructor() {
-        this._resolve = () => {};
-        this._reject = () => {};
+        this._resolve = () => {
+        };
+        this._reject = () => {
+        };
         this._promise = this.getNewPromise()
         this._waiting = false
     }
 
     reset() {
-        if(this._promise != null) {
+        if (this._promise != null) {
             throw new Error("Previous promise is still there!");
         }
         this._promise = this.getNewPromise()
         this._waiting = false;
     }
 
-    getNewPromise(): Promise<T|undefined> {
+    getNewPromise(): Promise<T | undefined> {
         return new Promise((resolve, reject) => {
             this._resolve = (arg) => {
                 resolve(arg);
-                this._resolve = () => {};
-                this._reject = () => {};
+                this._resolve = () => {
+                };
+                this._reject = () => {
+                };
             };
             this._reject = (args) => {
                 reject(args);
-                this._resolve = () => {};
-                this._reject = () => {};
+                this._resolve = () => {
+                };
+                this._reject = () => {
+                };
             }
         });
     }
 
-    async wait(): Promise<T|undefined> {
-        if(this._waiting) {
+    async wait(): Promise<T | undefined> {
+        if (this._waiting) {
             throw new Error("Multiple waits!");
         }
 
@@ -293,7 +299,8 @@ export class Deferred<T = undefined> {
 }
 
 export async function sleep(ms: number) {
-    if(ms < 0) return new Promise(() => {});
+    if (ms < 0) return new Promise(() => {
+    });
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -304,10 +311,12 @@ export async function waitNextAnimationFrame() {
 }
 
 export function cancellableTimer(ms: number) {
-    if(ms < 0) return [new Promise(() => {}), () => {}];
+    if (ms < 0) return [new Promise(() => {
+    }), () => {
+    }];
     let cancel = false;
     const promise = new Promise(resolve => setTimeout(() => {
-        if(!cancel) {
+        if (!cancel) {
             resolve(undefined)
         }
     }, ms));
@@ -316,9 +325,9 @@ export function cancellableTimer(ms: number) {
 }
 
 export function mixColors(...colors: Color[]) {
-    const hexColors = colors.map(v=>v.rgb().hex());
+    const hexColors = colors.map(v => v.rgb().hex());
     const mixed = rybColorMixer.mix(...hexColors, {result: "ryb", hex: true});
-    return Color.rgb("#"+mixed);
+    return Color.rgb("#" + mixed);
 }
 
 export function colorLightness(color: Color) {
@@ -366,7 +375,7 @@ type CallbackOpts = Record<string, any> & {
 }
 export type Callback = {
     type: "callback"
-    callback: (() => void)|null
+    callback: (() => void) | null
     options: CallbackOpts
 }
 
@@ -374,12 +383,12 @@ type EventWithEventFunctions = Event & {
     eventFunctions?: Record<string, Callback[]>
 }
 
-export function addEventFunction(event: EventWithEventFunctions, callback: CallbackFunc|null, options: CallbackOpts) {
-    if(!event.eventFunctions)
+export function addEventFunction(event: EventWithEventFunctions, callback: CallbackFunc | null, options: CallbackOpts) {
+    if (!event.eventFunctions)
         event.eventFunctions = {};
     const priority = get(options, "priority", 0);
     let array = event.eventFunctions[priority];
-    if(!array) {
+    if (!array) {
         array = [];
         event.eventFunctions[priority] = array;
     }
@@ -387,16 +396,16 @@ export function addEventFunction(event: EventWithEventFunctions, callback: Callb
 }
 
 export function getHighestPriorityEventFunctions(event: EventWithEventFunctions): Callback[] {
-    if(!event.eventFunctions) return [];
+    if (!event.eventFunctions) return [];
     const priorities = Object.keys(event.eventFunctions);
     priorities.sort();
-    return event.eventFunctions[priorities[priorities.length -1]];
+    return event.eventFunctions[priorities[priorities.length - 1]];
 }
 
 export function getAllEventFunctions(event: EventWithEventFunctions): Callback[] {
-    if(!event.eventFunctions) return [];
+    if (!event.eventFunctions) return [];
     const all = [];
-    for(const [, items] of Object.entries(event.eventFunctions)) {
+    for (const [, items] of Object.entries(event.eventFunctions)) {
         all.push(...items);
     }
     return sortBy(all, [v => -v.options.priority, v => v.options.title]);
@@ -445,9 +454,9 @@ export function osisToTemplateString(osis: string) {
                 `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`);
 }
 
-type TextNodeAndOffset = {node: Text, offset: number}
+type TextNodeAndOffset = { node: Text, offset: number }
 
-export function findNodeAtOffsetWithNullOffset(elem: Element, offset: number|null): TextNodeAndOffset|null {
+export function findNodeAtOffsetWithNullOffset(elem: Element, offset: number | null): TextNodeAndOffset | null {
     let
         node: Text | null,
         off: number | null;
@@ -458,7 +467,7 @@ export function findNodeAtOffsetWithNullOffset(elem: Element, offset: number|nul
     } else {
         [node, off] = findNodeAtOffset(elem, offset);
     }
-    if(!node || !off) return null
+    if (!node || !off) return null
     return {node, offset: off};
 }
 
@@ -477,7 +486,7 @@ export function highlightVerseRange(
     const first = findNodeAtOffsetWithNullOffset(firstElem, startOff);
     const second = findNodeAtOffsetWithNullOffset(secondElem, endOff);
 
-    if(!(first && second)) {
+    if (!(first && second)) {
         console.error("Node not found!");
         return;
     }
@@ -489,7 +498,7 @@ export function highlightVerseRange(
     if (highlightResult) {
         return highlightResult.undo;
     } else {
-        console.error("Highlight range failed!", {first,second,firstElem,secondElem,startOff,endOff})
+        console.error("Highlight range failed!", {first, second, firstElem, secondElem, startOff, endOff})
     }
 }
 
@@ -500,35 +509,36 @@ export function isInViewport(el: Element) {
         rect.bottom >= 0
     );
 }
-export function adjustedColorOrig(color: ColorParam, ratio=0.2): Color {
+
+export function adjustedColorOrig(color: ColorParam, ratio = 0.2): Color {
     const col = Color(color);
     let cont = true;
     let rv: Color;
     let loops = 0;
-    while(cont) {
+    while (cont) {
         cont = false;
         rv = col.darken(ratio);
-        if((rv.hex() === "#FFFFFF" || rv.hex() === "#000000") && ++loops < 5) {
-            ratio = 0.75*ratio;
+        if ((rv.hex() === "#FFFFFF" || rv.hex() === "#000000") && ++loops < 5) {
+            ratio = 0.75 * ratio;
             cont = true
         }
     }
     return rv!;
 }
 
-export function adjustedColor(color: ColorParam, ratio=0.2) {
+export function adjustedColor(color: ColorParam, ratio = 0.2) {
     return adjustedColorOrig(color, ratio).hsl();
 }
 
 export function clickWaiter(handleTouch = true) {
-    let clickDeferred: Deferred|null = null;
+    let clickDeferred: Deferred | null = null;
 
-    async function waitForClick(event: MouseEvent|TouchEvent) {
-        if(event.type === "touchstart" && !handleTouch) {
+    async function waitForClick(event: MouseEvent | TouchEvent) {
+        if (event.type === "touchstart" && !handleTouch) {
             return false;
         }
         event.stopPropagation();
-        if(handleTouch) {
+        if (handleTouch) {
             if (event.type === "click") {
                 if (clickDeferred) {
                     clickDeferred.resolve();
@@ -546,20 +556,23 @@ export function clickWaiter(handleTouch = true) {
             return true;
         }
     }
+
     return {waitForClick}
 }
 
 export function createDoubleClickDetector(waitMs = 300) {
     let counter = 0;
+
     async function isDoubleClick() {
-        counter ++;
-        if(counter > 1) return true;
+        counter++;
+        if (counter > 1) return true;
         await sleep(waitMs);
         const manyClicks = counter > 1
         // eslint-disable-next-line require-atomic-updates
         counter = 0;
         return manyClicks;
     }
+
     return {isDoubleClick};
 }
 
@@ -583,12 +596,14 @@ export async function waitUntilRefValue(ref_: Ref) {
 }
 
 export function abbreviated(str: string, n: number, useWordBoundary = true) {
-    if(!str) return ""
-    if (str.length <= n) { return str; }
-    const subString = str.substr(0, n-1); // the original check
+    if (!str) return ""
+    if (str.length <= n) {
+        return str;
+    }
+    const subString = str.substr(0, n - 1); // the original check
     let splitPoint = subString.lastIndexOf(" ");
-    if(splitPoint <= 0) {
-        splitPoint = n-1;
+    if (splitPoint <= 0) {
+        splitPoint = n - 1;
     }
     return (useWordBoundary
         ? subString.substr(0, splitPoint)

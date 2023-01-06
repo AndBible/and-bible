@@ -30,7 +30,7 @@ export function highlightRange(range: Range, tagName = 'mark', attributes = {}) 
     const highlightElements: HTMLElement[] = [];
     for (const nodeIdx in nodes) {
         const highlightElement = wrapNodeInHighlight(nodes[nodeIdx], tagName, attributes);
-        if(highlightElement) {
+        if (highlightElement) {
             highlightElements.push(highlightElement);
         }
     }
@@ -42,6 +42,7 @@ export function highlightRange(range: Range, tagName = 'mark', attributes = {}) 
             removeHighlight(highlightElements[highlightIdx]);
         }
     }
+
     return {undo: removeHighlights, highlightElements};
 }
 
@@ -96,7 +97,7 @@ function textNodesInRange(range: Range) {
 
 // Replace [node] with <tagName ...attributes>[node]</tagName>
 function wrapNodeInHighlight(node: Node, tagName: string, attributes: Record<string, string>) {
-    if(node.textContent!.length === 0) {
+    if (node.textContent!.length === 0) {
         return null;
     }
     const highlightElement = node.ownerDocument!.createElement(tagName);
@@ -112,7 +113,7 @@ function wrapNodeInHighlight(node: Node, tagName: string, attributes: Record<str
 // Remove a highlight element created with wrapNodeInHighlight.
 function removeHighlight(highlightElement: Element) {
     if (highlightElement.childNodes.length === 1) {
-        if(highlightElement.firstChild!.textContent!.length === 0) {
+        if (highlightElement.firstChild!.textContent!.length === 0) {
             highlightElement.remove();
         } else {
             highlightElement.parentNode!.replaceChild(highlightElement.firstChild!, highlightElement);

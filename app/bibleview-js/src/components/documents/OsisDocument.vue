@@ -39,51 +39,51 @@ const parser = new DOMParser();
 const splitRegex = /.{1,100}(\s|$)/g
 const spacesRegex = /^\s+$/
 
-const props = defineProps<{document: OsisDocument}>();
+const props = defineProps<{ document: OsisDocument }>();
 // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
 const {osisFragment, bookCategory} = props.document;
 const referenceCollector = useReferenceCollector();
 
-if(bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
-  provide(referenceCollectorKey, referenceCollector);
+if (bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
+    provide(referenceCollectorKey, referenceCollector);
 }
 
 function splitString(s: string) {
-  const v = s.match(splitRegex);
-  if(v === null) {
-    return [s];
-  }
-  return v;
+    const v = s.match(splitRegex);
+    if (v === null) {
+        return [s];
+    }
+    return v;
 }
 
 function addAnchors(xml: string) {
-  const xmlDoc = parser.parseFromString(xml, "text/xml");
-  const walker = xmlDoc.createTreeWalker(xmlDoc.firstElementChild!, NodeFilter.SHOW_TEXT)
-  const textNodes: Text[] = [];
-  while(walker.nextNode()) {
-    textNodes.push(walker.currentNode as Text);
-  }
-  let count: number = 0;
-
-  function addAnchor(node: Node, textNode: Text) {
-    if (textNode.textContent!.match(spacesRegex)) {
-      node.parentElement!.insertBefore(textNode, node);
-    } else {
-      const anchor = xmlDoc.createElement("BWA"); // BibleViewAnchor.vue
-      anchor.setAttribute("ordinal", `${count++}`);
-      anchor.appendChild(textNode)
-      node.parentElement!.insertBefore(anchor, node);
+    const xmlDoc = parser.parseFromString(xml, "text/xml");
+    const walker = xmlDoc.createTreeWalker(xmlDoc.firstElementChild!, NodeFilter.SHOW_TEXT)
+    const textNodes: Text[] = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode as Text);
     }
-  }
+    let count: number = 0;
 
-  for(const node of textNodes) {
-    const splitText = splitString(node.textContent!).map(t => xmlDoc.createTextNode(t));
-    for(const txt of splitText) {
-      addAnchor(node, txt)
+    function addAnchor(node: Node, textNode: Text) {
+        if (textNode.textContent!.match(spacesRegex)) {
+            node.parentElement!.insertBefore(textNode, node);
+        } else {
+            const anchor = xmlDoc.createElement("BWA"); // BibleViewAnchor.vue
+            anchor.setAttribute("ordinal", `${count++}`);
+            anchor.appendChild(textNode)
+            node.parentElement!.insertBefore(anchor, node);
+        }
     }
-    node.parentNode!.removeChild(node);
-  }
-  return xmlDoc.firstElementChild!.outerHTML;
+
+    for (const node of textNodes) {
+        const splitText = splitString(node.textContent!).map(t => xmlDoc.createTextNode(t));
+        for (const txt of splitText) {
+            addAnchor(node, txt)
+        }
+        node.parentNode!.removeChild(node);
+    }
+    return xmlDoc.firstElementChild!.outerHTML;
 }
 
 let xml = osisFragment.xml

@@ -16,12 +16,14 @@
   -->
 
 <template>
-  <ModalDialog ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled" :limit="limitAmbiguousModalSize">
+  <ModalDialog ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled"
+               :limit="limitAmbiguousModalSize">
     <template #extra-buttons>
       <button class="modal-action-button right" @touchstart.stop @click="multiSelectionButtonClicked">
         <FontAwesomeIcon icon="plus-circle"/>
       </button>
-      <button v-if="modal && (limitAmbiguousModalSize || modal.height > 196)" class="modal-action-button right" @touchstart.stop @click="limitAmbiguousModalSize = !limitAmbiguousModalSize">
+      <button v-if="modal && (limitAmbiguousModalSize || modal.height > 196)" class="modal-action-button right"
+              @touchstart.stop @click="limitAmbiguousModalSize = !limitAmbiguousModalSize">
         <FontAwesomeIcon :icon="limitAmbiguousModalSize?'expand-arrows-alt':'compress-arrows-alt'"/>
       </button>
       <button class="modal-action-button right" @touchstart.stop @click="help">
@@ -30,32 +32,35 @@
     </template>
 
     <div class="buttons">
-      <AmbiguousActionButtons v-if="selectionInfo" :has-actions="!noActions" :selection-info="selectionInfo" @close="cancelled"/>
+      <AmbiguousActionButtons v-if="selectionInfo" :has-actions="!noActions" :selection-info="selectionInfo"
+                              @close="cancelled"/>
       <template v-for="(s, index) of selectedActions" :key="index">
         <template v-if="!s.options.bookmarkId">
           <button class="button light" @click.stop="selected(s)">
-            <span :style="`color: ${s.options.color}`"><FontAwesomeIcon v-if="s.options.icon" :icon="s.options.icon"/></span>
-            {{s.options.title}}
+            <span :style="`color: ${s.options.color}`"><FontAwesomeIcon v-if="s.options.icon"
+                                                                        :icon="s.options.icon"/></span>
+            {{ s.options.title }}
           </button>
         </template>
       </template>
       <AmbiguousSelectionBookmarkButton
-        v-for="b of clickedBookmarks"
-        :key="`b-${b.id}`"
-        :bookmark-id="b.id"
-        @selected="selected(b)"
+          v-for="b of clickedBookmarks"
+          :key="`b-${b.id}`"
+          :bookmark-id="b.id"
+          @selected="selected(b)"
       />
       <div v-if="clickedBookmarks.length > 0 && selectedBookmarks.length > 0" class="separator"/>
       <AmbiguousSelectionBookmarkButton
-        v-for="b of selectedBookmarks"
-        :key="`b-${b.id}`"
-        :bookmark-id="b.id"
-        @selected="selected(b)"
+          v-for="b of selectedBookmarks"
+          :key="`b-${b.id}`"
+          :bookmark-id="b.id"
+          @selected="selected(b)"
       />
     </div>
     <template #title>
       <template v-if="verseInfo">
-        {{ bibleBookName }} {{ verseInfo.chapter}}:{{verseInfo.verse}}<template v-if="verseInfo.verseTo">-{{verseInfo.verseTo}}</template>
+        {{ bibleBookName }} {{ verseInfo.chapter }}:{{ verseInfo.verse }}
+        <template v-if="verseInfo.verseTo">-{{ verseInfo.verseTo }}</template>
       </template>
       <template v-else>
         {{ strings.ambiguousSelection }}
@@ -68,15 +73,15 @@
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {provide, inject, ref, computed, Ref} from "vue";
+import {computed, inject, provide, ref, Ref} from "vue";
 import {
-    Deferred,
-    getHighestPriorityEventFunctions,
-    getEventVerseInfo,
-    getAllEventFunctions,
-    isBottomHalfClicked,
-    EventVerseInfo,
     Callback,
+    Deferred,
+    EventVerseInfo,
+    getAllEventFunctions,
+    getEventVerseInfo,
+    getHighestPriorityEventFunctions,
+    isBottomHalfClicked,
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton.vue";
 import {emit} from "@/eventbus";
@@ -94,7 +99,7 @@ import {Bookmark} from "@/types/client-objects";
 import {Nullable, Optional, SelectionInfo} from "@/types/common";
 
 const props = withDefaults(
-    defineProps<{blocking: boolean, doNotCloseModals: boolean}>(),
+    defineProps<{ blocking: boolean, doNotCloseModals: boolean }>(),
     {blocking: false, doNotCloseModals: false}
 );
 
@@ -124,7 +129,7 @@ provide(locateTopKey, locateTop);
 const verseInfo: Ref<Nullable<EventVerseInfo>> = ref(null);
 
 const selectionInfo = computed<Nullable<SelectionInfo>>(() => {
-    if(!verseInfo.value) return null;
+    if (!verseInfo.value) return null;
     return {
         ...verseInfo.value,
         startOrdinal: startOrdinal.value!,
@@ -132,7 +137,7 @@ const selectionInfo = computed<Nullable<SelectionInfo>>(() => {
     }
 });
 
-const originalSelections = ref<Callback[]|null>(null);
+const originalSelections = ref<Callback[] | null>(null);
 const bibleBookName = computed(() => verseInfo.value && verseInfo.value.bibleBookName);
 
 const selectedActions = computed<Callback[]>(() => {
@@ -151,9 +156,9 @@ const clickedBookmarks = computed<Bookmark[]>(() => {
     );
 });
 
-let deferred: Nullable<Deferred<Bookmark|Callback|undefined>> = null;
+let deferred: Nullable<Deferred<Bookmark | Callback | undefined>> = null;
 
-async function select(event: MouseEvent, sel: Callback[]): Promise<Callback|Bookmark|undefined> {
+async function select(event: MouseEvent, sel: Callback[]): Promise<Callback | Bookmark | undefined> {
     originalSelections.value = sel;
     locateTop.value = isBottomHalfClicked(event);
     showModal.value = true;
@@ -162,7 +167,7 @@ async function select(event: MouseEvent, sel: Callback[]): Promise<Callback|Book
     return await deferred.wait();
 }
 
-function selected(s: Callback|Bookmark) {
+function selected(s: Callback | Bookmark) {
     deferred!.resolve(s);
 }
 
@@ -182,23 +187,23 @@ function close() {
 
 function updateHighlight() {
     resetHighlights();
-    for(let o of ordinalRange()) {
+    for (let o of ordinalRange()) {
         highlightVerse(o);
     }
-    if(!verseInfo.value) return;
-    if (endOrdinal.value == null || endOrdinal.value === startOrdinal.value){
+    if (!verseInfo.value) return;
+    if (endOrdinal.value == null || endOrdinal.value === startOrdinal.value) {
         verseInfo.value.verseTo = "";
     } else {
         const {ordinalRange: [, chapterEnd]} = verseInfo.value.bibleDocumentInfo!;
 
-        const endOrd = chapterEnd > endOrdinal.value ? endOrdinal.value: chapterEnd;
+        const endOrd = chapterEnd > endOrdinal.value ? endOrdinal.value : chapterEnd;
         verseInfo.value.verseTo = `${verseInfo.value.verse + endOrd - startOrdinal.value!}${endOrdinal.value > chapterEnd ? "+" : ""}`;
     }
 }
 
 function multiSelect(_verseInfo: Optional<EventVerseInfo>) {
-    if(!_verseInfo) return false;
-    if(_verseInfo.ordinal < startOrdinal.value!) {
+    if (!_verseInfo) return false;
+    if (_verseInfo.ordinal < startOrdinal.value!) {
         endOrdinal.value = null;
         return false
     } else {
@@ -208,12 +213,12 @@ function multiSelect(_verseInfo: Optional<EventVerseInfo>) {
     return true;
 }
 
-const startOrdinal = ref<number|null>(null);
-const endOrdinal = ref<number|null>(null);
+const startOrdinal = ref<number | null>(null);
+const endOrdinal = ref<number | null>(null);
 
 function* ordinalRange(): Generator<number> {
     const _endOrdinal = endOrdinal.value || startOrdinal.value;
-    for(let o = startOrdinal.value!; o<=_endOrdinal!; o++) {
+    for (let o = startOrdinal.value!; o <= _endOrdinal!; o++) {
         yield o;
     }
 }
@@ -221,7 +226,7 @@ function* ordinalRange(): Generator<number> {
 const selectedBookmarks = computed<Bookmark[]>(() => {
     const clickedIds = new Set(clickedBookmarks.value.map(b => b.id));
     const result: number[] = [];
-    for(const o of ordinalRange()) {
+    for (const o of ordinalRange()) {
         result.push(
             ...Array.from(bookmarkIdsByOrdinal.get(o) || [])
                 .filter(bId => !clickedIds.has(bId) && !result.includes(bId)))
@@ -237,7 +242,7 @@ function setInitialVerse(_verseInfo: EventVerseInfo) {
 }
 
 function multiSelectionButtonClicked() {
-    if(multiSelectionMode.value) {
+    if (multiSelectionMode.value) {
         endOrdinal.value! += 1;
     } else {
         multiSelectionMode.value = true;
@@ -253,13 +258,13 @@ async function handle(event: MouseEvent) {
     const eventFunctions = getHighestPriorityEventFunctions(event);
     const allEventFunctions = getAllEventFunctions(event);
     const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
-    if(appSettings.actionMode) return;
+    if (appSettings.actionMode) return;
     const hadHighlights = hasHighlights.value;
     resetHighlights();
-    if(hadHighlights && !showModal.value && !hasParticularClicks) {
+    if (hadHighlights && !showModal.value && !hasParticularClicks) {
         return;
     }
-    if(!isActive && !hasParticularClicks) return;
+    if (!isActive && !hasParticularClicks) return;
     emit("back_clicked");
     const _verseInfo: Nullable<EventVerseInfo> = getEventVerseInfo(event);
     if (multiSelectionMode.value && multiSelect(_verseInfo)) {
@@ -267,9 +272,9 @@ async function handle(event: MouseEvent) {
     }
     multiSelectionMode.value = false;
 
-    if(eventFunctions.length > 0 || _verseInfo != null) {
+    if (eventFunctions.length > 0 || _verseInfo != null) {
         const firstFunc = eventFunctions[0];
-        if(
+        if (
             (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs)
             || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs)
         ) {
@@ -277,17 +282,16 @@ async function handle(event: MouseEvent) {
                 emit("bookmark_clicked", eventFunctions[0].options.bookmarkId, {locateTop: isBottomHalfClicked(event)});
             } else {
                 const cb = eventFunctions[0].callback;
-                if(cb) {
+                if (cb) {
                     cb();
                 }
             }
-        }
-        else {
+        } else {
             if (modalOpen.value && !hasParticularClicks) {
-                if(!props.doNotCloseModals) {
+                if (!props.doNotCloseModals) {
                     closeModals();
                 }
-            } else if(_verseInfo) {
+            } else if (_verseInfo) {
                 setInitialVerse(_verseInfo);
                 const s = await select(event, allEventFunctions);
                 if (s && s.type === "callback" && s.callback) s.callback();
@@ -297,7 +301,7 @@ async function handle(event: MouseEvent) {
         }
     } else {
         $emit("back-clicked");
-        if(!props.doNotCloseModals) {
+        if (!props.doNotCloseModals) {
             closeModals();
         }
     }
@@ -310,12 +314,13 @@ function help() {
     android.helpBookmarks()
 }
 
-const modal = ref<InstanceType<typeof ModalDialog>|null>(null);
+const modal = ref<InstanceType<typeof ModalDialog> | null>(null);
 defineExpose({handle});
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .buttons {
   @extend .visible-scrollbar;
   max-height: calc(var(--max-height) - 25pt);

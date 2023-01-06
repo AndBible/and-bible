@@ -21,12 +21,12 @@ import {exportModeKey} from "@/types/constants";
 import {useAndroid} from "@/composables/android";
 
 export function useSharing(
-    {topElement, android}: {topElement: Ref<Element|null>, android: ReturnType<typeof useAndroid>})
-{
+    {topElement, android}: { topElement: Ref<Element | null>, android: ReturnType<typeof useAndroid> }) {
     const exportMode = ref(false);
     provide(exportModeKey, exportMode);
 
     let exportCss: string;
+
     async function shareDocument() {
         if (!exportCss) {
             exportCss = (await import("@/export.scss")); // TODO: check if this works!
@@ -45,5 +45,6 @@ export function useSharing(
         exportMode.value = false;
         android.shareHtml(html);
     }
+
     setupEventBusListener("export_html", shareDocument)
 }

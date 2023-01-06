@@ -27,6 +27,6 @@ useCommon()
 
 <style scoped>
 .divineName {
-  font-variant: small-caps;
+    font-variant: small-caps;
 }
 </style>
