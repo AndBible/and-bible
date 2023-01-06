@@ -21,7 +21,8 @@ import {exportModeKey} from "@/types/constants";
 import {useAndroid} from "@/composables/android";
 
 export function useSharing(
-    {topElement, android}: { topElement: Ref<Element | null>, android: ReturnType<typeof useAndroid> }) {
+    {topElement, android}: { topElement: Ref<Element | null>, android: ReturnType<typeof useAndroid> }
+) {
     const exportMode = ref(false);
     provide(exportModeKey, exportMode);
 

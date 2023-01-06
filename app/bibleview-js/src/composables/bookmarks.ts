@@ -64,19 +64,21 @@ const allStyleRanges = computed(() => {
     return allStyles;
 });
 
-export function verseHighlighting({
-                                      highlightLabels,
-                                      highlightLabelCount,
-                                      underlineLabels,
-                                      underlineLabelCount,
-                                      highlightColorFn
-                                  }: {
-    highlightLabels: LabelAndId[],
-    highlightLabelCount: LabelCountMap,
-    underlineLabels: LabelAndId[],
-    underlineLabelCount: LabelCountMap,
-    highlightColorFn: (label: LabelAndStyle, count: number) => Color,
-}): string {
+export function verseHighlighting(
+    {
+        highlightLabels,
+        highlightLabelCount,
+        underlineLabels,
+        underlineLabelCount,
+        highlightColorFn
+    }: {
+        highlightLabels: LabelAndId[],
+        highlightLabelCount: LabelCountMap,
+        underlineLabels: LabelAndId[],
+        underlineLabelCount: LabelCountMap,
+        highlightColorFn: (label: LabelAndStyle, count: number) => Color,
+    }): string
+{
     // Percentage heights allocated to background highlight
     const bgHighlightPercentage = 64;
     const bgHighlightTopMargin = 4;
@@ -232,19 +234,21 @@ export function useGlobalBookmarks(config: Config) {
     }
 }
 
-export function useBookmarks(documentId: string,
-                             ordinalRange: OrdinalRange,
-                             {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated}: {
-                                 bookmarks: Ref<Bookmark[]>,
-                                 bookmarkMap: Map<number, Bookmark>,
-                                 bookmarkLabels: Map<number, LabelAndStyle>,
-                                 labelsUpdated: Ref<number>
-                             },
-                             bookInitials: string,
-                             documentReady: Ref<boolean>,
-                             {adjustedColor}: { adjustedColor: (color: ColorParam) => Color },
-                             config: Config,
-                             appSettings: AppSettings) {
+export function useBookmarks(
+    documentId: string,
+    ordinalRange: OrdinalRange,
+    {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated}: {
+        bookmarks: Ref<Bookmark[]>,
+        bookmarkMap: Map<number, Bookmark>,
+        bookmarkLabels: Map<number, LabelAndStyle>,
+        labelsUpdated: Ref<number>
+    },
+    bookInitials: string,
+    documentReady: Ref<boolean>,
+    {adjustedColor}: { adjustedColor: (color: ColorParam) => Color },
+    config: Config,
+    appSettings: AppSettings)
+{
     const isMounted = ref(0);
 
     onMounted(() => isMounted.value++);
