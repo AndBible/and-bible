@@ -56,13 +56,22 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {modalKey} from "@/types/constants";
 
 const emit = defineEmits(["close"]);
-const props = defineProps({
-    blocking: {type: Boolean, default: false},
-    wide: {type: Boolean, default: false},
-    edit: {type: Boolean, default: false},
-    locateTop: {type: Boolean, default: false},
-    limit: {type: Boolean, default: false},
-});
+const props = withDefaults(
+    defineProps<{
+        blocking: boolean
+        wide: boolean
+        edit: boolean
+        locateTop: boolean
+        limit: boolean
+    }>(),
+    {
+        blocking: false,
+        wide: false,
+        edit: false,
+        locateTop: false,
+        limit: false
+    }
+);
 
 const modal = ref<HTMLElement | null>(null);
 const header = ref(null);

@@ -25,18 +25,19 @@ import {addEventFunction, EventPriorities} from "@/utils";
 import {computed, inject, ref} from "vue";
 import {osisFragmentKey, referenceCollectorKey, verseHighlightKey} from "@/types/constants";
 
-const props = defineProps({
-    osisRef: {type: String, default: null},
-    target: {type: String, default: null},
-    source: {type: String, default: null},
-    type: {type: String, default: null},
-});
+const props = defineProps<{
+    osisRef?: string
+    target?: string
+    source?: string
+    type?: string
+}>();
+
 checkUnsupportedProps(props, "type");
 const clicked = ref(false);
 const isHighlighted = ref(false);
 const {strings} = useCommon();
 const {addCustom, resetHighlights} = inject(verseHighlightKey)!;
-const referenceCollector = inject(referenceCollectorKey, null);
+const referenceCollector = inject(referenceCollectorKey);
 const content = ref<HTMLElement | null>(null);
 const osisFragment = inject(osisFragmentKey)!;
 const slot = ref<HTMLElement | null>(null);
@@ -51,7 +52,7 @@ const osisRef = computed(() => {
     } else if (props.target) {
         return props.target;
     } else {
-        return props.osisRef;
+        return props.osisRef!;
     }
 });
 

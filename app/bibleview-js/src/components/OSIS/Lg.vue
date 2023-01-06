@@ -28,11 +28,7 @@ import {computed} from "vue";
  * so this does nothing.
  */
 
-const props = defineProps({
-    sID: {type: String, default: null},
-    eID: {type: String, default: null},
-    level: {type: String, default: null},
-});
+const props = defineProps<{sID?: string, eID?: string, level?: string}>()
 
 const show = computed(() => props.sID);
 useCommon();

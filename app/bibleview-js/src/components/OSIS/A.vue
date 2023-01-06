@@ -25,7 +25,7 @@ import {inject} from "vue";
 import {addEventFunction, EventPriorities} from "@/utils";
 import {androidKey} from "@/types/constants";
 
-defineProps({href: {type: String, required: true}});
+defineProps<{href: string}>();
 const {openExternalLink} = inject(androidKey)!;
 const {strings} = useCommon()
 

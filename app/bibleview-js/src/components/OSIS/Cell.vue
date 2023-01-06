@@ -22,10 +22,7 @@
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 
-const props = defineProps({
-    role: {type: String, default: null},
-    cols: {type: String, default: null},
-});
+const props = defineProps<{role?: string, cols?: string}>();
 
 checkUnsupportedProps(props, "role")
 useCommon();

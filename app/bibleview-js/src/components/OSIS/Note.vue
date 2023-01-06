@@ -51,15 +51,16 @@ import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
 
-const props = defineProps({
-    osisID: {type: String, default: null},
-    osisRef: {type: String, default: null},
-    placement: {type: String, default: null},
-    type: {type: String, default: null},
-    subType: {type: String, default: null},
-    n: {type: String, default: null},
-    resp: {type: String, default: null},
-});
+const props = defineProps<{
+    osisID?: string
+    osisRef?: string
+    placement?: string
+    type?: string
+    subType?: string
+    n?: string
+    resp?: string
+}>();
+
 const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
 checkUnsupportedProps(props, "resp");
 checkUnsupportedProps(props, "placement", ['foot']);
@@ -77,8 +78,8 @@ function runningHandle() {
 }
 
 const handle = computed(() => props.n || runningHandle());
-const isFootNote = computed(() => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction"].includes(props.type));
-const typeStr = computed(() => get(typeStrings, props.type));
+const isFootNote = computed(() => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction"].includes(props.type!));
+const typeStr = computed(() => get(typeStrings, props.type!));
 const noteType = computed(() => typeStr.value ? sprintf(strings.noteText, typeStr.value) : strings.noteTextWithoutType);
 const isCrossReference = computed(() => props.type === "crossReference");
 const isOther = computed(() => !isCrossReference.value && !isFootNote.value);

@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import {useCommon} from "@/composables";
 
-defineProps({href: {type: String, required: true}});
+defineProps<{href: string}>();
 
 function openLink(event: MouseEvent, url: string) {
     window.location.assign(url);

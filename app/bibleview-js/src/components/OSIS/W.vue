@@ -41,14 +41,14 @@ import {computed, inject, ref} from "vue";
 import {strongsModes} from "@/composables/config";
 import {exportModeKey, verseHighlightKey} from "@/types/constants";
 
-const props = defineProps({
-    lemma: {type: String, default: null}, // example: strong:H8064 lemma.TR:XXXXX
-    morph: {type: String, default: null}, // example: strongMorph:TH8792
-    src: {type: String, default: null},
-    n: {type: String, default: null},
-    type: {type: String, default: null},
-    subType: {type: String, default: null},
-});
+const props = defineProps<{
+    lemma?: string // example: strong:H8064 lemma.TR:XXXXX
+    morph?: string // example: strongMorph:TH8792
+    src?: string
+    n?: string
+    type?: string
+    subType?: string
+}>();
 
 checkUnsupportedProps(props, "n")
 checkUnsupportedProps(props, "src")
@@ -75,7 +75,7 @@ function formatName(string: string): string {
     return prep(string).filter(s => !s.startsWith("lemma.TR:")).map(s => s.match(/([^ :]+:)[HG0 ]*([^:]+) *$/)![2].trim()).join(",")
 }
 
-function formatLink(first: string, second?: string): string {
+function formatLink(first?: string, second?: string): string {
     const linkBodies = [];
 
     function toArgs(string: string): string {

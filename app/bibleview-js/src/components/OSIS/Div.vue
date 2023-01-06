@@ -33,16 +33,16 @@ import VerseNumber from "@/components/VerseNumber.vue";
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {verseInfoKey} from "@/types/constants";
 
-const props = defineProps({
-    osisID: {type: String, default: null},
-    sID: {type: String, default: null},
-    eID: {type: String, default: null},
-    type: {type: String, default: null},
-    subType: {type: String, default: null},
-    annotateRef: {type: String, default: null},
-    canonical: {type: String, default: null},
-    annotateType: {type: String, default: null},
-});
+const props = defineProps<{
+    osisID?: string
+    sID?: string
+    eID?: string
+    type?: string
+    subType?: string
+    annotateRef?: string
+    canonical?: string
+    annotateType?: string
+}>();
 
 checkUnsupportedProps(
     props,
@@ -56,10 +56,10 @@ checkUnsupportedProps(props, "subType", ["x-preverse"]);
 checkUnsupportedProps(props, "annotateRef");
 checkUnsupportedProps(props, "annotateType");
 
-const verseInfo = inject(verseInfoKey, null);
+const verseInfo = inject(verseInfoKey);
 let shown = ref(false);
 
-function getIsPreVerse(type: string, subType: string) {
+function getIsPreVerse(type?: string, subType?: string) {
     return type === "x-milestone" && subType === "x-preverse";
 }
 
@@ -71,7 +71,7 @@ if (getIsPreVerse(props.type, props.subType) && verseInfo) {
     verseInfo.showStack.push(shown);
 }
 const {config} = useCommon();
-const isParagraph = computed(() => ['x-p', 'paragraph', 'colophon'].includes(props.type) && props.sID);
+const isParagraph = computed(() => ['x-p', 'paragraph', 'colophon'].includes(props.type!) && props.sID);
 const isCanonical = computed(() => props.canonical !== "false");
 const isPreVerse = computed(() => getIsPreVerse(props.type, props.subType));
 const verseNum = computed(() => verseInfo!.verse);

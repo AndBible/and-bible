@@ -26,7 +26,7 @@ import {useCommon} from "@/composables";
 import {inject} from "vue";
 import {osisFragmentKey} from "@/types/constants";
 
-defineProps({src: {type: String, required: true}});
+defineProps<{src: string}>();
 const {bookInitials} = inject(osisFragmentKey)!;
 useCommon();
 </script>

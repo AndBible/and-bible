@@ -23,12 +23,11 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed} from "vue";
 
-const props = defineProps({
-    type: {type: String, default: null}
-});
+const props = defineProps<{type?: string}>()
+
 checkUnsupportedProps(props, "type", ["added"]);
 const {config} = useCommon();
-const isNonCanonical = computed(() => props.type.toLowerCase() === "added");
+const isNonCanonical = computed(() => props.type?.toLowerCase() === "added");
 const show = computed(() => (!isNonCanonical.value) || (isNonCanonical.value && config.showNonCanonical));
 </script>
 

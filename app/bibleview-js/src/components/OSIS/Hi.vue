@@ -23,10 +23,8 @@
 import {useCommon} from "@/composables";
 import {computed} from "vue";
 
-const props = defineProps({
-    type: {type: String, default: null},
-    rend: {type: String, default: null},
-});
+const props = defineProps<{type?: string, rend?: string}>()
+
 const hiStyle = computed(() => {
     const classes = [];
     if (props.type) {

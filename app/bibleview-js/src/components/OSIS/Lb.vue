@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 
-const props = defineProps({type: String, default: null});
+const props = defineProps<{type?: string}>()
 checkUnsupportedProps(props, "type");
 useCommon();
 </script>

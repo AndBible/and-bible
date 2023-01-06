@@ -23,12 +23,16 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed} from "vue";
 
-const props = defineProps({
-    subType: {type: String, default: null},
-    type: {type: String, default: null},
-    marker: {type: String, default: ""},
-    resp: {type: String, default: ""},
+const props = withDefaults(defineProps<{
+    subType?: string
+    type?: string
+    marker: string
+    resp: string
+}>(),{
+    marker: "",
+    resp: ""
 });
+
 checkUnsupportedProps(props, "resp");
 checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
 checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);

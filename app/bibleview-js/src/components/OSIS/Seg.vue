@@ -22,9 +22,7 @@
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 
-const props = defineProps({
-    type: {type: String, default: null},
-});
+const props = defineProps<{type?: string}>();
 checkUnsupportedProps(props, "type", ["x-chronology", "font-size: -1;"]);
 useCommon();
 </script>

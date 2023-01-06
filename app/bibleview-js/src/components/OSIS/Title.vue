@@ -23,12 +23,17 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed, inject} from "vue";
 
-const props = defineProps({
-    type: {type: String, default: null},
-    subType: {type: String, default: null},
-    canonical: {type: String, default: "false"},
-    short: {type: String, default: null},
-});
+const props = withDefaults(
+    defineProps<{
+        type?: string
+        subType?: string
+        canonical: string
+        short: string
+    }>(), {
+        canonical: "false",
+    }
+);
+
 checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
 checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
 checkUnsupportedProps(props, "canonical", ["true", "false"]);

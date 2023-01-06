@@ -171,12 +171,12 @@ setupEventBusListener("add_or_update_journal", async (
         journal,
         bookmarkToLabelsOrdered,
         journalsOrdered
-    }:
-        {
-            journal: StudyPadTextItem,
-            bookmarkToLabelsOrdered: BookmarkToLabel[],
-            journalsOrdered: StudyPadTextItem[]
-        }) => {
+    }: {
+        journal: StudyPadTextItem,
+        bookmarkToLabelsOrdered: BookmarkToLabel[],
+        journalsOrdered: StudyPadTextItem[]
+    }) =>
+{
     if (journal && adding.value) {
         journal.new = true
         adding.value = false;

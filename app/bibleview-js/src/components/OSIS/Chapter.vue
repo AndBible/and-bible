@@ -25,24 +25,24 @@ import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed, inject} from "vue";
 import {bibleDocumentInfoKey} from "@/types/constants";
 
-const props = defineProps({
-    n: {type: String, default: null},
-    osisID: {type: String, default: null},
-    sID: {type: String, default: null},
-    eID: {type: String, default: null},
-    chapterTitle: {type: String, default: null},
-});
+const props = defineProps<{
+    n?: string
+    osisID?: string
+    sID?: string
+    eID?: string
+    chapterTitle?: string
+}>();
 
 checkUnsupportedProps(props, "chapterTitle")
-const bibleDocumentInfo = inject(bibleDocumentInfoKey, null);
+const bibleDocumentInfo = inject(bibleDocumentInfoKey);
 const ordinal = computed(() => {
-    if (bibleDocumentInfo == null) return -1;
+    if (!bibleDocumentInfo) return -1;
     const ordinalRange = bibleDocumentInfo.originalOrdinalRange || bibleDocumentInfo.ordinalRange;
     return ordinalRange[0];
 });
-const startTag = computed(() => props.eID === null);
+const startTag = computed(() => props.eID === undefined);
 const chapterNum = computed(() => {
-    return (props.n || props.osisID.split(".")[1]).trim()
+    return (props.n || props.osisID!.split(".")[1]).trim()
 });
 const {config, sprintf, strings} = useCommon();
 

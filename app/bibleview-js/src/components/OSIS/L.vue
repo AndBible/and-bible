@@ -41,17 +41,25 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed, toRefs} from "vue";
 
-const props = defineProps({
-    sID: {type: String, default: null},
-    eID: {type: String, default: null},
-    level: {type: String, default: "1"},
-    type: {type: String, default: null},
-});
+const props = withDefaults(
+    defineProps<{
+        sID: string|null
+        eID: string|null
+        level: string
+        type: string|null
+    }>(), {
+        level: "1",
+        sID: null,
+        eID: null,
+        type: null
+    }
+);
+
 checkUnsupportedProps(props, "type", ["x-br", "x-indent"]);
 const {sID, eID, level, type} = toRefs(props);
 const levelInt = computed(() => parseInt(level.value));
 const isBreakLine = computed(() => {
-    const allNull = sID.value === null && eID.value === null && level.value === "1" && type.value === null;
+    const allNull = sID.value === undefined && eID.value === null && level.value === "1" && type.value === null;
     return type.value === 'x-br' || eID.value || allNull;
 })
 const isIndent = computed(() => type.value === "x-indent");

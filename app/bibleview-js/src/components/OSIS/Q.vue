@@ -21,13 +21,13 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed} from "vue";
 
-const props = defineProps({
-    marker: {type: String, default: null},
-    sID: {type: String, default: null},
-    eID: {type: String, default: null},
-    who: {type: String, default: null},
-    level: {type: String, default: null},
-});
+const props = defineProps<{
+    marker?: string
+    sID?: string
+    eID?: string
+    who?: string
+    level?: string
+}>();
 
 checkUnsupportedProps(props, "who", ["jesus", "Jesus"]);
 const isJesus = computed(() => props.who && props.who.toLowerCase() === "jesus");

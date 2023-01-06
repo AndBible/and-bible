@@ -49,8 +49,7 @@ provide(osisFragmentKey, props.fragment)
 const {registerBook} = inject(customCssKey)!;
 registerBook(bookInitials.value);
 
-let undo: () => void = () => {
-};
+let undo: () => void = () => {};
 
 function refreshHighlight() {
     undo();
