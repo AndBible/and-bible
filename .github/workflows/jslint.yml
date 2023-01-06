@@ -1,4 +1,4 @@
-name: Run js lint and tests
+name: Run eslint, type-check and js side unit tests
 
 on:
   push:
@@ -19,7 +19,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -43,15 +43,6 @@ jobs:
         working-directory: app/bibleview-js
         run: npm run lint:ci
 
-      - name: Run type-check
-        working-directory: app/bibleview-js
-        run: npm run type-check
-
-      - name: Run js unit tests
-        working-directory: app/bibleview-js
-        run: npm run test:ci
-        if: ${{ always() }}
-
       - name: Upload lint results
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
@@ -60,10 +51,66 @@ jobs:
           path: app/bibleview-js/lint-results.txt
           retention-days: 5
 
+  unit-tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 10 # so that recent tags can be found
+
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Upgrade npm
+        working-directory: app/bibleview-js
+        run: npm install -g npm
+
+      - name: Run npm install
+        working-directory: app/bibleview-js
+        run: npm ci
+
+      - name: Run js unit tests
+        working-directory: app/bibleview-js
+        run: npm run test:ci
+        if: ${{ always() }}
+
       - name: Upload jest results
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: js-results
           path: app/bibleview-js/test-report.html
+          retention-days: 5
+  type-check:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 10 # so that recent tags can be found
+
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Upgrade npm
+        working-directory: app/bibleview-js
+        run: npm install -g npm
+
+      - name: Run npm install
+        working-directory: app/bibleview-js
+        run: npm ci
+
+      - name: Run type-check
+        working-directory: app/bibleview-js
+        run: npm run type-check:ci
+
+      - name: Upload type-check results
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: js-results
+          path: app/bibleview-js/type-check-results.txt
           retention-days: 5
