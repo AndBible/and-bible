@@ -15,13 +15,18 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {Optional} from "@/types/common";
+import {Nullable, Optional} from "@/types/common";
 
-type TextNodeAndOffset = [node: Text | null, offset: number | null]
+export class ReachedRootError extends Error {}
+
+type TextNodeAndOffset = [node: Nullable<Text>, offset: Nullable<number>]
+type NodeAndSiblings = { node: Node, siblings: Element[], verseNode: Nullable<Element> }
+type ParentAndSiblings = { parent: Node, siblings: Element[], verseNode: Element }
+
 
 function findNodeAtOffsetRecursive(element: ChildNode, startOffset: number): TextNodeAndOffset {
     let offset = startOffset;
-    let elem: ChildNode | null = element
+    let elem: Nullable<ChildNode> = element
     do {
         for (const c of elem.childNodes) {
             if (c.nodeType === Node.ELEMENT_NODE && hasOsisContent(c)) {
@@ -69,7 +74,7 @@ function hasOsisContent(element: Optional<Node>): boolean {
     return !(<Element>element).closest(".skip-offset")
 }
 
-function isParent(elem: Node | null, parent: Node | null): boolean {
+function isParent(elem: Nullable<Node>, parent: Nullable<Node>): boolean {
     if (parent === null) return true
     while (elem) {
         if (elem === parent) return true
@@ -79,7 +84,7 @@ function isParent(elem: Node | null, parent: Node | null): boolean {
 }
 
 export function* walkBackText(e: Node, onlyOsis = false): Generator<Text> {
-    let next: Node | null = e
+    let next: Nullable<Node> = e
     const osisCheck = (e: Node) => !onlyOsis || (onlyOsis && hasOsisContent(e))
 
     do {
@@ -87,14 +92,14 @@ export function* walkBackText(e: Node, onlyOsis = false): Generator<Text> {
             if (next.nodeType === Node.TEXT_NODE && osisCheck(next)) {
                 yield next as Text;
             }
-            let next2: Node | null = next.previousSibling;
+            let next2: Nullable<Node> = next.previousSibling;
             if (next2) {
                 next = next2;
             } else {
                 while (!next2) {
                     next = next!.parentNode;
                     if (next) {
-                        const next3: ChildNode | null = next.previousSibling;
+                        const next3: Nullable<ChildNode> = next.previousSibling;
                         if (next3) {
                             next2 = next3;
                         }
@@ -104,7 +109,7 @@ export function* walkBackText(e: Node, onlyOsis = false): Generator<Text> {
             }
         } else if (next.nodeType === Node.ELEMENT_NODE) {
             do {
-                let next2: Node | null = next.lastChild;
+                let next2: Nullable<Node> = next.lastChild;
                 if (next2) {
                     while (next2 && !osisCheck(next2)) {
                         next2 = next2.previousSibling;
@@ -112,7 +117,7 @@ export function* walkBackText(e: Node, onlyOsis = false): Generator<Text> {
                     if (next2) next = next2;
                 }
                 if (!next2) {
-                    let next3: Node | null;
+                    let next3: Nullable<Node>;
                     next2 = next;
                     do {
                         next3 = next2!.previousSibling;
@@ -129,7 +134,7 @@ export function* walkBackText(e: Node, onlyOsis = false): Generator<Text> {
     } while (next);
 }
 
-export function findNext(e: Node, last: Node, onlyOsis = false): Text | null {
+export function findNext(e: Node, last: Node, onlyOsis = false): Nullable<Text> {
     const iterator = walkBackText(e, onlyOsis);
     const osisCheck = (e: Node) => !onlyOsis || (onlyOsis && hasOsisContent(e))
     if (e.nodeType === Node.TEXT_NODE && osisCheck(e)) {
@@ -190,12 +195,6 @@ export function calculateOffsetToParent(
     return offsetNow
 }
 
-export class ReachedRootError extends Error {
-}
-
-type NodeAndSiblings = { node: Node, siblings: Element[], verseNode: Element | null }
-type ParentAndSiblings = { parent: Node, siblings: Element[], verseNode: Element }
-
 export function findPreviousSiblingWithClass(node: Node, cls: string): NodeAndSiblings {
     let candidate: Node = node;
     if (candidate.nodeType === Node.TEXT_NODE) {
@@ -206,10 +205,10 @@ export function findPreviousSiblingWithClass(node: Node, cls: string): NodeAndSi
         throw new ReachedRootError();
     }
 
-    let candidateElement = candidate as Element | null
+    let candidateElement = candidate as Nullable<Element>
 
     const siblings: Element[] = [];
-    // TODO: SIMPLIFY
+
     if (candidateElement && !candidateElement.classList.contains(cls)) {
         siblings.push(candidateElement);
     }
@@ -236,7 +235,7 @@ export function findParentsBeforeVerseSibling(node: Node): ParentAndSiblings {
 }
 
 export function calculateOffsetToVerse(node: Node, offset: number) {
-    let parent: Element | null = null;
+    let parent: Nullable<Element> = null;
     if ([Node.TEXT_NODE, Node.COMMENT_NODE].includes(node.nodeType)) {
         parent = node.parentElement!.closest(".verse");
     } else if (node.nodeType === Node.ELEMENT_NODE) {
