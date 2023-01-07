@@ -247,7 +247,7 @@
 
         <receiver
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
-            android:exported="false" />
+            android:exported="true" />
 
         <receiver android:name="net.bible.service.device.speak.AndBibleMediaButtonReceiver" android:exported="true">
             <intent-filter>
