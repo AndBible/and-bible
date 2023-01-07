@@ -133,8 +133,10 @@ import android.os.Bundle
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.serialization.SerializationException
+import net.bible.android.BibleApplication
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchIndex
+import net.bible.service.common.CommonUtils.getResourceString
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 
@@ -946,21 +948,48 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     internal inner class LinkLongPressContextMenuInfo(private val targetLink: String) : BibleViewContextMenuInfo {
+        var windowMap = mutableMapOf<MenuItem,Int>()
         override fun onContextItemSelected(item: MenuItem): Boolean {
             when (item.itemId) {
                 R.id.open_link_in_special_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_SPECIAL)
                 R.id.open_link_in_new_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_NEW)
                 R.id.open_link_in_this_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_THIS)
-                R.id.open_link_in_first_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_FIRST)
+                else -> {
+                    linkControl.setWindowMode(LinkControl.WINDOW_MODE_SPECIFIC)
+                    linkControl.setTargetWindow(windowMap[item]!!)
+                }
             }
             openLink(Uri.parse(targetLink))
             linkControl.setWindowMode(LinkControl.WINDOW_MODE_UNDEFINED)
             contextMenuInfo = null
             return true
         }
+        val app get() = BibleApplication.application
 
         override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInflater: MenuInflater) {
+
             menuInflater.inflate(R.menu.link_context_menu, menu)
+            val windowList = windowRepository.windowList
+            var count = 0
+
+            windowList.forEach {
+                val p = it.pageManager.currentPage
+                var windowTitle = if (it.isSynchronised && !it.isVisible) "=        " else if (!it.isVisible) "          " else if (it.isSynchronised) "= " else ""
+
+                windowTitle += if (it.id == window.id) app.getString(R.string.open_link_in_this_window) else app.getString(
+                    R.string.move_window_to_position2,
+                    count + 1,
+                    p.currentDocument?.abbreviation,
+                    p.key?.name
+                )
+
+                val windowItem = menu.add(Menu.NONE, if (it.id == window.id) R.id.open_link_in_this_window else R.id.open_ref, count, windowTitle)
+                windowMap[windowItem] = count
+                count++;
+            }
+
+            menu.add(Menu.NONE,R.id.open_link_in_new_window,count, "+ " + getResourceString(R.string.open_link_in_new_window))
+
             val openLinksInSpecialWindowByDefault = CommonUtils.settings.getBoolean("open_links_in_special_window_pref", true)
             val item =
                 if(openLinksInSpecialWindowByDefault)
