@@ -685,7 +685,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             "?lang=$lang&fontModuleNames=$fontModuleNames&styleModuleNames=$styleModuleNames&featureModuleNames=$featureModuleNames&rtl=$isRtl&night=$nightMode")
     }
 
-     fun onEvent() {
+     fun onEvent(e: ReloadAddonsEvent) {
         val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
         val featureModuleNames = json.encodeToString(serializer(), AndBibleAddons.featureModuleNames)
         val styleModuleNames = json.encodeToString(serializer(), AndBibleAddons.styleModuleNames)
