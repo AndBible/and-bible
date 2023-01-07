@@ -21,38 +21,39 @@
       {{ document.label.name }}
     </div>
     <div v-if="journalEntries.length === 0 && !exportMode">
-      {{strings.emptyStudyPad}}
+      {{ strings.emptyStudyPad }}
       <span class="journal-button" v-if="!exportMode" @click="addNewEntry">
         <FontAwesomeIcon icon="plus-circle"/>
       </span>
     </div>
     <draggable
-      v-model="journalEntries"
-      handle=".drag-handle"
-      group="journal-entries"
-      ghost-class="drag-ghost"
-      chosen-class="drag-chosen"
-      :item-key="(e) => `studypad-${e.type}-${e.id}`"
+        v-model="journalEntries"
+        handle=".drag-handle"
+        group="journal-entries"
+        ghost-class="drag-ghost"
+        chosen-class="drag-chosen"
+        :item-key="journalItemKey"
     >
       <template #item="{element: j}">
         <div
-          :id="`o-${studyPadOrdinal(j)}`"
-          :data-ordinal="studyPadOrdinal(j)"
-          class="ordinal"
+            :id="`o-${studyPadOrdinal(j)}`"
+            :data-ordinal="studyPadOrdinal(j)"
+            class="ordinal"
         >
           <div class="studypad-container" :style="indentStyle(j)" :id="`studypad-${j.type}-${j.id}`">
             <StudyPadRow
-              :ref="setStudyPadRowRef"
-              :journal-entry="j"
-              :label="document.label"
-              @add="adding=true"
+                :ref="setStudyPadRowRef"
+                :journal-entry="j"
+                :label="document.label"
+                @add="adding=true"
             />
           </div>
         </div>
       </template>
     </draggable>
     <div v-if="journalEntries.length > 0 && !exportMode">
-      <span v-if="lastEntry.type === StudyPadEntryTypes.BOOKMARK && !lastEntry.hasNote" class="journal-button" @click="editLastNote">
+      <span v-if="lastEntry.type === 'bookmark' && !asBookmarkItem(lastEntry).hasNote" class="journal-button"
+            @click="editLastNote">
         <FontAwesomeIcon icon="edit"/>
       </span>
       <span class="journal-button" @click="appendNewEntry">
@@ -62,168 +63,176 @@
   </div>
 </template>
 
-<script>
-import {computed, ref, inject, provide, nextTick, onBeforeUpdate} from "vue";
+<script setup lang="ts">
+import {computed, inject, nextTick, onBeforeUpdate, provide, ref, Ref} from "vue";
 import {useCommon} from "@/composables";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
-import StudyPadRow from "@/components/StudyPadRow";
-import draggable from "vuedraggable";
-import {StudyPadEntryTypes} from "@/constants";
+import StudyPadRow from "@/components/StudyPadRow.vue";
+import {androidKey, exportModeKey, globalBookmarksKey, scrollKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
 import {useJournal} from "@/composables/journal";
+import {StudyPadDocument} from "@/types/documents";
+import {BookmarkToLabel, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
+import Color from "color";
+import draggable from "vuedraggable";
 
-export default {
-  name: "StudyPadDocument",
-  components: {StudyPadRow, draggable, FontAwesomeIcon},
-  props: {
-    document: {type: Object, required: true},
-  },
-  setup(props) {
-    // eslint-disable-next-line vue/no-setup-props-destructure
-    const {bookmarks, label, journalTextEntries: journalTextEntries_, bookmarkToLabels: bookmarkToLabels_} = props.document;
-    const journal = useJournal(label);
-    provide("journal", journal);
-    const {scrollToId} = inject("scroll");
-    const android = inject("android");
-    const studyPadRowRefs = [];
-    const exportMode = inject("exportMode", ref(false));
+const props = defineProps<{ document: StudyPadDocument }>();
 
-    function setStudyPadRowRef(el) {
-      if(el) {
+// eslint-disable-next-line vue/no-setup-props-destructure
+const {bookmarks, label, journalTextEntries: journalTextEntries_, bookmarkToLabels: bookmarkToLabels_} = props.document;
+const journal = useJournal(label);
+provide("journal", journal);
+const {scrollToId} = inject(scrollKey)!;
+const android = inject(androidKey)!;
+
+type StudyPadRowType = InstanceType<typeof StudyPadRow>
+
+function asBookmarkItem(item: StudyPadItem) {
+    return item as StudyPadBookmarkItem
+}
+
+const studyPadRowRefs: StudyPadRowType[] = [];
+const exportMode = inject(exportModeKey, ref(false));
+
+
+function setStudyPadRowRef(el: any) { // They are of StudyPadRowType but vue types for :ref are broken
+    if (el) {
         studyPadRowRefs.push(el);
-      }
     }
+}
 
-    onBeforeUpdate(() => {
-      studyPadRowRefs.splice(0);
-    });
+onBeforeUpdate(() => {
+    studyPadRowRefs.splice(0);
+});
 
-    function editLastNote() {
-      const lastRow = studyPadRowRefs[studyPadRowRefs.length - 1];
-      lastRow.editor.editMode = true;
-    }
+function editLastNote() {
+    const lastRow = studyPadRowRefs[studyPadRowRefs.length - 1];
+    lastRow.editor!.editMode = true;
+}
 
-    const {
-      journalTextEntries, updateBookmarkToLabels, updateJournalTextEntries,
-      updateJournalOrdering, deleteJournal, bookmarkToLabels} = journal;
+const {
+    journalTextEntries, updateBookmarkToLabels, updateJournalTextEntries,
+    updateJournalOrdering, deleteJournal, bookmarkToLabels
+} = journal;
 
-    updateJournalTextEntries(...journalTextEntries_);
-    updateBookmarkToLabels(...bookmarkToLabels_)
+updateJournalTextEntries(...journalTextEntries_);
+updateBookmarkToLabels(...bookmarkToLabels_)
 
-    const globalBookmarks = inject("globalBookmarks");
+const globalBookmarks = inject(globalBookmarksKey)!;
 
-    globalBookmarks.updateBookmarks(...bookmarks);
+globalBookmarks.updateBookmarks(bookmarks);
 
-    const journalEntries = computed({
-      get:
+const journalEntries: Ref<StudyPadItem[]> = computed({
+    get:
         () => {
-          let entries = [];
-          entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)).map(e => {
-            const bookmarkToLabel = bookmarkToLabels.get(e.id);
-            return {
-              ...e,
-              orderNumber: bookmarkToLabel.orderNumber,
-              indentLevel: bookmarkToLabel.indentLevel,
-              expandContent: bookmarkToLabel.expandContent,
-              bookmarkToLabel
-            }
-          }))
-          entries.push(...journalTextEntries.values())
-          entries = sortBy(entries, ['orderNumber']);
-          return entries;
+            let entries = [];
+            entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)).map(b => {
+                const bookmarkToLabel = bookmarkToLabels.get(b.id);
+                return {
+                    ...b,
+                    orderNumber: bookmarkToLabel.orderNumber,
+                    indentLevel: bookmarkToLabel.indentLevel,
+                    expandContent: bookmarkToLabel.expandContent,
+                    bookmarkToLabel
+                }
+            }))
+            entries.push(...journalTextEntries.values())
+            entries = sortBy(entries, ['orderNumber']);
+            return entries;
         },
-      set(values) {
+    set(values) {
         let count = 0;
-        const changed = [];
-        for(const v of values) {
-          const newOrder = count++
-          if(v.orderNumber !== newOrder) {
-            changed.push(v);
-          }
-          if(v.type === StudyPadEntryTypes.BOOKMARK) {
-            v.bookmarkToLabel.orderNumber = newOrder;
-          }
-          v.orderNumber = newOrder;
+        const changed: StudyPadItem[] = [];
+        for (const v of values) {
+            const newOrder = count++
+            if (v.orderNumber !== newOrder) {
+                changed.push(v);
+            }
+            if (v.type === "bookmark") {
+                v.bookmarkToLabel.orderNumber = newOrder;
+            }
+            v.orderNumber = newOrder;
 
         }
         const grouped = groupBy(changed, "type");
-        const bookmarks = grouped[StudyPadEntryTypes.BOOKMARK] || [];
-        const journals = grouped[StudyPadEntryTypes.JOURNAL_TEXT] || [];
+        const bookmarks: StudyPadBookmarkItem[] = (grouped["bookmark"] || []) as StudyPadBookmarkItem[];
+        const journals: StudyPadTextItem[] = (grouped["journal"] || []) as StudyPadTextItem[];
         android.updateOrderNumber(label.id, bookmarks, journals);
-      }
-    });
-    const adding = ref(false);
+    }
+});
+const adding = ref(false);
 
-    const lastEntry = computed(() => journalEntries.value[journalEntries.value.length - 1]);
+const lastEntry = computed(() => journalEntries.value[journalEntries.value.length - 1]);
 
-    setupEventBusListener(Events.ADD_OR_UPDATE_JOURNAL, async ({journal, bookmarkToLabelsOrdered, journalsOrdered}) => {
-      if(journal && adding.value) {
+setupEventBusListener("add_or_update_journal", async (
+    {
+        journal,
+        bookmarkToLabelsOrdered,
+        journalsOrdered
+    }: {
+        journal: StudyPadTextItem,
+        bookmarkToLabelsOrdered: BookmarkToLabel[],
+        journalsOrdered: StudyPadTextItem[]
+    }) =>
+{
+    if (journal && adding.value) {
         journal.new = true
         adding.value = false;
-      }
-      updateBookmarkToLabels(...bookmarkToLabelsOrdered);
-      updateJournalOrdering(...journalsOrdered);
-      if(journal) {
+    }
+    updateBookmarkToLabels(...bookmarkToLabelsOrdered);
+    updateJournalOrdering(...journalsOrdered);
+    if (journal) {
         updateJournalTextEntries(journal);
-      }
-      await nextTick();
-      if(journal && journal.new) {
+    }
+    await nextTick();
+    if (journal && journal.new) {
         scrollToId(`studypad-${journal.type}-${journal.id}`, {duration: 300, onlyIfInvisible: true})
-      }
-    })
-
-    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARK_TO_LABEL, bookmarkToLabel => {
-      updateBookmarkToLabels(bookmarkToLabel);
-    })
-
-    setupEventBusListener(Events.DELETE_JOURNAL, journalId => {
-      deleteJournal(journalId)
-    })
-
-    function editNotes(b, newText) {
-      b.notes = newText;
     }
+})
 
-    const editableJournalEntry = ref(null);
+setupEventBusListener("add_or_update_bookmark_to_label", (bookmarkToLabel: BookmarkToLabel) => {
+    updateBookmarkToLabels(bookmarkToLabel);
+})
 
-    function indentStyle(entry) {
-      const margin = entry.indentLevel * 20;
-      return `margin-left: ${margin}px;`;
-    }
+setupEventBusListener("delete_journal", (journalId: number) => {
+    deleteJournal(journalId)
+})
 
-    function addNewEntry() {
-      adding.value = true;
-      android.createNewJournalEntry(label.id);
-    }
-
-    function appendNewEntry() {
-      adding.value = true;
-      android.createNewJournalEntry(label.id, lastEntry.value.type, lastEntry.value.id);
-    }
-
-    const labelNameStyle = computed(() => {
-      if(exportMode.value) return null;
-      const color = adjustedColorOrig(label.style.color);
-      const textColor = color.isLight() ? "var(--label-text-black)": "var(--label-text-white)";
-      return `background-color: ${color.string()}; color: ${textColor};`;
-    });
-
-    function studyPadOrdinal(journalEntry) {
-      if(journalEntry.type === StudyPadEntryTypes.BOOKMARK) {
-        return journalEntry.id;
-      } else {
-        return journalEntry.id + 10000;
-      }
-    }
-
-    return {
-      lastEntry, journalEntries, editNotes, adding, indentStyle, editableJournalEntry,  addNewEntry, appendNewEntry,
-      labelNameStyle, studyPadOrdinal, StudyPadEntryTypes, setStudyPadRowRef, editLastNote, exportMode, ...useCommon()
-    }
-  }
+function indentStyle(entry: StudyPadItem) {
+    const margin = entry.indentLevel * 20;
+    return `margin-left: ${margin}px;`;
 }
+
+function addNewEntry() {
+    adding.value = true;
+    android.createNewJournalEntry(label.id);
+}
+
+function appendNewEntry() {
+    adding.value = true;
+    android.createNewJournalEntry(label.id, lastEntry.value.type, lastEntry.value.id);
+}
+
+const labelNameStyle = computed(() => {
+    if (exportMode.value) return;
+    const color: Color = adjustedColorOrig(label.style.color)!;
+    const textColor = color.isLight() ? "var(--label-text-black)" : "var(--label-text-white)";
+    return `background-color: ${color.string()}; color: ${textColor};`;
+});
+
+function studyPadOrdinal(journalEntry: StudyPadItem) {
+    if (journalEntry.type === "bookmark") {
+        return journalEntry.id;
+    } else {
+        return journalEntry.id + 10000;
+    }
+}
+
+const journalItemKey = (e: StudyPadItem) => `studypad-${e.type}-${e.id}`
+
+const {strings} = useCommon()
 </script>
 
 <style scoped lang="scss">
@@ -237,17 +246,19 @@ div.journal-name {
   line-height: normal;
   font-size: 180%;
   border-radius: 10px;
-  margin-inline-start: 0px;
+  margin-inline-start: 0;
   font-weight: bold;
   position: relative;
 }
 
 .share-button {
-  position:absolute;
+  position: absolute;
   padding: 10px;
+
   [dir=ltr] & {
     right: 0;
   }
+
   [dir=rtl] & {
     left: 0;
   }
@@ -269,12 +280,15 @@ div.journal-name {
 <style lang="scss">
 .drag-ghost {
   background: rgba(0, 0, 0, 0.2);
+
   .night & {
     background: rgba(255, 255, 255, 0.2);
   }
 }
+
 .drag-chosen {
   background: rgba(0, 0, 0, 0.2);
+
   .night & {
     background: rgba(255, 255, 255, 0.2);
   }

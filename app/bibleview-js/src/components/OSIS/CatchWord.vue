@@ -19,20 +19,15 @@
   <span class="catchWord"><slot/></span>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 
-export default {
-  name: "CatchWord",
-  setup() {
-    return useCommon();
-  },
-}
+useCommon();
 </script>
 
 <style scoped>
 
 .catchWord {
-  font-weight: bold;
+    font-weight: bold;
 }
 </style>

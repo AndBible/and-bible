@@ -16,78 +16,75 @@
   -->
 
 <template>
-  <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language" :dir="fragment.direction" >
-    <OsisSegment :osis-template="template" />
+  <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language"
+       :dir="fragment.direction">
+    <OsisSegment :osis-template="template"/>
   </div>
 </template>
 
-<script>
-import {computed, ref, inject, onMounted, provide, watch} from "vue";
+<script setup lang="ts">
+import {computed, inject, onMounted, provide, ref, toRefs, watch} from "vue";
 import {highlightVerseRange, osisToTemplateString} from "@/utils";
-import OsisSegment from "@/components/documents/OsisSegment";
-import {useStrings} from "@/composables/strings";
+import OsisSegment from "@/components/documents/OsisSegment.vue";
 import {useCommon} from "@/composables";
+import {customCssKey, osisFragmentKey} from "@/types/constants";
+import {OffsetRange, OrdinalRange, OsisFragment} from "@/types/client-objects";
 
-export default {
-  name: "OsisFragment",
-  props: {
-    fragment: {type: Object, required: true},
-    highlightOrdinalRange: {type: Array, default: null},
-    highlightOffsetRange: {type: Array, default: null},
-    hideTitles: {type: Boolean, default: false},
-    doNotConvert: {type: Boolean, default: false},
-  },
-  components: {OsisSegment},
-  setup(props) {
-    // eslint-disable-next-line vue/no-setup-props-destructure
-    const {
-      bookInitials,
-      osisRef,
-    } = props.fragment;
-    const uniqueId = ref(Date.now().toString());
+const props = withDefaults(defineProps<{
+    fragment: OsisFragment
+    highlightOrdinalRange?: OrdinalRange
+    highlightOffsetRange?: OffsetRange
+    hideTitles: boolean
+    doNotConvert: boolean
+}>(), {doNotConvert: false, hideTitles: false})
 
-    if(props.hideTitles) {
-      provide("hideTitles", true);
-    }
+const {bookInitials, osisRef} = toRefs(props.fragment);
+const uniqueId = ref(Date.now().toString());
 
-    const strings = useStrings();
-    provide("osisFragment", props.fragment)
-    const {registerBook} = inject("customCss");
-    registerBook(bookInitials);
-
-    let undo = () => {};
-    function refreshHighlight() {
-      undo();
-      if(props.highlightOrdinalRange && props.highlightOffsetRange) {
-        try {
-          undo = highlightVerseRange(`#frag-${uniqueId.value}`, props.highlightOrdinalRange, props.highlightOffsetRange);
-        } catch (e) {
-          console.error("Highlight failed for ", osisRef);
-        }
-      }
-    }
-
-    onMounted(() => {
-      refreshHighlight();
-    });
-
-    const template = computed(() => {
-      const xml = props.fragment.xml;
-      return !props.doNotConvert ? osisToTemplateString(xml) : xml;
-    });
-
-    watch(props, () => refreshHighlight());
-    return {template, strings, uniqueId, ...useCommon()}
-  }
+if (props.hideTitles) {
+    provide("hideTitles", true);
 }
+
+provide(osisFragmentKey, props.fragment)
+const {registerBook} = inject(customCssKey)!;
+registerBook(bookInitials.value);
+
+let undo: () => void = () => {};
+
+function refreshHighlight() {
+    undo();
+    if (props.highlightOrdinalRange && props.highlightOffsetRange) {
+        try {
+            const undoFunc = highlightVerseRange(`#frag-${uniqueId.value}`, props.highlightOrdinalRange, props.highlightOffsetRange);
+            if (undoFunc) {
+                undo = undoFunc
+            }
+        } catch (e) {
+            console.error("Highlight failed for ", osisRef.value);
+        }
+    }
+}
+
+onMounted(() => {
+    refreshHighlight();
+});
+
+const template = computed(() => {
+    const xml = props.fragment.xml;
+    return !props.doNotConvert ? osisToTemplateString(xml) : xml;
+});
+
+watch(props, () => refreshHighlight());
+useCommon();
 </script>
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.1s ease;
+    transition: opacity 0.1s ease;
 }
+
 .fade-enter-from, .fade-leave-to {
-  opacity: 0
+    opacity: 0
 }
 </style>
 <style lang="scss">

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal blocking v-if="showModal" @close="showModal = false" :locate-top="locateTop">
+  <ModalDialog blocking v-if="showModal" @close="showModal = false" :locate-top="locateTop">
     <template #title>
       {{ strings.bookmarkLabels }}
     </template>
@@ -28,22 +28,22 @@
 
     <div class="items">
       <div class="item">
-        <LabelList :bookmark-id="bookmarkId" only-assign in-bookmark />
+        <LabelList :bookmark-id="bookmarkId" only-assign in-bookmark/>
         <hr/>
       </div>
       <div class="item title top" v-if="hasFavourites">
         <FontAwesomeIcon icon="heart"/>
-        {{strings.favouriteLabels}}
+        {{ strings.favouriteLabels }}
       </div>
       <div class="item" v-show="hasFavourites">
         <LabelList :bookmark-id="bookmarkId" favourites only-assign @has-entries="hasFavourites = $event"/>
       </div>
       <div class="item title" v-if="hasRecent">
         <FontAwesomeIcon icon="history"/>
-        {{strings.recentLabels}}
+        {{ strings.recentLabels }}
       </div>
       <div class="item" v-show="hasRecent">
-        <LabelList :bookmark-id="bookmarkId" recent only-assign @has-entries="hasRecent = $event" />
+        <LabelList :bookmark-id="bookmarkId" recent only-assign @has-entries="hasRecent = $event"/>
       </div>
       <!--div class="item title">
         <FontAwesomeIcon icon="fire-alt"/>
@@ -57,46 +57,46 @@
         {{ strings.assignLabelsMenuEntry1 }}
       </button>
     </div>
-  </Modal>
+  </ModalDialog>
 </template>
 
-<script>
-import Modal from "@/components/modals/Modal";
-import {computed, ref, inject} from "vue";
+<script lang="ts" setup>
+import ModalDialog from "@/components/modals/ModalDialog.vue";
+import {computed, inject, ref} from "vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-export default {
-  name: "BookmarkLabelActions",
-  components: {Modal, FontAwesomeIcon},
-  props: {
-    bookmarkId: {type: Number, required: true},
-  },
-  setup(props) {
-    const showModal = ref(false);
-    const {bookmarkMap} = inject("globalBookmarks");
-    const android = inject("android");
-    const locateTop = ref(true);
+import {androidKey, globalBookmarksKey} from "@/types/constants";
 
-    const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
+const props = defineProps<{ bookmarkId: number }>();
 
-    function assignLabels() {
-      if(bookmark.value) {
+const showModal = ref(false);
+const {bookmarkMap} = inject(globalBookmarksKey)!;
+const android = inject(androidKey)!;
+const locateTop = ref(true);
+
+const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
+
+function assignLabels() {
+    if (bookmark.value) {
         android.assignLabels(bookmark.value.id);
-      }
     }
-    const hasFavourites = ref(false);
-    const hasRecent = ref(false);
-    function showActions({locateTop: locateTop_ = true} = {}) {
-      locateTop.value = locateTop_;
-      showModal.value = true;
-    }
-    return {showModal, showActions, assignLabels, hasFavourites, hasRecent, ...useCommon()}
-  }
 }
+
+const hasFavourites = ref(false);
+const hasRecent = ref(false);
+
+function showActions({locateTop: locateTop_ = true} = {}) {
+    locateTop.value = locateTop_;
+    showModal.value = true;
+}
+
+defineExpose({showActions});
+const {strings} = useCommon();
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .items {
   @extend .visible-scrollbar;
   display: flex;
@@ -104,18 +104,22 @@ export default {
   max-height: calc(var(--max-height) - 25pt);
   overflow-y: auto;
 }
+
 .item {
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 2px;
+
   &.title {
     padding-top: 10px;
+
     &.top {
       padding-top: 0;
     }
   }
 
 }
+
 hr {
   border-top: 1px solid rgba(0, 0, 0, 0.2);
 }

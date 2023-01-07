@@ -18,7 +18,7 @@
 <template>
   <span :id="`v-${ordinal}`" @click="verseClicked">
     <span
-      :id="fromBibleDocument ? `o-${ordinal}` : null"
+      :id="fromBibleDocument ? `o-${ordinal}` : undefined"
       class="verse"
       :class="{ordinal: fromBibleDocument}"
       :data-ordinal="ordinal"
@@ -31,79 +31,56 @@
   <span :class="{linebreak: config.showVersePerLine}"/>
 </template>
 
-<script>
-import {inject, provide, reactive, ref, computed} from "vue";
-import VerseNumber from "@/components/VerseNumber";
+<script setup lang="ts">
+import {computed, inject, provide, reactive, ref} from "vue";
+import VerseNumber from "@/components/VerseNumber.vue";
 import {useCommon} from "@/composables";
 import {addEventVerseInfo, getVerseInfo} from "@/utils";
+import {bibleDocumentInfoKey, verseHighlightKey, verseInfoKey} from "@/types/constants";
+import {VerseInfo} from "@/types/common";
 
-export default {
-  name: "Verse",
-  components: {VerseNumber},
-  props: {
-    osisID: { type: String, required: true},
-    verseOrdinal: { type: String, required: true},
-  },
-  setup(props) {
-    const bibleDocumentInfo = inject("bibleDocumentInfo", {})
-    const {bookInitials, bibleBookName, originalOrdinalRange, ordinalRange, v11n} = bibleDocumentInfo;
-    const verseInfo = {...getVerseInfo(props), v11n};
+const props = defineProps<{ osisID: string, verseOrdinal: string }>();
 
-    const shown = ref(true);
-    if(verseInfo) {
-      verseInfo.showStack = reactive([shown]);
-      provide("verseInfo", verseInfo);
-    }
+const shown = ref(true);
+const bibleDocumentInfo = inject(bibleDocumentInfoKey);
 
-    const {highlightedVerses, highlightVerse} = inject("verseHighlight");
+const verseInfo: VerseInfo = {...getVerseInfo(props), v11n: bibleDocumentInfo?.v11n, showStack: reactive([shown])};
 
-    const ordinal = computed(() => {
-      return parseInt(props.verseOrdinal);
-    });
+provide(verseInfoKey, verseInfo);
 
-    const book = computed(() => {
-      return props.osisID.split(".")[0]
-    });
+const {highlightedVerses, highlightVerse} = inject(verseHighlightKey)!;
 
-    const chapter = computed(() => {
-      return parseInt(props.osisID.split(".")[1])
-    });
+const ordinal = computed(() => {
+    return parseInt(props.verseOrdinal);
+});
 
-    const verse = computed(() => {
-      return parseInt(props.osisID.split(".")[2])
-    });
+const verse = computed(() => {
+    return parseInt(props.osisID.split(".")[2])
+});
 
-    const fromBibleDocument = computed(() => !!ordinalRange);
+const fromBibleDocument = computed(() => !!bibleDocumentInfo?.ordinalRange);
 
-    const highlighted = computed(() => highlightedVerses.has(ordinal.value))
+const highlighted = computed(() => highlightedVerses.has(ordinal.value))
 
-    if(originalOrdinalRange && ordinal.value <= originalOrdinalRange[1] && ordinal.value >= originalOrdinalRange[0]) {
-      highlightVerse(ordinal.value)
-    }
-
-    function verseClicked(event) {
-      if(!fromBibleDocument.value) return;
-      addEventVerseInfo(event, {bookInitials, bibleBookName, bibleDocumentInfo, ...verseInfo})
-    }
-
-    const common = useCommon();
-    return {
-      ordinal,
-      book,
-      chapter,
-      verse,
-      shown,
-      highlighted,
-      fromBibleDocument,
-      verseClicked,
-      ...common,
-    }
-  },
+if (bibleDocumentInfo?.originalOrdinalRange &&
+    ordinal.value <= bibleDocumentInfo.originalOrdinalRange[1] &&
+    ordinal.value >= bibleDocumentInfo.originalOrdinalRange[0]) {
+    highlightVerse(ordinal.value)
 }
+
+function verseClicked(event: Event) {
+    if (!fromBibleDocument.value) return;
+    const {bookInitials, bibleBookName} = bibleDocumentInfo!;
+
+    addEventVerseInfo(event, {bookInitials, bibleBookName, bibleDocumentInfo, ...verseInfo})
+}
+
+const {config} = useCommon();
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .linebreak {
   display: block;
 }

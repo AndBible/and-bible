@@ -19,15 +19,10 @@
   <ul class="list-style"><slot/></ul>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 
-export default {
-  name: "List",
-  setup() {
-    return useCommon();
-  },
-}
+useCommon();
 </script>
 
 <style scoped>

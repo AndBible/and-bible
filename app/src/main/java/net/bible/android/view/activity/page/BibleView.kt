@@ -471,13 +471,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     BookName.setFullBookName(wasFullBookName)
                 }
             }
-            val text = currentSelectionText
-            if(ref == null && text != null) {
+            val searchText = if((currentSelectionText?.length ?: 0) > 15) null else currentSelectionText
+            if(ref == null && searchText != null) {
                 val item = menu.findItem(R.id.search)
                 item.isVisible = true
-                item.title = context.getString(R.string.search_what, text)
+                item.title = context.getString(R.string.search_what, searchText)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && text != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && searchText != null) {
                 var menuItemOrder = 100
                 for (resolveInfo in getSupportedActivities()) {
                     menu.add(Menu.NONE, Menu.NONE,

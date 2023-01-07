@@ -25,43 +25,36 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import {inject, provide, ref} from "vue";
 import {useBookmarks} from "@/composables/bookmarks";
-import OsisFragment from "@/components/documents/OsisFragment";
+import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {useCommon} from "@/composables";
-import Chapter from "@/components/OSIS/Chapter";
+import Chapter from "@/components/OSIS/Chapter.vue";
+import {bibleDocumentInfoKey, footnoteCountKey, globalBookmarksKey} from "@/types/constants";
+import {BibleDocumentType} from "@/types/documents";
 
-export default {
-  name: "BibleDocument",
-  components: {OsisFragment, Chapter},
-  props: {
-    document: {type: Object, required: true},
-  },
-  setup(props) {
-    // eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
-    const {id, bibleBookName, bookInitials, bookmarks, ordinalRange, originalOrdinalRange, v11n} = props.document;
+const props = defineProps<{ document: BibleDocumentType }>();
 
-    provide("bibleDocumentInfo", {bibleBookName, bookInitials, ordinalRange, originalOrdinalRange, v11n})
+// eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
+const {id, bibleBookName, bookInitials, bookmarks, ordinalRange, originalOrdinalRange, v11n} = props.document;
 
-    const globalBookmarks = inject("globalBookmarks");
-    globalBookmarks.updateBookmarks(...bookmarks);
+provide(bibleDocumentInfoKey, {bibleBookName, bookInitials, ordinalRange, originalOrdinalRange, v11n})
 
-    const {config, appSettings, ...common} = useCommon();
+const globalBookmarks = inject(globalBookmarksKey)!;
+globalBookmarks.updateBookmarks(bookmarks);
 
-    useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config, appSettings);
+const {config, appSettings, ...common} = useCommon();
 
-    let footNoteCount = ordinalRange[0] || 0;
+useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config, appSettings);
 
-    function getFootNoteCount() {
-      return footNoteCount ++;
-    }
+let footNoteCount = ordinalRange[0] || 0;
 
-    provide("footNoteCount", {getFootNoteCount});
-
-    return {bookInitials, ...common}
-  }
+function getFootNoteCount() {
+    return footNoteCount++;
 }
+
+provide(footnoteCountKey, {getFootNoteCount});
 </script>
 
 <style scoped>

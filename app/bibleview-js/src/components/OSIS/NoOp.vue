@@ -19,14 +19,10 @@
   <span/>
 </template>
 
-<script>
+<script setup lang="ts">
+import {useCommon} from "@/composables"
 
-export default {
-  name: "NoOp",
-  setup() {
-    return {};
-  },
-}
+useCommon();
 </script>
 
 <style scoped>

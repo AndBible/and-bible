@@ -18,11 +18,11 @@
 <template>
   <div class="ambiguous-button" :style="buttonStyle" @click.stop="openBookmark(false)">
     <div class="verse-range one-liner">
-      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ bookmark.text}}</i></q>
+      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><em>{{ bookmark.text }}</em></q>
     </div>
     <div v-if="bookmark.hasNote" class="note one-liner small">
       <FontAwesomeIcon icon="edit" size="xs"/>
-      {{ htmlToString(bookmark.notes)}}
+      {{ htmlToString(bookmarkNotes) }}
     </div>
 
     <div style="overflow-x: auto" class="label-list">
@@ -31,88 +31,77 @@
 
     <div style="height: 7px"/>
     <BookmarkButtons
-      :bookmark="bookmark"
-      show-study-pad-buttons
-      @edit-clicked="editNotes"
-      @info-clicked="openBookmark(true)"
+        :bookmark="bookmark"
+        show-study-pad-buttons
+        @edit-clicked="editNotes"
+        @info-clicked="openBookmark(true)"
     />
   </div>
 </template>
 
-<script>
-import LabelList from "@/components/LabelList";
-import {inject, computed} from "vue";
+<script lang="ts" setup>
+import LabelList from "@/components/LabelList.vue";
+import {computed, inject} from "vue";
 import {useCommon} from "@/composables";
-import {Events, emit} from "@/eventbus";
-import {adjustedColor} from "@/utils";
+import {emit} from "@/eventbus";
 import Color from "color";
-import BookmarkButtons from "@/components/BookmarkButtons";
+import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {globalBookmarksKey, locateTopKey} from "@/types/constants";
 
-export default {
-  emits: ["selected"],
-  name: "AmbiguousSelectionBookmarkButton",
-  props: {
-    bookmarkId: {required: true, type: Number},
-  },
-  components: {LabelList, BookmarkButtons, FontAwesomeIcon},
-  setup(props, {emit: $emit}) {
-    const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
-    const common = useCommon();
-    const bookmark = computed(() => {
-      return bookmarkMap.get(props.bookmarkId);
-    });
+const $emit = defineEmits(["selected"]);
+const props = defineProps<{ bookmarkId: number }>();
 
-    const primaryLabel = computed(() => {
-      const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
-      return bookmarkLabels.get(primaryLabelId);
-    });
+const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
+useCommon();
+const bookmark = computed(() => bookmarkMap.get(props.bookmarkId)!);
+const bookmarkNotes = computed(() => bookmark.value.notes!);
 
-    const buttonStyle = computed(() => {
-      let color = Color(primaryLabel.value.color);
-      color = color.alpha(0.5)
-      return `background-color: ${color.hsl()};`
-    });
+const primaryLabel = computed(() => {
+    const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
+    return bookmarkLabels.get(primaryLabelId)!;
+});
 
-    const bookmarkColor = computed(() => {
-      return `color: ${adjustedColor(primaryLabel.value.color)}`
-    });
+const buttonStyle = computed(() => {
+    let color = Color(primaryLabel.value.color);
+    color = color.alpha(0.5)
+    return `background-color: ${color.hsl()};`
+});
 
-    const locateTop = inject("locateTop");
-    function editNotes() {
-      $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openNotes: true, locateTop: locateTop.value});
-    }
+const locateTop = inject(locateTopKey)!;
 
-    function openBookmark(openInfo = false) {
-      $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openInfo, locateTop: locateTop.value});
-    }
+function editNotes() {
+    $emit("selected");
+    emit("bookmark_clicked", bookmark.value.id, {openNotes: true, locateTop: locateTop.value});
+}
 
-    function htmlToString(html) {
-      const ele = document.createElement("div")
-      ele.innerHTML = html
-      return ele.innerText
-    }
+function openBookmark(openInfo = false) {
+    $emit("selected");
+    emit("bookmark_clicked", bookmark.value.id, {openInfo, locateTop: locateTop.value});
+}
 
-    return {
-      bookmark, buttonStyle, adjustedColor, bookmarkColor, editNotes, openBookmark, ...common, htmlToString,
-    };
-  },
+function htmlToString(html: string) {
+    const ele = document.createElement("div")
+    ele.innerHTML = html
+    return ele.innerText
 }
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .ambiguous-button {
   color: black;
+
   .night & {
     color: #d7d7d7;
   }
+
   @extend .button;
   text-align: start;
 }
+
 .small {
-    font-size: 0.9em
+  font-size: 0.9em
 }
 </style>

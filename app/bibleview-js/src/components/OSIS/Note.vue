@@ -16,8 +16,8 @@
   -->
 <template>
   <AmbiguousSelection do-not-close-modals ref="ambiguousSelection"/>
-  <Modal @close="showNote = false" v-if="showNote" :locate-top="locateTop">
-    <div class="scrollable" @click="ambiguousSelection.handle">
+  <ModalDialog @close="showNote = false" v-if="showNote" :locate-top="locateTop">
+    <div class="scrollable" @click="ambiguousSelection?.handle">
       <slot/>
       <OpenAllLink :v11n="v11n"/>
     </div>
@@ -29,7 +29,7 @@
         {{ noteType }}
       </template>
     </template>
-  </Modal>
+  </ModalDialog>
   <span
     v-if="showHandle"
     class="skip-offset">
@@ -39,91 +39,84 @@
   </span>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon, useReferenceCollector} from "@/composables";
-import Modal from "@/components/modals/Modal";
+import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {get} from "lodash";
-import {ref, provide, inject, computed} from "vue";
+import {computed, inject, provide, ref} from "vue";
 import {addEventFunction, EventPriorities, isBottomHalfClicked} from "@/utils";
-import OpenAllLink from "@/components/OpenAllLink";
+import OpenAllLink from "@/components/OpenAllLink.vue";
+import {exportModeKey, footnoteCountKey, osisFragmentKey, referenceCollectorKey} from "@/types/constants";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
 
-export default {
-  name: "Note",
-  components: {OpenAllLink, Modal},
-  noContentTag: true,
-  props: {
-    osisID: {type: String, default: null},
-    osisRef: {type: String, default: null},
-    placement: {type: String, default: null},
-    type: {type: String, default: null},
-    subType: {type: String, default: null},
-    n: {type: String, default: null},
-    resp: {type: String, default: null},
-  },
-  setup(props) {
-    const ambiguousSelection = ref(null);
-    checkUnsupportedProps(props, "resp");
-    checkUnsupportedProps(props, "placement", ['foot']);
-    checkUnsupportedProps(props, "type",
-                          ["explanation", "translation", "crossReference", "variant", "alternative", "study", "x-editor-correction"]);
-    checkUnsupportedProps(props, "subType",
-                          ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
-    const {strings, config, sprintf, ...common} = useCommon();
-    const showNote = ref(false);
-    const locateTop = ref(false);
-    const {getFootNoteCount} = inject("footNoteCount");
+const props = defineProps<{
+    osisID?: string
+    osisRef?: string
+    placement?: string
+    type?: string
+    subType?: string
+    n?: string
+    resp?: string
+}>();
 
-    function runningHandle() {
-      return alphabets[getFootNoteCount()%alphabets.length];
-    }
+const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
+checkUnsupportedProps(props, "resp");
+checkUnsupportedProps(props, "placement", ['foot']);
+checkUnsupportedProps(props, "type",
+    ["explanation", "translation", "crossReference", "variant", "alternative", "study", "x-editor-correction"]);
+checkUnsupportedProps(props, "subType",
+    ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
+const {strings, config, sprintf} = useCommon();
+const showNote = ref(false);
+const locateTop = ref(false);
+const {getFootNoteCount} = inject(footnoteCountKey)!;
 
-    const handle = computed(() => props.n || runningHandle());
-    const isFootNote = computed(() => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction"].includes(props.type));
-    const typeStr = computed(() => get(typeStrings, props.type));
-    const noteType = computed(() => typeStr.value ? sprintf(strings.noteText, typeStr.value) : strings.noteTextWithoutType);
-    const isCrossReference = computed(() => props.type === "crossReference");
-    const isOther = computed(() => !isCrossReference.value && !isFootNote.value);
-
-    function noteClicked(event) {
-      addEventFunction(event,
-                       () => {
-                         if(!showNote.value) {
-                           referenceCollector.clear();
-                           locateTop.value = isBottomHalfClicked(event);
-                           showNote.value = true;
-                         }
-                       },
-                       {title: strings.openFootnote, priority: EventPriorities.FOOTNOTE});
-    }
-    const typeStrings = {
-      explanation: strings.footnoteTypeExplanation,
-      translation: strings.footnoteTypeTranslation,
-      study: strings.footnoteTypeStudy,
-      variant: strings.footnoteTypeVariant,
-      alternative: strings.footnoteTypeAlternative,
-    };
-    const {v11n} = inject("osisFragment", {})
-    const referenceCollector = useReferenceCollector();
-    provide("referenceCollector", referenceCollector);
-
-    const exportMode = inject("exportMode", ref(false));
-
-    const showHandle = computed(() => {
-      return !exportMode.value && ((config.showFootNotes && isCrossReference) || config.showFootNotes);
-    });
-
-    return {
-      handle, showNote, locateTop, ambiguousSelection, v11n, isCrossReference, noteType, isFootNote,
-      isOther, strings, noteClicked, showHandle, ...common
-    }
-  },
+function runningHandle() {
+    return alphabets[getFootNoteCount() % alphabets.length];
 }
+
+const handle = computed(() => props.n || runningHandle());
+const isFootNote = computed(() => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction"].includes(props.type!));
+const typeStr = computed(() => get(typeStrings, props.type!));
+const noteType = computed(() => typeStr.value ? sprintf(strings.noteText, typeStr.value) : strings.noteTextWithoutType);
+const isCrossReference = computed(() => props.type === "crossReference");
+const isOther = computed(() => !isCrossReference.value && !isFootNote.value);
+
+function noteClicked(event: MouseEvent) {
+    addEventFunction(event,
+        () => {
+            if (!showNote.value) {
+                referenceCollector.clear();
+                locateTop.value = isBottomHalfClicked(event);
+                showNote.value = true;
+            }
+        },
+        {title: strings.openFootnote, priority: EventPriorities.FOOTNOTE});
+}
+
+const typeStrings = {
+    explanation: strings.footnoteTypeExplanation,
+    translation: strings.footnoteTypeTranslation,
+    study: strings.footnoteTypeStudy,
+    variant: strings.footnoteTypeVariant,
+    alternative: strings.footnoteTypeAlternative,
+};
+const {v11n} = inject(osisFragmentKey)!
+const referenceCollector = useReferenceCollector();
+provide(referenceCollectorKey, referenceCollector);
+
+const exportMode = inject(exportModeKey, ref(false));
+
+const showHandle = computed(() => {
+    return !exportMode.value && ((config.showFootNotes && isCrossReference) || config.showFootNotes);
+});
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .note-handle-base {
   @extend .superscript;
   padding: 0.2em;

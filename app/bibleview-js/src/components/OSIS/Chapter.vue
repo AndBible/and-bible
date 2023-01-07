@@ -20,43 +20,40 @@
   <slot/>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {inject, computed} from "vue";
+import {computed, inject} from "vue";
+import {bibleDocumentInfoKey} from "@/types/constants";
 
-export default {
-  name: "Chapter",
-  props: {
-    n: {type: String, default: null},
-    osisID: {type: String, default: null},
-    sID: {type: String, default: null},
-    eID: {type: String, default: null},
-    chapterTitle: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "chapterTitle")
-    const bibleDocumentInfo = inject("bibleDocumentInfo", null);
-    const ordinal = computed(() => {
-      if(bibleDocumentInfo == null) return -1;
-      const ordinalRange = bibleDocumentInfo.originalOrdinalRange || bibleDocumentInfo.ordinalRange;
-      return ordinalRange[0];
-    });
-    const startTag = computed(() => props.eID === null);
-    const chapterNum = computed(() => {
-      return (props.n || props.osisID.split(".")[1]).trim()
-    });
+const props = defineProps<{
+    n?: string
+    osisID?: string
+    sID?: string
+    eID?: string
+    chapterTitle?: string
+}>();
 
-    return {ordinal, chapterNum, startTag, ...useCommon()};
-  },
-}
+checkUnsupportedProps(props, "chapterTitle")
+const bibleDocumentInfo = inject(bibleDocumentInfoKey);
+const ordinal = computed(() => {
+    if (!bibleDocumentInfo) return -1;
+    const ordinalRange = bibleDocumentInfo.originalOrdinalRange || bibleDocumentInfo.ordinalRange;
+    return ordinalRange[0];
+});
+const startTag = computed(() => !props.eID);
+const chapterNum = computed(() => {
+    return (props.n || props.osisID!.split(".")[1]).trim()
+});
+const {config, sprintf, strings} = useCommon();
+
 </script>
 
 <style scoped lang="scss">
 .chapter-number {
   color: var(--verse-number-color);
   font-size: 70%;
-	margin-top: 1em;
-	margin-bottom: 0.5em;
-	text-align: center;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  text-align: center;
 }
 </style>

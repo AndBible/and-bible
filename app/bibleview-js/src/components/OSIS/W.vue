@@ -34,94 +34,99 @@
   </template>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
-import {computed, ref, inject} from "vue";
+import {computed, inject, ref} from "vue";
 import {strongsModes} from "@/composables/config";
+import {exportModeKey, verseHighlightKey} from "@/types/constants";
 
-export default {
-  name: "W",
-  props: {
-    lemma: {type: String, default: null}, // example: strong:H8064 lemma.TR:XXXXX
-    morph: {type: String, default: null}, // example: strongMorph:TH8792
-    src: {type: String, default: null},
-    n: {type: String, default: null},
-    type: {type: String, default: null},
-    subType: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "n")
-    checkUnsupportedProps(props, "src")
-    checkUnsupportedProps(props, "type", ["x-split"])
-    checkUnsupportedProps(props, "subType")
-    const {strings, config, ...common} = useCommon();
-    const isHighlighted = ref(false);
-    const {addCustom, resetHighlights} = inject("verseHighlight");
-    function prep(string) {
-      let remainingString = string;
-      const res = []
-      do {
+const props = defineProps<{
+    lemma?: string // example: strong:H8064 lemma.TR:XXXXX
+    morph?: string // example: strongMorph:TH8792
+    src?: string
+    n?: string
+    type?: string
+    subType?: string
+}>();
+
+checkUnsupportedProps(props, "n")
+checkUnsupportedProps(props, "src")
+checkUnsupportedProps(props, "type", ["x-split"])
+checkUnsupportedProps(props, "subType")
+const {strings, config} = useCommon();
+const isHighlighted = ref(false);
+const {addCustom, resetHighlights} = inject(verseHighlightKey)!;
+
+function prep(string: string): string[] {
+    let remainingString = string;
+    const res: string[] = []
+    do {
         const match = remainingString.match(/([^ :]+:)([^:]+)$/)
-        if(!match) return res;
+        if (!match) return res;
         const s = match[0]
         res.push(s);
         remainingString = remainingString.slice(0, remainingString.length - s.length)
-      } while(remainingString.trim().length > 0)
-      return res;
-    }
-    function formatName(string) {
-      return prep(string).filter(s => !s.startsWith("lemma.TR:")).map(s => s.match(/([^ :]+:)[HG0 ]*([^:]+) *$/)[2].trim()).join(",")
-    }
-    function formatLink(first, second) {
-      const linkBodies = [];
+    } while (remainingString.trim().length > 0)
+    return res;
+}
 
-      function toArgs(string) {
+function formatName(string: string): string {
+    return prep(string).filter(s => !s.startsWith("lemma.TR:")).map(s => s.match(/([^ :]+:)[HG0 ]*([^:]+) *$/)![2].trim()).join(",")
+}
+
+function formatLink(first?: string, second?: string): string {
+    const linkBodies = [];
+
+    function toArgs(string: string): string {
         return prep(string).map(s => s.trim().replace(/ /g, "_").replace(/:/g, "=")).join("&");
-      }
-
-      if(first) {
-        linkBodies.push(toArgs(first))
-      }
-      if(second) {
-        linkBodies.push(toArgs(second))
-      }
-      // Link format:
-      // ab-w://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
-      return "ab-w://?" + linkBodies.join("&")
     }
-    function goToLink(event, url) {
-      const priority = showStrongsSeparately.value ? EventPriorities.STRONGS_LINK: EventPriorities.STRONGS_DOTTED;
-      addEventFunction(event, () => {
+
+    if (first) {
+        linkBodies.push(toArgs(first))
+    }
+    if (second) {
+        linkBodies.push(toArgs(second))
+    }
+    // Link format:
+    // ab-w://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
+    return "ab-w://?" + linkBodies.join("&")
+}
+
+function goToLink(event: MouseEvent, url: string) {
+    const priority = showStrongsSeparately.value ? EventPriorities.STRONGS_LINK : EventPriorities.STRONGS_DOTTED;
+    addEventFunction(event, () => {
         window.location.assign(url)
         resetHighlights();
         isHighlighted.value = true;
         addCustom(() => isHighlighted.value = false);
-      }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
-    }
-    const exportMode = inject("exportMode", ref(false));
-    const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
-    const showStrongsSeparately = computed(() => !exportMode.value && config.strongsMode === strongsModes.links);
-
-    return {formatLink, formatName, isHighlighted, goToLink, config, strings, showStrongs, showStrongsSeparately, ...common};
-  },
+    }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
 }
+
+const exportMode = inject(exportModeKey, ref(false));
+const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
+const showStrongsSeparately = computed(() => !exportMode.value && config.strongsMode === strongsModes.links);
+
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
-  .link-style {
-    text-decoration: underline dotted;
-    [lang=he],[lang=hbo] & {
-      text-decoration-style: solid;
-      text-decoration-color: hsla(var(--text-color-h), var(--text-color-s), var(--text-color-l), 0.5);
-    }
+
+.link-style {
+  text-decoration: underline dotted;
+
+  [lang=he], [lang=hbo] & {
+    text-decoration-style: solid;
+    text-decoration-color: hsla(var(--text-color-h), var(--text-color-s), var(--text-color-l), 0.5);
   }
+}
+
 .base {
   font-size: 0.6em;
   text-decoration: none;
   color: gray;
 }
+
 .strongs, .morph {
   color: coral;
   text-decoration: none;

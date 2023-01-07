@@ -17,56 +17,54 @@
 
 <template>
   <div :style="`position: fixed; top:0; width:100%;  background-color: rgba(100, 255, 100, 0.7);
-               height:${config.topOffset}px`"
+               height:${appSettings.topOffset}px`"
   >
-    Current verse: {{currentVerse}}
+    Current verse: {{ currentVerse }}
   </div>
   <div v-if="config.developmentMode" class="highlightButton">
     <span @mouseenter="testMakeBookmark">Get selection!</span>
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {useCommon} from "@/composables";
-import {emit, Events} from "@/eventbus";
+import {emit} from "@/eventbus";
 import {inject} from "vue";
+import {androidKey} from "@/types/constants";
+import {QuerySelection} from "@/composables/android";
 
-export default {
-  name: "DevelopmentMode",
-  props: {
-    currentVerse: {type: Number, default: null}
-  },
-  setup() {
-    const android = inject("android");
+withDefaults(defineProps<{ currentVerse: number | null }>(), {currentVerse: null});
 
-    let lblCount = 0;
+const android = inject(androidKey)!;
 
-    function testMakeBookmark() {
-      const selection = android.querySelection()
-      if(!selection) return
-      const bookmark = {
-        id: -lblCount -1,
-        ordinalRange: [selection.startOrdinal, selection.endOrdinal],
-        offsetRange: [selection.startOffset, selection.endOffset],
-        bookInitials: selection.bookInitials,
+let lblCount = 0;
+
+function testMakeBookmark() {
+    const selection = android.querySelection()
+    if (!selection || selection instanceof String) return
+    const s = selection as QuerySelection
+    const bookmark = {
+        id: -lblCount - 1,
+        ordinalRange: [s.startOrdinal, s.endOrdinal],
+        offsetRange: [s.startOffset, s.endOffset],
+        bookInitials: s.bookInitials,
         note: "Test!",
         labels: [-(lblCount++ % 5) - 1]
-      }
-      emit(Events.ADD_OR_UPDATE_BOOKMARKS, [bookmark])
-      emit(Events.REMOVE_RANGES)
     }
-
-    return {testMakeBookmark, ...useCommon()};
-  },
+    emit("add_or_update_bookmarks", [bookmark])
+    emit("remove_ranges")
 }
+
+const {config, appSettings} = useCommon();
+
 </script>
 
 <style scoped>
 .highlightButton {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  padding: 2em;
-  background: yellow;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 2em;
+    background: yellow;
 }
 </style>

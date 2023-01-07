@@ -90,13 +90,13 @@ val npmInstall by tasks.registering(Exec::class) {
     }
 }
 
-val vueCli by tasks.registering(Exec::class) {
+val jsBuild by tasks.registering(Exec::class) {
     dependsOn(npmInstall)
     inputs.file("$jsDir/package.json")
-    inputs.file("$jsDir/vue.config.js")
-    inputs.file("$jsDir/babel.config.js")
+    inputs.file("$jsDir/vite.config.ts")
+    inputs.file("$jsDir/index.html")
+    inputs.file("$jsDir/tsconfig.json")
     inputs.dir("$jsDir/src")
-    inputs.dir("$jsDir/public")
     outputs.dir("$jsDir/dist")
     println("Task names "+gradle.startParameter.taskNames)
     val taskNames = gradle.startParameter.taskNames
@@ -120,7 +120,7 @@ val vueCli by tasks.registering(Exec::class) {
 }
 
 val buildLoaderJs by tasks.registering(Sync::class) {
-    dependsOn(vueCli)
+    dependsOn(jsBuild)
     from("$jsDir/dist")
     into("src/main/assets/bibleview-js")
 }

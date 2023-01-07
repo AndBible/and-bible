@@ -19,22 +19,22 @@
   <a href="#link" @click.prevent="openLink($event, href)"><slot/></a>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 import {inject} from "vue";
 import {addEventFunction, EventPriorities} from "@/utils";
+import {androidKey} from "@/types/constants";
 
-export default {
-  name: "A",
-  props: {href: {type: String, required: true}},
-  setup() {
-    const {openExternalLink} = inject("android");
-    const {strings, ...common} = useCommon()
-    function openLink(event, url) {
-      addEventFunction(event, () => openExternalLink(url), {title: strings.externalLink, priority: EventPriorities.EXTERNAL_LINK});
-    }
-    return {openLink, ...common};
-  },
+defineProps<{href: string}>();
+const {openExternalLink} = inject(androidKey)!;
+const {strings} = useCommon()
+
+function openLink(event: MouseEvent, url: string) {
+    addEventFunction(
+        event,
+        () => openExternalLink(url),
+        {title: strings.externalLink, priority: EventPriorities.EXTERNAL_LINK}
+    );
 }
 </script>
 

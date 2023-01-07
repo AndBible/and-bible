@@ -19,19 +19,16 @@
   <a href="#link" @click.prevent="openLink($event, href)"><slot/></a>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 
-export default {
-  name: "AndBibleLink",
-  props: {href: {type: String, required: true}},
-  setup() {
-    function openLink(event, url) {
-      window.location.assign(url);
-    }
-    return {openLink, ...useCommon()};
-  },
+defineProps<{href: string}>();
+
+function openLink(event: MouseEvent, url: string) {
+    window.location.assign(url);
 }
+
+useCommon();
 </script>
 
 <style scoped>

@@ -19,15 +19,10 @@
   <p><slot/></p>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 
-export default {
-  name: "P",
-  setup() {
-    return useCommon();
-  },
-}
+useCommon();
 </script>
 
 <style scoped>

@@ -27,7 +27,7 @@
       <div class="journal-button" @click="editBookmark">
         <FontAwesomeIcon icon="info-circle"/>
       </div>
-      <div v-if="!bookmark.notes" class="journal-button" @click="editor.editMode = true">
+      <div v-if="!bookmark.notes" class="journal-button" @click="setEditMode(true)">
         <FontAwesomeIcon icon="edit"/>
       </div>
       <div class="journal-button" @click="deleteEntry">
@@ -45,72 +45,72 @@
     <div v-if="bookmark.hasNote && (expanded || exportMode)" class="note-separator"/>
     <div class="notes">
       <EditableText
-        ref="editor"
-        :text="bookmark.notes"
-        @save="save"
+          ref="editor"
+          :text="bookmark.notes"
+          @save="save"
       />
     </div>
   </div>
 </template>
 
-<script>
-import ButtonRow from "@/components/ButtonRow";
+<script lang="ts" setup>
+import ButtonRow from "@/components/ButtonRow.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import LabelList from "@/components/LabelList";
-import BookmarkText from "@/components/BookmarkText";
+import LabelList from "@/components/LabelList.vue";
+import BookmarkText from "@/components/BookmarkText.vue";
 import {useCommon} from "@/composables";
-import {emit as ebEmit, Events} from "@/eventbus";
-import {computed, ref, inject} from "vue";
-import EditableText from "@/components/EditableText";
-import AreYouSure from "@/components/modals/AreYouSure";
+import {emit as ebEmit} from "@/eventbus";
+import {computed, inject, ref} from "vue";
+import EditableText from "@/components/EditableText.vue";
+import AreYouSure from "@/components/modals/AreYouSure.vue";
 import {isBottomHalfClicked} from "@/utils";
+import {androidKey, exportModeKey} from "@/types/constants";
+import {Bookmark} from "@/types/client-objects";
 
-export default {
-  name: "MyNoteRow",
-  components: {ButtonRow, FontAwesomeIcon, LabelList, BookmarkText, EditableText, AreYouSure},
-  props: {
-    bookmark: {type: Object, required: true},
-  },
-  setup: function (props) {
-    const android = inject("android");
-    const expanded = ref(false);
+const props = defineProps<{ bookmark: Bookmark }>()
 
-    function editBookmark(event) {
-      ebEmit(Events.BOOKMARK_CLICKED, props.bookmark.id, {locateTop: isBottomHalfClicked(event)})
-    }
+const android = inject(androidKey)!;
+const expanded = ref(false);
 
-    function save(newText) {
-      android.saveBookmarkNote(props.bookmark.id, newText);
-    }
-
-    const areYouSureDelete = ref(null);
-
-    async function deleteEntry() {
-      const answer = await areYouSureDelete.value.areYouSure();
-      if (answer) {
-        android.removeBookmark(props.bookmark.id);
-      }
-    }
-    const exportMode = inject("exportMode", ref(false));
-    const bibleUrl = computed(
-      () => {
-        const osis = props.bookmark.wholeVerse
-          ? props.bookmark.osisRef
-          : `${props.bookmark.bookInitials}:${props.bookmark.osisRef}`;
-        return `osis://?osis=${osis}&v11n=${props.bookmark.v11n}`;
-      }
-    );
-
-    return {
-      save, bibleUrl, areYouSureDelete, editBookmark, deleteEntry, editor: ref(null), exportMode,
-      expanded, ...useCommon()
-    }
-  },
+function editBookmark(event: MouseEvent) {
+    ebEmit("bookmark_clicked", props.bookmark.id, {locateTop: isBottomHalfClicked(event)})
 }
+
+function save(newText: string) {
+    android.saveBookmarkNote(props.bookmark.id, newText);
+}
+
+const editor = ref<InstanceType<typeof EditableText> | null>(null);
+
+function setEditMode(value: boolean) {
+    editor.value!.editMode = value;
+}
+
+const areYouSureDelete = ref<InstanceType<typeof AreYouSure> | null>(null);
+
+async function deleteEntry() {
+    const answer = await areYouSureDelete.value!.areYouSure();
+    if (answer) {
+        android.removeBookmark(props.bookmark.id);
+    }
+}
+
+const exportMode = inject(exportModeKey, ref(false));
+const bibleUrl = computed(
+    () => {
+        const osis = props.bookmark.wholeVerse
+            ? props.bookmark.osisRef
+            : `${props.bookmark.bookInitials}:${props.bookmark.osisRef}`;
+        return `osis://?osis=${osis}&v11n=${props.bookmark.v11n}`;
+    }
+);
+
+const {strings} = useCommon();
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .notes {
   text-indent: 2pt;
   margin-top: 4pt;
@@ -119,9 +119,11 @@ export default {
 .overlay {
   position: absolute;
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), var(--background-color) 50%, var(--background-color) 100%);
+
   .night & {
     background: linear-gradient(90deg, rgba(0, 0, 0, 0), var(--background-color) 75%, var(--background-color) 100%);
   }
+
   right: 0;
   top: 0;
   width: 50px;
