@@ -50,20 +50,16 @@ type TranslatedStrings = {
     errorTitle: string
     warningTitle: string
     normalTitle: string
-    footnoteTypeUndefined: string
     footnoteTypeStudy: string
     footnoteTypeExplanation: string
     footnoteTypeVariant: string
     footnoteTypeAlternative: string
     footnoteTypeTranslation: string
     clearLog: string
-    editNote: string
-    editNotePlaceholder: string
     editTextPlaceholder: string
     inputPlaceholder: string
     inputReference: string
     invalidReference: string
-    assignLabels: string
     bookmarkAccurate: string
     bookmarkInaccurate: string
     defaultBook: string
@@ -73,39 +69,25 @@ type TranslatedStrings = {
     cancel: string
     removeBookmarkConfirmationTitle: string
     removeBookmarkConfirmation: string
-    closeModal: string
     createdAt: string
     lastUpdatedOn: string
-    strongsLink: string
-    morphLink: string
     strongsAndMorph: string
-    studyPadLink: string
     externalLink: string
     referenceLink: string
     openFootnote: string
-    openBookmark: string
     noMyNotesTitle: string
     noMyNotesDescription: string
     emptyStudyPad: string
-    studyPadModalTitle: string
     doYouWantToDeleteEntry: string
     removeStudyPadConfirmationTitle: string
     dragHelp: string
-    saved: string
     openAll: string
     editBookmarkPlaceholder: string
     onlyLabel: string
     wholeBookmark: string
-    otherNoteText: string
-    assignLabelsMenuEntry: string
     assignLabelsMenuEntry1: string
-    jumpToStudyPad: string
-    setAsPrimaryLabel: string
-    removeBookmarkLabel: string
-    addBookmarkLabel: string
     favouriteLabels: string
     recentLabels: string
-    frequentlyUsedLabels: string
     bookmarkLabels: string
     refParserHelp: string
     openDownloads: string
@@ -113,11 +95,9 @@ type TranslatedStrings = {
     verseCompare: string
     verseNote: string
     verseMyNotes: string
-    verseSpeak: string
     verseShareLong: string
     verseCompareLong: string
     verseNoteLong: string
-    verseSpeakLong: string
     addBookmark: string
 }
 
