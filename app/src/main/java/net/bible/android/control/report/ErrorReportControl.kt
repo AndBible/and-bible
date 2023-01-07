@@ -118,7 +118,7 @@ object ErrorReportControl {
 const val SCREENSHOT_FILE = "screenshot.webp"
 
 object BugReport {
-    fun createErrorText(exception: Throwable? = null) = try {
+    private fun createErrorText(exception: Throwable? = null) = try {
         StringBuilder().run {
             append("Version: ").append(applicationVersionName).append("\n")
             append("Android version: ").append(Build.VERSION.RELEASE).append("\n")
@@ -170,8 +170,18 @@ object BugReport {
 
     private val logDir get() = File(application.filesDir, "/log")
 
+    private fun logBasicInfo() {
+        Log.i(TAG, "logBasicInfo")
+        Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))
+        Log.i(TAG, "Java:" + System.getProperty("java.vendor") + " ver " + System.getProperty("java.version"))
+        Log.i(TAG, "Java home:" + System.getProperty("java.home")!!)
+        Log.i(TAG, "User dir:" + System.getProperty("user.dir") + " Timezone:" + System.getProperty("user.timezone"))
+        Log.i(TAG, createErrorText())
+    }
+
     fun saveLogcat() {
         Log.i(TAG, "Trying to save logcat")
+        logBasicInfo()
         val f = File(logDir, "logcat.txt.gz")
         val log = StringBuilder()
         try {
