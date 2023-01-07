@@ -40,13 +40,14 @@
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed, toRefs} from "vue";
+import {Nullable} from "@/types/common";
 
 const props = withDefaults(
     defineProps<{
-        sID: string|null
-        eID: string|null
+        sID: Nullable<string>
+        eID: Nullable<string>
         level: string
-        type: string|null
+        type: Nullable<string>
     }>(), {
         level: "1",
         sID: null,

@@ -20,8 +20,8 @@ import {Nullable} from "@/types/common";
 export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK"
 export type V11N = string
 export type Features = {
-    readonly type?: "hebrew-and-greek" | "hebrew" | "greek" | null,
-    readonly keyName?: string | null
+    readonly type?: Nullable<"hebrew-and-greek" | "hebrew" | "greek">,
+    readonly keyName?: Nullable<string>
 }
 
 // ClientObjects.kt: OsisFragment

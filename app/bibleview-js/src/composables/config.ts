@@ -266,6 +266,9 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
                 await nextTick();
             }
 
+            // This is just too generic for typescript,
+            // but let's take a little exceptional freedoms here in order to keep this simple
+            // - thus @ts-ignores...
             for (const i in newConfig) {
                 // @ts-ignore
                 if (config[i] !== undefined) {

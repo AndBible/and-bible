@@ -41,7 +41,11 @@ export function useScroll(
         }
     }, {flush: 'sync'});
 
-    function setToolbarOffset(topOffset: number, bottomOffset: number, {doNotScroll = false, immediate = false} = {}) {
+    function setToolbarOffset(
+        topOffset: number,
+        bottomOffset: number,
+        {doNotScroll = false, immediate = false} = {}
+    ) {
         console.log("setToolbarOffset", {topOffset, bottomOffset, doNotScroll, immediate});
         const diff = appSettings.topOffset - topOffset;
         appSettings.topOffset = topOffset;
@@ -129,7 +133,7 @@ export function useScroll(
             ordinalStart: Nullable<number>,
             ordinalEnd: Nullable<number>,
             force: boolean,
-            duration: undefined | number,
+            duration?: number,
         }> = {}) {
         console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
         stopScrolling();

@@ -27,7 +27,10 @@ import {UseAndroid} from "@/composables/android";
 import {AnyDocument} from "@/types/documents";
 import {Nullable} from "@/types/common";
 
-export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}: UseAndroid, documents: AnyDocument[]) {
+export function useInfiniteScroll(
+    {requestPreviousChapter, requestNextChapter}: UseAndroid,
+    documents: AnyDocument[]
+) {
     let
         currentPos: number,
         lastAddMoreTime = 0,
