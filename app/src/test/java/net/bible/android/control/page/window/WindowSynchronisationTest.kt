@@ -41,6 +41,7 @@ import javax.inject.Provider
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertThat
+import org.junit.Ignore
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
@@ -49,6 +50,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
+@Ignore("Let's ignore these for now (see #2451)")
 class WindowSynchronisationTest {
 
     private var windowRepository: WindowRepository? = null

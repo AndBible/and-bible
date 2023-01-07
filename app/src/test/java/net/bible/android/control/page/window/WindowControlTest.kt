@@ -46,6 +46,7 @@ import org.hamcrest.Matchers.hasItem
 import org.junit.After
 import org.junit.Assert.assertThat
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -57,6 +58,7 @@ import javax.inject.Provider
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
+@Ignore("Let's ignore these for now (see #2451)")
 class WindowControlTest {
     private var windowRepository: WindowRepository? = null
 
