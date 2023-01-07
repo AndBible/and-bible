@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+import {Nullable} from "@/types/common";
+
 export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK"
 export type V11N = string
 export type Features = {
@@ -42,8 +44,8 @@ export type OsisFragment = {
 
 export type NumberRange = [start: number, end: number]
 export type OrdinalRange = NumberRange
-export type OffsetRange = [start: number, end: number | null]
-export type OrdinalOffset = [start: number, end: number | null]
+export type OffsetRange = [start: number, end: Nullable<number>]
+export type OrdinalOffset = [start: number, end: Nullable<number>]
 export type CombinedRange = [start: OrdinalOffset, end: OrdinalOffset]
 
 export type BookmarkToLabel = {
@@ -76,7 +78,7 @@ export type Bookmark = {
     readonly osisFragment: OsisFragment
     readonly primaryLabelId: number
     lastUpdatedOn: number
-    notes: string | null
+    notes: Nullable<string>
     hasNote: boolean
     wholeVerse: boolean
 }

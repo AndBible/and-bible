@@ -22,7 +22,7 @@ import {onMounted, reactive, Ref} from "vue";
 import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {Config, errorBox} from "@/composables/config";
-import {AsyncFunc, JournalEntryType, JSONString, LogEntry} from "@/types/common";
+import {AsyncFunc, JournalEntryType, JSONString, LogEntry, Nullable} from "@/types/common";
 import {Bookmark, CombinedRange, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
 import {BibleDocumentType} from "@/types/documents";
 
@@ -33,7 +33,7 @@ export type BibleJavascriptInterface = {
     requestPreviousChapter: AsyncFunc,
     requestNextChapter: AsyncFunc,
     refChooserDialog: AsyncFunc,
-    saveBookmarkNote: (bookmarkId: number, note: string | null) => void,
+    saveBookmarkNote: (bookmarkId: number, note: Nullable<string>) => void,
     removeBookmark: (bookmarkId: number) => void,
     assignLabels: (bookmarkId: number) => void,
     console: (loggerName: string, message: string) => void
@@ -63,7 +63,7 @@ export type BibleJavascriptInterface = {
     querySelection: (bookmarkId: number, value: boolean) => void,
     setBookmarkWholeVerse: (bookmarkId: number, value: boolean) => void,
     toggleCompareDocument: (documentId: string) => void,
-    helpDialog: (content: string, title: string | null) => void,
+    helpDialog: (content: string, title: Nullable<string>) => void,
     shareHtml: (html: string) => void,
     helpBookmarks: () => void,
     onKeyDown: (key: string) => void,
@@ -250,12 +250,12 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         return deferredCall((callId) => window.android.refChooserDialog(callId));
     }
 
-    function scrolledToOrdinal(ordinal: number | null) {
+    function scrolledToOrdinal(ordinal: Nullable<number>) {
         if (ordinal == null || ordinal < 0) return;
         window.android.scrolledToOrdinal(ordinal)
     }
 
-    function saveBookmarkNote(bookmarkId: number, noteText: string | null) {
+    function saveBookmarkNote(bookmarkId: number, noteText: Nullable<string>) {
         window.android.saveBookmarkNote(bookmarkId, noteText);
     }
 
@@ -383,7 +383,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.toggleCompareDocument(docId);
     }
 
-    function helpDialog(content: string, title: string | null = null) {
+    function helpDialog(content: string, title: Nullable<string> = null) {
         window.android.helpDialog(content, title);
     }
 

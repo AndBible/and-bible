@@ -20,6 +20,7 @@ import {setupEventBusListener} from "@/eventbus";
 import {isInViewport} from "@/utils";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
 import {useVerseHighlight} from "@/composables/verse-highlight";
+import {Nullable} from "@/types/common";
 
 export function useScroll(
     config: Config,
@@ -112,7 +113,7 @@ export function useScroll(
     }
 
     function scrollToId(
-        toId: string | null,
+        toId: Nullable<string>,
         {
             onlyIfInvisible = false,
             now = false,
@@ -125,8 +126,8 @@ export function useScroll(
             onlyIfInvisible: boolean,
             now: boolean,
             highlight: boolean,
-            ordinalStart: number | null,
-            ordinalEnd: number | null,
+            ordinalStart: Nullable<number>,
+            ordinalEnd: Nullable<number>,
             force: boolean,
             duration: undefined | number,
         }> = {}) {
@@ -175,9 +176,9 @@ export function useScroll(
             topOffset,
             bottomOffset
         }: {
-            jumpToOrdinal: number | null,
-            jumpToAnchor: number | null,
-            jumpToId: string | null,
+            jumpToOrdinal: Nullable<number>,
+            jumpToAnchor: Nullable<number>,
+            jumpToId: Nullable<string>,
             topOffset: number,
             bottomOffset: number
         }) {

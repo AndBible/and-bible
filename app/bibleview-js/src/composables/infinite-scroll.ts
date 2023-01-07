@@ -25,6 +25,7 @@ import {nextTick, onMounted} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
 import {AnyDocument} from "@/types/documents";
+import {Nullable} from "@/types/common";
 
 export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}: UseAndroid, documents: AnyDocument[]) {
     let
@@ -33,7 +34,7 @@ export function useInfiniteScroll({requestPreviousChapter, requestNextChapter}: 
         addMoreAtTopOnTouchUp = false,
         bottomElem: HTMLElement,
         touchDown = false,
-        textToBeInsertedAtTop: AnyDocument | null = null;
+        textToBeInsertedAtTop: Nullable<AnyDocument> = null;
 
     const
         UP_MARGIN = 2,

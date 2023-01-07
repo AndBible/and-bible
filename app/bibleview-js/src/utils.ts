@@ -111,7 +111,7 @@ export function mapFrom<T, K, V>(arr: T[], keyFn: (v: T) => K, valueFn: (v: T) =
     return map;
 }
 
-function nm(v: number | null): number {
+function nm(v: Nullable<number>): number {
     if (v === null) {
         return Number.MAX_VALUE
     } else return v;
@@ -375,7 +375,7 @@ type CallbackOpts = Record<string, any> & {
 }
 export type Callback = {
     type: "callback"
-    callback: (() => void) | null
+    callback: Nullable<(() => void)>
     options: CallbackOpts
 }
 
@@ -383,7 +383,7 @@ type EventWithEventFunctions = Event & {
     eventFunctions?: Record<string, Callback[]>
 }
 
-export function addEventFunction(event: EventWithEventFunctions, callback: CallbackFunc | null, options: CallbackOpts) {
+export function addEventFunction(event: EventWithEventFunctions, callback: Nullable<CallbackFunc>, options: CallbackOpts) {
     if (!event.eventFunctions)
         event.eventFunctions = {};
     const priority = get(options, "priority", 0);
@@ -456,10 +456,10 @@ export function osisToTemplateString(osis: string) {
 
 type TextNodeAndOffset = { node: Text, offset: number }
 
-export function findNodeAtOffsetWithNullOffset(elem: Element, offset: number | null): TextNodeAndOffset | null {
+export function findNodeAtOffsetWithNullOffset(elem: Element, offset: Nullable<number>): Nullable<TextNodeAndOffset> {
     let
-        node: Text | null,
-        off: number | null;
+        node: Nullable<Text>,
+        off: Nullable<number>;
 
     if (offset === null) {
         node = lastTextNode(elem);
@@ -531,7 +531,7 @@ export function adjustedColor(color: ColorParam, ratio = 0.2) {
 }
 
 export function clickWaiter(handleTouch = true) {
-    let clickDeferred: Deferred | null = null;
+    let clickDeferred: Nullable<Deferred> = null;
 
     async function waitForClick(event: MouseEvent | TouchEvent) {
         if (event.type === "touchstart" && !handleTouch) {
