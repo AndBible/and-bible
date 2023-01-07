@@ -117,6 +117,7 @@ import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
+import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
