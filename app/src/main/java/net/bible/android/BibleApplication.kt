@@ -96,7 +96,6 @@ open class BibleApplication : Application() {
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             BugReport.saveScreenshot()
-            logBasicInfo()
             BugReport.saveLogcat()
             CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
@@ -112,7 +111,8 @@ open class BibleApplication : Application() {
 
         LocaleProviderManager.setLocaleProvider(MyLocaleProvider)
 
-        logBasicInfo()
+        logSqliteVersion()
+
         // This must be done before accessing JSword to prevent default folders being used
         SwordEnvironmentInitialisation.initialiseJSwordFolders()
 
@@ -131,15 +131,6 @@ open class BibleApplication : Application() {
         // various initialisations required every time at app startup
 
         localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
-    }
-
-    private fun logBasicInfo() {
-        Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))
-        Log.i(TAG, "Java:" + System.getProperty("java.vendor") + " ver " + System.getProperty("java.version"))
-        Log.i(TAG, "Java home:" + System.getProperty("java.home")!!)
-        Log.i(TAG, "User dir:" + System.getProperty("user.dir") + " Timezone:" + System.getProperty("user.timezone"))
-        logSqliteVersion()
-        Log.i(TAG, BugReport.createErrorText())
     }
 
     var sqliteVersion = ""
