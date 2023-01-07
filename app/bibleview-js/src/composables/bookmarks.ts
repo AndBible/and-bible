@@ -131,7 +131,7 @@ export function verseHighlighting(
     }
     if (gradientCSS === "") return "";
     gradientCSS += `,transparent 0%`; // Fills the remainder of the background with a transparent color
-    return `linear-gradient(to bottom, ${gradientCSS})`;
+    return `background-image: linear-gradient(to bottom, ${gradientCSS})`;
 }
 
 export function useGlobalBookmarks(config: Config) {
@@ -556,7 +556,7 @@ export function useBookmarks(
             range.setStart(first.node, first.offset);
             range.setEnd(second.node, second.offset);
             if (!range.collapsed) {
-                const highlightResult = highlightRange(range, 'span', {style});
+                const highlightResult = highlightRange(range, 'span', {style, class: 'bookmarked'});
                 if (highlightResult) {
                     const {undo, highlightElements} = highlightResult;
                     firstElement = highlightElements[0];
