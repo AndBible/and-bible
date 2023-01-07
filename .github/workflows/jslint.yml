@@ -1,4 +1,4 @@
-name: Run eslint, type-check and js side unit tests
+name: Javascript checks
 
 on:
   push:
