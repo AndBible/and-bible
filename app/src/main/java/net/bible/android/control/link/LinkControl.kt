@@ -19,6 +19,7 @@ package net.bible.android.control.link
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import net.bible.android.MyLocaleProvider
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
@@ -30,7 +31,6 @@ import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.search.MySearchResults
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.service.common.CommonUtils.settings
@@ -44,19 +44,23 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.FeatureType
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.io.FileNotFoundException
 import java.net.URLDecoder
+import java.util.*
 import java.util.regex.Pattern
 import javax.inject.Inject
 
@@ -68,9 +72,9 @@ import javax.inject.Inject
 @ApplicationScope
 class LinkControl @Inject constructor(
     private val windowControl: WindowControl,
-	private val bookmarkControl: BookmarkControl,
-	private val searchControl: SearchControl,
-	private val swordDocumentFacade: SwordDocumentFacade,
+    private val bookmarkControl: BookmarkControl,
+    private val searchControl: SearchControl,
+    private val swordDocumentFacade: SwordDocumentFacade,
 )  {
     private var windowMode = WINDOW_MODE_UNDEFINED
     private var targetWindowIndex: Int? = null
@@ -132,7 +136,7 @@ class LinkControl @Inject constructor(
             showLink(bookAndKey.document, bookAndKey.key)
         }
         return true
-	}
+    }
 
     @Throws(NoSuchKeyException::class)
     private fun getSpecificDocRefKey(initials: String?, reference: String, versification: Versification, forceDoc: Boolean): BookAndKey? {
@@ -151,8 +155,8 @@ class LinkControl @Inject constructor(
             else { //Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
                 ref = URLDecoder.decode(ref)
                 //According to the OSIS schema, the osisRef attribute can contain letters and "_", but NOT punctuation and NOT spaces
-				//IBT dictionary entries sometimes contain spaces but osisrefs can't so _32_ is used
-				// e.g.  UZV Matthew 1:18: The link to "Holy Spirit" (Muqaddas Ruhdan)
+                //IBT dictionary entries sometimes contain spaces but osisrefs can't so _32_ is used
+                // e.g.  UZV Matthew 1:18: The link to "Holy Spirit" (Muqaddas Ruhdan)
                 ref = replaceIBTSpecialCharacters(ref)
                 val bookKey = document.getKey(ref)
                 return BookAndKey(bookKey, document)
@@ -263,7 +267,7 @@ class LinkControl @Inject constructor(
             needToIndex = true
         }
         // The below uses ANY_WORDS because that does not add anything to the search string
-		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
+        //String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
         val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, biblesection, null)
         Log.i(TAG, "Search text:$searchText")
         val activity = CurrentActivityHolder.currentActivity!!
@@ -275,7 +279,7 @@ class LinkControl @Inject constructor(
         intent = if (needToIndex) {
             Intent(activity, SearchIndex::class.java)
         } else { //If an indexed Strong's module is in place then do the search - the normal situation
-            Intent(activity, MySearchResults::class.java)
+            Intent(activity, SearchResults::class.java)
         }
         intent.putExtras(searchParams)
         activity.startActivity(intent)
@@ -295,6 +299,8 @@ class LinkControl @Inject constructor(
             false
         }
     }
+    fun resolveRef(searchRef: String, doc: SwordBook? = null): Key? {
+        val searchDoc = doc ?: windowControl.defaultBibleDoc(useLinks = true)
 
         val key = try { PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef) } catch (e: NoSuchVerseException) {null}?:
         try {

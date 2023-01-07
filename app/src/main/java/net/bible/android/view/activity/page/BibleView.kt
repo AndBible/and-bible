@@ -138,17 +138,9 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.min
 
-import net.bible.android.control.page.CurrentPageManager
-import android.os.Bundle
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import kotlinx.serialization.SerializationException
+
 import net.bible.android.BibleApplication
-import net.bible.android.view.activity.search.SearchResults
-import net.bible.android.view.activity.search.SearchIndex
 import net.bible.service.common.CommonUtils.getResourceString
-import org.crosswire.jsword.index.IndexStatus
-import org.crosswire.jsword.index.search.SearchType
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
@@ -970,7 +962,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     p.key?.name
                 )
 
-                val windowItem = menu.add(Menu.NONE, if (it.id == window.id) R.id.open_link_in_this_window else R.id.open_ref, count, windowTitle)
+                val windowItem = menu.add(Menu.NONE, if (it.id == window.id) R.id.open_link_in_this_window else R.id.system_items, count, windowTitle)
                 windowMap[windowItem] = count
                 count++;
             }
