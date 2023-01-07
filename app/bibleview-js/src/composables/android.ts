@@ -170,7 +170,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         const selectionOnly = selection.toString();
         const range = selection.getRangeAt(0)!;
         const documentElem: HTMLElement = range.startContainer.parentElement!.closest(".bible-document")!;
-        if (!documentElem) return selectionOnly
+        if (!documentElem) {
+            console.log(`querySelection: returning only selection ${selectionOnly}`)
+            return selectionOnly
+        }
 
         const bookInitials = documentElem.dataset.bookInitials!;
         let startOrdinal: number, startOffset: number, endOrdinal: number, endOffset: number;
@@ -184,6 +187,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
 
         } catch (e) {
             if (e instanceof ReachedRootError) {
+                console.log(`querySelection: ReachedRootError, returning only selection ${selectionOnly}`)
                 return selectionOnly
             } else {
                 throw e;
@@ -205,7 +209,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
 
         const deleteBookmarks = union(filteredBookmarks.map(b => b.id));
 
-        return {
+        const returnSelection: QuerySelection = {
             bookInitials,
             startOrdinal,
             startOffset,
@@ -213,7 +217,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
             endOffset,
             bookmarks: deleteBookmarks,
             text: selection.toString()
-        };
+        }
+
+        console.log(`querySelection: returning selection`, {returnSelection})
+        return returnSelection;
     }
 
     window.bibleView.response = response;
