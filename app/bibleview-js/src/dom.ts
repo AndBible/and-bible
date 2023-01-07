@@ -156,29 +156,15 @@ export function calculateOffsetToParent(
     node: Node,
     parent: Element,
     offset: number,
-    {forceFromEnd = false} = {}
 ): number {
     let e = node;
 
     let offsetNow = offset;
     if (e.nodeType === Node.ELEMENT_NODE) {
-        if (!forceFromEnd) {
-            if (parent === e) {
-                return offset
-            } else {
-                e = findNext(e, parent, true)!;
-            }
+        if (parent === e) {
+            return offset
         } else {
-            const next = e.lastChild
-            // @ts-ignore
-            if (next.nodeType === Node.TEXT_NODE) {
-                const t = next as Text
-                // @ts-ignore
-                return calculateOffsetToParent(t, offsetNow + t.length)
-            } else {
-                // @ts-ignore
-                return calculateOffsetToParent(next, offsetNow)
-            }
+            e = findNext(e, parent, true)!;
         }
     } else if (e.nodeType === Node.TEXT_NODE) {
         if (!hasOsisContent(e.parentNode)) {
