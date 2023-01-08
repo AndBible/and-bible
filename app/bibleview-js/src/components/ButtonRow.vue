@@ -39,15 +39,16 @@
   </div>
 </template>
 
+<script lang="ts">
+let cancel = () => {}
+</script>
+
 <script lang="ts" setup>
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {inject, ref, watch} from "vue";
 import {useCommon} from "@/composables";
 import {eventBus} from "@/eventbus";
 import {androidKey} from "@/types/constants";
-
-let cancel = () => {
-}
 
 const props = withDefaults(
     defineProps<{ showDragHandle: boolean, handleTouch: boolean }>(),

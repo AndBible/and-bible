@@ -33,6 +33,10 @@
   </div>
 </template>
 
+<script lang="ts">
+let cancelOpen = () => {}
+</script>
+
 <script lang="ts" setup>
 import {inject, ref, watch} from "vue";
 import TextEditor from "@/components/TextEditor.vue";
@@ -40,8 +44,6 @@ import {useCommon} from "@/composables";
 import {exportModeKey} from "@/types/constants";
 import {Nullable} from "@/types/common";
 
-let cancelOpen = () => {
-}
 
 const emit = defineEmits(["closed", "save", "opened"]);
 const props = withDefaults(defineProps<{
