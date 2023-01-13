@@ -21,6 +21,7 @@ import android.app.AlertDialog
 import android.util.Log
 import android.widget.Button
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
@@ -57,10 +58,9 @@ import kotlin.coroutines.suspendCoroutine
 @ApplicationScope
 open class WindowControl @Inject constructor() {
     private var _windowRepository: WindowRepository? = null
-    val isReady get() = _windowRepository != null
 
     open var windowRepository: WindowRepository
-        get() = _windowRepository!!
+        get() = _windowRepository ?: WindowRepository(CoroutineScope(Dispatchers.Main)) .apply { _windowRepository = this }
         set(value) {
             _windowRepository = value
         }
@@ -224,7 +224,7 @@ open class WindowControl @Inject constructor() {
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
-        if(event.window?.windowRepository != windowRepository) return
+        if(event.window.windowRepository != windowRepository) return
         windowSync.synchronizeWindows(event.window)
     }
 

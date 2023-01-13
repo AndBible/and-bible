@@ -32,26 +32,23 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
 import java.util.Locale
 import kotlin.collections.HashMap
 
-class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
-                             private val bookmarkControl: BookmarkControl,
-                             private val windowRepository: WindowRepository,
-                             initialBook: SwordBook,
-                             initialVerse: Verse) : SpeakTextProvider {
-
+class BibleSpeakTextProvider(
+    private val bibleTraverser: BibleTraverser,
+    private val bookmarkControl: BookmarkControl,
+    initialBook: SwordBook
+) : SpeakTextProvider  {
     private data class State(val book: SwordBook,
                              val startVerse: Verse,
                              val endVerse: Verse,
@@ -69,11 +66,11 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
     }
 
     override val numItemsToTts = 20
-    private var book = initialBook
-    private var startVerse = initialVerse
-    private var endVerse = initialVerse
+    private lateinit var book: SwordBook
+    private lateinit var startVerse: Verse
+    private lateinit var endVerse: Verse
     private var bookmark : Bookmark? = null
-    private var _currentVerse = initialVerse
+    private lateinit var _currentVerse: Verse
     private var currentVerse: Verse
         get() = _currentVerse
         set(newValue) {
@@ -158,26 +155,6 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
 
     // For tests. In production this is always null.
     var mockedBooks: ArrayList<SwordBook>? = null
-
-    private val currentBooks: ArrayList<SwordBook> get() {
-        if(mockedBooks != null) {
-            return mockedBooks as ArrayList<SwordBook>
-        }
-        val books = ArrayList<SwordBook>()
-        val firstBook = windowRepository.activeWindow.pageManager.currentPage.currentDocument
-
-        if(firstBook?.bookCategory == BookCategory.BIBLE) {
-            books.add(firstBook as SwordBook)
-        }
-
-        for (w in windowRepository.visibleWindows) {
-            val book = w.pageManager.currentPage.currentDocument
-            if (book !== firstBook && book?.bookCategory == BookCategory.BIBLE) {
-                books.add(book as SwordBook)
-            }
-        }
-        return books
-    }
 
     private fun skipEmptyVerses(verse: Verse): Verse {
         var cmds = getSpeakCommandsForVerse(verse)
@@ -355,6 +332,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
             val ttsLabel = labelList.find { it.id == speakLabel.id }
 
             if(ttsLabel != null) {
+                Log.i(TAG, "Bookmark book ${bookmark.book}")
                 val playbackSettings = bookmark.playbackSettings?.copy()
                 if(playbackSettings != null && settings.restoreSettingsFromBookmarks) {
                     playbackSettings.bookmarkWasCreated = null
@@ -533,7 +511,9 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
             book = state.book
         }
         lastVerseWithTitle = null
-        endVerse = startVerse
+        if(this::startVerse.isInitialized) {
+            endVerse = startVerse
+        }
         readList.clear()
         currentCommands.clear()
         utteranceState.clear()
