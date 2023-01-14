@@ -467,7 +467,7 @@ export function findNodeAtOffsetWithNullOffset(elem: Element, offset: Nullable<n
     } else {
         [node, off] = findNodeAtOffset(elem, offset);
     }
-    if (!node || !off) return null
+    if (!node || off === null) return null
     return {node, offset: off};
 }
 
