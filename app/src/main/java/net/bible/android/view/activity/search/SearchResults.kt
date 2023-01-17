@@ -144,29 +144,26 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                     return k
                 }
 
-                val bibleNames = BibleNames.instance();
-                val key = try {
+                val bibleNames = BibleNames.instance()
+                val key =
                     synchronized(bibleNames) {
                         val orig = bibleNames.enableFuzzy
                         bibleNames.enableFuzzy = false
-                        val k = getKey()
+                        val k = try { getKey() } catch (e: NoSuchVerseException) {null}
                         bibleNames.enableFuzzy = orig
                         k
-                    }
-                } catch (e: NoSuchVerseException) {null}?:
-                try {
+                    } ?:
                     if (doc.language.code != MyLocaleProvider.userLocale.language) {
                         synchronized(bibleNames) {
                             val orig = bibleNames.enableFuzzy
                             bibleNames.enableFuzzy = false
                             MyLocaleProvider.override = Locale(doc.language.code)
-                            val k = getKey()
+                            val k = try {getKey()} catch (e: NoSuchVerseException) {null}
                             MyLocaleProvider.override = null
                             bibleNames.enableFuzzy = orig
                             k
                         }
                     } else null
-                } catch (e: NoSuchVerseException) {null}
 
                 if (key != null) {
                     activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(doc, key)
