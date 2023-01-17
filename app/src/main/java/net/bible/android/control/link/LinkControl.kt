@@ -304,23 +304,23 @@ class LinkControl @Inject constructor(
         val bibleNames = BibleNames.instance()
 
         fun getKey(): Key? {
-            val k = PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef)
+            val k =
+                try { PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef) }
+                catch (e: NoSuchKeyException) { null }
             if(k != null && k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter == 0)  {
                 return null
             }
             return k
         }
 
-        val key = try {
+        val key =
             synchronized(bibleNames) {
                 val orig = bibleNames.enableFuzzy
                 bibleNames.enableFuzzy = false
                 val k = getKey()
                 bibleNames.enableFuzzy = orig
                 k
-            }
-        } catch (e: NoSuchVerseException) {null}?:
-        try {
+            } ?:
             if (searchDoc.language.code != MyLocaleProvider.userLocale.language) {
                 synchronized(bibleNames) {
                     MyLocaleProvider.override = Locale(searchDoc.language.code)
@@ -332,7 +332,6 @@ class LinkControl @Inject constructor(
                     k
                 }
             } else null
-        } catch (e: NoSuchVerseException) {null}
 
         return key
     }
