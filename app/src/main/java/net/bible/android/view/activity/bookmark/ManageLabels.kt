@@ -646,11 +646,9 @@ class ManageLabels : ListActivityBase() {
     // This is called by the listener, which is created and configured by the list adapter
     // It should only be called when the mode is STUDYPAD.  Nonetheless, I retained the mode check from the previous
     // onListItemClick() method as an additional sanity check.
-    fun selectStudyPadLabel(selected: Any) {
+    fun selectStudyPadLabel(selected: BookmarkEntities.Label) {
         if (data.mode == Mode.STUDYPAD) {
-            if (selected is BookmarkEntities.Label) { 
-                saveAndExit(selected) 
-            }
+            saveAndExit(selected)
         }
         else {
             Log.e(TAG, "Call to selectStudyPadLabel() is unexpected when mode is not STUDYPAD.  mode=${data.mode}")
@@ -669,7 +667,6 @@ class ManageLabels : ListActivityBase() {
         }
 
         val saveLabels = allLabels
-            .filterIsInstance<BookmarkEntities.Label>()
             .filter{ data.changedLabels.contains(it.id) && !data.deletedLabels.contains(it.id) }
 
         val newLabels = saveLabels.filter { it.id < 0 }
@@ -767,14 +764,16 @@ class ManageLabels : ListActivityBase() {
             Log.i(TAG, "Parsing filter: $filterRegex")
 
             fun labelMatches(label: BookmarkEntities.Label): Boolean =
-                searchText.isEmpty() || filterRegex.containsMatchIn(label.displayName) || data.selectedLabels.contains(label.id)
+                searchText.isEmpty() ||
+                    filterRegex.containsMatchIn(label.displayName) ||
+                    data.selectedLabels.contains(label.id)
 
             shownLabels.addAll(allLabels.filter { labelMatches(it) })
 
             if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled)) {
                 shownLabels.add(bookmarkControl.labelUnlabelled)
             }
-            if(data.showActiveCategory && data.contextSelectedItems.count()>0) {
+            if(data.showActiveCategory && data.contextSelectedItems.isNotEmpty()) {
                 shownLabels.add(LabelCategory.ACTIVE)
             }
             if(!data.hideCategories) {
@@ -783,11 +782,15 @@ class ManageLabels : ListActivityBase() {
             }
         }
 
-        val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId }
+        val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels
+            .map { it.labelId }
         if(rePopulate || reOrder) {
             shownLabels.sortWith(compareBy({
-                val inActiveCategory = data.showActiveCategory && (it == LabelCategory.ACTIVE || (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
-                val inRecentCategory = !data.hideCategories && (it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id)))
+                val inActiveCategory = data.showActiveCategory &&
+                    (it == LabelCategory.ACTIVE ||
+                        (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
+                val inRecentCategory = !data.hideCategories &&
+                    (it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id)))
                 when {
                     inActiveCategory -> 1
                     inRecentCategory -> 2
@@ -812,5 +815,7 @@ class ManageLabels : ListActivityBase() {
 
 enum class LabelCategory {ACTIVE, RECENT, OTHER}
 
-private fun <E> MutableSet<E>.myRemoveIf(function: (it: E) -> Boolean)  = filter { function.invoke(it) }.forEach { remove(it) }
-private fun <E> MutableList<E>.myRemoveIf(function: (it: E) -> Boolean)  = filter { function.invoke(it) }.forEach { remove(it) }
+private fun <E> MutableSet<E>.myRemoveIf(function: (it: E) -> Boolean) =
+    filter { function.invoke(it) }.forEach { remove(it) }
+private fun <E> MutableList<E>.myRemoveIf(function: (it: E) -> Boolean) =
+    filter { function.invoke(it) }.forEach { remove(it) }
