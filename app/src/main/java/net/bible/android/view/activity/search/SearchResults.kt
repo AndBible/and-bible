@@ -131,10 +131,13 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
         try {
+            var fromProcessTextIntent = false
             val searchText =
                 if(intent.action == Intent.ACTION_PROCESS_TEXT) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT) ?: ""
+                        val result = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT) ?: ""
+                        if(result != "") fromProcessTextIntent = true
+                        result
                     } else ""
                 }
                 else intent.getStringExtra(SearchControl.SEARCH_TEXT) ?: ""
@@ -156,9 +159,16 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 return@Main false
             }
             if(linkControl.tryToOpenRef(searchText)) {
-                val handlerIntent = Intent(this@SearchResults, MainBibleActivity::class.java)
-                handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                startActivity(handlerIntent)
+                if(fromProcessTextIntent) {
+                    val handlerIntent = Intent(this@SearchResults, MainBibleActivity::class.java)
+                    handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    startActivity(handlerIntent)
+                } else {
+                    // If using search to jump to reference, drop search activities from history
+                    historyTraversal.historyManager.popHistoryItem() // SearchResults
+                    historyTraversal.historyManager.popHistoryItem() // Search
+                    finish()
+                }
                 return@Main false
             }
             this@SearchResults.searchDocument = doc
