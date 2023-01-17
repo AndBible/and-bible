@@ -170,6 +170,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
                 if (key != null) {
                     activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(doc, key)
+                    // If using search to jump to reference, drop search activities from history
+                    historyTraversal.historyManager.popHistoryItem() // SearchResults
+                    historyTraversal.historyManager.popHistoryItem() // Search
                     finish()
                     return@withContext false
                 }

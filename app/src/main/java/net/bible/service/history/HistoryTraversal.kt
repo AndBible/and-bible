@@ -26,7 +26,7 @@ import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class HistoryTraversal(private val historyManager: HistoryManager, var isIntegrateWithHistoryManager: Boolean) {
+class HistoryTraversal(val historyManager: HistoryManager, var isIntegrateWithHistoryManager: Boolean) {
 
     /**
      * about to change activity so tell the HistoryManager so it can register the old activity in its list
