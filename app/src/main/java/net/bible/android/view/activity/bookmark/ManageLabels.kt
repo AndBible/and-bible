@@ -535,7 +535,7 @@ class ManageLabels : ListActivityBase() {
     private var newLabelCount = 1L
 
     private fun newLabel() {
-        Log.i(TAG, "New label clicked")
+        Log.i(TAG, "newLabel")
         val newLabel = BookmarkEntities.Label()
         newLabel.color = randomColor()
         newLabel.id = -(newLabelCount++)
@@ -543,6 +543,7 @@ class ManageLabels : ListActivityBase() {
     }
 
     private fun deleteLabel(label: BookmarkEntities.Label) {
+        Log.i(TAG, "deleteLabel")
         data.deletedLabels.add(label.id)
         data.selectedLabels.remove(label.id)
         data.autoAssignLabels.remove(label.id)
@@ -557,6 +558,7 @@ class ManageLabels : ListActivityBase() {
     fun editLabel(label_: BookmarkEntities.Label) {
         var label = label_
         val isNew = label.id < 0
+        Log.i(TAG, "editLabel isNew: $isNew")
         val intent = Intent(this, LabelEditActivity::class.java)
         val labelData = LabelEditActivity.LabelData(
             isAssigning = data.mode == Mode.ASSIGN,
@@ -580,18 +582,24 @@ class ManageLabels : ListActivityBase() {
         intent.putExtra("data", json.encodeToString(serializer(), labelData))
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val result = awaitIntent(intent) ?: return@launch
+            Log.i(TAG, "editLabel waiting for results")
+            val result = awaitIntent(intent)
+
             if (result.resultCode != Activity.RESULT_CANCELED) {
+                Log.i(TAG, "editLabel result NOT CANCELLED")
                 val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
                     serializer(), result.resultData.getStringExtra("data")!!)
 
                 if(newLabelData.label.name.isEmpty() && label.id < 0) {
+                    Log.i(TAG, "editLabel name not specified or id negative")
                     return@launch
                 }
 
                 if (newLabelData.delete) {
+                    Log.i(TAG, "editLabel delete specified")
                     deleteLabel(label)
                 } else {
+                    Log.i(TAG, "editLabel delete not specified")
                     allLabels.remove(label)
                     label = newLabelData.label
                     allLabels.add(label)
@@ -629,6 +637,8 @@ class ManageLabels : ListActivityBase() {
                 if(isNew) {
                     listView.setSelection(shownLabels.indexOf(label))
                 }
+            } else {
+                Log.i(TAG, "editLabel result CANCELLED")
             }
         }
     }
@@ -648,7 +658,7 @@ class ManageLabels : ListActivityBase() {
     }
 
     private fun saveAndExit(selected: BookmarkEntities.Label? = null) = lifecycleScope.launch(Dispatchers.Main) {
-        Log.i(TAG, "Okay clicked")
+        Log.i(TAG, "saveAndExit")
         CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideText)
         CommonUtils.settings.setBoolean("labels_list_filter_showTextSearch", showTextSearch)
         CommonUtils.settings.setString("labels_list_filter_searchTextOptions", json.encodeToString(serializer(), searchOptionList))
