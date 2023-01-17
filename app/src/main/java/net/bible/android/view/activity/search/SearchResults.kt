@@ -149,7 +149,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                     synchronized(bibleNames) {
                         val orig = bibleNames.enableFuzzy
                         bibleNames.enableFuzzy = false
-                        val k = try { getKey() } catch (e: NoSuchVerseException) {null}
+                        val k = getKey()
                         bibleNames.enableFuzzy = orig
                         k
                     } ?:
@@ -158,7 +158,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                             val orig = bibleNames.enableFuzzy
                             bibleNames.enableFuzzy = false
                             MyLocaleProvider.override = Locale(doc.language.code)
-                            val k = try {getKey()} catch (e: NoSuchVerseException) {null}
+                            val k = getKey()
                             MyLocaleProvider.override = null
                             bibleNames.enableFuzzy = orig
                             k
