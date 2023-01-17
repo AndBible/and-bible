@@ -175,7 +175,7 @@ $border-radius2: $border-radius - 1.5pt;
   width: var(--modal-width);
 
   --modal-left: calc((100% - var(--modal-width)) / 2);
-  --modal-width: calc(min(80%, var(--text-max-width)));
+  --modal-width: calc(min(87%, var(--text-max-width)));
   --modal-top: 30px;
 
   &.wide {

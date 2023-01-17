@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<!-- Show the results of a search
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+-->
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@android:color/transparent"
+		android:orientation="vertical">
+
+
+		<com.google.android.material.appbar.AppBarLayout
+			android:id="@+id/appBarLayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			>
+
+			<LinearLayout
+				android:orientation="horizontal"
+				android:layout_height="?attr/actionBarSize"
+				android:layout_width="match_parent">
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:text="Explore Passage"
+					android:textSize="20sp"
+					android:gravity="center"
+					android:layout_marginStart="5dp"/>
+
+
+			</LinearLayout>
+		</com.google.android.material.appbar.AppBarLayout>
+		<com.google.android.material.tabs.TabLayout
+			android:id="@+id/myTabLayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="#1db995"/>
+
+
+		<androidx.viewpager.widget.ViewPager
+			android:id="@+id/myViewPager"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent" />
+
+	</LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
