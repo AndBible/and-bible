@@ -325,9 +325,9 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
         val windows = windowRepository.windows
 
+        val linksWindows = windows.filter { it.isLinksWindow }
         val pinnedWindows = windows.filter { it.isPinMode && !it.isLinksWindow }
         val nonPinnedWindows = windows.filter { !it.isPinMode && !it.isLinksWindow }
-        val linksWin = windowRepository.dedicatedLinksWindow
         var spaceAdded = false
         fun addSpace() {
             binding.restoreButtons.addView(Space(context),
@@ -351,16 +351,17 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 spaceAdded = false
             }
 
-            if(!spaceAdded && !linksWin.isClosed) {
+            if(!spaceAdded && linksWindows.isNotEmpty()) {
                 addSpace()
             }
 
-            if (!linksWin.isClosed) {
-                val restoreButton = createRestoreButton(linksWin)
+            for (win in linksWindows) {
+                val restoreButton = createRestoreButton(win)
                 restoreButtonsList.add(restoreButton)
                 binding.restoreButtons.addView(restoreButton, llp)
                 spaceAdded = false
             }
+
         }
         if(!spaceAdded && !hideWindowButtons) {
             addSpace()
@@ -798,7 +799,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.changeToNormal -> CommandPreference(
                 launch = {_, _, _ ->
-                    windowControl.addNewWindow(window)
+                    windowControl.addNewWindow(window).also { it.isLinksWindow = false }
                     windowControl.closeWindow(window)
                 },
                 visible = window.isLinksWindow
@@ -826,7 +827,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.windowMinimise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.minimiseWindow(window)},
-                visible = windowControl.isWindowMinimisable(window) && !isMaximised
+                visible = windowControl.isWindowMinimizable(window) && !isMaximised
             )
             R.id.windowMaximise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.maximiseWindow(window)},

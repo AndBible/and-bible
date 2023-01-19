@@ -45,7 +45,10 @@ class WorkspaceEntities {
         val document: String?,
         val key: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-        @ColumnInfo(name = "currentYOffsetRatio") val deprecatedCurrentYOffsetRatio: Float? = null, // TODO: remove
+
+        @Deprecated("To be removed")
+        @ColumnInfo(name = "currentYOffsetRatio")
+        val deprecatedCurrentYOffsetRatio: Float? = null, // TODO: remove
     )
 
     data class Verse(
@@ -71,7 +74,10 @@ class WorkspaceEntities {
     data class CommentaryPage(
         val document: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-        @ColumnInfo(name = "currentYOffsetRatio") val deprecatedCurrentYOffsetRatio: Float? = null // TODO: remove
+
+        @Deprecated("To be removed")
+        @ColumnInfo(name = "currentYOffsetRatio")
+        val deprecatedCurrentYOffsetRatio: Float? = null // TODO: remove
     )
 
     @Entity(
@@ -96,7 +102,10 @@ class WorkspaceEntities {
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
         @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?,
-        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels") var deprecatedBookmarksAssignLabels: List<Long>? = null,
+
+        @Deprecated("To be removed")
+        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels")
+        var deprecatedBookmarksAssignLabels: List<Long>? = null,
     )
 
     data class WindowLayout(
@@ -341,14 +350,19 @@ class WorkspaceEntities {
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
-        @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
+        @Embedded(prefix="text_display_settings_")
+        var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
 
         // TODO: change prefix to correspond variable name
-        @Embedded(prefix="window_behavior_settings_") val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
+        @Embedded(prefix="window_behavior_settings_")
+        val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
+
         @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null,
         val maximizedWindowId: Long? = null,
 
-        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels") var deprecatedBookmarksAssignLabels: List<Long>? = null,
+        @Deprecated("To be removed")
+        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels")
+        var deprecatedBookmarksAssignLabels: List<Long>? = null,
     )
 
     @Entity(
@@ -368,10 +382,14 @@ class WorkspaceEntities {
         val createdAt: Date,
         val document: String,
         val key: String,
-        @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-        @ColumnInfo(name = "yOffsetRatio") val deprecatedYOffsetRatio: Float? = null, // TODO: remove (deprecated)
+        @ColumnInfo(defaultValue = "NULL")
+        val anchorOrdinal: Int?,
 
-        @PrimaryKey(autoGenerate = true) val id: Long = 0
+        @Deprecated("To be removed")
+        @ColumnInfo(name = "yOffsetRatio")
+        val deprecatedYOffsetRatio: Float? = null,
+
+        @PrimaryKey(autoGenerate = true) val id: Long = 0,
     )
 
     @Entity(
@@ -390,10 +408,13 @@ class WorkspaceEntities {
         var workspaceId: Long,
         val isSynchronized: Boolean,
         val isPinMode: Boolean,
-        val isLinksWindow: Boolean,
+
+        val isLinksWindow: Boolean = false,
+
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
-        var orderNumber: Int = 0
+        var orderNumber: Int = 0,
+        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: Long? = null,
     )
 }
 
@@ -403,7 +424,7 @@ data class SettingsBundle (
     val workspaceName: String,
     val workspaceSettings: WorkspaceEntities.TextDisplaySettings,
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
-    val windowId: Long? = null
+    val windowId: Long? = null,
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
         if(windowId == null)
