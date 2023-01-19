@@ -1019,6 +1019,16 @@ private val MIGRATION_60_61_workspace_colors = object : Migration(60, 61) {
     }
 }
 
+private val MIGRATION_61_62_window_changes = object : Migration(61, 62) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `primaryLinksWindowId` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `Window` ADD COLUMN `linksWindowId` INTEGER DEFAULT NULL")
+            // TODO: migrate old links window ids to workspace's primaryLinksWindowId field
+        }
+    }
+}
+
 class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
@@ -1128,6 +1138,7 @@ object DatabaseContainer {
                         MIGRATION_58_59_workspace_colors,
                         MIGRATION_59_60_label_markerStyle,
                         MIGRATION_60_61_workspace_colors,
+                        MIGRATION_61_62_window_changes,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

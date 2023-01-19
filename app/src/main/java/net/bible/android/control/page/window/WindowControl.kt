@@ -43,8 +43,8 @@ import net.bible.service.common.firstBibleDoc
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
-
 import javax.inject.Inject
+
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -68,8 +68,7 @@ open class WindowControl @Inject constructor() {
     val activeWindowPageManager: CurrentPageManager
         get() = activeWindow.pageManager
 
-    val isMultiWindow: Boolean
-        get() = windowRepository.isMultiWindow
+    val isMultiWindow: Boolean get() = windowRepository.isMultiWindow
 
     var activeWindow: Window
         get() = windowRepository.activeWindow
@@ -85,9 +84,7 @@ open class WindowControl @Inject constructor() {
         ABEventBus.register(this)
     }
 
-    fun isActiveWindow(window: Window): Boolean {
-        return window == windowRepository.activeWindow
-    }
+    fun isActiveWindow(window: Window): Boolean = window == windowRepository.activeWindow
 
     /**
      * Show link using whatever is the current Bible in the Links window
@@ -97,29 +94,30 @@ open class WindowControl @Inject constructor() {
     }
 
     open fun defaultBibleDoc(useLinks: Boolean  = true): SwordBook {
-        val linksBiblePage = windowRepository.dedicatedLinksWindow.pageManager.currentBible
+        //val linksBiblePage = windowRepository.primaryLinksWindow?.pageManager?.currentBible
         val activeWindowBibleDoc = windowRepository.activeWindow.pageManager.currentBible.currentDocument as SwordBook?
+        return activeWindowBibleDoc ?: firstBibleDoc
 
-        return if (useLinks && linksBiblePage.isCurrentDocumentSet) linksBiblePage.currentDocument!! as SwordBook
-               else activeWindowBibleDoc ?: firstBibleDoc
+        //return if (useLinks && linksBiblePage.isCurrentDocumentSet) linksBiblePage.currentDocument!! as SwordBook
+        //       else activeWindowBibleDoc ?: firstBibleDoc
     }
 
     fun showLink(document: Book, key: Key) {
-        val linksWindow = windowRepository.dedicatedLinksWindow
-        val linksWindowWasVisible = linksWindow.isVisible
+        //val linksWindow = windowRepository.primaryLinksWindow
+        //val linksWindowWasVisible = linksWindow.isVisible
 
-        linksWindow.initialiseLinksWindowPageStateIfClosed(activeWindow)
+        //linksWindow.initialiseLinksWindowPageStateIfClosed(activeWindow)
 
-        if (!linksWindowWasVisible) {
-            windowRepository.activeWindow = linksWindow
-            linksWindow.windowState = WindowState.SPLIT
-        }
+        //if (!linksWindowWasVisible) {
+        //    windowRepository.activeWindow = linksWindow
+        //    linksWindow.windowState = WindowState.VISIBLE
+        //}
 
-        linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
+        //linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
 
-        if (!linksWindowWasVisible) {
-            ABEventBus.post(NumberOfWindowsChangedEvent())
-        }
+        //if (!linksWindowWasVisible) {
+        //    ABEventBus.post(NumberOfWindowsChangedEvent())
+        //}
     }
 
 
@@ -141,7 +139,7 @@ open class WindowControl @Inject constructor() {
     }
 
     fun minimiseWindow(window: Window, force: Boolean = false) {
-        if(force || isWindowMinimisable(window)) {
+        if(force || isWindowMinimizable(window)) {
             windowRepository.minimise(window)
 
             // redisplay the current page
@@ -164,24 +162,15 @@ open class WindowControl @Inject constructor() {
         }
     }
 
-    fun isWindowMinimisable(window: Window): Boolean {
-        var normalWindows = windowRepository.visibleWindows.size
-        if (windowRepository.dedicatedLinksWindow.isVisible && !window.isLinksWindow) {
-            normalWindows--
-        }
-
-        val canMinimize =  normalWindows > 1
-
+    fun isWindowMinimizable(window: Window): Boolean {
+        val numWindows = windowRepository.visibleWindows.size
+        val canMinimize =  numWindows > 1
         return !window.isMinimised && canMinimize
     }
 
     fun isWindowRemovable(window: Window): Boolean {
-        var normalWindows = windowRepository.windows.size
-        if (!windowRepository.dedicatedLinksWindow.isClosed) {
-            normalWindows--
-        }
-
-        return window.isLinksWindow || normalWindows > 1
+        val numWindows = windowRepository.windows.size
+        return numWindows > 1
     }
 
     fun restoreWindow(window: Window, force: Boolean = false) {
@@ -196,7 +185,7 @@ open class WindowControl @Inject constructor() {
                 }
             }
 
-            window.windowState = WindowState.SPLIT
+            window.windowState = WindowState.VISIBLE
 
             val noDelay = window.bibleView?.htmlReady != true
             // If BibleView is not yet ready, we should do sync without delay to make sure

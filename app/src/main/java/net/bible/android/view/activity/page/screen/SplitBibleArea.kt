@@ -327,7 +327,6 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
         val pinnedWindows = windows.filter { it.isPinMode && !it.isLinksWindow }
         val nonPinnedWindows = windows.filter { !it.isPinMode && !it.isLinksWindow }
-        val linksWin = windowRepository.dedicatedLinksWindow
         var spaceAdded = false
         fun addSpace() {
             binding.restoreButtons.addView(Space(context),
@@ -346,17 +345,6 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
             for (win in nonPinnedWindows) {
                 val restoreButton = createRestoreButton(win)
-                restoreButtonsList.add(restoreButton)
-                binding.restoreButtons.addView(restoreButton, llp)
-                spaceAdded = false
-            }
-
-            if(!spaceAdded && !linksWin.isClosed) {
-                addSpace()
-            }
-
-            if (!linksWin.isClosed) {
-                val restoreButton = createRestoreButton(linksWin)
                 restoreButtonsList.add(restoreButton)
                 binding.restoreButtons.addView(restoreButton, llp)
                 spaceAdded = false
@@ -826,7 +814,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.windowMinimise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.minimiseWindow(window)},
-                visible = windowControl.isWindowMinimisable(window) && !isMaximised
+                visible = windowControl.isWindowMinimizable(window) && !isMaximised
             )
             R.id.windowMaximise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.maximiseWindow(window)},

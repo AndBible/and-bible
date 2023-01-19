@@ -24,15 +24,8 @@ import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
-import net.bible.android.common.resource.AndroidResourceProvider
-import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
-import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.speak.AbstractSpeakTests
-import net.bible.service.history.HistoryManager
-import net.bible.service.sword.SwordDocumentFacade
 import net.bible.test.DatabaseResetter
 import net.bible.test.PassageTestData
 import org.crosswire.jsword.book.Books
@@ -52,12 +45,10 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.fakes.RoboMenu
-import javax.inject.Provider
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
@@ -112,10 +103,10 @@ class WindowControlTest {
     fun testShowLink() {
         windowControl!!.showLink(BOOK_KJV, PS_139_3)
 
-        val linksWindow = windowRepository.dedicatedLinksWindow
+        val linksWindow = windowRepository.primaryLinksWindow
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         assertThat(linksWindow.pageManager.currentBible.singleKey, equalTo(PS_139_3 as Key))
-        assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.SPLIT))
+        assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.VISIBLE))
         assertThat(windowRepository.isMultiWindow, `is`(true))
     }
 
@@ -128,10 +119,10 @@ class WindowControlTest {
 
         windowControl!!.showLinkUsingDefaultBible(PS_139_3)
 
-        val linksWindow = windowRepository.dedicatedLinksWindow
+        val linksWindow = windowRepository.primaryLinksWindow
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         assertThat(linksWindow.pageManager.currentBible.singleKey, equalTo(PS_139_3 as Key))
-        assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.SPLIT))
+        assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.VISIBLE))
         assertThat(windowRepository.isMultiWindow, `is`(true))
         assertThat(windowControl!!.isActiveWindow(linksWindow), `is`(true))
 
@@ -192,7 +183,7 @@ class WindowControlTest {
         assertThat<List<Window>>(windowRepository.visibleWindows, hasItem(onlyWindow))
 
         // test still prevented if links window is visible
-        windowRepository.dedicatedLinksWindow.windowState = WindowState.SPLIT
+        windowRepository.primaryLinksWindow.windowState = WindowState.VISIBLE
         windowControl!!.minimiseWindow(onlyWindow)
         assertThat<List<Window>>(windowRepository.visibleWindows, hasItem(onlyWindow))
     }
@@ -236,7 +227,7 @@ class WindowControlTest {
     @Test
     @Throws(Exception::class)
     fun testCloseWindowPreventedIfOnlyOtherIsLinks() {
-        windowRepository.dedicatedLinksWindow.windowState = WindowState.SPLIT
+        windowRepository.primaryLinksWindow.windowState = WindowState.VISIBLE
         val onlyNormalWindow = windowRepository.activeWindow
         windowControl!!.closeWindow(onlyNormalWindow)
         assertThat(windowRepository.windows, hasItem(onlyNormalWindow))

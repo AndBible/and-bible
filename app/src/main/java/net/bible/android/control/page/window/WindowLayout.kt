@@ -22,15 +22,25 @@ import net.bible.android.database.WorkspaceEntities
 class WindowLayout(entity: WorkspaceEntities.WindowLayout?) {
     fun restoreFrom(entity: WorkspaceEntities.WindowLayout) {
         this.weight = entity.weight
-        this.state = WindowState.valueOf(entity.state)
+        this.state = WindowState.fixedValueOf(entity.state)
     }
 
     var state =
-        if(entity != null) WindowState.valueOf(entity.state) else WindowState.SPLIT
+        if(entity != null) WindowState.fixedValueOf(entity.state) else WindowState.VISIBLE
 
     var weight = entity?.weight ?: 1.0f
 
+
     enum class WindowState {
-        SPLIT, MINIMISED, CLOSED
+        VISIBLE,
+        MINIMISED,
+        CLOSED;
+        companion object {
+            fun fixedValueOf(state: String) =
+                when(state) {
+                    "SPLIT" -> VISIBLE
+                    else -> valueOf(state)
+                }
+        }
     }
 }
