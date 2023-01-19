@@ -47,6 +47,7 @@ open class Window (
     val windowRepository: WindowRepository,
     val isLinksWindow: Boolean = false
 ){
+    var id = window.id
     var weight: Float
         get() =
             if(!isPinMode && !isLinksWindow) {
@@ -63,11 +64,8 @@ open class Window (
                 windowLayout.weight = value
         }
 
-    protected val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
-
-    var id = window.id
-
-    protected var workspaceId = window.workspaceId
+    private val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
+    private var workspaceId = window.workspaceId
 
     init {
         @Suppress("LeakingThis")
@@ -134,25 +132,11 @@ open class Window (
             else windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
 
-    val defaultOperation: WindowOperation
-        get() = when {
-            isLinksWindow -> WindowOperation.CLOSE
-            else -> WindowOperation.MINIMISE
-        }
-
     var bibleView: BibleView? = null
 
-    fun destroy() {
-        bibleView?.destroy()
-    }
+    fun destroy() = bibleView?.destroy()
 
-    enum class WindowOperation {
-        MINIMISE, RESTORE, CLOSE
-    }
-
-    override fun toString(): String {
-        return "Window[$id]"
-    }
+    override fun toString(): String = "Window[$id]"
 
     var lastUpdated
         get() = bibleView?.lastUpdated ?: 0L
@@ -182,7 +166,7 @@ open class Window (
         }
         displayedBook = currentPage.currentDocument
         displayedKey = currentPage.key
-        Log.i(TAG, "updateText ${this.hashCode()}") // ${Log.getStackTraceString(Exception())}")
+        Log.i(TAG, "updateText ${this.hashCode()}")
 
         updateScope.launch {
             if (notifyLocationChange) {
