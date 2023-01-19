@@ -285,6 +285,13 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun explore(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            bibleView.exploreSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
     fun openStudyPad(labelId: Long, bookmarkId: Long) {
         scope.launch(Dispatchers.Main) {
             bibleView.linkControl.openJournal(labelId, bookmarkId)

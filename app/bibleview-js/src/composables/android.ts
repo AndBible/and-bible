@@ -54,6 +54,7 @@ export type BibleJavascriptInterface = {
     shareVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
+    explore: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     openStudyPad: (labelId: number, bookmarkId: number) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
     speak: (bookInitials: string, ordinal: number) => void,
@@ -319,6 +320,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    function explore(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.explore(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
     function openStudyPad(labelId: number, bookmarkId: number) {
         window.android.openStudyPad(labelId, bookmarkId);
     }
@@ -438,6 +443,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         shareVerse,
         addBookmark,
         compare,
+        explore,
         speak,
         helpDialog,
         onKeyDown,

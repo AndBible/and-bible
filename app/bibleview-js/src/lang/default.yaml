@@ -56,9 +56,11 @@ refParserHelp: Please install %s module to use references in languages other tha
 openDownloads: Go to Add-on downloads
 verseShare: Share
 verseCompare: Compare
+verseExplore: Explore
 verseNote: Note
 verseMyNotes: My Notes
 verseShareLong: Share this verse
 verseCompareLong: Compare verse
+verseExploreLong: Explore verse
 verseNoteLong: Write a note
 addBookmark: Bookmark

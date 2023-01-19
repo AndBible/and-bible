@@ -47,6 +47,10 @@
       <FontAwesomeIcon icon="custom-compare"/>
       <div class="title">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</div>
     </div>
+    <div class="large-action" @click="explore">
+      <FontAwesomeIcon icon="custom-explore"/>
+      <div class="title">{{ vertical ? strings.verseExploreLong : strings.verseExplore }}</div>
+    </div>
   </div>
 </template>
 
@@ -88,6 +92,10 @@ function addBookmark() {
 
 function compare() {
     android.compare(bookInitials.value, startOrdinal.value, endOrdinal.value);
+}
+
+function explore() {
+    android.explore(bookInitials.value, startOrdinal.value, endOrdinal.value);
 }
 
 function addNote() {

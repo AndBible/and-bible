@@ -45,11 +45,13 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewAssetLoader
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -105,6 +107,7 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.explore.Explore
 import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
@@ -138,6 +141,7 @@ import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.min
+
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
@@ -375,6 +379,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val verseRange = selection?.verseRange ?: return
         linkControl.openCompare(verseRange)
     }
+
+    internal fun exploreSelection(selection: Selection? = currentSelection) {
+        Log.i(TAG, "exploreSelection")
+
+        val e = Explore(currentActivity,windowControl, selection)
+        e.initialise()
+    }
+
 
     val scope get() = mainBibleActivity.lifecycleScope
 
