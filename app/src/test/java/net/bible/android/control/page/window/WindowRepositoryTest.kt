@@ -61,13 +61,13 @@ class WindowRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun testGetWindow() {
-        assertThat(windowRepository.getWindow(2)!!.id, equalTo(2L))
+        assertThat(windowRepository.getWindow(1)?.id, equalTo(1L))
     }
 
     @Test
     @Throws(Exception::class)
     fun testGetActiveWindow() {
-        assertThat(windowRepository.activeWindow.id, equalTo(2L))
+        assertThat(windowRepository.activeWindow.id, equalTo(1L))
     }
 
     @Test
