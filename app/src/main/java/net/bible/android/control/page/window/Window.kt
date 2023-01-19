@@ -45,12 +45,22 @@ class Window (
     window: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
     val windowRepository: WindowRepository,
+    var isLinksWindow: Boolean = window.isLinksWindow,
 ){
-    val isLinksWindow: Boolean = false
+    private var linksTargetWindowId: Long? = window.linksWindowId
+
+    val linksTargetWindow: Window
+        get() = windowRepository.getWindow(linksTargetWindowId)
+            ?: windowRepository.addNewWindow().also {
+                linksTargetWindowId = it.id
+                it.isSynchronised = false
+                it.isLinksWindow = true
+            }
+
     val id = window.id
     var weight: Float
         get() =
-            if(!isPinMode && !isLinksWindow) {
+            if(!isPinMode) {
                 if(windowRepository.unPinnedWeight == null) {
                     windowRepository.unPinnedWeight = windowLayout.weight
                 }
@@ -58,7 +68,7 @@ class Window (
             }
             else windowLayout.weight
         set(value) {
-            if(!isPinMode && !isLinksWindow)
+            if(!isPinMode)
                 windowRepository.unPinnedWeight = value
             else
                 windowLayout.weight = value
@@ -77,7 +87,9 @@ class Window (
             isSynchronized = isSynchronised,
             isPinMode = isPinMode,
             windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
-            id = id
+            id = id,
+            linksWindowId = linksTargetWindowId,
+            isLinksWindow = isLinksWindow,
         )
     var displayedKey: Key? = null
     var displayedBook: Book? = null
@@ -107,7 +119,7 @@ class Window (
     val isSyncable: Boolean
         get() {
             if(isLinksWindow) {
-                return true
+                return false
             }
             return pageManager.currentPage.isSyncable
         }
@@ -120,7 +132,8 @@ class Window (
 
     val isVisible: Boolean
         get() =
-            if(!isLinksWindow && windowRepository.isMaximized) windowRepository.maximizedWindowId == id
+            if(windowRepository.isMaximized && windowRepository.maximizedWindow?.linksTargetWindowId != id)
+                windowRepository.maximizedWindowId == id
             else windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
 

@@ -103,23 +103,22 @@ open class WindowControl @Inject constructor() {
     }
 
     fun showLink(document: Book, key: Key) {
-        //val linksWindow = windowRepository.primaryLinksWindow
-        //val linksWindowWasVisible = linksWindow.isVisible
+        val linksWindow = activeWindow.linksTargetWindow
+        val linksWindowWasVisible = linksWindow.isVisible
 
         //linksWindow.initialiseLinksWindowPageStateIfClosed(activeWindow)
 
-        //if (!linksWindowWasVisible) {
-        //    windowRepository.activeWindow = linksWindow
-        //    linksWindow.windowState = WindowState.VISIBLE
-        //}
+        if (!linksWindowWasVisible) {
+            windowRepository.activeWindow = linksWindow
+            linksWindow.windowState = WindowState.VISIBLE
+        }
 
-        //linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
+        linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
 
-        //if (!linksWindowWasVisible) {
-        //    ABEventBus.post(NumberOfWindowsChangedEvent())
-        //}
+        if (!linksWindowWasVisible) {
+            ABEventBus.post(NumberOfWindowsChangedEvent())
+        }
     }
-
 
     fun addNewWindow(sourceWindow: Window): Window {
         val window = windowRepository.addNewWindow(sourceWindow)

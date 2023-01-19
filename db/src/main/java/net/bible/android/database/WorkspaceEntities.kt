@@ -412,9 +412,7 @@ class WorkspaceEntities {
         val isSynchronized: Boolean,
         val isPinMode: Boolean,
 
-        @Deprecated("To be removed")
-        @ColumnInfo(name="isLinksWindow")
-        val deprecatedIsLinksWindow: Boolean = false,
+        val isLinksWindow: Boolean = false,
 
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
