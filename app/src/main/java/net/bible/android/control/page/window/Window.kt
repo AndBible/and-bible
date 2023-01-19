@@ -44,7 +44,8 @@ class WindowChangedEvent(val window: Window)
 open class Window (
     window: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
-    val windowRepository: WindowRepository
+    val windowRepository: WindowRepository,
+    val isLinksWindow: Boolean = false
 ){
     var weight: Float
         get() =
@@ -92,10 +93,12 @@ open class Window (
         }
 
     open var isPinMode: Boolean = window.isPinMode
-        get() = if(windowRepository.workspaceSettings.autoPin) {
-            true
-        } else {
-            field
+        get() {
+            return when {
+                isLinksWindow -> windowRepository.workspaceSettings.autoPin
+                windowRepository.workspaceSettings.autoPin -> true
+                else -> field
+            }
         }
         set(value) {
             field = value
@@ -109,7 +112,12 @@ open class Window (
         get() = windowLayout.state == WindowState.SPLIT
 
     open val isSyncable: Boolean
-        get() = pageManager.currentPage.isSyncable
+        get() {
+            if(isLinksWindow) {
+                return true
+            }
+            return pageManager.currentPage.isSyncable
+        }
 
     val isClosed: Boolean
         get() = windowLayout.state == WindowState.CLOSED
@@ -131,8 +139,6 @@ open class Window (
             isLinksWindow -> WindowOperation.CLOSE
             else -> WindowOperation.MINIMISE
         }
-
-    open val isLinksWindow = false
 
     var bibleView: BibleView? = null
 
@@ -245,6 +251,34 @@ open class Window (
 
     fun hasChapterLoaded(chapter: Int): Boolean {
         return bibleView?.hasChapterLoaded(chapter) == true
+    }
+
+    fun initialiseLinksWindowPageStateIfClosed(activeWindow: Window) {
+        if(!isLinksWindow) {
+            Log.e(TAG, "Should be called only for links windows")
+            return
+        }
+        // set links window state from active window if it was closed
+        if (windowState == WindowState.CLOSED && !activeWindow.isLinksWindow) {
+            // initialise links window documents from active window
+            pageManager.restoreFrom(activeWindow.pageManager.entity)
+        }
+    }
+
+    fun restoreLinksWindowFrom(windowEntity: WorkspaceEntities.Window,
+                               pageManagerEntity: WorkspaceEntities.PageManager?,
+                               workspaceTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
+    )
+    {
+        if(!isLinksWindow) {
+            Log.e(TAG, "Should be called only for links windows")
+            return
+        }
+        id = windowEntity.id
+        workspaceId = windowEntity.workspaceId
+
+        windowLayout.restoreFrom(windowEntity.windowLayout)
+        pageManager.restoreFrom(pageManagerEntity, workspaceTextDisplaySettings)
     }
 
     private val TAG get() = "BibleView[${id}] WIN"

@@ -38,7 +38,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.Logger
 import net.bible.service.common.firstBibleDoc
 
 import org.crosswire.jsword.book.Book
@@ -109,7 +108,7 @@ open class WindowControl @Inject constructor() {
         val linksWindow = windowRepository.dedicatedLinksWindow
         val linksWindowWasVisible = linksWindow.isVisible
 
-        linksWindow.initialisePageStateIfClosed(activeWindow)
+        linksWindow.initialiseLinksWindowPageStateIfClosed(activeWindow)
 
         if (!linksWindowWasVisible) {
             windowRepository.activeWindow = linksWindow

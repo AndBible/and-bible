@@ -18,9 +18,7 @@
 package net.bible.android.control.page.window
 
 import android.util.Log
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
@@ -143,7 +141,7 @@ open class WindowRepository(val scope: CoroutineScope) {
     // window that was synchronized
     var lastSyncWindowId: Long? = null
 
-    lateinit var dedicatedLinksWindow: LinksWindow
+    lateinit var dedicatedLinksWindow: Window
         private set
 
     val visibleWindows: List<Window> get() {
@@ -379,9 +377,18 @@ open class WindowRepository(val scope: CoroutineScope) {
         if(!::dedicatedLinksWindow.isInitialized) {
             val pageManager = currentPageManagerProvider.get()
             pageManager.restoreFrom(linksPageManagerEntity, textDisplaySettings)
-            dedicatedLinksWindow = LinksWindow(linksWindowEntity, pageManager, this)
+            dedicatedLinksWindow = Window(
+                window = linksWindowEntity,
+                pageManager = pageManager,
+                windowRepository = this,
+                isLinksWindow = true
+            )
         } else {
-            dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManagerEntity, textDisplaySettings)
+            dedicatedLinksWindow.restoreLinksWindowFrom(
+                windowEntity = linksWindowEntity,
+                pageManagerEntity = linksPageManagerEntity,
+                workspaceTextDisplaySettings = textDisplaySettings
+            )
         }
         val historyManager = historyManagerProvider.get()
         for (it in dao.windows(id)) {
