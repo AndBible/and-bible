@@ -1139,7 +1139,9 @@ object DatabaseContainer {
         }
     fun reset() {
         synchronized(this) {
-            db.close()
+            try {
+                db.close()
+            } catch (e: DataBaseNotReady) {}
             instance = null
         }
     }
