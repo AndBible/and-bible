@@ -53,7 +53,6 @@ open class WindowRepository(val scope: CoroutineScope) {
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
-    val primaryLinksWindow: Window? get() = getWindow(primaryLinksWindowId)
 
     var windowList: MutableList<Window> = ArrayList()
     var busyCount: Int = 0
@@ -134,7 +133,6 @@ open class WindowRepository(val scope: CoroutineScope) {
     // When in maximized mode, keep track of last used
     // window that was synchronized
     var lastSyncWindowId: Long? = null
-    var primaryLinksWindowId: Long? = null
 
     val visibleWindows: List<Window> get() {
         if (isMaximized) {
@@ -204,14 +202,11 @@ open class WindowRepository(val scope: CoroutineScope) {
         window.windowState = WindowState.CLOSED
         val currentPos = windowList.indexOf(window)
 
-        // links window is just closed not deleted
-        if (!window.isLinksWindow) {
-            dao.deleteWindow(window.id)
-            destroy(window)
-            if(visibleWindows.isEmpty()) {
-                activeWindow = windowList[min(currentPos, windowList.size - 1)]
-                activeWindow.windowState = WindowState.VISIBLE
-            } else setDefaultActiveWindow()
+        dao.deleteWindow(window.id)
+        destroy(window)
+        if(visibleWindows.isEmpty()) {
+            activeWindow = windowList[min(currentPos, windowList.size - 1)]
+            activeWindow.windowState = WindowState.VISIBLE
         } else setDefaultActiveWindow()
     }
 
@@ -363,7 +358,6 @@ open class WindowRepository(val scope: CoroutineScope) {
         orderNumber = 0
         id = 0
         lastSyncWindowId = null
-        primaryLinksWindowId = null
         for (it in windowList) {
             it.bibleView?.listenEvents = false
             if(destroy)

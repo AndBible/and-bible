@@ -147,7 +147,6 @@ open class WindowControl @Inject constructor() {
     }
 
     fun closeWindow(window: Window) {
-
         if (isWindowRemovable(window)) {
             Log.i(TAG, "Closing window " + window.id)
             windowRepository.close(window)
@@ -178,7 +177,7 @@ open class WindowControl @Inject constructor() {
         } else {
             if (window == activeWindow) return
 
-            if(!window.isPinMode && !window.isLinksWindow) {
+            if(!window.isPinMode) {
                 for (it in windowRepository.windowList.filter { !it.isPinMode }) {
                     it.windowState = WindowState.MINIMISED
                 }
