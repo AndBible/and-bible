@@ -416,16 +416,19 @@ object BackupControl {
                     putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
                 }
                 val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
-
-                windowControl.windowRepository.saveIntoDb()
-                db.sync()
+                if(CommonUtils.initialized) {
+                    windowControl.windowRepository.saveIntoDb()
+                    db.sync()
+                }
                 callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, dbFile)
                 }
             }
             BackupResult.SHARE -> {
-                windowControl.windowRepository.saveIntoDb()
-                db.sync()
+                if(CommonUtils.initialized) {
+                    windowControl.windowRepository.saveIntoDb()
+                    db.sync()
+                }
                 backupDatabaseViaSendIntent(callingActivity, dbFile)
             }
             BackupResult.CANCEL -> {}
