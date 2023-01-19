@@ -84,7 +84,7 @@ class WindowTest {
                 workspaceId = 0,
                 isSynchronized = true,
                 isPinMode = false,
-                deprecatedIsLinksWindow = false,
+                isLinksWindow = false,
                 windowLayout = WorkspaceEntities.WindowLayout(WindowState.MINIMISED.toString()),
                 id = 2
             ),

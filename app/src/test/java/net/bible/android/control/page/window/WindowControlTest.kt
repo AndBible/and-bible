@@ -98,47 +98,6 @@ class WindowControlTest {
         assertThat(windowControl!!.isActiveWindow(activeWindow), `is`(true))
     }
 
-    @Test
-    @Throws(Exception::class)
-    fun testShowLink() {
-        windowControl!!.showLink(BOOK_KJV, PS_139_3)
-
-        val linksWindow = windowRepository.primaryLinksWindow
-        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
-        assertThat(linksWindow.pageManager.currentBible.singleKey, equalTo(PS_139_3 as Key))
-        assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.VISIBLE))
-        assertThat(windowRepository.isMultiWindow, `is`(true))
-    }
-
-    //@Ignore("Until ESV comes back")
-    @Test
-    @Throws(Exception::class)
-    fun testShowLinkUsingDefaultBible() {
-        val window1 = windowRepository.activeWindow
-        window1.pageManager.setCurrentDocument(BOOK_KJV)
-
-        windowControl!!.showLinkUsingDefaultBible(PS_139_3)
-
-        val linksWindow = windowRepository.primaryLinksWindow
-        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
-        assertThat(linksWindow.pageManager.currentBible.singleKey, equalTo(PS_139_3 as Key))
-        assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.VISIBLE))
-        assertThat(windowRepository.isMultiWindow, `is`(true))
-        assertThat(windowControl!!.isActiveWindow(linksWindow), `is`(true))
-
-        windowControl!!.activeWindow = window1
-        window1.pageManager.setCurrentDocument(PassageTestData.ESV)
-
-        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
-        windowControl!!.showLinkUsingDefaultBible(PS_139_3)
-
-        // Do not change bible doc in links window
-        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
-
-        // if we would have clicked from commentary, then document should not have changed
-        // since links window has not been closed.. Test for that: TODO
-    }
-
     //@Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
@@ -177,20 +136,6 @@ class WindowControlTest {
 
     @Test
     @Throws(Exception::class)
-    fun testMinimiseOnlyWindowPrevented() {
-        val onlyWindow = windowControl!!.activeWindow
-        windowControl!!.minimiseWindow(onlyWindow)
-        assertThat<List<Window>>(windowRepository.visibleWindows, hasItem(onlyWindow))
-
-        // test still prevented if links window is visible
-        windowRepository.primaryLinksWindow.windowState = WindowState.VISIBLE
-        windowControl!!.minimiseWindow(onlyWindow)
-        assertThat<List<Window>>(windowRepository.visibleWindows, hasItem(onlyWindow))
-    }
-
-
-    @Test
-    @Throws(Exception::class)
     fun testMaximiseMinimiseWindows() {
         // issue #373
 
@@ -222,15 +167,6 @@ class WindowControlTest {
         val onlyWindow = windowRepository.activeWindow
         windowControl!!.closeWindow(onlyWindow)
         assertThat(windowRepository.windows, hasItem(onlyWindow))
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testCloseWindowPreventedIfOnlyOtherIsLinks() {
-        windowRepository.primaryLinksWindow.windowState = WindowState.VISIBLE
-        val onlyNormalWindow = windowRepository.activeWindow
-        windowControl!!.closeWindow(onlyNormalWindow)
-        assertThat(windowRepository.windows, hasItem(onlyNormalWindow))
     }
 
     @Test
