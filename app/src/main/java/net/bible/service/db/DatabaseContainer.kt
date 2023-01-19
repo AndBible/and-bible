@@ -1022,7 +1022,7 @@ private val MIGRATION_60_61_workspace_colors = object : Migration(60, 61) {
 private val MIGRATION_61_62_window_changes = object : Migration(61, 62) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
-            execSQL("ALTER TABLE `Window` ADD COLUMN `linksWindowId` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `Window` ADD COLUMN `targetLinksWindowId` INTEGER DEFAULT NULL")
         }
     }
 }

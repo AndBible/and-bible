@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 62,
-    "identityHash": "c205a1d9627be333a49fcdb78f3e523e",
+    "identityHash": "a1c0e39b3758db4df3e823bdb1efe64b",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -812,7 +812,7 @@
       },
       {
         "tableName": "Window",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`workspaceId` INTEGER NOT NULL, `isSynchronized` INTEGER NOT NULL, `isPinMode` INTEGER NOT NULL, `isLinksWindow` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL, `linksWindowId` INTEGER DEFAULT NULL, `window_layout_state` TEXT NOT NULL, `window_layout_weight` REAL NOT NULL, FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`workspaceId` INTEGER NOT NULL, `isSynchronized` INTEGER NOT NULL, `isPinMode` INTEGER NOT NULL, `isLinksWindow` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL, `targetLinksWindowId` INTEGER DEFAULT NULL, `window_layout_state` TEXT NOT NULL, `window_layout_weight` REAL NOT NULL, FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "workspaceId",
@@ -851,8 +851,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "linksWindowId",
-            "columnName": "linksWindowId",
+            "fieldPath": "targetLinksWindowId",
+            "columnName": "targetLinksWindowId",
             "affinity": "INTEGER",
             "notNull": false,
             "defaultValue": "NULL"
@@ -1569,7 +1569,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c205a1d9627be333a49fcdb78f3e523e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a1c0e39b3758db4df3e823bdb1efe64b')"
     ]
   }
 }

@@ -414,7 +414,7 @@ class WorkspaceEntities {
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var orderNumber: Int = 0,
-        @ColumnInfo(defaultValue = "NULL") var linksWindowId: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: Long? = null,
     )
 }
 

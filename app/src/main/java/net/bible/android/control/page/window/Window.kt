@@ -47,7 +47,7 @@ class Window (
     val windowRepository: WindowRepository,
     var isLinksWindow: Boolean = window.isLinksWindow,
 ){
-    private var linksTargetWindowId: Long? = window.linksWindowId
+    private var linksTargetWindowId: Long? = window.targetLinksWindowId
 
     val linksTargetWindow: Window
         get() = windowRepository.getWindow(linksTargetWindowId)
@@ -88,7 +88,7 @@ class Window (
             isPinMode = isPinMode,
             windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
             id = id,
-            linksWindowId = linksTargetWindowId,
+            targetLinksWindowId = linksTargetWindowId,
             isLinksWindow = isLinksWindow,
         )
     var displayedKey: Key? = null
