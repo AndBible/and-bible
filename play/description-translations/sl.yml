@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "Proučevanje Biblije, And Bible odprtokodni projekt"
+title: "AndBible: Proučevanje Biblije"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Berite Biblijo, komentarje, slovarje ali knjige v načinu brez povezave."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Močno orodje za proučevanje Biblije
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Aplikacija za proučevanje Biblije je zmogljiva, vendar enostavna aplikacija za proučevanje Biblije brez internetne povezave za naprave z operacijskim sistemom Android. Aplikacija ni namenjena zgolj branju Biblije, temveč se kot napredno orodje osredotoča na poglobljeno osebno proučevanje Biblije.
+  "{{ title }}" je zmogljiva, a enostavna aplikacija za Android namenjena preučevanju Svetega pisma, ki za delovanje ne potrebuje povezave z internetom. Aplikacija ni namenjena zgolj branju Svetega pisma, ampak se osredotoča na napredno orodje za poglobljeno osebno preučevanje Svetega pisma.
 paragraph_1_2: >
   To aplikacijo so razvili bralci Biblije za bralce Biblije. Namen aplikacije je, da vam pomaga, da bo vaše biblijsko proučevanje priročno, poglobljeno in zabavno. Najboljše pri tem neprofitnem projektu skupnosti je, da je odprtokoden, popolnoma brezplačen in ne vsebuje oglasov. Ker je aplikacija od vsega začetka zasnovana za Android, je majhna za prenos in zato zelo učinkovita in izjemno hitra.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: Razdeljeni pogledi besedila omogočajo primerjavo prevodov in svetovanje komentarjev
 feature_02: Delovni prostori s svojimi nastavitvami omogočajo več nastavitev proučevanja Biblije
 feature_03: Strong-ova števila omogočajo grško in hebrejsko besedno analizo
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Povezani sklici, opombe in dokumenti; skok na reference in opombe s preprostim dotikom povezave; izvedite poglobljeno preučevanje Svetega pisma z uporabo komentarjev ({{comment_examples}}), zbirk referenc ({{cross_reference_examples}}) in drugih virov.
 # Examples of commentaries. You can add here also other commentaries of your language if they

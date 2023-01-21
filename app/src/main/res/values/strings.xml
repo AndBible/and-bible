@@ -1,13 +1,32 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
 <!-- Application text
 
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
+    <string name="app_name_calculator">Simple Calculator</string>
+
     <string name="app_name_short">Bible Study</string>
-    <string name="app_name_medium">Bible Study (And Bible)</string>
-    <string name="app_name_long">Bible Study app, by And Bible Open Source Project</string>
-    <string name="project">And Bible Open Source Project</string>
+    <string name="app_name_medium">Bible Study (AndBible)</string>
+    <string name="app_name_long">AndBible: Bible Study</string>
+    <string name="project">AndBible Open Source Project</string>
 
     <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
@@ -17,6 +36,7 @@
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
+    <string name="search_in_andbible">Find in Bible</string>
     <string name="search_with_results">Find (%s results)</string>
     <string name="settings">Application preferences</string>
     <string name="history">History</string>
@@ -237,6 +257,7 @@
     <string name="window_color_settings_title">Window color settings</string>
     <string name="workspace_color_settings_title">Workspace color setting defaults</string>
 
+    <string name="color_workspace">Workspace color</string>
     <string name="color_text">Text color</string>
     <string name="color_background">Background color</string>
     <string name="colors_day_mode_title">Day mode</string>
@@ -311,6 +332,7 @@
     <!--  Install zip file -->
     <string name="install_zip">Load Document From Zip</string>
     <string name="install_zip_module">Install Bible Module</string>
+    <string name="install_zip_module_discrete">Install Calculator Module</string>
     <string name="install_zip_successfull">Module was installed successfully</string>
     <string name="extracting_zip_file">Extracting Zip file now…</string>
     <string name="checking_zip_file">Checking given file…</string>
@@ -609,6 +631,15 @@
     <string name="backup_app_database">Share or Backup app database to…</string>
 
     <string name="backup_app">Share or Backup app (.apk file) to …</string>
+    <string name="application">Application</string>
+    <string name="database">Database</string>
+    <string name="documents">Documents</string>
+    <string name="application_info">Bible Study application file (.APK)</string>
+    <string name="database_info">Bookmarks, labels, notes, study pads, reading plans, workspaces etc.</string>
+    <string name="document_info">Bibles, commentaries, dictionaries, maps etc.</string>
+    <string name="share_or_backup_to">Share or backup to…</string>
+    <string name="restore_from">Restore from…</string>
+    <string name="restore">Restore</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
     <string name="restore_what">What do you want to restore?</string>
@@ -897,7 +928,7 @@
     <string name="proceed_anyway">Proceed anyway</string>
     <string name="rate_title">Rating and reviewing app</string>
     <string name="rate_message5">
-        Positive and detailed reviews help And Bible Open Source Project a lot. Thank you!
+        Positive and detailed reviews help AndBible Open Source Project a lot. Thank you!
     </string>
     <string name="rate_message6">
         Before reviewing negative review, please consider the following:
@@ -950,6 +981,7 @@
     <string name="other_labels">Other labels</string>
     <string name="book_menu_sort_row_opt">Order books horizontally</string>
     <string name="book_menu_group_by_category">Group books by category</string>
+    <string name="book_menu_show_long_book_name">Show long book name</string>
     <string name="reset_workspace_labels">Do you want to reset auto-assign and favorite settings for this workspace?</string>
     <string name="reset_hide_labels">Do you want to reset setting for hiding specified labels settings?</string>
     <string name="reorder">Re-order</string>
@@ -995,11 +1027,59 @@
     <string name="strongs_text_and_links">Text and Links</string>
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
 
-    <!-- Android 12 requires new permission, and we need to add this string here for TTS users -->
     <string name="permission_required">Permission needed</string>
     <string name="labels_search_hint">Search</string>
     <string name="assing_labels_help6">Tap %s to show or hide filter labels text input.</string>
     <string name="assing_labels_help7">You can add quick filter button by pressing %s button.</string>
     <string name="assing_labels_help7_1">Tap each quick filter button to activate or deactivate them.</string>
     <string name="assing_labels_help8">Long-press quick filter button to remove it.</string>
+    <string name="progress_status_permission">To show notifications (download status, processing, speak status), we need your permission. </string>
+
+    <!-- Discrete mode settings -->
+    <string name="prefs_persecution_cat">Settings for the persecuted</string>
+    <string name="prefs_discrete_mode">Hide religious symbols</string>
+    <string name="prefs_discrete_mode_desc">Rename the app to \'Calculator\' and show a different icon in the launcher.</string>
+
+    <string name="prefs_show_calculator">Calculator</string>
+
+    <string name="prefs_calculator_pin">Calculator PIN</string>
+    <string name="prefs_calculator_pin_desc">PIN code to enter the app when the calculator is shown. </string>
+    <string name="calc_division_by_zero">Division by zero is not allowed</string>
+    <string name="calc_wrong_format">Wrong Format</string>
+    <string name="calc_wrong_format_operand">Wrong Format. Operand Without any numbers?</string>
+    <string name="prefs_persecuted_help">Read this first!</string>
+    <string name="prefs_persecuted_summary">Instructions for the settings and information about specific discrete build.</string>
+
+    <string name="calculator_par1">
+        Before entering the app, calculator screen is displayed.
+    </string>
+    <string name="calculator_par2">
+        In it, you can do standard calculus, and when you want to enter the app, you
+        just type your PIN code (default is 1234) and then press "=" button.
+    </string>
+    <string name="calculator_par3">
+        You can set up a custom PIN code by "Calculator PIN" setting.
+    </string>
+    <string name="discrete_mode_info_par1">
+        You are using standard application version, which means that it is still possible to see
+        the real name and icon of the application in app info.
+    </string>
+    <string name="discrete_mode_info_par2">
+        For improved security in persecuted environment, we highly recommend using discrete
+        version of the app, which always displays calculator, even if the app data is deleted.
+    </string>
+    <string name="discrete_mode_link">
+        You can download the latest version of discrete version from %s.
+    </string>
+    <string name="external_link">External link</string>
+    <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
+    <string name="bug_report_email_title">Send bug report via email</string>
+    <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
+    <string name="marker_style">Show only marker for selection bookmarks</string>
+    <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
+    <string name="type_text_or_bible_reference">Type text or bible reference</string>
+    <string name="go_to_ref">Open %s</string>
+    <string name="search_what">Find \"%s\"</string>
+    <string name="app_opened_elsewhere">App opened elsewhere</string>
+    <string name="open_here">Open here</string>
 </resources>

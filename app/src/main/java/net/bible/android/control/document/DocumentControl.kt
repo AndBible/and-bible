@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.document
@@ -21,13 +20,10 @@ package net.bible.android.control.document
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.DocumentCategory
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.db.DatabaseContainer
@@ -50,25 +46,24 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class DocumentControl @Inject constructor(
-        private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
         private val swordDocumentFacade: SwordDocumentFacade,
         private val windowControl: WindowControl)
 {
     private val documentBackupDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
-    val isNewTestament get() = activeWindowPageManagerProvider.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
+    val isNewTestament get() = windowControl.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
 
     /**
      * Suggest an alternative dictionary to view or return null
      */
     // very occasionally the below has thrown an Exception and I don't know why, so I wrap all this in a try/catch
-    val isStrongsInBook get() = activeWindowPageManagerProvider.activeWindowPageManager.hasStrongs
+    val isStrongsInBook get() = windowControl.activeWindowPageManager.hasStrongs
 
     /**
      * Are we currently in Bible, Commentary, Dict, or Gen Book mode
      */
     val currentCategory: DocumentCategory
-        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.documentCategory
+        get() = windowControl.activeWindowPageManager.currentPage.documentCategory
 
     /**
      * Suggest an alternative bible to view or return null
@@ -103,14 +98,14 @@ class DocumentControl @Inject constructor(
         get () = currentDocument?.bookCategory == BookCategory.COMMENTARY
 
     val currentPage: CurrentPageManager
-        get () = activeWindowPageManagerProvider.activeWindowPageManager
+        get () = windowControl.activeWindowPageManager
 
     val currentDocument: Book?
-        get () = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
+        get () = windowControl.activeWindowPageManager.currentPage.currentDocument
 
     val suggestedBible: Book?
         get() {
-            val currentPageManager = activeWindowPageManagerProvider.activeWindowPageManager
+            val currentPageManager = windowControl.activeWindowPageManager
             val currentBible = currentPageManager.currentBible.currentDocument
 
             return getSuggestedBook(swordDocumentFacade.bibles, currentBible, bookFilter, currentPageManager.isBibleShown)
@@ -124,7 +119,7 @@ class DocumentControl @Inject constructor(
     // bible so only return true if !TDavid or is Psalms
     val suggestedCommentary: Book?
         get() {
-            val currentPageManager = activeWindowPageManagerProvider.activeWindowPageManager
+            val currentPageManager = windowControl.activeWindowPageManager
             val currentCommentary = currentPageManager.currentCommentary.currentDocument
 
             return getSuggestedBook(swordDocumentFacade.getBooks(BookCategory.COMMENTARY),
@@ -135,20 +130,20 @@ class DocumentControl @Inject constructor(
      * Possible books will often not include the current verse but most will include chap 1 verse 1
      */
     private val requiredVerseForSuggestions: Verse
-        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.singleKey
+        get() = windowControl.activeWindowPageManager.currentBible.singleKey
 
     /**
      * user wants to change to a different document/module
      */
     fun changeDocument(newDocument: Book) {
-        activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocument(newDocument)
+        windowControl.activeWindowPageManager.setCurrentDocument(newDocument)
     }
 
     fun enableManualInstallFolder() {
         try {
             SwordEnvironmentInitialisation.enableDefaultAndManualInstallFolder()
         } catch (e: BookException) {
-            Dialogs.instance.showErrorMsg(R.string.error_occurred)
+            Dialogs.showErrorMsg(R.string.error_occurred)
         }
 
     }
@@ -159,7 +154,7 @@ class DocumentControl @Inject constructor(
 
     /**
      * Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
-     * and according to And Bible if it is not currently selected
+     * and according to AndBible if it is not currently selected
      */
     fun canDelete(document: Book?): Boolean {
         if (document == null) {
@@ -178,7 +173,7 @@ class DocumentControl @Inject constructor(
         swordDocumentFacade.deleteDocument(document)
         if(document.bookCategory == BookCategory.AND_BIBLE) return
         documentBackupDao.deleteByOsisId(document.initials)
-        val currentPage = activeWindowPageManagerProvider.activeWindowPageManager.getBookPage(document)
+        val currentPage = windowControl.activeWindowPageManager.getBookPage(document)
         currentPage?.checkCurrentDocumenInstalled()
     }
 

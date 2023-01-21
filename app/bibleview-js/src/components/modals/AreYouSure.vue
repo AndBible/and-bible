@@ -1,71 +1,72 @@
 <!--
-  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   -
-  - This file is part of And Bible (http://github.com/AndBible/and-bible).
+  - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
-  - And Bible is free software: you can redistribute it and/or modify it under the
+  - AndBible is free software: you can redistribute it and/or modify it under the
   - terms of the GNU General Public License as published by the Free Software Foundation,
   - either version 3 of the License, or (at your option) any later version.
   -
-  - And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  - AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   - without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   - See the GNU General Public License for more details.
   -
-  - You should have received a copy of the GNU General Public License along with And Bible.
+  - You should have received a copy of the GNU General Public License along with AndBible.
   - If not, see http://www.gnu.org/licenses/.
   -->
 
 <template>
-  <Modal v-if="show" @close="show=false" blocking locate-top>
+  <ModalDialog v-if="show" @close="show=false" blocking locate-top>
     <template #title>
       <slot name="title"/>
     </template>
     <slot/>
     <template #footer>
-      <button class="button" @click="cancel">{{strings.cancel}}</button>
-      <button v-for="b in buttons" :key="b.result" class="button" :class="b.class" @click="buttonClicked(b.result)">{{b.title}}</button>
+      <button class="button" @click="cancel">{{ strings.cancel }}</button>
+      <button v-for="b in buttons" :key="b.result" class="button" :class="b.class" @click="buttonClicked(b.result)">
+        {{ b.title }}
+      </button>
     </template>
-  </Modal>
+  </ModalDialog>
 </template>
 
-<script>
-import Modal from "@/components/modals/Modal";
+<script setup lang="ts">
+import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {ref} from "vue";
 import {useCommon} from "@/composables";
 import {Deferred} from "@/utils";
-export default {
-  name: "AreYouSure",
-  components: {Modal},
-  setup() {
-    const show = ref(false);
-    let promise = null;
-    const {strings, ...common} = useCommon();
+import {AreYouSureButton} from "@/types/common";
 
-    const okButton = {
-      title: strings.yes,
-      class: "warning",
-      result: true
-    }
+const show = ref(false);
+let promise: Deferred | null = null;
+const {strings} = useCommon();
 
-    const buttons = ref(null);
-
-    async function areYouSure(btns = [okButton]) {
-      buttons.value = btns;
-      show.value = true;
-      promise = new Deferred();
-      const result = await promise.wait()
-      show.value = false;
-      return result;
-    }
-    function buttonClicked(result) {
-      promise.resolve(result);
-    }
-    function cancel() {
-      promise.resolve(false);
-    }
-    return {show, areYouSure, buttonClicked, cancel, strings, common, buttons};
-  }
+const okButton: AreYouSureButton = {
+    title: strings.yes,
+    class: "warning",
+    result: true
 }
+
+const buttons = ref<AreYouSureButton[] | null>(null);
+
+async function areYouSure(btns = [okButton]) {
+    buttons.value = btns;
+    show.value = true;
+    promise = new Deferred();
+    const result = await promise.wait()
+    show.value = false;
+    return result;
+}
+
+function buttonClicked(result: any) {
+    promise!.resolve(result);
+}
+
+function cancel() {
+    promise!.resolve();
+}
+
+defineExpose({areYouSure})
 </script>
 
 <style scoped lang="scss">

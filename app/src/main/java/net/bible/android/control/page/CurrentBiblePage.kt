@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.page
 
@@ -26,8 +25,10 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.doesNotExist
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -138,7 +139,7 @@ class CurrentBiblePage(
 
     override fun doSetKey(key: Key?) {
         originalKey = key
-		val verse = KeyUtil.getVerse(key)
+        val verse = KeyUtil.getVerse(key)
 		//TODO av11n should this be the verse Versification or the Module/doc's Versification
 		currentBibleVerse.setVerseSelected(versification, verse)
 	}
@@ -210,7 +211,7 @@ class CurrentBiblePage(
      */
     override val isSearchable: Boolean
         get() = try { //TODO allow japanese search - japanese bibles use smartcn which is not available
-            "ja" != currentDocument!!.language.code
+            !currentDocument!!.doesNotExist && "ja" != currentDocument!!.language.code
         } catch (e: Exception) {
             Log.w(TAG, "Missing language code", e)
             true

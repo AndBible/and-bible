@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Biblia de Estudio</string>
   <string name="app_name_medium">Biblia de Estudio (And Bible)</string>
-  <string name="app_name_long">Biblia de Estudio, Proyecto de Código Abierto And Bible</string>
+  <string name="app_name_long">AndBible: Biblia de Estudio</string>
   <string name="project">Proyecto de Código Abierto And Bible</string>
   <string name="version_text">Versión %s</string>
   <string name="no_sdcard_error">Por favor inserte una tarjeta SD y reinicie la aplicación.</string>
@@ -172,6 +172,8 @@
   <string name="pref_font_family_label_name">Tipo de letra (%s)</string>
   <string name="prefs_font_family_summary">Cambiar el tipo de letra. Idea: se pueden instalar más tipos de letra desde Descargar Documentos / Complementos</string>
   <string name="prefs_text_bookmarks_title">Ajustes de Marcadores &amp; Mis Notas</string>
+  <string name="prefs_enable_bluetooth_title">Habilitar los botones multimedia de Bluetooth</string>
+  <string name="prefs_enable_bluetooth_summary">Manejar los botones multimedia de Bluetooth para comenzar/dejar de hablar.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Ajustes de color</string>
   <string name="window_color_settings_title">Ajustes de color de ventana</string>
@@ -207,7 +209,7 @@
   <string name="next">Siguiente</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Por favor descargue los diccionarios de griego y hebreo de Strong</string>
-  <string name="no_indexed_bible_with_strongs_ref">Debe descargar una Biblia que contenga números de Strong y descargar su índice por medio de Buscar</string>
+  <string name="no_indexed_bible_with_strongs_ref">Debe descargar una Biblia que contenga números de Strong y construir su índice a través de la Búsqueda</string>
   <string name="morph_robinson_not_installed">Por favor descargue el diccionario \'Códigos de análisis morfológicos de Robinson\'</string>
   <string name="go_to_downloads">Ir a Descargas</string>
   <!--Module download-->

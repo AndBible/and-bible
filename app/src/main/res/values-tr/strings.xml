@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Kutsal Kitap Çalışması</string>
   <string name="app_name_medium">Kutsal Kitap Çalışması (And Bible)</string>
-  <string name="app_name_long">Kutsal Kitap Çalışma uygulaması, And Bible Açık Kaynak Projesi tarafından</string>
+  <string name="app_name_long">AndBible: İncil Çalışma </string>
   <string name="project">And Bible Açık Kaynak Projesi</string>
   <string name="version_text">Sürüm %s</string>
   <string name="no_sdcard_error">Lütfen bir hafıza kartı takıp uygulamayı yeniden başlatın.</string>
@@ -151,11 +151,11 @@
   <string name="reset_are_you_sure">Tüm bu değerleri sıfırlamak istediğinizden emin misiniz?</string>
   <string name="window_pinning_menutitle">Pencere iğneleme</string>
   <string name="hide_window_buttons_title">Pencere düğmelerini gizle</string>
-  <string name="hide_window_buttons_summary">İncil görünümlerinin sağ tarafında görüntülenen pencere butonları gizlenir. Aşağıdaki pencere gezinme çubuğu hala gösterilir ve pencerenin açılır menüsünü uzun tıklayarak açabilirsiniz.</string>
+  <string name="hide_window_buttons_summary">İncil görünümlerinin sağ tarafında görüntülenen pencere düğmeleri gizlenir. Aşağıdaki pencere gezinme çubuğu hala gösterilir ve pencerenin açılır menüsünü uzun tıklayarak açabilirsiniz.</string>
   <string name="hide_bible_reference_overlay_title">İncil\'e gönderme yapan katmanı gizle</string>
   <string name="hide_bible_reference_overlay_summary">Uygulama tam ekrandayken yarı-şeffaf İncil\'e gönderme yapan katmanı gösterme</string>
-  <string name="full_screen_hide_buttons_pref_title">Tam ekranda pencere buton çubuğunu gizle</string>
-  <string name="full_screen_hide_buttons_pref_summary">Tam ekran moduna geçerken, ekranın altındaki pencere buton çubuğunu otomatik olarak gizle</string>
+  <string name="full_screen_hide_buttons_pref_title">Tam ekranda pencere düğme çubuğunu gizle</string>
+  <string name="full_screen_hide_buttons_pref_summary">Tam ekran moduna geçerken, ekranın altındaki pencere düğme çubuğunu otomatik olarak gizle</string>
   <string name="prefs_dictionaries_cat">Sözlükler</string>
   <string name="choose_strongs_greek_dictionary_title">Strong\'un Yunanca sözlüğü</string>
   <string name="choose_strongs_greek_dictionary_summary">Yunanca kelimelerin tanımları için Strong\'un sözlüğünü seçin</string>
@@ -205,7 +205,6 @@
   <string name="next">Sonraki</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Lütfen \iStrong\'s Grekçe ve İbranice sözlüklerini indiriniz</string>
-  <string name="no_indexed_bible_with_strongs_ref">Strong Numaraları içeren bir Kutsal Kitap çevirisini ve ona ait dizini indirmeniz gerekir. Dizinler Arama sayfasından indirilir.</string>
   <string name="morph_robinson_not_installed">Lütfen \'Robinson\'s Morphological Analysis Codes\' sözlüğünü indirin.</string>
   <string name="go_to_downloads">İndirmelere Git</string>
   <!--Module download-->
@@ -259,6 +258,8 @@ Modül sunucularından yapılan tüm indirmeler şifrelenir (HTTPS).</string>
   <string name="reset_plan_question">Bu planı sıfırlamak istediğinizden emin misiniz?</string>
   <string name="import_reading_plan">Okuma planını içe aktar...</string>
   <string name="import_reading_plan_error">İçe aktarma hatası</string>
+  <string name="import_reading_plan_error_duplicate">Aşağıdaki günler yinelendi: %s</string>
+  <string name="import_reading_plan_error_days">Aşağıdaki günler hatalar içeriyordu: %s</string>
   <string name="import_reading_plan_anyway">Yine de içe aktar</string>
   <string name="overwrite_reading_plan">%s üzerine yazmak istiyor musun?</string>
   <string name="delete_reading_plan">Bu planı sil</string>
@@ -287,6 +288,10 @@ Yaratılış ile başlayıp Vahiy ile biten Kutsal Kitap\'ı 1 yılda baştan so
   <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 Yıl 4 bölüm/gün</string>
   <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10-bölüm/gün Okuma Planı</string>
   <string name="plan_description_y1ot6nt4_profHorner">Prof. Horner\'in nezaketiyle, izin verildi</string>
+  <string name="plan_name_y2ot1ntps2">2 Yıl Boyunca Kutsal Kitap, iki kez YA+MK</string>
+  <string name="plan_description_y2ot1ntps2">
+2 yılda Kutsal Kitap\'ı baştan sona okuyun, YA ve Mezmurlar\'ı iki kez okuyun.
+Wholosome Words\'un nezaketiyle, http://www.wholesomewords.org/, izin verildi</string>
   <!--Document context menu-->
   <string name="delete">Sil</string>
   <string name="delete_index">Arama dizinini sil</string>
@@ -457,6 +462,10 @@ konuşma tanımlanan ayet aralığının dışında başladı.</string>
   <string name="loading_backup">Veritabanı yedeklemeden yükleniyor...</string>
   <string name="backup_success2">Notlarım, Yer İmleri, Çalışma Defterleri, Okuma Planları ve Çalışma Alanları başarıyla yedeklendi.</string>
   <string name="backup_modules_success">Seçilen modüller başarıyla yedeklendi.</string>
+  <string name="backup_modules_email_subject_2">%s modüllerini yedeklemek</string>
+  <string name="backup_modules_email_message_2">%s modüllerinin yedeği ektedir, aşağıdaki modülleri içerir: %s</string>
+  <string name="backup_email_subject_2">%s veritabanını yedeklemek</string>
+  <string name="backup_email_message_2">Yer imlerinizi, notlarınızı, okuma planlarınızı ve çalışma alanlarınızı içeren %s veritabanınız ektedir</string>
   <string name="restore_unsuccessfull">Veritabanı geri yüklenemedi. Belki de geçersiz veritabanı dosyası verdiniz.</string>
   <string name="backup_phone_storage">Telefon hafıza</string>
   <string name="backup_backup_title">Nereye yedeklensin?</string>
@@ -542,6 +551,7 @@ konuşma tanımlanan ayet aralığının dışında başladı.</string>
   <string name="select_all">Hepsi seç</string>
   <string name="copy_settings_workspaces_title">Ayarlar hagni çalışma alanıya kopyalansın?</string>
   <string name="reset_settings">Sıfırla</string>
+  <string name="workspace_dismiss">Yok say</string>
   <string name="workspace_listing_with_current">%s (aktif)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Bu deneme sürümdür!</string>
@@ -549,11 +559,17 @@ konuşma tanımlanan ayet aralığının dışında başladı.</string>
 Beta sürümünde henüz tam anlamıyla test edilmemiş yeni özellikler var,
 bu yüzden beta sürümünü kullanmak beklenmedik davranışlara, yani hatalara neden olabilir.
 Sıradan Kutsal Kitap okuyucularının bunun yerine kararlı sürümü kullanması tavsiye edilir.</string>
+  <string name="beta_notice_content_2">
+Beta kullanıcılarının, hataları Google Play ya da
+(tercihen) %s aracılığıyla bildirmeleri önerilir.</string>
   <string name="beta_notice_content_3">Programcıysanız, lütfen %s aracılığıyla hata düzeltmelerine
 katkıda bulunmayı düşünün. :-)</string>
   <string name="beta_notice_github_issues">Github sorun listesi</string>
   <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Yok say</string>
+  <string name="beta_notice_dismiss_until_update">Bir sonraki güncellemeye kadar yok say</string>
   <string name="stable_notice_title">Uygulama güncellendi!</string>
+  <string name="upgrade_video_message">Lütfen bu sürümün yeni özelliklerini içeren videoyu izleyin (%s)</string>
   <string name="stable_notice_par1">%s sürümlü %s başarıyla kuruldu!</string>
   <!--History-->
   <string name="history_for">Geçmiş (%s: Window %d)</string>
@@ -563,16 +579,21 @@ katkıda bulunmayı düşünün. :-)</string>
 Tam ekran modunu değiştirmek için Kutsal Kitap metnine çift dokunun..
 Bölünmüş ekranların (pencereler olarak da bilinir) sağ üst köşesinde menü düğmesi bulunur,
 bu birkaç pencereye özgü işlevleri kullanmanıza ve pencere görünümünü ve davranışını özelleştirmenize olanak tanır.</string>
+  <string name="help_contextmenus_title">Bağlam Menüleri</string>
   <string name="help_bookmarks_title">Yer imleri &amp; Notlarım</string>
   <string name="help_search_title">Arama</string>
   <string name="help_workspaces_title">Çalışma Alanları</string>
   <string name="help_hidden_features_title">Gizli kısayollar</string>
   <string name="help_window_pinning_title">Pencere iğneleme</string>
   <!--Welcome text-->
+  <string name="redownload_message">Önceki kitapların/belgelerin bir listesi bulundu. Bunları kolayca tekrar indirmek için aşağıya tıklayın.</string>
   <!--Uncategorized-->
   <string name="close">Kapat</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Anladım</string>
   <string name="first_time_help_show_next_time">Bir daha sefere tekrar göster</string>
+  <string name="strongs_mode_title">Strongs modunu seç</string>
+  <string name="download_dialog_message">Aşağıdaki kitaplar indirilemedi:</string>
   <string name="select_multiple">Çoklu seçim</string>
   <string name="journal_description">Özel metin ve yer imleriyle kullanıcı tarafından düzenlenebilir çalışma defterleri</string>
   <string name="my_notes_abbreviation">Notlarım</string>
@@ -598,6 +619,7 @@ bu birkaç pencereye özgü işlevleri kullanmanıza ve pencere görünümünü 
   <string name="active_window_indicator_summary">Hangi pencerenin etkin olduğunu tanımaya yardımcı olması için pencere köşelerini vurgula</string>
   <string name="app_licence_title">Açık Kaynak Lisansı</string>
   <string name="how_to_contribute">Nasıl katkıda bulunulur?</string>
+  <string name="confirm_delete_bookmarks">%d yer imlerini ve notlarını kaldırmak istiyor musunuz?</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Bir arkadaşına öner</string>
   <string name="tell_friend_message1">Size %s\'i önermek isterim.</string>
@@ -650,7 +672,9 @@ geliştiricilere e-posta gönderin</string>
   <string name="recent_labels">Son etiketler</string>
   <string name="other_labels">Diğer etiketler</string>
   <string name="book_menu_sort_row_opt">Kitaplar yatay olarak sunulsun</string>
+  <string name="system_items">Sistem eylemleri</string>
   <string name="system_items1">Daha Fazla</string>
+  <string name="system_action2">Android eylemleri</string>
   <string name="text_copied_to_clicpboard">Metin panoya kopyalandı</string>
   <string name="prefs_double_tap_to_fullscreen_title">Tam ekran için iki kez dokun</string>
   <string name="prefs_double_tap_to_fullscreen_summary">Pencereye çift dokunarak tam ekran moduna girin</string>
@@ -665,6 +689,8 @@ geliştiricilere e-posta gönderin</string>
   <string name="import_error">Uygulama Veritabanından içe aktarma başarısız oldu. Veritabanı dosyası yanlış biçimde olabilir veya %suygulamasının çok eski sürümüyle yapılmış olabilir.</string>
   <string name="chooser_range">Menzil</string>
   <string name="chooser_jump">Atla</string>
+  <string name="chooser_OT_abbrev">EA</string>
+  <string name="chooser_NT_abbrev">YA</string>
   <string name="chooser_style_grid">Izgara</string>
   <string name="chooser_style_lists">Listeler</string>
   <string name="chooser_select">Seç %s</string>

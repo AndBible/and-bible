@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: Bibel+ (And Bible Open Source)
+title: "AndBible: Bibel+"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Bibeln, Kommentare, Wörterbücher und Bücher, auch ohne Internet."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Ein mächtiges Werkzeug für das Bibelstudium
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Bibel+ von der And Bible Open Source Community ist ein umfangreiches und trotzdem einfach zu bedienendes  Programm für das Bibelstudium - auch ohne Internet. Diese App ist nicht nur ein einfaches Bibelleseprogramm, sondern will ein Werkzeug für fortgeschrittenes, in die Tiefe gehendes Bibelstudium sein.
+  "{{ title }}" ist ein umfangreiches und trotzdem einfach zu bedienendes  Programm für das Bibelstudium - auch ohne Internet. Diese App ist nicht nur ein einfaches Bibelleseprogramm, sondern will ein Werkzeug für fortgeschrittenes, in die Tiefe gehendes Bibelstudium sein.
 paragraph_1_2: >
   Dieses Programm wird von Bibellesern für Bibelleser entwickelt. Es zielt darauf ab, dein Bibelstudium einfach, bedeutsam und unterhaltsam zu machen. Das Beste an diesem Non-Profit Projekt ist, dass es Open Source ist - völlig kostenlos und ohne Werbung. Dadurch, dass es von Anfang an für Android entwickelt wurde, ist es platzsparend, effizient und schnell.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: Geteilte Textansicht zum Vergleichen von Übersetzungen und Anzeigen von Kommentaren
 feature_02: Arbeitsbereiche erlauben mehrere Konfigurationen für Bibelstudien mit jeweils eigenen Einstellungen
 feature_03: Die Integration der Strong-Codes erlaubt das Nachschlagen und Analysieren von griechischen und hebräischen Vokabeln
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Verknüpfte Querverweise, Fußnoten und andere Dokumente; einfach antipppen um dahin zu springen; tiefergehende Studien ausführen durch den Gebrauch verknüpfter Kommentare ({{commentary_examples}}), Sammlungen von Querverweisen ({{cross_reference_examples}}) und anderer Resourcen.
 # Examples of commentaries. You can add here also other commentaries of your language if they

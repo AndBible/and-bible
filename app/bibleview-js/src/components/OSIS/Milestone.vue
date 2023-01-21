@@ -1,44 +1,46 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   -
-  - This file is part of And Bible (http://github.com/AndBible/and-bible).
+  - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
-  - And Bible is free software: you can redistribute it and/or modify it under the
+  - AndBible is free software: you can redistribute it and/or modify it under the
   - terms of the GNU General Public License as published by the Free Software Foundation,
   - either version 3 of the License, or (at your option) any later version.
   -
-  - And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  - AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   - without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   - See the GNU General Public License for more details.
   -
-  - You should have received a copy of the GNU General Public License along with And Bible.
+  - You should have received a copy of the GNU General Public License along with AndBible.
   - If not, see http://www.gnu.org/licenses/.
   -->
 
 <template>
-  <span>{{marker}}<slot/></span>
+  <span :class="{paragraphBreak}">{{ marker }}<slot/></span>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {computed} from "vue";
 
-export default {
-  name: "Milestone",
-  props: {
-    subType: {type: String, default: null},
-    type: {type: String, default: null},
-    marker: {type: String, default: ""},
-    resp: {type: String, default: ""},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "resp");
-    checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
-    checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
-    return useCommon();
-  },
-}
+const props = withDefaults(defineProps<{
+    subType?: string
+    type?: string
+    marker: string
+    resp: string
+}>(),{
+    marker: "",
+    resp: ""
+});
+
+checkUnsupportedProps(props, "resp");
+checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
+checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
+const paragraphBreak = computed(() => props.type === "line");
+useCommon();
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import "~@/common.scss";
 
 </style>

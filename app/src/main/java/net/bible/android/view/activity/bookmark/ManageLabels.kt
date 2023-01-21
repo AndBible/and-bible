@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.bookmark
 
@@ -37,8 +36,8 @@ import android.view.View
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
@@ -46,7 +45,6 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
@@ -67,10 +65,10 @@ import kotlin.random.Random.Default.nextInt
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
+import net.bible.android.control.page.window.WindowControl
 import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.displayName
@@ -90,7 +88,7 @@ fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.Mana
     autoAssignLabels = resultData.autoAssignLabels
     favouriteLabels = resultData.favouriteLabels
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
-    ABEventBus.getDefault().post(AppSettingsUpdated())
+    ABEventBus.post(AppSettingsUpdated())
 }
 
 @Serializable
@@ -113,7 +111,7 @@ class ManageLabels : ListActivityBase() {
     private val shownLabels: MutableList<Any> = ArrayList()
 
     @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windownControl: WindowControl
 
     enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS}
 
@@ -337,7 +335,7 @@ class ManageLabels : ListActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         loadFilteringSettings()
 
-        super.onCreate(savedInstanceState, false)
+        super.onCreate(savedInstanceState)
         binding = ManageLabelsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         super.buildActivityComponent().inject(this)
@@ -355,7 +353,7 @@ class ManageLabels : ListActivityBase() {
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         updateLabelList(rePopulate = true)
 
-        val key = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.key
+        val key = windownControl.activeWindowPageManager.currentPage.key
         if(key is StudyPadKey) {
             highlightLabel = key.label
         }
@@ -364,10 +362,7 @@ class ManageLabels : ListActivityBase() {
 
         highlightLabel?.also {
             val pos = shownLabels.indexOf(it)
-            mainScope.launch {
-                delay(100)
-                listView.smoothScrollToPosition(pos)
-            }
+            listView.setSelection(pos)
         }
 
         binding.run {
@@ -516,10 +511,10 @@ class ManageLabels : ListActivityBase() {
     private fun studyPadSelected(journal: BookmarkEntities.Label) {
         Log.i(TAG, "Journal selected:" + journal.name)
         try {
-            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
+            windownControl.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show journal", e)
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
@@ -540,7 +535,7 @@ class ManageLabels : ListActivityBase() {
     private var newLabelCount = 1L
 
     private fun newLabel() {
-        Log.i(TAG, "New label clicked")
+        Log.i(TAG, "newLabel")
         val newLabel = BookmarkEntities.Label()
         newLabel.color = randomColor()
         newLabel.id = -(newLabelCount++)
@@ -548,6 +543,7 @@ class ManageLabels : ListActivityBase() {
     }
 
     private fun deleteLabel(label: BookmarkEntities.Label) {
+        Log.i(TAG, "deleteLabel")
         data.deletedLabels.add(label.id)
         data.selectedLabels.remove(label.id)
         data.autoAssignLabels.remove(label.id)
@@ -559,11 +555,10 @@ class ManageLabels : ListActivityBase() {
         ensureNotAutoAssignPrimaryLabel(label)
     }
 
-    private val mainScope = CoroutineScope(Dispatchers.Main)
-
     fun editLabel(label_: BookmarkEntities.Label) {
         var label = label_
         val isNew = label.id < 0
+        Log.i(TAG, "editLabel isNew: $isNew")
         val intent = Intent(this, LabelEditActivity::class.java)
         val labelData = LabelEditActivity.LabelData(
             isAssigning = data.mode == Mode.ASSIGN,
@@ -586,19 +581,25 @@ class ManageLabels : ListActivityBase() {
 
         intent.putExtra("data", json.encodeToString(serializer(), labelData))
 
-        mainScope.launch {
-            val result = awaitIntent(intent) ?: return@launch
+        lifecycleScope.launch(Dispatchers.Main) {
+            Log.i(TAG, "editLabel waiting for results")
+            val result = awaitIntent(intent)
+
             if (result.resultCode != Activity.RESULT_CANCELED) {
+                Log.i(TAG, "editLabel result NOT CANCELLED")
                 val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
                     serializer(), result.resultData.getStringExtra("data")!!)
 
                 if(newLabelData.label.name.isEmpty() && label.id < 0) {
+                    Log.i(TAG, "editLabel name not specified or id negative")
                     return@launch
                 }
 
                 if (newLabelData.delete) {
+                    Log.i(TAG, "editLabel delete specified")
                     deleteLabel(label)
                 } else {
+                    Log.i(TAG, "editLabel delete not specified")
                     allLabels.remove(label)
                     label = newLabelData.label
                     allLabels.add(label)
@@ -634,8 +635,10 @@ class ManageLabels : ListActivityBase() {
                 }
                 updateLabelList(rePopulate = true, reOrder = isNew)
                 if(isNew) {
-                    listView.smoothScrollToPosition(shownLabels.indexOf(label))
+                    listView.setSelection(shownLabels.indexOf(label))
                 }
+            } else {
+                Log.i(TAG, "editLabel result CANCELLED")
             }
         }
     }
@@ -643,19 +646,17 @@ class ManageLabels : ListActivityBase() {
     // This is called by the listener, which is created and configured by the list adapter
     // It should only be called when the mode is STUDYPAD.  Nonetheless, I retained the mode check from the previous
     // onListItemClick() method as an additional sanity check.
-    fun selectStudyPadLabel(selected: Any) {
+    fun selectStudyPadLabel(selected: BookmarkEntities.Label) {
         if (data.mode == Mode.STUDYPAD) {
-            if (selected is BookmarkEntities.Label) { 
-                saveAndExit(selected) 
-            }
+            saveAndExit(selected)
         }
         else {
             Log.e(TAG, "Call to selectStudyPadLabel() is unexpected when mode is not STUDYPAD.  mode=${data.mode}")
         }
     }
 
-    private fun saveAndExit(selected: BookmarkEntities.Label? = null) = mainScope.launch {
-        Log.i(TAG, "Okay clicked")
+    private fun saveAndExit(selected: BookmarkEntities.Label? = null) = lifecycleScope.launch(Dispatchers.Main) {
+        Log.i(TAG, "saveAndExit")
         CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideText)
         CommonUtils.settings.setBoolean("labels_list_filter_showTextSearch", showTextSearch)
         CommonUtils.settings.setString("labels_list_filter_searchTextOptions", json.encodeToString(serializer(), searchOptionList))
@@ -666,7 +667,6 @@ class ManageLabels : ListActivityBase() {
         }
 
         val saveLabels = allLabels
-            .filterIsInstance<BookmarkEntities.Label>()
             .filter{ data.changedLabels.contains(it.id) && !data.deletedLabels.contains(it.id) }
 
         val newLabels = saveLabels.filter { it.id < 0 }
@@ -702,7 +702,7 @@ class ManageLabels : ListActivityBase() {
         finish()
     }
 
-    private suspend fun askConfirmation(message: String, yesNo: Boolean = false)  = suspendCoroutine<Boolean> {
+    private suspend fun askConfirmation(message: String, yesNo: Boolean = false)  = suspendCoroutine {
         AlertDialog.Builder(this).apply {
             setMessage(message)
             setPositiveButton(R.string.yes) { _, _ ->
@@ -723,7 +723,7 @@ class ManageLabels : ListActivityBase() {
     }
 
     fun reset() {
-        mainScope.launch {
+        lifecycleScope.launch(Dispatchers.Main) {
             val msgId = when(data.mode) {
                 Mode.WORKSPACE -> R.string.reset_workspace_labels
                 Mode.HIDELABELS -> R.string.reset_hide_labels
@@ -764,14 +764,16 @@ class ManageLabels : ListActivityBase() {
             Log.i(TAG, "Parsing filter: $filterRegex")
 
             fun labelMatches(label: BookmarkEntities.Label): Boolean =
-                searchText.isEmpty() || filterRegex.containsMatchIn(label.displayName) || data.selectedLabels.contains(label.id)
+                searchText.isEmpty() ||
+                    filterRegex.containsMatchIn(label.displayName) ||
+                    data.selectedLabels.contains(label.id)
 
             shownLabels.addAll(allLabels.filter { labelMatches(it) })
-
-            if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled)) {
+            val labelUnlabeledNotModified = allLabels.find { it.id == bookmarkControl.labelUnlabelled.id } == null
+            if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled) && !labelUnlabeledNotModified) {
                 shownLabels.add(bookmarkControl.labelUnlabelled)
             }
-            if(data.showActiveCategory && data.contextSelectedItems.count()>0) {
+            if(data.showActiveCategory && data.contextSelectedItems.isNotEmpty()) {
                 shownLabels.add(LabelCategory.ACTIVE)
             }
             if(!data.hideCategories) {
@@ -780,11 +782,15 @@ class ManageLabels : ListActivityBase() {
             }
         }
 
-        val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId }
+        val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels
+            .map { it.labelId }
         if(rePopulate || reOrder) {
             shownLabels.sortWith(compareBy({
-                val inActiveCategory = data.showActiveCategory && (it == LabelCategory.ACTIVE || (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
-                val inRecentCategory = !data.hideCategories && (it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id)))
+                val inActiveCategory = data.showActiveCategory &&
+                    (it == LabelCategory.ACTIVE ||
+                        (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
+                val inRecentCategory = !data.hideCategories &&
+                    (it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id)))
                 when {
                     inActiveCategory -> 1
                     inRecentCategory -> 2
@@ -809,5 +815,7 @@ class ManageLabels : ListActivityBase() {
 
 enum class LabelCategory {ACTIVE, RECENT, OTHER}
 
-private fun <E> MutableSet<E>.myRemoveIf(function: (it: E) -> Boolean)  = filter { function.invoke(it) }.forEach { remove(it) }
-private fun <E> MutableList<E>.myRemoveIf(function: (it: E) -> Boolean)  = filter { function.invoke(it) }.forEach { remove(it) }
+private fun <E> MutableSet<E>.myRemoveIf(function: (it: E) -> Boolean) =
+    filter { function.invoke(it) }.forEach { remove(it) }
+private fun <E> MutableList<E>.myRemoveIf(function: (it: E) -> Boolean) =
+    filter { function.invoke(it) }.forEach { remove(it) }

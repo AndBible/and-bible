@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: Štúdium Biblie od And Bible Open Source Project
+title: "AndBible: Bible Study"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Čítajte Bibliu, študujte komentáre, slovníky alebo čítajte knihy offline."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: "Účinný nástroj na štúdium Biblie "
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Aplikácia Bible Study od And Bible Open Source Project je výkonná, ale ľahko použiteľná offline aplikácia na štúdium Biblie pre Android. Aplikácie nemá za cieľ len sprostredkovať čítanie Biblie, ale je pokročilým nástrojom na hlboké osobné štúdium Biblie.
+  "{{ title }}" je výkonná, ale ľahko použiteľná offline aplikácia na štúdium Biblie pre Android. Aplikácia si nekladie za cieľ byť len čítačkou Biblie, ale zameriava sa na to, aby bola pokročilým nástrojom na hĺbkové osobné štúdium Biblie.
 paragraph_1_2: >
   Táto aplikácia je vyvinutá čitateľmi Biblie pre čitateľov Biblie. Cieľom je pomôcť vám urobiť štúdium Biblie pohodlným, hlbokým a zábavným. Najlepšie na tomto neziskovom komunitnom projekte je, že je s otvoreným kódom, úplne zadarmo a neobsahuje žiadne reklamy. Keďže bol vyvinutý od základu pre Android, je malá na sťahnutie, a preto aj veľmi efektívna a pozoruhodne rýchla.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: "Oddelené zobrazenia textu, ktoré umožňujú porovnávať preklady a konzultovať komentáre"
 feature_02: Pracovné prostredia umožňujúce vlastné nastavenia pre štúdium Biblie
 feature_03: Integrácia Strongových čísel umožňuje rozbor gréckych a hebrejských slov
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Prepojené krížové odkazy, poznámky pod čiarou a dokumenty; skok na krížové referencie poznámky pod čiarou jednoduchým klepnutím na odkaz; vykonanie hĺbkového štúdium Písma pomocou hypertextových odkazov na komentáre  ({{commentary_examples}}), zbierky krížových odkazov  ({{cross_reference_examples}}) a iné zdroje.
 # Examples of commentaries. You can add here also other commentaries of your language if they

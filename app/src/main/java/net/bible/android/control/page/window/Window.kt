@@ -1,26 +1,24 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.page.window
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,14 +41,26 @@ import org.crosswire.jsword.passage.Verse
 
 class WindowChangedEvent(val window: Window)
 
-open class Window (
+class Window (
     window: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
-    val windowRepository: WindowRepository
+    val windowRepository: WindowRepository,
+    var isLinksWindow: Boolean = window.isLinksWindow,
 ){
+    private var linksTargetWindowId: Long? = window.targetLinksWindowId
+
+    val linksTargetWindow: Window
+        get() = windowRepository.getWindow(linksTargetWindowId)
+            ?: windowRepository.addNewWindow().also {
+                linksTargetWindowId = it.id
+                it.isSynchronised = false
+                it.isLinksWindow = true
+            }
+
+    val id = window.id
     var weight: Float
         get() =
-            if(!isPinMode && !isLinksWindow) {
+            if(!isPinMode) {
                 if(windowRepository.unPinnedWeight == null) {
                     windowRepository.unPinnedWeight = windowLayout.weight
                 }
@@ -58,20 +68,16 @@ open class Window (
             }
             else windowLayout.weight
         set(value) {
-            if(!isPinMode && !isLinksWindow)
+            if(!isPinMode)
                 windowRepository.unPinnedWeight = value
             else
                 windowLayout.weight = value
         }
 
-    protected val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
-
-    var id = window.id
-
-    protected var workspaceId = window.workspaceId
+    private val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
+    private var workspaceId = window.workspaceId
 
     init {
-        @Suppress("LeakingThis")
         pageManager.window = this
     }
 
@@ -80,41 +86,41 @@ open class Window (
             workspaceId = workspaceId,
             isSynchronized = isSynchronised,
             isPinMode = isPinMode,
-            isLinksWindow = isLinksWindow,
             windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
-            id = id
+            id = id,
+            targetLinksWindowId = linksTargetWindowId,
+            isLinksWindow = isLinksWindow,
         )
     var displayedKey: Key? = null
     var displayedBook: Book? = null
 
-    open var isSynchronised = window.isSynchronized
+    var isSynchronised = window.isSynchronized
         set(value) {
             field = value
-            ABEventBus.getDefault().post(WindowChangedEvent(this))
+            ABEventBus.post(WindowChangedEvent(this))
         }
 
-    open var isPinMode: Boolean = window.isPinMode
-        get() = if(windowRepository.workspaceSettings.autoPin) {
-            true
-        } else {
-            field
+    var isPinMode: Boolean = window.isPinMode
+        get() {
+            return when {
+                isLinksWindow -> windowRepository.workspaceSettings.autoPin
+                windowRepository.workspaceSettings.autoPin -> true
+                else -> field
+            }
         }
         set(value) {
             field = value
-            ABEventBus.getDefault().post(WindowChangedEvent(this))
+            ABEventBus.post(WindowChangedEvent(this))
         }
 
     val isMinimised: Boolean
         get() = windowLayout.state == WindowState.MINIMISED
 
-    val isSplit: Boolean
-        get() = windowLayout.state == WindowState.SPLIT
-
     val isSyncable: Boolean
-        get() = pageManager.currentPage.isSyncable
-
-    val isClosed: Boolean
-        get() = windowLayout.state == WindowState.CLOSED
+        get() = when {
+            isLinksWindow -> false
+            else -> pageManager.currentPage.isSyncable
+        }
 
     var windowState: WindowState
         get() = windowLayout.state
@@ -124,31 +130,16 @@ open class Window (
 
     val isVisible: Boolean
         get() =
-            if(!isLinksWindow && windowRepository.isMaximized) windowRepository.maximizedWindowId == id
+            if(windowRepository.isMaximized && windowRepository.maximizedWindow?.linksTargetWindowId != id)
+                windowRepository.maximizedWindowId == id
             else windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
 
-    val defaultOperation: WindowOperation
-        get() = when {
-            isLinksWindow -> WindowOperation.CLOSE
-            else -> WindowOperation.MINIMISE
-        }
-
-    open val isLinksWindow = false
-
     var bibleView: BibleView? = null
 
-    fun destroy() {
-        bibleView?.destroy()
-    }
+    fun destroy() = bibleView?.destroy()
 
-    enum class WindowOperation {
-        MINIMISE, RESTORE, CLOSE
-    }
-
-    override fun toString(): String {
-        return "Window[$id]"
-    }
+    override fun toString(): String = "Window[$id]"
 
     var lastUpdated
         get() = bibleView?.lastUpdated ?: 0L
@@ -157,6 +148,7 @@ open class Window (
         }
 
     val initialized get() = lastUpdated != 0L
+    private val updateScope get() = windowRepository.scope
 
     fun updateText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
@@ -177,11 +169,11 @@ open class Window (
         }
         displayedBook = currentPage.currentDocument
         displayedKey = currentPage.key
-        Log.i(TAG, "updateText ${this.hashCode()}") // ${Log.getStackTraceString(Exception())}")
+        Log.i(TAG, "updateText ${this.hashCode()}")
 
-        GlobalScope.launch(Dispatchers.IO) {
+        updateScope.launch {
             if (notifyLocationChange) {
-                PassageChangeMediator.getInstance().contentChangeStarted()
+                PassageChangeMediator.contentChangeStarted()
             }
             val b = bibleView
             val adjusted = b?.adjustLoadingCount(1)?: false
@@ -211,7 +203,7 @@ open class Window (
             }
 
             if(notifyLocationChange)
-                PassageChangeMediator.getInstance().contentChangeFinished()
+                PassageChangeMediator.contentChangeFinished()
             }
         }
 

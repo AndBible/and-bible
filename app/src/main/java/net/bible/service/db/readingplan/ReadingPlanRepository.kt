@@ -1,25 +1,25 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.db.readingplan
 
 import android.util.Log
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.ApplicationScope
@@ -36,6 +36,7 @@ import kotlin.math.max
 @ApplicationScope
 class ReadingPlanRepository @Inject constructor() {
     private val readingPlanDao: ReadingPlanDao = DatabaseContainer.db.readingPlanDao()
+    val scope = CoroutineScope(Dispatchers.Default)
 
     fun getReadingStatus(planCode: String, planDay: Int): String? = runBlocking {
         readingPlanDao.getStatus(planCode, planDay)?.readingStatus }
@@ -49,27 +50,27 @@ class ReadingPlanRepository @Inject constructor() {
      * Date-based plan statuses are never deleted
      * @param day The current day, all day statuses before this day will be deleted
      */
-    fun deleteOldStatuses(planInfo: ReadingPlanInfoDto, day: Int) = GlobalScope.launch {
+    fun deleteOldStatuses(planInfo: ReadingPlanInfoDto, day: Int) = scope.launch {
         if (!planInfo.isDateBasedPlan)
             readingPlanDao.deleteStatusesBeforeDay(planInfo.planCode, day)
     }
 
     @Synchronized
-    fun setReadingStatus(planCode: String, dayNo: Int, status: String) = GlobalScope.launch {
+    fun setReadingStatus(planCode: String, dayNo: Int, status: String) = scope.launch {
         readingPlanDao.addPlanStatus(
             ReadingPlanStatus(planCode, dayNo, status)
         )
     }
 
     @Synchronized
-    fun startPlan(planCode: String, date: Date = CommonUtils.truncatedDate) = GlobalScope.launch {
+    fun startPlan(planCode: String, date: Date = CommonUtils.truncatedDate) = scope.launch {
         var readPlan = readingPlanDao.getPlan(planCode)
         readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date)
 
         readingPlanDao.updatePlan(readPlan)
     }
 
-    fun resetPlan(planCode: String) = GlobalScope.launch {
+    fun resetPlan(planCode: String) = scope.launch {
         Log.i(TAG, "Now resetting plan $planCode in database. Removing start date, current day, and read statuses")
         readingPlanDao.deleteStatusesForPlan(planCode)
         readingPlanDao.deletePlanInfo(planCode)
@@ -80,7 +81,7 @@ class ReadingPlanRepository @Inject constructor() {
     }
 
     @Synchronized
-    fun setCurrentDay(planCode: String, dayNo: Int) = GlobalScope.launch {
+    fun setCurrentDay(planCode: String, dayNo: Int) = scope.launch {
         var readPlan = readingPlanDao.getPlan(planCode)
         readPlan = readPlan?.apply { planCurrentDay = dayNo } ?:
             ReadingPlan(planCode, CommonUtils.truncatedDate, dayNo)

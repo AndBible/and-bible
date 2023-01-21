@@ -1,6 +1,6 @@
 Zaawansowane narzędzie do studiowania Pisma Świętego
 
-Aplikacja Studium Biblii «Bible Study» otwartoźródłowego projektu And Bible jest potężnym i zarazem łatwym w użyciu narzędziem do czytania Biblii bez dostępu do internetu na system Android. Nie jest to zwykły czytnik Pisma Świętego, ale zaawansowane narzędzie do głębokiego osobistego studiowania Biblii.
+"AndBible: Studium Biblii" jest potężnym i zarazem łatwym w użyciu narzędziem do czytania Biblii bez dostępu do internetu na system Android. Nie jest to zwykły czytnik Pisma Świętego, ale zaawansowane narzędzie do głębokiego osobistego studiowania Biblii.
 
 Ta aplikacja jest rozwijana przez i dla czytaczy Pisma Świętego. Jej celem jest sprawienie, aby czytanie Biblii było wygodne, głębokie i radosne. Najważniejsze w naszym projekcie jest to, że jest on otwartoźródłowy (open source), całkowicie darmowy i nie zawiera reklam. Stworzona od podstaw na system Android, nasza aplikacja zajmuje niewiele miejsca, jest lekka i szybka.
 

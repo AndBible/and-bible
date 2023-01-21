@@ -1,6 +1,6 @@
 Ampleksa aplikaĵo por studi Biblion
 
-Studi Biblion «Bible Study» de la malfermkoda projekto And Biblio estas ampleksa, tamen facile uzebla ilo por studi la Sanktan Skribon por la operaciumo Android. Ĝi ne celas esti simpla legilo de Biblio, sed koncentriĝas esti spertula ilo por profunde persone studi Biblion.
+"AndBible: Studi Biblion" estas ampleksa, tamen facile uzebla ilo por studi la Sanktan Skribon por la operaciumo Android. Ĝi ne celas esti simpla legilo de Biblio, sed koncentriĝas esti spertula ilo por profunde persone studi Biblion.
 
 Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Biblio. Ĝia celo estas igi studadon de Biblio oportuna, profunda kaj amuza. La plej grava fakto de tiu ĉi neprofitcela komunuma projekto estas, ke ĝi estas malfermkoda, tute senpaga kaj enhavas neniun reklamon. Programita cele por Android, la aplikaĵo estas malgranda, do tre efika kaj rapida.
 

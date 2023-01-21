@@ -1,17 +1,17 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   -
-  - This file is part of And Bible (http://github.com/AndBible/and-bible).
+  - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
-  - And Bible is free software: you can redistribute it and/or modify it under the
+  - AndBible is free software: you can redistribute it and/or modify it under the
   - terms of the GNU General Public License as published by the Free Software Foundation,
   - either version 3 of the License, or (at your option) any later version.
   -
-  - And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  - AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   - without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   - See the GNU General Public License for more details.
   -
-  - You should have received a copy of the GNU General Public License along with And Bible.
+  - You should have received a copy of the GNU General Public License along with AndBible.
   - If not, see http://www.gnu.org/licenses/.
   -->
 
@@ -21,48 +21,48 @@
   </template>
 </template>
 
-<script>
+<script setup lang="ts">
 
-import {computed, ref} from "vue";
+import {computed, inject, ref} from "vue";
 import {strongsModes} from "@/composables/config";
-import {inject} from "vue";
 import {useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
+import {exportModeKey, osisFragmentKey} from "@/types/constants";
+import {OsisFragment} from "@/types/client-objects";
 
-export default {
-  name: "S",
-  setup() {
-    const slot = ref(null);
+const slot = ref<HTMLElement | null>(null);
 
-    const {isNewTestament} = inject("osisFragment", {})
-    const letter = isNewTestament ? "G": "H";
+const osisFragment = inject<OsisFragment>(osisFragmentKey)
+const letter = osisFragment?.isNewTestament ? "G" : "H";
 
-    const link = computed(() => {
-      if(slot.value === null) return null;
-      const strongsNum = slot.value.innerText
-      return `ab-w://?strong=${letter}${strongsNum}`
-    });
-    const {config, strings, ...common} = useCommon();
+const link = computed(() => {
+    if (slot.value === null) return;
+    const strongsNum = slot.value.innerText
+    return `ab-w://?strong=${letter}${strongsNum}`
+});
+const {config, strings} = useCommon();
 
-    const exportMode = inject("exportMode", ref(false));
-    const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
-    function openLink(event) {
-      addEventFunction(event, () => {
+const exportMode = inject(exportModeKey, ref(false));
+const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
+
+function openLink(event: MouseEvent) {
+    addEventFunction(event, () => {
         if (link.value) {
-          window.location.assign(link.value);
+            window.location.assign(link.value);
         }
-      }, {priority: EventPriorities.STRONGS_LINK, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: false});
-    }
-
-    return {slot, openLink, link, common, showStrongs};
-  },
+    }, {
+        priority: EventPriorities.STRONGS_LINK,
+        icon: "custom-morph",
+        title: strings.strongsAndMorph,
+        dottedStrongs: false
+    });
 }
 </script>
 
 <style scoped>
 .strongs {
-  font-size: 0.6em;
-  text-decoration: none;
-  color: coral;
+    font-size: 0.6em;
+    text-decoration: none;
+    color: coral;
 }
 </style>

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.page
@@ -38,7 +37,6 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_SOURCE_TYPE
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import java.util.*
@@ -189,38 +187,48 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
         CommonUtils.buildActivityComponent().inject(this)
     }
 
-    override val asHashMap: Map<String, String> get() = mapOf(
-        "id" to bookmark.id.toString(),
-        "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal)),
-        "originalOrdinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.start.ordinal, bookmark.verseRange.end.ordinal)),
-        "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse || bookmark.book == null) null else bookmark.textRange?.clientList),
-        "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
-            if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
-        }),
-        "bookInitials" to wrapString(bookmark.book?.initials),
-        "bookName" to wrapString(bookmark.book?.name),
-        "bookAbbreviation" to wrapString(bookmark.book?.abbreviation),
-        "createdAt" to bookmark.createdAt.time.toString(),
-        "lastUpdatedOn" to bookmark.lastUpdatedOn.time.toString(),
-        "notes" to if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true),
-        "verseRange" to wrapString(bookmark.verseRange.name),
-        "verseRangeOnlyNumber" to wrapString(bookmark.verseRange.onlyNumber),
-        "verseRangeAbbreviated" to wrapString(bookmark.verseRange.abbreviated),
-        "text" to wrapString(bookmark.text),
-        "osisRef" to wrapString(bookmark.verseRange.osisRef),
-        "v11n" to wrapString((bookmark.book?.versification?: KJVA).name),
-        "fullText" to wrapString(bookmark.fullText),
-        "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
-        "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
-        "type" to wrapString("bookmark"),
-        "primaryLabelId" to bookmark.primaryLabelId.toString(),
-        "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
-    )
+    override val asHashMap: Map<String, String> get() {
+        val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
+        return mapOf(
+            "id" to bookmark.id.toString(),
+            "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal)),
+            "originalOrdinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.start.ordinal, bookmark.verseRange.end.ordinal)),
+            "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse || bookmark.book == null) null else bookmark.textRange?.clientList),
+            "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
+                if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
+            }),
+            "bookInitials" to wrapString(bookmark.book?.initials),
+            "bookName" to wrapString(bookmark.book?.name),
+            "bookAbbreviation" to wrapString(bookmark.book?.abbreviation),
+            "createdAt" to bookmark.createdAt.time.toString(),
+            "lastUpdatedOn" to bookmark.lastUpdatedOn.time.toString(),
+            "notes" to notes,
+            "hasNote" to (notes != "null").toString(),
+            "verseRange" to wrapString(bookmark.verseRange.name),
+            "verseRangeOnlyNumber" to wrapString(bookmark.verseRange.onlyNumber),
+            "verseRangeAbbreviated" to wrapString(bookmark.verseRange.abbreviated),
+            "text" to wrapString(bookmark.text),
+            "osisRef" to wrapString(bookmark.verseRange.osisRef),
+            "v11n" to wrapString((bookmark.book?.versification?: KJVA).name),
+            "fullText" to wrapString(bookmark.fullText),
+            "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
+            "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
+            "type" to wrapString("bookmark"),
+            "primaryLabelId" to bookmark.primaryLabelId.toString(),
+            "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
+        )
+    }
 }
 
 @Serializable
-data class ClientBookmarkStyle(val color: Int, val icon: String?, val noHighlight: Boolean,
-                               val underline: Boolean, val underlineWholeVerse: Boolean)
+data class ClientBookmarkStyle(
+    val color: Int,
+    val isSpeak: Boolean,
+    val underline: Boolean,
+    val underlineWholeVerse: Boolean,
+    val markerStyle: Boolean,
+    val markerStyleWholeVerse: Boolean,
+)
 
 @Serializable
 data class ClientBookmarkLabel(
@@ -233,8 +241,12 @@ data class ClientBookmarkLabel(
         label.id,
         label.displayName.trim(),
         ClientBookmarkStyle(
-            label.color, if(label.isSpeakLabel) "headphones" else null, label.isSpeakLabel,
-            label.underlineStyle, label.underlineStyleWholeVerse
+            color = label.color,
+            isSpeak = label.isSpeakLabel,
+            underline = label.underlineStyle,
+            underlineWholeVerse = label.underlineStyleWholeVerse,
+            markerStyle = label.markerStyle,
+            markerStyleWholeVerse = label.markerStyleWholeVerse,
         ),
         !label.isSpecialLabel && label.id > 0
     )

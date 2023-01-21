@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Biblia</string>
   <string name="app_name_medium">Biblia (And Bible)</string>
-  <string name="app_name_long">Bibliatanulmányozó alkalmazás, készítette az And Bible Open Source Project</string>
+  <string name="app_name_long">AndBible: Biblia</string>
   <string name="project">And Bible Nyílt Forráskódú Projekt</string>
   <string name="version_text">Verzió: %s</string>
   <string name="no_sdcard_error">Helyezzen be egy SD-kártyát és indítsa újra az alkalmazást!</string>
@@ -170,6 +170,8 @@
   <string name="pref_font_family_label_name">Betűtípus (%s)</string>
   <string name="prefs_font_family_summary">Betűtípus megváltozatása. Tipp: további betűtípusokat a Letöltés Dokumentumok/Kiegészítők menüben lehet letölteni.</string>
   <string name="prefs_text_bookmarks_title">Könyvjelzők és Jegyzetek beállításai</string>
+  <string name="prefs_enable_bluetooth_title">Engedélyezze a Bluetooth médiagombokat </string>
+  <string name="prefs_enable_bluetooth_summary">A beszéd elindításához/leállításához használja a Bluetooth médiagombokat.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Színbeállítások</string>
   <string name="window_color_settings_title">Ablak színeinek beállítása</string>
@@ -205,7 +207,7 @@
   <string name="next">Következő</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Kérlek, töltsd le a Strong héber és görög szószedeteket</string>
-  <string name="no_indexed_bible_with_strongs_ref">Le kell töltened egy Strong számokat tartalmazó Bibliát és a hozzá tartozó indexet is a Keresés segítségével.</string>
+  <string name="no_indexed_bible_with_strongs_ref">Le kell töltenie egy Strong számokat tartalmazó Bibliát és a hozzá tartozó indexet a Keresés segítségével generálja le.</string>
   <string name="morph_robinson_not_installed">Kérlek, töltsd le Robinson morfológiai elemző szótárát</string>
   <string name="go_to_downloads">Letöltések megnyitása</string>
   <!--Module download-->
@@ -810,7 +812,10 @@ jelentse be az észlelt problémát</string>
   <string name="questions_title2">Segítség?</string>
   <string name="bookmark_style">Könyvjelző stílusa</string>
   <string name="added_to_bookmark">Hozzácsatolva a könyvjelzőhöz</string>
+  <string name="strongs_off">Kikapcsolva </string>
   <string name="strongs_links">Hivatkozások</string>
+  <string name="strongs_text_and_links">Szöveg és linkek</string>
   <string name="verse_tip">Versrészlet vagy több vers kiválasztásához hosszan nyomjon a Biblia szövegre</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Engedély szükséges </string>
 </resources>

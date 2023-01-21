@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page.screen
@@ -45,8 +44,8 @@ import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.MenuItemCompat
 import androidx.core.view.children
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -67,8 +66,6 @@ import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.BibleViewInputFocusChanged
 import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.Preference
 import net.bible.android.view.activity.page.SubMenuPreference
@@ -84,8 +81,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.roundToInt
-
-internal val isSplitVertically get() = mainBibleActivity.isSplitVertically
 
 class LockableHorizontalScrollView(context: Context, attributeSet: AttributeSet):
     HorizontalScrollView(context, attributeSet) {
@@ -105,7 +100,8 @@ class LockableHorizontalScrollView(context: Context, attributeSet: AttributeSet)
 class RestoreButtonsVisibilityChanged
 
 @SuppressLint("ViewConstructor")
-class SplitBibleArea: FrameLayout(mainBibleActivity) {
+class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLayout(mainBibleActivity) {
+    private val isSplitVertically get() = mainBibleActivity.isSplitVertically
     private val windowControl: WindowControl get() = mainBibleActivity.windowControl
     private val bibleViewFactory: BibleViewFactory get() = mainBibleActivity.bibleViewFactory
 
@@ -115,6 +111,8 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     private val windowSeparatorTouchExpansionWidthPixels: Int = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width)
 
     private val bibleRefOverlayOffset: Int = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
+
+    val scope get() = mainBibleActivity.lifecycleScope
 
     private val bibleFrames: MutableList<BibleFrame> = ArrayList()
     private val hiddenAlpha get() = if(ScreenSettings.nightMode) HIDDEN_ALPHA_NIGHT else HIDDEN_ALPHA
@@ -147,13 +145,16 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         addView(bibleReferenceOverlay,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
     private val windowRepository = windowControl.windowRepository
 
     fun destroy() {
+        // First explicitly remove the BibleFrames, to explicitly notify them to
+        // unregister from the EventBus
+        removeAllFrames()
         removeAllViews()
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         bibleViewFactory.clear()
     }
 
@@ -210,7 +211,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                 }
             } while(true)
             if(!firstIs) {
-                addBibleFrame(BibleFrame(w, this))
+                addBibleFrame(BibleFrame(w, this, mainBibleActivity))
             }
         }
         while(bibleFrames.size > windows.size) {
@@ -324,9 +325,9 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
         val windows = windowRepository.windows
 
+        val linksWindows = windows.filter { it.isLinksWindow }
         val pinnedWindows = windows.filter { it.isPinMode && !it.isLinksWindow }
         val nonPinnedWindows = windows.filter { !it.isPinMode && !it.isLinksWindow }
-        val linksWin = windowRepository.dedicatedLinksWindow
         var spaceAdded = false
         fun addSpace() {
             binding.restoreButtons.addView(Space(context),
@@ -350,22 +351,23 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                 spaceAdded = false
             }
 
-            if(!spaceAdded && !linksWin.isClosed) {
+            if(!spaceAdded && linksWindows.isNotEmpty()) {
                 addSpace()
             }
 
-            if (!linksWin.isClosed) {
-                val restoreButton = createRestoreButton(linksWin)
+            for (win in linksWindows) {
+                val restoreButton = createRestoreButton(win)
                 restoreButtonsList.add(restoreButton)
                 binding.restoreButtons.addView(restoreButton, llp)
                 spaceAdded = false
             }
+
         }
         if(!spaceAdded && !hideWindowButtons) {
             addSpace()
         }
 
-        if (!hideWindowButtons || windowControl.isSingleWindow) {
+        if (windowControl.isSingleWindow) {
             val addNewWindowButton = AddNewWindowButtonWidget(mainBibleActivity).apply {
                 setOnClickListener { v -> windowControl.addNewWindow(windowControl.activeWindow) }
             }
@@ -387,8 +389,9 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
+        if(event.window?.windowRepository != windowControl.windowRepository) return
         updateBibleReference()
-        if (event.window != null) updateMinimizedButtonText(event.window)
+        updateMinimizedButtonText(event.window)
     }
 
     private fun updateBibleReference() {
@@ -414,7 +417,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     }
 
     fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) {
-        GlobalScope.launch {
+        scope.launch {
             Log.i(TAG, "on UpdateRestoreWindowButtons")
             delay(200)
             withContext(Dispatchers.Main) {
@@ -430,7 +433,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         ensureRestoreButtonVisible()
     }
 
-    private fun ensureRestoreButtonVisible() = GlobalScope.launch {
+    private fun ensureRestoreButtonVisible() = scope.launch {
         // Give time for button bar to be rendered.
         delay(200)
         withContext(Dispatchers.Main) {
@@ -498,7 +501,6 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             return
         }
         Log.i(TAG, "toggleWindowButtonVisibility")
-        val mainBibleActivity = _mainBibleActivity ?: return
         mainBibleActivity.runOnUiThread {
             var atLeastOneButtonWillAnimate = false
             for ((idx, b) in windowButtons.withIndex()) {
@@ -589,7 +591,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
     private var restoreButtonsVisible = CommonUtils.settings.getBoolean("restoreButtonsVisible", true)
         set(value) {
             CommonUtils.settings.setBoolean("restoreButtonsVisible", value)
-            ABEventBus.getDefault().post(RestoreButtonsVisibilityChanged())
+            ABEventBus.post(RestoreButtonsVisibilityChanged())
             field = value
         }
 
@@ -597,7 +599,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         val isSettingDisabled = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false)
         if (isSettingDisabled) return
 
-        val show = (_mainBibleActivity?.fullScreen ?: return) && _show
+        val show = mainBibleActivity.fullScreen && _show
         if(show) {
             bibleReferenceOverlay.visibility = View.VISIBLE
             bibleReferenceOverlay.animate().alpha(1.0f)
@@ -678,12 +680,12 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
         val menu = popup.menu
         inflater.inflate(R.menu.window_popup_menu, menu)
 
-        val moveWindowsSubMenu = menu.findItem(R.id.moveWindowSubMenu).subMenu
+        val moveWindowsSubMenu = menu.findItem(R.id.moveWindowSubMenu).subMenu!!
         moveWindowsSubMenu.removeItem(R.id.moveItem)
 
         var count = 0
 
-        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
+        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu!!
 
         val export = menu.findItem(R.id.exportHtml)
         export.title = app.getString(R.string.export_fileformat, "HTML")
@@ -693,7 +695,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
 
             textOptionsSubMenu.removeItem(R.id.textOptionItem)
 
-            val copySettingSubMenu = textOptionsSubMenu.findItem(R.id.copySettingsTo).subMenu
+            val copySettingSubMenu = textOptionsSubMenu.findItem(R.id.copySettingsTo).subMenu!!
             copySettingSubMenu.removeItem(R.id.copySettingsToWindow)
 
             BookName.setFullBookName(false)
@@ -757,7 +759,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
                     )
                 }
                 if(item.hasSubMenu()) {
-                    handleMenu(item.subMenu)
+                    handleMenu(item.subMenu!!)
                     continue
                 }
 
@@ -784,7 +786,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             pageManagerSettings = window.pageManager.textDisplaySettings,
             workspaceId = windowControl.windowRepository.id,
             workspaceName = windowControl.windowRepository.name,
-            workspaceSettings = windowControl.windowRepository.textDisplaySettings
+            workspaceSettings = windowControl.windowRepository.textDisplaySettings,
         )
 
         val isMaximised = windowRepository.isMaximized
@@ -797,7 +799,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             )
             R.id.changeToNormal -> CommandPreference(
                 launch = {_, _, _ ->
-                    windowControl.addNewWindow(window)
+                    windowControl.addNewWindow(window).also { it.isLinksWindow = false }
                     windowControl.closeWindow(window)
                 },
                 visible = window.isLinksWindow
@@ -825,7 +827,7 @@ class SplitBibleArea: FrameLayout(mainBibleActivity) {
             )
             R.id.windowMinimise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.minimiseWindow(window)},
-                visible = windowControl.isWindowMinimisable(window) && !isMaximised
+                visible = windowControl.isWindowMinimizable(window) && !isMaximised
             )
             R.id.windowMaximise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.maximiseWindow(window)},

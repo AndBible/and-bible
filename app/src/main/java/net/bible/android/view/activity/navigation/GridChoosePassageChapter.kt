@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.navigation
@@ -28,13 +27,12 @@ import android.view.MenuItem
 import android.view.View
 
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
 import net.bible.service.common.CommonUtils
 
-import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 
@@ -55,7 +53,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
     private var mBibleBook = BibleBook.GEN
 
     @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
 
     private var navigateToVerse = false
     // background goes white in some circumstances if theme changes so prevent theme change
@@ -106,9 +104,8 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         } catch (nsve: Exception) {
             -1
         }
-        val currentVerse = KeyUtil.getVerse(activeWindowPageManagerProvider.activeWindowPageManager.currentBible.key)
-        val currentBibleBook = currentVerse.book
-        val currentBibleChapter = currentVerse.chapter
+        val currentVerse = windowControl.activeWindowPageManager.currentPage.singleKey as Verse
+        val bookColorAndGroup = GridChoosePassageBook.getBookColorAndGroup(book.ordinal)
 
         val keys = ArrayList<ButtonInfo>()
         for (i in 1..chapters) {
@@ -117,9 +114,10 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             buttonInfo.id = i
             buttonInfo.name = i.toString()
             buttonInfo.description = i.toString()
-            if (currentBibleBook == book && i == currentBibleChapter) {
-                buttonInfo.textColor = Color.YELLOW
-                buttonInfo.highlight = true
+            buttonInfo.type = ButtonInfo.GridButtonTypes.CHAPTER
+            if (currentVerse.book == book && i == currentVerse.chapter) {
+                buttonInfo.tintColor = bookColorAndGroup.Color
+                buttonInfo.textColor = Color.DKGRAY
             }
             keys.add(buttonInfo)
         }
@@ -130,7 +128,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         val chapter = buttonInfo.id
         Log.i(TAG, "Chapter selected:$chapter")
         try {
-            val currentPageControl = activeWindowPageManagerProvider.activeWindowPageManager
+            val currentPageControl = windowControl.activeWindowPageManager
             if (!navigateToVerse && !currentPageControl.currentPage.isSingleKey) {
                 val verse = Verse(navigationControl.versification, mBibleBook, chapter, 1)
                 val resultIntent = Intent(this, GridChoosePassageBook::class.java)

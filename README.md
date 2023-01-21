@@ -3,9 +3,9 @@
 [![Android CI](https://github.com/AndBible/and-bible/workflows/Run%20tests/badge.svg?branch=develop)](https://github.com/AndBible/and-bible/actions/workflows/run-tests.yml)
 [![Licence](https://img.shields.io/badge/licence-GPL-blue.svg)](https://github.com/tuomas2/automate/blob/master/LICENSE.txt)
    
-# Bible Study App by And Bible Open Source Project
+# AndBible: Bible Study
 
-Powerful offline Bible Study tool for Android
+Powerful offline open source Bible Study tool for Android
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
@@ -31,7 +31,7 @@ in wiki.
 
 ## Translators
 
-Everyone is welcome to help translating And Bible to different languages via
+Everyone is welcome to help translating AndBible to different languages via
 easy to use web-based Transifex tool. Please see our [Wiki page](https://github.com/AndBible/and-bible/wiki/Translating-User-Interface)
 to get started.
 
@@ -49,15 +49,15 @@ There are so many ways to contribute to AndBible! See our [contributor guide](ht
 
 ## Acknowledgements
 
-And Bible was originally developed by [Martin Denham](https://github.com/mjdenham) (2010-2018)
+AndBible was originally developed by [Martin Denham](https://github.com/mjdenham) (2010-2018)
 
 ## Licence
 
-And Bible is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
+AndBible is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
 of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with And Bible. 
+You should have received a copy of the GNU General Public License along with AndBible. 
 If not, see https://www.gnu.org/licenses/.

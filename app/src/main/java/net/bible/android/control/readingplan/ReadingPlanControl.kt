@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.readingplan
@@ -24,7 +23,7 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.readingplan.ReadingPlanRepository
@@ -53,7 +52,7 @@ import kotlin.math.roundToLong
 @ApplicationScope
 class ReadingPlanControl @Inject constructor(
 		private val speakControl: SpeakControl,
-		private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
+		private val windowControl: WindowControl,
         private val readingPlanRepo: ReadingPlanRepository)
 {
 
@@ -136,8 +135,7 @@ class ReadingPlanControl @Inject constructor(
             return prefs.getString(READING_PLAN, "") as String
         }
 
-    val currentPageManager: CurrentPageManager
-        get() = activeWindowPageManagerProvider.activeWindowPageManager
+    val currentPageManager: CurrentPageManager get() = windowControl.activeWindowPageManager
 
     /** User has chosen to start a plan
      */
@@ -178,7 +176,7 @@ class ReadingPlanControl @Inject constructor(
             } else {
                 ReadingStatus(planCode, day, oneDaysReadingsDto.numReadings)
             }
-			this.readingStatus = readingStatus.apply { reloadStatus() }
+            this.readingStatus = readingStatus.apply { reloadStatus() }
         }
         return readingStatus
     }
@@ -280,7 +278,7 @@ class ReadingPlanControl @Inject constructor(
             // mark reading as 'read'
             getReadingStatus(day).setRead(readingNo)
 
-            ABEventBus.getDefault().post(BeforeCurrentPageChangeEvent())
+            ABEventBus.post(BeforeCurrentPageChangeEvent())
 
             // show the current bible
             val currentPageManager = currentPageManager

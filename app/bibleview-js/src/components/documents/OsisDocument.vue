@@ -1,17 +1,17 @@
 <!--
-  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   -
-  - This file is part of And Bible (http://github.com/AndBible/and-bible).
+  - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
-  - And Bible is free software: you can redistribute it and/or modify it under the
+  - AndBible is free software: you can redistribute it and/or modify it under the
   - terms of the GNU General Public License as published by the Free Software Foundation,
   - either version 3 of the License, or (at your option) any later version.
   -
-  - And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  - AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   - without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   - See the GNU General Public License for more details.
   -
-  - You should have received a copy of the GNU General Public License along with And Bible.
+  - You should have received a copy of the GNU General Public License along with AndBible.
   - If not, see http://www.gnu.org/licenses/.
   -->
 
@@ -23,14 +23,15 @@
   </div>
 </template>
 
-<script>
-import OsisFragment from "@/components/documents/OsisFragment";
-import FeaturesLink from "@/components/FeaturesLink";
-import OpenAllLink from "@/components/OpenAllLink";
+<script setup lang="ts">
+import OsisFragment from "@/components/documents/OsisFragment.vue";
+import FeaturesLink from "@/components/FeaturesLink.vue";
+import OpenAllLink from "@/components/OpenAllLink.vue";
 import {useReferenceCollector} from "@/composables";
-import {BookCategories} from "@/constants";
+import {referenceCollectorKey} from "@/types/constants";
 import {provide} from "vue";
 import {osisToTemplateString} from "@/utils";
+import {OsisDocument} from "@/types/documents";
 
 const parser = new DOMParser();
 
@@ -38,65 +39,56 @@ const parser = new DOMParser();
 const splitRegex = /.{1,100}(\s|$)/g
 const spacesRegex = /^\s+$/
 
-export default {
-  name: "OsisDocument",
-  components: {OsisFragment, FeaturesLink, OpenAllLink},
-  props: {
-    document: {type: Object, required: true},
-  },
-  setup(props) {
-    // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
-    const {osisFragment, bookCategory} = props.document;
-    const referenceCollector = useReferenceCollector();
+const props = defineProps<{ document: OsisDocument }>();
+// eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
+const {osisFragment, bookCategory} = props.document;
+const referenceCollector = useReferenceCollector();
 
-    if(bookCategory === BookCategories.COMMENTARIES || bookCategory === BookCategories.GENERAL_BOOK) {
-      provide("referenceCollector", referenceCollector);
-    }
-
-    function splitString(s) {
-      const v = s.match(splitRegex);
-      if(v === null) {
-        return [s];
-      }
-      return v;
-    }
-
-    function addAnchors(xml) {
-      const xmlDoc = parser.parseFromString(xml, "text/xml");
-      const walker = xmlDoc.createTreeWalker(xmlDoc.firstElementChild, NodeFilter.SHOW_TEXT)
-      const textNodes = [];
-      while(walker.nextNode()) {
-        textNodes.push(walker.currentNode);
-      }
-      let count = 0;
-
-      function addAnchor(node, textNode) {
-        if (textNode.textContent.match(spacesRegex)) {
-          node.parentElement.insertBefore(textNode, node);
-        } else {
-          const anchor = xmlDoc.createElement("BWA"); // BibleViewAnchor.vue
-          anchor.setAttribute("ordinal", count++);
-          anchor.appendChild(textNode)
-          node.parentElement.insertBefore(anchor, node);
-        }
-      }
-
-      for(const node of textNodes) {
-        const splitText = splitString(node.textContent).map(t => xmlDoc.createTextNode(t));
-        for(let i = 0; i<splitText.length; i++) {
-          addAnchor(node, splitText[i])
-        }
-        node.parentNode.removeChild(node);
-      }
-      return xmlDoc.firstElementChild.outerHTML;
-    }
-
-    let xml = osisFragment.xml
-    osisFragment.originalXml = xml;
-    xml = osisToTemplateString(xml)
-    xml = addAnchors(xml);
-    osisFragment.xml = xml;
-    return {osisFragment};
-  }
+if (bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
+    provide(referenceCollectorKey, referenceCollector);
 }
+
+function splitString(s: string) {
+    const v = s.match(splitRegex);
+    if (v === null) {
+        return [s];
+    }
+    return v;
+}
+
+function addAnchors(xml: string) {
+    const xmlDoc = parser.parseFromString(xml, "text/xml");
+    const walker = xmlDoc.createTreeWalker(xmlDoc.firstElementChild!, NodeFilter.SHOW_TEXT)
+    const textNodes: Text[] = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode as Text);
+    }
+    let count: number = 0;
+
+    function addAnchor(node: Node, textNode: Text) {
+        if (textNode.textContent!.match(spacesRegex)) {
+            node.parentElement!.insertBefore(textNode, node);
+        } else {
+            const anchor = xmlDoc.createElement("BWA"); // BibleViewAnchor.vue
+            anchor.setAttribute("ordinal", `${count++}`);
+            anchor.appendChild(textNode)
+            node.parentElement!.insertBefore(anchor, node);
+        }
+    }
+
+    for (const node of textNodes) {
+        const splitText = splitString(node.textContent!).map(t => xmlDoc.createTextNode(t));
+        for (const txt of splitText) {
+            addAnchor(node, txt)
+        }
+        node.parentNode!.removeChild(node);
+    }
+    return xmlDoc.firstElementChild!.outerHTML;
+}
+
+let xml = osisFragment.xml
+osisFragment.originalXml = xml;
+xml = osisToTemplateString(xml)
+xml = addAnchors(xml);
+osisFragment.xml = xml;
 </script>

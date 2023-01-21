@@ -1,17 +1,17 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   -
-  - This file is part of And Bible (http://github.com/AndBible/and-bible).
+  - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
-  - And Bible is free software: you can redistribute it and/or modify it under the
+  - AndBible is free software: you can redistribute it and/or modify it under the
   - terms of the GNU General Public License as published by the Free Software Foundation,
   - either version 3 of the License, or (at your option) any later version.
   -
-  - And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  - AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   - without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   - See the GNU General Public License for more details.
   -
-  - You should have received a copy of the GNU General Public License along with And Bible.
+  - You should have received a copy of the GNU General Public License along with AndBible.
   - If not, see http://www.gnu.org/licenses/.
   -->
 
@@ -34,95 +34,99 @@
   </template>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
-import {computed, ref} from "vue";
-import {inject} from "vue";
+import {computed, inject, ref} from "vue";
 import {strongsModes} from "@/composables/config";
+import {exportModeKey, verseHighlightKey} from "@/types/constants";
 
-export default {
-  name: "W",
-  props: {
-    lemma: {type: String, default: null}, // example: strong:H8064 lemma.TR:XXXXX
-    morph: {type: String, default: null}, // example: strongMorph:TH8792
-    src: {type: String, default: null},
-    n: {type: String, default: null},
-    type: {type: String, default: null},
-    subType: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "n")
-    checkUnsupportedProps(props, "src")
-    checkUnsupportedProps(props, "type", ["x-split"])
-    checkUnsupportedProps(props, "subType")
-    const {strings, config, ...common} = useCommon();
-    const isHighlighted = ref(false);
-    const {addCustom, resetHighlights} = inject("verseHighlight");
-    function prep(string) {
-      let remainingString = string;
-      const res = []
-      do {
+const props = defineProps<{
+    lemma?: string // example: strong:H8064 lemma.TR:XXXXX
+    morph?: string // example: strongMorph:TH8792
+    src?: string
+    n?: string
+    type?: string
+    subType?: string
+}>();
+
+checkUnsupportedProps(props, "n")
+checkUnsupportedProps(props, "src")
+checkUnsupportedProps(props, "type", ["x-split"])
+checkUnsupportedProps(props, "subType")
+const {strings, config} = useCommon();
+const isHighlighted = ref(false);
+const {addCustom, resetHighlights} = inject(verseHighlightKey)!;
+
+function prep(string: string): string[] {
+    let remainingString = string;
+    const res: string[] = []
+    do {
         const match = remainingString.match(/([^ :]+:)([^:]+)$/)
-        if(!match) return res;
+        if (!match) return res;
         const s = match[0]
         res.push(s);
         remainingString = remainingString.slice(0, remainingString.length - s.length)
-      } while(remainingString.trim().length > 0)
-      return res;
-    }
-    function formatName(string) {
-      return prep(string).filter(s => !s.startsWith("lemma.TR:")).map(s => s.match(/([^ :]+:)[HG0 ]*([^:]+) *$/)[2].trim()).join(",")
-    }
-    function formatLink(first, second) {
-      const linkBodies = [];
+    } while (remainingString.trim().length > 0)
+    return res;
+}
 
-      function toArgs(string) {
+function formatName(string: string): string {
+    return prep(string).filter(s => !s.startsWith("lemma.TR:")).map(s => s.match(/([^ :]+:)[HG0 ]*([^:]+) *$/)![2].trim()).join(",")
+}
+
+function formatLink(first?: string, second?: string): string {
+    const linkBodies = [];
+
+    function toArgs(string: string): string {
         return prep(string).map(s => s.trim().replace(/ /g, "_").replace(/:/g, "=")).join("&");
-      }
-
-      if(first) {
-        linkBodies.push(toArgs(first))
-      }
-      if(second) {
-        linkBodies.push(toArgs(second))
-      }
-      // Link format:
-      // ab-w://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
-      return "ab-w://?" + linkBodies.join("&")
     }
-    function goToLink(event, url) {
-      const priority = showStrongsSeparately.value ? EventPriorities.STRONGS_LINK: EventPriorities.STRONGS_DOTTED;
-      addEventFunction(event, () => {
+
+    if (first) {
+        linkBodies.push(toArgs(first))
+    }
+    if (second) {
+        linkBodies.push(toArgs(second))
+    }
+    // Link format:
+    // ab-w://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
+    return "ab-w://?" + linkBodies.join("&")
+}
+
+function goToLink(event: MouseEvent, url: string) {
+    const priority = showStrongsSeparately.value ? EventPriorities.STRONGS_LINK : EventPriorities.STRONGS_DOTTED;
+    addEventFunction(event, () => {
         window.location.assign(url)
         resetHighlights();
         isHighlighted.value = true;
         addCustom(() => isHighlighted.value = false);
-      }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
-    }
-    const exportMode = inject("exportMode", ref(false));
-    const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
-    const showStrongsSeparately = computed(() => !exportMode.value && config.strongsMode === strongsModes.links);
-
-    return {formatLink, formatName, isHighlighted, goToLink, config, strings, showStrongs, showStrongsSeparately, ...common};
-  },
+    }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
 }
+
+const exportMode = inject(exportModeKey, ref(false));
+const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
+const showStrongsSeparately = computed(() => !exportMode.value && config.strongsMode === strongsModes.links);
+
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
-  .link-style {
-    text-decoration: underline dotted;
-    [lang=he],[lang=hbo] & {
-      text-decoration-style: solid;
-      text-decoration-color: hsla(var(--text-color-h), var(--text-color-s), var(--text-color-l), 0.5);
-    }
+
+.link-style {
+  text-decoration: underline dotted;
+
+  [lang=he], [lang=hbo] & {
+    text-decoration-style: solid;
+    text-decoration-color: hsla(var(--text-color-h), var(--text-color-s), var(--text-color-l), 0.5);
   }
+}
+
 .base {
   font-size: 0.6em;
   text-decoration: none;
   color: gray;
 }
+
 .strongs, .morph {
   color: coral;
   text-decoration: none;

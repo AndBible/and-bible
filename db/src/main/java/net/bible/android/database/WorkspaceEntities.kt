@@ -1,28 +1,29 @@
 /*
- * Copyright (c) 2019 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2019-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.database
 
+import android.graphics.Color
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
@@ -31,20 +32,23 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import org.crosswire.jsword.passage.Verse as JswordVerse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
-
 import java.util.*
 
 val json = Json {
     allowStructuredMapKeys = true
     encodeDefaults = true
 }
+val defaultWorkspaceColor = Color.parseColor("#ff444444")
 
 class WorkspaceEntities {
     data class Page(
         val document: String?,
         val key: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-        @ColumnInfo(name = "currentYOffsetRatio") val deprecatedCurrentYOffsetRatio: Float? = null, // TODO: remove
+
+        @Deprecated("To be removed")
+        @ColumnInfo(name = "currentYOffsetRatio")
+        val deprecatedCurrentYOffsetRatio: Float? = null, // TODO: remove
     )
 
     data class Verse(
@@ -70,7 +74,10 @@ class WorkspaceEntities {
     data class CommentaryPage(
         val document: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-        @ColumnInfo(name = "currentYOffsetRatio") val deprecatedCurrentYOffsetRatio: Float? = null // TODO: remove
+
+        @Deprecated("To be removed")
+        @ColumnInfo(name = "currentYOffsetRatio")
+        val deprecatedCurrentYOffsetRatio: Float? = null // TODO: remove
     )
 
     @Entity(
@@ -95,7 +102,10 @@ class WorkspaceEntities {
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
         @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?,
-        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels") var deprecatedBookmarksAssignLabels: List<Long>? = null,
+
+        @Deprecated("To be removed")
+        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels")
+        var deprecatedBookmarksAssignLabels: List<Long>? = null,
     )
 
     data class WindowLayout(
@@ -112,13 +122,18 @@ class WorkspaceEntities {
 
     @Serializable
     data class Colors(
+        // Workspace colors (dayWorkspaceColor and nightWorkspaceColor) are not really a TextDisplaySetting but a
+        // WorkspaceSetting. But for convenience reason they are held here as UI-wise they need to be held in
+        // Color settings.
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayNoise: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightBackground: Int?,
-        @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?
+        @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?,
     ) {
+        // This is saved to database in WorkspaceSettings. Here just to get it through to activities in SettingsBundle
+        @Ignore var workspaceColor: Int? = null
         fun toJson(): String {
             return json.encodeToString(serializer(), this)
         }
@@ -150,6 +165,9 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showAll") var deprecatedBookmarksShowAllLabels: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
+
+        @ColumnInfo(defaultValue = "NULL", name = "colors_dayWorkspaceColor") var deprecatedDayWorkspaceColor: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "colors_nightWorkspaceColor") var deprecatedNightWorkspaceColor: Int? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -244,7 +262,7 @@ class WorkspaceEntities {
                     nightBackground = black,
                     nightTextColor = white,
                     nightNoise = 0,
-                    dayNoise = 0
+                    dayNoise = 0,
                 ),
                 marginSize = MarginSize(
                     marginLeft = 3,
@@ -304,6 +322,7 @@ class WorkspaceEntities {
     @Serializable
     data class RecentLabel(val labelId: Long, var lastAccess: Long)
 
+    @Serializable
     data class WorkspaceSettings(
         @ColumnInfo(defaultValue = "0") var enableTiltToScroll: Boolean = false,
         @ColumnInfo(defaultValue = "0") var enableReverseSplitMode: Boolean = false,
@@ -316,6 +335,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
     ) {
         companion object {
             val default get() = WorkspaceSettings()
@@ -330,14 +350,19 @@ class WorkspaceEntities {
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
-        @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
+        @Embedded(prefix="text_display_settings_")
+        var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
 
         // TODO: change prefix to correspond variable name
-        @Embedded(prefix="window_behavior_settings_") val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
+        @Embedded(prefix="window_behavior_settings_")
+        val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
+
         @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null,
         val maximizedWindowId: Long? = null,
 
-        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels") var deprecatedBookmarksAssignLabels: List<Long>? = null,
+        @Deprecated("To be removed")
+        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels")
+        var deprecatedBookmarksAssignLabels: List<Long>? = null,
     )
 
     @Entity(
@@ -352,16 +377,19 @@ class WorkspaceEntities {
             Index("windowId")
         ]
     )
-
     data class HistoryItem(
         val windowId: Long,
         val createdAt: Date,
         val document: String,
         val key: String,
-        @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-        @ColumnInfo(name = "yOffsetRatio") val deprecatedYOffsetRatio: Float? = null, // TODO: remove (deprecated)
+        @ColumnInfo(defaultValue = "NULL")
+        val anchorOrdinal: Int?,
 
-        @PrimaryKey(autoGenerate = true) val id: Long = 0
+        @Deprecated("To be removed")
+        @ColumnInfo(name = "yOffsetRatio")
+        val deprecatedYOffsetRatio: Float? = null,
+
+        @PrimaryKey(autoGenerate = true) val id: Long = 0,
     )
 
     @Entity(
@@ -380,10 +408,13 @@ class WorkspaceEntities {
         var workspaceId: Long,
         val isSynchronized: Boolean,
         val isPinMode: Boolean,
-        val isLinksWindow: Boolean,
+
+        val isLinksWindow: Boolean = false,
+
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
-        var orderNumber: Int = 0
+        var orderNumber: Int = 0,
+        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: Long? = null,
     )
 }
 
@@ -393,11 +424,13 @@ data class SettingsBundle (
     val workspaceName: String,
     val workspaceSettings: WorkspaceEntities.TextDisplaySettings,
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
-    val windowId: Long? = null
+    val windowId: Long? = null,
 ) {
-    val actualSettings: WorkspaceEntities.TextDisplaySettings get() {
-        return if(windowId == null) WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings) else WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
-    }
+    val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
+        if(windowId == null)
+            WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings)
+        else
+            WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
 
     fun toJson(): String {
         return json.encodeToString(serializer(), this)

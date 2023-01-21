@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">研經工具</string>
   <string name="app_name_medium">研經工具 (And Bible)</string>
-  <string name="app_name_long">研經工具 - 由And Bible開源計劃開發</string>
+  <string name="app_name_long">AndBible: 研經工具</string>
   <string name="project">And Bible 開源計劃</string>
   <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">請插入SD Card及重新開始程式</string>
@@ -96,7 +96,7 @@
   <string name="prefs_toolbar_button_action_swap_menu">點選以開啟下一份文件；長按則開啟選單</string>
   <string name="prefs_toolbar_button_action_swap_activity">點選以開啟下一份文件；長按則打開文件表列</string>
   <string name="prefs_night_mode_title">夜間模式切換</string>
-  <string name="prefs_night_mode_summary">選擇是否自動、手動或透過系統設定切換夜間模式（如裝置支換）。手動切換可以在主螢幕中的3點選單進行。</string>
+  <string name="prefs_night_mode_summary">選擇以自動、手動或系統設定切換夜間模式。手動切換可以在主螢幕中的3點選單進行</string>
   <string name="prefs_night_mode_manual">手動</string>
   <string name="prefs_night_mode_automatic">自動</string>
   <string name="prefs_night_mode_system">系統</string>
@@ -104,10 +104,10 @@
   <string name="prefs_navigate_to_verse_title">導航到經節</string>
   <string name="prefs_navigate_to_verse_summary">選擇聖經段落時挑選經文章節</string>
   <string name="prefs_open_links_in_special_window_title">連結視窗</string>
-  <string name="prefs_open_links_in_special_window_summary">在特殊視窗開啟連結，以便快速查看交叉對照及Strongs編號。</string>
+  <string name="prefs_open_links_in_special_window_summary">在特殊視窗開啟連結，以便快速查看交叉對照及Strong\'s編號</string>
   <string name="prefs_text_size_sample_text">示範文字</string>
   <string name="prefs_screen_keep_on_title">保持螢幕開啟</string>
-  <string name="prefs_screen_keep_on_summary">使用此應用程式時防止螢幕睡眠</string>
+  <string name="prefs_screen_keep_on_summary">使用此應用程式時，防止螢幕睡眠</string>
   <string name="prefs_interface_locale_title">程式用戶界面語言</string>
   <string name="prefs_interface_locale_summary">選擇使用者界面語言</string>
   <string name="reset_fontsize">重設</string>
@@ -120,15 +120,13 @@
   <string name="add_ellipsis">%s...</string>
   <string name="font_size_pt">%d 點</string>
   <string name="value_mm">%d mm</string>
-  <string name="auto_fullscreen_summary">捲動文字時自動切換為全螢幕。提示：你可以隨時以雙擊切換至全螢幕。</string>
+  <string name="auto_fullscreen_summary">捲動文字時，自動切換為全螢幕。提示：你可以隨時以雙點切換至全螢幕</string>
   <string name="prefs_margin_size_title">更改邊界大小</string>
   <string name="prefs_margin_size_mm_title">邊界大小 (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">進階設定</string>
   <string name="prefs_display_customization_cat">外觀與感覺</string>
   <string name="prefs_behavior_customization_cat">程式行為</string>
-  <string name="prefs_margin_size_summary">調整文字檢視的左右邊界。
-你亦可調整文字的最大寬度。
-</string>
+  <string name="prefs_margin_size_summary">調整文字檢視的左右邊界。你亦可調整文字的最大寬度</string>
   <string name="prefs_text_colors_summary">調整文字及背景顏色及噪點效果</string>
   <string name="text_display_settings_activity_title">文字顯示設定</string>
   <string name="workspace_text_display_settings_title">文字選項 - %s</string>
@@ -143,7 +141,7 @@
   <string name="prefs_line_spacing_pt">行距%1.1fx</string>
   <string name="pref_font_family_label">字型家族</string>
   <string name="prefs_top_margin_title">頂邊界</string>
-  <string name="prefs_top_margin_summary">在聖經文件視窗頂部增加邊界。經文將會在該邊界以下顯示。</string>
+  <string name="prefs_top_margin_summary">在聖經文件視窗頂部增加邊界。經文將會在該邊界以下顯示</string>
   <string name="prefs_hyphenation_title">斷字</string>
   <string name="prefs_hyphenation_summary">如果語言支援則自動斷字</string>
   <string name="prefs_line_spacing_pt_title">行距 (%1.1fx)</string>
@@ -153,16 +151,16 @@
   <string name="reset_are_you_sure">你確定要重設所有數值嗎？</string>
   <string name="window_pinning_menutitle">視窗釘選</string>
   <string name="hide_window_buttons_title">隱藏視窗按鍵</string>
-  <string name="hide_window_buttons_summary">隱藏在聖經視窗右方的視窗按鍵。底部的視窗導航列仍會顯示，你可以長按以開啟視窗彈出選單。</string>
+  <string name="hide_window_buttons_summary">隱藏在聖經視窗右下方的視窗按鍵。你可以長按底部的導覽列，以開啟彈出選單</string>
   <string name="hide_bible_reference_overlay_title">隱藏聖經參考浮動視窗</string>
   <string name="hide_bible_reference_overlay_summary">在全螢幕模式下，不顯示半透明的聖經參考浮動視窗</string>
-  <string name="full_screen_hide_buttons_pref_title">在全螢幕中隱藏視窗按鍵</string>
-  <string name="full_screen_hide_buttons_pref_summary">當切換至全螢幕模式時，自動隱藏下方的視窗按鍵列</string>
+  <string name="full_screen_hide_buttons_pref_title">在全螢幕中隱藏導覽列</string>
+  <string name="full_screen_hide_buttons_pref_summary">當切換至全螢幕模式時，自動隱藏底部的導覽列</string>
   <string name="prefs_dictionaries_cat">字典</string>
-  <string name="choose_strongs_greek_dictionary_title">Strongs 希臘文字典</string>
-  <string name="choose_strongs_greek_dictionary_summary">選擇 Strongs 希臘文字典以查找定義</string>
-  <string name="choose_strongs_hebrew_dictionary_title">Strongs 希伯來文字典</string>
-  <string name="choose_strongs_hebrew_dictionary_summary">選擇 Strongs 希伯來文字典以查找定義</string>
+  <string name="choose_strongs_greek_dictionary_title">Strong\'s希臘文字典</string>
+  <string name="choose_strongs_greek_dictionary_summary">選擇偏好的Strong\'s希臘文字典</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strong\'s希伯來文字典</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">選擇偏好的Strong\'s希伯來文字典</string>
   <string name="choose_strongs_greek_morphology_title">Robinson 希臘文詞形工具</string>
   <string name="choose_strongs_greek_morphology_summary">選擇 Robinson 希臘文詞形工具以查找定義</string>
   <string name="prefs_top_margin_title_mm">頂邊界 (%d mm)</string>
@@ -170,8 +168,10 @@
   <string name="font_size_title_pt">字型大小 (%d pt)</string>
   <string name="prefs_font_text_size_summary">調整主要文字大小</string>
   <string name="pref_font_family_label_name">字型家族 (%s)</string>
-  <string name="prefs_font_family_summary">更改字型家族。提示：在下載文件 / 附加中可以安裝更多字型。</string>
+  <string name="prefs_font_family_summary">更改字型家族。提示：在\"下載文件\" -&gt; \"附加\"中可以安裝更多字型</string>
   <string name="prefs_text_bookmarks_title">書籤 &amp; 我的筆記設定</string>
+  <string name="prefs_enable_bluetooth_title">開啟藍牙按鍵功能</string>
+  <string name="prefs_enable_bluetooth_summary">使用藍牙按鍵開始/停止語音</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">顏色設定</string>
   <string name="window_color_settings_title">視窗顏色設定</string>
@@ -207,7 +207,7 @@
   <string name="next">下一頁</string>
   <!--Strongs-->
   <string name="strongs_not_installed">請下載Strong\'s希伯來文和希臘文字典</string>
-  <string name="no_indexed_bible_with_strongs_ref">需要下載包含Strong\'s原文編號的聖經，並於搜尋下載相應的索引</string>
+  <string name="no_indexed_bible_with_strongs_ref">你須下載具有Strong\'s編碼的聖經及於搜尋中建立索引</string>
   <string name="morph_robinson_not_installed">請下載 Robinson\'s 詞形分析碼的字典</string>
   <string name="go_to_downloads">移至下載</string>
   <!--Module download-->
@@ -687,7 +687,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">我明白</string>
   <string name="first_time_help_show_next_time">下次再顯示</string>
-  <string name="strongs_mode_title">還擇 Strongs 模式</string>
+  <string name="strongs_mode_title">還擇Strong\'s模式</string>
   <string name="download_dialog_message">以下的書本無發下載：</string>
   <string name="select_multiple">選擇多個</string>
   <string name="journal_description">使用者可自行編輯個人筆記及標記書籤</string>
@@ -838,4 +838,5 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="strongs_text_and_links">文字及連結</string>
   <string name="verse_tip">長按以選擇部份或多節經文</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">需要權限</string>
 </resources>

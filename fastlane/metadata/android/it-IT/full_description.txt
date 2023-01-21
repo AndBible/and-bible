@@ -1,6 +1,6 @@
 <b>Un potente strumento di studio della Bibbia</b>
 
-L'app Studi Biblici del progetto open source And Bible è un'applicazione per lo studio della Bibbia per Android potente, ma facile da usare. L'app non è limitata alla sola lettura del testo biblico, ma offre strumenti avanzati per lo studio personale della Bibbia.
+"AndBible: Studi Biblici" è un'applicazione potente, ma facile da usare, per lo studio offline della Bibbia su Android. L'app non si limita alle funzionalità di lettura, ma è progettata per essere uno strumento avanzato per lo studio approfondito personale della Bibbia.
 
 Questa applicazione è sviluppata da lettori della Bibbia, per i lettori della Bibbia. Vuole essere d'aiuto per facilitarti lo studio e l'approfondimento della Bibbia. La parte migliore di questo progetto non-profit è che è open source, completamente gratuito, e non contiene pubblicità. Interamente progettato per Android, è un programma piccolo da scaricare, e quindi molto efficiente e veloce.
 

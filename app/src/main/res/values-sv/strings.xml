@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bibelstudier</string>
   <string name="app_name_medium">Bibelstudier (Och Bibeln)</string>
-  <string name="app_name_long">Bible Study appen, av And Bible Open Source Project</string>
+  <string name="app_name_long">AndBible: Bible Study</string>
   <string name="project">And Bible Open Source Project</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Vänligen mata in ett SD-kort och starta om appen.</string>
@@ -205,7 +205,6 @@
   <string name="next">Nästa</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Vänligen ladda ner Strongs hebreiska och grekiska lexikon</string>
-  <string name="no_indexed_bible_with_strongs_ref">Du behöver ladda ner en Bibel med Strongs nummer samt dess sökindex i menyn Sök</string>
   <string name="morph_robinson_not_installed">Vänligen ladda ner lexikonet \'Robinson\'s Morphological Analysis Codes\'</string>
   <string name="go_to_downloads">Gå till nerladdningar</string>
   <!--Module download-->

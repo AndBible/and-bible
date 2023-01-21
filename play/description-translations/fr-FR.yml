@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "Bible Study app, du projet opensource And Bible"
+title: "AndBible: La Bible"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Lire la Bible, avec des commentaires, des dictionnaires, tout cela hors ligne."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Puissant outil d'étude biblique
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  L'application Bible Study du  p roject Open Source AndBible  est une puissante application d'étude biblique hors ligne pour Android, facile à utiliser. L'application ne vise pas à être un simple lecteur de la Bible, mais se concentre sur un outil avancé pour faire une étude personnelle approfondie de la Bible.
+  "{{ title }}" est une puissante application d'étude biblique hors ligne pour Android, facile à utiliser. L'application ne vise pas à être un simple lecteur de la Bible, mais se concentre sur un outil avancé pour faire une étude personnelle approfondie de la Bible.
 paragraph_1_2: >
   Cette application a été développée par des lecteurs de la Bible, pour des lecteurs de la Bible. Elle a pour but de vous aider à rendre votre étude de la Bible pratique, approfondie et amusante. La meilleure partie de ce projet communautaire à but non lucratif est qu'il est à code source ouvert, entièrement gratuit et ne contient aucune publicité. Construite de A à Z pour Android, sa taille de téléchargement est faible et est donc très efficace et remarquablement rapide.
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: Divise les affichages du texte permettant de comparer les traductions et de consulter les commentaires
 feature_02: Les espaces de travail permettent de mettre en place plusieurs études bibliques avec leurs propres paramètres.
 feature_03: L'intégration de Strongs permet l'analyse des mots grecs et hébreux.
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Références croisées, notes de bas de page et documents liés ; passez aux références croisées et aux notes de bas de page en appuyant simplement sur un lien ; effectuez une étude approfondie des Écritures en utilisant des commentaires en hyperlien ({{commentary_examples}}), des collections de références croisées ({{cross_reference_examples}}) et d'autres ressources.
 # Examples of commentaries. You can add here also other commentaries of your language if they

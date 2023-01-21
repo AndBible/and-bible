@@ -1,32 +1,32 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.base
 
-import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
-import net.bible.android.view.activity.base.ProgressActivityBase
+import net.bible.service.common.CommonUtils
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
@@ -57,7 +57,9 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
     }
 
     private fun initialiseView() {
+        lifecycleScope.launch { CommonUtils.requestNotificationPermission(this@ProgressActivityBase) }
         // prepare to show no tasks msg
+
         noTasksMessageView = findViewById<View>(R.id.noTasksRunning) as TextView
         taskKillWarningView = findViewById<View>(R.id.progressStatusMessage) as TextView
         val jobsIterator = JobManager.iterator()
@@ -118,7 +120,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
         }
     }
 
-    protected open fun jobFinished(job: Progress?) {
+    protected open fun jobFinished(job: Progress) {
         // do nothing by default
     }
 
@@ -152,7 +154,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
         return status
     }
 
-    protected fun setMainText(text: String?) {
+    protected fun setMainText(text: String) {
         (findViewById<View>(R.id.progressStatusMessage) as TextView).text = text
     }
 

@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Studium Biblii</string>
   <string name="app_name_medium">Studium Biblii (And Bible)</string>
-  <string name="app_name_long">Studium Biblii, otwartoźródłowy projekt And Bible</string>
+  <string name="app_name_long">AndBible: Studium Biblii</string>
   <string name="project">Otwartoźródłowy projekt And Bible</string>
   <string name="version_text">Wersja %s</string>
   <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić aplikację.</string>
@@ -205,7 +205,6 @@
   <string name="next">Następny</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Pobierz hebrajski i grecki słownik Stronga</string>
-  <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie pobierać ich spis poprzez „wyszukiwanie”</string>
   <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
   <string name="go_to_downloads">Otwórz pobierania</string>
   <!--Module download-->

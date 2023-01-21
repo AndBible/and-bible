@@ -1,25 +1,26 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.service.download
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -44,6 +45,7 @@ import javax.net.ssl.HttpsURLConnection
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class GenericFileDownloader(
+    val activity: AppCompatActivity,
     private val onErrorsChange: (() -> Unit)? = null
 ) {
     val errors = TreeSet<URI>()
@@ -58,8 +60,10 @@ class GenericFileDownloader(
         onErrorsChange?.invoke()
     }
 
+    val scope = activity.lifecycleScope
+
     fun downloadFileInBackground(source: URI, target: File, description: String) =
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             // So now we know what we want to install - all we need to do
             // is installer.install(name) however we are doing it in the
             // background so we create a job for it.
@@ -129,7 +133,7 @@ class GenericFileDownloader(
                 val tempFile = NetUtil.getAsFile(temp)
                 if (!copyFile(tempFile, target)) {
                     Log.e(TAG, "Download Error renaming temp file $tempFile to:$target")
-                    Dialogs.instance.showErrorMsg(getResourceString(R.string.error_occurred))
+                    Dialogs.showErrorMsg(getResourceString(R.string.error_occurred))
                     job.cancel()
                 }
             }

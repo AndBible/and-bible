@@ -1,22 +1,22 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.report
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -39,6 +39,8 @@ import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.page.application
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.applicationVersionName
@@ -70,7 +72,7 @@ object ErrorReportControl {
             var askAgain = true
             while(askAgain) {
                 askAgain = false
-                val result = suspendCoroutine<ErrorDialogResult> {
+                val result = suspendCoroutine {
                     val dlgBuilder = AlertDialog.Builder(context)
                         .setMessage(msg)
                         .setCancelable(isCancelable)
@@ -102,6 +104,7 @@ object ErrorReportControl {
         }
     }
 
+    @SuppressLint("ApplySharedPref")
     suspend fun checkCrash(activity: ActivityBase) {
         val crashed = CommonUtils.realSharedPreferences.getBoolean("app-crashed", false)
         if (crashed) {
@@ -116,32 +119,33 @@ const val SCREENSHOT_FILE = "screenshot.webp"
 
 object BugReport {
     private fun createErrorText(exception: Throwable? = null) = try {
-        val text = StringBuilder()
-        text.append("And Bible version: ").append(applicationVersionName).append("\n")
-        text.append("Android version: ").append(Build.VERSION.RELEASE).append("\n")
-        text.append("Android SDK version: ").append(Build.VERSION.SDK_INT).append("\n")
-        text.append("Manufacturer: ").append(Build.MANUFACTURER).append("\n")
-        text.append("Model: ").append(Build.MODEL).append("\n")
-        text.append("Storage Mb free: ").append(megabytesFree).append("\n")
-        text.append("WebView version: ").append(WebViewCompat.getCurrentWebViewPackage(BibleApplication.application)?.versionName).append("\n")
-        text.append("SQLITE version: ").append(BibleApplication.application.sqliteVersion).append("\n")
-        val runtime = Runtime.getRuntime()
-        val usedMemInMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L
-        val maxHeapSizeInMB = runtime.maxMemory() / 1048576L
-        text.append("Used heap memory in Mb: ").append(usedMemInMB).append("\n")
-        text.append("Max heap memory in Mb: ").append(maxHeapSizeInMB).append("\n\n")
-        if (exception != null) {
-            val errors = StringWriter()
-            exception.printStackTrace(PrintWriter(errors))
-            text.append("Exception:\n").append(errors.toString())
+        StringBuilder().run {
+            append("Version: ").append(applicationVersionName).append("\n")
+            append("Android version: ").append(Build.VERSION.RELEASE).append("\n")
+            append("Android SDK version: ").append(Build.VERSION.SDK_INT).append("\n")
+            append("Manufacturer: ").append(Build.MANUFACTURER).append("\n")
+            append("Model: ").append(Build.MODEL).append("\n")
+            append("Storage Mb free: ").append(megabytesFree).append("\n")
+            append("WebView version: ").append(WebViewCompat.getCurrentWebViewPackage(BibleApplication.application)?.versionName).append("\n")
+            append("SQLITE version: ").append(BibleApplication.application.sqliteVersion).append("\n")
+            val runtime = Runtime.getRuntime()
+            val usedMemInMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L
+            val maxHeapSizeInMB = runtime.maxMemory() / 1048576L
+            append("Used heap memory in Mb: ").append(usedMemInMB).append("\n")
+            append("Max heap memory in Mb: ").append(maxHeapSizeInMB).append("\n\n")
+            if (exception != null) {
+                val errors = StringWriter()
+                exception.printStackTrace(PrintWriter(errors))
+                append("Exception:\n").append(errors.toString())
+            }
+            toString()
         }
-        text.toString()
     } catch (e: Exception) {
         "Exception occurred preparing error text:" + e.message
     }
 
     private fun getSubject(e: Throwable?): String? {
-        if (e == null || e.stackTrace.size == 0) {
+        if (e == null || e.stackTrace.isEmpty()) {
             return applicationVersionName
         }
         val stack = e.stackTrace
@@ -164,11 +168,49 @@ object BugReport {
         return returnedBitmap
     }
 
+    private val logDir get() = File(application.filesDir, "/log")
+
+    private fun logBasicInfo() {
+        Log.i(TAG, "logBasicInfo")
+        Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))
+        Log.i(TAG, "Java:" + System.getProperty("java.vendor") + " ver " + System.getProperty("java.version"))
+        Log.i(TAG, "Java home:" + System.getProperty("java.home")!!)
+        Log.i(TAG, "User dir:" + System.getProperty("user.dir") + " Timezone:" + System.getProperty("user.timezone"))
+        Log.i(TAG, createErrorText())
+    }
+
+    fun saveLogcat() {
+        Log.i(TAG, "Trying to save logcat")
+        logBasicInfo()
+        val f = File(logDir, "logcat.txt.gz")
+        val log = StringBuilder()
+        try {
+            val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
+            val bufferedReader = BufferedReader(
+                InputStreamReader(process.inputStream))
+
+            var line = bufferedReader.readLine()
+            while (line != null) {
+                log.append(line + '\n');
+                line = bufferedReader.readLine()
+            }
+        } catch (_: IOException) {}
+
+        logDir.mkdirs()
+
+        val fOut = FileOutputStream(f)
+        val osw = GZIPOutputStream(fOut)
+
+        osw.write(log.toString().toByteArray());
+        osw.flush()
+        osw.close()
+    }
+
     fun saveScreenshot() {
-        val activity = CurrentActivityHolder.getInstance().currentActivity?: return
-        val dir = File(activity.filesDir, "/log")
-        dir.mkdirs()
-        val screenshotFile = File(dir, SCREENSHOT_FILE)
+        Log.i(TAG, "Trying to save screenshot")
+        val activity = CurrentActivityHolder.currentActivity?: return
+        logDir.mkdirs()
+        val screenshotFile = File(logDir, SCREENSHOT_FILE)
         try {
             val screenShot = getScreenShot(activity) ?: return
             val screenshotOutputStream = FileOutputStream(screenshotFile)
@@ -183,25 +225,24 @@ object BugReport {
         }
     }
 
-    private fun getBugReportMessage(context: Context, exception: Throwable?): String =
-        context.run {
-            val bigHeading = getString(R.string.report_bug_big_heading)
-            val heading1 = getString(R.string.report_bug_heading1)
-            val heading2 = getString(R.string.report_bug_heading2)
-            val heading3 = getString(R.string.report_bug_heading_3)
-            val heading4 = getString(R.string.report_bug_heading_4)
-            val instruction1 = getString(R.string.report_bug_instructions1)
-            val instruction2 = getString(R.string.report_bug_instructions2)
-            val instruction3 = getString(R.string.report_bug_instructions3)
-            val line1 = getString(R.string.report_bug_line_1)
-            val line2 = getString(R.string.report_bug_line_2)
-            val line3 = getString(R.string.report_bug_line_3)
-            val line4 = getString(R.string.report_bug_line_4)
-            val line5 = getString(R.string.bug_report_attachment_line_1)
-            val logcat = getString(R.string.bug_report_logcat)
-            val screenShot = getString(R.string.bug_report_screenshot)
+    private fun getBugReportMessage(context: Context, exception: Throwable?): String = context.run {
+        val bigHeading = getString(R.string.report_bug_big_heading)
+        val heading1 = getString(R.string.report_bug_heading1)
+        val heading2 = getString(R.string.report_bug_heading2)
+        val heading3 = getString(R.string.report_bug_heading_3)
+        val heading4 = getString(R.string.report_bug_heading_4)
+        val instruction1 = getString(R.string.report_bug_instructions1)
+        val instruction2 = getString(R.string.report_bug_instructions2)
+        val instruction3 = getString(R.string.report_bug_instructions3)
+        val line1 = getString(R.string.report_bug_line_1)
+        val line2 = getString(R.string.report_bug_line_2)
+        val line3 = getString(R.string.report_bug_line_3)
+        val line4 = getString(R.string.report_bug_line_4)
+        val line5 = getString(R.string.bug_report_attachment_line_1)
+        val logcat = getString(R.string.bug_report_logcat)
+        val screenShot = getString(R.string.bug_report_screenshot)
 
-            "\n\n" +
+        "\n\n" +
             """
             --- $bigHeading ---
             
@@ -224,41 +265,20 @@ object BugReport {
             $heading4
             
             """.trimIndent() +
-                createErrorText(exception)
-        }
+            createErrorText(exception)
+    }
 
     suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false, source: String) {
-        val context = context_ ?: CurrentActivityHolder.getInstance().currentActivity
-        val dir = File(context.filesDir, "/log")
-        val f = File(dir, "logcat.txt.gz")
-        val screenshotFile = File(dir, SCREENSHOT_FILE)
+        val activity = context_ ?: CurrentActivityHolder.currentActivity!!
+        val screenshotFile = File(logDir, SCREENSHOT_FILE)
+        val logcatFile = File(logDir, "logcat.txt.gz")
 
-        val hourglass = Hourglass(context)
+        val hourglass = Hourglass(activity)
         hourglass.show()
         withContext(Dispatchers.IO) {
-            val log = StringBuilder()
-            try {
-                val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
-                val bufferedReader = BufferedReader(
-                    InputStreamReader(process.inputStream))
-
-                var line = bufferedReader.readLine()
-                while (line != null) {
-                    log.append(line + '\n');
-                    line = bufferedReader.readLine()
-                }
-            } catch (e: IOException) {}
-
-            dir.mkdirs()
-
-            val fOut = FileOutputStream(f)
-            val osw = GZIPOutputStream(fOut)
-
-            osw.write(log.toString().toByteArray());
-            osw.flush()
-            osw.close()
             if(!useSaved) {
                 delay(1000)
+                saveLogcat()
                 saveScreenshot()
             }
         }
@@ -266,11 +286,16 @@ object BugReport {
         hourglass.dismiss()
 
         withContext(Dispatchers.Main) {
-            val subject = context.getString(R.string.report_bug_email_subject_3, source, CommonUtils.applicationNameMedium, getSubject(exception))
-            val message = getBugReportMessage(context, exception)
+            val result = Dialogs.simpleQuestion(activity,
+                activity.getString(R.string.bug_report_email_title),
+                activity.getString(R.string.bug_report_email_text)
+            )
+            if(!result) return@withContext
+            val subject = activity.getString(R.string.report_bug_email_subject_3, source, CommonUtils.applicationNameMedium, getSubject(exception))
+            val message = getBugReportMessage(activity, exception)
 
-            val uris = ArrayList(listOf(f, screenshotFile).filter { it.canRead() }.map {
-                FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", it)
+            val uris = ArrayList(listOf(logcatFile, screenshotFile).filter { it.canRead() }.map {
+                FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", it)
             })
             val email = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
                 putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
@@ -279,13 +304,9 @@ object BugReport {
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
                 type = "text/plain"
             }
-            val chooserIntent = Intent.createChooser(email, context.getString(R.string.send_bug_report_title))
+            val chooserIntent = Intent.createChooser(email, activity.getString(R.string.send_bug_report_title))
             chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            if (context is ActivityBase) {
-                context.awaitIntent(chooserIntent)
-            } else {
-                context.startActivity(chooserIntent)
-            }
+            activity.awaitIntent(chooserIntent)
         }
     }
 

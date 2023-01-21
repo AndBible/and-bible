@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.base
 
@@ -31,8 +30,9 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -47,10 +47,9 @@ import net.bible.android.control.download.repo
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.DocumentSearch
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.isRecommended
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Ref
 import net.bible.service.db.DatabaseContainer
@@ -104,10 +103,17 @@ data class PseudoBook(
     val suggested: String,
 )
 
-abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
+abstract class DocumentSelectionBase(
+    optionsMenuId: Int,
+    private val actionModeMenuId: Int,
+    private val enableLoadingIndicator: Boolean = true,
+    ) : ListActivityBase(optionsMenuId), ActionModeActivity
+{
     @Inject lateinit var downloadControl: DownloadControl
 
     protected lateinit var binding: DocumentSelectionBinding
+
+    protected val isLoading = MutableStateFlow(false)
 
     protected lateinit var documentItemAdapter: ArrayAdapter<Book>
     protected var selectedDocumentFilterNo = 0
@@ -139,10 +145,20 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     protected abstract fun sortLanguages(languages: Collection<Language>?): List<Language>
 
     /** Called when the activity is first created.  */
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreate(savedDialogsState: Bundle?) {
+        super.onCreate(savedDialogsState)
         binding = DocumentSelectionBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        if (enableLoadingIndicator) {
+            lifecycleScope.launchWhenResumed {
+                isLoading.collect {
+                    binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
+                }
+            }
+        }
+        else {
+            binding.loadingIndicator.visibility = View.GONE
+        }
     }
 
     protected fun initialiseView() {
@@ -151,7 +167,9 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId, true)
         //listView.choiceMode = AbsListView.CHOICE_MODE_SINGLE
         // trigger action mode on long press
-        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id -> listActionModeHelper.startActionMode(this@DocumentSelectionBase, position) }
+        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id ->
+            listActionModeHelper.startActionMode(this@DocumentSelectionBase, position)
+        }
         languageList.clear()
         displayedDocuments.clear()
 
@@ -331,11 +349,11 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             }
         } catch (e: Exception) {
             Log.e(TAG, "document selection error", e)
-            instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
-    internal fun reloadDocuments() = GlobalScope.launch {
+    internal fun reloadDocuments() = lifecycleScope.launch {
         populateMasterDocumentList(false)
     }
 
@@ -348,7 +366,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         Log.i(TAG, "populate Master Document List")
 
         withContext(Dispatchers.Main) {
-            binding.loadingIndicator.visibility = View.VISIBLE
+            isLoading.value = true
             showPreLoadMessage(refresh)
             filterMutex.withLock {
                 documentItemAdapter.clear()
@@ -373,7 +391,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 Log.i(TAG, "Number of documents:" + allDocuments.size)
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting documents", e)
-                instance.showErrorMsg(R.string.error_occurred, e)
+                Dialogs.showErrorMsg(R.string.error_occurred, e)
             }
         }
         withContext(Dispatchers.Main) {
@@ -383,7 +401,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 isPopulated = true
                 filterDocuments()
             } finally {
-                binding.loadingIndicator.visibility = View.GONE
+                isLoading.value = false
             }
         }
     }
@@ -394,7 +412,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         if(!isPopulated) return
         // documents list has changed so force action mode to exit, if displayed, because selections are invalidated
         listActionModeHelper.exitActionMode()
-        GlobalScope.launch {
+        lifecycleScope.launch {
             filterMutex.withLock {
                 try {
                     // re-filter documents
@@ -440,7 +458,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error initialising view", e)
-                    ABEventBus.getDefault().post(
+                    ABEventBus.post(
                         ToastEvent(getString(R.string.error) + " " + e.message,
                             Toast.LENGTH_SHORT)
                     )
@@ -511,10 +529,10 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             val repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY)
             sbmd.reload()
             sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey)
-            GlobalScope.launch(Dispatchers.Main) {CommonUtils.showAbout(this@DocumentSelectionBase, document) }
+            lifecycleScope.launch(Dispatchers.Main) {CommonUtils.showAbout(this@DocumentSelectionBase, document) }
         } catch (e: BookException) {
             Log.e(TAG, "Error expanding SwordBookMetaData for $document", e)
-            instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
@@ -532,17 +550,17 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
                             // the doc list should now change
                             reloadDocuments()
-                            _mainBibleActivity?.updateDocuments()
+                            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                         } catch (e: Exception) {
                             Log.e(TAG, "Deleting document crashed", e)
-                            instance.showErrorMsg(R.string.error_occurred, e)
+                            Dialogs.showErrorMsg(R.string.error_occurred, e)
                         }
                     }
                     .setNegativeButton(R.string.no, null)
                     .create()
                     .show()
             } else {
-                ABEventBus.getDefault().post(ToastEvent(R.string.cant_delete_last_bible))
+                ABEventBus.post(ToastEvent(R.string.cant_delete_last_bible))
             }
         }
     }
@@ -559,7 +577,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                         swordDocumentFacade.deleteDocumentIndex(document.installedDocument)
                     } catch (e: Exception) {
                         Log.e(TAG, "Deleting index crashed", e)
-                        instance.showErrorMsg(R.string.error_occurred, e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
                     }
                 }
                 .setNegativeButton(R.string.cancel, null)

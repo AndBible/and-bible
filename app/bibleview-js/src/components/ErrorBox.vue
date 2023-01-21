@@ -1,67 +1,58 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   -
-  - This file is part of And Bible (http://github.com/AndBible/and-bible).
+  - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
-  - And Bible is free software: you can redistribute it and/or modify it under the
+  - AndBible is free software: you can redistribute it and/or modify it under the
   - terms of the GNU General Public License as published by the Free Software Foundation,
   - either version 3 of the License, or (at your option) any later version.
   -
-  - And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  - AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   - without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   - See the GNU General Public License for more details.
   -
-  - You should have received a copy of the GNU General Public License along with And Bible.
+  - You should have received a copy of the GNU General Public License along with AndBible.
   - If not, see http://www.gnu.org/licenses/.
   -->
 
 <template>
   <div v-if="logEntries.length > 0" @click="showLog=true" :class="`logbox-button ${buttonStyle}`">
-    {{logEntries.length}}
+    {{ logEntries.length }}
   </div>
   <div v-if="showLog" @click="showLog=false" class="logbox">
     <div class="errorbox">
       <a class="error-link" href="ab-error://error">{{ strings.reportError }}</a>
-      <button class="button" @click="clearLog">{{strings.clearLog}}</button>
+      <button class="button" @click="clearLog">{{ strings.clearLog }}</button>
       <ul>
         <li
-          v-for="({type, msg, count}, index) in logEntries"
-          :class="`error-${type}`"
-          :key="index">
-          {{type}} {{msg}} ({{count}})
+            v-for="({type, msg, count}, index) in logEntries"
+            :class="`error-${type}`"
+            :key="index">
+          {{ type }} {{ msg }} ({{ count }})
         </li>
       </ul>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {clearLog, enableLogSync, logEntries} from "@/composables/android";
-import {onMounted, onUnmounted} from "vue";
+import {computed, onMounted, onUnmounted, ref} from "vue";
 import {useCommon} from "@/composables";
-import {computed} from "vue";
 
-export default {
-  name: "ErrorBox",
-  setup() {
-    onMounted(() => enableLogSync(true));
-    onUnmounted(() => enableLogSync(false));
-    const buttonStyle = computed(() => {
-      if (logEntries.find(v => v.type === "ERROR")) return "error";
-      return "warn";
-    });
-    return {buttonStyle, logEntries, clearLog, ...useCommon()};
-  },
-  data() {
-    return {
-      showLog: false
-    }
-  }
-}
+onMounted(() => enableLogSync(true));
+onUnmounted(() => enableLogSync(false));
+const buttonStyle = computed(() => {
+    if (logEntries.find(v => v.type === "ERROR")) return "error";
+    return "warn";
+});
+const {strings} = useCommon();
+const showLog = ref(false);
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .logbox {
   z-index: 3;
   font-size: 8pt;
@@ -75,9 +66,11 @@ export default {
 
 .errorbox {
   @extend .visible-scrollbar;
+
   &::-webkit-scrollbar {
     height: 5pt;
   }
+
   overflow: scroll;
   width: calc(100% - 10pt);
   height: calc(100% - var(--bottom-offset) - var(--top-offset));
@@ -89,27 +82,38 @@ export default {
   position: fixed;
   padding: 0.5em;
   color: white;
+
   [dir=ltr] & {
     right: 0;
   }
+
   [dir=rtl] & {
     left: 0;
   }
-  width:1em;
+
+  width: 1em;
   height: 1em;
   animation-name: animatetop;
   animation-duration: 0.4s;
+
   &.error {
     background-color: rgba(200, 0, 0, 0.5);
   }
+
   &.warn {
     background-color: rgba(200, 133, 0, 0.5);
   }
 }
 
 @keyframes animatetop {
-  from {top:-300px; opacity:0}
-  to {top:var(--top-offset); opacity:1}
+  from {
+    top: -300px;
+    opacity: 0
+  }
+  to {
+    top: var(--top-offset);
+    opacity: 1
+  }
 }
 
 .error-ERROR {

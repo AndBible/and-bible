@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.service.sword
 
@@ -27,6 +26,7 @@ import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.Logger
+import net.bible.service.common.htmlToSpan
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
@@ -216,7 +216,7 @@ object SwordContentFacade {
         val start = startVerse.slice(0 until min(startOffset, startVerse.length))
 
         var startVerseNumber = ""
-        if (showVerseNumbers && verseTexts.size > 1) {
+        if (showVerseNumbers && !showReferenceAtFront && verseTexts.size > 1) {
             startVerseNumber = "${selection.verseRange.start.verse}. "
         }
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
@@ -254,11 +254,7 @@ object SwordContentFacade {
         val notesOrig = selection.notes
         val notes =
             if (showNotes && notesOrig != null)
-                "\n\n" + if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Html.fromHtml(notesOrig, Html.FROM_HTML_MODE_LEGACY)
-                } else {
-                    Html.fromHtml(notesOrig)
-                }.toString()
+                "\n\n" + htmlToSpan(notesOrig)
             else
                 ""
 

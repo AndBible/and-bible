@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.service.db
 
@@ -34,6 +33,7 @@ import net.bible.android.database.DATABASE_VERSION
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.android.database.defaultWorkspaceColor
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
@@ -982,6 +982,51 @@ private val MIGRATION_56_57_breaklines_in_notes = object : Migration(56, 57) {
     }
 }
 
+private val MIGRATION_57_58_label_markerStyle = object : Migration(57, 58) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE Label ADD COLUMN markerStyle INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+private val MIGRATION_58_59_workspace_colors = object : Migration(58, 59) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            val colDefs = "`text_display_settings_colors_dayWorkspaceColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightWorkspaceColor` INTEGER DEFAULT NULL".split(",")
+            colDefs.forEach {
+                execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
+                execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
+            }
+            execSQL("UPDATE `Workspace` SET `text_display_settings_colors_dayWorkspaceColor` = ${defaultWorkspaceColor}, `text_display_settings_colors_nightWorkspaceColor` = -16777216")
+        }
+    }
+}
+
+private val MIGRATION_59_60_label_markerStyle = object : Migration(59, 60) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE Label ADD COLUMN markerStyleWholeVerse INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+
+private val MIGRATION_60_61_workspace_colors = object : Migration(60, 61) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_workspaceColor` INTEGER DEFAULT NULL")
+            execSQL("UPDATE `Workspace` SET `window_behavior_settings_workspaceColor` = `text_display_settings_colors_dayWorkspaceColor`")
+        }
+    }
+}
+
+private val MIGRATION_61_62_window_changes = object : Migration(61, 62) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Window` ADD COLUMN `targetLinksWindowId` INTEGER DEFAULT NULL")
+        }
+    }
+}
+
 class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
@@ -1087,6 +1132,11 @@ object DatabaseContainer {
                         MIGRATION_54_55_bookmarkType,
                         MIGRATION_55_56_limitAmbiguousSize,
                         MIGRATION_56_57_breaklines_in_notes,
+                        MIGRATION_57_58_label_markerStyle,
+                        MIGRATION_58_59_workspace_colors,
+                        MIGRATION_59_60_label_markerStyle,
+                        MIGRATION_60_61_workspace_colors,
+                        MIGRATION_61_62_window_changes,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
@@ -1098,7 +1148,9 @@ object DatabaseContainer {
         }
     fun reset() {
         synchronized(this) {
-            db.close()
+            try {
+                db.close()
+            } catch (e: DataBaseNotReady) {}
             instance = null
         }
     }

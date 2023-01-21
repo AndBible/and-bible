@@ -1,23 +1,21 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.page
 
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import net.bible.android.common.toV11n
@@ -27,6 +25,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -62,7 +61,7 @@ open class CurrentCommentaryPage internal constructor(
     override val currentPageContent: Document
         get() {
             return if(currentDocument == FakeBookFactory.compareDocument) {
-                val key: VerseRange = when(val origKey = originalKey ?: singleKey) {
+                val key: VerseRange = when(val origKey = originalCompareKey ?: singleKey) {
                     is VerseRange -> origKey
                     is Verse -> VerseRange(origKey.versification, origKey, origKey)
                     else -> throw RuntimeException("Invalid type")
@@ -96,10 +95,12 @@ open class CurrentCommentaryPage internal constructor(
     }
 
     private fun nextVerse() {
+        originalCompareKey = null
         setKey(getKeyPlus(1))
     }
 
     private fun previousVerse() {
+        originalCompareKey = null
         setKey(getKeyPlus(-1))
     }
 
@@ -130,10 +131,13 @@ open class CurrentCommentaryPage internal constructor(
     }
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
-    var originalKey: Key? = null
+    // If a passage (that is not just a single verse) is displayed, it is stored here.
+    var originalCompareKey: VerseRange? = null
 
     override fun doSetKey(key: Key?) {
-        originalKey = key
+        if(key is VerseRange) {
+            originalCompareKey = key
+        }
         if(key != null) {
             val verse = KeyUtil.getVerse(key)
             currentBibleVerse.setVerseSelected(versification, verse)

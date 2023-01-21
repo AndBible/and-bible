@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2019 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2019-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.database
@@ -94,9 +93,6 @@ interface WorkspaceDao {
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND NOT isLinksWindow ORDER BY orderNumber ")
     fun windows(workspaceId: Long): List<WorkspaceEntities.Window>
-
-    @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND isLinksWindow")
-    fun linksWindow(workspaceId: Long): WorkspaceEntities.Window?
 
     @Query("SELECT * from PageManager WHERE windowId = :windowId")
     fun pageManager(windowId: Long): WorkspaceEntities.PageManager?

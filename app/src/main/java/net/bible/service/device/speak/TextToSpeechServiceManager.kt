@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.device.speak
@@ -80,10 +79,10 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class TextToSpeechServiceManager @Inject constructor(
-		bibleTraverser: BibleTraverser,
-		windowControl: WindowControl,
-		bookmarkControl: BookmarkControl,
-		val speakControl: SpeakControl
+    bibleTraverser: BibleTraverser,
+    windowControl: WindowControl,
+    bookmarkControl: BookmarkControl,
+    val speakControl: SpeakControl
 ) {
 
     private var mTts: TextToSpeech? = null
@@ -117,15 +116,16 @@ class TextToSpeechServiceManager @Inject constructor(
         Log.i(TAG, "Creating TextToSpeechServiceManager")
         generalSpeakTextProvider = GeneralSpeakTextProvider()
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
-        val verse = windowControl.activeWindowPageManager.currentBible.singleKey
 
         bibleSpeakTextProvider = BibleSpeakTextProvider(
-            bibleTraverser, bookmarkControl, windowControl.windowRepository, book, verse
+            bibleTraverser = bibleTraverser,
+            bookmarkControl = bookmarkControl,
+            initialBook = book
         )
         mSpeakTextProvider = bibleSpeakTextProvider
 
         mSpeakTiming = SpeakTiming()
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
         restorePauseState()
     }
 
@@ -144,18 +144,18 @@ class TextToSpeechServiceManager @Inject constructor(
         Log.i(TAG, "Tts initialised")
         var isOk = false
 
-		val tts = mTts
+        val tts = mTts
 
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
         if (tts != null && status == TextToSpeech.SUCCESS) {
             Log.i(TAG, "Tts initialisation succeeded")
 
             // Add earcons
-            tts.addEarcon(EARCON_PRE_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling) // TODO: change
-            tts.addEarcon(EARCON_POST_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling_reverse)
-            tts.addEarcon(EARCON_PRE_TITLE, BibleApplication.application.packageName, R.raw.pageflip)
-            tts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, BibleApplication.application.packageName, R.raw.medium_pling)
-            tts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.application.packageName, R.raw.long_pling)
+            tts.addEarcon(EARCON_PRE_FOOTNOTE, application.packageName, R.raw.short_pling) // TODO: change
+            tts.addEarcon(EARCON_POST_FOOTNOTE, application.packageName, R.raw.short_pling_reverse)
+            tts.addEarcon(EARCON_PRE_TITLE, application.packageName, R.raw.pageflip)
+            tts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, application.packageName, R.raw.medium_pling)
+            tts.addEarcon(EARCON_PRE_BOOK_CHANGE, application.packageName, R.raw.long_pling)
 
             // set speech rate
             setRate(SpeakSettings.load().playbackSettings.speed)
@@ -178,11 +178,11 @@ class TextToSpeechServiceManager @Inject constructor(
             if (!localeOK) {
                 Log.e(TAG, "TTS missing or not supported")
                 // Language data is missing or the language is not supported.
-                ttsLanguageSupport.addUnsupportedLocale(locale)
+                if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
                 showError(R.string.tts_lang_not_available, Exception("Tts missing or not supported"))
             } else {
                 // The TTS engine has been successfully initialized.
-                ttsLanguageSupport.addSupportedLocale(locale)
+                if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
                 val ok = tts.setOnUtteranceProgressListener(utteranceProgressListener)
                 if (ok == TextToSpeech.ERROR) {
                     Log.e(TAG, "Error registering utteranceProgressListener")
@@ -199,7 +199,7 @@ class TextToSpeechServiceManager @Inject constructor(
         }
 
         if (!isOk) {
-            speakControl.stop(false, true)
+            speakControl.stop(willContinueAfter = false, force = true)
         }
     }
 
@@ -347,8 +347,8 @@ class TextToSpeechServiceManager @Inject constructor(
             try {
                 // Initialize text-to-speech. This is an asynchronous operation.
                 // The OnInitListener (second argument) (this class) is called after initialization completes.
-                mTts = TextToSpeech(BibleApplication.application.applicationContext, this.onInitListener)
-                if(BibleApplication.application.isRunningTests) {
+                mTts = TextToSpeech(application.applicationContext, this.onInitListener)
+                if(application.isRunningTests) {
                     this.onInitListener.onInit(TextToSpeech.SUCCESS)
                 }
             } catch (e: Exception) {
@@ -548,7 +548,7 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun showError(msgId: Int, e: Exception) {
-        Dialogs.instance.showErrorMsg(msgId)
+        Dialogs.showErrorMsg(msgId)
     }
 
     fun shutdown(willContinueAfter: Boolean = false) {
@@ -593,13 +593,13 @@ class TextToSpeechServiceManager @Inject constructor(
 		when {
 			isPaused -> {
 				temporary = false
-				ABEventBus.getDefault().post(SpeakEvent(SpeakState.PAUSED))
+				ABEventBus.post(SpeakEvent(SpeakState.PAUSED))
 			}
 			isSpeaking -> {
 				temporary = false
-				ABEventBus.getDefault().post(SpeakEvent(SpeakState.SPEAKING))
+				ABEventBus.post(SpeakEvent(SpeakState.SPEAKING))
 			}
-			else -> ABEventBus.getDefault().post(SpeakEvent(if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT))
+			else -> ABEventBus.post(SpeakEvent(if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT))
 		}
 
     }

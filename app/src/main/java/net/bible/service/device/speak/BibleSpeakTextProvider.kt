@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.device.speak
@@ -33,26 +32,23 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
 import java.util.Locale
 import kotlin.collections.HashMap
 
-class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
-                             private val bookmarkControl: BookmarkControl,
-                             private val windowRepository: WindowRepository,
-                             initialBook: SwordBook,
-                             initialVerse: Verse) : SpeakTextProvider {
-
+class BibleSpeakTextProvider(
+    private val bibleTraverser: BibleTraverser,
+    private val bookmarkControl: BookmarkControl,
+    initialBook: SwordBook
+) : SpeakTextProvider  {
     private data class State(val book: SwordBook,
                              val startVerse: Verse,
                              val endVerse: Verse,
@@ -70,11 +66,11 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
     }
 
     override val numItemsToTts = 20
-    private var book = initialBook
-    private var startVerse = initialVerse
-    private var endVerse = initialVerse
+    private lateinit var book: SwordBook
+    private lateinit var startVerse: Verse
+    private lateinit var endVerse: Verse
     private var bookmark : Bookmark? = null
-    private var _currentVerse = initialVerse
+    private lateinit var _currentVerse: Verse
     private var currentVerse: Verse
         get() = _currentVerse
         set(newValue) {
@@ -159,26 +155,6 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
 
     // For tests. In production this is always null.
     var mockedBooks: ArrayList<SwordBook>? = null
-
-    private val currentBooks: ArrayList<SwordBook> get() {
-        if(mockedBooks != null) {
-            return mockedBooks as ArrayList<SwordBook>
-        }
-        val books = ArrayList<SwordBook>()
-        val firstBook = windowRepository.activeWindow.pageManager.currentPage.currentDocument
-
-        if(firstBook?.bookCategory == BookCategory.BIBLE) {
-            books.add(firstBook as SwordBook)
-        }
-
-        for (w in windowRepository.visibleWindows) {
-            val book = w.pageManager.currentPage.currentDocument
-            if (book !== firstBook && book?.bookCategory == BookCategory.BIBLE) {
-                books.add(book as SwordBook)
-            }
-        }
-        return books
-    }
 
     private fun skipEmptyVerses(verse: Verse): Verse {
         var cmds = getSpeakCommandsForVerse(verse)
@@ -302,9 +278,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         return result
     }
 
-    override fun getText(utteranceId: String): String {
-        return currentState.command.toString()
-    }
+    override fun getText(utteranceId: String): String = currentState.command.toString()
 
     val verseRange: VerseRange get() = VerseRange(currentState.book.versification, currentState.startVerse, currentState.endVerse)
 
@@ -358,6 +332,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
             val ttsLabel = labelList.find { it.id == speakLabel.id }
 
             if(ttsLabel != null) {
+                Log.i(TAG, "Bookmark book ${bookmark.book}")
                 val playbackSettings = bookmark.playbackSettings?.copy()
                 if(playbackSettings != null && settings.restoreSettingsFromBookmarks) {
                     playbackSettings.bookmarkWasCreated = null
@@ -433,13 +408,8 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         return nextIfZero(verse)
     }
 
-    private fun getNextVerse(verse: Verse): Verse {
-        return limitToRange(bibleTraverser.getNextVerse(book, verse))
-    }
-
-    override fun rewind(amount: SpeakSettings.RewindAmount?) {
-        rewind(amount, false)
-    }
+    private fun getNextVerse(verse: Verse): Verse = limitToRange(bibleTraverser.getNextVerse(book, verse))
+    override fun rewind(amount: SpeakSettings.RewindAmount?) = rewind(amount, false)
 
     fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean) {
         val lastTitle = this.lastVerseWithTitle
@@ -482,14 +452,14 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         startVerse = currentVerse
         endVerse = currentVerse
 
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, verseRange, null))
+        ABEventBus.post(SpeakProgressEvent(book, verseRange, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse,
+        ABEventBus.post(SpeakProgressEvent(book, startVerse,
                 TextCommand("", type=TextCommand.TextType.TITLE)))
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse,
+        ABEventBus.post(SpeakProgressEvent(book, startVerse,
                 TextCommand("", type=TextCommand.TextType.NORMAL)))
     }
 
@@ -514,7 +484,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         startVerse = currentVerse
         endVerse = currentVerse
         clearNotificationAndWidgetTitles()
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, verseRange, null))
+        ABEventBus.post(SpeakProgressEvent(book, verseRange, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}
@@ -527,7 +497,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startVerse
             }
-            ABEventBus.getDefault().post(SpeakProgressEvent(state.book, VerseRange(state.book.versification, state.startVerse, state.endVerse), state.command!!))
+            ABEventBus.post(SpeakProgressEvent(state.book, VerseRange(state.book.versification, state.startVerse, state.endVerse), state.command!!))
         }
     }
 
@@ -541,7 +511,9 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
             book = state.book
         }
         lastVerseWithTitle = null
-        endVerse = startVerse
+        if(this::startVerse.isInitialized) {
+            endVerse = startVerse
+        }
         readList.clear()
         currentCommands.clear()
         utteranceState.clear()
@@ -549,13 +521,8 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         verseRenderLruCache.evictAll()
     }
 
-    override fun getCurrentlyPlayingVerse(): Verse? {
-        return currentVerse
-    }
-
-    override fun getCurrentlyPlayingBook(): SwordBook {
-        return book
-    }
+    override fun getCurrentlyPlayingVerse(): Verse = startVerse
+    override fun getCurrentlyPlayingBook(): SwordBook = book
 
     override fun persistState() {
         CommonUtils.settings.apply {
@@ -595,15 +562,7 @@ class BibleSpeakTextProvider(private val bibleTraverser: BibleTraverser,
         }
     }
 
-    override fun getTotalChars(): Long {
-        return 0
-    }
-
-    override fun getSpokenChars(): Long {
-        return 0
-    }
-
-    override fun isMoreTextToSpeak(): Boolean {
-        return true
-    }
+    override fun getTotalChars(): Long = 0
+    override fun getSpokenChars(): Long = 0
+    override fun isMoreTextToSpeak(): Boolean = true
 }

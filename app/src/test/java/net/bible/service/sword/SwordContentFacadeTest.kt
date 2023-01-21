@@ -1,5 +1,23 @@
+/*
+ * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.service.sword
 
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.misc.elementToString
 import net.bible.android.view.activity.page.Selection
@@ -23,7 +41,7 @@ import org.junit.Assert.assertThat
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [28])
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class SwordContentFacadeTest {
 
     //@Before
@@ -115,6 +133,16 @@ class SwordContentFacadeTest {
         }
     }
 
+    @Test
+    fun testReadNasbIssue2365() {
+        val nasb = getBook("NASB")
+        val key = VerseRangeFactory.fromString((nasb as SwordBook).versification, "Rev.3.1")
+        val text = SwordContentFacade.getCanonicalText(nasb, key, true)
+        val ref = "“To the angel of the church in Sardis write:  He who has the seven Spirits of God " +
+            "and the seven stars, says this: ‘I know your deeds, that you have a name that you are alive, " +
+            "but you are dead. "
+        assertThat(text, equalTo(ref));
+    }
 
     @Throws(Exception::class)
     private fun getHtml(book: Book, key: Key): String {
@@ -128,7 +156,7 @@ class SwordContentFacadeTest {
 }
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [28])
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class TestShare {
     private fun testShare(
         initials: String,
@@ -247,17 +275,17 @@ class TestShare {
             "ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, true,
             "“23. And he went and lived in a city called Nazareth, so that what was spoken " +
                 "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
-                "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for the kingdom " +
-                "of heaven is at hand.” (Mat 2:23-3:2, ESV2011)"
+                "John the Baptist came preaching in the wilderness of Judea, 2. “Repent, for the kingdom " +
+                "of heaven is at hand.”” (Mat 2:23-3:2, ESV2011)"
         )
 
     @Test
     fun testShare6() =
         testShare(
-            "ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, false,
+            "ESV2011", "Matt.2.23-Matt.3.2", 7..12, true, false,
             "“23. ...went and lived in a city called Nazareth, so that what was spoken " +
                 "by the prophets might be fulfilled, that he would be called a Nazarene. 1. In those days " +
-                "John the Baptist came preaching in the wilderness of Judea, 2. Repent, for...” (Mat 2:23-3:2, ESV2011)"
+                "John the Baptist came preaching in the wilderness of Judea, 2. “Repent, for...” (Mat 2:23-3:2, ESV2011)"
         )
 
     @Test

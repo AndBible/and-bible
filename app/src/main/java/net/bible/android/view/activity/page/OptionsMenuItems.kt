@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page
@@ -21,11 +20,12 @@ package net.bible.android.view.activity.page
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.SettingsBundle
@@ -36,7 +36,6 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
@@ -46,6 +45,7 @@ import net.bible.android.view.util.widget.TopMarginWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.FeatureType
+import javax.inject.Inject
 
 interface OptionsMenuItemInterface {
     var value: Any
@@ -62,7 +62,7 @@ interface OptionsMenuItemInterface {
     val icon: Int?
 }
 
-val currentActivity: ActivityBase get() = CurrentActivityHolder.getInstance().currentActivity
+val currentActivity: ActivityBase get() = CurrentActivityHolder.currentActivity!!
 val application get() = BibleApplication.application
 val windowControl get() = CommonUtils.windowControl
 val windowRepository get() = CommonUtils.windowControl.windowRepository
@@ -74,9 +74,14 @@ abstract class GeneralPreference(
     val subMenu: Boolean = false,
     override val enabled: Boolean = true
 ) : OptionsMenuItemInterface {
+    @Inject lateinit var documentControl: DocumentControl
+    init {
+        CommonUtils.buildActivityComponent().inject(this)
+    }
+
     override val inherited: Boolean = false
     override val visible: Boolean
-        get() = if (onlyBibles) _mainBibleActivity?.documentControl?.isBibleBook?: true else true
+        get() = if (onlyBibles) documentControl.isBibleBook else true
 
     override var value: Any = false
     override fun handle() {}
@@ -206,7 +211,7 @@ open class Preference(val settings: SettingsBundle,
 
     override val icon: Int?
         get() = when(type) {
-            TextDisplaySettings.Types.STRONGS -> if(_mainBibleActivity?.documentControl?.isNewTestament != false) R.drawable.ic_strongs_greek else R.drawable.ic_strongs_hebrew
+            TextDisplaySettings.Types.STRONGS -> if(documentControl.isNewTestament) R.drawable.ic_strongs_greek else R.drawable.ic_strongs_hebrew
             TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.drawable.ic_bookmarks_show_24dp
             TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.drawable.ic_labels_hide_24dp
             TextDisplaySettings.Types.MORPH -> R.drawable.ic_morphology_24dp
@@ -228,10 +233,10 @@ open class Preference(val settings: SettingsBundle,
         }
 }
 
-class TiltToScrollPreference:
+class TiltToScrollPreference(val mainBibleActivity: MainBibleActivity):
     GeneralPreference() {
     private val wsBehaviorSettings = windowRepository.workspaceSettings
-    override fun handle() { _mainBibleActivity?.invalidateOptionsMenu() }
+    override fun handle() { mainBibleActivity.invalidateOptionsMenu() }
     override var value: Any
         get() = wsBehaviorSettings.enableTiltToScroll
         set(value) {
@@ -269,8 +274,8 @@ open class SubMenuPreference(onlyBibles: Boolean = false, enabled: Boolean = tru
     override val isBoolean: Boolean = false
 }
 
-class NightModePreference : RealSharedPreferencesPreference("night_mode_pref", false) {
-    override fun handle() { _mainBibleActivity?.refreshIfNightModeChange() }
+class NightModePreference(val mainBibleActivity: MainBibleActivity) : RealSharedPreferencesPreference("night_mode_pref", false) {
+    override fun handle() { mainBibleActivity.refreshIfNightModeChange() }
     override var value: Any
         get() = ScreenSettings.nightMode
         set(value) {
@@ -409,9 +414,9 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
             selectedLabels = originalValues.toMutableSet(),
             isWindow = settings.windowId != null
         ).applyFrom(windowRepository.workspaceSettings).toJSON())
-        GlobalScope.launch (Dispatchers.Main) {
+        activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
-            if(result?.resultCode == Activity.RESULT_OK) {
+            if(result.resultCode == Activity.RESULT_OK) {
                 val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                 if(resultData.reset) {
                     setNonSpecific()
@@ -436,9 +441,9 @@ class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSet
             ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.WORKSPACE).applyFrom(workspaceSettings).toJSON()
         )
 
-        GlobalScope.launch (Dispatchers.Main) {
+        activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
-            if(result?.resultCode == Activity.RESULT_OK) {
+            if(result.resultCode == Activity.RESULT_OK) {
                 val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
                 if (resultData.reset) {
                     workspaceSettings.autoAssignLabels = mutableSetOf()
@@ -478,12 +483,12 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     }
 }
 
-class SplitModePreference :
+class SplitModePreference(val mainBibleActivity: MainBibleActivity) :
     GeneralPreference() {
     private val wsBehaviorSettings = windowRepository.workspaceSettings
     override fun handle() {
         windowControl.windowSizesChanged()
-        ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(_mainBibleActivity!!.resources.configuration))
+        ABEventBus.post(MainBibleActivity.ConfigurationChanged(mainBibleActivity.resources.configuration))
     }
 
     override var value: Any

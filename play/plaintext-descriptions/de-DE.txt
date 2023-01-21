@@ -1,6 +1,6 @@
 Ein mächtiges Werkzeug für das Bibelstudium
 
-Bibel+ von der And Bible Open Source Community ist ein umfangreiches und trotzdem einfach zu bedienendes  Programm für das Bibelstudium - auch ohne Internet. Diese App ist nicht nur ein einfaches Bibelleseprogramm, sondern will ein Werkzeug für fortgeschrittenes, in die Tiefe gehendes Bibelstudium sein.
+"AndBible: Bibel+" ist ein umfangreiches und trotzdem einfach zu bedienendes  Programm für das Bibelstudium - auch ohne Internet. Diese App ist nicht nur ein einfaches Bibelleseprogramm, sondern will ein Werkzeug für fortgeschrittenes, in die Tiefe gehendes Bibelstudium sein.
 
 Dieses Programm wird von Bibellesern für Bibelleser entwickelt. Es zielt darauf ab, dein Bibelstudium einfach, bedeutsam und unterhaltsam zu machen. Das Beste an diesem Non-Profit Projekt ist, dass es Open Source ist - völlig kostenlos und ohne Werbung. Dadurch, dass es von Anfang an für Android entwickelt wurde, ist es platzsparend, effizient und schnell.
 

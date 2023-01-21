@@ -1,29 +1,26 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control
 
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.MainBibleActivityScope
 
 import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
 import javax.inject.Inject
@@ -32,14 +29,11 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@MainBibleActivityScope
-class BibleContentManager @Inject
-constructor(private val windowControl: WindowControl) {
+class BibleContentManager @Inject constructor(private val windowControl: WindowControl) {
     init {
-        PassageChangeMediator.getInstance().setBibleContentManager(this)
+        PassageChangeMediator.setBibleContentManager(this)
     }
 
-    @JvmOverloads
     fun updateText(window_: Window?, forceUpdate: Boolean = false) {
         val window = window_?: windowControl.activeWindow
         val currentPage = window.pageManager.currentPage
@@ -63,7 +57,7 @@ constructor(private val windowControl: WindowControl) {
         ) {
             val originalKey = window.pageManager.currentBible.originalKey
             window.bibleView?.scrollOrJumpToVerse(originalKey ?: verse)
-            PassageChangeMediator.getInstance().contentChangeFinished()
+            PassageChangeMediator.contentChangeFinished()
             return
         }
         if(prevVerse == verse) return

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.speak
@@ -21,27 +20,25 @@ package net.bible.android.view.activity.speak
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AlertDialog
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.*
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpeakBibleBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.service.common.htmlToSpan
 import net.bible.service.common.speakHelpVideo
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
@@ -50,11 +47,7 @@ import javax.inject.Inject
 
 @ActivityScope
 class BibleSpeakActivity : AbstractSpeakActivity() {
-    companion object {
-        const val TAG = "BibleSpeakActivity"
-    }
-
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var navigationControl: NavigationControl
 
     lateinit var binding: SpeakBibleBinding
@@ -65,7 +58,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         binding = SpeakBibleBinding.inflate(layoutInflater)
         setContentView(binding.root)
         buildActivityComponent().inject(this)
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         binding.apply {
             speakSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -90,7 +83,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     override val sleepTimer: CheckBox get() = binding.sleepTimer
 
     override fun onDestroy() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         super.onDestroy()
     }
 
@@ -141,11 +134,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 + "${getString(R.string.watch_tutorial_video)}</a></b>"
                 )
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(htmlMessage)
-        }
+        val spanned = htmlToSpan(htmlMessage)
 
         val d = AlertDialog.Builder(this)
                 .setMessage(spanned)
@@ -202,7 +191,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 else {
                     startVerse = null
                     endVerse = null
-                    ABEventBus.getDefault().post(ToastEvent(R.string.speak_ending_verse_must_be_later))
+                    ABEventBus.post(ToastEvent(R.string.speak_ending_verse_must_be_later))
                     resetView(settings)
                 }
             }

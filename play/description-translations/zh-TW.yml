@@ -1,11 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: 研經工具 - 由 And Bible 開源計劃開發
+title: "AndBible: 研經工具"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: 離線閱讀聖經、註釋、字典或書本。
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: 功能強大的的研經工具
-paragraph_1_1: >-
-  And Bible開源計劃的研經工具是一款多功能、易用的離線Android程式。此程式不單是一個純粹的聖經閱讀器，也專注於成功個人全方位的研經工具。
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ title }}" 經工具是一款多功能、易用的離線Android程式。此程式不單是一個純粹的聖經閱讀器，也專注於成功個人全方位的研經工具。
 paragraph_1_2: >
   此程式是由聖經讀者開發，也是為聖經讀者開發。目的是提供便利、有深度且有趣的查經體驗。此程式是非營利、也是開源，更重要是完全沒有廣告滋擾。它是一個原創的Android程式，佔用空間亦是細小，因此它是一個十分快速且高效能的程式。
 # You can also advertise here the best documents that are available in the app in your language.
@@ -17,7 +18,7 @@ paragraph_2_1: >
 feature_01: 分割視窗可以幫助比較譯本及參考註解
 feature_02: 工作檢視可以自定研經的環境
 feature_03: Strong's 參考方便查找希臘文及希伯來文分析
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   串珠交叉對照、註腳及文件。讀者簡易地點選連結，就可切換交叉對照及註腳，進行深度的研經。例如{{commentary_examples}}或{{cross_reference_examples}}。
 # Examples of commentaries. You can add here also other commentaries of your language if they

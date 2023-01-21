@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.bookmark
 
@@ -22,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.ImageSpan
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,10 +29,10 @@ import android.view.View.GONE
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.lifecycle.lifecycleScope
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
@@ -60,13 +60,17 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         binding.titleIcon.setColorFilter(data.label.color)
     }
 
-    override fun onDialogDismissed(dialogId: Int) {}
+    override fun onDialogDismissed(dialogId: Int) {
+        Log.i(TAG, "onDialogDismissed")
+    }
 
     override fun onBackPressed() {
+        Log.i(TAG, "onBackPressed")
         saveAndExit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        Log.i(TAG, "onCreateOptionsMenu")
         menuInflater.inflate(R.menu.edit_label_options_menu, menu)
         if(data.label.isSpecialLabel) {
             menu.findItem(R.id.removeLabel).isVisible = false
@@ -75,6 +79,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.i(TAG, "onOptionsItemSelected ${item.title}")
         var isHandled = true
         when(item.itemId){
             R.id.removeLabel -> remove()
@@ -111,12 +116,15 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
 
     private fun updateData() = binding.apply {
+        Log.i(TAG, "updateData")
         if(!data.label.isSpecialLabel) {
             val name = labelName.text.toString()
             data.label.name = name
         }
         data.label.underlineStyle = underLineStyle.isChecked
         data.label.underlineStyleWholeVerse = underLineStyleWholeVerse.isChecked
+        data.label.markerStyle = markerStyle.isChecked
+        data.label.markerStyleWholeVerse = markerStyleWholeVerse.isChecked
         data.isFavourite = favouriteLabelCheckBox.isChecked
         data.isAutoAssign = autoAssignCheckBox.isChecked
         data.isAutoAssignPrimary = primaryAutoAssignCheckBox.isChecked
@@ -131,6 +139,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun updateUI() = binding.apply {
+        Log.i(TAG, "updateUI")
         favouriteLabelCheckBox.isChecked = data.isFavourite
         autoAssignCheckBox.isChecked = data.isAutoAssign
         primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
@@ -138,6 +147,12 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         labelName.setText(data.label.displayName)
         underLineStyle.isChecked = data.label.underlineStyle
         underLineStyleWholeVerse.isChecked = data.label.underlineStyleWholeVerse
+        val isMarkerStyle = data.label.markerStyle
+        val isMarkerStyleWholeVerse = data.label.markerStyleWholeVerse
+        markerStyle.isChecked = isMarkerStyle
+        markerStyleWholeVerse.isChecked = isMarkerStyleWholeVerse
+        underLineStyle.isEnabled = !isMarkerStyle
+        underLineStyleWholeVerse.isEnabled = !isMarkerStyleWholeVerse
         updateColor()
         if (data.label.isSpecialLabel) {
             labelName.isEnabled = false
@@ -154,6 +169,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun saveAndExit() {
+        Log.i(TAG, "saveAndExit")
+
         updateData()
 
         val resultIntent = Intent()
@@ -163,10 +180,11 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun remove() {
+        Log.i(TAG, "remove")
         updateData()
 
-        GlobalScope.launch(Dispatchers.Main) {
-            val result = suspendCoroutine<Boolean> {
+        lifecycleScope.launch(Dispatchers.Main) {
+            val result = suspendCoroutine {
                 AlertDialog.Builder(this@LabelEditActivity)
                     .setMessage(getString(R.string.delete_label_confirmation, data.label.name))
                     .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
@@ -205,14 +223,13 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
             titleIcon.setOnClickListener { editColor() }
 
-            autoAssignCheckBox.setOnCheckedChangeListener { _, _ ->
-                updateData()
-                updateUI()
+            for(v in listOf(autoAssignCheckBox, markerStyle, markerStyleWholeVerse, selectedLabelCheckBox)) {
+                v.setOnCheckedChangeListener { _, _ ->
+                    updateData()
+                    updateUI()
+                }
             }
-            selectedLabelCheckBox.setOnCheckedChangeListener { _, _ ->
-                updateData()
-                updateUI()
-            }
+
             if(data.label.name == "") {
                 labelName.requestFocus()
             }

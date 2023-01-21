@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">ကျမ်းစာလေ့လာခြင်း</string>
   <string name="app_name_medium">ကျမ်းစာလေ့လာခြင်း (And Bible) </string>
-  <string name="app_name_long">And သမ္မာကျမ်းစာ အခမဲ့ အရင်းအမြစ် လုပ်ငန်း၏ သမ္မာကျမ်းစာလေ့လာခြင်း အက်ပ်</string>
+  <string name="app_name_long">AndBible: သမ္မာကျမ်းစာ</string>
   <string name="project">And သမ္မာကျမ်းစာ အခမဲ့ အရင်းအမြစ် လုပ်ငန်း </string>
   <string name="version_text">ဗားရှင်း %s</string>
   <string name="no_sdcard_error">ကျေးဇူးပြုပြီး အက်စ်ဒီကဒ်ကို ထည့်ပါ၊ ထို့နောက် အက်ပ်ကို ပိတ်ပြီးပြန်ဖွင့်ပါ။</string>
@@ -205,7 +205,6 @@
   <string name="next"> နောက်တစ်ခု</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Strong ဟီဘရူးနှင့် ဂရိ အဘိဓာန်များကို ကျေးဇူးပြု၍ ဒေါင်းလုပ်ဆွဲပါ</string>
-  <string name="no_indexed_bible_with_strongs_ref">Strong နံပါတ်များပါဝင်သည့် ကျမ်းစာတစ်အုပ်ကို ဒေါင်းလုပ်ဆွဲရမည်ဖြစ်ပြီး ၎င်း၏အညွှန်းကို ရှာဖွေခြင်းတွင် ဒေါင်းလုပ်ဆွဲပါ။ </string>
   <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\' အဘိဓာန်ကို ကျေးဇူးပြု၍ ဒေါင်းလုပ်ဆွဲပါ</string>
   <string name="go_to_downloads">ဒေါင်းလုပ်များဆီသို့ သွားပါ</string>
   <!--Module download-->

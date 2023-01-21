@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page
@@ -28,7 +27,6 @@ import android.content.res.Configuration
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.util.TypedValue
@@ -41,6 +39,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -55,11 +54,13 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.EmptyBinding
+import net.bible.android.activity.databinding.FrozenBinding
 import net.bible.android.activity.databinding.MainBibleViewBinding
 import net.bible.android.control.BibleContentManager
 import net.bible.android.control.backup.BackupControl
@@ -71,13 +72,13 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
-import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
@@ -85,8 +86,7 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
-import net.bible.android.view.activity.DaggerMainBibleActivityComponent
-import net.bible.android.view.activity.MainBibleActivityModule
+import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
@@ -96,7 +96,6 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.History
-import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
@@ -106,8 +105,10 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.betaIntroVideo
+import net.bible.service.common.htmlToSpan
 import net.bible.service.common.windowPinningVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
@@ -133,25 +134,26 @@ import kotlin.system.exitProcess
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
-    val scope = CoroutineScope(Dispatchers.Default)
+    lateinit var empty: EmptyBinding
+    lateinit var frozenBinding: FrozenBinding
 
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
     @Inject lateinit var bibleContentManager: BibleContentManager
-    @Inject lateinit var documentViewManager: DocumentViewManager
-    @Inject lateinit var bibleActionBarManager: BibleActionBarManager
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
 
     // handle requests from main menu
-    @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var bibleViewFactory: BibleViewFactory
     @Inject lateinit var pageControl: PageControl
+
+    lateinit var documentViewManager: DocumentViewManager
+    lateinit var bibleViewFactory: BibleViewFactory
+    private lateinit var mainMenuCommandHandler: MenuCommandHandler
 
     private var navigationBarHeight = 0
     private var actionBarHeight = 0
@@ -166,8 +168,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             field = value
         }
 
-    val dao get() = DatabaseContainer.db.workspaceDao()
-    val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val dao get() = DatabaseContainer.db.workspaceDao()
+    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
     val multiWinMode
         get() =
@@ -193,9 +195,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
-    private var isPaused = false
-
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
+    override val integrateWithHistoryManager: Boolean = true
 
     /**
      * Called when the activity is first created.
@@ -203,68 +204,76 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
-        // This is singleton so we can do this.
-        if(_mainBibleActivity != null) {
-            throw RuntimeException("MainBibleActivity was created second time!")
-        }
-        _mainBibleActivity = this
 
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
 
         CommonUtils.prepareData()
 
         binding = MainBibleViewBinding.inflate(layoutInflater)
+        empty = EmptyBinding.inflate(layoutInflater)
+        frozenBinding = FrozenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        DaggerMainBibleActivityComponent.builder()
-            .applicationComponent(BibleApplication.application.applicationComponent)
-            .mainBibleActivityModule(MainBibleActivityModule(this))
-            .build()
-            .inject(this)
+        if(BuildVariant.Appearance.isDiscrete ||
+            BuildVariant.DistributionChannel.isHuawei ||
+            BuildVariant.DistributionChannel.isFdroid ||
+            BuildVariant.DistributionChannel.isAmazon
+        ) {
+            binding.navigationView.menu.findItem(R.id.rateButton).isVisible = false
+        }
+
+        CommonUtils.buildActivityComponent().inject(this)
+
+        windowRepository = WindowRepository(lifecycleScope)
+        windowControl.windowRepository = windowRepository
+        windowRepository.initialize()
+
+        documentViewManager = DocumentViewManager(this)
+        bibleViewFactory = BibleViewFactory(this)
+        mainMenuCommandHandler = MenuCommandHandler(this)
+
+        if(CommonUtils.isDiscrete) {
+            binding.bibleButton.setImageResource(R.drawable.ic_baseline_menu_book_24)
+        }
 
         // use context to setup backup control dirs
         BackupControl.setupDirs(this)
         BackupControl.clearBackupDir()
 
-        windowRepository.initialize()
-
         resolveVariables()
         setupUi()
 
         // register for passage change and appToBackground events
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
 
         setupToolbarButtons()
         setupToolbarFlingDetection()
         setSoftKeyboardMode()
 
-        if(!initialized) {
-            requestSdcardPermission()
-        }
-
-        if(!initialized) {
-            scope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            if(!initialized) {
+                requestSdcardPermission()
                 ErrorReportControl.checkCrash(this@MainBibleActivity)
                 if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
                 showBetaNotice()
                 showStableNotice()
                 showFirstTimeHelp()
-                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
-            }
-            scope.launch {
+                if(!CommonUtils.isDiscrete) {
+                    ABEventBus.post(ToastEvent(windowRepository.name))
+                }
                 checkDocBackupDBInSync()
             }
+            initialized = true
         }
-        initialized = true
     }
 
     private fun setupUi() {
         documentViewManager.buildView()
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
-        ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
+        ABEventBus.post(ConfigurationChanged(resources.configuration))
 
         updateToolbar()
         updateBottomBars()
@@ -367,11 +376,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
                 pinningText += "<br><i><a href=\"$windowPinningVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
                 
-                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Html.fromHtml(pinningText, Html.FROM_HTML_MODE_LEGACY)
-                } else {
-                    Html.fromHtml(pinningText)
-                }
+                val spanned = htmlToSpan(pinningText)
+
                 val d = AlertDialog.Builder(this)
                     .setTitle(pinningTitle)
                     .setMessage(spanned)
@@ -408,11 +414,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             val htmlMessage = "$par1<br><br>$videoMessageLink"
 
-            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                Html.fromHtml(htmlMessage)
-            }
+            val spanned = htmlToSpan(htmlMessage)
 
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.stable_notice_title))
@@ -460,11 +462,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             )
             val htmlMessage = "$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, verFull)}</i>"
 
-            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                Html.fromHtml(htmlMessage)
-            }
+            val spanned = htmlToSpan(htmlMessage)
 
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.beta_notice_title))
@@ -486,7 +484,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun setupToolbarFlingDetection() {
         val scaledMinimumDistance = CommonUtils.convertDipsToPx(40)
-        var minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
+        var minScaledVelocity = ViewConfiguration.get(this).scaledMinimumFlingVelocity
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
 
         val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
@@ -512,11 +510,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 return super.onFling(e1, e2, velocityX, velocityY)
             }
 
-            override fun onLongPress(e: MotionEvent?) {
+            override fun onLongPress(e: MotionEvent) {
                 startActivityForResult(Intent(this@MainBibleActivity, ChooseDocument::class.java), IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
             }
 
-            override fun onSingleTapUp(e: MotionEvent?): Boolean {
+            override fun onSingleTapUp(e: MotionEvent): Boolean {
                 pageControl.currentPageManager.currentPage.startKeyChooser(this@MainBibleActivity)
                 return true
             }
@@ -530,8 +528,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onPause() {
+        CommonUtils.windowControl.windowRepository.saveIntoDb(false)
         fullScreen = false;
-        isPaused = true;
+        if(CommonUtils.showCalculator) {
+            (window.decorView as ViewGroup).removeView(binding.root)
+            super.setContentView(empty.root)
+        }
         super.onPause()
     }
 
@@ -572,7 +574,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
             // been performed on the long press, so will set the cancelled flag for the following up event.
             val intent = Intent(this, History::class.java)
-            startActivityForResult(intent, 1)
+            startActivityForResult(intent, STD_REQUEST_CODE)
             return true
         }
 
@@ -622,7 +624,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             speakButton.setOnLongClickListener {
                 val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
                 val intent = Intent(this@MainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
-                startActivity(intent)
+                startActivityForResult(intent, STD_REQUEST_CODE)
                 true
             }
             searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument, this@MainBibleActivity), STD_REQUEST_CODE) }
@@ -656,7 +658,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
 
     val workspaces get() = dao.allWorkspaces()
-    val windowRepository get() = windowControl.windowRepository
+    lateinit var windowRepository: WindowRepository
 
     private fun previousWorkspace() {
         val workspaces = workspaces
@@ -689,14 +691,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             windowControl.windowSync.reloadAllWindows()
             windowRepository.updateAllWindowsTextDisplaySettings()
 
-            ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
+            ABEventBus.post(ToastEvent(windowRepository.name))
 
             updateBottomBars()
             updateTitle()
         }
 
     private fun getItemOptions(itemId: Int, order: Int = 0): OptionsMenuItemInterface {
-        val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceName = windowRepository.name, workspaceSettings = windowRepository.textDisplaySettings)
+        val settingsBundle = SettingsBundle(
+            workspaceId = windowRepository.id,
+            workspaceName = windowRepository.name,
+            workspaceSettings = windowRepository.textDisplaySettings.apply {
+                colors?.workspaceColor = windowRepository.workspaceSettings.workspaceColor
+            },
+        )
         return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
                 val intent = Intent(this, TextDisplaySettingsActivity::class.java)
@@ -706,10 +714,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository.workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
-            R.id.splitMode -> SplitModePreference()
+            R.id.splitMode -> SplitModePreference(this)
             R.id.autoPinMode -> WindowPinningPreference()
-            R.id.tiltToScroll -> TiltToScrollPreference()
-            R.id.nightMode -> NightModePreference()
+            R.id.tiltToScroll -> TiltToScrollPreference(this)
+            R.id.nightMode -> NightModePreference(this)
             R.id.fullscreen -> CommandPreference(launch = { _, _, _ ->
                 fullScreen = true
             })
@@ -760,7 +768,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     item.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_workspace_overlay_24dp)
                 }
                 if(item.hasSubMenu()) {
-                    handleMenu(item.subMenu)
+                    handleMenu(item.subMenu!!)
                     continue;
                 }
 
@@ -1047,11 +1055,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun toggleFullScreen() {
         sharedActivityState.toggleFullScreen()
         isFullScreen = sharedActivityState.isFullScreen
-        ABEventBus.getDefault().post(FullScreenEvent(isFullScreen))
+        ABEventBus.post(FullScreenEvent(isFullScreen))
         updateToolbar()
         updateBottomBars()
         if(isFullScreen) {
-            ABEventBus.getDefault().post(ToastEvent(R.string.exit_fullscreen))
+            ABEventBus.post(ToastEvent(R.string.exit_fullscreen))
         }
     }
 
@@ -1090,8 +1098,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             }
             if(windowRepository.visibleWindows.isNotEmpty()) {
+                val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings).colors!!
+
+                val toolbarColor = if (ScreenSettings.nightMode)
+                    resources.getColor(R.color.actionbar_background_night, theme)
+                else
+                    workspaceSettings.workspaceColor ?: defaultWorkspaceColor
+                binding.toolbarLayout.setBackgroundColor(toolbarColor)
+                if (ScreenSettings.nightMode){
+                    binding.homeButton.drawable.setTint(workspaceSettings.workspaceColor ?: defaultWorkspaceColor)
+                }
+
                 val color = if (setNavBarColor) {
-                    val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
                     color ?: UiUtils.bibleViewDefaultBackgroundColor
                 } else {
@@ -1099,7 +1117,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
                     typedValue.data
                 }
-                window.navigationBarColor = color
+
+                // Set the status bar to the same color
+                window.run {
+                    clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                    statusBarColor = toolbarColor
+                    navigationBarColor = color
+                }
+
                 binding.speakTransport.setBackgroundColor(color)
             }
         }
@@ -1121,7 +1147,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setInterpolator(DecelerateInterpolator())
                 .start()
         }
-        ABEventBus.getDefault().post(UpdateRestoreWindowButtons())
+        ABEventBus.post(UpdateRestoreWindowButtons())
     }
 
     class UpdateRestoreWindowButtons
@@ -1131,8 +1157,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         bibleViewFactory.clear()
         super.onDestroy()
         beforeDestroy()
-        ABEventBus.getDefault().unregister(this)
-        _mainBibleActivity = null
+        ABEventBus.unregister(this)
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
@@ -1151,7 +1176,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     /**
-     * called if the app is re-entered after returning from another app.
+     * called if the activity is re-entered.
      * Trigger redisplay in case mobile has gone from light to dark or vice-versa
      */
     override fun onRestart() {
@@ -1190,7 +1215,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun beforeDestroy() {
         documentViewManager.destroy()
-        bibleActionBarManager.destroy()
     }
 
     fun refreshIfNightModeChange(): Boolean {
@@ -1202,7 +1226,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEvent(event: ScreenSettings.NightModeChanged) {
-        if(CurrentActivityHolder.getInstance().currentActivity == this) {
+        if(CurrentActivityHolder.currentActivity == this) {
             refreshIfNightModeChange()
         }
     }
@@ -1256,16 +1280,26 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return super.onKeyUp(keyCode, event)
     }
 
-    fun afterRestore() {
+    class MainBibleAfterRestore
+
+    fun onEventMainThread(e: MainBibleAfterRestore) = afterRestore()
+
+    private fun afterRestore() {
         bookmarkControl.reset()
         documentViewManager.removeView()
         bibleViewFactory.clear()
         windowControl.windowSync.setResyncRequired()
-        Dialogs.instance.showMsg(R.string.restore_success)
+        Dialogs.showMsg(R.string.restore_success)
         currentWorkspaceId = 0
     }
 
-    fun updateDocuments() {
+    class UpdateMainBibleActivityDocuments
+
+    fun onEventMainThread(e: UpdateMainBibleActivityDocuments) {
+        updateDocuments()
+    }
+
+    private fun updateDocuments() {
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
     }
@@ -1313,6 +1347,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             setOf(TextDisplaySettings.Types.COLORS),
                             windowRepository.textDisplaySettings
                         )
+                        if(reset) {
+                            windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
+                        } else {
+                            windowRepository.workspaceSettings.workspaceColor = colors!!.workspaceColor
+                        }
                         windowRepository.updateAllWindowsTextDisplaySettings()
                     }
                     resetSystemUi()
@@ -1340,7 +1379,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         val verse = try {
                             VerseFactory.fromString(navigationControl.versification, verseStr)
                         } catch (e: NoSuchVerseException) {
-                            ABEventBus.getDefault().post(ToastEvent(getString(R.string.verse_not_found)))
+                            ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
                             return
                         }
                         val pageManager = windowControl.activeWindowPageManager
@@ -1417,14 +1456,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         } else {
             if(reset) {
                 windowRepository.textDisplaySettings = TextDisplaySettings.default
+                windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
             } else {
                 windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
+                windowRepository.workspaceSettings.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
             }
             if(dirtyTypes != null) {
                 windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
             }
             if(requiresReload) {
-                ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                ABEventBus.post(SynchronizeWindowsEvent(true))
             } else {
                 windowRepository.updateAllWindowsTextDisplaySettings()
             }
@@ -1441,11 +1482,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     documentControl.turnOffManualInstallFolderSetting()
                 }
             }
-            PHONE_STATE_READ_REQUEST -> if (grantResults.isNotEmpty()) {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    PhoneCallMonitor.ensureMonitoringStarted()
-                }
-            }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -1454,11 +1490,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         resetSystemUi()
         requestSdcardPermission()
         documentViewManager.buildView()
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+        ABEventBus.post(SynchronizeWindowsEvent(true))
+        CommonUtils.changeAppIconAndName()
     }
 
     private fun requestSdcardPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             val requestSdCardPermission = preferences.getBoolean(REQUEST_SDCARD_PERMISSION_PREF, false)
             if (requestSdCardPermission && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                 requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), SDCARD_READ_REQUEST)
@@ -1490,8 +1527,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
    }
 
     override fun onResume() {
+        windowControl.windowRepository = windowRepository
         super.onResume()
-        isPaused = false
+        if(CommonUtils.showCalculator && empty.root.parent != null) {
+            (window.decorView as ViewGroup).removeView(empty.root)
+            super.setContentView(binding.root)
+        }
+
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
     }
@@ -1519,20 +1561,41 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return if(reverse) !CommonUtils.isPortrait else CommonUtils.isPortrait
     }
 
+    private var frozen = false
+
+    override fun freeze() {
+        if(CurrentActivityHolder.mainBibleActivities < 2) return
+        if(!frozen) {
+            ABEventBus.unregister(this)
+            (window.decorView as ViewGroup).removeView(binding.root)
+            super.setContentView(frozenBinding.root)
+        }
+        frozen = true
+    }
+
+    override fun unFreeze() {
+        if(frozen) {
+            windowControl.windowRepository = windowRepository
+            ABEventBus.register(this)
+            (window.decorView as ViewGroup).removeView(frozenBinding.root)
+            super.setContentView(binding.root)
+        }
+        frozen = false
+    }
+
+    fun activate(v: View) {
+        CurrentActivityHolder.activate(this)
+    }
+
     companion object {
-        var _mainBibleActivity: MainBibleActivity? = null
-        val mainBibleActivity get() = _mainBibleActivity!!
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
-        private const val PHONE_STATE_READ_REQUEST = 3
 
         const val TEXT_DISPLAY_SETTINGS_CHANGED = 92
         const val COLORS_CHANGED = 93
         const val WORKSPACE_CHANGED = 94
 
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"
-
-        private const val TAG = "MainBibleActivity"
     }
 }
 
