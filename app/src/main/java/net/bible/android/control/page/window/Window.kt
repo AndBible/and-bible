@@ -47,15 +47,24 @@ class Window (
     val windowRepository: WindowRepository,
     var isLinksWindow: Boolean = window.isLinksWindow,
 ){
-    private var linksTargetWindowId: Long? = window.targetLinksWindowId
+    private var targetLinksWindowId: Long? = window.targetLinksWindowId
 
-    val linksTargetWindow: Window
-        get() = windowRepository.getWindow(linksTargetWindowId)
-            ?: windowRepository.addNewWindow().also {
-                linksTargetWindowId = it.id
-                it.isSynchronised = false
-                it.isLinksWindow = true
-            }
+    val targetLinksWindow: Window
+        get() {
+            return ownTargetLinksWindow
+                ?: if (isLinksWindow) windowRepository.addNewLinksWindow().also {
+                    targetLinksWindowId = it.id
+                } else windowRepository.primaryTargetLinksWindow
+        }
+
+    private val ownTargetLinksWindow get() = windowRepository.getWindow(targetLinksWindowId)
+    val linksWindowNumber: Int get() {
+        val target = ownTargetLinksWindow
+        return if(target == null) 0
+        else {
+            target.linksWindowNumber + 1
+        }
+    }
 
     val id = window.id
     var weight: Float
@@ -88,7 +97,7 @@ class Window (
             isPinMode = isPinMode,
             windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
             id = id,
-            targetLinksWindowId = linksTargetWindowId,
+            targetLinksWindowId = targetLinksWindowId,
             isLinksWindow = isLinksWindow,
         )
     var displayedKey: Key? = null
@@ -130,7 +139,7 @@ class Window (
 
     val isVisible: Boolean
         get() =
-            if(windowRepository.isMaximized && windowRepository.maximizedWindow?.linksTargetWindowId != id)
+            if(windowRepository.isMaximized && windowRepository.maximizedWindow?.targetLinksWindowId != id)
                 windowRepository.maximizedWindowId == id
             else windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 

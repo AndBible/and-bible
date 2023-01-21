@@ -91,7 +91,7 @@ interface WorkspaceDao {
     @Query("SELECT * from Workspace ORDER BY orderNumber, name")
     fun allWorkspaces(): List<WorkspaceEntities.Workspace>
 
-    @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND NOT isLinksWindow ORDER BY orderNumber ")
+    @Query("SELECT * from Window WHERE workspaceId = :workspaceId ORDER BY orderNumber ")
     fun windows(workspaceId: Long): List<WorkspaceEntities.Window>
 
     @Query("SELECT * from PageManager WHERE windowId = :windowId")

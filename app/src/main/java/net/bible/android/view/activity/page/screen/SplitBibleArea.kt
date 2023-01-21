@@ -323,7 +323,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             return
         }
 
-        val windows = windowRepository.windows
+        val windows = windowRepository.sortedWindows
 
         val linksWindows = windows.filter { it.isLinksWindow }
         val pinnedWindows = windows.filter { it.isPinMode && !it.isLinksWindow }
@@ -389,7 +389,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
-        if(event.window?.windowRepository != windowControl.windowRepository) return
+        if(event.window.windowRepository != windowControl.windowRepository) return
         updateBibleReference()
         updateMinimizedButtonText(event.window)
     }
@@ -407,7 +407,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
     private fun updateMinimizedButtonText(w: Window) {
         mainBibleActivity.runOnUiThread {
-            restoreButtonsList.find { it.window?.id == w.id }?.text = getDocumentAbbreviation(w)
+            restoreButtonsList.find { it.window?.id == w.id }?.text = getWindowButtonTitleText(w)
         }
     }
 
@@ -615,7 +615,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
     private fun createRestoreButton(window: Window): WindowButtonWidget {
         return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
-            text = getDocumentAbbreviation(window)
+            text = getWindowButtonTitleText(window)
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupMenu(window, v); true }
         }
@@ -637,7 +637,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     /**
      * Get the first initial of the doc in the window to show in the minimise restore button
      */
-    private fun getDocumentAbbreviation(window: Window): String = try {
+    private fun getWindowButtonTitleText(window: Window): String = try {
         window.pageManager.currentPage.currentDocumentAbbreviation
     } catch (e: Exception) {" "}
 

@@ -363,6 +363,8 @@ class WorkspaceEntities {
         @Deprecated("To be removed")
         @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels")
         var deprecatedBookmarksAssignLabels: List<Long>? = null,
+
+        @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: Long? = null,
     )
 
     @Entity(

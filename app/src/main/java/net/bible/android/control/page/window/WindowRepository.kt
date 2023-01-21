@@ -64,11 +64,22 @@ open class WindowRepository(val scope: CoroutineScope) {
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
     var maximizedWindowId: Long? = null
+    var primaryTargetLinksWindowId: Long? = null
+
+    val primaryTargetLinksWindow: Window get() =
+        getWindow(primaryTargetLinksWindowId)
+            ?:  addNewLinksWindow().also {
+                primaryTargetLinksWindowId = it.id
+            }
+
+    fun addNewLinksWindow() = addNewWindow().also {
+        it.isSynchronised = false
+        it.isLinksWindow = true
+    }
 
     val isMaximized get() = maximizedWindowId != null
     val maximizedWindow get() = getWindow(maximizedWindowId)
     val isBusy get() = busyCount > 0
-
 
     fun onEvent(event: IncrementBusyCount) {
         busyCount ++
@@ -87,7 +98,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     private val dao get() = DatabaseContainer.db.workspaceDao()
 
-    val windows: List<Window> get() = windowList.sortedWith(compareBy { !it.isPinMode })
+    val sortedWindows: List<Window> get() = windowList.sortedWith(compareBy({it.isLinksWindow}, { !it.isPinMode }))
 
     init {
         CommonUtils.buildActivityComponent().inject(this)
@@ -156,7 +167,7 @@ open class WindowRepository(val scope: CoroutineScope) {
     val lastVisibleWindow: Window get() = visibleWindows.last()
 
     private fun getDefaultActiveWindow() =
-        windows.find { it.isVisible } ?: createNewWindow(null, true)
+        windowList.find { it.isVisible } ?: createNewWindow(null, true)
 
     private fun setDefaultActiveWindow(): Window {
         val newWindow = getDefaultActiveWindow()
@@ -164,9 +175,9 @@ open class WindowRepository(val scope: CoroutineScope) {
         return newWindow
     }
 
-    private fun getWindows(state: WindowState)= windows.filter { it.windowState === state}
+    private fun getWindows(state: WindowState)= sortedWindows.filter { it.windowState === state}
 
-    fun getWindow(windowId: Long?): Window? = if(windowId == null) null else windows.find {it.id == windowId}
+    fun getWindow(windowId: Long?): Window? = if(windowId == null) null else sortedWindows.find {it.id == windowId}
 
     fun addNewWindow(sourceWindow: Window? = null): Window {
         Log.i(TAG, "addNewWindow $sourceWindow")
@@ -247,13 +258,16 @@ open class WindowRepository(val scope: CoroutineScope) {
         val sourceWindow = sourceWindow_?: if(initialized) activeWindow else null
         val pageManager = currentPageManagerProvider.get()
         val winEntity =
-            (sourceWindow?.entity?.copy()
-                ?: WorkspaceEntities.Window(
-                    isPinMode = true,
-                    isSynchronized = true,
-                    windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString()),
-                    workspaceId = id
-                )).apply {
+            (
+                sourceWindow?.entity?.copy()
+                    ?: WorkspaceEntities.Window(
+                        isPinMode = true,
+                        isSynchronized = true,
+                        windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString()),
+                        workspaceId = id
+                    )
+                ).apply {
+                    targetLinksWindowId = null
                     id = 0
                     id = dao.insertWindow(this)
                 }
@@ -302,7 +316,8 @@ open class WindowRepository(val scope: CoroutineScope) {
             textDisplaySettings = textDisplaySettings,
             workspaceSettings = workspaceSettings,
             unPinnedWeight = unPinnedWeight,
-            maximizedWindowId = maximizedWindowId
+            maximizedWindowId = maximizedWindowId,
+            primaryTargetLinksWindowId = primaryTargetLinksWindowId
         ))
 
         val historyManager = historyManagerProvider.get()
@@ -333,6 +348,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         name = entity.name
         unPinnedWeight = entity.unPinnedWeight
         maximizedWindowId = entity.maximizedWindowId
+        primaryTargetLinksWindowId = entity.primaryTargetLinksWindowId
 
         textDisplaySettings = entity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
         workspaceSettings = entity.workspaceSettings?: WorkspaceEntities.WorkspaceSettings.default
@@ -358,6 +374,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         orderNumber = 0
         id = 0
         lastSyncWindowId = null
+        primaryTargetLinksWindowId = null
         for (it in windowList) {
             it.bibleView?.listenEvents = false
             if(destroy)
@@ -380,7 +397,7 @@ open class WindowRepository(val scope: CoroutineScope) {
     }
 
     fun updateAllWindowsTextDisplaySettings() {
-        for (it in windows) {
+        for (it in sortedWindows) {
             it.bibleView?.updateTextDisplaySettings()
         }
     }
