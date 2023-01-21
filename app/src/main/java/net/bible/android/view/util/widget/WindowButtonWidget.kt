@@ -77,18 +77,23 @@ class WindowButtonWidget(
     private val isMaximised get() = windowControl.windowRepository.isMaximized
 
     private fun updateSettings() {
-        binding.synchronize.visibility = if(window !== null && window.isSyncable && window.isSynchronised && !isMaximised)
-            View.VISIBLE
-        else View.INVISIBLE
-        binding.docType.visibility = if(isMaximised) View.INVISIBLE else View.VISIBLE
-        binding.pinMode.visibility =
-            if(!windowControl.windowRepository.workspaceSettings.autoPin
-                && window?.isPinMode == true
-                && !isMaximised
-            )
+        binding.synchronize.visibility =
+            if (window !== null && window.isSyncable && window.isSynchronised && !isMaximised)
                 View.VISIBLE
-            else
-                View.INVISIBLE
+            else View.INVISIBLE
+        binding.docType.visibility = if (isMaximised) View.INVISIBLE else View.VISIBLE
+        binding.pinMode.visibility =
+            if (CommonUtils.settings.getBoolean("show_ref_in_window_button",true)) {
+                View.GONE
+            } else {
+                if (!windowControl.windowRepository.workspaceSettings.autoPin
+                    && window?.isPinMode == true
+                    && !isMaximised
+                )
+                    View.VISIBLE
+                else
+                    View.INVISIBLE
+        }
     }
 
     private fun updateBackground() {
@@ -181,6 +186,13 @@ class WindowButtonWidget(
 
         set(value) {
             (if(isRestoreButton) binding.buttonText else binding.windowButton).text = value
+        }
+
+    var topText: String
+        get() = (if(isRestoreButton) binding.topButtonText else binding.windowButton).toString()
+
+        set(value) {
+            (if(isRestoreButton) binding.topButtonText else binding.windowButton).text = value
         }
 
     override fun onAttachedToWindow() {

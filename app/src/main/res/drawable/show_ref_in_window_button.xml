@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+
+<vector android:height="24dp" android:tint="@color/grey_500"
+    android:viewportHeight="100" android:viewportWidth="100"
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#FF000000" android:pathData="M 48.7 38.7 H 57.3 V 42.9 H 62.4 V 25.8 H 43.6 V 42.9 H 48.7 Z M 57.3 30.9 V 33.6 H 48.7 V 30.9 Z M 26 38.7 H 34.6 V 42.9 H 39.7 V 25.8 H 20.9 V 42.9 H 26 Z M 34.6 30.9 V 33.6 H 26 V 30.9 Z M 26 38.7 H 34.6 V 42.9 H 39.7 V 25.8 H 20.9 V 42.9 H 26 Z M 34.6 30.9 V 33.6 H 26 V 31 Z M 79.5 49.3 H 20.5 C 19.1 49.3 18 50.4 18 51.9 C 18 53.3 19.1 54.5 20.5 54.5 H 79.4 C 80.8 54.5 81.9 53.4 81.9 51.9 C 81.9 50.5 80.8 49.3 79.4 49.3 Z M 79.5 72.7 H 20.5 C 19.1 72.7 18 73.8 18 75.3 C 18 76.7 19.1 77.9 20.5 77.9 H 79.4 C 80.8 77.9 81.9 76.8 81.9 75.3 C 81.9 73.9 80.8 72.7 79.4 72.7 Z M 79.5 61 H 20.5 C 19.1 61 18 62.1 18 63.6 C 18 65 19.1 66.2 20.5 66.2 H 79.4 C 80.8 66.2 81.9 65.1 81.9 63.6 C 81.9 62.2 80.8 61 79.4 61 Z M 79.1 0 H 20.9 C 9.4 0 0 9.4 0 21 V 79 C 0 90.6 9.4 100 20.9 100 H 79.1 C 90.6 100 100 90.6 100 79 V 21 C 100 9.4 90.6 0 79.1 0 Z M 92.3 79 C 92.3 86.3 86.4 92.3 79.1 92.3 H 20.9 C 13.6 92.3 7.7 86.3 7.7 79 V 21 C 7.7 13.7 13.6 7.7 20.9 7.7 H 79.2 C 86.5 7.7 92.4 13.7 92.4 21 V 79.1 Z"/>
+</vector>
+
+

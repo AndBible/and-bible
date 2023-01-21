@@ -130,6 +130,12 @@
 			android:icon="@drawable/ic_active_window_24dp"
 			android:defaultValue="true"
 			/>
+		<SwitchPreferenceCompat android:key="show_ref_in_window_button"
+			android:title="@string/show_ref_in_window_button_title"
+			android:summary="@string/show_ref_in_window_button_summary"
+			android:icon="@drawable/show_ref_in_window_button"
+			android:defaultValue="true"
+			/>
 
 	</PreferenceCategory>
 
