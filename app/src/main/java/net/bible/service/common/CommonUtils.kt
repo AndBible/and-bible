@@ -310,7 +310,7 @@ object CommonUtils : CommonUtilsBase() {
         fun getString(key: String, default: String? = null) = stringSettings.get(key, default)
         fun getLong(key: String, default: Long) = longSettings.get(key, default)
         fun getInt(key: String, default: Int) = longSettings.get(key, default.toLong()).toInt()
-        fun getBoolean(key: String, default: Boolean) = booleanSettings.get(key, default)
+        fun getBoolean(key: String, default: Boolean) = if(initialized) booleanSettings.get(key, default) else default
         fun getDouble(key: String, default: Double) = doubleSettings.get(key, default)
         fun getFloat(key: String, default: Float): Float = doubleSettings.get(key, default.toDouble()).toFloat()
 
@@ -331,11 +331,7 @@ object CommonUtils : CommonUtilsBase() {
     val settings: AndBibleSettings get() {
         val s = _settings
         if(s != null) return s
-        if(DatabaseContainer.ready || application.isRunningTests) {
-            return AndBibleSettings().apply { _settings = this }
-        } else {
-            throw DataBaseNotReady()
-        }
+        return AndBibleSettings().apply { _settings = this }
     }
 
     val localePref: String?

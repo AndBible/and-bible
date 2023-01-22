@@ -45,7 +45,7 @@ import java.io.ObjectOutputStream
 
 import java.util.*
 
-const val DATABASE_VERSION = 61
+const val DATABASE_VERSION = 63
 
 class Converters {
     @TypeConverter
