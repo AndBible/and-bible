@@ -409,7 +409,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
     private fun updateMinimizedButtonText(w: Window) {
         mainBibleActivity.runOnUiThread {
-            restoreButtonsList.find { it.window?.id == w.id }?.text = getWindowButtonTitleText(w)
+            restoreButtonsList.find { it.window?.id == w.id }?.text = getDocumentAbbreviation(w)
         }
     }
 
@@ -662,7 +662,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     /**
      * Get the first initial of the doc in the window to show in the minimise restore button
      */
-    private fun getWindowButtonTitleText(window: Window): String = try {
+    private fun getDocumentAbbreviation(window: Window): String = try {
         window.pageManager.currentPage.currentDocumentAbbreviation
     } catch (e: Exception) {" "}
 
