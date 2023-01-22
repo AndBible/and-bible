@@ -172,7 +172,8 @@ class TestShare {
         showNotes: Boolean = true,
         showVersion: Boolean = true,
         showEllipsis: Boolean = true,
-        showQuotes: Boolean = true
+        showQuotes: Boolean = true,
+        showVerseText: Boolean = true
     ) {
 
         val book = Books.installed().getBook(initials) as SwordBook
@@ -201,6 +202,7 @@ class TestShare {
             showNotes = showNotes,
             showVersion = showVersion,
             showEllipsis = showEllipsis,
+            showVerseText = showVerseText
         )
 
         assertThat(text, equalTo(compareText))
@@ -377,5 +379,25 @@ class TestShare {
             showQuotes = false,
             showEllipsis = false,
             showNotes = false
+        )
+
+    @Test
+    fun testShare13() =
+        testShare(
+            initials = "KJV",
+            verseRangeStr = "Ps.43.1",
+            offsetRange = 0..100,
+            showWholeVerse = false,
+            compareText = "Psalms 43:1 ",
+            advertiseApp = false,
+            showReference = true,
+            abbreviateReference = false,
+            showVersion = false,
+            showReferenceAtFront = true,
+            showVerseNumbers = false,
+            showQuotes = false,
+            showEllipsis = false,
+            showNotes = false,
+            showVerseText = false
         )
 }
