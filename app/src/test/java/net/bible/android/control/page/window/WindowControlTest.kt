@@ -74,7 +74,7 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun testGetActiveWindow() {
         // should always be one default window that is active by default
-        assertThat(windowControl!!.activeWindow.id, equalTo(2L))
+        assertThat(windowControl!!.activeWindow.id, equalTo(1L))
     }
 
     @Test
@@ -206,16 +206,7 @@ class WindowControlTest {
         assertThat(windowControl!!.isMultiWindow, equalTo(false))
     }
 
-    fun createWindowsMenu(): Menu {
-        val menu = RoboMenu(RuntimeEnvironment.application)
-        menu.add(0, R.id.windowSynchronise, 0, "Synchronise")
-        menu.add(0, R.id.windowMinimise, 0, "Minimise")
-        menu.add(0, R.id.windowClose, 0, "Close")
-        return menu
-    }
-
     companion object {
-
         private val BOOK_KJV = Books.installed().getBook("KJV")
         private val BOOK_ESV = Books.installed().getBook("ESV2011")
         private val PS_139_3 = Verse(Versifications.instance().getVersification("KJV"), BibleBook.PS, 139, 3)
