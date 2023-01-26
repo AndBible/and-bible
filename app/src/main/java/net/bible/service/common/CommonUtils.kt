@@ -21,6 +21,10 @@ import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.AlertDialog
+import android.app.Application
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
@@ -96,6 +100,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.service.db.DataBaseNotReady
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
@@ -1273,9 +1278,23 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
+    fun createDiscreteNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager = application.getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
+            val channel = NotificationChannel(
+                CALC_NOTIFICATION_CHANNEL,
+                application.getString(R.string.app_name_calculator), NotificationManager.IMPORTANCE_LOW).apply {
+                lockscreenVisibility = Notification.VISIBILITY_SECRET
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
     val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
     val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
 }
+
+const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
 
 @Serializable
 data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisplaySettings.Types>) {
