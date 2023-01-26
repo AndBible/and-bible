@@ -683,7 +683,16 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         val moveWindowsSubMenu = menu.findItem(R.id.moveWindowSubMenu).subMenu!!
         moveWindowsSubMenu.removeItem(R.id.moveItem)
 
-        var count = 0
+        val syncGroupSubMenu = menu.findItem(R.id.syncGroupSubMenu).subMenu!!
+        syncGroupSubMenu.removeItem(R.id.syncGroupItem)
+
+        for(i in 0..3) {
+            if(window.isSynchronised && i == window.syncGroup) continue
+            val syncGroupTitle = app.getString(R.string.sync_group_n, i + 1)
+            syncGroupSubMenu.add(Menu.NONE, R.id.syncGroupItem, i, syncGroupTitle)
+        }
+
+        var moveWindowCount = 0
 
         val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu!!
 
@@ -704,22 +713,22 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             windowList.forEach {
                 if (it.id != window.id) {
                     val p = it.pageManager.currentPage
-                    val moveWindowTitle = app.getString(R.string.move_window_to_position2, count + 1, p.currentDocument?.abbreviation, p.key?.name)
-                    val moveWindowItem = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count, moveWindowTitle)
-                    moveWindowItem.setIcon(if (thisIdx > count) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
+                    val moveWindowTitle = app.getString(R.string.move_window_to_position2, moveWindowCount + 1, p.currentDocument?.abbreviation, p.key?.name)
+                    val moveWindowItem = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, moveWindowCount, moveWindowTitle)
+                    moveWindowItem.setIcon(if (thisIdx > moveWindowCount) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
                 }
-                count++;
+                moveWindowCount++;
             }
 
             val windowList2 = windowRepository.visibleWindows
-            count = 0
+            moveWindowCount = 0
             for (it in windowList2) {
                 if (it.id != window.id) {
                     val p = it.pageManager.currentPage
-                    val copySettingsTitle = BibleApplication.application.getString(R.string.copy_settings_to_window, count + 1, p.currentDocument?.abbreviation, p.key?.name)
-                    copySettingSubMenu.add(Menu.NONE, R.id.copySettingsToWindow, count, copySettingsTitle)
+                    val copySettingsTitle = BibleApplication.application.getString(R.string.copy_settings_to_window, moveWindowCount + 1, p.currentDocument?.abbreviation, p.key?.name)
+                    copySettingSubMenu.add(Menu.NONE, R.id.copySettingsToWindow, moveWindowCount, copySettingsTitle)
                 }
-                count++;
+                moveWindowCount++;
             }
 
             BookName.setFullBookName(oldValue)
@@ -804,11 +813,6 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 },
                 visible = window.isLinksWindow
             )
-            R.id.windowSynchronise -> CommandPreference(
-                handle = {windowControl.setSynchronised(window, !window.isSynchronised)},
-                value = window.isSynchronised,
-                visible = window.isSyncable
-            )
             R.id.pinMode -> CommandPreference(
                 handle = {windowControl.setPinMode(window, !window.isPinMode)},
                 value = window.isPinMode,
@@ -816,6 +820,9 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.moveWindowSubMenu -> SubMenuPreference(false,
                 visible = !window.isLinksWindow && !isMaximised && windowControl.hasMoveItems(window)
+            )
+            R.id.syncGroupSubMenu -> SubMenuPreference(false,
+                visible = window.isSyncable
             )
             R.id.textOptionsSubMenu -> SubMenuPreference(
                 onlyBibles = false,
@@ -844,10 +851,17 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.moveItem -> CommandPreference({_, _, _ ->
                 windowControl.moveWindow(window, order)
-                Log.i(TAG, "Number ${order}")
+                Log.i(TAG, "Move item $order")
             },
                 visible = !window.isLinksWindow
             )
+            R.id.syncGroupItem -> CommandPreference({_, _, _ ->
+                windowControl.changeSyncGroup(window, groupNumber = order)
+                Log.i(TAG, "Sync group $order")
+            })
+            R.id.disableSync -> CommandPreference({_, _, _ ->
+                windowControl.setSynchronised(window, false)
+            }, visible = window.isSynchronised)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
             R.id.copySettingsTo -> SubMenuPreference()
             R.id.copySettingsToWorkspace -> CommandPreference({_, _, _ ->

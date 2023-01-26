@@ -95,7 +95,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         }
 
         if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
-            for (inactiveWindow in inactiveWindowList) {
+            for (inactiveWindow in inactiveWindowList.filter { it.syncGroup == sourceWindow.syncGroup }) {
                 val inactivePage = inactiveWindow.pageManager.currentPage
                 val inactiveWindowKey = inactivePage.singleKey
                 var inactiveUpdated = false

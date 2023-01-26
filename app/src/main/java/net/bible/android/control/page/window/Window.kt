@@ -48,6 +48,7 @@ class Window (
     var isLinksWindow: Boolean = window.isLinksWindow,
 ){
     private var targetLinksWindowId: Long? = window.targetLinksWindowId
+    var syncGroup = window.syncGroup
 
     val targetLinksWindow: Window
         get() {

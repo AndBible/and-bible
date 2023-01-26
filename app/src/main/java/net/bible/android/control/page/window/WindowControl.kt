@@ -382,6 +382,15 @@ open class WindowControl @Inject constructor() {
         activeWindow = windowRepository.visibleWindows[(pos - 1 + s) % s]
     }
 
+    fun changeSyncGroup(window: Window, groupNumber: Int) {
+        window.isSynchronised = true
+        window.syncGroup = groupNumber
+        windowSync.synchronizeWindows(
+            windowRepository.visibleWindows.firstOrNull { it.id != window.id && it.isSynchronised && it.isSyncable && it.syncGroup == window.syncGroup }
+        )
+        ABEventBus.post(WindowChangedEvent(window))
+    }
+
     companion object {
         var SCREEN_SETTLE_TIME_MILLIS = 1000
         const val TAG = "WindowControl"
