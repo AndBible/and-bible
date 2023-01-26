@@ -173,7 +173,7 @@ open class WindowControl @Inject constructor() {
 
     fun restoreWindow(window: Window, force: Boolean = false) {
         if(window.isVisible && !force) {
-            if(window.isLinksWindow && window.linksWindowNumber == 0)
+            if(window.isLinksWindow && window.linksWindowNumber == 0 && !window.isPrimaryLinksWindow)
                 closeWindow(window)
             else
                 minimiseWindow(window)

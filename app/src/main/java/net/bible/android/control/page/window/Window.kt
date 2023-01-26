@@ -65,6 +65,7 @@ class Window (
             target.linksWindowNumber + 1
         }
     }
+    val isPrimaryLinksWindow get() = isLinksWindow && id == windowRepository.primaryTargetLinksWindowId
 
     val id = window.id
     var weight: Float
