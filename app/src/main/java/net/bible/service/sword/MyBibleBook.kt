@@ -117,7 +117,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
             val db = this.sqlDb
-            val initials = moduleName ?: "MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension.split(".", limit = 2)[0])
+            val initials = moduleName ?: ("MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension))
             val description = db.rawQuery("select value from info where name = ?", arrayOf("description")).use {
                 it.moveToFirst()
                 it.getString(0)
@@ -261,10 +261,16 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val verse = KeyUtil.getVerse(that)
         state.sqlDb.rawQuery(
             """select _rowid_ from commentaries WHERE book_number = ? AND 
-                            ((chapter_number_from <= ? AND verse_number_from <= ? AND
-                            chapter_number_to >= ? AND verse_number_to >= ?) OR
-                            (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
-
+                            (
+                                (chapter_number_from <= ? AND verse_number_from <= ? AND
+                                 chapter_number_to >= ? AND verse_number_to >= ?
+                            ) 
+                            OR
+                            (chapter_number_from = ? AND verse_number_from = ? AND 
+                                (chapter_number_to IS NULL OR chapter_number_to = 0) AND 
+                                (verse_number_to IS NULL OR verse_number_to = 0
+                            )
+                            ))
                             """,
             arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
 
@@ -329,10 +335,18 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun readCommentary(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
         return state.sqlDb.rawQuery(
-            """select text from commentaries WHERE book_number = ? AND
-                            ((chapter_number_from <= ? AND verse_number_from <= ? AND
-                            chapter_number_to >= ? AND verse_number_to >= ?) OR
-                            (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
+            """select text from commentaries WHERE 
+                            book_number = ? AND 
+                            (
+                                (chapter_number_from <= ? AND verse_number_from <= ? AND
+                                 chapter_number_to >= ? AND verse_number_to >= ?
+                            ) 
+                            OR
+                            (chapter_number_from = ? AND verse_number_from = ? AND 
+                                (chapter_number_to IS NULL OR chapter_number_to = 0) AND 
+                                (verse_number_to IS NULL OR verse_number_to = 0
+                            )
+                            ))                
                 """,
             arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
         ).use {
