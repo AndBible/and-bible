@@ -242,7 +242,7 @@ class LinkControl @Inject constructor(
         return BookAndKey(robinsonNumberKey, robinson)
     }
 
-    fun showAllOccurrences(ref: String, biblesection: SearchBibleSection) {
+    fun showAllOccurrences(ref: String, bibleSection: SearchBibleSection) {
         val currentBible = currentPageManager.currentBible.currentDocument!!
         var strongsBible: Book? = null
         // if current bible has no Strongs refs then try to find one that has
@@ -262,7 +262,7 @@ class LinkControl @Inject constructor(
         }
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
-        val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, biblesection, null)
+        val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, bibleSection, null)
         Log.i(TAG, "Search text:$searchText")
         val activity = CurrentActivityHolder.currentActivity!!
         val searchParams = Bundle()

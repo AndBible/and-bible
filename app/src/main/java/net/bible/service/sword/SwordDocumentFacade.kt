@@ -136,18 +136,9 @@ class SwordDocumentFacade @Inject constructor() {
             return Defaults.getHebrewDefinitions()?: FakeBookFactory.giveDoesNotExist("StrongsHebrew", BookCategory.DICTIONARY)
         }
 
-    val defaultBibleWithStrongs: Book?
-        get() {
-            val bibles = bibles
-            for (book in bibles) {
-                if (book.hasFeature(FeatureType.STRONGS_NUMBERS)) {
-                    if (book.indexStatus == IndexStatus.DONE) {
-                        return book
-                    }
-                }
-            }
-            return null
-        }
+    val defaultBibleWithStrongs: Book? get() = bibles
+        .sortedWith(compareBy({ !it.hasFeature(FeatureType.STRONGS_NUMBERS) }, { it.indexStatus != IndexStatus.DONE }))
+        .firstOrNull()
 
     fun getDocumentByInitials(initials: String?): Book? {
         return Books.installed().getBook(initials)
