@@ -1027,6 +1027,21 @@ private val MIGRATION_61_62_window_changes = object : Migration(61, 62) {
     }
 }
 
+private val MIGRATION_62_63_window_changes = object : Migration(62, 63) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `primaryTargetLinksWindowId` INTEGER DEFAULT NULL")
+        }
+    }
+}
+
+private val MIGRATION_63_64_window_changes = object : Migration(63, 64) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("DELETE from Window WHERE isLinksWindow = 1")
+        }
+    }
+}
 class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
@@ -1137,6 +1152,8 @@ object DatabaseContainer {
                         MIGRATION_59_60_label_markerStyle,
                         MIGRATION_60_61_workspace_colors,
                         MIGRATION_61_62_window_changes,
+                        MIGRATION_62_63_window_changes,
+                        MIGRATION_63_64_window_changes,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

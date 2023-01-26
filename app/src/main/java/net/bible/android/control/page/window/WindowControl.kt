@@ -103,7 +103,7 @@ open class WindowControl @Inject constructor() {
     }
 
     fun showLink(document: Book, key: Key) {
-        val linksWindow = activeWindow.linksTargetWindow
+        val linksWindow = activeWindow.targetLinksWindow
         val linksWindowWasVisible = linksWindow.isVisible
 
         //linksWindow.initialiseLinksWindowPageStateIfClosed(activeWindow)
@@ -167,13 +167,16 @@ open class WindowControl @Inject constructor() {
     }
 
     fun isWindowRemovable(window: Window): Boolean {
-        val numWindows = windowRepository.windows.size
+        val numWindows = windowRepository.sortedWindows.size
         return numWindows > 1
     }
 
     fun restoreWindow(window: Window, force: Boolean = false) {
         if(window.isVisible && !force) {
-            minimiseWindow(window)
+            if(window.isLinksWindow && window.linksWindowNumber == 0 && !window.isPrimaryLinksWindow)
+                closeWindow(window)
+            else
+                minimiseWindow(window)
         } else {
             if (window == activeWindow) return
 

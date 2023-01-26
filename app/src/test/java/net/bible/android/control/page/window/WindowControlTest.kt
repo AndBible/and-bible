@@ -24,12 +24,10 @@ import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
 import net.bible.test.PassageTestData
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
@@ -106,7 +104,7 @@ class WindowControlTest {
         activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(PassageTestData.ESV, PassageTestData.PS_139_2)
 
         val newWindow = windowControl!!.addNewWindow(activeWindow)
-        assertThat(windowRepository.windows, hasItem(newWindow))
+        assertThat(windowRepository.sortedWindows, hasItem(newWindow))
         // documents should be defaulted from active window
         val biblePage = newWindow.pageManager.currentBible
         assertThat(biblePage.currentDocument, equalTo(PassageTestData.ESV))
@@ -158,7 +156,7 @@ class WindowControlTest {
         val newWindow = windowControl!!.addNewWindow(windowControl!!.activeWindow)
 
         windowControl!!.closeWindow(newWindow)
-        assertThat(windowRepository.windows, not(hasItem(newWindow)))
+        assertThat(windowRepository.sortedWindows, not(hasItem(newWindow)))
     }
 
     @Test
@@ -166,7 +164,7 @@ class WindowControlTest {
     fun testCloseOnlyWindowPrevented() {
         val onlyWindow = windowRepository.activeWindow
         windowControl!!.closeWindow(onlyWindow)
-        assertThat(windowRepository.windows, hasItem(onlyWindow))
+        assertThat(windowRepository.sortedWindows, hasItem(onlyWindow))
     }
 
     @Test
