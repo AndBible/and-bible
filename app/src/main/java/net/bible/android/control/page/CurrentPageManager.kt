@@ -147,7 +147,7 @@ open class CurrentPageManager @Inject constructor(
 
     /** display a new Document and return the new Page
      */
-    fun setCurrentDocument(nextDocument: Book?): CurrentPage {
+    fun setCurrentDocument(nextDocument: Book?) {
         var nextPage: CurrentPage? = null
         if (nextDocument != null) {
             PassageChangeMediator.onBeforeCurrentPageChanged()
@@ -160,7 +160,7 @@ open class CurrentPageManager @Inject constructor(
 
             if(currentPage.currentDocument == FakeBookFactory.multiDocument && nextPage == currentBible) {
                 currentBible.setCurrentDocument(nextDocument)
-                nextPage = currentPage
+                currentPage = nextPage
                 PassageChangeMediator.onCurrentPageChanged(this.window)
             } else {
                 // must be in this order because History needs to grab the current doc before change
@@ -178,10 +178,9 @@ open class CurrentPageManager @Inject constructor(
             }
         } else {
             // should never get here because a doc should always be passed in but I have seen errors lie this once or twice
-            nextPage = currentPage
+            Log.e(TAG, "Should not get here")
+            if(nextPage != null) currentPage = nextPage
         }
-
-        return nextPage
     }
 
     fun setCurrentDocumentAndKey(currentBook: Book?,
