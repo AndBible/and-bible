@@ -1083,6 +1083,6 @@
     <string name="open_here">Open here</string>
     <string name="sync_group_submenu">Synchronize group</string>
     <string name="sync_group_n">Group %d</string>
-    <string name="disable_sync">Disable synchronize</string>
+    <string name="disable_sync">Disable</string>
     <string name="open_in_window">Open results in a window</string>
 </resources>
