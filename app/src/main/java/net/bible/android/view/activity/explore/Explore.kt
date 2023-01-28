@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -21,8 +20,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.tabs.TabLayout
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.Selection
+import net.bible.android.view.activity.page.windowControl
+import net.bible.service.sword.SwordContentFacade
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.Key
 
 
 @SuppressLint("ViewConstructor")
@@ -31,6 +36,7 @@ class Explore (val currentActivity: ActivityBase,
                val selection: Selection?
 )
 {
+    var x = 1
 
     fun initialise(){
         val verseRange = selection?.verseRange ?: return
@@ -143,6 +149,7 @@ class Explore (val currentActivity: ActivityBase,
             when (position) {
                 0 -> return ChapterFragment()
                 1 -> return TwoFragment()
+                2 -> return BookFragment()
             }
             return ChapterFragment()
         }
@@ -176,6 +183,65 @@ class Explore (val currentActivity: ActivityBase,
             progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
             val wv = view.findViewById<WebView>(R.id.explore_chapter_webview)
             wv.loadUrl("https://www.blueletterbible.org/kjv/gen/1/5/s_1005")
+            wv.settings.javaScriptEnabled = true
+            wv.setWebViewClient(object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                    view.loadUrl(request.url.toString())
+                    return false
+                }
+            })
+            return view
+
+        }
+        // Overriding WebViewClient functions
+        open inner class WebViewClient : android.webkit.WebViewClient() {
+
+            // Load the URL
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                view.loadUrl(url)
+                return false
+            }
+
+            // ProgressBar will disappear once page is loaded
+            override fun onPageFinished(view: WebView, url: String) {
+                super.onPageFinished(view, url)
+                progressBar.visibility = View.GONE
+            }
+        }
+    }
+
+    class BookFragment : Fragment() {
+
+        lateinit var runnable: Runnable
+        lateinit var progressBar: ProgressBar
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            val view = inflater.inflate(R.layout.explore_book, container, false)
+
+            progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+
+
+            // Lookup document in dictionary
+            val currentPage = windowControl?.activeWindowPageManager?.currentPage
+
+            var currentDocument:Book = Books.installed().getBook("EASTON")
+            var key:Key = currentDocument.getKey("AARON")
+
+            val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
+            val x = OsisFragment(frag, key, currentDocument)
+
+            // Put it into the webview
+
+            val wv = view.findViewById<WebView>(R.id.explore_book_webview)
+//            wv.loadUrl("https://www.esv.org/Exodus+20.20/")
+//            wv.loadUrl("https://www.biblegateway.com/passage/?search=Exodus%2020&version=NIV")
+
+            wv.loadDataWithBaseURL(null,x.xmlStr, null, null,null)
+
             wv.settings.javaScriptEnabled = true
             wv.setWebViewClient(object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
