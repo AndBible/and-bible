@@ -1,8 +1,10 @@
 package net.bible.android.view.activity.explore
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
+import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +30,7 @@ import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
+import java.lang.reflect.Field
 
 
 @SuppressLint("ViewConstructor")
@@ -147,7 +150,7 @@ class Explore (val currentActivity: ActivityBase,
 
         override fun getItem(position: Int): Fragment {
             when (position) {
-                0 -> return ChapterFragment()
+                0 -> return BookFragment()
                 1 -> return TwoFragment()
                 2 -> return BookFragment()
             }
@@ -237,6 +240,8 @@ class Explore (val currentActivity: ActivityBase,
             // Put it into the webview
 
             val wv = view.findViewById<WebView>(R.id.explore_book_webview)
+
+
 //            wv.loadUrl("https://www.esv.org/Exodus+20.20/")
 //            wv.loadUrl("https://www.biblegateway.com/passage/?search=Exodus%2020&version=NIV")
 
@@ -293,6 +298,60 @@ class Explore (val currentActivity: ActivityBase,
 
             return view
         }
+    }
+}
+
+// A custom ViewPager is required to manage scrolling issues when tabs are used on a bottomsheet.
+// See https://stackoverflow.com/questions/37715822/android-viewpager-with-recyclerview-works-incorrectly-inside-bottomsheet/38281457#38281457
+class BottomSheetViewPager(context: Context, attrs: AttributeSet?) : ViewPager(context, attrs) {
+    constructor(context: Context) : this(context, null)
+    private val positionField: Field =
+        ViewPager.LayoutParams::class.java.getDeclaredField("position").also {
+            it.isAccessible = true
+        }
+
+    init {
+        addOnPageChangeListener(object : SimpleOnPageChangeListener() {
+            override fun onPageSelected(position: Int) {
+                requestLayout()
+            }
+        })
+    }
+
+    override fun getChildAt(index: Int): View {
+        val stackTrace = Throwable().stackTrace
+        val calledFromFindScrollingChild = stackTrace.getOrNull(1)?.let {
+            it.className == "com.google.android.material.bottomsheet.BottomSheetBehavior" &&
+                it.methodName == "findScrollingChild"
+        }
+        if (calledFromFindScrollingChild != true) {
+            return super.getChildAt(index)
+        }
+
+        val currentView = getCurrentView() ?: return super.getChildAt(index)
+        return if (index == 0) {
+            currentView
+        } else {
+            var view = super.getChildAt(index)
+            if (view == currentView) {
+                view = super.getChildAt(0)
+            }
+            return view
+        }
+    }
+
+    private fun getCurrentView(): View? {
+        for (i in 0 until childCount) {
+            val child = super.getChildAt(i)
+            val lp = child.layoutParams as? ViewPager.LayoutParams
+            if (lp != null) {
+                val position = positionField.getInt(lp)
+                if (!lp.isDecor && currentItem == position) {
+                    return child
+                }
+            }
+        }
+        return null
     }
 }
 

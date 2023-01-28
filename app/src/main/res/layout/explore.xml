@@ -61,7 +61,7 @@
 			android:background="#1db995"/>
 
 
-		<androidx.viewpager.widget.ViewPager
+		<net.bible.android.view.activity.explore.BottomSheetViewPager
 			android:id="@+id/myViewPager"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent" />
