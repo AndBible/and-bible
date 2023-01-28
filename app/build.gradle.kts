@@ -62,6 +62,7 @@ fun getGitDescribe(): String  = ByteArrayOutputStream().use { stdout ->
     return stdout.toString().trim()
 }
 
+val npmVersion = "9.1.2"
 
 val npmUpgrade by tasks.registering(Exec::class) {
     inputs.file("$jsDir/package.json")
@@ -69,10 +70,10 @@ val npmUpgrade by tasks.registering(Exec::class) {
     workingDir = file(jsDir)
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
-        commandLine("npx.cmd", "npm@latest", "ci", "--save-dev", "npm@latest")
+        commandLine("npx.cmd", "npm@${npmVersion}", "ci", "--save-dev", "npm@${npmVersion}")
     }
     else {
-        commandLine("npx", "npm@latest", "ci", "--save-dev", "npm@latest")
+        commandLine("npx", "npm@${npmVersion}", "ci", "--save-dev", "npm@${npmVersion}")
     }
 }
 

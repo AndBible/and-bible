@@ -61,13 +61,13 @@ class WindowRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun testGetWindow() {
-        assertThat(windowRepository.getWindow(2)!!.id, equalTo(2L))
+        assertThat(windowRepository.getWindow(1)?.id, equalTo(1L))
     }
 
     @Test
     @Throws(Exception::class)
     fun testGetActiveWindow() {
-        assertThat(windowRepository.activeWindow.id, equalTo(2L))
+        assertThat(windowRepository.activeWindow.id, equalTo(1L))
     }
 
     @Test
@@ -83,26 +83,26 @@ class WindowRepositoryTest {
     @Throws(Exception::class)
     fun testMoveWindowToPosition() {
         val originalWindow = windowRepository.activeWindow
-        assertThat(windowRepository.windows, contains(originalWindow))
+        assertThat(windowRepository.sortedWindows, contains(originalWindow))
 
         val newWindow = windowRepository.addNewWindow()
         assertThat(windowRepository.activeWindow, equalTo(originalWindow))
-        assertThat(windowRepository.windows, contains(originalWindow, newWindow))
+        assertThat(windowRepository.sortedWindows, contains(originalWindow, newWindow))
 
         val newWindow2 = windowRepository.addNewWindow()
-        assertThat(windowRepository.windows, contains(originalWindow, newWindow2, newWindow))
+        assertThat(windowRepository.sortedWindows, contains(originalWindow, newWindow2, newWindow))
 
         windowRepository.moveWindowToPosition(newWindow, 0)
-        assertThat(windowRepository.windows, contains(newWindow, originalWindow, newWindow2))
+        assertThat(windowRepository.sortedWindows, contains(newWindow, originalWindow, newWindow2))
 
         windowRepository.moveWindowToPosition(newWindow, 1)
-        assertThat(windowRepository.windows, contains(originalWindow, newWindow, newWindow2))
+        assertThat(windowRepository.sortedWindows, contains(originalWindow, newWindow, newWindow2))
 
         windowRepository.moveWindowToPosition(originalWindow, 2)
-        assertThat(windowRepository.windows, contains(newWindow, newWindow2, originalWindow))
+        assertThat(windowRepository.sortedWindows, contains(newWindow, newWindow2, originalWindow))
 
         windowRepository.moveWindowToPosition(originalWindow, 0)
-        assertThat(windowRepository.windows, contains(originalWindow, newWindow, newWindow2))
+        assertThat(windowRepository.sortedWindows, contains(originalWindow, newWindow, newWindow2))
     }
 
     @Test
@@ -114,7 +114,7 @@ class WindowRepositoryTest {
         windowRepository.close(newWindow)
 
         windowRepository.moveWindowToPosition(newWindow, 0)
-        assertThat(windowRepository.windows, contains(originalWindow))
+        assertThat(windowRepository.sortedWindows, contains(originalWindow))
     }
 
     @Test

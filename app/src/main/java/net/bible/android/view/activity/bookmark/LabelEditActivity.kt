@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.ImageSpan
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -59,13 +60,17 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         binding.titleIcon.setColorFilter(data.label.color)
     }
 
-    override fun onDialogDismissed(dialogId: Int) {}
+    override fun onDialogDismissed(dialogId: Int) {
+        Log.i(TAG, "onDialogDismissed")
+    }
 
     override fun onBackPressed() {
+        Log.i(TAG, "onBackPressed")
         saveAndExit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        Log.i(TAG, "onCreateOptionsMenu")
         menuInflater.inflate(R.menu.edit_label_options_menu, menu)
         if(data.label.isSpecialLabel) {
             menu.findItem(R.id.removeLabel).isVisible = false
@@ -74,6 +79,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.i(TAG, "onOptionsItemSelected ${item.title}")
         var isHandled = true
         when(item.itemId){
             R.id.removeLabel -> remove()
@@ -110,6 +116,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
 
     private fun updateData() = binding.apply {
+        Log.i(TAG, "updateData")
         if(!data.label.isSpecialLabel) {
             val name = labelName.text.toString()
             data.label.name = name
@@ -132,6 +139,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun updateUI() = binding.apply {
+        Log.i(TAG, "updateUI")
         favouriteLabelCheckBox.isChecked = data.isFavourite
         autoAssignCheckBox.isChecked = data.isAutoAssign
         primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
@@ -161,6 +169,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun saveAndExit() {
+        Log.i(TAG, "saveAndExit")
+
         updateData()
 
         val resultIntent = Intent()
@@ -170,6 +180,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun remove() {
+        Log.i(TAG, "remove")
         updateData()
 
         lifecycleScope.launch(Dispatchers.Main) {

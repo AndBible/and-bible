@@ -77,9 +77,15 @@ class WindowButtonWidget(
     private val isMaximised get() = windowControl.windowRepository.isMaximized
 
     private fun updateSettings() {
-        binding.synchronize.visibility = if(window !== null && window.isSyncable && window.isSynchronised && !isMaximised)
-            View.VISIBLE
-        else View.INVISIBLE
+        val syncVisibility =
+            if(window !== null && window.isSyncable && window.isSynchronised && !isMaximised) View.VISIBLE
+            else View.INVISIBLE
+        binding.synchronize.visibility = syncVisibility
+        binding.syncGroup.visibility = syncVisibility
+        if(window != null) {
+            binding.syncGroup.text = (window.syncGroup + 1).toString()
+        }
+
         binding.docType.visibility = if(isMaximised) View.INVISIBLE else View.VISIBLE
         binding.pinMode.visibility =
             if(!windowControl.windowRepository.workspaceSettings.autoPin

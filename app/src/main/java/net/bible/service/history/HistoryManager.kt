@@ -143,6 +143,10 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
         }
     }
 
+    fun popHistoryItem() {
+        historyStack.pop()
+    }
+
     private fun createHistoryItem(): HistoryItem? {
         var historyItem: HistoryItem? = null
 

@@ -416,16 +416,19 @@ object BackupControl {
                     putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
                 }
                 val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
-
-                windowControl.windowRepository.saveIntoDb()
-                db.sync()
+                if(CommonUtils.initialized) {
+                    windowControl.windowRepository.saveIntoDb()
+                    db.sync()
+                }
                 callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, dbFile)
                 }
             }
             BackupResult.SHARE -> {
-                windowControl.windowRepository.saveIntoDb()
-                db.sync()
+                if(CommonUtils.initialized) {
+                    windowControl.windowRepository.saveIntoDb()
+                    db.sync()
+                }
                 backupDatabaseViaSendIntent(callingActivity, dbFile)
             }
             BackupResult.CANCEL -> {}
@@ -458,9 +461,6 @@ object BackupControl {
                     putExtra(Intent.EXTRA_TITLE, file.name)
                 }
                 val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
-
-                windowControl.windowRepository.saveIntoDb()
-                db.sync()
                 callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, file)
                 }
@@ -523,6 +523,7 @@ object BackupControl {
 
 class BackupActivity: ActivityBase() {
     lateinit var binding: BackupViewBinding
+    override val doNotInitializeApp: Boolean = true
 
     override fun onBackPressed() {
         updateSelectionOptions()
@@ -583,6 +584,7 @@ class BackupActivity: ActivityBase() {
     }
 
     private fun updateSelectionOptions() {
+        if(!CommonUtils.initialized) return
         // update widget share option settings
         CommonUtils.settings.apply {
             setBoolean("backup_application", binding.toggleBackupApplication.isChecked)

@@ -39,6 +39,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.service.common.BuildVariant
+import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
@@ -211,12 +212,18 @@ class TextToSpeechNotificationManager {
 
         ABEventBus.register(this)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !BuildVariant.Appearance.isDiscrete) {
-            val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL,
-                    getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW).apply {
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(BuildVariant.Appearance.isDiscrete) {
+                CommonUtils.createDiscreteNotificationChannel()
+            } else {
+                val channel = NotificationChannel(
+                    SPEAK_NOTIFICATIONS_CHANNEL,
+                    getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(channel)
             }
-            notificationManager.createNotificationChannel(channel)
         }
 
     }
@@ -309,7 +316,7 @@ class TextToSpeechNotificationManager {
             MediaButtonHandler.handler?.ms?.sessionToken?.apply { style.setMediaSession(this) }
         }
 
-        val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
+        val builder = NotificationCompat.Builder(app, if(BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else SPEAK_NOTIFICATIONS_CHANNEL)
 
         builder
                 .setShowWhen(false)

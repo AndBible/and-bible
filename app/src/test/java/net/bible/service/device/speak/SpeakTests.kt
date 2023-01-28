@@ -442,7 +442,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testQuotationMarkAnomalySTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         provider.setupReading(book, getVerse("Exod.31.8"))
         val cmd = provider.getNextSpeakCommand("id-1") as TextCommand
         assertThat(cmd.text, startsWith("pöydän varusteineen"))
@@ -485,8 +485,7 @@ class TestPersistence : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl,
-                windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
@@ -521,7 +520,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         bookmarkControl.speakLabel
         provider.settings = SpeakSettings(autoBookmark = true)
 
@@ -853,7 +852,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 

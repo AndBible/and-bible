@@ -59,8 +59,7 @@
     </div>
     <template #title>
       <template v-if="verseInfo">
-        {{ bibleBookName }} {{ verseInfo.chapter }}:{{ verseInfo.verse }}
-        <template v-if="verseInfo.verseTo">-{{ verseInfo.verseTo }}</template>
+        {{ bibleBookName }} {{ verseInfo.chapter }}:{{ verseInfo.verse }}<template v-if="verseInfo.verseTo">-{{ verseInfo.verseTo }}</template>
       </template>
       <template v-else>
         {{ strings.ambiguousSelection }}

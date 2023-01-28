@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
@@ -34,12 +35,18 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.link.LinkControl
+import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
+import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.SwordContentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
@@ -94,14 +101,33 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.search_results_actionbar_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
                 true
             }
+            R.id.openResultsInWindow -> {
+                openResultsInAWindow()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun openResultsInAWindow() {
+        val keys = mCurrentlyDisplayedSearchResults.map { BookAndKey(it, searchDocument) }
+        val lst = BookAndKeyList()
+        for(k in keys) {
+            lst.addAll(k)
+        }
+        linkControl.showLink(FakeBookFactory.multiDocument, lst)
+        finish()
     }
 
     private suspend fun prepareResults() {
@@ -131,10 +157,13 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
         try {
+            var fromProcessTextIntent = false
             val searchText =
                 if(intent.action == Intent.ACTION_PROCESS_TEXT) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT) ?: ""
+                        val result = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT) ?: ""
+                        if(result != "") fromProcessTextIntent = true
+                        result
                     } else ""
                 }
                 else intent.getStringExtra(SearchControl.SEARCH_TEXT) ?: ""
@@ -156,9 +185,16 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 return@Main false
             }
             if(linkControl.tryToOpenRef(searchText)) {
-                val handlerIntent = Intent(this@SearchResults, MainBibleActivity::class.java)
-                handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                startActivity(handlerIntent)
+                if(fromProcessTextIntent) {
+                    val handlerIntent = Intent(this@SearchResults, MainBibleActivity::class.java)
+                    handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    startActivity(handlerIntent)
+                } else {
+                    // If using search to jump to reference, drop search activities from history
+                    historyTraversal.historyManager.popHistoryItem() // SearchResults
+                    historyTraversal.historyManager.popHistoryItem() // Search
+                    finish()
+                }
                 return@Main false
             }
             this@SearchResults.searchDocument = doc
@@ -175,7 +211,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 if((mSearchResultsHolder?.size ?: 0) > SearchControl.MAX_SEARCH_RESULTS) {
                     resultAmount += "+"
                 }
-                supportActionBar?.title = getString(R.string.search_with_results, resultAmount)
+                supportActionBar?.title = getString(R.string.search_with_results2, resultAmount, doc.abbreviation)
                 Toast.makeText(this@SearchResults, msg, Toast.LENGTH_SHORT).show()
             }
             isOk = true
