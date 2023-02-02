@@ -21,6 +21,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.util.Log
 import net.bible.android.BibleApplication
+import org.apache.commons.lang3.LocaleUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -170,7 +171,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                     version = getString(versionColumn),
                     rightToLeft = getBoolean(rightToLeftColumn),
                     hasStrongs = categoryAbbreviation == "bbl" && getBoolean(strongColumn),
-                    language = Locale(getString(languageColumn, "eng")).language?: "eng",
+                    language = LocaleUtils.toLocale(getString(languageColumn, "eng")).language?: "eng",
                     category = category,
                     isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn)
                 )
