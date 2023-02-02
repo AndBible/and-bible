@@ -890,8 +890,6 @@
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
     <string name="active_window_indicator_summary">Highlight window corners to help recognising which window is active</string>
-    <string name="show_ref_in_window_button_title">Show reference in buttons</string>
-    <string name="show_ref_in_window_button_summary">Displays the reference to the current verse in small text in the window button at the bottom of the screen.</string>
     <string name="app_licence_title">Open Source License</string>
 
     <string name="how_to_contribute">How to contribute?</string>

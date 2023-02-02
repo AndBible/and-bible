@@ -88,17 +88,13 @@ class WindowButtonWidget(
         }
         binding.docType.visibility = if (isMaximised) View.INVISIBLE else View.VISIBLE
         binding.pinMode.visibility =
-            if (CommonUtils.settings.getBoolean("show_ref_in_window_button",true)) {
-                View.GONE
-            } else {
-                if (!windowControl.windowRepository.workspaceSettings.autoPin
-                    && window?.isPinMode == true
-                    && !isMaximised
-                )
-                    View.VISIBLE
-                else
-                    View.INVISIBLE
-        }
+            if (!windowControl.windowRepository.workspaceSettings.autoPin
+                && window?.isPinMode == true
+                && !isMaximised
+            )
+                View.VISIBLE
+            else
+                View.INVISIBLE
     }
 
     private fun updateBackground() {
