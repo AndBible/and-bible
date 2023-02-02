@@ -50,7 +50,8 @@ import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
 import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
-import net.bible.service.sword.intToBibleBook
+import net.bible.service.sword.mybible.myBibleIntToBibleBook
+import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
@@ -168,24 +169,48 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun openExternalLink(link: String) {
-        if(link.startsWith("B:")) {
-            // MyBible links
-            val (book, rest) = link.split(" ", limit=2)
-            val bookInt = book.split(":")[1].toInt()
-            val bibleBook = intToBibleBook[bookInt]?: return
-            val lnk = "${bibleBook.osis} $rest"
-            val bibleLink = BibleView.BibleLink("content", target=lnk)
-            scope.launch(Dispatchers.Main) {
-                bibleView.linkControl.loadApplicationUrl(bibleLink)
+        when {
+            link.startsWith("B:") -> {
+                // MyBible links
+                val (book, rest) = link.split(" ", limit=2)
+                val bookInt = book.split(":")[1].toInt()
+                val bibleBook = myBibleIntToBibleBook[bookInt]?: return
+                val lnk = "${bibleBook.osis} $rest"
+                val bibleLink = BibleView.BibleLink("content", target=lnk)
+                scope.launch(Dispatchers.Main) {
+                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                }
             }
-        } else if(link.startsWith("S:")) {
-            val (prefix, rest) = link.split(":", limit=2)
-            val bibleLink = BibleView.BibleLink("strong", target=rest)
-            scope.launch(Dispatchers.Main) {
-                bibleView.linkControl.loadApplicationUrl(bibleLink)
+            link.startsWith("S:") -> {
+                // MyBible strongs
+                val (prefix, rest) = link.split(":", limit=2)
+                val bibleLink = BibleView.BibleLink("strong", target=rest)
+                scope.launch(Dispatchers.Main) {
+                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                }
             }
-        } else {
-            mainBibleActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+            link.startsWith("#b") -> {
+                // MySword bible links
+                val rest = link.substring(2)
+                val (bookInt, chapInt, verInt) = rest.split(".").map { it.toInt() }
+                val bibleBook = mySwordIntToBibleBook[bookInt]?: return
+                val lnk = "${bibleBook.osis}.$chapInt.$verInt"
+                val bibleLink = BibleView.BibleLink("content", target=lnk)
+                scope.launch(Dispatchers.Main) {
+                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                }
+            }
+            link.startsWith("#s") || link.startsWith("#d") -> {
+                // MySword strongs links
+                val rest = link.substring(2)
+                val bibleLink = BibleView.BibleLink("strong", target=rest)
+                scope.launch(Dispatchers.Main) {
+                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                }
+            }
+            else -> {
+                mainBibleActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+            }
         }
     }
 

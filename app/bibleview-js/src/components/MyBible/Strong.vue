@@ -16,14 +16,14 @@
   -->
 
 <template>
-  <i><slot/></i>
+  <strong><slot/></strong>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
 
 export default {
-  name: "I",
+  name: "Strong",
   setup() {
     return useCommon();
   },

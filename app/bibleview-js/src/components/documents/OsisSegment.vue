@@ -53,6 +53,11 @@ import NoOp from "@/components/OSIS/NoOp";
 import H3 from "@/components/MyBible/H3";
 import I from "@/components/MyBible/I";
 import S from "@/components/MyBible/S";
+import B from "@/components/MyBible/B.vue";
+import Br from "@/components/MyBible/Br.vue";
+import Li from "@/components/MyBible/Li.vue";
+import Ol from "@/components/MyBible/Ol.vue";
+import Strong from "@/components/MyBible/Strong.vue";
 
 const teiComponents = {
   Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
@@ -64,7 +69,7 @@ const andBibleComponents = {
 }
 
 const myBibleComponents = {
-  S, M: NoOp, I, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3,
+  S, M: NoOp, I, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3, B, Br, Li, Ol, Strong
 }
 
 const osisComponents = {
