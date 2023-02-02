@@ -286,7 +286,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                             (chapter = ? AND fromverse = ? AND toverse IS NULL))
 
                             """,
-            arrayOf("${bibleBookToMySwordInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
+            arrayOf("${bibleBookToMySwordInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
 
             it.moveToNext() || return -1
             return it.getInt(0)
@@ -325,7 +325,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun readCommentary(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
         return state.sqlDb.rawQuery(
-            """select text from commentary WHERE book = ? AND
+            """select data from commentary WHERE book = ? AND
                             ((chapter = ? AND fromverse <= ? AND toverse >= ?) OR
                             (chapter = ? AND fromverse = ? AND toverse IS NULL))
                 """,
