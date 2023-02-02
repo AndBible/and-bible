@@ -37,6 +37,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.versification.BookName
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 
@@ -85,6 +86,18 @@ open class CurrentPageManager @Inject constructor(
 
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
 
+    val titleText: String get() =
+        if(isBibleShown || isCommentaryShown) {
+            synchronized(BookName::class.java) {
+                val prevFullBookNameValue = BookName.isFullBookName()
+                BookName.setFullBookName(false)
+                val name = currentBibleVerse.verse.name
+                BookName.setFullBookName(prevFullBookNameValue)
+                name
+            }
+        } else {
+            ""
+        }
 
     val hasStrongs: Boolean get() {
         if(isGenBookShown) {

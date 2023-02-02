@@ -399,7 +399,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     private fun updateBibleReference() {
         mainBibleActivity.runOnUiThread {
             try {
-                rebuildRestoreButtons()  // Needed to update the verse references in the button bars
+                bibleReferenceOverlay.text = mainBibleActivity.bibleOverlayText
             } catch(e: MainBibleActivity.KeyIsNull) {
                 Log.e(TAG, "Key is null, can't update", e)
             }
@@ -617,7 +617,6 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     private fun createRestoreButton(window: Window): WindowButtonWidget {
         return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
             text = getWindowButtonTitleText(window)
-            topText = "asdf"
 
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupMenu(window, v); true }

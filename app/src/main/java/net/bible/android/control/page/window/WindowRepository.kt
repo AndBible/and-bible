@@ -191,7 +191,7 @@ open class WindowRepository(val scope: CoroutineScope) {
     }
 
     fun getWindowsToSynchronise(sourceWindow: Window?): List<Window> {
-        val windows = ArrayList(visibleWindows)
+        val windows = ArrayList(windowList)
         if (sourceWindow != null) {
             windows.remove(sourceWindow)
         }

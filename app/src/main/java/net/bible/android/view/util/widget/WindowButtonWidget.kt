@@ -28,6 +28,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.WindowButtonBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.page.CurrentBiblePageVerseSet
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
@@ -54,6 +55,10 @@ class WindowButtonWidget(
     init {
         updateSettings()
         updateBackground()
+    }
+
+    fun onEventMainThread(event: CurrentBiblePageVerseSet) {
+        binding.topButtonText.text = window?.pageManager?.titleText?:""
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
@@ -141,6 +146,7 @@ class WindowButtonWidget(
                 windowButton.setTextColor(getResourceColor(R.color.window_button_text_colour))
                 buttonText.visibility = View.GONE
                 docType.visibility = View.GONE
+                topButtonText.visibility = View.GONE
             }
             if (window?.isLinksWindow == true && !isMaximised) {
                 docType.setImageResource(R.drawable.ic_link_black_24dp)
@@ -148,6 +154,7 @@ class WindowButtonWidget(
                 docType.visibility = View.VISIBLE
             }
             unMaximiseImage.visibility = if (isMaximised) View.VISIBLE else View.GONE
+            topButtonText.text = window?.pageManager?.titleText?:""
         }
     }
 
@@ -187,13 +194,6 @@ class WindowButtonWidget(
 
         set(value) {
             (if(isRestoreButton) binding.buttonText else binding.windowButton).text = value
-        }
-
-    var topText: String
-        get() = (if(isRestoreButton) binding.topButtonText else binding.windowButton).toString()
-
-        set(value) {
-            (if(isRestoreButton) binding.topButtonText else binding.windowButton).text = value
         }
 
     override fun onAttachedToWindow() {
