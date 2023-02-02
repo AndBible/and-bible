@@ -41,6 +41,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import java.io.File
 import java.io.IOException
+import java.util.*
 
 private fun getConfig(data: MySwordModuleInfo): String {
     var conf = """
@@ -169,7 +170,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                     version = getString(versionColumn),
                     rightToLeft = getBoolean(rightToLeftColumn),
                     hasStrongs = categoryAbbreviation == "bbl" && getBoolean(strongColumn),
-                    language = getString(languageColumn, "eng"),
+                    language = Locale(getString(languageColumn, "eng")).language,
                     category = category,
                     isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn)
                 )
@@ -245,7 +246,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         when(bookMetaData.bookCategory) {
             BookCategory.DICTIONARY -> {
                 state.sqlDb.rawQuery(
-                    "select topic from dictionary WHERE _rowid_ = ?",
+                    "select word from dictionary WHERE _rowid_ = ?",
                     arrayOf("${index + 1}")
                 ).use { c ->
                     c.moveToNext()
@@ -335,9 +336,17 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         }
     }
 
+    private val strongsRe = Regex("""(\w+)<W([GH])(\d+)>""")
+
+    private fun parseTags(mySwordText: String): String =
+        mySwordText.replace(strongsRe) { m ->
+            val (word, lang, num) = m.destructured
+            "<w lemma=\"strong:${lang}${num}\">${word}</w>"
+        }
+
     override fun readRawContent(state: SqliteVerseBackendState, key: Key): String {
         return when(bookMetaData.bookCategory) {
-            BookCategory.BIBLE -> readBible(state, key)
+            BookCategory.BIBLE -> parseTags(readBible(state, key))
             BookCategory.COMMENTARY -> readCommentary(state, key)
             BookCategory.DICTIONARY -> readDictionary(state, key)
             else -> ""
