@@ -48,6 +48,7 @@ class Window (
     var isLinksWindow: Boolean = window.isLinksWindow,
 ){
     private var targetLinksWindowId: Long? = window.targetLinksWindowId
+    var syncGroup = window.syncGroup
 
     val targetLinksWindow: Window
         get() {
@@ -100,6 +101,7 @@ class Window (
             id = id,
             targetLinksWindowId = targetLinksWindowId,
             isLinksWindow = isLinksWindow,
+            syncGroup = syncGroup
         )
     var displayedKey: Key? = null
     var displayedBook: Book? = null

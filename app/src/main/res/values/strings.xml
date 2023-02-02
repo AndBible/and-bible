@@ -37,7 +37,7 @@
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
     <string name="search_in_andbible">Find in Bible</string>
-    <string name="search_with_results">Find (%s results)</string>
+    <string name="search_with_results2">%1s results in %2s</string>
     <string name="settings">Application preferences</string>
     <string name="history">History</string>
     <string name="speak">Speak</string>
@@ -1083,4 +1083,8 @@
     <string name="search_what">Find \"%s\"</string>
     <string name="app_opened_elsewhere">App opened elsewhere</string>
     <string name="open_here">Open here</string>
+    <string name="sync_group_submenu">Synchronize group</string>
+    <string name="sync_group_n">Group %d</string>
+    <string name="disable_sync">Disable synchronize</string>
+    <string name="open_in_window">Open results in a window</string>
 </resources>

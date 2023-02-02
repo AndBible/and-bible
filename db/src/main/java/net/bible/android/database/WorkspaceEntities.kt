@@ -417,6 +417,7 @@ class WorkspaceEntities {
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var orderNumber: Int = 0,
         @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: Long? = null,
+        @ColumnInfo(defaultValue = "0") val syncGroup: Int = 0,
     )
 }
 

@@ -1042,6 +1042,15 @@ private val MIGRATION_63_64_window_changes = object : Migration(63, 64) {
         }
     }
 }
+
+private val MIGRATION_64_65_sync_group = object : Migration(64, 65) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Window` ADD COLUMN `syncGroup` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+
 class DataBaseNotReady: Exception()
 
 object DatabaseContainer {
@@ -1154,6 +1163,7 @@ object DatabaseContainer {
                         MIGRATION_61_62_window_changes,
                         MIGRATION_62_63_window_changes,
                         MIGRATION_63_64_window_changes,
+                        MIGRATION_64_65_sync_group,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

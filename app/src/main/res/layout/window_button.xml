@@ -105,6 +105,20 @@
         app:layout_constraintTop_toBottomOf="@id/synchronize"
         android:elevation="3dp"
         />
+    <TextView
+        android:id="@+id/syncGroup"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:singleLine="true"
+        android:ellipsize="none"
+        android:paddingTop="2.5dip"
+        android:paddingStart="1dip"
+        android:textColor="@color/window_button_text_colour"
+        android:textSize="10sp"
+        android:elevation="3dp"
+        app:layout_constraintStart_toEndOf="@id/synchronize"
+        app:layout_constraintTop_toTopOf="@id/synchronize"
+        />
     <ImageView
         android:id="@+id/docType"
         android:layout_width="0dp"

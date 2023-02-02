@@ -29,6 +29,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.service.common.BuildVariant
+import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
 
 import org.apache.commons.lang3.StringUtils
@@ -58,12 +59,18 @@ class ProgressNotificationManager {
         notificationManager = BibleApplication.application.getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
         val app = BibleApplication.application
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !BuildVariant.Appearance.isDiscrete) {
-            val channel = NotificationChannel(PROGRESS_NOTIFICATION_CHANNEL,
-                    app.getString(R.string.notification_channel_progress_status), NotificationManager.IMPORTANCE_LOW).apply {
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (BuildVariant.Appearance.isDiscrete) {
+                CommonUtils.createDiscreteNotificationChannel()
+            } else {
+                val channel = NotificationChannel(
+                    PROGRESS_NOTIFICATION_CHANNEL,
+                    app.getString(R.string.notification_channel_progress_status), NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(channel)
             }
-            notificationManager.createNotificationChannel(channel)
         }
 
 
@@ -132,7 +139,7 @@ class ProgressNotificationManager {
         val app = BibleApplication.application
         val intent = Intent(app, ProgressStatus::class.java)
         val pendingIntent = PendingIntent.getActivity(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-        val builder = NotificationCompat.Builder(app, PROGRESS_NOTIFICATION_CHANNEL)
+        val builder = NotificationCompat.Builder(app, if(BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else PROGRESS_NOTIFICATION_CHANNEL)
 
         builder
             .setSmallIcon(R.drawable.ic_ichtys)
