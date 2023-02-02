@@ -21,7 +21,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.util.Log
 import net.bible.android.BibleApplication
-import net.bible.service.sword.mysword.addMySwordBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -432,7 +431,7 @@ fun addManuallyInstalledMyBibleBooks() {
 
     for(f in dir.walkTopDown()) {
         if(f.isFile && f.canRead() && f.path.lowercase().endsWith(".sqlite3")) {
-            addMySwordBook(f)
+            addMyBibleBook(f)
         }
     }
 }
