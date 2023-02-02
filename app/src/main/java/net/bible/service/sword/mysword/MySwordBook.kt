@@ -63,6 +63,7 @@ Versification=KJVA"""
     }
     if(data.hasStrongs) {
         conf += "\nGlobalOptionFilter = OSISStrongs"
+        conf += "\nGlobalOptionFilter = OSISMorph"
     }
     return conf
 }
@@ -335,19 +336,43 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         }
     }
 
+    private val strongsMorphRe = Regex("""(\w+)<W([GH])(\d+)><WT([a-zA-Z\d\-]+)( l="([^"]+)")?>""")
     private val strongsRe = Regex("""(\w+)<W([GH])(\d+)>""")
+    private val morphRe = Regex("""<WT([a-zA-Z\d\-]+)( l="([^"]+)")?>""")
+    private val tagEndRe = Regex("""<(Ts|Fi|Fo|q|e|t|x|h|g)>""")
+    private val singleTagRe = Regex("""<(CM|CL|PF\d|Pl\d|Cl|D|wh|wg|wt|br)>""")
 
-    private fun parseTags(mySwordText: String): String =
-        mySwordText.replace(strongsRe) { m ->
-            val (word, lang, num) = m.destructured
-            "<w lemma=\"strong:${lang}${num}\">${word}</w>"
-        }.replace("<br>", "<br/>")
+    // MySword has weird non-xml tags, so we need to do some transformation here.
+    // https://www.mysword.info/modules-format
+    private fun transformMySwordTags(mySwordText: String): String =
+        mySwordText
+            .replace(strongsMorphRe) { m ->
+                val word = m.groups[1]!!.value
+                val lang = m.groups[2]!!.value
+                val strongsNum = m.groups[3]!!.value
+                val morphCode = m.groups[4]!!.value
+                "<w lemma=\"strong:${lang}${strongsNum}\" morph=\"strongMorph:${morphCode}\">${word}</w>"
+            }
+            .replace(strongsRe) { m ->
+                val (word, lang, num) = m.destructured
+                "<w lemma=\"strong:${lang}${num}\">${word}</w>"
+            }
+            .replace(morphRe) { m ->
+                val morphCode = m.groups[1]!!.value
+                "<w morph=\"strongMorph:${morphCode}\">${morphCode}</w>"
+            }
+            .replace(tagEndRe) {m ->
+                "</${m.groups[1]!!.value.uppercase()}>"
+            }
+            .replace(singleTagRe) {m ->
+                "<${m.groups[1]!!.value}/>"
+            }
 
     override fun readRawContent(state: SqliteVerseBackendState, key: Key): String {
         return when(bookMetaData.bookCategory) {
-            BookCategory.BIBLE -> parseTags(readBible(state, key))
-            BookCategory.COMMENTARY -> parseTags(readCommentary(state, key))
-            BookCategory.DICTIONARY -> parseTags(readDictionary(state, key))
+            BookCategory.BIBLE -> transformMySwordTags(readBible(state, key))
+            BookCategory.COMMENTARY -> transformMySwordTags(readCommentary(state, key))
+            BookCategory.DICTIONARY -> transformMySwordTags(readDictionary(state, key))
             else -> ""
         }
     }
