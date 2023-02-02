@@ -42,14 +42,14 @@ import org.crosswire.jsword.passage.KeyUtil
 import java.io.File
 import java.io.IOException
 
-private fun getConfig(initials: String, description: String, language: String, category: String, hasStrongsDef: Boolean, hasStrongs: Boolean): String {
+private fun getConfig(data: MySwordModuleInfo): String {
     var conf = """
-[$initials]
-Description=$description
-Abbreviation=$initials
-Category=$category
+[${data.initials}]
+Description=${data.description}
+Abbreviation=${data.abbreviation}
+Category=${data.category}
 AndBibleMySwordModule=1
-Lang=$language
+Lang=${data.language}
 Version=0.0
 Encoding=UTF-8
 LCSH=Bible
@@ -57,11 +57,11 @@ SourceType=OSIS
 ModDrv=zText
 BlockType=BOOK
 Versification=KJVA"""
-    if(hasStrongsDef) {
+    if(data.isStrongsDict) {
         conf += "\nFeature=GreekDef"
         conf += "\nFeature=HebrewDef"
     }
-    if(hasStrongs) {
+    if(data.hasStrongs) {
         conf += "\nGlobalOptionFilter = OSISStrongs"
     }
     return conf
@@ -82,6 +82,19 @@ class MockMySwordDriver: AbstractBookDriver() {
         return false
     }
 }
+
+class MySwordModuleInfo (
+    val initials: String,
+    val title: String,
+    val description: String,
+    val abbreviation: String,
+    val version: String,
+    val rightToLeft: Boolean,
+    val isStrongsDict: Boolean,
+    val hasStrongs: Boolean,
+    val language: String,
+    val category: String,
+)
 
 class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: String?): OpenFileState {
     constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile, null) {
@@ -107,8 +120,6 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
         _sqlDb = null
     }
 
-    var hasStories: Boolean = false
-
     var metadata: SwordBookMetaData? = null
 
     private val re = Regex("[^a-zA-z0-9]")
@@ -117,47 +128,55 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
             val db = this.sqlDb
-            val initials = moduleName ?: ("MySword-" + sanitizeModuleName(File(db.path).nameWithoutExtension))
-            val description = db.rawQuery("select value from info where name = ?", arrayOf("description")).use {
-                it.moveToFirst()
-                it.getString(0)
-            }
-            val language = db.rawQuery("select value from info where name = ?", arrayOf("language")).use {
-                it.moveToFirst()
-                it.getString(0)
-            }
-            val hasStrongsDef = db.rawQuery("select value from info where name = ?", arrayOf("is_strong")).use {
-                it.moveToFirst() || return@use false
-                it.getString(0) == "true"
-            }
-            val hasStrongs = db.rawQuery("select value from info where name = ?", arrayOf("strong_numbers")).use {
-                it.moveToFirst() || return@use false
-                it.getString(0) == "true"
-            }
-
-            val tables =
-                db.rawQuery("select name from sqlite_master where type = 'table' AND name not like 'sqlite_%'", null)
-                    .use {
-                        val names = arrayListOf<String>()
-                        while (it.moveToNext()) {
-                            names.add(it.getString(0))
-                        }
-                        names
-                    }
-            val isCommentary = tables.contains("commentaries")
-            val isBible = tables.contains("verses")
-            val isDictionary = tables.contains("dictionary")
-            hasStories = tables.contains("stories")
-
-            val category = when {
-                isBible -> "Biblical Texts"
-                isCommentary -> "Commentaries"
-                isDictionary -> "Lexicons / Dictionaries"
+            val dbFile = File(db.path)
+            val categoryAbbreviation = dbFile.nameWithoutExtension.substringAfterLast('.', "")
+            val category = when(categoryAbbreviation) {
+                "bbl" -> "Biblical Texts"
+                "cmt" -> "Commentaries"
+                "dct" -> "Lexicons / Dictionaries"
                 else -> "Illegal"
             }
+            val initials = moduleName ?: ("MySword-" + sanitizeModuleName(dbFile.nameWithoutExtension))
 
-            val conf = getConfig(initials, description, language, category, hasStrongsDef, hasStrongs)
-            Log.i(TAG, "Creating MySwordBook metadata $initials, $description $language $category")
+            val data = db.rawQuery("select * from details", null).use {
+                it.moveToFirst()
+                val names = it.columnNames.map { n -> n.lowercase() }
+                val titleColumn = names.indexOf("title")
+                val descriptionColumn = names.indexOf("description")
+                val abbreviationColumn = names.indexOf("abbreviation")
+                val versionColumn = names.indexOf("version")
+                val rightToLeftColumn = names.indexOf("rightToLeft")
+                val strongColumn = names.indexOf("strong")
+                val languageColumn = names.indexOf("language")
+
+                fun getString(columnNum: Int, default: String = "")  =
+                    when(columnNum) {
+                        -1 -> default
+                        else -> it.getString(columnNum)
+                    }
+
+                fun getBoolean(columnNum: Int) =
+                    when(columnNum) {
+                        -1 -> false
+                        else -> it.getInt(columnNum) == 1
+                    }
+
+                MySwordModuleInfo(
+                    initials = initials,
+                    title = getString(titleColumn),
+                    description = getString(descriptionColumn),
+                    abbreviation = getString(abbreviationColumn, initials),
+                    version = getString(versionColumn),
+                    rightToLeft = getBoolean(rightToLeftColumn),
+                    hasStrongs = categoryAbbreviation == "bbl" && getBoolean(strongColumn),
+                    language = getString(languageColumn, "eng"),
+                    category = category,
+                    isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn)
+                )
+            }
+
+            val conf = getConfig(data)
+            Log.i(TAG, "Creating MySwordBook metadata $initials $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
             metadata.driver = MockMySwordDriver()
@@ -187,8 +206,8 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     override fun getCardinality(): Int {
         val table = when(bookMetaData.bookCategory) {
             BookCategory.DICTIONARY -> "dictionary"
-            BookCategory.BIBLE -> "verses"
-            BookCategory.COMMENTARY -> "commentaries"
+            BookCategory.BIBLE -> "bible"
+            BookCategory.COMMENTARY -> "commentary"
             else -> throw RuntimeException("Illegal book category")
         }
         state.sqlDb.rawQuery("select count(*) as count from $table", null).use { cur ->
@@ -240,7 +259,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun indexOfBible(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
-        state.sqlDb.rawQuery("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
+        state.sqlDb.rawQuery("select _rowid_ from bible WHERE book = ? AND chapter = ? AND verse = ?",
             arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")).use {
             it.moveToNext() || return -1
             return it.getInt(0)
@@ -250,7 +269,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun indexOfDictionary(that: Key): Int {
         if(that !is DefaultLeafKeyList) return -1;
         val keyName = that.name
-        state.sqlDb.rawQuery("select _rowid_ from dictionary WHERE topic = ?", arrayOf(keyName)).use {
+        state.sqlDb.rawQuery("select _rowid_ from dictionary WHERE word = ?", arrayOf(keyName)).use {
             it.moveToNext() || return -1
             return it.getInt(0)
         }
@@ -260,10 +279,10 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun indexOfCommentary(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
         state.sqlDb.rawQuery(
-            """select _rowid_ from commentaries WHERE book_number = ? AND 
-                            ((chapter_number_from <= ? AND verse_number_from <= ? AND
-                            chapter_number_to >= ? AND verse_number_to >= ?) OR
-                            (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
+            """select _rowid_ from commentary WHERE book = ? AND 
+                            ((chapter = ? AND fromverse <= ? AND
+                            toverse >= ?) OR
+                            (chapter = ? AND fromverse = ? AND toverse IS NULL))
 
                             """,
             arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
@@ -284,42 +303,18 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun readBible(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
-        var text = state.sqlDb.rawQuery(
-            "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
+        return state.sqlDb.rawQuery(
+            "select scripture from bible WHERE book = ? AND chapter = ? AND verse = ?",
             arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
         ).use {
             it.moveToNext() || throw IOException("Can't read $key")
             it.getString(0)
         }
-
-        val stories = if(state.hasStories) {
-            state.sqlDb.rawQuery(
-                "select title from stories WHERE book_number = ? AND chapter = ? AND verse = ?",
-                arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
-            ).use {
-                val result = arrayListOf<String>()
-                while (it.moveToNext()) {
-                    result.add(it.getString(0))
-                }
-                result
-            }
-        } else {
-            arrayListOf()
-        }
-
-        for(story in stories) {
-            text = if(story.startsWith("<")) {
-                "$text$story"
-            } else {
-                "<title canonical=\"false\">$story</title>$text"
-            }
-        }
-        return text
     }
     private fun readDictionary(state: SqliteVerseBackendState, key: Key): String {
         if(key !is DefaultLeafKeyList) throw RuntimeException("Invalid key");
         val keyName = key.name
-        return state.sqlDb.rawQuery("select definition from dictionary WHERE topic = ?", arrayOf(keyName)
+        return state.sqlDb.rawQuery("select data from dictionary WHERE word = ?", arrayOf(keyName)
         ).use {
             it.moveToNext() || throw IOException("Can't read $key")
             it.getString(0)
@@ -329,12 +324,11 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun readCommentary(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
         return state.sqlDb.rawQuery(
-            """select text from commentaries WHERE book_number = ? AND
-                            ((chapter_number_from <= ? AND verse_number_from <= ? AND
-                            chapter_number_to >= ? AND verse_number_to >= ?) OR
-                            (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
+            """select text from commentary WHERE book = ? AND
+                            ((chapter = ? AND fromverse <= ? AND toverse >= ?) OR
+                            (chapter = ? AND fromverse = ? AND toverse IS NULL))
                 """,
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
+            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
         ).use {
             it.moveToNext() || throw IOException("Can't read $key")
             it.getString(0)
@@ -357,7 +351,7 @@ val mySwordBible = object: BookType("MySwordBible", BookCategory.BIBLE, KeyType.
     }
 
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
-        val file = File(File(sbmd.location), "module.SQLite3")
+        val file = File(File(sbmd.location), "module.mybible")
         val state = SqliteVerseBackendState(file, sbmd)
         return SqliteBackend(state, sbmd)
     }
@@ -369,7 +363,7 @@ val mySwordCommentary = object: BookType("MySwordCommentary", BookCategory.COMME
     }
 
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
-        val file = File(File(sbmd.location), "module.SQLite3")
+        val file = File(File(sbmd.location), "module.mybible")
         val state = SqliteVerseBackendState(file, sbmd)
         return SqliteBackend(state, sbmd)
     }
@@ -381,7 +375,7 @@ val mySwordDictionary = object: BookType("MySwordDictionary", BookCategory.DICTI
     }
 
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
-        val file = File(File(sbmd.location), "module.SQLite3")
+        val file = File(File(sbmd.location), "module.mybible")
         val state = SqliteVerseBackendState(file, sbmd)
         return SqliteBackend(state, sbmd)
     }
