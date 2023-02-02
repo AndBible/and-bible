@@ -261,10 +261,16 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val verse = KeyUtil.getVerse(that)
         state.sqlDb.rawQuery(
             """select _rowid_ from commentaries WHERE book_number = ? AND 
-                            ((chapter_number_from <= ? AND verse_number_from <= ? AND
-                            chapter_number_to >= ? AND verse_number_to >= ?) OR
-                            (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
-
+                            (
+                                (chapter_number_from <= ? AND verse_number_from <= ? AND
+                                 chapter_number_to >= ? AND verse_number_to >= ?
+                            ) 
+                            OR
+                            (chapter_number_from = ? AND verse_number_from = ? AND 
+                                (chapter_number_to IS NULL OR chapter_number_to = 0) AND 
+                                (verse_number_to IS NULL OR verse_number_to = 0
+                            )
+                            ))
                             """,
             arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
 
@@ -329,10 +335,18 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun readCommentary(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
         return state.sqlDb.rawQuery(
-            """select text from commentaries WHERE book_number = ? AND
-                            ((chapter_number_from <= ? AND verse_number_from <= ? AND
-                            chapter_number_to >= ? AND verse_number_to >= ?) OR
-                            (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
+            """select text from commentaries WHERE 
+                            book_number = ? AND 
+                            (
+                                (chapter_number_from <= ? AND verse_number_from <= ? AND
+                                 chapter_number_to >= ? AND verse_number_to >= ?
+                            ) 
+                            OR
+                            (chapter_number_from = ? AND verse_number_from = ? AND 
+                                (chapter_number_to IS NULL OR chapter_number_to = 0) AND 
+                                (verse_number_to IS NULL OR verse_number_to = 0
+                            )
+                            ))                
                 """,
             arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
         ).use {
