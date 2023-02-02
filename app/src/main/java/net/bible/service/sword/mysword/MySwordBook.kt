@@ -418,8 +418,10 @@ fun addManuallyInstalledMySwordBooks() {
     val dir = File(BibleApplication.application.getExternalFilesDir(null), "mysword")
     if(!(dir.isDirectory && dir.canRead())) return
 
-    for(f in dir.listFiles()?.filter { it.path.lowercase().endsWith(".mybible") }?: emptyList()) {
-        addMySwordBook(f)
+    for(f in dir.walkTopDown()) {
+        if(f.isFile && f.canRead() && f.path.lowercase().endsWith(".mybible")) {
+            addMySwordBook(f)
+        }
     }
 }
 
