@@ -87,5 +87,5 @@ val books = arrayOf(
     BibleBook.REV,
 )
 
-val intToBibleBook = books.mapIndexed {i, b -> i+1 to b}.toMap()
-val bibleBookToInt = intToBibleBook.toList().associate { (k, v) -> v to k }
+val mySwordIntToBibleBook = books.mapIndexed { i, b -> i+1 to b}.toMap()
+val bibleBookToMySwordInt = mySwordIntToBibleBook.toList().associate { (k, v) -> v to k }

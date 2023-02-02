@@ -18,7 +18,7 @@ package net.bible.service.sword.mybible
 
 import org.crosswire.jsword.versification.BibleBook
 
-val intToBibleBook = mapOf(
+val myBibleIntToBibleBook = mapOf(
     10 to BibleBook.GEN,
     20 to BibleBook.EXOD,
     30 to BibleBook.LEV,
@@ -106,4 +106,4 @@ val intToBibleBook = mapOf(
     780 to BibleBook.EP_LAO,
 )
 
-val bibleBookToInt = intToBibleBook.toList().associate { (k, v) -> v to k }
+val bibleBookToMyBibleInt = myBibleIntToBibleBook.toList().associate { (k, v) -> v to k }

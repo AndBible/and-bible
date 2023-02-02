@@ -241,7 +241,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun indexOfBible(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
         state.sqlDb.rawQuery("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")).use {
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")).use {
             it.moveToNext() || return -1
             return it.getInt(0)
         }
@@ -266,7 +266,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                             (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
 
                             """,
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
 
             it.moveToNext() || return -1
             return it.getInt(0)
@@ -286,7 +286,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val verse = KeyUtil.getVerse(key)
         var text = state.sqlDb.rawQuery(
             "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
         ).use {
             it.moveToNext() || throw IOException("Can't read $key")
             it.getString(0)
@@ -295,7 +295,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val stories = if(state.hasStories) {
             state.sqlDb.rawQuery(
                 "select title from stories WHERE book_number = ? AND chapter = ? AND verse = ?",
-                arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
+                arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
             ).use {
                 val result = arrayListOf<String>()
                 while (it.moveToNext()) {
@@ -334,7 +334,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                             chapter_number_to >= ? AND verse_number_to >= ?) OR
                             (chapter_number_from = ? AND verse_number_from = ? AND chapter_number_to IS NULL AND verse_number_to IS NULL))
                 """,
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
         ).use {
             it.moveToNext() || throw IOException("Can't read $key")
             it.getString(0)
