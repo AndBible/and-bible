@@ -75,8 +75,6 @@ import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BookName
 import java.lang.IndexOutOfBoundsException
 import java.util.*
@@ -397,10 +395,10 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     }
 
     private fun updateBibleReference() {
-        if (windowRepository.activeWindow.isSynchronised && mainBibleActivity.displayVerse!=null) windowRepository.syncKey = mainBibleActivity.displayVerse
+        if(bibleReferenceOverlay.visibility != View.VISIBLE) return
         mainBibleActivity.runOnUiThread {
             try {
-                rebuildRestoreButtons()  // Needed to update the verse references in the button bars
+                bibleReferenceOverlay.text = mainBibleActivity.bibleOverlayText
             } catch(e: MainBibleActivity.KeyIsNull) {
                 Log.e(TAG, "Key is null, can't update", e)
             }
@@ -617,29 +615,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
     private fun createRestoreButton(window: Window): WindowButtonWidget {
         return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
-            val topTextValue = if (CommonUtils.settings.getBoolean("show_ref_in_window_button",true) and (window.pageManager.isBibleShown or window.pageManager.isCommentaryShown)) {
-                var book = ""
-                var chapter = ""
-                var verse = ""
-                val v11n = (window.pageManager.currentPage.currentDocument as SwordBook).versification
-
-                if (window.isSynchronised) {
-                    if(windowRepository.syncKey is Verse)
-                        (v11n.getShortName((windowRepository.syncKey as Verse).book).substring(0,2)) + " " + (windowRepository.syncKey as Verse).chapter.toString() + ":" + (windowRepository.syncKey as Verse).verse.toString()
-                    else ""
-                } else {
-                    book = window.pageManager.currentBibleVerse.verse.book.toString()
-                    chapter = window.pageManager.currentBibleVerse.verse.chapter.toString()
-                    verse = window.pageManager.currentBibleVerse.verse.verse.toString()
-                    "${book.substring(0,2)} $chapter:$verse"
-                }
-
-            } else {
-                ""
-            }
             text = getWindowButtonTitleText(window)
-            topText = topTextValue
-
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupMenu(window, v); true }
         }

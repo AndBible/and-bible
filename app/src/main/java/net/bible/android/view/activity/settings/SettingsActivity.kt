@@ -126,7 +126,6 @@ class SettingsActivity: ActivityBase() {
                     "hide_window_buttons",
                     "hide_bible_reference_overlay",
                     "show_active_window_indicator",
-                    "show_ref_in_window_button",
                     "toolbar_button_actions",
                     "disable_two_step_bookmarking",
                     "double_tap_to_fullscreen",
