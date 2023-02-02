@@ -19,15 +19,10 @@
   <br/>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 
-export default {
-  name: "Br",
-  setup() {
-    return useCommon();
-  },
-}
+useCommon();
 </script>
 
 <style lang="scss" scoped>
