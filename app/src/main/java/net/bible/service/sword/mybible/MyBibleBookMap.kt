@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -14,11 +14,11 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.service.sword
+package net.bible.service.sword.mybible
 
 import org.crosswire.jsword.versification.BibleBook
 
-val intToBibleBook = mapOf(
+val myBibleIntToBibleBook = mapOf(
     10 to BibleBook.GEN,
     20 to BibleBook.EXOD,
     30 to BibleBook.LEV,
@@ -106,4 +106,4 @@ val intToBibleBook = mapOf(
     780 to BibleBook.EP_LAO,
 )
 
-val bibleBookToInt = intToBibleBook.toList().associate { (k, v) -> v to k }
+val bibleBookToMyBibleInt = myBibleIntToBibleBook.toList().associate { (k, v) -> v to k }

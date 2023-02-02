@@ -45,14 +45,6 @@ jobs:
         working-directory: app/bibleview-js
         run: npm run lint:ci
 
-      - name: Upload lint results
-        uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          name: js-results
-          path: app/bibleview-js/lint-results.txt
-          retention-days: 5
-
   unit-tests:
     runs-on: ubuntu-20.04
     steps:
@@ -108,11 +100,3 @@ jobs:
       - name: Run type-check
         working-directory: app/bibleview-js
         run: npm run type-check:ci
-
-      - name: Upload type-check results
-        uses: actions/upload-artifact@v3
-        if: ${{ always() }}
-        with:
-          name: js-results
-          path: app/bibleview-js/type-check-results.txt
-          retention-days: 5

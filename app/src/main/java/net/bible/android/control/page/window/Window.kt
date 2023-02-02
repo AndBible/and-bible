@@ -101,6 +101,7 @@ class Window (
             id = id,
             targetLinksWindowId = targetLinksWindowId,
             isLinksWindow = isLinksWindow,
+            syncGroup = syncGroup
         )
     var displayedKey: Key? = null
     var displayedBook: Book? = null

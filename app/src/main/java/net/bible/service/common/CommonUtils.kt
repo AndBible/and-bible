@@ -104,7 +104,8 @@ import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
-import net.bible.service.sword.addManuallyInstalledMyBibleBooks
+import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
+import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.IOUtil
 import org.crosswire.common.util.Version
@@ -952,6 +953,7 @@ object CommonUtils : CommonUtilsBase() {
             }
 
             addManuallyInstalledMyBibleBooks()
+            addManuallyInstalledMySwordBooks()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
