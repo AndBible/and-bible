@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.sword
+package net.bible.service.sword.mybible
 
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
@@ -69,7 +69,7 @@ Versification=KJVA"""
 
 const val TAG = "MyBibleBook"
 
-class MockDriver: AbstractBookDriver() {
+class MockMyBibleDriver: AbstractBookDriver() {
     override fun getBooks(): Array<Book> {
         return emptyArray()
     }
@@ -117,7 +117,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
             val db = this.sqlDb
-            val initials = moduleName ?: "MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension.split(".", limit = 2)[0])
+            val initials = moduleName ?: ("MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension))
             val description = db.rawQuery("select value from info where name = ?", arrayOf("description")).use {
                 it.moveToFirst()
                 it.getString(0)
@@ -160,7 +160,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
-            metadata.driver = MockDriver()
+            metadata.driver = MockMyBibleDriver()
             this.metadata = metadata
             return@synchronized metadata
         }

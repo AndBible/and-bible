@@ -50,7 +50,7 @@ import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
 import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
-import net.bible.service.sword.intToBibleBook
+import net.bible.service.sword.mybible.intToBibleBook
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
