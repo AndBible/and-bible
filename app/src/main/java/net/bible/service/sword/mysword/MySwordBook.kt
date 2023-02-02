@@ -170,7 +170,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                     version = getString(versionColumn),
                     rightToLeft = getBoolean(rightToLeftColumn),
                     hasStrongs = categoryAbbreviation == "bbl" && getBoolean(strongColumn),
-                    language = Locale(getString(languageColumn, "eng")).language,
+                    language = Locale(getString(languageColumn, "eng")).language?: "eng",
                     category = category,
                     isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn)
                 )
