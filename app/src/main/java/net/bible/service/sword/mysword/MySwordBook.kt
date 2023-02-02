@@ -21,7 +21,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.util.Log
 import net.bible.android.BibleApplication
-import org.apache.commons.lang3.LocaleUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -42,7 +41,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import java.io.File
 import java.io.IOException
-import java.util.*
 
 private fun getConfig(data: MySwordModuleInfo): String {
     var conf = """
@@ -151,13 +149,13 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                 val strongColumn = names.indexOf("strong")
                 val languageColumn = names.indexOf("language")
 
-                fun getString(columnNum: Int, default: String = "")  =
+                fun getString(columnNum: Int, default: String = ""): String  =
                     when(columnNum) {
                         -1 -> default
-                        else -> it.getString(columnNum)
+                        else -> it.getString(columnNum) ?: default
                     }
 
-                fun getBoolean(columnNum: Int) =
+                fun getBoolean(columnNum: Int): Boolean =
                     when(columnNum) {
                         -1 -> false
                         else -> it.getInt(columnNum) == 1
@@ -171,7 +169,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                     version = getString(versionColumn),
                     rightToLeft = getBoolean(rightToLeftColumn),
                     hasStrongs = categoryAbbreviation == "bbl" && getBoolean(strongColumn),
-                    language = LocaleUtils.toLocale(getString(languageColumn, "eng")).language?: "eng",
+                    language = getString(languageColumn, "eng"),
                     category = category,
                     isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn)
                 )
