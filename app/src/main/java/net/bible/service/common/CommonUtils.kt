@@ -21,8 +21,14 @@ import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.AlertDialog
+import android.app.Application
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -32,17 +38,21 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
 import android.text.Html
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
+import android.text.style.URLSpan
 import android.util.LayoutDirection
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -64,14 +74,17 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.BuildConfig.BUILD_TYPE
 import net.bible.android.activity.BuildConfig.BuildDate
-import net.bible.android.activity.BuildConfig.FLAVOR
+import net.bible.android.activity.BuildConfig.FLAVOR_appearance
+import net.bible.android.activity.BuildConfig.FLAVOR_distchannel
 import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -83,10 +96,11 @@ import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.db.DataBaseNotReady
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
@@ -122,11 +136,26 @@ import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
 @Suppress("DEPRECATION")
-fun htmlToSpan(html: String): Spanned {
-    val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+fun htmlToSpan(html: String?): Spanned {
+    val spanned = SpannableString(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
     } else {
         Html.fromHtml(html)
+    })
+
+    class MyURLSpan(url: String): URLSpan(url) {
+        override fun onClick(widget: View) {
+            CommonUtils.openLink(url)
+        }
+    }
+
+    val urlSpans = spanned.getSpans(0, spanned.length, URLSpan::class.java)
+    for (s in urlSpans) {
+        val start = spanned.getSpanStart(s)
+        val end = spanned.getSpanEnd(s)
+        spanned.removeSpan(s)
+        val newSpan = MyURLSpan(s.url)
+        spanned.setSpan(newSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
     return spanned
 }
@@ -176,6 +205,7 @@ val BookmarkEntities.Label.displayName get() =
 
 open class CommonUtilsBase {
     @Inject lateinit var windowControl: WindowControl
+    @Inject lateinit var speakControl: SpeakControl
 }
 
 class Ref<T>(var value: T? = null)
@@ -214,7 +244,7 @@ object CommonUtils : CommonUtilsBase() {
                 versionName = "Error"
             }
 
-            return "$versionName#$GitHash $FLAVOR $BUILD_TYPE (built $BuildDate)"
+            return "$versionName#$GitHash $FLAVOR_distchannel $FLAVOR_appearance $BUILD_TYPE (built $BuildDate)"
         }
 
     val mainVersion: String get() {
@@ -286,7 +316,7 @@ object CommonUtils : CommonUtilsBase() {
         fun getString(key: String, default: String? = null) = stringSettings.get(key, default)
         fun getLong(key: String, default: Long) = longSettings.get(key, default)
         fun getInt(key: String, default: Int) = longSettings.get(key, default.toLong()).toInt()
-        fun getBoolean(key: String, default: Boolean) = booleanSettings.get(key, default)
+        fun getBoolean(key: String, default: Boolean) = if(initialized) booleanSettings.get(key, default) else default
         fun getDouble(key: String, default: Double) = doubleSettings.get(key, default)
         fun getFloat(key: String, default: Float): Float = doubleSettings.get(key, default.toDouble()).toFloat()
 
@@ -307,11 +337,7 @@ object CommonUtils : CommonUtilsBase() {
     val settings: AndBibleSettings get() {
         val s = _settings
         if(s != null) return s
-        if(DatabaseContainer.ready || application.isRunningTests) {
-            return AndBibleSettings().apply { _settings = this }
-        } else {
-            throw DataBaseNotReady()
-        }
+        return AndBibleSettings().apply { _settings = this }
     }
 
     val localePref: String?
@@ -355,7 +381,6 @@ object CommonUtils : CommonUtilsBase() {
         return bytesAvailable
     }
 
-    @JvmOverloads
     fun limitTextLength(text: String?, maxLength: Int = DEFAULT_MAX_TEXT_LENGTH, singleLine: Boolean = false): String? {
         var text = text
         if (text != null) {
@@ -454,12 +479,12 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     val resources: Resources get() =
-        CurrentActivityHolder?.currentActivity?.resources?: application.resources
+        CurrentActivityHolder.currentActivity?.resources?: application.resources
 
 
     fun getResourceColor(resourceId: Int): Int =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val theme = _mainBibleActivity?.theme?: resources.newTheme().apply {
+            val theme = CurrentActivityHolder.currentActivity?.theme?: resources.newTheme().apply {
                 applyStyle(R.style.AppTheme, true)
             }
 
@@ -469,7 +494,7 @@ object CommonUtils : CommonUtilsBase() {
         }
 
     private fun getResourceDrawable(resourceId: Int, context: Context? = null): Drawable? {
-        val theme = _mainBibleActivity?.theme?: resources.newTheme().apply {
+        val theme = CurrentActivityHolder.currentActivity?.theme?: resources.newTheme().apply {
             applyStyle(R.style.AppTheme, true)
         }
 
@@ -486,11 +511,13 @@ object CommonUtils : CommonUtilsBase() {
     /**
      * convert dip measurements to pixels
      */
-    fun convertDipsToPx(dips: Int): Int {
+    fun convertDipsToPx(dips: Float): Int {
         // Converts 14 dip into its equivalent px
         val scale = resources.displayMetrics.density
         return (dips * scale + 0.5f).toInt()
     }
+
+    fun convertDipsToPx(dips: Int): Int = convertDipsToPx(dips.toFloat())
 
     /**
      * convert dip measurements to pixels
@@ -609,6 +636,11 @@ object CommonUtils : CommonUtilsBase() {
 
         val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
+        exitProcess(2)
+    }
+
+    fun forceStopApp() {
+        Log.i(TAG, "forceStopApp!")
         exitProcess(2)
     }
 
@@ -803,7 +835,7 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    fun showHelp(callingActivity: Activity, filterItems: List<Int>? = null, showVersion: Boolean = false) {
+    fun showHelp(callingActivity: ActivityBase, filterItems: List<Int>? = null, showVersion: Boolean = false) {
         val app = application
         val versionMsg = app.getString(R.string.version_text, applicationVersionName)
 
@@ -839,6 +871,7 @@ object CommonUtils : CommonUtilsBase() {
             htmlMessage += "<i>$versionMsg</i>"
 
         val spanned = htmlToSpan(htmlMessage)
+
         val d = AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
             .setIcon(R.drawable.ic_logo)
@@ -848,6 +881,26 @@ object CommonUtils : CommonUtilsBase() {
 
         d.show()
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    fun openLink(link: String) {
+        val activity = CurrentActivityHolder.currentActivity!!
+        if (isDiscrete) {
+            activity.lifecycleScope.launch(Dispatchers.Main) {
+                if(Dialogs.simpleQuestion(activity,
+                        net.bible.android.view.activity.page.application.getString(R.string.external_link),
+                        net.bible.android.view.activity.page.application.getString(R.string.external_link_question, link))
+                ) {
+                    activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
+                        ActivityBase.STD_REQUEST_CODE
+                    )
+                }
+            }
+        } else {
+            activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
+                ActivityBase.STD_REQUEST_CODE
+            )
+        }
     }
 
     fun verifySignature(file: File, signatureFile: File): Boolean {
@@ -895,7 +948,9 @@ object CommonUtils : CommonUtilsBase() {
             buildActivityComponent().inject(this)
 
             ttsNotificationManager = TextToSpeechNotificationManager()
-            ttsWidgetManager = SpeakWidgetManager()
+            if(!BuildVariant.Appearance.isDiscrete) {
+                ttsWidgetManager = SpeakWidgetManager()
+            }
 
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
@@ -915,7 +970,6 @@ object CommonUtils : CommonUtilsBase() {
                     val book = Books.installed().getBook(it.initials)
                     book.unlock(it.cipherKey)
                 }
-                windowControl.windowRepository.initialize()
             }
             booksInitialized = true
         }
@@ -1175,7 +1229,8 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    suspend fun requestNotificationPermission(activity: ActivityBase) = withContext(Dispatchers.Main) {
+    suspend fun requestNotificationPermission(activity_: ActivityBase? = null) = withContext(Dispatchers.Main) {
+        val activity = activity_?:CurrentActivityHolder.currentActivity?: return@withContext
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
                 var request = true
@@ -1198,7 +1253,50 @@ object CommonUtils : CommonUtilsBase() {
             }
         }
     }
+
+    fun changeAppIconAndName() {
+        // There's issue on Android 5 that icon simply disappears and calculator does not appear.
+        // See https://github.com/AndBible/and-bible/issues/2310
+        if (BuildVariant.Appearance.isDiscrete || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) return
+        val discrete = settings.getBoolean("discrete_mode", false)
+        val packageName = BuildConfig.APPLICATION_ID
+        val allNames = listOf(
+            "net.bible.android.activity.StartupActivity",
+            "net.bible.android.view.activity.Calculator"
+        )
+
+        val activeName = allNames[if(discrete) 1 else 0]
+
+        Log.d(TAG, "Changing app icon / name to $activeName")
+
+        for (name in allNames) {
+            application.packageManager.setComponentEnabledSetting(
+                ComponentName(packageName, name),
+                if(name == activeName)
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                0
+            )
+        }
+    }
+
+    fun createDiscreteNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager = application.getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
+            val channel = NotificationChannel(
+                CALC_NOTIFICATION_CHANNEL,
+                application.getString(R.string.app_name_calculator), NotificationManager.IMPORTANCE_LOW).apply {
+                lockscreenVisibility = Notification.VISIBILITY_SECRET
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
+    val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
 }
+
+const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
 
 @Serializable
 data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisplaySettings.Types>) {

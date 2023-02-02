@@ -19,86 +19,84 @@
   <a class="reference" :class="{clicked, isHighlighted}" @click.prevent="openLink($event, link)" :href="link" ref="content"><span ref="slot"><slot/></span><template v-if="slotEmpty">{{osisRef}}&nbsp;</template></a>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
-import {computed, ref} from "vue";
-import {inject} from "vue";
+import {computed, inject, ref} from "vue";
+import {osisFragmentKey, referenceCollectorKey, verseHighlightKey} from "@/types/constants";
 
-export default {
-  name: "Reference",
-  props: {
-    osisRef: {type: String, default: null},
-    target: {type: String, default: null},
-    source: {type: String, default: null},
-    type: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "type");
-    const clicked = ref(false);
-    const isHighlighted = ref(false);
-    const {strings, ...common} = useCommon();
-    const {addCustom, resetHighlights} = inject("verseHighlight");
-    const referenceCollector = inject("referenceCollector", null);
-    const content = ref(null);
-    const osisFragment = inject("osisFragment");
-    const slot = ref(null);
-    const slotEmpty = computed(() => {
-      if(slot.value === null) return true;
-      return slot.value.innerText.trim() === "";
-    });
+const props = defineProps<{
+    osisRef?: string
+    target?: string
+    source?: string
+    type?: string
+}>();
 
-    const osisRef = computed(() => {
-      if((!props.osisRef && !props.target) && content.value) {
+checkUnsupportedProps(props, "type");
+const clicked = ref(false);
+const isHighlighted = ref(false);
+const {strings} = useCommon();
+const {addCustom, resetHighlights} = inject(verseHighlightKey)!;
+const referenceCollector = inject(referenceCollectorKey);
+const content = ref<HTMLElement | null>(null);
+const osisFragment = inject(osisFragmentKey)!;
+const slot = ref<HTMLElement | null>(null);
+const slotEmpty = computed(() => {
+    if (slot.value === null) return true;
+    return slot.value.innerText.trim() === "";
+});
+
+const osisRef = computed(() => {
+    if ((!props.osisRef && !props.target) && content.value) {
         return `${osisFragment.bookInitials}:${content.value.innerText}`;
-      } else if(props.target) {
+    } else if (props.target) {
         return props.target;
-      } else {
-        return props.osisRef;
-      }
-    });
-
-    const queryParams = computed(() => {
-      let paramString = "osis=" + encodeURI(osisRef.value)
-      if(osisFragment.v11n) {
-        paramString += "&v11n=" + encodeURI(osisFragment.v11n)
-      }
-      return paramString
-    })
-
-    const link = computed(() => {
-      return `osis://?${queryParams.value}`
-    });
-
-    if(referenceCollector) {
-      referenceCollector.collect(osisRef);
+    } else {
+        return props.osisRef!;
     }
+});
 
-    function openLink(event, url) {
-      addEventFunction(event, () => {
+const queryParams = computed(() => {
+    let paramString = "osis=" + encodeURI(osisRef.value)
+    if (osisFragment.v11n) {
+        paramString += "&v11n=" + encodeURI(osisFragment.v11n)
+    }
+    return paramString
+})
+
+const link = computed(() => {
+    return `osis://?${queryParams.value}`
+});
+
+if (referenceCollector) {
+    referenceCollector.collect(osisRef);
+}
+
+function openLink(event: MouseEvent, url: string) {
+    addEventFunction(event, () => {
         window.location.assign(url)
         clicked.value = true;
         resetHighlights();
         isHighlighted.value = true;
         addCustom(() => isHighlighted.value = false);
-      }, {title: strings.referenceLink, priority: EventPriorities.REFERENCE});
-    }
-    return {openLink, clicked, isHighlighted, content, link, slot, slotEmpty, ...common};
-  },
+    }, {title: strings.referenceLink, priority: EventPriorities.REFERENCE});
 }
 
 </script>
 
 <style lang="scss" scoped>
 @import "~@/common.scss";
+
 .reference {
   @extend .highlight-transition;
   border-radius: 5pt;
 }
+
 a {
   &.clicked {
     color: #8b00ee;
   }
+
   .night & {
     &.clicked {
       color: #bf7eff;

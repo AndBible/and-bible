@@ -53,6 +53,7 @@ android {
 }
 
 dependencies {
+    val coroutinesVersion: String by rootProject.extra
     val commonsTextVersion: String by rootProject.extra
     val jdomVersion: String by rootProject.extra
     val jswordVersion: String by rootProject.extra
@@ -61,6 +62,7 @@ dependencies {
 
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("com.github.AndBible:jsword:$jswordVersion")
     implementation("org.jdom:jdom2:$jdomVersion")

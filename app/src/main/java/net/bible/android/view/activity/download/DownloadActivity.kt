@@ -16,16 +16,15 @@
  */
 package net.bible.android.view.activity.download
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
@@ -42,7 +41,6 @@ import net.bible.android.control.download.DocumentStatus
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.db.DatabaseContainer
@@ -64,9 +62,13 @@ import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.serializer
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.download.urlPrefix
+import java.text.Collator
 
 /**
  * Choose Document (Book) to download
@@ -80,7 +82,10 @@ import net.bible.service.common.CommonUtils
 val Book.isInstalled: Boolean get() = Books.installed().getBook(initials) != null
 
 
-open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R.menu.document_context_menu) {
+open class DownloadActivity : DocumentSelectionBase(
+    R.menu.download_documents, R.menu.document_context_menu,
+    enableLoadingIndicator = false,
+) {
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
         if(selectedItemPositions.isNotEmpty()) {
             val isInstalled = displayedDocuments[selectedItemPositions[0]].isInstalled
@@ -167,8 +172,32 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
 
-        lifecycleScope.launch {
+        // reconfigure the layout:
+        //  * ensure the ProgressBar for the ChooseDocument activity is hidden
+        //  * make the SwipeRefreshLayout visible
+        //  * reparent the ListView to be in the SwipeRefreshLayout
+        binding.loadingIndicator.visibility = View.GONE
+        binding.swipeRefresh.visibility = View.VISIBLE
+        with(binding.list) {
+            (parent as? ViewGroup)?.removeView(this)
+            binding.swipeRefresh.addView(this)
+        }
+        // configure the SwipeRefreshLayout
+        lifecycleScope.launchWhenResumed {
+            isLoading.collect { binding.swipeRefresh.isRefreshing = it }
+        }
+        binding.swipeRefresh.setOnRefreshListener {
+            binding.freeTextSearch.setText("")
+            // prepare the document list view - done in another thread
+            lifecycleScope.launch {
+                downloadDocJson()
+                populateMasterDocumentList(true)
+                updateLastRepoRefreshDate()
+                notifyDataSetChanged()
+            }
+        }
 
+        lifecycleScope.launch {
             if (!askIfWantToProceed()) {
                 finish()
                 return@launch
@@ -176,19 +205,17 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
             CommonUtils.requestNotificationPermission(this@DownloadActivity)
 
+            invalidateOptionsMenu()
+
+            downloadDocJson()
+
+            documentItemAdapter = DocumentDownloadItemAdapter(
+                this@DownloadActivity, downloadControl, recommendedDocuments)
+            initialiseView()
+            // in the basic flow we force the user to download a bible
+            binding.documentTypeSpinner.isEnabled = true
+
             withContext(Dispatchers.Default) {
-                withContext(Dispatchers.Main) {
-                    isRefreshing = true
-                    invalidateOptionsMenu()
-                }
-                downloadDocJson()
-                withContext(Dispatchers.Main) {
-                    documentItemAdapter = DocumentDownloadItemAdapter(
-                        this@DownloadActivity, downloadControl, recommendedDocuments)
-                    initialiseView()
-                    // in the basic flow we force the user to download a bible
-                    binding.documentTypeSpinner.isEnabled = true
-                }
                 if (isRepoBookListOld) {
                     // prepare the document list view - done in another thread
                     populateMasterDocumentList(true)
@@ -200,8 +227,8 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                     // normal user downloading with recent doc list
                     populateMasterDocumentList(false)
                 }
+
                 withContext(Dispatchers.Main) {
-                    isRefreshing = false
                     invalidateOptionsMenu()
                     val bookStr = intent.extras?.getString(DOCUMENT_IDS_EXTRA)
                     if (bookStr != null) {
@@ -297,13 +324,10 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     }
 
     override fun showPreLoadMessage(refresh: Boolean) {
-        val repositories = """
-                https://crosswire.org
-                https://ibtrussia.org
-                https://ebible.org
-                https://public.modules.stepbible.org
-                https://andbible.github.io
-                """.trimIndent()
+        val repositories = repoFactory.repositories.asSequence()
+            .mapNotNull { downloadManager.getInstallerFor(it)?.urlPrefix }
+            .toSortedSet( Collator.getInstance() )
+            .joinToString("\n")
 
         val repoRefreshDate = settings.getLong(REPO_REFRESH_DATE, 0)
         val date = SimpleDateFormat.getDateInstance().format(Date(repoRefreshDate))
@@ -377,7 +401,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
             // update screen so the icon to the left of the book changes
             notifyDataSetChanged()
-            _mainBibleActivity?.updateDocuments()
+            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to download", e)
             Toast.makeText(this@DownloadActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
@@ -397,11 +421,9 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         menu.findItem(R.id.errors).isVisible = hasErrors
-        menu.findItem(R.id.refresh).isVisible = !isRefreshing
         return true
     }
 
-    private var isRefreshing = false
     /**
      * on Click handlers
      */
@@ -417,32 +439,6 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = false
         when (item.itemId) {
-            R.id.refresh -> {
-                // normal user downloading but need to refresh the document list
-                if(isRefreshing) return false
-
-                isRefreshing = true
-                invalidateOptionsMenu()
-
-                binding.freeTextSearch.setText("")
-
-                // prepare the document list view - done in another thread
-                lifecycleScope.launch {
-                    downloadDocJson()
-                    populateMasterDocumentList(true)
-                    updateLastRepoRefreshDate()
-
-                    withContext(Dispatchers.Main) {
-                        notifyDataSetChanged()
-
-                        isRefreshing = false
-                        invalidateOptionsMenu()
-
-                    }
-                }
-
-                isHandled = true
-            }
             R.id.errors -> {
                 var message = ""
                 if(downloadManager.failedRepos.isNotEmpty()) {
@@ -461,7 +457,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                 lifecycleScope.launch (Dispatchers.Main){
                     val intent = Intent(this@DownloadActivity, InstallZip::class.java)
                     awaitIntent(intent)
-                    _mainBibleActivity?.updateDocuments()
+                    ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                 }
 
                 isHandled  = true

@@ -19,15 +19,10 @@
   <div class="paragraphBreak">&nbsp;</div>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 
-export default {
-  name: "Pb",
-  setup() {
-    return useCommon();
-  },
-}
+useCommon();
 </script>
 
 <style lang="scss" scoped>

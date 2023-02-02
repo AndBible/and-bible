@@ -38,7 +38,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
 import java.util.*
 
-class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: Selection):
+class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: Selection) :
     LinearLayout(context, attributeSet) {
     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val bindings = ShareVersesBinding.inflate(inflater, this, true)
@@ -46,44 +46,106 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     init {
         CommonUtils.buildActivityComponent().inject(this)
         bindings.run {
-            toggleFullVerses.isChecked = CommonUtils.settings.getBoolean("share_toggle_full", false)
-            if(!selection.hasRange) {
-                toggleFullVerses.isChecked = true
-                toggleFullVerses.visibility = View.GONE
+            // handle special cases for selections of only one verse
+            if (!selection.hasRange) {
+                toggleShowSelectionOnly.visibility = View.GONE
+                toggleShowEllipsis.visibility = View.GONE
             }
+
+            // apply isChecked to toggles based on settings
             toggleVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_verse_numbers", true)
             advertise.isChecked = CommonUtils.settings.getBoolean("share_show_add", true)
-            abbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
-            toggleNotes.visibility = if(selection.notes!= null) View.VISIBLE else View.GONE
+            toggleShowReference.isChecked = CommonUtils.settings.getBoolean("share_show_reference", true)
+            toggleAbbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
+            toggleShowVersion.isChecked = CommonUtils.settings.getBoolean("share_show_version", true)
+            toggleShowReferenceAtFront.isChecked =
+                CommonUtils.settings.getBoolean("share_show_reference_at_front", true)
+            toggleNotes.visibility = if (selection.notes != null) View.VISIBLE else View.GONE
             toggleNotes.isChecked = CommonUtils.settings.getBoolean("show_notes", true)
+            toggleShowSelectionOnly.isChecked = CommonUtils.settings.getBoolean("show_selection_only", true)
+            toggleShowEllipsis.isChecked = CommonUtils.settings.getBoolean("show_ellipsis", true)
+            toggleShowReferenceAtFront.isChecked =
+                CommonUtils.settings.getBoolean("share_show_ref_at_front_of_verse", false)
+            toggleShowQuotes.isChecked = CommonUtils.settings.getBoolean("share_show_quotes", false)
 
-            toggleFullVerses.setOnClickListener { updateText()}
-            toggleVersenumbers.setOnClickListener { updateText()}
-            advertise.setOnClickListener { updateText()}
-            abbreviateReference.setOnClickListener { updateText()}
-            toggleNotes.setOnClickListener { updateText()}
+            // update text when any toggle is clicked
+            toggleVersenumbers.setOnClickListener { updateWidgetState() }
+            advertise.setOnClickListener { updateWidgetState() }
+            toggleShowReference.setOnClickListener { updateWidgetState() }
+            toggleAbbreviateReference.setOnClickListener { updateWidgetState() }
+            toggleShowVersion.setOnClickListener { updateWidgetState() }
+            toggleShowReferenceAtFront.setOnClickListener { updateWidgetState() }
+            toggleNotes.setOnClickListener { updateWidgetState() }
+            toggleShowSelectionOnly.setOnClickListener { updateWidgetState() }
+            toggleShowEllipsis.setOnClickListener { updateWidgetState() }
+            toggleShowQuotes.setOnClickListener { updateWidgetState() }
         }
-        updateText()
+
+        // update text automatically at end of share widget init
+        updateWidgetState()
     }
 
-    private fun updateText() {
-        val text = SwordContentFacade.getSelectionText(selection,
-            showVerseNumbers = bindings.toggleVersenumbers.isChecked,
-            showFull = bindings.toggleFullVerses.isChecked,
-            advertiseApp = bindings.advertise.isChecked,
-            abbreviateReference = bindings.abbreviateReference.isChecked,
-            showNotes = bindings.toggleNotes.isChecked,
-        )
-        val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
-        bindings.preview.textDirection = if(isRtl)  View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
-        bindings.preview.text = text
+    /**
+     * Updates the following:
+     *   - widget text, based on selected text and widget share options
+     *   - available widget selection options, based on dependent widget options
+     *   - CommonUtils counterparts of widget options
+     */
+    private fun updateWidgetState() {
+        updateText()
+        updateSelectionOptions()
+    }
+
+    /**
+     * Updates the following:
+     *   - available widget selection options, based on dependent widget options
+     *   - Global settings of widget options
+     */
+    private fun updateSelectionOptions() {
+        // update widget share option settings
         CommonUtils.settings.apply {
-            setBoolean("share_toggle_full", bindings.toggleFullVerses.isChecked)
             setBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
             setBoolean("share_show_add", bindings.advertise.isChecked)
-            setBoolean("share_abbreviate_reference", bindings.abbreviateReference.isChecked)
+            setBoolean("share_show_reference", bindings.toggleShowReference.isChecked)
+            setBoolean("share_abbreviate_reference", bindings.toggleAbbreviateReference.isChecked)
+            setBoolean("share_show_version", bindings.toggleShowVersion.isChecked)
             setBoolean("show_notes", bindings.toggleNotes.isChecked)
+            setBoolean("show_selection_only", bindings.toggleShowSelectionOnly.isChecked)
+            setBoolean("show_ellipsis", bindings.toggleShowEllipsis.isChecked)
+            setBoolean("share_show_ref_at_front_of_verse", bindings.toggleShowReferenceAtFront.isChecked)
+            setBoolean("share_show_quotes", bindings.toggleShowQuotes.isChecked)
         }
+
+        // disable dependent child checkboxes if the parent is not checked
+        bindings.toggleAbbreviateReference.isEnabled = bindings.toggleShowReference.isChecked
+        bindings.toggleShowVersion.isEnabled = bindings.toggleShowReference.isChecked
+        bindings.toggleShowReferenceAtFront.isEnabled = bindings.toggleShowReference.isChecked
+        bindings.toggleShowEllipsis.isEnabled = bindings.toggleShowSelectionOnly.isChecked
+    }
+
+    /**
+     * Updates widget text, based on selected text and widget share options
+     */
+    private fun updateText() {
+        // get currently selected text with markup, based on widget options
+        val text = SwordContentFacade.getSelectionText(
+            selection,
+            showVerseNumbers = bindings.toggleVersenumbers.isChecked,
+            advertiseApp = bindings.advertise.isChecked,
+            abbreviateReference = bindings.toggleAbbreviateReference.isChecked,
+            showNotes = bindings.toggleNotes.isChecked,
+            showVersion = bindings.toggleShowVersion.isChecked,
+            showReference = bindings.toggleShowReference.isChecked,
+            showReferenceAtFront = bindings.toggleShowReferenceAtFront.isChecked,
+            showSelectionOnly = bindings.toggleShowSelectionOnly.isChecked,
+            showEllipsis = bindings.toggleShowEllipsis.isChecked,
+            showQuotes = bindings.toggleShowQuotes.isChecked
+        )
+        val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
+
+        // set widget text based on the new text
+        bindings.preview.textDirection = if (isRtl) View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
+        bindings.preview.text = text
     }
 
     companion object {
@@ -91,14 +153,14 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             AlertDialog.Builder(context).apply {
                 val layout = ShareWidget(context, null, selection)
                 setView(layout)
-                setPositiveButton(R.string.backup_share) {
-                    _, _ ->
+                setPositiveButton(R.string.backup_share) { _, _ ->
 
                     val emailIntent = Intent(Intent.ACTION_SEND).apply {
                         putExtra(Intent.EXTRA_TEXT, layout.bindings.preview.text)
                         type = "text/plain"
                     }
-                    val chooserIntent = Intent.createChooser(emailIntent, context.getString(R.string.share_verse_menu_title))
+                    val chooserIntent =
+                        Intent.createChooser(emailIntent, context.getString(R.string.share_verse_menu_title))
                     context.startActivity(chooserIntent)
 
                 }
@@ -114,6 +176,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
                 create().show()
             }
         }
+
         fun dialog(context: Context, bookmark: BookmarkEntities.Bookmark) =
             dialog(context, Selection(bookmark))
     }

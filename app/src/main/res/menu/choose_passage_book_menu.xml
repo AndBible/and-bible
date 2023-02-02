@@ -34,5 +34,12 @@
         android:id="@+id/row_order_opt"
         android:title="@string/book_menu_sort_row_opt"
         android:checkable="true"/>
-
+    <item
+        android:id="@+id/group_by_category"
+        android:title="@string/book_menu_group_by_category"
+        android:checkable="true"/>
+    <item
+        android:id="@+id/show_long_book_name"
+        android:title="@string/book_menu_show_long_book_name"
+        android:checkable="true"/>
 </menu>

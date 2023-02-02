@@ -23,7 +23,7 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.readingplan.ReadingPlanRepository
@@ -52,7 +52,7 @@ import kotlin.math.roundToLong
 @ApplicationScope
 class ReadingPlanControl @Inject constructor(
 		private val speakControl: SpeakControl,
-		private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
+		private val windowControl: WindowControl,
         private val readingPlanRepo: ReadingPlanRepository)
 {
 
@@ -135,8 +135,7 @@ class ReadingPlanControl @Inject constructor(
             return prefs.getString(READING_PLAN, "") as String
         }
 
-    val currentPageManager: CurrentPageManager
-        get() = activeWindowPageManagerProvider.activeWindowPageManager
+    val currentPageManager: CurrentPageManager get() = windowControl.activeWindowPageManager
 
     /** User has chosen to start a plan
      */

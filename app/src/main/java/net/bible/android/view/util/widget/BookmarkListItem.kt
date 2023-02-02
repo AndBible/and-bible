@@ -20,11 +20,12 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.RelativeLayout
 
-class BookmarkListItem @JvmOverloads
-constructor(context: Context,
-            attrs: AttributeSet? = null,
-            defStyleAttr: Int = 0)
-    : RelativeLayout(context, attrs, defStyleAttr) {
+class BookmarkListItem(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+): RelativeLayout(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?): this(context, attrs, 0)
 
     override fun getAccessibilityClassName(): CharSequence {
         return BookmarkListItem::class.java.name

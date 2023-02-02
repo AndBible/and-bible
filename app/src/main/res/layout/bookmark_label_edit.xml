@@ -83,11 +83,27 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/underLineStyle" />
 
+		<androidx.appcompat.widget.AppCompatCheckBox
+			android:id="@+id/markerStyle"
+			style="@style/EditBookmarkLabelItemTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/marker_style"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/underLineStyleWholeVerse" />
+		<androidx.appcompat.widget.AppCompatCheckBox
+			android:id="@+id/markerStyleWholeVerse"
+			style="@style/EditBookmarkLabelItemTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/marker_style_whole_verse"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/markerStyle" />
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:id="@+id/thisBookmarkCategory"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:layout_constraintTop_toBottomOf="@+id/underLineStyleWholeVerse"
+			app:layout_constraintTop_toBottomOf="@+id/markerStyleWholeVerse"
 			tools:layout_editor_absoluteX="20dp">
 			<TextView
 				android:id="@+id/selectedLabelTitle"

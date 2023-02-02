@@ -22,11 +22,11 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.PageControl
-import net.bible.android.control.page.PageTiltScrollControlFactory
+import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
-import net.bible.android.view.activity.MainBibleActivityScope
+import net.bible.service.common.CommonUtils
 import java.lang.ref.WeakReference
 
 import javax.inject.Inject
@@ -36,17 +36,28 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@MainBibleActivityScope
-class BibleViewFactory @Inject constructor(
-    private val mainBibleActivity: MainBibleActivity,
-    private val pageControl: PageControl,
-    private val pageTiltScrollControlFactory: PageTiltScrollControlFactory,
-    private val windowControl: WindowControl,
-    private val linkControl: LinkControl,
-    private val bookmarkControl: BookmarkControl,
-    private val downloadControl: DownloadControl,
-    private val searchControl: SearchControl
-) {
+class BibleViewFactory(val mainBibleActivity: MainBibleActivity) {
+    @Inject lateinit var pageControl: PageControl
+    @Inject lateinit var windowControl: WindowControl
+    @Inject lateinit var linkControl: LinkControl
+    @Inject lateinit var bookmarkControl: BookmarkControl
+    @Inject lateinit var downloadControl: DownloadControl
+    @Inject lateinit var searchControl: SearchControl
+
+    init {
+        CommonUtils.buildActivityComponent().inject(this)
+    }
+
+    private val windowPageTiltScrollControlMap: MutableMap<Window, PageTiltScrollControl> = java.util.HashMap()
+    private fun getPageTiltScrollControl(window: Window): PageTiltScrollControl {
+        return windowPageTiltScrollControlMap[window] ?: synchronized(windowPageTiltScrollControlMap) {
+            synchronized(windowPageTiltScrollControlMap) {
+                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl(mainBibleActivity)
+            }.also {
+                windowPageTiltScrollControlMap[window] = it
+            }
+        }
+    }
 
     private val windowBibleViewMap: MutableMap<Long, BibleView> = HashMap()
     init {
@@ -62,7 +73,7 @@ class BibleViewFactory @Inject constructor(
         }
 
         if (bibleView == null) {
-            val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
+            val pageTiltScrollControl = getPageTiltScrollControl(window)
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl,
                 pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl, searchControl)
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)

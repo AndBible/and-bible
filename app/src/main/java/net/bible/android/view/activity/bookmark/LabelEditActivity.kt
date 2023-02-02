@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.ImageSpan
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -59,13 +60,17 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         binding.titleIcon.setColorFilter(data.label.color)
     }
 
-    override fun onDialogDismissed(dialogId: Int) {}
+    override fun onDialogDismissed(dialogId: Int) {
+        Log.i(TAG, "onDialogDismissed")
+    }
 
     override fun onBackPressed() {
+        Log.i(TAG, "onBackPressed")
         saveAndExit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        Log.i(TAG, "onCreateOptionsMenu")
         menuInflater.inflate(R.menu.edit_label_options_menu, menu)
         if(data.label.isSpecialLabel) {
             menu.findItem(R.id.removeLabel).isVisible = false
@@ -74,6 +79,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.i(TAG, "onOptionsItemSelected ${item.title}")
         var isHandled = true
         when(item.itemId){
             R.id.removeLabel -> remove()
@@ -110,12 +116,15 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
 
     private fun updateData() = binding.apply {
+        Log.i(TAG, "updateData")
         if(!data.label.isSpecialLabel) {
             val name = labelName.text.toString()
             data.label.name = name
         }
         data.label.underlineStyle = underLineStyle.isChecked
         data.label.underlineStyleWholeVerse = underLineStyleWholeVerse.isChecked
+        data.label.markerStyle = markerStyle.isChecked
+        data.label.markerStyleWholeVerse = markerStyleWholeVerse.isChecked
         data.isFavourite = favouriteLabelCheckBox.isChecked
         data.isAutoAssign = autoAssignCheckBox.isChecked
         data.isAutoAssignPrimary = primaryAutoAssignCheckBox.isChecked
@@ -130,6 +139,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun updateUI() = binding.apply {
+        Log.i(TAG, "updateUI")
         favouriteLabelCheckBox.isChecked = data.isFavourite
         autoAssignCheckBox.isChecked = data.isAutoAssign
         primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
@@ -137,6 +147,12 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         labelName.setText(data.label.displayName)
         underLineStyle.isChecked = data.label.underlineStyle
         underLineStyleWholeVerse.isChecked = data.label.underlineStyleWholeVerse
+        val isMarkerStyle = data.label.markerStyle
+        val isMarkerStyleWholeVerse = data.label.markerStyleWholeVerse
+        markerStyle.isChecked = isMarkerStyle
+        markerStyleWholeVerse.isChecked = isMarkerStyleWholeVerse
+        underLineStyle.isEnabled = !isMarkerStyle
+        underLineStyleWholeVerse.isEnabled = !isMarkerStyleWholeVerse
         updateColor()
         if (data.label.isSpecialLabel) {
             labelName.isEnabled = false
@@ -153,6 +169,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun saveAndExit() {
+        Log.i(TAG, "saveAndExit")
+
         updateData()
 
         val resultIntent = Intent()
@@ -162,6 +180,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun remove() {
+        Log.i(TAG, "remove")
         updateData()
 
         lifecycleScope.launch(Dispatchers.Main) {
@@ -204,14 +223,13 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
             titleIcon.setOnClickListener { editColor() }
 
-            autoAssignCheckBox.setOnCheckedChangeListener { _, _ ->
-                updateData()
-                updateUI()
+            for(v in listOf(autoAssignCheckBox, markerStyle, markerStyleWholeVerse, selectedLabelCheckBox)) {
+                v.setOnCheckedChangeListener { _, _ ->
+                    updateData()
+                    updateUI()
+                }
             }
-            selectedLabelCheckBox.setOnCheckedChangeListener { _, _ ->
-                updateData()
-                updateUI()
-            }
+
             if(data.label.name == "") {
                 labelName.requestFocus()
             }

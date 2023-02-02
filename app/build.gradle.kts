@@ -32,14 +32,17 @@ plugins {
 val jsDir = "bibleview-js"
 
 // The flavor dimension for the appearance of the app
-val dimAppearance = "appearance"
-val discreteFlavor = "discrete"
+val dimAppearanceName = "appearance"
+val discreteFlavorName = "discrete"
 // This is the "standard" applicationId.
 // This value must remain the same as it has been since the original
 // release in 2010 for continuity of updates for existing users.
-val applicationIdStandard = "net.bible.android.activity"
+val applicationIdStandard = "net.bible.android.activity.next"
 // An alternative applicationId, to be used for the "discrete" flavor.
-val applicationIdDiscrete = "com.example.ToDo"
+val applicationIdDiscrete = "com.app.calculator"
+
+// The flavor dimension for the app's distribution channel
+val dimDistributionChannelName = "distchannel"
 
 
 fun getGitHash(): String =
@@ -88,13 +91,13 @@ val npmInstall by tasks.registering(Exec::class) {
     }
 }
 
-val vueCli by tasks.registering(Exec::class) {
+val jsBuild by tasks.registering(Exec::class) {
     dependsOn(npmInstall)
     inputs.file("$jsDir/package.json")
-    inputs.file("$jsDir/vue.config.js")
-    inputs.file("$jsDir/babel.config.js")
+    inputs.file("$jsDir/vite.config.ts")
+    inputs.file("$jsDir/index.html")
+    inputs.file("$jsDir/tsconfig.json")
     inputs.dir("$jsDir/src")
-    inputs.dir("$jsDir/public")
     outputs.dir("$jsDir/dist")
     println("Task names "+gradle.startParameter.taskNames)
     val taskNames = gradle.startParameter.taskNames
@@ -118,7 +121,7 @@ val vueCli by tasks.registering(Exec::class) {
 }
 
 val buildLoaderJs by tasks.registering(Sync::class) {
-    dependsOn(vueCli)
+    dependsOn(jsBuild)
     from("$jsDir/dist")
     into("src/main/assets/bibleview-js")
 }
@@ -171,36 +174,42 @@ android {
 //			zipAlignEnabled true
         }
     }
-    flavorDimensions += listOf(dimAppearance)
+
+    flavorDimensions += listOf(dimAppearanceName, dimDistributionChannelName)
 
     productFlavors {
         create("standard") {
-            dimension = dimAppearance
+            dimension = dimAppearanceName
             isDefault = true
         }
 
-        create(discreteFlavor) {
-            dimension = dimAppearance
+        create(discreteFlavorName) {
+            dimension = dimAppearanceName
+        }
+
+        create("googleplay") {
+            dimension = dimDistributionChannelName
+            isDefault = true
         }
 
         create("fdroid") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannelName
         }
 
         create("samsung") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannelName
         }
 
         create("huawei") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannelName
         }
 
         create("amazon") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannelName
         }
 
         create("github") {
-            dimension = dimAppearance
+            dimension = dimDistributionChannelName
         }
     }
 
@@ -256,11 +265,10 @@ android {
         jvmTarget = "1.8"
     }
     namespace = "net.bible.android.activity"
-
 }
 
 androidComponents {
-    val discreteSelector = selector().withFlavor(dimAppearance to discreteFlavor )
+    val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
     // Set the applicationId to a more discrete alternative.
     // Replace only the "standard" prefix, in order to preserve any
     // suffixes that are contributed by the build types or product flavors.
@@ -268,7 +276,16 @@ androidComponents {
         val originalAppId = variant.applicationId.get()
         val alternateAppId = originalAppId.replace(applicationIdStandard, applicationIdDiscrete)
         variant.applicationId.set(alternateAppId)
-        logger.info("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
+        println("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
+    }
+    beforeVariants(selector()
+        .withFlavor(dimAppearanceName to "discrete")
+    ) { variant ->
+        for((dimension, value) in variant.productFlavors) {
+            if(dimension == dimDistributionChannelName && !listOf("github").contains(value)) {
+                variant.enable = false
+            }
+        }
     }
 }
 
@@ -278,6 +295,7 @@ dependencies {
     val jdomVersion: String by rootProject.extra
     val jswordVersion: String by rootProject.extra
     val kotlinVersion: String by rootProject.extra
+    val coroutinesVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
     val roomVersion: String by rootProject.extra
 
@@ -292,7 +310,9 @@ dependencies {
     implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.5.0")
+    implementation("net.objecthunter:exp4j:0.4.8")
 
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 
@@ -305,7 +325,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
 
     implementation("com.madgag.spongycastle:core:1.58.0.0")
     //implementation("com.madgag.spongycastle:prov:1.58.0.0")

@@ -50,11 +50,19 @@
 		android:icon="@drawable/ic_pin"
 		android:checkable="true"
 		android:checked="true"/>
-	<item android:id="@+id/windowSynchronise"
-		android:title="@string/windowSynchronise"
+	<item
+		android:id="@+id/syncGroupSubMenu"
 		android:icon="@drawable/ic_window_sync_24dp"
-		android:checkable="true"
-		android:checked="true"/>
+		android:title="@string/windowSynchronise">
+		<menu>
+			<item android:id="@+id/disableSync"
+				android:title="@string/disable_sync"
+				/>
+			<item android:id="@+id/syncGroupItem"
+				android:title=""
+				/>
+		</menu>
+	</item>
 	<item android:id="@+id/exportHtml"
 		android:title=""
 		android:icon="@drawable/file_export"

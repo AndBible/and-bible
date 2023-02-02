@@ -39,6 +39,7 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.page.Preference as ItemPreference
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityScope
@@ -326,7 +327,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
     }
 
     fun setResult() {
-        val resultIntent = Intent(this, ColorSettingsActivity::class.java)
+        val resultIntent = Intent(this, TextDisplaySettingsActivity::class.java)
 
         resultIntent.putExtra("settingsBundle", settingsBundle.toJson())
         resultIntent.putExtra("reset", reset)

@@ -20,27 +20,25 @@ package net.bible.android.view.activity.speak
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AlertDialog
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.*
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpeakBibleBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.service.common.htmlToSpan
 import net.bible.service.common.speakHelpVideo
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
@@ -49,11 +47,7 @@ import javax.inject.Inject
 
 @ActivityScope
 class BibleSpeakActivity : AbstractSpeakActivity() {
-    companion object {
-        const val TAG = "BibleSpeakActivity"
-    }
-
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var navigationControl: NavigationControl
 
     lateinit var binding: SpeakBibleBinding
@@ -140,11 +134,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 + "${getString(R.string.watch_tutorial_video)}</a></b>"
                 )
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(htmlMessage)
-        }
+        val spanned = htmlToSpan(htmlMessage)
 
         val d = AlertDialog.Builder(this)
                 .setMessage(spanned)

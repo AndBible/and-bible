@@ -79,10 +79,10 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class TextToSpeechServiceManager @Inject constructor(
-		bibleTraverser: BibleTraverser,
-		windowControl: WindowControl,
-		bookmarkControl: BookmarkControl,
-		val speakControl: SpeakControl
+    bibleTraverser: BibleTraverser,
+    windowControl: WindowControl,
+    bookmarkControl: BookmarkControl,
+    val speakControl: SpeakControl
 ) {
 
     private var mTts: TextToSpeech? = null
@@ -116,10 +116,11 @@ class TextToSpeechServiceManager @Inject constructor(
         Log.i(TAG, "Creating TextToSpeechServiceManager")
         generalSpeakTextProvider = GeneralSpeakTextProvider()
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
-        val verse = windowControl.activeWindowPageManager.currentBible.singleKey
 
         bibleSpeakTextProvider = BibleSpeakTextProvider(
-            bibleTraverser, bookmarkControl, windowControl.windowRepository, book, verse
+            bibleTraverser = bibleTraverser,
+            bookmarkControl = bookmarkControl,
+            initialBook = book
         )
         mSpeakTextProvider = bibleSpeakTextProvider
 
@@ -150,11 +151,11 @@ class TextToSpeechServiceManager @Inject constructor(
             Log.i(TAG, "Tts initialisation succeeded")
 
             // Add earcons
-            tts.addEarcon(EARCON_PRE_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling) // TODO: change
-            tts.addEarcon(EARCON_POST_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling_reverse)
-            tts.addEarcon(EARCON_PRE_TITLE, BibleApplication.application.packageName, R.raw.pageflip)
-            tts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, BibleApplication.application.packageName, R.raw.medium_pling)
-            tts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.application.packageName, R.raw.long_pling)
+            tts.addEarcon(EARCON_PRE_FOOTNOTE, application.packageName, R.raw.short_pling) // TODO: change
+            tts.addEarcon(EARCON_POST_FOOTNOTE, application.packageName, R.raw.short_pling_reverse)
+            tts.addEarcon(EARCON_PRE_TITLE, application.packageName, R.raw.pageflip)
+            tts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, application.packageName, R.raw.medium_pling)
+            tts.addEarcon(EARCON_PRE_BOOK_CHANGE, application.packageName, R.raw.long_pling)
 
             // set speech rate
             setRate(SpeakSettings.load().playbackSettings.speed)

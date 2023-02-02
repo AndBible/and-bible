@@ -24,10 +24,9 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import net.bible.android.activity.R
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
-import net.bible.android.view.activity.page.MainBibleActivity
 import org.crosswire.jsword.passage.Key
 import java.util.*
 import javax.inject.Inject
@@ -40,7 +39,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
     private val mKeyList: MutableList<Key> = ArrayList()
     private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
 
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
     abstract val currentKey: Key?
     abstract val keyList: List<Key>?
     abstract fun itemSelected(key: Key)

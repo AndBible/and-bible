@@ -53,14 +53,17 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
+import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 
 import org.apache.commons.lang3.StringUtils
@@ -159,11 +162,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
             val msg = getString(R.string.old_webview, info.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)
 
-            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(msg, Html.FROM_HTML_MODE_LEGACY)
-            } else {
-                Html.fromHtml(msg)
-            }
+            val spanned = htmlToSpan(msg)
 
             return suspendCoroutine {
                 val dlgBuilder = AlertDialog.Builder(this)
@@ -185,6 +184,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     /** Called when the activity is first created.  */
     @SuppressLint("ApplySharedPref")
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(TAG, "StartupActivity.onCreate")
         super.onCreate(savedInstanceState)
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
         startupViewBinding = StartupViewBinding.inflate(layoutInflater)
@@ -195,10 +195,18 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         BackupControl.setupDirs(this)
         lifecycleScope.launch {
-            ErrorReportControl.checkCrash(this@StartupActivity)
+            if(!BuildVariant.Appearance.isDiscrete) {
+                ErrorReportControl.checkCrash(this@StartupActivity)
+            }
             // switch back to ui thread to continue
             withContext(Dispatchers.Main) {
                 postBasicInitialisationControl()
+                if(CommonUtils.isDiscrete) {
+                    spinnerBinding.imageView.setImageResource(
+                        R.drawable.ic_calculator_color
+                    )
+                    spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
+                }
             }
         }
     }
@@ -218,6 +226,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         initializeDatabase()
 
+        // When enabled, go to the calculator first,
+        // even when there are no Bible documents already installed.
+        if(!checkCalculator()) return@withContext
+        if(BuildVariant.Appearance.isDiscrete) {
+            ErrorReportControl.checkCrash(this@StartupActivity)
+        }
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
@@ -302,6 +316,23 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
     }
 
+    private suspend fun checkCalculator(): Boolean {
+        if(CommonUtils.showCalculator) {
+            Log.i(TAG, "Going to Calculator")
+            val handlerIntent = Intent(this, CalculatorActivity::class.java)
+            while(true) {
+                when(awaitIntent(handlerIntent).resultCode) {
+                    RESULT_OK -> break
+                    RESULT_CANCELED -> {
+                        finish()
+                        return false
+                    }
+                }
+            }
+        }
+        return true
+    }
+
     private fun gotoMainBibleActivity() {
         Log.i(TAG, "Going to MainBibleActivity")
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
@@ -329,40 +360,43 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         Log.i(TAG, "Activity result:$resultCode")
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == DOWNLOAD_DOCUMENT_REQUEST) {
-            Log.i(TAG, "Returned from Download")
-            if (swordDocumentFacade.bibles.isNotEmpty()) {
-                Log.i(TAG, "Bibles now exist so go to main bible view")
-                // select appropriate default verse e.g. John 3.16 if NT only
-                lifecycleScope.launch(Dispatchers.Main) {
-                    gotoMainBibleActivity()
-                }
+        when (requestCode) {
+            DOWNLOAD_DOCUMENT_REQUEST -> {
+                Log.i(TAG, "Returned from Download")
+                if (swordDocumentFacade.bibles.isNotEmpty()) {
+                    Log.i(TAG, "Bibles now exist so go to main bible view")
+                    // select appropriate default verse e.g. John 3.16 if NT only
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        gotoMainBibleActivity()
+                    }
 
-            } else {
-                Log.i(TAG, "No Bibles exist so start again")
-                lifecycleScope.launch(Dispatchers.Main) {
-                    postBasicInitialisationControl()
+                } else {
+                    Log.i(TAG, "No Bibles exist so start again")
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        postBasicInitialisationControl()
+                    }
                 }
             }
-        } else if (requestCode == REQUEST_PICK_FILE_FOR_BACKUP_RESTORE) {
-            // this and the one in MainActivity could potentially be merged into the same thing
-            if (resultCode == Activity.RESULT_OK) {
-                CurrentActivityHolder.currentActivity = this
-                Dialogs.showMsg(R.string.restore_confirmation, true) {
-                    ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
-                    val hourglass = Hourglass(this)
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        hourglass.show()
-                        val inputStream = contentResolver.openInputStream(data!!.data!!)
-                        if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {
-                            Log.i(TAG, "Restored database successfully")
+            REQUEST_PICK_FILE_FOR_BACKUP_RESTORE -> {
+                // this and the one in MainActivity could potentially be merged into the same thing
+                CurrentActivityHolder.activate(this)
+                if (resultCode == Activity.RESULT_OK) {
+                    Dialogs.showMsg(R.string.restore_confirmation, true) {
+                        ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
+                        val hourglass = Hourglass(this)
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            hourglass.show()
+                            val inputStream = contentResolver.openInputStream(data!!.data!!)
+                            if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                                Log.i(TAG, "Restored database successfully")
 
-                            withContext(Dispatchers.Main) {
-                                Dialogs.showMsg(R.string.restore_success)
-                                postBasicInitialisationControl()
+                                withContext(Dispatchers.Main) {
+                                    Dialogs.showMsg(R.string.restore_success)
+                                    postBasicInitialisationControl()
+                                }
                             }
+                            hourglass.dismiss()
                         }
-                        hourglass.dismiss()
                     }
                 }
             }

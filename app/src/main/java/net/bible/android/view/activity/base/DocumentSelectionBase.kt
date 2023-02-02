@@ -32,6 +32,7 @@ import android.widget.ListView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -48,7 +49,7 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.isRecommended
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Ref
 import net.bible.service.db.DatabaseContainer
@@ -102,10 +103,17 @@ data class PseudoBook(
     val suggested: String,
 )
 
-abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
+abstract class DocumentSelectionBase(
+    optionsMenuId: Int,
+    private val actionModeMenuId: Int,
+    private val enableLoadingIndicator: Boolean = true,
+    ) : ListActivityBase(optionsMenuId), ActionModeActivity
+{
     @Inject lateinit var downloadControl: DownloadControl
 
     protected lateinit var binding: DocumentSelectionBinding
+
+    protected val isLoading = MutableStateFlow(false)
 
     protected lateinit var documentItemAdapter: ArrayAdapter<Book>
     protected var selectedDocumentFilterNo = 0
@@ -141,6 +149,16 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         super.onCreate(savedDialogsState)
         binding = DocumentSelectionBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        if (enableLoadingIndicator) {
+            lifecycleScope.launchWhenResumed {
+                isLoading.collect {
+                    binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
+                }
+            }
+        }
+        else {
+            binding.loadingIndicator.visibility = View.GONE
+        }
     }
 
     protected fun initialiseView() {
@@ -149,7 +167,9 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId, true)
         //listView.choiceMode = AbsListView.CHOICE_MODE_SINGLE
         // trigger action mode on long press
-        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id -> listActionModeHelper.startActionMode(this@DocumentSelectionBase, position) }
+        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id ->
+            listActionModeHelper.startActionMode(this@DocumentSelectionBase, position)
+        }
         languageList.clear()
         displayedDocuments.clear()
 
@@ -346,7 +366,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         Log.i(TAG, "populate Master Document List")
 
         withContext(Dispatchers.Main) {
-            binding.loadingIndicator.visibility = View.VISIBLE
+            isLoading.value = true
             showPreLoadMessage(refresh)
             filterMutex.withLock {
                 documentItemAdapter.clear()
@@ -381,7 +401,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 isPopulated = true
                 filterDocuments()
             } finally {
-                binding.loadingIndicator.visibility = View.GONE
+                isLoading.value = false
             }
         }
     }
@@ -530,7 +550,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
                             // the doc list should now change
                             reloadDocuments()
-                            _mainBibleActivity?.updateDocuments()
+                            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                         } catch (e: Exception) {
                             Log.e(TAG, "Deleting document crashed", e)
                             Dialogs.showErrorMsg(R.string.error_occurred, e)

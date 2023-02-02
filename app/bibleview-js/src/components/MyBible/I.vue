@@ -16,20 +16,19 @@
   -->
 
 <template>
-  <i><slot/></i>
+  <span v-if="show" :class="{nonCanonical: config.makeNonCanonicalItalic}"><slot/></span>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
+import {computed} from "vue";
 
-export default {
-  name: "I",
-  setup() {
-    return useCommon();
-  },
-}
+const {config} = useCommon();
+const show = computed(() => config.showNonCanonical);
 </script>
 
-<style lang="scss" scoped>
-@import "~@/common.scss";
+<style scoped>
+.nonCanonical {
+    font-style: italic;
+}
 </style>

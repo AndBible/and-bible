@@ -16,55 +16,47 @@
  */
 package net.bible.android.view.activity.base
 
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.util.Log
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
+import net.bible.android.view.activity.page.MainBibleActivity
 
 /** Allow operations form middle tier that require a reference to the current Activity
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-private const val TAG = "CurrentActivityHolder"
 
 object CurrentActivityHolder {
-    @SuppressLint("StaticFieldLeak") // it is what it is
-    var currentActivity: ActivityBase? = null
-        set(value) {
-            field = value
-            // if activity changes then app must be in foreground so use this to trigger appToForeground event if it was in background
-            appIsNowInForeground()
-        }
+    private val activities = ArrayList<ActivityBase>()
 
-    private var appIsInForeground = false
+    val currentActivity: ActivityBase? get() = try { activities.last() } catch (e: NoSuchElementException) {null}
 
-    fun iAmNoLongerCurrent(activity: Activity) {
-        // if the next activity has not already overwritten my registration 
-        if (currentActivity != null && currentActivity == activity) {
-            Log.w(TAG, "Temporarily null current ativity")
-            currentActivity = null
-            if (appIsInForeground) {
-                appIsInForeground = false
-                ABEventBus
-                    .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND))
+    fun activate(activity: ActivityBase) {
+        if(activity == currentActivity) return
+        val wasEmpty = activities.isEmpty()
+        activities.add(activity)
+        activity.unFreeze()
+        if (wasEmpty) {
+            ABEventBus
+                .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.FOREGROUND))
+        } else {
+            for (a in activities.filterNot { it == activity }) {
+                a.freeze()
             }
         }
     }
 
-    /** really need to check for app being restored after an exit
-     */
-    private fun appIsNowInForeground() {
-        if (!appIsInForeground) {
-            Log.i(TAG, "AppIsInForeground firing event")
-            appIsInForeground = true
+    val mainBibleActivities get() = activities.filterIsInstance<MainBibleActivity>().size
+
+    fun deactivate(activity: ActivityBase) {
+        activities.remove(activity)
+        if (activities.isEmpty()) {
             ABEventBus
-                .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.FOREGROUND))
+                .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND))
+        } else {
+            currentActivity!!.unFreeze()
         }
     }
 
-    /** convenience task with error checking
-     */
     fun runOnUiThread(runnable: Runnable) {
         currentActivity?.runOnUiThread(runnable)
     }

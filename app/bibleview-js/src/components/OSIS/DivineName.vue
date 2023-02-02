@@ -19,19 +19,14 @@
   <span class="divineName"><slot/></span>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 
-export default {
-  name: "DivineName",
-  setup() {
-    return useCommon();
-  },
-}
+useCommon()
 </script>
 
 <style scoped>
 .divineName {
-  font-variant: small-caps;
+    font-variant: small-caps;
 }
 </style>

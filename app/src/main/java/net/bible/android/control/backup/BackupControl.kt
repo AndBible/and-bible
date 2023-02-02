@@ -26,9 +26,11 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.CoroutineScope
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,9 +46,10 @@ import net.bible.android.database.DATABASE_VERSION
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.windowControl
 import net.bible.service.common.FileManager
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
@@ -68,12 +71,12 @@ import java.io.InputStream
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 
 object BackupControl {
-
     /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
      */
     private suspend fun backupDatabaseToUri(activity: ActivityBase, uri: Uri, file: File)  {
@@ -331,7 +334,7 @@ object BackupControl {
                     type = "application/zip"
                     putExtra(Intent.EXTRA_TITLE, fileName)
                 }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data
+                val r = callingActivity.awaitIntent(intent).resultData?.data
                 ok = if(r == null) false else backupModulesToUri(r)
             }
             BackupResult.SHARE -> {
@@ -413,17 +416,20 @@ object BackupControl {
                     type = "application/x-sqlite3"
                     putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
                 }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return
-
-                _mainBibleActivity?.windowRepository?.saveIntoDb()
-                db.sync()
+                val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
+                if(CommonUtils.initialized) {
+                    windowControl.windowRepository.saveIntoDb()
+                    db.sync()
+                }
                 callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, dbFile)
                 }
             }
             BackupResult.SHARE -> {
-                _mainBibleActivity?.windowRepository?.saveIntoDb()
-                db.sync()
+                if(CommonUtils.initialized) {
+                    windowControl.windowRepository.saveIntoDb()
+                    db.sync()
+                }
                 backupDatabaseViaSendIntent(callingActivity, dbFile)
             }
             BackupResult.CANCEL -> {}
@@ -455,10 +461,7 @@ object BackupControl {
                     type = "application/x-sqlite3"
                     putExtra(Intent.EXTRA_TITLE, file.name)
                 }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return
-
-                _mainBibleActivity?.windowRepository?.saveIntoDb()
-                db.sync()
+                val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
                 callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, file)
                 }
@@ -473,7 +476,7 @@ object BackupControl {
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "application/*"
-        val result = activity.awaitIntent(intent) ?: return
+        val result = activity.awaitIntent(intent)
         if (result.resultCode == Activity.RESULT_OK) {
             val result2 = Dialogs.showMsg2(activity, R.string.restore_confirmation, true)
             if(result2 != Dialogs.Result.OK) return
@@ -486,9 +489,7 @@ object BackupControl {
                 } catch (e: FileNotFoundException) {null}
                 if (inputStream != null && restoreDatabaseViaIntent(inputStream)) {
                     Log.i(TAG, "Restored database successfully")
-                    withContext(Dispatchers.Main) {
-                        _mainBibleActivity?.afterRestore()
-                    }
+                    ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
                 } else {
                     Dialogs.showMsg(R.string.restore_unsuccessfull)
                 }
@@ -500,9 +501,9 @@ object BackupControl {
     suspend fun restoreModulesViaIntent(activity: ActivityBase) {
         val intent = Intent(activity, InstallZip::class.java)
         val result = activity.awaitIntent(intent)
-        if(result?.resultData?.data == null) return
+        if(result.resultData?.data == null) return
 
-        _mainBibleActivity?.updateDocuments()
+        ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
     }
 
     suspend fun backupPopup(activity: ActivityBase) {
@@ -523,19 +524,51 @@ object BackupControl {
 
 class BackupActivity: ActivityBase() {
     lateinit var binding: BackupViewBinding
+    override val doNotInitializeApp: Boolean = true
+
+    override fun onBackPressed() {
+        updateSelectionOptions()
+        super.onBackPressed()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            android.R.id.home -> {
+                updateSelectionOptions()
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         binding = BackupViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.apply {
-            restoreModules.text = "${getString(R.string.install_zip)} / ${getString(R.string.restore_modules)}"
+            toggleBackupApplication.isChecked = CommonUtils.settings.getBoolean("backup_application", false)
+            toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", true)
+            toggleBackupDocuments.isChecked = CommonUtils.settings.getBoolean("backup_documents", false)
+            toggleRestoreDatabase.isChecked = CommonUtils.settings.getBoolean("restore_database", true)
+            toggleRestoreDocuments.isChecked = CommonUtils.settings.getBoolean("restore_documents", false)
 
-            backupApp.setOnClickListener { lifecycleScope.launch { BackupControl.backupApp(this@BackupActivity) } }
-            backupAppDatabase.setOnClickListener { lifecycleScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) } }
-            backupModules.setOnClickListener { lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) } }
-            restoreAppDatabase.setOnClickListener { lifecycleScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) } }
-            restoreModules.setOnClickListener { lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) } }
+            buttonBackup.setOnClickListener {
+                updateSelectionOptions()
+                when {
+                    toggleBackupApplication.isChecked -> lifecycleScope.launch { BackupControl.backupApp(this@BackupActivity) }
+                    toggleBackupDatabase.isChecked -> lifecycleScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) }
+                    toggleBackupDocuments.isChecked -> lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) }
+                }
+            }
+            buttonRestore.setOnClickListener {
+                updateSelectionOptions()
+                when {
+                    toggleRestoreDatabase.isChecked -> lifecycleScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) }
+                    toggleRestoreDocuments.isChecked -> lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
+                }
+            }
             CommonUtils.dbBackupPath.listFiles()?.forEach { f ->
                 val b = Button(this@BackupActivity)
                 val s = f.name
@@ -548,6 +581,18 @@ class BackupActivity: ActivityBase() {
             if(backupDbButtons.childCount == 0) {
                 importExportTitle.visibility = View.GONE
             }
+        }
+    }
+
+    private fun updateSelectionOptions() {
+        if(!CommonUtils.initialized) return
+        // update widget share option settings
+        CommonUtils.settings.apply {
+            setBoolean("backup_application", binding.toggleBackupApplication.isChecked)
+            setBoolean("backup_database", binding.toggleBackupDatabase.isChecked)
+            setBoolean("backup_documents", binding.toggleBackupDocuments.isChecked)
+            setBoolean("restore_database", binding.toggleRestoreDatabase.isChecked)
+            setBoolean("restore_documents", binding.toggleRestoreDocuments.isChecked)
         }
     }
 }

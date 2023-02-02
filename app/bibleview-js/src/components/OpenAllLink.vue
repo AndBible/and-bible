@@ -17,36 +17,31 @@
 
 <template>
   <div class="open-all" v-if="openAllLink">
-    <a :href="openAllLink">{{strings.openAll}}</a>
+    <a :href="openAllLink">{{ strings.openAll }}</a>
   </div>
 </template>
 
-<script>
-import {computed} from "vue";
-import {inject} from "vue";
+<script lang="ts" setup>
+import {computed, inject} from "vue";
 import {useCommon} from "@/composables";
+import {referenceCollectorKey} from "@/types/constants";
 
-export default {
-  name: "OpenAllLink",
-  props: {
-    v11n: {type: String, default: null},
-  },
-  setup(props) {
-    const referenceCollector = inject("referenceCollector", null);
-    const openAllLink = computed(() => {
-      if(referenceCollector === null) return null;
-      const refs = referenceCollector.references;
-      if(refs.length < 2) return null;
-      return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&") + (props.v11n ? "&v11n=" + encodeURI(props.v11n): "")
-    });
-    return {openAllLink, ...useCommon()}
-  }
-}
+const props = withDefaults(defineProps<{ v11n: string | null }>(), {v11n: null});
+
+const referenceCollector = inject(referenceCollectorKey, null);
+const openAllLink = computed(() => {
+    if (referenceCollector === null) return null;
+    const refs = referenceCollector.references;
+    if (refs.length < 2) return null;
+    return "multi://?" + refs.map(v => "osis=" + encodeURI(v.value)).join("&") + (props.v11n ? "&v11n=" + encodeURI(props.v11n) : "")
+});
+
+const {strings} = useCommon();
 </script>
 
 <style scoped>
 .open-all {
-  padding-top: 1em;
-  text-align: right;
+    padding-top: 1em;
+    text-align: right;
 }
 </style>

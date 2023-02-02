@@ -21,7 +21,7 @@ import android.view.MenuItem
 import net.bible.android.activity.R
 import javax.inject.Inject
 import androidx.core.view.MenuItemCompat
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.service.common.TitleSplitter
 import org.crosswire.jsword.book.Book
 
@@ -37,7 +37,7 @@ abstract class QuickDocumentChangeToolbarButton:
     QuickActionButton(MenuItemCompat.SHOW_AS_ACTION_ALWAYS or MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT),
     MenuItem.OnMenuItemClickListener
 {
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
     private var mSuggestedDocument: Book? = null
 
     abstract fun getSuggestedDocument(): Book?
@@ -49,7 +49,7 @@ abstract class QuickDocumentChangeToolbarButton:
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
-        activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocument(mSuggestedDocument)
+        windowControl.activeWindowPageManager.setCurrentDocument(mSuggestedDocument)
         return true
     }
 

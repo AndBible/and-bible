@@ -17,13 +17,14 @@
 
 package net.bible.service.device.speak
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
@@ -38,8 +39,6 @@ import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
-import net.bible.android.view.activity.page.windowRepository
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
@@ -54,7 +53,6 @@ import org.robolectric.annotation.Config
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
 import org.junit.After
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -80,6 +78,7 @@ open class SpeakIntegrationTestBase {
         bookmarkControl = appComponent.bookmarkControl()
         speakControl = appComponent.speakControl()
         windowControl = appComponent.windowControl()
+        windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository.initialize()
         speakControl.setupMockedTts()
         book = Books.installed().getBook("FinRK") as SwordBook
@@ -134,12 +133,6 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 
         bibleSpeakActivityController.create()
         mainActivityController.create()
-    }
-
-    @After
-    fun after() {
-        _mainBibleActivity = null
-
     }
 
     fun getVerse(verseStr: String): Verse {
@@ -276,7 +269,6 @@ open class AbstractSpeakTests {
         val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
         val bookmarkControl = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java))
-        val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
     }
 }
 
@@ -450,7 +442,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testQuotationMarkAnomalySTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         provider.setupReading(book, getVerse("Exod.31.8"))
         val cmd = provider.getNextSpeakCommand("id-1") as TextCommand
         assertThat(cmd.text, startsWith("pöydän varusteineen"))
@@ -493,8 +485,7 @@ class TestPersistence : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl,
-                windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
@@ -529,7 +520,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         bookmarkControl.speakLabel
         provider.settings = SpeakSettings(autoBookmark = true)
 
@@ -861,7 +852,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 

@@ -19,7 +19,7 @@ package net.bible.android.view.activity.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Instrumentation
+import android.app.Instrumentation.ActivityResult
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -32,7 +32,8 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.CompletableDeferred
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.StartupActivity
+import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
@@ -51,20 +52,54 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     // some screens are highly customised and the theme looks odd if it changes
     open val allowThemeChange = true
+    open val integrateWithHistoryManager: Boolean = false
 
-    private lateinit var _contentView: View
     protected lateinit var historyTraversal: HistoryTraversal
 
-    private var integrateWithHistoryManagerInitialValue: Boolean = false
 
     @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
     open val doNotInitializeApp = false
 
+    var doNotMarkPaused = false
+    var wasPaused = false
+    var returningFromCalculator = false
+
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
-        this.onCreate(savedInstanceState, false)
+        CurrentActivityHolder.activate(this)
+
+        if(!doNotInitializeApp) {
+            CommonUtils.initializeApp()
+        }
+
+        if (allowThemeChange) {
+            applyTheme()
+        }
+
+        super.onCreate(savedInstanceState)
+
+        if(!doNotInitializeApp) {
+            if(CommonUtils.showCalculator) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+            refreshScreenKeepOn()
+        }
+
+        Log.i(TAG, "onCreate")
+
+        // if locale is overridden then have to force title to be translated here
+        LocaleHelper.translateTitle(this)
+        setActionBarColor(supportActionBar)
+
+        wasPaused = false
+        Log.i(TAG, "onCreate: loading state: $savedInstanceState")
+        if(savedInstanceState != null) {
+            doNotMarkPaused = savedInstanceState.getBoolean("doNotMarkPaused", false)
+            wasPaused = savedInstanceState.getBoolean("wasPaused", false)
+            returningFromCalculator = savedInstanceState.getBoolean("returningFromCalculator", false)
+        }
     }
 
     fun applyTheme() {
@@ -82,33 +117,16 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
-    /** Called when the activity is first created.  */
-    override fun onCreate(savedInstanceState: Bundle?, integrateWithHistoryManager: Boolean) {
-        CurrentActivityHolder.currentActivity = this
-
-        if(!doNotInitializeApp) {
-            CommonUtils.initializeApp()
-        }
-
-        if (allowThemeChange) {
-            applyTheme()
-        }
-
-        super.onCreate(savedInstanceState)
-        if(!doNotInitializeApp) {
-            refreshScreenKeepOn()
-        }
-
-        Log.i(localClassName, "onCreate:" + this)
-
-        this.integrateWithHistoryManagerInitialValue = integrateWithHistoryManager
-
-        // if locale is overridden then have to force title to be translated here
-        LocaleHelper.translateTitle(this)
-        setActionBarColor(supportActionBar)
-    }
-
     protected fun buildActivityComponent() = CommonUtils.buildActivityComponent()
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("doNotMarkPaused", doNotMarkPaused)
+        outState.putBoolean("wasPaused", wasPaused)
+        outState.putBoolean("returningFromCalculator", returningFromCalculator)
+        Log.i(TAG, "Saving saved state from $outState")
+
+        super.onSaveInstanceState(outState)
+    }
 
     override fun startActivity(intent: Intent) {
         historyTraversal.beforeStartActivity()
@@ -134,16 +152,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     override fun onBackPressed() {
         if (!historyTraversal.goBack()) {
             super.onBackPressed()
-        }
-    }
-
-    private fun setLightsOutMode(isLightsOut: Boolean) {
-        if (::_contentView.isInitialized) {
-            if (isLightsOut) {
-                _contentView.systemUiVisibility = View.SYSTEM_UI_FLAG_LOW_PROFILE
-            } else {
-                _contentView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            }
         }
     }
 
@@ -199,9 +207,23 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     override fun onResume() {
-        CurrentActivityHolder.currentActivity = this
+        CurrentActivityHolder.activate(this)
         super.onResume()
-        Log.i(localClassName, "onResume:" + this)
+        Log.i(TAG, "onResume wasPaused:$wasPaused returningFromCalculator:$returningFromCalculator")
+        if (
+            this !is CalculatorActivity
+            && this !is StartupActivity
+            && CommonUtils.showCalculator
+            && wasPaused
+            && !returningFromCalculator
+        ) {
+            val handlerIntent = Intent(this@ActivityBase, CalculatorActivity::class.java)
+            startActivityForResult(handlerIntent, CALCULATOR_REQUEST)
+            returningFromCalculator = true
+        } else {
+            returningFromCalculator = false
+        }
+        wasPaused = false
 
         //allow action to be called on screen being turned on
         if (!isScreenOn && ScreenSettings.isScreenOn) {
@@ -209,9 +231,23 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
+    override fun startActivity(intent: Intent?, options: Bundle?) {
+        doNotMarkPaused = true
+        super.startActivity(intent, options)
+    }
+
+    override fun startActivityForResult(intent: Intent, requestCode: Int, options: Bundle?) {
+        doNotMarkPaused = true
+        super.startActivityForResult(intent, requestCode, options)
+    }
+
     override fun onPause() {
         super.onPause()
-        Log.i(localClassName, "onPause:" + this)
+        if(!doNotMarkPaused) {
+            wasPaused = true
+        }
+        doNotMarkPaused = false
+        Log.i(TAG, "onPause: $this")
         if (isScreenOn && !ScreenSettings.isScreenOn) {
             onScreenTurnedOff()
         }
@@ -240,7 +276,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.i(localClassName, "onDestroy:" + this)
+        Log.i(TAG, "onDestroy")
     }
 
     override fun onRestart() {
@@ -248,40 +284,24 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         if(!doNotInitializeApp) {
             refreshScreenKeepOn()
         }
-        Log.i(localClassName, "onRestart:" + this)
+        Log.i(TAG, "onRestart")
     }
 
     override fun onStart() {
         super.onStart()
-        Log.i(localClassName, "onStart:" + this)
+        Log.i(TAG, "onStart")
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        Log.i(localClassName, "onNewIntent $this ${intent?.action}")
+        Log.i(TAG, "onNewIntent $this ${intent?.action}")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.i(localClassName, "onStop:" + this)
-        // screen can still be considered as current screen if put on stand-by
-        // removing this if causes speech to stop when screen is put on stand-by
-        if (isScreenOn) {
-            // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
-            CurrentActivityHolder.iAmNoLongerCurrent(this)
-        }
+        Log.i(TAG, "onStop")
+        CurrentActivityHolder.deactivate(this)
     }
-
-    /** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
-     * and set the new titlebar layout just after
-     */
-    override fun setContentView(layoutResID: Int) {
-        super.setContentView(layoutResID)
-
-        _contentView = window.decorView.findViewById(android.R.id.content)
-    }
-
-    fun getContentView() = _contentView
 
     /**
      * Each activity instance needs its own HistoryTraversal object
@@ -291,26 +311,32 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     internal fun setNewHistoryTraversal(historyTraversalFactory: HistoryTraversalFactory) {
         // Ensure we don't end up overwriting the initialised class
         if (!::historyTraversal.isInitialized) {
-            this.historyTraversal = historyTraversalFactory.createHistoryTraversal(integrateWithHistoryManagerInitialValue)
+            this.historyTraversal = historyTraversalFactory.createHistoryTraversal(integrateWithHistoryManager)
         }
     }
 
     private var currentCode : Int = 0
-    private var resultByCode = mutableMapOf<Int, CompletableDeferred<Instrumentation.ActivityResult?>>()
+    private var resultByCode = mutableMapOf<Int, CompletableDeferred<ActivityResult>>()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "onActivityResult: requestCode = $requestCode, resultCode = $resultCode, data is${if (data != null) " not" else ""} null")
+        if(requestCode == CALCULATOR_REQUEST) {
+            if(resultCode == RESULT_CANCELED) {
+                finishAffinity()
+            }
+            return
+        }
         resultByCode[requestCode - ASYNC_REQUEST_CODE_START]?.let {
-            it.complete(Instrumentation.ActivityResult(resultCode, data))
+            it.complete(ActivityResult(resultCode, data))
             resultByCode.remove(requestCode - ASYNC_REQUEST_CODE_START)
         } ?: run {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
-    suspend fun awaitIntent(intent: Intent) : Instrumentation.ActivityResult?
+    suspend fun awaitIntent(intent: Intent) : ActivityResult
     {
-        val activityResult = CompletableDeferred<Instrumentation.ActivityResult?>()
+        val activityResult = CompletableDeferred<ActivityResult>()
         val resultCode = currentCode++
         resultByCode[resultCode] = activityResult
         startActivityForResult(intent, resultCode + ASYNC_REQUEST_CODE_START)
@@ -319,7 +345,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     val preferences get() = CommonUtils.settings
 
-    fun refreshScreenKeepOn() {
+    private fun refreshScreenKeepOn() {
         val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)
         if (keepOn) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -328,16 +354,22 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
+    open fun freeze() {}
+
+    open fun unFreeze() {}
+
+    val TAG get() = "Base-${this::class.java.simpleName}"
+
     companion object {
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
 
         // standard request code for startActivityForResult
         const val STD_REQUEST_CODE = 1
+        const val CALCULATOR_REQUEST = 6000
         const val ASYNC_REQUEST_CODE_START = 1900
 
         // Special result that requests all activities to exit until the main/top Activity is reached
         const val RESULT_RETURN_TO_TOP = 900
 
-        private const val TAG = "ActivityBase"
     }
 }

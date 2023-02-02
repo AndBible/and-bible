@@ -25,6 +25,7 @@ import android.content.pm.ResolveInfo
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Looper
 import android.text.TextUtils
 import android.util.LayoutDirection
@@ -46,12 +47,15 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewAssetLoader
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
@@ -75,6 +79,7 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
+import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
@@ -93,6 +98,7 @@ import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
@@ -103,6 +109,8 @@ import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
+import net.bible.android.view.activity.search.SearchIndex
+import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.AndBibleAddons
@@ -113,11 +121,14 @@ import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.index.IndexStatus
+import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
@@ -128,19 +139,10 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.min
 
-import net.bible.android.control.page.CurrentPageManager
-import android.os.Bundle
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import net.bible.android.view.activity.search.SearchResults
-import net.bible.android.view.activity.search.SearchIndex
-import org.crosswire.jsword.index.IndexStatus
-import org.crosswire.jsword.index.search.SearchType
-
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
 
-const val MAX_DOC_STR_LENGTH = 4000000;
+const val MAX_DOC_STR_LENGTH = 4000000
 
 @Serializable
 class Selection(val bookInitials: String?, val startOrdinal: Int,
@@ -298,16 +300,29 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 ShareWidget.dialog(mainBibleActivity, sel)
                 return true
             }
+            R.id.open_ref -> {
+                val ref = currentSelectionRef
+                if(ref != null) { linkControl.showLink(null,  ref) }
+                return true
+            }
             R.id.search -> {
-                val sel = currentSelection ?: return true
-                val currentBible = currentPageManager.currentBible.currentDocument?: return true
-                val searchText = searchControl.decorateSearchString(sel.text, SearchType.PHRASE, SearchControl.SearchBibleSection.ALL, "")
+                val text = currentSelectionText
+                val sel = currentSelection
+                val selText = sel?.text?:text?:return true
+                val currentBible = currentPageManager.currentBible.currentDocument ?: return true
+                val searchText = searchControl.decorateSearchString(
+                    selText,
+                    SearchType.PHRASE,
+                    SearchControl.SearchBibleSection.ALL,
+                    ""
+                )
                 val searchParams = Bundle().apply {
                     putString(SearchControl.SEARCH_TEXT, searchText)
                     putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
                 }
 
-                val intent = Intent(mainBibleActivity,
+                val intent = Intent(
+                    mainBibleActivity,
                     if (currentBible.indexStatus != IndexStatus.DONE) SearchIndex::class.java else SearchResults::class.java
                 ).apply {
                     putExtras(searchParams)
@@ -330,19 +345,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun makeBookmark(selection: Selection? = currentSelection, wholeVerse: Boolean = false, openNotes: Boolean = false) {
         selection?: return
         Log.i(TAG, "makeBookmark")
-        val book = Books.installed().getBook(selection.bookInitials)
-        if(book !is SwordBook) {
-            // TODO: error response to JS
-            return
-        }
 
-        val v11n = book.versification
-        val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
+        val verseRange = selection.verseRange
         val textRange =
             if(selection.startOffset != null && selection.endOffset != null)
                 BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
             else null
-        val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, wholeVerse, book)
+        val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, wholeVerse, selection.book)
         val initialLabels = workspaceSettings.autoAssignLabels
 
         val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
@@ -362,15 +371,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     internal fun compareSelection(selection: Selection? = currentSelection) {
-        selection?: return
         Log.i(TAG, "compareSelection")
-        val book = Books.installed().getBook(selection.bookInitials)
-        if(book !is SwordBook) {
-            return
-        }
-
-        val v11n = book.versification
-        val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
+        val verseRange = selection?.verseRange ?: return
         linkControl.openCompare(verseRange)
     }
 
@@ -387,7 +389,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
         val result = mainBibleActivity.awaitIntent(intent)
 
-        if(result?.resultCode == Activity.RESULT_OK) {
+        if(result.resultCode == Activity.RESULT_OK) {
             val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
             bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
             bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels)
@@ -397,19 +399,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var menuPrepared = false
     var currentSelection: Selection? = null
+    var currentSelectionRef: Key? = null
+    var currentSelectionText: String? = null
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createProcessTextIntent() = Intent()
         .setAction(Intent.ACTION_PROCESS_TEXT)
         .setType("text/plain")
         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        .putExtra(Intent.EXTRA_PROCESS_TEXT, currentSelection!!.text)
+        .putExtra(Intent.EXTRA_PROCESS_TEXT, currentSelectionText!!)
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun getSupportedActivities(): List<ResolveInfo> {
         val packageManager: PackageManager = context.packageManager
-        return packageManager.queryIntentActivities(createProcessTextIntent(),
-            0)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.queryIntentActivities(createProcessTextIntent(), PackageManager.ResolveInfoFlags.of(0))
+        } else {
+            packageManager.queryIntentActivities(createProcessTextIntent(), 0)
+        }.filter { it.activityInfo.name != SearchResults::class.qualifiedName }
     }
 
     private fun getLabel(resolveInfo: ResolveInfo): CharSequence {
@@ -445,15 +452,32 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.share_verses).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            if(currentSelection == null) {
+            val sel = currentSelection
+            if(sel == null) {
                 menu.findItem(R.id.add_bookmark).isVisible = false
                 menu.findItem(R.id.add_bookmark_selection).isVisible = false
                 menu.findItem(R.id.add_bookmark_whole_verse).isVisible = false
                 menu.findItem(R.id.compare).isVisible = false
                 menu.findItem(R.id.share_verses).isVisible = false
             }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelection != null) {
+            val ref = currentSelectionRef
+            if(ref != null) {
+                val item = menu.findItem(R.id.open_ref)
+                item.isVisible = true
+                synchronized(BookName::class.java) {
+                    val wasFullBookName = BookName.isFullBookName()
+                    BookName.setFullBookName(false)
+                    item.title = context.getString(R.string.go_to_ref, ref.name)
+                    BookName.setFullBookName(wasFullBookName)
+                }
+            }
+            val searchText = if((currentSelectionText?.length ?: 0) > 15) null else currentSelectionText
+            if(ref == null && searchText != null) {
+                val item = menu.findItem(R.id.search)
+                item.isVisible = true
+                item.title = context.getString(R.string.search_what, searchText)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && searchText != null) {
                 var menuItemOrder = 100
                 for (resolveInfo in getSupportedActivities()) {
                     menu.add(Menu.NONE, Menu.NONE,
@@ -475,16 +499,23 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 step2 = false
                 return true
             }
-            if (showSystem || firstDocument !is BibleDocument || editingTextInJs) {
+            if (showSystem || editingTextInJs) {
                 showSystem = false
                 return true
             } else {
                 menu.clear()
                 scope.launch {
                     val result = evaluateJavascriptAsync("bibleView.querySelection()")
-                    val sel = json.decodeFromString(serializer<Selection?>(), result)
-                    if (sel !== null) {
+                    if (result !== "null") {
+                        val sel = try {
+                            json.decodeFromString(serializer<Selection?>(), result)
+                        } catch (e: SerializationException) {
+                            null
+                        }
+                        val selText = try { json.decodeFromString(serializer(), result) } catch (e: SerializationException) { result }
                         currentSelection = sel
+                        currentSelectionText = sel?.text ?: selText
+                        currentSelectionRef = linkControl.resolveRef(selText)
                         menuPrepared = true
                     } else {
                         showSystem = true
@@ -502,6 +533,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun stopSelection(removeRanges: Boolean = false) {
         currentSelection = null
+        currentSelectionText = null
+        currentSelectionRef = null
         menuPrepared = false
         if(removeRanges) executeJavascriptOnUiThread("bibleView.emit('remove_ranges')")
     }
@@ -705,8 +738,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     class ModuleAssetHandler: WebViewAssetLoader.PathHandler {
         override fun handle(path: String): WebResourceResponse? {
-            val parts = path.split("/", limit = 2);
-            if(parts.size != 2) return null;
+            val parts = path.split("/", limit = 2)
+            if(parts.size != 2) return null
             val (bookName, resourcePath) = parts
             val location = File(Books.installed().getBook(bookName).bookMetaData.location)
             val f = File(location, resourcePath)
@@ -718,8 +751,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     class ModuleStylesAssetHandler: WebViewAssetLoader.PathHandler {
         override fun handle(path: String): WebResourceResponse? {
-            val parts = path.split("/", limit = 2);
-            if(parts.size != 2) return null;
+            val parts = path.split("/", limit = 2)
+            if(parts.size != 2) return null
             val (bookName, resourcePath) = parts
             val book = Books.installed().getBook(bookName) ?: return null
             val styleFile = book.bookMetaData.getProperty("AndBibleCSS") ?: return null
@@ -738,8 +771,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     class FontsAssetHandler: WebViewAssetLoader.PathHandler {
         override fun handle(path: String): WebResourceResponse? {
-            val parts = path.split("/", limit = 2);
-            if(parts.size != 2) return null;
+            val parts = path.split("/", limit = 2)
+            if(parts.size != 2) return null
             val (moduleName, resourcePath) = parts
             val book = Books.installed().getBook(moduleName) ?: return null
             if(resourcePath == "fonts.css") {
@@ -766,8 +799,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     class FeatureAssetHandler: WebViewAssetLoader.PathHandler {
         override fun handle(path: String): WebResourceResponse? {
-            val parts = path.split("/", limit = 2);
-            if(parts.size != 2) return null;
+            val parts = path.split("/", limit = 2)
+            if(parts.size != 2) return null
             val (moduleName, resourcePath) = parts
             val book = Books.installed().getBook(moduleName) ?: return null
             val location = File(book.bookMetaData.location)
@@ -1209,11 +1242,26 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         windowControl.activeWindow = window
+        var handled = false
 
-        val handled = super.onTouchEvent(event)
-
-        // Allow user to redefine viewing angle by touching screen
-        pageTiltScroller.recalculateViewingPosition()
+        when (event.action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_POINTER_UP -> {
+                // Touch with 2 fingers to show  search dialog
+                if (event.pointerCount == 2) {
+                    val currentPage = windowControl.activeWindowPageManager.currentPage
+                    if (currentPage.isSearchable) {
+                        val handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument, mainBibleActivity)
+                        mainBibleActivity.startActivityForResult(handlerIntent, ActivityBase.STD_REQUEST_CODE)
+                        handled = true
+                    }
+                }
+            }
+        }
+        if (!handled) {
+            handled = super.onTouchEvent(event)
+            // Allow user to redefine viewing angle by touching screen
+            pageTiltScroller.recalculateViewingPosition()
+        }
 
         return handled
     }

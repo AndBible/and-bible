@@ -19,7 +19,9 @@ package net.bible.android.view.activity
 import dagger.Component
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.ClientBookmark
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.Bookmarks
@@ -29,7 +31,13 @@ import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.navigation.*
 import net.bible.android.view.activity.navigation.genbookmap.ChooseKeyBase
+import net.bible.android.view.activity.page.BibleViewFactory
+import net.bible.android.view.activity.page.GeneralPreference
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.MenuCommandHandler
 import net.bible.android.view.activity.page.Selection
+import net.bible.android.view.activity.page.screen.BibleFrame
+import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -59,6 +67,7 @@ interface ActivityComponent {
     // Activities that are permitted to be injected
 
     // don't like this but inject is called from ActivityBase and the subclasses
+    fun inject(activity: MainBibleActivity)
     fun inject(activityBase: ActivityBase)
     fun inject(activity: LabelEditActivity)
     fun inject(activity: TextDisplaySettingsActivity)
@@ -104,4 +113,11 @@ interface ActivityComponent {
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)
     fun inject(progressStatus: ProgressStatus)
     fun inject(clientBookmark: ClientBookmark)
+    fun inject(generalPreference: GeneralPreference)
+    fun inject(backupControl: BackupControl)
+    fun inject(windowRepository: WindowRepository)
+    fun inject(bibleFrame: BibleFrame)
+    fun inject(bibleViewFactory: BibleViewFactory)
+    fun inject(documentViewManager: DocumentViewManager)
+    fun inject(menuCommandHandler: MenuCommandHandler)
 }

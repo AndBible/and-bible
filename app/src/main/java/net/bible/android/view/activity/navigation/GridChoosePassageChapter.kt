@@ -27,13 +27,12 @@ import android.view.MenuItem
 import android.view.View
 
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
 import net.bible.service.common.CommonUtils
 
-import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 
@@ -54,7 +53,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
     private var mBibleBook = BibleBook.GEN
 
     @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
 
     private var navigateToVerse = false
     // background goes white in some circumstances if theme changes so prevent theme change
@@ -105,9 +104,8 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         } catch (nsve: Exception) {
             -1
         }
-        val currentVerse = KeyUtil.getVerse(activeWindowPageManagerProvider.activeWindowPageManager.currentBible.key)
-        val currentBibleBook = currentVerse.book
-        val currentBibleChapter = currentVerse.chapter
+        val currentVerse = windowControl.activeWindowPageManager.currentPage.singleKey as Verse
+        val bookColorAndGroup = GridChoosePassageBook.getBookColorAndGroup(book.ordinal)
 
         val keys = ArrayList<ButtonInfo>()
         for (i in 1..chapters) {
@@ -116,9 +114,10 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             buttonInfo.id = i
             buttonInfo.name = i.toString()
             buttonInfo.description = i.toString()
-            if (currentBibleBook == book && i == currentBibleChapter) {
-                buttonInfo.textColor = Color.YELLOW
-                buttonInfo.highlight = true
+            buttonInfo.type = ButtonInfo.GridButtonTypes.CHAPTER
+            if (currentVerse.book == book && i == currentVerse.chapter) {
+                buttonInfo.tintColor = bookColorAndGroup.Color
+                buttonInfo.textColor = Color.DKGRAY
             }
             keys.add(buttonInfo)
         }
@@ -129,7 +128,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         val chapter = buttonInfo.id
         Log.i(TAG, "Chapter selected:$chapter")
         try {
-            val currentPageControl = activeWindowPageManagerProvider.activeWindowPageManager
+            val currentPageControl = windowControl.activeWindowPageManager
             if (!navigateToVerse && !currentPageControl.currentPage.isSingleKey) {
                 val verse = Verse(navigationControl.versification, mBibleBook, chapter, 1)
                 val resultIntent = Intent(this, GridChoosePassageBook::class.java)

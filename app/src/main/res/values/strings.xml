@@ -21,6 +21,8 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
+    <string name="app_name_calculator">Simple Calculator</string>
+
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_medium">Bible Study (AndBible)</string>
     <string name="app_name_long">AndBible: Bible Study</string>
@@ -34,6 +36,8 @@
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
+    <string name="search_in_andbible">Find in Bible</string>
+    <string name="search_with_results2">%1s results in %2s</string>
     <string name="settings">Application preferences</string>
     <string name="history">History</string>
     <string name="speak">Speak</string>
@@ -83,6 +87,27 @@
     <string name="search_old_testament">Old Testament</string>
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
+
+    <!-- #2061 strings (not yet merged) -->
+    <string name="search_remember_search_text">Remember search</string>
+    <string name="search_include_all_endings">All endings</string>
+    <string name="search_fuzzy">Fuzzy Search %s</string>
+    <string name="search_strongs">Strongs Number Search</string>
+    <string name="search_showDecoratedText">Show raw search text</string>
+    <string name="search_proximity">Proximity %s</string>
+    <string name="search_results">Search Results</string>
+    <string name="search_statistics">Search Statistics</string>
+    <string name="words">words</string>
+    <string name="accuracy">Accuracy</string>
+    <string name="greek">Greek</string>
+    <string name="hebrew">Hebrew</string>
+    <string name="results_count">Results: %s</string>
+    <string name="verse_count">Verses: %s</string>
+    <string name="book_count">Books: %s</string>
+    <string name="word_count">Words: %s</string>
+    <string name="statistics">Statistics</string>
+    <string name="by_book">By Book</string>
+    <string name="by_word">By Word</string>
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
@@ -232,6 +257,7 @@
     <string name="window_color_settings_title">Window color settings</string>
     <string name="workspace_color_settings_title">Workspace color setting defaults</string>
 
+    <string name="color_workspace">Workspace color</string>
     <string name="color_text">Text color</string>
     <string name="color_background">Background color</string>
     <string name="colors_day_mode_title">Day mode</string>
@@ -306,6 +332,7 @@
     <!--  Install zip file -->
     <string name="install_zip">Load Document From Zip</string>
     <string name="install_zip_module">Install Bible Module</string>
+    <string name="install_zip_module_discrete">Install Calculator Module</string>
     <string name="install_zip_successfull">Module was installed successfully</string>
     <string name="extracting_zip_file">Extracting Zip file now…</string>
     <string name="checking_zip_file">Checking given file…</string>
@@ -604,6 +631,15 @@
     <string name="backup_app_database">Share or Backup app database to…</string>
 
     <string name="backup_app">Share or Backup app (.apk file) to …</string>
+    <string name="application">Application</string>
+    <string name="database">Database</string>
+    <string name="documents">Documents</string>
+    <string name="application_info">Bible Study application file (.APK)</string>
+    <string name="database_info">Bookmarks, labels, notes, study pads, reading plans, workspaces etc.</string>
+    <string name="document_info">Bibles, commentaries, dictionaries, maps etc.</string>
+    <string name="share_or_backup_to">Share or backup to…</string>
+    <string name="restore_from">Restore from…</string>
+    <string name="restore">Restore</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
     <string name="restore_what">What do you want to restore?</string>
@@ -869,10 +905,16 @@
     <string name="share_verse_menu_title">Share / copy…</string>
     <string name="show_versenumbers">Show verse numbers</string>
     <string name="show_full_verses">Show full verses</string>
+    <string name="show_selection_only">Show selected text only</string>
     <string name="advertise_app">Advertise app</string>
     <string name="verse_share_advertise">Shared using %s.</string>
+    <string name="show_reference">Show reference</string>
+    <string name="show_reference_at_front">Show at front of verse</string>
     <string name="abbreviate_reference">Abbreviate reference</string>
     <string name="version_name">Version name</string>
+    <string name="show_version_name">Include version name</string>
+    <string name="show_ellipsis">Show ellipsis (...)</string>
+    <string name="show_quotes">Show quotes</string>
 
     <string name="backup_button">Backup</string>
     <string name="back_button">Back</string>
@@ -937,6 +979,8 @@
     <string name="recent_labels">Recent labels</string>
     <string name="other_labels">Other labels</string>
     <string name="book_menu_sort_row_opt">Order books horizontally</string>
+    <string name="book_menu_group_by_category">Group books by category</string>
+    <string name="book_menu_show_long_book_name">Show long book name</string>
     <string name="reset_workspace_labels">Do you want to reset auto-assign and favorite settings for this workspace?</string>
     <string name="reset_hide_labels">Do you want to reset setting for hiding specified labels settings?</string>
     <string name="reorder">Re-order</string>
@@ -983,6 +1027,62 @@
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
 
     <string name="permission_required">Permission needed</string>
+    <string name="labels_search_hint">Search</string>
+    <string name="assing_labels_help6">Tap %s to show or hide filter labels text input.</string>
+    <string name="assing_labels_help7">You can add quick filter button by pressing %s button.</string>
+    <string name="assing_labels_help7_1">Tap each quick filter button to activate or deactivate them.</string>
+    <string name="assing_labels_help8">Long-press quick filter button to remove it.</string>
     <string name="progress_status_permission">To show notifications (download status, processing, speak status), we need your permission. </string>
 
+    <!-- Discrete mode settings -->
+    <string name="prefs_persecution_cat">Settings for the persecuted</string>
+    <string name="prefs_discrete_mode">Hide religious symbols</string>
+    <string name="prefs_discrete_mode_desc">Rename the app to \'Calculator\' and show a different icon in the launcher.</string>
+
+    <string name="prefs_show_calculator">Calculator</string>
+
+    <string name="prefs_calculator_pin">Calculator PIN</string>
+    <string name="prefs_calculator_pin_desc">PIN code to enter the app when the calculator is shown. </string>
+    <string name="calc_division_by_zero">Division by zero is not allowed</string>
+    <string name="calc_wrong_format">Wrong Format</string>
+    <string name="calc_wrong_format_operand">Wrong Format. Operand Without any numbers?</string>
+    <string name="prefs_persecuted_help">Read this first!</string>
+    <string name="prefs_persecuted_summary">Instructions for the settings and information about specific discrete build.</string>
+
+    <string name="calculator_par1">
+        Before entering the app, calculator screen is displayed.
+    </string>
+    <string name="calculator_par2">
+        In it, you can do standard calculus, and when you want to enter the app, you
+        just type your PIN code (default is 1234) and then press "=" button.
+    </string>
+    <string name="calculator_par3">
+        You can set up a custom PIN code by "Calculator PIN" setting.
+    </string>
+    <string name="discrete_mode_info_par1">
+        You are using standard application version, which means that it is still possible to see
+        the real name and icon of the application in app info.
+    </string>
+    <string name="discrete_mode_info_par2">
+        For improved security in persecuted environment, we highly recommend using discrete
+        version of the app, which always displays calculator, even if the app data is deleted.
+    </string>
+    <string name="discrete_mode_link">
+        You can download the latest version of discrete version from %s.
+    </string>
+    <string name="external_link">External link</string>
+    <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
+    <string name="bug_report_email_title">Send bug report via email</string>
+    <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
+    <string name="marker_style">Show only marker for selection bookmarks</string>
+    <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
+    <string name="type_text_or_bible_reference">Type text or bible reference</string>
+    <string name="go_to_ref">Open %s</string>
+    <string name="search_what">Find \"%s\"</string>
+    <string name="app_opened_elsewhere">App opened elsewhere</string>
+    <string name="open_here">Open here</string>
+    <string name="sync_group_submenu">Synchronize group</string>
+    <string name="sync_group_n">Group %d</string>
+    <string name="disable_sync">Disable synchronize</string>
+    <string name="open_in_window">Open results in a window</string>
 </resources>

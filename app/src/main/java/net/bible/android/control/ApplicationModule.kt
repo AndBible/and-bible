@@ -22,8 +22,6 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.download.DownloadQueue
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.page.window.WindowControl
 import net.bible.service.sword.SwordDocumentFacade
 
 /**
@@ -38,12 +36,6 @@ class ApplicationModule {
     @ApplicationScope
     fun provideDownloadControl(swordDocumentFacade: SwordDocumentFacade): DownloadControl {
         return DownloadControl(DownloadQueue(), swordDocumentFacade)
-    }
-
-    @Provides
-    @ApplicationScope
-    fun provideActiveWindowPageManagerProvider(windowControl: WindowControl): ActiveWindowPageManagerProvider {
-        return windowControl
     }
 
     @Provides

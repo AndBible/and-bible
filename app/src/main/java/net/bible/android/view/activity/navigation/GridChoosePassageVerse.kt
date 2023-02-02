@@ -19,12 +19,13 @@ package net.bible.android.view.activity.navigation
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
@@ -49,7 +50,7 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
     private var mBibleChapterNo = 1
 
     @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var windowControl: WindowControl
 
     // background goes white in some circumstances if theme changes so prevent theme change
     override val allowThemeChange = false
@@ -98,12 +99,21 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
             -1
         }
 
+        val bookColorAndGroup = GridChoosePassageBook.getBookColorAndGroup(book.ordinal)
+        val currentVerse = windowControl.activeWindowPageManager.currentPage.singleKey as Verse
+
         val keys = ArrayList<ButtonInfo>()
         for (i in 1..verses) {
             val buttonInfo = ButtonInfo()
             // this is used for preview
             buttonInfo.id = i
-            buttonInfo.name = Integer.toString(i)
+            buttonInfo.name = i.toString()
+            buttonInfo.type = ButtonInfo.GridButtonTypes.VERSE
+            if (i == currentVerse.verse && chapterNo == currentVerse.chapter && book == currentVerse.book) {
+                buttonInfo.tintColor = bookColorAndGroup.Color
+                buttonInfo.textColor = Color.DKGRAY
+            }
+
             keys.add(buttonInfo)
         }
         return keys

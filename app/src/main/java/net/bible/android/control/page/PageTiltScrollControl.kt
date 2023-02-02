@@ -26,7 +26,7 @@ import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
 import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity
 import java.util.*
 import kotlin.math.PI
 
@@ -35,7 +35,7 @@ import kotlin.math.PI
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-class PageTiltScrollControl {
+class PageTiltScrollControl (private val mainBibleActivity: MainBibleActivity){
     var isTiltScrollEnabled = false
         private set
     // the pitch at which a user views the text stationary

@@ -18,27 +18,21 @@
 package net.bible.android.control.page.window
 
 import android.util.Log
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.save
 import net.bible.service.common.CommonUtils.settings
-import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.AppSettingsUpdated
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
@@ -50,18 +44,16 @@ import kotlin.math.min
 class IncrementBusyCount
 class DecrementBusyCount
 
-@ApplicationScope
-open class WindowRepository @Inject constructor(
-        // Each window has its own currentPageManagerProvider to store the different state e.g.
-        // different current Bible module, so must create new cpm for each window
-    private val currentPageManagerProvider: Provider<CurrentPageManager>,
-    private val historyManagerProvider: Provider<HistoryManager>,
-)
-{
-    val scope get() = _mainBibleActivity?.lifecycleScope?: CoroutineScope(Dispatchers.Default) // null -> For tests
+open class WindowRepository(val scope: CoroutineScope) {
+    @Inject lateinit var currentPageManagerProvider: Provider<CurrentPageManager>
+    @Inject lateinit var historyManagerProvider: Provider<HistoryManager>
+    @Inject lateinit var speakControl: SpeakControl
+
+    val windowSync: WindowSync = WindowSync(this)
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
+
     var windowList: MutableList<Window> = ArrayList()
     var busyCount: Int = 0
         set(value) {
@@ -72,11 +64,22 @@ open class WindowRepository @Inject constructor(
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
     var maximizedWindowId: Long? = null
+    var primaryTargetLinksWindowId: Long? = null
+
+    val primaryTargetLinksWindow: Window get() =
+        getWindow(primaryTargetLinksWindowId)
+            ?:  addNewLinksWindow().also {
+                primaryTargetLinksWindowId = it.id
+            }
+
+    fun addNewLinksWindow() = addNewWindow().also {
+        it.isSynchronised = false
+        it.isLinksWindow = true
+    }
 
     val isMaximized get() = maximizedWindowId != null
     val maximizedWindow get() = getWindow(maximizedWindowId)
     val isBusy get() = busyCount > 0
-
 
     fun onEvent(event: IncrementBusyCount) {
         busyCount ++
@@ -95,16 +98,10 @@ open class WindowRepository @Inject constructor(
 
     private val dao get() = DatabaseContainer.db.workspaceDao()
 
-    private val logger = Logger(this.javaClass.name)
-
-    val windows: List<Window>
-        get() {
-            val windows = ArrayList(windowList)
-            addLinksWindow(windows)
-            return windows.sortedWith(compareBy { !it.isPinMode })
-        }
+    val sortedWindows: List<Window> get() = windowList.sortedWith(compareBy({it.isLinksWindow}, { !it.isPinMode }))
 
     init {
+        CommonUtils.buildActivityComponent().inject(this)
         ABEventBus.safelyRegister(this)
     }
 
@@ -136,7 +133,7 @@ open class WindowRepository @Inject constructor(
         set (newActiveWindow) {
             if (!initialized || newActiveWindow != this._activeWindow) {
                 _activeWindow = newActiveWindow
-                Log.i(TAG, "Active window: ${newActiveWindow}")
+                Log.i(TAG, "Active window: $newActiveWindow")
                 ABEventBus.post(CurrentWindowChangedEvent(newActiveWindow))
             }
             _activeWindow?.bibleView?.requestFocus()
@@ -148,9 +145,6 @@ open class WindowRepository @Inject constructor(
     // window that was synchronized
     var lastSyncWindowId: Long? = null
 
-    lateinit var dedicatedLinksWindow: LinksWindow
-        private set
-
     val visibleWindows: List<Window> get() {
         if (isMaximized) {
             val maxWindow = getWindow(maximizedWindowId)
@@ -160,20 +154,20 @@ open class WindowRepository @Inject constructor(
                 maximizedWindowId = null
             }
         }
-        return getWindows(WindowState.SPLIT)
+        return getWindows(WindowState.VISIBLE)
     }
 
     val minimisedWindows  get() = getWindows(WindowState.MINIMISED)
 
     val isMultiWindow get() = visibleWindows.size > 1
 
-    private val defaultState = WindowState.SPLIT
+    private val defaultState = WindowState.VISIBLE
 
     val firstVisibleWindow: Window get() = visibleWindows.first()
     val lastVisibleWindow: Window get() = visibleWindows.last()
 
     private fun getDefaultActiveWindow() =
-        windows.find { it.isVisible } ?: createNewWindow(null, true)
+        windowList.find { it.isVisible } ?: createNewWindow(null, true)
 
     private fun setDefaultActiveWindow(): Window {
         val newWindow = getDefaultActiveWindow()
@@ -181,22 +175,16 @@ open class WindowRepository @Inject constructor(
         return newWindow
     }
 
-    private fun addLinksWindow(windows: MutableList<Window>) {
-        if (!dedicatedLinksWindow.isClosed && !windows.contains(dedicatedLinksWindow)) {
-            windows.add(dedicatedLinksWindow)
-        }
-    }
+    private fun getWindows(state: WindowState)= sortedWindows.filter { it.windowState === state}
 
-    private fun getWindows(state: WindowState)= windows.filter { it.windowState === state}
-
-    fun getWindow(windowId: Long?): Window? = if(windowId == null) null else windows.find {it.id == windowId}
+    fun getWindow(windowId: Long?): Window? = if(windowId == null) null else sortedWindows.find {it.id == windowId}
 
     fun addNewWindow(sourceWindow: Window? = null): Window {
         Log.i(TAG, "addNewWindow $sourceWindow")
         val newWindow = createNewWindow(sourceWindow)
         newWindow.weight = (sourceWindow?: activeWindow).weight
 
-        activeWindow.windowState = WindowState.SPLIT
+        activeWindow.windowState = WindowState.VISIBLE
 
         return newWindow
     }
@@ -225,21 +213,18 @@ open class WindowRepository @Inject constructor(
         window.windowState = WindowState.CLOSED
         val currentPos = windowList.indexOf(window)
 
-        // links window is just closed not deleted
-        if (!window.isLinksWindow) {
-            dao.deleteWindow(window.id)
-            destroy(window)
-            if(visibleWindows.isEmpty()) {
-                activeWindow = windowList[min(currentPos, windowList.size - 1)]
-                activeWindow.windowState = WindowState.SPLIT
-            } else setDefaultActiveWindow()
+        dao.deleteWindow(window.id)
+        destroy(window)
+        if(visibleWindows.isEmpty()) {
+            activeWindow = windowList[min(currentPos, windowList.size - 1)]
+            activeWindow.windowState = WindowState.VISIBLE
         } else setDefaultActiveWindow()
     }
 
     private fun destroy(window: Window) {
         Log.i(TAG, "destroy $window")
         if (!windowList.remove(window)) {
-            logger.error("Failed to remove window " + window.id)
+            Log.e(TAG, "Failed to remove window " + window.id)
         }
         window.destroy()
     }
@@ -253,11 +238,11 @@ open class WindowRepository @Inject constructor(
         val originalWindowIndex = windowList.indexOf(window)
 
         if (originalWindowIndex == -1) {
-            logger.warn("Attempt to move missing window")
+            Log.w(TAG, "Attempt to move missing window")
             return
         }
         if (position > windowList.size) {
-            logger.warn("Attempt to move window beyond end of window list")
+            Log.w(TAG, "Attempt to move window beyond end of window list")
             return
         }
 
@@ -269,18 +254,20 @@ open class WindowRepository @Inject constructor(
         this.windowList.addAll(unPinnedWindows)
     }
 
-    private fun createNewWindow(sourceWindow: Window?, first: Boolean = false): Window {
-        val sourceWindow = sourceWindow?: if(initialized) activeWindow else null
+    private fun createNewWindow(sourceWindow_: Window?, first: Boolean = false): Window {
+        val sourceWindow = sourceWindow_?: if(initialized) activeWindow else null
         val pageManager = currentPageManagerProvider.get()
         val winEntity =
-            (sourceWindow?.entity?.copy()
-                ?: WorkspaceEntities.Window(
-                    isLinksWindow = false,
-                    isPinMode = true,
-                    isSynchronized = true,
-                    windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString()),
-                    workspaceId = id
-                )).apply {
+            (
+                sourceWindow?.entity?.copy()
+                    ?: WorkspaceEntities.Window(
+                        isPinMode = true,
+                        isSynchronized = true,
+                        windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString()),
+                        workspaceId = id
+                    )
+                ).apply {
+                    targetLinksWindowId = null
                     id = 0
                     id = dao.insertWindow(this)
                 }
@@ -317,7 +304,7 @@ open class WindowRepository @Inject constructor(
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
         if(!CommonUtils.initialized) return;
-        if(stopSpeak) _mainBibleActivity?.speakControl?.stop()
+        if(stopSpeak) speakControl.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
 
@@ -329,23 +316,20 @@ open class WindowRepository @Inject constructor(
             textDisplaySettings = textDisplaySettings,
             workspaceSettings = workspaceSettings,
             unPinnedWeight = unPinnedWeight,
-            maximizedWindowId = maximizedWindowId
+            maximizedWindowId = maximizedWindowId,
+            primaryTargetLinksWindowId = primaryTargetLinksWindowId
         ))
 
         val historyManager = historyManagerProvider.get()
-        val allWindows = ArrayList(windowList)
-        if(::dedicatedLinksWindow.isInitialized) {
-            allWindows.add(dedicatedLinksWindow)
-        }
 
-        val windowEntities = allWindows.mapIndexed { i, it ->
+        val windowEntities = windowList.mapIndexed { i, it ->
             dao.updateHistoryItems(it.id, historyManager.getEntities(it.id))
             it.entity.apply {
                 orderNumber = i
             }
         }
 
-        val pageManagers = allWindows.map { it.pageManager.entity }
+        val pageManagers = windowList.map { it.pageManager.entity }
 
         dao.updateWindows(windowEntities)
         dao.updatePageManagers(pageManagers)
@@ -364,30 +348,12 @@ open class WindowRepository @Inject constructor(
         name = entity.name
         unPinnedWeight = entity.unPinnedWeight
         maximizedWindowId = entity.maximizedWindowId
+        primaryTargetLinksWindowId = entity.primaryTargetLinksWindowId
 
         textDisplaySettings = entity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
         workspaceSettings = entity.workspaceSettings?: WorkspaceEntities.WorkspaceSettings.default
         SpeakSettings.currentSettings = workspaceSettings.speakSettings
 
-        val linksWindowEntity = dao.linksWindow(id) ?: WorkspaceEntities.Window(
-            id,
-            isSynchronized = false,
-            isPinMode = false,
-            isLinksWindow = true,
-            windowLayout = WorkspaceEntities.WindowLayout(WindowState.CLOSED.toString())
-        ).apply {
-            id = dao.insertWindow(this)
-        }
-
-        val linksPageManagerEntity = dao.pageManager(linksWindowEntity.id)
-
-        if(!::dedicatedLinksWindow.isInitialized) {
-            val pageManager = currentPageManagerProvider.get()
-            pageManager.restoreFrom(linksPageManagerEntity, textDisplaySettings)
-            dedicatedLinksWindow = LinksWindow(linksWindowEntity, pageManager, this)
-        } else {
-            dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManagerEntity, textDisplaySettings)
-        }
         val historyManager = historyManagerProvider.get()
         for (it in dao.windows(id)) {
             val pageManager = currentPageManagerProvider.get()
@@ -408,13 +374,11 @@ open class WindowRepository @Inject constructor(
         orderNumber = 0
         id = 0
         lastSyncWindowId = null
+        primaryTargetLinksWindowId = null
         for (it in windowList) {
             it.bibleView?.listenEvents = false
             if(destroy)
                 it.destroy()
-        }
-        if(::dedicatedLinksWindow.isInitialized) {
-            dedicatedLinksWindow.bibleView?.listenEvents = false
         }
         windowList.clear()
         historyManagerProvider.get().clear()
@@ -433,7 +397,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun updateAllWindowsTextDisplaySettings() {
-        for (it in windows) {
+        for (it in sortedWindows) {
             it.bibleView?.updateTextDisplaySettings()
         }
     }

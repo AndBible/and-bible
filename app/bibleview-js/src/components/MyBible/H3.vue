@@ -16,18 +16,15 @@
   -->
 
 <template>
-  <h3><slot/></h3>
+  <h3>
+    <slot/>
+  </h3>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 
-export default {
-  name: "H3",
-  setup() {
-    return useCommon();
-  },
-}
+useCommon()
 </script>
 
 <style lang="scss" scoped>

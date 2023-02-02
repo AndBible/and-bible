@@ -17,10 +17,10 @@
 
 <template>
   <div
-    ref="element"
-    @touchstart="clicked"
-    @click="clicked"
-    :class="{'edit-buttons': expanded, 'menu': !handleTouch}"
+      ref="element"
+      @touchstart="clicked"
+      @click="clicked"
+      :class="{'edit-buttons': expanded, 'menu': !handleTouch}"
   >
     <div class="between" v-if="expanded">
       <slot/>
@@ -39,73 +39,73 @@
   </div>
 </template>
 
-<script>
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {ref} from "vue";
-import {inject, watch} from "vue";
-import {useCommon} from "@/composables";
-import {eventBus, Events} from "@/eventbus";
-
+<script lang="ts">
 let cancel = () => {}
+</script>
 
-export default {
-  name: "ButtonRow",
-  props: {
-    showDragHandle: {type: Boolean, default: false},
-    handleTouch: {type: Boolean, default: false},
-  },
-  components: {FontAwesomeIcon},
-  setup(props) {
-    const android = inject("android");
-    const {strings, ...common} = useCommon();
-    const expanded = ref(false);
-    const element = ref(null);
-    function close() {
-      expanded.value = false
-    }
-    async function clicked(event) {
-      if(event.type === "touchstart" && !props.handleTouch) {
+<script lang="ts" setup>
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {inject, ref, watch} from "vue";
+import {useCommon} from "@/composables";
+import {eventBus} from "@/eventbus";
+import {androidKey} from "@/types/constants";
+
+const props = withDefaults(
+    defineProps<{ showDragHandle: boolean, handleTouch: boolean }>(),
+    {showDragHandle: false, handleTouch: false}
+)
+
+const android = inject(androidKey)!;
+const {strings} = useCommon();
+const expanded = ref(false);
+const element = ref(null);
+
+function close() {
+    expanded.value = false
+}
+
+async function clicked(event: MouseEvent | TouchEvent) {
+    if (event.type === "touchstart" && !props.handleTouch) {
         return;
-      }
-      if(event.type === "click" && props.handleTouch) {
+    }
+    if (event.type === "click" && props.handleTouch) {
         return
-      }
-      event.stopPropagation();
-      expanded.value = !expanded.value;
     }
+    event.stopPropagation();
+    expanded.value = !expanded.value;
+}
 
-    watch(expanded, v => {
-      if(v) {
+watch(expanded, v => {
+    if (v) {
         cancel()
-        eventBus.on(Events.WINDOW_CLICKED, close);
+        eventBus.on("back_clicked", close);
         cancel = close
-      } else {
-        eventBus.off(Events.WINDOW_CLICKED, close);
-        if(cancel === close) {
-          cancel = () => {}
+    } else {
+        eventBus.off("back_clicked", close);
+        if (cancel === close) {
+            cancel = () => {
+            }
         }
-      }
-    })
-    function showHelp() {
-      android.toast(strings.dragHelp);
     }
+})
 
-    let startTime = 0;
-    function dragEnd() {
-      const delta = Date.now() - startTime;
-      if(delta > 200) {
+function showHelp() {
+    android.toast(strings.dragHelp);
+}
+
+let startTime = 0;
+
+function dragEnd() {
+    const delta = Date.now() - startTime;
+    if (delta > 200) {
         expanded.value = false;
-      } else {
+    } else {
         showHelp();
-      }
     }
+}
 
-    function dragStart() {
-      startTime = Date.now();
-    }
-
-    return {expanded, strings, clicked, dragStart, dragEnd, element, ...common};
-  }
+function dragStart() {
+    startTime = Date.now();
 }
 </script>
 
@@ -115,6 +115,7 @@ export default {
 .between {
   display: flex;
 }
+
 .edit-buttons {
   background: var(--background-color);
   border-style: solid;
@@ -128,6 +129,7 @@ export default {
   z-index: 1;
   top: 0;
   opacity: 0.8;
+
   .night & {
     border-color: rgba(255, 255, 255, 0.6);
   }

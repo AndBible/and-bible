@@ -19,40 +19,38 @@
   <h3 class="titleStyle" :class="{'skip-offset': !isCanonical, isSubTitle}" v-if="show"><slot/></h3>
 </template>
 
-<script>
+<script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed} from "vue";
-import {inject} from "vue";
+import {computed, inject} from "vue";
 
-export default {
-  name: "Title",
-  props: {
-    type: {type: String, default: null},
-    subType: {type: String, default: null},
-    canonical: {type: String, default: "false"},
-    short: {type: String, default: null},
-  },
-  setup(props) {
-    checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
-    checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
-    checkUnsupportedProps(props, "canonical", ["true", "false"]);
-    const config = inject("config");
-    const hideTitles = inject("hideTitles", false);
+const props = withDefaults(
+    defineProps<{
+        type?: string
+        subType?: string
+        canonical: string
+        short: string
+    }>(), {
+        canonical: "false",
+    }
+);
 
-    const isCanonical = computed(() => props.canonical === "true");
+checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
+checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
+checkUnsupportedProps(props, "canonical", ["true", "false"]);
+const {config} = useCommon();
+const hideTitles = inject("hideTitles", false);
 
-    const show = computed(() =>
-      !hideTitles && config.showSectionTitles
-      && ((config.showNonCanonical && !isCanonical.value) || isCanonical)
-      && !(props.type === "sub" && props.subType === "x-Chapter")
-      && !(props.type === "chapter")
-      && props.type !== "x-gen",
-    );
+const isCanonical = computed(() => props.canonical === "true");
 
-    const isSubTitle = computed(() => props.type === "sub");
-    return {show, isCanonical, isSubTitle, ...useCommon()};
-  },
-}
+const show = computed(() =>
+    !hideTitles && config.showSectionTitles
+    && ((config.showNonCanonical && !isCanonical.value) || isCanonical)
+    && !(props.type === "sub" && props.subType === "x-Chapter")
+    && props.type !== "chapter"
+    && props.type !== "x-gen",
+);
+
+const isSubTitle = computed(() => props.type === "sub");
 </script>
 
 <style scoped lang="scss">

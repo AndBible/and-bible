@@ -258,7 +258,7 @@ if(process.env.NODE_ENV === "development") {
             indentLevel: 1,
         }))
 
-    const mode = "bible"
+    const mode = "journal"
 
     if(mode === "bible") {
         testData = testData.map(
@@ -270,6 +270,7 @@ if(process.env.NODE_ENV === "development") {
                         key: `KJV--${count++}`,
                         features: {},
                         bookCategory: "BIBLE",
+                        bookInitials: "KJV",
                     }
                 ,
                 bookInitials: "KJV",

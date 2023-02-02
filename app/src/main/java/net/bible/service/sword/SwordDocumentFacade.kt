@@ -153,14 +153,14 @@ class SwordDocumentFacade @Inject constructor() {
             SwordBookMetaData.setPartialLoading(true)
             val repoBookDeduplicator = RepoBookDeduplicator()
 
-            val promises = mutableListOf<Deferred<List<Book>>>()
-            for (r in repoFactory.normalRepositories) {
-                promises.add( async { r.getRepoBooks(refresh) })
-            }
-            for (r in repoFactory.betaRepositories) {
+            val promises = sequenceOf(
+                repoFactory.normalRepositories,
                 // beta repo must never override live books especially if later version so use addIfNotExists
-                promises.add( async { r.getRepoBooks(refresh) })
-            }
+                repoFactory.betaRepositories,
+                )
+                .flatten()
+                .map { async { it.getRepoBooks(refresh) } }
+                .toList()
 
             for(l in promises.awaitAll()) {
                 repoBookDeduplicator.addAll(l)

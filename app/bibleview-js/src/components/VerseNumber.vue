@@ -15,30 +15,26 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span :dir="fragment.direction" v-if="show" class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}<template v-if="exportMode">.&nbsp;</template></span></template>
+<template><span :dir="fragment.direction" v-if="show"
+                class="skip-offset verseNumber">{{ sprintf(strings.verseNum, verseNum) }}<template v-if="exportMode">.&nbsp;</template></span>
+</template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
-import {inject} from "vue";
-import {BookCategories} from "@/constants";
-import {computed, ref} from "vue";
+import {computed, inject, ref} from "vue";
+import {exportModeKey, osisFragmentKey} from "@/types/constants";
 
-export default {
-  name: "VerseNumber",
-  props: {
-    verseNum: {type: Number, required: true}
-  },
-  setup() {
-    const fragment = inject("osisFragment");
-    const show = computed(() => fragment.bookCategory === BookCategories.BIBLE)
-    const exportMode = inject("exportMode", ref(false));
-    return {show, fragment, exportMode, ...useCommon()};
-  }
-}
+defineProps<{ verseNum: number }>()
+
+const fragment = inject(osisFragmentKey)!;
+const show = computed(() => fragment.bookCategory === "BIBLE")
+const exportMode = inject(exportModeKey, ref(false));
+const {sprintf, strings} = useCommon();
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
 .verseNumber {
   @extend .superscript;
   font-size: 60%;

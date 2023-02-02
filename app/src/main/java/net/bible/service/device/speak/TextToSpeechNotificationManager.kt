@@ -31,13 +31,15 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.BuildVariant
+import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
@@ -211,11 +213,17 @@ class TextToSpeechNotificationManager {
         ABEventBus.register(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL,
-                    getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW).apply {
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            if(BuildVariant.Appearance.isDiscrete) {
+                CommonUtils.createDiscreteNotificationChannel()
+            } else {
+                val channel = NotificationChannel(
+                    SPEAK_NOTIFICATIONS_CHANNEL,
+                    getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(channel)
             }
-            notificationManager.createNotificationChannel(channel)
         }
 
     }
@@ -230,6 +238,7 @@ class TextToSpeechNotificationManager {
         Log.i(TAG, "Shutdown")
         currentTitle = getString(R.string.app_name_medium)
         currentText = ""
+
         // In case service was no longer foreground, we need do this here.
         if(foreground) {
             stopForeground(true)
@@ -298,23 +307,18 @@ class TextToSpeechNotificationManager {
                     action = ACTION_STOP
                 }, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
-        val contentIntent = Intent(app, MainBibleActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }
+        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val style = MediaStyle()
             .setShowActionsInCompactView(2)
 
-        MediaButtonHandler.handler?.ms?.sessionToken?.apply {
-            style.setMediaSession(this)
+        if(!CommonUtils.isDiscrete) {
+            MediaButtonHandler.handler?.ms?.sessionToken?.apply { style.setMediaSession(this) }
         }
 
-        val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
+        val builder = NotificationCompat.Builder(app, if(BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else SPEAK_NOTIFICATIONS_CHANNEL)
 
-        builder.setSmallIcon(R.drawable.ic_ichtys)
-                .setLargeIcon(bibleBitmap)
-                .setContentTitle(currentTitle)
-                .setSubText(speakControl.getStatusText(FLAG_SHOW_ALL))
+        builder
                 .setShowWhen(false)
                 .setDeleteIntent(deletePendingIntent)
                 .setContentIntent(contentPendingIntent)
@@ -326,15 +330,27 @@ class TextToSpeechNotificationManager {
                 .addAction(forwardAction)
                 .setOnlyAlertOnce(true)
 
+
+        if(CommonUtils.isDiscrete) {
+            builder
+                .setSmallIcon(R.drawable.ic_baseline_headphones_24)
+                .setContentTitle(getString(R.string.speak))
+        } else {
+            builder
+                .setSmallIcon(R.drawable.ic_ichtys)
+                .setLargeIcon(bibleBitmap)
+                .setContentTitle(currentTitle)
+                .setSubText(speakControl.getStatusText(FLAG_SHOW_ALL))
+        }
+
         val sleepTime = speakControl.sleepTimerActivationTime
         if(sleepTime!=null) {
             val minutes = (sleepTime.time - Calendar.getInstance().timeInMillis) / 60000
             builder.setContentText(app.getString(R.string.sleep_timer_active_at, minutes.toString()))
         }
-        else {
+        else if(!CommonUtils.isDiscrete) {
             builder.setContentText(currentText)
         }
-
 
         val notification = builder.build()
         Log.i(TAG, "Updating notification, isSpeaking: $isSpeaking")

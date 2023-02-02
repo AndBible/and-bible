@@ -19,7 +19,7 @@
   <span v-if="show" class="lg"/><slot/>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 import {computed} from "vue";
 
@@ -28,23 +28,15 @@ import {computed} from "vue";
  * so this does nothing.
  */
 
-export default {
-  name: "Lg",
-  props: {
-    sID: {type: String, default: null},
-    eID: {type: String, default: null},
-    level: {type: String, default: null},
-  },
-  setup(props) {
-    const show = computed(() => props.sID);
-    return {show, ...useCommon()};
-  },
-}
+const props = defineProps<{sID?: string, eID?: string, level?: string}>()
+
+const show = computed(() => props.sID);
+useCommon();
 </script>
 
 <style scoped>
 .lg {
-  height: 0.3em;
-  display: block;
+    height: 0.3em;
+    display: block;
 }
 </style>

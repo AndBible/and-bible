@@ -53,6 +53,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
     private lateinit var currentBookName: String
+    override val integrateWithHistoryManager: Boolean = true
 
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var pageControl: PageControl
@@ -96,7 +97,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Search view")
         binding = SearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -210,7 +211,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             intent.putExtra(SECTION_SELECTION_SAVE, sectionRadioSelection)
             intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
 
-            text = decorateSearchString(text)
+            text = searchControl.decorateSearchString(text, searchType, bibleSection, currentBookName)
             Log.i(TAG, "Search text:$text")
 
             // specify search string and doc in new Intent;
@@ -225,10 +226,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             // Back button is now handled by HistoryManager - Back will cause a new Intent instead of just finish
             finish()
         }
-    }
-
-    private fun decorateSearchString(searchString: String): String {
-        return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName)
     }
 
     companion object {

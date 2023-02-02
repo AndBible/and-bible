@@ -19,8 +19,12 @@ package net.bible.android.view.activity.settings
 import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
+import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
+import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
@@ -28,11 +32,12 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.makeLarger
 import net.bible.service.common.getPreferenceList
+import net.bible.service.common.htmlToSpan
 import net.bible.service.device.ScreenSettings.autoModeAvailable
-import net.bible.service.device.ScreenSettings.systemModeAvailable
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
 
@@ -48,7 +53,7 @@ class PreferenceStore: PreferenceDataStore() {
 
     override fun putBoolean(key: String, value: Boolean) = prefs.setBoolean(key, value)
 
-    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key.startsWith("night_mode")
+    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key == "calculator_pin" || key.startsWith("night_mode")
 
     override fun putString(key: String, value: String?) =
         if(useRealShared(key)) CommonUtils.realSharedPreferences.edit().putString(key, value).apply()
@@ -126,7 +131,10 @@ class SettingsActivity: ActivityBase() {
                     "double_tap_to_fullscreen",
                     "night_mode_pref3",
                     "request_sdcard_permission_pref",
-                    "show_errorbox"
+                    "show_errorbox",
+                    "discrete_mode",
+                    "show_calculator",
+                    "calculator_pin",
                 )
                 for(key in keys) {
                     editor.removeString(key)
@@ -135,6 +143,7 @@ class SettingsActivity: ActivityBase() {
                     editor.removeDouble(key)
                 }
                 CommonUtils.realSharedPreferences.edit().remove("locale_pref").apply()
+                CommonUtils.realSharedPreferences.edit().remove("calculator_pin").apply()
                 recreate()
             }
             .setNegativeButton(R.string.cancel, null)
@@ -173,20 +182,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
         //If no light sensor exists switch to old boolean check box
         // see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
         val nightModePref = preferenceScreen.findPreference<ListPreference>("night_mode_pref3") as ListPreference
-        if (systemModeAvailable) {
-            if (autoModeAvailable) {
-                nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
-                nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
-                nightModePref.setDefaultValue("manual")
-            } else {
-                nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
-                nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
-                nightModePref.setDefaultValue("manual")
-            }
+        if (autoModeAvailable) {
+            nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
+            nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
+            nightModePref.setDefaultValue("system")
         } else {
-            if (!autoModeAvailable) {
-                nightModePref.isVisible = false
-            }
+            nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
+            nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
+            nightModePref.setDefaultValue("system")
         }
         val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
         showErrorBox.isVisible = CommonUtils.isBeta
@@ -209,6 +212,55 @@ class SettingsFragment : PreferenceFragmentCompat() {
             pref.isVisible = false
         }
 
+        (preferenceScreen.findPreference<EditTextPreference>("calculator_pin") as EditTextPreference).run {
+            setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_NUMBER }
+        }
+
+        (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).run {
+            if (BuildVariant.Appearance.isDiscrete) {
+                isVisible = false
+            }
+        }
+        (preferenceScreen.findPreference<EditTextPreference>("show_calculator") as Preference).run {
+            if (BuildVariant.Appearance.isDiscrete) {
+                isVisible = false
+            }
+            summary = listOf(
+                getString(R.string.calculator_par1),
+                getString(R.string.calculator_par2),
+                getString(R.string.calculator_par3),
+            ).joinToString(" ")
+        }
+        (preferenceScreen.findPreference<EditTextPreference>("discrete_help") as Preference).run {
+            setOnPreferenceClickListener {
+                val linkUrl = "https://github.com/AndBible/and-bible/wiki/Discrete-build"
+                val linkText = "<a href=\"$linkUrl\">$linkUrl</a>"
+
+                val dPar1 = getString(R.string.discrete_mode_info_par1)
+                val dPar2 = getString(R.string.discrete_mode_info_par2)
+                val dLink = getString(R.string.discrete_mode_link, linkText)
+
+                val calcPar1 = getString(R.string.calculator_par1)
+                val calcPar2 = getString(R.string.calculator_par2)
+                val calcPar3 = getString(R.string.calculator_par3)
+
+                val dText = "$dPar1<br><br>$dPar2<br><br>$dLink<br><br>"
+                val calcText = "$calcPar1$calcPar2<br><br>$calcPar3<br><br>$dLink"
+                val htmlMessage = if(!BuildVariant.Appearance.isDiscrete) dText else calcText
+
+                val spanned = htmlToSpan(htmlMessage)
+
+                val d = AlertDialog.Builder(context).apply {
+                    setTitle(getString(R.string.prefs_persecution_cat))
+                    setMessage(spanned)
+                    setPositiveButton(R.string.okay, null)
+                    setCancelable(true)
+                }.create()
+                d.show()
+                d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                true
+            }
+        }
         for(p in getPreferenceList()) {
             val icon = p.icon
             if(icon != null) {

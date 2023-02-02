@@ -21,22 +21,18 @@
   </p>
 </template>
 
-<script>
+<script setup lang="ts">
 import {useCommon} from "@/composables";
 import {inject} from "vue";
+import {osisFragmentKey} from "@/types/constants";
 
-export default {
-  name: "Figure",
-  props: {src: {type: String, required: true}},
-  setup() {
-    const {bookInitials} = inject("osisFragment");
-    return {...useCommon(), bookInitials};
-  },
-}
+defineProps<{src: string}>();
+const {bookInitials} = inject(osisFragmentKey)!;
+useCommon();
 </script>
 
 <style scoped>
 .imageStyle {
-  max-width: 100%;
+    max-width: 100%;
 }
 </style>

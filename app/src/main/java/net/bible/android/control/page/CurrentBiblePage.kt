@@ -25,6 +25,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist

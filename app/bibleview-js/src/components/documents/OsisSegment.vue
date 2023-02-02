@@ -15,93 +15,94 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<script>
+<script lang="ts">
 
-import Verse from "@/components/OSIS/Verse";
-import W from "@/components/OSIS/W";
-import Div from "@/components/OSIS/Div";
-import Chapter from "@/components/OSIS/Chapter";
-import Reference from "@/components/OSIS/Reference";
-import Note from "@/components/OSIS/Note";
-import TransChange from "@/components/OSIS/TransChange";
-import DivineName from "@/components/OSIS/DivineName";
-import Seg from "@/components/OSIS/Seg";
-import Milestone from "@/components/OSIS/Milestone";
-import Title from "@/components/OSIS/Title";
-import Q from "@/components/OSIS/Q";
-import Hi from "@/components/OSIS/Hi";
-import CatchWord from "@/components/OSIS/CatchWord";
-import List from "@/components/OSIS/List";
-import Item from "@/components/OSIS/Item";
-import P from "@/components/OSIS/P";
-import Cell from "@/components/OSIS/Cell";
-import L from "@/components/OSIS/L";
-import Lb from "@/components/OSIS/Lb";
-import Lg from "@/components/OSIS/Lg";
-import Row from "@/components/OSIS/Row";
-import Table from "@/components/OSIS/Table";
-import {h} from "vue";
-import Foreign from "@/components/OSIS/Foreign";
-import Figure from "@/components/OSIS/Figure";
-import A from "@/components/OSIS/A";
-import Abbr from "@/components/OSIS/Abbr";
-import {osisToTemplateString} from "@/utils";
-import BibleViewAnchor from "@/components/BibleViewAnchor";
-import AndBibleLink from "@/components/OSIS/AndBibleLink";
-import Pb from "@/components/MyBible/Pb";
-import NoOp from "@/components/OSIS/NoOp";
-import H3 from "@/components/MyBible/H3";
-import I from "@/components/MyBible/I";
-import S from "@/components/MyBible/S";
+import Verse from "@/components/OSIS/Verse.vue";
+import W from "@/components/OSIS/W.vue";
+import Div from "@/components/OSIS/Div.vue";
+import Chapter from "@/components/OSIS/Chapter.vue";
+import Reference from "@/components/OSIS/Reference.vue";
+import Note from "@/components/OSIS/Note.vue";
+import TransChange from "@/components/OSIS/TransChange.vue";
+import DivineName from "@/components/OSIS/DivineName.vue";
+import Seg from "@/components/OSIS/Seg.vue";
+import Milestone from "@/components/OSIS/Milestone.vue";
+import Title from "@/components/OSIS/Title.vue";
+import Q from "@/components/OSIS/Q.vue";
+import Hi from "@/components/OSIS/Hi.vue";
+import CatchWord from "@/components/OSIS/CatchWord.vue";
+import List from "@/components/OSIS/List.vue";
+import Item from "@/components/OSIS/Item.vue";
+import P from "@/components/OSIS/P.vue";
+import Cell from "@/components/OSIS/Cell.vue";
+import L from "@/components/OSIS/L.vue";
+import Lb from "@/components/OSIS/Lb.vue";
+import Lg from "@/components/OSIS/Lg.vue";
+import Row from "@/components/OSIS/Row.vue";
+import Table from "@/components/OSIS/Table.vue";
+import Foreign from "@/components/OSIS/Foreign.vue";
+import Figure from "@/components/OSIS/Figure.vue";
+import A from "@/components/OSIS/A.vue";
+import Abbr from "@/components/OSIS/Abbr.vue";
+import BibleViewAnchor from "@/components/BibleViewAnchor.vue";
+import AndBibleLink from "@/components/OSIS/AndBibleLink.vue";
+import Pb from "@/components/MyBible/Pb.vue";
+import NoOp from "@/components/OSIS/NoOp.vue";
+import H3 from "@/components/MyBible/H3.vue";
+import I from "@/components/MyBible/I.vue";
+import S from "@/components/MyBible/S.vue";
 import B from "@/components/MyBible/B.vue";
 import Br from "@/components/MyBible/Br.vue";
 import Li from "@/components/MyBible/Li.vue";
 import Ol from "@/components/MyBible/Ol.vue";
 import Strong from "@/components/MyBible/Strong.vue";
 
+import {Component, defineComponent, h} from "vue";
+import {osisToTemplateString} from "@/utils";
+
 const teiComponents = {
-  Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
-  Rdg: Hi, Def: Div, Etym: Hi,
+    Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
+    Rdg: Hi, Def: Div, Etym: Hi,
 }
 
 const andBibleComponents = {
-  AndBibleLink
+    AndBibleLink
 }
 
 const myBibleComponents = {
-  S, M: NoOp, I, J:Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3, B, Br, Li, Ol, Strong
+    S, M: NoOp, I, J: Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3, B, Br, Li, Ol, Strong
 }
 
 const osisComponents = {
-  Verse, W, Div, Chapter, Reference, Note, TransChange,
-  DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
-  Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
-  ...teiComponents, ...andBibleComponents, ...myBibleComponents,
+    Verse, W, Div, Chapter, Reference, Note, TransChange,
+    DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
+    Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
+    ...teiComponents, ...andBibleComponents, ...myBibleComponents,
 }
 
-function prefixComponents() {
-  const result = {}
-  for(const name in osisComponents) {
-    result["Osis" + name] = osisComponents[name]
-  }
-  return result;
+function prefixComponents(components: Record<string, Component>): Record<string, Component> {
+    const result: Record<string, Component> = {}
+    for (const name in components) {
+        result["Osis" + name] = components[name]
+    }
+    return result;
 }
 
-export default {
-  name: "OsisSegment",
-  props: {
-    osisTemplate: {type: String, required: true},
-    convert: {type: Boolean, default: false},
-  },
-  render() {
-    return h({
-      template: this.convert ? osisToTemplateString(this.osisTemplate): this.osisTemplate,
-      components: {BWA: BibleViewAnchor, ...prefixComponents(osisComponents)},
-      compilerOptions: {
-        whitespace: 'preserve',
-      },
-    });
-  },
-}
+export default defineComponent({
+    name: "OsisSegment",
+    props: {
+        osisTemplate: {type: String, required: true},
+        convert: {type: Boolean, default: false},
+    },
+    render() {
+        return h({
+            template: this.convert ? osisToTemplateString(this.osisTemplate) : this.osisTemplate,
+            components: {BWA: BibleViewAnchor, ...prefixComponents(osisComponents)},
+            compilerOptions: {
+                whitespace: 'preserve',
+            },
+        });
+    },
+})
 </script>
 
