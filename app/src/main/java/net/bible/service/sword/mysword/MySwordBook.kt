@@ -342,13 +342,13 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         mySwordText.replace(strongsRe) { m ->
             val (word, lang, num) = m.destructured
             "<w lemma=\"strong:${lang}${num}\">${word}</w>"
-        }
+        }.replace("<br>", "<br/>")
 
     override fun readRawContent(state: SqliteVerseBackendState, key: Key): String {
         return when(bookMetaData.bookCategory) {
             BookCategory.BIBLE -> parseTags(readBible(state, key))
-            BookCategory.COMMENTARY -> readCommentary(state, key)
-            BookCategory.DICTIONARY -> readDictionary(state, key)
+            BookCategory.COMMENTARY -> parseTags(readCommentary(state, key))
+            BookCategory.DICTIONARY -> parseTags(readDictionary(state, key))
             else -> ""
         }
     }
