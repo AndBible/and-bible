@@ -35,6 +35,7 @@ import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.page.windowControl
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
@@ -250,6 +251,14 @@ class Window (
 
     fun hasChapterLoaded(chapter: Int): Boolean {
         return bibleView?.hasChapterLoaded(chapter) == true
+    }
+
+    fun updateTextIfNeeded() {
+        if((pageManager.isVersePageShown && pageManager.currentVersePage.currentBibleVerse.lastUpdated > lastUpdated)
+            || (windowControl.windowSync.lastForceSyncAll > lastUpdated))
+        {
+            updateText()
+        }
     }
 
     private val TAG get() = "BibleView[${id}] WIN"

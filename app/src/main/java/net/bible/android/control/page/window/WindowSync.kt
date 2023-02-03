@@ -33,7 +33,7 @@ import kotlin.math.max
 
 class WindowSync(private val windowRepository: WindowRepository) {
     private var lastSynchWasInNightMode: Boolean = false
-    private var lastForceSyncAll: Long = System.currentTimeMillis()
+    var lastForceSyncAll: Long = System.currentTimeMillis()
     private var lastForceSyncBibles: Long = System.currentTimeMillis()
 
     fun setResyncRequired() {

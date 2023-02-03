@@ -188,11 +188,7 @@ open class WindowControl @Inject constructor() {
 
             window.windowState = WindowState.VISIBLE
 
-            val noDelay = window.bibleView?.htmlReady != true
-            // If BibleView is not yet ready, we should do sync without delay to make sure
-            // it loads initial content to the right location.
-            //windowSync.synchronizeWindows(noDelay = noDelay)
-            windowSync.reloadAllWindows()
+            window.updateTextIfNeeded()
 
             if (activeWindow.isSynchronised)
                 windowRepository.lastSyncWindowId = activeWindow.id

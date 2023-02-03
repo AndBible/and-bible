@@ -144,6 +144,10 @@ open class CurrentPageManager @Inject constructor(
         get() = currentCommentary === currentPage
     val isBibleShown: Boolean
         get() = currentBible === currentPage
+
+    val isVersePageShown: Boolean
+        get() = isBibleShown || isCommentaryShown
+
     val isMyNotesShown: Boolean
         get() = currentMyNotePage === currentPage
 
