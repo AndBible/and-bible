@@ -21,6 +21,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
@@ -92,7 +93,7 @@ abstract class CurrentPageBase protected constructor(
     /** notify mediator that page has changed and a lot of things need to update themselves
      */
     private fun beforePageChange() {
-        PassageChangeMediator.onBeforeCurrentPageChanged()
+        ABEventBus.post(BeforeCurrentPageChangeEvent(window = pageManager.window))
     }
 
     /** notify mediator that page has changed and a lot of things need to update themselves

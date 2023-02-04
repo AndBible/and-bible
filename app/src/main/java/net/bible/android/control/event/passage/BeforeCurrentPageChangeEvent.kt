@@ -17,4 +17,6 @@
 
 package net.bible.android.control.event.passage
 
-data class BeforeCurrentPageChangeEvent(val updateHistory: Boolean = true)
+import net.bible.android.control.page.window.Window
+
+data class BeforeCurrentPageChangeEvent(val window: Window? = null, val updateHistory: Boolean = true)
