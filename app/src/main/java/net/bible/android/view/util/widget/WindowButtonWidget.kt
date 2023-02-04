@@ -54,7 +54,6 @@ class WindowButtonWidget(
 
     init {
         updateSettings()
-        updateBackground()
     }
 
     fun onEventMainThread(event: CurrentBibleVerseChanged) {
@@ -62,7 +61,7 @@ class WindowButtonWidget(
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
-        updateBackground()
+        updateSettings()
     }
 
     fun onEvent(event: WindowChangedEvent) {
@@ -102,62 +101,58 @@ class WindowButtonWidget(
                 View.VISIBLE
             else
                 View.INVISIBLE
-    }
 
-    private fun updateBackground() {
         val isPinnedWindow = window?.isPinMode == true
         val isLinksWindow = window?.isLinksWindow == true
         val isActive = windowControl.activeWindow.id == window?.id && !isMaximised
         val isWindowVisible = if(isRestoreButton) {
             window?.isVisible == true
-        }
-        else {
+        } else {
             window?.id == windowControl.activeWindow.id && !isMaximised
         }
 
-        binding.apply {
-            if (isRestoreButton) {
-                windowButton.setBackgroundResource(
-                    when {
-                        isActive && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_active
-                        isWindowVisible && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_visible
-                        isPinnedWindow || isLinksWindow -> R.drawable.bar_window_button
-                        isActive -> R.drawable.bar_window_unpinned_button_active
-                        isWindowVisible -> R.drawable.bar_window_unpinned_button_visible
-                        else -> R.drawable.bar_window_unpinned_button
-                    }
-                )
-            } else {
-                windowButton.setBackgroundResource(
-                    when {
-                        isActive -> R.drawable.window_button_active
-                        isWindowVisible -> R.drawable.window_button_visible
-                        else -> R.drawable.window_button
-                    }
-                )
-            }
-            if (isRestoreButton) {
-                buttonText.textSize = 13.0f
-                val color = getResourceColor(R.color.bar_window_button_text_colour)
-                buttonText.setTextColor(color)
-                val image = window?.pageManager?.currentPage?.currentDocument?.imageResource
-                if (image != null)
-                    docType.setImageResource(image)
-            } else {
-                buttonText.setTextColor(getResourceColor(R.color.window_button_text_colour))
-                windowButton.setTextColor(getResourceColor(R.color.window_button_text_colour))
-                buttonText.visibility = View.GONE
-                docType.visibility = View.GONE
-                topButtonText.visibility = View.GONE
-            }
-            if (window?.isLinksWindow == true && !isMaximised) {
-                docType.setImageResource(R.drawable.ic_link_black_24dp)
-                docType.setColorFilter(getResourceColor(R.color.links_button_icon_color))
-                docType.visibility = View.VISIBLE
-            }
-            unMaximiseImage.visibility = if (isMaximised) View.VISIBLE else View.GONE
-            topButtonText.text = window?.pageManager?.titleText?:""
+        if (isRestoreButton) {
+            windowButton.setBackgroundResource(
+                when {
+                    isActive && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_active
+                    isWindowVisible && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_visible
+                    isPinnedWindow || isLinksWindow -> R.drawable.bar_window_button
+                    isActive -> R.drawable.bar_window_unpinned_button_active
+                    isWindowVisible -> R.drawable.bar_window_unpinned_button_visible
+                    else -> R.drawable.bar_window_unpinned_button
+                }
+            )
+        } else {
+            windowButton.setBackgroundResource(
+                when {
+                    isActive -> R.drawable.window_button_active
+                    isWindowVisible -> R.drawable.window_button_visible
+                    else -> R.drawable.window_button
+                }
+            )
         }
+        if (isRestoreButton) {
+            buttonText.textSize = 13.0f
+            val color = getResourceColor(R.color.bar_window_button_text_colour)
+            buttonText.setTextColor(color)
+            val image = window?.pageManager?.currentPage?.currentDocument?.imageResource
+            if (image != null)
+                docType.setImageResource(image)
+        } else {
+            buttonText.setTextColor(getResourceColor(R.color.window_button_text_colour))
+            windowButton.setTextColor(getResourceColor(R.color.window_button_text_colour))
+            buttonText.visibility = View.GONE
+            docType.visibility = View.GONE
+        }
+        if (window?.isLinksWindow == true && !isMaximised) {
+            docType.setImageResource(R.drawable.ic_link_black_24dp)
+            docType.setColorFilter(getResourceColor(R.color.links_button_icon_color))
+            docType.visibility = View.VISIBLE
+        }
+        unMaximiseImage.visibility = if (isMaximised) View.VISIBLE else View.GONE
+        topButtonText.text = window?.pageManager?.titleText?:""
+        topButtonText.visibility = if(isMaximised||!isRestoreButton) View.GONE else View.VISIBLE
+        buttonText.visibility = if(isMaximised||!isRestoreButton) View.GONE else View.VISIBLE
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
