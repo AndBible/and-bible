@@ -19,14 +19,12 @@ package net.bible.android.control.page
 import android.content.Intent
 import android.util.Log
 import net.bible.android.common.toV11n
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
@@ -38,8 +36,6 @@ import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
-
-class CurrentBiblePageVerseSet()
 
 /** Reference to current passage shown by viewer
  *
@@ -145,7 +141,6 @@ class CurrentBiblePage(
         val verse = KeyUtil.getVerse(key)
 		//TODO av11n should this be the verse Versification or the Module/doc's Versification
 		currentBibleVerse.setVerseSelected(versification, verse)
-        ABEventBus.post(CurrentBiblePageVerseSet())
 	}
 
     // TODO: for intros, could add new setting. Now using same setting as for section titles

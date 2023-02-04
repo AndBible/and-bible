@@ -18,12 +18,15 @@ package net.bible.android.control.page
 
 import net.bible.android.common.entity
 import net.bible.android.common.toV11n
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.versification.chapterVerse
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
+
+class CurrentBibleVerseChanged
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -48,6 +51,7 @@ class CurrentBibleVerse {
     fun setVerseSelected(versification: Versification, verseSelected: Verse) {
         verse = verseSelected.toV11n(versification)
         lastUpdated = System.currentTimeMillis()
+        ABEventBus.post(CurrentBibleVerseChanged())
     }
 
     var chapterVerse: ChapterVerse

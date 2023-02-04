@@ -28,7 +28,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.WindowButtonBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
-import net.bible.android.control.page.CurrentBiblePageVerseSet
+import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
@@ -57,7 +57,7 @@ class WindowButtonWidget(
         updateBackground()
     }
 
-    fun onEventMainThread(event: CurrentBiblePageVerseSet) {
+    fun onEventMainThread(event: CurrentBibleVerseChanged) {
         binding.topButtonText.text = window?.pageManager?.titleText?:""
     }
 

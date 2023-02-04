@@ -89,10 +89,14 @@ open class CurrentPageManager @Inject constructor(
     val titleText: String get() =
         if(isBibleShown || isCommentaryShown) {
             synchronized(BookName::class.java) {
-                val prevFullBookNameValue = BookName.isFullBookName()
-                BookName.setFullBookName(false)
-                val name = currentBibleVerse.verse.name
-                BookName.setFullBookName(prevFullBookNameValue)
+                val prevTruncateLength = BookName.getTruncateShortName()
+                var length = 5
+                var name: String
+                do {
+                    BookName.setTruncateShortName(length--)
+                    name = currentBibleVerse.verse.name
+                } while(length > 0 && name.length > 7)
+                BookName.setTruncateShortName(prevTruncateLength)
                 name
             }
         } else {
