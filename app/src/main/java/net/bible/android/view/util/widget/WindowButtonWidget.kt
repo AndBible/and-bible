@@ -28,6 +28,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.WindowButtonBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
@@ -56,6 +57,10 @@ class WindowButtonWidget(
         updateBackground()
     }
 
+    fun onEventMainThread(event: CurrentBibleVerseChanged) {
+        binding.topButtonText.text = window?.pageManager?.titleText?:""
+    }
+
     fun onEvent(event: CurrentWindowChangedEvent) {
         updateBackground()
     }
@@ -78,17 +83,19 @@ class WindowButtonWidget(
 
     private fun updateSettings() {
         val syncVisibility =
-            if(window !== null && window.isSyncable && window.isSynchronised && !isMaximised) View.VISIBLE
+            if (window !== null && window.isSyncable && window.isSynchronised && !isMaximised)
+                View.VISIBLE
             else View.INVISIBLE
         binding.synchronize.visibility = syncVisibility
         binding.syncGroup.visibility = syncVisibility
         if(window != null) {
             binding.syncGroup.text = (window.syncGroup + 1).toString()
         }
-
-        binding.docType.visibility = if(isMaximised) View.INVISIBLE else View.VISIBLE
+        binding.docType.visibility = if (isMaximised) View.INVISIBLE else View.VISIBLE
         binding.pinMode.visibility =
-            if(!windowControl.windowRepository.workspaceSettings.autoPin
+            if (
+                !isRestoreButton
+                && !windowControl.windowRepository.workspaceSettings.autoPin
                 && window?.isPinMode == true
                 && !isMaximised
             )
@@ -141,6 +148,7 @@ class WindowButtonWidget(
                 windowButton.setTextColor(getResourceColor(R.color.window_button_text_colour))
                 buttonText.visibility = View.GONE
                 docType.visibility = View.GONE
+                topButtonText.visibility = View.GONE
             }
             if (window?.isLinksWindow == true && !isMaximised) {
                 docType.setImageResource(R.drawable.ic_link_black_24dp)
@@ -148,6 +156,7 @@ class WindowButtonWidget(
                 docType.visibility = View.VISIBLE
             }
             unMaximiseImage.visibility = if (isMaximised) View.VISIBLE else View.GONE
+            topButtonText.text = window?.pageManager?.titleText?:""
         }
     }
 

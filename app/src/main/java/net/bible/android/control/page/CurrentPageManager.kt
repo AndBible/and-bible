@@ -37,6 +37,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.versification.BookName
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 
@@ -85,6 +86,22 @@ open class CurrentPageManager @Inject constructor(
 
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
 
+    val titleText: String get() =
+        if(isBibleShown || isCommentaryShown) {
+            synchronized(BookName::class.java) {
+                val prevTruncateLength = BookName.getTruncateShortName()
+                var length = 5
+                var name: String
+                do {
+                    BookName.setTruncateShortName(length--)
+                    name = currentBibleVerse.verse.name
+                } while(length > 0 && name.length > 7)
+                BookName.setTruncateShortName(prevTruncateLength)
+                name
+            }
+        } else {
+            ""
+        }
 
     val hasStrongs: Boolean get() {
         if(isGenBookShown) {
@@ -131,6 +148,10 @@ open class CurrentPageManager @Inject constructor(
         get() = currentCommentary === currentPage
     val isBibleShown: Boolean
         get() = currentBible === currentPage
+
+    val isVersePageShown: Boolean
+        get() = isBibleShown || isCommentaryShown
+
     val isMyNotesShown: Boolean
         get() = currentMyNotePage === currentPage
 
