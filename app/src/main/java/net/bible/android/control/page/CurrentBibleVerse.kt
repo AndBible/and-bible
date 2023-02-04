@@ -37,6 +37,7 @@ class CurrentBibleVerse {
         Versifications.instance().getVersification(Versifications.DEFAULT_V11N),
         BibleBook.GEN, 1, 1
     )
+        private set
 
     val currentBibleBookNo: Int
         get() = verse.book.ordinal

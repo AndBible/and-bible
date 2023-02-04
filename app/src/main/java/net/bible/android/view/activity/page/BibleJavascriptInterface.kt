@@ -76,7 +76,7 @@ class BibleJavascriptInterface(
         if (doc is BibleDocument || doc is MyNotesDocument) {
             currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal,
                 when (doc) {
-                    is BibleDocument -> bibleView.initialVerse?.versification
+                    is BibleDocument -> bibleView.initialVerse!!.versification
                     is MyNotesDocument -> KJVA
                     else -> throw RuntimeException("Unsupported doc")
                 }, bibleView.window)

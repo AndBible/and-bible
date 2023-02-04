@@ -190,14 +190,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         return newWindow
     }
 
-    fun getWindowsToSynchronise(sourceWindow: Window?): List<Window> {
-        val windows = ArrayList(windowList)
-        if (sourceWindow != null) {
-            windows.remove(sourceWindow)
-        }
-
-        return windows
-    }
+    fun getWindowsToSynchronise(sourceWindow: Window?): List<Window> = windowList.filter { it != sourceWindow }
 
     fun minimise(window: Window) {
         Log.i(TAG, "minimise $window")

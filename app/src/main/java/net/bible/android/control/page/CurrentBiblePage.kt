@@ -191,16 +191,14 @@ class CurrentBiblePage(
             val oldChapterVerse = currentBibleVerse.chapterVerse
             if(chapterVerse != oldChapterVerse) {
                 currentBibleVerse.chapterVerse = chapterVerse
-                //onVerseChange()
             }
     }
-    val currentVerseOrdinal: Int get() = currentBibleVerse.verse.ordinal
 
-    fun setCurrentVerseOrdinal(value: Int, versification: Versification?, window: Window) {
+    fun setCurrentVerseOrdinal(value: Int, versification: Versification, window: Window) {
         val old = currentBibleVerse.verse.ordinal
-        val newVerse = Verse(versification?: currentBibleVerse.versificationOfLastSelectedVerse, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
+        val newVerse = Verse(versification, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
         if(newVerse.ordinal != old) {
-            currentBibleVerse.verse = newVerse
+            currentBibleVerse.setVerseSelected(versification, newVerse)
             onVerseChange(window)
         }
     }
