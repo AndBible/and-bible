@@ -283,7 +283,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             """select _rowid_ from commentary WHERE book = ? AND 
                             ((chapter = ? AND fromverse <= ? AND
                             toverse >= ?) OR
-                            (chapter = ? AND fromverse = ? AND toverse IS NULL))
+                            (chapter = ? AND fromverse = ? AND (toverse IS NULL or toverse = 0)))
 
                             """,
             arrayOf("${bibleBookToMySwordInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
@@ -327,7 +327,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         return state.sqlDb.rawQuery(
             """select data from commentary WHERE book = ? AND
                             ((chapter = ? AND fromverse <= ? AND toverse >= ?) OR
-                            (chapter = ? AND fromverse = ? AND toverse IS NULL))
+                            (chapter = ? AND fromverse = ? AND (toverse IS NULL OR toverse = 0)))
                 """,
             arrayOf("${bibleBookToMySwordInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
         ).use {
