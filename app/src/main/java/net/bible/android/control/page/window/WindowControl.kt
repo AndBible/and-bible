@@ -181,7 +181,7 @@ open class WindowControl @Inject constructor() {
             if (window == activeWindow) return
 
             if(!window.isPinMode) {
-                for (it in windowRepository.windowList.filter { !it.isPinMode }) {
+                for (it in windowRepository.windowList.filter { !it.isPinMode && !it.isLinksWindow }) {
                     it.windowState = WindowState.MINIMISED
                 }
             }
