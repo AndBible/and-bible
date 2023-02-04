@@ -93,7 +93,9 @@ class WindowButtonWidget(
         }
         binding.docType.visibility = if (isMaximised) View.INVISIBLE else View.VISIBLE
         binding.pinMode.visibility =
-            if (!windowControl.windowRepository.workspaceSettings.autoPin
+            if (
+                !isRestoreButton
+                && !windowControl.windowRepository.workspaceSettings.autoPin
                 && window?.isPinMode == true
                 && !isMaximised
             )
