@@ -47,6 +47,7 @@ class CurrentBibleVerse {
     fun getVerseSelected(versification: Versification): Verse = verse.toV11n(versification)
 
     var lastUpdated: Long = 0
+        private set
 
     fun setVerseSelected(versification: Versification, verseSelected: Verse) {
         verse = verseSelected.toV11n(versification)
@@ -60,8 +61,7 @@ class CurrentBibleVerse {
             verse = Verse(verse.versification, verse.book, chapterVerse.chapter, chapterVerse.verse)
         }
 
-    val versificationOfLastSelectedVerse: Versification
-        get() = verse.versification
+    val versificationOfLastSelectedVerse: Versification get() = verse.versification
 
     fun restoreFrom(verse: WorkspaceEntities.Verse) {
         this.verse = verse.jswordVerse

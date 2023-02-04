@@ -397,6 +397,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     }
 
     private fun updateBibleReference() {
+        if(bibleReferenceOverlay.visibility != View.VISIBLE) return
         mainBibleActivity.runOnUiThread {
             try {
                 bibleReferenceOverlay.text = mainBibleActivity.bibleOverlayText
