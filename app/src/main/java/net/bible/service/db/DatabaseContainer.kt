@@ -1050,6 +1050,17 @@ private val MIGRATION_64_65_sync_group = object : Migration(64, 65) {
         }
     }
 }
+private val MIGRATION_65_66_add_Xrefs_option = object : Migration(65, 66) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            val colDefs = listOf<String>("`text_display_settings_showXrefs` INTEGER DEFAULT NULL")
+            colDefs.forEach {
+                execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
+                execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
+            }
+        }
+    }
+}
 
 class DataBaseNotReady: Exception()
 
@@ -1164,6 +1175,7 @@ object DatabaseContainer {
                         MIGRATION_62_63_window_changes,
                         MIGRATION_63_64_window_changes,
                         MIGRATION_64_65_sync_group,
+                        MIGRATION_65_66_add_Xrefs_option,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

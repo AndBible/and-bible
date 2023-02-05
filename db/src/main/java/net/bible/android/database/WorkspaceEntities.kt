@@ -151,6 +151,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL", name = "showStrongs") var strongsMode: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showXrefs: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showRedLetters: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showSectionTitles: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showVerseNumbers: Boolean? = null,
@@ -181,6 +182,7 @@ class WorkspaceEntities {
             STRONGS,
             MORPH,
             FOOTNOTES,
+            XREFS,
             REDLETTERS,
             SECTIONTITLES,
             VERSENUMBERS,
@@ -194,6 +196,7 @@ class WorkspaceEntities {
             Types.STRONGS -> strongsMode
             Types.MORPH -> showMorphology
             Types.FOOTNOTES -> showFootNotes
+            Types.XREFS -> showXrefs
             Types.REDLETTERS -> showRedLetters
             Types.SECTIONTITLES -> showSectionTitles
             Types.VERSENUMBERS -> showVerseNumbers
@@ -216,6 +219,7 @@ class WorkspaceEntities {
                 Types.STRONGS -> strongsMode = value as Int?
                 Types.MORPH -> showMorphology = value as Boolean?
                 Types.FOOTNOTES -> showFootNotes = value as Boolean?
+                Types.XREFS -> showXrefs = value as Boolean?
                 Types.REDLETTERS -> showRedLetters = value as Boolean?
                 Types.SECTIONTITLES -> showSectionTitles = value as Boolean?
                 Types.VERSENUMBERS -> showVerseNumbers = value as Boolean?
@@ -274,6 +278,7 @@ class WorkspaceEntities {
                 strongsMode = 0,
                 showMorphology = false,
                 showFootNotes = true,
+                showXrefs = true,
                 showRedLetters = true,
                 showSectionTitles = true,
                 showVerseNumbers = true,

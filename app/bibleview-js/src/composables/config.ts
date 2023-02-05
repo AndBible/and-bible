@@ -55,6 +55,7 @@ export type Config = {
     showSectionTitles: boolean,
     showStrongsSeparately: boolean,
     showFootNotes: boolean,
+    showXrefs: boolean,
     fontFamily: string,
     fontSize: number,
 
@@ -125,6 +126,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         showSectionTitles: true,
         showStrongsSeparately: false,
         showFootNotes: true,
+        showXrefs: true,
         fontFamily: "sans-serif",
         fontSize: 16,
 
@@ -226,7 +228,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         const keys: (keyof Config)[] = [
             "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
             "showRedLetters", "showVersePerLine", "showNonCanonical", "makeNonCanonicalItalic", "showSectionTitles",
-            "showStrongsSeparately", "showFootNotes", "showBookmarks", "showMyNotes", "bookmarksHideLabels"
+            "showStrongsSeparately", "showFootNotes", "showXrefs", "showBookmarks", "showMyNotes", "bookmarksHideLabels"
         ];
         return compareConfig(newConfig, keys);
     }
@@ -236,7 +238,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         const keys: (keyof Config)[] = [
             "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
             "showRedLetters", "showVersePerLine", "showNonCanonical", "showSectionTitles",
-            "showStrongsSeparately", "showFootNotes", "showBookmarks", "showMyNotes",
+            "showStrongsSeparately", "showFootNotes", "showXrefs", "showBookmarks", "showMyNotes",
             "fontSize", "fontFamily", "hyphenation", "justifyText", "marginSize", "topMargin"
         ];
         return compareConfig(newConfig, keys);
