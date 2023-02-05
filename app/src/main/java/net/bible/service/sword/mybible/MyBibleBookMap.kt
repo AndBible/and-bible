@@ -104,6 +104,7 @@ val myBibleIntToBibleBook = mapOf(
     650 to BibleBook.HEB,
     730 to BibleBook.REV,
     780 to BibleBook.EP_LAO,
+    811 to BibleBook.EN1,
 )
 
 val bibleBookToMyBibleInt = myBibleIntToBibleBook.toList().associate { (k, v) -> v to k }
