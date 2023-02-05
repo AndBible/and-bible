@@ -110,7 +110,7 @@ provide(referenceCollectorKey, referenceCollector);
 const exportMode = inject(exportModeKey, ref(false));
 
 const showHandle = computed(() => {
-    return !exportMode.value && ((config.showFootNotes && isCrossReference) || config.showFootNotes);
+    return !exportMode.value && ((config.showFootNotes && isCrossReference.value) || config.showFootNotes);
 });
 </script>
 
