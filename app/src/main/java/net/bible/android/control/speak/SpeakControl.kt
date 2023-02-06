@@ -148,7 +148,7 @@ class SpeakControl @Inject constructor(
         if (settings.synchronize) {
             val book = speakPageManager.currentPage.currentDocument
             if(setOf(BookCategory.BIBLE, BookCategory.COMMENTARY).contains(book?.bookCategory)) {
-                speakPageManager.setCurrentDocumentAndKey(book, event.key, false)
+                speakPageManager.setCurrentDocumentAndKey(book, event.key)
             }
         }
     }

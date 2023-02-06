@@ -39,6 +39,10 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Passage
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseKey
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
@@ -171,8 +175,7 @@ open class CurrentPageManager @Inject constructor(
         var nextPage: CurrentPage? = null
         if (nextDocument != null) {
             ABEventBus.post(BeforeCurrentPageChangeEvent(window))
-
-            nextPage = getBookPage(nextDocument)
+            nextPage = getBookPage(nextDocument, null)
 
             // is the next doc the same as the prev doc
             val prevDocInPage = nextPage!!.currentDocument
@@ -205,10 +208,9 @@ open class CurrentPageManager @Inject constructor(
 
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,
-                                 updateHistory: Boolean = true,
                                  anchorOrdinal: Int? = null
     ): CurrentPage? {
-        val nextPage = getBookPage(currentBook)
+        val nextPage = getBookPage(currentBook, key)
         if (nextPage != null) {
             try {
                 nextPage.isInhibitChangeNotifications = true
@@ -228,9 +230,11 @@ open class CurrentPageManager @Inject constructor(
         return nextPage
     }
 
-    fun getBookPage(book: Book?): CurrentPage? {
+    fun getBookPage(book: Book?, key: Key?): CurrentPage? {
         return if (book == null) {
-            null
+            if(key is VerseKey<*>) {
+                return if(isVersePageShown) currentPage else currentBible
+            } else null
         } else {
             if(book.osisID == "Commentaries.MyNote")
                 currentMyNotePage

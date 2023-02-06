@@ -86,27 +86,14 @@ open class WindowControl @Inject constructor() {
 
     fun isActiveWindow(window: Window): Boolean = window == windowRepository.activeWindow
 
-    /**
-     * Show link using whatever is the current Bible in the Links window
-     */
-    fun showLinkUsingDefaultBible(key: Key) {
-        showLink(defaultBibleDoc(true), key)
-    }
-
     open fun defaultBibleDoc(useLinks: Boolean  = true): SwordBook {
-        //val linksBiblePage = windowRepository.primaryLinksWindow?.pageManager?.currentBible
         val activeWindowBibleDoc = windowRepository.activeWindow.pageManager.currentBible.currentDocument as SwordBook?
         return activeWindowBibleDoc ?: firstBibleDoc
-
-        //return if (useLinks && linksBiblePage.isCurrentDocumentSet) linksBiblePage.currentDocument!! as SwordBook
-        //       else activeWindowBibleDoc ?: firstBibleDoc
     }
 
-    fun showLink(document: Book, key: Key) {
+    fun showLink(document: Book?, key: Key) {
         val linksWindow = activeWindow.targetLinksWindow
         val linksWindowWasVisible = linksWindow.isVisible
-
-        //linksWindow.initialiseLinksWindowPageStateIfClosed(activeWindow)
 
         if (!linksWindowWasVisible) {
             windowRepository.activeWindow = linksWindow

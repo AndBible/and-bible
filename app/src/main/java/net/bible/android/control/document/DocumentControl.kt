@@ -173,7 +173,7 @@ class DocumentControl @Inject constructor(
         swordDocumentFacade.deleteDocument(document)
         if(document.bookCategory == BookCategory.AND_BIBLE) return
         documentBackupDao.deleteByOsisId(document.initials)
-        val currentPage = windowControl.activeWindowPageManager.getBookPage(document)
+        val currentPage = windowControl.activeWindowPageManager.getBookPage(document, null)
         currentPage?.checkCurrentDocumenInstalled()
     }
 

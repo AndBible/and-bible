@@ -351,11 +351,7 @@ class LinkControl @Inject constructor(
         if (windowMode == WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow() && !forceOpenHere) {
-            if (document == null) {
-                windowControl.showLinkUsingDefaultBible(key)
-            } else {
-                windowControl.showLink(document, key)
-            }
+            windowControl.showLink(document, key)
         } else { // old style - open links in current window
             currentPageManager.setCurrentDocumentAndKey(document ?: defaultDocument, key)
         }
