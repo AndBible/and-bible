@@ -47,12 +47,8 @@ class CurrentBibleVerse {
 
     fun getVerseSelected(versification: Versification): Verse = verse.toV11n(versification)
 
-    var lastUpdated: Long = 0
-        private set
-
     fun setVerseSelected(versification: Versification, verseSelected: Verse) {
         verse = verseSelected.toV11n(versification)
-        lastUpdated = System.currentTimeMillis()
         ABEventBus.post(CurrentBibleVerseChanged())
     }
 

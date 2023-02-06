@@ -105,7 +105,9 @@ class Window (
             syncGroup = syncGroup
         )
     var displayedKey: Key? = null
+        private set
     var displayedBook: Book? = null
+        private set
 
     var isSynchronised = window.isSynchronized
         set(value) {
@@ -181,7 +183,7 @@ class Window (
             anchorOrdinal = currentPage.anchorOrdinal
         }
         displayedBook = currentPage.currentDocument
-        displayedKey = currentPage.key
+        displayedKey = currentPage.singleKey
         Log.i(TAG, "updateText ${this.hashCode()}")
 
         updateScope.launch {
@@ -254,7 +256,7 @@ class Window (
     }
 
     fun updateTextIfNeeded() {
-        if((pageManager.isVersePageShown && pageManager.currentVersePage.currentBibleVerse.lastUpdated > lastUpdated)
+        if((displayedKey != pageManager.currentPage.singleKey || displayedBook != pageManager.currentPage.currentDocument)
             || (windowControl.windowSync.lastForceSyncAll > lastUpdated))
         {
             updateText()
