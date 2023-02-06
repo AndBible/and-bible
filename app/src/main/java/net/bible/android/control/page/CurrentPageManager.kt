@@ -21,6 +21,8 @@ import android.util.Log
 
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.BibleTraverser
@@ -37,6 +39,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.versification.BookName
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 
@@ -85,6 +88,22 @@ open class CurrentPageManager @Inject constructor(
 
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
 
+    val titleText: String get() =
+        if(isBibleShown || isCommentaryShown) {
+            synchronized(BookName::class.java) {
+                val prevTruncateLength = BookName.getTruncateShortName()
+                var length = 5
+                var name: String
+                do {
+                    BookName.setTruncateShortName(length--)
+                    name = currentBibleVerse.verse.name
+                } while(length > 0 && name.length > 7)
+                BookName.setTruncateShortName(prevTruncateLength)
+                name
+            }
+        } else {
+            ""
+        }
 
     val hasStrongs: Boolean get() {
         if(isGenBookShown) {
@@ -131,6 +150,10 @@ open class CurrentPageManager @Inject constructor(
         get() = currentCommentary === currentPage
     val isBibleShown: Boolean
         get() = currentBible === currentPage
+
+    val isVersePageShown: Boolean
+        get() = isBibleShown || isCommentaryShown
+
     val isMyNotesShown: Boolean
         get() = currentMyNotePage === currentPage
 
@@ -147,7 +170,7 @@ open class CurrentPageManager @Inject constructor(
     fun setCurrentDocument(nextDocument: Book?) {
         var nextPage: CurrentPage? = null
         if (nextDocument != null) {
-            PassageChangeMediator.onBeforeCurrentPageChanged()
+            ABEventBus.post(BeforeCurrentPageChangeEvent(window))
 
             nextPage = getBookPage(nextDocument)
 
@@ -158,7 +181,7 @@ open class CurrentPageManager @Inject constructor(
             if(currentPage.currentDocument == FakeBookFactory.multiDocument && nextPage == currentBible) {
                 currentBible.setCurrentDocument(nextDocument)
                 currentPage = nextPage
-                PassageChangeMediator.onCurrentPageChanged(this.window)
+                PassageChangeMediator.onCurrentPageChanged(window)
             } else {
                 // must be in this order because History needs to grab the current doc before change
                 nextPage.setCurrentDocument(nextDocument)
@@ -167,7 +190,7 @@ open class CurrentPageManager @Inject constructor(
                 // page will change due to above
                 // if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
                 if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || nextDocument.contains(nextPage.key))) {
-                    PassageChangeMediator.onCurrentPageChanged(this.window)
+                    PassageChangeMediator.onCurrentPageChanged(window)
                 } else {
                     // pop up a key selection screen
                     nextPage.startKeyChooser(CurrentActivityHolder.currentActivity!!)
@@ -185,8 +208,6 @@ open class CurrentPageManager @Inject constructor(
                                  updateHistory: Boolean = true,
                                  anchorOrdinal: Int? = null
     ): CurrentPage? {
-        PassageChangeMediator.onBeforeCurrentPageChanged(updateHistory)
-
         val nextPage = getBookPage(currentBook)
         if (nextPage != null) {
             try {
@@ -228,12 +249,6 @@ open class CurrentPageManager @Inject constructor(
             DocumentCategory.MAPS -> currentMap
             DocumentCategory.MYNOTE -> currentMyNotePage
         }
-
-    fun showBible() {
-        PassageChangeMediator.onBeforeCurrentPageChanged()
-        currentPage = currentBible
-        PassageChangeMediator.onCurrentPageChanged(this.window)
-    }
 
     val entity get() =
         WorkspaceEntities.PageManager(

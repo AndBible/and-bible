@@ -25,7 +25,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
@@ -192,16 +191,14 @@ class CurrentBiblePage(
             val oldChapterVerse = currentBibleVerse.chapterVerse
             if(chapterVerse != oldChapterVerse) {
                 currentBibleVerse.chapterVerse = chapterVerse
-                //onVerseChange()
             }
     }
-    val currentVerseOrdinal: Int get() = currentBibleVerse.verse.ordinal
 
-    fun setCurrentVerseOrdinal(value: Int, versification: Versification?, window: Window) {
+    fun setCurrentVerseOrdinal(value: Int, versification: Versification, window: Window) {
         val old = currentBibleVerse.verse.ordinal
-        val newVerse = Verse(versification?: currentBibleVerse.versificationOfLastSelectedVerse, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
+        val newVerse = Verse(versification, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
         if(newVerse.ordinal != old) {
-            currentBibleVerse.verse = newVerse
+            currentBibleVerse.setVerseSelected(versification, newVerse)
             onVerseChange(window)
         }
     }

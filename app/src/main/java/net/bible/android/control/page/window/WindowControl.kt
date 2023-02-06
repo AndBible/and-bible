@@ -181,18 +181,14 @@ open class WindowControl @Inject constructor() {
             if (window == activeWindow) return
 
             if(!window.isPinMode) {
-                for (it in windowRepository.windowList.filter { !it.isPinMode }) {
+                for (it in windowRepository.windowList.filter { !it.isPinMode && !it.isLinksWindow }) {
                     it.windowState = WindowState.MINIMISED
                 }
             }
 
             window.windowState = WindowState.VISIBLE
 
-            val noDelay = window.bibleView?.htmlReady != true
-            // If BibleView is not yet ready, we should do sync without delay to make sure
-            // it loads initial content to the right location.
-            windowSync.synchronizeWindows(noDelay = noDelay)
-            windowSync.reloadAllWindows()
+            window.updateTextIfNeeded()
 
             if (activeWindow.isSynchronised)
                 windowRepository.lastSyncWindowId = activeWindow.id
@@ -276,9 +272,7 @@ open class WindowControl @Inject constructor() {
     }
 
     fun unMaximise() {
-        val maximizedWindow = windowRepository.maximizedWindow
         windowRepository.maximizedWindowId = null
-        windowSync.synchronizeWindows(maximizedWindow, noDelay = true)
         windowSync.reloadAllWindows()
         ABEventBus.post(NumberOfWindowsChangedEvent())
     }

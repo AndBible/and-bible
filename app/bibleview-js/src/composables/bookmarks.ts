@@ -596,7 +596,7 @@ export function useBookmarks(
         }
         // Add bookmark marker for marker style bookmarks & My Notes symbols & to the end of bookmark
         if (config.showBookmarks || config.showMyNotes) {
-            const bookmarkList = [];
+            const bookmarkList: Bookmark[] = [];
             let hasNote = false;
 
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
@@ -614,8 +614,11 @@ export function useBookmarks(
                 const bookmarkLabel = getBookmarkStyleLabel(bookmark);
                 const color = adjustedColor(bookmarkLabel.color).string();
                 const iconElement = getIconElement(hasNote ? editIcon : bookmarkIcon, color);
-                iconElement.addEventListener("click", event => addEventFunction(event,
-                    null, {bookmarkId: bookmark.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                iconElement.addEventListener("click", event => {
+                    for (const b of bookmarkList) {
+                        addEventFunction(event, null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER});
+                    }
+                });
                 lastElement!.parentNode!.insertBefore(iconElement, lastElement!.nextSibling);
                 if (bookmarkList.length > 1) {
                     iconElement.appendChild(document.createTextNode(`×${bookmarkList.length}`));

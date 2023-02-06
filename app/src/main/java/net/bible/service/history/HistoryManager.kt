@@ -53,29 +53,25 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
     private var isGoingBack = false
 
     // reverse so most recent items are at top rather than end
-    val history: List<HistoryItem>
-        get() {
-            val allHistory = ArrayList(historyStack)
-            allHistory.reverse()
-            return allHistory
-        }
+    fun getHistory(windowId: Long): List<HistoryItem> {
+        val allHistory = ArrayList(getHistoryStack(windowId))
+        allHistory.reverse()
+        return allHistory
+    }
 
-    private val historyStack: Stack<HistoryItem>
-        get() {
-            val windowNo = windowControl.activeWindow.id
-            var historyStack = windowHistoryStackMap[windowNo]
-            if (historyStack == null) {
-                synchronized(windowHistoryStackMap) {
-                    historyStack = windowHistoryStackMap[windowNo]
-                    if (historyStack == null) {
-                        historyStack = Stack()
-                        windowHistoryStackMap[windowNo] = historyStack!!
-                    }
+    private fun getHistoryStack(windowNo: Long): Stack<HistoryItem> {
+        var historyStack = windowHistoryStackMap[windowNo]
+        if (historyStack == null) {
+            synchronized(windowHistoryStackMap) {
+                historyStack = windowHistoryStackMap[windowNo]
+                if (historyStack == null) {
+                    historyStack = Stack()
+                    windowHistoryStackMap[windowNo] = historyStack!!
                 }
             }
-            return historyStack!!
         }
-
+        return historyStack!!
+    }
 
     fun getEntities(windowId: Long): List<WorkspaceEntities.HistoryItem> {
         var lastItem: KeyHistoryItem? = null
@@ -124,35 +120,36 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
      */
     fun onEvent(event: BeforeCurrentPageChangeEvent) {
         if (event.updateHistory) {
-            addHistoryItem()
+            addHistoryItem(event.window)
         }
     }
 
     fun canGoBack(): Boolean {
-        return historyStack.size > 0
+        return getHistoryStack(windowControl.activeWindow.id).size > 0
     }
 
     /**
      * called when a verse is changed to allow current Activity to be saved in History list
      */
-    private fun addHistoryItem() {
+    private fun addHistoryItem(window: Window?) {
         // if we cause the change by requesting Back then ignore it
+        val activeWindow = window ?: windowControl.activeWindow
         if (!isGoingBack) {
-            val item = createHistoryItem()
-            add(historyStack, item)
+            val item = createHistoryItem(activeWindow)
+            add(getHistoryStack(activeWindow.id), item)
         }
     }
 
     fun popHistoryItem() {
-        historyStack.pop()
+        getHistoryStack(windowControl.activeWindow.id).pop()
     }
 
-    private fun createHistoryItem(): HistoryItem? {
+    private fun createHistoryItem(window: Window): HistoryItem? {
         var historyItem: HistoryItem? = null
 
         val currentActivity = CurrentActivityHolder.currentActivity
         if (currentActivity is MainBibleActivity) {
-            val currentPage = windowControl.activeWindowPageManager.currentPage
+            val currentPage = window.pageManager.currentPage
             val doc = currentPage.currentDocument
             if (currentPage.key == null) {
                 return null
@@ -162,7 +159,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
             val anchorOrdinal = currentPage.anchorOrdinal
             if(doc == null) return null
             historyItem =
-                if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, windowControl.activeWindow)
+                if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, window)
                 else null
 
         } else if (currentActivity is AndBibleActivity) {
@@ -170,13 +167,14 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
             if (andBibleActivity.isIntegrateWithHistoryManager) {
                 historyItem = IntentHistoryItem(currentActivity.title,
                     (currentActivity as AndBibleActivity).intentForHistoryList,
-                    windowControl.activeWindow)
+                    window)
             }
         }
         return historyItem
     }
 
     fun goBack() {
+        val historyStack = getHistoryStack(windowControl.activeWindow.id)
         if (historyStack.size > 0) {
             try {
                 Log.i(TAG, "History size:" + historyStack.size)

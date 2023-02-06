@@ -96,7 +96,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         title.text = titleText
         summary.text = workspaceEntity.contentsText
 
-        val workspaceColor = (workspaceEntity.workspaceSettings?: WorkspaceEntities.WorkspaceSettings.default).workspaceColor!!
+        val workspaceColor = workspaceEntity.workspaceSettings?.workspaceColor?: defaultWorkspaceColor
         dragHolder.setColorFilter(workspaceColor)
 
         layout.setOnClickListener {

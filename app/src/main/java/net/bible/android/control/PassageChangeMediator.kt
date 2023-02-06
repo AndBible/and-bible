@@ -34,12 +34,6 @@ private const val TAG = "PassageChangeMediator"
 object PassageChangeMediator {
     private var mBibleContentManager: BibleContentManager? = null
 
-    /** first time we know a page or doc will imminently change
-     */
-    fun onBeforeCurrentPageChanged(updateHistory: Boolean = true) {
-        ABEventBus.post(BeforeCurrentPageChangeEvent(updateHistory))
-    }
-
     /** the document has changed so ask the view to refresh itself
      */
     fun onCurrentPageChanged(window: Window) {

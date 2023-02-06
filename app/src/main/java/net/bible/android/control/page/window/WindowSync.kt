@@ -32,8 +32,10 @@ import org.crosswire.jsword.passage.Verse
 import kotlin.math.max
 
 class WindowSync(private val windowRepository: WindowRepository) {
-    private var lastSynchWasInNightMode: Boolean = false
-    private var lastForceSyncAll: Long = System.currentTimeMillis()
+    private var lastSyncWasInNightMode: Boolean = false
+    var lastForceSyncAll: Long = System.currentTimeMillis()
+        private set
+
     private var lastForceSyncBibles: Long = System.currentTimeMillis()
 
     fun setResyncRequired() {
@@ -50,13 +52,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
             setResyncRequired()
 
         for (window in windowRepository.visibleWindows) {
-            val bookCategory = window.pageManager.currentPage.currentDocument?.bookCategory
-            val isBible = BookCategory.BIBLE == bookCategory
-
-            if(lastForceSyncAll > window.lastUpdated || (isBible && lastForceSyncBibles > window.lastUpdated))
-                window.updateText()
+            window.updateTextIfNeeded()
         }
-        lastSynchWasInNightMode = ScreenSettings.nightMode
+        lastSyncWasInNightMode = ScreenSettings.nightMode
         ABEventBus.post(DecrementBusyCount())
     }
 
@@ -90,7 +88,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
 
-        if (lastSynchWasInNightMode != ScreenSettings.nightMode) {
+        if (lastSyncWasInNightMode != ScreenSettings.nightMode) {
             setResyncRequired()
         }
 

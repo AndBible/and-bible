@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.sword
+package net.bible.service.sword.mybible
 
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
@@ -69,7 +69,7 @@ Versification=KJVA"""
 
 const val TAG = "MyBibleBook"
 
-class MockDriver: AbstractBookDriver() {
+class MockMyBibleDriver: AbstractBookDriver() {
     override fun getBooks(): Array<Book> {
         return emptyArray()
     }
@@ -160,7 +160,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
-            metadata.driver = MockDriver()
+            metadata.driver = MockMyBibleDriver()
             this.metadata = metadata
             return@synchronized metadata
         }
@@ -241,7 +241,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun indexOfBible(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
         state.sqlDb.rawQuery("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")).use {
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")).use {
             it.moveToNext() || return -1
             return it.getInt(0)
         }
@@ -272,7 +272,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                             )
                             ))
                             """,
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
 
             it.moveToNext() || return -1
             return it.getInt(0)
@@ -292,7 +292,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val verse = KeyUtil.getVerse(key)
         var text = state.sqlDb.rawQuery(
             "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
         ).use {
             it.moveToNext() || throw IOException("Can't read $key")
             it.getString(0)
@@ -301,7 +301,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val stories = if(state.hasStories) {
             state.sqlDb.rawQuery(
                 "select title from stories WHERE book_number = ? AND chapter = ? AND verse = ?",
-                arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
+                arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
             ).use {
                 val result = arrayListOf<String>()
                 while (it.moveToNext()) {
@@ -348,7 +348,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                             )
                             ))                
                 """,
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
         ).use {
             it.moveToNext() || throw IOException("Can't read $key")
             it.getString(0)
@@ -429,8 +429,10 @@ fun addManuallyInstalledMyBibleBooks() {
     val dir = File(BibleApplication.application.getExternalFilesDir(null), "mybible")
     if(!(dir.isDirectory && dir.canRead())) return
 
-    for(f in dir.listFiles()?.filter { it.path.lowercase().endsWith(".sqlite3") }?: emptyList()) {
-        addMyBibleBook(f)
+    for(f in dir.walkTopDown()) {
+        if(f.isFile && f.canRead() && f.path.lowercase().endsWith(".sqlite3")) {
+            addMyBibleBook(f)
+        }
     }
 }
 

@@ -178,11 +178,9 @@ class CurrentGeneralBookPage internal constructor(
 
 	/** can we enable the main menu search button
      */
-    override val isSearchable: Boolean
-        get() = false
+    override val isSearchable: Boolean = false
 
-    override val isSyncable: Boolean
-        get() = false
+    override val isSyncable: Boolean = false
 
     override fun restoreFrom(entity: WorkspaceEntities.Page?) {
         when (entity?.document) {
