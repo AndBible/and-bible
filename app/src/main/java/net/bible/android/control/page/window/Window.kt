@@ -254,8 +254,8 @@ class Window (
         val prevKey = displayedKey
 
         if( pageManager.isBibleShown
-            && prevKey is VerseRange
-            && prevKey.start?.book == book
+            && prevKey is Verse
+            && prevKey.book == book
             && hasChapterLoaded(verse.chapter)
         ) {
             val originalKey = pageManager.currentBible.originalKey
