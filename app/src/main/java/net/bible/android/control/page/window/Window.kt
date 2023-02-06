@@ -223,7 +223,7 @@ class Window (
             }
         }
 
-    var lastChecksum = 0
+    private var lastChecksum = 0
 
     private suspend fun waitForBibleView() {
         var time = 0L
