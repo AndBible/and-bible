@@ -1057,8 +1057,8 @@ private val MIGRATION_65_66_add_Xrefs_option = object : Migration(65, 66) {
             colDefs.forEach {
                 execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
                 execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
-                execSQL("UPDATE `Workspace` SET `text_display_settings_showXrefs` = `text_display_settings_showFootNotes`")
-                execSQL("UPDATE `PageManager` SET `text_display_settings_showXrefs` = `text_display_settings_showFootNotes`")
+                execSQL("UPDATE `Workspace` SET $it = `text_display_settings_showFootNotes`")
+                execSQL("UPDATE `PageManager` SET $it = `text_display_settings_showFootNotes`")
             }
         }
     }
