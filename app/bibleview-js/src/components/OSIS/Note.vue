@@ -109,9 +109,9 @@ provide(referenceCollectorKey, referenceCollector);
 
 const exportMode = inject(exportModeKey, ref(false));
 
-const showHandle = computed(
-    () => !exportMode.value && ((config.showFootNotes && isCrossReference.value) || config.showFootNotes)
-);
+const showHandle = computed(() => {
+    return !exportMode.value && ((config.showFootNotes && isFootNote.value) || (config.showXrefs && isCrossReference.value));
+});
 </script>
 
 <style scoped lang="scss">

@@ -110,8 +110,8 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.VERSENUMBERS -> ItemPreference(settings, Types.VERSENUMBERS)
         Types.VERSEPERLINE -> ItemPreference(settings, Types.VERSEPERLINE)
         Types.FOOTNOTES -> ItemPreference(settings, Types.FOOTNOTES)
+        Types.XREFS -> ItemPreference(settings, Types.XREFS)
         Types.MYNOTES -> MyNotesPreference(settings)
-
         Types.STRONGS -> StrongsPreference(settings)
         Types.MORPH -> MorphologyPreference(settings)
         Types.FONTSIZE -> FontSizePreference(settings)
