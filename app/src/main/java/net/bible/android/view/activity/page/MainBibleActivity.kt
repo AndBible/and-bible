@@ -57,7 +57,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
 import net.bible.android.activity.databinding.FrozenBinding
@@ -1447,7 +1446,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 settingsBundle.pageManagerSettings!!
 
             if(requiresReload)
-                window.updateText()
+                window.loadText()
             else {
                 window.bibleView?.updateTextDisplaySettings()
             }

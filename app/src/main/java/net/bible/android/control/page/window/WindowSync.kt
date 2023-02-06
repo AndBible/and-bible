@@ -162,7 +162,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
             // update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
             if((lastForceSyncAll > inactiveWindow.lastUpdated) || (isBible && lastForceSyncBibles > inactiveWindow.lastUpdated)) {
-                inactiveWindow.updateText()
+                inactiveWindow.loadText()
 
             } else {
                 if ((isBible||isMyNotes) && currentVerse != null && targetVerse != null) {
@@ -170,14 +170,14 @@ class WindowSync(private val windowRepository: WindowRepository) {
                         ABEventBus
                             .post(ScrollSecondaryWindowEvent(inactiveWindow, targetVerse))
                     } else if(targetVerse != currentVerse) {
-                        inactiveWindow.updateText()
+                        inactiveWindow.loadText()
                     }
                 } else if ((isGeneralBook || isUnsynchronizedCommentary) && inactiveWindow.initialized) {
                     //UpdateInactiveScreenTextTask().execute(inactiveWindow)
                     // Do not update! Updating would reset page position.
                 } else if ( isSynchronizedCommentary && targetVerse != currentVerse ) {
                     // synchronized commentary
-                    inactiveWindow.updateText()
+                    inactiveWindow.loadText()
                 }
             }
         }

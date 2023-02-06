@@ -16,10 +16,7 @@
  */
 package net.bible.android.control
 
-import android.util.Log
-import kotlin.jvm.JvmOverloads
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangeStartedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
@@ -35,6 +32,7 @@ object PassageChangeMediator {
     /** the document has changed so ask the view to refresh itself
      */
     fun onCurrentPageChanged(window: Window) {
+        window.updateText()
         ABEventBus.post(CurrentVerseChangedEvent(window))
     }
 

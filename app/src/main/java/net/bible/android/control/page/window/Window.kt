@@ -39,6 +39,7 @@ import net.bible.android.view.activity.page.windowControl
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 class WindowChangedEvent(val window: Window)
 
@@ -165,7 +166,7 @@ class Window (
     val initialized get() = lastUpdated != 0L
     private val updateScope get() = windowRepository.scope
 
-    fun updateText(notifyLocationChange: Boolean = false) {
+    fun loadText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
 
         Log.i(TAG, "updateText, isVisible: $isVisible")
@@ -238,6 +239,34 @@ class Window (
         }
     }
 
+    fun updateText() {
+        val document = pageManager.currentPage.currentDocument
+        val verse = pageManager.currentVersePage.currentBibleVerse.verse
+        val book = pageManager.currentVersePage.currentBibleVerse.currentBibleBook
+
+        val documentChanged = displayedBook != document
+
+        if(documentChanged) {
+            loadText(true)
+            return
+        }
+
+        val prevKey = displayedKey
+
+        if( pageManager.isBibleShown
+            && prevKey is VerseRange
+            && prevKey.start?.book == book
+            && hasChapterLoaded(verse.chapter)
+        ) {
+            val originalKey = pageManager.currentBible.originalKey
+            bibleView?.scrollOrJumpToVerse(originalKey ?: verse)
+            PassageChangeMediator.contentChangeFinished()
+            return
+        }
+        if(displayedKey == verse) return
+        loadText(notifyLocationChange = true)
+    }
+
     private suspend fun fetchDocument(): Document = withContext(Dispatchers.IO) {
         val currentPage = pageManager.currentPage
         return@withContext try {
@@ -259,7 +288,7 @@ class Window (
         if((displayedKey != pageManager.currentPage.singleKey || displayedBook != pageManager.currentPage.currentDocument)
             || (windowControl.windowSync.lastForceSyncAll > lastUpdated))
         {
-            updateText()
+            loadText()
         }
     }
 

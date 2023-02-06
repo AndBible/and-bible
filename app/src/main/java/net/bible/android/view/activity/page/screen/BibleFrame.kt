@@ -28,7 +28,6 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.view.GestureDetectorCompat
-import net.bible.android.BibleApplication
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -103,7 +102,7 @@ class BibleFrame(
         Log.i(TAG, "updating padding for $window: $left $right")
         if(left != paddingLeft || right != paddingRight) {
             setPadding(left, 0, right, 0)
-            window.updateText()
+            window.loadText()
         }
     }
 
