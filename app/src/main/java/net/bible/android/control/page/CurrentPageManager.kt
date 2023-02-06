@@ -214,7 +214,9 @@ open class CurrentPageManager @Inject constructor(
         if (nextPage != null) {
             try {
                 nextPage.isInhibitChangeNotifications = true
-                nextPage.setCurrentDocument(currentBook)
+                if(currentBook != null) {
+                    nextPage.setCurrentDocument(currentBook)
+                }
                 nextPage.setKey(key)
                 nextPage.anchorOrdinal = anchorOrdinal
                 currentPage = nextPage
