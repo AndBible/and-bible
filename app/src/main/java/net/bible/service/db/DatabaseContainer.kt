@@ -1053,13 +1053,10 @@ private val MIGRATION_64_65_sync_group = object : Migration(64, 65) {
 private val MIGRATION_65_66_add_Xrefs_option = object : Migration(65, 66) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
-            val colDefs = listOf<String>("`text_display_settings_showXrefs` INTEGER DEFAULT NULL")
-            colDefs.forEach {
-                execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
-                execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
-                execSQL("UPDATE `Workspace` SET $it = `text_display_settings_showFootNotes`")
-                execSQL("UPDATE `PageManager` SET $it = `text_display_settings_showFootNotes`")
-            }
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showXrefs` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showXrefs` INTEGER DEFAULT NULL")
+            execSQL("UPDATE `Workspace` SET `text_display_settings_showXrefs` = `text_display_settings_showFootNotes`")
+            execSQL("UPDATE `PageManager` SET `text_display_settings_showXrefs` = `text_display_settings_showFootNotes`")
         }
     }
 }
