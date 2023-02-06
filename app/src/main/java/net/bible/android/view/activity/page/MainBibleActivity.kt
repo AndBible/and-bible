@@ -62,7 +62,6 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
 import net.bible.android.activity.databinding.FrozenBinding
 import net.bible.android.activity.databinding.MainBibleViewBinding
-import net.bible.android.control.BibleContentManager
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
@@ -140,7 +139,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
-    @Inject lateinit var bibleContentManager: BibleContentManager
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
