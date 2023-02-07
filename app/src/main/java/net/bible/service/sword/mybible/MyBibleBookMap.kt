@@ -105,7 +105,7 @@ val myBibleIntToBibleBook = mapOf(
     720 to BibleBook.JUDE,
     730 to BibleBook.REV,
     780 to BibleBook.EP_LAO,
-    800 to BibleBook.ODE, // Odes
+    800 to BibleBook.ODES,
     811 to BibleBook.EN1, // Ephiopian Enoch
 )
 
