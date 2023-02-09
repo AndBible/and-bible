@@ -56,6 +56,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.AndBibleAddonFilter
+import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -323,7 +324,7 @@ abstract class DocumentSelectionBase(
                     foundBibleInLocalLanguage = true
                     break
                 }
-                val installedDoc = swordDocumentFacade.getDocumentByInitials(book.initials)
+                val installedDoc = SwordDocumentFacade.getDocumentByInitials(book.initials)
                 if(installedDoc != null) {
                     installedLanguage = book.language
                 }
@@ -439,7 +440,7 @@ abstract class DocumentSelectionBase(
                                         else -> 2
                                     }
                                 },
-                                { swordDocumentFacade.getDocumentByInitials(it.initials) == null },
+                                { SwordDocumentFacade.getDocumentByInitials(it.initials) == null },
                                 { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
                                 {
                                     when (it.bookCategory) {
@@ -560,7 +561,7 @@ abstract class DocumentSelectionBase(
                     .create()
                     .show()
             } else {
-                ABEventBus.post(ToastEvent(R.string.cant_delete_last_bible))
+                ABEventBus.post(ToastEvent(R.string.cant_delete_document))
             }
         }
     }
@@ -574,7 +575,7 @@ abstract class DocumentSelectionBase(
                 ) { dialog, buttonId ->
                     try {
                         Log.i(TAG, "Deleting index:$document")
-                        swordDocumentFacade.deleteDocumentIndex(document.installedDocument)
+                        SwordDocumentFacade.deleteDocumentIndex(document.installedDocument)
                     } catch (e: Exception) {
                         Log.e(TAG, "Deleting index crashed", e)
                         Dialogs.showErrorMsg(R.string.error_occurred, e)

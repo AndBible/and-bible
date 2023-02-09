@@ -55,9 +55,8 @@ import java.lang.Exception
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentGeneralBookPage internal constructor(
-    swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CachedKeyPage(false, swordDocumentFacade, pageManager),
+) : CachedKeyPage(false, pageManager),
     CurrentPage
 {
 

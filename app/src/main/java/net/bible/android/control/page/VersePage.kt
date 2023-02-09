@@ -20,7 +20,6 @@ import android.util.Log
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
@@ -37,9 +36,8 @@ abstract class VersePage protected constructor(
 	shareKeyBetweenDocs: Boolean,
 	val currentBibleVerse: CurrentBibleVerse,
 	protected val bibleTraverser: BibleTraverser,
-	swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CurrentPageBase(shareKeyBetweenDocs, swordDocumentFacade, pageManager) {
+) : CurrentPageBase(shareKeyBetweenDocs, pageManager) {
 
 	override var _key: Key? = null
 

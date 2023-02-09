@@ -46,8 +46,7 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class DocumentControl @Inject constructor(
-        private val swordDocumentFacade: SwordDocumentFacade,
-        private val windowControl: WindowControl)
+    private val windowControl: WindowControl)
 {
     private val documentBackupDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
@@ -82,11 +81,11 @@ class DocumentControl @Inject constructor(
     }
 
     val biblesForVerse : List<Book>
-        get () = swordDocumentFacade.unlockedBibles.sortedBy { bookFilter.test(it) }
+        get () = SwordDocumentFacade.unlockedBibles.sortedBy { bookFilter.test(it) }
 
     val commentariesForVerse: List<Book>
         get () {
-            val docs = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked }.sortedBy { commentaryFilter.test(it) }.toMutableList()
+            val docs = SwordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked }.sortedBy { commentaryFilter.test(it) }.toMutableList()
             docs.addAll(FakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY })
             return docs
         }
@@ -108,7 +107,7 @@ class DocumentControl @Inject constructor(
             val currentPageManager = windowControl.activeWindowPageManager
             val currentBible = currentPageManager.currentBible.currentDocument
 
-            return getSuggestedBook(swordDocumentFacade.bibles, currentBible, bookFilter, currentPageManager.isBibleShown)
+            return getSuggestedBook(SwordDocumentFacade.bibles, currentBible, bookFilter, currentPageManager.isBibleShown)
         }
 
     /** Suggest an alternative commentary to view or return null
@@ -122,7 +121,7 @@ class DocumentControl @Inject constructor(
             val currentPageManager = windowControl.activeWindowPageManager
             val currentCommentary = currentPageManager.currentCommentary.currentDocument
 
-            return getSuggestedBook(swordDocumentFacade.getBooks(BookCategory.COMMENTARY),
+            return getSuggestedBook(SwordDocumentFacade.getBooks(BookCategory.COMMENTARY),
                     currentCommentary, commentaryFilter, currentPageManager.isCommentaryShown)
         }
 
@@ -161,7 +160,7 @@ class DocumentControl @Inject constructor(
             return false
         }
 
-        val lastBible = BookCategory.BIBLE == document.bookCategory && swordDocumentFacade.bibles.size == 1
+        val lastBible = BookCategory.BIBLE == document.bookCategory && SwordDocumentFacade.bibles.size == 1
 
         return !lastBible && document.driver.isDeletable(document)
     }
@@ -170,7 +169,7 @@ class DocumentControl @Inject constructor(
      */
     @Throws(BookException::class)
     fun deleteDocument(document: Book) {
-        swordDocumentFacade.deleteDocument(document)
+        SwordDocumentFacade.deleteDocument(document)
         if(document.bookCategory == BookCategory.AND_BIBLE) return
         documentBackupDao.deleteByOsisId(document.initials)
         val currentPage = windowControl.activeWindowPageManager.getBookPage(document, null)

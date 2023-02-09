@@ -49,14 +49,12 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
-import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
-import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.io.FileNotFoundException
@@ -84,7 +82,6 @@ class LinkControl @Inject constructor(
     private val windowControl: WindowControl,
 	private val bookmarkControl: BookmarkControl,
 	private val searchControl: SearchControl,
-	private val swordDocumentFacade: SwordDocumentFacade,
 )  {
     var windowMode: WindowMode = WindowMode.WINDOW_MODE_UNDEFINED
 
@@ -122,8 +119,8 @@ class LinkControl @Inject constructor(
         if (uriAnalyzer.analyze(uriStr)) {
             return when (uriAnalyzer.docType) {
                 UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key, versification)
-                UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key)
-                UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key)
+                UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key)
+                UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key)
                 UriAnalyzer.DocType.ROBINSON -> getRobinsonMorphologyKey(uriAnalyzer.key)
                 UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, forceDoc)
                 else -> null
@@ -153,7 +150,7 @@ class LinkControl @Inject constructor(
         if (StringUtils.isEmpty(initials)) {
             return getBibleKey(ref, versification)
         } else {
-            val document = swordDocumentFacade.getDocumentByInitials(initials)
+            val document = SwordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
                 Dialogs.showErrorMsg(R.string.document_not_installed, initials)
             } else if(document.bookCategory == BookCategory.BIBLE && !forceDoc) {
@@ -252,7 +249,7 @@ class LinkControl @Inject constructor(
 
     @Throws(NoSuchKeyException::class)
     private fun getRobinsonMorphologyKey(key: String): BookAndKey {
-        val robinson = swordDocumentFacade.defaultRobinsonGreekMorphology
+        val robinson = SwordDocumentFacade.defaultRobinsonGreekMorphology
         val robinsonNumberKey = robinson.getKey(key)
         return BookAndKey(robinsonNumberKey, robinson)
     }
@@ -264,7 +261,7 @@ class LinkControl @Inject constructor(
         strongsBible = if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
             currentBible
         } else {
-            swordDocumentFacade.defaultBibleWithStrongs
+            SwordDocumentFacade.defaultBibleWithStrongs
         }
         // possibly no Strong's bible or it has not been indexed
         var needToIndex = false

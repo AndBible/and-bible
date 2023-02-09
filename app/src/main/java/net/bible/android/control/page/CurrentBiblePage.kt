@@ -44,9 +44,8 @@ import org.crosswire.jsword.versification.Versification
 class CurrentBiblePage(
     currentBibleVerse: CurrentBibleVerse,
     bibleTraverser: BibleTraverser,
-    swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : VersePage(true, currentBibleVerse, bibleTraverser, swordDocumentFacade, pageManager), CurrentPage {
+) : VersePage(true, currentBibleVerse, bibleTraverser, pageManager), CurrentPage {
 
     override val documentCategory = DocumentCategory.BIBLE
 
@@ -177,7 +176,7 @@ class CurrentBiblePage(
         originalKey = null
         val document = entity.document
         Log.i(TAG, "State document:$document")
-        val book = swordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null
+        val book = SwordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null
         Log.i(TAG, "Restored document:" + book?.name)
         // bypass setter to avoid automatic notifications
         localSetCurrentDocument(book)

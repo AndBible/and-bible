@@ -27,6 +27,7 @@ import net.bible.android.activity.databinding.SearchIndexBinding
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
+import net.bible.service.sword.SwordDocumentFacade
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -50,7 +51,7 @@ class SearchIndex : CustomTitlebarActivityBase() {
 
             val documentToIndex: Book?
             if (StringUtils.isNotEmpty(documentInitials)) {
-                documentToIndex = swordDocumentFacade.getDocumentByInitials(documentInitials)
+                documentToIndex = SwordDocumentFacade.getDocumentByInitials(documentInitials)
             } else {
                 documentToIndex = pageControl.currentPageManager.currentPage.currentDocument
             }
@@ -66,7 +67,7 @@ class SearchIndex : CustomTitlebarActivityBase() {
         binding = SearchIndexBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val hasIndex = swordDocumentFacade.hasIndex(documentToIndex)
+        val hasIndex = SwordDocumentFacade.hasIndex(documentToIndex)
         binding.indexCreationRequired.text = getString(if(hasIndex) R.string.rebuild_index_for else R.string.create_index_for, documentToIndex!!.name)
         binding.createButton.text = getString(if(hasIndex) R.string.rebuild_index_button else R.string.index_create)
         binding.createButton.setOnClickListener { onIndex() }
@@ -84,7 +85,7 @@ class SearchIndex : CustomTitlebarActivityBase() {
         try {
             // start background thread to create index
             val doc = documentToIndex
-            swordDocumentFacade.deleteDocumentIndex(doc)
+            SwordDocumentFacade.deleteDocumentIndex(doc)
             val bOk = searchControl.createIndex(doc)
 
             if (bOk) {

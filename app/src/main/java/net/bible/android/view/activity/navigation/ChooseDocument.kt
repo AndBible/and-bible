@@ -33,6 +33,7 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import java.util.*
@@ -73,7 +74,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
      */
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         Log.i(TAG, "get document list from source")
-        return swordDocumentFacade.documents + FakeBookFactory.pseudoDocuments
+        return SwordDocumentFacade.documents + FakeBookFactory.pseudoDocuments
     }
 
     /**

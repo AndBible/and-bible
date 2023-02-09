@@ -22,6 +22,7 @@ import android.view.Menu
 import android.view.View
 import android.widget.Button
 import net.bible.android.activity.R
+import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
@@ -61,7 +62,7 @@ class FirstDownload : DownloadActivity() {
 
     private fun enableOkayButtonIfBibles() {
         if (!okayButtonEnabled) {
-            val enable = swordDocumentFacade.bibles.isNotEmpty()
+            val enable = SwordDocumentFacade.bibles.isNotEmpty()
             okayButtonEnabled = enable
             runOnUiThread { okayButton.isEnabled = enable }
         }

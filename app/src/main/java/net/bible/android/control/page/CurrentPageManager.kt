@@ -39,10 +39,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Passage
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseKey
-import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
@@ -76,19 +73,18 @@ val BookCategory.documentCategory: DocumentCategory get() {
 }
 
 open class CurrentPageManager @Inject constructor(
-    val swordDocumentFacade: SwordDocumentFacade,
     bibleTraverser: BibleTraverser,
     val bookmarkControl: BookmarkControl,
     val windowControl: WindowControl,
 )  {
     // use the same verse in the commentary and bible to keep them in sync
     val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
-    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
-    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
-    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
-    val currentDictionary = CurrentDictionaryPage(swordDocumentFacade, this)
-    val currentGeneralBook = CurrentGeneralBookPage(swordDocumentFacade, this)
-    val currentMap = CurrentMapPage(swordDocumentFacade, this)
+    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, this)
+    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, this)
+    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser,  this)
+    val currentDictionary = CurrentDictionaryPage(this)
+    val currentGeneralBook = CurrentGeneralBookPage(this)
+    val currentMap = CurrentMapPage(this)
 
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
 

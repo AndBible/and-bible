@@ -17,13 +17,9 @@
 package net.bible.android.control.page
 
 import android.content.Intent
-import android.view.Menu
-import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
-import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.passage.Key
 
@@ -32,9 +28,8 @@ import org.crosswire.jsword.passage.Key
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentMapPage internal constructor(
-    swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-    ) : CachedKeyPage(false, swordDocumentFacade, pageManager),
+    ) : CachedKeyPage(false, pageManager),
     CurrentPage
 {
 

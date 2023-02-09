@@ -883,7 +883,6 @@
     <string name="unlock_module">Set module passphrase</string>
     <string name="unlock_info">Encrypted module unlock info</string>
     <string name="try_again_passphrase">Passphrase did not work, try again?</string>
-    <string name="cant_delete_last_bible">Can\'t remove last Bible document</string>
     <string name="show_unlock_info">Module &amp; unlock info</string>
 
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
@@ -1086,4 +1085,5 @@
     <string name="disable_sync">Disable synchronize</string>
     <string name="open_in_window">Open results in a window</string>
     <string name="could_not_overwrite_files">Could not overwrite files: %s. Apart from that install was successful.</string>
+    <string name="cant_delete_document">"This document can't be deleted. "</string>
 </resources>

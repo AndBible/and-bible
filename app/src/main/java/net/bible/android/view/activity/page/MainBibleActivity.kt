@@ -113,6 +113,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
+import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.NoSuchVerseException
@@ -349,7 +350,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * available books if moving to a new device.
      */
     private fun checkDocBackupDBInSync() {
-        val docs = swordDocumentFacade.documents
+        val docs = SwordDocumentFacade.documents
         val knownInstalled = docDao.getKnownInstalled()
         if (knownInstalled.isEmpty()) {
             Log.i(TAG, "There is at least one Bible, but Bible Backup DB is empty, populate with first time books");

@@ -19,7 +19,6 @@ package net.bible.android.control.page
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -31,9 +30,8 @@ import java.util.*
  */
 abstract class CachedKeyPage internal constructor(
 	shareKeyBetweenDocs: Boolean,
-	swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CurrentPageBase(shareKeyBetweenDocs, swordDocumentFacade, pageManager) {
+) : CurrentPageBase(shareKeyBetweenDocs, pageManager) {
     private var mCachedGlobalKeyList: MutableList<Key>? = null
 
 

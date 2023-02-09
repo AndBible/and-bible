@@ -37,6 +37,7 @@ import net.bible.android.control.report.BugReport
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.mybible.myBibleBible
 import net.bible.service.sword.mybible.myBibleCommentary
@@ -175,7 +176,7 @@ open class BibleApplication : Application() {
                 Log.i(TAG, "Deleting old Chinese indexes")
                 val chineseLanguage = Language("zh")
 
-                val books = applicationComponent.swordDocumentFacade().documents
+                val books = SwordDocumentFacade.documents
                 for (book in books) {
                     if (chineseLanguage == book.language) {
                         try {

@@ -46,7 +46,6 @@ import org.crosswire.jsword.passage.VerseRange
  */
 abstract class CurrentPageBase protected constructor(
 	shareKeyBetweenDocs: Boolean,
-	swordDocumentFacade: SwordDocumentFacade,
     override val pageManager: CurrentPageManager
 ) : CurrentPage {
 
@@ -86,9 +85,7 @@ abstract class CurrentPageBase protected constructor(
     private var docWhenAnchorOrdinalSet: Book? = null
 
     // all bibles and commentaries share the same key
-    override var isShareKeyBetweenDocs: Boolean = false
-
-    val swordDocumentFacade: SwordDocumentFacade
+    override var isShareKeyBetweenDocs: Boolean = shareKeyBetweenDocs
 
     /** notify mediator that page has changed and a lot of things need to update themselves
      */
@@ -163,7 +160,7 @@ abstract class CurrentPageBase protected constructor(
 
     override fun checkCurrentDocumenInstalled(): Boolean {
         if(_currentDocument?.doesNotExist == true) {
-            val doc = swordDocumentFacade.getDocumentByInitials(_currentDocument!!.initials)
+            val doc = SwordDocumentFacade.getDocumentByInitials(_currentDocument!!.initials)
             if(doc != null)
                 _currentDocument = doc
         }
@@ -193,11 +190,11 @@ abstract class CurrentPageBase protected constructor(
 
     private fun getDefaultBook(): Book? {
         // see net.bible.android.view.activity.page.MainBibleActivity.setCurrentDocument
-        val savedDefaultBook = swordDocumentFacade.getDocumentByInitials(
+        val savedDefaultBook = SwordDocumentFacade.getDocumentByInitials(
             CommonUtils.settings.getString("default-${documentCategory.bookCategory.name}", ""))
 
         return savedDefaultBook ?: {
-            val books = swordDocumentFacade.getBooks(documentCategory.bookCategory).filter { !it.isLocked }
+            val books = SwordDocumentFacade.getBooks(documentCategory.bookCategory).filter { !it.isLocked }
             if (books.isNotEmpty()) books[0] else null
         }()
     }
@@ -250,7 +247,7 @@ abstract class CurrentPageBase protected constructor(
         if(entity == null) return
         val document = entity.document
         Log.i(TAG, "State document:$document")
-        val book = swordDocumentFacade.getDocumentByInitials(document)
+        val book = SwordDocumentFacade.getDocumentByInitials(document)
             ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
         if (book != null) {
             Log.i(TAG, "Restored document: ${book.name} ${book.initials}")
@@ -280,10 +277,5 @@ abstract class CurrentPageBase protected constructor(
     override val isSyncable: Boolean = true
     companion object {
         private const val TAG = "CurrentPage"
-    }
-
-    init {
-        isShareKeyBetweenDocs = shareKeyBetweenDocs
-        this.swordDocumentFacade = swordDocumentFacade
     }
 }
