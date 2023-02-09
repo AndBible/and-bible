@@ -70,6 +70,15 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+enum class WindowMode {
+    WINDOW_MODE_THIS,
+    WINDOW_MODE_SPECIAL,
+    WINDOW_MODE_NEW,
+    WINDOW_MODE_UNDEFINED,
+}
+
+
 @ApplicationScope
 class LinkControl @Inject constructor(
     private val windowControl: WindowControl,
@@ -77,7 +86,7 @@ class LinkControl @Inject constructor(
 	private val searchControl: SearchControl,
 	private val swordDocumentFacade: SwordDocumentFacade,
 )  {
-    private var windowMode = WINDOW_MODE_UNDEFINED
+    var windowMode: WindowMode = WindowMode.WINDOW_MODE_UNDEFINED
 
     fun openMulti(links: List<BibleView.BibleLink>): Boolean {
         val key = BookAndKeyList()
@@ -348,7 +357,7 @@ class LinkControl @Inject constructor(
     fun showLink(document: Book?, key: Key, forceOpenHere: Boolean = false) {
         val currentPageManager = currentPageManager
         val defaultDocument = currentPageManager.currentBible.currentDocument!!
-        if (windowMode == WINDOW_MODE_NEW) {
+        if (windowMode == WindowMode.WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow() && !forceOpenHere) {
             windowControl.showLink(document, key)
@@ -360,19 +369,15 @@ class LinkControl @Inject constructor(
     private fun checkIfOpenLinksInDedicatedWindow(): Boolean {
         if(windowControl.windowRepository.isMaximized) return false
         return when (windowMode) {
-            WINDOW_MODE_SPECIAL -> true
-            WINDOW_MODE_THIS -> false
-            WINDOW_MODE_UNDEFINED -> settings.getBoolean("open_links_in_special_window_pref", true)
+            WindowMode.WINDOW_MODE_SPECIAL -> true
+            WindowMode.WINDOW_MODE_THIS -> false
+            WindowMode.WINDOW_MODE_UNDEFINED -> settings.getBoolean("open_links_in_special_window_pref", true)
             else -> settings.getBoolean("open_links_in_special_window_pref", true)
         }
     }
 
     private val currentPageManager: CurrentPageManager
         get() = windowControl.activeWindowPageManager
-
-    fun setWindowMode(windowMode: String) {
-        this.windowMode = windowMode
-    }
 
     fun openMyNotes(v11nName: String, ordinal: Int): Boolean {
         val v11n = Versifications.instance().getVersification(v11nName)
@@ -391,10 +396,6 @@ class LinkControl @Inject constructor(
     companion object {
         private val IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_")
         private const val TAG = "LinkControl"
-        const val WINDOW_MODE_THIS = "this"
-        const val WINDOW_MODE_SPECIAL = "special"
-        const val WINDOW_MODE_NEW = "new"
-        const val WINDOW_MODE_UNDEFINED = "undefined"
     }
 
 }
