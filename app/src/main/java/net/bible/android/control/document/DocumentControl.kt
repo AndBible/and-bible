@@ -40,6 +40,11 @@ import org.crosswire.jsword.versification.BibleBook
 
 import javax.inject.Inject
 
+val Book.canDelete: Boolean get () {
+    val lastBible = BookCategory.BIBLE == bookCategory && SwordDocumentFacade.bibles.size == 1
+    return !lastBible && driver.isDeletable(this)
+}
+
 /** Control use of different documents/books/modules - used by front end
  *
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -155,15 +160,7 @@ class DocumentControl @Inject constructor(
      * Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
      * and according to AndBible if it is not currently selected
      */
-    fun canDelete(document: Book?): Boolean {
-        if (document == null) {
-            return false
-        }
-
-        val lastBible = BookCategory.BIBLE == document.bookCategory && SwordDocumentFacade.bibles.size == 1
-
-        return !lastBible && document.driver.isDeletable(document)
-    }
+    fun canDelete(document: Book?): Boolean = document?.canDelete?: false
 
     /** delete selected document, even of current doc (Map and Gen Book only currently) and tidy up CurrentPage
      */

@@ -62,6 +62,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.serializer
+import net.bible.android.control.document.canDelete
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.Dialogs
@@ -91,7 +92,7 @@ open class DownloadActivity : DocumentSelectionBase(
         if(selectedItemPositions.isNotEmpty()) {
             val installedDoc = displayedDocuments[selectedItemPositions[0]].installedDocument
             val isInstalled = installedDoc != null
-            menu.findItem(R.id.delete).isVisible = isInstalled //&& installedDoc.canRemove
+            menu.findItem(R.id.delete).isVisible = isInstalled && installedDoc.canDelete
             menu.findItem(R.id.delete_index).isVisible = isInstalled
             menu.findItem(R.id.unlock).isVisible = isInstalled && displayedDocuments[selectedItemPositions[0]].isEnciphered
         }

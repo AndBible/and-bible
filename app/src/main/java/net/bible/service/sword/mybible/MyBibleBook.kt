@@ -20,14 +20,13 @@ package net.bible.service.sword.mybible
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.util.Log
-import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
+import net.bible.service.sword.SqliteSwordDriver
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.KeyType
 import org.crosswire.jsword.book.basic.AbstractBook
-import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.Backend
 import org.crosswire.jsword.book.sword.BookType
@@ -49,7 +48,8 @@ private fun getConfig(initials: String, description: String, language: String, c
 Description=$description
 Abbreviation=$initials
 Category=$category
-AndBibleMyBibleModule=$moduleFileName
+AndBibleMyBibleModule=1
+AndBibleDbFile=$moduleFileName
 Lang=$language
 Version=0.0
 Encoding=UTF-8
@@ -69,20 +69,6 @@ Versification=KJVA"""
 }
 
 const val TAG = "MyBibleBook"
-
-class MockMyBibleDriver: AbstractBookDriver() {
-    override fun getBooks(): Array<Book> {
-        return emptyArray()
-    }
-
-    override fun getDriverName(): String {
-        return "MyBible"
-    }
-
-    override fun isDeletable(dead: Book?): Boolean {
-        return false
-    }
-}
 
 class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: String?): OpenFileState {
     constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile, null) {
@@ -169,7 +155,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
-            metadata.driver = MockMyBibleDriver()
+            metadata.driver = SqliteSwordDriver()
             this.metadata = metadata
             return@synchronized metadata
         }

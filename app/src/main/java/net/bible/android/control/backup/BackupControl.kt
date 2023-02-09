@@ -55,6 +55,7 @@ import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
 import net.bible.service.download.isPseudoBook
+import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
 import org.crosswire.jsword.book.Book
@@ -259,11 +260,9 @@ object BackupControl {
                 for(b in books) {
                     val bmd = b.bookMetaData as SwordBookMetaData
                     if (b.isMyBibleBook) {
-                        val file = File(b.getProperty("AndBibleMyBibleModule"))
-                        addModuleFile(outFile, file)
+                        addModuleFile(outFile, b.dbFile)
                     } else if(b.isMySwordBook) {
-                        val file = File(b.getProperty("AndBibleMySwordModule"))
-                        addModuleFile(outFile, file)
+                        addModuleFile(outFile, b.dbFile)
                     } else {
                         val configFile = bmd.configFile
                         val rootDir = configFile.parentFile!!.parentFile!!

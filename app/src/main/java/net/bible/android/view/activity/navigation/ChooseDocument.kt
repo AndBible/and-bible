@@ -27,9 +27,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.document.canDelete
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
+import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
@@ -111,6 +113,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
         if(selectedItemPositions.isNotEmpty()) {
             menu.findItem(R.id.unlock).isVisible = displayedDocuments[selectedItemPositions[0]].isEnciphered
+            menu.findItem(R.id.delete).isVisible = displayedDocuments[selectedItemPositions[0]].canDelete
         }
         return super.onPrepareActionMode(mode, menu, selectedItemPositions)
     }
