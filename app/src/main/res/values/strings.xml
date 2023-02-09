@@ -330,14 +330,14 @@
     <string name="failed_downloads_message">The following files could not be downloaded:\n\n%s\n\n</string>
 
     <!--  Install zip file -->
-    <string name="install_zip">Load Document From Zip</string>
+    <string name="install_zip">Load Document From File</string>
     <string name="install_zip_module">Install Bible Module</string>
     <string name="install_zip_module_discrete">Install Calculator Module</string>
     <string name="install_zip_successfull">Module was installed successfully</string>
     <string name="extracting_zip_file">Extracting Zip file now…</string>
     <string name="checking_zip_file">Checking given file…</string>
     <string name="invalid_module">File does not contain a valid SWORD module</string>
-    <string name="install_zip_title">Please wait. Loading Zip file.</string>
+    <string name="install_zip_title">Please wait. Loading module(s) from file.</string>
     <string name="overwrite_files">Following files already exists: %s Overwrite?</string>
     <string name="overwrite_files_title">Overwrite files?</string>
 
@@ -1086,4 +1086,12 @@
     <string name="open_in_window">Open results in a window</string>
     <string name="could_not_overwrite_files">Could not overwrite files: %s. Apart from that install was successful.</string>
     <string name="cant_delete_document">"This document can't be deleted. "</string>
+    <string name="what_to_install">To restore module backup Zip file created with AndBible or a Zip file containing Sword modules, please choose \"Sword\". To install MySword or MyBible modules, please choose \"3rd Party\".</string>
+    <string name="what_to_install_title">What types of modules do you want to install?</string>
+    <string name="what_to_install_sword">Sword</string>
+    <string name="what_to_install_3rd_party">3rd party</string>
+    <string name="sqlite_cant_read">Can\'t read the file</string>
+    <string name="sqlite_invalid_file">Invalid module file</string>
+    <string name="sqlite_cant_write">Can\'t (over)write the file</string>
+    <string name="install_failed_reason">Installing module failed for the following reason: %s.</string>
 </resources>

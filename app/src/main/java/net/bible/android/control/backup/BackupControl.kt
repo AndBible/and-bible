@@ -331,7 +331,7 @@ object BackupControl {
 
         // send intent to pick file
         var ok = true
-        val result = suspendCoroutine<BackupResult> {
+        val result = suspendCoroutine {
             AlertDialog.Builder(callingActivity)
                 .setTitle(callingActivity.getString(R.string.backup_backup_title))
                 .setMessage(callingActivity.getString(R.string.backup_backup_message))
@@ -461,7 +461,7 @@ object BackupControl {
 
     suspend fun startBackupOldAppDatabase(callingActivity: ActivityBase, file: File) {
         val result = withContext(Dispatchers.Main) {
-            suspendCoroutine <BackupResult> {
+            suspendCoroutine {
                 AlertDialog.Builder(callingActivity)
                     .setTitle(callingActivity.getString(R.string.backup_backup_title))
                     .setMessage(callingActivity.getString(R.string.backup_backup_message))
