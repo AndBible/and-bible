@@ -235,7 +235,7 @@ open class CurrentPageManager @Inject constructor(
     fun getBookPage(book: Book?, key: Key?): CurrentPage? {
         return if (book == null) {
             if(key is VerseKey<*>) {
-                return if(isVersePageShown) currentPage else currentBible
+                return currentBible
             } else null
         } else {
             if(book.osisID == "Commentaries.MyNote")

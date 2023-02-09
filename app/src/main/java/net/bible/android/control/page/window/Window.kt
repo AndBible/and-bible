@@ -133,10 +133,7 @@ class Window (
         get() = windowLayout.state == WindowState.MINIMISED
 
     val isSyncable: Boolean
-        get() = when {
-            isLinksWindow -> false
-            else -> pageManager.currentPage.isSyncable
-        }
+        get() = pageManager.currentPage.isSyncable
 
     var windowState: WindowState
         get() = windowLayout.state
