@@ -1085,4 +1085,5 @@
     <string name="sync_group_n">Group %d</string>
     <string name="disable_sync">Disable synchronize</string>
     <string name="open_in_window">Open results in a window</string>
+    <string name="could_not_overwrite_files">Could not overwrite files: %s. Apart from that install was successful.</string>
 </resources>

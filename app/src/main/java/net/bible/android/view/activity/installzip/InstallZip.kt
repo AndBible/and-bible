@@ -49,6 +49,8 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
+import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import java.io.InputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -61,6 +63,7 @@ import kotlin.math.roundToInt
  */
 
 class ModulesExists(val files: List<String>) : Exception()
+class CantOverwrite(val files: List<String>) : Exception()
 
 class InvalidModule : Exception()
 
@@ -99,9 +102,13 @@ class ZipHandler(
             if (name.startsWith(SwordConstants.DIR_CONF + "/") && name.endsWith(SwordConstants.EXTENSION_CONF))
                 modsDirFound = true
             else if (name.startsWith(SwordConstants.DIR_CONF + "/")) {
-            } else if (name.startsWith(SwordConstants.DIR_DATA + "/"))
+                // Ignore directory
+            } else if (name.startsWith(SwordConstants.DIR_DATA + "/")) {
                 modulesFound = true
-            else {
+            } else if (name.startsWith("mysword/") || name.startsWith("mybible/")) {
+                modulesFound = true
+                modsDirFound = true
+            } else {
                 zin.close()
                 throw InvalidModule()
             }
@@ -120,16 +127,15 @@ class ZipHandler(
 
     @Throws(IOException::class, BookException::class)
     private suspend fun installZipFile() = withContext(Dispatchers.IO) {
-        val zin = ZipInputStream(newInputStream())
-
         val confFiles = ArrayList<File>()
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
-        zin.use { zin ->
+        var errors: MutableList<String> = mutableListOf()
+        ZipInputStream(newInputStream()).use { zIn ->
             var ze: ZipEntry?
             var count: Int
             var entryNum = 0
             val buffer = ByteArray(8192)
-            ze = zin.nextEntry
+            ze = zIn.nextEntry
             while (ze != null) {
                 val name = ze.name.replace('\\', '/')
 
@@ -143,19 +149,26 @@ class ZipHandler(
                     throw IOException()
 
                 if (ze.isDirectory) {
-                    ze = zin.nextEntry
+                    ze = zIn.nextEntry
                     continue
                 }
-                val fout = FileOutputStream(file)
-                fout.use { fout ->
-                    count = zin.read(buffer)
-                    while (count != -1) {
-                        fout.write(buffer, 0, count)
-                        count = zin.read(buffer)
+                try {
+                    FileOutputStream(file).use { fOut ->
+                        count = zIn.read(buffer)
+                        while (count != -1) {
+                            fOut.write(buffer, 0, count)
+                            count = zIn.read(buffer)
+                        }
                     }
+                } catch (e: IOException) {
+                    errors.add(file.name)
+                    Log.e(TAG, "Error in writing ${file.name}", e);
                 }
                 onProgressUpdate(++entryNum)
-                ze = zin.nextEntry
+                ze = zIn.nextEntry
+            }
+            if(errors.isNotEmpty()) {
+                throw CantOverwrite(errors)
             }
         }
         // Load configuration files & register books
@@ -165,6 +178,8 @@ class ZipHandler(
             me.driver = bookDriver
             SwordBookDriver.registerNewBook(me)
         }
+        addManuallyInstalledMyBibleBooks()
+        addManuallyInstalledMySwordBooks()
     }
 
     suspend fun execute() = withContext(Dispatchers.Main) {
@@ -174,14 +189,14 @@ class ZipHandler(
         var result = try {
             checkZipFile()
             doInstall = true
-            R_OK
+            InstallResult.OK
         } catch (e: IOException) {
             Log.e(TAG, "Error occurred", e)
-            R_ERROR
+            InstallResult.ERROR
         } catch (e: InvalidModule) {
-            R_INVALID_MODULE
+            InstallResult.INVALID_MODULE
         } catch (e: ModulesExists) {
-            doInstall = suspendCoroutine<Boolean> {
+            doInstall = suspendCoroutine {
                 AlertDialog.Builder(activity)
                     .setTitle(R.string.overwrite_files_title)
                     .setMessage(activity.getString(R.string.overwrite_files, "\n" + e.files.joinToString("\n")))
@@ -190,29 +205,44 @@ class ZipHandler(
                     .setOnCancelListener {_ -> it.resume(false)}
                     .show()
             }
-            if(doInstall) R_OK else R_CANCEL
+            if(doInstall) InstallResult.OK else InstallResult.CANCEL
         }
 
         if(doInstall) {
             result = try {
                 installZipFile()
                 finishResult = Activity.RESULT_OK
-                R_OK
+                InstallResult.OK
             } catch (e: BookException) {
                 Log.e(TAG, "Error occurred", e)
-                R_ERROR
+                InstallResult.ERROR
             } catch (e: IOException) {
                 Log.e(TAG, "Error occurred", e)
-                R_ERROR
+                InstallResult.ERROR
+            } catch (e: CantOverwrite) {
+                suspendCoroutine {
+                    AlertDialog.Builder(activity)
+                        .setTitle(R.string.error_occurred)
+                        .setMessage(
+                            activity.getString(
+                                R.string.could_not_overwrite_files,
+                                "\n" + e.files.joinToString("\n")
+                            )
+                        )
+                        .setPositiveButton(R.string.okay) {_, _ -> it.resume(InstallResult.IGNORE)}
+                        .setOnCancelListener {_ -> it.resume(InstallResult.IGNORE)}
+                        .show()
+                }
             }
         }
 
         val bus = ABEventBus
         when (result) {
-            R_ERROR -> bus.post(ToastEvent(R.string.error_occurred))
-            R_CANCEL -> bus.post(ToastEvent(R.string.install_zip_canceled))
-            R_INVALID_MODULE -> bus.post(ToastEvent(R.string.invalid_module))
-            R_OK -> bus.post(ToastEvent(R.string.install_zip_successfull))
+            InstallResult.ERROR -> bus.post(ToastEvent(R.string.error_occurred))
+            InstallResult.CANCEL -> bus.post(ToastEvent(R.string.install_zip_canceled))
+            InstallResult.INVALID_MODULE -> bus.post(ToastEvent(R.string.invalid_module))
+            InstallResult.OK -> bus.post(ToastEvent(R.string.install_zip_successfull))
+            InstallResult.IGNORE -> {}
         }
         finish(finishResult)
 
@@ -222,13 +252,8 @@ class ZipHandler(
         val progressNow = (value.toFloat() / totalEntries.toFloat() * 100).roundToInt()
         updateProgress(progressNow/totalEntries)
     }
-
-    companion object {
-        private const val R_ERROR = 1
-        private const val R_INVALID_MODULE = 2
-        private const val R_CANCEL = 3
-        private const val R_OK = 4
-    }
+    
+    enum class InstallResult {ERROR, INVALID_MODULE, CANCEL, OK, IGNORE}
 }
 
 class InstallZip : ActivityBase() {
