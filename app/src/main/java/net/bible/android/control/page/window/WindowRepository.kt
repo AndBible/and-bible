@@ -54,7 +54,6 @@ open class WindowRepository(val scope: CoroutineScope) {
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
-    var syncKey: Key? = null
     var windowList: MutableList<Window> = ArrayList()
     var busyCount: Int = 0
         set(value) {
