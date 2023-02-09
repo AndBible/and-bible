@@ -21,6 +21,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.util.Log
 import net.bible.android.BibleApplication
+import net.bible.android.SharedConstants
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -42,13 +43,13 @@ import org.crosswire.jsword.passage.KeyUtil
 import java.io.File
 import java.io.IOException
 
-private fun getConfig(initials: String, description: String, language: String, category: String, hasStrongsDef: Boolean, hasStrongs: Boolean): String {
+private fun getConfig(initials: String, description: String, language: String, category: String, hasStrongsDef: Boolean, hasStrongs: Boolean, moduleFileName: String): String {
     var conf = """
 [$initials]
 Description=$description
 Abbreviation=$initials
 Category=$category
-AndBibleMyBibleModule=1
+AndBibleMyBibleModule=$moduleFileName
 Lang=$language
 Version=0.0
 Encoding=UTF-8
@@ -156,7 +157,15 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                 else -> "Illegal"
             }
 
-            val conf = getConfig(initials, description, language, category, hasStrongsDef, hasStrongs)
+            val conf = getConfig(
+                initials = initials,
+                description = description,
+                language = language,
+                category = category,
+                hasStrongsDef = hasStrongsDef,
+                hasStrongs = hasStrongs,
+                moduleFileName = db.path,
+            )
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
@@ -426,7 +435,7 @@ fun addMyBibleBook(file: File, name: String? = null): AbstractBook? {
 }
 
 fun addManuallyInstalledMyBibleBooks() {
-    val dir = File(BibleApplication.application.getExternalFilesDir(null), "mybible")
+    val dir = File(SharedConstants.MODULE_DIR, "mybible")
     if(!(dir.isDirectory && dir.canRead())) return
 
     for(f in dir.walkTopDown()) {

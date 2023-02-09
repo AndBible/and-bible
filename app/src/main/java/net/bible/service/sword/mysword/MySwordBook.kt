@@ -21,6 +21,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.util.Log
 import net.bible.android.BibleApplication
+import net.bible.android.SharedConstants
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -48,7 +49,7 @@ private fun getConfig(data: MySwordModuleInfo): String {
 Description=${data.description}
 Abbreviation=${data.abbreviation}
 Category=${data.category}
-AndBibleMySwordModule=1
+AndBibleMySwordModule=${data.moduleFileName}
 Lang=${data.language}
 Version=0.0
 Encoding=UTF-8
@@ -85,6 +86,7 @@ class MockMySwordDriver: AbstractBookDriver() {
 }
 
 class MySwordModuleInfo (
+    val moduleFileName: String,
     val initials: String,
     val title: String,
     val description: String,
@@ -172,7 +174,8 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                     hasStrongs = categoryAbbreviation == "bbl" && getBoolean(strongColumn),
                     language = getString(languageColumn, "eng"),
                     category = category,
-                    isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn)
+                    isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn),
+                    moduleFileName = db.path,
                 )
             }
 
@@ -439,7 +442,7 @@ fun addMySwordBook(file: File, name: String? = null): AbstractBook? {
 }
 
 fun addManuallyInstalledMySwordBooks() {
-    val dir = File(BibleApplication.application.getExternalFilesDir(null), "mysword")
+    val dir = File(SharedConstants.MODULE_DIR, "mysword")
     if(!(dir.isDirectory && dir.canRead())) return
 
     for(f in dir.walkTopDown()) {
