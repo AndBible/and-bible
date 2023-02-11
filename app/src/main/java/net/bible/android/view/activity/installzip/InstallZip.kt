@@ -294,12 +294,12 @@ class InstallZip : ActivityBase() {
             val zip = getString(R.string.format_zip)
             val myBible = getString(R.string.format_mybible)
             val mySword = getString(R.string.format_mysword)
-            val formats = getString(R.string.supported_formats, "$zip, $myBible, $mySword")
+            val formats = getString(R.string.choose_file) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword")
 
             AlertDialog.Builder(this@InstallZip)
-                .setTitle(R.string.supported_formats_title)
+                .setTitle(R.string.install_zip)
                 .setMessage(formats)
-                .setPositiveButton(R.string.okay) { dialog, which ->
+                .setPositiveButton(R.string.proceed) { dialog, which ->
                     it.resume(true)
                 }
                 .setNeutralButton(R.string.cancel){ _, _ ->

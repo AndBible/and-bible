@@ -853,6 +853,7 @@
         backup.
     </string>
     <string name="supported_formats_title">Supported formats</string>
+    <string name="choose_file">You have to choose the file that you want to load to AndBible. </string>
     <string name="supported_formats">Supported formats for loading documents from a file: %s</string>
     <string name="format_zip">Zip file containing Sword module(s), or documents backup file created by AndBible</string>
     <string name="format_mysword">MySword documents (*.mybible)</string>
@@ -929,6 +930,7 @@
     <string name="old_webview">Android WebView package is too old (%s). You need to upgrade your Android WebView package to at least version %s to use %s. For most devices this can be done via %s.</string>
     <string name="play">Google Play</string>
     <string name="proceed_anyway">Proceed anyway</string>
+    <string name="proceed">Proceed</string>
     <string name="rate_title">Rating and reviewing app</string>
     <string name="rate_message5">
         Positive and detailed reviews help AndBible Open Source Project a lot. Thank you!
