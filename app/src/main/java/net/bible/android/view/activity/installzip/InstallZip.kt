@@ -293,7 +293,7 @@ class InstallZip : ActivityBase() {
         val whatToInstall = suspendCoroutine {
             AlertDialog.Builder(this@InstallZip)
                 .setTitle(R.string.what_to_install_title)
-                .setMessage(R.string.what_to_install)
+                .setMessage(getString(R.string.what_to_install) + " " + getString(R.string.what_to_install2))
                 .setNegativeButton(R.string.what_to_install_sword) { dialog, which ->
                     it.resume(WhatToInstall.SWORD)
                 }

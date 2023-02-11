@@ -1090,7 +1090,8 @@
     <string name="open_in_window">Open results in a window</string>
     <string name="could_not_overwrite_files">Could not overwrite files: %s. Apart from that install was successful.</string>
     <string name="cant_delete_document">"This document can't be deleted. "</string>
-    <string name="what_to_install">To restore module backup Zip file created with AndBible or a Zip file containing Sword modules, please choose \"Zip\". To install MySword or MyBible modules, please choose \"Other\".</string>
+    <string name="what_to_install">To restore module backup Zip file created with AndBible or a Zip file containing Sword modules, please choose \"Zip\". </string>
+    <string name="what_to_install2">To install MySword or MyBible modules, please choose \"Other\".</string>
     <string name="what_to_install_title">What types of modules do you want to install?</string>
     <string name="what_to_install_sword">Zip</string>
     <string name="what_to_install_3rd_party">Other</string>
