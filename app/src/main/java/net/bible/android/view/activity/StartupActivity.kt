@@ -257,7 +257,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             val myBible = getString(R.string.format_mybible)
             val mySword = getString(R.string.format_mysword)
             val formats = getString(R.string.supported_formats, "$zip, $myBible, $mySword")
-            welcomeMessage.text = "$welcome\n\n $formats."
+            welcomeMessage.text = "$welcome \n\n$formats."
             versionText.text = versionMsg
             downloadButton.setOnClickListener { doGotoDownloadActivity() }
             importButton.setOnClickListener { onLoadFromZip() }
