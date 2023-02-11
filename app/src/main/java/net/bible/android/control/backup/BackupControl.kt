@@ -185,7 +185,7 @@ object BackupControl {
             result = suspendCoroutine {
                 val books = Books.installed().books.filter { !it.isPseudoBook }.sortedBy { it.language }
                 val bookNames = books.map {
-                    context.getString(R.string.something_with_parenthesis, it.name, it.language.code)
+                    context.getString(R.string.something_with_parenthesis, it.name, "${it.initials}, ${it.language.code}")
                 }.toTypedArray()
 
                 val checkedItems = bookNames.map { false }.toBooleanArray()
