@@ -323,6 +323,7 @@ class InstallZip : ActivityBase() {
                     try {
                         installThirdParty(result.resultData!!.data!!)
                     } catch (e: SqliteInstallError) {
+                        Log.e(TAG, "Error occurred in installing module", e)
                         val msgId = when(e) {
                             is CantRead -> R.string.sqlite_cant_read
                             is InvalidFile -> R.string.sqlite_invalid_file
@@ -364,6 +365,7 @@ class InstallZip : ActivityBase() {
         contentResolver.openInputStream(uri).use { fIn ->
             fIn ?: throw CantRead()
             val outDir = File(SharedConstants.MODULE_DIR, dir)
+            outDir.mkdirs()
             val outFile = File(outDir, displayName)
             if(outFile.exists()) {
                 val doInstall = suspendCoroutine {
@@ -381,12 +383,11 @@ class InstallZip : ActivityBase() {
                 }
             }
 
-            if (!outFile.canWrite()) {
+            if ((outFile.exists() && !outFile.canWrite()) || (!outFile.exists() && !outDir.canWrite())) {
                 throw CantWrite()
             }
 
             withContext(Dispatchers.IO) {
-                outDir.mkdirs()
                 val header = ByteArray(16)
                 fIn.read(header)
                 if (String(header) == "SQLite format 3\u0000") {
