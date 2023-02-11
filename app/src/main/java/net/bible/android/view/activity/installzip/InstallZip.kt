@@ -131,7 +131,7 @@ class ZipHandler(
     private suspend fun installZipFile() = withContext(Dispatchers.IO) {
         val confFiles = ArrayList<File>()
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
-        var errors: MutableList<String> = mutableListOf()
+        val errors: MutableList<String> = mutableListOf()
         ZipInputStream(newInputStream()).use { zIn ->
             var ze: ZipEntry?
             var count: Int
@@ -303,6 +303,7 @@ class InstallZip : ActivityBase() {
                 .setNeutralButton(R.string.cancel){ _, _ ->
                     it.resume(WhatToInstall.CANCEL)
                 }
+                .setOnCancelListener {_ -> it.resume(WhatToInstall.CANCEL)}
                 .show()
         }
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -337,6 +338,7 @@ class InstallZip : ActivityBase() {
                                 .setPositiveButton(R.string.okay) { dialog, which ->
                                     it.resume(true)
                                 }
+                                .setOnCancelListener {_ -> it.resume(false)}
                                 .show()
                         }
                         finish()
