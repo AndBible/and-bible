@@ -330,7 +330,7 @@
     <string name="failed_downloads_message">The following files could not be downloaded:\n\n%s\n\n</string>
 
     <!--  Install zip file -->
-    <string name="install_zip">Load Document From File</string>
+    <string name="install_zip">Load Document From a File</string>
     <string name="install_zip_module">Install Bible Module</string>
     <string name="install_zip_module_discrete">Install Calculator Module</string>
     <string name="install_zip_successfull">Module was installed successfully</string>
@@ -852,6 +852,10 @@
         at least 1 document by downloading from the internet, or by loading from a zip file document
         backup.
     </string>
+    <string name="supported_formats">Supported formats for loading documents from a file: %s</string>
+    <string name="format_zip">Zip file containing Sword module(s), or documents backup file created by AndBible</string>
+    <string name="format_mysword">MySword documents (*.mybible)</string>
+    <string name="format_mybible">MyBible documents (*.SQLite3)</string>
     <string name="redownload_message">
         A list of previous books/documents was found. Click below to easily download them again.
     </string>
