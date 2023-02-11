@@ -52,7 +52,9 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
+import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
+import net.bible.service.sword.mysword.addMySwordBook
 import java.io.InputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -357,7 +359,7 @@ class InstallZip : ActivityBase() {
             it.getString(idx)
         }?: throw CantRead()
 
-        val dir = when {
+        val filetype = when {
             displayName.lowercase().endsWith(".sqlite3") -> "mybible"
             displayName.lowercase().endsWith(".mybible") -> "mysword"
             else -> throw InvalidFile()
@@ -366,14 +368,14 @@ class InstallZip : ActivityBase() {
         binding.loadingIndicator.visibility = View.VISIBLE
         contentResolver.openInputStream(uri).use { fIn ->
             fIn ?: throw CantRead()
-            val outDir = File(SharedConstants.MODULE_DIR, dir)
+            val outDir = File(SharedConstants.MODULE_DIR, filetype)
             outDir.mkdirs()
             val outFile = File(outDir, displayName)
             if(outFile.exists()) {
                 val doInstall = suspendCoroutine {
                     AlertDialog.Builder(this)
                         .setTitle(R.string.overwrite_files_title)
-                        .setMessage(getString(R.string.overwrite_files, "$dir/$displayName"))
+                        .setMessage(getString(R.string.overwrite_files, "$filetype/$displayName"))
                         .setPositiveButton(R.string.yes) {_, _ -> it.resume(true)}
                         .setNeutralButton(R.string.cancel) {_, _ -> it.resume(false)}
                         .setOnCancelListener {_ -> it.resume(false)}
@@ -399,6 +401,15 @@ class InstallZip : ActivityBase() {
                         fIn.copyTo(out)
                         out.close()
                     }
+                    val book = when(filetype) {
+                        "mybible" -> addMyBibleBook(outFile)
+                        "mysword" -> addMySwordBook(outFile)
+                        else -> throw RuntimeException()
+                    }
+                    if(book == null) {
+                        outFile.delete()
+                        throw InvalidFile()
+                    }
                 }
                 else {
                     throw InvalidFile()
@@ -407,8 +418,6 @@ class InstallZip : ActivityBase() {
         }
         binding.loadingIndicator.visibility = View.GONE
         ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
-        addManuallyInstalledMyBibleBooks()
-        addManuallyInstalledMySwordBooks()
         ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
         setResult(Activity.RESULT_OK)
         finish()
