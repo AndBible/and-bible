@@ -852,6 +852,7 @@
         at least 1 document by downloading from the internet, or by loading from a zip file document
         backup.
     </string>
+    <string name="supported_formats_title">Supported formats</string>
     <string name="supported_formats">Supported formats for loading documents from a file: %s</string>
     <string name="format_zip">Zip file containing Sword module(s), or documents backup file created by AndBible</string>
     <string name="format_mysword">MySword documents (*.mybible)</string>
@@ -1090,11 +1091,6 @@
     <string name="open_in_window">Open results in a window</string>
     <string name="could_not_overwrite_files">Could not overwrite files: %s. Apart from that install was successful.</string>
     <string name="cant_delete_document">"This document can't be deleted. "</string>
-    <string name="what_to_install">To restore module backup Zip file created with AndBible or a Zip file containing Sword modules, please choose \"Zip\". </string>
-    <string name="what_to_install2">To install MySword or MyBible modules, please choose \"Other\".</string>
-    <string name="what_to_install_title">What types of modules do you want to install?</string>
-    <string name="what_to_install_sword">Zip</string>
-    <string name="what_to_install_3rd_party">Other</string>
     <string name="sqlite_cant_read">Can\'t read the file</string>
     <string name="sqlite_invalid_file">Invalid module file</string>
     <string name="sqlite_cant_write">Can\'t (over)write the file</string>

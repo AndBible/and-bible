@@ -289,75 +289,70 @@ class InstallZip : ActivityBase() {
         }
     }
 
-    enum class WhatToInstall {SWORD, THIRDPARTY, CANCEL}
-
     private suspend fun getFileFromUserAndInstall() {
-        val whatToInstall = suspendCoroutine {
+        val proceed = suspendCoroutine {
+            val zip = getString(R.string.format_zip)
+            val myBible = getString(R.string.format_mybible)
+            val mySword = getString(R.string.format_mysword)
+            val formats = getString(R.string.supported_formats, "$zip, $myBible, $mySword")
+
             AlertDialog.Builder(this@InstallZip)
-                .setTitle(R.string.what_to_install_title)
-                .setMessage(getString(R.string.what_to_install) + " " + getString(R.string.what_to_install2))
-                .setNegativeButton(R.string.what_to_install_sword) { dialog, which ->
-                    it.resume(WhatToInstall.SWORD)
-                }
-                .setPositiveButton(R.string.what_to_install_3rd_party) { dialog, which ->
-                    it.resume(WhatToInstall.THIRDPARTY)
+                .setTitle(R.string.supported_formats_title)
+                .setMessage(formats)
+                .setPositiveButton(R.string.okay) { dialog, which ->
+                    it.resume(true)
                 }
                 .setNeutralButton(R.string.cancel){ _, _ ->
-                    it.resume(WhatToInstall.CANCEL)
+                    it.resume(false)
                 }
-                .setOnCancelListener {_ -> it.resume(WhatToInstall.CANCEL)}
+                .setOnCancelListener {_ -> it.resume(false)}
                 .show()
         }
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
 
-        when(whatToInstall) {
-            WhatToInstall.CANCEL -> {
-                finish()
-                return
-            }
-            WhatToInstall.SWORD -> intent.type = "application/zip"
-            WhatToInstall.THIRDPARTY -> intent.type = "application/*"
+        if(!proceed) {
+            finish()
+            return
         }
+
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.type = "application/*"
+
         val result = awaitIntent(intent)
         if (result.resultCode == Activity.RESULT_OK) {
-            when(whatToInstall) {
-                WhatToInstall.SWORD -> installZip(result.resultData!!.data!!)
-                WhatToInstall.THIRDPARTY -> {
-                    try {
-                        installThirdParty(result.resultData!!.data!!)
-                    } catch (e: SqliteInstallError) {
-                        Log.e(TAG, "Error occurred in installing module", e)
-                        val msgId = when(e) {
-                            is CantRead -> R.string.sqlite_cant_read
-                            is InvalidFile -> R.string.sqlite_invalid_file
-                            is CantWrite -> R.string.sqlite_cant_write
-                            else -> throw RuntimeException(e)
-                        }
-                        suspendCoroutine <Boolean>{
-                            AlertDialog.Builder(this@InstallZip)
-                                .setTitle(R.string.error_occurred)
-                                .setMessage(getString(R.string.install_failed_reason, getString(msgId)))
-                                .setPositiveButton(R.string.okay) { dialog, which ->
-                                    it.resume(true)
-                                }
-                                .setOnCancelListener {_ -> it.resume(false)}
-                                .show()
-                        }
-                        finish()
-                    }
+            try {
+                installFromFile(result.resultData!!.data!!)
+            } catch (e: SqliteInstallError) {
+                Log.e(TAG, "Error occurred in installing module", e)
+                val msgId = when(e) {
+                    is CantRead -> R.string.sqlite_cant_read
+                    is InvalidFile -> R.string.sqlite_invalid_file
+                    is CantWrite -> R.string.sqlite_cant_write
+                    else -> throw RuntimeException(e)
                 }
-                else -> {}
+                suspendCoroutine<Boolean> {
+                    AlertDialog.Builder(this@InstallZip)
+                        .setTitle(R.string.error_occurred)
+                        .setMessage(getString(R.string.install_failed_reason, getString(msgId)))
+                        .setPositiveButton(R.string.okay) { dialog, which ->
+                            it.resume(true)
+                        }
+                        .setOnCancelListener {_ -> it.resume(false)}
+                        .show()
+                }
             }
-        } else if (result.resultCode == Activity.RESULT_CANCELED)
-            finish()
+        }
+        finish()
     }
 
-    private suspend fun installThirdParty(uri: Uri): Boolean {
+    private suspend fun installFromFile(uri: Uri): Boolean {
         val displayName = contentResolver.query(uri, null, null, null, null)?.use {
             it.moveToFirst()
             val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
             it.getString(idx)
         }?: throw CantRead()
+
+        if (displayName.lowercase().endsWith(".zip"))
+            return installZip(uri)
 
         val filetype = when {
             displayName.lowercase().endsWith(".sqlite3") -> "mybible"
@@ -425,12 +420,14 @@ class InstallZip : ActivityBase() {
     }
 
 
-    private suspend fun installZip(uri: Uri) {
+    private suspend fun installZip(uri: Uri): Boolean {
+        var result = false
         binding.installZipLabel.text = getString(R.string.checking_zip_file)
         val zh = ZipHandler(
                 {contentResolver.openInputStream(uri)},
                 {percent -> updateProgress(percent)},
                 {finishResult ->
+                    result = finishResult == Activity.RESULT_OK
                     setResult(finishResult);
                     ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                     finish()
@@ -440,6 +437,7 @@ class InstallZip : ActivityBase() {
         binding.loadingIndicator.visibility = View.VISIBLE
         zh.execute()
         binding.loadingIndicator.visibility = View.GONE
+        return result
     }
 
     override fun onBackPressed() {}
