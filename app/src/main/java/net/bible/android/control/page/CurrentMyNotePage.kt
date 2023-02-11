@@ -21,7 +21,6 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.versification.Versification
@@ -29,9 +28,8 @@ import org.crosswire.jsword.versification.Versification
 class CurrentMyNotePage internal constructor(
 	currentVerse: CurrentBibleVerse,
 	bibleTraverser: BibleTraverser,
-	swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CurrentCommentaryPage(currentVerse, bibleTraverser, swordDocumentFacade, pageManager), CurrentPage
+) : CurrentCommentaryPage(currentVerse, bibleTraverser, pageManager), CurrentPage
 {
     override val currentPageContent: Document get() {
         val verseRange = CommonUtils.getWholeChapter(currentBibleVerse.verse, false)

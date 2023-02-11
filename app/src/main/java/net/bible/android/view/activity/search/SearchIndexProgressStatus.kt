@@ -28,6 +28,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 
@@ -43,7 +44,7 @@ class SearchIndexProgressStatus : ProgressActivityBase() {
         setMainText(getString(R.string.indexing_wait_msg))
         findViewById<View>(R.id.hideButton).setOnClickListener { v: View? -> finish() }
         val docInitials = intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)
-        documentBeingIndexed = swordDocumentFacade.getDocumentByInitials(docInitials)
+        documentBeingIndexed = SwordDocumentFacade.getDocumentByInitials(docInitials)
     }
 
     /**

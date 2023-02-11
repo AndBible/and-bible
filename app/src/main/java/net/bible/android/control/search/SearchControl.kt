@@ -46,7 +46,6 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class SearchControl @Inject constructor(
-    private val swordDocumentFacade: SwordDocumentFacade,
     private val documentBibleBooksFactory: DocumentBibleBooksFactory,
     private val windowControl: WindowControl,
     )
@@ -116,7 +115,7 @@ class SearchControl @Inject constructor(
         val searchResults = SearchResultsDto()
 
         // search the current book
-        val book = swordDocumentFacade.getDocumentByInitials(document)
+        val book = SwordDocumentFacade.getDocumentByInitials(document)
         var result: Key? = null
         try {
             result = search(book!!, searchText)
@@ -181,7 +180,7 @@ class SearchControl @Inject constructor(
         try {
             // this starts a new thread to do the indexing and returns immediately
             // if index creation is already in progress then nothing will happen
-            swordDocumentFacade.ensureIndexCreation(book!!)
+            SwordDocumentFacade.ensureIndexCreation(book!!)
             ok = true
         } catch (e: Exception) {
             Log.e(TAG, "error indexing:" + e.message)

@@ -40,7 +40,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.history.HistoryTraversal
 import net.bible.service.history.HistoryTraversalFactory
-import net.bible.service.sword.SwordDocumentFacade
 import javax.inject.Inject
 
 /** Base class for activities
@@ -55,9 +54,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     open val integrateWithHistoryManager: Boolean = false
 
     protected lateinit var historyTraversal: HistoryTraversal
-
-
-    @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
     open val doNotInitializeApp = false
 

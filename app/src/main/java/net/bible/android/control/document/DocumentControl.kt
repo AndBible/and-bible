@@ -40,14 +40,18 @@ import org.crosswire.jsword.versification.BibleBook
 
 import javax.inject.Inject
 
+val Book.canDelete: Boolean get () {
+    val lastBible = BookCategory.BIBLE == bookCategory && SwordDocumentFacade.bibles.size == 1
+    return !lastBible && driver.isDeletable(this)
+}
+
 /** Control use of different documents/books/modules - used by front end
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
 class DocumentControl @Inject constructor(
-        private val swordDocumentFacade: SwordDocumentFacade,
-        private val windowControl: WindowControl)
+    private val windowControl: WindowControl)
 {
     private val documentBackupDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
@@ -82,11 +86,11 @@ class DocumentControl @Inject constructor(
     }
 
     val biblesForVerse : List<Book>
-        get () = swordDocumentFacade.unlockedBibles.sortedBy { bookFilter.test(it) }
+        get () = SwordDocumentFacade.unlockedBibles.sortedBy { bookFilter.test(it) }
 
     val commentariesForVerse: List<Book>
         get () {
-            val docs = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked }.sortedBy { commentaryFilter.test(it) }.toMutableList()
+            val docs = SwordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { !it.isLocked }.sortedBy { commentaryFilter.test(it) }.toMutableList()
             docs.addAll(FakeBookFactory.pseudoDocuments.filter { it.bookCategory == BookCategory.COMMENTARY })
             return docs
         }
@@ -108,7 +112,7 @@ class DocumentControl @Inject constructor(
             val currentPageManager = windowControl.activeWindowPageManager
             val currentBible = currentPageManager.currentBible.currentDocument
 
-            return getSuggestedBook(swordDocumentFacade.bibles, currentBible, bookFilter, currentPageManager.isBibleShown)
+            return getSuggestedBook(SwordDocumentFacade.bibles, currentBible, bookFilter, currentPageManager.isBibleShown)
         }
 
     /** Suggest an alternative commentary to view or return null
@@ -122,7 +126,7 @@ class DocumentControl @Inject constructor(
             val currentPageManager = windowControl.activeWindowPageManager
             val currentCommentary = currentPageManager.currentCommentary.currentDocument
 
-            return getSuggestedBook(swordDocumentFacade.getBooks(BookCategory.COMMENTARY),
+            return getSuggestedBook(SwordDocumentFacade.getBooks(BookCategory.COMMENTARY),
                     currentCommentary, commentaryFilter, currentPageManager.isCommentaryShown)
         }
 
@@ -156,21 +160,13 @@ class DocumentControl @Inject constructor(
      * Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
      * and according to AndBible if it is not currently selected
      */
-    fun canDelete(document: Book?): Boolean {
-        if (document == null) {
-            return false
-        }
-
-        val lastBible = BookCategory.BIBLE == document.bookCategory && swordDocumentFacade.bibles.size == 1
-
-        return !lastBible && document.driver.isDeletable(document)
-    }
+    fun canDelete(document: Book?): Boolean = document?.canDelete?: false
 
     /** delete selected document, even of current doc (Map and Gen Book only currently) and tidy up CurrentPage
      */
     @Throws(BookException::class)
     fun deleteDocument(document: Book) {
-        swordDocumentFacade.deleteDocument(document)
+        SwordDocumentFacade.deleteDocument(document)
         if(document.bookCategory == BookCategory.AND_BIBLE) return
         documentBackupDao.deleteByOsisId(document.initials)
         val currentPage = windowControl.activeWindowPageManager.getBookPage(document, null)

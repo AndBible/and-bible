@@ -30,12 +30,12 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import androidx.core.content.FileProvider
-import kotlinx.coroutines.CoroutineScope
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
+import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BackupViewBinding
@@ -55,6 +55,7 @@ import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
 import net.bible.service.download.isPseudoBook
+import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
 import org.crosswire.jsword.book.Book
@@ -71,7 +72,6 @@ import java.io.InputStream
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -183,7 +183,7 @@ object BackupControl {
         var result: List<Book>? = null
         withContext(Dispatchers.Main) {
             result = suspendCoroutine {
-                val books = Books.installed().books.filter { !it.isMyBibleBook && !it.isMySwordBook && !it.isPseudoBook }.sortedBy { it.language }
+                val books = Books.installed().books.filter { !it.isPseudoBook }.sortedBy { it.language }
                 val bookNames = books.map {
                     context.getString(R.string.something_with_parenthesis, it.name, it.language.code)
                 }.toTypedArray()
@@ -244,22 +244,43 @@ object BackupControl {
             }
         }
 
+        fun addModuleFile(outFile: ZipOutputStream, moduleFile: File) {
+            FileInputStream(moduleFile).use { inFile ->
+                BufferedInputStream(inFile).use { origin ->
+                    val fileNameInsideZip = moduleFile.relativeTo(moduleDir).path
+                    val entry = ZipEntry(fileNameInsideZip)
+                    outFile.putNextEntry(entry)
+                    origin.copyTo(outFile)
+                }
+            }
+        }
+
         withContext(Dispatchers.IO) {
             ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
                 for(b in books) {
                     val bmd = b.bookMetaData as SwordBookMetaData
-                    val configFile = bmd.configFile
-                    val rootDir = configFile.parentFile!!.parentFile!!
-
-                    addFile(outFile, rootDir, configFile)
-                    val dataPath = bmd.getProperty("DataPath")
-                    val dataDir = File(rootDir, dataPath).run {
-                        if(listOf(BookCategory.DICTIONARY, BookCategory.GENERAL_BOOK, BookCategory.MAPS).contains(b.bookCategory))
-                            parentFile
-                        else this
-                    }
-                    for(f in dataDir.walkTopDown().filter { it.isFile }) {
-                        addFile(outFile, rootDir, f)
+                    if (b.isMyBibleBook) {
+                        addModuleFile(outFile, b.dbFile)
+                    } else if(b.isMySwordBook) {
+                        addModuleFile(outFile, b.dbFile)
+                    } else {
+                        val configFile = bmd.configFile
+                        val rootDir = configFile.parentFile!!.parentFile!!
+                        addFile(outFile, rootDir, configFile)
+                        val dataPath = bmd.getProperty("DataPath")
+                        val dataDir = File(rootDir, dataPath).run {
+                            if (listOf(
+                                    BookCategory.DICTIONARY,
+                                    BookCategory.GENERAL_BOOK,
+                                    BookCategory.MAPS
+                                ).contains(b.bookCategory)
+                            )
+                                parentFile
+                            else this
+                        }
+                        for (f in dataDir.walkTopDown().filter { it.isFile }) {
+                            addFile(outFile, rootDir, f)
+                        }
                     }
                 }
             }
@@ -310,7 +331,7 @@ object BackupControl {
 
         // send intent to pick file
         var ok = true
-        val result = suspendCoroutine<BackupResult> {
+        val result = suspendCoroutine {
             AlertDialog.Builder(callingActivity)
                 .setTitle(callingActivity.getString(R.string.backup_backup_title))
                 .setMessage(callingActivity.getString(R.string.backup_backup_message))
@@ -440,7 +461,7 @@ object BackupControl {
 
     suspend fun startBackupOldAppDatabase(callingActivity: ActivityBase, file: File) {
         val result = withContext(Dispatchers.Main) {
-            suspendCoroutine <BackupResult> {
+            suspendCoroutine {
                 AlertDialog.Builder(callingActivity)
                     .setTitle(callingActivity.getString(R.string.backup_backup_title))
                     .setMessage(callingActivity.getString(R.string.backup_backup_message))
@@ -511,6 +532,7 @@ object BackupControl {
         activity.awaitIntent(intent)
     }
 
+    private var moduleDir: File = SharedConstants.MODULE_DIR
     private lateinit var internalDbDir : File
     private lateinit var internalDbBackupDir: File // copy of db is created in this dir when doing backups
     private const val MODULE_BACKUP_NAME = "modules.zip"

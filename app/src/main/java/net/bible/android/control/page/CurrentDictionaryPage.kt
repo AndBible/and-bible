@@ -20,8 +20,6 @@ import android.content.Intent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
-import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.passage.Key
 
 /** Reference to current passage shown by viewer
@@ -29,9 +27,8 @@ import org.crosswire.jsword.passage.Key
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentDictionaryPage internal constructor(
-    swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CachedKeyPage(false, swordDocumentFacade, pageManager),
+) : CachedKeyPage(false, pageManager),
     CurrentPage
 {
     override val documentCategory = DocumentCategory.DICTIONARY

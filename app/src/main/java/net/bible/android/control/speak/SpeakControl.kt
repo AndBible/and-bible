@@ -64,7 +64,6 @@ import net.bible.service.device.speak.MediaButtonHandler
 class SpeakControl @Inject constructor(
     private val textToSpeechServiceManager: Lazy<TextToSpeechServiceManager>,
     private val windowControl: WindowControl,
-    private val swordDocumentFacade: SwordDocumentFacade
 ) {
 
     @Inject lateinit var bookmarkControl: BookmarkControl
@@ -273,7 +272,7 @@ class SpeakControl @Inject constructor(
 
     // By this checking, try to avoid issues with isSpeaking and isPaused causing crash if window is not yet available
     // (such as headphone switching in the initial startup screen)
-    private val booksAvailable: Boolean get() = swordDocumentFacade.bibles.isNotEmpty()
+    private val booksAvailable: Boolean get() = SwordDocumentFacade.bibles.isNotEmpty()
 
     /** prepare to speak
      */

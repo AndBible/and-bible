@@ -49,6 +49,7 @@ import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
 import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import org.crosswire.jsword.book.Books
@@ -255,7 +256,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun getActiveLanguages(): String {
         //Get the languages for each of the installed bibles and return the language codes as a json list.
-        val languages = bibleView.mainBibleActivity.swordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
+        val languages = SwordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
         return "[" + languages.distinct().joinToString(",") + "]"
     }
 
