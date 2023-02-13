@@ -86,8 +86,8 @@ class MySwordModuleInfo (
     val category: String,
 )
 
-class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: String?): OpenFileState {
-    constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile, null) {
+class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
+    constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
         this.metadata = metadata
     }
 
@@ -97,7 +97,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
         _sqlDb?.run {
             if (isOpen) this else null
         } ?: run {
-            Log.i(TAG, "initDatabase $moduleName ${sqliteFile.name}")
+            Log.i(TAG, "initDatabase ${sqliteFile.name}")
             val db = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
             _sqlDb = db
             db
@@ -105,7 +105,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
     }
 
     override fun close() {
-        Log.i(TAG, "close database $moduleName ${sqliteFile.name}")
+        Log.i(TAG, "close database ${sqliteFile.name}")
         _sqlDb?.close()
         _sqlDb = null
     }
@@ -126,7 +126,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                 "dct" -> "Lexicons / Dictionaries"
                 else -> "Illegal"
             }
-            val initials = moduleName ?: ("MySword-" + sanitizeModuleName(dbFile.nameWithoutExtension))
+            val initials = "MySword-" + sanitizeModuleName(dbFile.nameWithoutExtension)
 
             val data = db.rawQuery("select * from details", null).use {
                 it.moveToFirst()
@@ -404,9 +404,9 @@ val mySwordDictionary = object: BookType("MySwordDictionary", BookCategory.DICTI
     }
 }
 
-fun addMySwordBook(file: File, name: String? = null): AbstractBook? {
+fun addMySwordBook(file: File): AbstractBook? {
     if(!(file.canRead() && file.isFile)) return null
-    val state = SqliteVerseBackendState(file, name)
+    val state = SqliteVerseBackendState(file)
     val metadata = try { state.bookMetaData } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load MySword module $file", err)
         return null

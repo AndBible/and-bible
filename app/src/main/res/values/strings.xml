@@ -330,14 +330,14 @@
     <string name="failed_downloads_message">The following files could not be downloaded:\n\n%s\n\n</string>
 
     <!--  Install zip file -->
-    <string name="install_zip">Load Document From File</string>
+    <string name="install_zip">Load Documents From Files</string>
     <string name="install_zip_module">Install Bible Module</string>
     <string name="install_zip_module_discrete">Install Calculator Module</string>
     <string name="install_zip_successfull">Module was installed successfully</string>
     <string name="extracting_zip_file">Extracting Zip file now…</string>
     <string name="checking_zip_file">Checking given file…</string>
     <string name="invalid_module">File does not contain a valid SWORD module</string>
-    <string name="install_zip_title">Please wait. Loading module(s) from file.</string>
+    <string name="install_zip_title">Please wait. Loading modules from a file.</string>
     <string name="overwrite_files">Following files already exists: %s Overwrite?</string>
     <string name="overwrite_files_title">Overwrite files?</string>
 
@@ -852,6 +852,12 @@
         at least 1 document by downloading from the internet, or by loading from a zip file document
         backup.
     </string>
+    <string name="supported_formats_title">Supported formats</string>
+    <string name="choose_file">You have to choose the file that you want to load to AndBible. </string>
+    <string name="supported_formats">Supported formats for loading documents from a file: %s</string>
+    <string name="format_zip">Zip file containing Sword module(s), or documents backup file created by AndBible</string>
+    <string name="format_mysword">MySword documents (*.mybible)</string>
+    <string name="format_mybible">MyBible documents (*.SQLite3)</string>
     <string name="redownload_message">
         A list of previous books/documents was found. Click below to easily download them again.
     </string>
@@ -924,6 +930,7 @@
     <string name="old_webview">Android WebView package is too old (%s). You need to upgrade your Android WebView package to at least version %s to use %s. For most devices this can be done via %s.</string>
     <string name="play">Google Play</string>
     <string name="proceed_anyway">Proceed anyway</string>
+    <string name="proceed">Proceed</string>
     <string name="rate_title">Rating and reviewing app</string>
     <string name="rate_message5">
         Positive and detailed reviews help AndBible Open Source Project a lot. Thank you!
@@ -1086,10 +1093,6 @@
     <string name="open_in_window">Open results in a window</string>
     <string name="could_not_overwrite_files">Could not overwrite files: %s. Apart from that install was successful.</string>
     <string name="cant_delete_document">"This document can't be deleted. "</string>
-    <string name="what_to_install">To restore module backup Zip file created with AndBible or a Zip file containing Sword modules, please choose \"Sword\". To install MySword or MyBible modules, please choose \"3rd Party\".</string>
-    <string name="what_to_install_title">What types of modules do you want to install?</string>
-    <string name="what_to_install_sword">Sword</string>
-    <string name="what_to_install_3rd_party">3rd party</string>
     <string name="sqlite_cant_read">Can\'t read the file</string>
     <string name="sqlite_invalid_file">Invalid module file</string>
     <string name="sqlite_cant_write">Can\'t (over)write the file</string>

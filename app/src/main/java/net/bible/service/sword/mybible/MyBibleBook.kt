@@ -42,11 +42,20 @@ import org.crosswire.jsword.passage.KeyUtil
 import java.io.File
 import java.io.IOException
 
-private fun getConfig(initials: String, description: String, language: String, category: String, hasStrongsDef: Boolean, hasStrongs: Boolean, moduleFileName: String): String {
+private fun getConfig(
+    initials: String,
+    abbreviation: String,
+    description: String,
+    language: String,
+    category: String,
+    hasStrongsDef: Boolean,
+    hasStrongs: Boolean,
+    moduleFileName: String
+): String {
     var conf = """
 [$initials]
 Description=$description
-Abbreviation=$initials
+Abbreviation=$abbreviation
 Category=$category
 AndBibleMyBibleModule=1
 AndBibleDbFile=$moduleFileName
@@ -70,8 +79,8 @@ Versification=KJVA"""
 
 const val TAG = "MyBibleBook"
 
-class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: String?): OpenFileState {
-    constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile, null) {
+class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
+    constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
         this.metadata = metadata
     }
 
@@ -81,7 +90,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
         _sqlDb?.run {
             if (isOpen) this else null
         } ?: run {
-            Log.i(TAG, "initDatabase $moduleName ${sqliteFile.name}")
+            Log.i(TAG, "initDatabase ${sqliteFile.name}")
             val db = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
             _sqlDb = db
             db
@@ -89,7 +98,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
     }
 
     override fun close() {
-        Log.i(TAG, "close database $moduleName ${sqliteFile.name}")
+        Log.i(TAG, "close database ${sqliteFile.name}")
         _sqlDb?.close()
         _sqlDb = null
     }
@@ -104,7 +113,8 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
             val db = this.sqlDb
-            val initials = moduleName ?: ("MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension))
+            val initials = "MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension)
+            val abbreviation = File(db.path).nameWithoutExtension.split(".", limit = 2)[0]
             val description = db.rawQuery("select value from info where name = ?", arrayOf("description")).use {
                 it.moveToFirst()
                 it.getString(0)
@@ -145,6 +155,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
 
             val conf = getConfig(
                 initials = initials,
+                abbreviation = abbreviation,
                 description = description,
                 language = language,
                 category = category,
@@ -396,9 +407,9 @@ val myBibleDictionary = object: BookType("MyBibleDictionary", BookCategory.DICTI
     }
 }
 
-fun addMyBibleBook(file: File, name: String? = null): AbstractBook? {
+fun addMyBibleBook(file: File): AbstractBook? {
     if(!(file.canRead() && file.isFile)) return null
-    val state = SqliteVerseBackendState(file, name)
+    val state = SqliteVerseBackendState(file)
     val metadata = try { state.bookMetaData } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load MyBible module $file", err)
         return null
