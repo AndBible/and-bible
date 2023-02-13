@@ -1,5 +1,6 @@
 Latest changes
-- Install/Backup/Delete MyBible & MySword modules via Main Menu > Backup & Restore
+- Install/Backup MyBible & MySword modules via Main Menu > Backup & Restore. See
+  https://github.com/AndBible/and-bible/wiki/Supported-3rd-party-module-formats
 - Bugfixes
 
 4.0
