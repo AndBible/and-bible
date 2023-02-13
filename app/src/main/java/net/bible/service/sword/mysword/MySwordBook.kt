@@ -21,6 +21,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.util.Log
 import net.bible.android.BibleApplication
+import net.bible.service.sword.SqliteSwordDriver
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -49,6 +50,7 @@ Description=${data.description}
 Abbreviation=${data.abbreviation}
 Category=${data.category}
 AndBibleMySwordModule=1
+AndBibleDbFile=${data.moduleFileName}
 Lang=${data.language}
 Version=0.0
 Encoding=UTF-8
@@ -70,21 +72,8 @@ Versification=KJVA"""
 
 const val TAG = "MySwordBook"
 
-class MockMySwordDriver: AbstractBookDriver() {
-    override fun getBooks(): Array<Book> {
-        return emptyArray()
-    }
-
-    override fun getDriverName(): String {
-        return "MySword"
-    }
-
-    override fun isDeletable(dead: Book?): Boolean {
-        return false
-    }
-}
-
 class MySwordModuleInfo (
+    val moduleFileName: String,
     val initials: String,
     val title: String,
     val description: String,
@@ -172,7 +161,8 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                     hasStrongs = categoryAbbreviation == "bbl" && getBoolean(strongColumn),
                     language = getString(languageColumn, "eng"),
                     category = category,
-                    isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn)
+                    isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn),
+                    moduleFileName = db.path
                 )
             }
 
@@ -180,7 +170,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
             Log.i(TAG, "Creating MySwordBook metadata $initials $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
-            metadata.driver = MockMySwordDriver()
+            metadata.driver = SqliteSwordDriver()
             this.metadata = metadata
             return@synchronized metadata
         }
