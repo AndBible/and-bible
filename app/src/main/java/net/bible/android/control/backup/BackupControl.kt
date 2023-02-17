@@ -591,7 +591,7 @@ class BackupActivity: ActivityBase() {
                     toggleRestoreDocuments.isChecked -> lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
                 }
             }
-            CommonUtils.dbBackupPath.listFiles()?.forEach { f ->
+            CommonUtils.dbBackupPath.listFiles().sortedByDescending { it.name }.forEach { f ->
                 val b = Button(this@BackupActivity)
                 val s = f.name
                 b.text = s
