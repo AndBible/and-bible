@@ -16,22 +16,18 @@
   ~ If not, see http://www.gnu.org/licenses/.
   -->
 
-<!-- The menu displayed in the ActionBar for Download Documents
+<!-- Show the results of a search
  
  @author Martin Denham [mjdenham at gmail dot com]
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
-	<item android:id="@+id/errors"
-		android:title="@string/download_errors"
-		android:icon="@drawable/ic_error_outline_black_24dp"
-		appcompat:showAsAction="always"/>
-	<item android:id="@+id/installZip"
-		android:title="@string/install_zip"
-		android:icon="@drawable/ic_unarchive_white_24dp"
-		appcompat:showAsAction="never"/>
-	<item android:id="@+id/customRepositories"
-		android:title="@string/custom_repositories"
-		android:icon="@drawable/ic_unarchive_white_24dp"
-		appcompat:showAsAction="never"/>
-</menu>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    <!-- Here is the list. Since we are using a ListActivity, we
+         have to call it "@android:id/list" so ListActivity will find it -->
+	<ListView android:id="@android:id/list"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"/>
+</LinearLayout>

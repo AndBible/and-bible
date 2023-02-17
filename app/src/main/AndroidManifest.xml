@@ -206,6 +206,11 @@
             android:label="@string/speak"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
+            android:name="net.bible.android.view.activity.download.CustomRepositories"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/history"
+            android:parentActivityName="net.bible.android.view.activity.download.DownloadActivity" />
+        <activity
             android:name="net.bible.android.view.activity.speak.BibleSpeakActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/speak"

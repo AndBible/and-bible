@@ -465,6 +465,14 @@ open class DownloadActivity : DocumentSelectionBase(
 
                 isHandled  = true
             }
+            R.id.customRepositories -> {
+                lifecycleScope.launch (Dispatchers.Main){
+                    val intent = Intent(this@DownloadActivity, CustomRepositories::class.java)
+                    awaitIntent(intent)
+                    populateMasterDocumentList(false)
+                }
+                isHandled  = true
+            }
         }
         if (!isHandled) {
             isHandled = super.onOptionsItemSelected(item)

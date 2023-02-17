@@ -1097,4 +1097,5 @@
     <string name="sqlite_invalid_file">Invalid module file</string>
     <string name="sqlite_cant_write">Can\'t (over)write the file</string>
     <string name="install_failed_reason">Installing module failed for the following reason: %s.</string>
+    <string name="custom_repositories">Custom repositories</string>
 </resources>
