@@ -18,30 +18,43 @@
 package net.bible.android.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import kotlinx.serialization.Serializable
 
 enum class CustomRepositoryType {
-    SWORD_HTTPS, MY_BIBLE
+    SWORD_HTTPS, MY_BIBLE, UNSPECIFIED
 }
 
 @Entity
+@Serializable
 data class CustomRepository(
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
-    var type: CustomRepositoryType,
-    var name: String,
-    var domain: String?,
-    var zipDir: String?,
-    var rootDir: String?,
-    var spec: String?,
-)
+    var type: CustomRepositoryType = CustomRepositoryType.UNSPECIFIED,
+    var name: String = "",
+    var domain: String? = null,
+    var zipDir: String? = null,
+    var rootDir: String? = null,
+    var spec: String? = null,
+) {
+    fun toJSON(): String = json.encodeToString(serializer(), this)
+
+    companion object {
+        fun fromJSON(str: String): CustomRepository = json.decodeFromString(serializer(), str)
+    }
+}
 
 @Dao
 interface CustomRepositoryDao {
-    @Insert
-    fun insert(item: CustomRepository)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun upsert(item: CustomRepository)
+
+    @Delete
+    fun delete(item: CustomRepository)
 
     @Insert
     fun insert(items: List<CustomRepository>)

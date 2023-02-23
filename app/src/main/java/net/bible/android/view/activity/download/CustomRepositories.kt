@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.download
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -26,11 +28,91 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.CustomRepositoriesBinding
+import net.bible.android.activity.databinding.CustomRepositoryEditorBinding
 import net.bible.android.database.CustomRepository
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.service.common.CommonUtils.json
 import net.bible.service.db.DatabaseContainer
+
+
+@Serializable
+data class RepositoryData (
+    var repository: CustomRepository,
+    var delete: Boolean = false,
+) {
+    fun toJSON(): String = json.encodeToString(serializer(), this)
+
+    companion object {
+        fun fromJSON(str: String): RepositoryData = json.decodeFromString(serializer(), str)
+    }
+}
+class CustomRepositoryEditor: CustomTitlebarActivityBase() {
+    private lateinit var binding: CustomRepositoryEditorBinding
+    private lateinit var data: RepositoryData
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        data = RepositoryData.fromJSON(intent.getStringExtra("data")!!)
+        binding = CustomRepositoryEditorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        updateUI()
+        buildActivityComponent().inject(this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.custom_repository_editor_options_menu, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var isHandled = true
+        when(item.itemId){
+            R.id.delete -> delete()
+            R.id.help -> help()
+            android.R.id.home -> saveAndExit()
+            else -> isHandled = false
+        }
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item)
+        }
+        return isHandled
+    }
+
+    override fun onBackPressed() {
+        Log.i(TAG, "onBackPressed")
+        saveAndExit()
+    }
+
+    private fun saveAndExit() {
+        updateData()
+        val resultIntent = Intent()
+        resultIntent.putExtra("data", data.toJSON())
+        setResult(Activity.RESULT_OK, resultIntent)
+        finish()
+    }
+
+    private fun updateData() = binding.run {
+        data.repository.name = repositoryName.text.toString()
+        data.repository.spec = repositorySpec.text.toString()
+    }
+
+    private fun updateUI() = binding.run {
+        repositoryName.setText(data.repository.name)
+        repositorySpec.setText(data.repository.spec)
+    }
+
+    private fun delete() {
+
+    }
+
+    private fun help() {
+
+    }
+}
 
 class CustomRepositories : ListActivityBase() {
     private lateinit var binding: CustomRepositoriesBinding
@@ -42,8 +124,14 @@ class CustomRepositories : ListActivityBase() {
         binding = CustomRepositoriesBinding.inflate(layoutInflater)
         setContentView(binding.root)
         buildActivityComponent().inject(this)
-        customRepositories.addAll(dao.all())
         listAdapter = createAdapter()
+        reloadData()
+    }
+
+    private fun reloadData() {
+        customRepositories.clear()
+        customRepositories.addAll(dao.all())
+        (listAdapter as ArrayAdapter<*>).notifyDataSetChanged()
     }
 
     /**
@@ -65,6 +153,23 @@ class CustomRepositories : ListActivityBase() {
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
+        val repo = customRepositories[position]
+        val intent = Intent(this@CustomRepositories, CustomRepositoryEditor::class.java)
+        intent.putExtra("data", RepositoryData(repo).toJSON())
+        lifecycleScope.launch {
+            val result = awaitIntent(intent)
+            val data = RepositoryData.fromJSON(result.resultData.getStringExtra("data")!!)
+            handleResult(data)
+        }
+    }
+
+    private fun handleResult(data: RepositoryData) {
+        if(data.delete && data.repository.id != 0L) {
+            dao.delete(data.repository)
+        } else {
+            dao.upsert(data.repository)
+        }
+        reloadData()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -74,8 +179,12 @@ class CustomRepositories : ListActivityBase() {
 
     private fun help() {}
 
-    private fun newItem() {
-
+    private fun newItem() = lifecycleScope.launch {
+        val intent = Intent(this@CustomRepositories, CustomRepositoryEditor::class.java)
+        intent.putExtra("data", RepositoryData(CustomRepository()).toJSON())
+        val result = awaitIntent(intent)
+        val data = RepositoryData.fromJSON(result.resultData.getStringExtra("data")!!)
+        handleResult(data)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -16,14 +16,16 @@
   ~ If not, see http://www.gnu.org/licenses/.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    >
-    <!-- Here is the list. Since we are using a ListActivity, we
-         have to call it "@android:id/list" so ListActivity will find it -->
-	<ListView android:id="@android:id/list"
-		android:layout_height="wrap_content"
-		android:layout_width="match_parent"/>
-</LinearLayout>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/delete"
+        android:title="@string/new_item"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_delete_24dp"
+        />
+    <item android:id="@+id/help"
+        android:title="@string/help"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_help_white_24dp"
+        />
+</menu>

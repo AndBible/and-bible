@@ -1098,4 +1098,6 @@
     <string name="sqlite_cant_write">Can\'t (over)write the file</string>
     <string name="install_failed_reason">Installing module failed for the following reason: %s.</string>
     <string name="custom_repositories">Custom repositories</string>
+    <string name="name_for_repository">Name for the repository</string>
+    <string name="repository_specification">Repository specification or URL</string>
 </resources>
