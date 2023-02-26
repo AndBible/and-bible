@@ -222,6 +222,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
     }
 
     testOptions {
@@ -347,6 +348,8 @@ dependencies {
     implementation("org.jdom:jdom2:$jdomVersion")
 
     debugImplementation("com.facebook.stetho:stetho:1.6.0")
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")  // https://developer.android.com/studio/write/java8-support#library-desugaring
 
     testImplementation(project(":db"))
 

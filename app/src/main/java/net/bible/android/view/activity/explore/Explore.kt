@@ -31,6 +31,8 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import java.lang.reflect.Field
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 @SuppressLint("ViewConstructor")
@@ -123,8 +125,9 @@ class Explore (val currentActivity: ActivityBase,
             tabLayout.addTab(tabLayout.newTab().setText("Verse"))
             tabLayout.addTab(tabLayout.newTab().setText("Chapter"))
             tabLayout.addTab(tabLayout.newTab().setText("Book"))
+            tabLayout.addTab(tabLayout.newTab().setText("Devotional"))
             tabLayout.addTab(tabLayout.newTab().setText("Headings"))
-            tabLayout.tabGravity = TabLayout.GRAVITY_FILL
+            tabLayout.tabGravity = TabLayout.GRAVITY_START
 
             // USE childFragmentManager
             val adapter = MyFragmentAdapter(childFragmentManager)
@@ -145,14 +148,15 @@ class Explore (val currentActivity: ActivityBase,
     class MyFragmentAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
         companion object {
-            const val NUM_ITEMS = 3
+            const val NUM_ITEMS = 4
         }
 
         override fun getItem(position: Int): Fragment {
             when (position) {
-                0 -> return BookFragment()
+                0 -> return VerseFragment()
                 1 -> return TwoFragment()
                 2 -> return BookFragment()
+                3 -> return UrlFragment("https://odb.org/2023/02/26/is-it-a-sign")
             }
             return ChapterFragment()
         }
@@ -161,6 +165,58 @@ class Explore (val currentActivity: ActivityBase,
             return NUM_ITEMS
         }
     }
+    class VerseFragment() : Fragment() {
+
+        lateinit var runnable: Runnable
+        lateinit var progressBar: ProgressBar
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            val view = inflater.inflate(R.layout.explore_chapter, container, false)
+
+            progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+            val wv = view.findViewById<WebView>(R.id.explore_chapter_webview)
+//            wv.getSettings().setLoadWithOverviewMode(true)
+//            wv.getSettings().setUseWideViewPort(true)
+//            wv.setWebChromeClient(WebChromeClient())
+//            wv.getSettings().setUserAgentString("Android WebView")
+            wv.settings.javaScriptEnabled = true
+            wv.settings.domStorageEnabled = true;
+
+
+            wv.loadUrl("https://odb.org/${SimpleDateFormat("yyyy/MM/dd/").format(Date())}")
+//            wv.loadUrl("https://www.esv.org/Exodus+20.20/")
+//            wv.loadUrl("https://www.blueletterbible.org/kjv/gen/1/5/s_1005")
+
+            wv.setWebViewClient(object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                    view.loadUrl(request.url.toString())
+                    return false
+                }
+            })
+            return view
+
+        }
+        // Overriding WebViewClient functions
+        open inner class WebViewClient : android.webkit.WebViewClient() {
+
+            // Load the URL
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                view.loadUrl(url)
+                return false
+            }
+
+            // ProgressBar will disappear once page is loaded
+            override fun onPageFinished(view: WebView, url: String) {
+                super.onPageFinished(view, url)
+                progressBar.visibility = View.GONE
+            }
+        }
+    }
+
     class ChapterFragment() : Fragment() {
 
         lateinit var runnable: Runnable
@@ -227,11 +283,10 @@ class Explore (val currentActivity: ActivityBase,
 
             progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
 
-
             // Lookup document in dictionary
             val currentPage = windowControl?.activeWindowPageManager?.currentPage
 
-            var currentDocument:Book = Books.installed().getBook("EASTON")
+            var currentDocument:Book = Books.installed().getBook("ISBE")
             var key:Key = currentDocument.getKey("AARON")
 
             val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
@@ -297,6 +352,50 @@ class Explore (val currentActivity: ActivityBase,
 
 
             return view
+        }
+    }
+    class UrlFragment(url:String) : Fragment() {
+        lateinit var runnable: Runnable
+        lateinit var progressBar: ProgressBar
+        var url = url
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            val view = inflater.inflate(R.layout.explore_url, container, false)
+            val wv = view.findViewById<WebView>(R.id.explore_url_webview)
+
+            progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+            wv.loadUrl("https://www.esv.org/Exodus+20.20/")
+//            wv.loadUrl("https://odb.org/")
+//            wv.loadUrl(url)
+
+            wv.settings.javaScriptEnabled = true
+            wv.setWebViewClient(object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                    view.loadUrl(request.url.toString())
+                    return false
+                }
+            })
+
+
+            return view
+        }
+        // Overriding WebViewClient functions
+        open inner class WebViewClient : android.webkit.WebViewClient() {
+
+            // Load the URL
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                view.loadUrl(url)
+                return false
+            }
+
+            // ProgressBar will disappear once page is loaded
+            override fun onPageFinished(view: WebView, url: String) {
+                super.onPageFinished(view, url)
+                progressBar.visibility = View.GONE
+            }
         }
     }
 }

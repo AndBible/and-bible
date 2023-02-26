@@ -54,11 +54,12 @@
 
 			</LinearLayout>
 		</com.google.android.material.appbar.AppBarLayout>
+
 		<com.google.android.material.tabs.TabLayout
 			android:id="@+id/myTabLayout"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="#1db995"/>
+			android:background="#1db995" />
 
 
 		<net.bible.android.view.activity.explore.BottomSheetViewPager
