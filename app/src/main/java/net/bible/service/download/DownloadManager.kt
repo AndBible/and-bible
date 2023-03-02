@@ -44,6 +44,7 @@ class DownloadManager(
     private val onFailedReposChange: (() -> Unit)?
 ) {
     val customRepositoryDao get() = DatabaseContainer.db.customRepositoryDao()
+    val failedRepos = TreeSet<String>()
 
     private lateinit var installManager: InstallManager
     fun refreshInstallManager() {
@@ -55,12 +56,12 @@ class DownloadManager(
             installer.catalogDirectory = r.catalogDirectory
             installManager.addInstaller(r.name, installer)
         }
+        failedRepos.clear()
+        onFailedReposChange?.invoke()
     }
     init {
         refreshInstallManager()
     }
-
-    val failedRepos = TreeSet<String>()
 
     private fun markFailed(repo: String) {
         failedRepos.add(repo)

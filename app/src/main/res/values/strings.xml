@@ -1099,7 +1099,7 @@
     <string name="install_failed_reason">Installing module failed for the following reason: %s.</string>
     <string name="custom_repositories">Custom repositories</string>
     <string name="name_for_repository">Name for the repository</string>
-    <string name="repository_specification">Repository specification or URL</string>
+    <string name="repository_specification">Repository URL</string>
     <string name="delete_custom_repository">Do you want to remove custom repository %s?</string>
     <string name="invalid_repository_not_saved">Repository specification was invalid and it was not saved.</string>
     <string name="custom_repositories_help1">To add a new custom repository, type or copy &amp; paste custom repository URL here.</string>

@@ -56,6 +56,7 @@ import net.bible.service.db.DatabaseContainer
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.net.MalformedURLException
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 import kotlin.coroutines.resume
@@ -80,11 +81,14 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
     private lateinit var data: RepositoryData
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        buildActivityComponent().inject(this)
         data = RepositoryData.fromJSON(intent.getStringExtra("data")!!)
         binding = CustomRepositoryEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
         updateUI()
-        buildActivityComponent().inject(this)
+        if(data.repository.manifestUrl?.isNotEmpty() == true) {
+            delayedValidate()
+        }
         binding.run {
             pasteButton.setOnClickListener { paste() }
             manifestUrl.addTextChangedListener  (object: TextWatcher {
@@ -103,32 +107,53 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
             field = value
         }
 
+    private suspend fun tryReadManifest(manifestUrlStr: String): Boolean {
+        val manifestUrl = try {
+            URL(manifestUrlStr)
+        } catch (e: MalformedURLException) {
+            return false
+        }
+
+        return withContext(Dispatchers.IO) {
+            val conn =
+                try {
+                    manifestUrl.openConnection() as HttpsURLConnection
+                } catch (e: IOException) {
+                    return@withContext false
+                }
+
+            return@withContext if (conn.responseCode == 200) {
+                readManifest(conn)
+            } else {
+                false
+            }
+        }
+    }
+
     private fun validateSpec() = lifecycleScope.launch {
         Log.i(TAG, "validateSpec")
-        val manifestUrl = binding.manifestUrl.text.toString()
+        val manifestUrlStr = binding.manifestUrl.text.toString()
 
-        if (manifestUrl.startsWith("https://")) {
-            val source = URL(manifestUrl)
-            withContext(Dispatchers.IO) {
-                val conn =
-                    try {source.openConnection() as HttpsURLConnection}
-                    catch (e: IOException) {
-                        valid = false
-                        return@withContext
-                    }
-
-                valid = if (conn.responseCode == 200) {
-                    readManifest(conn)
-                } else {
-                    false
-                }
-            }
-        } else {
+        if (!manifestUrlStr.startsWith("https://")) {
             valid = false
+            return@launch
         }
-        updateData()
 
-        Log.i(TAG, "validateSpec")
+        var ok = tryReadManifest(manifestUrlStr)
+        if(!ok) {
+            val filename = "manifest.json"
+            val newUrlStr =
+                if(manifestUrlStr.endsWith("/"))
+                    "$manifestUrlStr$filename"
+                else
+                    "$manifestUrlStr/$filename"
+            ok = tryReadManifest(newUrlStr)
+        }
+
+        valid = ok
+        if(ok) {
+            updateData()
+        }
     }
 
     private fun readManifest(conn: HttpsURLConnection): Boolean {
