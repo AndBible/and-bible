@@ -22,7 +22,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
+import android.text.TextUtils.concat
 import android.text.TextWatcher
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -49,6 +51,7 @@ import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.CommonUtils.json
+import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 import org.json.JSONException
 import org.json.JSONObject
@@ -58,6 +61,7 @@ import javax.net.ssl.HttpsURLConnection
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+val customRepositoriesWikiUrl = "https://github.com/AndBible/and-bible/wiki/Custom-repositories"
 
 @Serializable
 data class RepositoryData (
@@ -219,9 +223,22 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         }
     }
 
-
     private fun help() {
-
+        val s0 = getString(R.string.custom_repositories_help0)
+        val s1 = getString(R.string.custom_repositories_help1)
+        val s3 = getString(R.string.wiki_page)
+        val urlLink = """<a href="$customRepositoriesWikiUrl">$s3</a>"""
+        val s2 = htmlToSpan(getString(R.string.custom_repositories_help2, urlLink))
+        val s  = concat(
+            s0, "\n\n", s1, "\n\n", s2
+        )
+        val d = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay, null)
+            .setTitle(R.string.custom_repositories)
+            .setMessage(s)
+            .create()
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
     companion object {
         private const val TAG = "CustomRepositories"
@@ -297,9 +314,21 @@ class CustomRepositories : ListActivityBase() {
     }
 
     private fun help() {
-
+        val s0 = getString(R.string.custom_repositories_help0)
+        val s3 = getString(R.string.wiki_page)
+        val urlLink = """<a href="$customRepositoriesWikiUrl">$s3</a>"""
+        val s2 = htmlToSpan(getString(R.string.custom_repositories_help2, urlLink))
+        val s  = concat(
+            s0, "\n\n", s2
+        )
+        val d = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay, null)
+            .setTitle(R.string.custom_repositories)
+            .setMessage(s)
+            .create()
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
-
     private fun newItem() = lifecycleScope.launch {
         val intent = Intent(this@CustomRepositories, CustomRepositoryEditor::class.java)
         intent.putExtra("data", RepositoryData(CustomRepository()).toJSON())
