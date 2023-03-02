@@ -24,8 +24,7 @@ import org.crosswire.jsword.book.Book
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class RepoFactory(val downloadManager: DownloadManager) {
-
+class RepoFactory(private val downloadManager: DownloadManager) {
     private val andBibleRepo = Repository("AndBible", AcceptableBookTypeFilter(), downloadManager)
     private val andBibleExtraRepo = Repository("AndBible Extra", AcceptableBookTypeFilter(), downloadManager)
     private val andBibleBetaRepo = Repository(
@@ -71,7 +70,7 @@ class RepoFactory(val downloadManager: DownloadManager) {
 
     private val betaRepositories = listOf(crosswireBetaRepo, andBibleBetaRepo)
 
-    private val customRepositories: List<Repository> get() = downloadManager.customRepositoryDao.all().mapNotNull{ it.manifest }.map {
+    private val customRepositories: List<Repository> get() = downloadManager.customRepositoryDao.all().map {
         Repository(it.name, AcceptableBookTypeFilter(), downloadManager)
     }
 

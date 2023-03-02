@@ -49,7 +49,7 @@ class DownloadManager(
     private lateinit var installManager: InstallManager
     fun refreshInstallManager() {
         installManager = InstallManager()
-        for(r in customRepositoryDao.all().mapNotNull { it.manifest }) {
+        for(r in customRepositoryDao.all()) {
             val installer = HttpsSwordInstaller()
             installer.host = r.host
             installer.packageDirectory = r.packageDirectory

@@ -18,10 +18,10 @@
 package net.bible.android.database
 
 import android.util.Log
-import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
@@ -31,38 +31,36 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.util.*
 
+val repoJson = Json {
+    allowStructuredMapKeys = true
+    encodeDefaults = true
+    ignoreUnknownKeys = true
+}
+
+@Entity(indices = [Index("name", unique = true)])
 @Serializable
-class SwordRepositoryManifest(
+data class CustomRepository(
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
     val name: String,
     val description: String = "",
     val type: String,
     val host: String,
     val catalogDirectory: String,
     val packageDirectory: String,
-)
-
-val repoJson = Json {
-    allowStructuredMapKeys = true
-    encodeDefaults = true
-    ignoreUnknownKeys = true
-}
-@Entity
-@Serializable
-data class CustomRepository(
-    @PrimaryKey(autoGenerate = true) var id: Long = 0,
     var manifestUrl: String? = null,
-    var manifestJsonContent: String? = null,
 ) {
-    val displayName: String get() = manifest?.name?: manifestUrl?: ""
-    val displayDescription: String get() = manifest?.description?: ""
-
-    val manifest: SwordRepositoryManifest? get() =
-        if(manifestJsonContent == null) null
-        else try {repoJson.decodeFromString(SwordRepositoryManifest.serializer(), manifestJsonContent!!) }
-        catch (e: SerializationException) {
-            Log.e("CustomRepository", "Could not deserialize manifest")
-            null
+    fun toJson(): String {
+        return repoJson.encodeToString(serializer(), this)
+    }
+    companion object {
+        fun fromJson(jsonString: String): CustomRepository? {
+            return try {repoJson.decodeFromString(serializer(), jsonString) } catch (e: SerializationException) {
+                Log.e("CustomRepository", "Could not decode repository", e)
+                null
+            }
         }
+    }
+
 }
 
 @Dao

@@ -62,11 +62,11 @@ import javax.net.ssl.HttpsURLConnection
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-val customRepositoriesWikiUrl = "https://github.com/AndBible/and-bible/wiki/Custom-repositories"
+const val customRepositoriesWikiUrl = "https://github.com/AndBible/and-bible/wiki/Custom-repositories"
 
 @Serializable
 data class RepositoryData (
-    var repository: CustomRepository,
+    var repository: CustomRepository? = null,
     var delete: Boolean = false,
     var cancel: Boolean = false,
 ) {
@@ -86,7 +86,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         binding = CustomRepositoryEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
         updateUI()
-        if(data.repository.manifestUrl?.isNotEmpty() == true) {
+        if(data.repository?.manifestUrl?.isNotEmpty() == true) {
             delayedValidate()
         }
         binding.run {
@@ -99,7 +99,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         }
     }
 
-    val delayedValidate: () -> Unit = debounce(200, lifecycleScope) {validateSpec()}
+    val delayedValidate: () -> Unit = debounce(200, lifecycleScope) {validateManifestUrl()}
 
     var valid: Boolean = false
         set(value) {
@@ -130,30 +130,25 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         }
     }
 
-    private fun validateSpec() = lifecycleScope.launch {
+    private fun validateManifestUrl() = lifecycleScope.launch {
         Log.i(TAG, "validateSpec")
-        val manifestUrlStr = binding.manifestUrl.text.toString()
-
-        if (!manifestUrlStr.startsWith("https://")) {
+        val manifestUrl = manifestUrl
+        if (!manifestUrl.startsWith("https://")) {
             valid = false
             return@launch
         }
 
-        var ok = tryReadManifest(manifestUrlStr)
+        var ok = tryReadManifest(manifestUrl)
         if(!ok) {
             val filename = "manifest.json"
             val newUrlStr =
-                if(manifestUrlStr.endsWith("/"))
-                    "$manifestUrlStr$filename"
+                if(manifestUrl.endsWith("/"))
+                    "$manifestUrl$filename"
                 else
-                    "$manifestUrlStr/$filename"
+                    "$manifestUrl/$filename"
             ok = tryReadManifest(newUrlStr)
         }
-
         valid = ok
-        if(ok) {
-            updateData()
-        }
     }
 
     private fun readManifest(conn: HttpsURLConnection): Boolean {
@@ -165,26 +160,21 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         }
         val type = json.getString("type")
         if(type != "sword-https") return false
-        data.repository.manifestJsonContent = jsonString
-        val manifest = data.repository.manifest
-
-        if(manifest == null) {
-            data.repository.manifestJsonContent = null
-            return false
-        }
-
-        Log.i(TAG, "Read manifest ${manifest.name}")
+        val repo = CustomRepository.fromJson(jsonString) ?: return false
+        repo.id = data.repository?.id?: 0
+        data.repository = repo
+        Log.i(TAG, "Read manifest ${repo.name}")
         return true
     }
+
+    private val manifestUrl get() = binding.manifestUrl.text.toString()
 
     private fun paste() {
         Log.i(TAG, "paste")
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val paste = clipboard.primaryClip?.getItemAt(0)?.text
         if(paste != null) {
-            data.repository.manifestUrl = paste.toString()
-            updateUI()
-            delayedValidate()
+            binding.manifestUrl.setText(paste.toString())
         }
     }
 
@@ -225,18 +215,16 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         finish()
     }
 
-    private fun updateData() = binding.run {
-        data.repository.manifestUrl = manifestUrl.text.toString()
-    }
+    private fun updateData() = validateManifestUrl()
 
     private fun updateUI() = binding.run {
-        manifestUrl.setText(data.repository.manifestUrl)
+        manifestUrl.setText(data.repository?.manifestUrl)
     }
 
     private fun delete() = lifecycleScope.launch(Dispatchers.Main) {
         val result = suspendCoroutine {
             AlertDialog.Builder(this@CustomRepositoryEditor)
-                .setMessage(getString(R.string.delete_custom_repository, data.repository.displayName))
+                .setMessage(getString(R.string.delete_custom_repository, data.repository?.name))
                 .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
                 .setNegativeButton(R.string.no) {_, _ -> it.resume(false)}
                 .setCancelable(true)
@@ -302,8 +290,8 @@ class CustomRepositories : ListActivityBase() {
         ) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent)
-                view.findViewById<TextView>(R.id.titleText).text = customRepositories[position].displayName
-                view.findViewById<TextView>(R.id.descriptionText).text = customRepositories[position].displayDescription
+                view.findViewById<TextView>(R.id.titleText).text = customRepositories[position].name
+                view.findViewById<TextView>(R.id.descriptionText).text = customRepositories[position].description
                 return view
             }
         }
@@ -323,12 +311,17 @@ class CustomRepositories : ListActivityBase() {
     private fun handleResult(data: RepositoryData) {
         if(data.cancel) {
             return
-        } else if(data.delete) {
-            if(data.repository.id != 0L) {
-                dao.delete(data.repository)
+        }
+
+        val repository = data.repository!!
+
+        if(data.delete) {
+            if(repository.id != 0L) {
+                dao.delete(repository)
             }
         } else {
-            dao.upsert(data.repository)
+            dao.upsert(repository)
+            //ABEventBus.post(getString(R.string.duplicate_custom_repository, data.repository.name))
         }
         reloadData()
     }
@@ -356,7 +349,7 @@ class CustomRepositories : ListActivityBase() {
     }
     private fun newItem() = lifecycleScope.launch {
         val intent = Intent(this@CustomRepositories, CustomRepositoryEditor::class.java)
-        intent.putExtra("data", RepositoryData(CustomRepository()).toJSON())
+        intent.putExtra("data", RepositoryData().toJSON())
         val result = awaitIntent(intent)
         val data = RepositoryData.fromJSON(result.resultData.getStringExtra("data")!!)
         handleResult(data)
