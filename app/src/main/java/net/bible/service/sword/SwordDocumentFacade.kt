@@ -149,8 +149,7 @@ object SwordDocumentFacade {
             SwordBookMetaData.setPartialLoading(true)
             val repoBookDeduplicator = RepoBookDeduplicator()
 
-            val promises = sequenceOf(repoFactory.repositories)
-                .flatten()
+            val promises = repoFactory.repositories
                 .map { async { it.getRepoBooks(refresh) } }
                 .toList()
 
