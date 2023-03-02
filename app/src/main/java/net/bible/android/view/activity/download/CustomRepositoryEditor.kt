@@ -47,23 +47,17 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.CustomRepository
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.appendUrl
+import net.bible.service.common.CommonUtils.md5Hash
 import net.bible.service.common.htmlToSpan
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
-import java.math.BigInteger
 import java.net.MalformedURLException
 import java.net.URL
-import java.security.MessageDigest
 import javax.net.ssl.HttpsURLConnection
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
-fun appendUrl(u: String, filename: String): String =
-    if(u.endsWith("/"))
-        "$u$filename"
-    else
-        "$u/$filename"
 
 @Serializable
 data class RepositoryData (
@@ -155,11 +149,6 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
                 false
             }
         }
-    }
-    fun md5Hash(str: String): String {
-        val md = MessageDigest.getInstance("MD5")
-        val bigInt = BigInteger(1, md.digest(str.toByteArray(Charsets.UTF_8)))
-        return String.format("%032x", bigInt)
     }
 
     private fun validateManifestUrl() = lifecycleScope.launch {
