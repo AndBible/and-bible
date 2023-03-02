@@ -123,7 +123,9 @@ import org.spongycastle.util.io.pem.PemReader
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
+import java.math.BigInteger
 import java.security.KeyFactory
+import java.security.MessageDigest
 import java.security.Signature
 import java.util.*
 import java.security.interfaces.RSAPublicKey
@@ -1294,6 +1296,18 @@ object CommonUtils : CommonUtilsBase() {
 
     val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
     val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
+
+    fun md5Hash(str: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        val bigInt = BigInteger(1, md.digest(str.toByteArray(Charsets.UTF_8)))
+        return String.format("%032x", bigInt)
+    }
+
+    fun appendUrl(u: String, filename: String): String =
+        if(u.endsWith("/"))
+            "$u$filename"
+        else
+            "$u/$filename"
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
