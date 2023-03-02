@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextUtils.concat
@@ -53,6 +54,7 @@ import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
+import org.crosswire.jsword.book.install.InstallManager
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
@@ -320,8 +322,19 @@ class CustomRepositories : ListActivityBase() {
                 dao.delete(repository)
             }
         } else {
-            dao.upsert(repository)
-            //ABEventBus.post(getString(R.string.duplicate_custom_repository, data.repository.name))
+            if(InstallManager().installers.keys.find { it == repository.name } != null) {
+                ABEventBus.post(ToastEvent(getString(R.string.duplicate_custom_repository, repository.name)))
+            }
+            else if(repository.id != 0L) {
+                dao.update(repository)
+            } else {
+                try {
+                    dao.insert(repository)
+                } catch (e: SQLiteConstraintException) {
+                    ABEventBus.post(ToastEvent(getString(R.string.duplicate_custom_repository, repository.name)))
+                    Log.e(TAG, "Constraint exception", e)
+                }
+            }
         }
         reloadData()
     }

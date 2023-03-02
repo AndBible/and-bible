@@ -23,9 +23,9 @@ import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -65,8 +65,11 @@ data class CustomRepository(
 
 @Dao
 interface CustomRepositoryDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun upsert(item: CustomRepository)
+    @Insert
+    fun insert(item: CustomRepository)
+
+    @Update
+    fun update(item: CustomRepository)
 
     @Delete
     fun delete(item: CustomRepository)
