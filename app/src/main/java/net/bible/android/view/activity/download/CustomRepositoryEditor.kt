@@ -186,7 +186,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
                     manifestUrl = manifestUrl,
                     host = url.host,
                     catalogDirectory = url.path,
-                    packageDirectory = "${url.path}/packages",
+                    packageDirectory = appendUrl(url.path, "packages"),
                     type = "sword-https",
                     id = data.repository?.id?: 0
                 )
