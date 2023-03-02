@@ -1107,4 +1107,5 @@
     <string name="wiki_page">WIKI page</string>
     <string name="custom_repositories_help0">You can install documents from external custom repositories by installing custom repositories.</string>
     <string name="duplicate_custom_repository">Repository with name %s already exists, can\'t add another.</string>
+    <string name="packages_dir">Packages directory (Zip files)</string>
 </resources>

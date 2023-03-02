@@ -151,6 +151,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
             ok = tryReadManifest(newUrlStr)
         }
         valid = ok
+        updateUI()
     }
 
     private fun readManifest(conn: HttpsURLConnection): Boolean {
@@ -217,10 +218,20 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         finish()
     }
 
-    private fun updateData() = validateManifestUrl()
+    private fun updateData() {
+        val repo = data.repository?: return
+        repo.packageDirectory = binding.packageDir.text.toString()
+    }
 
     private fun updateUI() = binding.run {
-        manifestUrl.setText(data.repository?.manifestUrl)
+        val repo = data.repository?: return
+        manifestUrl.setText(repo.manifestUrl)
+        infoText.text = concat(
+            repo.name,
+            "\n\n",
+            repo.description,
+        )
+        packageDir.setText(repo.packageDirectory)
     }
 
     private fun delete() = lifecycleScope.launch(Dispatchers.Main) {

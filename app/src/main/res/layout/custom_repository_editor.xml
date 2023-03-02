@@ -23,12 +23,11 @@
 	android:layout_height="wrap_content">
 
 	<EditText
-		android:id="@+id/manifest_url"
+		android:id="@+id/manifestUrl"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:ems="10"
 		android:hint="@string/repository_specification"
-		android:inputType="textPersonName"
 		app:layout_constraintEnd_toStartOf="@+id/pasteButton"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
@@ -37,9 +36,9 @@
 		android:id="@+id/pasteButton"
 		android:layout_width="48dp"
 		android:layout_height="43dp"
-		app:layout_constraintBottom_toBottomOf="@+id/manifest_url"
+		app:layout_constraintBottom_toBottomOf="@+id/manifestUrl"
 		app:layout_constraintEnd_toStartOf="@+id/okCheck"
-		app:layout_constraintTop_toTopOf="@+id/manifest_url"
+		app:layout_constraintTop_toTopOf="@+id/manifestUrl"
 		app:srcCompat="@drawable/baseline_content_paste_24" />
 
 	<ImageView
@@ -51,4 +50,20 @@
 		app:tint="@color/grey_500"
 		app:layout_constraintTop_toTopOf="@+id/pasteButton"
 		app:srcCompat="@drawable/baseline_check_24" />
+	<EditText
+		android:id="@+id/packageDir"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:ems="10"
+		android:hint="@string/packages_dir"
+		app:layout_constraintTop_toBottomOf="@id/manifestUrl"
+		android:visibility="gone"
+		/>
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="12dp"
+		android:id="@+id/infoText"
+		app:layout_constraintTop_toBottomOf="@id/packageDir"
+		/>
 </androidx.constraintlayout.widget.ConstraintLayout>
