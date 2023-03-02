@@ -22,7 +22,6 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.download.DownloadQueue
-import net.bible.service.sword.SwordDocumentFacade
 
 /**
  * Dagger module to create application scoped dependencies
@@ -34,8 +33,8 @@ class ApplicationModule {
 
     @Provides
     @ApplicationScope
-    fun provideDownloadControl(swordDocumentFacade: SwordDocumentFacade): DownloadControl {
-        return DownloadControl(DownloadQueue(), swordDocumentFacade)
+    fun provideDownloadControl(): DownloadControl {
+        return DownloadControl(DownloadQueue())
     }
 
     @Provides

@@ -78,6 +78,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
+import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
@@ -965,13 +966,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     internal inner class LinkLongPressContextMenuInfo(private val targetLink: String) : BibleViewContextMenuInfo {
         override fun onContextItemSelected(item: MenuItem): Boolean {
-            when (item.itemId) {
-                R.id.open_link_in_special_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_SPECIAL)
-                R.id.open_link_in_new_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_NEW)
-                R.id.open_link_in_this_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_THIS)
+            val windowMode = when (item.itemId) {
+                R.id.open_link_in_special_window -> WindowMode.WINDOW_MODE_SPECIAL
+                R.id.open_link_in_new_window -> WindowMode.WINDOW_MODE_NEW
+                R.id.open_link_in_this_window -> WindowMode.WINDOW_MODE_THIS
+                else -> WindowMode.WINDOW_MODE_UNDEFINED
             }
+            linkControl.windowMode = windowMode
             openLink(Uri.parse(targetLink))
-            linkControl.setWindowMode(LinkControl.WINDOW_MODE_UNDEFINED)
+            linkControl.windowMode = WindowMode.WINDOW_MODE_UNDEFINED
             contextMenuInfo = null
             return true
         }

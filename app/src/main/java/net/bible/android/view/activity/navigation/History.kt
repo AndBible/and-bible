@@ -66,8 +66,8 @@ class History : ListActivityBase() {
      * Creates and returns a list adapter for the current list activity
      * @return
      */
-    protected fun createAdapter(): ListAdapter {
-        mHistoryItemList = historyManager.history
+    private fun createAdapter(): ListAdapter {
+        mHistoryItemList = historyManager.getHistory(windowControl.activeWindow.id)
         return object : ArrayAdapter<HistoryItem>(
             this,
             LIST_ITEM_TYPE,

@@ -35,9 +35,11 @@ import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.page.windowControl
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 class WindowChangedEvent(val window: Window)
 
@@ -101,9 +103,12 @@ class Window (
             id = id,
             targetLinksWindowId = targetLinksWindowId,
             isLinksWindow = isLinksWindow,
+            syncGroup = syncGroup
         )
     var displayedKey: Key? = null
+        private set
     var displayedBook: Book? = null
+        private set
 
     var isSynchronised = window.isSynchronized
         set(value) {
@@ -128,10 +133,7 @@ class Window (
         get() = windowLayout.state == WindowState.MINIMISED
 
     val isSyncable: Boolean
-        get() = when {
-            isLinksWindow -> false
-            else -> pageManager.currentPage.isSyncable
-        }
+        get() = pageManager.currentPage.isSyncable
 
     var windowState: WindowState
         get() = windowLayout.state
@@ -161,7 +163,7 @@ class Window (
     val initialized get() = lastUpdated != 0L
     private val updateScope get() = windowRepository.scope
 
-    fun updateText(notifyLocationChange: Boolean = false) {
+    fun loadText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
 
         Log.i(TAG, "updateText, isVisible: $isVisible")
@@ -179,7 +181,7 @@ class Window (
             anchorOrdinal = currentPage.anchorOrdinal
         }
         displayedBook = currentPage.currentDocument
-        displayedKey = currentPage.key
+        displayedKey = currentPage.singleKey
         Log.i(TAG, "updateText ${this.hashCode()}")
 
         updateScope.launch {
@@ -218,7 +220,7 @@ class Window (
             }
         }
 
-    var lastChecksum = 0
+    private var lastChecksum = 0
 
     private suspend fun waitForBibleView() {
         var time = 0L
@@ -232,6 +234,34 @@ class Window (
                 return;
             }
         }
+    }
+
+    fun updateText() {
+        val document = pageManager.currentPage.currentDocument
+        val verse = pageManager.currentVersePage.currentBibleVerse.verse
+        val book = pageManager.currentVersePage.currentBibleVerse.currentBibleBook
+
+        val documentChanged = displayedBook != document
+
+        if(documentChanged) {
+            loadText(true)
+            return
+        }
+
+        val prevKey = displayedKey
+
+        if( pageManager.isBibleShown
+            && prevKey is Verse
+            && prevKey.book == book
+            && hasChapterLoaded(verse.chapter)
+        ) {
+            val originalKey = pageManager.currentBible.originalKey
+            bibleView?.scrollOrJumpToVerse(originalKey ?: verse)
+            PassageChangeMediator.contentChangeFinished()
+            return
+        }
+        if(displayedKey == verse) return
+        loadText(notifyLocationChange = true)
     }
 
     private suspend fun fetchDocument(): Document = withContext(Dispatchers.IO) {
@@ -249,6 +279,14 @@ class Window (
 
     fun hasChapterLoaded(chapter: Int): Boolean {
         return bibleView?.hasChapterLoaded(chapter) == true
+    }
+
+    fun updateTextIfNeeded() {
+        if((displayedKey != pageManager.currentPage.singleKey || displayedBook != pageManager.currentPage.currentDocument)
+            || (windowControl.windowSync.lastForceSyncAll > lastUpdated))
+        {
+            loadText()
+        }
     }
 
     private val TAG get() = "BibleView[${id}] WIN"

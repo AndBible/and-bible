@@ -65,6 +65,7 @@ import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.SwordDocumentFacade
 
 import org.apache.commons.lang3.StringUtils
 import java.util.*
@@ -232,7 +233,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         if(BuildVariant.Appearance.isDiscrete) {
             ErrorReportControl.checkCrash(this@StartupActivity)
         }
-        if (swordDocumentFacade.bibles.isEmpty()) {
+        if (SwordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
             if(!checkPoorTranslations(this@StartupActivity)) return@withContext
@@ -251,7 +252,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
 
         startupViewBinding.run {
-            welcomeMessage.text = getString(R.string.welcome_message, getString(R.string.app_name_long))
+            val welcome = getString(R.string.welcome_message, getString(R.string.app_name_long))
+            val zip = getString(R.string.format_zip)
+            val myBible = getString(R.string.format_mybible)
+            val mySword = getString(R.string.format_mysword)
+            val formats = getString(R.string.supported_formats, "$zip, $myBible, $mySword")
+            welcomeMessage.text = "$welcome \n\n$formats."
             versionText.text = versionMsg
             downloadButton.setOnClickListener { doGotoDownloadActivity() }
             importButton.setOnClickListener { onLoadFromZip() }
@@ -338,11 +344,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
         handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         lifecycleScope.launch(Dispatchers.Main) {
-            if(swordDocumentFacade.bibles.none { !it.isLocked }) {
-                for (it in swordDocumentFacade.bibles.filter { it.isLocked }) {
+            if(SwordDocumentFacade.bibles.none { !it.isLocked }) {
+                for (it in SwordDocumentFacade.bibles.filter { it.isLocked }) {
                     CommonUtils.unlockDocument(this@StartupActivity, it)
                 }
-                if (swordDocumentFacade.bibles.none { !it.isLocked }) {
+                if (SwordDocumentFacade.bibles.none { !it.isLocked }) {
                     showFirstLayout()
                     return@launch
                 }
@@ -363,7 +369,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         when (requestCode) {
             DOWNLOAD_DOCUMENT_REQUEST -> {
                 Log.i(TAG, "Returned from Download")
-                if (swordDocumentFacade.bibles.isNotEmpty()) {
+                if (SwordDocumentFacade.bibles.isNotEmpty()) {
                     Log.i(TAG, "Bibles now exist so go to main bible view")
                     // select appropriate default verse e.g. John 3.16 if NT only
                     lifecycleScope.launch(Dispatchers.Main) {

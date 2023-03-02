@@ -55,9 +55,8 @@ import java.lang.Exception
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentGeneralBookPage internal constructor(
-    swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CachedKeyPage(false, swordDocumentFacade, pageManager),
+) : CachedKeyPage(false, pageManager),
     CurrentPage
 {
 
@@ -178,11 +177,9 @@ class CurrentGeneralBookPage internal constructor(
 
 	/** can we enable the main menu search button
      */
-    override val isSearchable: Boolean
-        get() = false
+    override val isSearchable: Boolean = false
 
-    override val isSyncable: Boolean
-        get() = false
+    override val isSyncable: Boolean = false
 
     override fun restoreFrom(entity: WorkspaceEntities.Page?) {
         when (entity?.document) {

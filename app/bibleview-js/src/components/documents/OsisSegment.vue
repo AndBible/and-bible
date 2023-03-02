@@ -51,6 +51,11 @@ import NoOp from "@/components/OSIS/NoOp.vue";
 import H3 from "@/components/MyBible/H3.vue";
 import I from "@/components/MyBible/I.vue";
 import S from "@/components/MyBible/S.vue";
+import B from "@/components/MyBible/B.vue";
+import Br from "@/components/MyBible/Br.vue";
+import Li from "@/components/MyBible/Li.vue";
+import Ol from "@/components/MyBible/Ol.vue";
+import Strong from "@/components/MyBible/Strong.vue";
 
 import {Component, defineComponent, h} from "vue";
 import {osisToTemplateString} from "@/utils";
@@ -65,7 +70,7 @@ const andBibleComponents = {
 }
 
 const myBibleComponents = {
-    S, M: NoOp, I, J: Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3,
+    S, M: NoOp, I, J: Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3, B, Br, Li, Ol, Strong
 }
 
 const osisComponents = {

@@ -35,8 +35,14 @@
 
         <SwitchPreferenceCompat
             android:key="FOOTNOTES"
-            android:title="@string/prefs_show_notes_title"
-            android:summary="@string/prefs_show_notes_summary"
+            android:title="@string/prefs_show_footnotes_title"
+            android:summary="@string/prefs_show_footnotes_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="XREFS"
+            android:title="@string/prefs_show_xrefs_title"
+            android:summary="@string/prefs_show_xrefs_summary"
             />
 
         <SwitchPreferenceCompat

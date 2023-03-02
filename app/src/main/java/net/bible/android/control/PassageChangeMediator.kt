@@ -16,10 +16,7 @@
  */
 package net.bible.android.control
 
-import android.util.Log
-import kotlin.jvm.JvmOverloads
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangeStartedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
@@ -32,22 +29,10 @@ import net.bible.android.control.page.window.Window
  */
 private const val TAG = "PassageChangeMediator"
 object PassageChangeMediator {
-    private var mBibleContentManager: BibleContentManager? = null
-
-    /** first time we know a page or doc will imminently change
-     */
-    fun onBeforeCurrentPageChanged(updateHistory: Boolean = true) {
-        ABEventBus.post(BeforeCurrentPageChangeEvent(updateHistory))
-    }
-
     /** the document has changed so ask the view to refresh itself
      */
     fun onCurrentPageChanged(window: Window) {
-        if (mBibleContentManager != null) {
-            mBibleContentManager!!.updateText(window)
-        } else {
-            Log.w(TAG, "BibleContentManager not yet registered")
-        }
+        window.updateText()
         ABEventBus.post(CurrentVerseChangedEvent(window))
     }
 
@@ -67,9 +52,5 @@ object PassageChangeMediator {
      */
     fun contentChangeFinished() {
         ABEventBus.post(PassageChangedEvent())
-    }
-
-    fun setBibleContentManager(bibleContentManager: BibleContentManager?) {
-        mBibleContentManager = bibleContentManager
     }
 }

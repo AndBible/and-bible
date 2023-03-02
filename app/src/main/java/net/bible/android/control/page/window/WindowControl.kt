@@ -86,27 +86,14 @@ open class WindowControl @Inject constructor() {
 
     fun isActiveWindow(window: Window): Boolean = window == windowRepository.activeWindow
 
-    /**
-     * Show link using whatever is the current Bible in the Links window
-     */
-    fun showLinkUsingDefaultBible(key: Key) {
-        showLink(defaultBibleDoc(true), key)
-    }
-
     open fun defaultBibleDoc(useLinks: Boolean  = true): SwordBook {
-        //val linksBiblePage = windowRepository.primaryLinksWindow?.pageManager?.currentBible
         val activeWindowBibleDoc = windowRepository.activeWindow.pageManager.currentBible.currentDocument as SwordBook?
         return activeWindowBibleDoc ?: firstBibleDoc
-
-        //return if (useLinks && linksBiblePage.isCurrentDocumentSet) linksBiblePage.currentDocument!! as SwordBook
-        //       else activeWindowBibleDoc ?: firstBibleDoc
     }
 
-    fun showLink(document: Book, key: Key) {
+    fun showLink(document: Book?, key: Key) {
         val linksWindow = activeWindow.targetLinksWindow
         val linksWindowWasVisible = linksWindow.isVisible
-
-        //linksWindow.initialiseLinksWindowPageStateIfClosed(activeWindow)
 
         if (!linksWindowWasVisible) {
             windowRepository.activeWindow = linksWindow
@@ -180,19 +167,15 @@ open class WindowControl @Inject constructor() {
         } else {
             if (window == activeWindow) return
 
-            if(!window.isPinMode) {
-                for (it in windowRepository.windowList.filter { !it.isPinMode }) {
+            if(!window.isPinMode && !window.isLinksWindow) {
+                for (it in windowRepository.windowList.filter { !it.isPinMode && !it.isLinksWindow }) {
                     it.windowState = WindowState.MINIMISED
                 }
             }
 
             window.windowState = WindowState.VISIBLE
 
-            val noDelay = window.bibleView?.htmlReady != true
-            // If BibleView is not yet ready, we should do sync without delay to make sure
-            // it loads initial content to the right location.
-            windowSync.synchronizeWindows(noDelay = noDelay)
-            windowSync.reloadAllWindows()
+            window.updateTextIfNeeded()
 
             if (activeWindow.isSynchronised)
                 windowRepository.lastSyncWindowId = activeWindow.id
@@ -276,9 +259,7 @@ open class WindowControl @Inject constructor() {
     }
 
     fun unMaximise() {
-        val maximizedWindow = windowRepository.maximizedWindow
         windowRepository.maximizedWindowId = null
-        windowSync.synchronizeWindows(maximizedWindow, noDelay = true)
         windowSync.reloadAllWindows()
         ABEventBus.post(NumberOfWindowsChangedEvent())
     }

@@ -130,7 +130,6 @@
 			android:icon="@drawable/ic_active_window_24dp"
 			android:defaultValue="true"
 			/>
-
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="@string/prefs_persecution_cat">

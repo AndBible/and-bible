@@ -37,10 +37,14 @@ import net.bible.android.control.report.BugReport
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
-import net.bible.service.sword.myBibleBible
-import net.bible.service.sword.myBibleCommentary
-import net.bible.service.sword.myBibleDictionary
+import net.bible.service.sword.mybible.myBibleBible
+import net.bible.service.sword.mybible.myBibleCommentary
+import net.bible.service.sword.mybible.myBibleDictionary
+import net.bible.service.sword.mysword.mySwordBible
+import net.bible.service.sword.mysword.mySwordCommentary
+import net.bible.service.sword.mysword.mySwordDictionary
 
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.PropertyMap
@@ -108,6 +112,9 @@ open class BibleApplication : Application() {
         BookType.addSupportedBookType(myBibleBible)
         BookType.addSupportedBookType(myBibleCommentary)
         BookType.addSupportedBookType(myBibleDictionary)
+        BookType.addSupportedBookType(mySwordBible)
+        BookType.addSupportedBookType(mySwordCommentary)
+        BookType.addSupportedBookType(mySwordDictionary)
 
         LocaleProviderManager.setLocaleProvider(MyLocaleProvider)
 
@@ -169,7 +176,7 @@ open class BibleApplication : Application() {
                 Log.i(TAG, "Deleting old Chinese indexes")
                 val chineseLanguage = Language("zh")
 
-                val books = applicationComponent.swordDocumentFacade().documents
+                val books = SwordDocumentFacade.documents
                 for (book in books) {
                     if (chineseLanguage == book.language) {
                         try {

@@ -111,7 +111,7 @@ class ManageLabels : ListActivityBase() {
     private val shownLabels: MutableList<Any> = ArrayList()
 
     @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var windownControl: WindowControl
+    @Inject lateinit var windowControl: WindowControl
 
     enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS}
 
@@ -353,7 +353,7 @@ class ManageLabels : ListActivityBase() {
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         updateLabelList(rePopulate = true)
 
-        val key = windownControl.activeWindowPageManager.currentPage.key
+        val key = windowControl.activeWindowPageManager.currentPage.key
         if(key is StudyPadKey) {
             highlightLabel = key.label
         }
@@ -511,7 +511,7 @@ class ManageLabels : ListActivityBase() {
     private fun studyPadSelected(journal: BookmarkEntities.Label) {
         Log.i(TAG, "Journal selected:" + journal.name)
         try {
-            windownControl.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
+            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show journal", e)
             Dialogs.showErrorMsg(R.string.error_occurred, e)

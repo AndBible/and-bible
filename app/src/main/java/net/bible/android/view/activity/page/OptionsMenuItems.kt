@@ -189,7 +189,8 @@ open class Preference(val settings: SettingsBundle,
             val id = when(type) {
                 TextDisplaySettings.Types.STRONGS -> R.string.prefs_show_strongs_title
                 TextDisplaySettings.Types.MORPH -> R.string.prefs_show_morphology_title
-                TextDisplaySettings.Types.FOOTNOTES -> R.string.prefs_show_notes_title
+                TextDisplaySettings.Types.FOOTNOTES -> R.string.prefs_show_footnotes_title
+                TextDisplaySettings.Types.XREFS -> R.string.prefs_show_xrefs_title
                 TextDisplaySettings.Types.REDLETTERS -> R.string.prefs_red_letter_title
                 TextDisplaySettings.Types.SECTIONTITLES -> R.string.prefs_section_title_title
                 TextDisplaySettings.Types.VERSENUMBERS -> R.string.prefs_show_verseno_title
@@ -216,6 +217,7 @@ open class Preference(val settings: SettingsBundle,
             TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.drawable.ic_labels_hide_24dp
             TextDisplaySettings.Types.MORPH -> R.drawable.ic_morphology_24dp
             TextDisplaySettings.Types.FOOTNOTES -> R.drawable.ic_footnotes_24dp
+            TextDisplaySettings.Types.XREFS -> R.drawable.ic_xrefs_24dp
             TextDisplaySettings.Types.SECTIONTITLES -> R.drawable.ic_section_titles_24dp
             TextDisplaySettings.Types.VERSENUMBERS -> R.drawable.ic_chapter_verse_numbers_24dp
             TextDisplaySettings.Types.COLORS -> R.drawable.ic_color_settings_24dp

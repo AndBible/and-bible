@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -15,18 +15,18 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.sword
+package net.bible.service.sword.mybible
 
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.util.Log
-import net.bible.android.BibleApplication
+import net.bible.android.SharedConstants
+import net.bible.service.sword.SqliteSwordDriver
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.KeyType
 import org.crosswire.jsword.book.basic.AbstractBook
-import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.Backend
 import org.crosswire.jsword.book.sword.BookType
@@ -42,13 +42,23 @@ import org.crosswire.jsword.passage.KeyUtil
 import java.io.File
 import java.io.IOException
 
-private fun getConfig(initials: String, description: String, language: String, category: String, hasStrongsDef: Boolean, hasStrongs: Boolean): String {
+private fun getConfig(
+    initials: String,
+    abbreviation: String,
+    description: String,
+    language: String,
+    category: String,
+    hasStrongsDef: Boolean,
+    hasStrongs: Boolean,
+    moduleFileName: String
+): String {
     var conf = """
 [$initials]
 Description=$description
-Abbreviation=$initials
+Abbreviation=$abbreviation
 Category=$category
 AndBibleMyBibleModule=1
+AndBibleDbFile=$moduleFileName
 Lang=$language
 Version=0.0
 Encoding=UTF-8
@@ -69,22 +79,8 @@ Versification=KJVA"""
 
 const val TAG = "MyBibleBook"
 
-class MockDriver: AbstractBookDriver() {
-    override fun getBooks(): Array<Book> {
-        return emptyArray()
-    }
-
-    override fun getDriverName(): String {
-        return "MyBible"
-    }
-
-    override fun isDeletable(dead: Book?): Boolean {
-        return false
-    }
-}
-
-class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: String?): OpenFileState {
-    constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile, null) {
+class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
+    constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
         this.metadata = metadata
     }
 
@@ -94,7 +90,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
         _sqlDb?.run {
             if (isOpen) this else null
         } ?: run {
-            Log.i(TAG, "initDatabase $moduleName ${sqliteFile.name}")
+            Log.i(TAG, "initDatabase ${sqliteFile.name}")
             val db = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
             _sqlDb = db
             db
@@ -102,7 +98,7 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
     }
 
     override fun close() {
-        Log.i(TAG, "close database $moduleName ${sqliteFile.name}")
+        Log.i(TAG, "close database ${sqliteFile.name}")
         _sqlDb?.close()
         _sqlDb = null
     }
@@ -117,7 +113,8 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
             val db = this.sqlDb
-            val initials = moduleName ?: ("MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension))
+            val initials = "MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension)
+            val abbreviation = File(db.path).nameWithoutExtension.split(".", limit = 2)[0]
             val description = db.rawQuery("select value from info where name = ?", arrayOf("description")).use {
                 it.moveToFirst()
                 it.getString(0)
@@ -156,11 +153,20 @@ class SqliteVerseBackendState(private val sqliteFile: File, val moduleName: Stri
                 else -> "Illegal"
             }
 
-            val conf = getConfig(initials, description, language, category, hasStrongsDef, hasStrongs)
+            val conf = getConfig(
+                initials = initials,
+                abbreviation = abbreviation,
+                description = description,
+                language = language,
+                category = category,
+                hasStrongsDef = hasStrongsDef,
+                hasStrongs = hasStrongs,
+                moduleFileName = db.path,
+            )
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
-            metadata.driver = MockDriver()
+            metadata.driver = SqliteSwordDriver()
             this.metadata = metadata
             return@synchronized metadata
         }
@@ -241,7 +247,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun indexOfBible(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
         state.sqlDb.rawQuery("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")).use {
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")).use {
             it.moveToNext() || return -1
             return it.getInt(0)
         }
@@ -272,7 +278,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                             )
                             ))
                             """,
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
 
             it.moveToNext() || return -1
             return it.getInt(0)
@@ -292,7 +298,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val verse = KeyUtil.getVerse(key)
         var text = state.sqlDb.rawQuery(
             "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
         ).use {
             it.moveToNext() || throw IOException("Can't read $key")
             it.getString(0)
@@ -301,7 +307,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val stories = if(state.hasStories) {
             state.sqlDb.rawQuery(
                 "select title from stories WHERE book_number = ? AND chapter = ? AND verse = ?",
-                arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
+                arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
             ).use {
                 val result = arrayListOf<String>()
                 while (it.moveToNext()) {
@@ -348,7 +354,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                             )
                             ))                
                 """,
-            arrayOf("${bibleBookToInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
         ).use {
             it.moveToNext() || throw IOException("Can't read $key")
             it.getString(0)
@@ -401,9 +407,9 @@ val myBibleDictionary = object: BookType("MyBibleDictionary", BookCategory.DICTI
     }
 }
 
-fun addMyBibleBook(file: File, name: String? = null): AbstractBook? {
+fun addMyBibleBook(file: File): AbstractBook? {
     if(!(file.canRead() && file.isFile)) return null
-    val state = SqliteVerseBackendState(file, name)
+    val state = SqliteVerseBackendState(file)
     val metadata = try { state.bookMetaData } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load MyBible module $file", err)
         return null
@@ -426,11 +432,13 @@ fun addMyBibleBook(file: File, name: String? = null): AbstractBook? {
 }
 
 fun addManuallyInstalledMyBibleBooks() {
-    val dir = File(BibleApplication.application.getExternalFilesDir(null), "mybible")
+    val dir = File(SharedConstants.MODULE_DIR, "mybible")
     if(!(dir.isDirectory && dir.canRead())) return
 
-    for(f in dir.listFiles()?.filter { it.path.lowercase().endsWith(".sqlite3") }?: emptyList()) {
-        addMyBibleBook(f)
+    for(f in dir.walkTopDown()) {
+        if(f.isFile && f.canRead() && f.path.lowercase().endsWith(".sqlite3")) {
+            addMyBibleBook(f)
+        }
     }
 }
 

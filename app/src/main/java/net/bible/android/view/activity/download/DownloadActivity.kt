@@ -62,9 +62,11 @@ import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.serializer
+import net.bible.android.control.document.canDelete
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.urlPrefix
@@ -88,8 +90,9 @@ open class DownloadActivity : DocumentSelectionBase(
 ) {
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
         if(selectedItemPositions.isNotEmpty()) {
-            val isInstalled = displayedDocuments[selectedItemPositions[0]].isInstalled
-            menu.findItem(R.id.delete).isVisible = isInstalled
+            val installedDoc = displayedDocuments[selectedItemPositions[0]].installedDocument
+            val isInstalled = installedDoc != null
+            menu.findItem(R.id.delete).isVisible = isInstalled && installedDoc.canDelete
             menu.findItem(R.id.delete_index).isVisible = isInstalled
             menu.findItem(R.id.unlock).isVisible = isInstalled && displayedDocuments[selectedItemPositions[0]].isEnciphered
         }

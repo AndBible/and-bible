@@ -57,12 +57,10 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
 import net.bible.android.activity.databinding.FrozenBinding
 import net.bible.android.activity.databinding.MainBibleViewBinding
-import net.bible.android.control.BibleContentManager
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
@@ -115,6 +113,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
+import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.NoSuchVerseException
@@ -140,7 +139,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
-    @Inject lateinit var bibleContentManager: BibleContentManager
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
@@ -352,7 +350,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * available books if moving to a new device.
      */
     private fun checkDocBackupDBInSync() {
-        val docs = swordDocumentFacade.documents
+        val docs = SwordDocumentFacade.documents
         val knownInstalled = docDao.getKnownInstalled()
         if (knownInstalled.isEmpty()) {
             Log.i(TAG, "There is at least one Bible, but Bible Backup DB is empty, populate with first time books");
@@ -1449,7 +1447,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 settingsBundle.pageManagerSettings!!
 
             if(requiresReload)
-                window.updateText()
+                window.loadText()
             else {
                 window.bibleView?.updateTextDisplaySettings()
             }

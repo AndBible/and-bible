@@ -32,8 +32,10 @@ import org.crosswire.jsword.passage.Verse
 import kotlin.math.max
 
 class WindowSync(private val windowRepository: WindowRepository) {
-    private var lastSynchWasInNightMode: Boolean = false
-    private var lastForceSyncAll: Long = System.currentTimeMillis()
+    private var lastSyncWasInNightMode: Boolean = false
+    var lastForceSyncAll: Long = System.currentTimeMillis()
+        private set
+
     private var lastForceSyncBibles: Long = System.currentTimeMillis()
 
     fun setResyncRequired() {
@@ -50,13 +52,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
             setResyncRequired()
 
         for (window in windowRepository.visibleWindows) {
-            val bookCategory = window.pageManager.currentPage.currentDocument?.bookCategory
-            val isBible = BookCategory.BIBLE == bookCategory
-
-            if(lastForceSyncAll > window.lastUpdated || (isBible && lastForceSyncBibles > window.lastUpdated))
-                window.updateText()
+            window.updateTextIfNeeded()
         }
-        lastSynchWasInNightMode = ScreenSettings.nightMode
+        lastSyncWasInNightMode = ScreenSettings.nightMode
         ABEventBus.post(DecrementBusyCount())
     }
 
@@ -90,7 +88,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
 
-        if (lastSynchWasInNightMode != ScreenSettings.nightMode) {
+        if (lastSyncWasInNightMode != ScreenSettings.nightMode) {
             setResyncRequired()
         }
 
@@ -164,7 +162,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
             // update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
             if((lastForceSyncAll > inactiveWindow.lastUpdated) || (isBible && lastForceSyncBibles > inactiveWindow.lastUpdated)) {
-                inactiveWindow.updateText()
+                inactiveWindow.loadText()
 
             } else {
                 if ((isBible||isMyNotes) && currentVerse != null && targetVerse != null) {
@@ -172,14 +170,14 @@ class WindowSync(private val windowRepository: WindowRepository) {
                         ABEventBus
                             .post(ScrollSecondaryWindowEvent(inactiveWindow, targetVerse))
                     } else if(targetVerse != currentVerse) {
-                        inactiveWindow.updateText()
+                        inactiveWindow.loadText()
                     }
                 } else if ((isGeneralBook || isUnsynchronizedCommentary) && inactiveWindow.initialized) {
                     //UpdateInactiveScreenTextTask().execute(inactiveWindow)
                     // Do not update! Updating would reset page position.
                 } else if ( isSynchronizedCommentary && targetVerse != currentVerse ) {
                     // synchronized commentary
-                    inactiveWindow.updateText()
+                    inactiveWindow.loadText()
                 }
             }
         }

@@ -41,7 +41,7 @@ import java.util.*
  */
 class DownloadControl(
     private val downloadQueue: DownloadQueue,
-    private val swordDocumentFacade: SwordDocumentFacade)
+)
 {
     private val documentDownloadProgressCache: DocumentDownloadProgressCache = DocumentDownloadProgressCache()
 
@@ -59,7 +59,7 @@ class DownloadControl(
     /** @return a list of all available docs that have not already been downloaded, have no lang, or don't work
      */
     suspend fun getDownloadableDocuments(repoFactory: RepoFactory, refresh: Boolean): List<Book> = try {
-        val availableDocs = swordDocumentFacade.getDownloadableDocuments(repoFactory, refresh)
+        val availableDocs = SwordDocumentFacade.getDownloadableDocuments(repoFactory, refresh)
 
         // there are a number of books we need to filter out of the download list for various reasons
         val iter = availableDocs.iterator()
@@ -140,7 +140,7 @@ class DownloadControl(
         if (downloadQueue.isErrorDownloading(document)) {
             return DocumentStatus(id, DocumentInstallStatus.ERROR_DOWNLOADING, 0)
         }
-        val installedBook = swordDocumentFacade.getDocumentByInitials(document.initials)
+        val installedBook = SwordDocumentFacade.getDocumentByInitials(document.initials)
         val differentRepo = installedBook?.repo != null && installedBook.repo != document.repo
         return if (installedBook != null && !differentRepo) {
             // see if the new document is a later version

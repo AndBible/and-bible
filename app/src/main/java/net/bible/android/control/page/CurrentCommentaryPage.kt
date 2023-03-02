@@ -25,7 +25,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -46,9 +45,8 @@ import org.crosswire.jsword.passage.VerseRange
 open class CurrentCommentaryPage internal constructor(
     currentBibleVerse: CurrentBibleVerse,
     bibleTraverser: BibleTraverser,
-    swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : VersePage(true, currentBibleVerse, bibleTraverser, swordDocumentFacade, pageManager), CurrentPage
+) : VersePage(true, currentBibleVerse, bibleTraverser, pageManager), CurrentPage
 {
 
     override val documentCategory = DocumentCategory.COMMENTARY
@@ -163,7 +161,7 @@ open class CurrentCommentaryPage internal constructor(
         val document = entity.document
         val book = when(document) {
             FakeBookFactory.compareDocument.initials -> FakeBookFactory.compareDocument
-            else -> swordDocumentFacade.getDocumentByInitials(document) ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
+            else -> SwordDocumentFacade.getDocumentByInitials(document) ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
         }
         if(book != null) {
             Log.i(TAG, "Restored document:" + book.name)

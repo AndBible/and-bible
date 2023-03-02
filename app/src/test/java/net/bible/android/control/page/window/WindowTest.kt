@@ -60,7 +60,7 @@ class WindowTest {
 
         val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
         mockCurrentPageManagerProvider = Provider {
-            CurrentPageManager(SwordDocumentFacade(), bibleTraverser, bookmarkControl, windowControl!!)
+            CurrentPageManager(bibleTraverser, bookmarkControl, windowControl!!)
         }
         windowControl = CommonUtils.windowControl
         windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))

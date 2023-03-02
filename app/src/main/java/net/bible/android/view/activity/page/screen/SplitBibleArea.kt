@@ -75,6 +75,8 @@ import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BookName
 import java.lang.IndexOutOfBoundsException
 import java.util.*
@@ -616,6 +618,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     private fun createRestoreButton(window: Window): WindowButtonWidget {
         return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
             text = getWindowButtonTitleText(window)
+
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupMenu(window, v); true }
         }

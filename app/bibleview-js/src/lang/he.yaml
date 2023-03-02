@@ -8,7 +8,7 @@ findAllOccurrences: מצא את כל המופעים
 reportError: דווח על בעיה
 errorTitle: אירעה שגיאה
 warningTitle: אזהרה
-normalTitle: אנא שים לב
+normalTitle: שימו לב
 footnoteTypeUndefined: סוג שאינו מוגדר
 footnoteTypeStudy: מחקר
 footnoteTypeExplanation: הסבר

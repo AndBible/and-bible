@@ -16,13 +16,11 @@
  */
 package net.bible.service.sword
 
-import kotlinx.coroutines.Deferred
+import android.util.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import net.bible.android.control.ApplicationScope
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.Logger
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
@@ -39,34 +37,32 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.index.IndexManagerFactory
 import org.crosswire.jsword.index.IndexStatus
-import javax.inject.Inject
 
 /** JSword facade
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class SwordDocumentFacade @Inject constructor() {
+object SwordDocumentFacade {
     val bibles: List<Book>
         get() {
-            log.debug("Getting bibles")
+            Log.d(TAG, "Getting bibles")
             val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }
-            log.debug("Got bibles, Num=" + documents.size)
+            Log.d(TAG, "Got bibles, Num=" + documents.size)
             return documents
         }
 
     val unlockedBibles: List<Book>
         get() {
-            log.debug("Getting bibles")
+            Log.d(TAG, "Getting bibles")
             val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE  && !it.isLocked}
-            log.debug("Got bibles, Num=" + documents.size)
+            Log.d(TAG, "Got bibles, Num=" + documents.size)
             return documents
         }
 
     fun getBooks(bookCategory: BookCategory): List<Book> {
-        log.debug("Getting books of type " + bookCategory.getName())
+        Log.d(TAG, "Getting books of type " + bookCategory.getName())
         val documents = Books.installed().getBooks { it.bookCategory == bookCategory }
-        log.debug("Got books, Num=" + documents.size)
+        Log.d(TAG, "Got books, Num=" + documents.size)
         return documents
     }
 
@@ -75,10 +71,10 @@ class SwordDocumentFacade @Inject constructor() {
      */
     val documents: List<Book>
         get() {
-            log.debug("Getting books")
+            Log.d(TAG, "Getting books")
             // currently only bibles and commentaries are supported
             val allDocuments = Books.installed().getBooks(SUPPORTED_DOCUMENT_TYPES)
-            log.debug("Got books, Num=" + allDocuments.size)
+            Log.d(TAG, "Got books, Num=" + allDocuments.size)
             return allDocuments
         }
 
@@ -146,7 +142,7 @@ class SwordDocumentFacade @Inject constructor() {
 
     @Throws(InstallException::class)
     suspend fun getDownloadableDocuments(repoFactory: RepoFactory, refresh: Boolean): MutableList<Book>  = coroutineScope{
-        log.debug("Getting downloadable documents.  Refresh:$refresh")
+        Log.d(TAG, "Getting downloadable documents.  Refresh:$refresh")
         return@coroutineScope try {
 			// there are so many sbmd's to load that we can only load what is required for the display list.
 			// If About is selected or a document is downloaded the sbmd is then loaded fully.
@@ -185,7 +181,7 @@ class SwordDocumentFacade @Inject constructor() {
                 imanager.deleteIndex(realDocument)
             }
         } catch (e: Exception) { // just log index delete error, deleting doc is the important thing
-            log.error("Error deleting document index", e)
+            Log.e(TAG, "Error deleting document index", e)
         }
         document.driver.delete(realDocument)
     }
@@ -214,7 +210,7 @@ class SwordDocumentFacade @Inject constructor() {
      */
     @Throws(BookException::class)
     fun ensureIndexCreation(book: Book) {
-        log.debug("ensureIndexCreation")
+        Log.d(TAG, "ensureIndexCreation")
         // ensure this isn't just the user re-clicking the Index button
         if (book.indexStatus != IndexStatus.CREATING && book.indexStatus != IndexStatus.SCHEDULED) {
             val ic = IndexCreator()
@@ -244,10 +240,6 @@ class SwordDocumentFacade @Inject constructor() {
             }
             return text
         }
-
-    companion object {
-        private val SUPPORTED_DOCUMENT_TYPES: BookFilter = AcceptableBookTypeFilter()
-        private val log = Logger(SwordDocumentFacade::class.java.name)
-    }
-
+    private val SUPPORTED_DOCUMENT_TYPES: BookFilter = AcceptableBookTypeFilter()
+    private val TAG = "DocFacade"
 }
