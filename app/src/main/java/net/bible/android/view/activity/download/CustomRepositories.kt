@@ -60,8 +60,10 @@ import org.crosswire.jsword.book.install.InstallManager
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.math.BigInteger
 import java.net.MalformedURLException
 import java.net.URL
+import java.security.MessageDigest
 import javax.net.ssl.HttpsURLConnection
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -165,6 +167,11 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
             }
         }
     }
+    fun md5Hash(str: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        val bigInt = BigInteger(1, md.digest(str.toByteArray(Charsets.UTF_8)))
+        return String.format("%032x", bigInt)
+    }
 
     private fun validateManifestUrl() = lifecycleScope.launch {
         Log.i(TAG, "validateSpec")
@@ -172,6 +179,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         val manifestUrl = manifestUrl
         if (!manifestUrl.startsWith("https://")) {
             valid = false
+            binding.loadingIndicator.visibility = View.GONE
             return@launch
         }
 
@@ -195,7 +203,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
 
             if(ok) {
                 val repo = CustomRepository(
-                    name = url.host,
+                    name = "${url.host}-${md5Hash(manifestUrl).subSequence(0, 3)}",
                     description = manifestUrl,
                     manifestUrl = manifestUrl,
                     host = url.host,
@@ -285,7 +293,6 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
 
     private fun updateUI() = binding.run {
         val repo = data.repository?: return
-        manifestUrl.setText(repo.manifestUrl)
         infoText.text = concat(
             repo.name,
             "\n\n",
