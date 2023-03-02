@@ -28,23 +28,32 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import de.greenrobot.event.EventBus
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.CustomRepositoriesBinding
 import net.bible.android.activity.databinding.CustomRepositoryEditorBinding
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.CustomRepository
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.db.DatabaseContainer
+import org.spongycastle.crypto.tls.TlsAEADCipher
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 @Serializable
 data class RepositoryData (
     var repository: CustomRepository,
     var delete: Boolean = false,
+    var cancel: Boolean = false,
 ) {
     fun toJSON(): String = json.encodeToString(serializer(), this)
 
@@ -90,6 +99,12 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
     private fun saveAndExit() {
         updateData()
         val resultIntent = Intent()
+        val repository = data.repository
+        if (!data.delete && (repository.name.isEmpty() || repository.spec == null || repository.spec?.isEmpty() == true)) {
+            data.cancel = true
+            ABEventBus.post(ToastEvent(R.string.invalid_repository_not_saved))
+        }
+
         resultIntent.putExtra("data", data.toJSON())
         setResult(Activity.RESULT_OK, resultIntent)
         finish()
@@ -105,9 +120,21 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         repositorySpec.setText(data.repository.spec)
     }
 
-    private fun delete() {
-
+    private fun delete() = lifecycleScope.launch(Dispatchers.Main) {
+        val result = suspendCoroutine {
+            AlertDialog.Builder(this@CustomRepositoryEditor)
+                .setMessage(getString(R.string.delete_custom_repository, data.repository.name))
+                .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
+                .setNegativeButton(R.string.no) {_, _ -> it.resume(false)}
+                .setCancelable(true)
+                .create().show()
+        }
+        if(result) {
+            data.delete = true
+            saveAndExit()
+        }
     }
+
 
     private fun help() {
 
@@ -164,8 +191,12 @@ class CustomRepositories : ListActivityBase() {
     }
 
     private fun handleResult(data: RepositoryData) {
-        if(data.delete && data.repository.id != 0L) {
-            dao.delete(data.repository)
+        if(data.cancel) {
+            return
+        } else if(data.delete) {
+            if(data.repository.id != 0L) {
+                dao.delete(data.repository)
+            }
         } else {
             dao.upsert(data.repository)
         }
@@ -177,7 +208,9 @@ class CustomRepositories : ListActivityBase() {
         return true
     }
 
-    private fun help() {}
+    private fun help() {
+
+    }
 
     private fun newItem() = lifecycleScope.launch {
         val intent = Intent(this@CustomRepositories, CustomRepositoryEditor::class.java)

@@ -1100,4 +1100,6 @@
     <string name="custom_repositories">Custom repositories</string>
     <string name="name_for_repository">Name for the repository</string>
     <string name="repository_specification">Repository specification or URL</string>
+    <string name="delete_custom_repository">Do you want to remove custom repository %s?</string>
+    <string name="invalid_repository_not_saved">Repository specification was invalid and it was not saved.</string>
 </resources>
