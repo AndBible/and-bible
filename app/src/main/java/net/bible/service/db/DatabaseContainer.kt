@@ -1064,7 +1064,7 @@ private val MIGRATION_65_66_add_Xrefs_option = object : Migration(65, 66) {
 private val MIGRATION_66_67_customRepository = object : Migration(66, 67) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
-            execSQL("CREATE TABLE IF NOT EXISTS `CustomRepository` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `domain` TEXT, `zipDir` TEXT, `rootDir` TEXT, `spec` TEXT)")
+            execSQL("CREATE TABLE IF NOT EXISTS `CustomRepository` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `manifestUrl` TEXT, `manifestJsonContent` TEXT, `manifestLastUpdated` INTEGER NOT NULL DEFAULT 0)")
         }
     }
 }

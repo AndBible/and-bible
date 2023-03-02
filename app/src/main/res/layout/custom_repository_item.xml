@@ -16,11 +16,12 @@
   ~ If not, see http://www.gnu.org/licenses/.
   -->
 
-<TwoLineListItem xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="?attr/listPreferredItemHeight"
-    android:mode="twoLine"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
     android:paddingStart="?attr/listPreferredItemPaddingStart"
     android:paddingEnd="?attr/listPreferredItemPaddingEnd">
     <TextView android:id="@id/titleText"
@@ -28,10 +29,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:textAppearance="?attr/textAppearanceListItem" />
-    <TextView android:id="@id/dateText"
+    <TextView android:id="@+id/descriptionText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/titleText"
         android:layout_alignStart="@id/titleText"
         android:textAppearance="?android:textAppearanceSmall" />
-</TwoLineListItem>
+</androidx.appcompat.widget.LinearLayoutCompat>

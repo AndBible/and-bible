@@ -17,6 +17,8 @@
 
 package net.bible.android.database
 
+import android.util.Log
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Entity
@@ -25,23 +27,39 @@ import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import java.util.*
 
-enum class CustomRepositoryType {
-    SWORD_HTTPS, MY_BIBLE, UNSPECIFIED
-}
+@Serializable
+class SwordRepositoryManifest(
+    val type: String,
+    val name: String,
+    val description: String,
+    val manifestUrl: String,
+    val swordRepositoryRootUrl: String,
+    val swordPackagesUrl: String
+)
 
 @Entity
 @Serializable
 data class CustomRepository(
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
-    var type: CustomRepositoryType = CustomRepositoryType.UNSPECIFIED,
-    var name: String = "",
-    var domain: String? = null,
-    var zipDir: String? = null,
-    var rootDir: String? = null,
-    var spec: String? = null,
+    var manifestUrl: String? = null,
+    var manifestJsonContent: String? = null,
+    @ColumnInfo(defaultValue = "0") var manifestLastUpdated: Long = System.currentTimeMillis(),
 ) {
     fun toJSON(): String = json.encodeToString(serializer(), this)
+
+    val displayName: String get() = manifest?.name?: manifestUrl?: ""
+    val displayDescription: String get() = manifest?.description?: ""
+
+    val manifest: SwordRepositoryManifest? get() =
+        if(manifestJsonContent == null) null
+        else try {json.decodeFromString(SwordRepositoryManifest.serializer(), manifestJsonContent!!) }
+        catch (e: SerializationException) {
+            Log.e("CustomRepository", "Could not deserialize manifest")
+            null
+        }
 
     companion object {
         fun fromJSON(str: String): CustomRepository = json.decodeFromString(serializer(), str)
@@ -59,6 +77,6 @@ interface CustomRepositoryDao {
     @Insert
     fun insert(items: List<CustomRepository>)
 
-    @Query("SELECT * from CustomRepository ORDER BY name")
+    @Query("SELECT * from CustomRepository")
     fun all(): List<CustomRepository>
 }

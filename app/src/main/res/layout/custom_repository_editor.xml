@@ -19,23 +19,11 @@
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
-
 	<EditText
-		android:id="@+id/repositoryName"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:ems="10"
-		android:hint="@string/name_for_repository"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
-
-	<EditText
-		android:id="@+id/repositorySpec"
+		android:id="@+id/manifest_url"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:ems="10"
@@ -43,15 +31,15 @@
 		android:inputType="textPersonName"
 		app:layout_constraintEnd_toStartOf="@+id/pasteButton"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/repositoryName" />
+		app:layout_constraintTop_toTopOf="parent" />
 
 	<ImageButton
 		android:id="@+id/pasteButton"
 		android:layout_width="48dp"
 		android:layout_height="43dp"
-		app:layout_constraintBottom_toBottomOf="@+id/repositorySpec"
+		app:layout_constraintBottom_toBottomOf="@+id/manifest_url"
 		app:layout_constraintEnd_toStartOf="@+id/okCheck"
-		app:layout_constraintTop_toBottomOf="@+id/repositoryName"
+		app:layout_constraintTop_toTopOf="@+id/manifest_url"
 		app:srcCompat="@drawable/baseline_content_paste_24" />
 
 	<ImageView
@@ -60,6 +48,7 @@
 		android:layout_height="wrap_content"
 		app:layout_constraintBottom_toBottomOf="@+id/pasteButton"
 		app:layout_constraintEnd_toEndOf="parent"
+		app:tint="@color/grey_500"
 		app:layout_constraintTop_toTopOf="@+id/pasteButton"
 		app:srcCompat="@drawable/baseline_check_24" />
 </androidx.constraintlayout.widget.ConstraintLayout>

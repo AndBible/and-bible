@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 67,
-    "identityHash": "9de534b8e380ddbedad89a564431c35d",
+    "identityHash": "541c13d07ab14f17b9d10c89792aaf2c",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -1441,7 +1441,7 @@
       },
       {
         "tableName": "CustomRepository",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `domain` TEXT, `zipDir` TEXT, `rootDir` TEXT, `spec` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `manifestUrl` TEXT, `manifestJsonContent` TEXT, `manifestLastUpdated` INTEGER NOT NULL DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1450,40 +1450,23 @@
             "notNull": true
           },
           {
-            "fieldPath": "type",
-            "columnName": "type",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "domain",
-            "columnName": "domain",
+            "fieldPath": "manifestUrl",
+            "columnName": "manifestUrl",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "zipDir",
-            "columnName": "zipDir",
+            "fieldPath": "manifestJsonContent",
+            "columnName": "manifestJsonContent",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "rootDir",
-            "columnName": "rootDir",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "spec",
-            "columnName": "spec",
-            "affinity": "TEXT",
-            "notNull": false
+            "fieldPath": "manifestLastUpdated",
+            "columnName": "manifestLastUpdated",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -1653,7 +1636,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9de534b8e380ddbedad89a564431c35d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '541c13d07ab14f17b9d10c89792aaf2c')"
     ]
   }
 }

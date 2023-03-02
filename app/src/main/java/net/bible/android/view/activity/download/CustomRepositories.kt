@@ -17,8 +17,12 @@
 package net.bible.android.view.activity.download
 
 import android.app.Activity
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -30,9 +34,10 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
-import de.greenrobot.event.EventBus
+import debounce
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.CustomRepositoriesBinding
@@ -42,9 +47,14 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.CustomRepository
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.db.DatabaseContainer
-import org.spongycastle.crypto.tls.TlsAEADCipher
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
+import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -71,6 +81,83 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         setContentView(binding.root)
         updateUI()
         buildActivityComponent().inject(this)
+        binding.run {
+            pasteButton.setOnClickListener { paste() }
+            manifestUrl.addTextChangedListener  (object: TextWatcher {
+                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable) { delayedValidate() }
+            })
+        }
+    }
+
+    val delayedValidate: () -> Unit = debounce(200, lifecycleScope) {validateSpec()}
+
+    var valid: Boolean = false
+        set(value) {
+            binding.okCheck.drawable.mutate().setTint(getResourceColor(if(value) R.color.green else (R.color.grey_500)))
+            field = value
+        }
+
+    private fun validateSpec() = lifecycleScope.launch {
+        Log.i(TAG, "validateSpec")
+        val manifestUrl = binding.manifestUrl.text.toString()
+
+        if (manifestUrl.startsWith("https://")) {
+            val source = URL(manifestUrl)
+            withContext(Dispatchers.IO) {
+                val conn =
+                    try {source.openConnection() as HttpsURLConnection}
+                    catch (e: IOException) {
+                        valid = false
+                        return@withContext
+                    }
+
+                valid = if (conn.responseCode == 200) {
+                    readManifest(conn)
+                } else {
+                    false
+                }
+            }
+        } else {
+            valid = false
+        }
+        updateData()
+
+        Log.i(TAG, "validateSpec")
+    }
+
+    private fun readManifest(conn: HttpsURLConnection): Boolean {
+        Log.i(TAG, "readManifest")
+        val jsonString = String(conn.inputStream.readBytes())
+        val json = try {JSONObject(jsonString)} catch (e: JSONException) {
+            Log.e(TAG, "Error in parsing JSON", e)
+            return false
+        }
+        val type = json.getString("type")
+        if(type != "SWORD") return false
+        data.repository.manifestJsonContent = jsonString
+        val manifest = data.repository.manifest
+
+        if(manifest == null) {
+            data.repository.manifestJsonContent = null
+            return false
+        }
+
+        data.repository.manifestLastUpdated = System.currentTimeMillis()
+        Log.i(TAG, "Read manifest ${manifest.name}")
+        return true
+    }
+
+    private fun paste() {
+        Log.i(TAG, "paste")
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val paste = clipboard.primaryClip?.getItemAt(0)?.text
+        if(paste != null) {
+            data.repository.manifestUrl = paste.toString()
+            updateUI()
+            delayedValidate()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -97,10 +184,10 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
     }
 
     private fun saveAndExit() {
+        Log.i(TAG, "saveAndExit")
         updateData()
         val resultIntent = Intent()
-        val repository = data.repository
-        if (!data.delete && (repository.name.isEmpty() || repository.spec == null || repository.spec?.isEmpty() == true)) {
+        if (!data.delete && !valid) {
             data.cancel = true
             ABEventBus.post(ToastEvent(R.string.invalid_repository_not_saved))
         }
@@ -111,19 +198,17 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
     }
 
     private fun updateData() = binding.run {
-        data.repository.name = repositoryName.text.toString()
-        data.repository.spec = repositorySpec.text.toString()
+        data.repository.manifestUrl = manifestUrl.text.toString()
     }
 
     private fun updateUI() = binding.run {
-        repositoryName.setText(data.repository.name)
-        repositorySpec.setText(data.repository.spec)
+        manifestUrl.setText(data.repository.manifestUrl)
     }
 
     private fun delete() = lifecycleScope.launch(Dispatchers.Main) {
         val result = suspendCoroutine {
             AlertDialog.Builder(this@CustomRepositoryEditor)
-                .setMessage(getString(R.string.delete_custom_repository, data.repository.name))
+                .setMessage(getString(R.string.delete_custom_repository, data.repository.displayName))
                 .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
                 .setNegativeButton(R.string.no) {_, _ -> it.resume(false)}
                 .setCancelable(true)
@@ -139,12 +224,15 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
     private fun help() {
 
     }
+    companion object {
+        private const val TAG = "CustomRepositories"
+    }
 }
 
 class CustomRepositories : ListActivityBase() {
     private lateinit var binding: CustomRepositoriesBinding
     private var customRepositories = arrayListOf<CustomRepository>()
-    private var dao = DatabaseContainer.db.customRepositoryDao()
+    private val dao get() = DatabaseContainer.db.customRepositoryDao()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -173,7 +261,8 @@ class CustomRepositories : ListActivityBase() {
         ) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent)
-                view.findViewById<TextView>(R.id.titleText).text = customRepositories[position].name
+                view.findViewById<TextView>(R.id.titleText).text = customRepositories[position].displayName
+                view.findViewById<TextView>(R.id.descriptionText).text = customRepositories[position].displayDescription
                 return view
             }
         }
