@@ -39,6 +39,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import debounce
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -65,6 +67,12 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 const val customRepositoriesWikiUrl = "https://github.com/AndBible/and-bible/wiki/Custom-repositories"
+
+fun appendUrl(u: String, filename: String): String =
+    if(u.endsWith("/"))
+        "$u$filename"
+    else
+        "$u/$filename"
 
 @Serializable
 data class RepositoryData (
@@ -93,10 +101,17 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         }
         binding.run {
             pasteButton.setOnClickListener { paste() }
+            var oldText: String = ""
             manifestUrl.addTextChangedListener  (object: TextWatcher {
                 override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable) { delayedValidate() }
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                }
+                override fun afterTextChanged(s: Editable) {
+                    if(oldText != s.toString()) {
+                        delayedValidate()
+                    }
+                    oldText = s.toString()
+                }
             })
         }
     }
@@ -108,6 +123,25 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
             binding.okCheck.drawable.mutate().setTint(getResourceColor(if(value) R.color.green else (R.color.grey_500)))
             field = value
         }
+
+    private suspend fun checkCanRead(urlStr: String): Boolean {
+        val manifestUrl = try {
+            URL(urlStr)
+        } catch (e: MalformedURLException) {
+            return false
+        }
+
+        return withContext(Dispatchers.IO) {
+            val conn =
+                try {
+                    manifestUrl.openConnection() as HttpsURLConnection
+                } catch (e: IOException) {
+                    return@withContext false
+                }
+
+            return@withContext conn.responseCode == 200
+        }
+    }
 
     private suspend fun tryReadManifest(manifestUrlStr: String): Boolean {
         val manifestUrl = try {
@@ -134,6 +168,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
 
     private fun validateManifestUrl() = lifecycleScope.launch {
         Log.i(TAG, "validateSpec")
+        binding.loadingIndicator.visibility = View.VISIBLE
         val manifestUrl = manifestUrl
         if (!manifestUrl.startsWith("https://")) {
             valid = false
@@ -142,16 +177,41 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
 
         var ok = tryReadManifest(manifestUrl)
         if(!ok) {
-            val filename = "manifest.json"
-            val newUrlStr =
-                if(manifestUrl.endsWith("/"))
-                    "$manifestUrl$filename"
-                else
-                    "$manifestUrl/$filename"
+            val newUrlStr = appendUrl(manifestUrl, "manifest.json")
             ok = tryReadManifest(newUrlStr)
         }
+        if(!ok) {
+            val url = URL(manifestUrl)
+
+            val packagesUrl = appendUrl(manifestUrl, "packages")
+            val modsIndexUrl = appendUrl(manifestUrl, "mods.d.tar.gz")
+
+            val (manifestOk, packagesOk, modsIndexOk) = awaitAll(
+                async(Dispatchers.IO) {checkCanRead(manifestUrl)},
+                async(Dispatchers.IO) {checkCanRead(packagesUrl)},
+                async(Dispatchers.IO) {checkCanRead(modsIndexUrl)}
+            )
+            ok = manifestOk && packagesOk && modsIndexOk
+
+            if(ok) {
+                val repo = CustomRepository(
+                    name = url.host,
+                    description = manifestUrl,
+                    manifestUrl = manifestUrl,
+                    host = url.host,
+                    catalogDirectory = url.path,
+                    packageDirectory = "${url.path}/packages",
+                    type = "sword-https",
+                    id = data.repository?.id?: 0
+                )
+                data.repository = repo
+            }
+        }
         valid = ok
-        updateUI()
+        binding.loadingIndicator.visibility = View.GONE
+        if(valid) {
+            updateUI()
+        }
     }
 
     private fun readManifest(conn: HttpsURLConnection): Boolean {
