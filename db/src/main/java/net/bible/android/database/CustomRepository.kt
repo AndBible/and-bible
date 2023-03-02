@@ -32,12 +32,13 @@ import java.util.*
 
 @Serializable
 class SwordRepositoryManifest(
-    val type: String,
     val name: String,
     val description: String,
     val manifestUrl: String,
-    val swordRepositoryRootUrl: String,
-    val swordPackagesUrl: String
+    val type: String,
+    val host: String,
+    val catalogDirectory: String,
+    val packageDirectory: String
 )
 
 @Entity

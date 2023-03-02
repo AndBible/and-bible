@@ -135,7 +135,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
             return false
         }
         val type = json.getString("type")
-        if(type != "SWORD") return false
+        if(type != "sword-https") return false
         data.repository.manifestJsonContent = jsonString
         val manifest = data.repository.manifest
 
@@ -321,6 +321,11 @@ class CustomRepositories : ListActivityBase() {
             isHandled = super.onOptionsItemSelected(item)
         }
         return isHandled
+    }
+
+    override fun onBackPressed() {
+        Log.i(TAG, "onBackPressed")
+        finish()
     }
 
     companion object {
