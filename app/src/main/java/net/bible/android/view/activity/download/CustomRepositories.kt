@@ -144,7 +144,6 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
             return false
         }
 
-        data.repository.manifestLastUpdated = System.currentTimeMillis()
         Log.i(TAG, "Read manifest ${manifest.name}")
         return true
     }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 67,
-    "identityHash": "541c13d07ab14f17b9d10c89792aaf2c",
+    "identityHash": "a42a76cbcf43b6b4b17f93bf731cd66f",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -1441,7 +1441,7 @@
       },
       {
         "tableName": "CustomRepository",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `manifestUrl` TEXT, `manifestJsonContent` TEXT, `manifestLastUpdated` INTEGER NOT NULL DEFAULT 0)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `manifestUrl` TEXT, `manifestJsonContent` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -1460,13 +1460,6 @@
             "columnName": "manifestJsonContent",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "manifestLastUpdated",
-            "columnName": "manifestLastUpdated",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -1636,7 +1629,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '541c13d07ab14f17b9d10c89792aaf2c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a42a76cbcf43b6b4b17f93bf731cd66f')"
     ]
   }
 }
