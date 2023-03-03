@@ -30,6 +30,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.install.InstallException
 import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.book.install.Installer
+import org.crosswire.jsword.book.install.sword.HttpsSwordInstaller
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
 
@@ -42,8 +43,25 @@ import java.util.*
 class DownloadManager(
     private val onFailedReposChange: (() -> Unit)?
 ) {
-    private val installManager: InstallManager = InstallManager()
+    val customRepositoryDao get() = DatabaseContainer.db.customRepositoryDao()
     val failedRepos = TreeSet<String>()
+
+    private lateinit var installManager: InstallManager
+    fun refreshInstallManager() {
+        installManager = InstallManager()
+        for(r in customRepositoryDao.all()) {
+            val installer = HttpsSwordInstaller()
+            installer.host = r.host
+            installer.packageDirectory = r.packageDirectory
+            installer.catalogDirectory = r.catalogDirectory
+            installManager.addInstaller(r.name, installer)
+        }
+        failedRepos.clear()
+        onFailedReposChange?.invoke()
+    }
+    init {
+        refreshInstallManager()
+    }
 
     private fun markFailed(repo: String) {
         failedRepos.add(repo)

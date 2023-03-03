@@ -82,7 +82,6 @@ class ColorSettingsActivity: ActivityBase() {
         var isHandled = true
         when(item.itemId) {
             R.id.reset -> reset()
-            R.id.help -> help()
             android.R.id.home -> onBackPressed()
             else -> isHandled = false
         }
@@ -90,10 +89,6 @@ class ColorSettingsActivity: ActivityBase() {
             isHandled = super.onOptionsItemSelected(item)
         }
         return isHandled
-    }
-
-    fun help() {
-
     }
 
     fun cancel() {

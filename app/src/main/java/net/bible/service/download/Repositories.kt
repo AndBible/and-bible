@@ -34,7 +34,7 @@ class Repository(
         return bookList
     }
 
-    fun getBookList(bookFilter: BookFilter, refresh: Boolean): List<Book> {
+    private fun getBookList(bookFilter: BookFilter, refresh: Boolean): List<Book> {
         return downloadManager.getDownloadableBooks(bookFilter, repoName, refresh)
     }
 

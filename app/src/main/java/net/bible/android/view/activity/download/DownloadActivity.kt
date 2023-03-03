@@ -343,6 +343,7 @@ open class DownloadActivity : DocumentSelectionBase(
     }
 
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
+        downloadManager.refreshInstallManager()
         val docs = downloadControl.getDownloadableDocuments(repoFactory, refresh)
         return if(docs.isNotEmpty()) docs + FakeBookFactory.pseudoDocuments(pseudoBooks.value) else docs
     }
@@ -411,13 +412,12 @@ open class DownloadActivity : DocumentSelectionBase(
         }
     }
 
-    @SuppressLint("MissingSuperCall")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "onActivityResult:$resultCode")
         if (resultCode == DOWNLOAD_FINISH) {
             returnToPreviousScreen()
         } else {
-            //result code == DOWNLOAD_MORE_RESULT redisplay this download screen
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
@@ -457,12 +457,20 @@ open class DownloadActivity : DocumentSelectionBase(
                     .create().show()
             }
             R.id.installZip -> {
-                lifecycleScope.launch (Dispatchers.Main){
-                    val intent = Intent(this@DownloadActivity, InstallZip::class.java)
+                val intent = Intent(this, InstallZip::class.java)
+                lifecycleScope.launch {
                     awaitIntent(intent)
                     ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                 }
 
+                isHandled  = true
+            }
+            R.id.customRepositories -> {
+                val intent = Intent(this, CustomRepositories::class.java)
+                lifecycleScope.launch {
+                    awaitIntent(intent)
+                    populateMasterDocumentList(true)
+                }
                 isHandled  = true
             }
         }

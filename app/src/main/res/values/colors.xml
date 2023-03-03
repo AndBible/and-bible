@@ -153,5 +153,6 @@
 	<color name="disabled_background">#D3D3D3</color>
 	<color name="transparent">#00ffffff</color>
 	<color name="background_color_60">#99FFFFFF</color>
+    <color name="green">#00FF00</color>
 
 </resources>

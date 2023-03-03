@@ -24,8 +24,7 @@ import org.crosswire.jsword.book.Book
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class RepoFactory(downloadManager: DownloadManager) {
-
+class RepoFactory(private val downloadManager: DownloadManager) {
     private val andBibleRepo = Repository("AndBible", AcceptableBookTypeFilter(), downloadManager)
     private val andBibleExtraRepo = Repository("AndBible Extra", AcceptableBookTypeFilter(), downloadManager)
     private val andBibleBetaRepo = Repository(
@@ -65,13 +64,17 @@ class RepoFactory(downloadManager: DownloadManager) {
 
     // In priority order (if the same version of module is found in many, it will be picked up
     // from the earlier of the repository list).
-    val normalRepositories = listOf(
+    private val normalRepositories = listOf(
         defaultRepo, crosswireRepo, eBibleRepo, lockmanRepo, wycliffeRepo, andBibleExtraRepo, ibtRepo, stepRepo
     )
 
-    val betaRepositories = listOf(crosswireBetaRepo, andBibleBetaRepo)
+    private val betaRepositories = listOf(crosswireBetaRepo, andBibleBetaRepo)
 
-    val repositories = normalRepositories + betaRepositories
+    private val customRepositories: List<Repository> get() = downloadManager.customRepositoryDao.all().map {
+        Repository(it.name, AcceptableBookTypeFilter(), downloadManager)
+    }
+
+    val repositories get() = normalRepositories + betaRepositories + customRepositories
 
     fun getRepoForBook(document: Book): Repository {
         return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY))

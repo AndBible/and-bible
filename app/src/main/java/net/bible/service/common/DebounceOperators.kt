@@ -63,7 +63,20 @@ fun <T> debounce(
     }
 }
 
-
+fun debounce(
+    waitMs: Long = 300L,
+    coroutineScope: CoroutineScope,
+    destinationFunction: () -> Unit
+): () -> Unit {
+    var debounceJob: Job? = null
+    return {
+        debounceJob?.cancel()
+        debounceJob = coroutineScope.launch {
+            delay(waitMs)
+            destinationFunction()
+        }
+    }
+}
 /**
  * Constructs a function that processes input data and passes the first data to [destinationFunction] and skips all new data for the next [skipMs].
  */

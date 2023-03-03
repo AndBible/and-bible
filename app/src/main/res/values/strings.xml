@@ -1100,4 +1100,15 @@
     <string name="sqlite_invalid_file">Invalid module file</string>
     <string name="sqlite_cant_write">Can\'t (over)write the file</string>
     <string name="install_failed_reason">Installing module failed for the following reason: %s.</string>
+    <string name="custom_repositories">Custom repositories</string>
+    <string name="name_for_repository">Name for the repository</string>
+    <string name="repository_specification">Repository URL</string>
+    <string name="delete_custom_repository">Do you want to remove custom repository %s?</string>
+    <string name="invalid_repository_not_saved">Repository specification was invalid and it was not saved.</string>
+    <string name="custom_repositories_help1">To add a new custom repository, type or copy &amp; paste custom repository URL here.</string>
+    <string name="custom_repositories_help2">You can read more information about custom repositories in %s.</string>
+    <string name="wiki_page">WIKI page</string>
+    <string name="custom_repositories_help0">You can install documents from external custom repositories by installing custom repositories.</string>
+    <string name="duplicate_custom_repository">Repository with name %s already exists, can\'t add another.</string>
+    <string name="packages_dir">Packages directory (Zip files)</string>
 </resources>

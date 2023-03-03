@@ -19,6 +19,8 @@ package net.bible.android.view.util.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -32,7 +34,9 @@ import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.imageResource
+import net.bible.android.view.activity.page.windowRepository
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceColor
 
@@ -111,26 +115,37 @@ class WindowButtonWidget(
             window?.id == windowControl.activeWindow.id && !isMaximised
         }
 
-        if (isRestoreButton) {
-            windowButton.setBackgroundResource(
-                when {
-                    isActive && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_active
-                    isWindowVisible && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_visible
-                    isPinnedWindow || isLinksWindow -> R.drawable.bar_window_button
-                    isActive -> R.drawable.bar_window_unpinned_button_active
-                    isWindowVisible -> R.drawable.bar_window_unpinned_button_visible
-                    else -> R.drawable.bar_window_unpinned_button
-                }
-            )
+        val buttonResource = if (isRestoreButton) {
+            when {
+                isActive && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_active
+                isWindowVisible && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_visible
+                isPinnedWindow || isLinksWindow -> R.drawable.bar_window_button
+                isActive -> R.drawable.bar_window_unpinned_button_active
+                isWindowVisible -> R.drawable.bar_window_unpinned_button_visible
+                else -> R.drawable.bar_window_unpinned_button
+            }
         } else {
-            windowButton.setBackgroundResource(
-                when {
-                    isActive -> R.drawable.window_button_active
-                    isWindowVisible -> R.drawable.window_button_visible
-                    else -> R.drawable.window_button
-                }
-            )
+            when {
+                isActive -> R.drawable.window_button_active
+                isWindowVisible -> R.drawable.window_button_visible
+                else -> R.drawable.window_button
+            }
         }
+
+        val theme = CurrentActivityHolder.currentActivity?.theme
+        val roundDrawable: Drawable = resources.getDrawable(buttonResource,theme)
+
+        if(windowRepository.visibleWindows.isNotEmpty()) {
+            val toolbarColor = windowRepository.workspaceSettings.workspaceColor
+            // Set the button background color to the workspace color
+            if (isActive) roundDrawable.mutate()
+                .setTint(Color.parseColor("#" + Integer.toHexString(toolbarColor!!)))
+            else if (isWindowVisible) roundDrawable.mutate()
+                .setTint(getResourceColor(R.color.window_button_background_colour_visible))
+            else roundDrawable.mutate().setTint(getResourceColor(R.color.bar_window_button_background_colour))
+        }
+
+        windowButton.background = roundDrawable
         if (isRestoreButton) {
             buttonText.textSize = 13.0f
             val color = getResourceColor(R.color.bar_window_button_text_colour)
