@@ -59,7 +59,7 @@
 			android:id="@+id/myTabLayout"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="#1db995" />
+			android:background="@color/actionbar_background" />
 
 
 		<net.bible.android.view.activity.explore.BottomSheetViewPager

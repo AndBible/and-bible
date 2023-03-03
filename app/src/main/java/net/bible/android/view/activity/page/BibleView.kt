@@ -384,7 +384,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     internal fun exploreSelection(selection: Selection? = currentSelection) {
         Log.i(TAG, "exploreSelection")
 
-        val e = Explore(currentActivity,windowControl, selection)
+        val e = Explore(currentActivity,windowControl, selection, Explore.SheetType.EXPLORE_VERSE)
         e.initialise()
     }
 

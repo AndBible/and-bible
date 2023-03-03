@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.widget.ProgressBar
@@ -27,43 +28,43 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.windowControl
 import net.bible.service.sword.SwordContentFacade
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import java.lang.reflect.Field
-import java.text.SimpleDateFormat
 import java.util.*
 
 
 @SuppressLint("ViewConstructor")
 class Explore (val currentActivity: ActivityBase,
                val windowControl: WindowControl,
-               val selection: Selection?
+               val selection: Selection?,
+               val thisSheetType: SheetType
 )
 {
     var x = 1
+    val sheetType = thisSheetType
 
     fun initialise(){
-        val verseRange = selection?.verseRange ?: return
+        val verseRange = selection?.verseRange
         val currentPage = windowControl?.activeWindowPageManager?.currentPage
 
 
-        val bottomSheet = BottomSheet()
+        val bottomSheet = BottomSheet(sheetType)
 //        bottomSheet.behavior.isDraggable = true
 //        bottomSheet.behavior.peekHeight = 1500
 //        bottomSheet.behavior.maxWidth = 1000
         bottomSheet.show(currentActivity.supportFragmentManager,"TAG1")
 
-
-
     }
 
-    class BottomSheet : BottomSheetDialogFragment() {
+//    inner class BottomSheet(sheetType:SheetType?) : BottomSheetDialogFragment() {
+    class BottomSheet(sheetType:SheetType) : BottomSheetDialogFragment() {
 
         private lateinit var bottomSheet: ViewGroup
         private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
         private lateinit var viewPager: ViewPager
         private lateinit var appBarLayout: AppBarLayout
+        private var sheetType = sheetType
 
         override fun onStart() {
             super.onStart()
@@ -122,15 +123,30 @@ class Explore (val currentActivity: ActivityBase,
             val tabLayout = myview.findViewById<TabLayout>(R.id.myTabLayout)
             appBarLayout = myview.findViewById(R.id.appBarLayout)
             viewPager = myview.findViewById(R.id.myViewPager)
-            tabLayout.addTab(tabLayout.newTab().setText("Verse"))
-            tabLayout.addTab(tabLayout.newTab().setText("Chapter"))
-            tabLayout.addTab(tabLayout.newTab().setText("Book"))
-            tabLayout.addTab(tabLayout.newTab().setText("Devotional"))
-            tabLayout.addTab(tabLayout.newTab().setText("Headings"))
+            // I had a lot of trouble triggering the  NotifyDataSetChanged at the correct time when i wanted to show just a different number of tabs.
+            // So it seems just simpler to set up the maximum number of tabs and hide and label them as required.
+            tabLayout.addTab(tabLayout.newTab().setText("1"))
+            tabLayout.addTab(tabLayout.newTab().setText("2"))
+            tabLayout.addTab(tabLayout.newTab().setText("3"))
+            tabLayout.addTab(tabLayout.newTab().setText("4"))
+            if (sheetType == SheetType.DEVOTIONAL) {
+                tabLayout.getTabAt(0)?.setText("Devotional")
+                tabLayout.getTabAt(1)?.view?.visibility  = View.GONE
+                tabLayout.getTabAt(2)?.view?.visibility  = View.GONE
+                tabLayout.getTabAt(3)?.view?.visibility  = View.GONE
+            } else {
+                tabLayout.getTabAt(0)?.text = "Verse"
+                tabLayout.getTabAt(1)?.text = "Chapter"
+                tabLayout.getTabAt(2)?.text = "Book"
+                tabLayout.getTabAt(3)?.text = "Headings"
+                tabLayout.getTabAt(1)?.view?.visibility  = View.VISIBLE
+                tabLayout.getTabAt(2)?.view?.visibility  = View.VISIBLE
+                tabLayout.getTabAt(3)?.view?.visibility  = View.VISIBLE
+            }
             tabLayout.tabGravity = TabLayout.GRAVITY_START
 
             // USE childFragmentManager
-            val adapter = MyFragmentAdapter(childFragmentManager)
+            val adapter = MyFragmentAdapter(childFragmentManager, sheetType)
             viewPager.adapter = adapter
             viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
             tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -145,25 +161,41 @@ class Explore (val currentActivity: ActivityBase,
         }
     }
 
-    class MyFragmentAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+    class MyFragmentAdapter(fm: FragmentManager, sheetType: SheetType) : FragmentPagerAdapter(fm) {
 
-        companion object {
-            const val NUM_ITEMS = 4
-        }
+        val sheetType = sheetType
 
         override fun getItem(position: Int): Fragment {
-            when (position) {
-                0 -> return VerseFragment()
-                1 -> return TwoFragment()
-                2 -> return BookFragment()
-                3 -> return UrlFragment("https://odb.org/2023/02/26/is-it-a-sign")
+            when (sheetType) {
+                SheetType.DEVOTIONAL -> {
+                    NUM_ITEMS = 4
+                    when (position) {
+                        0 -> return UrlFragment("https://odb.org/2023/02/26/is-it-a-sign")
+                        1 -> return BookFragment()
+                        2 -> return TwoFragment()
+                        3 -> return UrlFragment("https://odb.org/2023/02/26/is-it-a-sign")
+                    }}
+                else -> {
+                    NUM_ITEMS = 4
+                    when (position) {
+                        0 -> return VerseFragment()
+                        1 -> return TwoFragment()
+                        2 -> return UrlFragment("https://abc.net.au")
+                        3 -> return UrlFragment("https://odb.org/2023/02/26/is-it-a-sign")
+                    }
+                }
             }
             return ChapterFragment()
         }
 
         override fun getCount(): Int {
+            if (doNotifyDataSetChangedOnce) {
+                doNotifyDataSetChangedOnce = false
+                notifyDataSetChanged()
+            }
             return NUM_ITEMS
         }
+
     }
     class VerseFragment() : Fragment() {
 
@@ -187,9 +219,10 @@ class Explore (val currentActivity: ActivityBase,
             wv.settings.domStorageEnabled = true;
 
 
-            wv.loadUrl("https://odb.org/${SimpleDateFormat("yyyy/MM/dd/").format(Date())}")
+//            wv.loadUrl("https://odb.org/${SimpleDateFormat("yyyy/MM/dd/").format(Date())}")
 //            wv.loadUrl("https://www.esv.org/Exodus+20.20/")
 //            wv.loadUrl("https://www.blueletterbible.org/kjv/gen/1/5/s_1005")
+            wv.loadUrl("https://www.youtube.com/watch?v=f2cf6-7liMo")
 
             wv.setWebViewClient(object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
@@ -285,30 +318,35 @@ class Explore (val currentActivity: ActivityBase,
 
             // Lookup document in dictionary
             val currentPage = windowControl?.activeWindowPageManager?.currentPage
-
-            var currentDocument:Book = Books.installed().getBook("ISBE")
-            var key:Key = currentDocument.getKey("AARON")
-
-            val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
-            val x = OsisFragment(frag, key, currentDocument)
-
-            // Put it into the webview
-
             val wv = view.findViewById<WebView>(R.id.explore_book_webview)
+            val documentName = "ISBE"
+            var currentDocument = try {Books.installed().getBook("${documentName}")} catch (e:Exception) {null}
+            if (currentDocument?.bookCategory != null) {
+                var key: Key = currentDocument.getKey("AARON")
+
+                val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
+                val x = OsisFragment(frag, key, currentDocument)
+
+                // Put it into the webview
 
 
-//            wv.loadUrl("https://www.esv.org/Exodus+20.20/")
-//            wv.loadUrl("https://www.biblegateway.com/passage/?search=Exodus%2020&version=NIV")
 
-            wv.loadDataWithBaseURL(null,x.xmlStr, null, null,null)
+                //            wv.loadUrl("https://www.esv.org/Exodus+20.20/")
+                //            wv.loadUrl("https://www.biblegateway.com/passage/?search=Exodus%2020&version=NIV")
 
-            wv.settings.javaScriptEnabled = true
-            wv.setWebViewClient(object : WebViewClient() {
-                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-                    view.loadUrl(request.url.toString())
-                    return false
-                }
-            })
+                wv.loadDataWithBaseURL(null, x.xmlStr, null, null, null)
+
+                wv.settings.javaScriptEnabled = true
+                wv.setWebViewClient(object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                        view.loadUrl(request.url.toString())
+                        return false
+                    }
+                })
+            } else {
+                progressBar.visibility = View.GONE
+                wv.loadDataWithBaseURL(null,"The document <b>${documentName}</b> is not installed.","text/html","utf-8", null)
+            }
             return view
 
         }
@@ -367,11 +405,21 @@ class Explore (val currentActivity: ActivityBase,
             val wv = view.findViewById<WebView>(R.id.explore_url_webview)
 
             progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
-            wv.loadUrl("https://www.esv.org/Exodus+20.20/")
+//            wv.loadUrl("https://www.esv.org/Exodus+20.20/")
 //            wv.loadUrl("https://odb.org/")
-//            wv.loadUrl(url)
 
+//            wv.getSettings().setLoadWithOverviewMode(true)
+//            wv.getSettings().setUseWideViewPort(true)
+//            wv.setWebChromeClient(WebChromeClient())
+//            wv.getSettings().setUserAgentString("Android WebView")
+//            wv.getSettings().setAllowFileAccess(true);
+//            wv.getSettings().setAllowFileAccessFromFileURLs(true);
             wv.settings.javaScriptEnabled = true
+            wv.settings.domStorageEnabled = true
+//            wv.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+
+            wv.loadUrl(url)
+
             wv.setWebViewClient(object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                     view.loadUrl(request.url.toString())
@@ -397,6 +445,14 @@ class Explore (val currentActivity: ActivityBase,
                 progressBar.visibility = View.GONE
             }
         }
+    }
+
+    companion object {
+        var NUM_ITEMS = 4
+        var doNotifyDataSetChangedOnce = true
+    }
+    enum class SheetType {
+        DEVOTIONAL, EXPLORE_VERSE, EXPLORE_WORD
     }
 }
 

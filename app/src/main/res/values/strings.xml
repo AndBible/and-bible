@@ -341,6 +341,9 @@
     <string name="overwrite_files">Following files already exists: %s Overwrite?</string>
     <string name="overwrite_files_title">Overwrite files?</string>
 
+    <!-- Daily Devotional -->
+    <string name="devotional_title">Daily Devotionals</string>
+
     <!-- Daily Reading Plan -->
     <string name="rdg_plan_title">Reading Plan</string>
     <string name="rdg_plan_selector_title">Choose a Reading Plan</string>

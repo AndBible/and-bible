@@ -37,9 +37,9 @@ val discreteFlavorName = "discrete"
 // This is the "standard" applicationId.
 // This value must remain the same as it has been since the original
 // release in 2010 for continuity of updates for existing users.
-val applicationIdStandard = "net.bible.android.activity.next"
+val applicationIdStandard = "net.bible.android.activity.nextagr"
 // An alternative applicationId, to be used for the "discrete" flavor.
-val applicationIdDiscrete = "com.app.calculator"
+val applicationIdDiscrete = "com.app.calculatoragr"
 
 // The flavor dimension for the app's distribution channel
 val dimDistributionChannelName = "distchannel"

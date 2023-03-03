@@ -43,6 +43,7 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.explore.Explore
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.readingplan.DailyReading
@@ -189,6 +190,15 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                 }
                 R.id.dailyReadingPlanButton -> {
                     handlerIntent = Intent(mainBibleActivity, DailyReading::class.java)
+                    isHandled = true
+                }
+                R.id.dailyDevotionalButton -> {
+                    Log.i(TAG, "Open daily devotional")
+                    mainBibleActivity.lifecycleScope.launch(Dispatchers.Main) {
+                        val e = Explore(mainBibleActivity,windowControl, null, Explore.SheetType.DEVOTIONAL)
+                        e.initialise()
+                        isHandled = true
+                    }
                     isHandled = true
                 }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
