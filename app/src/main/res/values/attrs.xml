@@ -36,6 +36,7 @@
         <attr name="windowButtonActiveBackgroundColor" format="color"/>
         <attr name="windowButtonHeight" format="dimension"/>
 
+        <attr name="barWindowButtonActiveBorderWidth" format="dimension"/>
         <attr name="barWindowButtonActiveStrokeColor" format="color"/>
         <attr name="barWindowButtonStrokeColor" format="color"/>
         <attr name="barWindowButtonBackgroundColor" format="color"/>
