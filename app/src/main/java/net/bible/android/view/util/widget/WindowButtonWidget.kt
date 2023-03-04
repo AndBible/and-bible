@@ -20,7 +20,7 @@ package net.bible.android.view.util.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -133,16 +133,22 @@ class WindowButtonWidget(
         }
 
         val theme = CurrentActivityHolder.currentActivity?.theme
-        val roundDrawable: Drawable = resources.getDrawable(buttonResource,theme)
-
+        val roundDrawable: GradientDrawable = resources.getDrawable(buttonResource,theme) as GradientDrawable
+        val toolbarColor = windowRepository.workspaceSettings.workspaceColor
         if(windowRepository.visibleWindows.isNotEmpty()) {
-            val toolbarColor = windowRepository.workspaceSettings.workspaceColor
-            // Set the button background color to the workspace color
-            if (isActive) roundDrawable.mutate()
-                .setTint(Color.parseColor("#" + Integer.toHexString(toolbarColor!!)))
-            else if (isWindowVisible) roundDrawable.mutate()
-                .setTint(getResourceColor(R.color.window_button_background_colour_visible))
-            else roundDrawable.mutate().setTint(getResourceColor(R.color.bar_window_button_background_colour))
+            // Set the button background color to the workspace color. Can't use setTint because it overrides the stroke color
+            roundDrawable.mutate()
+            if (isActive) {
+                roundDrawable.setColor(Color.parseColor("#" + Integer.toHexString(toolbarColor!!)))
+                // Set border color if using default actionbar color
+                if (toolbarColor == getResourceColor(R.color.actionbar_background_day))
+                    roundDrawable.setStroke(5, getResourceColor(R.color.bar_window_button_active_stroke_color))
+                else
+                    roundDrawable.setStroke(0, getResourceColor(R.color.transparent))
+            }
+            else if (isWindowVisible)
+                roundDrawable.setColor(getResourceColor(R.color.window_button_background_colour_visible))
+            else roundDrawable.setColor(getResourceColor(R.color.bar_window_button_background_colour))
         }
 
         windowButton.background = roundDrawable
