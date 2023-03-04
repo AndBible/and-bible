@@ -34,9 +34,7 @@ import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.download.imageResource
-import net.bible.android.view.activity.page.windowRepository
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceColor
 
@@ -115,21 +113,25 @@ class WindowButtonWidget(
             window?.id == windowControl.activeWindow.id && !isMaximised
         }
 
-        val buttonResource = if (isRestoreButton) {
-            when {
-                isActive && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_active
-                isWindowVisible && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_visible
-                isPinnedWindow || isLinksWindow -> R.drawable.bar_window_button
-                isActive -> R.drawable.bar_window_unpinned_button_active
-                isWindowVisible -> R.drawable.bar_window_unpinned_button_visible
-                else -> R.drawable.bar_window_unpinned_button
-            }
+        if (isRestoreButton) {
+            windowButton.setBackgroundResource(
+                when {
+                    isActive && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_active
+                    isWindowVisible && (isPinnedWindow || isLinksWindow) -> R.drawable.bar_window_button_visible
+                    isPinnedWindow || isLinksWindow -> R.drawable.bar_window_button
+                    isActive -> R.drawable.bar_window_unpinned_button_active
+                    isWindowVisible -> R.drawable.bar_window_unpinned_button_visible
+                    else -> R.drawable.bar_window_unpinned_button
+                }
+            )
         } else {
-            when {
-                isActive -> R.drawable.window_button_active
-                isWindowVisible -> R.drawable.window_button_visible
-                else -> R.drawable.window_button
-            }
+            windowButton.setBackgroundResource(
+                when {
+                    isActive -> R.drawable.window_button_active
+                    isWindowVisible -> R.drawable.window_button_visible
+                    else -> R.drawable.window_button
+                }
+            )
         }
 
         val theme = CurrentActivityHolder.currentActivity?.theme

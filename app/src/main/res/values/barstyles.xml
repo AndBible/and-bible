@@ -41,7 +41,7 @@
 		<item name="windowButtonStrokeColor">#00FFFFFF</item>
 		<item name="windowButtonBackgroundColor">#118D8D8D</item>
 		<item name="windowButtonActiveBackgroundColor">#B7525252</item>
-
+		<item name="barWindowButtonActiveBorderWidth">4.0dip</item>
 		<item name="barWindowButtonActiveStrokeColor">@color/bar_window_button_active_stroke_color</item>
 		<item name="barWindowButtonStrokeColor">@color/bar_window_button_stroke_color</item>
 		<item name="barWindowButtonBackgroundColor">@color/bar_window_button_background_colour</item>

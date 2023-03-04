@@ -100,7 +100,7 @@ class CustomRepositories : ListActivityBase() {
             return
         }
 
-        val repository = data.repository!!
+        val repository = data.repository?: return
 
         if(data.delete) {
             if(repository.id != 0L) {
