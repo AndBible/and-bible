@@ -103,7 +103,6 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
             // New scroll event
             scrollEv = MotionEvent.obtain(e1)
         }
-        ABEventBus.post(BibleView.BibleViewTouched(onlyTouch = true))
         if (e2.eventTime - scrollEv.eventTime > 1000) {
             // Too slow motion
             scrollEv = MotionEvent.obtain(e2)
