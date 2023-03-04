@@ -21,7 +21,8 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="match_parent"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -59,7 +60,8 @@
 			android:id="@+id/myTabLayout"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/actionbar_background" />
+			android:background="@color/actionbar_background"
+			app:tabTextColor="#FFFFFF" />
 
 
 		<net.bible.android.view.activity.explore.BottomSheetViewPager
