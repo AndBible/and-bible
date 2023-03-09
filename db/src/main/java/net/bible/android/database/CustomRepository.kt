@@ -44,9 +44,9 @@ data class CustomRepository(
     val name: String,
     val description: String = "",
     val type: String,
-    val host: String,
-    val catalogDirectory: String,
-    var packageDirectory: String,
+    val host: String = "",
+    val catalogDirectory: String = "",
+    var packageDirectory: String = "",
     var manifestUrl: String? = null,
 ) {
     fun toJson(): String {

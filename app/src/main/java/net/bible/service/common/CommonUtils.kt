@@ -122,6 +122,7 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.spongycastle.util.io.pem.PemReader
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.math.BigInteger
 import java.security.KeyFactory
@@ -130,6 +131,7 @@ import java.security.Signature
 import java.util.*
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
+import java.util.zip.ZipInputStream
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -1308,6 +1310,28 @@ object CommonUtils : CommonUtilsBase() {
             "$u$filename"
         else
             "$u/$filename"
+
+    fun unzipFile(zipFile: File, destinationDir: File, filePrefix: String = "") {
+        Log.i(TAG, "Unzipping file $zipFile to $destinationDir")
+        val buffer = ByteArray(8192)
+        ZipInputStream(zipFile.inputStream()).use { zIn ->
+            var zipEntry = zIn.nextEntry
+            while (zipEntry != null) {
+                if (zipEntry.isDirectory) continue
+                val filePath = zipEntry.name.replace('\\', '/')
+                val file = File(destinationDir, filePrefix + filePath)
+                Log.i(TAG, "Writing $file")
+                FileOutputStream(file).use { fOut ->
+                    var count = zIn.read(buffer)
+                    while (count != -1) {
+                        fOut.write(buffer, 0, count)
+                        count = zIn.read(buffer)
+                    }
+                }
+                zipEntry = zIn.nextEntry
+            }
+        }
+    }
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
