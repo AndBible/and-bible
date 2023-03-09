@@ -38,6 +38,7 @@ import org.crosswire.jsword.book.install.InstallException
 import java.io.File
 import java.io.IOException
 import java.net.URI
+import java.net.URL
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
 
@@ -45,7 +46,7 @@ import javax.net.ssl.HttpsURLConnection
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class GenericFileDownloader(
-    val activity: AppCompatActivity,
+    val activity: AppCompatActivity? = null,
     private val onErrorsChange: (() -> Unit)? = null
 ) {
     val errors = TreeSet<URI>()
@@ -60,9 +61,9 @@ class GenericFileDownloader(
         onErrorsChange?.invoke()
     }
 
-    val scope = activity.lifecycleScope
+    val scope = activity?.lifecycleScope?: CoroutineScope(Dispatchers.Main)
 
-    fun downloadFileInBackground(source: URI, target: File, description: String) =
+    fun downloadFileInBackground(source: URL, target: File, description: String) =
         scope.launch(Dispatchers.IO) {
             // So now we know what we want to install - all we need to do
             // is installer.install(name) however we are doing it in the
@@ -71,7 +72,7 @@ class GenericFileDownloader(
             downloadFileNow(source, target, description)
         }
 
-    private suspend fun downloadFileNow(source: URI, target: File, description: String) = withContext(Dispatchers.IO) {
+    private suspend fun downloadFileNow(source: URL, target: File, description: String) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Starting generic download thread - file:" + target.name)
         try {
             // Delete the file, if present
@@ -85,47 +86,65 @@ class GenericFileDownloader(
                 throw RuntimeException("IO Error downloading file $source", e)
             }
             Log.i(TAG, "Finished downloading $source")
-            removeError(source)
+            removeError(source.toURI())
         } catch (e: Exception) {
-            addError(source)
+            addError(source.toURI())
             Log.e(TAG, "Error downloading $source", e)
         }
     }
 
-    private fun lastUpdated(uri: URI): Long? =
+    private fun lastUpdated(url: URL): Long? =
         try {
-            val httpsURLConnection = uri.toURL().openConnection() as HttpsURLConnection
+            val httpsURLConnection = url.openConnection() as HttpsURLConnection
             val lastModified: Long = httpsURLConnection.lastModified
             httpsURLConnection.disconnect()
             lastModified
         } catch (e: Exception) {
-            Log.e(TAG, "Could not check last modified time for $uri")
+            Log.e(TAG, "Could not check last modified time for $url")
             null
         }
 
-    suspend fun downloadFile(source: URI, target: File, description: String, reportError: Boolean = true) = withContext(Dispatchers.IO) {
-
+    suspend fun downloadFile(source: URL, target: File, description: String, reportError: Boolean = true) = withContext(Dispatchers.IO) {
+        downloadFileSync(
+            source = source,
+            target = target,
+            description = description,
+            reportError = reportError
+        )
+    }
+    fun downloadFileSync(
+        source: URL,
+        target: File,
+        description: String = "",
+        reportError: Boolean = true,
+        jobId: String? = null,
+        notifyUser: Boolean = false,
+    ): Boolean {
         val lastUpdated = lastUpdated(source)
         if(target.canRead()) {
             val lastChecked = settings.getLong("last-downloaded-${source}", 0)
-            if (lastUpdated != null && lastUpdated <= lastChecked) return@withContext;
+            if (lastUpdated != null && lastUpdated <= lastChecked) return true
         }
         settings.setLong("last-downloaded-${source}", lastUpdated)
 
         val jobName = JSMsg.gettext("Downloading : {0}", target.name + " " + description)
-        val job = JobManager.createJob(jobName)
+        val job = if(jobId != null) {
+            JobManager.createJob(jobId, jobName, null)
+        } else {
+            JobManager.createJob(jobName)
+        }
 
-        job.isNotifyUser = false;
+        job.isNotifyUser = notifyUser
 
         // Don't bother setting a size, we'll do it later.
         job.beginJob(jobName)
-
+        var success = false
         var temp: URI? = null
         try {
             // TRANSLATOR: Progress label indicating the Initialization of installing of a book.
             job.sectionName = JSMsg.gettext("Initializing")
             temp = NetUtil.getTemporaryURI("swd", ".tmp")
-            copy(job, source, temp)
+            copy(job, source.toURI(), temp)
 
             // Once the download is complete, we need to continue
             job.isCancelable = false
@@ -137,13 +156,14 @@ class GenericFileDownloader(
                     job.cancel()
                 }
             }
-            removeError(source)
+            removeError(source.toURI())
+            success = true
         } catch (e: IOException) {
-            if(reportError) addError(source)
+            if(reportError) addError(source.toURI())
             Log.e(TAG, "Failed to download ${source}", e)
             job.cancel()
         } catch (e: InstallException) {
-            if(reportError) addError(source)
+            if(reportError) addError(source.toURI())
             Log.e(TAG, "Failed to download ${source}", e)
             job.cancel()
         } finally {
@@ -159,6 +179,7 @@ class GenericFileDownloader(
                 }
             }
         }
+        return success
     }
 
     @Throws(InstallException::class)

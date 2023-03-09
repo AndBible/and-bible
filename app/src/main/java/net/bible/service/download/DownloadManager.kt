@@ -16,12 +16,14 @@
  */
 package net.bible.service.download
 
+import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.mybible.MyBibleInstaller
 import org.crosswire.common.progress.Progress
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
@@ -50,10 +52,19 @@ class DownloadManager(
     fun refreshInstallManager() {
         installManager = InstallManager()
         for(r in customRepositoryDao.all()) {
-            val installer = HttpsSwordInstaller()
-            installer.host = r.host
-            installer.packageDirectory = r.packageDirectory
-            installer.catalogDirectory = r.catalogDirectory
+            val installer = when(r.type) {
+                "sword-https" -> {
+                    HttpsSwordInstaller().apply {
+                        host = r.host
+                        packageDirectory = r.packageDirectory
+                        catalogDirectory = r.catalogDirectory
+                    }
+                }
+                "mybible-https" -> {
+                    MyBibleInstaller(r.manifestUrl!!)
+                }
+                else -> throw RuntimeException("Invalid repository specification")
+            }
             installManager.addInstaller(r.name, installer)
         }
         failedRepos.clear()
@@ -144,7 +155,9 @@ class DownloadManager(
 
         // reload metadata to ensure the correct location is set, otherwise maps won't show
         val metadata = book.bookMetaData as SwordBookMetaData
-        metadata.reload { true }
+        try { metadata.reload { true } } catch (e: BookException) {
+            Log.e(TAG, "Can't reload metadata", e)
+        }
 
         // InstallWatcher does not know about repository, so let's add it here
         book.putProperty(REPOSITORY_KEY, repositoryName)

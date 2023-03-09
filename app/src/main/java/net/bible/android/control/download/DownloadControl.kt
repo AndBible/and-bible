@@ -31,6 +31,7 @@ import org.crosswire.common.util.Language
 import org.crosswire.common.util.LucidException
 import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
@@ -114,7 +115,9 @@ class DownloadControl(
         if (bmd != null && bmd is SwordBookMetaData) {
             // load full bmd but must retain repo key
             val repoKey = bmd.getProperty(DownloadManager.REPOSITORY_KEY)
-            bmd.reload()
+            try {bmd.reload()} catch (e: BookException) {
+                Log.e(TAG, "Could not reload book metadata", e)
+            }
             bmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey)
         }
         if (!downloadQueue.isInQueue(document)) {

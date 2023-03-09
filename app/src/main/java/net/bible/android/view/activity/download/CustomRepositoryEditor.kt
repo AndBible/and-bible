@@ -40,6 +40,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.CustomRepositoryEditorBinding
 import net.bible.android.control.event.ABEventBus
@@ -50,6 +51,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.appendUrl
 import net.bible.service.common.CommonUtils.md5Hash
 import net.bible.service.common.htmlToSpan
+import net.bible.service.sword.mybible.MyBibleRepositorySpec
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
@@ -210,9 +212,30 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
             Log.e(TAG, "Error in parsing JSON", e)
             return false
         }
-        val type = json.getString("type")
-        if(type != "sword-https") return false
-        val repo = CustomRepository.fromJson(jsonString) ?: return false
+        var repo: CustomRepository? = null
+
+        val type = try { json.getString("type") } catch (e: JSONException){ null }
+
+        if(type == "sword-https") {
+            repo = CustomRepository.fromJson(jsonString) ?: return false
+        } else {
+            val myBibleSpec = try {
+                MyBibleRepositorySpec.fromJson(jsonString)
+            } catch (e: SerializationException) {
+                null
+            }
+            if(myBibleSpec != null) {
+                repo = CustomRepository(
+                    name = myBibleSpec.file_name,
+                    description = myBibleSpec.description,
+                    type = "mybible-https",
+                    manifestUrl = myBibleSpec.url,
+                )
+            }
+        }
+
+        if(repo == null) return false
+
         repo.id = data.repository?.id?: 0
         data.repository = repo
         Log.i(TAG, "Read manifest ${repo.name}")
