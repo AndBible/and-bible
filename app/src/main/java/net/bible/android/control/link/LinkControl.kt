@@ -230,7 +230,7 @@ class LinkControl @Inject constructor(
         val preferred = preferredKeyType[book.initials] ?: KeyType.KEY
 
         val keyTypes = mutableListOf(preferred)
-        keyTypes.addAll(KeyType.ALL_TYPES.filterNot { it === preferred })
+        keyTypes.addAll(KeyType.ALL_TYPES.filterNot { it == preferred })
 
         val k = run {
             for(keyType in keyTypes) {

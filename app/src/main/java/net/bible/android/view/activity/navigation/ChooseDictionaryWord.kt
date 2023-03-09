@@ -93,13 +93,13 @@ class ChooseDictionaryWord : ListActivityBase() {
             private fun getEntrySnippet(text: Element, key: String): String {
                 text.removeChild("title")
                 val entry = text
-                    ?.getChild("entryFree")
-                if (entry === null) {
+                    .getChild("entryFree")
+                if (entry == null) {
                     return cleanUpSnippet(text.value, key);
                 }
 
                 // if a greek or hebrew word, look up any orthographic entries.
-                var greekOrHebrewWord =  entry
+                val greekOrHebrewWord =  entry
                     .getChildren("orth")
                     ?.map { it.text }
                     ?.filter { it !== "" }
