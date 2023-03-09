@@ -82,6 +82,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         setContentView(binding.root)
         updateUI()
         if(data.repository?.manifestUrl?.isNotEmpty() == true) {
+            binding.manifestUrl.setText(data.repository?.manifestUrl?: "")
             delayedValidate()
         }
         binding.run {
