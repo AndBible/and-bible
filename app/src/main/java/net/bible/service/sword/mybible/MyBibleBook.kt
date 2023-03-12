@@ -42,15 +42,16 @@ import org.crosswire.jsword.passage.KeyUtil
 import java.io.File
 import java.io.IOException
 
-private fun getConfig(
+fun getConfig(
     initials: String,
     abbreviation: String,
     description: String,
     language: String,
     category: String,
-    hasStrongsDef: Boolean,
-    hasStrongs: Boolean,
-    moduleFileName: String
+    hasStrongsDef: Boolean = false,
+    hasStrongs: Boolean = false,
+    moduleFileName: String,
+    downloadUrl: String = "",
 ): String {
     var conf = """
 [$initials]
@@ -59,6 +60,7 @@ Abbreviation=$abbreviation
 Category=$category
 AndBibleMyBibleModule=1
 AndBibleDbFile=$moduleFileName
+AndBibleDownloadUrl=$downloadUrl
 Lang=$language
 Version=0.0
 Encoding=UTF-8
@@ -78,6 +80,9 @@ Versification=KJVA"""
 }
 
 const val TAG = "MyBibleBook"
+
+private val re = Regex("[^a-zA-z0-9]")
+fun sanitizeModuleName(name: String): String = name.replace(re, "_")
 
 class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
     constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
@@ -106,9 +111,6 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
     var hasStories: Boolean = false
 
     var metadata: SwordBookMetaData? = null
-
-    private val re = Regex("[^a-zA-z0-9]")
-    private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
 
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
@@ -443,3 +445,4 @@ fun addManuallyInstalledMyBibleBooks() {
 }
 
 val Book.isMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null
+val Book.myBibleDownloadUrl: String get() = bookMetaData.getProperty("AndBibleDownloadUrl")

@@ -570,10 +570,10 @@ class ManageLabels : ListActivityBase() {
             isThisBookmarkSelected = data.selectedLabels.contains(label.id)
         )
         if(isNew) {
-            if(data.mode === Mode.ASSIGN) {
+            if(data.mode == Mode.ASSIGN) {
                 labelData.isThisBookmarkSelected = true
                 labelData.isThisBookmarkPrimary = true
-            } else if(data.mode === Mode.WORKSPACE) {
+            } else if(data.mode == Mode.WORKSPACE) {
                 labelData.isAutoAssignPrimary = true
                 labelData.isAutoAssign = true
             }

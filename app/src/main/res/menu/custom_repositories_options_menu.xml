@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -16,18 +16,16 @@
   ~ If not, see http://www.gnu.org/licenses/.
   -->
 
-
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle"
-    >
-    <corners android:topRightRadius="1dp" android:topLeftRadius="1dp"/>
-    <stroke android:width="?attr/barWindowButtonActiveBorderWidth" android:color="?attr/barWindowButtonActiveStrokeColor" />
-
-    <solid android:color="?attr/barWindowButtonActiveBackgroundColor"/>
-    <padding android:left="0dp"
-        android:top="4dp"
-        android:right="0dp"
-        android:bottom="4dp" />
-</shape>
-
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/newItem"
+        android:title="@string/new_item"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_add_circle_outline_white_24dp"
+        />
+    <item android:id="@+id/help"
+        android:title="@string/help"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_help_white_24dp"
+        />
+</menu>

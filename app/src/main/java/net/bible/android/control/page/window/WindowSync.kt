@@ -36,14 +36,8 @@ class WindowSync(private val windowRepository: WindowRepository) {
     var lastForceSyncAll: Long = System.currentTimeMillis()
         private set
 
-    private var lastForceSyncBibles: Long = System.currentTimeMillis()
-
     fun setResyncRequired() {
         lastForceSyncAll = System.currentTimeMillis()
-    }
-
-    fun setResyncBiblesRequired() {
-        lastForceSyncBibles = System.currentTimeMillis()
     }
 
     fun reloadAllWindows(force: Boolean = false) {
@@ -126,7 +120,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
                 // force inactive screen to display something otherwise it may be initially blank
                 // or if nightMode has changed then force an update
-                if (!inactiveUpdated && inactiveWindow.lastUpdated < max(lastForceSyncBibles, lastForceSyncAll)) {
+                if (!inactiveUpdated && inactiveWindow.lastUpdated < lastForceSyncAll) {
                     // force an update of the inactive page to prevent blank screen
                     updateInactiveWindow(inactiveWindow, inactivePage, inactiveWindowKey, inactiveWindowKey)
                 }
@@ -161,7 +155,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             val currentVerse = if (inactiveWindowKey is Verse) {KeyUtil.getVerse(inactiveWindowKey)} else null
 
             // update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
-            if((lastForceSyncAll > inactiveWindow.lastUpdated) || (isBible && lastForceSyncBibles > inactiveWindow.lastUpdated)) {
+            if(lastForceSyncAll > inactiveWindow.lastUpdated) {
                 inactiveWindow.loadText()
 
             } else {

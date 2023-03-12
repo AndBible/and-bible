@@ -203,8 +203,6 @@ open class WindowControl @Inject constructor() {
     fun onEvent(event: SynchronizeWindowsEvent) {
         if(event.forceSyncAll) {
             windowSync.setResyncRequired()
-        } else {
-            windowSync.setResyncBiblesRequired()
         }
         windowSync.reloadAllWindows()
     }

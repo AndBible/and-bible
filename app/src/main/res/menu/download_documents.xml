@@ -30,4 +30,8 @@
 		android:title="@string/install_zip"
 		android:icon="@drawable/ic_unarchive_white_24dp"
 		appcompat:showAsAction="never"/>
+	<item android:id="@+id/customRepositories"
+		android:title="@string/custom_repositories"
+		android:icon="@drawable/ic_unarchive_white_24dp"
+		appcompat:showAsAction="never"/>
 </menu>

@@ -175,7 +175,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         return newWindow
     }
 
-    private fun getWindows(state: WindowState)= sortedWindows.filter { it.windowState === state}
+    private fun getWindows(state: WindowState)= sortedWindows.filter { it.windowState == state}
 
     fun getWindow(windowId: Long?): Window? = if(windowId == null) null else sortedWindows.find {it.id == windowId}
 

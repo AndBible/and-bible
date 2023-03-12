@@ -19,8 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="681"
-    android:versionName="4.0.681">
+    android:versionCode="682"
+    android:versionName="4.0.682">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -205,6 +205,16 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/speak"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.download.CustomRepositories"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/custom_repositories"
+            android:parentActivityName="net.bible.android.view.activity.download.DownloadActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.download.CustomRepositoryEditor"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/custom_repositories"
+            android:parentActivityName="net.bible.android.view.activity.download.CustomRepositories" />
         <activity
             android:name="net.bible.android.view.activity.speak.BibleSpeakActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

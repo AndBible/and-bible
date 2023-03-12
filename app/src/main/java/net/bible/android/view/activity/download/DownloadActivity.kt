@@ -16,7 +16,6 @@
  */
 package net.bible.android.view.activity.download
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -54,7 +53,6 @@ import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import java.io.File
-import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.coroutines.resume
@@ -70,6 +68,7 @@ import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.urlPrefix
+import java.net.URL
 import java.text.Collator
 
 /**
@@ -113,7 +112,7 @@ open class DownloadActivity : DocumentSelectionBase(
     private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
 
     private suspend fun loadRecommendedDocuments() = withContext(Dispatchers.IO) {
-        val source = URI("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
+        val source = URL("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
         val target = File(SharedConstants.MODULE_DIR, SharedConstants.RECOMMENDED_JSON)
         genericFileDownloader.downloadFile(source, target, "Recommendations", reportError = !target.canRead())
         if (target.canRead()) {
@@ -127,7 +126,7 @@ open class DownloadActivity : DocumentSelectionBase(
     private suspend fun loadDefaultDocuments() = withContext(Dispatchers.IO) {
         if(!downloadDefaults) return@withContext
 
-        val source = URI("https://andbible.github.io/data/${SharedConstants.DEFAULT_JSON}")
+        val source = URL("https://andbible.github.io/data/${SharedConstants.DEFAULT_JSON}")
         val target = File(SharedConstants.MODULE_DIR, SharedConstants.DEFAULT_JSON)
         genericFileDownloader.downloadFile(source, target, "Defaults", reportError = !target.canRead())
         if(target.canRead()) {
@@ -139,7 +138,7 @@ open class DownloadActivity : DocumentSelectionBase(
     }
 
     private suspend fun loadPseudoBooks() = withContext(Dispatchers.IO) {
-        val source = URI("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
+        val source = URL("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
         val target = File(SharedConstants.MODULE_DIR, SharedConstants.PSEUDO_BOOKS)
         genericFileDownloader.downloadFile(source, target, "Pseudo books", reportError = !target.canRead())
         if(target.canRead()) {
@@ -343,6 +342,7 @@ open class DownloadActivity : DocumentSelectionBase(
     }
 
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
+        downloadManager.refreshInstallManager()
         val docs = downloadControl.getDownloadableDocuments(repoFactory, refresh)
         return if(docs.isNotEmpty()) docs + FakeBookFactory.pseudoDocuments(pseudoBooks.value) else docs
     }
@@ -411,13 +411,12 @@ open class DownloadActivity : DocumentSelectionBase(
         }
     }
 
-    @SuppressLint("MissingSuperCall")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "onActivityResult:$resultCode")
         if (resultCode == DOWNLOAD_FINISH) {
             returnToPreviousScreen()
         } else {
-            //result code == DOWNLOAD_MORE_RESULT redisplay this download screen
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
@@ -457,12 +456,20 @@ open class DownloadActivity : DocumentSelectionBase(
                     .create().show()
             }
             R.id.installZip -> {
-                lifecycleScope.launch (Dispatchers.Main){
-                    val intent = Intent(this@DownloadActivity, InstallZip::class.java)
+                val intent = Intent(this, InstallZip::class.java)
+                lifecycleScope.launch {
                     awaitIntent(intent)
                     ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                 }
 
+                isHandled  = true
+            }
+            R.id.customRepositories -> {
+                val intent = Intent(this, CustomRepositories::class.java)
+                lifecycleScope.launch {
+                    awaitIntent(intent)
+                    populateMasterDocumentList(true)
+                }
                 isHandled  = true
             }
         }
