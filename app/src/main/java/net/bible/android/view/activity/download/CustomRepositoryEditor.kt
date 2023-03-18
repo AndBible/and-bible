@@ -57,6 +57,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL
+import java.net.UnknownHostException
 import javax.net.ssl.HttpsURLConnection
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -126,8 +127,8 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
                 } catch (e: IOException) {
                     return@withContext false
                 }
-
-            return@withContext conn.responseCode == 200
+            val responseCode = try {conn.responseCode} catch(e: IOException) {null}
+            return@withContext responseCode == 200
         }
     }
 
@@ -145,8 +146,8 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
                 } catch (e: IOException) {
                     return@withContext false
                 }
-
-            return@withContext if (conn.responseCode == 200) {
+            val responseCode = try {conn.responseCode} catch (e: IOException) { null }
+            return@withContext if (responseCode == 200) {
                 readManifest(conn)
             } else {
                 false
