@@ -224,11 +224,29 @@ open class BookmarkControl @Inject constructor(
 
     fun deleteGenericBookmarksById(bookmarkIds: List<IdType>) = deleteBookmarks(dao.genericBookmarksByIds(bookmarkIds))
 
-    fun getBibleBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false): List<BibleBookmarkWithNotes> {
+    fun getBibleBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false, search:String = ""): List<BibleBookmarkWithNotes> {
         val bookmarks = when {
-            labelAll == label -> dao.allBookmarks(orderBy)
-            labelUnlabelled == label -> dao.unlabelledBookmarks(orderBy)
-            else -> dao.bookmarksWithLabel(label, orderBy)
+            labelAll == label -> {
+                if (search == "") {
+                    dao.allBookmarks(orderBy)
+                } else {
+                    dao.searchAllBookmarks(orderBy, search)
+                }
+            }
+            labelUnlabelled == label -> {
+                if (search == "") {
+                    dao.unlabelledBookmarks(orderBy)
+                } else {
+                    dao.searchUnlabelledBookmarks(orderBy, search)
+                }
+            }
+            else -> {
+                if (search == "") {
+                    dao.bookmarksWithLabel(label, orderBy)
+                } else {
+                    dao.searchBookmarksWithLabel(label, orderBy, search)
+                }
+            }
         }
         if(addData) for (it in bookmarks) {
             addText(it)
@@ -237,11 +255,23 @@ open class BookmarkControl @Inject constructor(
         return bookmarks
     }
 
-    fun getGenericBookmarksWithLabel(label: Label, addData: Boolean = false): List<GenericBookmarkWithNotes> {
+    fun getGenericBookmarksWithLabel(label: Label, addData: Boolean = false, search:String = ""): List<GenericBookmarkWithNotes> {
         val bookmarks = when {
-            labelAll == label -> dao.allGenericBookmarks()
-            labelUnlabelled == label -> dao.unlabelledGenericBookmarks()
-            else -> dao.genericBookmarksWithLabel(label)
+            labelAll == label -> if (search == "") {
+                dao.allGenericBookmarks()
+            } else {
+                dao.searchAllGenericBookmarks(search)
+            }
+            labelUnlabelled == label -> if (search == "") {
+                dao.unlabelledGenericBookmarks()
+            } else {
+                dao.searchUnlabelledGenericBookmarks(search)
+            }
+            else -> if (search == "") {
+                dao.genericBookmarksWithLabel(label)
+            } else {
+                dao.searchGenericBookmarksWithLabel(label, search)
+            }
         }
         if(addData) for (it in bookmarks) {
             addText(it)

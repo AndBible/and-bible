@@ -56,8 +56,8 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:ems="10"
-				android:inputType="textPersonName"
-				android:hint="@string/labels_search_hint" />
+				android:hint="@string/labels_search_hint"
+				android:inputType="textPersonName" />
 
 			<ImageButton
 				android:id="@+id/clearSearchTextButton"
