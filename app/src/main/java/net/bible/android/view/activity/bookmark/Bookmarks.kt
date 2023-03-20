@@ -21,6 +21,8 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -87,6 +89,12 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private var listActionModeHelper: ListActionModeHelper? = null
     override val integrateWithHistoryManager: Boolean = true
 
+    private var searchText: String
+        get() = binding.editSearchText.text.toString()
+        set(value) {
+            binding.editSearchText.setText(value)
+        }
+
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,6 +113,19 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                     selectedLabelNo = labelNo
                 }
             }
+        }
+        binding.run {
+            clearSearchTextButton.setOnClickListener {
+                searchText = ""
+                loadBookmarkList()
+            }
+            editSearchText.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable) {
+                    loadBookmarkList()
+                }
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
         }
         initialiseView()
     }
@@ -221,7 +242,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 val selectedLabel = labelList[selectedLabelNo]
                 withContext(Dispatchers.Main) {
                     bookmarkList.clear()
-                    bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
+                    bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder, search="%$searchText%"))
                     notifyDataSetChanged()
 
                     // if in action mode then must exit because the data has changed, invalidating selections

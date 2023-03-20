@@ -50,12 +50,16 @@ CASE
     WHEN :orderBy = 'ORDER_NUMBER' THEN BookmarkToLabel.orderNumber
 END"""
 
+const val search = """
+notes LIKE :search
+"""
+
 @Dao
 interface BookmarkDao {
-    @Query("SELECT * from Bookmark ORDER BY $orderBy")
-    fun allBookmarks(orderBy: String): List<Bookmark>
-    fun allBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
-        allBookmarks(orderBy.name)
+    @Query("SELECT * from Bookmark WHERE $search ORDER BY $orderBy")
+    fun allBookmarks(orderBy: String, search:String = "%%"): List<Bookmark>
+    fun allBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, search:String = "%%"): List<Bookmark> =
+        allBookmarks(orderBy.name, search)
 
     @Query("SELECT * from Bookmark WHERE notes IS NOT NULL ORDER BY $orderBy")
     fun allBookmarksWithNotes(orderBy: String): List<Bookmark>
@@ -125,24 +129,25 @@ interface BookmarkDao {
     @Query("""
         SELECT * FROM Bookmark WHERE NOT EXISTS 
             (SELECT * FROM BookmarkToLabel WHERE Bookmark.id = BookmarkToLabel.bookmarkId)
+            AND $search
             ORDER BY $orderBy
         """)
-    fun unlabelledBookmarks(orderBy: String): List<Bookmark>
-    fun unlabelledBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
-        unlabelledBookmarks(orderBy.name)
+    fun unlabelledBookmarks(orderBy: String, search:String = "%%"): List<Bookmark>
+    fun unlabelledBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, search:String = "%%"): List<Bookmark> =
+        unlabelledBookmarks(orderBy.name, search)
 
 
     @Query("""
         SELECT Bookmark.* FROM Bookmark 
             JOIN BookmarkToLabel ON Bookmark.id = BookmarkToLabel.bookmarkId 
             JOIN Label ON BookmarkToLabel.labelId = Label.id
-            WHERE Label.id = :labelId ORDER BY $orderBy2
+            WHERE Label.id = :labelId AND $search ORDER BY $orderBy2
         """)
-    fun bookmarksWithLabel(labelId: Long, orderBy: String): List<Bookmark>
-    fun bookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark>
-        = bookmarksWithLabel(label.id, orderBy.name)
-    fun bookmarksWithLabel(labelId: Long, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark>
-        = bookmarksWithLabel(labelId, orderBy.name)
+    fun bookmarksWithLabel(labelId: Long, orderBy: String, search:String = "%%"): List<Bookmark>
+    fun bookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, search:String = "%%"): List<Bookmark>
+        = bookmarksWithLabel(label.id, orderBy.name, search)
+    fun bookmarksWithLabel(labelId: Long, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, search:String = "%%"): List<Bookmark>
+        = bookmarksWithLabel(labelId, orderBy.name, search)
 
     @Query("""UPDATE Bookmark SET notes=:notes, lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
     fun saveBookmarkNote(bookmarkId: Long, notes: String?, lastUpdatedOn: Long)
