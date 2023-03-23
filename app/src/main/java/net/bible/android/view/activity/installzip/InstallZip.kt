@@ -295,13 +295,14 @@ class InstallZip : ActivityBase() {
     }
 
     private suspend fun installFromFile(uri: Uri): Boolean {
-        val displayName = contentResolver.query(uri, null, null, null, null)?.use {
+        val (displayName, mimeType) = contentResolver.query(uri, null, null, null, null)?.use {
             it.moveToFirst()
-            val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            it.getString(idx)
+            val displayNameIdx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            val mimeTypeIdx = it.getColumnIndex("mime_type")
+            Pair(it.getString(displayNameIdx), it.getString(mimeTypeIdx))
         }?: throw CantRead()
 
-        if (displayName.lowercase().endsWith(".zip"))
+        if (displayName.lowercase().endsWith(".zip") || mimeType == "application/zip")
             return installZip(uri)
 
         val filetype = when {
