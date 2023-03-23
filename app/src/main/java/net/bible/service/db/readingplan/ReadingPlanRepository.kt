@@ -65,7 +65,7 @@ class ReadingPlanRepository @Inject constructor() {
     }
 
     @Synchronized
-    fun startPlan(planCode: String, date: Date = CommonUtils.truncatedDate) = scope.launch {
+    fun startPlan(planCode: String, date: Date = CommonUtils.truncatedDate) = runBlocking {
         var readPlan = readingPlanDao.getPlan(planCode)
         readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date)
 
