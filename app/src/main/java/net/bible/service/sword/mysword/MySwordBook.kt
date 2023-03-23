@@ -314,16 +314,22 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun readCommentary(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
+        val fromVerse: Int = if(verse.chapter == 1 && verse.verse == 1) 0 else verse.verse
+        val toVerse = verse.verse
+
         return state.sqlDb.rawQuery(
             """select data from commentary WHERE book = ? AND
                             ((chapter = ? AND fromverse <= ? AND toverse >= ?) OR
                             (chapter = ? AND fromverse = ? AND (toverse IS NULL OR toverse = 0)))
                 """,
-            arrayOf("${bibleBookToMySwordInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
+            arrayOf("${bibleBookToMySwordInt[verse.book]}", "${verse.chapter}", "$toVerse", "$fromVerse", "${verse.chapter}", "$toVerse")
         ).use {
-            it.moveToNext() || throw IOException("Can't read $key")
-            it.getString(0)
-        }
+            val result = arrayListOf<String>()
+            while (it.moveToNext()) {
+                result.add(it.getString(0))
+            }
+            result
+        }.joinToString {"<div>$it</div>"}
     }
 
     private val strongsMorphRe = Regex("""(\w+)<W([GH])(\d+)><WT([a-zA-Z\d\-]+)( l="([^"]+)")?>""")

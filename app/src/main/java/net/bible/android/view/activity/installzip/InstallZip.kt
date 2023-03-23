@@ -348,8 +348,8 @@ class InstallZip : ActivityBase() {
         val (displayName, mimeType) = contentResolver.query(uri, null, null, null, null)?.use {
             it.moveToFirst()
             val displayNameIdx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            val mimeIdx = it.getColumnIndex("mimee_type")
-            Pair(it.getString(displayNameIdx), it.getString(mimeIdx))
+            val mimeTypeIdx = it.getColumnIndex("mime_type")
+            Pair(it.getString(displayNameIdx), it.getString(mimeTypeIdx))
         }?: throw CantRead()
 
         if (displayName.lowercase().endsWith(".zip") || mimeType == "application/zip")
