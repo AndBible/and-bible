@@ -119,8 +119,14 @@ open class WindowControl @Inject constructor() {
         val window = windowRepository.addNewWindow()
         val pageManager = window.pageManager
         window.isSynchronised = false
+        window.isLinksWindow = false
         pageManager.setCurrentDocumentAndKey(document, key)
-
+        if(!window.isPinMode) {
+            for (it in windowRepository.windowList.filter { !it.isPinMode && !it.isLinksWindow && it.id != window.id }) {
+                it.windowState = WindowState.MINIMISED
+            }
+        }
+        ABEventBus.post(NumberOfWindowsChangedEvent())
         return window
     }
 
