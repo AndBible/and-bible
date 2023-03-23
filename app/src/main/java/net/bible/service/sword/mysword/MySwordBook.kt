@@ -235,13 +235,18 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     override fun get(index: Int): Key {
         when(bookMetaData.bookCategory) {
             BookCategory.DICTIONARY -> {
-                state.sqlDb.rawQuery(
-                    "select word from dictionary WHERE _rowid_ = ?",
-                    arrayOf("${index}")
-                ).use { c ->
-                    c.moveToNext()
-                    val topic = c.getString(0)
-                    return DefaultLeafKeyList(topic)
+                try {
+                    state.sqlDb.rawQuery(
+                        "select word from dictionary WHERE _rowid_ = ?",
+                        arrayOf("${index}")
+                    ).use { c ->
+                        c.moveToNext()
+                        val topic = c.getString(0)
+                        return DefaultLeafKeyList(topic)
+                    }
+                } catch (e: SQLiteException) {
+                    Log.e(TAG, "Error getting index $index", e)
+                    throw IndexOutOfBoundsException("Error getting index $index")
                 }
             }
             else -> throw RuntimeException("Per-index lookup unsupported")
@@ -283,14 +288,18 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         }
     }
 
-    override fun indexOf(that: Key): Int {
-        return when(bookMetaData.bookCategory) {
-            BookCategory.BIBLE -> indexOfBible(that)
-            BookCategory.COMMENTARY -> indexOfCommentary(that)
-            BookCategory.DICTIONARY -> indexOfDictionary(that)
-            else -> -1
+    override fun indexOf(that: Key): Int =
+        try  {
+            when(bookMetaData.bookCategory) {
+                BookCategory.BIBLE -> indexOfBible(that)
+                BookCategory.COMMENTARY -> indexOfCommentary(that)
+                BookCategory.DICTIONARY -> indexOfDictionary(that)
+                else -> -1
+            }
+        } catch (e: SQLiteException) {
+            Log.e(TAG, "Error in indexOf", e)
+            -1
         }
-    }
 
     private fun readBible(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
@@ -364,13 +373,15 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                 "<${m.groups[1]!!.value}/>"
             }
 
-    override fun readRawContent(state: SqliteVerseBackendState, key: Key): String {
-        return when(bookMetaData.bookCategory) {
+    override fun readRawContent(state: SqliteVerseBackendState, key: Key): String = try {
+        when (bookMetaData.bookCategory) {
             BookCategory.BIBLE -> transformMySwordTags(readBible(state, key))
             BookCategory.COMMENTARY -> transformMySwordTags(readCommentary(state, key))
             BookCategory.DICTIONARY -> transformMySwordTags(readDictionary(state, key))
             else -> ""
         }
+    } catch (e: SQLiteException) {
+        throw IOException("Can't read $key", e)
     }
 }
 
