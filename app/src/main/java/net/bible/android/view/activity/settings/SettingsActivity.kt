@@ -71,8 +71,7 @@ class PreferenceStore: PreferenceDataStore() {
     override fun getFloat(key: String, defValue: Float): Float = prefs.getFloat(key, defValue)
 
     override fun putFloat(key: String, value: Float) = prefs.setFloat(key, value)
-
-    override fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String>? = prefs.getStringSet(key, defValues)
+    override fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String> = prefs.getStringSet(key, defValues) ?: mutableSetOf()
     override fun putStringSet(key: String, values: MutableSet<String>?)  = prefs.setStringSet(key, values)
 }
 
