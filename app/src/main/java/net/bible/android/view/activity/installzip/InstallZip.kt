@@ -262,7 +262,7 @@ class ZipHandler(
 
 open class SqliteInstallError: Error()
 class CantRead: SqliteInstallError()
-class InvalidFile: SqliteInstallError()
+class InvalidFile(val filename: String): SqliteInstallError()
 class CantWrite: SqliteInstallError()
 
 class InstallZip : ActivityBase() {
@@ -323,16 +323,16 @@ class InstallZip : ActivityBase() {
                 installFromFile(result.resultData!!.data!!)
             } catch (e: SqliteInstallError) {
                 Log.e(TAG, "Error occurred in installing module", e)
-                val msgId = when(e) {
-                    is CantRead -> R.string.sqlite_cant_read
-                    is InvalidFile -> R.string.sqlite_invalid_file
-                    is CantWrite -> R.string.sqlite_cant_write
+                val msg = when(e) {
+                    is CantRead -> getString(R.string.sqlite_cant_read)
+                    is InvalidFile -> getString(R.string.sqlite_invalid_file, e.filename)
+                    is CantWrite -> getString(R.string.sqlite_cant_write)
                     else -> throw RuntimeException(e)
                 }
                 suspendCoroutine<Boolean> {
                     AlertDialog.Builder(this@InstallZip)
                         .setTitle(R.string.error_occurred)
-                        .setMessage(getString(R.string.install_failed_reason, getString(msgId)))
+                        .setMessage(getString(R.string.install_failed_reason, msg))
                         .setPositiveButton(R.string.okay) { dialog, which ->
                             it.resume(true)
                         }
@@ -345,19 +345,20 @@ class InstallZip : ActivityBase() {
     }
 
     private suspend fun installFromFile(uri: Uri): Boolean {
-        val displayName = contentResolver.query(uri, null, null, null, null)?.use {
+        val (displayName, mimeType) = contentResolver.query(uri, null, null, null, null)?.use {
             it.moveToFirst()
-            val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            it.getString(idx)
+            val displayNameIdx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            val mimeIdx = it.getColumnIndex("mimee_type")
+            Pair(it.getString(displayNameIdx), it.getString(mimeIdx))
         }?: throw CantRead()
 
-        if (displayName.lowercase().endsWith(".zip"))
+        if (displayName.lowercase().endsWith(".zip") || mimeType == "application/zip")
             return installZip(uri)
 
         val filetype = when {
             displayName.lowercase().endsWith(".sqlite3") -> "mybible"
             displayName.lowercase().endsWith(".mybible") -> "mysword"
-            else -> throw InvalidFile()
+            else -> throw InvalidFile(displayName)
         }
 
         binding.loadingIndicator.visibility = View.VISIBLE
@@ -403,11 +404,11 @@ class InstallZip : ActivityBase() {
                     }
                     if(book == null) {
                         outFile.delete()
-                        throw InvalidFile()
+                        throw InvalidFile(displayName)
                     }
                 }
                 else {
-                    throw InvalidFile()
+                    throw InvalidFile(displayName)
                 }
             }
         }
