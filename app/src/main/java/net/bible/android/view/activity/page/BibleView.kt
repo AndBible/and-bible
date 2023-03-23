@@ -863,10 +863,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val v11n = uri.getQueryParameter("v11n")
             val forceDoc = uri.getBooleanQueryParameter("force-doc", false)
             if (osisRef != null) {
-                linkControl.loadApplicationUrl(BibleLink("osis", osisRef, v11n, forceDoc = forceDoc))
+                linkControl.loadApplicationUrl(BibleLink("osis", osisRef.trim(), v11n, forceDoc = forceDoc))
             } else {
                 val contentRef = uri.getQueryParameter("content")!!
-                linkControl.loadApplicationUrl(BibleLink("content", contentRef, v11n, forceDoc = forceDoc))
+                linkControl.loadApplicationUrl(BibleLink("content", contentRef.trim(), v11n, forceDoc = forceDoc))
             }
             true
         }
