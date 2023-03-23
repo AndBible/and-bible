@@ -48,6 +48,8 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
+import net.bible.android.view.activity.download.BadDocumentAction
+import net.bible.android.view.activity.download.isBadDocument
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
@@ -77,7 +79,7 @@ import javax.inject.Inject
  */
 
 @Serializable
-data class RecommendedDocuments(
+data class DocumentConfiguration(
     val bibles: Map<String, List<String>>,
     val commentaries: Map<String, List<String>>,
     val dictionaries: Map<String, List<String>>,
@@ -128,8 +130,9 @@ abstract class DocumentSelectionBase(
     private val dao get() = DatabaseContainer.db.documentDao()
 
     val pseudoBooks = Ref<List<PseudoBook>>()
-    val defaultDocuments = Ref<RecommendedDocuments>()
-    val recommendedDocuments = Ref<RecommendedDocuments>()
+    val defaultDocuments = Ref<DocumentConfiguration>()
+    val recommendedDocuments = Ref<DocumentConfiguration>()
+    val badDocuments = Ref<DocumentConfiguration>()
 
     private var allDocuments = ArrayList<Book>()
     var displayedDocuments = ArrayList<Book>()
@@ -426,7 +429,11 @@ abstract class DocumentSelectionBase(
 
                         for (doc in allDocuments) {
                             val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
-                            if (filter.test(doc) && (lang == null || doc.language == lang || doc.bookCategory == BookCategory.AND_BIBLE) && (osisIds == null || osisIds.contains(doc.osisID))) {
+                            if (filter.test(doc) &&
+                                (lang == null || doc.language == lang || doc.bookCategory == BookCategory.AND_BIBLE) &&
+                                (osisIds == null || osisIds.contains(doc.osisID)) &&
+                                !doc.isBadDocument(badDocuments.value, BadDocumentAction.HIDE)
+                            ) {
                                 displayedDocuments.add(doc)
                             }
                         }

@@ -29,6 +29,7 @@ object SharedConstants {
 
     private const val MANUAL_INSTALL_SUBDIR = "jsword"
     private const val MANUAL_INSTALL_SUBDIR2 = "sword"
+    val BAD_DOCS_JSON = "bad_documents.json"
     val RECOMMENDED_JSON = "recommended_documents_v2.json"
     val DEFAULT_JSON = "default_documents_v2.json"
     val PSEUDO_BOOKS = "pseudo_books.json"

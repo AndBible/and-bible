@@ -29,7 +29,7 @@ import net.bible.android.control.download.repo
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
-import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.isPseudoBook
@@ -48,7 +48,7 @@ val Book.imageResource: Int
         else -> R.drawable.ic_book_24dp
     }
 
-fun Book.isRecommended(recommendedDocuments: RecommendedDocuments?): Boolean =
+fun Book.isRecommended(recommendedDocuments: DocumentConfiguration?): Boolean =
     recommendedDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
         if(it.contains("::")) {
             val (initials, repository) = it.split("::")
@@ -58,6 +58,27 @@ fun Book.isRecommended(recommendedDocuments: RecommendedDocuments?): Boolean =
         }
     } != null
 
+enum class BadDocumentAction {
+    WARN, HIDE, NONE;
+    companion object {
+        fun getByLetter(actionLetter: String) =
+            when (actionLetter) {
+                "W" -> WARN
+                "H" -> HIDE
+                else -> NONE
+            }
+    }
+}
+fun Book.isBadDocument(badDocuments: DocumentConfiguration?, actionForDocument: BadDocumentAction): Boolean =
+    badDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
+        val (initials, repository, version, actionStr) = it.split("::")
+        val action = BadDocumentAction.getByLetter(actionStr)
+        initials == this.initials
+            && repository == this.repo
+            && version == bookMetaData.getProperty(SwordBookMetaData.KEY_VERSION)
+            && action == actionForDocument
+    } != null
+
 /** Add an image to the normal 2 line list item
  *
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -65,7 +86,8 @@ fun Book.isRecommended(recommendedDocuments: RecommendedDocuments?): Boolean =
 class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(context, attrs) {
     lateinit var binding: DocumentListItemBinding // Injected from adapter!
 
-    var recommendedDocuments: RecommendedDocuments? = null
+    var recommendedDocuments: DocumentConfiguration? = null
+    var badDocuments: DocumentConfiguration? = null
 
     lateinit var document: Book
     override fun onAttachedToWindow() {
@@ -95,6 +117,8 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
         }
 
         val isRecommended = document.isRecommended(recommendedDocuments)
+        val warnBadDocument = document.isBadDocument(badDocuments, BadDocumentAction.WARN)
+        warnIcon.visibility = if(warnBadDocument) View.VISIBLE else View.INVISIBLE
         recommendedIcon.visibility = if(isRecommended) View.VISIBLE else View.INVISIBLE
         lockedIcon.visibility = if(document.isEnciphered) View.VISIBLE else View.INVISIBLE
         lockedIcon.setImageResource(if(document.isLocked) R.drawable.ic_baseline_lock_24 else  R.drawable.ic_baseline_lock_open_24)

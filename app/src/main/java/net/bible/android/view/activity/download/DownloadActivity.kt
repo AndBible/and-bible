@@ -38,7 +38,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.view.activity.base.DocumentSelectionBase
-import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.settings
@@ -117,7 +117,19 @@ open class DownloadActivity : DocumentSelectionBase(
         genericFileDownloader.downloadFile(source, target, "Recommendations", reportError = !target.canRead())
         if (target.canRead()) {
             val jsonString = String(target.readBytes())
-            recommendedDocuments.value = json.decodeFromString(RecommendedDocuments.serializer(), jsonString)
+            recommendedDocuments.value = json.decodeFromString(DocumentConfiguration.serializer(), jsonString)
+        } else {
+            Log.e(TAG, "Could not load recommendations")
+        }
+    }
+
+    private suspend fun loadBadDocuments() = withContext(Dispatchers.IO) {
+        val source = URL("https://andbible.github.io/data/${SharedConstants.BAD_DOCS_JSON}")
+        val target = File(SharedConstants.MODULE_DIR, SharedConstants.BAD_DOCS_JSON)
+        genericFileDownloader.downloadFile(source, target, "Bad documents list", reportError = !target.canRead())
+        if (target.canRead()) {
+            val jsonString = String(target.readBytes())
+            badDocuments.value = json.decodeFromString(DocumentConfiguration.serializer(), jsonString)
         } else {
             Log.e(TAG, "Could not load recommendations")
         }
@@ -131,7 +143,7 @@ open class DownloadActivity : DocumentSelectionBase(
         genericFileDownloader.downloadFile(source, target, "Defaults", reportError = !target.canRead())
         if(target.canRead()) {
             val jsonString = String(target.readBytes())
-            defaultDocuments.value = json.decodeFromString(RecommendedDocuments.serializer(), jsonString)
+            defaultDocuments.value = json.decodeFromString(DocumentConfiguration.serializer(), jsonString)
         } else {
             Log.e(TAG, "Could not load default document list")
         }
@@ -212,7 +224,7 @@ open class DownloadActivity : DocumentSelectionBase(
             downloadDocJson()
 
             documentItemAdapter = DocumentDownloadItemAdapter(
-                this@DownloadActivity, downloadControl, recommendedDocuments)
+                this@DownloadActivity, downloadControl, recommendedDocuments, badDocuments)
             initialiseView()
             // in the basic flow we force the user to download a bible
             binding.documentTypeSpinner.isEnabled = true
@@ -434,7 +446,8 @@ open class DownloadActivity : DocumentSelectionBase(
         awaitAll(
             async { loadRecommendedDocuments() },
             async { loadDefaultDocuments() },
-            async { loadPseudoBooks() }
+            async { loadPseudoBooks() },
+            async { loadBadDocuments() },
         )
     }
 

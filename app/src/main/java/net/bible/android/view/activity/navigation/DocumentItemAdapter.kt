@@ -24,7 +24,7 @@ import android.widget.ArrayAdapter
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.view.activity.base.DocumentSelectionBase
-import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.android.view.activity.download.DocumentListItem
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
@@ -38,7 +38,7 @@ import org.crosswire.jsword.versification.system.SystemKJV
 
 class DocumentItemAdapter(
     val activity: DocumentSelectionBase,
-    private val recommendedDocuments: RecommendedDocuments? = null
+    private val recommendedDocuments: DocumentConfiguration? = null
 ) : ArrayAdapter<Book>(activity, R.layout.document_list_item, ArrayList<Book>()) {
     private lateinit var bindings: DocumentListItemBinding
 

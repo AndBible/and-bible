@@ -25,7 +25,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.DocumentSelectionBase
-import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.service.common.Ref
 import org.crosswire.jsword.book.Book
 
@@ -37,7 +37,8 @@ import org.crosswire.jsword.book.Book
 class DocumentDownloadItemAdapter(
     val activity: DocumentSelectionBase,
     private val downloadControl: DownloadControl,
-    private val recommendedDocuments: Ref<RecommendedDocuments>
+    private val recommendedDocuments: Ref<DocumentConfiguration>,
+    private val badDocuments: Ref<DocumentConfiguration>,
 ) : ArrayAdapter<Book>(activity, R.layout.document_list_item, ArrayList<Book>())
 {
     private lateinit var bindings: DocumentListItemBinding
@@ -58,6 +59,7 @@ class DocumentDownloadItemAdapter(
         // remember which item is being shown
         view.document = document
         view.recommendedDocuments = recommendedDocuments.value
+        view.badDocuments = badDocuments.value
 
         view.setIcons(downloadScreen = true)
         bindings.undoButton.setOnClickListener {
