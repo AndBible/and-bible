@@ -25,17 +25,17 @@
 	<PreferenceCategory
 		android:key="dictionaries_category"
 		android:title="@string/prefs_dictionaries_cat">
-		<ListPreference android:key="strongs_greek_dictionary"
+		<MultiSelectListPreference android:key="strongs_greek_dictionary"
 			android:title="@string/choose_strongs_greek_dictionary_title"
 			android:summary="@string/choose_strongs_greek_dictionary_summary"
 			android:icon="@drawable/ic_strongs_greek"
 			/>
-		<ListPreference android:key="strongs_hebrew_dictionary"
+		<MultiSelectListPreference android:key="strongs_hebrew_dictionary"
 			android:title="@string/choose_strongs_hebrew_dictionary_title"
 			android:summary="@string/choose_strongs_hebrew_dictionary_summary"
 			android:icon="@drawable/ic_strongs_hebrew"
 			/>
-		<ListPreference android:key="robinson_greek_morphology"
+		<MultiSelectListPreference android:key="robinson_greek_morphology"
 			android:title="@string/choose_strongs_greek_morphology_title"
 			android:summary="@string/choose_strongs_greek_morphology_summary"
 			android:icon="@drawable/ic_morphology_24dp"

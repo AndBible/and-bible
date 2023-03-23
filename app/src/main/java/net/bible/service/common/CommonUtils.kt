@@ -72,6 +72,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.BuildConfig
@@ -98,9 +99,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
-import net.bible.service.db.DataBaseNotReady
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
@@ -330,6 +329,16 @@ object CommonUtils : CommonUtilsBase() {
         fun setBoolean(key: String, value: Boolean?) = booleanSettings.set(key, value)
         fun setDouble(key: String, value: Double?) = doubleSettings.set(key, value)
         fun setFloat(key: String, value: Float?) = doubleSettings.set(key, value?.toDouble())
+
+        fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String>? {
+            val s = getString(key, null) ?: return defValues
+            return try { json.decodeFromString(serializer(), s) } catch (e: SerializationException) { defValues }
+        }
+
+        fun setStringSet(key: String, values: MutableSet<String>?) {
+            if(values == null) removeString(key)
+            else setString(key, json.encodeToString(serializer(), values))
+        }
 
         fun removeString(key: String) = setString(key, null)
         fun removeDouble(key: String) = setDouble(key, null)

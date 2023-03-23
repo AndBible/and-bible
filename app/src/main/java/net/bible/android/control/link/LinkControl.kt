@@ -39,6 +39,7 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.bookAndKeyListOf
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -95,9 +96,17 @@ class LinkControl @Inject constructor(
             }
         }
         for(k in bookKeys) {
-            key.addAll(k)
+            when(k) {
+                is BookAndKeyList -> {
+                    for(kk in k) {
+                        key.addAll(kk)
+                    }
+                }
+                is BookAndKey -> key.addAll(k)
+                else -> throw Exception("Unknown key type: ${k.javaClass}")
+            }
         }
-        key.name = bookKeys.map { it.key.name }.joinToString(", ")
+        key.name = key.joinToString(", ") { (it as BookAndKey).key.name }
         showLink(FakeBookFactory.multiDocument, key)
         return true
     }
@@ -113,14 +122,17 @@ class LinkControl @Inject constructor(
         ErrorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
     }
 
-    private fun getBookAndKey(uriStr: String, versification: Versification, forceDoc: Boolean): BookAndKey? {
+    /**
+     *  Returns either BookAndKey or BookAndKeyList
+     */
+    private fun getBookAndKey(uriStr: String, versification: Versification, forceDoc: Boolean): Key? {
         Log.i(TAG, "Loading: $uriStr")
         val uriAnalyzer = UriAnalyzer()
         if (uriAnalyzer.analyze(uriStr)) {
             return when (uriAnalyzer.docType) {
                 UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key, versification)
-                UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key)
-                UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key)
+                UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key, StrongsKeyType.GREEK)
+                UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key, StrongsKeyType.HEBREW)
                 UriAnalyzer.DocType.ROBINSON -> getRobinsonMorphologyKey(uriAnalyzer.key)
                 UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, forceDoc)
                 else -> null
@@ -130,17 +142,28 @@ class LinkControl @Inject constructor(
     }
 
     private fun loadApplicationUrl(uriStr: String, versification: Versification, forceDoc: Boolean): Boolean {
-        val bookAndKey = try {getBookAndKey(uriStr, versification, forceDoc)} catch (e: NoSuchKeyException) {return false} ?: return false
-        val key = bookAndKey.key
-        if(key is Passage && key.countRanges(RestrictionType.NONE) > 1) {
-            val keyList = BookAndKeyList()
-            for( range in (0 until key.countRanges(RestrictionType.NONE)).map { key.getRangeAt(it, RestrictionType.NONE) }) {
-                keyList.addAll(BookAndKey(range, bookAndKey.document))
+        val bookAndKeys =
+            try {getBookAndKey(uriStr, versification, forceDoc)}
+            catch (e: NoSuchKeyException) {return false} ?: return false
+
+        when(bookAndKeys) {
+            is BookAndKey -> {
+                val key = bookAndKeys.key
+                if(key is Passage && key.countRanges(RestrictionType.NONE) > 1) {
+                    val keyList = BookAndKeyList()
+                    for( range in (0 until key.countRanges(RestrictionType.NONE)).map { key.getRangeAt(it, RestrictionType.NONE) }) {
+                        keyList.addAll(BookAndKey(range, bookAndKeys.document))
+                    }
+                    showLink(FakeBookFactory.multiDocument, keyList)
+                } else {
+                    showLink(bookAndKeys.document, bookAndKeys.key)
+                }
             }
-            showLink(FakeBookFactory.multiDocument, keyList)
-        } else {
-            showLink(bookAndKey.document, bookAndKey.key)
+            is BookAndKeyList -> {
+                showLink(FakeBookFactory.multiDocument, bookAndKeys)
+            }
         }
+
         return true
 	}
 
@@ -208,12 +231,33 @@ class LinkControl @Inject constructor(
 
     private val preferredKeyType = hashMapOf<String, KeyType>()
 
-    @Throws(NoSuchKeyException::class)
+    enum class StrongsKeyType {HEBREW, GREEK}
+
     private fun getStrongsKey(book: Book, key: String): BookAndKey? {
+        val match = Regex("^([GH]?)(0*)([0-9]+).*").find(key)
+        val category = match?.groups?.get(1)?.value
+            ?: if(book.isHebrewDef) "H"
+            else if(book.isGreekDef) "G"
+            else return null
+
+        val lst = getStrongsKey(listOf(book), key, when(category) {
+            "H" -> StrongsKeyType.HEBREW
+            "G" -> StrongsKeyType.GREEK
+            else -> return null
+        })
+        return lst?.firstOrNull() as BookAndKey?
+    }
+
+    @Throws(NoSuchKeyException::class)
+    private fun getStrongsKey(books: List<Book>, key: String, strongsKeyType: StrongsKeyType): BookAndKeyList? {
         val match = Regex("^([GH]?)(0*)([0-9]+).*").find(key)
         val match2 = Regex("^(0*)([0-9]+).*").find(key)
 
-        val category = match?.groups?.get(1)?.value ?: if(book.isHebrewDef) "H" else if(book.isGreekDef) "G" else ""
+        val category = when(strongsKeyType) {
+            StrongsKeyType.HEBREW -> "H"
+            StrongsKeyType.GREEK -> "G"
+        }
+
         val sanitizedKeyBase = match?.groups?.get(3)?.value ?: match2?.groups?.get(2)?.value
 
         val zeroPaddedKey = sanitizedKeyBase?.padStart(5, '0') ?: ""
@@ -227,31 +271,41 @@ class LinkControl @Inject constructor(
             KeyType.CATEGORY to category + sanitizedKeyBase
         )
 
-        val preferred = preferredKeyType[book.initials] ?: KeyType.KEY
+        val bookAndKeys = books.mapNotNull { book ->
+            val preferred = preferredKeyType[book.initials] ?: KeyType.KEY
 
-        val keyTypes = mutableListOf(preferred)
-        keyTypes.addAll(KeyType.ALL_TYPES.filterNot { it == preferred })
+            val keyTypes = mutableListOf(preferred)
+            keyTypes.addAll(KeyType.ALL_TYPES.filterNot { it == preferred })
 
-        val k = run {
-            for(keyType in keyTypes) {
-                val opt = keyOptions[keyType]
-                val candidate = try {book.getKey(opt)} catch (e: NoSuchKeyException) {null}
-                if(candidate != null) {
-                    preferredKeyType[book.initials] = keyType
-                    return@run candidate
+            val k = run {
+                for (keyType in keyTypes) {
+                    val opt = keyOptions[keyType]
+                    val candidate = try {
+                        book.getKey(opt)
+                    } catch (e: NoSuchKeyException) {
+                        null
+                    }
+                    if (candidate != null) {
+                        preferredKeyType[book.initials] = keyType
+                        return@run candidate
+                    }
                 }
+                null
             }
-            null
-        }
 
-        return if(k == null) null else BookAndKey(k, book)
+            if (k == null) null else BookAndKey(k, book)
+        }
+        if(bookAndKeys.isEmpty()) return null
+        return bookAndKeyListOf(bookAndKeys)
     }
 
     @Throws(NoSuchKeyException::class)
-    private fun getRobinsonMorphologyKey(key: String): BookAndKey {
-        val robinson = SwordDocumentFacade.defaultRobinsonGreekMorphology
-        val robinsonNumberKey = robinson.getKey(key)
-        return BookAndKey(robinsonNumberKey, robinson)
+    private fun getRobinsonMorphologyKey(key: String): BookAndKeyList {
+        val robinsonBooks = SwordDocumentFacade.defaultRobinsonGreekMorphology
+        return bookAndKeyListOf(robinsonBooks.mapNotNull {
+            val k = it.getKey(key)
+            if(k != null) BookAndKey(k, it) else null
+        })
     }
 
     fun showAllOccurrences(ref: String, bibleSection: SearchBibleSection) {

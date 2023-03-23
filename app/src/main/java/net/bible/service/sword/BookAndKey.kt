@@ -150,3 +150,11 @@ class BookAndKeyList: DefaultKeyList() {
         private const val serialVersionUID: Long = 1
     }
 }
+
+fun bookAndKeyListOf(keys: Collection<BookAndKey>): BookAndKeyList {
+    val list = BookAndKeyList()
+    for (it in keys) {
+        list.addAll(it)
+    }
+    return list
+}

@@ -26,6 +26,7 @@ import android.view.MenuItem
 import android.widget.TextView
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
+import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
@@ -71,10 +72,8 @@ class PreferenceStore: PreferenceDataStore() {
 
     override fun putFloat(key: String, value: Float) = prefs.setFloat(key, value)
 
-    override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? =
-        throw RuntimeException("Not supported")
-
-    override fun putStringSet(key: String?, values: MutableSet<String>?): Unit = throw RuntimeException("Not supported")
+    override fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String>? = prefs.getStringSet(key, defValues)
+    override fun putStringSet(key: String, values: MutableSet<String>?)  = prefs.setStringSet(key, values)
 }
 
 
@@ -160,7 +159,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         super.onDisplayPreferenceDialog(preference)
 	}
 
-    private fun setupDictionary(pref: ListPreference, type: FeatureType): Boolean {
+    private fun setupDictionary(pref: MultiSelectListPreference, type: FeatureType): Boolean {
         val dicts = Books.installed().books.filter { it.hasFeature(type) }
 
         return if(dicts.isEmpty()) {
@@ -193,11 +192,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
         showErrorBox.isVisible = CommonUtils.isBeta
-        val greekStrongs = preferenceScreen.findPreference<ListPreference>("strongs_greek_dictionary") as ListPreference
+        val greekStrongs = preferenceScreen.findPreference<MultiSelectListPreference>("strongs_greek_dictionary") as MultiSelectListPreference
         val showGreek = setupDictionary(greekStrongs, FeatureType.GREEK_DEFINITIONS)
-        val hebrewStrongs = preferenceScreen.findPreference<ListPreference>("strongs_hebrew_dictionary") as ListPreference
+        val hebrewStrongs = preferenceScreen.findPreference<MultiSelectListPreference>("strongs_hebrew_dictionary") as MultiSelectListPreference
         val showHebrew = setupDictionary(hebrewStrongs, FeatureType.HEBREW_DEFINITIONS)
-        val greekMorph = preferenceScreen.findPreference<ListPreference>("robinson_greek_morphology") as ListPreference
+        val greekMorph = preferenceScreen.findPreference<MultiSelectListPreference>("robinson_greek_morphology") as MultiSelectListPreference
         val showGreekMorph = setupDictionary(greekMorph, FeatureType.GREEK_PARSE)
         val dictCategory = preferenceScreen.findPreference<PreferenceCategory>("dictionaries_category") as PreferenceCategory
         dictCategory.isVisible = showGreek || showHebrew || showGreekMorph
