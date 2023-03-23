@@ -336,11 +336,28 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         }
     }
 
+    /**
+     * (Trying out Github CoPilot, so writing a detailed comment)
+     * Read commentary from sqlite database for key (book_number, chapter, verse) that has table commentaries with columns:
+     * book_number, chapter_number_from, verse_number_from, chapter_number_to, verse_number_to, text
+     * such that all verses in range (chapter_number_from, verse_number_from) - (chapter_number_to, verse_number_to)
+     * are returned in order of increasing chapter_number_from, verse_number_from. Results are joined to a string
+     * that puts each result within their own <div> tag.
+     */
     private fun readCommentary(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
+
+        val (fromChap: Int, fromVerse: Int) = if(verse.chapter == 1 && verse.verse == 1) {
+            Pair(0, 0)
+        } else {
+            Pair(verse.chapter, verse.verse)
+        }
+
+        val toChap = verse.chapter
+        val toVerse = verse.verse
+
         return state.sqlDb.rawQuery(
-            """select text from commentaries WHERE 
-                            book_number = ? AND 
+            """select text from commentaries WHERE book_number = ? AND 
                             (
                                 (chapter_number_from <= ? AND verse_number_from <= ? AND
                                  chapter_number_to >= ? AND verse_number_to >= ?
@@ -350,13 +367,17 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                                 (chapter_number_to IS NULL OR chapter_number_to = 0) AND 
                                 (verse_number_to IS NULL OR verse_number_to = 0
                             )
-                            ))                
-                """,
-            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")
+                            ))
+                            ORDER BY chapter_number_from, verse_number_from
+                            """,
+            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "$toChap", "$toVerse", "$fromChap", "$fromVerse", "$toChap", "$toVerse")
         ).use {
-            it.moveToNext() || throw IOException("Can't read $key")
-            it.getString(0)
-        }
+            val result = arrayListOf<String>()
+            while (it.moveToNext()) {
+                result.add(it.getString(0))
+            }
+            result
+        }.joinToString {"<div>$it</div>"}
     }
 
     override fun readRawContent(state: SqliteVerseBackendState, key: Key): String {
