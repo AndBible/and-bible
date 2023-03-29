@@ -78,56 +78,22 @@ object SwordDocumentFacade {
             return allDocuments
         }
 
-    val defaultRobinsonGreekMorphology: List<Book>
-        get() {
-            val bookInitials = CommonUtils.settings.getStringSet("robinson_greek_morphology", null)
-            if(bookInitials != null) {
-                return bookInitials.mapNotNull{ Books.installed().getBook(it)}
-            }
-            val preferredBooks = arrayOf("robinson")
-            for (prefBook in preferredBooks) {
-                val mod = Books.installed().getBook(prefBook)
-                if (mod != null) {
-                    return listOf(mod)
-                }
-            }
-            return listOf(Defaults.getGreekParse()?: FakeBookFactory.giveDoesNotExist("Robinson", BookCategory.DICTIONARY))
+    private fun getDictionaries(keyName: String, fakeBookName: String, type: FeatureType): List<Book> {
+        val bookInitials = CommonUtils.settings.getStringSet(keyName, null)
+        if(bookInitials != null) {
+            return bookInitials.mapNotNull{ Books.installed().getBook(it)}
         }
+        val dictionaries = Books.installed().books.filter { it.hasFeature(type) }
+        if(dictionaries.isNotEmpty()) return dictionaries
+        return listOf(FakeBookFactory.giveDoesNotExist(fakeBookName, BookCategory.DICTIONARY))
+    }
 
-    val defaultStrongsGreekDictionary: List<Book>
-        get() {
-            val bookInitials = CommonUtils.settings.getStringSet("strongs_greek_dictionary", null)
-            if(bookInitials != null) {
-                return bookInitials.mapNotNull { Books.installed().getBook(it) }
-            }
-
-            val preferredBooks = arrayOf("StrongsRealGreek", "StrongsGreek")
-
-            for (prefBook in preferredBooks) {
-                val strongs = Books.installed().getBook(prefBook)
-                if (strongs != null) {
-                    return listOf(strongs)
-                }
-            }
-            return listOf(Defaults.getGreekDefinitions()?: FakeBookFactory.giveDoesNotExist("StrongsGreek", BookCategory.DICTIONARY))
-        }
-
-    val defaultStrongsHebrewDictionary: List<Book>
-        get() {
-            val bookInitials = CommonUtils.settings.getStringSet("strongs_hebrew_dictionary", null)
-            if(bookInitials != null) {
-                return bookInitials.mapNotNull {Books.installed().getBook(it)}
-            }
-
-            val preferredBooks = arrayOf("StrongsRealHebrew", "StrongsHebrew")
-            for (prefBook in preferredBooks) {
-                val strongs = Books.installed().getBook(prefBook)
-                if (strongs != null) {
-                    return listOf(strongs)
-                }
-            }
-            return listOf(Defaults.getHebrewDefinitions()?: FakeBookFactory.giveDoesNotExist("StrongsHebrew", BookCategory.DICTIONARY))
-        }
+    val defaultRobinsonGreekMorphology: List<Book> get() =
+        getDictionaries("robinson_greek_morphology","Robinson", FeatureType.GREEK_PARSE)
+    val defaultStrongsGreekDictionary: List<Book> get() =
+        getDictionaries("strongs_greek_dictionary", "StrongsGreek", FeatureType.GREEK_DEFINITIONS)
+    val defaultStrongsHebrewDictionary: List<Book> get() =
+        getDictionaries("strongs_hebrew_dictionary", "StrongsHebrew", FeatureType.HEBREW_DEFINITIONS)
 
     val defaultBibleWithStrongs: Book? get() = bibles
         .sortedWith(compareBy({ !it.hasFeature(FeatureType.STRONGS_NUMBERS) }, { it.indexStatus != IndexStatus.DONE }))

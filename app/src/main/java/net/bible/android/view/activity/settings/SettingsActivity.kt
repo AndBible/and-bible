@@ -169,6 +169,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             val initials = dicts.map { it.initials }.toTypedArray()
             pref.entries = names
             pref.entryValues = initials
+            pref.setDefaultValue(initials)
             true
         }
     }
