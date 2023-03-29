@@ -739,6 +739,10 @@ object CommonUtils : CommonUtilsBase() {
      */
     suspend fun showAbout(context: Context, document: Book) {
         var about = "<b>${document.name}</b>\n\n"
+        val badDocument = document.bookMetaData.getProperty("BadDocument")
+        if(badDocument != null) {
+            about += "<b>${application.getString(R.string.warn_bad_document)}</b>\n\n"
+        }
         about += document.bookMetaData.getProperty("About") ?: ""
         // either process the odd formatting chars in about
         about = about.replace("\\pard", "")

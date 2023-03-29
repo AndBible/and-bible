@@ -435,6 +435,9 @@ abstract class DocumentSelectionBase(
                                 !doc.isBadDocument(badDocuments.value, BadDocumentAction.HIDE)
                             ) {
                                 displayedDocuments.add(doc)
+                                if(doc.isBadDocument(badDocuments.value, BadDocumentAction.WARN)) {
+                                    doc.putProperty("BadDocument", "WARN")
+                                }
                             }
                         }
 
@@ -535,8 +538,10 @@ abstract class DocumentSelectionBase(
             // ensure repo key is retained but reload sbmd to ensure About text is loaded
             val sbmd = document.bookMetaData as SwordBookMetaData
             val repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY)
+            val badDocument = sbmd.getProperty("BadDocument")
             sbmd.reload()
             sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey)
+            sbmd.putProperty("BadDocument", badDocument)
             lifecycleScope.launch(Dispatchers.Main) {CommonUtils.showAbout(this@DocumentSelectionBase, document) }
         } catch (e: BookException) {
             Log.e(TAG, "Error expanding SwordBookMetaData for $document", e)
