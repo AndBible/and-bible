@@ -24,12 +24,10 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils.ensureDirExists
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.isAndroid
 import net.bible.service.common.Logger
-import net.bible.service.db.DatabaseContainer
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.CWProject
 import org.crosswire.common.util.Reporter
@@ -37,7 +35,6 @@ import org.crosswire.common.util.ReporterEvent
 import org.crosswire.common.util.ReporterListener
 import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.book.BookException
-import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.index.lucene.LuceneIndexManager
@@ -57,10 +54,7 @@ object SwordEnvironmentInitialisation {
         try {
             if (isAndroid && !isSwordLoaded) { // ensure required module directories exist and register them with jsword
 				// This folder we can always access freely without any extra permissions.
-                val moduleDir = if(BuildVariant.Appearance.isDiscrete)
-                    SharedConstants.INTERNAL_MODULE_DIR
-                else
-                    SharedConstants.MODULE_DIR
+                val moduleDir = SharedConstants.modulesDir
 
                 // main module dir
                 ensureDirExists(moduleDir)
@@ -70,8 +64,6 @@ object SwordEnvironmentInitialisation {
                 ensureDirExists(File(moduleDir, SwordConstants.DIR_DATA))
                 // indexes
                 ensureDirExists(File(moduleDir, LuceneIndexManager.DIR_LUCENE))
-                //fonts
-                ensureDirExists(SharedConstants.FONT_DIR)
                 // Optimize for less memory
                 PassageKeyFactory.setDefaultType(PassageType.MIX)
                 // the following are required to set the read and write dirs for module properties, initialised during the following call to setHome
@@ -97,10 +89,10 @@ object SwordEnvironmentInitialisation {
 
     @Throws(BookException::class)
     fun enableDefaultAndManualInstallFolder() {
-        CWProject.setHome("jsword.home", SharedConstants.MODULE_DIR.absolutePath, SharedConstants.MANUAL_INSTALL_DIR.absolutePath)
+        CWProject.setHome("jsword.home", SharedConstants.modulesDir.absolutePath, SharedConstants.manualInstallDir.absolutePath)
         // the following causes Sword to initialise itself and can take quite a few seconds
 		// add manual install dir to this list
-        SwordBookPath.setAugmentPath(arrayOf(SharedConstants.MANUAL_INSTALL_DIR, SharedConstants.MANUAL_INSTALL_DIR2, SharedConstants.INTERNAL_MODULE_DIR))
+        SwordBookPath.setAugmentPath(arrayOf(SharedConstants.manualInstallDir, SharedConstants.manualInstallDir2))
     }
 
     /** JSword calls back to this listener in the event of some types of error

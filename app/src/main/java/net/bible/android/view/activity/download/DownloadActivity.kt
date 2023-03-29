@@ -113,7 +113,7 @@ open class DownloadActivity : DocumentSelectionBase(
 
     private suspend fun loadRecommendedDocuments() = withContext(Dispatchers.IO) {
         val source = URL("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
-        val target = File(SharedConstants.MODULE_DIR, SharedConstants.RECOMMENDED_JSON)
+        val target = File(SharedConstants.modulesDir, SharedConstants.RECOMMENDED_JSON)
         genericFileDownloader.downloadFile(source, target, "Recommendations", reportError = !target.canRead())
         if (target.canRead()) {
             val jsonString = String(target.readBytes())
@@ -125,7 +125,7 @@ open class DownloadActivity : DocumentSelectionBase(
 
     private suspend fun loadBadDocuments() = withContext(Dispatchers.IO) {
         val source = URL("https://andbible.github.io/data/${SharedConstants.BAD_DOCS_JSON}")
-        val target = File(SharedConstants.MODULE_DIR, SharedConstants.BAD_DOCS_JSON)
+        val target = File(SharedConstants.modulesDir, SharedConstants.BAD_DOCS_JSON)
         genericFileDownloader.downloadFile(source, target, "Bad documents list", reportError = !target.canRead())
         if (target.canRead()) {
             val jsonString = String(target.readBytes())
@@ -139,7 +139,7 @@ open class DownloadActivity : DocumentSelectionBase(
         if(!downloadDefaults) return@withContext
 
         val source = URL("https://andbible.github.io/data/${SharedConstants.DEFAULT_JSON}")
-        val target = File(SharedConstants.MODULE_DIR, SharedConstants.DEFAULT_JSON)
+        val target = File(SharedConstants.modulesDir, SharedConstants.DEFAULT_JSON)
         genericFileDownloader.downloadFile(source, target, "Defaults", reportError = !target.canRead())
         if(target.canRead()) {
             val jsonString = String(target.readBytes())
@@ -151,7 +151,7 @@ open class DownloadActivity : DocumentSelectionBase(
 
     private suspend fun loadPseudoBooks() = withContext(Dispatchers.IO) {
         val source = URL("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
-        val target = File(SharedConstants.MODULE_DIR, SharedConstants.PSEUDO_BOOKS)
+        val target = File(SharedConstants.modulesDir, SharedConstants.PSEUDO_BOOKS)
         genericFileDownloader.downloadFile(source, target, "Pseudo books", reportError = !target.canRead())
         if(target.canRead()) {
             val jsonString = String(target.readBytes())

@@ -532,13 +532,13 @@ object BackupControl {
         activity.awaitIntent(intent)
     }
 
-    private var moduleDir: File = SharedConstants.MODULE_DIR
+    private var moduleDir: File = SharedConstants.modulesDir
     private lateinit var internalDbDir : File
     private lateinit var internalDbBackupDir: File // copy of db is created in this dir when doing backups
     private const val MODULE_BACKUP_NAME = "modules.zip"
     fun setupDirs(context: Context) {
         internalDbDir = File(context.getDatabasePath(DATABASE_NAME).parent!!)
-        internalDbBackupDir = File(context.filesDir, "/backup")
+        internalDbBackupDir = File(SharedConstants.internalFilesDir, "/backup")
     }
 
     private const val TAG = "BackupControl"

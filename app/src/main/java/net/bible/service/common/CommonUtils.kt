@@ -75,6 +75,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.BuildConfig.BUILD_TYPE
 import net.bible.android.activity.BuildConfig.BuildDate
@@ -231,9 +232,9 @@ object CommonUtils : CommonUtilsBase() {
         private set
 
     // Backup of old databases will be stored here for 30 days
-    val dbBackupPath get() = File(application.filesDir, "database_backups").apply { mkdirs() }
+    val dbBackupPath get() = File(SharedConstants.internalFilesDir, "database_backups").apply { mkdirs() }
 
-    val applicationNameMedium get() = BibleApplication.application.getString(R.string.app_name_medium)
+    val applicationNameMedium get() = application.getString(R.string.app_name_medium)
 
     val applicationVersionName: String
         get() {

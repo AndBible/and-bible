@@ -36,10 +36,8 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.io.File
-import java.io.FileOutputStream
 import java.net.URI
 import java.net.URL
-import java.util.zip.ZipInputStream
 import javax.net.ssl.HttpsURLConnection
 
 @Serializable
@@ -68,7 +66,7 @@ class MyBibleRepositorySpec (
 
 class MyBibleInstaller(private val manifestUrl: String): Installer, AbstractBookList() {
     override fun getType(): String  = "mybible-https"
-    private val myBibleDir = File(SharedConstants.MODULE_DIR, "mybible")
+    private val myBibleDir = File(SharedConstants.modulesDir, "mybible")
     private val localManifestFile = File(myBibleDir, "manifest.json")
     private var spec: MyBibleRepositorySpec? = readSpec()
     private val moduleSpecs get() = spec?.modules?.filter { it.download_url.startsWith("https://") }?: emptyList()

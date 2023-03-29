@@ -27,7 +27,6 @@ import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.CommonUtils
 
 import org.crosswire.common.util.IOUtil
-import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.SystemKJV
@@ -320,7 +319,7 @@ class ReadingPlanTextFileDao {
 
     companion object {
 
-        private val USER_READING_PLAN_FOLDER = SharedConstants.MANUAL_READINGPLAN_DIR
+        private val USER_READING_PLAN_FOLDER = SharedConstants.manualReadingPlanDir
         private const val READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME
         private const val DOT_PROPERTIES = ".properties"
         private const val VERSIFICATION = "Versification"

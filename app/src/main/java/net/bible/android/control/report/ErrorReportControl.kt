@@ -34,12 +34,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
+import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.page.application
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
@@ -168,7 +168,7 @@ object BugReport {
         return returnedBitmap
     }
 
-    private val logDir get() = File(application.filesDir, "/log")
+    private val logDir get() = File(SharedConstants.internalFilesDir, "/log")
 
     private fun logBasicInfo() {
         Log.i(TAG, "logBasicInfo")

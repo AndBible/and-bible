@@ -29,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
+import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -415,7 +416,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun shareHtml(html: String) {
-        val targetDir = File(mainBibleActivity.filesDir, "backup/")
+        val targetDir = File(SharedConstants.internalFilesDir, "backup/")
         targetDir.mkdirs()
         val targetFile = File(targetDir, "shared.html")
         targetFile.writeText(html)

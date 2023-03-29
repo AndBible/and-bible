@@ -18,6 +18,7 @@ package net.bible.android
 
 import android.os.Environment
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.service.common.BuildVariant
 import java.io.File
 
 /** Not used much yet but need to move the some of the more generic constants here
@@ -25,35 +26,28 @@ import java.io.File
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object SharedConstants {
+    val LINE_SEPARATOR = System.getProperty("line.separator")
     const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = 50
+    const val BAD_DOCS_JSON = "bad_documents.json"
+    const val RECOMMENDED_JSON = "recommended_documents_v2.json"
+    const val DEFAULT_JSON = "default_documents_v2.json"
+    const val PSEUDO_BOOKS = "pseudo_books.json"
+    const val READINGPLAN_DIR_NAME = "readingplan"
 
     private const val MANUAL_INSTALL_SUBDIR = "jsword"
     private const val MANUAL_INSTALL_SUBDIR2 = "sword"
-    val BAD_DOCS_JSON = "bad_documents.json"
-    val RECOMMENDED_JSON = "recommended_documents_v2.json"
-    val DEFAULT_JSON = "default_documents_v2.json"
-    val PSEUDO_BOOKS = "pseudo_books.json"
-    val MODULE_DIR = moduleDir
-    val MANUAL_INSTALL_DIR get() = manualInstallDir
-    val MANUAL_INSTALL_DIR2 get() = File(Environment.getExternalStorageDirectory(), MANUAL_INSTALL_SUBDIR2)
 
-    private const val FONT_SUBDIR_NAME = "fonts"
-    val FONT_DIR = File(MODULE_DIR, FONT_SUBDIR_NAME)
-    val MANUAL_FONT_DIR = File(MANUAL_INSTALL_DIR, FONT_SUBDIR_NAME)
-    const val READINGPLAN_DIR_NAME = "readingplan"
-    val MANUAL_READINGPLAN_DIR = File(MANUAL_INSTALL_DIR, READINGPLAN_DIR_NAME)
-    val LINE_SEPARATOR = System.getProperty("line.separator")
+    val internalFilesDir: File get() = application.filesDir
+    private val internalModulesDir: File get() = File(internalFilesDir, "modules")
 
-    val INTERNAL_MODULE_DIR get() = File(application.filesDir, "modules")
-
-    private val moduleDir: File
-        get() = application.getExternalFilesDir(null) ?: INTERNAL_MODULE_DIR
-
-
-    private val manualInstallDir: File
-        get() {
-            val sdcard = Environment.getExternalStorageDirectory()
-            return File(sdcard, MANUAL_INSTALL_SUBDIR)
+    val modulesDir: File get() =
+        if (BuildVariant.Appearance.isDiscrete) {
+            internalModulesDir
+        } else {
+            application.getExternalFilesDir(null) ?: internalModulesDir
         }
 
+    val manualReadingPlanDir: File get() = File(manualInstallDir, READINGPLAN_DIR_NAME)
+    val manualInstallDir: File get() = File(Environment.getExternalStorageDirectory(), MANUAL_INSTALL_SUBDIR)
+    val manualInstallDir2: File get() = File(Environment.getExternalStorageDirectory(), MANUAL_INSTALL_SUBDIR2)
 }

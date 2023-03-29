@@ -27,7 +27,6 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.KeyType
 import org.crosswire.jsword.book.basic.AbstractBook
-import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.Backend
 import org.crosswire.jsword.book.sword.BookType
@@ -446,7 +445,7 @@ fun addMySwordBook(file: File): AbstractBook? {
 }
 
 fun addManuallyInstalledMySwordBooks() {
-    val dir = File(SharedConstants.MODULE_DIR, "mysword")
+    val dir = File(SharedConstants.modulesDir, "mysword")
     if(!(dir.isDirectory && dir.canRead())) return
 
     for(f in dir.walkTopDown()) {

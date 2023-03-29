@@ -364,7 +364,7 @@ class InstallZip : ActivityBase() {
         binding.loadingIndicator.visibility = View.VISIBLE
         contentResolver.openInputStream(uri).use { fIn ->
             fIn ?: throw CantRead()
-            val outDir = File(SharedConstants.MODULE_DIR, filetype)
+            val outDir = File(SharedConstants.modulesDir, filetype)
             outDir.mkdirs()
             val outFile = File(outDir, displayName)
             if(outFile.exists()) {

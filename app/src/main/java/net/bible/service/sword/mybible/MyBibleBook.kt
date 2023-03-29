@@ -472,7 +472,7 @@ fun addMyBibleBook(file: File): AbstractBook? {
 }
 
 fun addManuallyInstalledMyBibleBooks() {
-    val dir = File(SharedConstants.MODULE_DIR, "mybible")
+    val dir = File(SharedConstants.modulesDir, "mybible")
     if(!(dir.isDirectory && dir.canRead())) return
 
     for(f in dir.walkTopDown()) {
