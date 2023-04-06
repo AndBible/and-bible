@@ -52,7 +52,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .chapter-number {
   color: var(--verse-number-color);
   font-size: 70%;
