@@ -107,5 +107,6 @@ export default {
 @import "~@/common.scss";
 .linebreak {
   display: block;
+  height: 0.3em;
 }
 </style>
