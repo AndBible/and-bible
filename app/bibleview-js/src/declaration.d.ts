@@ -28,7 +28,11 @@ type BcvModule = {
     bcv_parser?: BcvParserType
 }
 
-declare module '*.scss';
+declare module '*.scss?inline' {
+    const content: string;
+    export default content;
+}
+
 declare module 'bible-passage-reference-parser/js/en_bcv_parser.min' {
     export const bcv_parser: BcvParserType;
 }

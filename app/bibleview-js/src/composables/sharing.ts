@@ -30,7 +30,7 @@ export function useSharing(
 
     async function shareDocument() {
         if (!exportCss) {
-            exportCss = (await import("@/export.scss")); // TODO: check if this works!
+            exportCss = (await import("@/export.scss?inline")).default;
         }
         exportMode.value = true;
         await nextTick();
