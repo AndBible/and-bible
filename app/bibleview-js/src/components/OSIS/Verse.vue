@@ -83,5 +83,6 @@ const {config} = useCommon();
 
 .linebreak {
   display: block;
+  height: 0.3em;
 }
 </style>
