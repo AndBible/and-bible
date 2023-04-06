@@ -68,7 +68,7 @@ const exportMode = inject(exportModeKey, ref(false));
 
 const link = computed(() => {
     if(exportMode.value) {
-        return formatExportLink({ref: osisRef.value, v11n: osisFragment.v11n, document: osisFragment.bookInitials})
+        return formatExportLink({ref: osisRef.value, v11n: osisFragment.v11n, doc: osisFragment.bookInitials})
     } else {
         return `osis://?${queryParams.value}`
     }
