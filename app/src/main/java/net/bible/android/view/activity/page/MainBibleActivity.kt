@@ -1021,31 +1021,51 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun openLink(uri: Uri) {
-        if(uri.host == "andbible.org") {
-            val urlRegex = Regex("""/bible/(.*)""")
-            val docStr = uri.getQueryParameter("document")
-            val doc = if (docStr != null) Books.installed().getBook(docStr) else null
+        when (uri.host) {
+            "andbible.org" -> {
+                val urlRegex = Regex("""/bible/(.*)""")
+                val docStr = uri.getQueryParameter("document")
+                val doc = if (docStr != null) Books.installed().getBook(docStr) else null
 
-            val defV11n = if (doc is SwordBook) doc.versification else KJVA
-            val v11nStr = uri.getQueryParameter("v11n")
-            val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
+                val defV11n = if (doc is SwordBook) doc.versification else KJVA
+                val v11nStr = uri.getQueryParameter("v11n")
+                val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
 
-            val match = urlRegex.find(uri.path.toString()) ?: return
-            val keyStr = match.groups[1]?.value ?: return
+                val match = urlRegex.find(uri.path.toString()) ?: return
+                val keyStr = match.groups[1]?.value ?: return
 
-            val key = PassageKeyFactory.instance().getKey(v11n, keyStr)
-            windowControl.showLink(doc, key)
-        } else if (uri.host == "www.bible.com") {
-            val urlRegex = Regex("""/(\w+)/bible/(\w+)/([\w\d]+)\.(\d+)\.(\w+)""")
-            val match = urlRegex.find(uri.path.toString()) ?: return
-            val book = match.groups[3]?.value ?: return
-            val chapter = match.groups[4]?.value?.toInt() ?: return
-            val docStr = match.groups[5]?.value
-            val doc = if (docStr != null) Books.installed().getBook(docStr) else null
-            val defV11n = if (doc is SwordBook) doc.versification else KJVA
+                val key = PassageKeyFactory.instance().getKey(v11n, keyStr)
+                windowControl.showLink(doc, key)
+            }
+            "stepbible.org" -> {
+                val docStr = uri.getQueryParameter("document")
+                val doc = if (docStr != null) Books.installed().getBook(docStr) else null
 
-            val key = VerseFactory.fromString(defV11n, "$book.$chapter")
-            windowControl.showLink(doc, key)
+                val defV11n = if (doc is SwordBook) doc.versification else KJVA
+                val v11nStr = uri.getQueryParameter("v11n")
+                val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
+
+                val refStr = uri.getQueryParameter("q")?:return
+                val refRegex = Regex("""reference=(.*)""")
+                val match = refRegex.find(refStr) ?: return
+
+                val keyStr = match.groups[1]?.value ?: return
+
+                val key = PassageKeyFactory.instance().getKey(v11n, keyStr)
+                windowControl.showLink(doc, key)
+            }
+            "www.bible.com" -> {
+                val urlRegex = Regex("""/(\w+)/bible/(\w+)/([\w\d]+)\.(\d+)\.(\w+)""")
+                val match = urlRegex.find(uri.path.toString()) ?: return
+                val book = match.groups[3]?.value ?: return
+                val chapter = match.groups[4]?.value?.toInt() ?: return
+                val docStr = match.groups[5]?.value
+                val doc = if (docStr != null) Books.installed().getBook(docStr) else null
+                val defV11n = if (doc is SwordBook) doc.versification else KJVA
+
+                val key = VerseFactory.fromString(defV11n, "$book.$chapter")
+                windowControl.showLink(doc, key)
+            }
         }
     }
 

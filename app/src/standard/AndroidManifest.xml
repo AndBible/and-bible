@@ -49,6 +49,11 @@
                     android:host="www.bible.com"
                     android:pathPrefix="/"
                     />
+                <data
+                    android:scheme="https"
+                    android:host="stepbible.org"
+                    android:pathPrefix="/"
+                    />
             </intent-filter>
         </activity-alias>
         <activity
