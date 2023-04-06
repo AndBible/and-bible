@@ -83,7 +83,7 @@ import AreYouSure from "@/components/modals/AreYouSure.vue";
 import {androidKey, exportModeKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
-import {isBottomHalfClicked} from "@/utils";
+import {formatExportLink, isBottomHalfClicked} from "@/utils";
 import {Label, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
 import {AreYouSureButton} from "@/types/common";
 
@@ -176,7 +176,12 @@ const bibleUrl = computed(
     () => {
         const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
         const osis = bookmarkItem.osisRef;
-        return `osis://?osis=${osis}&v11n=${bookmarkItem.v11n}`;
+
+        if(exportMode.value) {
+            return formatExportLink({ref: osis, v11n: bookmarkItem.v11n})
+        } else {
+            return `osis://?osis=${osis}&v11n=${bookmarkItem.v11n}`;
+        }
     }
 );
 defineExpose({editor});

@@ -104,7 +104,7 @@ import BookmarkText from "@/components/BookmarkText.vue";
 import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {clickWaiter} from "@/utils";
 import {sortBy} from "lodash";
-import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
+import {androidKey, exportModeKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
 import {Bookmark} from "@/types/client-objects";
 
 const showBookmark = ref(false);

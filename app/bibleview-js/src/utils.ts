@@ -614,3 +614,8 @@ export function abbreviated(str: string, n: number, useWordBoundary = true) {
 export function sprintf(format: string, ...args: any[]) {
     return sprintfOrig(format, ...args);
 }
+
+export function formatExportLink({ref, v11n}: {ref: string, v11n: string, document?: string}) {
+    const docStr = document ? `&document=${document}`: ""
+    return `https://andbible.org/bible/${ref}?v11n=${v11n}${docStr}`
+}

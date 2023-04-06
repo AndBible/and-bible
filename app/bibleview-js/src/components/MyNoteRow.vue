@@ -63,7 +63,7 @@ import {emit as ebEmit} from "@/eventbus";
 import {computed, inject, ref} from "vue";
 import EditableText from "@/components/EditableText.vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
-import {isBottomHalfClicked} from "@/utils";
+import {formatExportLink, isBottomHalfClicked} from "@/utils";
 import {androidKey, exportModeKey} from "@/types/constants";
 import {Bookmark} from "@/types/client-objects";
 
@@ -101,7 +101,11 @@ const bibleUrl = computed(
         const osis = props.bookmark.wholeVerse
             ? props.bookmark.osisRef
             : `${props.bookmark.bookInitials}:${props.bookmark.osisRef}`;
-        return `osis://?osis=${osis}&v11n=${props.bookmark.v11n}`;
+        if(exportMode.value) {
+            return formatExportLink({ref: osis, v11n: props.bookmark.v11n});
+        } else {
+            return `osis://?osis=${osis}&v11n=${props.bookmark.v11n}`;
+        }
     }
 );
 

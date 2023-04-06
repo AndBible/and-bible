@@ -75,7 +75,7 @@ export type Bookmark = {
     readonly v11n: string
     readonly fullText: string
     readonly bookmarkToLabels: BookmarkToLabel[]
-    readonly osisFragment: OsisFragment
+    readonly osisFragment: OsisFragment | null
     readonly primaryLabelId: number
     lastUpdatedOn: number
     notes: Nullable<string>

@@ -21,9 +21,9 @@
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {addEventFunction, EventPriorities} from "@/utils";
+import {addEventFunction, EventPriorities, formatExportLink} from "@/utils";
 import {computed, inject, ref} from "vue";
-import {osisFragmentKey, referenceCollectorKey, verseHighlightKey} from "@/types/constants";
+import {exportModeKey, osisFragmentKey, referenceCollectorKey, verseHighlightKey} from "@/types/constants";
 
 const props = defineProps<{
     osisRef?: string
@@ -64,8 +64,14 @@ const queryParams = computed(() => {
     return paramString
 })
 
+const exportMode = inject(exportModeKey, ref(false));
+
 const link = computed(() => {
-    return `osis://?${queryParams.value}`
+    if(exportMode.value) {
+        return formatExportLink({ref: osisRef.value, v11n: osisFragment.v11n, document: osisFragment.bookInitials})
+    } else {
+        return `osis://?${queryParams.value}`
+    }
 });
 
 if (referenceCollector) {

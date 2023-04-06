@@ -58,6 +58,7 @@ import FeaturesLink from "@/components/FeaturesLink.vue";
 import {appSettingsKey, exportModeKey} from "@/types/constants";
 import {OsisFragment as OsisFragmentType} from "@/types/client-objects";
 import {MultiFragmentDocument} from "@/types/documents";
+import {formatExportLink} from "@/utils";
 
 const props = defineProps<{ document: MultiFragmentDocument }>();
 
@@ -80,7 +81,11 @@ const hiddenOsisFragments = computed(() => {
 function link(frag: OsisFragmentType, compare = false) {
     const isBible = frag.bookCategory === "BIBLE"
     const osis = (compare || !isBible) ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) + "&force-doc" : encodeURI(frag.osisRef);
-    return `osis://?osis=${osis}&v11n=${frag.v11n}`
+    if(exportMode.value) {
+        return formatExportLink({ref: osis, v11n: frag.v11n})
+    } else {
+        return `osis://?osis=${osis}&v11n=${frag.v11n}`;
+    }
 }
 
 const {android, sprintf, strings} = useCommon();
