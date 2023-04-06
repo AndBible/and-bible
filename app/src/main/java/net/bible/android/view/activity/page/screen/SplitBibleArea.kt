@@ -19,6 +19,7 @@ package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
 import android.content.ClipData
+import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -841,8 +842,8 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             R.id.copyReference -> CommandPreference(
                 launch = { _, _, _ ->
                     val doc = window.pageManager.currentPage.currentDocument
-                    val key = window.pageManager.currentPage.key?.osisRef?: return@CommandPreference
-                    var url = "https://andbible.org/bible/$key"
+                    val key = window.pageManager.currentPage.key?: return@CommandPreference
+                    var url = "https://andbible.org/bible/${key.osisRef}"
                     val queryParameters = mutableListOf<String>()
                     if(doc != null) {
                         queryParameters.add("document=${doc.initials}")
@@ -855,9 +856,9 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                     }
                     // Copy url to clipboard
                     val clipboard = mainBibleActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText("Bible reference", url)
+                    val clip = ClipData.newPlainText(key.name, url)
                     clipboard.setPrimaryClip(clip)
-                    ABEventBus.post(ToastEvent(mainBibleActivity.getString(R.string.reference_copied_to_clipboard, url)))
+                    ABEventBus.post(ToastEvent(mainBibleActivity.getString(R.string.reference_copied_to_clipboard)))
                 },
             )
             R.id.windowMinimise -> CommandPreference(
