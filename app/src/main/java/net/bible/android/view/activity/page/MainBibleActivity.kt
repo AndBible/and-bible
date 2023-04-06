@@ -122,6 +122,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
@@ -1032,7 +1033,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             val match = urlRegex.find(uri.path.toString()) ?: return
             val keyStr = match.groups[1]?.value ?: return
 
-            val key = VerseFactory.fromString(v11n, keyStr)
+            val key = PassageKeyFactory.instance().getKey(v11n, keyStr)
             windowControl.showLink(doc, key)
         } else if (uri.host == "www.bible.com") {
             val urlRegex = Regex("""/(\w+)/bible/(\w+)/([\w\d]+)\.(\d+)\.(\w+)""")

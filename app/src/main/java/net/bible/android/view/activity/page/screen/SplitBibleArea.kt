@@ -18,6 +18,8 @@
 package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -53,6 +55,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SplitBibleAreaBinding
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.MultiFragmentDocument
@@ -834,6 +837,28 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             R.id.windowClose -> CommandPreference(
                 launch = { _, _, _ ->  windowControl.closeWindow(window)},
                 visible = windowControl.isWindowRemovable(window) && !isMaximised
+            )
+            R.id.copyReference -> CommandPreference(
+                launch = { _, _, _ ->
+                    val doc = window.pageManager.currentPage.currentDocument
+                    val key = window.pageManager.currentPage.key?.osisRef?: return@CommandPreference
+                    var url = "https://andbible.org/bible/$key"
+                    val queryParameters = mutableListOf<String>()
+                    if(doc != null) {
+                        queryParameters.add("document=${doc.initials}")
+                        if(doc is SwordBook) {
+                            queryParameters.add("v11n=${doc.versification.name}")
+                        }
+                    }
+                    if(queryParameters.isNotEmpty()) {
+                        url += "?${queryParameters.joinToString("&")}"
+                    }
+                    // Copy url to clipboard
+                    val clipboard = mainBibleActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clip = ClipData.newPlainText("Bible reference", url)
+                    clipboard.setPrimaryClip(clip)
+                    ABEventBus.post(ToastEvent(mainBibleActivity.getString(R.string.reference_copied_to_clipboard, url)))
+                },
             )
             R.id.windowMinimise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.minimiseWindow(window)},

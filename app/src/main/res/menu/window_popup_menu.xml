@@ -100,6 +100,9 @@
 			</item>
 		</menu>
 	</item>
+	<item android:id="@+id/copyReference"
+		android:title="@string/copyReference"
+		android:icon="@drawable/ic_content_copy_black_24dp"/>
 	<item android:id="@+id/windowClose"
 		android:title="@string/windowClose"
 		android:icon="@drawable/ic_close_white_24dp"/>
