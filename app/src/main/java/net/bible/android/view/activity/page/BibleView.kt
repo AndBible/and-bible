@@ -432,6 +432,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         Log.i(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
+        if(modalOpen) return false
         if(menuPrepared) {
             mode.menu.clear()
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
