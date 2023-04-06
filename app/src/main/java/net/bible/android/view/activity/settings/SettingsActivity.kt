@@ -17,8 +17,11 @@
 package net.bible.android.view.activity.settings
 
 import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.InputType
 import android.text.method.LinkMovementMethod
 import android.view.Menu
@@ -260,6 +263,23 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
+        val openLinksPref = preferenceScreen.findPreference<EditTextPreference>("open_links") as Preference
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            openLinksPref.run {
+                setOnPreferenceClickListener {
+                    val intent =
+                        Intent(
+                            Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
+                            Uri.parse("package:${context.packageName}")
+                        )
+                    context.startActivity(intent)
+                    true
+                }
+            }
+        } else {
+            openLinksPref.isVisible = false
+        }
+
         for(p in getPreferenceList()) {
             val icon = p.icon
             if(icon != null) {
