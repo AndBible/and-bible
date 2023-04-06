@@ -46,6 +46,12 @@
             />
 
         <SwitchPreferenceCompat
+            android:key="EXPAND_XREFS"
+            android:title="@string/prefs_expand_footnotes_title"
+            android:summary="@string/prefs_expand_footnotes_summary"
+            />
+
+        <SwitchPreferenceCompat
             android:key="SECTIONTITLES"
             android:title="@string/prefs_section_title_title"
             android:summary="@string/prefs_section_title_summary"

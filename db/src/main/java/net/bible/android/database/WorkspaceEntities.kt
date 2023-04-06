@@ -151,6 +151,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL", name = "showStrongs") var strongsMode: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var expandXrefs: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showXrefs: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showRedLetters: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showSectionTitles: Boolean? = null,
@@ -182,6 +183,7 @@ class WorkspaceEntities {
             STRONGS,
             MORPH,
             FOOTNOTES,
+            EXPAND_XREFS,
             XREFS,
             REDLETTERS,
             SECTIONTITLES,
@@ -196,6 +198,7 @@ class WorkspaceEntities {
             Types.STRONGS -> strongsMode
             Types.MORPH -> showMorphology
             Types.FOOTNOTES -> showFootNotes
+            Types.EXPAND_XREFS -> expandXrefs
             Types.XREFS -> showXrefs
             Types.REDLETTERS -> showRedLetters
             Types.SECTIONTITLES -> showSectionTitles
@@ -219,6 +222,7 @@ class WorkspaceEntities {
                 Types.STRONGS -> strongsMode = value as Int?
                 Types.MORPH -> showMorphology = value as Boolean?
                 Types.FOOTNOTES -> showFootNotes = value as Boolean?
+                Types.EXPAND_XREFS -> expandXrefs = value as Boolean?
                 Types.XREFS -> showXrefs = value as Boolean?
                 Types.REDLETTERS -> showRedLetters = value as Boolean?
                 Types.SECTIONTITLES -> showSectionTitles = value as Boolean?
@@ -277,6 +281,7 @@ class WorkspaceEntities {
                 fontFamily = "sans-serif",
                 strongsMode = 0,
                 showMorphology = false,
+                expandXrefs = false,
                 showFootNotes = true,
                 showXrefs = true,
                 showRedLetters = true,

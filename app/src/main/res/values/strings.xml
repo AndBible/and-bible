@@ -1113,4 +1113,6 @@
     <string name="open_bible_links_summary">When clicks links that refer to AndBible supported Bible URL, open them in AndBible</string>
     <string name="copyReference">Copy link to clipboard</string>
     <string name="reference_copied_to_clipboard">Reference copied to clipboard</string>
+    <string name="prefs_expand_footnotes_title">Inline cross references</string>
+    <string name="prefs_expand_footnotes_summary">Show cross reference content in-line within the text, instead of a link that opens a pop-up dialog</string>
 </resources>

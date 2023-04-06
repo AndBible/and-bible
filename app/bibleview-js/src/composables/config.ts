@@ -56,6 +56,7 @@ export type Config = {
     showStrongsSeparately: boolean,
     showFootNotes: boolean,
     showXrefs: boolean,
+    expandXrefs: boolean,
     fontFamily: string,
     fontSize: number,
 
@@ -127,6 +128,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         showStrongsSeparately: false,
         showFootNotes: true,
         showXrefs: true,
+        expandXrefs: false,
         fontFamily: "sans-serif",
         fontSize: 16,
 

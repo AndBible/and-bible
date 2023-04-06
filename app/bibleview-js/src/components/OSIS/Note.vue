@@ -15,28 +15,33 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <AmbiguousSelection do-not-close-modals ref="ambiguousSelection"/>
-  <ModalDialog @close="showNote = false" v-if="showNote" :locate-top="locateTop">
-    <div class="scrollable" @click="ambiguousSelection?.handle">
-      <slot/>
-      <OpenAllLink :v11n="v11n"/>
-    </div>
-    <template #title>
-      <template v-if="isCrossReference">
-        {{ strings.crossReferenceText }}
+  <template v-if="isCrossReference && config.showXrefs && config.expandXrefs">
+    &nbsp;<slot/>&nbsp;
+  </template>
+  <template v-else>
+    <AmbiguousSelection do-not-close-modals ref="ambiguousSelection"/>
+    <ModalDialog @close="showNote = false" v-if="showNote" :locate-top="locateTop">
+      <div class="scrollable" @click="ambiguousSelection?.handle">
+        <slot/>
+        <OpenAllLink :v11n="v11n"/>
+      </div>
+      <template #title>
+        <template v-if="isCrossReference">
+          {{ strings.crossReferenceText }}
+        </template>
+        <template v-else>
+          {{ noteType }}
+        </template>
       </template>
-      <template v-else>
-        {{ noteType }}
-      </template>
-    </template>
-  </ModalDialog>
-  <span
-    v-if="showHandle"
-    class="skip-offset">
-    <span class="highlight-transition" :class="{isHighlighted: showNote, noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
-      {{handle}}
+    </ModalDialog>
+    <span
+        v-if="showHandle"
+        class="skip-offset">
+      <span class="highlight-transition" :class="{isHighlighted: showNote, noteHandle: true, isFootNote, isCrossReference, isOther}" @click="noteClicked">
+        {{handle}}
+      </span>
     </span>
-  </span>
+  </template>
 </template>
 
 <script setup lang="ts">
