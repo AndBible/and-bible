@@ -25,6 +25,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
@@ -72,6 +73,7 @@ import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
+import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.PageControl
@@ -84,6 +86,7 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -116,10 +119,13 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
+import org.crosswire.jsword.versification.system.Versifications
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -130,6 +136,8 @@ import kotlin.system.exitProcess
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+class OpenLink(val url: String)
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
@@ -148,6 +156,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
     @Inject lateinit var pageControl: PageControl
+    @Inject lateinit var linkControl: LinkControl
 
     lateinit var documentViewManager: DocumentViewManager
     lateinit var bibleViewFactory: BibleViewFactory
@@ -264,6 +273,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 checkDocBackupDBInSync()
             }
             initialized = true
+        }
+        if(intent.hasExtra("openLink")) {
+            val uri = Uri.parse(intent.getStringExtra("openLink"))
+            openLink(uri)
         }
     }
 
@@ -1000,6 +1013,39 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
         updateTitle()
+    }
+
+    fun onEventMainThread(event: OpenLink) {
+        openLink(Uri.parse(event.url))
+    }
+
+    private fun openLink(uri: Uri) {
+        if(uri.host == "andbible.org") {
+            val urlRegex = Regex("""/bible/(.*)""")
+            val docStr = uri.getQueryParameter("document")
+            val doc = if (docStr != null) Books.installed().getBook(docStr) else null
+
+            val defV11n = if (doc is SwordBook) doc.versification else KJVA
+            val v11nStr = uri.getQueryParameter("v11n")
+            val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
+
+            val match = urlRegex.find(uri.path.toString()) ?: return
+            val keyStr = match.groups[1]?.value ?: return
+
+            val key = VerseFactory.fromString(v11n, keyStr)
+            windowControl.showLink(doc, key)
+        } else if (uri.host == "www.bible.com") {
+            val urlRegex = Regex("""/(\w+)/bible/(\w+)/([\w\d]+)\.(\d+)\.(\w+)""")
+            val match = urlRegex.find(uri.path.toString()) ?: return
+            val book = match.groups[3]?.value ?: return
+            val chapter = match.groups[4]?.value?.toInt() ?: return
+            val docStr = match.groups[5]?.value
+            val doc = if (docStr != null) Books.installed().getBook(docStr) else null
+            val defV11n = if (doc is SwordBook) doc.versification else KJVA
+
+            val key = VerseFactory.fromString(defV11n, "$book.$chapter")
+            windowControl.showLink(doc, key)
+        }
     }
 
     fun onEventMainThread(speakEvent: SpeakEvent) {

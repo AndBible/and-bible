@@ -58,6 +58,7 @@ import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.OpenLink
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
@@ -298,7 +299,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     }
 
-    fun doGotoDownloadActivity() {
+    private fun doGotoDownloadActivity() {
         var errorMessage: String? = null
 
         if (CommonUtils.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
@@ -316,7 +317,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     /**
      * Load from Zip link on first_time_dialog has been clicked
      */
-    fun onLoadFromZip() {
+    private fun onLoadFromZip() {
         Log.i(TAG, "Load from Zip clicked")
         val handlerIntent = Intent(this, InstallZip::class.java).apply { putExtra("doNotInitializeApp", true) }
         startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
@@ -343,6 +344,13 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         Log.i(TAG, "Going to MainBibleActivity")
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
         handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        if(intent?.action == Intent.ACTION_VIEW) {
+            if(MainBibleActivity.initialized) {
+                intent.dataString?.let { ABEventBus.post(OpenLink(it)) }
+            } else {
+                handlerIntent.putExtra("openLink", intent.dataString)
+            }
+        }
         lifecycleScope.launch(Dispatchers.Main) {
             if(SwordDocumentFacade.bibles.none { !it.isLocked }) {
                 for (it in SwordDocumentFacade.bibles.filter { it.isLocked }) {

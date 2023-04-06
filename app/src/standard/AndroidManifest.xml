@@ -35,6 +35,21 @@
                 <!-- see Samsung multi-window info at bottom -->
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="andbible.org"
+                    android:pathPrefix="/bible/"
+                    />
+                <data
+                    android:scheme="https"
+                    android:host="www.bible.com"
+                    android:pathPrefix="/"
+                    />
+            </intent-filter>
         </activity-alias>
         <activity
             android:name="net.bible.android.view.activity.installzip.InstallZip"

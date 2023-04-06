@@ -1109,4 +1109,6 @@
     <string name="duplicate_custom_repository">Repository with name %s already exists, can\'t add another.</string>
     <string name="packages_dir">Packages directory (Zip files)</string>
     <string name="warn_bad_document">Warning: This document might be (at least partially) bad technical quality.</string>
+    <string name="open_bible_links_title">Open bible links in AndBible</string>
+    <string name="open_bible_links_summary">When clicks links that refer to AndBible supported bible URL, open them in AndBible</string>
 </resources>
