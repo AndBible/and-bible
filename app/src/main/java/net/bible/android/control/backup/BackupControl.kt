@@ -343,52 +343,32 @@ object BackupControl {
 
         // send intent to pick file
         var ok = true
-        val result = suspendCoroutine {
-            AlertDialog.Builder(callingActivity)
-                .setTitle(callingActivity.getString(R.string.backup_backup_title))
-                .setMessage(callingActivity.getString(R.string.backup_backup_message))
-                .setPositiveButton(callingActivity.getString(R.string.backup_share)) { dialog, which ->
-                    it.resume(BackupResult.SHARE)
-                }
 
-                .setNeutralButton(callingActivity.getString(R.string.cancel), ){ _, _ ->
-                    it.resume(BackupResult.CANCEL)
-                }
-                .show()
+        val modulesString = books.joinToString(", ") { it.abbreviation }
+        val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
+        val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
+
+        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", zipFile)
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, uri)
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, message)
+            type = "application/zip"
         }
-        hourglass.show()
-        when(result) {
-            BackupResult.SHARE -> {
-                val modulesString = books.joinToString(", ") { it.abbreviation }
-                val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
-                val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
-
-                val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", zipFile)
-                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    putExtra(Intent.EXTRA_SUBJECT, subject)
-                    putExtra(Intent.EXTRA_TEXT, message)
-                    type = "application/zip"
-                }
-                val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "application/zip"
-                    putExtra(Intent.EXTRA_TITLE, fileName)
-                }
-
-                val chooserIntent = Intent.createChooser(shareIntent, getString(R.string.send_backup_file))
-                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
-                grantUriReadPermissions(chooserIntent, uri)
-
-                callingActivity.awaitIntent(chooserIntent).resultData?.data?.let {
-                    ok = backupModulesToUri(it)
-                }
-            }
-            BackupResult.CANCEL -> {
-                hourglass.dismiss()
-                return@withContext
-            }
+        val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/zip"
+            putExtra(Intent.EXTRA_TITLE, fileName)
         }
+
+        val chooserIntent = Intent.createChooser(shareIntent, getString(R.string.send_backup_file))
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
+        grantUriReadPermissions(chooserIntent, uri)
+
+        callingActivity.awaitIntent(chooserIntent).resultData?.data?.let {
+            ok = backupModulesToUri(it)
+        }
+
         hourglass.dismiss()
         if (ok) {
             Log.i(TAG, "Copied modules to chosen backup location successfully")
@@ -459,51 +439,17 @@ object BackupControl {
 
     enum class BackupResult {SHARE, CANCEL}
     suspend fun startBackupAppDatabase(callingActivity: ActivityBase) {
-        val result = withContext(Dispatchers.Main) {
-            suspendCoroutine <BackupResult> {
-                AlertDialog.Builder(callingActivity)
-                    .setTitle(callingActivity.getString(R.string.backup_backup_title))
-                    .setMessage(callingActivity.getString(R.string.backup_backup_message))
-                    .setPositiveButton(callingActivity.getString(R.string.backup_share)) { _, _ ->
-                        it.resume(BackupResult.SHARE)
-                    }
-                    .setNeutralButton(callingActivity.getString(R.string.cancel)) {_, _ -> it.resume(BackupResult.CANCEL)}
-                    .show()
-            }
+        if(CommonUtils.initialized) {
+            windowControl.windowRepository.saveIntoDb()
+            db.sync()
         }
-        when(result) {
-            BackupResult.SHARE -> {
-                if(CommonUtils.initialized) {
-                    windowControl.windowRepository.saveIntoDb()
-                    db.sync()
-                }
-                backupDatabaseViaIntent(callingActivity, dbFile)
-            }
-            BackupResult.CANCEL -> {}
-        }
+        backupDatabaseViaIntent(callingActivity, dbFile)
     }
 
     private val dbFile get() = BibleApplication.application.getDatabasePath(DATABASE_NAME)
 
     suspend fun startBackupOldAppDatabase(callingActivity: ActivityBase, file: File) {
-        val result = withContext(Dispatchers.Main) {
-            suspendCoroutine {
-                AlertDialog.Builder(callingActivity)
-                    .setTitle(callingActivity.getString(R.string.backup_backup_title))
-                    .setMessage(callingActivity.getString(R.string.backup_backup_message))
-                    .setPositiveButton(callingActivity.getString(R.string.backup_share)) { _, _ ->
-                        it.resume(BackupResult.SHARE)
-                    }
-                    .setNeutralButton(callingActivity.getString(R.string.cancel)) {_, _ -> it.resume(BackupResult.CANCEL)}
-                    .show()
-            }
-        }
-        when(result) {
-            BackupResult.SHARE -> {
-                backupDatabaseViaIntent(callingActivity, file)
-            }
-            BackupResult.CANCEL -> {}
-        }
+        backupDatabaseViaIntent(callingActivity, file)
     }
 
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
