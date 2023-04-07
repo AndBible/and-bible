@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.page
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
@@ -435,9 +436,30 @@ class BibleJavascriptInterface(
             putExtra(Intent.EXTRA_STREAM, uri)
             type = "text/html"
         }
+
+        // Add the "Save" option to the chooser
+        val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        saveIntent.addCategory(Intent.CATEGORY_OPENABLE)
+        saveIntent.type = "text/html"
+        saveIntent.putExtra(Intent.EXTRA_TITLE, "shared.html")
+
         val chooserIntent = Intent.createChooser(emailIntent, titleStr)
-        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        mainBibleActivity.startActivity(chooserIntent)
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
+
+        scope.launch(Dispatchers.Main) {
+            val result = mainBibleActivity.awaitIntent(chooserIntent)
+            val data = result.resultData
+            if (result.resultCode == Activity.RESULT_OK && data?.data != null) {
+                val destinationUri = data.data!!
+
+                mainBibleActivity.contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
+                    mainBibleActivity.contentResolver.openInputStream(uri)?.use { inputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                }
+            }
+
+        }
     }
 
     @JavascriptInterface
