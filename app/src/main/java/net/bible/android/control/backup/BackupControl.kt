@@ -396,20 +396,19 @@ object BackupControl {
         internalDbBackupDir.mkdirs()
 
         val app: ApplicationInfo = callingActivity.applicationContext.applicationInfo
-        val shareIntent = Intent(Intent.ACTION_SEND)
 
-        // MIME of .apk is "application/vnd.android.package-archive".
-        // but Bluetooth does not accept this. Let's use "*/*" instead.
-        shareIntent.type = "*/*"
         val tempFile = File(internalDbBackupDir, "and-bible.apk")
         withContext(Dispatchers.IO) {
             tempFile.delete()
             File(app.sourceDir).copyTo(tempFile)
         }
-
         val fileUri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", tempFile)
-        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
-
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            // MIME of .apk is "application/vnd.android.package-archive".
+            // but Bluetooth does not accept this. Let's use "*/*" instead.
+            type = "*/*"
+            putExtra(Intent.EXTRA_STREAM, fileUri)
+        }
         val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "application/vnd.android.package-archive"
