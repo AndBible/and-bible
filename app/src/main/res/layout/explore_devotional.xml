@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<!-- Show the results of a search
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<Button
+				android:id="@+id/devotional_icon"
+				android:background="@drawable/ic_calculator_color"
+				android:layout_width="27dp"
+				android:layout_height="27dp"
+				android:padding="1dp"
+				android:layout_margin="4dp"
+				android:text="" />
+
+			<TextView
+				android:id="@+id/textView2"
+				android:layout_weight="1"
+				android:layout_width="wrap_content"
+				android:layout_height="27dp"
+				android:layout_margin="4dp"
+				android:background="@drawable/rounded_corners"
+				android:backgroundTint="#DADADA"
+				android:padding="4dp"
+				android:radius="5dp"
+				android:gravity="center_vertical"
+				android:text="URL" />
+
+			<Button
+				android:id="@+id/datePickerButton"
+				android:background="@drawable/rounded_corners"
+				android:backgroundTint="#DADADA"
+				android:layout_width="100dp"
+				android:layout_height="27dp"
+				android:padding="1dp"
+				android:layout_margin="4dp"
+				android:text="Date" />
+
+		</LinearLayout>
+
+		<ProgressBar
+			android:id="@+id/progressBar"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="100px"
+			android:layout_centerHorizontal="true"
+			android:layout_gravity="center"
+			android:max="3"
+			android:progress="50" />
+
+		<androidx.core.widget.NestedScrollView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:padding="10dp">
+
+			<WebView
+				android:id="@+id/explore_url_webview"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
+		</androidx.core.widget.NestedScrollView>
+	</LinearLayout>
+</LinearLayout>

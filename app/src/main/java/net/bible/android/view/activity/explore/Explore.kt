@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.explore
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
@@ -8,9 +9,10 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import android.widget.Button
+import android.widget.DatePicker
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -27,10 +29,13 @@ import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.windowControl
+import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import java.lang.reflect.Field
+import java.text.DecimalFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -43,6 +48,7 @@ class Explore (val currentActivity: ActivityBase,
 {
     var x = 1
     val sheetType = thisSheetType
+
 
     fun initialise(){
         val verseRange = selection?.verseRange
@@ -76,10 +82,10 @@ class Explore (val currentActivity: ActivityBase,
             bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onStateChanged(view: View, i: Int) {
                     if (BottomSheetBehavior.STATE_EXPANDED == i) {
-                        showView(appBarLayout, getActionBarSize()) // show app bar when expanded completely
+//                        showView(appBarLayout, getActionBarSize()) // show app bar when expanded completely
                     }
                     if (BottomSheetBehavior.STATE_COLLAPSED == i) {
-                        hideAppBar(appBarLayout) // hide app bar when collapsed
+//                        hideAppBar(appBarLayout) // hide app bar when collapsed
                     }
                     if (BottomSheetBehavior.STATE_HIDDEN == i) {
                         dismiss() // destroy the instance
@@ -166,14 +172,15 @@ class Explore (val currentActivity: ActivityBase,
         val sheetType = sheetType
 
         override fun getItem(position: Int): Fragment {
+            val emptyFragment: Fragment = Fragment()
             when (sheetType) {
                 SheetType.DEVOTIONAL -> {
                     NUM_ITEMS = 4
                     when (position) {
-                        0 -> return UrlFragment("https://odb.org/2023/02/26/is-it-a-sign")
-                        1 -> return BookFragment()
-                        2 -> return TwoFragment()
-                        3 -> return UrlFragment("https://odb.org/2023/02/26/is-it-a-sign")
+                        0 -> return DevotionalFragment()
+                        1 -> return emptyFragment
+                        2 -> return emptyFragment
+                        3 -> return emptyFragment
                     }}
                 else -> {
                     NUM_ITEMS = 4
@@ -392,6 +399,7 @@ class Explore (val currentActivity: ActivityBase,
             return view
         }
     }
+
     class UrlFragment(url:String) : Fragment() {
         lateinit var runnable: Runnable
         lateinit var progressBar: ProgressBar
@@ -430,6 +438,127 @@ class Explore (val currentActivity: ActivityBase,
 
             return view
         }
+        // Overriding WebViewClient functions
+        open inner class WebViewClient : android.webkit.WebViewClient() {
+
+            // Load the URL
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                view.loadUrl(url)
+                return false
+            }
+
+            // ProgressBar will disappear once page is loaded
+            override fun onPageFinished(view: WebView, url: String) {
+                super.onPageFinished(view, url)
+                progressBar.visibility = View.GONE
+            }
+        }
+    }
+
+    class DevotionalFragment() : Fragment() {
+
+        lateinit var progressBar: ProgressBar
+        lateinit var devotionalURL: TextView
+
+        lateinit var dateButton: Button
+        var datePickerDialog: DatePickerDialog? = null
+        var url = "https://odb.org/AU/2023/01/01/"
+        val dateFormatyyyyMMdd = SimpleDateFormat("yyyyMMdd")
+        val yrFormatter = SimpleDateFormat("yyyy")
+        val mthFormatter = SimpleDateFormat("MM")
+        val dayFormatter = SimpleDateFormat("dd")
+        val dateFormatdMMMyyyy = SimpleDateFormat("d/MMM/yy")
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            val view = inflater.inflate(R.layout.explore_devotional, container, false)
+//            val wv = view.findViewById<WebView>(R.id.explore_url_webview)
+
+            var devotionalDate = getDevotionalDate()
+
+            progressBar = view.findViewById(R.id.progressBar)
+            devotionalURL = view.findViewById(R.id.textView2)
+
+            // initiate the date picker and a button
+            // initiate the date picker and a button
+            dateButton = view.findViewById(R.id.datePickerButton) as Button
+            // perform click event on edit text
+            // perform click event on edit text
+            dateButton.setOnClickListener { // calender class's instance and get current date , month and year from calender
+                val c = Calendar.getInstance()
+                val mYear = c[Calendar.YEAR] // current year
+                val mMonth = c[Calendar.MONTH] // current month
+                val mDay = c[Calendar.DAY_OF_MONTH] // current day
+                // date picker dialog
+                datePickerDialog = DatePickerDialog(
+                    requireContext(),
+                    { _, year, monthOfYear, dayOfMonth -> // set day of month , month and year value in the edit text
+                        val calendar = Calendar.getInstance()
+                        calendar.set(year, monthOfYear, dayOfMonth)
+                        devotionalDate = calendar.time
+//                        if (dateFormatyyyyMMdd.format(calendar.time) == dateFormatyyyyMMdd.format(Date())) {
+//                            CommonUtils.settings.setString("devotional_date", "today")
+//                            dateButton.text = "Today"
+//                        } else {
+//                            CommonUtils.settings.setString("devotional_date", dateFormatyyyyMMdd.format(calendar.time))
+//                            dateButton.text = "${dayOfMonth.toString()}/${(monthOfYear + 1)}/${year}"
+//                        }
+//
+//                        devotionalURL.text = "https://odb.org/AU/${yrFormatter.format(devotionalDate)}/${mthFormatter.format(devotionalDate)}/${dayFormatter.format(devotionalDate)}/"
+
+                        setDevotionalDates(view, devotionalDate!!)
+
+                    }, mYear, mMonth, mDay
+                )
+                datePickerDialog!!.show()
+            }
+
+            setDevotionalDates(view, devotionalDate!!)
+
+            return view
+        }
+
+        private fun setDevotionalDates(view:View, devotionalDate: Date) {
+
+            val wv = view.findViewById<WebView>(R.id.explore_url_webview)
+
+            if (dateFormatyyyyMMdd.format(devotionalDate) == dateFormatyyyyMMdd.format(Date())) {
+                CommonUtils.settings.setString("devotional_date", "today")
+                dateButton.text = "Today"
+            } else {
+                CommonUtils.settings.setString("devotional_date", dateFormatyyyyMMdd.format(devotionalDate))
+                dateButton.text = dateFormatdMMMyyyy.format(devotionalDate)
+            }
+
+            devotionalURL.text = "https://odb.org/AU/${yrFormatter.format(devotionalDate)}/${mthFormatter.format(devotionalDate)}/${dayFormatter.format(devotionalDate)}/"
+
+            wv.settings.javaScriptEnabled = true
+            wv.settings.domStorageEnabled = true
+            wv.loadUrl(devotionalURL.text as String)
+
+            wv.setWebViewClient(object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                    view.loadUrl(request.url.toString())
+                    return false
+                }
+            })
+        }
+
+        private fun getDevotionalDate(): Date? {
+
+            var devotionalDate = CommonUtils.settings.getString("devotional_date", "today")
+            if (devotionalDate == "today") {
+                return Date()
+            } else {
+                return dateFormatyyyyMMdd.parse(devotionalDate)
+            }
+
+        }
+
+
         // Overriding WebViewClient functions
         open inner class WebViewClient : android.webkit.WebViewClient() {
 
