@@ -820,10 +820,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    inner class MyAssetsPathHandler(val context: Context) : PathHandler {
+    inner class MyAssetsPathHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse? {
             return try {
-                val inputStream = application.resources.assets.open(path)
+                val inputStream = context.resources.assets.open(path)
                 val mimeType = when(File(path).extension) {
                     "js" -> "application/javascript"
                     "html" -> "text/html"
@@ -840,7 +840,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     val assetLoader = WebViewAssetLoader.Builder()
-        .addPathHandler("/assets/", MyAssetsPathHandler(context))
+        .addPathHandler("/assets/", MyAssetsPathHandler())
         .addPathHandler("/module/", ModuleAssetHandler())
         .addPathHandler("/fonts/", FontsAssetHandler())
         .addPathHandler("/features/", FeatureAssetHandler())
