@@ -29,6 +29,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
@@ -452,9 +453,11 @@ class BibleJavascriptInterface(
             if (result.resultCode == Activity.RESULT_OK && data?.data != null) {
                 val destinationUri = data.data!!
 
-                mainBibleActivity.contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
-                    mainBibleActivity.contentResolver.openInputStream(uri)?.use { inputStream ->
-                        inputStream.copyTo(outputStream)
+                withContext(Dispatchers.IO) {
+                    mainBibleActivity.contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
+                        mainBibleActivity.contentResolver.openInputStream(uri)?.use { inputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
                     }
                 }
             }
