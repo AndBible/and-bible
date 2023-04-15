@@ -416,7 +416,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             ?: if (!readingPlanControl.isReadingPlanSelected) {
                 Log.i(TAG, "Reading plan has not been selected and there's none active. Exiting")
                 finish()
-            }
+            } else {}
     }
 
     val selectReadingDay = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

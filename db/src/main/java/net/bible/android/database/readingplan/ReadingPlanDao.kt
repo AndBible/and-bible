@@ -40,7 +40,7 @@ interface ReadingPlanDao {
     @Query("DELETE FROM readingplan_status WHERE plan_code = :planCode")
     suspend fun deleteStatusesForPlan(planCode: String)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun addPlanStatus(status: ReadingPlanStatus)
     //endregion
 
@@ -48,7 +48,7 @@ interface ReadingPlanDao {
     @Query("SELECT * FROM readingplan WHERE plan_code = :planCode")
     suspend fun getPlan(planCode: String): ReadingPlan?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun updatePlan(plan: ReadingPlan)
 
     @Query("DELETE FROM readingplan WHERE plan_code = :planCode")

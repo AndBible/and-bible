@@ -24,7 +24,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: '11'
+        java-version: '17'
 
     - name: Set up Node.js environment
       uses: actions/setup-node@v3
