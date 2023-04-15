@@ -26,6 +26,8 @@
 # commons compress does not need classes for other platforms
 -dontwarn org.tukaani.xz.**
 
+-keep class org.apache.commons.compress.archivers.zip.**
+
 # hopefully these JDOm dependencies aren't used because I don't think Android provides them
 -dontwarn javax.xml.stream.**
 

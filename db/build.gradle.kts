@@ -43,13 +43,24 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        val sourceCompatibilityVersion: JavaVersion by rootProject.extra
+        val targetCompatibilityVersion: JavaVersion by rootProject.extra
+        val jvmTargetVersion: String by rootProject.extra
+
+        sourceCompatibility = sourceCompatibilityVersion
+        targetCompatibility = targetCompatibilityVersion
+        kotlinOptions {
+            jvmTarget = jvmTargetVersion
+        }
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+
     namespace = "net.bible.android.database"
+}
+
+val jvmToolChainVersion: Int by rootProject.extra
+
+kotlin {
+    jvmToolchain(jvmToolChainVersion)
 }
 
 dependencies {
