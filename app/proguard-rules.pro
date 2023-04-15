@@ -88,6 +88,7 @@
 }
 
 -dontwarn javax.management.MBeanServerConnection
+-dontwarn javax.management.MBeanServer
 
 #We need these in order to support Kotlin reflection (used at least in SpeakWidgets.kt)
 #-keepattributes *Annotation*
