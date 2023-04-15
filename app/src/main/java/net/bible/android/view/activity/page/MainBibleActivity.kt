@@ -1038,18 +1038,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowControl.showLink(doc, key)
             }
             "stepbible.org" -> {
-                val docStr = uri.getQueryParameter("document")
-                val doc = if (docStr != null) Books.installed().getBook(docStr) else null
+                val qParam = uri.getQueryParameter("q") ?: return
+
+                val docRegex = Regex("""version=([^&|]+)""")
+                val refRegex = Regex("""reference=([^&|]+)""")
+
+                val versionMatch = docRegex.find(qParam)
+                val version = if (versionMatch != null) versionMatch.groups[1]?.value else null
+                val doc = if (version != null) Books.installed().getBook(version) else null
 
                 val defV11n = if (doc is SwordBook) doc.versification else KJVA
                 val v11nStr = uri.getQueryParameter("v11n")
                 val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
 
-                val refStr = uri.getQueryParameter("q")?:return
-                val refRegex = Regex("""reference=(.*)""")
-                val match = refRegex.find(refStr) ?: return
-
-                val keyStr = match.groups[1]?.value ?: return
+                val refMatch = refRegex.find(qParam) ?: return
+                val keyStr = refMatch.groups[1]?.value ?: return
 
                 val key = PassageKeyFactory.instance().getKey(v11n, keyStr)
                 windowControl.showLink(doc, key)
