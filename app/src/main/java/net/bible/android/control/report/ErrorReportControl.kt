@@ -46,6 +46,7 @@ import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.applicationVersionName
 import net.bible.service.common.CommonUtils.megabytesFree
+import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
@@ -55,6 +56,8 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.zip.GZIPOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -308,8 +311,8 @@ object BugReport {
             }
             val saveFileIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/x-gzip"
-                putExtra(Intent.EXTRA_TITLE, "log-andbible.txt.gz")
+                type = "application/zip"
+                putExtra(Intent.EXTRA_TITLE, "log-screenshot-andbible.zip")
             }
 
             val chooserIntent = Intent.createChooser(emailIntent, activity.getString(R.string.send_bug_report_title))
@@ -317,8 +320,29 @@ object BugReport {
             chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             activity.awaitIntent(chooserIntent).resultData?.data?.let { destinationUri ->
                 activity.lifecycleScope.launch(Dispatchers.IO) {
+                    val zipFile = File(logDir, "logcat-screenshot.zip")
+                    if (zipFile.exists()) zipFile.delete()
+
+                    ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zipOutputStream ->
+                        // add the screenshot file to the zip
+                        FileInputStream(screenshotFile).use { fileInputStream ->
+                            val entry = ZipEntry(SCREENSHOT_FILE)
+                            zipOutputStream.putNextEntry(entry)
+                            fileInputStream.copyTo(zipOutputStream)
+                            zipOutputStream.closeEntry()
+                        }
+
+                        // add the logcat file to the zip
+                        FileInputStream(logcatFile).use { fileInputStream ->
+                            val entry = ZipEntry("logcat.txt.gz")
+                            zipOutputStream.putNextEntry(entry)
+                            fileInputStream.copyTo(zipOutputStream)
+                            zipOutputStream.closeEntry()
+                        }
+                    }
+
                     val out = activity.contentResolver.openOutputStream(destinationUri)!!
-                    val inputStream = FileInputStream(logcatFile)
+                    val inputStream = FileInputStream(zipFile)
 
                     try {
                         withContext(Dispatchers.IO) {
