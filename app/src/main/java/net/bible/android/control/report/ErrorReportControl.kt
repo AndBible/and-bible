@@ -27,6 +27,7 @@ import android.graphics.Color
 import android.os.Build
 import android.util.Log
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -47,6 +48,7 @@ import net.bible.service.common.CommonUtils.applicationVersionName
 import net.bible.service.common.CommonUtils.megabytesFree
 import java.io.BufferedReader
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStreamReader
@@ -297,16 +299,37 @@ object BugReport {
             val uris = ArrayList(listOf(logcatFile, screenshotFile).filter { it.canRead() }.map {
                 FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", it)
             })
-            val email = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+            val emailIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
                 putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
                 putExtra(Intent.EXTRA_SUBJECT, subject)
                 putExtra(Intent.EXTRA_TEXT, message)
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
                 type = "text/plain"
             }
-            val chooserIntent = Intent.createChooser(email, activity.getString(R.string.send_bug_report_title))
+            val saveFileIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "application/x-gzip"
+                putExtra(Intent.EXTRA_TITLE, "log-andbible.txt.gz")
+            }
+
+            val chooserIntent = Intent.createChooser(emailIntent, activity.getString(R.string.send_bug_report_title))
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveFileIntent))
             chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            activity.awaitIntent(chooserIntent)
+            activity.awaitIntent(chooserIntent).resultData?.data?.let { destinationUri ->
+                activity.lifecycleScope.launch(Dispatchers.IO) {
+                    val out = activity.contentResolver.openOutputStream(destinationUri)!!
+                    val inputStream = FileInputStream(logcatFile)
+
+                    try {
+                        withContext(Dispatchers.IO) {
+                            inputStream.copyTo(out)
+                            out.close()
+                        }
+                    } catch (ex: IOException) {
+                        Log.e(TAG, ex.message ?: "Error occurred in trying to save log file")
+                    }
+                }
+            }
         }
     }
 
