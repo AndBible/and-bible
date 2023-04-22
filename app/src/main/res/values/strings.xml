@@ -659,7 +659,6 @@
     <string name="backup_email_subject_2">%s database backup</string>
     <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
-    <string name="backup_share">Backup</string>
     <string name="restore_modules">Restore Documents from…</string>
     <string name="send_backup_file">Send a backup file</string>
     <string name="backup_modules_title">Select which modules to backup</string>
