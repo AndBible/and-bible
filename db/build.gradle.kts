@@ -20,6 +20,7 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("kotlinx-serialization")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -75,9 +76,12 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("com.github.AndBible:jsword:$jswordVersion")
+    implementation("com.github.AndBible:jsword:$jswordVersion") {
+        exclude("org.apache.httpcomponents")
+    }
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
+    implementation("androidx.core:core-ktx:1.10.0")
 
     kapt("androidx.room:room-compiler:$roomVersion")
 }

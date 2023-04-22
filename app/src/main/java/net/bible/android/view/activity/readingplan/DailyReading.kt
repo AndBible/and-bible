@@ -397,7 +397,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         else -> super.onOptionsItemSelected(item)
     }
 
-    val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uriResult ->
+    private val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uriResult ->
         Log.i(TAG, "Importing plan. Result uri is${if (uriResult != null) " not" else ""} null")
         val uri = uriResult ?: return@registerForActivityResult
 

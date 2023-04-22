@@ -27,6 +27,7 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("kotlinx-serialization")
+    id("org.jetbrains.kotlin.android")
 }
 
 val jsDir = "bibleview-js"
@@ -323,7 +324,17 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.6.1")
+    implementation("androidx.core:core-ktx:1.10.0")
     implementation("net.objecthunter:exp4j:0.4.8")
+
+    // Google Drive API
+    implementation("com.google.android.gms:play-services-auth:20.5.0")
+    implementation ("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
+        exclude("org.apache.httpcomponents")
+    }
+     implementation("com.google.api-client:google-api-client-android:2.2.0") {
+        exclude("org.apache.httpcomponents")
+     }
 
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 
@@ -353,7 +364,9 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0") // make sure this is the same version that commons-text depends on
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
 
-    implementation("com.github.AndBible:jsword:$jswordVersion")
+    implementation("com.github.AndBible:jsword:$jswordVersion") {
+        exclude("org.apache.httpcomponents")
+    }
 
     implementation("org.jdom:jdom2:$jdomVersion")
 

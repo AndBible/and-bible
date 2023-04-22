@@ -22,10 +22,8 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
@@ -66,11 +64,11 @@ import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.googledrive.GoogleDrive
 import net.bible.service.sword.SwordDocumentFacade
 
 import org.apache.commons.lang3.StringUtils
 import java.util.*
-
 
 /** Called first to show download screen if no documents exist
  *
@@ -83,7 +81,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private val docsDao get() = DatabaseContainer.db.swordDocumentInfoDao()
     private val previousInstallDetected: Boolean get() = docsDao.getKnownInstalled().isNotEmpty();
     override val doNotInitializeApp = true
-
 
     private suspend fun getListOfBooksUserWantsToRedownload(context: Context) : List<SwordDocumentInfo>? {
         var result: List<SwordDocumentInfo>?;
@@ -239,6 +236,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             // only show the splash screen if user has no bibles
             if(!checkPoorTranslations(this@StartupActivity)) return@withContext
             showFirstLayout()
+            GoogleDrive(this@StartupActivity).googleDrive()
+
         } else {
             Log.i(TAG, "Going to main bible view")
 
