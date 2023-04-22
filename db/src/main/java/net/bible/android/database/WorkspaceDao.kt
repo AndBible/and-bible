@@ -70,7 +70,7 @@ interface WorkspaceDao {
     @Update
     fun updateWindows(windows: List<WorkspaceEntities.Window>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     fun updatePageManagers(pageManagers: List<WorkspaceEntities.PageManager>)
 
     @Query("DELETE FROM Workspace WHERE id = :workspaceId")

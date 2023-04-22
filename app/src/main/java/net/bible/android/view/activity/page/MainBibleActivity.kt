@@ -1169,7 +1169,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     resources.getColor(R.color.actionbar_background_night, theme)
                 else
                     workspaceSettings.workspaceColor ?: defaultWorkspaceColor
-                binding.toolbarLayout.setBackgroundColor(toolbarColor)
+
+                binding.run {
+                    homeButton.setBackgroundColor(toolbarColor)
+                    pageTitle.setBackgroundColor(toolbarColor)
+                    documentTitle.setBackgroundColor(toolbarColor)
+                    toolbarButtonLayout.setBackgroundColor(toolbarColor)
+                }
+
                 if (ScreenSettings.nightMode){
                     binding.homeButton.drawable.setTint(workspaceSettings.workspaceColor ?: defaultWorkspaceColor)
                 }

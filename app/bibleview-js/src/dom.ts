@@ -83,12 +83,13 @@ function isParent(elem: Nullable<Node>, parent: Nullable<Node>): boolean {
     return false;
 }
 
+const textOrCommentNodeTypes: number[] = [Node.TEXT_NODE, Node.COMMENT_NODE]
 export function* walkBackText(e: Node, onlyOsis = false): Generator<Text> {
     let next: Nullable<Node> = e
     const osisCheck = (e: Node) => !onlyOsis || (onlyOsis && hasOsisContent(e))
 
     do {
-        if ([Node.TEXT_NODE, Node.COMMENT_NODE].includes(next.nodeType)) {
+        if (textOrCommentNodeTypes.includes(next.nodeType)) {
             if (next.nodeType === Node.TEXT_NODE && osisCheck(next)) {
                 yield next as Text;
             }
@@ -236,7 +237,7 @@ export function findParentsBeforeVerseSibling(node: Node): ParentAndSiblings {
 
 export function calculateOffsetToVerse(node: Node, offset: number) {
     let parent: Nullable<Element> = null;
-    if ([Node.TEXT_NODE, Node.COMMENT_NODE].includes(node.nodeType)) {
+    if (textOrCommentNodeTypes.includes(node.nodeType)) {
         parent = node.parentElement!.closest(".verse");
     } else if (node.nodeType === Node.ELEMENT_NODE) {
         parent = (node as Element).closest(".verse");

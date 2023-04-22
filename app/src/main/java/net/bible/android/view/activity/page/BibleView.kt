@@ -19,12 +19,14 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Looper
 import android.text.TextUtils
 import android.util.LayoutDirection
@@ -46,12 +48,16 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewAssetLoader.PathHandler
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
@@ -76,6 +82,7 @@ import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
+import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
@@ -104,6 +111,8 @@ import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
+import net.bible.android.view.activity.search.SearchIndex
+import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.AndBibleAddons
@@ -114,31 +123,24 @@ import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.index.IndexStatus
+import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import java.io.File
+import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.min
-
-import net.bible.android.control.page.CurrentPageManager
-import android.os.Bundle
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import kotlinx.serialization.SerializationException
-import net.bible.android.view.activity.search.SearchResults
-import net.bible.android.view.activity.search.SearchIndex
-import org.crosswire.jsword.index.IndexStatus
-import org.crosswire.jsword.index.search.SearchType
-import org.crosswire.jsword.versification.BookName
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
@@ -738,7 +740,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
 
-    class ModuleAssetHandler: WebViewAssetLoader.PathHandler {
+    class ModuleAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse? {
             val parts = path.split("/", limit = 2);
             if(parts.size != 2) return null;
@@ -751,7 +753,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    class ModuleStylesAssetHandler: WebViewAssetLoader.PathHandler {
+    class ModuleStylesAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse? {
             val parts = path.split("/", limit = 2);
             if(parts.size != 2) return null;
@@ -771,7 +773,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    class FontsAssetHandler: WebViewAssetLoader.PathHandler {
+    class FontsAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse? {
             val parts = path.split("/", limit = 2);
             if(parts.size != 2) return null;
@@ -799,7 +801,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    class FeatureAssetHandler: WebViewAssetLoader.PathHandler {
+    class FeatureAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse? {
             val parts = path.split("/", limit = 2);
             if(parts.size != 2) return null;
@@ -818,8 +820,27 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    inner class MyAssetsPathHandler: PathHandler {
+        override fun handle(path: String): WebResourceResponse? {
+            return try {
+                val inputStream = context.resources.assets.open(path)
+                val mimeType = when(File(path).extension) {
+                    "js" -> "application/javascript"
+                    "html" -> "text/html"
+                    "css" -> "text/css"
+                    "svg" -> "image/svg+xml"
+                    else -> "text/plain"
+                }
+                WebResourceResponse(mimeType, null, inputStream)
+            } catch (e: IOException) {
+                Log.e(TAG, "Error opening asset path: $path", e)
+                WebResourceResponse(null, null, null)
+            }
+        }
+    }
+
     val assetLoader = WebViewAssetLoader.Builder()
-        .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
+        .addPathHandler("/assets/", MyAssetsPathHandler())
         .addPathHandler("/module/", ModuleAssetHandler())
         .addPathHandler("/fonts/", FontsAssetHandler())
         .addPathHandler("/features/", FeatureAssetHandler())

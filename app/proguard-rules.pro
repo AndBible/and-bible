@@ -26,6 +26,8 @@
 # commons compress does not need classes for other platforms
 -dontwarn org.tukaani.xz.**
 
+-keep class org.apache.commons.compress.archivers.zip.**
+
 # hopefully these JDOm dependencies aren't used because I don't think Android provides them
 -dontwarn javax.xml.stream.**
 
@@ -88,6 +90,7 @@
 }
 
 -dontwarn javax.management.MBeanServerConnection
+-dontwarn javax.management.MBeanServer
 
 #We need these in order to support Kotlin reflection (used at least in SpeakWidgets.kt)
 #-keepattributes *Annotation*
