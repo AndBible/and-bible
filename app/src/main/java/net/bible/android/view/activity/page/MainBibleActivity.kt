@@ -1267,7 +1267,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     fun onEvent(event: AppToBackgroundEvent) {
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
-            lifecycleScope.launch {GoogleDrive.writeToDrive()}
+            if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
+                lifecycleScope.launch { GoogleDrive.writeToDrive() }
+            }
         }
         else {
             updateActions()

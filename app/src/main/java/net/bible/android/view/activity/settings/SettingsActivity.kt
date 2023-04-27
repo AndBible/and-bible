@@ -27,6 +27,7 @@ import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.MultiSelectListPreference
@@ -34,6 +35,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.BuildVariant
@@ -42,6 +45,7 @@ import net.bible.service.common.CommonUtils.makeLarger
 import net.bible.service.common.getPreferenceList
 import net.bible.service.common.htmlToSpan
 import net.bible.service.device.ScreenSettings.autoModeAvailable
+import net.bible.service.googledrive.GoogleDrive
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
 
@@ -136,6 +140,7 @@ class SettingsActivity: ActivityBase() {
                     "discrete_mode",
                     "show_calculator",
                     "calculator_pin",
+                    "google_drive_sync",
                 )
                 for(key in keys) {
                     editor.removeString(key)
@@ -278,6 +283,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         } else {
             openLinksPref.isVisible = false
+        }
+        val googleDrivePreference = preferenceScreen.findPreference<SwitchPreferenceCompat>("google_drive_sync") as SwitchPreferenceCompat
+        googleDrivePreference.setOnPreferenceChangeListener { preference, newValue ->
+            if(newValue == true && !GoogleDrive.signedIn) {
+                lifecycleScope.launch {
+                    val success = GoogleDrive.signIn(this@SettingsFragment.activity as ActivityBase)
+                    if(!success) {
+                        googleDrivePreference.isChecked = false
+                    }
+                }
+            }
+            true
         }
 
         for(p in getPreferenceList()) {

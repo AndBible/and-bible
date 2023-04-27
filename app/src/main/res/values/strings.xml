@@ -1115,4 +1115,6 @@
     <string name="reference_copied_to_clipboard">Reference copied to clipboard</string>
     <string name="prefs_expand_footnotes_title">Inline cross references</string>
     <string name="prefs_expand_footnotes_summary">Show cross reference content in-line within the text, instead of a link that opens a pop-up dialog</string>
+    <string name="prefs_google_drive_sync_title">Google Drive synchronization</string>
+    <string name="prefs_google_drive_sync_summary">Use this if you have multiple devices that you want to keep in sync. Application is granted access only to applications own files in Google Drive, not any personal files.</string>
 </resources>

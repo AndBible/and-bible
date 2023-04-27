@@ -65,21 +65,32 @@ object GoogleDrive {
     private var oneTapClient: SignInClient = Identity.getSignInClient(application)
     private var account: Account? = null
 
-    private val service: Drive get() = Drive.Builder(
-        NetHttpTransport(),
-        GsonFactory.getDefaultInstance(),
-        GoogleAccountCredential
-            .usingOAuth2(application, Collections.singleton(DriveScopes.DRIVE_APPDATA))
-            .setSelectedAccount(account)
-    ).setApplicationName("AndBible").build()
+    val signedIn get() = account != null
+    private val service: Drive get() {
+        if (!signedIn) {
+            throw IllegalStateException("Not signed in")
+        }
+        return Drive.Builder(
+            NetHttpTransport(),
+            GsonFactory.getDefaultInstance(),
+            GoogleAccountCredential
+                .usingOAuth2(application, Collections.singleton(DriveScopes.DRIVE_APPDATA))
+                .setSelectedAccount(account)
+        ).setApplicationName("AndBible").build()
+    }
 
-    suspend fun signIn(activity: ActivityBase) = withContext(Dispatchers.IO) {
+    suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) {
         Log.i(TAG, "Starting")
         account = GoogleSignIn.getLastSignedInAccount(application)?.account?:oneTapSignIn(activity)
-        ensureDriveAccess(activity)
+        val success = ensureDriveAccess(activity)
+        if(!success) {
+            account = null
+        }
+        return@withContext success
     }
 
     suspend fun writeToDrive() = withContext(Dispatchers.IO) {
+        Log.i(TAG, "writeToDrive")
         service.files().list()
             .setSpaces("appDataFolder")
             .setFields("nextPageToken, files(id, name)")

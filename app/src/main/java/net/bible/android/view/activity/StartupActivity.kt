@@ -239,8 +239,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         } else {
             Log.i(TAG, "Going to main bible view")
-            GoogleDrive.signIn(this@StartupActivity)
-            GoogleDrive.loadFromDrive()
             gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
         }
@@ -360,7 +358,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     return@launch
                 }
             }
-
+            CommonUtils.initializeApp()
+            if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
+                GoogleDrive.signIn(this@StartupActivity)
+                GoogleDrive.loadFromDrive()
+            }
             startActivity(handlerIntent)
             finish()
         }
