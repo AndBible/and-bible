@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.http.FileContent
+import com.google.api.client.http.InputStreamContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
@@ -42,12 +43,14 @@ import net.bible.android.SharedConstants
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DATABASE_NAME
-import net.bible.service.db.SQLITE3_MIMETYPE
 import java.io.File
 import java.util.Collections
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import kotlin.coroutines.resumeWithException
 
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
+const val GZIP_MIMETYPE = "application/gzip"
 
 suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
     addOnSuccessListener { result ->
@@ -89,41 +92,50 @@ object GoogleDrive {
         return@withContext success
     }
 
+    private const val backupFileName = "${DATABASE_NAME}.gz"
     suspend fun writeToDrive() = withContext(Dispatchers.IO) {
         Log.i(TAG, "writeToDrive")
         service.files().list()
             .setSpaces("appDataFolder")
             .setFields("nextPageToken, files(id, name)")
-            .execute().files.filter { it.name == DATABASE_NAME}.forEach {
+            .execute().files.filter { it.name == backupFileName}.forEach {
                 Log.i(TAG, "Deleting existing file ${it.name} (${it.id})")
                 service.files().delete(it.id).execute()
             }
 
         val fileMetaData = DriveFile().apply {
-            name = DATABASE_NAME
+            name = backupFileName
             parents = Collections.singletonList("appDataFolder")
         }
-
+        val tmpFile = File(SharedConstants.internalFilesDir, backupFileName)
         val dbFile = application.getDatabasePath(DATABASE_NAME)
-        val mediaContent = FileContent(SQLITE3_MIMETYPE, dbFile)
-        val file: DriveFile = service.files().create(fileMetaData, mediaContent)
-            .setFields("id, name")
-            .execute()
-        Log.d(TAG, "Upload success into File ID: ${file.id} ${file.name}")
+        GZIPOutputStream(tmpFile.outputStream()).use {
+            dbFile.inputStream().copyTo(it)
+        }
+
+        tmpFile.inputStream().use { inputStream ->
+            val content = InputStreamContent(GZIP_MIMETYPE, inputStream)
+            val file: DriveFile = service.files().create(fileMetaData, content)
+                .setFields("id, name, size")
+                .execute()
+            Log.d(TAG, "Upload success into File ID: ${file.id} ${file.name}, size ${file.getSize()}, compress ratio: ${file.getSize() / dbFile.length().toDouble()}")
+        }
+        tmpFile.delete()
     }
 
     suspend fun loadFromDrive() = withContext(Dispatchers.IO) {
         val file = service.files().list()
             .setSpaces("appDataFolder")
-            .setFields("nextPageToken, files(id, name)")
-            .execute().files.firstOrNull { it.name == DATABASE_NAME}?: return@withContext
-        Log.i(TAG, "Downloading file ${file.name} (${file.id})")
+            .setFields("nextPageToken, files(id, name, size)")
+            .execute().files.firstOrNull { it.name == backupFileName}?: return@withContext
+        Log.i(TAG, "Downloading file ${file.name} (${file.id}) ${file.getSize()}")
 
         val internalDbBackupDir = File(SharedConstants.internalFilesDir, "/backup")
         internalDbBackupDir.mkdirs()
 
-        val inputStream = service.files().get(file.id).executeMediaAsInputStream()
-        BackupControl.restoreDatabaseFromInputStream(inputStream)
+        GZIPInputStream(service.files().get(file.id).executeMediaAsInputStream()).use {
+            BackupControl.restoreDatabaseFromInputStream(it)
+        }
     }
 
     suspend fun signOut() {
