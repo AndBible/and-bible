@@ -120,7 +120,7 @@ class BibleJavascriptInterface(
                 putExtra("navigateToVerse", true)
             }
             val result = mainBibleActivity.awaitIntent(intent)
-            val verseStr = result?.resultData?.getStringExtra("verse")
+            val verseStr = result?.data?.getStringExtra("verse")
 
 
             val verse = if(verseStr == null) null else VerseFactory.fromString(KJVA, verseStr)

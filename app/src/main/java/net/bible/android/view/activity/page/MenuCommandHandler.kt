@@ -176,7 +176,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                     mainBibleActivity.lifecycleScope.launch (Dispatchers.Main) {
                         val result = mainBibleActivity.awaitIntent(intent)
                         if(result.resultCode == Activity.RESULT_OK) {
-                            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         }
                     }

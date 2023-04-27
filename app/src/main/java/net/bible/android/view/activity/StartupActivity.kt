@@ -217,6 +217,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    private val googleDrive = GoogleDrive(this)
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if(!checkWebView()) return@withContext
 
@@ -236,7 +237,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             // only show the splash screen if user has no bibles
             if(!checkPoorTranslations(this@StartupActivity)) return@withContext
             showFirstLayout()
-            GoogleDrive(this@StartupActivity).googleDrive()
+            googleDrive.googleDrive()
 
         } else {
             Log.i(TAG, "Going to main bible view")

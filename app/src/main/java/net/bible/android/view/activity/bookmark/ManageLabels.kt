@@ -588,7 +588,7 @@ class ManageLabels : ListActivityBase() {
             if (result.resultCode != Activity.RESULT_CANCELED) {
                 Log.i(TAG, "editLabel result NOT CANCELLED")
                 val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
-                    serializer(), result.resultData.getStringExtra("data")!!)
+                    serializer(), result.data?.getStringExtra("data")!!)
 
                 if(newLabelData.label.name.isEmpty() && label.id < 0) {
                     Log.i(TAG, "editLabel name not specified or id negative")

@@ -320,7 +320,7 @@ class InstallZip : ActivityBase() {
         val result = awaitIntent(intent)
         if (result.resultCode == Activity.RESULT_OK) {
             try {
-                installFromFile(result.resultData!!.data!!)
+                installFromFile(result.data!!.data!!)
             } catch (e: SqliteInstallError) {
                 Log.e(TAG, "Error occurred in installing module", e)
                 val msg = when(e) {

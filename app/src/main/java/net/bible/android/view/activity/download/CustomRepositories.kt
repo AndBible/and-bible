@@ -90,7 +90,7 @@ class CustomRepositories : ListActivityBase() {
         intent.putExtra("data", RepositoryData(repo).toJSON())
         lifecycleScope.launch {
             val result = awaitIntent(intent)
-            val data = RepositoryData.fromJSON(result.resultData.getStringExtra("data")!!)
+            val data = RepositoryData.fromJSON(result.data?.getStringExtra("data")!!)
             handleResult(data)
         }
     }
@@ -149,7 +149,7 @@ class CustomRepositories : ListActivityBase() {
         val intent = Intent(this@CustomRepositories, CustomRepositoryEditor::class.java)
         intent.putExtra("data", RepositoryData().toJSON())
         val result = awaitIntent(intent)
-        val data = RepositoryData.fromJSON(result.resultData.getStringExtra("data")!!)
+        val data = RepositoryData.fromJSON(result.data?.getStringExtra("data")!!)
         handleResult(data)
     }
 

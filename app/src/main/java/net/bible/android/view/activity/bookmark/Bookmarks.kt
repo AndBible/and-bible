@@ -173,7 +173,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
         val result = awaitIntent(intent)
         if(result.resultCode == RESULT_OK) {
-            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
             for (b in bookmarks) {
                 bookmarkControl.changeLabelsForBookmark(b, resultData.selectedLabels.toList())
             }
@@ -311,8 +311,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                         mode = ManageLabels.Mode.WORKSPACE,
                     ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
                     val result = awaitIntent(intent)
-                    if(result?.resultCode == RESULT_OK) {
-                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                    if(result.resultCode == RESULT_OK) {
+                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                         windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         withContext(Dispatchers.Main) {
                             loadLabelList()

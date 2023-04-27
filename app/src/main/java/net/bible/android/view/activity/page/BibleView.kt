@@ -393,7 +393,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val result = mainBibleActivity.awaitIntent(intent)
 
         if(result.resultCode == Activity.RESULT_OK) {
-            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
             bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
             bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels)
             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)

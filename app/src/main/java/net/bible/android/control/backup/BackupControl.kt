@@ -355,7 +355,7 @@ object BackupControl {
                     type = "application/zip"
                     putExtra(Intent.EXTRA_TITLE, fileName)
                 }
-                val r = callingActivity.awaitIntent(intent).resultData?.data
+                val r = callingActivity.awaitIntent(intent).data?.data
                 ok = if(r == null) false else backupModulesToUri(r)
             }
             BackupResult.SHARE -> {
@@ -437,7 +437,7 @@ object BackupControl {
                     type = "application/x-sqlite3"
                     putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
                 }
-                val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
+                val r = callingActivity.awaitIntent(intent).data?.data ?: return
                 if(CommonUtils.initialized) {
                     windowControl.windowRepository.saveIntoDb()
                     db.sync()
@@ -482,7 +482,7 @@ object BackupControl {
                     type = "application/x-sqlite3"
                     putExtra(Intent.EXTRA_TITLE, file.name)
                 }
-                val r = callingActivity.awaitIntent(intent).resultData?.data ?: return
+                val r = callingActivity.awaitIntent(intent).data?.data ?: return
                 callingActivity.lifecycleScope.launch(Dispatchers.IO) {
                     backupDatabaseToUri(callingActivity, r, file)
                 }
@@ -506,7 +506,7 @@ object BackupControl {
             hourglass.show()
             withContext(Dispatchers.IO) {
                 val inputStream = try {
-                    activity.contentResolver.openInputStream(result.resultData.data!!)
+                    activity.contentResolver.openInputStream(result.data?.data!!)
                 } catch (e: FileNotFoundException) {null}
                 if (inputStream != null && restoreDatabaseViaIntent(inputStream)) {
                     Log.i(TAG, "Restored database successfully")
@@ -522,7 +522,7 @@ object BackupControl {
     suspend fun restoreModulesViaIntent(activity: ActivityBase) {
         val intent = Intent(activity, InstallZip::class.java)
         val result = activity.awaitIntent(intent)
-        if(result.resultData?.data == null) return
+        if(result.data?.data == null) return
 
         ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
     }

@@ -78,7 +78,7 @@ class CurrentGeneralBookPage internal constructor(
                             .toJSON())
                     )
                     if(result.resultCode == Activity.RESULT_OK) {
-                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                         context.workspaceSettings.updateFrom(resultData)
                     }
                 }
