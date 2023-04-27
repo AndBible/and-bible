@@ -54,6 +54,7 @@ import net.bible.service.common.FileManager
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
+import net.bible.service.db.SQLITE3_MIMETYPE
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
@@ -125,7 +126,7 @@ object BackupControl {
             putExtra(Intent.EXTRA_STREAM, uri)
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, message)
-            type = "application/x-sqlite3"
+            type = SQLITE3_MIMETYPE
         }
 		val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
         chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -140,7 +141,7 @@ object BackupControl {
 
     /** restore database from custom source
      */
-    suspend fun restoreDatabaseViaIntent(inputStream: InputStream): Boolean {
+    suspend fun restoreDatabaseFromInputStream(inputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
         val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
         val f = File(internalDbBackupDir, fileName)
@@ -172,7 +173,7 @@ object BackupControl {
         }
 
         f.delete()
-        return ok
+        return@withContext ok
     }
 
     private fun getString(id: Int): String {
@@ -434,7 +435,7 @@ object BackupControl {
             BackupResult.STORAGE -> {
                 val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "application/x-sqlite3"
+                    type = SQLITE3_MIMETYPE
                     putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
                 }
                 val r = callingActivity.awaitIntent(intent).data?.data ?: return
@@ -479,7 +480,7 @@ object BackupControl {
             BackupResult.STORAGE -> {
                 val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "application/x-sqlite3"
+                    type = SQLITE3_MIMETYPE
                     putExtra(Intent.EXTRA_TITLE, file.name)
                 }
                 val r = callingActivity.awaitIntent(intent).data?.data ?: return
@@ -508,7 +509,7 @@ object BackupControl {
                 val inputStream = try {
                     activity.contentResolver.openInputStream(result.data?.data!!)
                 } catch (e: FileNotFoundException) {null}
-                if (inputStream != null && restoreDatabaseViaIntent(inputStream)) {
+                if (inputStream != null && restoreDatabaseFromInputStream(inputStream)) {
                     Log.i(TAG, "Restored database successfully")
                     ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
                 } else {

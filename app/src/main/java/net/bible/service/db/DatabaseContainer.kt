@@ -51,6 +51,7 @@ import androidx.room.migration.Migration as RoomMigration
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
+const val SQLITE3_MIMETYPE = "application/x-sqlite3"
 const val TAG = "DbContainer"
 
 abstract class Migration(startVersion: Int, endVersion: Int): RoomMigration(startVersion, endVersion) {

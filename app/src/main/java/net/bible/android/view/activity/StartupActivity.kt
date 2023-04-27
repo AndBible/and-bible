@@ -236,11 +236,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             // only show the splash screen if user has no bibles
             if(!checkPoorTranslations(this@StartupActivity)) return@withContext
             showFirstLayout()
-            GoogleDrive.signIn(this@StartupActivity)
 
         } else {
             Log.i(TAG, "Going to main bible view")
-
+            GoogleDrive.signIn(this@StartupActivity)
+            GoogleDrive.loadFromDrive()
             gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
         }
@@ -400,7 +400,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                         lifecycleScope.launch(Dispatchers.IO) {
                             hourglass.show()
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
-                            if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                            if (BackupControl.restoreDatabaseFromInputStream(inputStream!!)) {
                                 Log.i(TAG, "Restored database successfully")
 
                                 withContext(Dispatchers.Main) {

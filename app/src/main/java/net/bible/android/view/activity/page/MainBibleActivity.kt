@@ -57,6 +57,7 @@ import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
@@ -116,6 +117,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
+import net.bible.service.googledrive.GoogleDrive
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -1265,6 +1267,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     fun onEvent(event: AppToBackgroundEvent) {
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
+            lifecycleScope.launch {GoogleDrive.writeToDrive()}
         }
         else {
             updateActions()

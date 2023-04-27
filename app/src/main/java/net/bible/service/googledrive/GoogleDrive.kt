@@ -28,15 +28,22 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.client.http.FileContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import com.google.api.services.drive.model.File as DriveFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.SharedConstants
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.db.DATABASE_NAME
+import net.bible.service.db.SQLITE3_MIMETYPE
+import java.io.File
 import java.util.Collections
 import kotlin.coroutines.resumeWithException
 
@@ -57,16 +64,55 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
 object GoogleDrive {
     private var oneTapClient: SignInClient = Identity.getSignInClient(application)
     private var account: Account? = null
-    private val credentials: GoogleAccountCredential
-        get() = GoogleAccountCredential
+
+    private val service: Drive get() = Drive.Builder(
+        NetHttpTransport(),
+        GsonFactory.getDefaultInstance(),
+        GoogleAccountCredential
             .usingOAuth2(application, Collections.singleton(DriveScopes.DRIVE_APPDATA))
             .setSelectedAccount(account)
+    ).setApplicationName("AndBible").build()
 
     suspend fun signIn(activity: ActivityBase) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Starting")
-        account = GoogleSignIn.getLastSignedInAccount(application)?.account?:  oneTapSignIn(activity)
+        account = GoogleSignIn.getLastSignedInAccount(application)?.account?:oneTapSignIn(activity)
         ensureDriveAccess(activity)
-        signOut()
+    }
+
+    suspend fun writeToDrive() = withContext(Dispatchers.IO) {
+        service.files().list()
+            .setSpaces("appDataFolder")
+            .setFields("nextPageToken, files(id, name)")
+            .execute().files.filter { it.name == DATABASE_NAME}.forEach {
+                Log.i(TAG, "Deleting existing file ${it.name} (${it.id})")
+                service.files().delete(it.id).execute()
+            }
+
+        val fileMetaData = DriveFile().apply {
+            name = DATABASE_NAME
+            parents = Collections.singletonList("appDataFolder")
+        }
+
+        val dbFile = application.getDatabasePath(DATABASE_NAME)
+        val mediaContent = FileContent(SQLITE3_MIMETYPE, dbFile)
+        val file: DriveFile = service.files().create(fileMetaData, mediaContent)
+            .setFields("id, name")
+            .execute()
+        Log.d(TAG, "Upload success into File ID: ${file.id} ${file.name}")
+    }
+
+    suspend fun loadFromDrive() = withContext(Dispatchers.IO) {
+        val file = service.files().list()
+            .setSpaces("appDataFolder")
+            .setFields("nextPageToken, files(id, name)")
+            .execute().files.firstOrNull { it.name == DATABASE_NAME}?: return@withContext
+        Log.i(TAG, "Downloading file ${file.name} (${file.id})")
+
+        val internalDbBackupDir = File(SharedConstants.internalFilesDir, "/backup")
+        internalDbBackupDir.mkdirs()
+
+        val inputStream = service.files().get(file.id).executeMediaAsInputStream()
+        BackupControl.restoreDatabaseFromInputStream(inputStream)
     }
 
     suspend fun signOut() {
@@ -92,13 +138,8 @@ object GoogleDrive {
     }
 
     private suspend fun ensureDriveAccess(activity: ActivityBase): Boolean {
-        val drive = Drive.Builder(
-            NetHttpTransport(),
-            GsonFactory.getDefaultInstance(),
-            credentials
-        ).setApplicationName("AndBible").build()
-        try {
-            drive.files().list()
+        val lst = try {
+            service.files().list()
                 .setSpaces("appDataFolder")
                 .setFields("nextPageToken, files(id, name)")
                 .execute()
@@ -106,6 +147,10 @@ object GoogleDrive {
             val result = activity.awaitIntent(e.intent)
             return result.resultCode == Activity.RESULT_OK
         }
+        lst.files.forEach {
+            Log.i(TAG, "Files in Drive: ${it.name} (${it.id})")
+        }
+
         return true
     }
 
