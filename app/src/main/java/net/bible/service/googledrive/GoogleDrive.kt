@@ -18,15 +18,13 @@
 package net.bible.service.googledrive
 
 import android.accounts.Account
+import android.app.Activity
 import android.util.Log
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
@@ -37,9 +35,12 @@ import com.google.api.services.drive.DriveScopes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.view.activity.base.ActivityBase
 import java.util.Collections
 import kotlin.coroutines.resumeWithException
+
+const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
 
 suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
     addOnSuccessListener { result ->
@@ -53,27 +54,26 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
     }
 }
 
-const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
+object GoogleDrive {
+    private var oneTapClient: SignInClient = Identity.getSignInClient(application)
+    private var account: Account? = null
+    private val credentials: GoogleAccountCredential
+        get() = GoogleAccountCredential
+            .usingOAuth2(application, Collections.singleton(DriveScopes.DRIVE_APPDATA))
+            .setSelectedAccount(account)
 
-class GoogleDrive(val context: ActivityBase) {
-    private lateinit var oneTapClient: SignInClient
-    private lateinit var credentials: GoogleAccountCredential
-    private suspend fun signInLegacy(): Account {
-        Log.i(TAG, "Signing in")
-        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .requestScopes(Scope(DriveScopes.DRIVE_APPDATA))
-            .build()
-
-        val googleSignInClient = GoogleSignIn.getClient(context, signInOptions)
-        val signInIntent = googleSignInClient.signInIntent
-        val result = context.awaitIntent(signInIntent)
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data) as Task<GoogleSignInAccount>
-        val account = task.await()
-        return account.account!!
+    suspend fun signIn(activity: ActivityBase) = withContext(Dispatchers.IO) {
+        Log.i(TAG, "Starting")
+        account = GoogleSignIn.getLastSignedInAccount(application)?.account?:  oneTapSignIn(activity)
+        ensureDriveAccess(activity)
+        signOut()
     }
 
-    private suspend fun signInOneTap(): Account {
+    suspend fun signOut() {
+        oneTapClient.signOut().await()
+    }
+
+    private suspend fun oneTapSignIn(activity: ActivityBase): Account {
         Log.i(TAG, "Signing in (one tap)")
         val signInRequest = BeginSignInRequest.builder()
             .setGoogleIdTokenRequestOptions(
@@ -86,38 +86,12 @@ class GoogleDrive(val context: ActivityBase) {
             .setAutoSelectEnabled(true)
             .build()
         val beginSignInResult = oneTapClient.beginSignIn(signInRequest).await()
-        val intent = context.awaitPendingIntent(beginSignInResult.pendingIntent).data
+        val intent = activity.awaitPendingIntent(beginSignInResult.pendingIntent).data
         val oneTapCredential: SignInCredential = oneTapClient.getSignInCredentialFromIntent(intent)
-        return Account(oneTapCredential.id, context.packageName)
+        return Account(oneTapCredential.id, application.packageName)
     }
 
-    private suspend fun signIn() = signInOneTap()
-
-    suspend fun googleDrive() = withContext(Dispatchers.IO) {
-        Log.i(TAG, "Starting")
-        oneTapClient = Identity.getSignInClient(context)
-        var account: Account = GoogleSignIn.getLastSignedInAccount(context)?.account?:  signIn()
-
-        credentials = GoogleAccountCredential
-            .usingOAuth2(context, Collections.singleton(DriveScopes.DRIVE_APPDATA))
-            .setSelectedAccount(account)
-
-
-        Log.i(TAG, "canRead: ${checkCanRead()}")
-        Log.i(TAG, "canRead: ${checkCanRead()}")
-        Log.i(TAG, "canRead: ${checkCanRead()}")
-        oneTapClient.signOut().await()
-        //if(!checkCanRead()) {
-        //    //account = signIn()
-        //    //credentials = GoogleAccountCredential
-        //    //    .usingOAuth2(context, Collections.singleton(DriveScopes.DRIVE_APPDATA))
-        //    //    .setSelectedAccount(account)
-        //    Log.i(TAG, "canRead: ${checkCanRead()}")
-        //}
-
-    }
-
-    private suspend fun checkCanRead(): Boolean {
+    private suspend fun ensureDriveAccess(activity: ActivityBase): Boolean {
         val drive = Drive.Builder(
             NetHttpTransport(),
             GsonFactory.getDefaultInstance(),
@@ -129,12 +103,11 @@ class GoogleDrive(val context: ActivityBase) {
                 .setFields("nextPageToken, files(id, name)")
                 .execute()
         } catch (e: UserRecoverableAuthIOException) {
-            context.awaitIntent(e.intent)
-            return false
+            val result = activity.awaitIntent(e.intent)
+            return result.resultCode == Activity.RESULT_OK
         }
         return true
     }
-    companion object {
-        const val TAG = "GoogleDrive"
-    }
+
+    const val TAG = "GoogleDrive"
 }
