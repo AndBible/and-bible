@@ -627,17 +627,17 @@
 
     <!-- Backup and restore -->
     <string name="backup_and_restore">Backup &amp; Restore</string>
-    <string name="backup_modules">Share or Backup Documents to…</string>
-    <string name="backup_app_database">Share or Backup app database to…</string>
+    <string name="backup_modules2">Backup Documents to…</string>
+    <string name="backup_app_database2">Backup app database to…</string>
 
-    <string name="backup_app">Share or Backup app (.apk file) to …</string>
+    <string name="backup_app2">Backup app (.apk file) to …</string>
     <string name="application">Application</string>
     <string name="database">Database</string>
     <string name="documents">Documents</string>
     <string name="application_info">Bible Study application file (.APK)</string>
     <string name="database_info">Bookmarks, labels, notes, study pads, reading plans, workspaces etc.</string>
     <string name="document_info">Bibles, commentaries, dictionaries, maps etc.</string>
-    <string name="share_or_backup_to">Share or backup to…</string>
+    <string name="backup_to">Backup to…</string>
     <string name="restore_from">Restore from…</string>
     <string name="restore">Restore</string>
 
@@ -659,10 +659,6 @@
     <string name="backup_email_subject_2">%s database backup</string>
     <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
-    <string name="backup_phone_storage">Phone storage</string>
-    <string name="backup_backup_title">Backup to where?</string>
-    <string name="backup_backup_message">Backup to phone or elsewhere via Share function (email, Google Drive etc.)?</string>
-    <string name="backup_share">Share</string>
     <string name="restore_modules">Restore Documents from…</string>
     <string name="send_backup_file">Send a backup file</string>
     <string name="backup_modules_title">Select which modules to backup</string>

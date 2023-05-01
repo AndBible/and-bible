@@ -24,7 +24,7 @@
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
 
 	<item android:id="@+id/backupButton"
-		android:title="@string/backup_modules"
+		android:title="@string/backup_modules2"
 		appcompat:iconTint="@color/white"
 		android:icon="@drawable/ic_backup_black_24dp"
 		appcompat:showAsAction="ifRoom"/>
