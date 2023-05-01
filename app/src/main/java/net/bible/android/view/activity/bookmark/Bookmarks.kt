@@ -242,7 +242,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 val selectedLabel = labelList[selectedLabelNo]
                 withContext(Dispatchers.Main) {
                     bookmarkList.clear()
-                    bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder, search="%$searchText%"))
+                    bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder, search=searchText))
                     notifyDataSetChanged()
 
                     // if in action mode then must exit because the data has changed, invalidating selections

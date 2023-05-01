@@ -159,11 +159,29 @@ open class BookmarkControl @Inject constructor(
 
     fun deleteBookmarksById(bookmarkIds: List<Long>) = deleteBookmarks(dao.bookmarksByIds(bookmarkIds))
 
-    fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false, search:String = "%%"): List<Bookmark> {
+    fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false, search:String = ""): List<Bookmark> {
         val bookmarks = when {
-            labelAll == label -> dao.allBookmarks(orderBy, search)
-            labelUnlabelled == label -> dao.unlabelledBookmarks(orderBy, search)
-            else -> dao.bookmarksWithLabel(label, orderBy, search)
+            labelAll == label -> {
+                if (search == "") {
+                    dao.allBookmarks(orderBy)
+                } else {
+                    dao.searchAllBookmarks(orderBy, search)
+                }
+            }
+            labelUnlabelled == label -> {
+                if (search == "") {
+                    dao.unlabelledBookmarks(orderBy)
+                } else {
+                    dao.searchUnlabelledBookmarks(orderBy, search)
+                }
+            }
+            else -> {
+                if (search == "") {
+                    dao.bookmarksWithLabel(label, orderBy)
+                } else {
+                    dao.searchBookmarksWithLabel(label, orderBy, search)
+                }
+            }
         }
         if(addData) for (it in bookmarks) {
             addText(it)
