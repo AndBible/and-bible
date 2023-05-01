@@ -85,7 +85,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp"
-            android:text="@string/share_or_backup_to" />
+            android:text="@string/backup_to" />
 
         <TextView
             android:layout_width="match_parent"
