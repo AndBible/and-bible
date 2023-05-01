@@ -220,7 +220,7 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun readingPlanDao(): ReadingPlanDao
     abstract fun workspaceDao(): WorkspaceDao
     abstract fun bookmarkDao(): BookmarkDao
-    abstract fun documentDao(): DocumentSearchDao
+    abstract fun documentSearchDao(): DocumentSearchDao
     abstract fun swordDocumentInfoDao(): SwordDocumentInfoDao
     abstract fun booleanSettingDao(): BooleanSettingDao
     abstract fun stringSettingDao(): StringSettingDao
@@ -229,9 +229,16 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun customRepositoryDao(): CustomRepositoryDao
 
     fun sync() { // Sync all data so far into database file
-        val cur = openHelper.writableDatabase
-            .query("PRAGMA wal_checkpoint(FULL)")
-        cur.moveToFirst()
-        cur.close()
+        openHelper.writableDatabase
+            .query("PRAGMA wal_checkpoint(FULL)").use {
+                it.moveToFirst()
+            }
+    }
+    fun vacuum() {
+        documentSearchDao().clear()
+        openHelper.writableDatabase
+            .query("VACUUM;").use {
+                it.moveToFirst()
+            }
     }
 }

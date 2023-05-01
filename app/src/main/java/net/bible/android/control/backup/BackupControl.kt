@@ -437,11 +437,11 @@ object BackupControl {
         }
     }
 
-    enum class BackupResult {SHARE, CANCEL}
     suspend fun startBackupAppDatabase(callingActivity: ActivityBase) {
         if(CommonUtils.initialized) {
             windowControl.windowRepository.saveIntoDb()
             db.sync()
+            db.vacuum()
         }
         backupDatabaseViaIntent(callingActivity, dbFile)
     }
