@@ -415,7 +415,7 @@ object BackupControl {
             putExtra(Intent.EXTRA_TITLE, "and-bible.apk")
         }
 
-        val chooserIntent = Intent.createChooser(shareIntent, callingActivity.getString(R.string.backup_app))
+        val chooserIntent = Intent.createChooser(shareIntent, callingActivity.getString(R.string.backup_app2))
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
         grantUriReadPermissions(chooserIntent, fileUri)
 
