@@ -57,8 +57,8 @@ import net.bible.service.common.FileManager
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
-import net.bible.service.db.SQLITE3_MIMETYPE
 import net.bible.service.download.isPseudoBook
+import net.bible.service.googledrive.GZIP_MIMETYPE
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
@@ -74,6 +74,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
@@ -83,7 +85,7 @@ import kotlin.coroutines.suspendCoroutine
 object BackupControl {
     /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
      */
-    private suspend fun backupDatabaseToUri(activity: ActivityBase, uri: Uri, file: File)  {
+    private suspend fun backupDatabaseToUri(activity: ActivityBase, uri: Uri, file: File) = withContext(Dispatchers.IO) {
         val hourglass = Hourglass(activity)
         hourglass.show()
 
@@ -92,9 +94,8 @@ object BackupControl {
 
         var ok = true
         try {
-            withContext(Dispatchers.IO) {
+            out.use {
                 inputStream.copyTo(out)
-                out.close()
             }
         } catch (ex: IOException) {
             Log.e(TAG, ex.message ?: "Error occurred in backuping db")
@@ -112,37 +113,40 @@ object BackupControl {
         }
     }
 
-    private suspend fun backupDatabaseViaIntent(callingActivity: ActivityBase, file: File) {
-        val hourglass = Hourglass(callingActivity)
+    private suspend fun backupDatabaseViaIntent(activity: ActivityBase, file: File) = withContext(Dispatchers.IO) {
+        val targetFileName = "AndBibleDatabase.sqlite3.gz"
+        val hourglass = Hourglass(activity)
         hourglass.show()
 
         internalDbBackupDir.mkdirs()
-        val targetFile =  File(internalDbBackupDir, file.name)
+        val targetFile =  File(internalDbBackupDir, targetFileName)
         if(targetFile.exists()) targetFile.delete()
-        file.copyTo(targetFile)
-        val subject = callingActivity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
-        val message = callingActivity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
-        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
+
+        GZIPOutputStream(targetFile.outputStream()).use {
+            file.inputStream().copyTo(it)
+        }
+
+        val subject = activity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
+        val message = activity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
+        val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
 		val shareIntent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, message)
-            type = SQLITE3_MIMETYPE
+            type = GZIP_MIMETYPE
         }
         val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = SQLITE3_MIMETYPE
-            putExtra(Intent.EXTRA_TITLE, file.name)
+            type = GZIP_MIMETYPE
+            putExtra(Intent.EXTRA_TITLE, targetFileName)
         }
 
 		val chooserIntent = Intent.createChooser(shareIntent, getString(R.string.send_backup_file))
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
         grantUriReadPermissions(chooserIntent, uri)
         hourglass.dismiss()
-		callingActivity.awaitIntent(chooserIntent).data?.data?.let { destinationUri ->
-            callingActivity.lifecycleScope.launch(Dispatchers.IO) {
-                backupDatabaseToUri(callingActivity, destinationUri, dbFile)
-            }
+		activity.awaitIntent(chooserIntent).data?.data?.let { destinationUri ->
+            backupDatabaseToUri(activity, destinationUri, targetFile)
         }
     }
 
@@ -153,38 +157,48 @@ object BackupControl {
 
     /** restore database from custom source
      */
-    suspend fun restoreDatabaseFromInputStream(inputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
+    suspend fun restoreDatabaseFromInputStream(gzippedInputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
         val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
-        val f = File(internalDbBackupDir, fileName)
+        val tmpFile = File(internalDbBackupDir, fileName)
         var ok = false
-        val header = ByteArray(16)
-        inputStream.read(header)
-        if(String(header) == "SQLite format 3\u0000") {
-            val out = FileOutputStream(f)
-            withContext(Dispatchers.IO) {
-                out.write(header)
-                inputStream.copyTo(out)
-                out.close()
-                val sqlDb = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY)
-                if (sqlDb.version <= DATABASE_VERSION) {
-                    Log.i(TAG, "Loading from backup database with version ${sqlDb.version}")
-                    DatabaseContainer.reset()
-                    BibleApplication.application.deleteDatabase(DATABASE_NAME)
-                    ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+        val header = ByteArray(2)
+        val gzHeaderBytes = byteArrayOf(0x1f.toByte(), 0x8b.toByte())
+
+        val bufferedInputStream = BufferedInputStream(gzippedInputStream)
+        bufferedInputStream.mark(2)
+        bufferedInputStream.read(header)
+        bufferedInputStream.reset()
+
+        val input = if(header.contentEquals(gzHeaderBytes)) {
+            GZIPInputStream(bufferedInputStream)
+        } else {
+            bufferedInputStream
+        }
+
+        input.use {inputStream ->
+            val dbHeader = ByteArray(16)
+            inputStream.read(dbHeader)
+            if(String(dbHeader) == "SQLite format 3\u0000") {
+                val out = FileOutputStream(tmpFile)
+                withContext(Dispatchers.IO) {
+                    out.use {
+                        out.write(dbHeader)
+                        inputStream.copyTo(out)
+                    }
+                    SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READONLY).use {
+                        if (it.version <= DATABASE_VERSION) {
+                            Log.i(TAG, "Loading from backup database with version ${it.version}")
+                            DatabaseContainer.reset()
+                            BibleApplication.application.deleteDatabase(DATABASE_NAME)
+                            ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+                        }
+                    }
                 }
-                sqlDb.close()
             }
         }
+        tmpFile.delete()
 
-        if(!ok) {
-            withContext(Dispatchers.Main) {
-                Log.e(TAG, "Error restoring database")
-                Dialogs.showErrorMsg(R.string.restore_unsuccessfull)
-            }
-        }
-
-        f.delete()
         return@withContext ok
     }
 
