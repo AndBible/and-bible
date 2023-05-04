@@ -298,8 +298,9 @@ private val MIGRATION_20_21 = object : Migration(20, 21) {
 }
 
 
-fun getColumnNames(db: SupportSQLiteDatabase, tableName: String): String {
-    val cursor = db.query("PRAGMA table_info($tableName)")
+fun getColumnNames(db: SupportSQLiteDatabase, tableName: String, schema: String? = null): String {
+    val schemaString = schema?.let { "$it." } ?: ""
+    val cursor = db.query("PRAGMA ${schemaString}table_info($tableName)")
     val columnNameIdx = cursor.getColumnIndex("name")
     cursor.moveToFirst()
     val columnNames = mutableListOf<String>()
@@ -1062,11 +1063,21 @@ private val MIGRATION_66_67_customRepository = object : Migration(66, 67) {
 private val MIGRATION_67_68_expand_footnotes = object : Migration(67, 68) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
-            db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_expandXrefs` INTEGER DEFAULT NULL")
-            db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_expandXrefs` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_expandXrefs` INTEGER DEFAULT NULL")
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_expandXrefs` INTEGER DEFAULT NULL")
         }
     }
 }
+
+private val MIGRATION_68_69_dummy = object : Migration(68, 69) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("CREATE TABLE IF NOT EXISTS `Dummy` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)");
+        }
+    }
+}
+
+
 
 val oldMonolithicAppDatabaseMigrations = arrayOf(
     MIGRATION_1_2,
@@ -1139,5 +1150,6 @@ val oldMonolithicAppDatabaseMigrations = arrayOf(
     MIGRATION_65_66_add_Xrefs_option,
     MIGRATION_66_67_customRepository,
     MIGRATION_67_68_expand_footnotes,
-    // When adding new migrations, remember to increment DATABASE_VERSION too
+    MIGRATION_68_69_dummy,
+    // No new migrations to old db.
 )

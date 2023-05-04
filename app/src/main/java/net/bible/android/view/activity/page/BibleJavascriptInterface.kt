@@ -232,18 +232,18 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun createNewJournalEntry(labelId: Long, entryType: String, afterEntryId: Long) {
+    fun createNewStudyPadEntry(labelId: Long, entryType: String, afterEntryId: Long) {
         val entryOrderNumber: Int = when (entryType) {
             "bookmark" -> bookmarkControl.getBookmarkToLabel(afterEntryId, labelId)!!.orderNumber
-            "journal" -> bookmarkControl.getJournalById(afterEntryId)!!.orderNumber
+            "journal" -> bookmarkControl.getStudyPadById(afterEntryId)!!.orderNumber
             "none" -> -1
             else -> throw RuntimeException("Illegal entry type")
         }
-        bookmarkControl.createJournalEntry(labelId, entryOrderNumber)
+        bookmarkControl.createStudyPadEntry(labelId, entryOrderNumber)
     }
 
     @JavascriptInterface
-    fun deleteJournalEntry(journalId: Long) = bookmarkControl.deleteStudyPadTextEntry(journalId)
+    fun deleteStudyPadEntry(studyPadId: Long) = bookmarkControl.deleteStudyPadTextEntry(studyPadId)
 
     @JavascriptInterface
     fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) = bookmarkControl.removeBookmarkLabel(bookmarkId, labelId)
@@ -251,9 +251,9 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun updateOrderNumber(labelId: Long, data: String) {
         val deserialized: Map<String, List<List<Long>>> = json.decodeFromString(serializer(), data)
-        val journalTextEntries = deserialized["journals"]!!.map { bookmarkControl.getJournalById(it[0])!!.apply { orderNumber = it[1].toInt() } }
+        val studyPadTextItems = deserialized["studyPadTextItems"]!!.map { bookmarkControl.getStudyPadById(it[0])!!.apply { orderNumber = it[1].toInt() } }
         val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(it[0], labelId)!!.apply { orderNumber = it[1].toInt() } }
-        bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, journalTextEntries)
+        bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, studyPadTextItems)
     }
 
     @JavascriptInterface
@@ -269,9 +269,9 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun updateJournalTextEntry(data: String) {
+    fun updateStudyPadTextEntry(data: String) {
         val entry: BookmarkEntities.StudyPadTextEntry = json.decodeFromString(serializer(), data)
-        bookmarkControl.updateJournalTextEntry(entry)
+        bookmarkControl.updateStudyPadTextEntry(entry)
     }
 
     @JavascriptInterface
@@ -316,7 +316,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openStudyPad(labelId: Long, bookmarkId: Long) {
         scope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openJournal(labelId, bookmarkId)
+            bibleView.linkControl.openStudyPad(labelId, bookmarkId)
         }
     }
 

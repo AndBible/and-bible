@@ -45,7 +45,7 @@ import net.bible.android.activity.databinding.BackupViewBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.database.DATABASE_VERSION
+import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
@@ -186,7 +186,7 @@ object BackupControl {
                         inputStream.copyTo(out)
                     }
                     SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READONLY).use {
-                        if (it.version <= DATABASE_VERSION) {
+                        if (it.version <= OLD_DATABASE_VERSION) {
                             Log.i(TAG, "Loading from backup database with version ${it.version}")
                             DatabaseContainer.reset()
                             BibleApplication.application.deleteDatabase(OLD_MONOLITHIC_DATABASE_NAME)

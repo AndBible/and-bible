@@ -45,7 +45,7 @@ import java.util.*
 class DownloadManager(
     private val onFailedReposChange: (() -> Unit)?
 ) {
-    val customRepositoryDao get() = DatabaseContainer.oldDb.customRepositoryDao()
+    val customRepositoryDao get() = DatabaseContainer.instance.repoDb.customRepositoryDao()
     val failedRepos = TreeSet<String>()
 
     private lateinit var installManager: InstallManager
@@ -132,7 +132,7 @@ class DownloadManager(
         return documents
     }
 
-    private val docDao get() = DatabaseContainer.oldDb.swordDocumentInfoDao()
+    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     /**
      * Install a book, overwriting it if the book to be installed is newer.

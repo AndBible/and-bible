@@ -311,10 +311,10 @@ object CommonUtils : CommonUtilsBase() {
             return megAvailable
         }
 
-    val booleanSettings get() = DatabaseContainer.oldDb.booleanSettingDao()
-    val longSettings get() = DatabaseContainer.oldDb.longSettingDao()
-    val stringSettings get() = DatabaseContainer.oldDb.stringSettingDao()
-    val doubleSettings get() = DatabaseContainer.oldDb.doubleSettingDao()
+    val booleanSettings get() = DatabaseContainer.instance.settingsDb.booleanSettingDao()
+    val longSettings get() = DatabaseContainer.instance.settingsDb.longSettingDao()
+    val stringSettings get() = DatabaseContainer.instance.settingsDb.stringSettingDao()
+    val doubleSettings get() = DatabaseContainer.instance.settingsDb.doubleSettingDao()
 
     class AndBibleSettings {
         fun getString(key: String, default: String? = null) = stringSettings.get(key, default)
@@ -683,7 +683,7 @@ object CommonUtils : CommonUtilsBase() {
         settings.setString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson())
     }
 
-    private val docDao get() = DatabaseContainer.oldDb.swordDocumentInfoDao()
+    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
         class ShowAgain: Exception()
@@ -961,7 +961,7 @@ object CommonUtils : CommonUtilsBase() {
             }
 
             DatabaseContainer.ready = true
-            DatabaseContainer.oldDb
+            DatabaseContainer.instance
 
             buildActivityComponent().inject(this)
 
@@ -1031,7 +1031,7 @@ object CommonUtils : CommonUtilsBase() {
 
     private fun prepareExampleBookmarksAndWorkspaces() {
         var bid: Long
-        val bookmarkDao = DatabaseContainer.oldDb.bookmarkDao()
+        val bookmarkDao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
         var highlightIds = listOf<Long>()
         val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
 
@@ -1101,7 +1101,7 @@ object CommonUtils : CommonUtilsBase() {
                     }
             }
         }
-        val workspaceDao = DatabaseContainer.oldDb.workspaceDao()
+        val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         val ws = workspaceDao.allWorkspaces()
         if(ws.isNotEmpty()) {
             for (it in ws) {

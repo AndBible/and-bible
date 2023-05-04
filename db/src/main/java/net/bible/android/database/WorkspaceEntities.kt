@@ -45,10 +45,6 @@ class WorkspaceEntities {
         val document: String?,
         val key: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-
-        @Deprecated("To be removed")
-        @ColumnInfo(name = "currentYOffsetRatio")
-        val deprecatedCurrentYOffsetRatio: Float? = null, // TODO: remove
     )
 
     data class Verse(
@@ -74,10 +70,6 @@ class WorkspaceEntities {
     data class CommentaryPage(
         val document: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-
-        @Deprecated("To be removed")
-        @ColumnInfo(name = "currentYOffsetRatio")
-        val deprecatedCurrentYOffsetRatio: Float? = null // TODO: remove
     )
 
     @Entity(
@@ -102,10 +94,6 @@ class WorkspaceEntities {
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
         @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?,
-
-        @Deprecated("To be removed")
-        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels")
-        var deprecatedBookmarksAssignLabels: List<Long>? = null,
     )
 
     data class WindowLayout(
@@ -165,11 +153,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL", name = "font_fontSize") var fontSize: Int? = null,
         @ColumnInfo(defaultValue = "NULL", name = "font_fontFamily") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showAll") var deprecatedBookmarksShowAllLabels: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
-
-        @ColumnInfo(defaultValue = "NULL", name = "colors_dayWorkspaceColor") var deprecatedDayWorkspaceColor: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "colors_nightWorkspaceColor") var deprecatedNightWorkspaceColor: Int? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -363,16 +347,11 @@ class WorkspaceEntities {
         @Embedded(prefix="text_display_settings_")
         var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
 
-        // TODO: change prefix to correspond variable name
-        @Embedded(prefix="window_behavior_settings_")
+        @Embedded(prefix="workspace_settings_")
         val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
 
         @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null,
         val maximizedWindowId: Long? = null,
-
-        @Deprecated("To be removed")
-        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels")
-        var deprecatedBookmarksAssignLabels: List<Long>? = null,
 
         @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: Long? = null,
     )
@@ -396,11 +375,6 @@ class WorkspaceEntities {
         val key: String,
         @ColumnInfo(defaultValue = "NULL")
         val anchorOrdinal: Int?,
-
-        @Deprecated("To be removed")
-        @ColumnInfo(name = "yOffsetRatio")
-        val deprecatedYOffsetRatio: Float? = null,
-
         @PrimaryKey(autoGenerate = true) val id: Long = 0,
     )
 

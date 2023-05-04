@@ -57,7 +57,6 @@ import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
@@ -178,8 +177,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             field = value
         }
 
-    private val dao get() = DatabaseContainer.oldDb.workspaceDao()
-    private val docDao get() = DatabaseContainer.oldDb.swordDocumentInfoDao()
+    private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
+    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     val multiWinMode
         get() =

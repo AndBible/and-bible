@@ -53,7 +53,7 @@ val Book.canDelete: Boolean get () {
 class DocumentControl @Inject constructor(
     private val windowControl: WindowControl)
 {
-    private val documentBackupDao get() = DatabaseContainer.oldDb.swordDocumentInfoDao()
+    private val documentBackupDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     val isNewTestament get() = windowControl.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
 

@@ -116,7 +116,7 @@ function journalTextChanged(newText: string) {
     if (props.journalEntry.type === "bookmark") {
         android.saveBookmarkNote(props.journalEntry.id, newText);
     } else if (props.journalEntry.type === "journal") {
-        android.updateJournalEntry(props.journalEntry, {text: newText});
+        android.updateStudyPadEntry(props.journalEntry, {text: newText});
     }
 }
 
@@ -138,7 +138,7 @@ function addNewEntryAfter() {
 async function deleteEntry() {
     if (props.journalEntry.type === "journal") {
         const answer = await areYouSureDelete.value!.areYouSure();
-        if (answer) android.deleteJournalEntry((props.journalEntry as StudyPadTextItem).id);
+        if (answer) android.deleteStudyPadEntry((props.journalEntry as StudyPadTextItem).id);
     } else if (props.journalEntry.type === "bookmark") {
         const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
         let answer: "bookmark" | "only_label" | undefined;
@@ -165,11 +165,11 @@ async function deleteEntry() {
 }
 
 function indent(change: number) {
-    android.updateJournalEntry(props.journalEntry, {indentLevel: props.journalEntry.indentLevel + change})
+    android.updateStudyPadEntry(props.journalEntry, {indentLevel: props.journalEntry.indentLevel + change})
 }
 
 function changeExpanded(newValue: boolean) {
-    android.updateJournalEntry(props.journalEntry, {expandContent: newValue})
+    android.updateStudyPadEntry(props.journalEntry, {expandContent: newValue})
 }
 
 const bibleUrl = computed(

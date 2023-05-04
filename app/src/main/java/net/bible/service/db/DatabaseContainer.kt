@@ -22,9 +22,16 @@ import android.util.Log
 import androidx.core.database.getIntOrNull
 import androidx.room.Room
 import net.bible.android.BibleApplication
+import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.OldMonolithicAppDatabase
-import net.bible.android.database.DATABASE_VERSION
+import net.bible.android.database.OLD_DATABASE_VERSION
+import net.bible.android.database.ReadingPlanDatabase
+import net.bible.android.database.RepoDatabase
+import net.bible.android.database.SettingsDatabase
+import net.bible.android.database.TemporaryDatabase
+import net.bible.android.database.WorkspaceDatabase
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.migrations.DatabaseSplitMigrations
 import net.bible.service.db.migrations.oldMonolithicAppDatabaseMigrations
 import java.io.File
 import java.text.SimpleDateFormat
@@ -36,12 +43,83 @@ const val TAG = "DbContainer"
 
 class DataBaseNotReady: Exception()
 
-object DatabaseContainer {
-    private var oldDbInstance: OldMonolithicAppDatabase? = null
+class DatabaseContainer {
+    init {
+        migrateOldDatabaseIfNeeded()
+        //backupDatabaseIfNeeded()
+    }
 
-    var ready: Boolean = false
+    private fun getOldDatabase(): OldMonolithicAppDatabase =
+        Room.databaseBuilder(
+            BibleApplication.application, OldMonolithicAppDatabase::class.java, OLD_MONOLITHIC_DATABASE_NAME
+        )
+            .allowMainThreadQueries()
+            .addMigrations(*oldMonolithicAppDatabaseMigrations)
+            .build()
+
+    private fun migrateOldDatabaseIfNeeded() {
+        val oldDbFile = BibleApplication.application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
+        if(oldDbFile.exists()) {
+            val oldDb = getOldDatabase().openHelper.writableDatabase
+            val migrations = DatabaseSplitMigrations(oldDb)
+            migrations.migrateAll()
+            oldDbFile.delete()
+        }
+    }
+
+
+    val bookmarkDb: BookmarkDatabase =
+        Room.databaseBuilder(
+            BibleApplication.application, BookmarkDatabase::class.java, BookmarkDatabase.dbFileName
+        )
+            .allowMainThreadQueries()
+            .addMigrations()
+            .build()
+
+
+    val readingPlanDb: ReadingPlanDatabase =
+        Room.databaseBuilder(
+            BibleApplication.application, ReadingPlanDatabase::class.java, ReadingPlanDatabase.dbFileName
+        )
+            .allowMainThreadQueries()
+            .addMigrations()
+            .build()
+
+    val workspaceDb: WorkspaceDatabase =
+        Room.databaseBuilder(
+            BibleApplication.application, WorkspaceDatabase::class.java, WorkspaceDatabase.dbFileName
+        )
+            .allowMainThreadQueries()
+            .addMigrations()
+            .build()
+
+    val temporaryDb: TemporaryDatabase =
+        Room.databaseBuilder(
+            BibleApplication.application, TemporaryDatabase::class.java, TemporaryDatabase.dbFileName
+        )
+            .allowMainThreadQueries()
+            .addMigrations()
+            .build()
+
+    val repoDb: RepoDatabase =
+        Room.databaseBuilder(
+            BibleApplication.application, RepoDatabase::class.java, RepoDatabase.dbFileName
+        )
+            .allowMainThreadQueries()
+            .addMigrations()
+            .build()
+
+    val settingsDb: SettingsDatabase =
+        Room.databaseBuilder(
+            BibleApplication.application, SettingsDatabase::class.java, SettingsDatabase.dbFileName
+        )
+            .allowMainThreadQueries()
+            .addMigrations()
+            .build()
+
 
     private fun backupDatabaseIfNeeded() {
+        // TODO: fix this!
         val dbPath = BibleApplication.application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
         var dbVersion: Int? = null
         Log.i(TAG, "backupDatabaseIfNeeded")
@@ -58,8 +136,8 @@ object DatabaseContainer {
         } catch (e: Exception) {
             Log.i(TAG, "Could not backup database. Maybe fresh install.")
         }
-        if(dbVersion != null && dbVersion != DATABASE_VERSION) {
-            Log.i(TAG, "backupping database of version $dbVersion (current: $DATABASE_VERSION)")
+        if(dbVersion != null && dbVersion != OLD_DATABASE_VERSION) {
+            Log.i(TAG, "backupping database of version $dbVersion (current: $OLD_DATABASE_VERSION)")
             val backupPath = CommonUtils.dbBackupPath
             val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
             val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
@@ -67,46 +145,43 @@ object DatabaseContainer {
         }
     }
 
-    val oldDb: OldMonolithicAppDatabase
-        get () {
+    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
+    private val allDatabases = arrayOf(*backedUpDatabases, temporaryDb)
+
+    internal fun sync() = allDatabases.forEach {
+        it.openHelper.writableDatabase
+            .query("PRAGMA wal_checkpoint(FULL)").use { c -> c.moveToFirst() }
+    }
+
+    internal fun vacuum() = backedUpDatabases.forEach {
+        it.openHelper.writableDatabase
+            .query("VACUUM;").use { c -> c.moveToFirst() }
+    }
+
+    internal fun closeAll() = allDatabases.forEach { it.close()}
+
+    companion object {
+        var ready: Boolean = false
+        private var _instance: DatabaseContainer? = null
+        val instance: DatabaseContainer get() {
             if(!ready && !BibleApplication.application.isRunningTests) throw DataBaseNotReady()
-
-            return oldDbInstance ?: synchronized(this) {
-                backupDatabaseIfNeeded()
-
-                Log.i(TAG, "Opening database")
-                oldDbInstance ?: Room.databaseBuilder(
-                    BibleApplication.application, OldMonolithicAppDatabase::class.java, OLD_MONOLITHIC_DATABASE_NAME
-                )
-                    .allowMainThreadQueries()
-                    .addMigrations(*oldMonolithicAppDatabaseMigrations)
-                    .build()
-                    .also {
-                        oldDbInstance = it
-                        Log.i(TAG, "Database opened.")
-                    }
+            return _instance ?: synchronized(this) {
+                _instance ?: DatabaseContainer().also {
+                    _instance = it
+                }
             }
         }
-    fun reset() {
-        synchronized(this) {
-            try {
-                oldDb.close()
-            } catch (e: DataBaseNotReady) {}
-            oldDbInstance = null
-        }
-    }
 
-    fun sync() { // Sync all data so far into database file
-        oldDb.openHelper.writableDatabase
-            .query("PRAGMA wal_checkpoint(FULL)").use {
-                it.moveToFirst()
+        fun sync() = instance.sync()
+        fun vacuum() = instance.vacuum()
+        fun reset() {
+            synchronized(this) {
+                try {
+                    instance.closeAll()
+                } catch (e: DataBaseNotReady) {}
+                _instance = null
             }
-    }
-    fun vacuum() {
-        oldDb.documentSearchDao().clear()
-        oldDb.openHelper.writableDatabase
-            .query("VACUUM;").use {
-                it.moveToFirst()
-            }
+            instance
+        }
     }
 }
