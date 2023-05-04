@@ -78,7 +78,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private lateinit var spinnerBinding: SpinnerBinding
     private lateinit var startupViewBinding: StartupViewBinding
 
-    private val docsDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val docsDao get() = DatabaseContainer.oldDb.swordDocumentInfoDao()
     private val previousInstallDetected: Boolean get() = docsDao.getKnownInstalled().isNotEmpty();
     override val doNotInitializeApp = true
 
@@ -213,7 +213,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private suspend fun initializeDatabase() {
         withContext(Dispatchers.IO) {
             DatabaseContainer.ready = true
-            DatabaseContainer.db
+            DatabaseContainer.oldDb
         }
     }
 

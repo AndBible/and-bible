@@ -41,10 +41,9 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.db.DATABASE_NAME
+import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import java.io.File
 import java.util.Collections
-import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 import kotlin.coroutines.resumeWithException
 
@@ -91,7 +90,7 @@ object GoogleDrive {
         return@withContext success
     }
 
-    private const val backupFileName = "${DATABASE_NAME}.gz"
+    private const val backupFileName = "${OLD_MONOLITHIC_DATABASE_NAME}.gz"
     suspend fun writeToDrive() = withContext(Dispatchers.IO) {
         Log.i(TAG, "writeToDrive")
         service.files().list()
@@ -107,7 +106,7 @@ object GoogleDrive {
             parents = Collections.singletonList("appDataFolder")
         }
         val tmpFile = File(SharedConstants.internalFilesDir, backupFileName)
-        val dbFile = application.getDatabasePath(DATABASE_NAME)
+        val dbFile = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
         GZIPOutputStream(tmpFile.outputStream()).use {
             dbFile.inputStream().copyTo(it)
         }

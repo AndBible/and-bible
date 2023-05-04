@@ -74,7 +74,7 @@ open class BookmarkControl @Inject constructor(
     // Dummy labels for all / unlabelled
     val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
 
-    private val dao get() = DatabaseContainer.db.bookmarkDao()
+    private val dao get() = DatabaseContainer.oldDb.bookmarkDao()
 
 	fun updateBookmarkPlaybackSettings(settings: PlaybackSettings) {
         val pageManager = windowControl.activeWindowPageManager

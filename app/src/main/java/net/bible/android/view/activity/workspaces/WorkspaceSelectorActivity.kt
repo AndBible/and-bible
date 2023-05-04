@@ -223,7 +223,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             })
         }
 
-        dataSet = DatabaseContainer.db.workspaceDao().allWorkspaces().toMutableList()
+        dataSet = DatabaseContainer.oldDb.workspaceDao().allWorkspaces().toMutableList()
 
         val workspace = dataSet.find { it.id == windowControl.windowRepository.id }!!
 
@@ -445,7 +445,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         CommonUtils.fixAlertDialogButtons(dialog)
     }
 
-    private val dao get() = DatabaseContainer.db.workspaceDao()
+    private val dao get() = DatabaseContainer.oldDb.workspaceDao()
 
     override fun onBackPressed() {
         cancelChanges()

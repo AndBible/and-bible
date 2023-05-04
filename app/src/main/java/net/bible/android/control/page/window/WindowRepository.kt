@@ -96,7 +96,7 @@ open class WindowRepository(val scope: CoroutineScope) {
             field = value
         }
 
-    private val dao get() = DatabaseContainer.db.workspaceDao()
+    private val dao get() = DatabaseContainer.oldDb.workspaceDao()
 
     val sortedWindows: List<Window> get() = windowList.sortedWith(compareBy({it.isLinksWindow}, { !it.isPinMode }))
 

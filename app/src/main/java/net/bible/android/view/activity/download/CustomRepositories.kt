@@ -48,7 +48,7 @@ const val customRepositoriesWikiUrl = "https://github.com/AndBible/and-bible/wik
 class CustomRepositories : ListActivityBase() {
     private lateinit var binding: CustomRepositoriesBinding
     private var customRepositories = arrayListOf<CustomRepository>()
-    private val dao get() = DatabaseContainer.db.customRepositoryDao()
+    private val dao get() = DatabaseContainer.oldDb.customRepositoryDao()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

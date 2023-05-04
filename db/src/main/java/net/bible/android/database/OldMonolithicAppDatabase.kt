@@ -216,7 +216,7 @@ class Converters {
     version = DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
-abstract class AppDatabase: RoomDatabase() {
+abstract class OldMonolithicAppDatabase: RoomDatabase() {
     abstract fun readingPlanDao(): ReadingPlanDao
     abstract fun workspaceDao(): WorkspaceDao
     abstract fun bookmarkDao(): BookmarkDao
@@ -227,18 +227,4 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun longSettingDao(): LongSettingDao
     abstract fun doubleSettingDao(): DoubleSettingDao
     abstract fun customRepositoryDao(): CustomRepositoryDao
-
-    fun sync() { // Sync all data so far into database file
-        openHelper.writableDatabase
-            .query("PRAGMA wal_checkpoint(FULL)").use {
-                it.moveToFirst()
-            }
-    }
-    fun vacuum() {
-        documentSearchDao().clear()
-        openHelper.writableDatabase
-            .query("VACUUM;").use {
-                it.moveToFirst()
-            }
-    }
 }

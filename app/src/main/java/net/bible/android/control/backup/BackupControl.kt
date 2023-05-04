@@ -54,9 +54,8 @@ import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.windowControl
 import net.bible.service.common.FileManager
-import net.bible.service.db.DATABASE_NAME
+import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.DatabaseContainer.db
 import net.bible.service.download.isPseudoBook
 import net.bible.service.googledrive.GZIP_MIMETYPE
 import net.bible.service.sword.dbFile
@@ -151,14 +150,14 @@ object BackupControl {
     }
 
     fun resetDatabase() {
-        val f = File(internalDbDir, DATABASE_NAME)
+        val f = File(internalDbDir, OLD_MONOLITHIC_DATABASE_NAME)
         f.delete()
     }
 
     /** restore database from custom source
      */
     suspend fun restoreDatabaseFromInputStream(gzippedInputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
-        val fileName = DATABASE_NAME
+        val fileName = OLD_MONOLITHIC_DATABASE_NAME
         internalDbBackupDir.mkdirs()
         val tmpFile = File(internalDbBackupDir, fileName)
         var ok = false
@@ -190,7 +189,7 @@ object BackupControl {
                         if (it.version <= DATABASE_VERSION) {
                             Log.i(TAG, "Loading from backup database with version ${it.version}")
                             DatabaseContainer.reset()
-                            BibleApplication.application.deleteDatabase(DATABASE_NAME)
+                            BibleApplication.application.deleteDatabase(OLD_MONOLITHIC_DATABASE_NAME)
                             ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
                         }
                     }
@@ -454,13 +453,13 @@ object BackupControl {
     suspend fun startBackupAppDatabase(callingActivity: ActivityBase) {
         if(CommonUtils.initialized) {
             windowControl.windowRepository.saveIntoDb()
-            db.sync()
-            db.vacuum()
+            DatabaseContainer.sync()
+            DatabaseContainer.vacuum()
         }
         backupDatabaseViaIntent(callingActivity, dbFile)
     }
 
-    private val dbFile get() = BibleApplication.application.getDatabasePath(DATABASE_NAME)
+    private val dbFile get() = BibleApplication.application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
 
     suspend fun startBackupOldAppDatabase(callingActivity: ActivityBase, file: File) {
         backupDatabaseViaIntent(callingActivity, file)
@@ -509,7 +508,7 @@ object BackupControl {
     private lateinit var internalDbBackupDir: File // copy of db is created in this dir when doing backups
     private const val MODULE_BACKUP_NAME = "modules.zip"
     fun setupDirs(context: Context) {
-        internalDbDir = File(context.getDatabasePath(DATABASE_NAME).parent!!)
+        internalDbDir = File(context.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME).parent!!)
         internalDbBackupDir = File(SharedConstants.internalFilesDir, "/backup")
     }
 

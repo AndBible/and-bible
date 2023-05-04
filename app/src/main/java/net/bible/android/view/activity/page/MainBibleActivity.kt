@@ -178,8 +178,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             field = value
         }
 
-    private val dao get() = DatabaseContainer.db.workspaceDao()
-    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val dao get() = DatabaseContainer.oldDb.workspaceDao()
+    private val docDao get() = DatabaseContainer.oldDb.swordDocumentInfoDao()
 
     val multiWinMode
         get() =
