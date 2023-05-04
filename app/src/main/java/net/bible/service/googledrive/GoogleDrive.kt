@@ -49,6 +49,7 @@ import kotlin.coroutines.resumeWithException
 
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
 const val GZIP_MIMETYPE = "application/gzip"
+const val ZIP_MIMETYPE = "application/zip"
 
 suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
     addOnSuccessListener { result ->

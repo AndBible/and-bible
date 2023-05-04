@@ -45,7 +45,12 @@ import net.bible.android.activity.databinding.BackupViewBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
+import net.bible.android.database.ReadingPlanDatabase
+import net.bible.android.database.RepoDatabase
+import net.bible.android.database.SettingsDatabase
+import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
@@ -57,7 +62,7 @@ import net.bible.service.common.FileManager
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.isPseudoBook
-import net.bible.service.googledrive.GZIP_MIMETYPE
+import net.bible.service.googledrive.ZIP_MIMETYPE
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
@@ -74,11 +79,12 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.*
 import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
+const val dataBaseBackupFileName = "AndBibleDatabaseBackup.zip"
 
 
 object BackupControl {
@@ -112,32 +118,23 @@ object BackupControl {
         }
     }
 
-    private suspend fun backupDatabaseViaIntent(activity: ActivityBase, file: File) = withContext(Dispatchers.IO) {
-        val targetFileName = "AndBibleDatabase.sqlite3.gz"
+    private suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) = withContext(Dispatchers.IO) {
         val hourglass = Hourglass(activity)
         hourglass.show()
 
-        internalDbBackupDir.mkdirs()
-        val targetFile =  File(internalDbBackupDir, targetFileName)
-        if(targetFile.exists()) targetFile.delete()
-
-        GZIPOutputStream(targetFile.outputStream()).use {
-            file.inputStream().copyTo(it)
-        }
-
         val subject = activity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
         val message = activity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
-        val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
+        val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", file)
 		val shareIntent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, message)
-            type = GZIP_MIMETYPE
+            type = ZIP_MIMETYPE
         }
         val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = GZIP_MIMETYPE
-            putExtra(Intent.EXTRA_TITLE, targetFileName)
+            type = ZIP_MIMETYPE
+            putExtra(Intent.EXTRA_TITLE, dataBaseBackupFileName)
         }
 
 		val chooserIntent = Intent.createChooser(shareIntent, getString(R.string.send_backup_file))
@@ -145,13 +142,8 @@ object BackupControl {
         grantUriReadPermissions(chooserIntent, uri)
         hourglass.dismiss()
 		activity.awaitIntent(chooserIntent).data?.data?.let { destinationUri ->
-            backupDatabaseToUri(activity, destinationUri, targetFile)
+            backupDatabaseToUri(activity, destinationUri, file)
         }
-    }
-
-    fun resetDatabase() {
-        val f = File(internalDbDir, OLD_MONOLITHIC_DATABASE_NAME)
-        f.delete()
     }
 
     /** restore database from custom source
@@ -252,7 +244,7 @@ object BackupControl {
         return result
     }
 
-    private suspend fun createZip(books: List<Book>, zipFile: File) {
+    private suspend fun createModulesZip(books: List<Book>, zipFile: File) {
         fun relativeFileName(rootDir: File, file: File): String {
             val filePath = file.canonicalPath
             val dirPath = rootDir.canonicalPath
@@ -352,7 +344,7 @@ object BackupControl {
 
         val hourglass = Hourglass(callingActivity)
         hourglass.show()
-        createZip(books, zipFile)
+        createModulesZip(books, zipFile)
         hourglass.dismiss()
 
         // send intent to pick file
@@ -450,19 +442,50 @@ object BackupControl {
         }
     }
 
-    suspend fun startBackupAppDatabase(callingActivity: ActivityBase) {
+    private suspend fun makeDatabaseBackupFile(): File = withContext(Dispatchers.IO) {
         if(CommonUtils.initialized) {
             windowControl.windowRepository.saveIntoDb()
-            DatabaseContainer.sync()
             DatabaseContainer.vacuum()
+            DatabaseContainer.sync()
         }
-        backupDatabaseViaIntent(callingActivity, dbFile)
+        internalDbBackupDir.mkdirs()
+        val zipFile = File(internalDbBackupDir, dataBaseBackupFileName)
+        if(zipFile.exists()) zipFile.delete()
+
+        val allDbFilenames = arrayOf(
+            BookmarkDatabase.dbFileName,
+            ReadingPlanDatabase.dbFileName,
+            WorkspaceDatabase.dbFileName,
+            RepoDatabase.dbFileName,
+            SettingsDatabase.dbFileName
+        )
+
+        fun addFileToZip(outFile: ZipOutputStream, file: File) {
+            FileInputStream(file).use { inFile ->
+                BufferedInputStream(inFile).use { origin ->
+                    val entry = ZipEntry("db/${file.name}")
+                    outFile.putNextEntry(entry)
+                    origin.copyTo(outFile)
+                }
+            }
+        }
+
+        ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
+            for(b in allDbFilenames) {
+                addFileToZip(outFile, File(internalDbDir, b))
+            }
+        }
+        zipFile
     }
 
-    private val dbFile get() = BibleApplication.application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
+    suspend fun startBackupAppDatabase(callingActivity: ActivityBase) {
+        val backupZipFile = makeDatabaseBackupFile()
+        saveDbBackupFileViaIntent(callingActivity, backupZipFile)
+        backupZipFile.delete()
+    }
 
-    suspend fun startBackupOldAppDatabase(callingActivity: ActivityBase, file: File) {
-        backupDatabaseViaIntent(callingActivity, file)
+    suspend fun saveOldAppDatabase(callingActivity: ActivityBase, file: File) {
+        saveDbBackupFileViaIntent(callingActivity, file)
     }
 
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
@@ -567,7 +590,7 @@ class BackupActivity: ActivityBase() {
                 val s = f.name
                 b.text = s
                 b.setOnClickListener {
-                    lifecycleScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
+                    lifecycleScope.launch { BackupControl.saveOldAppDatabase(this@BackupActivity, f) }
                 }
                 backupDbButtons.addView(b)
             }

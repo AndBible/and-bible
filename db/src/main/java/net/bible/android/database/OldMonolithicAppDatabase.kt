@@ -20,13 +20,9 @@ import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-
-import java.util.*
 
 const val OLD_DATABASE_VERSION = 69
 @Entity class Dummy(@PrimaryKey(autoGenerate = true) var id: Long = 0)
 
 @Database(version = OLD_DATABASE_VERSION, entities = [Dummy::class])
-@TypeConverters(Converters::class)
 abstract class OldMonolithicAppDatabase: RoomDatabase()

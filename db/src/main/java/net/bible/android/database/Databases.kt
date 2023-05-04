@@ -132,6 +132,6 @@ abstract class SettingsDatabase: RoomDatabase() {
     abstract fun longSettingDao(): LongSettingDao
     abstract fun doubleSettingDao(): DoubleSettingDao
     companion object {
-        val dbFileName = "settings.sqlite3" 
+        const val dbFileName = "settings.sqlite3"
     }    
 }
