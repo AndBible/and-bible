@@ -1355,14 +1355,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return super.onKeyUp(keyCode, event)
     }
 
-    class MainBibleAfterRestore(val old: Boolean = false)
+    class MainBibleAfterRestore()
 
     fun onEventMainThread(e: MainBibleAfterRestore) {
         bookmarkControl.reset()
         documentViewManager.removeView()
         bibleViewFactory.clear()
         windowControl.windowSync.setResyncRequired()
-        Dialogs.showMsg(if(e.old) R.string.restore_success else R.string.restore_success2)
         currentWorkspaceId = 0
     }
 

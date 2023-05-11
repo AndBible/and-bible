@@ -612,6 +612,12 @@ object BackupControl {
 
         val tmpFile = File(internalDbBackupDir, "database.zip")
         val unzipFolder = File(internalDbBackupDir, "unzip")
+
+        fun cleanup() {
+            unzipFolder.deleteRecursively()
+            tmpFile.delete()
+        }
+
         unzipFolder.mkdirs()
 
         tmpFile.outputStream().use {
@@ -623,15 +629,15 @@ object BackupControl {
             .map { file -> file.name }
 
         hourglass.dismiss()
+        if(containedBackups.isEmpty()) {
+            cleanup()
+            Dialogs.showMsg(R.string.restore_unsuccessfull)
+            return@withContext false
+        }
         val selection = selectDatabaseSections(activity, containedBackups)
 
-        fun finalize() {
-            unzipFolder.deleteRecursively()
-            tmpFile.delete()
-        }
-
         if(selection.isEmpty()) {
-            finalize()
+            cleanup()
             return@withContext false
         }
         hourglass.show()
@@ -641,11 +647,12 @@ object BackupControl {
             f.copyTo(File(activity.getDatabasePath(fileName).path), overwrite = true)
         }
 
-        finalize()
+        cleanup()
         DatabaseContainer.instance
         hourglass.dismiss()
         Log.i(TAG, "Restored database successfully")
         ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+        Dialogs.showMsg(R.string.restore_success2)
         true
     }
 
@@ -664,7 +671,8 @@ object BackupControl {
             if (restoreOldMonolithicDatabaseFromInputStream(inputStream)) {
                 DatabaseContainer.instance
                 Log.i(TAG, "Restored database successfully")
-                ABEventBus.post(MainBibleActivity.MainBibleAfterRestore(true))
+                ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+                Dialogs.showMsg(R.string.restore_success)
                 result = true
             } else {
                 Dialogs.showMsg(R.string.restore_unsuccessfull)
