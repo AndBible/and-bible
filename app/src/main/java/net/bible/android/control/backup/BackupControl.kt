@@ -60,11 +60,11 @@ import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.windowControl
 import net.bible.service.common.FileManager
+import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.download.isPseudoBook
-import net.bible.service.googledrive.ZIP_MIMETYPE
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
@@ -89,13 +89,9 @@ import kotlin.coroutines.suspendCoroutine
 const val DATABASE_BACKUP_NAME = "AndBibleDatabaseBackup.abdb"
 const val MODULE_BACKUP_NAME = "AndBibleModulesBackup.abmd"
 
-val ALL_DB_FILENAMES = arrayOf(
-    BookmarkDatabase.dbFileName,
-    ReadingPlanDatabase.dbFileName,
-    WorkspaceDatabase.dbFileName,
-    RepoDatabase.dbFileName,
-    SettingsDatabase.dbFileName
-)
+const val SQLITE3_MIMETYPE = "application/x-sqlite3"
+const val GZIP_MIMETYPE = "application/gzip"
+const val ZIP_MIMETYPE = "application/zip"
 
 object BackupControl {
     /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent

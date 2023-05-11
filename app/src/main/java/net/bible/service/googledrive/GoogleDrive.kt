@@ -40,6 +40,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.GZIP_MIMETYPE
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import java.io.File
@@ -48,8 +49,6 @@ import java.util.zip.GZIPOutputStream
 import kotlin.coroutines.resumeWithException
 
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
-const val GZIP_MIMETYPE = "application/gzip"
-const val ZIP_MIMETYPE = "application/zip"
 
 suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
     addOnSuccessListener { result ->

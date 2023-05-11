@@ -20,7 +20,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
 import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.control.backup.ALL_DB_FILENAMES
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BOOKMARK_DATABASE_VERSION
 import net.bible.android.database.BookmarkDatabase
@@ -43,8 +42,16 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 const val OLD_MONOLITHIC_DATABASE_NAME = "andBibleDatabase.db"
-const val SQLITE3_MIMETYPE = "application/x-sqlite3"
+
 const val TAG = "DbContainer"
+
+val ALL_DB_FILENAMES = arrayOf(
+    BookmarkDatabase.dbFileName,
+    ReadingPlanDatabase.dbFileName,
+    WorkspaceDatabase.dbFileName,
+    RepoDatabase.dbFileName,
+    SettingsDatabase.dbFileName
+)
 
 class DataBaseNotReady: Exception()
 
