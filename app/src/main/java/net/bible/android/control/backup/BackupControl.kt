@@ -648,7 +648,9 @@ object BackupControl {
         }
 
         cleanup()
-        DatabaseContainer.instance
+        if(DatabaseContainer.ready) {
+            DatabaseContainer.instance
+        }
         hourglass.dismiss()
         Log.i(TAG, "Restored database successfully")
         ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
