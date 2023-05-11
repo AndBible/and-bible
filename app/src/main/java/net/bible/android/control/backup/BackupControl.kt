@@ -92,6 +92,7 @@ const val MODULE_BACKUP_NAME = "AndBibleModulesBackup.abmd"
 
 const val SQLITE3_MIMETYPE = "application/x-sqlite3"
 const val GZIP_MIMETYPE = "application/gzip"
+const val JSON_MIMETYPE = "application/json"
 const val ZIP_MIMETYPE = "application/zip"
 
 object BackupControl {
@@ -694,7 +695,7 @@ object BackupControl {
 
     private var moduleDir: File = SharedConstants.modulesDir
     private lateinit var internalDbDir : File
-    private val internalDbBackupDir: File // copy of db is created in this dir when doing backups
+    val internalDbBackupDir: File // copy of db is created in this dir when doing backups
         get() {
             val file = File(SharedConstants.internalFilesDir, "/backup")
             file.mkdirs()

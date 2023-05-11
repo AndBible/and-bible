@@ -90,7 +90,6 @@ import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.Bookmarks
@@ -1266,7 +1265,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
             if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
-                lifecycleScope.launch { GoogleDrive.writeToDrive() }
+                lifecycleScope.launch { GoogleDrive.uploadUpdatedDatabases() }
             }
         }
         else {
