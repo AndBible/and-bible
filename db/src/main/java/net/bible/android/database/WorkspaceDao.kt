@@ -82,6 +82,15 @@ interface WorkspaceDao {
     @Query("DELETE from HistoryItem WHERE windowId = :windowId")
     fun deleteHistoryItems(windowId: Long)
 
+    // Prune History for window :windowId such that only :limit items remain
+    @Query("DELETE FROM HistoryItem WHERE windowId=:windowId AND id NOT IN " +
+        "(SELECT id FROM HistoryItem WHERE windowId = :windowId ORDER BY createdAt DESC LIMIT :limit)"
+    )
+    fun pruneHistory(windowId: Long, limit: Int = 100)
+
+    @Query("SELECT * from Window")
+    fun allWindows(): List<WorkspaceEntities.Window>
+
     @Query("SELECT * from Workspace WHERE id = :workspaceId")
     fun workspace(workspaceId: Long): WorkspaceEntities.Workspace?
 

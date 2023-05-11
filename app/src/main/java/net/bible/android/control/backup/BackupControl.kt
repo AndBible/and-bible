@@ -55,6 +55,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.application
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.windowControl
@@ -177,13 +178,17 @@ object BackupControl {
                         out.write(dbHeader)
                         inputStream.copyTo(out)
                     }
-                    SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READONLY).use {
-                        if (it.version <= OLD_DATABASE_VERSION) {
-                            Log.i(TAG, "Loading from backup database with version ${it.version}")
-                            DatabaseContainer.reset()
-                            BibleApplication.application.deleteDatabase(OLD_MONOLITHIC_DATABASE_NAME)
-                            ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+                    val version = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READONLY).use {
+                        it.version
+                    }
+                    if(version <= OLD_DATABASE_VERSION) {
+                        Log.i(TAG, "Loading from backup database with version $version")
+                        DatabaseContainer.reset()
+                        application.databaseList().forEach { name ->
+                            application.deleteDatabase(name)
                         }
+                        ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+                        DatabaseContainer.instance // initialize (migrate etc)
                     }
                 }
             }
@@ -503,6 +508,7 @@ object BackupControl {
                     activity.contentResolver.openInputStream(result.data?.data!!)
                 } catch (e: FileNotFoundException) {null}
                 if (inputStream != null && restoreDatabaseFromInputStream(inputStream)) {
+                    DatabaseContainer.instance
                     Log.i(TAG, "Restored database successfully")
                     ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
                 } else {

@@ -33,6 +33,7 @@ import net.bible.android.database.WorkspaceDatabase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.migrations.DatabaseSplitMigrations
 import net.bible.service.db.migrations.oldMonolithicAppDatabaseMigrations
+import net.bible.service.history.HistoryManager.Companion.MAX_HISTORY
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -60,9 +61,10 @@ class DatabaseContainer {
     private fun migrateOldDatabaseIfNeeded() {
         val oldDbFile = BibleApplication.application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
         if(oldDbFile.exists()) {
-            val oldDb = getOldDatabase().openHelper.writableDatabase
-            val migrations = DatabaseSplitMigrations(oldDb)
-            migrations.migrateAll()
+            getOldDatabase().openHelper.writableDatabase.use {
+                val migrations = DatabaseSplitMigrations(it)
+                migrations.migrateAll()
+            }
             oldDbFile.delete()
         }
     }
@@ -153,9 +155,14 @@ class DatabaseContainer {
             .query("PRAGMA wal_checkpoint(FULL)").use { c -> c.moveToFirst() }
     }
 
-    internal fun vacuum() = backedUpDatabases.forEach {
-        it.openHelper.writableDatabase
-            .query("VACUUM;").use { c -> c.moveToFirst() }
+    internal fun vacuum() {
+        for (it in workspaceDb.workspaceDao().allWindows()) {
+            workspaceDb.workspaceDao().pruneHistory(it.id, MAX_HISTORY)
+        }
+        backedUpDatabases.forEach {
+            it.openHelper.writableDatabase
+                .query("VACUUM;").use { c -> c.moveToFirst() }
+        }
     }
 
     internal fun closeAll() = allDatabases.forEach { it.close()}
@@ -181,7 +188,6 @@ class DatabaseContainer {
                 } catch (e: DataBaseNotReady) {}
                 _instance = null
             }
-            instance
         }
     }
 }
