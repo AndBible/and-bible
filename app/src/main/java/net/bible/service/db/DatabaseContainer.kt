@@ -185,9 +185,6 @@ class DatabaseContainer {
     }
 
     internal fun vacuum() {
-        for (it in workspaceDb.workspaceDao().allWindows()) {
-            workspaceDb.workspaceDao().pruneHistory(it.id, MAX_HISTORY)
-        }
         backedUpDatabases.forEach {
             it.openHelper.writableDatabase
                 .query("VACUUM;").use { c -> c.moveToFirst() }

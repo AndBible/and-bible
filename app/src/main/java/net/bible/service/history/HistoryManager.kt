@@ -221,7 +221,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
 
     companion object {
 
-        const val MAX_HISTORY = 80
+        const val MAX_HISTORY = 500
 
         private val TAG = "HistoryManager"
     }
