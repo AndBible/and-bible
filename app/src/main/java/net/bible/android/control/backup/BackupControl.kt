@@ -61,9 +61,9 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.windowControl
 import net.bible.service.common.FileManager
 import net.bible.service.db.ALL_DB_FILENAMES
-import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
+import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
@@ -338,30 +338,32 @@ object BackupControl {
         }
 
         withContext(Dispatchers.IO) {
-            ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
-                for(b in books) {
-                    val bmd = b.bookMetaData as SwordBookMetaData
-                    if (b.isMyBibleBook) {
-                        addModuleFile(outFile, b.dbFile)
-                    } else if(b.isMySwordBook) {
-                        addModuleFile(outFile, b.dbFile)
-                    } else {
-                        val configFile = bmd.configFile
-                        val rootDir = configFile.parentFile!!.parentFile!!
-                        addFile(outFile, rootDir, configFile)
-                        val dataPath = bmd.getProperty("DataPath")
-                        val dataDir = File(rootDir, dataPath).run {
-                            if (listOf(
-                                    BookCategory.DICTIONARY,
-                                    BookCategory.GENERAL_BOOK,
-                                    BookCategory.MAPS
-                                ).contains(b.bookCategory)
-                            )
-                                parentFile
-                            else this
-                        }
-                        for (f in dataDir.walkTopDown().filter { it.isFile }) {
-                            addFile(outFile, rootDir, f)
+            FileOutputStream(zipFile).use { out ->
+                ZipOutputStream(out).use { outFile ->
+                    for (b in books) {
+                        val bmd = b.bookMetaData as SwordBookMetaData
+                        if (b.isMyBibleBook) {
+                            addModuleFile(outFile, b.dbFile)
+                        } else if (b.isMySwordBook) {
+                            addModuleFile(outFile, b.dbFile)
+                        } else {
+                            val configFile = bmd.configFile
+                            val rootDir = configFile.parentFile!!.parentFile!!
+                            addFile(outFile, rootDir, configFile)
+                            val dataPath = bmd.getProperty("DataPath")
+                            val dataDir = File(rootDir, dataPath).run {
+                                if (listOf(
+                                        BookCategory.DICTIONARY,
+                                        BookCategory.GENERAL_BOOK,
+                                        BookCategory.MAPS
+                                    ).contains(b.bookCategory)
+                                )
+                                    parentFile
+                                else this
+                            }
+                            for (f in dataDir.walkTopDown().filter { it.isFile }) {
+                                addFile(outFile, rootDir, f)
+                            }
                         }
                     }
                 }
