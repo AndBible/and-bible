@@ -22,7 +22,7 @@ import androidx.room.OnConflictStrategy.Companion.REPLACE
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Entity(tableName = "DocumentBackup")
+@Entity
 data class SwordDocumentInfo(
     @PrimaryKey @ColumnInfo(name = "osisId") var initials: String,
     var name: String,
@@ -43,19 +43,19 @@ interface SwordDocumentInfoDao {
     @Update
     fun update(doc: SwordDocumentInfo)
 
-    @Query("""SELECT * FROM DocumentBackup WHERE osisId = :initials""")
+    @Query("""SELECT * FROM SwordDocumentInfo WHERE osisId = :initials""")
     fun getBook(initials: String): SwordDocumentInfo?
 
-    @Query("""SELECT * from DocumentBackup""")
+    @Query("""SELECT * from SwordDocumentInfo""")
     fun getKnownInstalled(): List<SwordDocumentInfo>
 
-    @Query("""SELECT * from DocumentBackup WHERE cipherKey IS NOT NULL""")
+    @Query("""SELECT * from SwordDocumentInfo WHERE cipherKey IS NOT NULL""")
     fun getUnlocked(): List<SwordDocumentInfo>
 
-    @Query("""SELECT * from DocumentBackup""")
+    @Query("""SELECT * from SwordDocumentInfo""")
     fun getAll(): List<SwordDocumentInfo>
 
-    @Query("""DELETE FROM DocumentBackup WHERE osisId = :initials""")
+    @Query("""DELETE FROM SwordDocumentInfo WHERE osisId = :initials""")
     fun deleteByOsisId(initials: String)
 
 }

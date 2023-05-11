@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -14,23 +14,18 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+
 package net.bible.android.database
 
+
 import android.util.Base64
-import androidx.room.Database
-import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import kotlinx.serialization.serializer
-import net.bible.android.database.bookmarks.BookmarkDao
-import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.database.readingplan.ReadingPlanDao
-import net.bible.android.database.readingplan.ReadingPlanEntities
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
@@ -44,8 +39,6 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
 import java.util.*
-
-const val DATABASE_VERSION = 68
 
 class Converters {
     @TypeConverter
@@ -190,55 +183,5 @@ class Converters {
     fun setToStr2(obj: Set<String>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
-    }
-}
-
-@Database(
-    entities = [
-        BookmarkEntities.Bookmark::class,
-        BookmarkEntities.Label::class,
-        BookmarkEntities.StudyPadTextEntry::class,
-        BookmarkEntities.BookmarkToLabel::class,
-        ReadingPlanEntities.ReadingPlan::class,
-        ReadingPlanEntities.ReadingPlanStatus::class,
-        WorkspaceEntities.Workspace::class,
-        WorkspaceEntities.Window::class,
-        WorkspaceEntities.HistoryItem::class,
-        WorkspaceEntities.PageManager::class,
-        DocumentSearch::class,
-        CustomRepository::class,
-        SwordDocumentInfo::class,
-        BooleanSetting::class,
-        StringSetting::class,
-        LongSetting::class,
-        DoubleSetting::class,
-    ],
-    version = DATABASE_VERSION
-)
-@TypeConverters(Converters::class)
-abstract class AppDatabase: RoomDatabase() {
-    abstract fun readingPlanDao(): ReadingPlanDao
-    abstract fun workspaceDao(): WorkspaceDao
-    abstract fun bookmarkDao(): BookmarkDao
-    abstract fun documentSearchDao(): DocumentSearchDao
-    abstract fun swordDocumentInfoDao(): SwordDocumentInfoDao
-    abstract fun booleanSettingDao(): BooleanSettingDao
-    abstract fun stringSettingDao(): StringSettingDao
-    abstract fun longSettingDao(): LongSettingDao
-    abstract fun doubleSettingDao(): DoubleSettingDao
-    abstract fun customRepositoryDao(): CustomRepositoryDao
-
-    fun sync() { // Sync all data so far into database file
-        openHelper.writableDatabase
-            .query("PRAGMA wal_checkpoint(FULL)").use {
-                it.moveToFirst()
-            }
-    }
-    fun vacuum() {
-        documentSearchDao().clear()
-        openHelper.writableDatabase
-            .query("VACUUM;").use {
-                it.moveToFirst()
-            }
     }
 }

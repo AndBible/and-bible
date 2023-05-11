@@ -311,10 +311,10 @@ object CommonUtils : CommonUtilsBase() {
             return megAvailable
         }
 
-    val booleanSettings get() = DatabaseContainer.db.booleanSettingDao()
-    val longSettings get() = DatabaseContainer.db.longSettingDao()
-    val stringSettings get() = DatabaseContainer.db.stringSettingDao()
-    val doubleSettings get() = DatabaseContainer.db.doubleSettingDao()
+    val booleanSettings get() = DatabaseContainer.instance.settingsDb.booleanSettingDao()
+    val longSettings get() = DatabaseContainer.instance.settingsDb.longSettingDao()
+    val stringSettings get() = DatabaseContainer.instance.settingsDb.stringSettingDao()
+    val doubleSettings get() = DatabaseContainer.instance.settingsDb.doubleSettingDao()
 
     class AndBibleSettings {
         fun getString(key: String, default: String? = null) = stringSettings.get(key, default)
@@ -683,7 +683,7 @@ object CommonUtils : CommonUtilsBase() {
         settings.setString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson())
     }
 
-    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
         class ShowAgain: Exception()
@@ -961,7 +961,7 @@ object CommonUtils : CommonUtilsBase() {
             }
 
             DatabaseContainer.ready = true
-            DatabaseContainer.db
+            DatabaseContainer.instance
 
             buildActivityComponent().inject(this)
 
@@ -1031,7 +1031,7 @@ object CommonUtils : CommonUtilsBase() {
 
     private fun prepareExampleBookmarksAndWorkspaces() {
         var bid: Long
-        val bookmarkDao = DatabaseContainer.db.bookmarkDao()
+        val bookmarkDao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
         var highlightIds = listOf<Long>()
         val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
 
@@ -1101,7 +1101,7 @@ object CommonUtils : CommonUtilsBase() {
                     }
             }
         }
-        val workspaceDao = DatabaseContainer.db.workspaceDao()
+        val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         val ws = workspaceDao.allWorkspaces()
         if(ws.isNotEmpty()) {
             for (it in ws) {
@@ -1335,6 +1335,7 @@ object CommonUtils : CommonUtilsBase() {
                 val filePath = zipEntry.name.replace('\\', '/')
                 val file = File(destinationDir, filePrefix + filePath)
                 Log.i(TAG, "Writing $file")
+                file.parentFile?.mkdirs()
                 FileOutputStream(file).use { fOut ->
                     var count = zIn.read(buffer)
                     while (count != -1) {

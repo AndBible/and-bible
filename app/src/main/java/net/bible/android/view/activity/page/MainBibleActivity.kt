@@ -57,7 +57,6 @@ import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
@@ -178,8 +177,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             field = value
         }
 
-    private val dao get() = DatabaseContainer.db.workspaceDao()
-    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
+    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     val multiWinMode
         get() =
@@ -249,7 +248,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         // use context to setup backup control dirs
-        BackupControl.setupDirs(this)
         BackupControl.clearBackupDir()
 
         resolveVariables()
@@ -1357,16 +1355,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return super.onKeyUp(keyCode, event)
     }
 
-    class MainBibleAfterRestore
+    class MainBibleAfterRestore()
 
-    fun onEventMainThread(e: MainBibleAfterRestore) = afterRestore()
-
-    private fun afterRestore() {
+    fun onEventMainThread(e: MainBibleAfterRestore) {
         bookmarkControl.reset()
         documentViewManager.removeView()
         bibleViewFactory.clear()
         windowControl.windowSync.setResyncRequired()
-        Dialogs.showMsg(R.string.restore_success)
         currentWorkspaceId = 0
     }
 

@@ -22,7 +22,7 @@ import {onMounted, reactive, Ref} from "vue";
 import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {Config, errorBox} from "@/composables/config";
-import {AsyncFunc, JournalEntryType, JSONString, LogEntry, Nullable} from "@/types/common";
+import {AsyncFunc, StudyPadEntryType, JSONString, LogEntry, Nullable} from "@/types/common";
 import {Bookmark, CombinedRange, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
 import {BibleDocumentType} from "@/types/documents";
 
@@ -42,13 +42,13 @@ export type BibleJavascriptInterface = {
     openExternalLink: (link: string) => void,
     openDownloads: () => void,
     setEditing: (enabled: boolean) => void,
-    createNewJournalEntry: (labelId: number, entryType?: JournalEntryType, afterEntryId?: number) => void,
-    deleteJournalEntry: (journalId: number) => void,
+    createNewStudyPadEntry: (labelId: number, entryType?: StudyPadEntryType, afterEntryId?: number) => void,
+    deleteStudyPadEntry: (studyPadId: number) => void,
     removeBookmarkLabel: (bookmarkId: number, labelId: number) => void,
     updateOrderNumber: (labelId: number, data: JSONString) => void,
     getActiveLanguages: () => string,
     toast: (text: string) => void,
-    updateJournalTextEntry: (data: JSONString) => void,
+    updateStudyPadTextEntry: (data: JSONString) => void,
     updateBookmarkToLabel: (data: JSONString) => void
     shareBookmarkVerse: (bookmarkId: number) => void,
     shareVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
@@ -287,12 +287,12 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.setEditing(value);
     }
 
-    function createNewJournalEntry(labelId: number, afterEntryType: JournalEntryType = "none", afterEntryId: number = 0) {
-        window.android.createNewJournalEntry(labelId, afterEntryType, afterEntryId);
+    function createNewJournalEntry(labelId: number, afterEntryType: StudyPadEntryType = "none", afterEntryId: number = 0) {
+        window.android.createNewStudyPadEntry(labelId, afterEntryType, afterEntryId);
     }
 
-    function deleteJournalEntry(journalId: number) {
-        window.android.deleteJournalEntry(journalId);
+    function deleteStudyPadEntry(studyPadId: number) {
+        window.android.deleteStudyPadEntry(studyPadId);
     }
 
     function getActiveLanguages(): string[] {
@@ -335,13 +335,13 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.openDownloads();
     }
 
-    function updateOrderNumber(labelId: number, bookmarks: StudyPadBookmarkItem[], journals: StudyPadTextItem[]) {
+    function updateOrderNumber(labelId: number, bookmarks: StudyPadBookmarkItem[], studyPadTextItems: StudyPadTextItem[]) {
         const orderNumberPairs: (l: StudyPadItem[]) => [number, number][] =
             l => l.map((v: StudyPadItem) => [v.id, v.orderNumber])
         window.android.updateOrderNumber(labelId, JSON.stringify(
             {
                 bookmarks: orderNumberPairs(bookmarks),
-                journals: orderNumberPairs(journals)
+                studyPadTextItems: orderNumberPairs(studyPadTextItems)
             })
         );
     }
@@ -350,10 +350,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.toast(text);
     }
 
-    function updateJournalEntry(entry: StudyPadItem, changes: Partial<StudyPadItem>) {
+    function updateStudyPadEntry(entry: StudyPadItem, changes: Partial<StudyPadItem>) {
         const changedEntry = {...entry, ...changes}
         if (entry.type === "journal") {
-            window.android.updateJournalTextEntry(JSON.stringify(changedEntry as StudyPadTextItem));
+            window.android.updateStudyPadTextEntry(JSON.stringify(changedEntry as StudyPadTextItem));
         } else if (entry.type === "bookmark") {
             const changedBookmarkItem = changedEntry as StudyPadBookmarkItem
             const entry = {
@@ -419,10 +419,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         assignLabels,
         openExternalLink,
         createNewJournalEntry,
-        deleteJournalEntry,
+        deleteStudyPadEntry,
         removeBookmarkLabel,
         updateOrderNumber,
-        updateJournalEntry,
+        updateStudyPadEntry,
         getActiveLanguages,
         toast,
         shareBookmarkVerse,

@@ -437,7 +437,7 @@ class LinkControl @Inject constructor(
         return true
     }
 
-    fun openJournal(labelId: Long, bookmarkId: Long?): Boolean {
+    fun openStudyPad(labelId: Long, bookmarkId: Long?): Boolean {
         val label = bookmarkControl.labelById(labelId) ?: return false
         val key = StudyPadKey(label, bookmarkId)
         showLink(FakeBookFactory.journalDocument, key)

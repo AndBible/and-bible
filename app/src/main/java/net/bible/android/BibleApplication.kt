@@ -31,6 +31,7 @@ import net.bible.android.activity.R
 
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.DaggerApplicationComponent
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
@@ -97,6 +98,7 @@ open class BibleApplication : Application() {
     override fun onCreate() {
         Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
+        BackupControl.setupDirs(this)
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             BugReport.saveScreenshot()

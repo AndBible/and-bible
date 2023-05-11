@@ -71,6 +71,7 @@ dependencies {
     val jswordVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
     val roomVersion: String by rootProject.extra
+    val coreKtxVersion: String by rootProject.extra
 
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
@@ -81,7 +82,7 @@ dependencies {
     }
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
-    implementation("androidx.core:core-ktx:1.10.0")
+    implementation("androidx.core:core-ktx:$coreKtxVersion")
 
     kapt("androidx.room:room-compiler:$roomVersion")
 }

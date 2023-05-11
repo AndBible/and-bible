@@ -242,7 +242,6 @@ class BookmarkEntities {
     )
 
     @Entity(
-        tableName = "JournalTextEntry",
         foreignKeys = [
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
         ],
@@ -266,7 +265,6 @@ class BookmarkEntities {
     data class Label(
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var name: String = "",
-        @ColumnInfo(name = "bookmarkStyle") var bookmarkStyleDeprecated: BookmarkStyle? = null,
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
         @ColumnInfo(defaultValue = "0") var markerStyle: Boolean = false,
         @ColumnInfo(defaultValue = "0") var markerStyleWholeVerse: Boolean = false,

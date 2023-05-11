@@ -82,6 +82,9 @@ interface WorkspaceDao {
     @Query("DELETE from HistoryItem WHERE windowId = :windowId")
     fun deleteHistoryItems(windowId: Long)
 
+    @Query("SELECT * from Window")
+    fun allWindows(): List<WorkspaceEntities.Window>
+
     @Query("SELECT * from Workspace WHERE id = :workspaceId")
     fun workspace(workspaceId: Long): WorkspaceEntities.Workspace?
 

@@ -58,7 +58,6 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.device.ScreenSettings
 import javax.inject.Inject
 
 class WorkspaceViewHolder(val layout: ViewGroup): RecyclerView.ViewHolder(layout)
@@ -223,7 +222,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             })
         }
 
-        dataSet = DatabaseContainer.db.workspaceDao().allWorkspaces().toMutableList()
+        dataSet = DatabaseContainer.instance.workspaceDb.workspaceDao().allWorkspaces().toMutableList()
 
         val workspace = dataSet.find { it.id == windowControl.windowRepository.id }!!
 
@@ -445,7 +444,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         CommonUtils.fixAlertDialogButtons(dialog)
     }
 
-    private val dao get() = DatabaseContainer.db.workspaceDao()
+    private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
     override fun onBackPressed() {
         cancelChanges()

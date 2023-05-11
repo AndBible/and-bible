@@ -310,21 +310,21 @@ dependencies {
     val coroutinesVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
     val roomVersion: String by rootProject.extra
+    val coreKtxVersion: String by rootProject.extra
 
     implementation(project(":db"))
     implementation("androidx.appcompat:appcompat:1.6.1")
 
+    implementation("androidx.core:core-ktx:$coreKtxVersion")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.media:media:1.6.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.core:core-ktx:1.10.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.3.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.6.1")
-    implementation("androidx.core:core-ktx:1.10.0")
     implementation("net.objecthunter:exp4j:0.4.8")
 
     // Google Drive API

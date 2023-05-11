@@ -19,7 +19,6 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -877,7 +876,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val id = uri.getQueryParameter("id")?.toLongOrNull()
             val bookmarkId = uri.getQueryParameter("bookmarkId")?.toLongOrNull()
             if (id != null) {
-                linkControl.openJournal(id, bookmarkId)
+                linkControl.openStudyPad(id, bookmarkId)
             } else false
         }
         UriConstants.SCHEME_REFERENCE -> {
@@ -1342,9 +1341,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(doc !is StudyPadDocument || doc.label.id != event.labelId) return
         val journalJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
         val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
-        val journals = json.encodeToString(serializer(), event.studyPadOrderChanged)
+        val studyPadItems = json.encodeToString(serializer(), event.studyPadOrderChanged)
         executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_journal",  {journal: $journalJson, bookmarkToLabelsOrdered: $bookmarkToLabels, journalsOrdered: $journals});
+            bibleView.emit("add_or_update_study_pad",  {studyPad: $journalJson, bookmarkToLabelsOrdered: $bookmarkToLabels, studyPadItemsOrdered: $studyPadItems});
         """)
     }
 
@@ -1360,7 +1359,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: StudyPadTextEntryDeleted) {
         if(firstDocument !is StudyPadDocument) return
         executeJavascriptOnUiThread("""
-            bibleView.emit("delete_journal", ${event.journalId});
+            bibleView.emit("delete_study_pad", ${event.studyPadId});
         """)
     }
 

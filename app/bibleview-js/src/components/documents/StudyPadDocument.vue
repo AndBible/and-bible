@@ -113,11 +113,11 @@ function editLastNote() {
 }
 
 const {
-    journalTextEntries, updateBookmarkToLabels, updateJournalTextEntries,
-    updateJournalOrdering, deleteJournal, bookmarkToLabels
+    journalTextEntries, updateBookmarkToLabels, updateStudyPadTextEntries,
+    updateStudyPadOrdering, deleteJournal, bookmarkToLabels
 } = journal;
 
-updateJournalTextEntries(...journalTextEntries_);
+updateStudyPadTextEntries(...journalTextEntries_);
 updateBookmarkToLabels(...bookmarkToLabels_)
 
 const globalBookmarks = inject(globalBookmarksKey)!;
@@ -166,29 +166,29 @@ const adding = ref(false);
 
 const lastEntry = computed(() => journalEntries.value[journalEntries.value.length - 1]);
 
-setupEventBusListener("add_or_update_journal", async (
+setupEventBusListener("add_or_update_study_pad", async (
     {
-        journal,
+        studyPad,
         bookmarkToLabelsOrdered,
-        journalsOrdered
+        studyPadItemsOrdered
     }: {
-        journal: StudyPadTextItem,
+        studyPad: StudyPadTextItem,
         bookmarkToLabelsOrdered: BookmarkToLabel[],
-        journalsOrdered: StudyPadTextItem[]
+        studyPadItemsOrdered: StudyPadTextItem[]
     }) =>
 {
-    if (journal && adding.value) {
-        journal.new = true
+    if (studyPad && adding.value) {
+        studyPad.new = true
         adding.value = false;
     }
     updateBookmarkToLabels(...bookmarkToLabelsOrdered);
-    updateJournalOrdering(...journalsOrdered);
-    if (journal) {
-        updateJournalTextEntries(journal);
+    updateStudyPadOrdering(...studyPadItemsOrdered);
+    if (studyPad) {
+        updateStudyPadTextEntries(studyPad);
     }
     await nextTick();
-    if (journal && journal.new) {
-        scrollToId(`studypad-${journal.type}-${journal.id}`, {duration: 300, onlyIfInvisible: true})
+    if (studyPad && studyPad.new) {
+        scrollToId(`studypad-${studyPad.type}-${studyPad.id}`, {duration: 300, onlyIfInvisible: true})
     }
 })
 
@@ -196,7 +196,7 @@ setupEventBusListener("add_or_update_bookmark_to_label", (bookmarkToLabel: Bookm
     updateBookmarkToLabels(bookmarkToLabel);
 })
 
-setupEventBusListener("delete_journal", (journalId: number) => {
+setupEventBusListener("delete_study_pad", (journalId: number) => {
     deleteJournal(journalId)
 })
 

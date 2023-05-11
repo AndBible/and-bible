@@ -29,6 +29,7 @@ buildscript {
     val targetCompatibilityVersion by extra(JavaVersion.VERSION_17)
     val jvmTargetVersion by extra("17")
     val jvmToolChainVersion by extra(17)
+    val coreKtxVersion by extra("1.10.0")
 
 
     repositories {
@@ -36,8 +37,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.0.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("com.android.tools.build:gradle:8.0.1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
 
         // NOTE: Do not place your application dependencies here; they belong
