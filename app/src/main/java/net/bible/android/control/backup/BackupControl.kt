@@ -124,7 +124,7 @@ object BackupControl {
         }
     }
 
-    private suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) = withContext(Dispatchers.IO) {
+    internal suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) = withContext(Dispatchers.IO) {
         val hourglass = Hourglass(activity)
         hourglass.show()
 
@@ -152,9 +152,7 @@ object BackupControl {
         }
     }
 
-    /** restore database from custom source
-     */
-    private suspend fun restoreOldMonolithicDatabaseFromInputStream(gzippedInputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun restoreOldMonolithicDatabaseFromInputStream(possiblyGzippedInputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
         val fileName = OLD_MONOLITHIC_DATABASE_NAME
         internalDbBackupDir.mkdirs()
         val tmpFile = File(internalDbBackupDir, fileName)
@@ -162,7 +160,7 @@ object BackupControl {
         val header = ByteArray(2)
         val gzHeaderBytes = byteArrayOf(0x1f.toByte(), 0x8b.toByte())
 
-        val bufferedInputStream = BufferedInputStream(gzippedInputStream)
+        val bufferedInputStream = BufferedInputStream(possiblyGzippedInputStream)
         bufferedInputStream.mark(2)
         bufferedInputStream.read(header)
         bufferedInputStream.reset()
@@ -189,6 +187,7 @@ object BackupControl {
                     if(version <= OLD_DATABASE_VERSION) {
                         Log.i(TAG, "Loading from backup database with version $version")
                         DatabaseContainer.reset()
+                        // When restoring old style db, we need to remove all databases first
                         application.databaseList().forEach { name ->
                             application.deleteDatabase(name)
                         }
@@ -541,10 +540,6 @@ object BackupControl {
         backupZipFile.delete()
     }
 
-    suspend fun saveOldAppDatabase(callingActivity: ActivityBase, file: File) {
-        saveDbBackupFileViaIntent(callingActivity, file)
-    }
-
     enum class AbDbFileType {
         SQLITE3, ZIP, UNKNOWN
     }
@@ -766,7 +761,7 @@ class BackupActivity: ActivityBase() {
                 val s = f.name
                 b.text = s
                 b.setOnClickListener {
-                    lifecycleScope.launch { BackupControl.saveOldAppDatabase(this@BackupActivity, f) }
+                    lifecycleScope.launch { BackupControl.saveDbBackupFileViaIntent(this@BackupActivity, f) }
                 }
                 backupDbButtons.addView(b)
             }
