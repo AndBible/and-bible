@@ -262,7 +262,7 @@ object BackupControl {
             result = suspendCoroutine {
                 val backupNames = available.map {
                     when(it) {
-                        BookmarkDatabase.dbFileName -> context.getString(R.string.help_bookmarks_title)
+                        BookmarkDatabase.dbFileName -> context.getString(R.string.db_bookmarks)
                         ReadingPlanDatabase.dbFileName -> context.getString(R.string.reading_plans_plural)
                         WorkspaceDatabase.dbFileName -> context.getString(R.string.help_workspaces_title)
                         RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
