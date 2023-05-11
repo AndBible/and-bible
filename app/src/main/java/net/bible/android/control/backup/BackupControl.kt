@@ -85,7 +85,8 @@ import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-const val dataBaseBackupFileName = "AndBibleDatabaseBackup.zip"
+const val DATABASE_BACKUP_NAME = "AndBibleDatabaseBackup.abdb"
+const val MODULE_BACKUP_NAME = "AndBibleModulesBackup.abmd"
 
 
 object BackupControl {
@@ -135,7 +136,7 @@ object BackupControl {
         val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = ZIP_MIMETYPE
-            putExtra(Intent.EXTRA_TITLE, dataBaseBackupFileName)
+            putExtra(Intent.EXTRA_TITLE, DATABASE_BACKUP_NAME)
         }
 
 		val chooserIntent = Intent.createChooser(shareIntent, getString(R.string.send_backup_file))
@@ -454,7 +455,7 @@ object BackupControl {
             DatabaseContainer.sync()
         }
         internalDbBackupDir.mkdirs()
-        val zipFile = File(internalDbBackupDir, dataBaseBackupFileName)
+        val zipFile = File(internalDbBackupDir, DATABASE_BACKUP_NAME)
         if(zipFile.exists()) zipFile.delete()
 
         val allDbFilenames = arrayOf(
@@ -535,7 +536,6 @@ object BackupControl {
     private var moduleDir: File = SharedConstants.modulesDir
     private lateinit var internalDbDir : File
     private lateinit var internalDbBackupDir: File // copy of db is created in this dir when doing backups
-    private const val MODULE_BACKUP_NAME = "modules.zip"
     fun setupDirs(context: Context) {
         internalDbDir = File(context.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME).parent!!)
         internalDbBackupDir = File(SharedConstants.internalFilesDir, "/backup")
