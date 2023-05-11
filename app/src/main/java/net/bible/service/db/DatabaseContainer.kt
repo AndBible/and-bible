@@ -124,6 +124,7 @@ class DatabaseContainer {
             .build()
 
     private fun backupDatabaseIfNeeded() {
+        if(application.isRunningTests) return
         val oldDb = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
         if(oldDb.exists()) {
             backupOldDatabase(oldDb)
