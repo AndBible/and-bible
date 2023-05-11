@@ -193,7 +193,9 @@ object BackupControl {
                             application.deleteDatabase(name)
                         }
                         ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
-                        DatabaseContainer.instance // initialize (migrate etc)
+                        if(DatabaseContainer.ready) {
+                            DatabaseContainer.instance // initialize (migrate etc)
+                        }
                     }
                 }
             }
