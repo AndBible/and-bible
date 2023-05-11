@@ -254,6 +254,59 @@ object BackupControl {
         return result
     }
 
+    private suspend fun selectDatabaseSections(context: Context, available: List<String>): List<String> {
+        var result: List<String>
+        withContext(Dispatchers.Main) {
+            result = suspendCoroutine {
+                val backupNames = available.map {
+                    when(it) {
+                        BookmarkDatabase.dbFileName -> context.getString(R.string.help_bookmarks_title)
+                        ReadingPlanDatabase.dbFileName -> context.getString(R.string.reading_plans_plural)
+                        WorkspaceDatabase.dbFileName -> context.getString(R.string.help_workspaces_title)
+                        RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
+                        SettingsDatabase.dbFileName -> context.getString(R.string.settings)
+                        else -> throw IllegalStateException("Unknown database file: $it")
+                    }
+                }.toTypedArray()
+
+                val checkedItems = backupNames.map { false }.toBooleanArray()
+                val dialog = AlertDialog.Builder(context)
+                    .setPositiveButton(R.string.okay) { d, _ ->
+                        val selectedBooks = available.filterIndexed { index, book -> checkedItems[index] }
+                        if (selectedBooks.isEmpty()) {
+                            it.resume(emptyList())
+                        } else {
+                            it.resume(selectedBooks)
+                        }
+                    }
+                    .setMultiChoiceItems(backupNames, checkedItems) { _, pos, value ->
+                        checkedItems[pos] = value
+                    }
+                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(emptyList()) }
+                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(emptyList()) }
+                    .setOnCancelListener { _ -> it.resume(emptyList())}
+                    .setTitle(getString(R.string.restore_backup_sections))
+                    .create()
+
+                dialog.setOnShowListener {
+                    dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                        val allSelected = checkedItems.find { !it } == null
+                        val newValue = !allSelected
+                        val v = dialog.listView
+                        for (i in 0 until v.count) {
+                            v.setItemChecked(i, newValue)
+                            checkedItems[i] = newValue
+                        }
+                        (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
+                    }
+                }
+                dialog.show()
+                CommonUtils.fixAlertDialogButtons(dialog)
+            }
+        }
+        return result
+    }
+
     private suspend fun createModulesZip(books: List<Book>, zipFile: File) {
         fun relativeFileName(rootDir: File, file: File): String {
             val filePath = file.canonicalPath
@@ -506,60 +559,6 @@ object BackupControl {
             AbDbFileType.ZIP
         else
             AbDbFileType.UNKNOWN
-    }
-
-    private suspend fun selectDatabaseSections(context: Context, available: List<String>): List<String> {
-        var result: List<String>
-        withContext(Dispatchers.Main) {
-            result = suspendCoroutine {
-                val backupSqliteFiles = available
-                val backupNames = available.map {
-                    when(it) {
-                        BookmarkDatabase.dbFileName -> context.getString(R.string.help_bookmarks_title)
-                        ReadingPlanDatabase.dbFileName -> context.getString(R.string.reading_plans_plural)
-                        WorkspaceDatabase.dbFileName -> context.getString(R.string.help_workspaces_title)
-                        RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
-                        SettingsDatabase.dbFileName -> context.getString(R.string.settings)
-                        else -> throw IllegalStateException("Unknown database file: $it")
-                    }
-                }.toTypedArray()
-
-                val checkedItems = backupNames.map { false }.toBooleanArray()
-                val dialog = AlertDialog.Builder(context)
-                    .setPositiveButton(R.string.okay) { d, _ ->
-                        val selectedBooks = backupSqliteFiles.filterIndexed { index, book -> checkedItems[index] }
-                        if(selectedBooks.isEmpty()) {
-                            it.resume(emptyList())
-                        } else {
-                            it.resume(selectedBooks)
-                        }
-                    }
-                    .setMultiChoiceItems(backupNames, checkedItems) { _, pos, value ->
-                        checkedItems[pos] = value
-                    }
-                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(emptyList()) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(emptyList()) }
-                    .setOnCancelListener { _ -> it.resume(emptyList())}
-                    .setTitle(getString(R.string.restore_backup_sections))
-                    .create()
-
-                dialog.setOnShowListener {
-                    dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                        val allSelected = checkedItems.find { !it } == null
-                        val newValue = !allSelected
-                        val v = dialog.listView
-                        for (i in 0 until v.count) {
-                            v.setItemChecked(i, newValue)
-                            checkedItems[i] = newValue
-                        }
-                        (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
-                    }
-                }
-                dialog.show()
-                CommonUtils.fixAlertDialogButtons(dialog)
-            }
-        }
-        return result
     }
 
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
