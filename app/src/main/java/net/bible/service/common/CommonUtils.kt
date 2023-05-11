@@ -1335,6 +1335,7 @@ object CommonUtils : CommonUtilsBase() {
                 val filePath = zipEntry.name.replace('\\', '/')
                 val file = File(destinationDir, filePrefix + filePath)
                 Log.i(TAG, "Writing $file")
+                file.parentFile?.mkdirs()
                 FileOutputStream(file).use { fOut ->
                     var count = zIn.read(buffer)
                     while (count != -1) {

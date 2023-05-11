@@ -648,7 +648,9 @@
     <string name="restore_database">Restore Database File</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces?</string>
     <string name="reading_plans_plural">Reading Plans</string>
+    <string name="restore_success2">Selected database sections restored successfully</string>
     <string name="restore_success">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces restored successfully</string>
+    <string name="downloading_backup">Downloading backup file…</string>
     <string name="loading_backup">Loading database from backup…</string>
     <string name="backup_success2">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces backed up successfully.</string>
     <string name="backup_modules_success">Selected modules backed up successfully.</string>
@@ -1116,4 +1118,6 @@
         Use this if you have multiple devices that you want to keep in sync.
         Application is granted access only to applications own files in Google Drive, not any personal files.
     </string>
+    <string name="restore_backup_sections">Which backup sections do you want to restore?</string>
+    <string name="db_repositories">Repositories and related settings</string>
 </resources>
