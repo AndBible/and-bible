@@ -73,6 +73,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.io.BufferedInputStream
+import java.io.Closeable
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -611,42 +612,37 @@ object BackupControl {
         val tmpFile = File(internalDbBackupDir, "database.zip")
         val unzipFolder = File(internalDbBackupDir, "unzip")
 
-        fun cleanup() {
-            unzipFolder.deleteRecursively()
-            tmpFile.delete()
-        }
-
         unzipFolder.mkdirs()
 
-        tmpFile.outputStream().use {
-            inputStream.copyTo(it)
-        }
+        tmpFile.outputStream().use {inputStream.copyTo(it) }
         CommonUtils.unzipFile(tmpFile, unzipFolder)
-        val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
-            .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
-            .map { file -> file.name }
 
-        hourglass.dismiss()
-        if(containedBackups.isEmpty()) {
-            cleanup()
-            Dialogs.showMsg(R.string.restore_unsuccessfull)
-            return@withContext false
-        }
-        val selection = selectDatabaseSections(activity, containedBackups)
+        Closeable {
+            tmpFile.delete()
+            unzipFolder.deleteRecursively()
+        }.use {
+            val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
+                .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
+                .map { file -> file.name }
 
-        if(selection.isEmpty()) {
-            cleanup()
-            return@withContext false
-        }
-        hourglass.show()
-        for(fileName in selection) {
-            val f = File(unzipFolder, "db/${fileName}")
-            Log.i(TAG, "Restoring $fileName")
-            f.copyTo(File(activity.getDatabasePath(fileName).path), overwrite = true)
-        }
+            hourglass.dismiss()
+            if (containedBackups.isEmpty()) {
+                Dialogs.showMsg(R.string.restore_unsuccessfull)
+                return@withContext false
+            }
+            val selection = selectDatabaseSections(activity, containedBackups)
 
-        cleanup()
-        if(DatabaseContainer.ready) {
+            if (selection.isEmpty()) {
+                return@withContext false
+            }
+            hourglass.show()
+            for (fileName in selection) {
+                val f = File(unzipFolder, "db/${fileName}")
+                Log.i(TAG, "Restoring $fileName")
+                f.copyTo(File(activity.getDatabasePath(fileName).path), overwrite = true)
+            }
+        }
+        if (DatabaseContainer.ready) {
             DatabaseContainer.instance
         }
         hourglass.dismiss()
