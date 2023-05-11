@@ -248,7 +248,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         // use context to setup backup control dirs
-        BackupControl.setupDirs(this)
         BackupControl.clearBackupDir()
 
         resolveVariables()

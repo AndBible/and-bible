@@ -17,18 +17,22 @@
 package net.bible.service.db
 
 import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import android.util.Log
-import androidx.core.database.getIntOrNull
 import androidx.room.Room
-import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.control.backup.ALL_DB_FILENAMES
+import net.bible.android.control.backup.BackupControl
+import net.bible.android.database.BOOKMARK_DATABASE_VERSION
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.OldMonolithicAppDatabase
-import net.bible.android.database.OLD_DATABASE_VERSION
+import net.bible.android.database.READING_PLAN_DATABASE_VERSION
+import net.bible.android.database.REPO_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
+import net.bible.android.database.SETTINGS_DATABASE_VERSION
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.TemporaryDatabase
+import net.bible.android.database.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.migrations.DatabaseSplitMigrations
@@ -46,20 +50,20 @@ class DataBaseNotReady: Exception()
 
 class DatabaseContainer {
     init {
+        backupDatabaseIfNeeded()
         migrateOldDatabaseIfNeeded()
-        //backupDatabaseIfNeeded()
     }
 
     private fun getOldDatabase(): OldMonolithicAppDatabase =
         Room.databaseBuilder(
-            BibleApplication.application, OldMonolithicAppDatabase::class.java, OLD_MONOLITHIC_DATABASE_NAME
+            application, OldMonolithicAppDatabase::class.java, OLD_MONOLITHIC_DATABASE_NAME
         )
             .allowMainThreadQueries()
             .addMigrations(*oldMonolithicAppDatabaseMigrations)
             .build()
 
     private fun migrateOldDatabaseIfNeeded() {
-        val oldDbFile = BibleApplication.application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
+        val oldDbFile = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
         if(oldDbFile.exists()) {
             getOldDatabase().openHelper.writableDatabase.use {
                 val migrations = DatabaseSplitMigrations(it)
@@ -72,7 +76,7 @@ class DatabaseContainer {
 
     val bookmarkDb: BookmarkDatabase =
         Room.databaseBuilder(
-            BibleApplication.application, BookmarkDatabase::class.java, BookmarkDatabase.dbFileName
+            application, BookmarkDatabase::class.java, BookmarkDatabase.dbFileName
         )
             .allowMainThreadQueries()
             .addMigrations()
@@ -81,7 +85,7 @@ class DatabaseContainer {
 
     val readingPlanDb: ReadingPlanDatabase =
         Room.databaseBuilder(
-            BibleApplication.application, ReadingPlanDatabase::class.java, ReadingPlanDatabase.dbFileName
+            application, ReadingPlanDatabase::class.java, ReadingPlanDatabase.dbFileName
         )
             .allowMainThreadQueries()
             .addMigrations()
@@ -89,7 +93,7 @@ class DatabaseContainer {
 
     val workspaceDb: WorkspaceDatabase =
         Room.databaseBuilder(
-            BibleApplication.application, WorkspaceDatabase::class.java, WorkspaceDatabase.dbFileName
+            application, WorkspaceDatabase::class.java, WorkspaceDatabase.dbFileName
         )
             .allowMainThreadQueries()
             .addMigrations()
@@ -97,7 +101,7 @@ class DatabaseContainer {
 
     val temporaryDb: TemporaryDatabase =
         Room.databaseBuilder(
-            BibleApplication.application, TemporaryDatabase::class.java, TemporaryDatabase.dbFileName
+            application, TemporaryDatabase::class.java, TemporaryDatabase.dbFileName
         )
             .allowMainThreadQueries()
             .addMigrations()
@@ -105,7 +109,7 @@ class DatabaseContainer {
 
     val repoDb: RepoDatabase =
         Room.databaseBuilder(
-            BibleApplication.application, RepoDatabase::class.java, RepoDatabase.dbFileName
+            application, RepoDatabase::class.java, RepoDatabase.dbFileName
         )
             .allowMainThreadQueries()
             .addMigrations()
@@ -113,37 +117,54 @@ class DatabaseContainer {
 
     val settingsDb: SettingsDatabase =
         Room.databaseBuilder(
-            BibleApplication.application, SettingsDatabase::class.java, SettingsDatabase.dbFileName
+            application, SettingsDatabase::class.java, SettingsDatabase.dbFileName
         )
             .allowMainThreadQueries()
             .addMigrations()
             .build()
 
-
     private fun backupDatabaseIfNeeded() {
-        // TODO: fix this!
-        val dbPath = BibleApplication.application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
-        var dbVersion: Int? = null
-        Log.i(TAG, "backupDatabaseIfNeeded")
-        try {
-            val db = SQLiteDatabase.openDatabase(dbPath.absolutePath, null, OPEN_READONLY)
-            db.use { d ->
-                val cursor = d.rawQuery("PRAGMA user_version", null)
-                cursor.use { c ->
-                    while (c.moveToNext()) {
-                        dbVersion = c.getIntOrNull(0)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.i(TAG, "Could not backup database. Maybe fresh install.")
+        val oldDb = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
+        if(oldDb.exists()) {
+            backupOldDatabase(oldDb)
+        } else {
+            backupNewDatabaseIfNeeded()
         }
-        if(dbVersion != null && dbVersion != OLD_DATABASE_VERSION) {
-            Log.i(TAG, "backupping database of version $dbVersion (current: $OLD_DATABASE_VERSION)")
+    }
+
+    private fun backupOldDatabase(oldDb: File) {
+        val dbVersion =
+            SQLiteDatabase.openDatabase(oldDb.path, null, SQLiteDatabase.OPEN_READONLY).use { it.version }
+        Log.i(TAG, "backupping old database of version $dbVersion)")
+        val backupPath = CommonUtils.dbBackupPath
+        val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
+        val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
+        oldDb.copyTo(backupFile, true)
+    }
+
+    private fun backupNewDatabaseIfNeeded() {
+        Log.i(TAG, "backupDatabaseIfNeeded")
+        val versions = ALL_DB_FILENAMES.map {
+            val file = application.getDatabasePath(it)
+            if(file.exists()) {
+                SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READONLY).use { it.version }
+            } else {
+                0
+            }
+        }
+
+        val maxVersions = ALL_DB_FILENAMES.map { maxDatabaseVersion(it) }
+        val needBackup = maxVersions != versions
+
+        if(needBackup) {
+            val backupZipFile = BackupControl.makeDatabaseBackupFile()
+            val versionString = versions.joinToString("-")
+            Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
             val backupPath = CommonUtils.dbBackupPath
             val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
-            val backupFile = File(backupPath, "dbBackup-$dbVersion-$timeStamp.db")
-            dbPath.copyTo(backupFile, true)
+            val backupFile = File(backupPath, "dbBackup-$versionString-$timeStamp.abdb")
+            backupZipFile.copyTo(backupFile, true)
+            backupZipFile.delete()
         }
     }
 
@@ -171,7 +192,7 @@ class DatabaseContainer {
         var ready: Boolean = false
         private var _instance: DatabaseContainer? = null
         val instance: DatabaseContainer get() {
-            if(!ready && !BibleApplication.application.isRunningTests) throw DataBaseNotReady()
+            if(!ready && !application.isRunningTests) throw DataBaseNotReady()
             return _instance ?: synchronized(this) {
                 _instance ?: DatabaseContainer().also {
                     _instance = it
@@ -185,9 +206,20 @@ class DatabaseContainer {
             synchronized(this) {
                 try {
                     instance.closeAll()
-                } catch (e: DataBaseNotReady) {}
+                } catch (e: DataBaseNotReady) {
+                    Log.i(TAG, "Can't close, database not ready")
+                }
                 _instance = null
             }
+        }
+
+        fun maxDatabaseVersion(filename: String): Int = when(filename) {
+            BookmarkDatabase.dbFileName -> BOOKMARK_DATABASE_VERSION
+            ReadingPlanDatabase.dbFileName -> READING_PLAN_DATABASE_VERSION
+            WorkspaceDatabase.dbFileName -> WORKSPACE_DATABASE_VERSION
+            RepoDatabase.dbFileName -> REPO_DATABASE_VERSION
+            SettingsDatabase.dbFileName -> SETTINGS_DATABASE_VERSION
+            else -> throw IllegalStateException("Unknown database file: $filename")
         }
     }
 }

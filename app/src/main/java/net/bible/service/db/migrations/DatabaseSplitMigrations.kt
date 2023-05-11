@@ -28,8 +28,8 @@ import net.bible.android.database.WorkspaceDatabase
 
 class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
 
-    private fun pragmas(db: SQLiteDatabase)  = db.run {
-        rawQuery("PRAGMA user_version=1;", null).close()
+    private fun setPragmas(db: SQLiteDatabase)  = db.run {
+        db.version = 1
         rawQuery("PRAGMA journal_mode=WAL;", null).close()
     }
 
@@ -61,7 +61,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             execSQL("CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `BookmarkToLabel` (`labelId`)");
             execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
             execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e4c7d22e15b9f290fefcb1568d0bb935')");
-            pragmas(db)
+            setPragmas(this)
         } }
         oldDb.apply {
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
@@ -84,7 +84,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `code_day` ON `readingplan_status` (`plan_code`, `plan_day`)");
             execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
             execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '98fd9d68594e81cc43ec8ad19311aa61')");
-            pragmas(db)
+            setPragmas(this)
         }}
         oldDb.apply {
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
@@ -117,7 +117,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
                 execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_PageManager_windowId` ON `PageManager` (`windowId`)");
                 execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
                 execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2e57906a9656aa1c543df17339f39c58')");
-                pragmas(db);
+                setPragmas(this);
             }
         }
         oldDb.apply {
@@ -144,7 +144,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             execSQL("CREATE TABLE IF NOT EXISTS `SwordDocumentInfo` (`osisId` TEXT NOT NULL, `name` TEXT NOT NULL, `abbreviation` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL, `cipherKey` TEXT, PRIMARY KEY(`osisId`))");
             execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
             execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4d9ab3b23c9be0ed6bc9e1a9356dc410')");
-            pragmas(db);
+            setPragmas(this)
         }}
         oldDb.apply {
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
@@ -166,7 +166,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
                 execSQL("CREATE TABLE IF NOT EXISTS `DoubleSetting` (`key` TEXT NOT NULL, `value` REAL NOT NULL, PRIMARY KEY(`key`))");
                 execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
                 execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '766325557c50c33c7c4f6857d0cba8ad')");
-                pragmas(db)
+                setPragmas(this)
             }
         }
         oldDb.apply {

@@ -45,16 +45,11 @@ import net.bible.android.activity.databinding.BackupViewBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.database.BOOKMARK_DATABASE_VERSION
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
-import net.bible.android.database.READING_PLAN_DATABASE_VERSION
-import net.bible.android.database.REPO_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
-import net.bible.android.database.SETTINGS_DATABASE_VERSION
 import net.bible.android.database.SettingsDatabase
-import net.bible.android.database.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
@@ -67,6 +62,7 @@ import net.bible.service.common.CommonUtils.windowControl
 import net.bible.service.common.FileManager
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.download.isPseudoBook
 import net.bible.service.googledrive.ZIP_MIMETYPE
 import net.bible.service.sword.dbFile
@@ -460,7 +456,7 @@ object BackupControl {
         }
     }
 
-    private suspend fun makeDatabaseBackupFile(): File = withContext(Dispatchers.IO) {
+    fun makeDatabaseBackupFile(): File {
         if(CommonUtils.initialized) {
             windowControl.windowRepository.saveIntoDb()
             DatabaseContainer.vacuum()
@@ -481,14 +477,14 @@ object BackupControl {
         }
 
         ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
-            for(b in ALL_DB_FILENAMES) {
-                addFileToZip(outFile, File(internalDbDir, b))
+            for(b in ALL_DB_FILENAMES.map {File(internalDbDir, it)}.filter {it.exists()}) {
+                addFileToZip(outFile, b)
             }
         }
-        zipFile
+        return zipFile
     }
 
-    suspend fun startBackupAppDatabase(callingActivity: ActivityBase) {
+    suspend fun startBackupAppDatabase(callingActivity: ActivityBase) = withContext(Dispatchers.IO) {
         val backupZipFile = makeDatabaseBackupFile()
         saveDbBackupFileViaIntent(callingActivity, backupZipFile)
         backupZipFile.delete()
@@ -523,11 +519,11 @@ object BackupControl {
                 val backupSqliteFiles = available
                 val backupNames = available.map {
                     when(it) {
-                        "bookmarks.sqlite3" -> context.getString(R.string.help_bookmarks_title)
-                        "readingplans.sqlite3" -> context.getString(R.string.reading_plans_plural)
-                        "workspaces.sqlite3" -> context.getString(R.string.help_workspaces_title)
-                        "repositories.sqlite3" -> context.getString(R.string.db_repositories)
-                        "settings.sqlite3" -> context.getString(R.string.settings)
+                        BookmarkDatabase.dbFileName -> context.getString(R.string.help_bookmarks_title)
+                        ReadingPlanDatabase.dbFileName -> context.getString(R.string.reading_plans_plural)
+                        WorkspaceDatabase.dbFileName -> context.getString(R.string.help_workspaces_title)
+                        RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
+                        SettingsDatabase.dbFileName -> context.getString(R.string.settings)
                         else -> throw IllegalStateException("Unknown database file: $it")
                     }
                 }.toTypedArray()
@@ -599,15 +595,6 @@ object BackupControl {
         inputStream.reset()
         val headerString = String(header)
         headerString == "SQLite format 3\u0000"
-    }
-
-    private fun maxDatabaseVersion(filename: String): Int = when(filename) {
-        "bookmarks.sqlite3" -> BOOKMARK_DATABASE_VERSION
-        "readingplans.sqlite3" -> READING_PLAN_DATABASE_VERSION
-        "workspaces.sqlite3" -> WORKSPACE_DATABASE_VERSION
-        "repositories.sqlite3" -> REPO_DATABASE_VERSION
-        "settings.sqlite3" -> SETTINGS_DATABASE_VERSION
-        else -> throw IllegalStateException("Unknown database file: $filename")
     }
 
     private suspend fun verifyDatabaseBackupFile(file: File): Boolean {

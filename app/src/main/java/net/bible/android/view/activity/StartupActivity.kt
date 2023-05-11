@@ -192,7 +192,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         supportActionBar!!.hide()
         if (!checkForExternalStorage()) return
 
-        BackupControl.setupDirs(this)
         lifecycleScope.launch {
             if(!BuildVariant.Appearance.isDiscrete) {
                 ErrorReportControl.checkCrash(this@StartupActivity)
