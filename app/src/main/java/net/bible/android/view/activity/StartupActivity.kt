@@ -397,19 +397,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 if (resultCode == Activity.RESULT_OK) {
                     Dialogs.showMsg(R.string.restore_confirmation, true) {
                         ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
-                        val hourglass = Hourglass(this)
                         lifecycleScope.launch(Dispatchers.IO) {
-                            hourglass.show()
-                            val inputStream = contentResolver.openInputStream(data!!.data!!)
-                            if (BackupControl.restoreDatabaseFromInputStream(inputStream!!)) {
+                            val inputStream = contentResolver.openInputStream(data!!.data!!) ?: return@launch
+                            if (BackupControl.restoreAppDatabaseFromInputStreamWithUI(this@StartupActivity, inputStream)) {
                                 Log.i(TAG, "Restored database successfully")
-
-                                withContext(Dispatchers.Main) {
-                                    Dialogs.showMsg(R.string.restore_success)
-                                    postBasicInitialisationControl()
-                                }
+                                postBasicInitialisationControl()
                             }
-                            hourglass.dismiss()
                         }
                     }
                 }
@@ -420,7 +413,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     companion object {
         private val TAG = "StartupActivity"
 
-        private val DOWNLOAD_DOCUMENT_REQUEST = 2
-        private val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 1
+        private const val DOWNLOAD_DOCUMENT_REQUEST = 2
+        private const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 1
     }
 }

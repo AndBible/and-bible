@@ -154,7 +154,7 @@ object BackupControl {
 
     /** restore database from custom source
      */
-    suspend fun restoreDatabaseFromInputStream(gzippedInputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun restoreOldMonolithicDatabaseFromInputStream(gzippedInputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
         val fileName = OLD_MONOLITHIC_DATABASE_NAME
         internalDbBackupDir.mkdirs()
         val tmpFile = File(internalDbBackupDir, fileName)
@@ -569,18 +569,20 @@ object BackupControl {
         if (result.resultCode == Activity.RESULT_OK) {
             val inputStream = try {
                 activity.contentResolver.openInputStream(result.data?.data!!)
-            } catch (e: FileNotFoundException) {null}
+            } catch (e: FileNotFoundException) {null} ?: return
+            restoreAppDatabaseFromInputStreamWithUI(activity, inputStream)
+        }
+    }
 
-            val bufferedInputStream = BufferedInputStream(inputStream)
+    suspend fun restoreAppDatabaseFromInputStreamWithUI(activity: ActivityBase, inputStream: InputStream): Boolean {
+        val bufferedInputStream = BufferedInputStream(inputStream)
+        val filetype = determineFileType(bufferedInputStream)
+        Log.i(TAG, "Filetype: $filetype")
 
-            val filetype = determineFileType(bufferedInputStream)
-            Log.i(TAG, "Filetype: $filetype")
-
-            if(filetype == AbDbFileType.SQLITE3) {
-                restoreOldMonolithicDatabaseFile(activity, bufferedInputStream)
-            } else {
-                restoreDatabaseZipFile(activity, bufferedInputStream)
-            }
+        return if(filetype == AbDbFileType.SQLITE3) {
+            restoreOldMonolithicDatabaseFromFileInputStreamWithUI(activity, bufferedInputStream)
+        } else {
+            restoreDatabaseZipFileInputStreamWithUI(activity, bufferedInputStream)
         }
     }
 
@@ -600,7 +602,10 @@ object BackupControl {
         return version <= maxDatabaseVersion(file.name)
     }
 
-    private suspend fun restoreDatabaseZipFile(activity: ActivityBase, inputStream: InputStream) = withContext(Dispatchers.IO) {
+    private suspend fun restoreDatabaseZipFileInputStreamWithUI(
+        activity: ActivityBase,
+        inputStream: InputStream
+    ): Boolean = withContext(Dispatchers.IO) {
         val hourglass = Hourglass(activity)
         ABEventBus.post(ToastEvent(getString(R.string.downloading_backup)))
         hourglass.show()
@@ -619,6 +624,16 @@ object BackupControl {
 
         hourglass.dismiss()
         val selection = selectDatabaseSections(activity, containedBackups)
+
+        fun finalize() {
+            unzipFolder.deleteRecursively()
+            tmpFile.delete()
+        }
+
+        if(selection.isEmpty()) {
+            finalize()
+            return@withContext false
+        }
         hourglass.show()
         for(fileName in selection) {
             val f = File(unzipFolder, "db/${fileName}")
@@ -626,31 +641,38 @@ object BackupControl {
             f.copyTo(File(activity.getDatabasePath(fileName).path), overwrite = true)
         }
 
-        unzipFolder.deleteRecursively()
-        tmpFile.delete()
+        finalize()
         DatabaseContainer.instance
         hourglass.dismiss()
         Log.i(TAG, "Restored database successfully")
         ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+        true
     }
 
 
-    private suspend fun restoreOldMonolithicDatabaseFile(activity: ActivityBase, inputStream: InputStream) {
+    private suspend fun restoreOldMonolithicDatabaseFromFileInputStreamWithUI(
+        activity: ActivityBase,
+        inputStream: InputStream
+    ): Boolean {
         val result2 = Dialogs.showMsg2(activity, R.string.restore_confirmation, true)
-        if(result2 != Dialogs.Result.OK) return
+        if(result2 != Dialogs.Result.OK) return false
+        var result: Boolean
         ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
         val hourglass = Hourglass(activity)
         hourglass.show()
         withContext(Dispatchers.IO) {
-            if (restoreDatabaseFromInputStream(inputStream)) {
+            if (restoreOldMonolithicDatabaseFromInputStream(inputStream)) {
                 DatabaseContainer.instance
                 Log.i(TAG, "Restored database successfully")
                 ABEventBus.post(MainBibleActivity.MainBibleAfterRestore(true))
+                result = true
             } else {
                 Dialogs.showMsg(R.string.restore_unsuccessfull)
+                result = false
             }
         }
         hourglass.dismiss()
+        return result
     }
 
     suspend fun restoreModulesViaIntent(activity: ActivityBase) {

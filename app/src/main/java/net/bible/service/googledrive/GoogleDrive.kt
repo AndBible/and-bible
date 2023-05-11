@@ -127,7 +127,7 @@ object GoogleDrive {
             .setFields("nextPageToken, files(id, name, size)")
             .execute().files.firstOrNull { it.name == backupFileName}?: return@withContext
         Log.i(TAG, "Downloading file ${file.name} (${file.id}) ${file.getSize()}")
-        BackupControl.restoreDatabaseFromInputStream(service.files().get(file.id).executeMediaAsInputStream())
+        //BackupControl.restoreOldMonolithicDatabaseFromInputStream(service.files().get(file.id).executeMediaAsInputStream())
     }
 
     suspend fun signOut() {
