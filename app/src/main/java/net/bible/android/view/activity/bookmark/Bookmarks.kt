@@ -161,7 +161,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     }
 
     private fun assignLabels(bookmarks: List<Bookmark>) = lifecycleScope.launch(Dispatchers.IO) {
-        val labels = mutableSetOf<Long>()
+        val labels = mutableSetOf<String>()
         for (b in bookmarks) {
             labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
         }

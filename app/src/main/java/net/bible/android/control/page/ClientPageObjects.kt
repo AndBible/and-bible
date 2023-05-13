@@ -160,7 +160,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
 
 class StudyPadDocument(
     val label: BookmarkEntities.Label,
-    val bookmarkId: Long?,
+    val bookmarkId: String?,
     val bookmarks: List<BookmarkEntities.Bookmark>,
     private val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
     private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>,
@@ -232,7 +232,7 @@ data class ClientBookmarkStyle(
 
 @Serializable
 data class ClientBookmarkLabel(
-    val id: Long,
+    val id: String,
     val name: String,
     val style: ClientBookmarkStyle,
     val isRealLabel: Boolean

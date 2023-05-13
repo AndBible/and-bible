@@ -380,7 +380,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     val scope get() = mainBibleActivity.lifecycleScope
 
-    internal fun assignLabels(bookmarkId: Long) = scope.launch(Dispatchers.IO) {
+    internal fun assignLabels(bookmarkId: String) = scope.launch(Dispatchers.IO) {
         val bookmark = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
         val intent = Intent(mainBibleActivity, ManageLabels::class.java)
@@ -873,8 +873,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             } else false
         }
         UriConstants.SCHEME_JOURNAL -> {
-            val id = uri.getQueryParameter("id")?.toLongOrNull()
-            val bookmarkId = uri.getQueryParameter("bookmarkId")?.toLongOrNull()
+            val id = uri.getQueryParameter("id")
+            val bookmarkId = uri.getQueryParameter("bookmarkId")
             if (id != null) {
                 linkControl.openStudyPad(id, bookmarkId)
             } else false

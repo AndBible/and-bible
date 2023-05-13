@@ -267,14 +267,14 @@ class ManageLabels : ListActivityBase() {
     @Serializable
     data class ManageLabelsData(
         val mode: Mode,
-        val selectedLabels: MutableSet<Long> = mutableSetOf(),
-        val autoAssignLabels: MutableSet<Long> = mutableSetOf(),
-        val favouriteLabels: MutableSet<Long> = mutableSetOf(),
-        val deletedLabels: MutableSet<Long> = mutableSetOf(),
-        val changedLabels: MutableSet<Long> = mutableSetOf(),
+        val selectedLabels: MutableSet<String> = mutableSetOf(),
+        val autoAssignLabels: MutableSet<String> = mutableSetOf(),
+        val favouriteLabels: MutableSet<String> = mutableSetOf(),
+        val deletedLabels: MutableSet<String> = mutableSetOf(),
+        val changedLabels: MutableSet<String> = mutableSetOf(),
 
-        var autoAssignPrimaryLabel: Long? = null,
-        var bookmarkPrimaryLabel: Long? = null,
+        var autoAssignPrimaryLabel: String? = null,
+        var bookmarkPrimaryLabel: String? = null,
 
         val isWindow: Boolean = false,
 
@@ -289,13 +289,13 @@ class ManageLabels : ListActivityBase() {
         val showActiveCategory: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN, Mode.HIDELABELS).contains(mode)
         val hideCategories: Boolean get() = setOf(Mode.STUDYPAD).contains(mode)
 
-        val contextSelectedItems: MutableSet<Long> get() =
+        val contextSelectedItems: MutableSet<String> get() =
             when (mode) {
                 Mode.WORKSPACE -> autoAssignLabels
                 else -> selectedLabels
             }
 
-        var contextPrimaryLabel: Long? get() =
+        var contextPrimaryLabel: String? get() =
             when (mode) {
                 Mode.WORKSPACE -> autoAssignPrimaryLabel
                 Mode.ASSIGN -> bookmarkPrimaryLabel

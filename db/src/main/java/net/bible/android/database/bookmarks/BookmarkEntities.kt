@@ -116,7 +116,7 @@ class BookmarkEntities {
 
         var playbackSettings: PlaybackSettings?,
 
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @PrimaryKey var id: String = UUID.randomUUID().toString(),
 
         var createdAt: Date = Date(System.currentTimeMillis()),
 
@@ -125,7 +125,7 @@ class BookmarkEntities {
         var startOffset: Int?,
         var endOffset: Int?,
 
-        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: String? = null,
 
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
@@ -146,7 +146,7 @@ class BookmarkEntities {
             wholeVerse = wholeVerse,
         )
 
-        constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?, playbackSettings: PlaybackSettings?): this(
+        constructor(id: String, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?, playbackSettings: PlaybackSettings?): this(
             kjvOrdinalStart = verseRange.toV11n(KJVA).start.ordinal,
             kjvOrdinalEnd = verseRange.toV11n(KJVA).end.ordinal,
             ordinalStart = verseRange.start.ordinal,
@@ -205,7 +205,7 @@ class BookmarkEntities {
             } else {
                 null
             }
-        @Ignore var labelIds: List<Long>? = null
+        @Ignore var labelIds: List<String>? = null
         @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
         @Ignore var text: String? = null
 
@@ -232,8 +232,8 @@ class BookmarkEntities {
     )
     @Serializable
     data class BookmarkToLabel(
-        val bookmarkId: Long,
-        val labelId: Long,
+        val bookmarkId: String,
+        val labelId: String,
 
         // Journal display variables
         @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
@@ -251,8 +251,8 @@ class BookmarkEntities {
     )
     @Serializable
     data class StudyPadTextEntry(
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
-        val labelId: Long,
+        @PrimaryKey var id: String = UUID.randomUUID().toString(),
+        val labelId: String,
         val text: String = "",
         var orderNumber: Int,
         var indentLevel: Int = 0,
@@ -263,7 +263,7 @@ class BookmarkEntities {
     @Entity
     @Serializable
     data class Label(
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @PrimaryKey var id: String = UUID.randomUUID().toString(),
         var name: String = "",
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
         @ColumnInfo(defaultValue = "0") var markerStyle: Boolean = false,

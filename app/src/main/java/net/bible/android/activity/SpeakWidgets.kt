@@ -342,7 +342,7 @@ class SpeakWidgetManager {
             if (intent?.action == ACTION_BOOKMARK) {
                 val bookmarkId = intent.data?.host ?: return
                 Log.i(TAG, "onReceive osisRef $bookmarkId")
-                val dto = bookmarkControl.bookmarksByIds(listOf(bookmarkId.toLong())).first()
+                val dto = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
                 speakControl.speakFromBookmark(dto)
             }
         }

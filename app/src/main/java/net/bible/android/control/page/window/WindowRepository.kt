@@ -394,7 +394,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         }
     }
 
-    fun updateRecentLabels(labelIds: List<Long>) {
+    fun updateRecentLabels(labelIds: List<String>) {
         Log.i(TAG, "updateRecentLabels")
         for(labelId in labelIds) {
             val existingLabel = workspaceSettings.recentLabels.find { it.labelId == labelId }

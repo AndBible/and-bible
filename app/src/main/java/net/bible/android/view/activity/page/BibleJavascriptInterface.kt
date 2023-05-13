@@ -140,17 +140,17 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun saveBookmarkNote(bookmarkId: Long, note: String?) {
+    fun saveBookmarkNote(bookmarkId: String, note: String?) {
         bookmarkControl.saveBookmarkNote(bookmarkId, if(note?.trim()?.isEmpty() == true) null else note)
     }
 
     @JavascriptInterface
-    fun removeBookmark(bookmarkId: Long) {
+    fun removeBookmark(bookmarkId: String) {
         bookmarkControl.deleteBookmarksById(listOf(bookmarkId))
     }
 
     @JavascriptInterface
-    fun assignLabels(bookmarkId: Long) {
+    fun assignLabels(bookmarkId: String) {
         bibleView.assignLabels(bookmarkId)
     }
 
@@ -232,7 +232,7 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun createNewStudyPadEntry(labelId: Long, entryType: String, afterEntryId: Long) {
+    fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) {
         val entryOrderNumber: Int = when (entryType) {
             "bookmark" -> bookmarkControl.getBookmarkToLabel(afterEntryId, labelId)!!.orderNumber
             "journal" -> bookmarkControl.getStudyPadById(afterEntryId)!!.orderNumber
@@ -243,14 +243,14 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun deleteStudyPadEntry(studyPadId: Long) = bookmarkControl.deleteStudyPadTextEntry(studyPadId)
+    fun deleteStudyPadEntry(studyPadId: String) = bookmarkControl.deleteStudyPadTextEntry(studyPadId)
 
     @JavascriptInterface
-    fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) = bookmarkControl.removeBookmarkLabel(bookmarkId, labelId)
+    fun removeBookmarkLabel(bookmarkId: String, labelId: String) = bookmarkControl.removeBookmarkLabel(bookmarkId, labelId)
 
     @JavascriptInterface
-    fun updateOrderNumber(labelId: Long, data: String) {
-        val deserialized: Map<String, List<List<Long>>> = json.decodeFromString(serializer(), data)
+    fun updateOrderNumber(labelId: String, data: String) {
+        val deserialized: Map<String, List<List<String>>> = json.decodeFromString(serializer(), data)
         val studyPadTextItems = deserialized["studyPadTextItems"]!!.map { bookmarkControl.getStudyPadById(it[0])!!.apply { orderNumber = it[1].toInt() } }
         val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(it[0], labelId)!!.apply { orderNumber = it[1].toInt() } }
         bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, studyPadTextItems)
@@ -282,7 +282,7 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun shareBookmarkVerse(bookmarkId: Long) {
+    fun shareBookmarkVerse(bookmarkId: String) {
         val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
         scope.launch(Dispatchers.Main) {
             ShareWidget.dialog(mainBibleActivity, bookmark)
@@ -314,7 +314,7 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun openStudyPad(labelId: Long, bookmarkId: Long) {
+    fun openStudyPad(labelId: String, bookmarkId: String) {
         scope.launch(Dispatchers.Main) {
             bibleView.linkControl.openStudyPad(labelId, bookmarkId)
         }
@@ -337,7 +337,7 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {
+    fun setAsPrimaryLabel(bookmarkId: String, labelId: String) {
         val label = bookmarkControl.labelById(labelId)!!
         if(label.isUnlabeledLabel) {
             return
@@ -347,7 +347,7 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun toggleBookmarkLabel(bookmarkId: Long, labelId: Long) {
+    fun toggleBookmarkLabel(bookmarkId: String, labelId: String) {
         val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
         val labels = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
         val foundLabel = labels.find { it.id == labelId }
@@ -365,7 +365,7 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun setBookmarkWholeVerse(bookmarkId: Long, value: Boolean) {
+    fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
         val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
         if(!value && bookmark.textRange == null) {
             ABEventBus.post(ToastEvent(R.string.cant_change_wholeverse))

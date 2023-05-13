@@ -314,7 +314,7 @@ class WorkspaceEntities {
     }
 
     @Serializable
-    data class RecentLabel(val labelId: Long, var lastAccess: Long)
+    data class RecentLabel(val labelId: String, var lastAccess: Long)
 
     @Serializable
     data class WorkspaceSettings(
@@ -324,9 +324,9 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var speakSettings: SpeakSettings? = null,
 
         @ColumnInfo(defaultValue = "NULL") var recentLabels: MutableList<RecentLabel> = mutableListOf(),
-        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<Long> = mutableSetOf(),
-        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<Long> = mutableSetOf(),
-        @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<String> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<String> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: String? = null,
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
