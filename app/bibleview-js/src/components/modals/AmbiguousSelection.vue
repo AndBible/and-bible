@@ -242,7 +242,7 @@ function setInitialVerse(_verseInfo: EventVerseInfo) {
 
 function multiSelectionButtonClicked() {
     if (multiSelectionMode.value) {
-        endOrdinal.value! += 1;
+        endOrdinal.value = endOrdinal.value! + 1;
     } else {
         multiSelectionMode.value = true;
         endOrdinal.value = startOrdinal.value! + 1;
