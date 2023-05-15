@@ -190,7 +190,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
         return mapOf(
-            "id" to bookmark.id.toString(),
+            "id" to wrapString(bookmark.id),
             "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal)),
             "originalOrdinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.start.ordinal, bookmark.verseRange.end.ordinal)),
             "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse || bookmark.book == null) null else bookmark.textRange?.clientList),
@@ -214,7 +214,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
             "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
             "type" to wrapString("bookmark"),
-            "primaryLabelId" to bookmark.primaryLabelId.toString(),
+            "primaryLabelId" to wrapString(bookmark.primaryLabelId),
             "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
         )
     }
