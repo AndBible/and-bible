@@ -224,7 +224,7 @@ function* ordinalRange(): Generator<number> {
 
 const selectedBookmarks = computed<Bookmark[]>(() => {
     const clickedIds = new Set(clickedBookmarks.value.map(b => b.id));
-    const result: number[] = [];
+    const result: IdType[] = [];
     for (const o of ordinalRange()) {
         result.push(
             ...Array.from(bookmarkIdsByOrdinal.get(o) || [])

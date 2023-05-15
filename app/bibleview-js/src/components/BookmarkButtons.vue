@@ -124,7 +124,7 @@ function shareVerse() {
 const {bookmarkLabels} = inject(globalBookmarksKey)!;
 
 const labels = computed<LabelAndStyle[]>(() => {
-    return sortBy(bookmark.value.labels.map((id: number) => bookmarkLabels.get(id)!), ["name"]);
+    return sortBy(bookmark.value.labels.map((id: IdType) => bookmarkLabels.get(id)!), ["name"]);
 });
 
 const primaryLabel = computed(() => {
@@ -132,7 +132,7 @@ const primaryLabel = computed(() => {
     return bookmarkLabels.get(primaryLabelId)!;
 });
 
-function openStudyPad(labelId: number) {
+function openStudyPad(labelId: IdType) {
     android.openStudyPad(labelId, bookmark.value.id);
 }
 

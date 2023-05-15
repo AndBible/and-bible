@@ -34,22 +34,22 @@ import {Bookmark, CombinedRange, Label, LabelAndStyle, OrdinalOffset, OrdinalRan
 import {ColorParam} from "@/types/common";
 import Color from "color";
 
-type LabelId = number
+type LabelId = IdType
 type LabelCountMap = Map<LabelId, number>
 
 type StyleRange = {
-    highlightedBookmarkIds: Set<number>,
+    highlightedBookmarkIds: Set<IdType>,
     ordinalAndOffsetRange: CombinedRange,
     highlightLabelCount: LabelCountMap,
     underlineLabelCount: LabelCountMap,
     hiddenLabelCount: LabelCountMap,
-    highlightLabelIds: number[],
-    underlineLabelIds: number[],
-    hiddenLabelIds: number[],
-    bookmarks: number[],
+    highlightLabelIds: IdType[],
+    underlineLabelIds: IdType[],
+    hiddenLabelIds: IdType[],
+    bookmarks: IdType[],
 }
 
-type LabelAndId = { id: number, label: LabelAndStyle }
+type LabelAndId = { id: IdType, label: LabelAndStyle }
 
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
@@ -135,15 +135,15 @@ export function verseHighlighting(
 }
 
 export function useGlobalBookmarks(config: Config) {
-    const bookmarkLabels = reactive<Map<number, LabelAndStyle>>(new Map());
-    const bookmarks = reactive<Map<number, Bookmark>>(new Map());
-    const bookmarkIdsByOrdinal: Map<number, Set<number>> = reactive(new Map());
+    const bookmarkLabels = reactive<Map<IdType, LabelAndStyle>>(new Map());
+    const bookmarks = reactive<Map<IdType, Bookmark>>(new Map());
+    const bookmarkIdsByOrdinal: Map<number, Set<IdType>> = reactive(new Map());
 
     function addBookmarkToOrdinalMap(b: Bookmark) {
         for (let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
-            let bSet: Set<number> | undefined = bookmarkIdsByOrdinal.get(o);
+            let bSet: Set<IdType> | undefined = bookmarkIdsByOrdinal.get(o);
             if (!bSet) {
-                bSet = reactive<Set<number>>(new Set());
+                bSet = reactive<Set<IdType>>(new Set());
                 bookmarkIdsByOrdinal.set(o, bSet);
             }
             bSet.add(b.id);
@@ -188,7 +188,7 @@ export function useGlobalBookmarks(config: Config) {
         window.getSelection()!.removeAllRanges();
     })
 
-    setupEventBusListener("delete_bookmarks", function deleteBookmarks(bookmarkIds: number[]) {
+    setupEventBusListener("delete_bookmarks", function deleteBookmarks(bookmarkIds: IdType[]) {
         for (const bId of bookmarkIds) {
             const bookmark = bookmarks.get(bId)!;
             removeBookmarkFromOrdinalMap(bookmark);
@@ -201,7 +201,7 @@ export function useGlobalBookmarks(config: Config) {
     });
 
     setupEventBusListener("bookmark_note_modified",
-        ({id, notes, lastUpdatedOn}: { id: number, notes: string, lastUpdatedOn: number }) => {
+        ({id, notes, lastUpdatedOn}: { id: IdType, notes: string, lastUpdatedOn: number }) => {
             const b = bookmarks.get(id);
             if (b) {
                 b.notes = notes;
@@ -239,8 +239,8 @@ export function useBookmarks(
     ordinalRange: OrdinalRange,
     {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated}: {
         bookmarks: Ref<Bookmark[]>,
-        bookmarkMap: Map<number, Bookmark>,
-        bookmarkLabels: Map<number, LabelAndStyle>,
+        bookmarkMap: Map<IdType, Bookmark>,
+        bookmarkLabels: Map<IdType, LabelAndStyle>,
         labelsUpdated: Ref<number>
     },
     bookInitials: string,
@@ -414,15 +414,15 @@ export function useBookmarks(
 
         for (let i = 0; i < splitPoints.length - 1; i++) {
             const ordinalAndOffsetRange: CombinedRange = [startPoint(splitPoints[i]), endPoint(splitPoints[i + 1])];
-            const highlightLabels: Set<number> = new Set();
-            const underlineLabels: Set<number> = new Set();
+            const highlightLabels: Set<IdType> = new Set();
+            const underlineLabels: Set<IdType> = new Set();
 
             const highlightLabelCount: LabelCountMap = new Map();
             const underlineLabelCount: LabelCountMap = new Map();
 
-            const hiddenLabels: Set<number> = new Set();
+            const hiddenLabels: Set<IdType> = new Set();
             const hiddenLabelCount: LabelCountMap = new Map();
-            const highlightedBookmarkIds: Set<number> = new Set();
+            const highlightedBookmarkIds: Set<IdType> = new Set();
 
             const filteredBookmarks = highlightBookmarks.value
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange));
