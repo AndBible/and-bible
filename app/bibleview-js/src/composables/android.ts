@@ -287,7 +287,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.setEditing(value);
     }
 
-    function createNewJournalEntry(labelId: IdType, afterEntryType: StudyPadEntryType = "none", afterEntryId: IdType = 0) {
+    function createNewJournalEntry(labelId: IdType, afterEntryType: StudyPadEntryType = "none", afterEntryId: IdType = "") {
         window.android.createNewStudyPadEntry(labelId, afterEntryType, afterEntryId);
     }
 

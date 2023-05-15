@@ -166,7 +166,7 @@ export function useGlobalBookmarks(config: Config) {
     function updateBookmarkLabels(inputData: Label[]) {
         if (!inputData.length) return
         for (const v of inputData) {
-            bookmarkLabels.set(v.id || -(count++), {...v, ...v.style})
+            bookmarkLabels.set(v.id || `new-id-(${count++})`, {...v, ...v.style})
         }
         labelsUpdated.value++;
     }
