@@ -248,7 +248,7 @@ data class ClientBookmarkLabel(
             markerStyle = label.markerStyle,
             markerStyleWholeVerse = label.markerStyleWholeVerse,
         ),
-        !label.isSpecialLabel && label.id > 0
+        !label.isSpecialLabel && !label.new
     )
 }
 

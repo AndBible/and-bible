@@ -99,12 +99,8 @@ open class BookmarkControl @Inject constructor(
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> = dao.allBookmarksWithNotes(orderBy)
 
     fun addOrUpdateBookmark(bookmark: Bookmark, labels: Set<String>?=null): Bookmark {
-        if(bookmark.id != 0L) {
-            dao.update(bookmark)
-        } else {
-            bookmark.id = dao.insert(bookmark)
-        }
-        
+        dao.upsert(bookmark)
+
         val labelIdsInDb = labels?.mapNotNull {dao.labelById(it)?.id }
 
         if(labelIdsInDb != null) {
@@ -114,7 +110,7 @@ open class BookmarkControl @Inject constructor(
 
             dao.deleteLabelsFromBookmark(bookmark.id, toBeDeleted)
 
-            val addBookmarkToLabels = toBeAdded.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it)) }
+            val addBookmarkToLabels = toBeAdded.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it)) }
             dao.insert(addBookmarkToLabels)
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
@@ -183,12 +179,10 @@ open class BookmarkControl @Inject constructor(
 
     fun insertOrUpdateLabel(label: Label): Label {
         label.name = label.name.trim()
-        if(label.id < 0) throw RuntimeException("Illegal negative label.id")
-        if(label.id > 0L) {
-            dao.update(label)
-        } else {
-            label.id = dao.insert(label)
-        }
+        if(label.new) throw RuntimeException("Label is new! Should not be")
+
+        dao.upsert(label)
+
         ABEventBus.post(LabelAddedOrUpdatedEvent(label))
         return label
     }

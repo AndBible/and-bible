@@ -271,6 +271,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") var underlineStyle: Boolean = false,
         @ColumnInfo(defaultValue = "0") var underlineStyleWholeVerse: Boolean = true,
         @ColumnInfo(defaultValue = "NULL") var type: LabelType? = null,
+        @Ignore var new: Boolean = false
     ) {
         override fun toString() = name
         val isSpeakLabel get() = name == SPEAK_LABEL_NAME

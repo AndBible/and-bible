@@ -20,6 +20,7 @@ package net.bible.android.database.bookmarks
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import net.bible.android.common.toV11n
@@ -109,6 +110,9 @@ interface BookmarkDao {
     @Update
     fun update(entity: Bookmark)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun upsert(entity: Bookmark)
+
     fun updateBookmarkDate(entity: Bookmark): Bookmark {
         entity.lastUpdatedOn = Date(System.currentTimeMillis())
         update(entity)
@@ -170,6 +174,8 @@ interface BookmarkDao {
     @Insert fun insertLabels(entity: List<Label>): List<Long>
 
     @Update fun update(entity: Label)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun upsert(entity: Label)
 
     @Delete fun delete(b: Label)
 
