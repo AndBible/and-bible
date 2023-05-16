@@ -81,12 +81,11 @@ class WindowTest {
         val pageManager = mockCurrentPageManagerProvider.get()
         var window = Window(
             WorkspaceEntities.Window(
-                workspaceId = 0,
+                workspaceId = "asdf",
                 isSynchronized = true,
                 isPinMode = false,
                 isLinksWindow = false,
                 windowLayout = WorkspaceEntities.WindowLayout(WindowState.MINIMISED.toString()),
-                id = 2
             ),
             pageManager,
             windowRepository
@@ -105,7 +104,6 @@ class WindowTest {
         val newPm = mockCurrentPageManagerProvider.get()
         // recreate window from saved state
         window = Window(entity, newPm, windowRepository)
-        assertThat(window.id, equalTo(2L))
         assertThat(window.windowState, equalTo(WindowState.MINIMISED))
         assertThat(window.isSynchronised, equalTo(true))
         assertThat(window.weight, equalTo(1.23456f))
