@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "98fd9d68594e81cc43ec8ad19311aa61",
+    "identityHash": "af8d2937723830936f69f4cf8024ba6d",
     "entities": [
       {
         "tableName": "readingplan",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`plan_code` TEXT NOT NULL, `plan_start_date` INTEGER NOT NULL, `plan_current_day` INTEGER NOT NULL DEFAULT 1, `_id` INTEGER PRIMARY KEY AUTOINCREMENT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`plan_code` TEXT NOT NULL, `plan_start_date` INTEGER NOT NULL, `plan_current_day` INTEGER NOT NULL DEFAULT 1, `_id` TEXT NOT NULL, PRIMARY KEY(`_id`))",
         "fields": [
           {
             "fieldPath": "planCode",
@@ -30,12 +30,12 @@
           {
             "fieldPath": "id",
             "columnName": "_id",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
             "_id"
           ]
@@ -55,7 +55,7 @@
       },
       {
         "tableName": "readingplan_status",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`plan_code` TEXT NOT NULL, `plan_day` INTEGER NOT NULL, `reading_status` TEXT NOT NULL, `_id` INTEGER PRIMARY KEY AUTOINCREMENT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`plan_code` TEXT NOT NULL, `plan_day` INTEGER NOT NULL, `reading_status` TEXT NOT NULL, `_id` TEXT NOT NULL, PRIMARY KEY(`_id`))",
         "fields": [
           {
             "fieldPath": "planCode",
@@ -78,12 +78,12 @@
           {
             "fieldPath": "id",
             "columnName": "_id",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
             "_id"
           ]
@@ -106,7 +106,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '98fd9d68594e81cc43ec8ad19311aa61')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'af8d2937723830936f69f4cf8024ba6d')"
     ]
   }
 }
