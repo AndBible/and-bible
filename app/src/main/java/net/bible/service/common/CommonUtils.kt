@@ -1116,8 +1116,9 @@ object CommonUtils : CommonUtilsBase() {
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
             ).map {
                 workspaceDao.insertWorkspace(it)
+                it.id
             }
-            settings.setLong("current_workspace_id", workspaceIds[0])
+            settings.setString("current_workspace_id", workspaceIds[0])
         }
     }
 

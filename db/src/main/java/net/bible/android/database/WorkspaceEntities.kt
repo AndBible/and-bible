@@ -86,7 +86,7 @@ class WorkspaceEntities {
     )
 
     data class PageManager(
-        @PrimaryKey var windowId: Long,
+        @PrimaryKey var windowId: String,
         @Embedded(prefix="bible_") val biblePage: BiblePage,
         @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage?,
         @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
@@ -341,7 +341,7 @@ class WorkspaceEntities {
         var name: String,
         var contentsText: String? = null,
 
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @PrimaryKey var id: String = UUID.randomUUID().toString(),
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_")
@@ -351,9 +351,9 @@ class WorkspaceEntities {
         val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
 
         @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null,
-        val maximizedWindowId: Long? = null,
+        val maximizedWindowId: String? = null,
 
-        @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: String? = null,
     )
 
     @Entity(
@@ -369,7 +369,7 @@ class WorkspaceEntities {
         ]
     )
     data class HistoryItem(
-        val windowId: Long,
+        val windowId: String,
         val createdAt: Date,
         val document: String,
         val key: String,
@@ -391,27 +391,27 @@ class WorkspaceEntities {
         ]
     )
     data class Window(
-        var workspaceId: Long,
+        var workspaceId: String,
         val isSynchronized: Boolean,
         val isPinMode: Boolean,
 
         val isLinksWindow: Boolean = false,
 
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @PrimaryKey var id: String = UUID.randomUUID().toString(),
         var orderNumber: Int = 0,
-        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: String? = null,
         @ColumnInfo(defaultValue = "0") val syncGroup: Int = 0,
     )
 }
 
 @Serializable
 data class SettingsBundle (
-    val workspaceId: Long,
+    val workspaceId: String,
     val workspaceName: String,
     val workspaceSettings: WorkspaceEntities.TextDisplaySettings,
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
-    val windowId: Long? = null,
+    val windowId: String? = null,
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
         if(windowId == null)

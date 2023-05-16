@@ -37,6 +37,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.min
@@ -62,8 +63,8 @@ open class WindowRepository(val scope: CoroutineScope) {
         }
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
-    var maximizedWindowId: Long? = null
-    var primaryTargetLinksWindowId: Long? = null
+    var maximizedWindowId: String? = null
+    var primaryTargetLinksWindowId: String? = null
 
     val primaryTargetLinksWindow: Window get() =
         getWindow(primaryTargetLinksWindowId)
@@ -88,7 +89,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         busyCount --
     }
 
-    var id: Long = 0
+    var id: String? = null
     var name = ""
         set(value) {
             SharedActivityState.currentWorkspaceName = value
@@ -106,14 +107,15 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     fun initialize() {
         if(initialized) return
-        if(id == 0L) {
-            id = settings.getLong("current_workspace_id", 0)
-            if (id == 0L || dao.workspace(id) == null) {
-                id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)))
-                settings.setLong("current_workspace_id", id)
-            }
+        var id = settings.getString("current_workspace_id")
+        if (id == null || dao.workspace(id) == null) {
+            val newWorkspace = WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
+            id = newWorkspace.id
+            dao.insertWorkspace(newWorkspace)
+            settings.setString("current_workspace_id", id)
         }
         loadFromDb(id)
+        this.id = id
         val firstTime = settings.getBoolean("first-time", true)
         if(firstTime) {
             activeWindow.pageManager.setFirstUseDefaultVerse()
@@ -142,7 +144,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     // When in maximized mode, keep track of last used
     // window that was synchronized
-    var lastSyncWindowId: Long? = null
+    var lastSyncWindowId: String? = null
 
     val visibleWindows: List<Window> get() {
         if (isMaximized) {
@@ -176,7 +178,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     private fun getWindows(state: WindowState)= sortedWindows.filter { it.windowState == state}
 
-    fun getWindow(windowId: Long?): Window? = if(windowId == null) null else sortedWindows.find {it.id == windowId}
+    fun getWindow(windowId: String?): Window? = if(windowId == null) null else sortedWindows.find {it.id == windowId}
 
     fun addNewWindow(sourceWindow: Window? = null): Window {
         Log.i(TAG, "addNewWindow $sourceWindow")
@@ -256,12 +258,12 @@ open class WindowRepository(val scope: CoroutineScope) {
                         isPinMode = true,
                         isSynchronized = true,
                         windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString()),
-                        workspaceId = id
+                        workspaceId = id!!
                     )
                 ).apply {
                     targetLinksWindowId = null
-                    id = 0
-                    id = dao.insertWindow(this)
+                    id = UUID.randomUUID().toString()
+                    dao.insertWindow(this)
                 }
 
         val newWindow = Window(winEntity, pageManager, this)
@@ -303,7 +305,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         dao.updateWorkspace(WorkspaceEntities.Workspace(
             name = name,
             contentsText = contentText,
-            id = id,
+            id = id!!,
             orderNumber = orderNumber,
             textDisplaySettings = textDisplaySettings,
             workspaceSettings = workspaceSettings,
@@ -327,11 +329,11 @@ open class WindowRepository(val scope: CoroutineScope) {
         dao.updatePageManagers(pageManagers)
     }
 
-    fun loadFromDb(workspaceId: Long) {
+    fun loadFromDb(workspaceId: String) {
         Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
         val entity = dao.workspace(workspaceId) ?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{
-                id = dao.insertWorkspace(this)
+                dao.insertWorkspace(this)
             }
         clear()
 
@@ -347,7 +349,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         SpeakSettings.currentSettings = workspaceSettings.speakSettings
 
         val historyManager = historyManagerProvider.get()
-        for (it in dao.windows(id)) {
+        for (it in dao.windows(id!!)) {
             val pageManager = currentPageManagerProvider.get()
             pageManager.restoreFrom(dao.pageManager(it.id), textDisplaySettings)
             val window = Window(it, pageManager, this)
@@ -364,7 +366,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         maximizedWindowId = null
         unPinnedWeight = null
         orderNumber = 0
-        id = 0
+        id = null
         lastSyncWindowId = null
         primaryTargetLinksWindowId = null
         for (it in windowList) {

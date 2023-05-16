@@ -77,7 +77,7 @@ open class WindowControl @Inject constructor() {
         }
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
-    fun windowPosition(windowId: Long) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
+    fun windowPosition(windowId: String) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
     val isSingleWindow get () = !windowRepository.isMultiWindow && windowRepository.minimisedWindows.isEmpty() && !windowRepository.isMaximized
 
     init {
@@ -287,7 +287,7 @@ open class WindowControl @Inject constructor() {
     private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine {
         val context = CurrentActivityHolder.currentActivity!!
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
-            getPrefItem(SettingsBundle(windowRepository.id, windowRepository.name,
+            getPrefItem(SettingsBundle(windowRepository.id!!, windowRepository.name,
                 window.pageManager.textDisplaySettings), it).title
         }.toTypedArray()
 

@@ -49,7 +49,7 @@ class Window (
     val windowRepository: WindowRepository,
     var isLinksWindow: Boolean = window.isLinksWindow,
 ){
-    private var targetLinksWindowId: Long? = window.targetLinksWindowId
+    private var targetLinksWindowId: String? = window.targetLinksWindowId
     var syncGroup = window.syncGroup
 
     val targetLinksWindow: Window
