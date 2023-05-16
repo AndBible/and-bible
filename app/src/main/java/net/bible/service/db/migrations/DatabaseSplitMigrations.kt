@@ -80,7 +80,12 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             execSQL("CREATE TABLE StudyPadMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO StudyPadMap SELECT id, $UUID_SQL FROM JournalTextEntry")
 
-            val labelNewNames = getColumnNames(oldDb, "Label", "new").map { if (it == "id") "m.`uuid`" else "l.`${it}`" }
+            val labelNewNames = getColumnNames(oldDb, "Label", "new").map {
+                when (it) {
+                    "id" -> "m.`uuid`"
+                    else -> "l.`${it}`"
+                }
+            }
             execSQL("INSERT INTO new.Label SELECT ${labelNewNames.joinToString(",")} FROM Label l INNER JOIN LabelMap m ON m.id = l.id")
 
             val bmNewNames = getColumnNames(oldDb, "Bookmark", "new").map {
@@ -141,8 +146,32 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
         oldDb.apply {
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
             execSQL("PRAGMA foreign_keys=OFF;")
-            copyData(this, "readingplan");
-            copyData(this, "readingplan_status");
+
+            execSQL("CREATE TABLE ReadingPlanMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("INSERT INTO ReadingPlanMap SELECT _id, $UUID_SQL FROM readingplan")
+            execSQL("CREATE TABLE ReadingPlanStatusMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("INSERT INTO ReadingPlanStatusMap SELECT _id, $UUID_SQL FROM readingplan_status")
+
+            val readingPlanNames = getColumnNames(oldDb, "readingplan", "new").map {
+                when (it) {
+                    "_id" -> "m.`uuid`"
+                    else -> "r.`${it}`"
+                }
+            }
+            execSQL("INSERT INTO new.readingplan SELECT ${readingPlanNames.joinToString(",")} FROM " +
+                "readingplan r INNER JOIN ReadingPlanMap m ON m.id = r._id")
+
+            val readingPlanStatusNames = getColumnNames(oldDb, "readingplan_status", "new").map {
+                when (it) {
+                    "_id" -> "m.`uuid`"
+                    else -> "r.`${it}`"
+                }
+            }
+            execSQL("INSERT INTO new.readingplan SELECT ${readingPlanStatusNames.joinToString(",")} FROM " +
+                "readingplan_status r INNER JOIN ReadingPlanStatusMap m ON m.id = r._id")
+
+            execSQL("DROP TABLE ReadingPlanMap");
+            execSQL("DROP TABLE ReadingPlanStatusMap");
             execSQL("PRAGMA foreign_keys=ON;")
             execSQL("DETACH DATABASE new")
         }
