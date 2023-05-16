@@ -296,9 +296,7 @@ private val MIGRATION_20_21 = object : Migration(20, 21) {
         }
     }
 }
-
-
-fun getColumnNames(db: SupportSQLiteDatabase, tableName: String, schema: String? = null): String {
+fun getColumnNames(db: SupportSQLiteDatabase, tableName: String, schema: String? = null): List<String> {
     val schemaString = schema?.let { "$it." } ?: ""
     val cursor = db.query("PRAGMA ${schemaString}table_info($tableName)")
     val columnNameIdx = cursor.getColumnIndex("name")
@@ -309,12 +307,20 @@ fun getColumnNames(db: SupportSQLiteDatabase, tableName: String, schema: String?
         columnNames.add(cursor.getString(columnNameIdx))
         cursor.moveToNext()
     }
+    return columnNames
+}
+
+fun joinColumnNames(columnNames: List<String>): String {
     return columnNames.joinToString(",", transform = { "`${it}`" })
+}
+
+fun getColumnNamesJoined(db: SupportSQLiteDatabase, tableName: String, schema: String? = null): String {
+    return joinColumnNames(getColumnNames(db, tableName, schema))
 }
 
 private val MIGRATION_21_22 = object : Migration(21, 22) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
-        val colNameStr = getColumnNames(db, "Workspace")
+        val colNameStr = getColumnNamesJoined(db, "Workspace")
         db.apply {
             execSQL("PRAGMA foreign_keys=OFF;")
             execSQL("ALTER TABLE Workspace RENAME TO Workspace_old;")
