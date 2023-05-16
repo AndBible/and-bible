@@ -101,7 +101,7 @@ class BookmarkEntities {
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
         ],
     )
-    data class Bookmark (
+    data class Bookmark(
         // Verse range in KJV ordinals. For generic lookups, we must store verse ranges in a "standard"
         // versification. We store also verserange in original versification, as it conveys the more exact
         // versification-specific information.
@@ -131,19 +131,58 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
-
+        @Ignore var new: Boolean = false,
         ): VerseRangeUser {
+
+        constructor(
+            kjvOrdinalStart: Int,
+            kjvOrdinalEnd: Int,
+            ordinalStart: Int,
+            ordinalEnd: Int,
+            v11n: Versification,
+            playbackSettings: PlaybackSettings?,
+            id: String,
+            createdAt: Date,
+            book: AbstractPassageBook?,
+            startOffset: Int?,
+            endOffset: Int?,
+            primaryLabelId: String?,
+            notes: String?,
+            lastUpdatedOn: Date,
+            wholeVerse: Boolean,
+            type: BookmarkType?,
+        ): this(
+            kjvOrdinalStart = kjvOrdinalStart,
+            kjvOrdinalEnd = kjvOrdinalEnd,
+            ordinalStart = ordinalStart,
+            ordinalEnd = ordinalEnd,
+            v11n = v11n,
+            playbackSettings = playbackSettings,
+            id = id,
+            createdAt = createdAt,
+            book = book,
+            startOffset = startOffset,
+            endOffset = endOffset,
+            primaryLabelId = primaryLabelId,
+            notes = notes,
+            lastUpdatedOn = lastUpdatedOn,
+            wholeVerse = wholeVerse,
+            type = type,
+            new = false,
+        )
+
         constructor(verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?): this(
-            verseRange.toV11n(KJVA).start.ordinal,
-            verseRange.toV11n(KJVA).end.ordinal,
-            verseRange.start.ordinal,
-            verseRange.end.ordinal,
-            verseRange.versification,
-            null,
+            kjvOrdinalStart = verseRange.toV11n(KJVA).start.ordinal,
+            kjvOrdinalEnd = verseRange.toV11n(KJVA).end.ordinal,
+            ordinalStart = verseRange.start.ordinal,
+            ordinalEnd = verseRange.end.ordinal,
+            v11n = verseRange.versification,
+            playbackSettings = null,
             book = book,
             startOffset = textRange?.start,
             endOffset = textRange?.end,
             wholeVerse = wholeVerse,
+            new = true,
         )
 
         constructor(id: String, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?, playbackSettings: PlaybackSettings?): this(
@@ -159,6 +198,7 @@ class BookmarkEntities {
             startOffset = textRange?.start,
             endOffset = textRange?.end,
             wholeVerse = wholeVerse,
+            new = true,
         )
 
         var textRange: TextRange?

@@ -110,9 +110,6 @@ interface BookmarkDao {
     @Update
     fun update(entity: Bookmark)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun upsert(entity: Bookmark)
-
     fun updateBookmarkDate(entity: Bookmark): Bookmark {
         entity.lastUpdatedOn = Date(System.currentTimeMillis())
         update(entity)
@@ -175,8 +172,6 @@ interface BookmarkDao {
 
     @Update fun update(entity: Label)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) fun upsert(entity: Label)
-
     @Delete fun delete(b: Label)
 
     @Query("""
@@ -211,7 +206,11 @@ interface BookmarkDao {
     @Delete fun delete(e: BookmarkEntities.StudyPadTextEntry)
 
     @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId AND labelId IN (:labels)")
-    fun deleteLabelsFromBookmark(bookmarkId: String, labels: List<String>): Int
+    fun _deleteLabelsFromBookmark(bookmarkId: String, labels: List<String>): Int
+    fun deleteLabelsFromBookmark(bookmarkId: String, labels: List<String>): Int {
+        if (labels.isEmpty()) return 0
+        return _deleteLabelsFromBookmark(bookmarkId, labels)
+    }
     fun deleteLabelsFromBookmark(bookmark: Bookmark, labels: List<Label>): Int = deleteLabelsFromBookmark(bookmark.id, labels.map { it.id })
 
     @Insert fun insert(entities: List<BookmarkToLabel>)

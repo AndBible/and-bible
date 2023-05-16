@@ -72,7 +72,7 @@ open class BookmarkControl @Inject constructor(
     resourceProvider: ResourceProvider,
 ) {
     // Dummy labels for all / unlabelled
-    val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
+    private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
 
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
@@ -99,7 +99,12 @@ open class BookmarkControl @Inject constructor(
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> = dao.allBookmarksWithNotes(orderBy)
 
     fun addOrUpdateBookmark(bookmark: Bookmark, labels: Set<String>?=null): Bookmark {
-        dao.upsert(bookmark)
+        if(bookmark.new) {
+            dao.insert(bookmark)
+            bookmark.new = false
+        } else {
+            dao.update(bookmark)
+        }
 
         val labelIdsInDb = labels?.mapNotNull {dao.labelById(it)?.id }
 
@@ -179,10 +184,12 @@ open class BookmarkControl @Inject constructor(
 
     fun insertOrUpdateLabel(label: Label): Label {
         label.name = label.name.trim()
-        if(label.new) throw RuntimeException("Label is new! Should not be")
-
-        dao.upsert(label)
-
+        if(label.new) {
+            dao.insert(label)
+            label.new = false
+        } else {
+            dao.update(label)
+        }
         ABEventBus.post(LabelAddedOrUpdatedEvent(label))
         return label
     }
