@@ -17,7 +17,6 @@
 
 package net.bible.service.db.migrations
 
-import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication.Companion.application
@@ -26,7 +25,10 @@ import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.WorkspaceDatabase
-import java.util.UUID
+
+const val UUID_SQL = "lower(hex( randomblob(4)) || '-' || hex( randomblob(2)) || '-' || '4' || " +
+    "substr( hex( randomblob(2)), 2) || '-' || substr('AB89', 1 + (abs(random()) % 4) , 1) " +
+    "|| substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6)))"
 
 class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
 
@@ -68,31 +70,15 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
         oldDb.apply {
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
             execSQL("PRAGMA foreign_keys=OFF;")
-
             execSQL("CREATE TABLE LabelMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            query("SELECT id FROM Label").use {
-                while (it.moveToNext()) {
-                    val labelId = it.getLong(0)
-                    insert("LabelMap", SQLiteDatabase.CONFLICT_ABORT, ContentValues().apply {
-                        put("id", labelId)
-                        put("uuid", UUID.randomUUID().toString())
-                    })
-                }
-            }
+
+            execSQL("INSERT INTO LabelMap SELECT id, $UUID_SQL FROM Label")
 
             val labelNewNames = getColumnNames(oldDb, "Label", "new").map { if (it == "id") "m.`uuid`" else "l.`${it}`" }
             execSQL("INSERT INTO new.Label SELECT ${labelNewNames.joinToString(",")} FROM Label l INNER JOIN LabelMap m ON m.id = l.id")
 
             execSQL("CREATE TABLE BookmarkMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            query("SELECT id FROM Bookmark").use {
-                while (it.moveToNext()) {
-                    val labelId = it.getLong(0)
-                    insert("BookmarkMap", SQLiteDatabase.CONFLICT_ABORT, ContentValues().apply {
-                        put("id", labelId)
-                        put("uuid", UUID.randomUUID().toString())
-                    })
-                }
-            }
+            execSQL("INSERT INTO BookmarkMap SELECT id, $UUID_SQL FROM Bookmark")
 
             val bmNewNames = getColumnNames(oldDb, "Bookmark", "new").map {
                 if (it == "id")
@@ -109,15 +95,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             )
 
             execSQL("CREATE TABLE StudyPadMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            query("SELECT id FROM JournalTextEntry").use {
-                while (it.moveToNext()) {
-                    val labelId = it.getLong(0)
-                    insert("StudyPadMap", SQLiteDatabase.CONFLICT_ABORT, ContentValues().apply {
-                        put("id", labelId)
-                        put("uuid", UUID.randomUUID().toString())
-                    })
-                }
-            }
+            execSQL("INSERT INTO StudyPadMap SELECT id, $UUID_SQL FROM JournalTextEntry")
 
             val studyPadNames = getColumnNames(oldDb, "StudyPadTextEntry", "new").map {
                 if (it == "id")
