@@ -26,6 +26,7 @@ import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.WorkspaceDatabase
 
+// from https://stackoverflow.com/questions/17277735/using-uuids-in-sqlite
 const val UUID_SQL = "lower(hex( randomblob(4)) || '-' || hex( randomblob(2)) || '-' || '4' || " +
     "substr( hex( randomblob(2)), 2) || '-' || substr('AB89', 1 + (abs(random()) % 4) , 1) " +
     "|| substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6)))"
@@ -70,23 +71,24 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
         oldDb.apply {
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
             execSQL("PRAGMA foreign_keys=OFF;")
-            execSQL("CREATE TABLE LabelMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
 
+            // Create temporary UUID mapping tables
+            execSQL("CREATE TABLE LabelMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO LabelMap SELECT id, $UUID_SQL FROM Label")
+            execSQL("CREATE TABLE BookmarkMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("INSERT INTO BookmarkMap SELECT id, $UUID_SQL FROM Bookmark")
+            execSQL("CREATE TABLE StudyPadMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("INSERT INTO StudyPadMap SELECT id, $UUID_SQL FROM JournalTextEntry")
 
             val labelNewNames = getColumnNames(oldDb, "Label", "new").map { if (it == "id") "m.`uuid`" else "l.`${it}`" }
             execSQL("INSERT INTO new.Label SELECT ${labelNewNames.joinToString(",")} FROM Label l INNER JOIN LabelMap m ON m.id = l.id")
 
-            execSQL("CREATE TABLE BookmarkMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO BookmarkMap SELECT id, $UUID_SQL FROM Bookmark")
-
             val bmNewNames = getColumnNames(oldDb, "Bookmark", "new").map {
-                if (it == "id")
-                    "bm.`uuid`"
-                else if(it == "primaryLabelId")
-                    "lm.`uuid`"
-                else
-                    "b.`${it}`"
+                when (it) {
+                    "id" -> "bm.`uuid`"
+                    "primaryLabelId" -> "lm.`uuid`"
+                    else -> "b.`${it}`"
+                }
             }
             execSQL(
                 "INSERT INTO new.Bookmark SELECT ${bmNewNames.joinToString(",")} FROM Bookmark b " +
@@ -94,26 +96,23 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
                 "INNER JOIN LabelMap lm ON b.primaryLabelId = lm.id"
             )
 
-            execSQL("CREATE TABLE StudyPadMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO StudyPadMap SELECT id, $UUID_SQL FROM JournalTextEntry")
-
             val studyPadNames = getColumnNames(oldDb, "StudyPadTextEntry", "new").map {
-                if (it == "id")
-                    "m.`uuid`"
-                else if(it == "labelId")
-                    "l.`uuid`"
-                else "j.`${it}`"
+                when (it) {
+                    "id" -> "m.`uuid`"
+                    "labelId" -> "l.`uuid`"
+                    else -> "j.`${it}`"
+                }
             }
             execSQL("INSERT INTO new.StudyPadTextEntry SELECT ${studyPadNames.joinToString(",")} FROM JournalTextEntry j " +
                 "INNER JOIN StudyPadMap m ON m.id = j.id " +
                 "INNER JOIN LabelMap l ON j.labelId = l.id")
 
             val bookmarkToLabelNames = getColumnNames(oldDb, "BookmarkToLabel", "new").map {
-                if (it == "labelId")
-                    "lm.`uuid`"
-                else if(it == "bookmarkId")
-                    "bm.`uuid`"
-                else "bl.`${it}`"
+                when (it) {
+                    "labelId" -> "lm.`uuid`"
+                    "bookmarkId" -> "bm.`uuid`"
+                    else -> "bl.`${it}`"
+                }
             }
 
             execSQL("INSERT INTO new.BookmarkToLabel SELECT ${bookmarkToLabelNames.joinToString(",")} FROM BookmarkToLabel bl " +
