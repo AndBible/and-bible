@@ -329,9 +329,9 @@ open class WindowRepository(val scope: CoroutineScope) {
         dao.updatePageManagers(pageManagers)
     }
 
-    fun loadFromDb(workspaceId: String) {
+    fun loadFromDb(workspaceId: String?) {
         Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
-        val entity = dao.workspace(workspaceId) ?: dao.firstWorkspace()
+        val entity = (if(workspaceId != null) dao.workspace(workspaceId) else null)?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{
                 dao.insertWorkspace(this)
             }

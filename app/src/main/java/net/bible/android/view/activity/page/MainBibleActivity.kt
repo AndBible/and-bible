@@ -695,7 +695,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         set(value) {
             documentViewManager.removeView()
             bibleViewFactory.clear()
-            windowRepository.loadFromDb(value!!)
+            windowRepository.loadFromDb(value)
 
             preferences.setString("current_workspace_id", windowRepository.id)
             documentViewManager.buildView(forceUpdate = true)
