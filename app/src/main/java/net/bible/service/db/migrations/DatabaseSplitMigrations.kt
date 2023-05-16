@@ -201,13 +201,64 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
             execSQL("PRAGMA foreign_keys=OFF;")
 
-            val newCols = getColumnNamesJoined(oldDb, "Workspace", "new")
-            val oldCols = newCols.replace("workspace_settings_", "window_behavior_settings_")
-            execSQL("INSERT INTO new.Workspace ($newCols) SELECT $oldCols FROM Workspace")
+            execSQL("CREATE TABLE WorkspaceMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("INSERT INTO WorkspaceMap SELECT id, $UUID_SQL FROM Workspace")
+            execSQL("CREATE TABLE WindowMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("INSERT INTO WindowMap SELECT id, $UUID_SQL FROM Window")
 
-            copyData(this, "Window")
-            copyData(this, "HistoryItem")
-            copyData(this, "PageManager")
+            val workspaceNames = getColumnNames(oldDb, "Workspace", "new").map {
+                when {
+                    it == "id" -> "m.`uuid`"
+                    it == "primaryTargetLinksWindowId" -> "win.`uuid`"
+                    it.startsWith("workspace_settings_") -> "ws.`${it.replace("workspace_settings_", "window_behavior_settings_")}`"
+                    else -> "ws.`${it}`"
+                }
+            }
+            execSQL(
+                "INSERT INTO new.Workspace SELECT ${workspaceNames.joinToString(",")} FROM Workspace ws " +
+                "INNER JOIN WorkspaceMap m ON ws.id = m.id " +
+                "OUTER LEFT JOIN WindowMap win ON ws.primaryTargetLinksWindowId = win.id"
+            )
+
+            val windowNames = getColumnNames(oldDb, "Window", "new").map {
+                when (it) {
+                    "id" -> "m.`uuid`"
+                    "workspaceId" -> "ws.`uuid`"
+                    "targetLinksWindowId" -> "tw.`uuid`"
+                    else -> "win.`${it}`"
+                }
+            }
+            execSQL(
+                "INSERT INTO new.Window SELECT ${windowNames.joinToString(",")} FROM Window win " +
+                "INNER JOIN WindowMap m ON win.id = m.id " +
+                "OUTER LEFT JOIN WorkspaceMap ws ON win.workspaceId = ws.id " +
+                "OUTER LEFT JOIN WindowMap tw ON win.targetLinksWindowId = tw.id"
+            )
+
+            val historyItemNames = getColumnNames(oldDb, "HistoryItem", "new").map {
+                when (it) {
+                    "windowId" -> "win.`uuid`"
+                    else -> "h.`${it}`"
+                }
+            }
+            execSQL(
+                "INSERT INTO new.HistoryItem SELECT ${historyItemNames.joinToString(",")} FROM HistoryItem h " +
+                "INNER JOIN WindowMap win ON h.windowId = win.id"
+            )
+
+            val pageManagerNames = getColumnNames(oldDb, "PageManager", "new").map {
+                when (it) {
+                    "windowId" -> "m.`uuid`"
+                    else -> "p.`${it}`"
+                }
+            }
+            execSQL(
+                "INSERT INTO new.PageManager SELECT ${pageManagerNames.joinToString(",")} FROM PageManager p " +
+                "INNER JOIN WindowMap m ON p.windowId = m.id"
+            )
+
+            execSQL("DROP TABLE WorkspaceMap")
+            execSQL("DROP TABLE WindowMap")
             execSQL("PRAGMA foreign_keys=ON;")
             execSQL("DETACH DATABASE new")
         }
