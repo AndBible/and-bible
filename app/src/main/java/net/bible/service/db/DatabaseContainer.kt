@@ -19,12 +19,6 @@ package net.bible.service.db
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BOOKMARK_DATABASE_VERSION
@@ -40,13 +34,12 @@ import net.bible.android.database.TemporaryDatabase
 import net.bible.android.database.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabasePatching.createTriggersForTable
 import net.bible.service.db.migrations.DatabaseSplitMigrations
 import net.bible.service.db.migrations.oldMonolithicAppDatabaseMigrations
-import java.io.Closeable
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.zip.GZIPOutputStream
 
 const val OLD_MONOLITHIC_DATABASE_NAME = "andBibleDatabase.db"
 
@@ -61,6 +54,8 @@ val ALL_DB_FILENAMES = arrayOf(
 )
 
 class DataBaseNotReady: Exception()
+
+
 
 class DatabaseContainer {
     init {
@@ -182,138 +177,6 @@ class DatabaseContainer {
             backupZipFile.delete()
         }
     }
-    init {
-        createTriggers()
-    }
-
-    private fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idField1: String = "id", idField2: String? = null) = db.run {
-        fun where(prefix: String): String =
-            if(idField2 == null) {
-                "entityId1 = $prefix.$idField1"
-            } else {
-                "entityId1 = $prefix.$idField1 AND entityId2 = $prefix.$idField2"
-            }
-        fun insert(prefix: String): String =
-            if(idField2 == null) {
-                "$prefix.$idField1,NULL"
-            } else {
-                "$prefix.$idField1,$prefix.$idField2"
-            }
-
-        execSQL(
-            "CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName BEGIN " +
-                "DELETE FROM Edit WHERE ${where("NEW")} AND tableName = '$tableName';" +
-                "INSERT INTO Edit VALUES (NULL, '$tableName', ${insert("NEW")}, 'INSERT', STRFTIME('%s')); " +
-                "END;")
-        execSQL(
-            "CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName BEGIN " +
-                "DELETE FROM Edit WHERE ${where("OLD")} AND tableName = '$tableName';" +
-                "INSERT INTO Edit VALUES (NULL, '$tableName', ${insert("OLD")}, 'UPDATE', STRFTIME('%s')); " +
-                "END;")
-        execSQL(
-            "CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName BEGIN " +
-                "DELETE FROM Edit WHERE ${where("OLD")} AND tableName = '$tableName';" +
-                "INSERT INTO Edit VALUES (NULL, '$tableName', ${insert("OLD")}, 'DELETE', STRFTIME('%s')); " +
-                "END;")
-    }
-
-    suspend fun createPatchFiles() = withContext(Dispatchers.IO) {
-        Log.i(TAG, "Creating db patch files")
-        class TableDef(val tableName: String, val idField1: String = "id", val idField2: String? = null)
-        class Db<T: RoomDatabase>(val db: T, dbClass: Class<T>, name: String, val tableDefs: List<TableDef>): Closeable {
-            val patchDbFile = application.getDatabasePath("patch-$name").apply {
-                if(exists()) delete()
-            }
-            val patchDb = Room.databaseBuilder(application, dbClass, "patch-$name")
-                .build()
-            init {
-                // Let's drop all indices to save space, they are useless in patch file
-                patchDb.openHelper.writableDatabase.use { db -> db.run {
-                    execSQL("PRAGMA foreign_keys=OFF;")
-                    query("SELECT name FROM sqlite_master WHERE type='index' AND name NOT LIKE 'sqlite_autoindex_%'").use { cursor ->
-                        while (cursor.moveToNext()) {
-                            val indexName = cursor.getString(0)
-                            db.execSQL("DROP INDEX IF EXISTS $indexName")
-                        }
-                    }
-                } }
-            }
-            override fun close() {
-                patchDb.openHelper.writableDatabase.execSQL("VACUUM;")
-                patchDb.close()
-            }
-        }
-
-        val dbFactories = listOf(
-            {
-                Db(bookmarkDb, BookmarkDatabase::class.java, BookmarkDatabase.dbFileName, listOf(
-                TableDef("Bookmark"),
-                TableDef("Label"),
-                TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
-                TableDef("StudyPadTextEntry"),
-            ))
-            },
-            {
-                Db(workspaceDb, WorkspaceDatabase::class.java, WorkspaceDatabase.dbFileName, listOf(
-                TableDef("Workspace"),
-                TableDef("Window"),
-                TableDef("PageManager", "windowId"),
-            ))
-            },
-            {
-                Db(readingPlanDb, ReadingPlanDatabase::class.java, ReadingPlanDatabase.dbFileName, listOf(
-                TableDef("ReadingPlan"),
-                TableDef("ReadingPlanStatus"),
-            ))
-            },
-        )
-
-        fun apply(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
-            if(idField2 == null) {
-                execSQL("INSERT INTO patch.$table SELECT * FROM $table WHERE $idField1 IN " +
-                    "(SELECT entityId1 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
-            } else {
-                execSQL("INSERT INTO patch.$table SELECT * FROM $table WHERE ($idField1, $idField2) IN " +
-                    "(SELECT entityId1, entityId2 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
-            }
-            execSQL("INSERT INTO patch.Edit SELECT * FROM Edit WHERE tableName = '$table' AND editType = 'DELETE'")
-        }
-
-        fun handleDb(dbFactory: () -> Db<*>) {
-            val db = dbFactory()
-            db.use {
-                Log.i(TAG, "Creating patch file ${it.patchDbFile.name}")
-                it.db.openHelper.writableDatabase.run {
-                    execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
-                    execSQL("PRAGMA foreign_keys=OFF;")
-                    for (tableDef in it.tableDefs) {
-                        apply(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
-                    }
-                    execSQL("PRAGMA foreign_keys=ON;")
-                    execSQL("DETACH DATABASE patch")
-                    execSQL("DELETE FROM Edit")
-                }
-            }
-            val gzippedOutput = File(BackupControl.internalDbBackupDir, db.patchDbFile.name + ".gz")
-            gzippedOutput.delete()
-            gzippedOutput.outputStream().use {
-                GZIPOutputStream(it).use {
-                    db.patchDbFile.inputStream().use { input ->
-                        input.copyTo(it)
-                    }
-                }
-            }
-            db.patchDbFile.delete()
-        }
-
-        awaitAll(
-            *dbFactories.map { async(Dispatchers.IO) {handleDb(it)} }.toTypedArray()
-        )
-    }
-
-    private fun applyPatch(db: SupportSQLiteDatabase, patch: File) {
-
-    }
 
     private fun createTriggers() {
         bookmarkDb.openHelper.writableDatabase.run {
@@ -333,6 +196,9 @@ class DatabaseContainer {
         }
     }
 
+    init {
+        createTriggers()
+    }
 
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
     private val allDatabases = arrayOf(*backedUpDatabases, temporaryDb)

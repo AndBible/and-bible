@@ -112,6 +112,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.common.windowPinningVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.DatabasePatching.createPatchFiles
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
@@ -1267,7 +1268,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
                 lifecycleScope.launch { GoogleDrive.uploadUpdatedDatabases() }
             }
-            lifecycleScope.launch { DatabaseContainer.instance.createPatchFiles() }
+            lifecycleScope.launch { createPatchFiles() }
         }
         else {
             updateActions()
