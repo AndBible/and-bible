@@ -1267,6 +1267,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
                 lifecycleScope.launch { GoogleDrive.uploadUpdatedDatabases() }
             }
+            lifecycleScope.launch { DatabaseContainer.instance.createPatchFiles() }
         }
         else {
             updateActions()

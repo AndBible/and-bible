@@ -38,11 +38,12 @@ enum class EditType {
     DELETE
 }
 
-@Entity(indices = [Index(value = ["tableName", "entityId"], unique = true)])
+@Entity(indices = [Index(value = ["tableName", "entityId1", "entityId2"], unique = true)])
 class Edit(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val tableName: String,
-    val entityId: String,
+    val entityId1: String,
+    val entityId2: String?,
     val editType: EditType,
     @ColumnInfo(defaultValue = "0") val lastUpdated: Date = Date(System.currentTimeMillis()),
 )
