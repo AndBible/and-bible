@@ -322,15 +322,15 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
                 }
             }
 
-            query("SELECT windowId,text_display_settings_bookmarksHideLabels FROM new.PageManager").use { cur ->
+            query("SELECT windowId,text_display_settings_bookmarksHideLabels FROM new.PageManager WHERE text_display_settings_bookmarksHideLabels IS NOT NULL").use { cur ->
                 while (cur.moveToNext()) {
                     val id = cur.getString(0)
-                    val bookmarksHideLabelsStr = cur.getStringOrNull(1)
-                    val newBookmarksHideLabels: String? = if(bookmarksHideLabelsStr != null) {
+                    val bookmarksHideLabelsStr = cur.getString(1)
+                    val newBookmarksHideLabels: String = run {
                         val bookmarksHideLabels: List<Long> =
                             json.decodeFromString(serializer(), bookmarksHideLabelsStr)
                         json.encodeToString(serializer(), bookmarksHideLabels.mapNotNull { labelMap[it] })
-                    } else null
+                    }
                     update("new.PageManager", CONFLICT_ABORT, ContentValues().apply {
                         put("text_display_settings_bookmarksHideLabels", newBookmarksHideLabels)
                     }, "windowId = ?", arrayOf(id))
