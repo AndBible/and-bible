@@ -485,5 +485,5 @@ class BibleJavascriptInterface(
         }
     }
 
-    private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
+    private val TAG get() = "BibleView[${bibleView.windowRef.get()?.displayId}] JSInt"
 }

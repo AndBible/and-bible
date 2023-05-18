@@ -314,5 +314,5 @@ open class CurrentPageManager @Inject constructor(
                 !currentVersification.containsBook(currentBibleBook)
         }
 
-    private val TAG get() = "PageManager[${window.id}]"
+    private val TAG get() = "PageManager[${window.displayId}]"
 }

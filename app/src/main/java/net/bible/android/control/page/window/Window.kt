@@ -71,6 +71,8 @@ class Window (
     val isPrimaryLinksWindow get() = isLinksWindow && id == windowRepository.primaryTargetLinksWindowId
 
     val id = window.id
+    val displayId = id.substring(0, 4)
+
     var weight: Float
         get() =
             if(!isPinMode) {
@@ -152,7 +154,7 @@ class Window (
 
     fun destroy() = bibleView?.destroy()
 
-    override fun toString(): String = "Window[$id]"
+    override fun toString(): String = "Window[${displayId}]"
 
     var lastUpdated
         get() = bibleView?.lastUpdated ?: 0L
@@ -289,5 +291,5 @@ class Window (
         }
     }
 
-    private val TAG get() = "BibleView[${id}] WIN"
+    private val TAG get() = "BibleView[${displayId}] WIN"
 }

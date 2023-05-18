@@ -112,6 +112,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.common.windowPinningVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.DatabasePatching.applyPatchFiles
 import net.bible.service.db.DatabasePatching.createPatchFiles
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
@@ -1271,6 +1272,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             lifecycleScope.launch { createPatchFiles() }
         }
         else {
+            lifecycleScope.launch {
+                applyPatchFiles()
+                currentWorkspaceId = currentWorkspaceId
+            }
             updateActions()
         }
     }

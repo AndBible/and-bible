@@ -1177,7 +1177,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 topOffset: $topOffset,
                 bottomOffset: $bottomOffset,
             });            
-            bibleView.emit("set_title", "BibleView-${window.id}");
+            bibleView.emit("set_title", "BibleView-${window.displayId}");
             """
         )
     }
@@ -1668,7 +1668,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var onDestroy: (() -> Unit)? = null
 
-    private val TAG get() = "BibleView[${windowRef.get()?.id}]"
+    private val TAG get() = "BibleView[${windowRef.get()?.displayId}]"
 
     companion object {
         // never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so
