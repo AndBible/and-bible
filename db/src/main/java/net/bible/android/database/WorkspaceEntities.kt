@@ -136,7 +136,7 @@ class WorkspaceEntities {
     data class TextDisplaySettings(
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
         @Embedded(prefix="colors_") var colors: Colors? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "showStrongs") var strongsMode: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var strongsMode: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var expandXrefs: Boolean? = null,

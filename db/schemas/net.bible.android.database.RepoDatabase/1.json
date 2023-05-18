@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4d9ab3b23c9be0ed6bc9e1a9356dc410",
+    "identityHash": "c1bf74115c370f8176d77ec922e6a1f9",
     "entities": [
       {
         "tableName": "CustomRepository",
@@ -78,11 +78,11 @@
       },
       {
         "tableName": "SwordDocumentInfo",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`osisId` TEXT NOT NULL, `name` TEXT NOT NULL, `abbreviation` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL, `cipherKey` TEXT, PRIMARY KEY(`osisId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`initials` TEXT NOT NULL, `name` TEXT NOT NULL, `abbreviation` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL, `cipherKey` TEXT, PRIMARY KEY(`initials`))",
         "fields": [
           {
             "fieldPath": "initials",
-            "columnName": "osisId",
+            "columnName": "initials",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -120,7 +120,7 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "osisId"
+            "initials"
           ]
         },
         "indices": [],
@@ -130,7 +130,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4d9ab3b23c9be0ed6bc9e1a9356dc410')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c1bf74115c370f8176d77ec922e6a1f9')"
     ]
   }
 }

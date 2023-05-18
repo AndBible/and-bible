@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Entity
 data class SwordDocumentInfo(
-    @PrimaryKey @ColumnInfo(name = "osisId") var initials: String,
+    @PrimaryKey var initials: String,
     var name: String,
     var abbreviation: String,
     var language: String,
@@ -43,7 +43,7 @@ interface SwordDocumentInfoDao {
     @Update
     fun update(doc: SwordDocumentInfo)
 
-    @Query("""SELECT * FROM SwordDocumentInfo WHERE osisId = :initials""")
+    @Query("""SELECT * FROM SwordDocumentInfo WHERE initials = :initials""")
     fun getBook(initials: String): SwordDocumentInfo?
 
     @Query("""SELECT * from SwordDocumentInfo""")
@@ -55,7 +55,7 @@ interface SwordDocumentInfoDao {
     @Query("""SELECT * from SwordDocumentInfo""")
     fun getAll(): List<SwordDocumentInfo>
 
-    @Query("""DELETE FROM SwordDocumentInfo WHERE osisId = :initials""")
+    @Query("""DELETE FROM SwordDocumentInfo WHERE initials = :initials""")
     fun deleteByOsisId(initials: String)
 
 }
