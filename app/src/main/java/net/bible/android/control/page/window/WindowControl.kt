@@ -287,7 +287,7 @@ open class WindowControl @Inject constructor() {
     private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine {
         val context = CurrentActivityHolder.currentActivity!!
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
-            getPrefItem(SettingsBundle(windowRepository.id!!, windowRepository.name,
+            getPrefItem(SettingsBundle(windowRepository.id, windowRepository.name,
                 window.pageManager.textDisplaySettings), it).title
         }.toTypedArray()
 

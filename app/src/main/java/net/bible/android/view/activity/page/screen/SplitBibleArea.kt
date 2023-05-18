@@ -800,7 +800,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         val settingsBundle = SettingsBundle(
             windowId = window.id,
             pageManagerSettings = window.pageManager.textDisplaySettings,
-            workspaceId = windowControl.windowRepository.id!!,
+            workspaceId = windowControl.windowRepository.id,
             workspaceName = windowControl.windowRepository.name,
             workspaceSettings = windowControl.windowRepository.textDisplaySettings,
         )

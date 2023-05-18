@@ -226,7 +226,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
         dataSet = DatabaseContainer.instance.workspaceDb.workspaceDao().allWorkspaces().toMutableList()
 
-        val workspace = dataSet.find { it.id == windowControl.windowRepository.id }!!
+        val workspace = dataSet.find { it.id == windowControl.windowRepository.id }
 
         val llm = LinearLayoutManager(this)
         binding.run {

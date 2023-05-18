@@ -661,7 +661,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         get() = StrongsPreference(
             SettingsBundle(
                 pageManagerSettings = windowControl.activeWindow.pageManager.textDisplaySettings,
-                workspaceId = windowRepository.id!!,
+                workspaceId = windowRepository.id,
                 workspaceName = windowRepository.name,
                 workspaceSettings = windowRepository.textDisplaySettings,
                 windowId = windowControl.activeWindow.id
@@ -710,7 +710,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun getItemOptions(itemId: Int, order: Int = 0): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(
-            workspaceId = windowRepository.id!!,
+            workspaceId = windowRepository.id,
             workspaceName = windowRepository.name,
             workspaceSettings = windowRepository.textDisplaySettings.apply {
                 colors?.workspaceColor = windowRepository.workspaceSettings.workspaceColor
@@ -1361,7 +1361,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         documentViewManager.removeView()
         bibleViewFactory.clear()
         windowControl.windowSync.setResyncRequired()
-        currentWorkspaceId = null
+        currentWorkspaceId = ""
     }
 
     class UpdateMainBibleActivityDocuments
