@@ -19,7 +19,6 @@ package net.bible.android.database
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -69,7 +68,7 @@ interface WorkspaceDao {
 
     @Update fun updateWindows(windows: List<WorkspaceEntities.Window>)
 
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Update
     fun updatePageManagers(pageManagers: List<WorkspaceEntities.PageManager>)
 
     @Query("DELETE FROM Workspace WHERE id = :workspaceId")
