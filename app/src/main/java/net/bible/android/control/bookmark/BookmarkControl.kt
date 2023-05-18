@@ -64,7 +64,7 @@ class StudyPadOrderEvent(
 
 class StudyPadTextEntryDeleted(val studyPadId: String)
 
-const val LABEL_ALL_ID = "LABEL_ALL_ID"
+const val LABEL_ALL_ID = ""
 
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
@@ -115,7 +115,7 @@ open class BookmarkControl @Inject constructor(
 
             dao.deleteLabelsFromBookmark(bookmark.id, toBeDeleted)
 
-            val addBookmarkToLabels = toBeAdded.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it)) }
+            val addBookmarkToLabels = toBeAdded.filter {it.isNotEmpty() }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it)) }
             dao.insert(addBookmarkToLabels)
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
@@ -184,6 +184,7 @@ open class BookmarkControl @Inject constructor(
 
     fun insertOrUpdateLabel(label: Label): Label {
         label.name = label.name.trim()
+        if(label.id.isEmpty()) throw RuntimeException("Illegal empty label.id")
         if(label.new) {
             dao.insert(label)
             label.new = false
