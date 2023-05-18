@@ -33,7 +33,7 @@ import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.json
 
 // from https://stackoverflow.com/questions/17277735/using-uuids-in-sqlite
-const val UUID_SQL =
+const val GENERATE_UUID4_SQL =
     "LOWER(HEX(RANDOMBLOB(4)) || '-' || HEX(RANDOMBLOB(2)) || '-' || '4' || " +
     "SUBSTR(HEX(RANDOMBLOB(2)), 2) || '-' || SUBSTR('AB89', 1 + (ABS(RANDOM()) % 4) , 1) " +
     "|| SUBSTR(HEX(RANDOMBLOB(2)), 2) || '-' || HEX(RANDOMBLOB(6)))"
@@ -56,8 +56,8 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
 
     private fun copyData(db: SupportSQLiteDatabase, tableName: String, newTableName_: String? = null) = db.run {
         val newTableName = newTableName_?: tableName
-        val cols1 = getColumnNamesJoined(oldDb, newTableName, "new")
-        execSQL("INSERT INTO new.$newTableName ($cols1) SELECT $cols1 FROM $tableName")
+        val cols = getColumnNamesJoined(oldDb, newTableName, "new")
+        execSQL("INSERT INTO new.$newTableName ($cols) SELECT $cols FROM $tableName")
     }
 
     private fun bookmarkDb() {
@@ -82,11 +82,11 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
 
             // Create temporary UUID mapping tables
             execSQL("CREATE TABLE LabelMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO LabelMap SELECT id, $UUID_SQL FROM Label")
+            execSQL("INSERT INTO LabelMap SELECT id, $GENERATE_UUID4_SQL FROM Label")
             execSQL("CREATE TABLE BookmarkMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO BookmarkMap SELECT id, $UUID_SQL FROM Bookmark")
+            execSQL("INSERT INTO BookmarkMap SELECT id, $GENERATE_UUID4_SQL FROM Bookmark")
             execSQL("CREATE TABLE StudyPadMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO StudyPadMap SELECT id, $UUID_SQL FROM JournalTextEntry")
+            execSQL("INSERT INTO StudyPadMap SELECT id, $GENERATE_UUID4_SQL FROM JournalTextEntry")
 
             val labelNewNames = getColumnNames(oldDb, "Label", "new").map {
                 when (it) {
@@ -153,9 +153,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             execSQL("PRAGMA foreign_keys=OFF;")
 
             execSQL("CREATE TABLE ReadingPlanMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO ReadingPlanMap SELECT _id, $UUID_SQL FROM readingplan")
+            execSQL("INSERT INTO ReadingPlanMap SELECT _id, $GENERATE_UUID4_SQL FROM readingplan")
             execSQL("CREATE TABLE ReadingPlanStatusMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO ReadingPlanStatusMap SELECT _id, $UUID_SQL FROM readingplan_status")
+            execSQL("INSERT INTO ReadingPlanStatusMap SELECT _id, $GENERATE_UUID4_SQL FROM readingplan_status")
 
             val readingPlanNames = getColumnNames(oldDb, "ReadingPlan", "new").map {
                 when (it) {
@@ -211,9 +211,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             execSQL("PRAGMA foreign_keys=OFF;")
 
             execSQL("CREATE TABLE WorkspaceMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO WorkspaceMap SELECT id, $UUID_SQL FROM Workspace")
+            execSQL("INSERT INTO WorkspaceMap SELECT id, $GENERATE_UUID4_SQL FROM Workspace")
             execSQL("CREATE TABLE WindowMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
-            execSQL("INSERT INTO WindowMap SELECT id, $UUID_SQL FROM Window")
+            execSQL("INSERT INTO WindowMap SELECT id, $GENERATE_UUID4_SQL FROM Window")
 
             val workspaceNames = getColumnNames(oldDb, "Workspace", "new").map {
                 when {
