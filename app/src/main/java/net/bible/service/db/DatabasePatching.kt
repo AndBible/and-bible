@@ -32,6 +32,7 @@ import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.WorkspaceDatabase
 import java.io.Closeable
 import java.io.File
+import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
 class TableDef(val tableName: String, val idField1: String = "id", val idField2: String? = null)
@@ -91,7 +92,7 @@ object DatabasePatching {
                 "END;")
     }
 
-    private fun insertPatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
+    private fun writePatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
         if(idField2 == null) {
             execSQL("INSERT INTO patch.$table SELECT * FROM $table WHERE $idField1 IN " +
                 "(SELECT entityId1 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
@@ -102,15 +103,27 @@ object DatabasePatching {
         execSQL("INSERT INTO patch.Edit SELECT * FROM Edit WHERE tableName = '$table' AND editType = 'DELETE'")
     }
 
+    private fun readPatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
+        if(idField2 == null) {
+            execSQL("INSERT OR REPLACE INTO $table SELECT * FROM patch.$table WHERE $idField1 IN " +
+                "(SELECT entityId1 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
+            execSQL("DELETE FROM $table WHERE $idField1 IN (SELECT entityId1 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
+        } else {
+            execSQL("INSERT OR REPLACE INTO $table SELECT * FROM patch.$table WHERE ($idField1, $idField2) IN " +
+                "(SELECT entityId1, entityId2 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
+            execSQL("DELETE FROM $table WHERE ($idField1, $idField2) IN (SELECT entityId1, entityId2 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
+        }
+    }
+
     private fun createPatchForDatabase(dbFactory: () -> DatabaseDef<*>) {
         val db = dbFactory()
         db.use {
-            Log.i(TAG, "Creating patch file ${it.patchDbFile.name}")
+            Log.i(TAG, "Writing patch file ${it.patchDbFile.name}")
             it.db.openHelper.writableDatabase.run {
                 execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                 execSQL("PRAGMA foreign_keys=OFF;")
                 for (tableDef in it.tableDefs) {
-                    insertPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
+                    writePatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                 }
                 execSQL("PRAGMA foreign_keys=ON;")
                 execSQL("DETACH DATABASE patch")
@@ -128,40 +141,68 @@ object DatabasePatching {
         }
         db.patchDbFile.delete()
     }
+    private fun applyPatchForDatabase(dbFactory: () -> DatabaseDef<*>) {
+        val db = dbFactory()
+        val gzippedInput = File(BackupControl.internalDbBackupDir, db.patchDbFile.name + ".gz")
+        gzippedInput.inputStream().use {
+            GZIPInputStream(it).use {
+                db.patchDbFile.outputStream().use { output ->
+                    it.copyTo(output)
+                }
+            }
+        }
+
+        db.use {
+            Log.i(TAG, "Reading patch file ${it.patchDbFile.name}")
+            it.db.openHelper.writableDatabase.run {
+                execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
+                execSQL("PRAGMA foreign_keys=OFF;")
+                for (tableDef in it.tableDefs) {
+                    readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
+                }
+                execSQL("PRAGMA foreign_keys=ON;")
+                execSQL("DETACH DATABASE patch")
+                execSQL("DELETE FROM Edit")
+            }
+
+        }
+    }
+
+    private val dbFactories = listOf(
+        {
+            DatabaseDef(DatabaseContainer.instance.bookmarkDb, BookmarkDatabase::class.java, BookmarkDatabase.dbFileName, listOf(
+                TableDef("Bookmark"),
+                TableDef("Label"),
+                TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
+                TableDef("StudyPadTextEntry"),
+            ))
+        },
+        {
+            DatabaseDef(DatabaseContainer.instance.workspaceDb, WorkspaceDatabase::class.java, WorkspaceDatabase.dbFileName, listOf(
+                TableDef("Workspace"),
+                TableDef("Window"),
+                TableDef("PageManager", "windowId"),
+            ))
+        },
+        {
+            DatabaseDef(DatabaseContainer.instance.readingPlanDb, ReadingPlanDatabase::class.java, ReadingPlanDatabase.dbFileName, listOf(
+                TableDef("ReadingPlan"),
+                TableDef("ReadingPlanStatus"),
+            ))
+        },
+    )
 
     suspend fun createPatchFiles() = withContext(Dispatchers.IO) {
         Log.i(TAG, "Creating db patch files")
-
-        val dbFactories = listOf(
-            {
-                DatabaseDef(DatabaseContainer.instance.bookmarkDb, BookmarkDatabase::class.java, BookmarkDatabase.dbFileName, listOf(
-                    TableDef("Bookmark"),
-                    TableDef("Label"),
-                    TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
-                    TableDef("StudyPadTextEntry"),
-                ))
-            },
-            {
-                DatabaseDef(DatabaseContainer.instance.workspaceDb, WorkspaceDatabase::class.java, WorkspaceDatabase.dbFileName, listOf(
-                    TableDef("Workspace"),
-                    TableDef("Window"),
-                    TableDef("PageManager", "windowId"),
-                ))
-            },
-            {
-                DatabaseDef(DatabaseContainer.instance.readingPlanDb, ReadingPlanDatabase::class.java, ReadingPlanDatabase.dbFileName, listOf(
-                    TableDef("ReadingPlan"),
-                    TableDef("ReadingPlanStatus"),
-                ))
-            },
-        )
-
         awaitAll(
             *dbFactories.map { async(Dispatchers.IO) {createPatchForDatabase(it)} }.toTypedArray()
         )
     }
 
-    private fun applyPatch() {
-
+    suspend fun applyPatchFiles() = withContext(Dispatchers.IO) {
+        Log.i(TAG, "Applying db patch files")
+        awaitAll(
+            *dbFactories.map { async(Dispatchers.IO) {applyPatchForDatabase(it)} }.toTypedArray()
+        )
     }
 }
