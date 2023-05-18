@@ -17,15 +17,35 @@
 
 package net.bible.android.database
 
+import androidx.room.ColumnInfo
 import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
+import java.util.Date
 
 const val BOOKMARK_DATABASE_VERSION = 1
+
+enum class EditType {
+    INSERT,
+    UPDATE,
+    DELETE
+}
+
+@Entity(indices = [Index(value = ["tableName", "entityId"], unique = true)])
+class Edit(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val tableName: String,
+    val entityId: String,
+    val editType: EditType,
+    @ColumnInfo(defaultValue = "0") val lastUpdated: Date = Date(System.currentTimeMillis()),
+)
 
 @Database(
     entities = [
@@ -33,6 +53,7 @@ const val BOOKMARK_DATABASE_VERSION = 1
         BookmarkEntities.Label::class,
         BookmarkEntities.StudyPadTextEntry::class,
         BookmarkEntities.BookmarkToLabel::class,
+        Edit::class,
     ],
     version = BOOKMARK_DATABASE_VERSION
 )
@@ -50,6 +71,7 @@ const val READING_PLAN_DATABASE_VERSION = 1
     entities = [
         ReadingPlanEntities.ReadingPlan::class,
         ReadingPlanEntities.ReadingPlanStatus::class,
+        Edit::class,
     ],
     version = READING_PLAN_DATABASE_VERSION
 )
@@ -69,6 +91,7 @@ const val WORKSPACE_DATABASE_VERSION = 1
         WorkspaceEntities.Window::class,
         WorkspaceEntities.HistoryItem::class,
         WorkspaceEntities.PageManager::class,
+        Edit::class,
     ],
     version = WORKSPACE_DATABASE_VERSION
 )

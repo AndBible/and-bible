@@ -19,6 +19,7 @@ package net.bible.service.db
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
+import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BOOKMARK_DATABASE_VERSION
@@ -36,7 +37,6 @@ import net.bible.android.database.WorkspaceDatabase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.migrations.DatabaseSplitMigrations
 import net.bible.service.db.migrations.oldMonolithicAppDatabaseMigrations
-import net.bible.service.history.HistoryManager.Companion.MAX_HISTORY
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -173,6 +173,50 @@ class DatabaseContainer {
             val backupFile = File(backupPath, "dbBackup-$versionString-$timeStamp.abdb")
             backupZipFile.copyTo(backupFile, true)
             backupZipFile.delete()
+        }
+    }
+    init {
+        createTriggers()
+    }
+
+    private fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idFields: List<String> = listOf("id")) = db.run {
+        fun getFieldName(prefix: String, fields: List<String>): String =
+            if(fields.size == 1) {
+                "$prefix.${fields.first()}"
+            } else {
+                fields.joinToString("|| \",\" ||") { "$prefix.$it" }
+        }
+        execSQL(
+            "CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName BEGIN " +
+                "DELETE FROM Edit WHERE entityId = ${getFieldName("NEW", idFields)} AND tableName = \"$tableName\";" +
+                "INSERT INTO Edit VALUES (NULL, \"$tableName\", ${getFieldName("NEW", idFields)}, \"INSERT\", STRFTIME('%s')); " +
+                "END;")
+        execSQL(
+            "CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName BEGIN " +
+                "DELETE FROM Edit WHERE entityId = ${getFieldName("OLD", idFields)} AND tableName = \"$tableName\";" +
+                "INSERT INTO Edit VALUES (NULL, \"$tableName\", ${getFieldName("OLD", idFields)}, \"UPDATE\", STRFTIME('%s')); " +
+                "END;")
+        execSQL(
+            "CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName BEGIN " +
+                "DELETE FROM Edit WHERE entityId = ${getFieldName("OLD", idFields)} AND tableName = \"$tableName\";" +
+                "INSERT INTO Edit VALUES (NULL, \"$tableName\", ${getFieldName("OLD", idFields)}, \"DELETE\", STRFTIME('%s')); " +
+                "END;")
+    }
+    private fun createTriggers() {
+        bookmarkDb.openHelper.writableDatabase.run {
+            createTriggersForTable(this, "Bookmark")
+            createTriggersForTable(this, "Label")
+            createTriggersForTable(this, "StudyPadTextEntry")
+            createTriggersForTable(this, "BookmarkToLabel", listOf("bookmarkId", "labelId"))
+        }
+        workspaceDb.openHelper.writableDatabase.run {
+            createTriggersForTable(this, "Window")
+            createTriggersForTable(this, "Workspace")
+            createTriggersForTable(this, "PageManager", listOf("windowId"))
+        }
+        readingPlanDb.openHelper.writableDatabase.run {
+            createTriggersForTable(this, "ReadingPlan")
+            createTriggersForTable(this, "ReadingPlanStatus")
         }
     }
 

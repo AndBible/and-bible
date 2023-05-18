@@ -367,7 +367,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
         if(initialLabels.isEmpty() || openNotes) {
             executeJavascriptOnUiThread(
-                "bibleView.emit('bookmark_clicked', ${bookmark.id}, {openLabels: true, openNotes: $openNotes});"
+                "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
             )
         }
     }
@@ -1332,7 +1332,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: BookmarkNoteModifiedEvent) {
         executeJavascriptOnUiThread("""
-            bibleView.emit("bookmark_note_modified", {id: ${event.bookmarkId}, lastUpdatedOn: ${event.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), event.notes)}});
+            bibleView.emit("bookmark_note_modified", {id: "${event.bookmarkId}", lastUpdatedOn: ${event.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), event.notes)}});
         """)
     }
 
@@ -1359,7 +1359,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: StudyPadTextEntryDeleted) {
         if(firstDocument !is StudyPadDocument) return
         executeJavascriptOnUiThread("""
-            bibleView.emit("delete_study_pad", ${event.studyPadId});
+            bibleView.emit("delete_study_pad", "${event.studyPadId}");
         """)
     }
 
