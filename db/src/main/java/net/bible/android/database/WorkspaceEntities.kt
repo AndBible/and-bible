@@ -150,10 +150,10 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var topMargin: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "font_fontSize") var fontSize: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "font_fontFamily") var fontFamily: String? = null,
+        @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
+        @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<String>? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -222,7 +222,7 @@ class WorkspaceEntities {
                 Types.FONTFAMILY -> fontFamily = value as String?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
-                Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<Long>?
+                Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<String>?
             }
         }
 
