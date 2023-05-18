@@ -33,9 +33,10 @@ import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.json
 
 // from https://stackoverflow.com/questions/17277735/using-uuids-in-sqlite
-const val UUID_SQL = "lower(hex( randomblob(4)) || '-' || hex( randomblob(2)) || '-' || '4' || " +
-    "substr( hex( randomblob(2)), 2) || '-' || substr('AB89', 1 + (abs(random()) % 4) , 1) " +
-    "|| substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6)))"
+const val UUID_SQL =
+    "LOWER(HEX(RANDOMBLOB(4)) || '-' || HEX(RANDOMBLOB(2)) || '-' || '4' || " +
+    "SUBSTR(HEX(RANDOMBLOB(2)), 2) || '-' || SUBSTR('AB89', 1 + (ABS(RANDOM()) % 4) , 1) " +
+    "|| SUBSTR(HEX(RANDOMBLOB(2)), 2) || '-' || HEX(RANDOMBLOB(6)))"
 
 class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
 
