@@ -80,7 +80,6 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.lang.Exception
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
@@ -191,19 +190,12 @@ object BackupControl {
                         Log.i(TAG, "Loading from backup database with version $version")
                         DatabaseContainer.reset()
                         // When restoring old style db, we need to remove all databases first
-                        // TODO: take backup of all databases first and restore it if something goes wrong
                         application.databaseList().forEach { name ->
                             application.deleteDatabase(name)
                         }
                         ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
                         if(DatabaseContainer.ready) {
-                            try {
-                                DatabaseContainer.instance // initialize (migrate etc)
-                            } catch (e: Exception) {
-                                Log.e(TAG, "Error initializing database", e)
-                                // Reset to new database! TODO: would be better to restore old db
-                                ok = false
-                            }
+                            DatabaseContainer.instance // initialize (migrate etc)
                         }
                     }
                 }
