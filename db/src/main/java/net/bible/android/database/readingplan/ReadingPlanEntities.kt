@@ -29,22 +29,19 @@ class ReadingPlanEntities {
     /** Stores information for plan, like start date and current day user is on.
      * Plans that exist are determined by text files. Row will only exist here for plan
      * that has already been started */
-    @Entity(tableName = "readingplan",
-        indices = [Index(name = "index_readingplan_plan_code",value=["plan_code"], unique = true)])
+    @Entity(indices = [Index("planCode", unique = true)])
     data class ReadingPlan(
-        @ColumnInfo(name = "plan_code") val planCode: String,
-        @ColumnInfo(name = "plan_start_date") var planStartDate: Date,
-        @ColumnInfo(name = "plan_current_day", defaultValue = "1") var planCurrentDay: Int = 1,
-        @PrimaryKey @ColumnInfo(name="_id") val id: String = UUID.randomUUID().toString()
+        val planCode: String,
+        var planStartDate: Date,
+        @ColumnInfo(defaultValue = "1") var planCurrentDay: Int = 1,
+        @PrimaryKey val id: String = UUID.randomUUID().toString()
     )
 
-    @Entity(tableName = "readingplan_status",
-        indices = [Index(name="code_day", value = ["plan_code", "plan_day"], unique = true)]
-    )
+    @Entity(indices = [Index(value = ["planCode", "planDay"], unique = true)])
     data class ReadingPlanStatus(
-        @ColumnInfo(name = "plan_code") val planCode: String,
-        @ColumnInfo(name = "plan_day") val planDay: Int,
-        @ColumnInfo(name = "reading_status") val readingStatus: String,
-        @PrimaryKey @ColumnInfo(name="_id") val id: String = UUID.randomUUID().toString()
+        val planCode: String,
+        val planDay: Int,
+        val readingStatus: String,
+        @PrimaryKey val id: String = UUID.randomUUID().toString()
     )
 }

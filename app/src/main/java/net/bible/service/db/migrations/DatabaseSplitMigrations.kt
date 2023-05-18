@@ -139,12 +139,12 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
     private fun readingPlanDb() {
         val dbFileName = application.getDatabasePath(ReadingPlanDatabase.dbFileName).absolutePath
         SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { db -> db.run {
-            execSQL("CREATE TABLE IF NOT EXISTS `readingplan` (`plan_code` TEXT NOT NULL, `plan_start_date` INTEGER NOT NULL, `plan_current_day` INTEGER NOT NULL DEFAULT 1, `_id` TEXT NOT NULL, PRIMARY KEY(`_id`))");
-            execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_readingplan_plan_code` ON `readingplan` (`plan_code`)");
-            execSQL("CREATE TABLE IF NOT EXISTS `readingplan_status` (`plan_code` TEXT NOT NULL, `plan_day` INTEGER NOT NULL, `reading_status` TEXT NOT NULL, `_id` TEXT NOT NULL, PRIMARY KEY(`_id`))");
-            execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `code_day` ON `readingplan_status` (`plan_code`, `plan_day`)");
+            execSQL("CREATE TABLE IF NOT EXISTS `ReadingPlan` (`planCode` TEXT NOT NULL, `planStartDate` INTEGER NOT NULL, `planCurrentDay` INTEGER NOT NULL DEFAULT 1, `id` TEXT NOT NULL, PRIMARY KEY(`id`))");
+            execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ReadingPlan_planCode` ON `ReadingPlan` (`planCode`)");
+            execSQL("CREATE TABLE IF NOT EXISTS `ReadingPlanStatus` (`planCode` TEXT NOT NULL, `planDay` INTEGER NOT NULL, `readingStatus` TEXT NOT NULL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))");
+            execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ReadingPlanStatus_planCode_planDay` ON `ReadingPlanStatus` (`planCode`, `planDay`)");
             execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-            execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'af8d2937723830936f69f4cf8024ba6d')");
+            execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd96eae728733aab22e7c983dcba96e3b')");
             setPragmas(this)
         }}
         oldDb.apply {
@@ -156,22 +156,28 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             execSQL("CREATE TABLE ReadingPlanStatusMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO ReadingPlanStatusMap SELECT _id, $UUID_SQL FROM readingplan_status")
 
-            val readingPlanNames = getColumnNames(oldDb, "readingplan", "new").map {
+            val readingPlanNames = getColumnNames(oldDb, "ReadingPlan", "new").map {
                 when (it) {
-                    "_id" -> "m.`uuid`"
-                    else -> "r.`${it}`"
+                    "id" -> "m.`uuid`"
+                    "planCode" -> "r.plan_code"
+                    "planStartDate" -> "r.plan_start_date"
+                    "planCurrentDay" -> "r.plan_current_day"
+                    else -> throw IllegalArgumentException("Unknown column name: $it")
                 }
             }
-            execSQL("INSERT INTO new.readingplan SELECT ${readingPlanNames.joinToString(",")} FROM " +
+            execSQL("INSERT INTO new.ReadingPlan SELECT ${readingPlanNames.joinToString(",")} FROM " +
                 "readingplan r INNER JOIN ReadingPlanMap m ON m.id = r._id")
 
-            val readingPlanStatusNames = getColumnNames(oldDb, "readingplan_status", "new").map {
+            val readingPlanStatusNames = getColumnNames(oldDb, "ReadingPlanStatus", "new").map {
                 when (it) {
-                    "_id" -> "m.`uuid`"
-                    else -> "r.`${it}`"
+                    "id" -> "m.`uuid`"
+                    "planCode" -> "r.plan_code"
+                    "planDay" -> "r.plan_day"
+                    "readingStatus" -> "r.reading_status"
+                    else -> throw IllegalArgumentException("Unknown column name: $it")
                 }
             }
-            execSQL("INSERT INTO new.readingplan SELECT ${readingPlanStatusNames.joinToString(",")} FROM " +
+            execSQL("INSERT INTO new.ReadingPlanStatus SELECT ${readingPlanStatusNames.joinToString(",")} FROM " +
                 "readingplan_status r INNER JOIN ReadingPlanStatusMap m ON m.id = r._id")
 
             execSQL("PRAGMA foreign_keys=ON;")
