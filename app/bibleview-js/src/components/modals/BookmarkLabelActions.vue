@@ -67,7 +67,7 @@ import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {androidKey, globalBookmarksKey} from "@/types/constants";
 
-const props = defineProps<{ bookmarkId: number }>();
+const props = defineProps<{ bookmarkId: IdType }>();
 
 const showModal = ref(false);
 const {bookmarkMap} = inject(globalBookmarksKey)!;

@@ -1030,12 +1030,11 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     private fun prepareExampleBookmarksAndWorkspaces() {
-        var bid: Long
         val bookmarkDao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-        var highlightIds = listOf<Long>()
         val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
 
         val migratedNotesName = application.getString(R.string.migrated_my_notes)
+        var highlightLabels = emptyList<BookmarkEntities.Label>()
 
         if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") && it.name != migratedNotesName }) {
             val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false)
@@ -1043,7 +1042,7 @@ object CommonUtils : CommonUtilsBase() {
             val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false)
             val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true)
 
-            val highlightLabels = listOf(
+            highlightLabels = listOf(
                 redLabel,
                 greenLabel,
                 underlineLabel,
@@ -1051,8 +1050,7 @@ object CommonUtils : CommonUtilsBase() {
             )
 
             val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255,  100, 0, 150))
-            highlightIds = bookmarkDao.insertLabels(highlightLabels)
-            highlightLabels.zip(highlightIds) { label, id -> label.id = id }
+            bookmarkDao.insertLabels(highlightLabels)
 
             fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.Bookmark {
                 val v1 = verseRange.toVerseArray()[start.toInt()]
@@ -1066,25 +1064,27 @@ object CommonUtils : CommonUtilsBase() {
             }
 
             if(!hasExistingBookmarks) {
-                val salvationId = bookmarkDao.insert(salvationLabel)
-                salvationLabel.id = salvationId
+                bookmarkDao.insert(salvationLabel)
 
                 // first bookmark, full verses, with underline
-                bid = bookmarkDao.insert(BookmarkEntities.Bookmark(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id } )
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, underlineLabel.id))
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationLabel.id))
+                var b = BookmarkEntities.Bookmark(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id }
+                bookmarkDao.insert(b)
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, underlineLabel.id))
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, salvationLabel.id))
 
                 // second bookmark, red
-                bid = bookmarkDao.insert(getBookmark(defaultVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id } )
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, redLabel.id))
+                b = getBookmark(defaultVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id }
+                bookmarkDao.insert(b)
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, redLabel.id))
 
                 // third bookmark, green
-                bid = bookmarkDao.insert(getBookmark(defaultVerse, 1.2, 1.4).apply {
+                b = getBookmark(defaultVerse, 1.2, 1.4).apply {
                     primaryLabelId = greenLabel.id
                     notes = lorem
-                } )
+                }
+                bookmarkDao.insert(b)
 
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, greenLabel.id))
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, greenLabel.id))
 
                 val salvationVerses = listOf("Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
                     .mapNotNull { try {VerseRangeFactory.fromString(KJVA, it)} catch (e: NoSuchVerseException) {
@@ -1096,8 +1096,8 @@ object CommonUtils : CommonUtilsBase() {
                     .map {
                         BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
                     }.forEach {
-                        bid = bookmarkDao.insert(it)
-                        bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
+                        bookmarkDao.insert(it)
+                        bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(it.id, salvationLabel.id))
                     }
             }
         }
@@ -1105,19 +1105,20 @@ object CommonUtils : CommonUtilsBase() {
         val ws = workspaceDao.allWorkspaces()
         if(ws.isNotEmpty()) {
             for (it in ws) {
-                it.workspaceSettings?.favouriteLabels?.addAll(highlightIds)
+                it.workspaceSettings?.favouriteLabels?.addAll(highlightLabels.map {it.id})
             }
             workspaceDao.updateWorkspaces(ws)
             settings.setBoolean("first-time", false)
         } else {
-            val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightIds.toMutableSet())
+            val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightLabels.map {it.id}.toMutableSet())
             val workspaceIds = listOf(
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
             ).map {
                 workspaceDao.insertWorkspace(it)
+                it.id
             }
-            settings.setLong("current_workspace_id", workspaceIds[0])
+            settings.setString("current_workspace_id", workspaceIds[0])
         }
     }
 

@@ -665,15 +665,14 @@ object BackupControl {
         val hourglass = Hourglass(activity)
         hourglass.show()
         withContext(Dispatchers.IO) {
-            if (restoreOldMonolithicDatabaseFromInputStream(inputStream)) {
-                DatabaseContainer.instance
+            result = if (restoreOldMonolithicDatabaseFromInputStream(inputStream)) {
                 Log.i(TAG, "Restored database successfully")
                 ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
                 Dialogs.showMsg(R.string.restore_success)
-                result = true
+                true
             } else {
                 Dialogs.showMsg(R.string.restore_unsuccessfull)
-                result = false
+                false
             }
         }
         hourglass.dismiss()

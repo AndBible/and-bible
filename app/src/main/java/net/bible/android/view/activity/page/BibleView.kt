@@ -380,7 +380,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     val scope get() = mainBibleActivity.lifecycleScope
 
-    internal fun assignLabels(bookmarkId: Long) = scope.launch(Dispatchers.IO) {
+    internal fun assignLabels(bookmarkId: String) = scope.launch(Dispatchers.IO) {
         val bookmark = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
         val intent = Intent(mainBibleActivity, ManageLabels::class.java)
@@ -735,7 +735,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_REFERENCE = "osis"
         const val MULTI_REFERENCE = "multi"
         const val SCHEME_MYNOTES = "my-notes"
-        const val SCHEME_JOURNAL = "journal"
+        const val SCHEME_STUDYPAD = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
 
@@ -872,9 +872,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 linkControl.openMulti(osisRefs.map { BibleLink("osis", it, v11n) })
             } else false
         }
-        UriConstants.SCHEME_JOURNAL -> {
-            val id = uri.getQueryParameter("id")?.toLongOrNull()
-            val bookmarkId = uri.getQueryParameter("bookmarkId")?.toLongOrNull()
+        UriConstants.SCHEME_STUDYPAD -> {
+            val id = uri.getQueryParameter("id")
+            val bookmarkId = uri.getQueryParameter("bookmarkId")
             if (id != null) {
                 linkControl.openStudyPad(id, bookmarkId)
             } else false

@@ -697,7 +697,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             bibleViewFactory.clear()
             windowRepository.loadFromDb(value)
 
-            preferences.setLong("current_workspace_id", windowRepository.id)
+            preferences.setString("current_workspace_id", windowRepository.id)
             documentViewManager.buildView(forceUpdate = true)
             windowControl.windowSync.reloadAllWindows()
             windowRepository.updateAllWindowsTextDisplaySettings()
@@ -1361,7 +1361,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         documentViewManager.removeView()
         bibleViewFactory.clear()
         windowControl.windowSync.setResyncRequired()
-        currentWorkspaceId = 0
+        currentWorkspaceId = ""
     }
 
     class UpdateMainBibleActivityDocuments
@@ -1381,11 +1381,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (extras != null) {
             when (requestCode) {
                 WORKSPACE_CHANGED -> {
-                    val workspaceId = extras.getLong("workspaceId")
+                    val workspaceId = extras.getString("workspaceId")
                     val changed = extras.getBoolean("changed")
 
                     if (resultCode == Activity.RESULT_OK) {
-                        if (workspaceId != 0L && workspaceId != currentWorkspaceId) {
+                        if (workspaceId != null && workspaceId != currentWorkspaceId) {
                             currentWorkspaceId = workspaceId
                         } else if (changed) {
                             currentWorkspaceId = currentWorkspaceId
@@ -1396,19 +1396,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 COLORS_CHANGED -> {
                     val edited = extras.getBoolean("edited")
                     val reset = extras.getBoolean("reset")
-                    val windowId = extras.getLong("windowId")
+                    val windowId = extras.getString("windowId")
                     val colorsStr = extras.getString("colors")
 
                     if (!edited && !reset) return
 
                     val colors = if (reset)
-                        if (windowId != 0L) {
+                        if (windowId != null) {
                             null
                         } else TextDisplaySettings.default.colors
                     else
                         WorkspaceEntities.Colors.fromJson(colorsStr!!)
 
-                    if (windowId != 0L) {
+                    if (windowId != null) {
                         val window = windowRepository.getWindow(windowId)!!
                         window.pageManager.textDisplaySettings.colors = colors
                         window.bibleView?.updateTextDisplaySettings()

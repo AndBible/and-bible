@@ -49,20 +49,20 @@ export type OrdinalOffset = [start: number, end: Nullable<number>]
 export type CombinedRange = [start: OrdinalOffset, end: OrdinalOffset]
 
 export type BookmarkToLabel = {
-    readonly bookmarkId: number
-    readonly labelId: number
+    readonly bookmarkId: IdType
+    readonly labelId: IdType
     readonly orderNumber: number
     readonly indentLevel: number
     readonly expandContent: boolean
 }
 
 export type Bookmark = {
-    readonly id: number
+    readonly id: IdType
     readonly type: "bookmark"
     readonly ordinalRange: OrdinalRange
     readonly originalOrdinalRange: OrdinalRange
     readonly offsetRange: OffsetRange
-    readonly labels: number[]
+    readonly labels: IdType[]
     readonly bookInitials: string
     readonly bookName: string
     readonly bookAbbreviation: string
@@ -76,7 +76,7 @@ export type Bookmark = {
     readonly fullText: string
     readonly bookmarkToLabels: BookmarkToLabel[]
     readonly osisFragment: OsisFragment | null
-    readonly primaryLabelId: number
+    readonly primaryLabelId: IdType
     lastUpdatedOn: number
     notes: Nullable<string>
     hasNote: boolean
@@ -84,9 +84,9 @@ export type Bookmark = {
 }
 
 export type StudyPadTextItem = {
-    readonly id: number
+    readonly id: IdType
     readonly type: "journal"
-    readonly labelId: number
+    readonly labelId: IdType
     text: string
     orderNumber: number
     indentLevel: number
@@ -115,7 +115,7 @@ export type BookmarkStyle = Readonly<{
 }>
 
 export type Label = Readonly<{
-    id: number
+    id: IdType
     name: string
     style: BookmarkStyle
     isRealLabel: boolean

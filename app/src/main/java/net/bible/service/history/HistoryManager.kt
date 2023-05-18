@@ -48,18 +48,18 @@ import javax.inject.Inject
 @ApplicationScope
 class HistoryManager @Inject constructor(private val windowControl: WindowControl) {
 
-    private val windowHistoryStackMap = HashMap<Long, Stack<HistoryItem>>()
+    private val windowHistoryStackMap = HashMap<String, Stack<HistoryItem>>()
 
     private var isGoingBack = false
 
     // reverse so most recent items are at top rather than end
-    fun getHistory(windowId: Long): List<HistoryItem> {
+    fun getHistory(windowId: String): List<HistoryItem> {
         val allHistory = ArrayList(getHistoryStack(windowId))
         allHistory.reverse()
         return allHistory
     }
 
-    private fun getHistoryStack(windowNo: Long): Stack<HistoryItem> {
+    private fun getHistoryStack(windowNo: String): Stack<HistoryItem> {
         var historyStack = windowHistoryStackMap[windowNo]
         if (historyStack == null) {
             synchronized(windowHistoryStackMap) {
@@ -73,7 +73,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
         return historyStack!!
     }
 
-    fun getEntities(windowId: Long): List<WorkspaceEntities.HistoryItem> {
+    fun getEntities(windowId: String): List<WorkspaceEntities.HistoryItem> {
         var lastItem: KeyHistoryItem? = null
         return windowHistoryStackMap[windowId]?.mapNotNull {
             if (it is KeyHistoryItem) {

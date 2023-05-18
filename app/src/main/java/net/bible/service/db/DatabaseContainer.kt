@@ -199,9 +199,13 @@ class DatabaseContainer {
         val instance: DatabaseContainer get() {
             if(!ready && !application.isRunningTests) throw DataBaseNotReady()
             return _instance ?: synchronized(this) {
-                _instance ?: DatabaseContainer().also {
-                    _instance = it
+                _instance ?: try { DatabaseContainer() } catch (e: Exception) {
+                    Log.e(TAG, "Can't open database", e)
+                    throw e
                 }
+                    .also {
+                        _instance = it
+                    }
             }
         }
 

@@ -101,7 +101,7 @@ class BookmarkEntities {
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
         ],
     )
-    data class Bookmark (
+    data class Bookmark(
         // Verse range in KJV ordinals. For generic lookups, we must store verse ranges in a "standard"
         // versification. We store also verserange in original versification, as it conveys the more exact
         // versification-specific information.
@@ -116,7 +116,7 @@ class BookmarkEntities {
 
         var playbackSettings: PlaybackSettings?,
 
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @PrimaryKey var id: String = UUID.randomUUID().toString(),
 
         var createdAt: Date = Date(System.currentTimeMillis()),
 
@@ -125,28 +125,67 @@ class BookmarkEntities {
         var startOffset: Int?,
         var endOffset: Int?,
 
-        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: String? = null,
 
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
-
+        @Ignore var new: Boolean = false,
         ): VerseRangeUser {
+
+        constructor(
+            kjvOrdinalStart: Int,
+            kjvOrdinalEnd: Int,
+            ordinalStart: Int,
+            ordinalEnd: Int,
+            v11n: Versification,
+            playbackSettings: PlaybackSettings?,
+            id: String,
+            createdAt: Date,
+            book: AbstractPassageBook?,
+            startOffset: Int?,
+            endOffset: Int?,
+            primaryLabelId: String?,
+            notes: String?,
+            lastUpdatedOn: Date,
+            wholeVerse: Boolean,
+            type: BookmarkType?,
+        ): this(
+            kjvOrdinalStart = kjvOrdinalStart,
+            kjvOrdinalEnd = kjvOrdinalEnd,
+            ordinalStart = ordinalStart,
+            ordinalEnd = ordinalEnd,
+            v11n = v11n,
+            playbackSettings = playbackSettings,
+            id = id,
+            createdAt = createdAt,
+            book = book,
+            startOffset = startOffset,
+            endOffset = endOffset,
+            primaryLabelId = primaryLabelId,
+            notes = notes,
+            lastUpdatedOn = lastUpdatedOn,
+            wholeVerse = wholeVerse,
+            type = type,
+            new = false,
+        )
+
         constructor(verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?): this(
-            verseRange.toV11n(KJVA).start.ordinal,
-            verseRange.toV11n(KJVA).end.ordinal,
-            verseRange.start.ordinal,
-            verseRange.end.ordinal,
-            verseRange.versification,
-            null,
+            kjvOrdinalStart = verseRange.toV11n(KJVA).start.ordinal,
+            kjvOrdinalEnd = verseRange.toV11n(KJVA).end.ordinal,
+            ordinalStart = verseRange.start.ordinal,
+            ordinalEnd = verseRange.end.ordinal,
+            v11n = verseRange.versification,
+            playbackSettings = null,
             book = book,
             startOffset = textRange?.start,
             endOffset = textRange?.end,
             wholeVerse = wholeVerse,
+            new = true,
         )
 
-        constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?, playbackSettings: PlaybackSettings?): this(
+        constructor(id: String, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?, playbackSettings: PlaybackSettings?): this(
             kjvOrdinalStart = verseRange.toV11n(KJVA).start.ordinal,
             kjvOrdinalEnd = verseRange.toV11n(KJVA).end.ordinal,
             ordinalStart = verseRange.start.ordinal,
@@ -159,6 +198,7 @@ class BookmarkEntities {
             startOffset = textRange?.start,
             endOffset = textRange?.end,
             wholeVerse = wholeVerse,
+            new = true,
         )
 
         var textRange: TextRange?
@@ -205,7 +245,7 @@ class BookmarkEntities {
             } else {
                 null
             }
-        @Ignore var labelIds: List<Long>? = null
+        @Ignore var labelIds: List<String>? = null
         @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
         @Ignore var text: String? = null
 
@@ -232,8 +272,8 @@ class BookmarkEntities {
     )
     @Serializable
     data class BookmarkToLabel(
-        val bookmarkId: Long,
-        val labelId: Long,
+        val bookmarkId: String,
+        val labelId: String,
 
         // Journal display variables
         @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
@@ -251,8 +291,8 @@ class BookmarkEntities {
     )
     @Serializable
     data class StudyPadTextEntry(
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
-        val labelId: Long,
+        @PrimaryKey var id: String = UUID.randomUUID().toString(),
+        val labelId: String,
         val text: String = "",
         var orderNumber: Int,
         var indentLevel: Int = 0,
@@ -263,7 +303,7 @@ class BookmarkEntities {
     @Entity
     @Serializable
     data class Label(
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @PrimaryKey var id: String = UUID.randomUUID().toString(),
         var name: String = "",
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
         @ColumnInfo(defaultValue = "0") var markerStyle: Boolean = false,
@@ -271,6 +311,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") var underlineStyle: Boolean = false,
         @ColumnInfo(defaultValue = "0") var underlineStyleWholeVerse: Boolean = true,
         @ColumnInfo(defaultValue = "NULL") var type: LabelType? = null,
+        @Ignore var new: Boolean = false
     ) {
         override fun toString() = name
         val isSpeakLabel get() = name == SPEAK_LABEL_NAME

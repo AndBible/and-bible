@@ -224,7 +224,7 @@ function* ordinalRange(): Generator<number> {
 
 const selectedBookmarks = computed<Bookmark[]>(() => {
     const clickedIds = new Set(clickedBookmarks.value.map(b => b.id));
-    const result: number[] = [];
+    const result: IdType[] = [];
     for (const o of ordinalRange()) {
         result.push(
             ...Array.from(bookmarkIdsByOrdinal.get(o) || [])
@@ -242,7 +242,7 @@ function setInitialVerse(_verseInfo: EventVerseInfo) {
 
 function multiSelectionButtonClicked() {
     if (multiSelectionMode.value) {
-        endOrdinal.value! += 1;
+        endOrdinal.value = endOrdinal.value! + 1;
     } else {
         multiSelectionMode.value = true;
         endOrdinal.value = startOrdinal.value! + 1;

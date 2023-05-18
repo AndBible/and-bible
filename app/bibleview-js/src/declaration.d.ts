@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+
+type IdType = string
+
 type BcvObject = {
     osis: () => string
 }

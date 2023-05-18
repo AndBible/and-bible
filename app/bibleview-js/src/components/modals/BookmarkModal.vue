@@ -104,13 +104,13 @@ import BookmarkText from "@/components/BookmarkText.vue";
 import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {clickWaiter} from "@/utils";
 import {sortBy} from "lodash";
-import {androidKey, exportModeKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
+import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
 import {Bookmark} from "@/types/client-objects";
 
 const showBookmark = ref(false);
 const android = inject(androidKey)!;
 const infoShown = ref(false);
-const bookmarkId = ref<number | null>(null);
+const bookmarkId = ref<IdType | null>(null);
 const labelList = ref<InstanceType<typeof LabelList> | null>(null);
 const locateTop = ref(false);
 provide(locateTopKey, locateTop);
@@ -132,7 +132,7 @@ let originalNotes: string | null = null;
 
 setupEventBusListener("bookmark_clicked",
     async (
-        bookmarkId_: number,
+        bookmarkId_: IdType,
         {
             locateTop: _locateTop = false,
             openLabels = false,

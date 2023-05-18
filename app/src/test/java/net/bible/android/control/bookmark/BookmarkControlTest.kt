@@ -66,9 +66,7 @@ class BookmarkControlTest {
         }
         val labels = bookmarkControl!!.allLabels
         for (dto in labels) {
-            if(dto.id > 0) {
-                bookmarkControl!!.deleteLabel(dto)
-            }
+            bookmarkControl!!.deleteLabel(dto)
         }
         bookmarkControl = null
         resetDatabase()
@@ -79,7 +77,6 @@ class BookmarkControlTest {
         try {
             val newDto = addTestVerse()
             Assert.assertEquals("New Bookmark key incorrect.  Test:" + currentTestVerse + " was:" + newDto!!.verseRange.name, newDto.verseRange.name, currentTestVerse)
-            Assert.assertTrue("New Bookmark id incorrect", newDto.id!! > -1)
         } catch (e: Exception) {
             e.printStackTrace()
             Assert.fail("Exception:" + e.message)
@@ -117,7 +114,6 @@ class BookmarkControlTest {
         try {
             val newDto = addTestLabel()
             Assert.assertEquals("New Label name incorrect.  Test:" + currentTestLabel + " was:" + newDto.name, newDto.name, currentTestLabel)
-            Assert.assertTrue("New Label id incorrect", newDto.id!! > -1)
         } catch (e: Exception) {
             e.printStackTrace()
             Assert.fail("Exception:" + e.message)
@@ -207,7 +203,7 @@ class BookmarkControlTest {
 
     private fun addTestLabel(): Label {
         currentTestLabel = nextTestLabel
-        val label = Label()
+        val label = Label(new = true)
         label.name = currentTestLabel!!
         return bookmarkControl!!.insertOrUpdateLabel(label)
     }

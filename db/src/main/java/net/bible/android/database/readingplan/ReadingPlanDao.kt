@@ -31,13 +31,13 @@ import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanSta
 interface ReadingPlanDao {
 
     //region ReadingPlanStatus
-    @Query("SELECT * FROM readingplan_status WHERE plan_code = :planCode AND plan_day = :planDay")
+    @Query("SELECT * FROM ReadingPlanStatus WHERE planCode = :planCode AND planDay = :planDay")
     suspend fun getStatus(planCode: String, planDay: Int): ReadingPlanStatus?
 
-    @Query("DELETE FROM readingplan_status WHERE plan_code = :planCode AND plan_day < :planDay")
+    @Query("DELETE FROM ReadingPlanStatus WHERE planCode = :planCode AND planDay < :planDay")
     suspend fun deleteStatusesBeforeDay(planCode: String, planDay: Int)
 
-    @Query("DELETE FROM readingplan_status WHERE plan_code = :planCode")
+    @Query("DELETE FROM ReadingPlanStatus WHERE planCode = :planCode")
     suspend fun deleteStatusesForPlan(planCode: String)
 
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
@@ -45,13 +45,13 @@ interface ReadingPlanDao {
     //endregion
 
     //region ReadingPlan
-    @Query("SELECT * FROM readingplan WHERE plan_code = :planCode")
+    @Query("SELECT * FROM ReadingPlan WHERE PlanCode = :planCode")
     suspend fun getPlan(planCode: String): ReadingPlan?
 
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun updatePlan(plan: ReadingPlan)
 
-    @Query("DELETE FROM readingplan WHERE plan_code = :planCode")
+    @Query("DELETE FROM ReadingPlan WHERE PlanCode = :planCode")
     suspend fun deletePlanInfo(planCode: String)
 
     //endregion

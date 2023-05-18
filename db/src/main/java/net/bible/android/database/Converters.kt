@@ -150,6 +150,18 @@ class Converters {
     }
 
     @TypeConverter
+    fun strToList3(s: String?): List<String>? {
+        if(s == null) return null
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun listToStr3(obj: List<String>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
     fun strToList2(s: String?): MutableList<WorkspaceEntities.RecentLabel> {
         if(s == null) return mutableListOf()
         return json.decodeFromString(serializer(), s)

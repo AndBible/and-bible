@@ -547,7 +547,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         val verseRange = VerseRange(verse.versification, verse)
         var dto = Bookmark(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
-        var label = Label()
+        var label = Label(new = true)
         label.name = "Another"
         label = bookmarkControl.insertOrUpdateLabel(label)
         bookmarkControl.setLabelsForBookmark(dto, listOf(label))
@@ -751,7 +751,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         val verseRange = VerseRange(verse.versification, verse)
         var dto = Bookmark(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
-        var label = Label()
+        var label = Label(new = true)
         label.name = "Another"
         label = bookmarkControl.insertOrUpdateLabel(label)
         bookmarkControl.setLabelsForBookmark(dto, listOf(label))

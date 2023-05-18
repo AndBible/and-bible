@@ -46,7 +46,7 @@ import {Bookmark, LabelAndStyle} from "@/types/client-objects";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
 
 const props = withDefaults(defineProps<{
-    bookmarkId: number
+    bookmarkId: IdType
     handleTouch: boolean
     disableLinks: boolean
     favourites: boolean
@@ -86,7 +86,7 @@ function labelStyle(label: LabelAndStyle) {
 const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
 const bookmark = computed<Bookmark>(() => bookmarkMap.get(props.bookmarkId)!);
 
-function isAssigned(labelId: number) {
+function isAssigned(labelId: IdType) {
     return bookmark.value.labels.includes(labelId);
 }
 
@@ -96,7 +96,7 @@ function isPrimary(label: LabelAndStyle) {
 
 const labels = computed<LabelAndStyle[]>(() => {
     if (!bookmark.value) return [];
-    const shown: Set<number> = new Set();
+    const shown: Set<IdType> = new Set();
     const earlier = new Set();
     if (props.inBookmark) {
         addAll(shown, ...bookmark.value.labels);
@@ -120,7 +120,7 @@ const labels = computed<LabelAndStyle[]>(() => {
     // TODO: add frequent
     return sortBy(
         Array.from(shown).map(
-            (labelId: number) => bookmarkLabels.get(labelId)!).filter(v => v),
+            (labelId: IdType) => bookmarkLabels.get(labelId)!).filter(v => v),
         ["name"]
     );
 });

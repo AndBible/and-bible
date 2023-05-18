@@ -86,7 +86,7 @@ class WorkspaceEntities {
     )
 
     data class PageManager(
-        @PrimaryKey var windowId: Long,
+        @PrimaryKey var windowId: String,
         @Embedded(prefix="bible_") val biblePage: BiblePage,
         @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage?,
         @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
@@ -136,7 +136,7 @@ class WorkspaceEntities {
     data class TextDisplaySettings(
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
         @Embedded(prefix="colors_") var colors: Colors? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "showStrongs") var strongsMode: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var strongsMode: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var expandXrefs: Boolean? = null,
@@ -150,10 +150,10 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var topMargin: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "font_fontSize") var fontSize: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "font_fontFamily") var fontFamily: String? = null,
+        @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
+        @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<String>? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -222,7 +222,7 @@ class WorkspaceEntities {
                 Types.FONTFAMILY -> fontFamily = value as String?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
-                Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<Long>?
+                Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<String>?
             }
         }
 
@@ -314,7 +314,7 @@ class WorkspaceEntities {
     }
 
     @Serializable
-    data class RecentLabel(val labelId: Long, var lastAccess: Long)
+    data class RecentLabel(val labelId: String, var lastAccess: Long)
 
     @Serializable
     data class WorkspaceSettings(
@@ -324,9 +324,9 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var speakSettings: SpeakSettings? = null,
 
         @ColumnInfo(defaultValue = "NULL") var recentLabels: MutableList<RecentLabel> = mutableListOf(),
-        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<Long> = mutableSetOf(),
-        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<Long> = mutableSetOf(),
-        @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<String> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<String> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: String? = null,
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
@@ -341,7 +341,7 @@ class WorkspaceEntities {
         var name: String,
         var contentsText: String? = null,
 
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @PrimaryKey var id: String = UUID.randomUUID().toString(),
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_")
@@ -351,9 +351,9 @@ class WorkspaceEntities {
         val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
 
         @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null,
-        val maximizedWindowId: Long? = null,
+        val maximizedWindowId: String? = null,
 
-        @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: String? = null,
     )
 
     @Entity(
@@ -369,7 +369,7 @@ class WorkspaceEntities {
         ]
     )
     data class HistoryItem(
-        val windowId: Long,
+        val windowId: String,
         val createdAt: Date,
         val document: String,
         val key: String,
@@ -391,27 +391,27 @@ class WorkspaceEntities {
         ]
     )
     data class Window(
-        var workspaceId: Long,
+        var workspaceId: String,
         val isSynchronized: Boolean,
         val isPinMode: Boolean,
 
         val isLinksWindow: Boolean = false,
 
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @PrimaryKey var id: String = UUID.randomUUID().toString(),
         var orderNumber: Int = 0,
-        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: String? = null,
         @ColumnInfo(defaultValue = "0") val syncGroup: Int = 0,
     )
 }
 
 @Serializable
 data class SettingsBundle (
-    val workspaceId: Long,
+    val workspaceId: String,
     val workspaceName: String,
     val workspaceSettings: WorkspaceEntities.TextDisplaySettings,
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
-    val windowId: Long? = null,
+    val windowId: String? = null,
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
         if(windowId == null)

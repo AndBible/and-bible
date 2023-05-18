@@ -185,7 +185,7 @@ class CurrentGeneralBookPage internal constructor(
         when (entity?.document) {
             FakeBookFactory.journalDocument.initials -> {
                 val (_, id) = entity!!.key?.split(":") ?: return
-                val label = pageManager.bookmarkControl.labelById(id.toLong())
+                val label = pageManager.bookmarkControl.labelById(id)
                 if (label != null) {
                     doSetKey(StudyPadKey(label))
                     localSetCurrentDocument(FakeBookFactory.journalDocument)

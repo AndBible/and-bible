@@ -50,7 +50,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {globalBookmarksKey, locateTopKey} from "@/types/constants";
 
 const $emit = defineEmits(["selected"]);
-const props = defineProps<{ bookmarkId: number }>();
+const props = defineProps<{ bookmarkId: IdType }>();
 
 const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
 useCommon();

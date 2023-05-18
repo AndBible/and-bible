@@ -28,6 +28,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.service.common.CommonUtils
 import java.lang.ref.WeakReference
+import java.util.UUID
 
 import javax.inject.Inject
 
@@ -59,7 +60,7 @@ class BibleViewFactory(val mainBibleActivity: MainBibleActivity) {
         }
     }
 
-    private val windowBibleViewMap: MutableMap<Long, BibleView> = HashMap()
+    private val windowBibleViewMap: MutableMap<String, BibleView> = HashMap()
     init {
         Log.i(TAG, "New BibleViewFactory ${this.hashCode()}")// ${Log.getStackTraceString(Exception())}")
     }
@@ -79,7 +80,6 @@ class BibleViewFactory(val mainBibleActivity: MainBibleActivity) {
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
             Log.i(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")//  ${Log.getStackTraceString(Exception())}")
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
-            bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()
             bibleView.onDestroy = {
                 windowBibleViewMap.remove(window.id)
