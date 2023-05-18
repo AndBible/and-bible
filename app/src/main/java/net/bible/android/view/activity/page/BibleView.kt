@@ -735,7 +735,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_REFERENCE = "osis"
         const val MULTI_REFERENCE = "multi"
         const val SCHEME_MYNOTES = "my-notes"
-        const val SCHEME_JOURNAL = "journal"
+        const val SCHEME_STUDYPAD = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
 
@@ -872,7 +872,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 linkControl.openMulti(osisRefs.map { BibleLink("osis", it, v11n) })
             } else false
         }
-        UriConstants.SCHEME_JOURNAL -> {
+        UriConstants.SCHEME_STUDYPAD -> {
             val id = uri.getQueryParameter("id")
             val bookmarkId = uri.getQueryParameter("bookmarkId")
             if (id != null) {
