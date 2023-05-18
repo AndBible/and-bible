@@ -46,6 +46,7 @@ import java.io.Closeable
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.zip.GZIPOutputStream
 
 const val OLD_MONOLITHIC_DATABASE_NAME = "andBibleDatabase.db"
 
@@ -278,8 +279,9 @@ class DatabaseContainer {
             execSQL("INSERT INTO patch.Edit SELECT * FROM Edit WHERE tableName = '$table' AND editType = 'DELETE'")
         }
 
-        fun handleDb(db: () -> Db<*>) {
-            db().use {
+        fun handleDb(dbFactory: () -> Db<*>) {
+            val db = dbFactory()
+            db.use {
                 Log.i(TAG, "Creating patch file ${it.patchDbFile.name}")
                 it.db.openHelper.writableDatabase.run {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
@@ -292,6 +294,16 @@ class DatabaseContainer {
                     execSQL("DELETE FROM Edit")
                 }
             }
+            val gzippedOutput = File(BackupControl.internalDbBackupDir, db.patchDbFile.name + ".gz")
+            gzippedOutput.delete()
+            gzippedOutput.outputStream().use {
+                GZIPOutputStream(it).use {
+                    db.patchDbFile.inputStream().use { input ->
+                        input.copyTo(it)
+                    }
+                }
+            }
+            db.patchDbFile.delete()
         }
 
         awaitAll(
