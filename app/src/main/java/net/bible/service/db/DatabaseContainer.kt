@@ -81,32 +81,34 @@ class DatabaseContainer {
             oldDbFile.delete()
         }
     }
+    fun getBookmarkDb(filename: String = BookmarkDatabase.dbFileName) = Room.databaseBuilder(
+        application, BookmarkDatabase::class.java, filename
+    )
+        .allowMainThreadQueries()
+        .addMigrations()
+        .build()
 
+    val bookmarkDb: BookmarkDatabase = getBookmarkDb()
 
-    val bookmarkDb: BookmarkDatabase =
+    fun getReadingPlanDb(filename: String = ReadingPlanDatabase.dbFileName) =
         Room.databaseBuilder(
-            application, BookmarkDatabase::class.java, BookmarkDatabase.dbFileName
+            application, ReadingPlanDatabase::class.java, filename
         )
             .allowMainThreadQueries()
             .addMigrations()
             .build()
 
+    val readingPlanDb: ReadingPlanDatabase = getReadingPlanDb()
 
-    val readingPlanDb: ReadingPlanDatabase =
+    fun getWorkspaceDb(filename: String = WorkspaceDatabase.dbFileName) =
         Room.databaseBuilder(
-            application, ReadingPlanDatabase::class.java, ReadingPlanDatabase.dbFileName
+            application, WorkspaceDatabase::class.java, filename
         )
             .allowMainThreadQueries()
             .addMigrations()
             .build()
 
-    val workspaceDb: WorkspaceDatabase =
-        Room.databaseBuilder(
-            application, WorkspaceDatabase::class.java, WorkspaceDatabase.dbFileName
-        )
-            .allowMainThreadQueries()
-            .addMigrations()
-            .build()
+    val workspaceDb: WorkspaceDatabase = getWorkspaceDb()
 
     val temporaryDb: TemporaryDatabase =
         Room.databaseBuilder(
@@ -197,6 +199,7 @@ class DatabaseContainer {
     }
 
     init {
+        // TODO: only if needed, and if not needed, we could remove triggers and clear tables
         createTriggers()
     }
 

@@ -18,7 +18,6 @@
 package net.bible.service.db
 
 import android.util.Log
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +39,7 @@ class TableDef(val tableName: String, val idField1: String = "id", val idField2:
 
 class DatabaseDef<T: RoomDatabase>(
     val db: T,
-    dbClass: Class<T>,
+    dbFactory: (filename: String) -> T,
     name: String,
     val tableDefs: List<TableDef>,
     private val readOnly: Boolean,
@@ -49,7 +48,7 @@ class DatabaseDef<T: RoomDatabase>(
     val patchDbFile: File = BibleApplication.application.getDatabasePath(patchFileName).apply {
         if(!readOnly && exists()) delete()
     }
-    private val patchDb = Room.databaseBuilder(BibleApplication.application, dbClass, patchFileName).build()
+    private val patchDb = dbFactory.invoke(patchFileName)
     init {
         if(!readOnly) {
             // Let's drop all indices to save space, they are useless in patch file
@@ -181,9 +180,9 @@ object DatabasePatching {
         }
     }
 
-    private fun getDbFactories(readOnly: Boolean) = listOf(
+    private fun getDbFactories(readOnly: Boolean): List<() -> DatabaseDef<*>> = DatabaseContainer.instance.run { listOf(
         {
-            DatabaseDef(DatabaseContainer.instance.bookmarkDb, BookmarkDatabase::class.java, BookmarkDatabase.dbFileName, listOf(
+            DatabaseDef(bookmarkDb, {n -> getBookmarkDb(n)}, BookmarkDatabase.dbFileName, listOf(
                 TableDef("Bookmark"),
                 TableDef("Label"),
                 TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
@@ -191,19 +190,19 @@ object DatabasePatching {
             ), readOnly)
         },
         {
-            DatabaseDef(DatabaseContainer.instance.workspaceDb, WorkspaceDatabase::class.java, WorkspaceDatabase.dbFileName, listOf(
+            DatabaseDef(workspaceDb, {n -> getWorkspaceDb(n)}, WorkspaceDatabase.dbFileName, listOf(
                 TableDef("Workspace"),
                 TableDef("Window"),
                 TableDef("PageManager", "windowId"),
             ), readOnly)
         },
         {
-            DatabaseDef(DatabaseContainer.instance.readingPlanDb, ReadingPlanDatabase::class.java, ReadingPlanDatabase.dbFileName, listOf(
+            DatabaseDef(readingPlanDb, {n -> getReadingPlanDb(n)}, ReadingPlanDatabase.dbFileName, listOf(
                 TableDef("ReadingPlan"),
                 TableDef("ReadingPlanStatus"),
             ), readOnly)
         },
-    )
+    ) }
 
     suspend fun createPatchFiles() = withContext(Dispatchers.IO) {
         Log.i(TAG, "Creating db patch files")
