@@ -93,6 +93,7 @@ const val MODULE_BACKUP_NAME = "AndBibleModulesBackup.abmd"
 const val SQLITE3_MIMETYPE = "application/x-sqlite3"
 const val GZIP_MIMETYPE = "application/gzip"
 const val JSON_MIMETYPE = "application/json"
+const val TEXT_MIMETYPE = "text/plain"
 const val ZIP_MIMETYPE = "application/zip"
 
 object BackupControl {

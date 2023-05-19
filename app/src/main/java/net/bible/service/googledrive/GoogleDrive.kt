@@ -45,6 +45,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.GZIP_MIMETYPE
 import net.bible.android.control.backup.JSON_MIMETYPE
+import net.bible.android.control.backup.TEXT_MIMETYPE
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
@@ -52,6 +53,7 @@ import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.DatabaseContainer
 import java.io.Closeable
@@ -123,6 +125,7 @@ class DatabaseTimeStamps(
 }
 
 const val TIMESTAMPS_FILENAME = "timestamps.json"
+const val LOCK_FILENAME = "lock.txt"
 
 object GoogleDrive {
     private var oneTapClient: SignInClient = Identity.getSignInClient(application)
@@ -156,6 +159,12 @@ object GoogleDrive {
             .setSpaces("appDataFolder")
             .setFields("nextPageToken, files(id, name)")
             .execute().files.firstOrNull { it.name == TIMESTAMPS_FILENAME }
+
+    private val lockFileHandle get() = service.files().list()
+            .setSpaces("appDataFolder")
+            .setFields("nextPageToken, files(id, name)")
+            .execute().files.firstOrNull { it.name == LOCK_FILENAME }
+
     private suspend fun readLastModifiedFromDrive(): DatabaseTimeStamps? = withContext(Dispatchers.IO) {
         Log.i(TAG, "Reading last modified from drive")
         val fileHandle = timestampFileHandle?: return@withContext null
@@ -166,6 +175,44 @@ object GoogleDrive {
             .readBytes()
 
         return@withContext DatabaseTimeStamps.fromJson(String(json))
+    }
+
+    private val fileLock: Closeable? get() {
+        val fileHandle = lockFileHandle
+        val canLock = if(fileHandle != null) {
+            val lockingDeviceId = String(
+                service
+                    .files()
+                    .get(fileHandle.id)
+                    .executeMediaAsInputStream()
+                    .readBytes()
+            )
+            lockingDeviceId == CommonUtils.deviceIdentifier
+        } else {
+            true
+        }
+        return if(!canLock) {
+            null
+        } else {
+            if(fileHandle != null) service.files().delete(fileHandle.id).execute()
+            val content = ByteArrayContent(TEXT_MIMETYPE, CommonUtils.deviceIdentifier.toByteArray())
+
+            service.files().create(
+                DriveFile().apply {
+                    name = LOCK_FILENAME
+                    parents = listOf("appDataFolder")
+                }, content).execute()
+
+            Closeable {
+                val fileHandle2 = lockFileHandle
+                if(fileHandle2 == null) {
+                    Log.e(TAG, "Lock file not found. Should have been there!!!")
+                    return@Closeable
+                } else {
+                    service.files().delete(fileHandle2.id).execute()
+                }
+            }
+        }
     }
 
     private suspend fun writeLastModifiedToDrive() = withContext(Dispatchers.IO) {
