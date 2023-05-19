@@ -1267,16 +1267,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
             if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
-                lifecycleScope.launch { GoogleDrive.uploadUpdatedDatabases() }
+                lifecycleScope.launch { GoogleDrive.synchronize() }
             }
-            lifecycleScope.launch { createPatchFiles() }
+            //lifecycleScope.launch { createPatchFiles() }
         }
         else {
             lifecycleScope.launch {
-                applyPatchFiles()
+                if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
+                    GoogleDrive.synchronize()
+                }
                 currentWorkspaceId = currentWorkspaceId
+                updateActions()
             }
-            updateActions()
         }
     }
 

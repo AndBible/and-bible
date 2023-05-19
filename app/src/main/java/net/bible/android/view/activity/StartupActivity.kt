@@ -402,7 +402,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             CommonUtils.initializeApp()
             if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
                 GoogleDrive.signIn(this@StartupActivity)
-                GoogleDrive.downloadUpdatedDatabases()
+                GoogleDrive.synchronize()
             }
             startActivity(handlerIntent)
             finish()

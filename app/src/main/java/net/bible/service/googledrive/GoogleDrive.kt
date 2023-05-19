@@ -30,6 +30,7 @@ import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.http.ByteArrayContent
+import com.google.api.client.http.FileContent
 import com.google.api.client.http.InputStreamContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
@@ -56,6 +57,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.DatabasePatching
 import java.io.Closeable
 import java.io.File
 import java.util.Collections
@@ -212,6 +214,94 @@ object GoogleDrive {
                     service.files().delete(fileHandle2.id).execute()
                 }
             }
+        }
+    }
+
+    val patchOutFilesDir: File
+        get() {
+            val file = File(SharedConstants.internalFilesDir, "/patch-out")
+            file.mkdirs()
+            return file
+        }
+    val patchInFilesDir: File
+        get() {
+            val file = File(SharedConstants.internalFilesDir, "/patch-in")
+            file.mkdirs()
+            return file
+        }
+    suspend fun synchronize() = withContext(Dispatchers.IO) {
+        Log.i(TAG, "Synchronizing")
+        val lock = fileLock
+        if(fileLock == null) {
+            Log.i(TAG, "Lock file present, can't synchronize")
+            return@withContext
+        }
+        lock.use {
+            val lastSynchronized = CommonUtils.settings.getLong("lastSynchronized", 0)
+            cleanupPatchFolder()
+            downloadNewPatches(lastSynchronized)
+            DatabasePatching.dropTriggers(DatabaseContainer.instance)
+            DatabasePatching.applyPatchFiles()
+            val now = System.currentTimeMillis()
+            DatabasePatching.createPatchFiles()
+            uploadNewPatches(now)
+            CommonUtils.settings.setLong("lastSynchronized", now)
+            DatabasePatching.createTriggers(DatabaseContainer.instance)
+        }
+    }
+
+    private fun cleanupPatchFolder() {
+        patchInFilesDir.deleteRecursively()
+        patchInFilesDir.mkdirs()
+        patchOutFilesDir.deleteRecursively()
+        patchOutFilesDir.mkdirs()
+    }
+
+    fun timeStampFromPatchFileName(fileName: String): Long {
+        // file name is <category>.<timestamp>.sqlite3.gz
+        return fileName.split(".")[1].toLong()
+    }
+
+    private fun categoryFromPatchFileName(fileName: String): String {
+        // file name is <category>.<timestamp>.sqlite3.gz
+        return fileName.split(".")[0]
+    }
+
+    private suspend fun downloadNewPatches(lastSynchronized: Long) = withContext(Dispatchers.IO) {
+        Log.i(TAG, "Downloading new patches")
+        val newPatchFiles = service.files().list()
+            .setSpaces("appDataFolder")
+            .setFields("nextPageToken, files(id, name)")
+            .execute().files.filter {
+                if (!it.name.endsWith(".sqlite3.gz"))
+                    false
+                else {
+                    timeStampFromPatchFileName(it.name) > lastSynchronized
+                }
+            }
+        for(file in newPatchFiles) {
+            Log.i(TAG, "Downloading ${file.name}")
+            File(patchInFilesDir, file.name).outputStream().use {
+                service
+                    .files()
+                    .get(file.id)
+                    .executeAndDownloadTo(it)
+            }
+        }
+    }
+
+    private suspend fun uploadNewPatches(now: Long)  = withContext(Dispatchers.IO) {
+        Log.i(TAG, "Uploading new patches")
+        val files = patchOutFilesDir.listFiles()?: emptyArray()
+        for(file in files) {
+            val content = FileContent(GZIP_MIMETYPE, file)
+            val category = categoryFromPatchFileName(file.name)
+            val driveFile = DriveFile().apply {
+                name = "$category.${now}.sqlite3.gz"
+                parents = listOf("appDataFolder")
+            }
+            Log.i(TAG, "Uploading ${file.name} as ${driveFile.name}")
+            service.files().create(driveFile, content).execute()
         }
     }
 

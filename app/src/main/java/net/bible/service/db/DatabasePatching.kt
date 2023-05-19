@@ -30,6 +30,8 @@ import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.service.db.migrations.getColumnNamesJoined
+import net.bible.service.googledrive.GoogleDrive
+import net.bible.service.googledrive.GoogleDrive.timeStampFromPatchFileName
 import java.io.Closeable
 import java.io.File
 import java.util.zip.GZIPInputStream
@@ -48,6 +50,7 @@ class DatabaseDef<T: RoomDatabase>(
     val patchDbFile: File = BibleApplication.application.getDatabasePath(patchFileName).apply {
         if(!readOnly && exists()) delete()
     }
+    val categoryName= patchDbFile.name.split(".").first()
     private val patchDb = dbFactory.invoke(patchFileName)
     init {
         if(!readOnly) {
@@ -153,18 +156,20 @@ object DatabasePatching {
             execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE ($idField1, $idField2) IN " +
                 "(SELECT entityId1, entityId2 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
         }
-        execSQL("INSERT INTO patch.Edit SELECT * FROM Edit WHERE tableName = '$table' AND editType = 'DELETE'")
+        execSQL("INSERT INTO patch.Edit SELECT * FROM Edit WHERE tableName = '$table'")
     }
 
     private fun readPatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
         val cols = getColumnNamesJoined(db, table)
         if(idField2 == null) {
-            execSQL("INSERT OR REPLACE INTO $table ($cols) SELECT $cols FROM patch.$table WHERE $idField1 IN " +
-                "(SELECT entityId1 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
+            execSQL("INSERT OR REPLACE INTO $table ($cols) " +
+                "SELECT $cols FROM patch.$table WHERE $idField1 NOT EXISTS" +
+                "(SELECT entityId1 FROM Edit WHERE tableName = '$table' AND entityId1 = '$idField1')")
             execSQL("DELETE FROM $table WHERE $idField1 IN (SELECT entityId1 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
         } else {
-            execSQL("INSERT OR REPLACE INTO $table ($cols) SELECT $cols FROM patch.$table WHERE ($idField1, $idField2) IN " +
-                "(SELECT entityId1, entityId2 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
+            execSQL("INSERT OR REPLACE INTO $table ($cols) " +
+                "SELECT $cols FROM patch.$table WHERE NOT EXISTS" +
+                "(SELECT entityId1, entityId2 FROM Edit WHERE tableName = '$table' AND entityId1 = '$idField1' AND entityId2 = '$idField2')")
             execSQL("DELETE FROM $table WHERE ($idField1, $idField2) IN (SELECT entityId1, entityId2 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
         }
     }
@@ -172,7 +177,6 @@ object DatabasePatching {
     private fun createPatchForDatabase(dbFactory: () -> DatabaseDef<*>) {
         val db = dbFactory()
         db.use {
-            Log.i(TAG, "Writing patch file ${it.patchDbFile.name}")
             it.db.openHelper.writableDatabase.run {
                 execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                 execSQL("PRAGMA foreign_keys=OFF;")
@@ -184,7 +188,8 @@ object DatabasePatching {
                 execSQL("DELETE FROM Edit")
             }
         }
-        val gzippedOutput = File(BackupControl.internalDbBackupDir, db.patchDbFile.name + ".gz")
+        val gzippedOutput = File(GoogleDrive.patchOutFilesDir, db.patchDbFile.name + ".gz")
+        Log.i(TAG, "Saving patch file ${gzippedOutput.name}")
         gzippedOutput.delete()
         gzippedOutput.outputStream().use {
             GZIPOutputStream(it).use {
@@ -197,28 +202,29 @@ object DatabasePatching {
     }
     private fun applyPatchForDatabase(dbFactory: () -> DatabaseDef<*>) {
         val db = dbFactory()
-        val gzippedInput = File(BackupControl.internalDbBackupDir, db.patchDbFile.name + ".gz")
-        gzippedInput.inputStream().use {
-            GZIPInputStream(it).use {
-                db.patchDbFile.outputStream().use { output ->
-                    it.copyTo(output)
+        val files = (GoogleDrive.patchInFilesDir.listFiles()?: emptyArray()).filter { it.name.startsWith(db.categoryName) }
+        for(gzippedPatchFile in files.sortedBy { timeStampFromPatchFileName(it.name) }) {
+            Log.i(TAG, "Applying patch file ${gzippedPatchFile.name}")
+            gzippedPatchFile.inputStream().use {
+                GZIPInputStream(it).use {
+                    db.patchDbFile.outputStream().use { output ->
+                        it.copyTo(output)
+                    }
                 }
             }
-        }
-
-        db.use {
-            Log.i(TAG, "Reading patch file ${it.patchDbFile.name}")
-            it.db.openHelper.writableDatabase.run {
-                execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
-                execSQL("PRAGMA foreign_keys=OFF;")
-                for (tableDef in it.tableDefs) {
-                    readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
+            db.use {
+                Log.i(TAG, "Reading patch file ${it.patchDbFile.name}")
+                it.db.openHelper.writableDatabase.run {
+                    execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
+                    execSQL("PRAGMA foreign_keys=OFF;")
+                    for (tableDef in it.tableDefs) {
+                        readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
+                    }
+                    execSQL("PRAGMA foreign_keys=ON;")
+                    execSQL("DETACH DATABASE patch")
+                    execSQL("DELETE FROM Edit")
                 }
-                execSQL("PRAGMA foreign_keys=ON;")
-                execSQL("DETACH DATABASE patch")
-                execSQL("DELETE FROM Edit")
             }
-
         }
     }
 
