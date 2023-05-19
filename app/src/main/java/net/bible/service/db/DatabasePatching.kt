@@ -41,11 +41,11 @@ class TableDef(val tableName: String, val idField1: String = "id", val idField2:
 class DatabaseDef<T: RoomDatabase>(
     val db: T,
     dbFactory: (filename: String) -> T,
-    name: String,
+    dbFileName: String,
     val tableDefs: List<TableDef>,
     private val readOnly: Boolean,
 ): Closeable {
-    private val patchFileName = "patch-$name";
+    private val patchFileName = "patch-$dbFileName";
     val patchDbFile: File = BibleApplication.application.getDatabasePath(patchFileName).apply {
         if(!readOnly && exists()) delete()
     }

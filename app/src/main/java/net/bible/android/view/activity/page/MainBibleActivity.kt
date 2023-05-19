@@ -103,6 +103,7 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.util.Hourglass
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.BuildVariant
@@ -1269,12 +1270,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
                 lifecycleScope.launch { GoogleDrive.synchronize() }
             }
-            //lifecycleScope.launch { createPatchFiles() }
         }
         else {
             lifecycleScope.launch {
                 if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
+                    val hourglass = Hourglass(this@MainBibleActivity)
+                    hourglass.show()
                     GoogleDrive.synchronize()
+                    hourglass.dismiss()
                 }
                 currentWorkspaceId = currentWorkspaceId
                 updateActions()

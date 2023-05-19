@@ -37,11 +37,16 @@ import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File as DriveFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
+import net.bible.android.activity.R
 import net.bible.android.control.backup.GZIP_MIMETYPE
 import net.bible.android.control.backup.TEXT_MIMETYPE
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -150,24 +155,33 @@ object GoogleDrive {
             file.mkdirs()
             return file
         }
-    suspend fun synchronize() = withContext(Dispatchers.IO) {
-        Log.i(TAG, "Synchronizing")
-        val lock = fileLock
-        if(fileLock == null) {
-            Log.i(TAG, "Lock file present, can't synchronize")
+
+    private val syncMutex = Mutex()
+    suspend fun synchronize(showMessage: Boolean = true) = withContext(Dispatchers.IO) {
+        if(syncMutex.isLocked) {
+            Log.i(TAG, "Already synchronizing")
             return@withContext
         }
-        lock.use {
-            val lastSynchronized = CommonUtils.settings.getLong("lastSynchronized", 0)
-            cleanupPatchFolder()
-            downloadNewPatches(lastSynchronized)
-            DatabasePatching.dropTriggers(DatabaseContainer.instance)
-            DatabasePatching.applyPatchFiles()
-            val now = System.currentTimeMillis()
-            DatabasePatching.createPatchFiles()
-            uploadNewPatches(now)
-            CommonUtils.settings.setLong("lastSynchronized", now)
-            DatabasePatching.createTriggers(DatabaseContainer.instance)
+        syncMutex.withLock {
+            if(showMessage) ABEventBus.post(ToastEvent(R.string.synchronizing))
+            Log.i(TAG, "Synchronizing")
+            val lock = fileLock
+            if(fileLock == null) {
+                Log.i(TAG, "Lock file present, can't synchronize")
+                return@withContext
+            }
+            lock.use {
+                val lastSynchronized = CommonUtils.settings.getLong("lastSynchronized", 0)
+                cleanupPatchFolder()
+                downloadNewPatches(lastSynchronized)
+                DatabasePatching.dropTriggers(DatabaseContainer.instance)
+                DatabasePatching.applyPatchFiles()
+                val now = System.currentTimeMillis()
+                DatabasePatching.createPatchFiles()
+                uploadNewPatches(now)
+                CommonUtils.settings.setLong("lastSynchronized", now)
+                DatabasePatching.createTriggers(DatabaseContainer.instance)
+            }
         }
     }
 
