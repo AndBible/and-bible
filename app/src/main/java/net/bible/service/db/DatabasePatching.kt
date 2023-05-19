@@ -30,6 +30,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.service.db.migrations.getColumnNamesJoined
 import java.io.Closeable
 import java.io.File
 import java.util.zip.GZIPInputStream
@@ -93,23 +94,25 @@ object DatabasePatching {
     }
 
     private fun writePatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
+        val cols = getColumnNamesJoined(db, table, "patch")
         if(idField2 == null) {
-            execSQL("INSERT INTO patch.$table SELECT * FROM $table WHERE $idField1 IN " +
+            execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $idField1 IN " +
                 "(SELECT entityId1 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
         } else {
-            execSQL("INSERT INTO patch.$table SELECT * FROM $table WHERE ($idField1, $idField2) IN " +
+            execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE ($idField1, $idField2) IN " +
                 "(SELECT entityId1, entityId2 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
         }
         execSQL("INSERT INTO patch.Edit SELECT * FROM Edit WHERE tableName = '$table' AND editType = 'DELETE'")
     }
 
     private fun readPatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
+        val cols = getColumnNamesJoined(db, table)
         if(idField2 == null) {
-            execSQL("INSERT OR REPLACE INTO $table SELECT * FROM patch.$table WHERE $idField1 IN " +
+            execSQL("INSERT OR REPLACE INTO $table ($cols) SELECT $cols FROM patch.$table WHERE $idField1 IN " +
                 "(SELECT entityId1 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
             execSQL("DELETE FROM $table WHERE $idField1 IN (SELECT entityId1 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
         } else {
-            execSQL("INSERT OR REPLACE INTO $table SELECT * FROM patch.$table WHERE ($idField1, $idField2) IN " +
+            execSQL("INSERT OR REPLACE INTO $table ($cols) SELECT $cols FROM patch.$table WHERE ($idField1, $idField2) IN " +
                 "(SELECT entityId1, entityId2 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
             execSQL("DELETE FROM $table WHERE ($idField1, $idField2) IN (SELECT entityId1, entityId2 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
         }
