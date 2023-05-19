@@ -220,7 +220,7 @@ object GoogleDrive {
                 service
                     .files()
                     .get(file.id)
-                    .executeAndDownloadTo(it)
+                    .executeMediaAndDownloadTo(it)
             }
         }
     }
@@ -236,7 +236,7 @@ object GoogleDrive {
                 parents = listOf("appDataFolder")
             }
             Log.i(TAG, "Uploading ${file.name} as ${driveFile.name}, ${file.length()} bytes")
-            //service.files().create(driveFile, content).execute()
+            service.files().create(driveFile, content).execute()
         }
     }
 
@@ -266,14 +266,14 @@ object GoogleDrive {
         val lst = try {
             service.files().list()
                 .setSpaces("appDataFolder")
-                .setFields("nextPageToken, files(id, name)")
+                .setFields("nextPageToken, files(id, name, size)")
                 .execute()
         } catch (e: UserRecoverableAuthIOException) {
             val result = activity.awaitIntent(e.intent)
             return result.resultCode == Activity.RESULT_OK
         }
         lst.files.forEach {
-            Log.i(TAG, "Files in Drive: ${it.name} (${it.id})")
+            Log.i(TAG, "Files in Drive: ${it.name} (${it.id}) ${it.getSize()} bytes")
             //service.files().delete(it.id).execute()
         }
 

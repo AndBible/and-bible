@@ -49,7 +49,7 @@ class DatabaseDef<T: RoomDatabase>(
     val patchDbFile: File = BibleApplication.application.getDatabasePath(patchFileName).apply {
         if(!readOnly && exists()) delete()
     }
-    val categoryName= patchDbFile.name.split(".").first()
+    val categoryName= dbFileName.split(".").first()
     private val patchDb = dbFactory.invoke(patchFileName)
     init {
         if(!readOnly) {
@@ -68,6 +68,7 @@ class DatabaseDef<T: RoomDatabase>(
     override fun close() {
         if(!readOnly) {
             patchDb.openHelper.writableDatabase.execSQL("VACUUM;")
+            patchDb.openHelper.writableDatabase.close()
         }
         patchDb.close()
     }
@@ -192,7 +193,7 @@ object DatabasePatching {
             }
         }
         if(needPatch) {
-            val gzippedOutput = File(GoogleDrive.patchOutFilesDir, dbDef.categoryName + "sqlite3.gz")
+            val gzippedOutput = File(GoogleDrive.patchOutFilesDir, dbDef.categoryName + ".sqlite3.gz")
             Log.i(TAG, "Saving patch file ${gzippedOutput.name}")
             gzippedOutput.delete()
             gzippedOutput.outputStream().use {
@@ -218,7 +219,6 @@ object DatabasePatching {
                 }
             }
             dbDef.use {
-                Log.i(TAG, "Reading patch file ${it.patchDbFile.name}")
                 it.db.openHelper.writableDatabase.run {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     execSQL("PRAGMA foreign_keys=OFF;")
