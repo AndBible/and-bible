@@ -37,27 +37,37 @@ import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
 class TableDef(val tableName: String, val idField1: String = "id", val idField2: String? = null)
-class DatabaseDef<T: RoomDatabase>(val db: T, dbClass: Class<T>, name: String, val tableDefs: List<TableDef>):
-    Closeable {
-    val patchDbFile: File = BibleApplication.application.getDatabasePath("patch-$name").apply {
-        if(exists()) delete()
+
+class DatabaseDef<T: RoomDatabase>(
+    val db: T,
+    dbClass: Class<T>,
+    name: String,
+    val tableDefs: List<TableDef>,
+    private val readOnly: Boolean,
+): Closeable {
+    private val patchFileName = "patch-$name";
+    val patchDbFile: File = BibleApplication.application.getDatabasePath(patchFileName).apply {
+        if(!readOnly && exists()) delete()
     }
-    private val patchDb = Room.databaseBuilder(BibleApplication.application, dbClass, "patch-$name")
-        .build()
+    private val patchDb = Room.databaseBuilder(BibleApplication.application, dbClass, patchFileName).build()
     init {
-        // Let's drop all indices to save space, they are useless in patch file
-        patchDb.openHelper.writableDatabase.use { db -> db.run {
-            execSQL("PRAGMA foreign_keys=OFF;")
-            query("SELECT name FROM sqlite_master WHERE type='index' AND name NOT LIKE 'sqlite_autoindex_%'").use { cursor ->
-                while (cursor.moveToNext()) {
-                    val indexName = cursor.getString(0)
-                    db.execSQL("DROP INDEX IF EXISTS $indexName")
+        if(!readOnly) {
+            // Let's drop all indices to save space, they are useless in patch file
+            patchDb.openHelper.writableDatabase.run {
+                execSQL("PRAGMA foreign_keys=OFF;")
+                query("SELECT name FROM sqlite_master WHERE type='index' AND name NOT LIKE 'sqlite_autoindex_%'").use { cursor ->
+                    while (cursor.moveToNext()) {
+                        val indexName = cursor.getString(0)
+                        execSQL("DROP INDEX IF EXISTS $indexName")
+                    }
                 }
             }
-        } }
+        }
     }
     override fun close() {
-        patchDb.openHelper.writableDatabase.execSQL("VACUUM;")
+        if(!readOnly) {
+            patchDb.openHelper.writableDatabase.execSQL("VACUUM;")
+        }
         patchDb.close()
     }
 }
@@ -171,41 +181,41 @@ object DatabasePatching {
         }
     }
 
-    private val dbFactories = listOf(
+    private fun getDbFactories(readOnly: Boolean) = listOf(
         {
             DatabaseDef(DatabaseContainer.instance.bookmarkDb, BookmarkDatabase::class.java, BookmarkDatabase.dbFileName, listOf(
                 TableDef("Bookmark"),
                 TableDef("Label"),
                 TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
                 TableDef("StudyPadTextEntry"),
-            ))
+            ), readOnly)
         },
         {
             DatabaseDef(DatabaseContainer.instance.workspaceDb, WorkspaceDatabase::class.java, WorkspaceDatabase.dbFileName, listOf(
                 TableDef("Workspace"),
                 TableDef("Window"),
                 TableDef("PageManager", "windowId"),
-            ))
+            ), readOnly)
         },
         {
             DatabaseDef(DatabaseContainer.instance.readingPlanDb, ReadingPlanDatabase::class.java, ReadingPlanDatabase.dbFileName, listOf(
                 TableDef("ReadingPlan"),
                 TableDef("ReadingPlanStatus"),
-            ))
+            ), readOnly)
         },
     )
 
     suspend fun createPatchFiles() = withContext(Dispatchers.IO) {
         Log.i(TAG, "Creating db patch files")
         awaitAll(
-            *dbFactories.map { async(Dispatchers.IO) {createPatchForDatabase(it)} }.toTypedArray()
+            *getDbFactories(false).map { async(Dispatchers.IO) {createPatchForDatabase(it)} }.toTypedArray()
         )
     }
 
     suspend fun applyPatchFiles() = withContext(Dispatchers.IO) {
         Log.i(TAG, "Applying db patch files")
         awaitAll(
-            *dbFactories.map { async(Dispatchers.IO) {applyPatchForDatabase(it)} }.toTypedArray()
+            *getDbFactories(true).map { async(Dispatchers.IO) {applyPatchForDatabase(it)} }.toTypedArray()
         )
     }
 }
