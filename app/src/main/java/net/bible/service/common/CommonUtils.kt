@@ -1322,6 +1322,11 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
+    val isGoogleDriveSyncEnabled get () =
+        if(BuildVariant.Appearance.isDiscrete)
+            false
+        else
+            settings.getBoolean("google_drive_sync", false)
     val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
     val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
 

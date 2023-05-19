@@ -1267,13 +1267,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     fun onEvent(event: AppToBackgroundEvent) {
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
-            if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
+            if(CommonUtils.isGoogleDriveSyncEnabled) {
                 lifecycleScope.launch { GoogleDrive.synchronize() }
             }
         }
         else {
             lifecycleScope.launch {
-                if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
+                if(CommonUtils.isGoogleDriveSyncEnabled) {
                     val hourglass = Hourglass(this@MainBibleActivity)
                     hourglass.show()
                     GoogleDrive.synchronize(true)

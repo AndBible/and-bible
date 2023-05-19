@@ -285,6 +285,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             openLinksPref.isVisible = false
         }
         val googleDrivePreference = preferenceScreen.findPreference<SwitchPreferenceCompat>("google_drive_sync") as SwitchPreferenceCompat
+        if (BuildVariant.Appearance.isDiscrete) {
+            googleDrivePreference.isVisible = false
+        }
         googleDrivePreference.setOnPreferenceChangeListener { preference, newValue ->
             if(newValue == true && !GoogleDrive.signedIn) {
                 lifecycleScope.launch {
