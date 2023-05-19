@@ -302,8 +302,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         if(stopSpeak) speakControl.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
-
-        dao.updateWorkspace(WorkspaceEntities.Workspace(
+        val ws = WorkspaceEntities.Workspace(
             name = name,
             contentsText = contentText,
             id = id,
@@ -313,22 +312,38 @@ open class WindowRepository(val scope: CoroutineScope) {
             unPinnedWeight = unPinnedWeight,
             maximizedWindowId = maximizedWindowId,
             primaryTargetLinksWindowId = primaryTargetLinksWindowId
-        ))
+        )
+        if(ws != savedEntity) {
+            dao.updateWorkspace(ws)
+            savedEntity = ws
+        }
 
         val historyManager = historyManagerProvider.get()
 
         val windowEntities = windowList.mapIndexed { i, it ->
             dao.updateHistoryItems(it.id, historyManager.getEntities(it.id))
-            it.entity.apply {
+            val entity = it.entity.apply {
                 orderNumber = i
             }
-        }
+            if(it.savedEntity != entity) {
+                it.savedEntity = entity
+                entity
+            }
+            else null
+        }.filterNotNull()
 
-        val pageManagers = windowList.map { it.pageManager.entity }
+        val pageManagers = windowList.mapNotNull {
+            if (it.pageManager.isModified) {
+                it.pageManager.savedEntity = it.pageManager.entity
+                it.pageManager.entity
+            } else null
+        }
 
         dao.updateWindows(windowEntities)
         dao.updatePageManagers(pageManagers)
     }
+
+    lateinit var savedEntity: WorkspaceEntities.Workspace
 
     fun loadFromDb(workspaceId: String?) {
         Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
@@ -336,6 +351,7 @@ open class WindowRepository(val scope: CoroutineScope) {
             ?: WorkspaceEntities.Workspace("").apply{
                 dao.insertWorkspace(this)
             }
+        savedEntity = entity
         clear()
 
         orderNumber = entity.orderNumber

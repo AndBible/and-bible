@@ -39,18 +39,17 @@ import net.bible.android.view.activity.page.windowControl
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseRange
 
 class WindowChangedEvent(val window: Window)
 
 class Window (
-    window: WorkspaceEntities.Window,
+    var savedEntity: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
     val windowRepository: WindowRepository,
-    var isLinksWindow: Boolean = window.isLinksWindow,
+    var isLinksWindow: Boolean = savedEntity.isLinksWindow,
 ){
-    private var targetLinksWindowId: String? = window.targetLinksWindowId
-    var syncGroup = window.syncGroup
+    private var targetLinksWindowId: String? = savedEntity.targetLinksWindowId
+    var syncGroup = savedEntity.syncGroup
 
     val targetLinksWindow: Window
         get() {
@@ -70,7 +69,7 @@ class Window (
     }
     val isPrimaryLinksWindow get() = isLinksWindow && id == windowRepository.primaryTargetLinksWindowId
 
-    val id = window.id
+    val id = savedEntity.id
     val displayId = id.substring(0, 4)
 
     var weight: Float
@@ -89,8 +88,8 @@ class Window (
                 windowLayout.weight = value
         }
 
-    private val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
-    private var workspaceId = window.workspaceId
+    private val windowLayout: WindowLayout = WindowLayout(savedEntity.windowLayout)
+    private var workspaceId = savedEntity.workspaceId
 
     init {
         pageManager.window = this
@@ -112,13 +111,13 @@ class Window (
     var displayedBook: Book? = null
         private set
 
-    var isSynchronised = window.isSynchronized
+    var isSynchronised = savedEntity.isSynchronized
         set(value) {
             field = value
             ABEventBus.post(WindowChangedEvent(this))
         }
 
-    var isPinMode: Boolean = window.isPinMode
+    var isPinMode: Boolean = savedEntity.isPinMode
         get() {
             return when {
                 isLinksWindow -> windowRepository.workspaceSettings.autoPin

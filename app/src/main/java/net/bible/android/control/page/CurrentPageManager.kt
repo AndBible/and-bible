@@ -264,8 +264,13 @@ open class CurrentPageManager @Inject constructor(
             textDisplaySettings.copy()
         )
 
+    lateinit var savedEntity: WorkspaceEntities.PageManager
+
+    val isModified get() = savedEntity != entity
+
     fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?, workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings?=null) {
         pageManagerEntity ?: return
+        savedEntity = pageManagerEntity
 
         // Order between these two following lines is critical!
         // otherwise currentYOffsetRatio is not set with respect to correct currentBibleVerse!
@@ -285,6 +290,7 @@ open class CurrentPageManager @Inject constructor(
         if(workspaceDisplaySettings != null) {
             WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
             textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
+            savedEntity.textDisplaySettings = textDisplaySettings
         }
         currentPage = getBookPage(restoredBookCategory)
         if(currentPage.key == null || currentPage.currentDocument == null) {
