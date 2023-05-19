@@ -174,13 +174,13 @@ object GoogleDrive {
         }
         syncMutex.withLock {
             if(showMessage) ABEventBus.post(ToastEvent(R.string.synchronizing))
-            Log.i(TAG, "Synchronizing")
             val lock = fileLock
             if(fileLock == null) {
                 Log.i(TAG, "Lock file present, can't synchronize")
                 return@withContext
             }
             lock.use {
+                Log.i(TAG, "Synchronizing")
                 val lastSynchronized = CommonUtils.settings.getLong("lastSynchronized", 0)
                 cleanupPatchFolder()
                 downloadNewPatches(lastSynchronized)
@@ -191,6 +191,7 @@ object GoogleDrive {
                 uploadNewPatches(now)
                 CommonUtils.settings.setLong("lastSynchronized", now)
                 DatabasePatching.createTriggers(DatabaseContainer.instance)
+                Log.i(TAG, "Synchronization complete")
             }
         }
     }
