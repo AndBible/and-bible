@@ -42,6 +42,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
+import android.provider.Settings
 import android.text.Html
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -369,6 +370,16 @@ object CommonUtils : CommonUtilsBase() {
             date.set(Calendar.MILLISECOND, 0)
             date.time
         }
+
+    val deviceIdentifier: String get() =
+        Settings.Secure.getString(application.contentResolver, Settings.Secure.ANDROID_ID)
+            ?: realSharedPreferences.getString("android_id", null).let {
+                if(it == null) {
+                    val id = UUID.randomUUID().toString()
+                    realSharedPreferences.edit().putString("android_id", id).apply()
+                    id
+                } else { it}
+            }
 
     init {
         try {
