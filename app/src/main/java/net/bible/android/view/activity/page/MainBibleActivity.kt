@@ -1276,7 +1276,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 if(CommonUtils.settings.getBoolean("google_drive_sync", false)) {
                     val hourglass = Hourglass(this@MainBibleActivity)
                     hourglass.show()
-                    GoogleDrive.synchronize()
+                    GoogleDrive.synchronize(true)
                     hourglass.dismiss()
                 }
                 currentWorkspaceId = currentWorkspaceId

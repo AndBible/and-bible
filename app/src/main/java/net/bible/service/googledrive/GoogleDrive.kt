@@ -34,8 +34,11 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import kotlinx.coroutines.Deferred
 import com.google.api.services.drive.model.File as DriveFile
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -72,22 +75,29 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
 
 const val LOCK_FILENAME = "lock.txt"
 
+suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
+    awaitAll( *map { async { action(it) }}.toTypedArray() )
+}
+
 object GoogleDrive {
     private var oneTapClient: SignInClient = Identity.getSignInClient(application)
     private var account: Account? = null
 
     val signedIn get() = account != null
+    private var _service: Drive? = null
     private val service: Drive get() {
         if (!signedIn) {
             throw IllegalStateException("Not signed in")
         }
-        return Drive.Builder(
+        return _service?: Drive.Builder(
             NetHttpTransport(),
             GsonFactory.getDefaultInstance(),
             GoogleAccountCredential
                 .usingOAuth2(application, Collections.singleton(DriveScopes.DRIVE_APPDATA))
                 .setSelectedAccount(account)
-        ).setApplicationName("AndBible").build()
+        ).setApplicationName("AndBible").build().also {
+            _service = it
+        }
     }
 
     suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) {
@@ -157,7 +167,7 @@ object GoogleDrive {
         }
 
     private val syncMutex = Mutex()
-    suspend fun synchronize(showMessage: Boolean = true) = withContext(Dispatchers.IO) {
+    suspend fun synchronize(showMessage: Boolean = false) = withContext(Dispatchers.IO) {
         if(syncMutex.isLocked) {
             Log.i(TAG, "Already synchronizing")
             return@withContext
@@ -214,7 +224,7 @@ object GoogleDrive {
                     timeStampFromPatchFileName(it.name) > lastSynchronized
                 }
             }
-        for(file in newPatchFiles) {
+        newPatchFiles.asyncMap {file ->
             Log.i(TAG, "Downloading ${file.name}, ${file.size} bytes")
             File(patchInFilesDir, file.name).outputStream().use {
                 service
@@ -228,7 +238,7 @@ object GoogleDrive {
     private suspend fun uploadNewPatches(now: Long)  = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches")
         val files = patchOutFilesDir.listFiles()?: emptyArray()
-        for(file in files) {
+        files.asList().asyncMap {file ->
             val content = FileContent(GZIP_MIMETYPE, file)
             val category = categoryFromPatchFileName(file.name)
             val driveFile = DriveFile().apply {
