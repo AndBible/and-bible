@@ -25,7 +25,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
-import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.WorkspaceDatabase
@@ -174,45 +173,51 @@ object DatabasePatching {
         }
     }
 
-    private fun createPatchForDatabase(dbFactory: () -> DatabaseDef<*>) {
-        val db = dbFactory()
-        db.use {
+    private fun createPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>) {
+        val dbDef = dbDefFactory()
+        var needPatch: Boolean
+        dbDef.use {
             it.db.openHelper.writableDatabase.run {
-                execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
-                execSQL("PRAGMA foreign_keys=OFF;")
-                for (tableDef in it.tableDefs) {
-                    writePatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
-                }
-                execSQL("PRAGMA foreign_keys=ON;")
-                execSQL("DETACH DATABASE patch")
-                execSQL("DELETE FROM Edit")
-            }
-        }
-        val gzippedOutput = File(GoogleDrive.patchOutFilesDir, db.patchDbFile.name + ".gz")
-        Log.i(TAG, "Saving patch file ${gzippedOutput.name}")
-        gzippedOutput.delete()
-        gzippedOutput.outputStream().use {
-            GZIPOutputStream(it).use {
-                db.patchDbFile.inputStream().use { input ->
-                    input.copyTo(it)
+                needPatch = query("SELECT COUNT(*) FROM Edit").use {c -> c.moveToFirst(); c.getInt(0)} > 0
+                if(needPatch) {
+                    execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
+                    execSQL("PRAGMA foreign_keys=OFF;")
+                    for (tableDef in it.tableDefs) {
+                        writePatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
+                    }
+                    execSQL("PRAGMA foreign_keys=ON;")
+                    execSQL("DETACH DATABASE patch")
+                    execSQL("DELETE FROM Edit")
                 }
             }
         }
-        db.patchDbFile.delete()
+        if(needPatch) {
+            val gzippedOutput = File(GoogleDrive.patchOutFilesDir, dbDef.categoryName + "sqlite3.gz")
+            Log.i(TAG, "Saving patch file ${gzippedOutput.name}")
+            gzippedOutput.delete()
+            gzippedOutput.outputStream().use {
+                GZIPOutputStream(it).use {
+                    dbDef.patchDbFile.inputStream().use { input ->
+                        input.copyTo(it)
+                    }
+                }
+            }
+        }
+        dbDef.patchDbFile.delete()
     }
-    private fun applyPatchForDatabase(dbFactory: () -> DatabaseDef<*>) {
-        val db = dbFactory()
-        val files = (GoogleDrive.patchInFilesDir.listFiles()?: emptyArray()).filter { it.name.startsWith(db.categoryName) }
+    private fun applyPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>) {
+        val dbDef = dbDefFactory()
+        val files = (GoogleDrive.patchInFilesDir.listFiles()?: emptyArray()).filter { it.name.startsWith(dbDef.categoryName) }
         for(gzippedPatchFile in files.sortedBy { timeStampFromPatchFileName(it.name) }) {
             Log.i(TAG, "Applying patch file ${gzippedPatchFile.name}")
             gzippedPatchFile.inputStream().use {
                 GZIPInputStream(it).use {
-                    db.patchDbFile.outputStream().use { output ->
+                    dbDef.patchDbFile.outputStream().use { output ->
                         it.copyTo(output)
                     }
                 }
             }
-            db.use {
+            dbDef.use {
                 Log.i(TAG, "Reading patch file ${it.patchDbFile.name}")
                 it.db.openHelper.writableDatabase.run {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")

@@ -192,7 +192,7 @@ object GoogleDrive {
         Log.i(TAG, "Downloading new patches")
         val newPatchFiles = service.files().list()
             .setSpaces("appDataFolder")
-            .setFields("nextPageToken, files(id, name)")
+            .setFields("nextPageToken, files(id, name, size)")
             .execute().files.filter {
                 if (!it.name.endsWith(".sqlite3.gz"))
                     false
@@ -201,7 +201,7 @@ object GoogleDrive {
                 }
             }
         for(file in newPatchFiles) {
-            Log.i(TAG, "Downloading ${file.name}")
+            Log.i(TAG, "Downloading ${file.name}, ${file.size} bytes")
             File(patchInFilesDir, file.name).outputStream().use {
                 service
                     .files()
@@ -221,8 +221,8 @@ object GoogleDrive {
                 name = "$category.${now}.sqlite3.gz"
                 parents = listOf("appDataFolder")
             }
-            Log.i(TAG, "Uploading ${file.name} as ${driveFile.name}")
-            service.files().create(driveFile, content).execute()
+            Log.i(TAG, "Uploading ${file.name} as ${driveFile.name}, ${file.length()} bytes")
+            //service.files().create(driveFile, content).execute()
         }
     }
 
