@@ -71,7 +71,49 @@ class DatabaseDef<T: RoomDatabase>(
     }
 }
 object DatabasePatching {
-    fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idField1: String = "id", idField2: String? = null) = db.run {
+    fun createTriggers(container: DatabaseContainer) = container.run {
+        bookmarkDb.openHelper.writableDatabase.run {
+            createTriggersForTable(this, "Bookmark")
+            createTriggersForTable(this, "Label")
+            createTriggersForTable(this, "StudyPadTextEntry")
+            createTriggersForTable(this, "BookmarkToLabel", "bookmarkId", "labelId")
+        }
+        workspaceDb.openHelper.writableDatabase.run {
+            createTriggersForTable(this, "Window")
+            createTriggersForTable(this, "Workspace")
+            createTriggersForTable(this, "PageManager", "windowId")
+        }
+        readingPlanDb.openHelper.writableDatabase.run {
+            createTriggersForTable(this, "ReadingPlan")
+            createTriggersForTable(this, "ReadingPlanStatus")
+        }
+    }
+    
+    fun dropTriggers(container: DatabaseContainer) = container.run {
+        bookmarkDb.openHelper.writableDatabase.run {
+            dropTriggersForTable(this, "Bookmark")
+            dropTriggersForTable(this, "Label")
+            dropTriggersForTable(this, "StudyPadTextEntry")
+            dropTriggersForTable(this, "BookmarkToLabel")
+        }
+        workspaceDb.openHelper.writableDatabase.run {
+            dropTriggersForTable(this, "Window")
+            dropTriggersForTable(this, "Workspace")
+            dropTriggersForTable(this, "PageManager")
+        }
+        readingPlanDb.openHelper.writableDatabase.run {
+            dropTriggersForTable(this, "ReadingPlan")
+            dropTriggersForTable(this, "ReadingPlanStatus")
+        }        
+    }
+
+    private fun dropTriggersForTable(db: SupportSQLiteDatabase, tableName: String) = db.run {
+        execSQL("DROP TRIGGER IF EXISTS ${tableName}_inserts")
+        execSQL("DROP TRIGGER IF EXISTS ${tableName}_updates")
+        execSQL("DROP TRIGGER IF EXISTS ${tableName}_deletes")
+    }
+    
+    private fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idField1: String = "id", idField2: String? = null) = db.run {
         fun where(prefix: String): String =
             if(idField2 == null) {
                 "entityId1 = $prefix.$idField1"

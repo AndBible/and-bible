@@ -34,7 +34,8 @@ import net.bible.android.database.TemporaryDatabase
 import net.bible.android.database.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabasePatching.createTriggersForTable
+import net.bible.service.db.DatabasePatching.createTriggers
+import net.bible.service.db.DatabasePatching.dropTriggers
 import net.bible.service.db.migrations.DatabaseSplitMigrations
 import net.bible.service.db.migrations.oldMonolithicAppDatabaseMigrations
 import java.io.File
@@ -180,27 +181,9 @@ class DatabaseContainer {
         }
     }
 
-    private fun createTriggers() {
-        bookmarkDb.openHelper.writableDatabase.run {
-            createTriggersForTable(this, "Bookmark")
-            createTriggersForTable(this, "Label")
-            createTriggersForTable(this, "StudyPadTextEntry")
-            createTriggersForTable(this, "BookmarkToLabel", "bookmarkId", "labelId")
-        }
-        workspaceDb.openHelper.writableDatabase.run {
-            createTriggersForTable(this, "Window")
-            createTriggersForTable(this, "Workspace")
-            createTriggersForTable(this, "PageManager", "windowId")
-        }
-        readingPlanDb.openHelper.writableDatabase.run {
-            createTriggersForTable(this, "ReadingPlan")
-            createTriggersForTable(this, "ReadingPlanStatus")
-        }
-    }
-
     init {
-        // TODO: only if needed, and if not needed, we could remove triggers and clear tables
-        createTriggers()
+        dropTriggers(this)
+        createTriggers(this)
     }
 
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
