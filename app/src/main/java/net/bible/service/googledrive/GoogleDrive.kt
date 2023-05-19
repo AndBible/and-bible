@@ -166,14 +166,13 @@ object GoogleDrive {
             return file
         }
 
-    private val syncMutex = Mutex()
-    suspend fun synchronize(showMessage: Boolean = false) = withContext(Dispatchers.IO) {
+    val syncMutex = Mutex()
+    suspend fun synchronize() = withContext(Dispatchers.IO) {
         if(syncMutex.isLocked) {
             Log.i(TAG, "Already synchronizing")
             return@withContext
         }
         syncMutex.withLock {
-            if(showMessage) ABEventBus.post(ToastEvent(R.string.synchronizing))
             val lock = fileLock
             if(fileLock == null) {
                 Log.i(TAG, "Lock file present, can't synchronize")

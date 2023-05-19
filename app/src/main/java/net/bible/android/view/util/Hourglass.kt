@@ -32,12 +32,12 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 class Hourglass(val context: Context) {
     private var hourglass: ProgressDialog? = null
 
-    suspend fun show() {
+    suspend fun show(messageId: Int = R.string.please_wait) {
         withContext(Dispatchers.Main) {
             val hourglass = ProgressDialog(context)
             this@Hourglass.hourglass = hourglass
 
-            hourglass.setMessage(application.getText(R.string.please_wait))
+            hourglass.setMessage(application.getText(messageId))
             hourglass.isIndeterminate = true
             hourglass.setCancelable(false)
             hourglass.show()

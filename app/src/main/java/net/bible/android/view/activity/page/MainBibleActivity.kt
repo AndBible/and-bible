@@ -58,6 +58,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
 import net.bible.android.activity.databinding.FrozenBinding
@@ -1275,8 +1276,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             lifecycleScope.launch {
                 if(CommonUtils.isGoogleDriveSyncEnabled) {
                     val hourglass = Hourglass(this@MainBibleActivity)
-                    hourglass.show()
-                    GoogleDrive.synchronize(true)
+                    hourglass.show(R.string.synchronizing)
+                    GoogleDrive.synchronize()
+                    GoogleDrive.syncMutex.withLock {  }
                     hourglass.dismiss()
                 }
                 currentWorkspaceId = currentWorkspaceId

@@ -1121,5 +1121,5 @@
     <string name="restore_backup_sections">Which backup sections do you want to restore?</string>
     <string name="db_repositories">Repositories and related settings</string>
     <string name="db_bookmarks">Bookmarks, My Notes, Labels and Study Pads</string>
-    <string name="synchronizing">Synchronizing database (Google Drive)</string>
+    <string name="synchronizing">Google Drive sync…</string>
 </resources>
