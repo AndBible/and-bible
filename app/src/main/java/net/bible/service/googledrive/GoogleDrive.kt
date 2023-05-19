@@ -19,7 +19,6 @@ package net.bible.service.googledrive
 
 import android.accounts.Account
 import android.app.Activity
-import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -31,7 +30,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.http.ByteArrayContent
 import com.google.api.client.http.FileContent
-import com.google.api.client.http.InputStreamContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
@@ -40,29 +38,17 @@ import com.google.api.services.drive.model.File as DriveFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
-import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.GZIP_MIMETYPE
-import net.bible.android.control.backup.JSON_MIMETYPE
 import net.bible.android.control.backup.TEXT_MIMETYPE
-import net.bible.android.database.BookmarkDatabase
-import net.bible.android.database.ReadingPlanDatabase
-import net.bible.android.database.RepoDatabase
-import net.bible.android.database.SettingsDatabase
-import net.bible.android.database.WorkspaceDatabase
-import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabasePatching
 import java.io.Closeable
 import java.io.File
 import java.util.Collections
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
 import kotlin.coroutines.resumeWithException
 
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
@@ -79,54 +65,6 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
     }
 }
 
-@Serializable
-class DatabaseTimeStamps(
-    val bookmark: Long,
-    val readingPlans: Long,
-    val workspaces: Long,
-    val repo: Long,
-    val settings: Long,
-) {
-    fun toJson(): String {
-        return json.encodeToString(serializer(), this)
-    }
-
-    fun updatedFiles(compareStatus: DatabaseTimeStamps): List<String> {
-        val updatedFiles = mutableListOf<String>()
-        if (bookmark > compareStatus.bookmark) {
-            updatedFiles.add(BookmarkDatabase.dbFileName)
-        }
-        if (readingPlans > compareStatus.readingPlans) {
-            updatedFiles.add(ReadingPlanDatabase.dbFileName)
-        }
-        if (workspaces > compareStatus.workspaces) {
-            updatedFiles.add(WorkspaceDatabase.dbFileName)
-        }
-        if (repo > compareStatus.repo) {
-            updatedFiles.add(RepoDatabase.dbFileName)
-        }
-        if (settings > compareStatus.settings) {
-            updatedFiles.add(SettingsDatabase.dbFileName)
-        }
-        return updatedFiles
-    }
-
-    companion object {
-        fun fromFiles() = DatabaseTimeStamps(
-            bookmark = application.getDatabasePath(BookmarkDatabase.dbFileName).lastModified(),
-            readingPlans = application.getDatabasePath(ReadingPlanDatabase.dbFileName).lastModified(),
-            workspaces = application.getDatabasePath(WorkspaceDatabase.dbFileName).lastModified(),
-            repo = application.getDatabasePath(RepoDatabase.dbFileName).lastModified(),
-            settings = application.getDatabasePath(SettingsDatabase.dbFileName).lastModified(),
-        )
-
-        fun fromJson(jsonString: String): DatabaseTimeStamps {
-            return json.decodeFromString(serializer(), jsonString)
-        }
-    }
-}
-
-const val TIMESTAMPS_FILENAME = "timestamps.json"
 const val LOCK_FILENAME = "lock.txt"
 
 object GoogleDrive {
@@ -157,27 +95,10 @@ object GoogleDrive {
         return@withContext success
     }
 
-    private val timestampFileHandle get() = service.files().list()
-            .setSpaces("appDataFolder")
-            .setFields("nextPageToken, files(id, name)")
-            .execute().files.firstOrNull { it.name == TIMESTAMPS_FILENAME }
-
     private val lockFileHandle get() = service.files().list()
             .setSpaces("appDataFolder")
             .setFields("nextPageToken, files(id, name)")
             .execute().files.firstOrNull { it.name == LOCK_FILENAME }
-
-    private suspend fun readLastModifiedFromDrive(): DatabaseTimeStamps? = withContext(Dispatchers.IO) {
-        Log.i(TAG, "Reading last modified from drive")
-        val fileHandle = timestampFileHandle?: return@withContext null
-        val json = service
-            .files()
-            .get(fileHandle.id)
-            .executeMediaAsInputStream()
-            .readBytes()
-
-        return@withContext DatabaseTimeStamps.fromJson(String(json))
-    }
 
     private val fileLock: Closeable? get() {
         val fileHandle = lockFileHandle
@@ -302,105 +223,6 @@ object GoogleDrive {
             }
             Log.i(TAG, "Uploading ${file.name} as ${driveFile.name}")
             service.files().create(driveFile, content).execute()
-        }
-    }
-
-    private suspend fun writeLastModifiedToDrive() = withContext(Dispatchers.IO) {
-        Log.i(TAG, "Writing last modified to drive")
-        val fileHandle = timestampFileHandle
-        val content = ByteArrayContent(JSON_MIMETYPE, DatabaseTimeStamps.fromFiles().toJson().toByteArray())
-        if(fileHandle != null) {
-            service.files().delete(fileHandle.id).execute()
-        }
-        service.files().create(
-            DriveFile().apply {
-                name = TIMESTAMPS_FILENAME
-                parents = listOf("appDataFolder")
-            }, content).execute()
-    }
-
-    suspend fun uploadUpdatedDatabases() {
-        Log.i(TAG, "uploadUpdatedDatabases")
-        val first = DatabaseTimeStamps.fromFiles()
-        //DatabaseContainer.vacuum() // TODO: THIS WRITES FILE ALWAYS
-        DatabaseContainer.sync()
-        val second = DatabaseTimeStamps.fromFiles()
-        val modifiedInVacuum = second.updatedFiles(first)
-        Log.i(TAG, "Modified in vacuum: ${modifiedInVacuum.joinToString(",")}")
-
-        val localStatus = DatabaseTimeStamps.fromFiles()
-        val driveStatus = readLastModifiedFromDrive()
-        val filesToUpload = if(driveStatus != null) localStatus.updatedFiles(driveStatus) else ALL_DB_FILENAMES.toList()
-        writeLastModifiedToDrive()
-        for(fileName in filesToUpload) {
-            val file = application.getDatabasePath(fileName)
-            uploadFile(file)
-        }
-    }
-
-    suspend fun downloadUpdatedDatabases() {
-        Log.i(TAG, "downloadUpdatedDatabases")
-        DatabaseContainer.sync()
-        val localStatus = DatabaseTimeStamps.fromFiles()
-        val driveStatus = readLastModifiedFromDrive()?: return
-        val filesToDownload = driveStatus.updatedFiles(localStatus)
-        for(fileName in filesToDownload) {
-            downloadAndRestoreFile(fileName)
-        }
-        DatabaseContainer.reset()
-    }
-
-    private suspend fun downloadAndRestoreFile(fileName: String) = withContext(Dispatchers.IO) {
-        val gzippedFileName = "${fileName}.gz"
-        val file = service.files().list()
-            .setSpaces("appDataFolder")
-            .setFields("nextPageToken, files(id, name, size)")
-            .execute().files.firstOrNull { it.name == gzippedFileName}?: return@withContext
-        Log.i(TAG, "Downloading file ${file.name} (${file.id}) ${file.getSize()}")
-        val inputStream = GZIPInputStream(service.files().get(file.id).executeMediaAsInputStream())
-        val tmpFile = File(BackupControl.internalDbBackupDir, gzippedFileName)
-        tmpFile.outputStream().use { inputStream.copyTo(it) }
-        Closeable { tmpFile.delete() }.use {
-            val version = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READONLY).use {
-                it.version
-            }
-            val maxVersion = DatabaseContainer.maxDatabaseVersion(fileName)
-            if (version <= maxVersion) {
-                val dbFile = application.getDatabasePath(fileName)
-                tmpFile.copyTo(dbFile, true)
-            }
-        }
-    }
-
-    private suspend fun uploadFile(file: File) = withContext(Dispatchers.IO) {
-        val gzippedFileName = "${file.name}.gz"
-        val fileHandle = service.files().list()
-            .setSpaces("appDataFolder")
-            .setFields("nextPageToken, files(id, name)")
-            .execute().files.firstOrNull { it.name == gzippedFileName }
-
-        if(fileHandle != null) {
-            service.files().delete(fileHandle.id).execute()
-        }
-
-        val tmpFile = File(SharedConstants.internalFilesDir, gzippedFileName)
-        GZIPOutputStream(tmpFile.outputStream()).use { file.inputStream().copyTo(it) }
-        Closeable {
-            tmpFile.delete()
-        }.use {
-            tmpFile.inputStream().use { inputStream ->
-                val content = InputStreamContent(GZIP_MIMETYPE, inputStream)
-                val f = service.files().create(
-                    DriveFile().apply {
-                        name = gzippedFileName
-                        parents = Collections.singletonList("appDataFolder")
-                    }
-                    , content)
-                    .setFields("id, name, size")
-                    .execute()
-
-                Log.d(TAG, "Upload success into File ID: ${f.id} ${f.name}, size ${f.getSize()}")
-            }
         }
     }
 
