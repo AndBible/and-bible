@@ -225,7 +225,7 @@ object GoogleDrive {
                 }
             }
         newPatchFiles.asyncMap {file ->
-            Log.i(TAG, "Downloading ${file.name}, ${file.size} bytes")
+            Log.i(TAG, "Downloading ${file.name}, ${file.getSize()} bytes")
             File(patchInFilesDir, file.name).outputStream().use {
                 service
                     .files()

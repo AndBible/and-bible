@@ -78,35 +78,35 @@ object DatabasePatching {
         val cols = getColumnNamesJoined(db, table, "patch")
         if(idField2 == null) {
             execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $idField1 IN " +
-                "(SELECT entityId1 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
+                "(SELECT entityId1 FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE'))")
         } else {
             execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE ($idField1, $idField2) IN " +
-                "(SELECT entityId1, entityId2 FROM Edit WHERE tableName = '$table' AND editType IN ('INSERT', 'UPDATE'))")
+                "(SELECT entityId1, entityId2 FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE'))")
         }
-        execSQL("INSERT INTO patch.Edit SELECT * FROM Edit WHERE tableName = '$table'")
+        execSQL("INSERT INTO patch.Log SELECT * FROM Log WHERE tableName = '$table'")
     }
 
     private fun readPatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
         val cols = getColumnNamesJoined(db, table)
         if(idField2 == null) {
-            // Insert all rows from patch table that don't have more recent entry in Edit table
+            // Insert all rows from patch table that don't have more recent entry in Log table
             execSQL("INSERT OR REPLACE INTO $table ($cols) " +
                 "SELECT $cols FROM patch.$table WHERE $idField1 IN " +
-                "(SELECT pe.entityId1 FROM patch.Edit pe OUTER LEFT JOIN Edit me " +
+                "(SELECT pe.entityId1 FROM patch.Log pe OUTER LEFT JOIN Log me " +
                 "WHERE pe.tableName = '$table' AND " +
-                "(me.entityId1 = NULL OR (pe.entityId1 = me.entityId1 AND me.tableName = '$table' AND pe.lastUpdated > me.lastUpdated)))")
-            // Delete all marked deletions from patch Edit table
-            execSQL("DELETE FROM $table WHERE $idField1 IN (SELECT entityId1 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
+                "(me.entityId1 = NULL OR (pe.entityId1 = me.entityId1 AND me.tableName = '$table' AND pe.createdAt > me.createdAt)))")
+            // Delete all marked deletions from patch Log table
+            execSQL("DELETE FROM $table WHERE $idField1 IN (SELECT entityId1 FROM patch.Log WHERE tableName = '$table' AND type = 'DELETE')")
         } else {
             execSQL("INSERT OR REPLACE INTO $table ($cols) " +
                 "SELECT $cols FROM patch.$table WHERE ($idField1,$idField2) IN " +
-                "(SELECT pe.entityId1,pe.entityId2 FROM patch.Edit pe OUTER LEFT JOIN Edit me " +
+                "(SELECT pe.entityId1,pe.entityId2 FROM patch.Log pe OUTER LEFT JOIN Log me " +
                 "WHERE pe.tableName = '$table' AND " +
                 "(me.entityId1 = NULL OR " +
-                "(pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND me.tableName = '$table' AND pe.lastUpdated > me.lastUpdated)))")
+                "(pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND me.tableName = '$table' AND pe.createdAt > me.createdAt)))")
 
             execSQL("DELETE FROM $table WHERE ($idField1, $idField2) IN " +
-                "(SELECT entityId1, entityId2 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
+                "(SELECT entityId1, entityId2 FROM patch.Log WHERE tableName = '$table' AND type = 'DELETE')")
         }
     }
 
@@ -115,7 +115,7 @@ object DatabasePatching {
         var needPatch: Boolean
         dbDef.use {
             it.db.openHelper.writableDatabase.run {
-                needPatch = query("SELECT COUNT(*) FROM Edit").use {c -> c.moveToFirst(); c.getInt(0)} > 0
+                needPatch = query("SELECT COUNT(*) FROM Log").use {c -> c.moveToFirst(); c.getInt(0)} > 0
                 if(needPatch) {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     execSQL("PRAGMA foreign_keys=OFF;")
