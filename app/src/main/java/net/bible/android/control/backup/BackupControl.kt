@@ -65,6 +65,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
+import net.bible.service.googledrive.GoogleDrive
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
@@ -638,6 +639,7 @@ object BackupControl {
                 return@withContext false
             }
             hourglass.show()
+            DatabaseContainer.reset()
             for (fileName in selection) {
                 val f = File(unzipFolder, "db/${fileName}")
                 Log.i(TAG, "Restoring $fileName")
@@ -646,6 +648,9 @@ object BackupControl {
         }
         if (DatabaseContainer.ready) {
             DatabaseContainer.instance
+            if(CommonUtils.isGoogleDriveSyncEnabled && !GoogleDrive.signedIn) {
+                GoogleDrive.signIn(activity)
+            }
         }
         hourglass.dismiss()
         Log.i(TAG, "Restored database successfully")
