@@ -110,6 +110,8 @@ object DatabasePatching {
             execSQL("DELETE FROM $table WHERE ($idField1, $idField2) IN " +
                 "(SELECT entityId1, entityId2 FROM patch.Log WHERE tableName = '$table' AND type = 'DELETE')")
         }
+        // Let's fix Log table timestamps (all above insertions have created new entries)
+        execSQL("INSERT OR REPLACE INTO Log SELECT * FROM patch.Log")
     }
 
     private fun createPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>, lastSynchronized: Long) {
@@ -117,7 +119,7 @@ object DatabasePatching {
         var needPatch: Boolean
         dbDef.use {
             it.db.openHelper.writableDatabase.run {
-                needPatch = query("SELECT COUNT(*) FROM Log").use {c -> c.moveToFirst(); c.getInt(0)} > 0
+                needPatch = query("SELECT COUNT(*) FROM Log WHERE createdAt > $lastSynchronized").use {c -> c.moveToFirst(); c.getInt(0)} > 0
                 if(needPatch) {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     execSQL("PRAGMA foreign_keys=OFF;")

@@ -191,9 +191,9 @@ object GoogleDrive {
                 return@withContext
             }
             lock.use {
-                Log.i(TAG, "Synchronizing")
                 val timerNow = System.currentTimeMillis()
                 val lastSynchronized = CommonUtils.settings.getLong("lastSynchronized", 0)
+                Log.i(TAG, "Synchronizing, last synchronized $lastSynchronized")
                 cleanupPatchFolder()
                 downloadNewPatches(lastSynchronized)
                 DatabasePatching.applyPatchFiles()
@@ -201,7 +201,7 @@ object GoogleDrive {
                 DatabasePatching.createPatchFiles(lastSynchronized)
                 uploadNewPatches(now)
                 CommonUtils.settings.setLong("lastSynchronized", now)
-                Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerNow)/1000.0} seconds")
+                Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerNow)/1000.0} seconds. Now: $now")
             }
         }
     }
