@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.ByteArrayContent
 import com.google.api.client.http.FileContent
 import com.google.api.client.http.javanet.NetHttpTransport
@@ -139,7 +140,9 @@ object GoogleDrive {
         return if(!canLock) {
             null
         } else {
-            if(fileHandle != null) service.files().delete(fileHandle.id).execute()
+            if(fileHandle != null) try { service.files().delete(fileHandle.id).execute() } catch (e: GoogleJsonResponseException) {
+                Log.e(TAG, "Error deleting lock file", e)
+            }
             val content = ByteArrayContent(TEXT_MIMETYPE, CommonUtils.deviceIdentifier.toByteArray())
 
             service.files().create(
@@ -154,7 +157,9 @@ object GoogleDrive {
                     Log.e(TAG, "Lock file not found. Should have been there!!!")
                     return@Closeable
                 } else {
-                    service.files().delete(fileHandle2.id).execute()
+                    try { service.files().delete(fileHandle2.id).execute() } catch (e: GoogleJsonResponseException) {
+                        Log.e(TAG, "Error deleting lock file", e)
+                    }
                 }
             }
         }
@@ -198,7 +203,7 @@ object GoogleDrive {
                 downloadNewPatches(lastSynchronized)
                 DatabasePatching.applyPatchFiles()
                 val now = System.currentTimeMillis()
-                DatabasePatching.createPatchFiles(lastSynchronized)
+                DatabasePatching.createPatchFiles(lastSynchronized/1000)
                 uploadNewPatches(now)
                 CommonUtils.settings.setLong("lastSynchronized", now)
                 Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerNow)/1000.0} seconds. Now: $now")

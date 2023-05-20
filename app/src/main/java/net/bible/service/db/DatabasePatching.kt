@@ -54,17 +54,23 @@ class DatabaseDef<T: RoomDatabase>(
     init {
         if(!readOnly) {
             // Let's drop all indices to save space, they are useless in patch file
-            patchDb.openHelper.writableDatabase.run {
-                execSQL("PRAGMA foreign_keys=OFF;")
-                query("SELECT name FROM sqlite_master WHERE type='index' AND name NOT LIKE 'sqlite_autoindex_%'").use { cursor ->
-                    while (cursor.moveToNext()) {
-                        val indexName = cursor.getString(0)
-                        execSQL("DROP INDEX IF EXISTS $indexName")
-                    }
+            patchDb.openHelper.writableDatabase
+            // dropPatchIndices() // TODO: consider enabling.
+        }
+    }
+
+    private fun dropPatchIndices() {
+        patchDb.openHelper.writableDatabase.run {
+            execSQL("PRAGMA foreign_keys=OFF;")
+            query("SELECT name FROM sqlite_master WHERE type='index' AND name NOT LIKE 'sqlite_autoindex_%'").use { cursor ->
+                while (cursor.moveToNext()) {
+                    val indexName = cursor.getString(0)
+                    execSQL("DROP INDEX IF EXISTS $indexName")
                 }
             }
         }
     }
+
     override fun close() {
         if(!readOnly) {
             patchDb.openHelper.writableDatabase.execSQL("VACUUM;")
@@ -74,9 +80,8 @@ class DatabaseDef<T: RoomDatabase>(
     }
 }
 object DatabasePatching {
-    private fun writePatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null, lastSynchronizedMs: Long) = db.run {
+    private fun writePatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null, lastSynchronized: Long) = db.run {
         val cols = getColumnNamesJoined(db, table, "patch")
-        val lastSynchronized = lastSynchronizedMs / 1000
 
         if(idField2 == null) {
             execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $idField1 IN " +
@@ -90,23 +95,25 @@ object DatabasePatching {
 
     private fun readPatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
         val cols = getColumnNamesJoined(db, table)
+        val amount = query("SELECT COUNT(*) FROM patch.Log WHERE tableName = '$table'").use {c -> c.moveToFirst(); c.getInt(0)}
+        Log.i(TAG, "Reading patch data for $table: $amount log entries")
         if(idField2 == null) {
             // Insert all rows from patch table that don't have more recent entry in Log table
-            execSQL("INSERT OR REPLACE INTO $table ($cols) " +
-                "SELECT $cols FROM patch.$table WHERE $idField1 IN " +
-                "(SELECT pe.entityId1 FROM patch.Log pe OUTER LEFT JOIN Log me " +
-                "WHERE pe.tableName = '$table' AND " +
-                "(me.entityId1 = NULL OR (pe.entityId1 = me.entityId1 AND me.tableName = '$table' AND pe.createdAt > me.createdAt)))")
+            execSQL("""INSERT OR REPLACE INTO $table ($cols) 
+                |SELECT $cols FROM patch.$table WHERE $idField1 IN 
+                |(SELECT pe.entityId1 FROM patch.Log pe 
+                |OUTER LEFT JOIN Log me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName 
+                |WHERE pe.tableName = '$table' AND (me.createdAt IS NULL OR pe.createdAt > me.createdAt))
+                |""".trimMargin())
             // Delete all marked deletions from patch Log table
             execSQL("DELETE FROM $table WHERE $idField1 IN (SELECT entityId1 FROM patch.Log WHERE tableName = '$table' AND type = 'DELETE')")
         } else {
-            execSQL("INSERT OR REPLACE INTO $table ($cols) " +
-                "SELECT $cols FROM patch.$table WHERE ($idField1,$idField2) IN " +
-                "(SELECT pe.entityId1,pe.entityId2 FROM patch.Log pe OUTER LEFT JOIN Log me " +
-                "WHERE pe.tableName = '$table' AND " +
-                "(me.entityId1 = NULL OR " +
-                "(pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND me.tableName = '$table' AND pe.createdAt > me.createdAt)))")
-
+            execSQL("""INSERT OR REPLACE INTO $table ($cols) 
+                |SELECT $cols FROM patch.$table WHERE ($idField1,$idField2) IN 
+                |(SELECT pe.entityId1,pe.entityId2 FROM patch.Log pe 
+                |OUTER LEFT JOIN Log me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName 
+                |WHERE pe.tableName = '$table' AND (me.createdAt IS NULL OR pe.createdAt > me.createdAt))
+                |""".trimMargin())
             execSQL("DELETE FROM $table WHERE ($idField1, $idField2) IN " +
                 "(SELECT entityId1, entityId2 FROM patch.Log WHERE tableName = '$table' AND type = 'DELETE')")
         }
