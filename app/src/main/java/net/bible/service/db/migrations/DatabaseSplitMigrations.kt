@@ -60,6 +60,37 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
         execSQL("INSERT INTO new.$newTableName ($cols) SELECT $cols FROM $tableName")
     }
 
+    private fun createTriggersForTable(db: SQLiteDatabase, tableName: String, idField1: String = "id", idField2: String? = null) = db.run {
+        fun where(prefix: String): String =
+            if(idField2 == null) {
+                "entityId1 = $prefix.$idField1"
+            } else {
+                "entityId1 = $prefix.$idField1 AND entityId2 = $prefix.$idField2"
+            }
+        fun insert(prefix: String): String =
+            if(idField2 == null) {
+                "$prefix.$idField1,''"
+            } else {
+                "$prefix.$idField1,$prefix.$idField2"
+            }
+
+        execSQL(
+            "CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName BEGIN " +
+                "DELETE FROM Edit WHERE ${where("NEW")} AND tableName = '$tableName';" +
+                "INSERT INTO Edit VALUES ('$tableName', ${insert("NEW")}, 'INSERT', STRFTIME('%s')); " +
+                "END;")
+        execSQL(
+            "CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName BEGIN " +
+                "DELETE FROM Edit WHERE ${where("OLD")} AND tableName = '$tableName';" +
+                "INSERT INTO Edit VALUES ('$tableName', ${insert("OLD")}, 'UPDATE', STRFTIME('%s')); " +
+                "END;")
+        execSQL(
+            "CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName BEGIN " +
+                "DELETE FROM Edit WHERE ${where("OLD")} AND tableName = '$tableName';" +
+                "INSERT INTO Edit VALUES ('$tableName', ${insert("OLD")}, 'DELETE', STRFTIME('%s')); " +
+                "END;")
+    }
+
     private fun bookmarkDb() {
         val dbFileName = application.getDatabasePath(BookmarkDatabase.dbFileName).absolutePath
         SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { _db ->
@@ -76,6 +107,12 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Edit_createdAt` ON `Edit` (`createdAt`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
             _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b3b5c15d43abec469eb34aa50580a49e')");
+
+            createTriggersForTable(_db, "Bookmark")
+            createTriggersForTable(_db, "Label")
+            createTriggersForTable(_db, "StudyPadTextEntry")
+            createTriggersForTable(_db, "BookmarkToLabel", "bookmarkId", "labelId")
+
             setPragmas(_db)
         }
         oldDb.apply {
@@ -150,6 +187,8 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Edit_createdAt` ON `Edit` (`createdAt`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
             _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '27b743c1340c9d1656bacf3cb9828e2a')");
+            createTriggersForTable(_db, "ReadingPlan")
+            createTriggersForTable(_db, "ReadingPlanStatus")
             setPragmas(_db)
         }
         oldDb.apply {
@@ -208,6 +247,10 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Edit_createdAt` ON `Edit` (`createdAt`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
             _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e2ea7d7c9e91c02d19eb6181cb5b4569')");
+
+            createTriggersForTable(_db, "Window")
+            createTriggersForTable(_db, "Workspace")
+            createTriggersForTable(_db, "PageManager", "windowId")
             setPragmas(_db);
         }
         oldDb.apply {

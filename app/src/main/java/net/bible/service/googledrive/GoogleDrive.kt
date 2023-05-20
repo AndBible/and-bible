@@ -185,13 +185,11 @@ object GoogleDrive {
                 val lastSynchronized = CommonUtils.settings.getLong("lastSynchronized", 0)
                 cleanupPatchFolder()
                 downloadNewPatches(lastSynchronized)
-                DatabasePatching.dropTriggers(DatabaseContainer.instance)
                 DatabasePatching.applyPatchFiles()
                 val now = System.currentTimeMillis()
                 DatabasePatching.createPatchFiles()
                 uploadNewPatches(now)
                 CommonUtils.settings.setLong("lastSynchronized", now)
-                DatabasePatching.createTriggers(DatabaseContainer.instance)
                 Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerNow)/1000.0} seconds")
             }
         }

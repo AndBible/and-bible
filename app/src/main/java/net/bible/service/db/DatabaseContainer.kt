@@ -34,8 +34,6 @@ import net.bible.android.database.TemporaryDatabase
 import net.bible.android.database.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabasePatching.createTriggers
-import net.bible.service.db.DatabasePatching.dropTriggers
 import net.bible.service.db.migrations.DatabaseSplitMigrations
 import net.bible.service.db.migrations.oldMonolithicAppDatabaseMigrations
 import java.io.File
@@ -179,11 +177,6 @@ class DatabaseContainer {
             backupZipFile.copyTo(backupFile, true)
             backupZipFile.delete()
         }
-    }
-
-    init {
-        dropTriggers(this)
-        createTriggers(this)
     }
 
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
