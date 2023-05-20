@@ -31,8 +31,6 @@ import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 import java.util.Date
 
-const val BOOKMARK_DATABASE_VERSION = 1
-
 enum class EditType {
     INSERT,
     UPDATE,
@@ -48,6 +46,8 @@ class Edit(
     val editType: EditType,
     @ColumnInfo(defaultValue = "0") val lastUpdated: Date = Date(System.currentTimeMillis()),
 )
+
+const val BOOKMARK_DATABASE_VERSION = 1
 
 @Database(
     entities = [
