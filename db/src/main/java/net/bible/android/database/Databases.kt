@@ -37,13 +37,16 @@ enum class EditType {
     DELETE
 }
 
-@Entity(primaryKeys = ["tableName", "entityId1", "entityId2"])
+@Entity(
+    primaryKeys = ["tableName", "entityId1", "entityId2"],
+    indices = [Index(value = ["createdAt"])]
+)
 class Edit(
     val tableName: String,
     val entityId1: String,
     @ColumnInfo(defaultValue = "") val entityId2: String,
     val editType: EditType,
-    @ColumnInfo(defaultValue = "0") val lastUpdated: Date = Date(System.currentTimeMillis()),
+    @ColumnInfo(defaultValue = "0") val createdAt: Long,
 )
 
 const val BOOKMARK_DATABASE_VERSION = 1
