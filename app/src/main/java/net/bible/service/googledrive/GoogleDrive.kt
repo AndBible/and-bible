@@ -25,6 +25,7 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
@@ -102,7 +103,13 @@ object GoogleDrive {
 
     suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) {
         Log.i(TAG, "Starting")
-        account = GoogleSignIn.getLastSignedInAccount(application)?.account?:oneTapSignIn(activity)
+        try {
+            account = GoogleSignIn.getLastSignedInAccount(application)?.account ?: oneTapSignIn(activity)
+        } catch (e: ApiException) {
+            Log.e(TAG, "Error signing in", e)
+            account = null
+            return@withContext false
+        }
         val success = ensureDriveAccess(activity)
         if(!success) {
             account = null
@@ -168,6 +175,10 @@ object GoogleDrive {
 
     val syncMutex = Mutex()
     suspend fun synchronize() = withContext(Dispatchers.IO) {
+        if(!signedIn) {
+            Log.i(TAG, "Not signed in")
+            return@withContext
+        }
         if(syncMutex.isLocked) {
             Log.i(TAG, "Already synchronizing")
             return@withContext
