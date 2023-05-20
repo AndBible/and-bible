@@ -74,16 +74,18 @@ class DatabaseDef<T: RoomDatabase>(
     }
 }
 object DatabasePatching {
-    private fun writePatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
+    private fun writePatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null, lastSynchronizedMs: Long) = db.run {
         val cols = getColumnNamesJoined(db, table, "patch")
+        val lastSynchronized = lastSynchronizedMs / 1000
+
         if(idField2 == null) {
             execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $idField1 IN " +
-                "(SELECT entityId1 FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE'))")
+                "(SELECT entityId1 FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE') AND createdAt > $lastSynchronized)")
         } else {
             execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE ($idField1, $idField2) IN " +
-                "(SELECT entityId1, entityId2 FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE'))")
+                "(SELECT entityId1, entityId2 FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE') AND createdAt > $lastSynchronized)")
         }
-        execSQL("INSERT INTO patch.Log SELECT * FROM Log WHERE tableName = '$table'")
+        execSQL("INSERT INTO patch.Log SELECT * FROM Log WHERE tableName = '$table' AND createdAt > $lastSynchronized")
     }
 
     private fun readPatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
@@ -110,7 +112,7 @@ object DatabasePatching {
         }
     }
 
-    private fun createPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>) {
+    private fun createPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>, lastSynchronized: Long) {
         val dbDef = dbDefFactory()
         var needPatch: Boolean
         dbDef.use {
@@ -120,7 +122,7 @@ object DatabasePatching {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     execSQL("PRAGMA foreign_keys=OFF;")
                     for (tableDef in it.tableDefs) {
-                        writePatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
+                        writePatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2, lastSynchronized)
                     }
                     execSQL("PRAGMA foreign_keys=ON;")
                     execSQL("DETACH DATABASE patch")
@@ -191,10 +193,10 @@ object DatabasePatching {
         },
     ) }
 
-    suspend fun createPatchFiles() = withContext(Dispatchers.IO) {
+    suspend fun createPatchFiles(lastSynchronized: Long) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Creating db patch files")
         awaitAll(
-            *getDbFactories(false).map { async(Dispatchers.IO) {createPatchForDatabase(it)} }.toTypedArray()
+            *getDbFactories(false).map { async(Dispatchers.IO) {createPatchForDatabase(it, lastSynchronized)} }.toTypedArray()
         )
     }
 
