@@ -264,7 +264,7 @@ open class CurrentPageManager @Inject constructor(
             textDisplaySettings.copy()
         )
 
-    lateinit var savedEntity: WorkspaceEntities.PageManager
+    var savedEntity: WorkspaceEntities.PageManager? = null
 
     val isModified get() = savedEntity != entity
 
@@ -290,7 +290,7 @@ open class CurrentPageManager @Inject constructor(
         if(workspaceDisplaySettings != null) {
             WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
             textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
-            savedEntity.textDisplaySettings = textDisplaySettings
+            savedEntity?.textDisplaySettings = textDisplaySettings
         }
         currentPage = getBookPage(restoredBookCategory)
         if(currentPage.key == null || currentPage.currentDocument == null) {

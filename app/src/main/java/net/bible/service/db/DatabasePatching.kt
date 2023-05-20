@@ -162,14 +162,22 @@ object DatabasePatching {
     private fun readPatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
         val cols = getColumnNamesJoined(db, table)
         if(idField2 == null) {
+            // Insert all rows from patch table that don't have more recent entry in Edit table
             execSQL("INSERT OR REPLACE INTO $table ($cols) " +
-                "SELECT $cols FROM patch.$table WHERE $idField1 NOT EXISTS" +
-                "(SELECT entityId1 FROM Edit WHERE tableName = '$table' AND entityId1 = '$idField1')")
+                "SELECT $cols FROM patch.$table WHERE $idField1 IN " +
+                "(SELECT pe.entityId1 FROM patch.Edit pe OUTER LEFT JOIN Edit me " +
+                "WHERE pe.tableName = '$table' AND " +
+                "(me.entityId1 = NULL OR (pe.entityId1 = me.entityId1 AND me.tableName = '$table' AND pe.lastUpdated > me.lastUpdated)))")
+            // Delete all marked deletions from patch Edit table
             execSQL("DELETE FROM $table WHERE $idField1 IN (SELECT entityId1 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
         } else {
             execSQL("INSERT OR REPLACE INTO $table ($cols) " +
-                "SELECT $cols FROM patch.$table WHERE NOT EXISTS" +
-                "(SELECT entityId1, entityId2 FROM Edit WHERE tableName = '$table' AND entityId1 = '$idField1' AND entityId2 = '$idField2')")
+                "SELECT $cols FROM patch.$table WHERE ($idField1,$idField2) IN " +
+                "(SELECT pe.entityId1,pe.entityId2 FROM patch.Edit pe OUTER LEFT JOIN Edit me " +
+                "WHERE pe.tableName = '$table' AND " +
+                "(me.entityId1 = NULL OR " +
+                "(pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND me.tableName = '$table' AND pe.lastUpdated > me.lastUpdated)))")
+
             execSQL("DELETE FROM $table WHERE ($idField1, $idField2) IN (SELECT entityId1, entityId2 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
         }
     }

@@ -176,6 +176,7 @@ object GoogleDrive {
             val lock = fileLock
             if(fileLock == null) {
                 Log.i(TAG, "Lock file present, can't synchronize")
+                ABEventBus.post(ToastEvent(R.string.sync_locked))
                 return@withContext
             }
             lock.use {
