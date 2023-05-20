@@ -72,10 +72,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_StudyPadTextEntry_labelId` ON `StudyPadTextEntry` (`labelId`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `BookmarkToLabel` (`bookmarkId` TEXT NOT NULL, `labelId` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT -1, `indentLevel` INTEGER NOT NULL DEFAULT 0, `expandContent` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`bookmarkId`, `labelId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `BookmarkToLabel` (`labelId`)");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `Edit` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT, `editType` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0)");
-            _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_Edit_tableName_entityId1_entityId2` ON `Edit` (`tableName`, `entityId1`, `entityId2`)");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `Edit` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `editType` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a79b90816c9a017a5e9ddce91e4cfbb3')");
+            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '07f10cc01b5deee7655a5e06b2ef5e9e')");
             setPragmas(_db)
         }
         oldDb.apply {
@@ -146,10 +145,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ReadingPlan_planCode` ON `ReadingPlan` (`planCode`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `ReadingPlanStatus` (`planCode` TEXT NOT NULL, `planDay` INTEGER NOT NULL, `readingStatus` TEXT NOT NULL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))");
             _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ReadingPlanStatus_planCode_planDay` ON `ReadingPlanStatus` (`planCode`, `planDay`)");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `Edit` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT, `editType` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0)");
-            _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_Edit_tableName_entityId1_entityId2` ON `Edit` (`tableName`, `entityId1`, `entityId2`)");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `Edit` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `editType` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '38804a13449a544c84b1cef6e99ef1e5')");
+            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3f48fafe808699f172e77fc2bff132e3')");
             setPragmas(_db)
         }
         oldDb.apply {
@@ -204,10 +202,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_HistoryItem_windowId` ON `HistoryItem` (`windowId`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `PageManager` (`windowId` TEXT NOT NULL, `currentCategoryName` TEXT NOT NULL, `bible_document` TEXT, `bible_verse_versification` TEXT NOT NULL, `bible_verse_bibleBook` INTEGER NOT NULL, `bible_verse_chapterNo` INTEGER NOT NULL, `bible_verse_verseNo` INTEGER NOT NULL, `commentary_document` TEXT, `commentary_anchorOrdinal` INTEGER DEFAULT NULL, `dictionary_document` TEXT, `dictionary_key` TEXT, `dictionary_anchorOrdinal` INTEGER DEFAULT NULL, `general_book_document` TEXT, `general_book_key` TEXT, `general_book_anchorOrdinal` INTEGER DEFAULT NULL, `map_document` TEXT, `map_key` TEXT, `map_anchorOrdinal` INTEGER DEFAULT NULL, `text_display_settings_strongsMode` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_expandXrefs` INTEGER DEFAULT NULL, `text_display_settings_showXrefs` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, PRIMARY KEY(`windowId`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
             _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_PageManager_windowId` ON `PageManager` (`windowId`)");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `Edit` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT, `editType` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0)");
-            _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_Edit_tableName_entityId1_entityId2` ON `Edit` (`tableName`, `entityId1`, `entityId2`)");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `Edit` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `editType` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bed833df00ec1ef7294de72c781c2a91')");
+            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8c737e0a0b804cf5fcbdfb0ae7a9d6e6')");
             setPragmas(_db);
         }
         oldDb.apply {

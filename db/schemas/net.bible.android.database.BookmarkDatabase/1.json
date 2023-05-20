@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a79b90816c9a017a5e9ddce91e4cfbb3",
+    "identityHash": "07f10cc01b5deee7655a5e06b2ef5e9e",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -376,14 +376,8 @@
       },
       {
         "tableName": "Edit",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT, `editType` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `editType` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "tableName",
             "columnName": "tableName",
@@ -400,7 +394,8 @@
             "fieldPath": "entityId2",
             "columnName": "entityId2",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true,
+            "defaultValue": "''"
           },
           {
             "fieldPath": "editType",
@@ -417,31 +412,21 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "tableName",
+            "entityId1",
+            "entityId2"
           ]
         },
-        "indices": [
-          {
-            "name": "index_Edit_tableName_entityId1_entityId2",
-            "unique": true,
-            "columnNames": [
-              "tableName",
-              "entityId1",
-              "entityId2"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Edit_tableName_entityId1_entityId2` ON `${TABLE_NAME}` (`tableName`, `entityId1`, `entityId2`)"
-          }
-        ],
+        "indices": [],
         "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a79b90816c9a017a5e9ddce91e4cfbb3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '07f10cc01b5deee7655a5e06b2ef5e9e')"
     ]
   }
 }

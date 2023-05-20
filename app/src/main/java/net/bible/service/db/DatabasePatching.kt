@@ -178,7 +178,8 @@ object DatabasePatching {
                 "(me.entityId1 = NULL OR " +
                 "(pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND me.tableName = '$table' AND pe.lastUpdated > me.lastUpdated)))")
 
-            execSQL("DELETE FROM $table WHERE ($idField1, $idField2) IN (SELECT entityId1, entityId2 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
+            execSQL("DELETE FROM $table WHERE ($idField1, $idField2) IN " +
+                "(SELECT entityId1, entityId2 FROM patch.Edit WHERE tableName = '$table' AND editType = 'DELETE')")
         }
     }
 
