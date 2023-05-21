@@ -83,13 +83,14 @@ object DatabasePatching {
     private fun writePatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null, lastSynchronized: Long) = db.run {
         val cols = getColumnNamesJoined(db, table, "patch")
 
-        if(idField2 == null) {
-            execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $idField1 IN " +
-                "(SELECT entityId1 FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE') AND createdAt > $lastSynchronized)")
-        } else {
-            execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE ($idField1, $idField2) IN " +
-                "(SELECT entityId1, entityId2 FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE') AND createdAt > $lastSynchronized)")
+        var where = idField1
+        var select = "pe.entityId1"
+        if (idField2 != null) {
+            where = "($idField1,$idField2)"
+            select = "pe.entityId1,pe.entityId2"
         }
+        execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $where IN " +
+            "(SELECT $select FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE') AND createdAt > $lastSynchronized)")
         execSQL("INSERT INTO patch.Log SELECT * FROM Log WHERE tableName = '$table' AND createdAt > $lastSynchronized")
     }
 
@@ -97,26 +98,22 @@ object DatabasePatching {
         val cols = getColumnNamesJoined(db, table)
         val amount = query("SELECT COUNT(*) FROM patch.Log WHERE tableName = '$table'").use {c -> c.moveToFirst(); c.getInt(0)}
         Log.i(TAG, "Reading patch data for $table: $amount log entries")
-        if(idField2 == null) {
-            // Insert all rows from patch table that don't have more recent entry in Log table
-            execSQL("""INSERT OR REPLACE INTO $table ($cols) 
-                |SELECT $cols FROM patch.$table WHERE $idField1 IN 
-                |(SELECT pe.entityId1 FROM patch.Log pe 
-                |OUTER LEFT JOIN Log me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName 
-                |WHERE pe.tableName = '$table' AND (me.createdAt IS NULL OR pe.createdAt > me.createdAt))
-                |""".trimMargin())
-            // Delete all marked deletions from patch Log table
-            execSQL("DELETE FROM $table WHERE $idField1 IN (SELECT entityId1 FROM patch.Log WHERE tableName = '$table' AND type = 'DELETE')")
-        } else {
-            execSQL("""INSERT OR REPLACE INTO $table ($cols) 
-                |SELECT $cols FROM patch.$table WHERE ($idField1,$idField2) IN 
-                |(SELECT pe.entityId1,pe.entityId2 FROM patch.Log pe 
-                |OUTER LEFT JOIN Log me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName 
-                |WHERE pe.tableName = '$table' AND (me.createdAt IS NULL OR pe.createdAt > me.createdAt))
-                |""".trimMargin())
-            execSQL("DELETE FROM $table WHERE ($idField1, $idField2) IN " +
-                "(SELECT entityId1, entityId2 FROM patch.Log WHERE tableName = '$table' AND type = 'DELETE')")
+        var where = idField1
+        var select = "pe.entityId1"
+        if (idField2 != null) {
+            where = "($idField1,$idField2)"
+            select = "pe.entityId1,pe.entityId2"
         }
+        // Insert all rows from patch table that don't have more recent entry in Log table
+        execSQL("""INSERT OR REPLACE INTO $table ($cols) 
+                |SELECT $cols FROM patch.$table WHERE $where IN 
+                |(SELECT $select FROM patch.Log pe 
+                |OUTER LEFT JOIN Log me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName 
+                |WHERE pe.tableName = '$table' AND (me.createdAt IS NULL OR pe.createdAt > me.createdAt))
+                |""".trimMargin())
+        // Delete all marked deletions from patch Log table
+        execSQL("DELETE FROM $table WHERE $where IN (SELECT $select FROM patch.Log WHERE tableName = '$table' AND type = 'DELETE')")
+
         // Let's fix Log table timestamps (all above insertions have created new entries)
         execSQL("INSERT OR REPLACE INTO Log SELECT * FROM patch.Log")
     }
