@@ -1280,8 +1280,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     GoogleDrive.synchronize()
                     GoogleDrive.syncMutex.withLock {  }
                     hourglass.dismiss()
+                    currentWorkspaceId = currentWorkspaceId
                 }
-                currentWorkspaceId = currentWorkspaceId
                 updateActions()
             }
         }
