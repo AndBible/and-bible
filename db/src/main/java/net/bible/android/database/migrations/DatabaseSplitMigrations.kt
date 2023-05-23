@@ -15,8 +15,9 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.db.migrations
+package net.bible.android.database.migrations
 
+import android.app.Application
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT
@@ -24,7 +25,6 @@ import androidx.core.database.getStringOrNull
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
-import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
@@ -38,7 +38,7 @@ const val GENERATE_UUID4_SQL =
     "SUBSTR(HEX(RANDOMBLOB(2)), 2) || '-' || SUBSTR('AB89', 1 + (ABS(RANDOM()) % 4) , 1) " +
     "|| SUBSTR(HEX(RANDOMBLOB(2)), 2) || '-' || HEX(RANDOMBLOB(6)))"
 
-class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
+class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app: Application) {
 
     private fun setPragmas(db: SQLiteDatabase)  = db.run {
         db.version = 1
@@ -60,39 +60,8 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
         execSQL("INSERT INTO new.$newTableName ($cols) SELECT $cols FROM $tableName")
     }
 
-    private fun createTriggersForTable(db: SQLiteDatabase, tableName: String, idField1: String = "id", idField2: String? = null) = db.run {
-        fun where(prefix: String): String =
-            if(idField2 == null) {
-                "entityId1 = $prefix.$idField1"
-            } else {
-                "entityId1 = $prefix.$idField1 AND entityId2 = $prefix.$idField2"
-            }
-        fun insert(prefix: String): String =
-            if(idField2 == null) {
-                "$prefix.$idField1,''"
-            } else {
-                "$prefix.$idField1,$prefix.$idField2"
-            }
-
-        execSQL(
-            "CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName BEGIN " +
-                "DELETE FROM Log WHERE ${where("NEW")} AND tableName = '$tableName';" +
-                "INSERT INTO Log VALUES ('$tableName', ${insert("NEW")}, 'INSERT', STRFTIME('%s')); " +
-                "END;")
-        execSQL(
-            "CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName BEGIN " +
-                "DELETE FROM Log WHERE ${where("OLD")} AND tableName = '$tableName';" +
-                "INSERT INTO Log VALUES ('$tableName', ${insert("OLD")}, 'UPDATE', STRFTIME('%s')); " +
-                "END;")
-        execSQL(
-            "CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName BEGIN " +
-                "DELETE FROM Log WHERE ${where("OLD")} AND tableName = '$tableName';" +
-                "INSERT INTO Log VALUES ('$tableName', ${insert("OLD")}, 'DELETE', STRFTIME('%s')); " +
-                "END;")
-    }
-
     private fun bookmarkDb() {
-        val dbFileName = application.getDatabasePath(BookmarkDatabase.dbFileName).absolutePath
+        val dbFileName = app.getDatabasePath(BookmarkDatabase.dbFileName).absolutePath
         SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { _db ->
             _db.execSQL("CREATE TABLE IF NOT EXISTS `Bookmark` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `book` TEXT, `startOffset` INTEGER, `endOffset` INTEGER, `primaryLabelId` TEXT DEFAULT NULL, `notes` TEXT DEFAULT NULL, `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0, `wholeVerse` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`primaryLabelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalStart` ON `Bookmark` (`kjvOrdinalStart`)");
@@ -107,11 +76,6 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Log_createdAt` ON `Log` (`createdAt`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
             _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '729670049390009a790aed50723b57bb')");
-
-            createTriggersForTable(_db, "Bookmark")
-            createTriggersForTable(_db, "Label")
-            createTriggersForTable(_db, "StudyPadTextEntry")
-            createTriggersForTable(_db, "BookmarkToLabel", "bookmarkId", "labelId")
 
             setPragmas(_db)
         }
@@ -177,7 +141,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
     }
 
     private fun readingPlanDb() {
-        val dbFileName = application.getDatabasePath(ReadingPlanDatabase.dbFileName).absolutePath
+        val dbFileName = app.getDatabasePath(ReadingPlanDatabase.dbFileName).absolutePath
         SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { _db ->
             _db.execSQL("CREATE TABLE IF NOT EXISTS `ReadingPlan` (`planCode` TEXT NOT NULL, `planStartDate` INTEGER NOT NULL, `planCurrentDay` INTEGER NOT NULL DEFAULT 1, `id` TEXT NOT NULL, PRIMARY KEY(`id`))");
             _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ReadingPlan_planCode` ON `ReadingPlan` (`planCode`)");
@@ -188,8 +152,6 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
             _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '429042580a17517c915067fa0956c218')");
 
-            createTriggersForTable(_db, "ReadingPlan")
-            createTriggersForTable(_db, "ReadingPlanStatus")
             setPragmas(_db)
         }
         oldDb.apply {
@@ -231,7 +193,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
     }
 
     private fun workspaceDb() {
-        val dbFileName = application.getDatabasePath(WorkspaceDatabase.dbFileName).absolutePath
+        val dbFileName = app.getDatabasePath(WorkspaceDatabase.dbFileName).absolutePath
         SQLiteDatabase.openDatabase(
             dbFileName,
             null,
@@ -249,9 +211,6 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
             _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cf515756798bb4aae0b38465066d5cef')");
 
-            createTriggersForTable(_db, "Window")
-            createTriggersForTable(_db, "Workspace")
-            createTriggersForTable(_db, "PageManager", "windowId")
             setPragmas(_db);
         }
         oldDb.apply {
@@ -391,7 +350,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
     }
 
     private fun repoDb() {
-        val dbFileName = application.getDatabasePath(RepoDatabase.dbFileName).absolutePath
+        val dbFileName = app.getDatabasePath(RepoDatabase.dbFileName).absolutePath
         SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { db -> db.run {
             execSQL("CREATE TABLE IF NOT EXISTS `CustomRepository` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `type` TEXT NOT NULL, `host` TEXT NOT NULL, `catalogDirectory` TEXT NOT NULL, `packageDirectory` TEXT NOT NULL, `manifestUrl` TEXT)");
             execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_CustomRepository_name` ON `CustomRepository` (`name`)");
@@ -417,7 +376,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase) {
     }
 
     private fun settingsDb() {
-        val dbFileName = application.getDatabasePath(SettingsDatabase.dbFileName).absolutePath
+        val dbFileName = app.getDatabasePath(SettingsDatabase.dbFileName).absolutePath
         SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { db ->
             db.run {
                 execSQL("CREATE TABLE IF NOT EXISTS `BooleanSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))");

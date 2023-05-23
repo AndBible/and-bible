@@ -14,25 +14,18 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.service.db.migrations
+package net.bible.android.database.migrations
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.defaultWorkspaceColor
-import net.bible.service.common.CommonUtils
-import net.bible.service.db.TAG
-import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
-import net.bible.service.db.mynote.MyNoteDatabaseDefinition
-import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
@@ -41,46 +34,32 @@ import java.sql.SQLException
 
 import androidx.room.migration.Migration as RoomMigration
 
+const val TAG = "OldMigrations"
 
-abstract class Migration(startVersion: Int, endVersion: Int): RoomMigration(startVersion, endVersion) {
-    abstract fun doMigrate(db: SupportSQLiteDatabase)
-
-    override fun migrate(db: SupportSQLiteDatabase) {
-        Log.i(TAG, "Migrating from version $startVersion to $endVersion")
-        doMigrate(db)
-    }
-}
 
 private val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
-        MyNoteDatabaseDefinition.instance.onCreate(db)
+        DEPRECATED_MyNoteDatabaseDefinition.instance.onCreate(db)
     }
 }
 
 private val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
-        BookmarkDatabaseDefinition.instance.upgradeToVersion3(db)
-        MyNoteDatabaseDefinition.instance.upgradeToVersion3(db)
+        DEPRECATED_BookmarkDatabaseDefinition.instance.upgradeToVersion3(db)
+        DEPRECATED_MyNoteDatabaseDefinition.instance.upgradeToVersion3(db)
     }
 }
 
 private val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
-        BookmarkDatabaseDefinition.instance.upgradeToVersion4(db)
+        DEPRECATED_BookmarkDatabaseDefinition.instance.upgradeToVersion4(db)
     }
 }
 
 private val MIGRATION_4_5 = object : Migration(4, 5) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
-        BookmarkDatabaseDefinition.instance.upgradeToVersion5(db)
+        DEPRECATED_BookmarkDatabaseDefinition.instance.upgradeToVersion5(db)
 
-    }
-}
-
-private val MIGRATION_5_6 = object : Migration(5, 6) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
-        ReadingPlanDatabaseOperations.instance.onCreate(db)
-        ReadingPlanDatabaseOperations.instance.migratePrefsToDatabase(db)
     }
 }
 
@@ -661,76 +640,7 @@ private val BOOKMARKS_BOOK_36_37 = object : Migration(36, 37) {
     }
 }
 
-private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
-        db.apply {
-            execSQL("ALTER TABLE `Bookmark` ADD COLUMN `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0")
-            execSQL("UPDATE Bookmark SET lastUpdatedOn=createdAt")
 
-            val c = db.query("SELECT * from mynote")
-            val idIdx = c.getColumnIndex("_id")
-            val keyIdx = c.getColumnIndex("key")
-            val v11nIdx = c.getColumnIndex("versification")
-            val myNoteIdx = c.getColumnIndex("mynote")
-            val lastUpdatedOnIdx = c.getColumnIndex("last_updated_on")
-            val createdOnIdx = c.getColumnIndex("created_on")
-
-            c.moveToFirst()
-
-            var labelId = -1L
-            if(!c.isAfterLast) {
-                val labelValues = ContentValues().apply {
-                    put("name", BibleApplication.application.getString(R.string.migrated_my_notes))
-                }
-                labelId = db.insert("Label", CONFLICT_FAIL, labelValues)
-            }
-
-            while(!c.isAfterLast) {
-                val id = c.getLong(idIdx)
-                val key = c.getString(keyIdx)
-                var v11n: Versification? = null
-                var verseRange: VerseRange? = null
-                var verseRangeInKjv: VerseRange? = null
-
-                try {
-                    v11n = Versifications.instance().getVersification(
-                        c.getString(v11nIdx) ?: Versifications.DEFAULT_V11N
-                    )
-                    verseRange = VerseRangeFactory.fromString(v11n, key)
-                    verseRangeInKjv = verseRange.toV11n(KJVA)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to migrate bookmark: v11n:$v11n verseRange:$verseRange verseRangeInKjv:$verseRangeInKjv", e)
-                    c.moveToNext()
-                    continue
-                }
-
-                val createdAt = c.getLong(createdOnIdx)
-                val lastUpdatedOn = c.getLong(lastUpdatedOnIdx)
-                val myNote = c.getString(myNoteIdx)
-                val newValues = ContentValues()
-                newValues.apply {
-                    put("v11n", v11n.name)
-                    put("kjvOrdinalStart", verseRangeInKjv.start.ordinal)
-                    put("kjvOrdinalEnd", verseRangeInKjv.end.ordinal)
-                    put("ordinalStart", verseRange.start.ordinal)
-                    put("ordinalEnd", verseRange.end.ordinal)
-                    put("createdAt", createdAt)
-                    put("lastUpdatedOn", lastUpdatedOn)
-                    put("notes", myNote)
-                }
-                val bookmarkId = db.insert("Bookmark", CONFLICT_FAIL, newValues)
-
-                val bookmarkLabelValues = ContentValues().apply {
-                    put("bookmarkId", bookmarkId)
-                    put("labelId", labelId)
-                }
-                db.insert("BookmarkToLabel", CONFLICT_FAIL, bookmarkLabelValues)
-                c.moveToNext()
-            }
-            execSQL("DROP TABLE mynote;")
-        }
-    }
-}
 
 private val BOOKMARKS_LABEL_COLOR_38_39 = object : Migration(38, 39) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
@@ -907,52 +817,6 @@ private val MIGRATION_52_53_underline = object : Migration(52, 53) {
     }
 }
 
-private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
-        db.apply {
-            execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_primaryLabelId` ON `Bookmark` (`primaryLabelId`)")
-            execSQL("CREATE TABLE IF NOT EXISTS `BooleanSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))");
-            execSQL("CREATE TABLE IF NOT EXISTS `StringSetting` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))")
-            execSQL("CREATE TABLE IF NOT EXISTS `LongSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))")
-            execSQL("CREATE TABLE IF NOT EXISTS `DoubleSetting` (`key` TEXT NOT NULL, `value` REAL NOT NULL, PRIMARY KEY(`key`))")
-            val sharedPreferences = CommonUtils.realSharedPreferences
-            for((k, v) in sharedPreferences.all) {
-                val values = ContentValues()
-                values.put("key", k)
-                when(v) {
-                    is Long -> {
-                        values.put("value", v)
-                        db.insert("LongSetting", CONFLICT_IGNORE, values)
-                    }
-                    is Int -> {
-                        values.put("value", v)
-                        db.insert("LongSetting", CONFLICT_IGNORE, values)
-                    }
-                    is Boolean -> {
-                        values.put("value", v)
-                        db.insert("BooleanSetting", CONFLICT_IGNORE, values)
-                    }
-                    is String -> {
-                        values.put("value", v)
-                        db.insert("StringSetting", CONFLICT_IGNORE, values)
-                    }
-                    is Float -> {
-                        values.put("value", v)
-                        db.insert("DoubleSetting", CONFLICT_IGNORE, values)
-                    }
-                    is Double -> {
-                        values.put("value", v)
-                        db.insert("DoubleSetting", CONFLICT_IGNORE, values)
-                    }
-                    else -> {
-                        Log.e(TAG, "Illegal value '$k', $v")
-                    }
-                }
-            }
-        }
-    }
-}
-
 private val MIGRATION_54_55_bookmarkType = object : Migration(54, 55) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
@@ -1084,13 +948,11 @@ private val MIGRATION_68_69_dummy = object : Migration(68, 69) {
 }
 
 
-
 val oldMonolithicAppDatabaseMigrations = arrayOf(
     MIGRATION_1_2,
     MIGRATION_2_3,
     MIGRATION_3_4,
     MIGRATION_4_5,
-    MIGRATION_5_6,
     MIGRATION_6_7,
     MIGRATION_7_8,
     MIGRATION_8_9,
@@ -1125,7 +987,6 @@ val oldMonolithicAppDatabaseMigrations = arrayOf(
     BOOKMARKS_BOOK_34_35,
     WORKSPACE_BOOKMARK_35_36,
     BOOKMARKS_BOOK_36_37,
-    MIGRATION_37_38_MyNotes_To_Bookmarks,
     BOOKMARKS_LABEL_COLOR_38_39,
     JOURNAL_39_40,
     MIGRATION_40_41_DocumentBackup,
@@ -1141,7 +1002,6 @@ val oldMonolithicAppDatabaseMigrations = arrayOf(
     MIGRATION_50_51_underlineStyleAndRecentLabels,
     MIGRATION_51_52_compareDocuments,
     MIGRATION_52_53_underline,
-    MIGRATION_53_54_booleanSettings,
     MIGRATION_54_55_bookmarkType,
     MIGRATION_55_56_limitAmbiguousSize,
     MIGRATION_56_57_breaklines_in_notes,

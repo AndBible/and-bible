@@ -28,7 +28,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.WorkspaceDatabase
-import net.bible.service.db.migrations.getColumnNamesJoined
+import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.googledrive.GoogleDrive
 import net.bible.service.googledrive.GoogleDrive.timeStampFromPatchFileName
 import java.io.Closeable

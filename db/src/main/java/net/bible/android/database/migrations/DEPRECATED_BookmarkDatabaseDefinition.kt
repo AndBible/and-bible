@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.service.db.bookmark
+package net.bible.android.database.migrations
 
 import android.provider.BaseColumns
 import android.util.Log
@@ -24,7 +24,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BookmarkDatabaseDefinition {
+class DEPRECATED_BookmarkDatabaseDefinition {
     interface Table {
         companion object {
             const val BOOKMARK = "bookmark"
@@ -125,13 +125,13 @@ class BookmarkDatabaseDefinition {
 
     companion object {
         private const val TAG = "BookmarkDatabaseDefn"
-        private var sSingleton: BookmarkDatabaseDefinition? = null
+        private var sSingleton: DEPRECATED_BookmarkDatabaseDefinition? = null
         @JvmStatic
 		@get:Synchronized
-        val instance: BookmarkDatabaseDefinition
+        val instance: DEPRECATED_BookmarkDatabaseDefinition
             get() {
                 if (sSingleton == null) {
-                    sSingleton = BookmarkDatabaseDefinition()
+                    sSingleton = DEPRECATED_BookmarkDatabaseDefinition()
                 }
                 return sSingleton!!
             }

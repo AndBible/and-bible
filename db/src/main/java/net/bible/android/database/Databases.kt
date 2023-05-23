@@ -25,6 +25,9 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
+import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
+import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 
@@ -46,8 +49,6 @@ class Log(
     @ColumnInfo(defaultValue = "0") val createdAt: Long,
 )
 
-const val BOOKMARK_DATABASE_VERSION = 1
-
 @Database(
     entities = [
         BookmarkEntities.Bookmark::class,
@@ -66,8 +67,6 @@ abstract class BookmarkDatabase: RoomDatabase() {
     }
 }
 
-const val READING_PLAN_DATABASE_VERSION = 1
-
 @Database(
     entities = [
         ReadingPlanEntities.ReadingPlan::class,
@@ -83,8 +82,6 @@ abstract class ReadingPlanDatabase: RoomDatabase() {
         const val dbFileName = "readingplans.sqlite3"
     }
 }
-
-const val WORKSPACE_DATABASE_VERSION = 1
 
 @Database(
     entities = [

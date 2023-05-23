@@ -21,21 +21,25 @@ import android.util.Log
 import androidx.room.Room
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.database.BOOKMARK_DATABASE_VERSION
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.OldMonolithicAppDatabase
-import net.bible.android.database.READING_PLAN_DATABASE_VERSION
 import net.bible.android.database.REPO_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SETTINGS_DATABASE_VERSION
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.TemporaryDatabase
-import net.bible.android.database.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.migrations.DatabaseSplitMigrations
-import net.bible.service.db.migrations.oldMonolithicAppDatabaseMigrations
+import net.bible.android.database.migrations.DatabaseSplitMigrations
+import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
+import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
+import net.bible.android.database.migrations.bookmarkMigrations
+import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
+import net.bible.android.database.migrations.readingPlanMigrations
+import net.bible.android.database.migrations.workspacesMigrations
+import net.bible.service.db.oldmigrations.oldMigrations
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -67,14 +71,17 @@ class DatabaseContainer {
             application, OldMonolithicAppDatabase::class.java, OLD_MONOLITHIC_DATABASE_NAME
         )
             .allowMainThreadQueries()
-            .addMigrations(*oldMonolithicAppDatabaseMigrations)
+            .addMigrations(
+                *oldMonolithicAppDatabaseMigrations,
+                *oldMigrations,
+            )
             .build()
 
     private fun migrateOldDatabaseIfNeeded() {
         val oldDbFile = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
         if(oldDbFile.exists()) {
             getOldDatabase().openHelper.writableDatabase.use {
-                val migrations = DatabaseSplitMigrations(it)
+                val migrations = DatabaseSplitMigrations(it, application)
                 migrations.migrateAll()
             }
             oldDbFile.delete()
@@ -84,7 +91,7 @@ class DatabaseContainer {
         application, BookmarkDatabase::class.java, filename
     )
         .allowMainThreadQueries()
-        .addMigrations()
+        .addMigrations(*bookmarkMigrations)
         .build()
 
     val bookmarkDb: BookmarkDatabase = getBookmarkDb()
@@ -94,7 +101,7 @@ class DatabaseContainer {
             application, ReadingPlanDatabase::class.java, filename
         )
             .allowMainThreadQueries()
-            .addMigrations()
+            .addMigrations(*readingPlanMigrations)
             .build()
 
     val readingPlanDb: ReadingPlanDatabase = getReadingPlanDb()
@@ -104,7 +111,7 @@ class DatabaseContainer {
             application, WorkspaceDatabase::class.java, filename
         )
             .allowMainThreadQueries()
-            .addMigrations()
+            .addMigrations(*workspacesMigrations)
             .build()
 
     val workspaceDb: WorkspaceDatabase = getWorkspaceDb()
