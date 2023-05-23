@@ -17,7 +17,6 @@
 
 package net.bible.android.database.migrations
 
-import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.migration.Migration as RoomMigration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -37,34 +36,3 @@ fun makeMigration(versionRange: IntRange, migration: (db: SupportSQLiteDatabase)
             migration.invoke(db)
         }
     }
-
-fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idField1: String = "id", idField2: String? = null) = db.run {
-    fun where(prefix: String): String =
-        if(idField2 == null) {
-            "entityId1 = $prefix.$idField1"
-        } else {
-            "entityId1 = $prefix.$idField1 AND entityId2 = $prefix.$idField2"
-        }
-    fun insert(prefix: String): String =
-        if(idField2 == null) {
-            "$prefix.$idField1,''"
-        } else {
-            "$prefix.$idField1,$prefix.$idField2"
-        }
-
-    execSQL(
-        "CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName BEGIN " +
-            "DELETE FROM Log WHERE ${where("NEW")} AND tableName = '$tableName';" +
-            "INSERT INTO Log VALUES ('$tableName', ${insert("NEW")}, 'INSERT', STRFTIME('%s')); " +
-            "END;")
-    execSQL(
-        "CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName BEGIN " +
-            "DELETE FROM Log WHERE ${where("OLD")} AND tableName = '$tableName';" +
-            "INSERT INTO Log VALUES ('$tableName', ${insert("OLD")}, 'UPDATE', STRFTIME('%s')); " +
-            "END;")
-    execSQL(
-        "CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName BEGIN " +
-            "DELETE FROM Log WHERE ${where("OLD")} AND tableName = '$tableName';" +
-            "INSERT INTO Log VALUES ('$tableName', ${insert("OLD")}, 'DELETE', STRFTIME('%s')); " +
-            "END;")
-}

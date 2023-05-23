@@ -17,16 +17,8 @@
 
 package net.bible.android.database.migrations
 
-val bmTriggers_1_2 = makeMigration(1..2) { _db ->
-    createTriggersForTable(_db, "Bookmark")
-    createTriggersForTable(_db, "Label")
-    createTriggersForTable(_db, "StudyPadTextEntry")
-    createTriggersForTable(_db, "BookmarkToLabel", "bookmarkId", "labelId")
-}
+//val bmTriggers_1_2 = makeMigration(1..2) { _db -> }
 
+val bookmarkMigrations: Array<Migration> = arrayOf()
 
-val bookmarkMigrations = arrayOf(
-    bmTriggers_1_2,
-)
-
-const val BOOKMARK_DATABASE_VERSION = 2
+const val BOOKMARK_DATABASE_VERSION = 1

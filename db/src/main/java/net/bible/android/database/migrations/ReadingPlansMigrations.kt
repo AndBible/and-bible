@@ -17,13 +17,8 @@
 
 package net.bible.android.database.migrations
 
-val rpTriggers_1_2 = makeMigration(1..2) {_db ->
-    createTriggersForTable(_db, "ReadingPlan")
-    createTriggersForTable(_db, "ReadingPlanStatus")
-}
+// val rpTriggers_1_2 = makeMigration(1..2) {_db -> }
 
-val readingPlanMigrations = arrayOf(
-    rpTriggers_1_2,
-)
+val readingPlanMigrations: Array<Migration> = arrayOf()
 
-const val READING_PLAN_DATABASE_VERSION = 2
+const val READING_PLAN_DATABASE_VERSION = 1

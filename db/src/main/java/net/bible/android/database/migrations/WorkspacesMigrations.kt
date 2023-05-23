@@ -17,14 +17,8 @@
 
 package net.bible.android.database.migrations
 
-val wsTriggers_1_2 = makeMigration(1..2) {_db ->
-    createTriggersForTable(_db, "Window")
-    createTriggersForTable(_db, "Workspace")
-    createTriggersForTable(_db, "PageManager", "windowId")
-}
+//val wsTriggers_1_2 = makeMigration(1..2) {_db -> }
 
-val workspacesMigrations = arrayOf(
-    wsTriggers_1_2,
-)
+val workspacesMigrations: Array<Migration> = arrayOf()
 
-const val WORKSPACE_DATABASE_VERSION = 2
+const val WORKSPACE_DATABASE_VERSION = 1

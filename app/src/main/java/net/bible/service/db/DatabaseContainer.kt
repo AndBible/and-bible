@@ -19,6 +19,7 @@ package net.bible.service.db
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
+import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BookmarkDatabase
@@ -58,12 +59,81 @@ val ALL_DB_FILENAMES = arrayOf(
 
 class DataBaseNotReady: Exception()
 
+fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idField1: String = "id", idField2: String? = null) = db.run {
+    fun where(prefix: String): String =
+        if(idField2 == null) {
+            "entityId1 = $prefix.$idField1"
+        } else {
+            "entityId1 = $prefix.$idField1 AND entityId2 = $prefix.$idField2"
+        }
+    fun insert(prefix: String): String =
+        if(idField2 == null) {
+            "$prefix.$idField1,''"
+        } else {
+            "$prefix.$idField1,$prefix.$idField2"
+        }
 
+    execSQL(
+        "CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName BEGIN " +
+            "DELETE FROM Log WHERE ${where("NEW")} AND tableName = '$tableName';" +
+            "INSERT INTO Log VALUES ('$tableName', ${insert("NEW")}, 'INSERT', STRFTIME('%s')); " +
+            "END;")
+    execSQL(
+        "CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName BEGIN " +
+            "DELETE FROM Log WHERE ${where("OLD")} AND tableName = '$tableName';" +
+            "INSERT INTO Log VALUES ('$tableName', ${insert("OLD")}, 'UPDATE', STRFTIME('%s')); " +
+            "END;")
+    execSQL(
+        "CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName BEGIN " +
+            "DELETE FROM Log WHERE ${where("OLD")} AND tableName = '$tableName';" +
+            "INSERT INTO Log VALUES ('$tableName', ${insert("OLD")}, 'DELETE', STRFTIME('%s')); " +
+            "END;")
+}
 
 class DatabaseContainer {
     init {
         backupDatabaseIfNeeded()
         migrateOldDatabaseIfNeeded()
+    }
+
+    private fun createTriggers() {
+        bookmarkDb.openHelper.writableDatabase.run {
+            createTriggersForTable(this, "Bookmark")
+            createTriggersForTable(this, "Label")
+            createTriggersForTable(this, "StudyPadTextEntry")
+            createTriggersForTable(this, "BookmarkToLabel", "bookmarkId", "labelId")
+        }
+        workspaceDb.openHelper.writableDatabase.run {
+            createTriggersForTable(this, "Window")
+            createTriggersForTable(this, "Workspace")
+            createTriggersForTable(this, "PageManager", "windowId")
+        }
+        readingPlanDb.openHelper.writableDatabase.run {
+            createTriggersForTable(this, "ReadingPlan")
+            createTriggersForTable(this, "ReadingPlanStatus")
+        }
+    }
+    private fun dropTriggersForTable(db: SupportSQLiteDatabase, tableName: String) = db.run {
+        execSQL("DROP TRIGGER IF EXISTS ${tableName}_inserts")
+        execSQL("DROP TRIGGER IF EXISTS ${tableName}_updates")
+        execSQL("DROP TRIGGER IF EXISTS ${tableName}_deletes")
+    }
+    private fun dropTriggers() {
+        bookmarkDb.openHelper.writableDatabase.run {
+            dropTriggersForTable(this, "Bookmark")
+            dropTriggersForTable(this, "Label")
+            dropTriggersForTable(this, "StudyPadTextEntry")
+            dropTriggersForTable(this, "BookmarkToLabel")
+        }
+        workspaceDb.openHelper.writableDatabase.run {
+            dropTriggersForTable(this, "Window")
+            dropTriggersForTable(this, "Workspace")
+            dropTriggersForTable(this, "PageManager")
+        }
+        readingPlanDb.openHelper.writableDatabase.run {
+            dropTriggersForTable(this, "ReadingPlan")
+            dropTriggersForTable(this, "ReadingPlanStatus")
+        }
     }
 
     private fun getOldDatabase(): OldMonolithicAppDatabase =
@@ -115,6 +185,11 @@ class DatabaseContainer {
             .build()
 
     val workspaceDb: WorkspaceDatabase = getWorkspaceDb()
+
+    init {
+        createTriggers()
+    }
+
 
     val temporaryDb: TemporaryDatabase =
         Room.databaseBuilder(
