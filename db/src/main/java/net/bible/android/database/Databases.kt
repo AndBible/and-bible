@@ -39,14 +39,14 @@ enum class LogEntryTypes {
 
 @Entity(
     primaryKeys = ["tableName", "entityId1", "entityId2"],
-    indices = [Index(value = ["createdAt"])]
+    indices = [Index(value = ["lastUpdated"])]
 )
 class Log(
     val tableName: String,
     val entityId1: String,
     @ColumnInfo(defaultValue = "") val entityId2: String,
     val type: LogEntryTypes,
-    @ColumnInfo(defaultValue = "0") val createdAt: Long,
+    @ColumnInfo(defaultValue = "0") val lastUpdated: Long,
 )
 
 @Database(

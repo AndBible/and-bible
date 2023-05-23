@@ -90,8 +90,8 @@ object DatabasePatching {
             select = "pe.entityId1,pe.entityId2"
         }
         execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $where IN " +
-            "(SELECT $select FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE') AND createdAt > $lastSynchronized)")
-        execSQL("INSERT INTO patch.Log SELECT * FROM Log WHERE tableName = '$table' AND createdAt > $lastSynchronized")
+            "(SELECT $select FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE') AND lastUpdated > $lastSynchronized)")
+        execSQL("INSERT INTO patch.Log SELECT * FROM Log WHERE tableName = '$table' AND lastUpdated > $lastSynchronized")
     }
 
     private fun readPatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
@@ -109,7 +109,7 @@ object DatabasePatching {
                 |SELECT $cols FROM patch.$table WHERE $where IN 
                 |(SELECT $select FROM patch.Log pe 
                 |OUTER LEFT JOIN Log me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName 
-                |WHERE pe.tableName = '$table' AND (me.createdAt IS NULL OR pe.createdAt > me.createdAt))
+                |WHERE pe.tableName = '$table' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated))
                 |""".trimMargin())
         // Delete all marked deletions from patch Log table
         execSQL("DELETE FROM $table WHERE $where IN (SELECT $select FROM patch.Log WHERE tableName = '$table' AND type = 'DELETE')")
@@ -123,7 +123,7 @@ object DatabasePatching {
         var needPatch: Boolean
         dbDef.use {
             it.db.openHelper.writableDatabase.run {
-                needPatch = query("SELECT COUNT(*) FROM Log WHERE createdAt > $lastSynchronized").use {c -> c.moveToFirst(); c.getInt(0)} > 0
+                needPatch = query("SELECT COUNT(*) FROM Log WHERE lastUpdated > $lastSynchronized").use {c -> c.moveToFirst(); c.getInt(0)} > 0
                 if(needPatch) {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     execSQL("PRAGMA foreign_keys=OFF;")

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "cf515756798bb4aae0b38465066d5cef",
+    "identityHash": "a725c8645db64771b8c2841eabd285a5",
     "entities": [
       {
         "tableName": "Workspace",
@@ -839,7 +839,7 @@
       },
       {
         "tableName": "Log",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `createdAt` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))",
         "fields": [
           {
             "fieldPath": "tableName",
@@ -867,8 +867,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "createdAt",
-            "columnName": "createdAt",
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
             "affinity": "INTEGER",
             "notNull": true,
             "defaultValue": "0"
@@ -884,13 +884,13 @@
         },
         "indices": [
           {
-            "name": "index_Log_createdAt",
+            "name": "index_Log_lastUpdated",
             "unique": false,
             "columnNames": [
-              "createdAt"
+              "lastUpdated"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Log_createdAt` ON `${TABLE_NAME}` (`createdAt`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Log_lastUpdated` ON `${TABLE_NAME}` (`lastUpdated`)"
           }
         ],
         "foreignKeys": []
@@ -899,7 +899,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cf515756798bb4aae0b38465066d5cef')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a725c8645db64771b8c2841eabd285a5')"
     ]
   }
 }
