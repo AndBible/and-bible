@@ -90,7 +90,7 @@ object DatabasePatching {
             select = "pe.entityId1,pe.entityId2"
         }
         execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $where IN " +
-            "(SELECT $select FROM Log WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE') AND lastUpdated > $lastSynchronized)")
+            "(SELECT $select FROM Log pe WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE') AND lastUpdated > $lastSynchronized)")
         execSQL("INSERT INTO patch.Log SELECT * FROM Log WHERE tableName = '$table' AND lastUpdated > $lastSynchronized")
     }
 
@@ -112,7 +112,7 @@ object DatabasePatching {
                 |WHERE pe.tableName = '$table' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated))
                 |""".trimMargin())
         // Delete all marked deletions from patch Log table
-        execSQL("DELETE FROM $table WHERE $where IN (SELECT $select FROM patch.Log WHERE tableName = '$table' AND type = 'DELETE')")
+        execSQL("DELETE FROM $table WHERE $where IN (SELECT $select FROM patch.Log pe WHERE tableName = '$table' AND type = 'DELETE')")
 
         // Let's fix Log table timestamps (all above insertions have created new entries)
         execSQL("INSERT OR REPLACE INTO Log SELECT * FROM patch.Log")
