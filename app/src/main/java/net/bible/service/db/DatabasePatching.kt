@@ -123,8 +123,10 @@ object DatabasePatching {
         var needPatch: Boolean
         dbDef.use {
             it.db.openHelper.writableDatabase.run {
-                needPatch = query("SELECT COUNT(*) FROM Log WHERE lastUpdated > $lastSynchronized").use {c -> c.moveToFirst(); c.getInt(0)} > 0
+                val amountUpdated = query("SELECT COUNT(*) FROM Log WHERE lastUpdated > $lastSynchronized").use { c -> c.moveToFirst(); c.getInt(0)}
+                needPatch = amountUpdated > 0
                 if(needPatch) {
+                    Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     execSQL("PRAGMA foreign_keys=OFF;")
                     for (tableDef in it.tableDefs) {
