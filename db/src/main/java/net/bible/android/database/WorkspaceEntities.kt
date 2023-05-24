@@ -93,7 +93,18 @@ class WorkspaceEntities {
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings?,
-    )
+    ) {
+        fun deepCopy(): PageManager = PageManager(
+            windowId = windowId,
+            biblePage = biblePage.copy(),
+            commentaryPage = commentaryPage?.copy(),
+            dictionaryPage = dictionaryPage?.copy(),
+            generalBookPage = generalBookPage?.copy(),
+            mapPage = mapPage?.copy(),
+            currentCategoryName = currentCategoryName,
+            textDisplaySettings = textDisplaySettings?.copy()
+        )
+    }
 
     data class WindowLayout(
         val state: String,
@@ -353,7 +364,19 @@ class WorkspaceEntities {
         val maximizedWindowId: String? = null,
 
         @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: String? = null,
-    )
+    ) {
+        fun deepCopy(): Workspace = Workspace(
+            name = name,
+            contentsText = contentsText,
+            id = id,
+            orderNumber = orderNumber,
+            textDisplaySettings = textDisplaySettings?.copy(),
+            workspaceSettings = workspaceSettings?.copy(),
+            unPinnedWeight = unPinnedWeight,
+            maximizedWindowId = maximizedWindowId,
+            primaryTargetLinksWindowId = primaryTargetLinksWindowId
+        )
+    }
 
     @Entity(
         foreignKeys = [
@@ -401,7 +424,20 @@ class WorkspaceEntities {
         var orderNumber: Int = 0,
         @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: String? = null,
         @ColumnInfo(defaultValue = "0") val syncGroup: Int = 0,
-    )
+    ) {
+        fun deepCopy(): Window =
+            Window(
+                workspaceId = workspaceId,
+                isSynchronized = isSynchronized,
+                isPinMode = isPinMode,
+                isLinksWindow = isLinksWindow,
+                windowLayout = windowLayout.copy(),
+                id = id,
+                orderNumber = orderNumber,
+                targetLinksWindowId = targetLinksWindowId,
+                syncGroup = syncGroup
+        )
+    }
 }
 
 @Serializable

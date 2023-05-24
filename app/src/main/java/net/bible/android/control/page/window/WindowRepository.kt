@@ -315,7 +315,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         )
         if(ws != savedEntity) {
             dao.updateWorkspace(ws)
-            savedEntity = ws
+            savedEntity = ws.deepCopy()
         }
 
         val historyManager = historyManagerProvider.get()
@@ -326,7 +326,7 @@ open class WindowRepository(val scope: CoroutineScope) {
                 orderNumber = i
             }
             if(it.savedEntity != entity) {
-                it.savedEntity = entity
+                it.savedEntity = entity.deepCopy()
                 entity
             }
             else null
@@ -334,7 +334,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
         val pageManagers = windowList.mapNotNull {
             if (it.pageManager.isModified) {
-                it.pageManager.savedEntity = it.pageManager.entity
+                it.pageManager.savedEntity = it.pageManager.entity.deepCopy()
                 it.pageManager.entity
             } else null
         }
@@ -351,7 +351,7 @@ open class WindowRepository(val scope: CoroutineScope) {
             ?: WorkspaceEntities.Workspace("").apply{
                 dao.insertWorkspace(this)
             }
-        savedEntity = entity
+        savedEntity = entity.deepCopy()
         clear()
 
         orderNumber = entity.orderNumber

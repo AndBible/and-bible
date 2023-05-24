@@ -43,13 +43,14 @@ import org.crosswire.jsword.passage.Verse
 class WindowChangedEvent(val window: Window)
 
 class Window (
-    var savedEntity: WorkspaceEntities.Window,
+    entity: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
     val windowRepository: WindowRepository,
-    var isLinksWindow: Boolean = savedEntity.isLinksWindow,
+    var isLinksWindow: Boolean = entity.isLinksWindow,
 ){
-    private var targetLinksWindowId: String? = savedEntity.targetLinksWindowId
-    var syncGroup = savedEntity.syncGroup
+    private var targetLinksWindowId: String? = entity.targetLinksWindowId
+    var savedEntity = entity.deepCopy()
+    var syncGroup = entity.syncGroup
 
     val targetLinksWindow: Window
         get() {
@@ -69,7 +70,7 @@ class Window (
     }
     val isPrimaryLinksWindow get() = isLinksWindow && id == windowRepository.primaryTargetLinksWindowId
 
-    val id = savedEntity.id
+    val id = entity.id
     val displayId = id.substring(0, 4)
 
     var weight: Float
@@ -88,8 +89,8 @@ class Window (
                 windowLayout.weight = value
         }
 
-    private val windowLayout: WindowLayout = WindowLayout(savedEntity.windowLayout)
-    private var workspaceId = savedEntity.workspaceId
+    private val windowLayout: WindowLayout = WindowLayout(entity.windowLayout)
+    private var workspaceId = entity.workspaceId
 
     init {
         pageManager.window = this
@@ -111,13 +112,13 @@ class Window (
     var displayedBook: Book? = null
         private set
 
-    var isSynchronised = savedEntity.isSynchronized
+    var isSynchronised = entity.isSynchronized
         set(value) {
             field = value
             ABEventBus.post(WindowChangedEvent(this))
         }
 
-    var isPinMode: Boolean = savedEntity.isPinMode
+    var isPinMode: Boolean = entity.isPinMode
         get() {
             return when {
                 isLinksWindow -> windowRepository.workspaceSettings.autoPin
