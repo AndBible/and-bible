@@ -643,7 +643,11 @@ object BackupControl {
             for (fileName in selection) {
                 val f = File(unzipFolder, "db/${fileName}")
                 Log.i(TAG, "Restoring $fileName")
-                f.copyTo(File(activity.getDatabasePath(fileName).path), overwrite = true)
+                val targetFilePath = activity.getDatabasePath(fileName).path
+                val targetFile = File(targetFilePath)
+                f.copyTo(targetFile, overwrite = true)
+                File("$targetFilePath-shm").delete()
+                File("$targetFilePath-wal").delete()
             }
         }
         if (DatabaseContainer.ready) {
