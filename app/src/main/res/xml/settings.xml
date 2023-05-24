@@ -184,5 +184,10 @@
 			android:defaultValue="false"
 			android:icon="@drawable/ic_link_black_24dp"
 			/>
+		<Preference android:key="crash_app"
+			android:title="@string/crash_app"
+			android:summary="@string/crash_app_summary"
+			android:icon="@drawable/ic_bug_report_white_24dp"
+			/>
 	</PreferenceCategory>
 </PreferenceScreen>

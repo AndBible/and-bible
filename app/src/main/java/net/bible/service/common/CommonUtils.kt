@@ -30,6 +30,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
@@ -1364,6 +1365,8 @@ object CommonUtils : CommonUtilsBase() {
             }
         }
     }
+
+    val isDebugMode = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"

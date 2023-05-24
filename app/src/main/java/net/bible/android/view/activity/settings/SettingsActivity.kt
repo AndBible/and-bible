@@ -36,6 +36,9 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
@@ -265,6 +268,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }.create()
                 d.show()
                 d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                true
+            }
+        }
+        val crashAppPref = preferenceScreen.findPreference<EditTextPreference>("crash_app") as Preference
+        if(!CommonUtils.isDebugMode) {
+            crashAppPref.isVisible = false
+        } else {
+            crashAppPref.setOnPreferenceClickListener {
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(10000)
+                    throw RuntimeException("Crash app!")
+                }
                 true
             }
         }
