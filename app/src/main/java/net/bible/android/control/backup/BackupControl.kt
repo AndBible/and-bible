@@ -274,7 +274,7 @@ object BackupControl {
                     }
                 }.toTypedArray()
 
-                val checkedItems = backupNames.map { false }.toBooleanArray()
+                val checkedItems = backupNames.map { true }.toBooleanArray()
                 val dialog = AlertDialog.Builder(context)
                     .setPositiveButton(R.string.okay) { d, _ ->
                         val selectedBooks = available.filterIndexed { index, book -> checkedItems[index] }
