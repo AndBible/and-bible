@@ -35,6 +35,7 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
+import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
 import java.util.UUID
@@ -108,7 +109,7 @@ open class WindowRepository(val scope: CoroutineScope) {
     fun initialize() {
         if(initialized) return
         if(id.isEmpty()) {
-            val newId = settings.getString("current_workspace_id")
+            val newId = settings.getString("current_workspace_id")?.apply { id = this }
             if (newId == null || dao.workspace(newId) == null) {
                 val newWorkspace = WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
                 id = newWorkspace.id
