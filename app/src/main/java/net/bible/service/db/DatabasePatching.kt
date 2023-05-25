@@ -206,7 +206,7 @@ object DatabasePatching {
                 SQLiteDatabase.openDatabase(application.getDatabasePath(it.dbFileName).absolutePath, null, SQLiteDatabase.OPEN_READWRITE).use { db -> db.run {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     for (tableDef in it.tableDefs) {
-                        readPatchData(db, tableDef.tableName, tableDef.idField1, tableDef.idField2)
+                        readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                     }
                     execSQL("DETACH DATABASE patch")
                     //checkForeignKeys(this)
