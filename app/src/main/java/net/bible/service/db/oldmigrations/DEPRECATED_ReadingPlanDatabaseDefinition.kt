@@ -18,7 +18,7 @@
 package net.bible.service.db.oldmigrations
 
 import android.content.ContentValues
-import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
+import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.provider.BaseColumns
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase

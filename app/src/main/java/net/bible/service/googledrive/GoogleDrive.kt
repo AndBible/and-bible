@@ -248,7 +248,7 @@ object GoogleDrive {
                 val now = System.currentTimeMillis()
                 DatabasePatching.createPatchFiles(lastSynchronized/1000)
                 val lastTimestamp = uploadNewPatches(now)
-                CommonUtils.settings.setLong("lastSynchronized", lastTimestamp)
+                CommonUtils.settings.setLong("lastSynchronized", lastTimestamp?: now)
                 Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerNow)/1000.0} seconds. Now: $now")
             }
         }

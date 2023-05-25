@@ -17,8 +17,8 @@
 
 package net.bible.service.sword.mysword
 
-import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
+import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import net.bible.android.SharedConstants
 import net.bible.service.sword.SqliteSwordDriver
@@ -117,7 +117,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
             val db = this.sqlDb
-            val dbFile = File(db.path)
+            val dbFile = File(db.path!!)
             val categoryAbbreviation = dbFile.nameWithoutExtension.substringAfterLast('.', "")
             val category = when(categoryAbbreviation) {
                 "bbl" -> "Biblical Texts"
@@ -161,7 +161,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
                     language = getString(languageColumn, "eng"),
                     category = category,
                     isStrongsDict = categoryAbbreviation == "dct" && getBoolean(strongColumn),
-                    moduleFileName = db.path,
+                    moduleFileName = db.path!!,
                 )
             }
 

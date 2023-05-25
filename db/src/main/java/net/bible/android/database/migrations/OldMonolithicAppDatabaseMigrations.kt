@@ -17,8 +17,8 @@
 package net.bible.android.database.migrations
 
 import android.content.ContentValues
-import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
-import android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
+import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
+import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.common.toV11n

@@ -124,3 +124,4 @@
 -keep class net.bible.android.database.bookmarks.VerseRangeSerializer
 
 
+-dontwarn java.lang.invoke.StringConcatFactory
