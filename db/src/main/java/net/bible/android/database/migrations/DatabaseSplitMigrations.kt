@@ -19,8 +19,8 @@ package net.bible.android.database.migrations
 
 import android.app.Application
 import android.content.ContentValues
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT
+import io.requery.android.database.sqlite.SQLiteDatabase
+import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT
 import androidx.core.database.getStringOrNull
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.serialization.Serializable

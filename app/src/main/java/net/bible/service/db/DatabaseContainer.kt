@@ -16,10 +16,11 @@
  */
 package net.bible.service.db
 
-import android.database.sqlite.SQLiteDatabase
+import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
+import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.BookmarkDatabase
@@ -141,6 +142,7 @@ class DatabaseContainer {
             application, OldMonolithicAppDatabase::class.java, OLD_MONOLITHIC_DATABASE_NAME
         )
             .allowMainThreadQueries()
+            .openHelperFactory(RequerySQLiteOpenHelperFactory())
             .addMigrations(
                 *oldMonolithicAppDatabaseMigrations,
                 *oldMigrations,
@@ -162,6 +164,7 @@ class DatabaseContainer {
     )
         .allowMainThreadQueries()
         .addMigrations(*bookmarkMigrations)
+        .openHelperFactory(RequerySQLiteOpenHelperFactory())
         .build()
 
     val bookmarkDb: BookmarkDatabase = getBookmarkDb()
@@ -170,6 +173,7 @@ class DatabaseContainer {
         Room.databaseBuilder(
             application, ReadingPlanDatabase::class.java, filename
         )
+            .openHelperFactory(RequerySQLiteOpenHelperFactory())
             .allowMainThreadQueries()
             .addMigrations(*readingPlanMigrations)
             .build()
@@ -182,6 +186,7 @@ class DatabaseContainer {
         )
             .allowMainThreadQueries()
             .addMigrations(*workspacesMigrations)
+            .openHelperFactory(RequerySQLiteOpenHelperFactory())
             .build()
 
     val workspaceDb: WorkspaceDatabase = getWorkspaceDb()
@@ -197,6 +202,7 @@ class DatabaseContainer {
         )
             .allowMainThreadQueries()
             .addMigrations()
+            .openHelperFactory(RequerySQLiteOpenHelperFactory())
             .build()
 
     val repoDb: RepoDatabase =
@@ -205,6 +211,7 @@ class DatabaseContainer {
         )
             .allowMainThreadQueries()
             .addMigrations()
+            .openHelperFactory(RequerySQLiteOpenHelperFactory())
             .build()
 
     val settingsDb: SettingsDatabase =
@@ -213,6 +220,7 @@ class DatabaseContainer {
         )
             .allowMainThreadQueries()
             .addMigrations()
+            .openHelperFactory(RequerySQLiteOpenHelperFactory())
             .build()
 
     private fun backupDatabaseIfNeeded() {

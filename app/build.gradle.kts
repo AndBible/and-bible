@@ -311,6 +311,7 @@ dependencies {
     val kotlinxSerializationVersion: String by rootProject.extra
     val roomVersion: String by rootProject.extra
     val coreKtxVersion: String by rootProject.extra
+    val sqliteAndroidVersion: String by rootProject.extra
 
     implementation(project(":db"))
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -326,6 +327,8 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.6.1")
     implementation("net.objecthunter:exp4j:0.4.8")
+    implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
+
 
     // Google Drive API
     implementation("com.google.android.gms:play-services-auth:20.5.0")
