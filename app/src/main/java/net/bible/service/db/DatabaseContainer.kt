@@ -167,7 +167,11 @@ class DatabaseContainer {
         .openHelperFactory(RequerySQLiteOpenHelperFactory())
         .build()
 
-    val bookmarkDb: BookmarkDatabase = getBookmarkDb()
+    var bookmarkDb: BookmarkDatabase = getBookmarkDb()
+    fun resetBookmarkDb() {
+        bookmarkDb.close()
+        bookmarkDb = getBookmarkDb()
+    }
 
     fun getReadingPlanDb(filename: String = ReadingPlanDatabase.dbFileName) =
         Room.databaseBuilder(
@@ -178,7 +182,11 @@ class DatabaseContainer {
             .addMigrations(*readingPlanMigrations)
             .build()
 
-    val readingPlanDb: ReadingPlanDatabase = getReadingPlanDb()
+    var readingPlanDb: ReadingPlanDatabase = getReadingPlanDb()
+    fun resetReadingPlanDb() {
+        readingPlanDb.close()
+        readingPlanDb = getReadingPlanDb()
+    }
 
     fun getWorkspaceDb(filename: String = WorkspaceDatabase.dbFileName) =
         Room.databaseBuilder(
@@ -189,7 +197,12 @@ class DatabaseContainer {
             .openHelperFactory(RequerySQLiteOpenHelperFactory())
             .build()
 
-    val workspaceDb: WorkspaceDatabase = getWorkspaceDb()
+    var workspaceDb: WorkspaceDatabase = getWorkspaceDb()
+
+    fun resetWorkspaceDb() {
+        workspaceDb.close()
+        workspaceDb = getWorkspaceDb()
+    }
 
     init {
         createTriggers()

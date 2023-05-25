@@ -47,6 +47,7 @@ class TableDef(val tableName: String, val idField1: String = "id", val idField2:
 class DatabaseDef<T: SyncableRoomDatabase>(
     val db: T,
     dbFactory: (filename: String) -> T,
+    val resetDb: () -> Unit,
     val dbFileName: String,
     val tableDefs: List<TableDef>,
     private val readOnly: Boolean,
@@ -156,13 +157,10 @@ object DatabasePatching {
         var needPatch: Boolean
         dbDef.use {
             it.db.close()
-            val db = SQLiteDatabase.openDatabase(application.getDatabasePath(it.dbFileName).absolutePath, null, SQLiteDatabase.OPEN_READWRITE)
-
-            //it.db.openHelper.writableDatabase.run {
-            db.run {
+            SQLiteDatabase.openDatabase(application.getDatabasePath(it.dbFileName).absolutePath, null, SQLiteDatabase.OPEN_READWRITE).use { db -> db.run {
                 val amountUpdated = query("SELECT COUNT(*) FROM Log WHERE lastUpdated > $lastSynchronized").getFirst { c -> c.getInt(0)}
                 needPatch = amountUpdated > 0
-                if(needPatch) {
+                if (needPatch) {
                     Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     execSQL("PRAGMA patch.foreign_keys=OFF;")
@@ -172,9 +170,8 @@ object DatabasePatching {
                     execSQL("PRAGMA patch.foreign_keys=ON;")
                     execSQL("DETACH DATABASE patch")
                 }
-            }
-            db.close()
-            it.db.openHelper.writableDatabase
+            }}
+            it.resetDb.invoke()
         }
         if(needPatch) {
             val gzippedOutput = File(GoogleDrive.patchOutFilesDir, dbDef.categoryName + ".sqlite3.gz")
@@ -204,20 +201,16 @@ object DatabasePatching {
                 }
             }
             dbDef.use {
-                //clonePatchTables(it)
                 it.db.close()
-                val db = SQLiteDatabase.openDatabase(application.getDatabasePath(it.dbFileName).absolutePath, null, SQLiteDatabase.OPEN_READWRITE)
-                //it.db.openHelper.writableDatabase.run {
-                db.run {
+                SQLiteDatabase.openDatabase(application.getDatabasePath(it.dbFileName).absolutePath, null, SQLiteDatabase.OPEN_READWRITE).use { db -> db.run {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     for (tableDef in it.tableDefs) {
                         readPatchData(db, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                     }
                     execSQL("DETACH DATABASE patch")
                     //checkForeignKeys(this)
-                }
-                db.close()
-                it.db.openHelper.writableDatabase
+                }}
+                it.resetDb.invoke()
             }
         }
     }
@@ -233,7 +226,7 @@ object DatabasePatching {
 
     private fun getDbFactories(readOnly: Boolean): List<() -> DatabaseDef<*>> = DatabaseContainer.instance.run { listOf(
         {
-            DatabaseDef(bookmarkDb, {n -> getBookmarkDb(n)}, BookmarkDatabase.dbFileName, listOf(
+            DatabaseDef(bookmarkDb, {n -> getBookmarkDb(n)}, {resetBookmarkDb()}, BookmarkDatabase.dbFileName, listOf(
                 TableDef("Bookmark"),
                 TableDef("Label"),
                 TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
@@ -241,14 +234,14 @@ object DatabasePatching {
             ), readOnly)
         },
         {
-            DatabaseDef(workspaceDb, {n -> getWorkspaceDb(n)}, WorkspaceDatabase.dbFileName, listOf(
+            DatabaseDef(workspaceDb, {n -> getWorkspaceDb(n)}, {resetWorkspaceDb()}, WorkspaceDatabase.dbFileName, listOf(
                 TableDef("Workspace"),
                 TableDef("Window"),
                 TableDef("PageManager", "windowId"),
             ), readOnly)
         },
         {
-            DatabaseDef(readingPlanDb, {n -> getReadingPlanDb(n)}, ReadingPlanDatabase.dbFileName, listOf(
+            DatabaseDef(readingPlanDb, {n -> getReadingPlanDb(n)}, {resetReadingPlanDb()}, ReadingPlanDatabase.dbFileName, listOf(
                 TableDef("ReadingPlan"),
                 TableDef("ReadingPlanStatus"),
             ), readOnly)
