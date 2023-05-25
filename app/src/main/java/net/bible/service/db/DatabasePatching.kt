@@ -31,7 +31,9 @@ import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.application
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.forEach
 import net.bible.service.common.getFirst
 import net.bible.service.googledrive.GoogleDrive
@@ -209,7 +211,9 @@ object DatabasePatching {
                         readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                     }
                     execSQL("DETACH DATABASE patch")
-                    //checkForeignKeys(this)
+                    if(CommonUtils.isDebugMode) {
+                        checkForeignKeys(this)
+                    }
                 }}
                 it.resetDb.invoke()
             }
@@ -222,6 +226,7 @@ object DatabasePatching {
             val rowId = c.getLong(1)
             val parent = c.getString(2)
             Log.w(TAG, "Foreign key check failure: $tableName:$rowId (<- $parent)")
+            Dialogs.showErrorMsg("Foreign key check failure: $tableName:$rowId (<- $parent)")
         }
     }
 
