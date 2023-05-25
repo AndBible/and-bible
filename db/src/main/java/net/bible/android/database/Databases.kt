@@ -18,9 +18,11 @@
 package net.bible.android.database
 
 import androidx.room.ColumnInfo
+import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Index
+import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import net.bible.android.database.bookmarks.BookmarkDao
@@ -47,7 +49,24 @@ class Log(
     @ColumnInfo(defaultValue = "") val entityId2: String,
     val type: LogEntryTypes,
     @ColumnInfo(defaultValue = "0") val lastUpdated: Long,
-)
+) {
+    override fun toString(): String = "$tableName $type $entityId1 $entityId2 ($lastUpdated)"
+}
+
+@Dao
+interface LogDao {
+    @Query("SELECT * from Log")
+    fun allLogEntries(): List<Log>
+
+    @Query("SELECT * from Log WHERE type = 'DELETE'")
+    fun allDeletions(): List<Log>
+}
+
+
+abstract class SyncableRoomDatabase: RoomDatabase() {
+    abstract fun logDao(): LogDao
+}
+
 
 @Database(
     entities = [
@@ -60,7 +79,7 @@ class Log(
     version = BOOKMARK_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
-abstract class BookmarkDatabase: RoomDatabase() {
+abstract class BookmarkDatabase: SyncableRoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
     companion object {
         const val dbFileName = "bookmarks.sqlite3"
@@ -76,7 +95,7 @@ abstract class BookmarkDatabase: RoomDatabase() {
     version = READING_PLAN_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
-abstract class ReadingPlanDatabase: RoomDatabase() {
+abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
     abstract fun readingPlanDao(): ReadingPlanDao
     companion object {
         const val dbFileName = "readingplans.sqlite3"
@@ -94,7 +113,7 @@ abstract class ReadingPlanDatabase: RoomDatabase() {
     version = WORKSPACE_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
-abstract class WorkspaceDatabase: RoomDatabase() {
+abstract class WorkspaceDatabase: SyncableRoomDatabase() {
     abstract fun workspaceDao(): WorkspaceDao
     companion object {
         const val dbFileName = "workspaces.sqlite3"
