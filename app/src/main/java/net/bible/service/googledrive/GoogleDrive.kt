@@ -34,6 +34,7 @@ import com.google.api.client.http.ByteArrayContent
 import com.google.api.client.http.FileContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
+import com.google.api.client.util.DateTime
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File as DriveFile
@@ -58,6 +59,7 @@ import net.bible.service.db.DatabasePatching
 import java.io.Closeable
 import java.io.File
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
@@ -245,8 +247,8 @@ object GoogleDrive {
                 DatabasePatching.applyPatchFiles()
                 val now = System.currentTimeMillis()
                 DatabasePatching.createPatchFiles(lastSynchronized/1000)
-                uploadNewPatches(now)
-                CommonUtils.settings.setLong("lastSynchronized", now)
+                val lastTimestamp = uploadNewPatches(now)
+                CommonUtils.settings.setLong("lastSynchronized", lastTimestamp)
                 Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerNow)/1000.0} seconds. Now: $now")
             }
         }
@@ -269,13 +271,6 @@ object GoogleDrive {
         return fileName.split(".")[0]
     }
 
-    private fun timeStampStr(timeStampLong: Long): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-        val date = Date(timeStampLong)
-        return dateFormat.format(date)
-    }
-
     private suspend fun downloadNewPatches(lastSynchronized: Long) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Downloading new patches")
         var pageToken: String?
@@ -283,7 +278,7 @@ object GoogleDrive {
         do {
             val result = service.files().list()
                 .setSpaces("appDataFolder")
-                .setQ("'${patchFolderId}' in parents and createdTime > '${timeStampStr(lastSynchronized)}'")
+                .setQ("'${patchFolderId}' in parents and createdTime > '${DateTime(lastSynchronized).toStringRfc3339()}'")
                 .setOrderBy("createdTime asc")
                 .setFields("nextPageToken, files(id, name, size, createdTime)")
                 .execute()
@@ -302,10 +297,10 @@ object GoogleDrive {
         }
     }
 
-    private suspend fun uploadNewPatches(now: Long)  = withContext(Dispatchers.IO) {
+    private suspend fun uploadNewPatches(now: Long): Long? = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches")
         val files = patchOutFilesDir.listFiles()?: emptyArray()
-        files.asList().asyncMap {file ->
+        val result = files.asList().asyncMap {file ->
             val content = FileContent(GZIP_MIMETYPE, file)
             val category = categoryFromPatchFileName(file.name)
             val driveFile = DriveFile().apply {
@@ -313,8 +308,13 @@ object GoogleDrive {
                 parents = listOf(patchFolderId)
             }
             Log.i(TAG, "Uploading ${file.name} as ${driveFile.name}, ${file.length()} bytes")
-            service.files().create(driveFile, content).execute()
+            service
+                .files()
+                .create(driveFile, content)
+                .setFields("id,createdTime")
+                .execute()
         }
+        result.maxByOrNull { it.createdTime.value }?.createdTime?.value
     }
 
     suspend fun signOut() {
@@ -349,10 +349,10 @@ object GoogleDrive {
             val result = activity.awaitIntent(e.intent)
             return result.resultCode == Activity.RESULT_OK
         }
-        lst.files.forEach {
-            Log.i(TAG, "Files in Drive: ${it.name} (${it.id}) ${it.getSize()} bytes")
-            //service.files().delete(it.id).execute()
-        }
+        //lst.files.forEach {
+        //    Log.i(TAG, "Files in Drive: ${it.name} (${it.id}) ${it.getSize()} bytes")
+        //    //service.files().delete(it.id).execute()
+        //}
 
         return true
     }
