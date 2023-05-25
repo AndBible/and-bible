@@ -1366,7 +1366,7 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    val isDebugMode = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
+    val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
