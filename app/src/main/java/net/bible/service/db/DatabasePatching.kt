@@ -172,6 +172,13 @@ object DatabasePatching {
                     }
                     execSQL("PRAGMA foreign_keys=ON;")
                     execSQL("DETACH DATABASE patch")
+                    query("PRAGMA foreign_key_check;").use {
+                        c -> c.moveToFirst()
+                        val tableName = c.getString(0)
+                        val rowId = c.getLong(1)
+                        val parent = c.getString(2)
+                        Log.w(TAG, "Foreign key check failure: $tableName:$rowId (<- $parent)")
+                    }
                 }
             }
         }
