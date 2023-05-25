@@ -36,7 +36,6 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import kotlinx.coroutines.Deferred
 import com.google.api.services.drive.model.File as DriveFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -54,7 +53,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabasePatching
 import java.io.Closeable
 import java.io.File
@@ -118,48 +116,62 @@ object GoogleDrive {
         return@withContext success
     }
 
-    private val lockFileHandle get() = service.files().list()
-            .setSpaces("appDataFolder")
-            .setFields("nextPageToken, files(id, name)")
-            .execute().files.firstOrNull { it.name == LOCK_FILENAME }
+    private val lockFileId: String?
+        get() =
+            CommonUtils.realSharedPreferences.getString("drive_lockFileId", null)
+                ?: service.files().list()
+                    .setSpaces("appDataFolder")
+                    .setFields("nextPageToken, files(id, name)")
+                    .execute().files.firstOrNull { it.name == LOCK_FILENAME }?.id?.also {
+                        CommonUtils.realSharedPreferences.edit().putString("drive_lockFileId", it).apply()
+                    }
 
     private val fileLock: Closeable? get() {
-        val fileHandle = lockFileHandle
-        val canLock = if(fileHandle != null) {
-            val lockingDeviceId = String(
+        val ourContent = ByteArrayContent(TEXT_MIMETYPE, CommonUtils.deviceIdentifier.toByteArray())
+        var fileId = lockFileId
+
+        fun createNewLock(): String {
+            val driveFile = DriveFile().apply {
+                name = LOCK_FILENAME
+                parents = listOf("appDataFolder")
+            }
+            val newLock = service.files().create(driveFile, ourContent).execute()
+            CommonUtils.realSharedPreferences.edit().putString("drive_lockFileId", newLock.id).apply()
+            return newLock.id
+        }
+
+        fun updateLock() {
+            service.files().update(fileId, DriveFile(), ourContent).execute()
+        }
+
+        if(fileId == null) {
+            fileId = createNewLock()
+        } else {
+            val deviceIdInLockFile = String(
                 service
                     .files()
-                    .get(fileHandle.id)
+                    .get(fileId)
                     .executeMediaAsInputStream()
                     .readBytes()
             )
-            lockingDeviceId == CommonUtils.deviceIdentifier
-        } else {
-            true
-        }
-        return if(!canLock) {
-            null
-        } else {
-            if(fileHandle != null) try { service.files().delete(fileHandle.id).execute() } catch (e: GoogleJsonResponseException) {
-                Log.e(TAG, "Error deleting lock file", e)
+            when(deviceIdInLockFile) {
+                "" -> updateLock() // lock is released
+                CommonUtils.deviceIdentifier -> {} // lock is owned by us already
+                else -> return null // lock is owned by someone else, we can't lock
             }
-            val content = ByteArrayContent(TEXT_MIMETYPE, CommonUtils.deviceIdentifier.toByteArray())
+        }
 
-            service.files().create(
-                DriveFile().apply {
-                    name = LOCK_FILENAME
-                    parents = listOf("appDataFolder")
-                }, content).execute()
-
-            Closeable {
-                val fileHandle2 = lockFileHandle
-                if(fileHandle2 == null) {
-                    Log.e(TAG, "Lock file not found. Should have been there!!!")
-                    return@Closeable
-                } else {
-                    try { service.files().delete(fileHandle2.id).execute() } catch (e: GoogleJsonResponseException) {
-                        Log.e(TAG, "Error deleting lock file", e)
-                    }
+        return Closeable {
+            val fileHandle2 = lockFileId
+            if(fileHandle2 == null) {
+                Log.e(TAG, "Lock file not found. Should have been there!!!")
+                return@Closeable
+            } else {
+                val emptyContent = ByteArrayContent(TEXT_MIMETYPE, "".toByteArray())
+                try {
+                    service.files().update(fileId, DriveFile(), emptyContent).execute()
+                } catch (e: GoogleJsonResponseException) {
+                    Log.e(TAG, "Error emptying lock file", e)
                 }
             }
         }
@@ -189,6 +201,8 @@ object GoogleDrive {
             return@withContext
         }
         syncMutex.withLock {
+            Log.i(TAG, "Synchronizing starts, let's set up the file lock")
+            val timerNow = System.currentTimeMillis()
             val lock = fileLock
             if(fileLock == null) {
                 Log.i(TAG, "Lock file present, can't synchronize")
@@ -196,9 +210,8 @@ object GoogleDrive {
                 return@withContext
             }
             lock.use {
-                val timerNow = System.currentTimeMillis()
                 val lastSynchronized = CommonUtils.settings.getLong("lastSynchronized", 0)
-                Log.i(TAG, "Synchronizing, last synchronized $lastSynchronized")
+                Log.i(TAG, "Last synchronized $lastSynchronized")
                 cleanupPatchFolder()
                 downloadNewPatches(lastSynchronized)
                 DatabasePatching.applyPatchFiles()
