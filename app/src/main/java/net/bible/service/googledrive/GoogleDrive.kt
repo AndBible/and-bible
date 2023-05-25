@@ -47,6 +47,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
+import net.bible.android.control.backup.FOLDER_MIMETYPE
 import net.bible.android.control.backup.GZIP_MIMETYPE
 import net.bible.android.control.backup.TEXT_MIMETYPE
 import net.bible.android.control.event.ABEventBus
@@ -56,7 +57,11 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabasePatching
 import java.io.Closeable
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.Collections
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.coroutines.resumeWithException
 
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
@@ -74,6 +79,7 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
 }
 
 const val LOCK_FILENAME = "lock.txt"
+const val PATCH_FOLDER_FILENAME = "patches"
 
 suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
     awaitAll( *map { async { action(it) }}.toTypedArray() )
@@ -116,15 +122,31 @@ object GoogleDrive {
         return@withContext success
     }
 
-    private val lockFileId: String?
-        get() =
-            CommonUtils.realSharedPreferences.getString("drive_lockFileId", null)
-                ?: service.files().list()
-                    .setSpaces("appDataFolder")
-                    .setFields("nextPageToken, files(id, name)")
-                    .execute().files.firstOrNull { it.name == LOCK_FILENAME }?.id?.also {
-                        CommonUtils.realSharedPreferences.edit().putString("drive_lockFileId", it).apply()
-                    }
+    private val lockFileId: String? get() =
+        CommonUtils.realSharedPreferences.getString("driveLockFileId", null)
+            ?: service.files().list()
+                .setSpaces("appDataFolder")
+                .setFields("nextPageToken, files(id, name)")
+                .execute().files.firstOrNull { it.name == LOCK_FILENAME }?.id?.also {
+                    CommonUtils.realSharedPreferences.edit().putString("driveLockFileId", it).apply()
+                }
+    private val patchFolderId: String get() =
+        CommonUtils.realSharedPreferences.getString("patchFolderId", null)
+            ?: service.files().list()
+                .setSpaces("appDataFolder")
+                .setFields("files(id, name)")
+                .execute().files.firstOrNull { it.name == PATCH_FOLDER_FILENAME }?.id?.also {
+                    CommonUtils.realSharedPreferences.edit().putString("patchFolderId", it).apply()
+                }?:
+            service.files()
+                .create(DriveFile().apply {
+                    name = PATCH_FOLDER_FILENAME
+                    mimeType = FOLDER_MIMETYPE
+                    parents = listOf("appDataFolder")
+                })
+                .execute().id.also {
+                    CommonUtils.realSharedPreferences.edit().putString("patchFolderId", it).apply()
+                }
 
     private val fileLock: Closeable? get() {
         val ourContent = ByteArrayContent(TEXT_MIMETYPE, CommonUtils.deviceIdentifier.toByteArray())
@@ -136,7 +158,10 @@ object GoogleDrive {
                 parents = listOf("appDataFolder")
             }
             val newLock = service.files().create(driveFile, ourContent).execute()
-            CommonUtils.realSharedPreferences.edit().putString("drive_lockFileId", newLock.id).apply()
+            CommonUtils.realSharedPreferences.edit()
+                .putString("driveLockFileId", newLock.id)
+                .remove("patchFolderId")
+                .apply()
             return newLock.id
         }
 
@@ -147,13 +172,22 @@ object GoogleDrive {
         if(fileId == null) {
             fileId = createNewLock()
         } else {
-            val deviceIdInLockFile = String(
-                service
-                    .files()
-                    .get(fileId)
-                    .executeMediaAsInputStream()
-                    .readBytes()
-            )
+            val deviceIdInLockFile = try {
+                String(
+                    service
+                        .files()
+                        .get(fileId)
+                        .executeMediaAsInputStream()
+                        .readBytes()
+                )
+            } catch (e: GoogleJsonResponseException) {
+                if(e.statusCode == 404) {
+                    fileId = createNewLock()
+                } else {
+                    throw e;
+                }
+                ""
+            }
             when(deviceIdInLockFile) {
                 "" -> updateLock() // lock is released
                 CommonUtils.deviceIdentifier -> {} // lock is owned by us already
@@ -202,7 +236,7 @@ object GoogleDrive {
             lock.use {
                 val lastSynchronized = CommonUtils.settings.getLong("lastSynchronized", 0)
                 Log.i(TAG, "Last synchronized $lastSynchronized")
-                cleanupPatchFolder()
+                cleanupLocalPatchDirectories()
                 downloadNewPatches(lastSynchronized)
                 DatabasePatching.applyPatchFiles()
                 val now = System.currentTimeMillis()
@@ -214,7 +248,7 @@ object GoogleDrive {
         }
     }
 
-    private fun cleanupPatchFolder() {
+    private fun cleanupLocalPatchDirectories() {
         patchInFilesDir.deleteRecursively()
         patchInFilesDir.mkdirs()
         patchOutFilesDir.deleteRecursively()
@@ -231,18 +265,21 @@ object GoogleDrive {
         return fileName.split(".")[0]
     }
 
+    private fun timeStampStr(timeStampLong: Long): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val date = Date(timeStampLong)
+        return dateFormat.format(date)
+    }
+
     private suspend fun downloadNewPatches(lastSynchronized: Long) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Downloading new patches")
         val newPatchFiles = service.files().list()
             .setSpaces("appDataFolder")
-            .setFields("nextPageToken, files(id, name, size)")
-            .execute().files.filter {
-                if (!it.name.endsWith(".sqlite3.gz"))
-                    false
-                else {
-                    timeStampFromPatchFileName(it.name) > lastSynchronized
-                }
-            }
+            .setQ("'${patchFolderId}' in parents and createdTime > '${timeStampStr(lastSynchronized)}'")
+            .setOrderBy("createdTime asc")
+            .setFields("nextPageToken, files(id, name, size, createdTime)")
+            .execute().files
         newPatchFiles.asyncMap {file ->
             Log.i(TAG, "Downloading ${file.name}, ${file.getSize()} bytes")
             File(patchInFilesDir, file.name).outputStream().use {
@@ -262,7 +299,7 @@ object GoogleDrive {
             val category = categoryFromPatchFileName(file.name)
             val driveFile = DriveFile().apply {
                 name = "$category.${now}.sqlite3.gz"
-                parents = listOf("appDataFolder")
+                parents = listOf(patchFolderId)
             }
             Log.i(TAG, "Uploading ${file.name} as ${driveFile.name}, ${file.length()} bytes")
             service.files().create(driveFile, content).execute()

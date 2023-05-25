@@ -95,6 +95,7 @@ const val SQLITE3_MIMETYPE = "application/x-sqlite3"
 const val GZIP_MIMETYPE = "application/gzip"
 const val JSON_MIMETYPE = "application/json"
 const val TEXT_MIMETYPE = "text/plain"
+const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
 const val ZIP_MIMETYPE = "application/zip"
 
 object BackupControl {
