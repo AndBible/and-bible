@@ -36,6 +36,7 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
@@ -1385,3 +1386,29 @@ data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisp
 }
 
 val firstBibleDoc get() = Books.installed().books.first { it.bookCategory == BookCategory.BIBLE } as SwordBook
+
+fun <T> Cursor.map(f: (c: Cursor) -> T): Collection<T> = use {
+    val result = mutableListOf<T>()
+    if(!moveToFirst()) return@use result
+    do {
+        result.add(f.invoke(this))
+    } while(moveToNext())
+    result
+}
+
+fun <T> Cursor.forEach(f: (c: Cursor) -> T) = use {
+    if(!moveToFirst()) return
+    do {
+        f.invoke(this)
+    } while(moveToNext())
+}
+
+fun <T> Cursor.getFirst(f: (c: Cursor) -> T): T = use {
+    if(!moveToFirst()) throw RuntimeException("First item not found")
+    f.invoke(this)
+}
+
+fun <T> Cursor.getFirstOrNull(f: (c: Cursor) -> T): T? = use {
+    if(!moveToFirst()) return@use null
+    f.invoke(this)
+}

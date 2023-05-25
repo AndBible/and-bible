@@ -17,6 +17,7 @@
 
 package net.bible.service.db
 
+import android.database.Cursor
 import android.util.Log
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -29,6 +30,8 @@ import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.getColumnNamesJoined
+import net.bible.service.common.forEach
+import net.bible.service.common.getFirst
 import net.bible.service.googledrive.GoogleDrive
 import net.bible.service.googledrive.GoogleDrive.timeStampFromPatchFileName
 import java.io.Closeable
@@ -96,7 +99,7 @@ object DatabasePatching {
 
     private fun readPatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null) = db.run {
         val cols = getColumnNamesJoined(db, table)
-        val amount = query("SELECT COUNT(*) FROM patch.Log WHERE tableName = '$table'").use {c -> c.moveToFirst(); c.getInt(0)}
+        val amount = query("SELECT COUNT(*) FROM patch.Log WHERE tableName = '$table'").getFirst { it.getInt(0)}
         Log.i(TAG, "Reading patch data for $table: $amount log entries")
         var where = idField1
         var select = "pe.entityId1"
@@ -123,7 +126,7 @@ object DatabasePatching {
         var needPatch: Boolean
         dbDef.use {
             it.db.openHelper.writableDatabase.run {
-                val amountUpdated = query("SELECT COUNT(*) FROM Log WHERE lastUpdated > $lastSynchronized").use { c -> c.moveToFirst(); c.getInt(0)}
+                val amountUpdated = query("SELECT COUNT(*) FROM Log WHERE lastUpdated > $lastSynchronized").getFirst { c -> c.getInt(0)}
                 needPatch = amountUpdated > 0
                 if(needPatch) {
                     Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
@@ -166,21 +169,22 @@ object DatabasePatching {
             dbDef.use {
                 it.db.openHelper.writableDatabase.run {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
-                    execSQL("PRAGMA foreign_keys=OFF;")
                     for (tableDef in it.tableDefs) {
                         readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                     }
-                    execSQL("PRAGMA foreign_keys=ON;")
                     execSQL("DETACH DATABASE patch")
-                    query("PRAGMA foreign_key_check;").use {
-                        c -> c.moveToFirst()
-                        val tableName = c.getString(0)
-                        val rowId = c.getLong(1)
-                        val parent = c.getString(2)
-                        Log.w(TAG, "Foreign key check failure: $tableName:$rowId (<- $parent)")
-                    }
+                    //checkForeignKeys(this)
                 }
             }
+        }
+    }
+
+    private fun checkForeignKeys(db: SupportSQLiteDatabase) {
+        db.query("PRAGMA foreign_key_check;").forEach {c->
+            val tableName = c.getString(0)
+            val rowId = c.getLong(1)
+            val parent = c.getString(2)
+            Log.w(TAG, "Foreign key check failure: $tableName:$rowId (<- $parent)")
         }
     }
 
