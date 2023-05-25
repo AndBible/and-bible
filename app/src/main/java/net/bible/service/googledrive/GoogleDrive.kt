@@ -162,18 +162,8 @@ object GoogleDrive {
         }
 
         return Closeable {
-            val fileHandle2 = lockFileId
-            if(fileHandle2 == null) {
-                Log.e(TAG, "Lock file not found. Should have been there!!!")
-                return@Closeable
-            } else {
-                val emptyContent = ByteArrayContent(TEXT_MIMETYPE, "".toByteArray())
-                try {
-                    service.files().update(fileId, DriveFile(), emptyContent).execute()
-                } catch (e: GoogleJsonResponseException) {
-                    Log.e(TAG, "Error emptying lock file", e)
-                }
-            }
+            val emptyContent = ByteArrayContent(TEXT_MIMETYPE, "".toByteArray())
+            service.files().update(fileId, DriveFile(), emptyContent).execute()
         }
     }
 
@@ -204,7 +194,7 @@ object GoogleDrive {
             Log.i(TAG, "Synchronizing starts, let's set up the file lock")
             val timerNow = System.currentTimeMillis()
             val lock = fileLock
-            if(fileLock == null) {
+            if(lock == null) {
                 Log.i(TAG, "Lock file present, can't synchronize")
                 ABEventBus.post(ToastEvent(R.string.sync_locked))
                 return@withContext
