@@ -190,43 +190,7 @@ object DatabasePatching {
         }
         dbDef.patchDbFile.delete()
     }
-    private fun testAttach() {
-        val filePath = application.getDatabasePath("test").absolutePath
-        val attachedDb1File: String = filePath + "1"
-        val attachedDb2File: String = filePath + "2"
-        val db1: SQLiteDatabase = SQLiteDatabase.openOrCreateDatabase(attachedDb1File, null)
-        val db2: SQLiteDatabase = SQLiteDatabase.openOrCreateDatabase(attachedDb2File, null)
-        db1.use {
-            db1.execSQL("CREATE TABLE IF NOT EXISTS test (i int, j int);")
-            db1.execSQL("INSERT INTO test values(1,1);")
-        }
-        db2.use {
-            db2.execSQL("CREATE TABLE IF NOT EXISTS test (i int, j int);")
-            db2.execSQL("ATTACH DATABASE '$attachedDb1File' AS db2;")
-            db2.execSQL("INSERT INTO test SELECT * FROM db2.test;") // this crashes, although it should not
-        }
-    }
-    private fun clonePatchTables(dbDef: DatabaseDef<*>) {
-        //testAttach()
-        dbDef.db.close()
-        val filePath = application.getDatabasePath(dbDef.dbFileName).absolutePath
-        AndroidSQLiteDatabase.openDatabase(filePath, null, AndroidSQLiteDatabase.OPEN_READWRITE).use {db -> db.run {
-            execSQL("ATTACH DATABASE '${dbDef.patchDbFile.absolutePath}' AS patch")
-            for(table in listOf(*dbDef.tableDefs.map {it.tableName}.toTypedArray(), "Log")) {
-                val createSql = rawQuery("SELECT sql FROM sqlite_schema WHERE name='$table'", null).use {c ->
-                    c.moveToFirst()
-                    val sql = c.getString(0);
-                    sql.replace("`$table`", "`patch_$table`")
-                }
-                execSQL(createSql)
-                execSQL("INSERT INTO patch_$table SELECT * FROM patch.$table;")
-                execSQL("DROP TABLE `patch_$table`")
-            }
-            execSQL("DETACH DATABASE patch")
-        }}
-        // re-open db
-        dbDef.db.openHelper.writableDatabase
-    }
+
     private fun applyPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>) {
         val dbDef = dbDefFactory()
         val files = (GoogleDrive.patchInFilesDir.listFiles()?: emptyArray()).filter { it.name.startsWith(dbDef.categoryName) }
