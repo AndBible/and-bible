@@ -80,6 +80,8 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
 
 const val LOCK_FILENAME = "lock.txt"
 const val PATCH_FOLDER_FILENAME = "patches"
+const val PATCH_FOLDER_FILE_ID_KEY = "patchFileId"
+const val DRIVE_LOCK_FILE_ID_KEY = "driveLockFileId"
 
 suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
     awaitAll( *map { async { action(it) }}.toTypedArray() )
@@ -123,20 +125,22 @@ object GoogleDrive {
     }
 
     private val lockFileId: String? get() =
-        CommonUtils.realSharedPreferences.getString("driveLockFileId", null)
+        CommonUtils.realSharedPreferences.getString(DRIVE_LOCK_FILE_ID_KEY, null)
             ?: service.files().list()
+                .setQ("name = '$LOCK_FILENAME'")
                 .setSpaces("appDataFolder")
                 .setFields("nextPageToken, files(id, name)")
-                .execute().files.firstOrNull { it.name == LOCK_FILENAME }?.id?.also {
-                    CommonUtils.realSharedPreferences.edit().putString("driveLockFileId", it).apply()
+                .execute().files.firstOrNull()?.id?.also {
+                    CommonUtils.realSharedPreferences.edit().putString(DRIVE_LOCK_FILE_ID_KEY, it).apply()
                 }
     private val patchFolderId: String get() =
-        CommonUtils.realSharedPreferences.getString("patchFolderId", null)
+        CommonUtils.realSharedPreferences.getString(PATCH_FOLDER_FILE_ID_KEY, null)
             ?: service.files().list()
+                .setQ("name = '$PATCH_FOLDER_FILENAME'")
                 .setSpaces("appDataFolder")
                 .setFields("files(id, name)")
-                .execute().files.firstOrNull { it.name == PATCH_FOLDER_FILENAME }?.id?.also {
-                    CommonUtils.realSharedPreferences.edit().putString("patchFolderId", it).apply()
+                .execute().files.firstOrNull() ?.id?.also {
+                    CommonUtils.realSharedPreferences.edit().putString(PATCH_FOLDER_FILE_ID_KEY, it).apply()
                 }?:
             service.files()
                 .create(DriveFile().apply {
@@ -145,7 +149,7 @@ object GoogleDrive {
                     parents = listOf("appDataFolder")
                 })
                 .execute().id.also {
-                    CommonUtils.realSharedPreferences.edit().putString("patchFolderId", it).apply()
+                    CommonUtils.realSharedPreferences.edit().putString(PATCH_FOLDER_FILE_ID_KEY, it).apply()
                 }
 
     private val fileLock: Closeable? get() {
@@ -159,8 +163,8 @@ object GoogleDrive {
             }
             val newLock = service.files().create(driveFile, ourContent).execute()
             CommonUtils.realSharedPreferences.edit()
-                .putString("driveLockFileId", newLock.id)
-                .remove("patchFolderId")
+                .putString(DRIVE_LOCK_FILE_ID_KEY, newLock.id)
+                .remove(PATCH_FOLDER_FILE_ID_KEY)
                 .apply()
             return newLock.id
         }
@@ -274,13 +278,20 @@ object GoogleDrive {
 
     private suspend fun downloadNewPatches(lastSynchronized: Long) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Downloading new patches")
-        val newPatchFiles = service.files().list()
-            .setSpaces("appDataFolder")
-            .setQ("'${patchFolderId}' in parents and createdTime > '${timeStampStr(lastSynchronized)}'")
-            .setOrderBy("createdTime asc")
-            .setFields("nextPageToken, files(id, name, size, createdTime)")
-            .execute().files
-        newPatchFiles.asyncMap {file ->
+        var pageToken: String?
+        val allFiles = mutableListOf<DriveFile>()
+        do {
+            val result = service.files().list()
+                .setSpaces("appDataFolder")
+                .setQ("'${patchFolderId}' in parents and createdTime > '${timeStampStr(lastSynchronized)}'")
+                .setOrderBy("createdTime asc")
+                .setFields("nextPageToken, files(id, name, size, createdTime)")
+                .execute()
+            allFiles.addAll(result.files)
+            pageToken = result.nextPageToken
+        } while(pageToken != null)
+
+        allFiles.asyncMap { file ->
             Log.i(TAG, "Downloading ${file.name}, ${file.getSize()} bytes")
             File(patchInFilesDir, file.name).outputStream().use {
                 service
