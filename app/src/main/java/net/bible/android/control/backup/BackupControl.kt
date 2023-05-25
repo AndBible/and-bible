@@ -647,6 +647,7 @@ object BackupControl {
                 val targetFilePath = activity.getDatabasePath(fileName).path
                 val targetFile = File(targetFilePath)
                 f.copyTo(targetFile, overwrite = true)
+                File("$targetFilePath-journal").delete()
                 File("$targetFilePath-shm").delete()
                 File("$targetFilePath-wal").delete()
             }

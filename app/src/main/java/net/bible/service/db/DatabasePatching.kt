@@ -19,6 +19,7 @@ package net.bible.service.db
 
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
+import io.requery.android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -30,22 +31,23 @@ import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
+import net.bible.android.view.activity.page.application
 import net.bible.service.common.forEach
 import net.bible.service.common.getFirst
-import net.bible.service.common.map
 import net.bible.service.googledrive.GoogleDrive
 import net.bible.service.googledrive.GoogleDrive.timeStampFromPatchFileName
 import java.io.Closeable
 import java.io.File
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import android.database.sqlite.SQLiteDatabase as AndroidSQLiteDatabase
 
 class TableDef(val tableName: String, val idField1: String = "id", val idField2: String? = null)
 
 class DatabaseDef<T: SyncableRoomDatabase>(
     val db: T,
     dbFactory: (filename: String) -> T,
-    dbFileName: String,
+    val dbFileName: String,
     val tableDefs: List<TableDef>,
     private val readOnly: Boolean,
 ): Closeable {
@@ -60,6 +62,8 @@ class DatabaseDef<T: SyncableRoomDatabase>(
             // Let's drop all indices to save space, they are useless in patch file
             patchDb.openHelper.writableDatabase
             // dropPatchIndices() // TODO: consider enabling.
+        } else {
+            patchDb.openHelper.writableDatabase.close()
         }
     }
 
@@ -84,7 +88,10 @@ class DatabaseDef<T: SyncableRoomDatabase>(
     }
 }
 object DatabasePatching {
-    private fun writePatchData(db: SupportSQLiteDatabase, table: String, idField1: String = "id", idField2: String? = null, lastSynchronized: Long) = db.run {
+    private fun writePatchData(db: SupportSQLiteDatabase, tableDef: TableDef, lastSynchronized: Long) = db.run {
+        val table = tableDef.tableName
+        val idField1 = tableDef.idField1
+        val idField2 = tableDef.idField2
         val cols = getColumnNamesJoined(db, table, "patch")
 
         var where = idField1
@@ -99,11 +106,11 @@ object DatabasePatching {
     }
 
     private fun readPatchData(
-        dbDef: DatabaseDef<*>,
+        db: SupportSQLiteDatabase,
         table: String,
         idField1: String = "id",
         idField2: String? = null
-    ) = dbDef.db.openHelper.writableDatabase.run {
+    ) = db.run {
         val colList = getColumnNames(this, table)
         val cols = colList.joinToString(",") { "`$it`" }
         val setValues = colList.filterNot {it == idField1 || it == idField2}.joinToString(",\n") { "`$it`=p.`$it`" }
@@ -123,7 +130,7 @@ object DatabasePatching {
 
         //// Insert all rows from patch table that don't have more recent entry in Log table
         execSQL("INSERT INTO $table ($cols) SELECT $cols FROM patch.$table WHERE $idFields IN (${subSelect("INSERT")})")
-        execSQL("UPDATE $table SET $cols = (SELECT $cols FROM patch.$table WHERE $idFields IN (${subSelect("UPDATE")}))")
+        execSQL("UPDATE $table SET $setValues FROM (SELECT $cols FROM patch.$table WHERE $idFields IN (${subSelect("UPDATE")})) as p")
 
         // Insert all rows from patch table that don't have more recent entry in Log table
         //execSQL("""INSERT INTO $table
@@ -140,29 +147,34 @@ object DatabasePatching {
         // Let's fix Log table timestamps (all above insertions have created new entries)
         execSQL("INSERT OR REPLACE INTO Log SELECT * FROM patch.Log")
 
-        val deletions = dbDef.db.logDao().allDeletions()
-        Log.i(TAG, "deletions $table \n${deletions.joinToString("\n")}")
+        //val deletions = dbDef.db.logDao().allDeletions()
+        //Log.i(TAG, "deletions $table \n${deletions.joinToString("\n")}")
     }
 
     private fun createPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>, lastSynchronized: Long) {
         val dbDef = dbDefFactory()
         var needPatch: Boolean
         dbDef.use {
-            it.db.openHelper.writableDatabase.run {
+            it.db.close()
+            val db = SQLiteDatabase.openDatabase(application.getDatabasePath(it.dbFileName).absolutePath, null, SQLiteDatabase.OPEN_READWRITE)
+
+            //it.db.openHelper.writableDatabase.run {
+            db.run {
                 val amountUpdated = query("SELECT COUNT(*) FROM Log WHERE lastUpdated > $lastSynchronized").getFirst { c -> c.getInt(0)}
                 needPatch = amountUpdated > 0
                 if(needPatch) {
                     Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
-                    val dbs = attachedDbs
                     execSQL("PRAGMA patch.foreign_keys=OFF;")
                     for (tableDef in it.tableDefs) {
-                        writePatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2, lastSynchronized)
+                        writePatchData(this, tableDef, lastSynchronized)
                     }
                     execSQL("PRAGMA patch.foreign_keys=ON;")
                     execSQL("DETACH DATABASE patch")
                 }
             }
+            db.close()
+            it.db.openHelper.writableDatabase
         }
         if(needPatch) {
             val gzippedOutput = File(GoogleDrive.patchOutFilesDir, dbDef.categoryName + ".sqlite3.gz")
@@ -178,6 +190,43 @@ object DatabasePatching {
         }
         dbDef.patchDbFile.delete()
     }
+    private fun testAttach() {
+        val filePath = application.getDatabasePath("test").absolutePath
+        val attachedDb1File: String = filePath + "1"
+        val attachedDb2File: String = filePath + "2"
+        val db1: SQLiteDatabase = SQLiteDatabase.openOrCreateDatabase(attachedDb1File, null)
+        val db2: SQLiteDatabase = SQLiteDatabase.openOrCreateDatabase(attachedDb2File, null)
+        db1.use {
+            db1.execSQL("CREATE TABLE IF NOT EXISTS test (i int, j int);")
+            db1.execSQL("INSERT INTO test values(1,1);")
+        }
+        db2.use {
+            db2.execSQL("CREATE TABLE IF NOT EXISTS test (i int, j int);")
+            db2.execSQL("ATTACH DATABASE '$attachedDb1File' AS db2;")
+            db2.execSQL("INSERT INTO test SELECT * FROM db2.test;") // this crashes, although it should not
+        }
+    }
+    private fun clonePatchTables(dbDef: DatabaseDef<*>) {
+        //testAttach()
+        dbDef.db.close()
+        val filePath = application.getDatabasePath(dbDef.dbFileName).absolutePath
+        AndroidSQLiteDatabase.openDatabase(filePath, null, AndroidSQLiteDatabase.OPEN_READWRITE).use {db -> db.run {
+            execSQL("ATTACH DATABASE '${dbDef.patchDbFile.absolutePath}' AS patch")
+            for(table in listOf(*dbDef.tableDefs.map {it.tableName}.toTypedArray(), "Log")) {
+                val createSql = rawQuery("SELECT sql FROM sqlite_schema WHERE name='$table'", null).use {c ->
+                    c.moveToFirst()
+                    val sql = c.getString(0);
+                    sql.replace("`$table`", "`patch_$table`")
+                }
+                execSQL(createSql)
+                execSQL("INSERT INTO patch_$table SELECT * FROM patch.$table;")
+                execSQL("DROP TABLE `patch_$table`")
+            }
+            execSQL("DETACH DATABASE patch")
+        }}
+        // re-open db
+        dbDef.db.openHelper.writableDatabase
+    }
     private fun applyPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>) {
         val dbDef = dbDefFactory()
         val files = (GoogleDrive.patchInFilesDir.listFiles()?: emptyArray()).filter { it.name.startsWith(dbDef.categoryName) }
@@ -191,14 +240,20 @@ object DatabasePatching {
                 }
             }
             dbDef.use {
-                it.db.openHelper.writableDatabase.run {
+                //clonePatchTables(it)
+                it.db.close()
+                val db = SQLiteDatabase.openDatabase(application.getDatabasePath(it.dbFileName).absolutePath, null, SQLiteDatabase.OPEN_READWRITE)
+                //it.db.openHelper.writableDatabase.run {
+                db.run {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     for (tableDef in it.tableDefs) {
-                        readPatchData(it, tableDef.tableName, tableDef.idField1, tableDef.idField2)
+                        readPatchData(db, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                     }
                     execSQL("DETACH DATABASE patch")
                     //checkForeignKeys(this)
                 }
+                db.close()
+                it.db.openHelper.writableDatabase
             }
         }
     }
