@@ -32,6 +32,7 @@ import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.common.forEach
 import net.bible.service.common.getFirst
+import net.bible.service.common.map
 import net.bible.service.googledrive.GoogleDrive
 import net.bible.service.googledrive.GoogleDrive.timeStampFromPatchFileName
 import java.io.Closeable
@@ -98,14 +99,14 @@ object DatabasePatching {
     }
 
     private fun readPatchData(
-        db: SupportSQLiteDatabase,
-        roomDb: SyncableRoomDatabase,
+        dbDef: DatabaseDef<*>,
         table: String,
         idField1: String = "id",
         idField2: String? = null
-    ) = db.run {
+    ) = dbDef.db.openHelper.writableDatabase.run {
         val colList = getColumnNames(this, table)
-        val setValues = colList.filterNot {it == idField1 || it == idField2}.joinToString(",\n") { "`$it`=excluded.`$it`" }
+        val cols = colList.joinToString(",") { "`$it`" }
+        val setValues = colList.filterNot {it == idField1 || it == idField2}.joinToString(",\n") { "`$it`=p.`$it`" }
         val amount = query("SELECT COUNT(*) FROM patch.Log WHERE tableName = '$table'").getFirst { it.getInt(0)}
         Log.i(TAG, "Reading patch data for $table: $amount log entries")
         var idFields = idField1
@@ -114,22 +115,32 @@ object DatabasePatching {
             idFields = "($idField1,$idField2)"
             select = "pe.entityId1,pe.entityId2"
         }
+
+        fun subSelect(type: String) = """SELECT $select FROM patch.Log pe 
+                |OUTER LEFT JOIN Log me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName 
+                |WHERE pe.tableName = '$table' AND pe.type = '$type' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated)
+                |""".trimMargin()
+
+        //// Insert all rows from patch table that don't have more recent entry in Log table
+        execSQL("INSERT INTO $table ($cols) SELECT $cols FROM patch.$table WHERE $idFields IN (${subSelect("INSERT")})")
+        execSQL("UPDATE $table SET $cols = (SELECT $cols FROM patch.$table WHERE $idFields IN (${subSelect("UPDATE")}))")
+
         // Insert all rows from patch table that don't have more recent entry in Log table
-        execSQL("""INSERT INTO $table  
-                  |SELECT * FROM patch.$table WHERE $idFields IN 
-                  |(SELECT $select FROM patch.Log pe 
-                  | OUTER LEFT JOIN Log me 
-                  | ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName 
-                  | WHERE pe.tableName = '$table' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated) 
-                  |) ON CONFLICT DO UPDATE SET $setValues;
-                """.trimMargin())
+        //execSQL("""INSERT INTO $table
+        //          |SELECT * FROM patch.$table WHERE $idFields IN
+        //          |(SELECT $select FROM patch.Log pe
+        //          | OUTER LEFT JOIN Log me
+        //          | ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
+        //          | WHERE pe.tableName = '$table' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated)
+        //          |) ON CONFLICT DO UPDATE SET $setValues;
+        //        """.trimMargin())
         // Delete all marked deletions from patch Log table
         execSQL("DELETE FROM $table WHERE $idFields IN (SELECT $select FROM patch.Log pe WHERE tableName = '$table' AND type = 'DELETE')")
 
         // Let's fix Log table timestamps (all above insertions have created new entries)
         execSQL("INSERT OR REPLACE INTO Log SELECT * FROM patch.Log")
 
-        val deletions = roomDb.logDao().allDeletions()
+        val deletions = dbDef.db.logDao().allDeletions()
         Log.i(TAG, "deletions $table \n${deletions.joinToString("\n")}")
     }
 
@@ -183,7 +194,7 @@ object DatabasePatching {
                 it.db.openHelper.writableDatabase.run {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     for (tableDef in it.tableDefs) {
-                        readPatchData(this, it.db, tableDef.tableName, tableDef.idField1, tableDef.idField2)
+                        readPatchData(it, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                     }
                     execSQL("DETACH DATABASE patch")
                     //checkForeignKeys(this)
