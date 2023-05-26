@@ -19,6 +19,7 @@ package net.bible.service.db
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
@@ -166,6 +167,7 @@ class DatabaseContainer {
     )
         .allowMainThreadQueries()
         .addMigrations(*bookmarkMigrations)
+        .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
         .openHelperFactory(dbFactory)
         .build()
 
@@ -181,6 +183,7 @@ class DatabaseContainer {
         )
             .openHelperFactory(dbFactory)
             .allowMainThreadQueries()
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .addMigrations(*readingPlanMigrations)
             .build()
 
@@ -196,6 +199,7 @@ class DatabaseContainer {
         )
             .allowMainThreadQueries()
             .addMigrations(*workspacesMigrations)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .openHelperFactory(dbFactory)
             .build()
 

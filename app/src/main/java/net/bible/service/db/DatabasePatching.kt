@@ -19,7 +19,6 @@ package net.bible.service.db
 
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
-import io.requery.android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -32,7 +31,6 @@ import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.forEach
 import net.bible.service.common.getFirst
@@ -42,7 +40,6 @@ import java.io.Closeable
 import java.io.File
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
-import android.database.sqlite.SQLiteDatabase as AndroidSQLiteDatabase
 
 class TableDef(val tableName: String, val idField1: String = "id", val idField2: String? = null)
 
@@ -159,8 +156,7 @@ object DatabasePatching {
         val dbDef = dbDefFactory()
         var needPatch: Boolean
         dbDef.use {
-            it.db.close()
-            SQLiteDatabase.openDatabase(application.getDatabasePath(it.dbFileName).absolutePath, null, SQLiteDatabase.OPEN_READWRITE).use { db -> db.run {
+            it.db.openHelper.writableDatabase.run {
                 val amountUpdated = query("SELECT COUNT(*) FROM Log WHERE lastUpdated > $lastSynchronized").getFirst { c -> c.getInt(0)}
                 needPatch = amountUpdated > 0
                 if (needPatch) {
@@ -173,8 +169,7 @@ object DatabasePatching {
                     execSQL("PRAGMA patch.foreign_keys=ON;")
                     execSQL("DETACH DATABASE patch")
                 }
-            }}
-            it.resetDb.invoke()
+            }
         }
         if(needPatch) {
             val gzippedOutput = File(GoogleDrive.patchOutFilesDir, dbDef.categoryName + ".sqlite3.gz")
@@ -204,8 +199,7 @@ object DatabasePatching {
                 }
             }
             dbDef.use {
-                it.db.close()
-                SQLiteDatabase.openDatabase(application.getDatabasePath(it.dbFileName).absolutePath, null, SQLiteDatabase.OPEN_READWRITE).use { db -> db.run {
+                it.db.openHelper.writableDatabase.run {
                     execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
                     for (tableDef in it.tableDefs) {
                         readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
@@ -214,8 +208,7 @@ object DatabasePatching {
                     if(CommonUtils.isDebugMode) {
                         checkForeignKeys(this)
                     }
-                }}
-                it.resetDb.invoke()
+                }
             }
         }
     }
