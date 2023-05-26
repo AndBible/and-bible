@@ -146,6 +146,7 @@ class DatabaseContainer {
         )
             .allowMainThreadQueries()
             .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .addMigrations(
                 *oldMonolithicAppDatabaseMigrations,
                 *oldMigrations,
@@ -222,6 +223,7 @@ class DatabaseContainer {
             .allowMainThreadQueries()
             .addMigrations()
             .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
     val repoDb: RepoDatabase =
@@ -231,6 +233,7 @@ class DatabaseContainer {
             .allowMainThreadQueries()
             .addMigrations()
             .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
     val settingsDb: SettingsDatabase =
@@ -240,6 +243,7 @@ class DatabaseContainer {
             .allowMainThreadQueries()
             .addMigrations()
             .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
     private fun backupDatabaseIfNeeded() {

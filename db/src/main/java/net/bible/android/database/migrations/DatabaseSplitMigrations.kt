@@ -42,7 +42,6 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
 
     private fun setPragmas(db: SQLiteDatabase)  = db.run {
         db.version = 1
-        rawQuery("PRAGMA journal_mode=WAL;", null).close()
     }
 
     fun migrateAll() {
