@@ -98,7 +98,7 @@ class DatabaseContainer {
         migrateOldDatabaseIfNeeded()
     }
 
-    private val dbFactory = RequerySQLiteOpenHelperFactory()
+    private val dbFactory = if(application.isRunningTests) null else RequerySQLiteOpenHelperFactory()
 
     private fun createTriggers() {
         bookmarkDb.openHelper.writableDatabase.run {

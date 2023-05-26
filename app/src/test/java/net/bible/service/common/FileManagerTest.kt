@@ -18,6 +18,7 @@ package net.bible.service.common
 
 import junit.framework.Assert
 import net.bible.android.TEST_SDK
+import net.bible.android.TestBibleApplication
 import net.bible.test.DatabaseResetter.resetDatabase
 import net.bible.service.common.FileManager.copyFile
 import org.junit.runner.RunWith
@@ -36,7 +37,7 @@ import java.lang.Exception
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk=[TEST_SDK])
+@Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class FileManagerTest {
     private val folder = "src/test/resources/net/bible/service/common".replace("/", File.separator)
     @After
