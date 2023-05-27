@@ -82,7 +82,7 @@ class PreferenceStore: PreferenceDataStore() {
     override fun getFloat(key: String, defValue: Float): Float = prefs.getFloat(key, defValue)
 
     override fun putFloat(key: String, value: Float) = prefs.setFloat(key, value)
-    override fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String> = prefs.getStringSet(key, defValues)?.toMutableSet() ?: mutableSetOf()
+    override fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String> = prefs.getStringSet(key, defValues?: emptySet()).toMutableSet()
     override fun putStringSet(key: String, values: MutableSet<String>?)  = prefs.setStringSet(key, values)
 }
 
@@ -193,11 +193,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         pref.entryValues = DatabaseCategory.ALL.map { it.name }.toTypedArray()
 
         pref.setOnPreferenceChangeListener { preference, newValue ->
-            if(newValue == true && !GoogleDrive.signedIn) {
+            val newValueSet = newValue as Set<*>
+            if((newValueSet).isNotEmpty()) {
                 lifecycleScope.launch {
-                    val success = GoogleDrive.signIn(this@SettingsFragment.activity as ActivityBase)
-                    if(!success) {
-                        pref.values = null
+                    if(!GoogleDrive.signedIn) {
+                        val success = GoogleDrive.signIn(this@SettingsFragment.activity as ActivityBase)
+                        if (!success) {
+                            pref.values = null
+                        }
+                    }
+                    if (GoogleDrive.signedIn && newValueSet.isNotEmpty()) {
+                        GoogleDrive.synchronizeWithHourGlass(this@SettingsFragment.activity as ActivityBase)
                     }
                 }
             }

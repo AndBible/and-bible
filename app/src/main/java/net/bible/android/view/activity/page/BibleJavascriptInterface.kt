@@ -92,6 +92,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun setClientReady() {
         Log.i(TAG, "set client ready")
+
         bibleView.setClientReady()
     }
 

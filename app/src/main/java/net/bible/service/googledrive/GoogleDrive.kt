@@ -37,7 +37,6 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.DateTime
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import com.google.api.services.drive.model.FileList
 import com.google.api.services.drive.model.File as DriveFile
 import com.google.api.services.drive.Drive.Files.List as DriveList
 import kotlinx.coroutines.Dispatchers
@@ -52,13 +51,12 @@ import net.bible.android.control.backup.GZIP_MIMETYPE
 import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseCategory
 import net.bible.service.db.DatabaseDefinition
 import net.bible.service.db.DatabasePatching
-import java.io.File
-import java.time.Instant
 import java.util.Collections
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -151,15 +149,42 @@ object GoogleDrive {
         }
 
         if(syncFolderId == null) {
-            val newSyncFolderId = service.files().list()
+            service.files().list()
                 .setQ("name = '$syncFolderName'")
                 .setSpaces("appDataFolder")
                 .setFields("files(id)")
                 .execute().files.firstOrNull()?.id?.also {
-                    dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, it)
                     initialOperation = InitialOperation.FETCH_INITIAL
-                } ?:
-            service.files()
+                }?:let {
+                initialOperation = InitialOperation.CREATE_NEW
+            }
+
+            if (initialOperation == InitialOperation.FETCH_INITIAL) {
+                val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
+                initialOperation = withContext(Dispatchers.Main) {
+                    suspendCoroutine {
+                        val containsStr = activity.getString(dbDef.category.contentDescription)
+                        AlertDialog.Builder(activity)
+                            .setMessage(activity.getString(R.string.overrideBackup, containsStr))
+                            .setPositiveButton(R.string.gdrive_fetch_and_restore_initial) { _, _ ->
+                                it.resume(
+                                    InitialOperation.FETCH_INITIAL
+                                )
+                            }
+                            .setNegativeButton(R.string.gdrive_create_new) { _, _ -> it.resume(InitialOperation.CREATE_NEW) }
+                            .setNeutralButton(R.string.gdrive_disable_sync) { _, _ -> it.resume(null) }
+                            .create()
+                            .show()
+                    }
+                }
+                if (initialOperation == null) {
+                    disablePref(dbDef.category)
+                    throw CancelSync()
+                }
+            }
+        }
+        fun createNewSyncId(): String {
+            return service.files()
                 .create(DriveFile().apply {
                     name = syncFolderName
                     mimeType = FOLDER_MIMETYPE
@@ -167,48 +192,36 @@ object GoogleDrive {
                 })
                 .execute().id.also {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, it)
-                    initialOperation = InitialOperation.CREATE_NEW
                 }
+        }
+        fun createNewDeviceSyncId() {
             service.files()
                 .create(DriveFile().apply {
                     name = CommonUtils.deviceIdentifier
                     mimeType = FOLDER_MIMETYPE
-                    parents = listOf(newSyncFolderId)
+                    parents = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY) ?: createNewSyncId())
                 })
                 .execute().id.also {
                     dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, it)
                 }
         }
 
-        if(initialOperation == InitialOperation.FETCH_INITIAL) {
-            val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
-            initialOperation = withContext(Dispatchers.Main) {
-                suspendCoroutine {
-                    val containsStr = activity.getString(dbDef.category.contentDescription)
-                    AlertDialog.Builder(activity)
-                        .setTitle(activity.getString(R.string.overrideBackup, containsStr))
-                        .setPositiveButton(R.string.fetch_and_restore_initial) { _, _ -> it.resume(InitialOperation.FETCH_INITIAL) }
-                        .setNegativeButton(R.string.create_new) { _, _ -> it.resume(InitialOperation.CREATE_NEW) }
-                        .setNeutralButton(R.string.cancel) { _, _ -> it.resume(null) }
-                        .create()
-                        .show()
-                }
-            }
-            if(initialOperation == null) {
-                disablePref(dbDef.category)
-                throw CancelSync()
-            }
-        }
-
         when(initialOperation) {
-            InitialOperation.CREATE_NEW -> createAndUploadInitial(dbDef)
-            InitialOperation.FETCH_INITIAL -> fetchAndRestoreInitial(dbDef)
+            InitialOperation.CREATE_NEW -> {
+                createNewSyncId()
+                createNewDeviceSyncId()
+                createAndUploadInitial(dbDef)
+            }
+            InitialOperation.FETCH_INITIAL -> {
+                createNewDeviceSyncId()
+                fetchAndRestoreInitial(dbDef)
+            }
             null -> {}
         }
     }
 
     private fun disablePref(category: DatabaseCategory) {
-        val pref = CommonUtils.settings.getStringSet("google_drive_sync", emptySet())!!.toMutableSet()
+        val pref = CommonUtils.settings.getStringSet("google_drive_sync", emptySet()).toMutableSet()
         if(pref.contains(category.name)) {
             pref.remove(category.name)
             CommonUtils.settings.setStringSet("google_drive_sync", pref)
@@ -216,24 +229,12 @@ object GoogleDrive {
     }
 
     private fun prefEnabled(category: DatabaseCategory): Boolean {
-        val pref = CommonUtils.settings.getStringSet("google_drive_sync", emptySet())!!.toMutableSet()
+        val pref = CommonUtils.settings.getStringSet("google_drive_sync", emptySet()).toMutableSet()
         return pref.contains(category.name)
     }
 
-    private suspend fun clearDrive() {
-        // Delete everything from Drive
-        Log.i(TAG, "clearDrive")
-        val files = service.files().list()
-            .setSpaces("appDataFolder")
-            .setQ("mimeType='$FOLDER_MIMETYPE'")
-            .setFields("nextPageToken, files(id)")
-            .collectAll()
-        files.toList().asyncMap {service.files().delete(it.id)}
-    }
-
-    private suspend fun createAndUploadInitial(dbDef: DatabaseDefinition<*>) {
+    private fun createAndUploadInitial(dbDef: DatabaseDefinition<*>) {
         Log.i(TAG, "createAndUploadInitial, ${dbDef.categoryName}")
-        clearDrive()
         dbDef.writableDb.query("VACUUM;").use {  }
         val tmpFile = CommonUtils.tmpFile
         val gzippedTmpFile = CommonUtils.tmpFile
@@ -244,7 +245,7 @@ object GoogleDrive {
         service.files().create(
             DriveFile().apply {
                 name = "initial.sqlite3.gz"
-                parents = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!)
+                parents = listOf(dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!)
             },
             FileContent(GZIP_MIMETYPE, gzippedTmpFile)
         )
@@ -255,7 +256,7 @@ object GoogleDrive {
         Log.i(TAG, "fetchAndRestoreInitial ${dbDef.categoryName}")
         val fileId = service.files().list()
             .setSpaces("appDataFolder")
-            .setQ("'${dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)}' in parents and name = 'initial.sqlite3.gz'")
+            .setQ("'${dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)}' in parents and name = 'initial.sqlite3.gz'")
             .execute().files.first().id
         val gzippedTmpFile = CommonUtils.tmpFile
 
@@ -283,7 +284,7 @@ object GoogleDrive {
             return@withContext
         }
         syncMutex.withLock {
-            Log.i(TAG, "Synchronizing starts, let's set up the file lock")
+            Log.i(TAG, "Synchronizing starts")
             val timerStart = System.currentTimeMillis()
 
             DatabasePatching.dbFactories.asyncMap {
@@ -292,6 +293,7 @@ object GoogleDrive {
                 try {
                     initializeSync(dbDef)
                 } catch (e: CancelSync) {
+                    Log.i(TAG, "Sync cancelled ${dbDef.categoryName}")
                     return@asyncMap
                 }
                 val syncStarted = System.currentTimeMillis()
@@ -304,14 +306,14 @@ object GoogleDrive {
     }
 
     private suspend fun downloadAndApplyNewPatches(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
-        Log.i(TAG, "Downloading new patches")
+        Log.i(TAG, "Downloading new patches ${dbDef.categoryName}")
         val lastSynchronized = dbDef.dao.getLong("lastSynchronized")?: 0
         val syncFolder = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         val syncDeviceFolder = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
         val result = service.files().list()
             .setSpaces("appDataFolder")
-            .setQ("'$syncFolder' in parents and $syncDeviceFolder not in parents and createdTime > '${DateTime(lastSynchronized).toStringRfc3339()}'")
+            .setQ("'$syncFolder' in parents and not '$syncDeviceFolder' in parents and createdTime > '${DateTime(lastSynchronized).toStringRfc3339()}'")
             .setOrderBy("createdTime asc")
             .setFields("nextPageToken, files(id, name, size, mimeType, createdTime, parents)")
             .collectAll()
@@ -342,7 +344,7 @@ object GoogleDrive {
         DatabasePatching.applyPatchesForDatabase(dbDef, downloadedFiles)
     }
     private suspend fun createAndUploadNewPatch(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
-        Log.i(TAG, "Uploading new patches")
+        Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
         val file = DatabasePatching.createPatchForDatabase(dbDef)?: return@withContext
         val syncFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
@@ -396,6 +398,13 @@ object GoogleDrive {
             return result.resultCode == Activity.RESULT_OK
         }
         return true
+    }
+    suspend fun synchronizeWithHourGlass(activity: ActivityBase) {
+        val hourglass = Hourglass(activity)
+        hourglass.show(R.string.synchronizing)
+        synchronize()
+        syncMutex.withLock {  }
+        hourglass.dismiss()
     }
 
     const val TAG = "GoogleDrive"

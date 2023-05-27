@@ -1623,7 +1623,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
 
-    fun setClientReady() {
+    fun setClientReady() = runOnUiThread {
         htmlLoadingOngoing = false
         if(latestDocumentStr != null && needsDocument) {
             replaceDocument()

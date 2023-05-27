@@ -1273,11 +1273,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         else {
             lifecycleScope.launch {
                 if(CommonUtils.isGoogleDriveSyncEnabled) {
-                    val hourglass = Hourglass(this@MainBibleActivity)
-                    hourglass.show(R.string.synchronizing)
-                    GoogleDrive.synchronize()
-                    GoogleDrive.syncMutex.withLock {  }
-                    hourglass.dismiss()
+                    GoogleDrive.synchronizeWithHourGlass(this@MainBibleActivity)
                     currentWorkspaceId = currentWorkspaceId
                 }
                 updateActions()

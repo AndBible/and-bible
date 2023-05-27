@@ -338,7 +338,7 @@ object CommonUtils : CommonUtilsBase() {
         fun setDouble(key: String, value: Double?) = doubleSettings.set(key, value)
         fun setFloat(key: String, value: Float?) = doubleSettings.set(key, value?.toDouble())
 
-        fun getStringSet(key: String, defValues: Set<String>?): Set<String>? {
+        fun getStringSet(key: String, defValues: Set<String> = emptySet()): Set<String> {
             val s = getString(key, null) ?: return defValues
             return try { json.decodeFromString(serializer(), s) } catch (e: SerializationException) { defValues }
         }
@@ -1332,7 +1332,7 @@ object CommonUtils : CommonUtilsBase() {
         if(BuildVariant.Appearance.isDiscrete)
             false
         else
-            settings.getBoolean("google_drive_sync", false)
+            settings.getStringSet("google_drive_sync").isNotEmpty()
     val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
     val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
 
@@ -1382,9 +1382,9 @@ object CommonUtils : CommonUtilsBase() {
     val tmpFile get() = File(tmpDir, UUID.randomUUID().toString())
 
     fun gzipFile(sourceFile: File, destinationFile: File) {
-        sourceFile.outputStream().use {
+        destinationFile.outputStream().use {
             GZIPOutputStream(it).use {
-                destinationFile.inputStream().use { input ->
+                sourceFile.inputStream().use { input ->
                     input.copyTo(it)
                 }
             }
