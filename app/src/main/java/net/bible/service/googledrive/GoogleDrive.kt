@@ -222,6 +222,7 @@ object GoogleDrive {
 
     private suspend fun clearDrive() {
         // Delete everything from Drive
+        Log.i(TAG, "clearDrive")
         val files = service.files().list()
             .setSpaces("appDataFolder")
             .setQ("mimeType='$FOLDER_MIMETYPE'")
@@ -231,6 +232,7 @@ object GoogleDrive {
     }
 
     private suspend fun createAndUploadInitial(dbDef: DatabaseDefinition<*>) {
+        Log.i(TAG, "createAndUploadInitial, ${dbDef.categoryName}")
         clearDrive()
         dbDef.writableDb.query("VACUUM;").use {  }
         val tmpFile = CommonUtils.tmpFile
@@ -250,6 +252,7 @@ object GoogleDrive {
     }
 
     private fun fetchAndRestoreInitial(dbDef: DatabaseDefinition<*>) {
+        Log.i(TAG, "fetchAndRestoreInitial ${dbDef.categoryName}")
         val fileId = service.files().list()
             .setSpaces("appDataFolder")
             .setQ("'${dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)}' in parents and name = 'initial.sqlite3.gz'")
@@ -292,23 +295,12 @@ object GoogleDrive {
                     return@asyncMap
                 }
                 val syncStarted = System.currentTimeMillis()
-                cleanupLocalPatchDirectories(dbDef)
                 downloadAndApplyNewPatches(dbDef)
                 createAndUploadNewPatch(dbDef)
                 dbDef.dao.setConfig("lastSynchronized", syncStarted)
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
         }
-    }
-
-    private fun cleanupLocalPatchDirectories(dbDef: DatabaseDefinition<*>) {
-        dbDef.patchInDir.deleteRecursively()
-        dbDef.patchOutDir.deleteRecursively()
-    }
-
-    fun timeStampFromPatchFileName(fileName: String): Long {
-        // file name is <category>.<timestamp>.sqlite3.gz
-        return fileName.split(".")[1].toLong()
     }
 
     private suspend fun downloadAndApplyNewPatches(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
@@ -368,6 +360,7 @@ object GoogleDrive {
             .setFields("id,createdTime")
             .execute()
         dbDef.dao.addStatus(SyncStatus(fileName, file.length(), CommonUtils.deviceIdentifier, result.createdTime.value))
+        file.delete()
     }
 
     suspend fun signOut() {

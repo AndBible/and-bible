@@ -62,17 +62,6 @@ class DatabaseDefinition<T: SyncableRoomDatabase>(
     val localDbFile: File get() = application.getDatabasePath(localDbFileName)
     val dao get() = localDb.syncDao()
     val writableDb get() = localDb.openHelper.writableDatabase
-    val patchInDir: File get() {
-        val file = File(SharedConstants.internalFilesDir, "/patch-in/$categoryName")
-        file.mkdirs()
-        return file
-    }
-
-    val patchOutDir: File get() {
-        val file = File(SharedConstants.internalFilesDir, "/patch-out/$categoryName")
-        file.mkdirs()
-        return file
-    }
 }
 object DatabasePatching {
     private fun writePatchData(db: SupportSQLiteDatabase, tableDef: TableDef, lastSynchronized: Long) = db.run {
@@ -151,9 +140,8 @@ object DatabasePatching {
         }
         val resultFile =
             if (needPatch) {
-                val gzippedOutput = File(dbDef.patchOutDir, dbDef.categoryName + ".sqlite3.gz")
-                Log.i(TAG, "Saving patch file ${gzippedOutput.name}")
-                gzippedOutput.delete()
+                val gzippedOutput = CommonUtils.tmpFile
+                Log.i(TAG, "Saving patch file ${dbDef.categoryName}")
                 CommonUtils.gzipFile(patchDbFile, gzippedOutput)
                 gzippedOutput
             } else {
