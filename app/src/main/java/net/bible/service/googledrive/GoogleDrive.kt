@@ -163,8 +163,8 @@ object GoogleDrive {
         }
 
         if(initialOperation == InitialOperation.FETCH_INITIAL) {
+            val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
             initialOperation = withContext(Dispatchers.Main) {
-                val activity = CurrentActivityHolder.currentActivity!!
                 suspendCoroutine {
                     val containsStr = activity.getString(dbDef.category.contentDescription)
                     AlertDialog.Builder(activity)
@@ -178,7 +178,6 @@ object GoogleDrive {
             }
             if(initialOperation == null) {
                 disablePref(dbDef.category)
-                CommonUtils.settings.setBoolean("sync_${dbDef.categoryName}", false)
                 throw CancelSync()
             }
         }
