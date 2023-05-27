@@ -32,9 +32,7 @@ import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.forEach
 import net.bible.service.common.getFirst
-import net.bible.service.googledrive.GoogleDrive.timeStampFromPatchFileName
 import java.io.File
-import java.util.UUID
 
 class TableDef(val tableName: String, val idField1: String = "id", val idField2: String? = null)
 
