@@ -61,7 +61,7 @@ class DatabaseDef<T: SyncableRoomDatabase>(
         if(!readOnly) {
             // Let's drop all indices to save space, they are useless in patch file
             patchDb.openHelper.writableDatabase
-            // dropPatchIndices() // TODO: consider enabling.
+            //dropPatchIndices() // TODO: consider enabling. But does ROOM get messed up because of this?
         } else {
             patchDb.openHelper.writableDatabase.close()
         }
@@ -101,8 +101,8 @@ object DatabasePatching {
             select = "pe.entityId1,pe.entityId2"
         }
         execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $where IN " +
-            "(SELECT $select FROM Log pe WHERE tableName = '$table' AND type IN ('INSERT', 'UPDATE') AND lastUpdated > $lastSynchronized)")
-        execSQL("INSERT INTO patch.Log SELECT * FROM Log WHERE tableName = '$table' AND lastUpdated > $lastSynchronized")
+            "(SELECT $select FROM LogEntry pe WHERE tableName = '$table' AND type = 'UPSERT' AND lastUpdated > $lastSynchronized)")
+        execSQL("INSERT INTO patch.LogEntry SELECT * FROM LogEntry WHERE tableName = '$table' AND lastUpdated > $lastSynchronized")
     }
 
     private fun readPatchData(
@@ -113,9 +113,8 @@ object DatabasePatching {
     ) = db.run {
         val colList = getColumnNames(this, table)
         val cols = colList.joinToString(",") { "`$it`" }
-        //val setValues = colList.filterNot {it == idField1 || it == idField2}.joinToString(",\n") { "`$it`=excluded.`$it`" }
-        val setValues2 = colList.filterNot {it == idField1 || it == idField2}.joinToString(",\n") { "`$it`=p.`$it`" }
-        val amount = query("SELECT COUNT(*) FROM patch.Log WHERE tableName = '$table'").getFirst { it.getInt(0)}
+        val setValues = colList.filterNot {it == idField1 || it == idField2}.joinToString(",\n") { "`$it`=excluded.`$it`" }
+        val amount = query("SELECT COUNT(*) FROM patch.LogEntry WHERE tableName = '$table'").getFirst { it.getInt(0)}
         Log.i(TAG, "Reading patch data for $table: $amount log entries")
         var idFields = idField1
         var select = "pe.entityId1"
@@ -124,32 +123,21 @@ object DatabasePatching {
             select = "pe.entityId1,pe.entityId2"
         }
 
-        fun subSelect(type: String) = """SELECT $select FROM patch.Log pe 
-                |OUTER LEFT JOIN Log me ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName 
-                |WHERE pe.tableName = '$table' AND pe.type = '$type' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated)
-                |""".trimMargin()
+        // Insert all rows from patch table that don't have more recent entry in LogEntry table
+        execSQL("""INSERT INTO $table ($cols)
+                  |SELECT $cols FROM patch.$table WHERE $idFields IN
+                  |(SELECT $select FROM patch.LogEntry pe
+                  | OUTER LEFT JOIN LogEntry me
+                  | ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
+                  | WHERE pe.tableName = '$table' AND pe.type = 'UPSERT' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated)
+                  |) ON CONFLICT DO UPDATE SET $setValues;
+                """.trimMargin())
 
-        //// Insert all rows from patch table that don't have more recent entry in Log table
-        execSQL("INSERT INTO $table ($cols) SELECT $cols FROM patch.$table WHERE $idFields IN (${subSelect("INSERT")})")
-        execSQL("UPDATE $table SET $setValues2 FROM (SELECT $cols FROM patch.$table WHERE $idFields IN (${subSelect("UPDATE")})) as p")
+        // Delete all marked deletions from patch LogEntry table
+        execSQL("DELETE FROM $table WHERE $idFields IN (SELECT $select FROM patch.LogEntry pe WHERE tableName = '$table' AND type = 'DELETE')")
 
-        // Insert all rows from patch table that don't have more recent entry in Log table
-        //execSQL("""INSERT INTO $table ($cols)
-        //          |SELECT $cols FROM patch.$table WHERE $idFields IN
-        //          |(SELECT $select FROM patch.Log pe
-        //          | OUTER LEFT JOIN Log me
-        //          | ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
-        //          | WHERE pe.tableName = '$table' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated)
-        //          |) ON CONFLICT DO UPDATE SET $setValues;
-        //        """.trimMargin())
-        // Delete all marked deletions from patch Log table
-        execSQL("DELETE FROM $table WHERE $idFields IN (SELECT $select FROM patch.Log pe WHERE tableName = '$table' AND type = 'DELETE')")
-
-        // Let's fix Log table timestamps (all above insertions have created new entries)
-        execSQL("INSERT OR REPLACE INTO Log SELECT * FROM patch.Log")
-
-        //val deletions = dbDef.db.logDao().allDeletions()
-        //Log.i(TAG, "deletions $table \n${deletions.joinToString("\n")}")
+        // Let's fix LogEntry table timestamps (all above insertions have created new entries)
+        execSQL("INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry")
     }
 
     private fun createPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>, lastSynchronized: Long) {
@@ -157,7 +145,7 @@ object DatabasePatching {
         var needPatch: Boolean
         dbDef.use {
             it.db.openHelper.writableDatabase.run {
-                val amountUpdated = query("SELECT COUNT(*) FROM Log WHERE lastUpdated > $lastSynchronized").getFirst { c -> c.getInt(0)}
+                val amountUpdated = query("SELECT COUNT(*) FROM LogEntry WHERE lastUpdated > $lastSynchronized").getFirst { c -> c.getInt(0)}
                 needPatch = amountUpdated > 0
                 if (needPatch) {
                     Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")

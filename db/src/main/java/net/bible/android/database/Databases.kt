@@ -22,6 +22,9 @@ import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Index
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -34,8 +37,7 @@ import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 
 enum class LogEntryTypes {
-    INSERT,
-    UPDATE,
+    UPSERT,
     DELETE
 }
 
@@ -43,7 +45,7 @@ enum class LogEntryTypes {
     primaryKeys = ["tableName", "entityId1", "entityId2"],
     indices = [Index(value = ["lastUpdated"])]
 )
-class Log(
+class LogEntry(
     val tableName: String,
     val entityId1: String,
     @ColumnInfo(defaultValue = "") val entityId2: String,
@@ -53,13 +55,46 @@ class Log(
     override fun toString(): String = "$tableName $type $entityId1 $entityId2 ($lastUpdated)"
 }
 
+@Entity
+class SyncConfiguration(
+    @PrimaryKey val keyName: String,
+    val stringValue: String?,
+    val longValue: Long?,
+    val booleanValue: Boolean?,
+)
+
+@Entity
+class SyncStatus(
+    @PrimaryKey val id: Long,
+    val patchName: String,
+    val appliedDate: Long,
+)
+
 @Dao
 interface LogDao {
-    @Query("SELECT * from Log")
-    fun allLogEntries(): List<Log>
+    @Query("SELECT * from LogEntry")
+    fun allLogEntries(): List<LogEntry>
 
-    @Query("SELECT * from Log WHERE type = 'DELETE'")
-    fun allDeletions(): List<Log>
+    @Query("SELECT * from SyncStatus")
+    fun allSyncStatus(): List<SyncStatus>
+
+    @Insert
+    fun addStatus(status: SyncStatus): Long
+
+    @Query("Select stringValue FROM SyncConfiguration WHERE keyName = :keyName")
+    fun getString(keyName: String): String?
+
+    @Query("Select longValue FROM SyncConfiguration WHERE keyName = :keyName")
+    fun getLong(keyName: String): Long?
+
+    @Query("Select booleanVAlue FROM SyncConfiguration WHERE keyName = :keyName")
+    fun getBoolean(keyName: String): Boolean?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun setConfig(config: SyncConfiguration)
+
+    @Query("SELECT * from LogEntry WHERE type = 'DELETE'")
+    fun allDeletions(): List<LogEntry>
 }
 
 
@@ -74,7 +109,9 @@ abstract class SyncableRoomDatabase: RoomDatabase() {
         BookmarkEntities.Label::class,
         BookmarkEntities.StudyPadTextEntry::class,
         BookmarkEntities.BookmarkToLabel::class,
-        Log::class,
+        LogEntry::class,
+        SyncConfiguration::class,
+        SyncStatus::class,
     ],
     version = BOOKMARK_DATABASE_VERSION
 )
@@ -90,7 +127,9 @@ abstract class BookmarkDatabase: SyncableRoomDatabase() {
     entities = [
         ReadingPlanEntities.ReadingPlan::class,
         ReadingPlanEntities.ReadingPlanStatus::class,
-        Log::class,
+        LogEntry::class,
+        SyncConfiguration::class,
+        SyncStatus::class,
     ],
     version = READING_PLAN_DATABASE_VERSION
 )
@@ -108,7 +147,9 @@ abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
         WorkspaceEntities.Window::class,
         WorkspaceEntities.HistoryItem::class,
         WorkspaceEntities.PageManager::class,
-        Log::class,
+        LogEntry::class,
+        SyncConfiguration::class,
+        SyncStatus::class,
     ],
     version = WORKSPACE_DATABASE_VERSION
 )

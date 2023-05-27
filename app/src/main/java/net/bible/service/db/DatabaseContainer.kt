@@ -77,18 +77,18 @@ fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idField
 
     execSQL(
         "CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName BEGIN " +
-            "DELETE FROM Log WHERE ${where("NEW")} AND tableName = '$tableName';" +
-            "INSERT INTO Log VALUES ('$tableName', ${insert("NEW")}, 'INSERT', STRFTIME('%s')); " +
+            "DELETE FROM LogEntry WHERE ${where("NEW")} AND tableName = '$tableName';" +
+            "INSERT INTO LogEntry VALUES ('$tableName', ${insert("NEW")}, 'UPSERT', STRFTIME('%s')); " +
             "END;")
     execSQL(
         "CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName BEGIN " +
-            "DELETE FROM Log WHERE ${where("OLD")} AND tableName = '$tableName';" +
-            "INSERT INTO Log VALUES ('$tableName', ${insert("OLD")}, 'UPDATE', STRFTIME('%s')); " +
+            "DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';" +
+            "INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'UPSERT', STRFTIME('%s')); " +
             "END;")
     execSQL(
         "CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName BEGIN " +
-            "DELETE FROM Log WHERE ${where("OLD")} AND tableName = '$tableName';" +
-            "INSERT INTO Log VALUES ('$tableName', ${insert("OLD")}, 'DELETE', STRFTIME('%s')); " +
+            "DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';" +
+            "INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', STRFTIME('%s')); " +
             "END;")
 }
 

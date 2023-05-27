@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0b831f9e39e8aaf63038c1821d095b81",
+    "identityHash": "2468f70aec267629d44126addc280d6f",
     "entities": [
       {
         "tableName": "ReadingPlan",
@@ -103,7 +103,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "Log",
+        "tableName": "LogEntry",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))",
         "fields": [
           {
@@ -149,22 +149,92 @@
         },
         "indices": [
           {
-            "name": "index_Log_lastUpdated",
+            "name": "index_LogEntry_lastUpdated",
             "unique": false,
             "columnNames": [
               "lastUpdated"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_Log_lastUpdated` ON `${TABLE_NAME}` (`lastUpdated`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `${TABLE_NAME}` (`lastUpdated`)"
           }
         ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SyncConfiguration",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`keyName` TEXT NOT NULL, `stringValue` TEXT, `longValue` INTEGER, `booleanValue` INTEGER, PRIMARY KEY(`keyName`))",
+        "fields": [
+          {
+            "fieldPath": "keyName",
+            "columnName": "keyName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stringValue",
+            "columnName": "stringValue",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "longValue",
+            "columnName": "longValue",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "booleanValue",
+            "columnName": "booleanValue",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "keyName"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SyncStatus",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `patchName` TEXT NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "patchName",
+            "columnName": "patchName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appliedDate",
+            "columnName": "appliedDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
         "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0b831f9e39e8aaf63038c1821d095b81')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2468f70aec267629d44126addc280d6f')"
     ]
   }
 }
