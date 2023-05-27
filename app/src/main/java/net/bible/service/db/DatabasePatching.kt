@@ -23,7 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication
+import net.bible.android.SharedConstants
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.SyncableRoomDatabase
@@ -36,56 +36,20 @@ import net.bible.service.common.forEach
 import net.bible.service.common.getFirst
 import net.bible.service.googledrive.GoogleDrive
 import net.bible.service.googledrive.GoogleDrive.timeStampFromPatchFileName
-import java.io.Closeable
 import java.io.File
+import java.util.UUID
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
 class TableDef(val tableName: String, val idField1: String = "id", val idField2: String? = null)
 
-class DatabaseDef<T: SyncableRoomDatabase>(
-    val db: T,
-    dbFactory: (filename: String) -> T,
-    val resetDb: () -> Unit,
-    val dbFileName: String,
-    val tableDefs: List<TableDef>,
-    private val readOnly: Boolean,
-): Closeable {
-    private val patchFileName = "patch-$dbFileName";
-    val patchDbFile: File = BibleApplication.application.getDatabasePath(patchFileName).apply {
-        if(!readOnly && exists()) delete()
-    }
-    val categoryName= dbFileName.split(".").first()
-    private val patchDb = dbFactory.invoke(patchFileName)
-    init {
-        if(!readOnly) {
-            // Let's drop all indices to save space, they are useless in patch file
-            patchDb.openHelper.writableDatabase
-            //dropPatchIndices() // TODO: consider enabling. But does ROOM get messed up because of this?
-        } else {
-            patchDb.openHelper.writableDatabase.close()
-        }
-    }
-
-    private fun dropPatchIndices() {
-        patchDb.openHelper.writableDatabase.run {
-            execSQL("PRAGMA foreign_keys=OFF;")
-            query("SELECT name FROM sqlite_master WHERE type='index' AND name NOT LIKE 'sqlite_autoindex_%'").use { cursor ->
-                while (cursor.moveToNext()) {
-                    val indexName = cursor.getString(0)
-                    execSQL("DROP INDEX IF EXISTS $indexName")
-                }
-            }
-        }
-    }
-
-    override fun close() {
-        if(!readOnly) {
-            patchDb.openHelper.writableDatabase.execSQL("VACUUM;")
-            patchDb.openHelper.writableDatabase.close()
-        }
-        patchDb.close()
-    }
+class DatabaseDefinition<T: SyncableRoomDatabase>(
+    val localDb: T,
+    val dbFactory: (filename: String) -> T,
+    val localDbFileName: String,
+    val tableDefinitions: List<TableDef>,
+) {
+    val categoryName = localDbFileName.split(".").first()
 }
 object DatabasePatching {
     private fun writePatchData(db: SupportSQLiteDatabase, tableDef: TableDef, lastSynchronized: Long) = db.run {
@@ -140,64 +104,77 @@ object DatabasePatching {
         execSQL("INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry")
     }
 
-    private fun createPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>, lastSynchronized: Long) {
+    private fun createPatchForDatabase(dbDefFactory: () -> DatabaseDefinition<*>, lastSynchronized: Long): File? {
         val dbDef = dbDefFactory()
+
+        // let's create empty database with correct schema first.
+        val patchDbFile = getTemporaryDbFile()
+        val patchDb = dbDef.dbFactory(patchDbFile.absolutePath)
+        patchDb.openHelper.writableDatabase.use {}
+
         var needPatch: Boolean
-        dbDef.use {
-            it.db.openHelper.writableDatabase.run {
-                val amountUpdated = query("SELECT COUNT(*) FROM LogEntry WHERE lastUpdated > $lastSynchronized").getFirst { c -> c.getInt(0)}
-                needPatch = amountUpdated > 0
-                if (needPatch) {
-                    Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
-                    execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
-                    execSQL("PRAGMA patch.foreign_keys=OFF;")
-                    for (tableDef in it.tableDefs) {
-                        writePatchData(this, tableDef, lastSynchronized)
-                    }
-                    execSQL("PRAGMA patch.foreign_keys=ON;")
-                    execSQL("DETACH DATABASE patch")
+        dbDef.localDb.openHelper.writableDatabase.run {
+            val amountUpdated = query("SELECT COUNT(*) FROM LogEntry WHERE lastUpdated > $lastSynchronized").getFirst { c -> c.getInt(0)}
+            needPatch = amountUpdated > 0
+            if (needPatch) {
+                Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
+                execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+                execSQL("PRAGMA patch.foreign_keys=OFF;")
+                for (tableDef in dbDef.tableDefinitions) {
+                    writePatchData(this, tableDef, lastSynchronized)
                 }
+                execSQL("PRAGMA patch.foreign_keys=ON;")
+                execSQL("DETACH DATABASE patch")
             }
         }
-        if(needPatch) {
-            val gzippedOutput = File(GoogleDrive.patchOutFilesDir, dbDef.categoryName + ".sqlite3.gz")
-            Log.i(TAG, "Saving patch file ${gzippedOutput.name}")
-            gzippedOutput.delete()
-            gzippedOutput.outputStream().use {
-                GZIPOutputStream(it).use {
-                    dbDef.patchDbFile.inputStream().use { input ->
-                        input.copyTo(it)
+        val resultFile =
+            if (needPatch) {
+                val gzippedOutput = File(GoogleDrive.patchOutFilesDir, dbDef.categoryName + ".sqlite3.gz")
+                Log.i(TAG, "Saving patch file ${gzippedOutput.name}")
+                gzippedOutput.delete()
+                gzippedOutput.outputStream().use {
+                    GZIPOutputStream(it).use {
+                        patchDbFile.inputStream().use { input ->
+                            input.copyTo(it)
+                        }
                     }
                 }
+                gzippedOutput
+            } else {
+                null
             }
-        }
-        dbDef.patchDbFile.delete()
+        patchDbFile.delete()
+        return resultFile
     }
 
-    private fun applyPatchForDatabase(dbDefFactory: () -> DatabaseDef<*>) {
+    private fun getTemporaryDbFile(): File {
+        return File(CommonUtils.tmpDir, UUID.randomUUID().toString() + ".sqlite3")
+    }
+
+    private fun applyPatchForDatabase(dbDefFactory: () -> DatabaseDefinition<*>) {
         val dbDef = dbDefFactory()
         val files = (GoogleDrive.patchInFilesDir.listFiles()?: emptyArray()).filter { it.name.startsWith(dbDef.categoryName) }
         for(gzippedPatchFile in files.sortedBy { timeStampFromPatchFileName(it.name) }) {
             Log.i(TAG, "Applying patch file ${gzippedPatchFile.name}")
+            val patchDbFile = getTemporaryDbFile()
             gzippedPatchFile.inputStream().use {
                 GZIPInputStream(it).use {
-                    dbDef.patchDbFile.outputStream().use { output ->
+                    patchDbFile.outputStream().use { output ->
                         it.copyTo(output)
                     }
                 }
             }
-            dbDef.use {
-                it.db.openHelper.writableDatabase.run {
-                    execSQL("ATTACH DATABASE '${it.patchDbFile.absolutePath}' AS patch")
-                    for (tableDef in it.tableDefs) {
-                        readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
-                    }
-                    execSQL("DETACH DATABASE patch")
-                    if(CommonUtils.isDebugMode) {
-                        checkForeignKeys(this)
-                    }
+            dbDef.localDb.openHelper.writableDatabase.run {
+                execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+                for (tableDef in dbDef.tableDefinitions) {
+                    readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
+                }
+                execSQL("DETACH DATABASE patch")
+                if(CommonUtils.isDebugMode) {
+                    checkForeignKeys(this)
                 }
             }
+            patchDbFile.delete()
         }
     }
 
@@ -211,41 +188,41 @@ object DatabasePatching {
         }
     }
 
-    private fun getDbFactories(readOnly: Boolean): List<() -> DatabaseDef<*>> = DatabaseContainer.instance.run { listOf(
+    val dbFactories: List<() -> DatabaseDefinition<*>> get() = DatabaseContainer.instance.run { listOf(
         {
-            DatabaseDef(bookmarkDb, {n -> getBookmarkDb(n)}, {resetBookmarkDb()}, BookmarkDatabase.dbFileName, listOf(
+            DatabaseDefinition(bookmarkDb, { n -> getBookmarkDb(n)}, BookmarkDatabase.dbFileName, listOf(
                 TableDef("Bookmark"),
                 TableDef("Label"),
                 TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
                 TableDef("StudyPadTextEntry"),
-            ), readOnly)
+            ))
         },
         {
-            DatabaseDef(workspaceDb, {n -> getWorkspaceDb(n)}, {resetWorkspaceDb()}, WorkspaceDatabase.dbFileName, listOf(
+            DatabaseDefinition(workspaceDb, { n -> getWorkspaceDb(n)}, WorkspaceDatabase.dbFileName, listOf(
                 TableDef("Workspace"),
                 TableDef("Window"),
                 TableDef("PageManager", "windowId"),
-            ), readOnly)
+            ))
         },
         {
-            DatabaseDef(readingPlanDb, {n -> getReadingPlanDb(n)}, {resetReadingPlanDb()}, ReadingPlanDatabase.dbFileName, listOf(
+            DatabaseDefinition(readingPlanDb, { n -> getReadingPlanDb(n)}, ReadingPlanDatabase.dbFileName, listOf(
                 TableDef("ReadingPlan"),
                 TableDef("ReadingPlanStatus"),
-            ), readOnly)
+            ))
         },
     ) }
 
     suspend fun createPatchFiles(lastSynchronized: Long) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Creating db patch files")
         awaitAll(
-            *getDbFactories(false).map { async(Dispatchers.IO) {createPatchForDatabase(it, lastSynchronized)} }.toTypedArray()
+            *dbFactories.map { async(Dispatchers.IO) {createPatchForDatabase(it, lastSynchronized)} }.toTypedArray()
         )
     }
 
     suspend fun applyPatchFiles() = withContext(Dispatchers.IO) {
         Log.i(TAG, "Applying db patch files")
         awaitAll(
-            *getDbFactories(true).map { async(Dispatchers.IO) {applyPatchForDatabase(it)} }.toTypedArray()
+            *dbFactories.map { async(Dispatchers.IO) {applyPatchForDatabase(it)} }.toTypedArray()
         )
     }
 }

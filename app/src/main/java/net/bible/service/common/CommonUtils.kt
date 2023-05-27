@@ -1368,6 +1368,12 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
+
+    val tmpDir: File get() {
+        val file = File(SharedConstants.internalFilesDir, "/tmp")
+        file.mkdirs()
+        return file
+    }        
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
