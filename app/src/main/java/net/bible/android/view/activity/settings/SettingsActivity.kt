@@ -47,6 +47,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.makeLarger
 import net.bible.service.common.getPreferenceList
 import net.bible.service.common.htmlToSpan
+import net.bible.service.db.DatabaseCategory
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.googledrive.GoogleDrive
 import org.crosswire.jsword.book.Books
@@ -81,7 +82,7 @@ class PreferenceStore: PreferenceDataStore() {
     override fun getFloat(key: String, defValue: Float): Float = prefs.getFloat(key, defValue)
 
     override fun putFloat(key: String, value: Float) = prefs.setFloat(key, value)
-    override fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String> = prefs.getStringSet(key, defValues) ?: mutableSetOf()
+    override fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String> = prefs.getStringSet(key, defValues)?.toMutableSet() ?: mutableSetOf()
     override fun putStringSet(key: String, values: MutableSet<String>?)  = prefs.setStringSet(key, values)
 }
 
@@ -181,6 +182,25 @@ class SettingsFragment : PreferenceFragmentCompat() {
             pref.entries = names
             pref.entryValues = initials
             pref.setDefaultValue(initials)
+            true
+        }
+    }
+
+    private fun setupDrivePref(pref: MultiSelectListPreference) {
+        pref.entries = DatabaseCategory.ALL.map {
+            getString(it.contentDescription)
+        }.toTypedArray()
+        pref.entryValues = DatabaseCategory.ALL.map { it.name }.toTypedArray()
+
+        pref.setOnPreferenceChangeListener { preference, newValue ->
+            if(newValue == true && !GoogleDrive.signedIn) {
+                lifecycleScope.launch {
+                    val success = GoogleDrive.signIn(this@SettingsFragment.activity as ActivityBase)
+                    if(!success) {
+                        pref.values = null
+                    }
+                }
+            }
             true
         }
     }
@@ -299,20 +319,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         } else {
             openLinksPref.isVisible = false
         }
-        val googleDrivePreference = preferenceScreen.findPreference<SwitchPreferenceCompat>("google_drive_sync") as SwitchPreferenceCompat
+        val googleDrivePreference = preferenceScreen.findPreference<MultiSelectListPreference>("google_drive_sync") as MultiSelectListPreference
         if (BuildVariant.Appearance.isDiscrete) {
             googleDrivePreference.isVisible = false
-        }
-        googleDrivePreference.setOnPreferenceChangeListener { preference, newValue ->
-            if(newValue == true && !GoogleDrive.signedIn) {
-                lifecycleScope.launch {
-                    val success = GoogleDrive.signIn(this@SettingsFragment.activity as ActivityBase)
-                    if(!success) {
-                        googleDrivePreference.isChecked = false
-                    }
-                }
-            }
-            true
+        } else {
+            setupDrivePref(googleDrivePreference)
         }
 
         for(p in getPreferenceList()) {
@@ -321,8 +332,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 p.icon = makeLarger(icon, 1.5f)
             }
         }
-
-
     }
 
     companion object {

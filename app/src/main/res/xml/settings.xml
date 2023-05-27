@@ -94,6 +94,11 @@
 			android:entryValues="@array/prefs_night_mode_values"
 			android:icon="@drawable/ic_night_mode_switching_24dp"
 			android:defaultValue="system"/>
+		<MultiSelectListPreference android:key="google_drive_sync"
+			android:title="@string/prefs_google_drive_sync_title"
+			android:summary="@string/prefs_google_drive_sync_summary"
+			android:icon="@drawable/baseline_add_to_drive_24"
+			/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/prefs_display_customization_cat">
@@ -163,11 +168,6 @@
 			android:summary="@string/prefs_enable_bluetooth_summary"
 			android:icon="@drawable/ic_baseline_media_bluetooth_on_24"
 			android:defaultValue="true"/>
-		<SwitchPreferenceCompat android:key="google_drive_sync"
-			android:title="@string/prefs_google_drive_sync_title"
-			android:summary="@string/prefs_google_drive_sync_summary"
-			android:icon="@drawable/baseline_add_to_drive_24"
-			android:defaultValue="false"/>
 		<SwitchPreferenceCompat android:key="request_sdcard_permission_pref"
 			android:title="@string/prefs_request_sdcard_permission_title"
 			android:summary="@string/prefs_request_sdcard_permission_summary"

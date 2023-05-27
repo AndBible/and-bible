@@ -19,11 +19,8 @@ package net.bible.service.db
 
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
+import net.bible.android.activity.R
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.SyncableRoomDatabase
@@ -31,25 +28,51 @@ import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.forEach
 import net.bible.service.common.getFirst
-import net.bible.service.googledrive.GoogleDrive
 import net.bible.service.googledrive.GoogleDrive.timeStampFromPatchFileName
 import java.io.File
 import java.util.UUID
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
 
 class TableDef(val tableName: String, val idField1: String = "id", val idField2: String? = null)
+
+enum class DatabaseCategory {
+    BOOKMARKS, WORKSPACES, READINGPLANS;
+    val contentDescription: Int get() = when(this) {
+        READINGPLANS -> R.string.reading_plans_content
+        BOOKMARKS -> R.string.bookmarks_contents
+        WORKSPACES -> R.string.workspaces_contents
+    }
+    companion object {
+        val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS)
+    }
+}
 
 class DatabaseDefinition<T: SyncableRoomDatabase>(
     val localDb: T,
     val dbFactory: (filename: String) -> T,
-    val localDbFileName: String,
+    val resetLocalDb: () -> Unit,
+    private val localDbFileName: String,
     val tableDefinitions: List<TableDef>,
 ) {
-    val categoryName = localDbFileName.split(".").first()
+    val categoryName get() = localDbFileName.split(".").first()
+    val category get() = DatabaseCategory.valueOf(categoryName.uppercase())
+    val localDbFile: File get() = application.getDatabasePath(localDbFileName)
+    val dao get() = localDb.syncDao()
+    val writableDb get() = localDb.openHelper.writableDatabase
+    val patchInDir: File get() {
+        val file = File(SharedConstants.internalFilesDir, "/patch-in/$categoryName")
+        file.mkdirs()
+        return file
+    }
+
+    val patchOutDir: File get() {
+        val file = File(SharedConstants.internalFilesDir, "/patch-out/$categoryName")
+        file.mkdirs()
+        return file
+    }
 }
 object DatabasePatching {
     private fun writePatchData(db: SupportSQLiteDatabase, tableDef: TableDef, lastSynchronized: Long) = db.run {
@@ -104,9 +127,7 @@ object DatabasePatching {
         execSQL("INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry")
     }
 
-    private fun createPatchForDatabase(dbDefFactory: () -> DatabaseDefinition<*>, lastSynchronized: Long): File? {
-        val dbDef = dbDefFactory()
-
+    fun createPatchForDatabase(dbDef: DatabaseDefinition<*>, lastSynchronized: Long): File? {
         // let's create empty database with correct schema first.
         val patchDbFile = getTemporaryDbFile()
         val patchDb = dbDef.dbFactory(patchDbFile.absolutePath)
@@ -129,16 +150,10 @@ object DatabasePatching {
         }
         val resultFile =
             if (needPatch) {
-                val gzippedOutput = File(GoogleDrive.patchOutFilesDir, dbDef.categoryName + ".sqlite3.gz")
+                val gzippedOutput = File(dbDef.patchOutDir, dbDef.categoryName + ".sqlite3.gz")
                 Log.i(TAG, "Saving patch file ${gzippedOutput.name}")
                 gzippedOutput.delete()
-                gzippedOutput.outputStream().use {
-                    GZIPOutputStream(it).use {
-                        patchDbFile.inputStream().use { input ->
-                            input.copyTo(it)
-                        }
-                    }
-                }
+                CommonUtils.gzipFile(patchDbFile, gzippedOutput)
                 gzippedOutput
             } else {
                 null
@@ -151,19 +166,12 @@ object DatabasePatching {
         return File(CommonUtils.tmpDir, UUID.randomUUID().toString() + ".sqlite3")
     }
 
-    private fun applyPatchForDatabase(dbDefFactory: () -> DatabaseDefinition<*>) {
-        val dbDef = dbDefFactory()
-        val files = (GoogleDrive.patchInFilesDir.listFiles()?: emptyArray()).filter { it.name.startsWith(dbDef.categoryName) }
+    fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>) {
+        val files = dbDef.patchInDir.listFiles()?: emptyArray()
         for(gzippedPatchFile in files.sortedBy { timeStampFromPatchFileName(it.name) }) {
             Log.i(TAG, "Applying patch file ${gzippedPatchFile.name}")
             val patchDbFile = getTemporaryDbFile()
-            gzippedPatchFile.inputStream().use {
-                GZIPInputStream(it).use {
-                    patchDbFile.outputStream().use { output ->
-                        it.copyTo(output)
-                    }
-                }
-            }
+            CommonUtils.gunzipFile(gzippedPatchFile, patchDbFile)
             dbDef.localDb.openHelper.writableDatabase.run {
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
                 for (tableDef in dbDef.tableDefinitions) {
@@ -190,7 +198,7 @@ object DatabasePatching {
 
     val dbFactories: List<() -> DatabaseDefinition<*>> get() = DatabaseContainer.instance.run { listOf(
         {
-            DatabaseDefinition(bookmarkDb, { n -> getBookmarkDb(n)}, BookmarkDatabase.dbFileName, listOf(
+            DatabaseDefinition(bookmarkDb, { n -> getBookmarkDb(n)}, {resetBookmarkDb()}, BookmarkDatabase.dbFileName, listOf(
                 TableDef("Bookmark"),
                 TableDef("Label"),
                 TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
@@ -198,31 +206,17 @@ object DatabasePatching {
             ))
         },
         {
-            DatabaseDefinition(workspaceDb, { n -> getWorkspaceDb(n)}, WorkspaceDatabase.dbFileName, listOf(
+            DatabaseDefinition(workspaceDb, { n -> getWorkspaceDb(n)}, {resetWorkspaceDb()}, WorkspaceDatabase.dbFileName, listOf(
                 TableDef("Workspace"),
                 TableDef("Window"),
                 TableDef("PageManager", "windowId"),
             ))
         },
         {
-            DatabaseDefinition(readingPlanDb, { n -> getReadingPlanDb(n)}, ReadingPlanDatabase.dbFileName, listOf(
+            DatabaseDefinition(readingPlanDb, { n -> getReadingPlanDb(n)}, {resetReadingPlanDb()}, ReadingPlanDatabase.dbFileName, listOf(
                 TableDef("ReadingPlan"),
                 TableDef("ReadingPlanStatus"),
             ))
         },
     ) }
-
-    suspend fun createPatchFiles(lastSynchronized: Long) = withContext(Dispatchers.IO) {
-        Log.i(TAG, "Creating db patch files")
-        awaitAll(
-            *dbFactories.map { async(Dispatchers.IO) {createPatchForDatabase(it, lastSynchronized)} }.toTypedArray()
-        )
-    }
-
-    suspend fun applyPatchFiles() = withContext(Dispatchers.IO) {
-        Log.i(TAG, "Applying db patch files")
-        awaitAll(
-            *dbFactories.map { async(Dispatchers.IO) {applyPatchForDatabase(it)} }.toTypedArray()
-        )
-    }
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "448289f4906281e290faac24639f34b9",
+    "identityHash": "2213048300f4894654af2f98d813034e",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -472,7 +472,7 @@
       },
       {
         "tableName": "SyncStatus",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `patchName` TEXT NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `patchFileName` TEXT NOT NULL, `sizeBytes` INTEGER NOT NULL, `sourceDevice` TEXT NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -481,8 +481,20 @@
             "notNull": true
           },
           {
-            "fieldPath": "patchName",
-            "columnName": "patchName",
+            "fieldPath": "patchFileName",
+            "columnName": "patchFileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sizeBytes",
+            "columnName": "sizeBytes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceDevice",
+            "columnName": "sourceDevice",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -506,7 +518,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '448289f4906281e290faac24639f34b9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2213048300f4894654af2f98d813034e')"
     ]
   }
 }

@@ -58,20 +58,22 @@ class LogEntry(
 @Entity
 class SyncConfiguration(
     @PrimaryKey val keyName: String,
-    val stringValue: String?,
-    val longValue: Long?,
-    val booleanValue: Boolean?,
+    val stringValue: String? = null,
+    val longValue: Long? = null,
+    val booleanValue: Boolean? = null,
 )
 
 @Entity
 class SyncStatus(
     @PrimaryKey val id: Long,
-    val patchName: String,
+    val patchFileName: String,
+    val sizeBytes: Long,
+    val sourceDevice: String,
     val appliedDate: Long,
 )
 
 @Dao
-interface LogDao {
+interface SyncDao {
     @Query("SELECT * from LogEntry")
     fun allLogEntries(): List<LogEntry>
 
@@ -81,17 +83,24 @@ interface LogDao {
     @Insert
     fun addStatus(status: SyncStatus): Long
 
-    @Query("Select stringValue FROM SyncConfiguration WHERE keyName = :keyName")
+    @Query("SELECT stringValue FROM SyncConfiguration WHERE keyName = :keyName")
     fun getString(keyName: String): String?
 
-    @Query("Select longValue FROM SyncConfiguration WHERE keyName = :keyName")
+    @Query("SELECT longValue FROM SyncConfiguration WHERE keyName = :keyName")
     fun getLong(keyName: String): Long?
 
-    @Query("Select booleanVAlue FROM SyncConfiguration WHERE keyName = :keyName")
+    @Query("SELECT booleanVAlue FROM SyncConfiguration WHERE keyName = :keyName")
     fun getBoolean(keyName: String): Boolean?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun setConfig(config: SyncConfiguration)
+
+    @Query("DELETE FROM SyncConfiguration WHERE keyName = :keyName")
+    fun removeConfig(keyName: String)
+
+    fun setConfig(key: String, value: Long) = setConfig(SyncConfiguration(key, longValue = value))
+    fun setConfig(key: String, value: String) = setConfig(SyncConfiguration(key, stringValue = value))
+    fun setConfig(key: String, value: Boolean) = setConfig(SyncConfiguration(key, booleanValue = value))
 
     @Query("SELECT * from LogEntry WHERE type = 'DELETE'")
     fun allDeletions(): List<LogEntry>
@@ -99,7 +108,7 @@ interface LogDao {
 
 
 abstract class SyncableRoomDatabase: RoomDatabase() {
-    abstract fun logDao(): LogDao
+    abstract fun syncDao(): SyncDao
 }
 
 

@@ -134,6 +134,8 @@ import java.security.Signature
 import java.util.*
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipInputStream
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -334,12 +336,12 @@ object CommonUtils : CommonUtilsBase() {
         fun setDouble(key: String, value: Double?) = doubleSettings.set(key, value)
         fun setFloat(key: String, value: Float?) = doubleSettings.set(key, value?.toDouble())
 
-        fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String>? {
+        fun getStringSet(key: String, defValues: Set<String>?): Set<String>? {
             val s = getString(key, null) ?: return defValues
             return try { json.decodeFromString(serializer(), s) } catch (e: SerializationException) { defValues }
         }
 
-        fun setStringSet(key: String, values: MutableSet<String>?) {
+        fun setStringSet(key: String, values: Set<String>?) {
             if(values == null) removeString(key)
             else setString(key, json.encodeToString(serializer(), values))
         }
@@ -1370,10 +1372,32 @@ object CommonUtils : CommonUtilsBase() {
     val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
 
     val tmpDir: File get() {
-        val file = File(SharedConstants.internalFilesDir, "/tmp")
+        val file = File(application.cacheDir, "tmp")
         file.mkdirs()
         return file
-    }        
+    }
+
+    val tmpFile get() = File(tmpDir, UUID.randomUUID().toString())
+
+    fun gzipFile(sourceFile: File, destinationFile: File) {
+        sourceFile.outputStream().use {
+            GZIPOutputStream(it).use {
+                destinationFile.inputStream().use { input ->
+                    input.copyTo(it)
+                }
+            }
+        }
+    }
+
+    fun gunzipFile(sourceFile: File, destinationFile: File) {
+        sourceFile.inputStream().use {
+            GZIPInputStream(it).use {
+                destinationFile.outputStream().use { output ->
+                    it.copyTo(output)
+                }
+            }
+        }
+    }
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
@@ -1414,7 +1438,7 @@ fun <T> Cursor.getFirst(f: (c: Cursor) -> T): T = use {
     f.invoke(this)
 }
 
-fun <T> Cursor.getFirstOrNull(f: (c: Cursor) -> T): T? = use {
+fun <T> Cursor.getFirstOrNull(f: ((c: Cursor) -> T)? = null): T? = use {
     if(!moveToFirst()) return@use null
-    f.invoke(this)
+    f?.invoke(this)
 }

@@ -706,7 +706,7 @@ object BackupControl {
 
     private var moduleDir: File = SharedConstants.modulesDir
     private lateinit var internalDbDir : File
-    val internalDbBackupDir: File // copy of db is created in this dir when doing backups
+    private val internalDbBackupDir: File // copy of db is created in this dir when doing backups
         get() {
             val file = File(SharedConstants.internalFilesDir, "/backup")
             file.mkdirs()

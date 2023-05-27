@@ -1123,4 +1123,10 @@
     <string name="db_bookmarks">Bookmarks, My Notes, Labels and Study Pads</string>
     <string name="synchronizing">Synchronizing via Google Drive…</string>
     <string name="sync_locked">Google Drive sync locked by another device</string>
+    <string name="overrideBackup">Existing database that this device is not synchronized to is found in Google Drive. Database contains %s. What do you want to do?</string>
+    <string name="reading_plans_content">Reading plans and their statuses</string>
+    <string name="bookmarks_contents">Bookmarks, Labels and Study Pads</string>
+    <string name="workspaces_contents">Workspaces and Windows</string>
+    <string name="fetch_and_restore_initial">Read from Google Drive</string>
+    <string name="create_new">Delete existing and upload from this device</string>
 </resources>
