@@ -148,12 +148,15 @@ object GoogleDrive {
             }
         }
 
+        var preliminarySyncFolderId: String? = null
+
         if(syncFolderId == null) {
             service.files().list()
                 .setQ("name = '$syncFolderName'")
                 .setSpaces("appDataFolder")
                 .setFields("files(id)")
                 .execute().files.firstOrNull()?.id?.also {
+                    preliminarySyncFolderId = it
                     initialOperation = InitialOperation.FETCH_INITIAL
                 }?:let {
                 initialOperation = InitialOperation.CREATE_NEW
@@ -180,6 +183,8 @@ object GoogleDrive {
                 if (initialOperation == null) {
                     disablePref(dbDef.category)
                     throw CancelSync()
+                } else {
+                    dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
                 }
             }
         }
@@ -239,7 +244,7 @@ object GoogleDrive {
         dbDef.writableDb.query("VACUUM;").use {  }
         val tmpFile = CommonUtils.tmpFile
         val gzippedTmpFile = CommonUtils.tmpFile
-        dbDef.localDbFile.copyTo(tmpFile)
+        dbDef.localDbFile.copyTo(tmpFile, overwrite = true)
         CommonUtils.gzipFile(tmpFile, gzippedTmpFile)
         tmpFile.delete()
 
@@ -250,7 +255,7 @@ object GoogleDrive {
                 parents = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!)
             },
             FileContent(GZIP_MIMETYPE, gzippedTmpFile)
-        )
+        ).execute()
         gzippedTmpFile.delete()
     }
 
@@ -269,7 +274,7 @@ object GoogleDrive {
         CommonUtils.gunzipFile(gzippedTmpFile, tmpFile)
         gzippedTmpFile.delete()
         dbDef.localDb.close()
-        tmpFile.copyTo(dbDef.localDbFile)
+        tmpFile.copyTo(dbDef.localDbFile, overwrite = true)
         tmpFile.delete()
         dbDef.resetLocalDb()
         dbDef.writableDb // let's initialize db
@@ -357,7 +362,7 @@ object GoogleDrive {
             name = fileName
             parents = listOf(syncDeviceFolderId)
         }
-        Log.i(TAG, "Uploading $fileName, ${file.length()} bytes")
+        Log.i(TAG, "Uploading ${dbDef.categoryName} $fileName, ${file.length()} bytes")
         val result = service
             .files()
             .create(driveFile, content)

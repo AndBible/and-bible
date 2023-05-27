@@ -1374,12 +1374,12 @@ object CommonUtils : CommonUtilsBase() {
     val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
 
     val tmpDir: File get() {
-        val file = File(application.cacheDir, "tmp")
+        val file = File(application.filesDir, "tmp")
         file.mkdirs()
         return file
     }
 
-    val tmpFile get() = File(tmpDir, UUID.randomUUID().toString())
+    val tmpFile: File get() = File.createTempFile("andbible-", ".tmp", tmpDir)
 
     fun gzipFile(sourceFile: File, destinationFile: File) {
         destinationFile.outputStream().use {
