@@ -127,9 +127,10 @@ object DatabasePatching {
         execSQL("INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry")
     }
 
-    fun createPatchForDatabase(dbDef: DatabaseDefinition<*>, lastSynchronized: Long): File? {
+    fun createPatchForDatabase(dbDef: DatabaseDefinition<*>): File? {
         // let's create empty database with correct schema first.
-        val patchDbFile = getTemporaryDbFile()
+        val lastSynchronized = dbDef.dao.getLong("lastSynchronized")?: 0
+        val patchDbFile = CommonUtils.tmpFile
         val patchDb = dbDef.dbFactory(patchDbFile.absolutePath)
         patchDb.openHelper.writableDatabase.use {}
 
@@ -162,15 +163,10 @@ object DatabasePatching {
         return resultFile
     }
 
-    private fun getTemporaryDbFile(): File {
-        return File(CommonUtils.tmpDir, UUID.randomUUID().toString() + ".sqlite3")
-    }
-
-    fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>) {
-        val files = dbDef.patchInDir.listFiles()?: emptyArray()
-        for(gzippedPatchFile in files.sortedBy { timeStampFromPatchFileName(it.name) }) {
+    fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>, patchFiles: Collection<Pair<File, Long>>) {
+        for(gzippedPatchFile in patchFiles.sortedBy { it.second }.map {it.first}) {
             Log.i(TAG, "Applying patch file ${gzippedPatchFile.name}")
-            val patchDbFile = getTemporaryDbFile()
+            val patchDbFile = CommonUtils.tmpFile
             CommonUtils.gunzipFile(gzippedPatchFile, patchDbFile)
             dbDef.localDb.openHelper.writableDatabase.run {
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")

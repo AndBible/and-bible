@@ -72,6 +72,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -1441,4 +1443,8 @@ fun <T> Cursor.getFirst(f: (c: Cursor) -> T): T = use {
 fun <T> Cursor.getFirstOrNull(f: ((c: Cursor) -> T)? = null): T? = use {
     if(!moveToFirst()) return@use null
     f?.invoke(this)
+}
+
+suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
+    awaitAll( *map { async { action(it) }}.toTypedArray() )
 }

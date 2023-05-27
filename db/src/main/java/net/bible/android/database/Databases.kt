@@ -65,11 +65,11 @@ class SyncConfiguration(
 
 @Entity
 class SyncStatus(
-    @PrimaryKey val id: Long,
     val patchFileName: String,
     val sizeBytes: Long,
     val sourceDevice: String,
     val appliedDate: Long,
+    @PrimaryKey val id: Long = 0,
 )
 
 @Dao
@@ -104,6 +104,9 @@ interface SyncDao {
 
     @Query("SELECT * from LogEntry WHERE type = 'DELETE'")
     fun allDeletions(): List<LogEntry>
+
+    @Insert
+    fun addStatuses(syncStatuses: List<SyncStatus>)
 }
 
 

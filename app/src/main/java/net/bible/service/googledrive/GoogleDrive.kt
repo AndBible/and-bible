@@ -37,10 +37,10 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.DateTime
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import com.google.api.services.drive.model.FileList
 import com.google.api.services.drive.model.File as DriveFile
+import com.google.api.services.drive.Drive.Files.List as DriveList
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -49,13 +49,16 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.backup.FOLDER_MIMETYPE
 import net.bible.android.control.backup.GZIP_MIMETYPE
+import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseCategory
 import net.bible.service.db.DatabaseDefinition
 import net.bible.service.db.DatabasePatching
 import java.io.File
+import java.time.Instant
 import java.util.Collections
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -75,14 +78,18 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
     }
 }
 
-const val LOCK_FILENAME = "lock.txt"
-
 const val SYNC_FOLDER_FILE_ID_KEY = "syncId"
+const val SYNC_DEVICE_FOLDER_FILE_ID_KEY = "deviceFolderId"
 
-const val DRIVE_LOCK_FILE_ID_KEY = "driveLockFileId"
-
-suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
-    awaitAll( *map { async { action(it) }}.toTypedArray() )
+fun DriveList.collectAll(): List<DriveFile> {
+    val result = mutableListOf<DriveFile>()
+    var pageToken: String? = null
+    do {
+        val lst = setPageToken(pageToken).execute()
+        result.addAll(lst.files)
+        pageToken = lst.nextPageToken
+    } while(pageToken != null)
+    return result
 }
 
 class CancelSync: Exception()
@@ -138,19 +145,21 @@ object GoogleDrive {
                 if(e.statusCode == 404) {
                     syncFolderId = null
                     dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
+                    dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
                 }
             }
         }
 
         if(syncFolderId == null) {
-            service.files().list()
+            val newSyncFolderId = service.files().list()
                 .setQ("name = '$syncFolderName'")
                 .setSpaces("appDataFolder")
-                .setFields("files(id, name)")
+                .setFields("files(id)")
                 .execute().files.firstOrNull()?.id?.also {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, it)
                     initialOperation = InitialOperation.FETCH_INITIAL
-                } ?: service.files()
+                } ?:
+            service.files()
                 .create(DriveFile().apply {
                     name = syncFolderName
                     mimeType = FOLDER_MIMETYPE
@@ -159,6 +168,15 @@ object GoogleDrive {
                 .execute().id.also {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, it)
                     initialOperation = InitialOperation.CREATE_NEW
+                }
+            service.files()
+                .create(DriveFile().apply {
+                    name = CommonUtils.deviceIdentifier
+                    mimeType = FOLDER_MIMETYPE
+                    parents = listOf(newSyncFolderId)
+                })
+                .execute().id.also {
+                    dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, it)
                 }
         }
 
@@ -201,7 +219,19 @@ object GoogleDrive {
         val pref = CommonUtils.settings.getStringSet("google_drive_sync", emptySet())!!.toMutableSet()
         return pref.contains(category.name)
     }
-    private fun createAndUploadInitial(dbDef: DatabaseDefinition<*>) {
+
+    private suspend fun clearDrive() {
+        // Delete everything from Drive
+        val files = service.files().list()
+            .setSpaces("appDataFolder")
+            .setQ("mimeType='$FOLDER_MIMETYPE'")
+            .setFields("nextPageToken, files(id)")
+            .collectAll()
+        files.toList().asyncMap {service.files().delete(it.id)}
+    }
+
+    private suspend fun createAndUploadInitial(dbDef: DatabaseDefinition<*>) {
+        clearDrive()
         dbDef.writableDb.query("VACUUM;").use {  }
         val tmpFile = CommonUtils.tmpFile
         val gzippedTmpFile = CommonUtils.tmpFile
@@ -221,6 +251,7 @@ object GoogleDrive {
 
     private fun fetchAndRestoreInitial(dbDef: DatabaseDefinition<*>) {
         val fileId = service.files().list()
+            .setSpaces("appDataFolder")
             .setQ("'${dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)}' in parents and name = 'initial.sqlite3.gz'")
             .execute().files.first().id
         val gzippedTmpFile = CommonUtils.tmpFile
@@ -255,21 +286,16 @@ object GoogleDrive {
             DatabasePatching.dbFactories.asyncMap {
                 val dbDef = it.invoke()
                 if(!prefEnabled(dbDef.category)) return@asyncMap
-                val lastSynchronized = dbDef.dao.getLong("lastSynchronized")?: 0
                 try {
                     initializeSync(dbDef)
                 } catch (e: CancelSync) {
                     return@asyncMap
                 }
-
-                Log.i(TAG, "Last synchronized $lastSynchronized")
+                val syncStarted = System.currentTimeMillis()
                 cleanupLocalPatchDirectories(dbDef)
-                downloadNewPatches(dbDef, lastSynchronized)
-                DatabasePatching.applyPatchesForDatabase(dbDef)
-                val now = System.currentTimeMillis()
-                DatabasePatching.createPatchForDatabase(dbDef, lastSynchronized/1000)
-                val lastTimestamp = uploadNewPatches(dbDef, now)
-                dbDef.dao.setConfig("lastSynchronized", lastTimestamp?: now)
+                downloadAndApplyNewPatches(dbDef)
+                createAndUploadNewPatch(dbDef)
+                dbDef.dao.setConfig("lastSynchronized", syncStarted)
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
         }
@@ -285,57 +311,63 @@ object GoogleDrive {
         return fileName.split(".")[1].toLong()
     }
 
-    private fun categoryFromPatchFileName(fileName: String): String {
-        // file name is <category>.<timestamp>.sqlite3.gz
-        return fileName.split(".")[0]
-    }
-
-    private suspend fun downloadNewPatches(dbDef: DatabaseDefinition<*>, lastSynchronized: Long) = withContext(Dispatchers.IO) {
+    private suspend fun downloadAndApplyNewPatches(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Downloading new patches")
-        var pageToken: String?
-        val allFiles = mutableListOf<DriveFile>()
-        val syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
-        do {
-            val result = service.files().list()
-                .setSpaces("appDataFolder")
-                .setQ("'${syncFolderId}' in parents and createdTime > '${DateTime(lastSynchronized).toStringRfc3339()}'")
-                .setOrderBy("createdTime asc")
-                .setFields("nextPageToken, files(id, name, size, createdTime)")
-                .execute()
-            allFiles.addAll(result.files)
-            pageToken = result.nextPageToken
-        } while(pageToken != null)
+        val lastSynchronized = dbDef.dao.getLong("lastSynchronized")?: 0
+        val syncFolder = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
+        val syncDeviceFolder = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
-        allFiles.asyncMap { file ->
+        val result = service.files().list()
+            .setSpaces("appDataFolder")
+            .setQ("'$syncFolder' in parents and $syncDeviceFolder not in parents and createdTime > '${DateTime(lastSynchronized).toStringRfc3339()}'")
+            .setOrderBy("createdTime asc")
+            .setFields("nextPageToken, files(id, name, size, mimeType, createdTime, parents)")
+            .collectAll()
+
+
+        val folders = result.filter { it.mimeType == FOLDER_MIMETYPE }.associate { Pair(it.id, it.name) }
+        val patches = result.filter { it.name.endsWith(".sqlite3.gz") }
+
+        val downloadedFiles = patches.asyncMap { file ->
             Log.i(TAG, "Downloading ${file.name}, ${file.getSize()} bytes")
-            File(dbDef.patchInDir, file.name).outputStream().use {
+            val tmpFile = CommonUtils.tmpFile
+            tmpFile.outputStream().use {
                 service
                     .files()
                     .get(file.id)
                     .executeMediaAndDownloadTo(it)
             }
+            Pair(tmpFile, file.createdTime.value)
         }
-    }
 
-    private suspend fun uploadNewPatches(dbDef: DatabaseDefinition<*>, now: Long): Long? = withContext(Dispatchers.IO) {
-        Log.i(TAG, "Uploading new patches")
-        val files = dbDef.patchOutDir.listFiles()?: emptyArray()
-        val syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
-        val result = files.asList().asyncMap {file ->
-            val content = FileContent(GZIP_MIMETYPE, file)
-            val category = categoryFromPatchFileName(file.name)
-            val driveFile = DriveFile().apply {
-                name = "$category.${now}.sqlite3.gz"
-                parents = listOf(syncFolderId)
-            }
-            Log.i(TAG, "Uploading ${file.name} as ${driveFile.name}, ${file.length()} bytes")
-            service
-                .files()
-                .create(driveFile, content)
-                .setFields("id,createdTime")
-                .execute()
+        val syncStatuses = patches.map {
+            val parentFolderId = it.parents.first()
+            val parentFolderName = folders[parentFolderId]!!
+            SyncStatus(it.name, it.getSize(), parentFolderName, it.createdTime.value)
         }
-        result.maxByOrNull { it.createdTime.value }?.createdTime?.value
+
+        dbDef.dao.addStatuses(syncStatuses)
+        DatabasePatching.applyPatchesForDatabase(dbDef, downloadedFiles)
+    }
+    private suspend fun createAndUploadNewPatch(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
+        Log.i(TAG, "Uploading new patches")
+        val file = DatabasePatching.createPatchForDatabase(dbDef)?: return@withContext
+        val syncFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
+
+        val content = FileContent(GZIP_MIMETYPE, file)
+        val now = System.currentTimeMillis()
+        val fileName = "$now.sqlite3.gz"
+        val driveFile = DriveFile().apply {
+            name = fileName
+            parents = listOf(syncFolderId)
+        }
+        Log.i(TAG, "Uploading $fileName, ${file.length()} bytes")
+        val result = service
+            .files()
+            .create(driveFile, content)
+            .setFields("id,createdTime")
+            .execute()
+        dbDef.dao.addStatus(SyncStatus(fileName, file.length(), CommonUtils.deviceIdentifier, result.createdTime.value))
     }
 
     suspend fun signOut() {
