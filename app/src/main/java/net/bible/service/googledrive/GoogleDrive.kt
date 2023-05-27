@@ -183,7 +183,8 @@ object GoogleDrive {
                 }
             }
         }
-        fun createNewSyncId(): String {
+        fun createNewSyncFolder(): String {
+            Log.i(TAG, "Creating new sync folder ${dbDef.categoryName} $syncFolderName")
             return service.files()
                 .create(DriveFile().apply {
                     name = syncFolderName
@@ -191,29 +192,30 @@ object GoogleDrive {
                     parents = listOf("appDataFolder")
                 })
                 .execute().id.also {
-                    dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, it)
+                    dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, it!!)
                 }
         }
-        fun createNewDeviceSyncId() {
+        fun createNewDeviceSyncFolder() {
+            Log.i(TAG, "Creating new device sync folder $syncFolderName/${CommonUtils.deviceIdentifier}")
             service.files()
                 .create(DriveFile().apply {
                     name = CommonUtils.deviceIdentifier
                     mimeType = FOLDER_MIMETYPE
-                    parents = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY) ?: createNewSyncId())
+                    parents = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!)
                 })
                 .execute().id.also {
-                    dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, it)
+                    dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, it!!)
                 }
         }
 
         when(initialOperation) {
             InitialOperation.CREATE_NEW -> {
-                createNewSyncId()
-                createNewDeviceSyncId()
+                createNewSyncFolder()
+                createNewDeviceSyncFolder()
                 createAndUploadInitial(dbDef)
             }
             InitialOperation.FETCH_INITIAL -> {
-                createNewDeviceSyncId()
+                createNewDeviceSyncFolder()
                 fetchAndRestoreInitial(dbDef)
             }
             null -> {}
@@ -234,7 +236,6 @@ object GoogleDrive {
     }
 
     private fun createAndUploadInitial(dbDef: DatabaseDefinition<*>) {
-        Log.i(TAG, "createAndUploadInitial, ${dbDef.categoryName}")
         dbDef.writableDb.query("VACUUM;").use {  }
         val tmpFile = CommonUtils.tmpFile
         val gzippedTmpFile = CommonUtils.tmpFile
@@ -242,10 +243,11 @@ object GoogleDrive {
         CommonUtils.gzipFile(tmpFile, gzippedTmpFile)
         tmpFile.delete()
 
+        Log.i(TAG, "uploading initial.sqlite3.gz, ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
         service.files().create(
             DriveFile().apply {
                 name = "initial.sqlite3.gz"
-                parents = listOf(dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!)
+                parents = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!)
             },
             FileContent(GZIP_MIMETYPE, gzippedTmpFile)
         )
@@ -253,16 +255,16 @@ object GoogleDrive {
     }
 
     private fun fetchAndRestoreInitial(dbDef: DatabaseDefinition<*>) {
-        Log.i(TAG, "fetchAndRestoreInitial ${dbDef.categoryName}")
         val fileId = service.files().list()
             .setSpaces("appDataFolder")
-            .setQ("'${dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)}' in parents and name = 'initial.sqlite3.gz'")
+            .setQ("'${dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!}' in parents and name = 'initial.sqlite3.gz'")
             .execute().files.first().id
         val gzippedTmpFile = CommonUtils.tmpFile
 
         gzippedTmpFile.outputStream().use {
             service.files().get(fileId).executeMediaAndDownloadTo(it)
         }
+        Log.i(TAG, "Downloaded initial.sqlite3.gz for ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
         val tmpFile = CommonUtils.tmpFile
         CommonUtils.gunzipFile(gzippedTmpFile, tmpFile)
         gzippedTmpFile.delete()
@@ -273,7 +275,7 @@ object GoogleDrive {
         dbDef.writableDb // let's initialize db
     }
 
-    val syncMutex = Mutex()
+    private val syncMutex = Mutex()
     suspend fun synchronize() = withContext(Dispatchers.IO) {
         if(!signedIn) {
             Log.i(TAG, "Not signed in")
@@ -346,14 +348,14 @@ object GoogleDrive {
     private suspend fun createAndUploadNewPatch(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
         val file = DatabasePatching.createPatchForDatabase(dbDef)?: return@withContext
-        val syncFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
+        val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
         val content = FileContent(GZIP_MIMETYPE, file)
         val now = System.currentTimeMillis()
         val fileName = "$now.sqlite3.gz"
         val driveFile = DriveFile().apply {
             name = fileName
-            parents = listOf(syncFolderId)
+            parents = listOf(syncDeviceFolderId)
         }
         Log.i(TAG, "Uploading $fileName, ${file.length()} bytes")
         val result = service

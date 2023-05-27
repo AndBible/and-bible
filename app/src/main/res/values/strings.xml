@@ -1127,7 +1127,7 @@
     <string name="reading_plans_content">Reading plans and their statuses</string>
     <string name="bookmarks_contents">Bookmarks, Labels and Study Pads</string>
     <string name="workspaces_contents">Workspaces and Windows</string>
-    <string name="gdrive_fetch_and_restore_initial">Sync from Google Drive</string>
-    <string name="gdrive_create_new">Sync to Google Drive</string>
-    <string name="gdrive_disable_sync">Disable sync</string>
+    <string name="gdrive_fetch_and_restore_initial">Copy database from Google Drive</string>
+    <string name="gdrive_create_new">Copy database to Google Drive</string>
+    <string name="gdrive_disable_sync">Cancel &amp; disable sync</string>
 </resources>
