@@ -130,6 +130,7 @@ object GoogleDrive {
     }
 
     enum class InitialOperation {FETCH_INITIAL, CREATE_NEW}
+    private val uiMutex = Mutex()
     private suspend fun initializeSync(dbDef: DatabaseDefinition<*>) {
         var initialOperation: InitialOperation?= null
 
@@ -163,21 +164,24 @@ object GoogleDrive {
             }
 
             if (initialOperation == InitialOperation.FETCH_INITIAL) {
-                val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
-                initialOperation = withContext(Dispatchers.Main) {
-                    suspendCoroutine {
-                        val containsStr = activity.getString(dbDef.category.contentDescription)
-                        AlertDialog.Builder(activity)
-                            .setMessage(activity.getString(R.string.overrideBackup, containsStr))
-                            .setPositiveButton(R.string.gdrive_fetch_and_restore_initial) { _, _ ->
-                                it.resume(
-                                    InitialOperation.FETCH_INITIAL
-                                )
-                            }
-                            .setNegativeButton(R.string.gdrive_create_new) { _, _ -> it.resume(InitialOperation.CREATE_NEW) }
-                            .setNeutralButton(R.string.gdrive_disable_sync) { _, _ -> it.resume(null) }
-                            .create()
-                            .show()
+                uiMutex.withLock {
+                    val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
+                    initialOperation = withContext(Dispatchers.Main) {
+                        suspendCoroutine {
+                            val containsStr = activity.getString(dbDef.category.contentDescription)
+                            AlertDialog.Builder(activity)
+                                .setTitle(R.string.gdrive_title)
+                                .setMessage(activity.getString(R.string.overrideBackup, containsStr))
+                                .setPositiveButton(R.string.gdrive_fetch_and_restore_initial) { _, _ ->
+                                    it.resume(
+                                        InitialOperation.FETCH_INITIAL
+                                    )
+                                }
+                                .setNegativeButton(R.string.gdrive_create_new) { _, _ -> it.resume(InitialOperation.CREATE_NEW) }
+                                .setNeutralButton(R.string.gdrive_disable_sync) { _, _ -> it.resume(null) }
+                                .create()
+                                .show()
+                        }
                     }
                 }
                 if (initialOperation == null) {

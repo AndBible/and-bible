@@ -1133,4 +1133,5 @@
     <string name="gdrive_fetch_and_restore_initial">Copy database from Google Drive</string>
     <string name="gdrive_create_new">Copy database to Google Drive</string>
     <string name="gdrive_disable_sync">Cancel &amp; disable sync</string>
+    <string name="gdrive_title">Google Drive Synchronization</string>
 </resources>
