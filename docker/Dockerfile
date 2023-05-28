@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:22.10
 
 # Note: this needs to match your UID on the host system
 ARG MY_UID
@@ -18,7 +18,6 @@ RUN apt-get update -y \
           less \
           locales \
           npm \
-          openjdk-18-jdk \
           openssh-server \
           patch \
           screen \
@@ -29,12 +28,14 @@ RUN apt-get update -y \
           xauth \
           zsh \
     && apt-get clean
+RUN apt-get install -y --no-install-recommends \
+          openjdk-17-jdk
 
 RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG en_US.UTF-8
 
 
-ENV STUDIO_VERSION 2021.3.1.16
+ENV STUDIO_VERSION 2022.2.1.20
 WORKDIR /space
 # Download and unpack Android Studio
 RUN curl -L https://redirector.gvt1.com/edgedl/android/studio/ide-zips/${STUDIO_VERSION}/android-studio-${STUDIO_VERSION}-linux.tar.gz \
@@ -56,7 +57,7 @@ WORKDIR $HOME
 
 ## ------------------------------------------------------------------------
 # Set up access via ssh for X-forwarding on hosts which need this
-RUN mkdir /var/run/sshd
+RUN [ -d /var/run/sshd ] || mkdir /var/run/sshd
     # Tell sshd to bind to the wildcard address instead of localhost
 RUN echo 'X11UseLocalhost no' >> /etc/ssh/sshd_config
     # Create a user account definition for ssh access
