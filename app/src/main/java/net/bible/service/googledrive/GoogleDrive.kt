@@ -329,6 +329,8 @@ object GoogleDrive {
         val folders = result.filter { it.mimeType == FOLDER_MIMETYPE }.associate { Pair(it.id, it.name) }
         val patches = result.filter { it.name.endsWith(".sqlite3.gz") }
 
+        // TODO: do not download / apply files that have been applied (check SyncStatus table!)
+
         val downloadedFiles = patches.asyncMap { file ->
             Log.i(TAG, "Downloading ${file.name}, ${file.getSize()} bytes")
             val tmpFile = CommonUtils.tmpFile
