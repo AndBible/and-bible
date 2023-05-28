@@ -1096,6 +1096,9 @@
     <string name="sqlite_cant_write">Can\'t (over)write the file</string>
     <string name="install_failed_reason">Installing module failed for the following reason: %s.</string>
     <string name="custom_repositories">Custom repositories</string>
+    <string name="custom_repositories_empty_list_message">No custom repositories are defined</string>
+    <string name="custom_repositories_create_button_label">Add Custom Repository</string>
+    <string name="custom_repositories_info_button_label">Information</string>
     <string name="name_for_repository">Name for the repository</string>
     <string name="repository_specification">Repository URL</string>
     <string name="delete_custom_repository">Do you want to remove custom repository %s?</string>
