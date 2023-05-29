@@ -78,6 +78,7 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
 
 const val SYNC_FOLDER_FILE_ID_KEY = "syncId"
 const val SYNC_DEVICE_FOLDER_FILE_ID_KEY = "deviceFolderId"
+const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 
 fun DriveList.collectAll(): List<DriveFile> {
     val result = mutableListOf<DriveFile>()
@@ -252,10 +253,10 @@ object GoogleDrive {
         CommonUtils.gzipFile(tmpFile, gzippedTmpFile)
         tmpFile.delete()
 
-        Log.i(TAG, "uploading initial.sqlite3.gz, ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
+        Log.i(TAG, "uploading initial db, ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
         service.files().create(
             DriveFile().apply {
-                name = "initial.sqlite3.gz"
+                name = INITIAL_BACKUP_FILENAME
                 parents = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!)
             },
             FileContent(GZIP_MIMETYPE, gzippedTmpFile)
@@ -266,14 +267,14 @@ object GoogleDrive {
     private fun fetchAndRestoreInitial(dbDef: DatabaseDefinition<*>) {
         val fileId = service.files().list()
             .setSpaces("appDataFolder")
-            .setQ("'${dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!}' in parents and name = 'initial.sqlite3.gz'")
+            .setQ("'${dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!}' in parents and name = '${INITIAL_BACKUP_FILENAME}'")
             .execute().files.first().id
         val gzippedTmpFile = CommonUtils.tmpFile
 
         gzippedTmpFile.outputStream().use {
             service.files().get(fileId).executeMediaAndDownloadTo(it)
         }
-        Log.i(TAG, "Downloaded initial.sqlite3.gz for ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
+        Log.i(TAG, "Downloaded initial db for ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
         val tmpFile = CommonUtils.tmpFile
         CommonUtils.gunzipFile(gzippedTmpFile, tmpFile)
         gzippedTmpFile.delete()
@@ -323,7 +324,7 @@ object GoogleDrive {
         val syncDeviceFolder = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
         val filterDeviceFolders = "mimeType='$FOLDER_MIMETYPE'"
-        val filterPatchFiles = "mimeType='$GZIP_MIMETYPE' and not name = 'initial.sqlite3.gz' and not '$syncDeviceFolder' in parents and createdTime > '${DateTime(lastSynchronized).toStringRfc3339()}'"
+        val filterPatchFiles = "mimeType='$GZIP_MIMETYPE' and not name = '$INITIAL_BACKUP_FILENAME' and not '$syncDeviceFolder' in parents and createdTime > '${DateTime(lastSynchronized).toStringRfc3339()}'"
         val result = service.files().list()
             .setSpaces("appDataFolder")
             .setQ("'$syncFolder' in parents and (($filterDeviceFolders) or ($filterPatchFiles))")
