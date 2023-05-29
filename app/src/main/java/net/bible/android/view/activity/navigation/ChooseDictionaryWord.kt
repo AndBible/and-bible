@@ -102,11 +102,11 @@ class ChooseDictionaryWord : ListActivityBase() {
                 val greekOrHebrewWord =  entry
                     .getChildren("orth")
                     ?.map { it.text }
-                    ?.filter { it !== "" }
+                    ?.filter { it != "" }
                     ?.joinToString(" - ")
                     ?: "";
 
-                if (greekOrHebrewWord !== "") {
+                if (greekOrHebrewWord != "") {
                     return greekOrHebrewWord
                 }
 
@@ -119,7 +119,7 @@ class ChooseDictionaryWord : ListActivityBase() {
         override fun toString(): String {
             val text = readOsisFragment(book, key);
             val snippet = getEntrySnippet(text, key.toString())
-            return if (snippet !== "")
+            return if (snippet != "")
                 "$key - $snippet"
              else
                 key.toString();

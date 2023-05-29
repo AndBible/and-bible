@@ -86,7 +86,7 @@ class BookmarkItemAdapter(
         } else {
             bindings.verseText.text = verseName
         }
-        if(item.notes !== null) {
+        if(item.notes != null) {
             bindings.notesText.visibility = View.VISIBLE
             try {
                 val spanned = htmlToSpan(item.notes)

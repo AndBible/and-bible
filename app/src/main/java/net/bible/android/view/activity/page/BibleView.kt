@@ -509,7 +509,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 menu.clear()
                 scope.launch {
                     val result = evaluateJavascriptAsync("bibleView.querySelection()")
-                    if (result !== "null") {
+                    if (result != "null") {
                         val sel = try {
                             json.decodeFromString(serializer<Selection?>(), result)
                         } catch (e: SerializationException) {

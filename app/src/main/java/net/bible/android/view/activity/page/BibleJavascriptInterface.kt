@@ -352,7 +352,7 @@ class BibleJavascriptInterface(
         val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
         val labels = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
         val foundLabel = labels.find { it.id == labelId }
-        if(foundLabel !== null) {
+        if(foundLabel != null) {
             labels.remove(foundLabel)
         } else {
             labels.add(bookmarkControl.labelById(labelId)!!)

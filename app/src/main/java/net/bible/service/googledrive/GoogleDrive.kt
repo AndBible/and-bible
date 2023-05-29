@@ -322,9 +322,11 @@ object GoogleDrive {
         val syncFolder = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         val syncDeviceFolder = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
+        val filterDeviceFolders = "mimeType='$FOLDER_MIMETYPE'"
+        val filterPatchFiles = "mimeType='$GZIP_MIMETYPE' and not name = 'initial.sqlite3.gz' and not '$syncDeviceFolder' in parents and createdTime > '${DateTime(lastSynchronized).toStringRfc3339()}'"
         val result = service.files().list()
             .setSpaces("appDataFolder")
-            .setQ("'$syncFolder' in parents and not '$syncDeviceFolder' in parents and createdTime > '${DateTime(lastSynchronized).toStringRfc3339()}'")
+            .setQ("'$syncFolder' in parents and (($filterDeviceFolders) or ($filterPatchFiles))")
             .setOrderBy("createdTime asc")
             .setFields("nextPageToken, files(id, name, size, mimeType, createdTime, parents)")
             .collectAll()

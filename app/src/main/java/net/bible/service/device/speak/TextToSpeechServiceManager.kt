@@ -267,7 +267,7 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun switchProvider(newProvider: SpeakTextProvider) {
-        if (newProvider !== mSpeakTextProvider) {
+        if (newProvider != mSpeakTextProvider) {
             mSpeakTextProvider.reset()
             mSpeakTextProvider = newProvider
         }

@@ -107,7 +107,7 @@ open class OsisToCanonicalTextSaxHandler(private val compatibleOffsets: Boolean 
             writeContentStack.push(writeContentStack.peek())
         }
 
-        if(name !== OSISUtil.OSIS_ELEMENT_VERSE && insideVerse && compatibleOffsets) {
+        if(name != OSISUtil.OSIS_ELEMENT_VERSE && insideVerse && compatibleOffsets) {
             spaceJustWritten = false
         }
     }
