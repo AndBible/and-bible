@@ -173,9 +173,10 @@ class DatabaseContainer {
         .build()
 
     var bookmarkDb: BookmarkDatabase = getBookmarkDb()
-    fun resetBookmarkDb() {
+    fun resetBookmarkDb(): BookmarkDatabase {
         bookmarkDb.close()
         bookmarkDb = getBookmarkDb()
+        return bookmarkDb
     }
 
     fun getReadingPlanDb(filename: String = ReadingPlanDatabase.dbFileName) =
@@ -189,9 +190,10 @@ class DatabaseContainer {
             .build()
 
     var readingPlanDb: ReadingPlanDatabase = getReadingPlanDb()
-    fun resetReadingPlanDb() {
+    fun resetReadingPlanDb(): ReadingPlanDatabase {
         readingPlanDb.close()
         readingPlanDb = getReadingPlanDb()
+        return readingPlanDb
     }
 
     fun getWorkspaceDb(filename: String = WorkspaceDatabase.dbFileName) =
@@ -206,9 +208,10 @@ class DatabaseContainer {
 
     var workspaceDb: WorkspaceDatabase = getWorkspaceDb()
 
-    fun resetWorkspaceDb() {
+    fun resetWorkspaceDb(): WorkspaceDatabase {
         workspaceDb.close()
         workspaceDb = getWorkspaceDb()
+        return workspaceDb
     }
 
     init {

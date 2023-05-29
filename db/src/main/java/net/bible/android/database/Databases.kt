@@ -79,10 +79,13 @@ interface SyncDao {
     @Query("SELECT patchNumber FROM SyncStatus WHERE sourceDevice = :deviceId ORDER BY patchNumber DESC LIMIT 1")
     fun lastPatchNum(deviceId: String): Long?
 
-    @Query("SELECT * from LogEntry")
+    @Query("SELECT * FROM LogEntry")
     fun allLogEntries(): List<LogEntry>
+    
+    @Query("DELETE FROM LogEntry")
+    fun clearLog()
 
-    @Query("SELECT * from SyncStatus")
+    @Query("SELECT * FROM SyncStatus")
     fun allSyncStatus(): List<SyncStatus>
 
     @Insert
@@ -107,7 +110,7 @@ interface SyncDao {
     fun setConfig(key: String, value: String) = setConfig(SyncConfiguration(key, stringValue = value))
     fun setConfig(key: String, value: Boolean) = setConfig(SyncConfiguration(key, booleanValue = value))
 
-    @Query("SELECT * from LogEntry WHERE type = 'DELETE'")
+    @Query("SELECT * FROM LogEntry WHERE type = 'DELETE'")
     fun allDeletions(): List<LogEntry>
 
     @Insert

@@ -49,12 +49,15 @@ enum class DatabaseCategory {
 }
 
 class DatabaseDefinition<T: SyncableRoomDatabase>(
-    val localDb: T,
+    var localDb: T,
     val dbFactory: (filename: String) -> T,
-    val resetLocalDb: () -> Unit,
+    private val _resetLocalDb: () -> T,
     private val localDbFileName: String,
     val tableDefinitions: List<TableDef>,
 ) {
+    fun resetLocalDb() {
+        localDb = _resetLocalDb()
+    }
     val categoryName get() = localDbFileName.split(".").first()
     val category get() = DatabaseCategory.valueOf(categoryName.uppercase())
     val localDbFile: File get() = application.getDatabasePath(localDbFileName)
