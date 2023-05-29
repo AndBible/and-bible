@@ -343,16 +343,16 @@ object GoogleDrive {
                 FolderWithMeta(it, dbDef.dao.lastPatchNum(it.name) ?: 0)
             }.associateBy { it.folder.id }
 
-        class DriveFileWithMeta(val file: DriveFile, val parentFolderName: String, val count: Long)
+        class DriveFileWithMeta(val file: DriveFile, val parentFolderName: String)
 
         val patches = result.filter {patchFilePattern.matches(it.name) }.mapNotNull {
             val parentFolderId = it.parents.first()
             val folderWithMeta = folders[parentFolderId]!!
             val num = patchNumber(it.name)
             if (num > folderWithMeta.loadedCount) {
-                DriveFileWithMeta(it, folderWithMeta.folder.name, patchNumber(it.name))
+                DriveFileWithMeta(it, folderWithMeta.folder.name)
             } else null
-        }.sortedBy { it.count }
+        }.sortedBy { it.file.createdTime.value }
 
         val downloadedFiles = patches.asyncMap { f ->
             Log.i(TAG, "Downloading ${f.file.name}, ${f.file.getSize()} bytes")
@@ -380,11 +380,9 @@ object GoogleDrive {
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
         val content = FileContent(GZIP_MIMETYPE, file)
-        val now = System.currentTimeMillis()
+        val count = dbDef.dao.lastPatchNum(CommonUtils.deviceIdentifier)?: 0
 
-
-
-        val fileName = "$now.sqlite3.gz"
+        val fileName = "$count.sqlite3.gz"
         val driveFile = DriveFile().apply {
             name = fileName
             parents = listOf(syncDeviceFolderId)
@@ -395,7 +393,7 @@ object GoogleDrive {
             .create(driveFile, content)
             .setFields("id,createdTime")
             .execute()
-        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, patchNumber(fileName), file.length(), result.createdTime.value))
+        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, count, file.length(), result.createdTime.value))
         file.delete()
     }
 
