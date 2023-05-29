@@ -74,10 +74,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             _db.execSQL("CREATE TABLE IF NOT EXISTS `LogEntry` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `LogEntry` (`lastUpdated`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncConfiguration` (`keyName` TEXT NOT NULL, `stringValue` TEXT, `longValue` INTEGER, `booleanValue` INTEGER, PRIMARY KEY(`keyName`))");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncStatus` (`patchFileName` TEXT NOT NULL, `sizeBytes` INTEGER NOT NULL, `sourceDevice` TEXT NOT NULL, `appliedDate` INTEGER NOT NULL, `id` INTEGER NOT NULL, PRIMARY KEY(`id`))");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncStatus` (`sourceDevice` TEXT NOT NULL, `patchNumber` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`sourceDevice`, `patchNumber`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2213048300f4894654af2f98d813034e')");
-
+            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '30ef369293241170fb246bd828551cc8')");
 
             setPragmas(_db)
         }
@@ -152,9 +151,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             _db.execSQL("CREATE TABLE IF NOT EXISTS `LogEntry` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `LogEntry` (`lastUpdated`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncConfiguration` (`keyName` TEXT NOT NULL, `stringValue` TEXT, `longValue` INTEGER, `booleanValue` INTEGER, PRIMARY KEY(`keyName`))");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncStatus` (`patchFileName` TEXT NOT NULL, `sizeBytes` INTEGER NOT NULL, `sourceDevice` TEXT NOT NULL, `appliedDate` INTEGER NOT NULL, `id` INTEGER NOT NULL, PRIMARY KEY(`id`))");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncStatus` (`sourceDevice` TEXT NOT NULL, `patchNumber` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`sourceDevice`, `patchNumber`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cfc96c219577573dc90e52f92a18b0d9')");
+            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f89e5e7ebd5f0ad2302eadf7834a705')");
 
             setPragmas(_db)
         }
@@ -213,9 +212,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             _db.execSQL("CREATE TABLE IF NOT EXISTS `LogEntry` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `LogEntry` (`lastUpdated`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncConfiguration` (`keyName` TEXT NOT NULL, `stringValue` TEXT, `longValue` INTEGER, `booleanValue` INTEGER, PRIMARY KEY(`keyName`))");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncStatus` (`patchFileName` TEXT NOT NULL, `sizeBytes` INTEGER NOT NULL, `sourceDevice` TEXT NOT NULL, `appliedDate` INTEGER NOT NULL, `id` INTEGER NOT NULL, PRIMARY KEY(`id`))");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncStatus` (`sourceDevice` TEXT NOT NULL, `patchNumber` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`sourceDevice`, `patchNumber`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b6ebba3490fb9034b767d8f5d4bb2733')");
+            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8edd69046217e40887089d5fbf735bf5')");
 
             setPragmas(_db);
         }
