@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2213048300f4894654af2f98d813034e",
+    "identityHash": "30ef369293241170fb246bd828551cc8",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -472,30 +472,24 @@
       },
       {
         "tableName": "SyncStatus",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `patchFileName` TEXT NOT NULL, `sizeBytes` INTEGER NOT NULL, `sourceDevice` TEXT NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sourceDevice` TEXT NOT NULL, `patchNumber` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`sourceDevice`, `patchNumber`))",
         "fields": [
           {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
+            "fieldPath": "sourceDevice",
+            "columnName": "sourceDevice",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "patchFileName",
-            "columnName": "patchFileName",
-            "affinity": "TEXT",
+            "fieldPath": "patchNumber",
+            "columnName": "patchNumber",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "sizeBytes",
             "columnName": "sizeBytes",
             "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "sourceDevice",
-            "columnName": "sourceDevice",
-            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -508,7 +502,8 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "id"
+            "sourceDevice",
+            "patchNumber"
           ]
         },
         "indices": [],
@@ -518,7 +513,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2213048300f4894654af2f98d813034e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '30ef369293241170fb246bd828551cc8')"
     ]
   }
 }

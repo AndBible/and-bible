@@ -78,6 +78,7 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
 
 const val SYNC_FOLDER_FILE_ID_KEY = "syncId"
 const val SYNC_DEVICE_FOLDER_FILE_ID_KEY = "deviceFolderId"
+
 const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 
 fun DriveList.collectAll(): List<DriveFile> {
@@ -317,6 +318,9 @@ object GoogleDrive {
         }
     }
 
+    private val patchFilePattern = Regex("""(\d+)\.sqlite3\.gz""")
+    private fun patchNumber(name: String): Long = patchFilePattern.find(name)!!.groups[1]!!.value.toLong()
+
     private suspend fun downloadAndApplyNewPatches(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Downloading new patches ${dbDef.categoryName}")
         val lastSynchronized = dbDef.dao.getLong("lastSynchronized")?: 0
@@ -332,32 +336,43 @@ object GoogleDrive {
             .setFields("nextPageToken, files(id, name, size, mimeType, createdTime, parents)")
             .collectAll()
 
+        class FolderWithMeta(val folder: DriveFile, val loadedCount: Long)
 
-        val folders = result.filter { it.mimeType == FOLDER_MIMETYPE }.associate { Pair(it.id, it.name) }
-        val patches = result.filter { it.name.endsWith(".sqlite3.gz") }
+        val folders = result.filter { it.mimeType == FOLDER_MIMETYPE }
+            .map {
+                FolderWithMeta(it, dbDef.dao.lastPatchNum(it.name) ?: 0)
+            }.associateBy { it.folder.id }
 
-        // TODO: do not download / apply files that have been applied (check SyncStatus table!)
+        class DriveFileWithMeta(val file: DriveFile, val parentFolderName: String, val count: Long)
 
-        val downloadedFiles = patches.asyncMap { file ->
-            Log.i(TAG, "Downloading ${file.name}, ${file.getSize()} bytes")
+        val patches = result.filter {patchFilePattern.matches(it.name) }.mapNotNull {
+            val parentFolderId = it.parents.first()
+            val folderWithMeta = folders[parentFolderId]!!
+            val num = patchNumber(it.name)
+            if (num > folderWithMeta.loadedCount) {
+                DriveFileWithMeta(it, folderWithMeta.folder.name, patchNumber(it.name))
+            } else null
+        }.sortedBy { it.count }
+
+        val downloadedFiles = patches.asyncMap { f ->
+            Log.i(TAG, "Downloading ${f.file.name}, ${f.file.getSize()} bytes")
             val tmpFile = CommonUtils.tmpFile
             tmpFile.outputStream().use {
                 service
                     .files()
-                    .get(file.id)
+                    .get(f.file.id)
                     .executeMediaAndDownloadTo(it)
             }
-            Pair(tmpFile, file.createdTime.value)
+            tmpFile
         }
 
         val syncStatuses = patches.map {
-            val parentFolderId = it.parents.first()
-            val parentFolderName = folders[parentFolderId]!!
-            SyncStatus(it.name, it.getSize(), parentFolderName, it.createdTime.value)
+            SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.getSize(), it.file.createdTime.value)
         }
 
-        dbDef.dao.addStatuses(syncStatuses)
         DatabasePatching.applyPatchesForDatabase(dbDef, downloadedFiles)
+
+        dbDef.dao.addStatuses(syncStatuses)
     }
     private suspend fun createAndUploadNewPatch(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
@@ -366,6 +381,9 @@ object GoogleDrive {
 
         val content = FileContent(GZIP_MIMETYPE, file)
         val now = System.currentTimeMillis()
+
+
+
         val fileName = "$now.sqlite3.gz"
         val driveFile = DriveFile().apply {
             name = fileName
@@ -377,7 +395,7 @@ object GoogleDrive {
             .create(driveFile, content)
             .setFields("id,createdTime")
             .execute()
-        dbDef.dao.addStatus(SyncStatus(fileName, file.length(), CommonUtils.deviceIdentifier, result.createdTime.value))
+        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, patchNumber(fileName), file.length(), result.createdTime.value))
         file.delete()
     }
 

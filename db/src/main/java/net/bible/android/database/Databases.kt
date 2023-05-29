@@ -43,7 +43,7 @@ enum class LogEntryTypes {
 
 @Entity(
     primaryKeys = ["tableName", "entityId1", "entityId2"],
-    indices = [Index(value = ["lastUpdated"])]
+    indices = [Index("lastUpdated")]
 )
 class LogEntry(
     val tableName: String,
@@ -63,17 +63,22 @@ class SyncConfiguration(
     val booleanValue: Boolean? = null,
 )
 
-@Entity
+@Entity(
+    primaryKeys = ["sourceDevice", "patchNumber"],
+)
 class SyncStatus(
-    val patchFileName: String,
-    val sizeBytes: Long,
     val sourceDevice: String,
+    val patchNumber: Long,
+    val sizeBytes: Long,
     val appliedDate: Long,
-    @PrimaryKey val id: Long = 0,
 )
 
 @Dao
 interface SyncDao {
+
+    @Query("SELECT patchNumber FROM SyncStatus WHERE sourceDevice = :deviceId ORDER BY patchNumber DESC LIMIT 1")
+    fun lastPatchNum(deviceId: String): Long?
+
     @Query("SELECT * from LogEntry")
     fun allLogEntries(): List<LogEntry>
 

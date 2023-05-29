@@ -149,8 +149,8 @@ object DatabasePatching {
         return resultFile
     }
 
-    fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>, patchFiles: Collection<Pair<File, Long>>) {
-        for(gzippedPatchFile in patchFiles.sortedBy { it.second }.map {it.first}) {
+    fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>, patchFiles: Collection<File>) {
+        for(gzippedPatchFile in patchFiles) {
             Log.i(TAG, "Applying patch file ${gzippedPatchFile.name}")
             val patchDbFile = CommonUtils.tmpFile
             CommonUtils.gunzipFile(gzippedPatchFile, patchDbFile)
