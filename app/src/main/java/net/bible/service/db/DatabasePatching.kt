@@ -100,14 +100,15 @@ object DatabasePatching {
         }
 
         // Insert all rows from patch table that don't have more recent entry in LogEntry table
-        execSQL("""INSERT INTO $table ($cols)
-                  |SELECT $cols FROM patch.$table WHERE $idFields IN
-                  |(SELECT $select FROM patch.LogEntry pe
-                  | OUTER LEFT JOIN LogEntry me
-                  | ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
-                  | WHERE pe.tableName = '$table' AND pe.type = 'UPSERT' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated)
-                  |) ON CONFLICT DO UPDATE SET $setValues;
-                """.trimMargin())
+        execSQL("""
+                   INSERT INTO $table ($cols)
+                   SELECT $cols FROM patch.$table WHERE $idFields IN
+                   (SELECT $select FROM patch.LogEntry pe
+                    OUTER LEFT JOIN LogEntry me
+                    ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
+                    WHERE pe.tableName = '$table' AND pe.type = 'UPSERT' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated)
+                  ) ON CONFLICT DO UPDATE SET $setValues;
+                  """.trimIndent())
 
         // Delete all marked deletions from patch LogEntry table
         // TODO CHECK DATES TOO BECAUSE BookmarkToLabel CAN HAVE SAME PRIMARY KEY AGAIN
@@ -116,7 +117,7 @@ object DatabasePatching {
         // Let's fix LogEntry table timestamps (all above insertions have created new entries)
 
         // TODO CHECK DATES TOO BECAUSE BookmarkToLabel CAN HAVE SAME PRIMARY KEY AGAIN
-        execSQL("INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry")
+        execSQL("INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry WHERE tableName = '$table'")
     }
 
     fun createPatchForDatabase(dbDef: DatabaseDefinition<*>): File? {
@@ -153,28 +154,33 @@ object DatabasePatching {
             } else {
                 null
             }
-        // TODO!
-        //patchDbFile.delete()
+        if(!CommonUtils.isDebugMode) {
+            patchDbFile.delete()
+        }
         return resultFile
     }
 
     fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>, patchFiles: Collection<File>) {
         for(gzippedPatchFile in patchFiles) {
-            Log.i(TAG, "Applying patch file ${gzippedPatchFile.name}")
-            val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", "sqlite3", CommonUtils.tmpDir)
+            val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
+            Log.i(TAG, "Applying patch file ${patchDbFile.name}")
             CommonUtils.gunzipFile(gzippedPatchFile, patchDbFile)
+            gzippedPatchFile.delete()
             dbDef.localDb.openHelper.writableDatabase.run {
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+                execSQL("PRAGMA foreign_keys=OFF;")
                 for (tableDef in dbDef.tableDefinitions) {
                     readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                 }
+                execSQL("PRAGMA foreign_keys=ON;")
                 execSQL("DETACH DATABASE patch")
                 if(CommonUtils.isDebugMode) {
                     checkForeignKeys(this)
                 }
             }
-            // TODO!
-            //patchDbFile.delete()
+            if(!CommonUtils.isDebugMode) {
+                patchDbFile.delete()
+            }
         }
     }
 
@@ -184,15 +190,15 @@ object DatabasePatching {
             val rowId = c.getLong(1)
             val parent = c.getString(2)
             Log.w(TAG, "Foreign key check failure: $tableName:$rowId (<- $parent)")
-            Dialogs.showErrorMsg("Foreign key check failure: $tableName:$rowId (<- $parent)")
+            Dialogs.showErrorMsg("Foreign key check failure: $tableName:$rowId ($parent)")
         }
     }
 
     val dbFactories: List<() -> DatabaseDefinition<*>> get() = DatabaseContainer.instance.run { listOf(
         {
             DatabaseDefinition(bookmarkDb, { n -> getBookmarkDb(n)}, {resetBookmarkDb()}, BookmarkDatabase.dbFileName, listOf(
-                TableDef("Bookmark"),
                 TableDef("Label"),
+                TableDef("Bookmark"),
                 TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
                 TableDef("StudyPadTextEntry"),
             ))

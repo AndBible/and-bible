@@ -313,8 +313,8 @@ object GoogleDrive {
                     Log.i(TAG, "Sync cancelled ${dbDef.categoryName}")
                     return@asyncMap
                 }
-                downloadAndApplyNewPatches(dbDef)
                 createAndUploadNewPatch(dbDef)
+                downloadAndApplyNewPatches(dbDef)
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
         }
@@ -373,7 +373,8 @@ object GoogleDrive {
             val parentFolderId = it.parents.first()
             val folderWithMeta = folders[parentFolderId]!!
             val num = patchNumber(it.name)
-            if (num > folderWithMeta.loadedCount) {
+            val existing = dbDef.dao.syncStatus(folderWithMeta.folder.name, patchNumber(it.name))
+            if (existing == null && num > folderWithMeta.loadedCount) {
                 DriveFileWithMeta(it, folderWithMeta.folder.name)
             } else null
         }.sortedBy { it.file.createdTime.value }

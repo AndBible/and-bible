@@ -118,6 +118,9 @@ interface SyncDao {
 
     @Insert
     fun addStatuses(syncStatuses: List<SyncStatus>)
+
+    @Query("SELECT * from SyncStatus WHERE sourceDevice=:name AND patchNumber=:patchNumber")
+    fun syncStatus(name: String, patchNumber: Long): SyncStatus?
 }
 
 
