@@ -345,7 +345,7 @@ object GoogleDrive {
         }
         Log.i(TAG, "folders \n${folderResult.joinToString("\n") { "${it.id} ${it.name}" }}")
         val folderFilter = folderResult.map { it.id }.joinToString(" or ") { "'$it' in parents" }
-        val filterPatchFiles = "($folderFilter) and mimeType='$GZIP_MIMETYPE'"
+        val filterPatchFiles = "($folderFilter) and mimeType='$GZIP_MIMETYPE' and createdTime > '$lastSynchronizedString'"
         Log.i(TAG, "filterPatchFiles: $filterPatchFiles")
 
         val patchResults = service.files().list()
