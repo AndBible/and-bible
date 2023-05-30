@@ -19,7 +19,6 @@ package net.bible.service.db
 
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
-import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.ReadingPlanDatabase
@@ -65,7 +64,7 @@ class DatabaseDefinition<T: SyncableRoomDatabase>(
     val writableDb get() = localDb.openHelper.writableDatabase
 }
 object DatabasePatching {
-    private fun writePatchData(db: SupportSQLiteDatabase, tableDef: TableDef, lastSynchronized: Long) = db.run {
+    private fun writePatchData(db: SupportSQLiteDatabase, tableDef: TableDef, lastPatchWritten: Long) = db.run {
         val table = tableDef.tableName
         val idField1 = tableDef.idField1
         val idField2 = tableDef.idField2
@@ -78,8 +77,8 @@ object DatabasePatching {
             select = "pe.entityId1,pe.entityId2"
         }
         execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $where IN " +
-            "(SELECT $select FROM LogEntry pe WHERE tableName = '$table' AND type = 'UPSERT' AND lastUpdated > $lastSynchronized)")
-        execSQL("INSERT INTO patch.LogEntry SELECT * FROM LogEntry WHERE tableName = '$table' AND lastUpdated > $lastSynchronized")
+            "(SELECT $select FROM LogEntry pe WHERE tableName = '$table' AND type = 'UPSERT' AND lastUpdated > $lastPatchWritten)")
+        execSQL("INSERT INTO patch.LogEntry SELECT * FROM LogEntry WHERE tableName = '$table' AND lastUpdated > $lastPatchWritten")
     }
 
     private fun readPatchData(
@@ -111,32 +110,38 @@ object DatabasePatching {
                 """.trimMargin())
 
         // Delete all marked deletions from patch LogEntry table
+        // TODO CHECK DATES TOO BECAUSE BookmarkToLabel CAN HAVE SAME PRIMARY KEY AGAIN
         execSQL("DELETE FROM $table WHERE $idFields IN (SELECT $select FROM patch.LogEntry pe WHERE tableName = '$table' AND type = 'DELETE')")
 
         // Let's fix LogEntry table timestamps (all above insertions have created new entries)
+
+        // TODO CHECK DATES TOO BECAUSE BookmarkToLabel CAN HAVE SAME PRIMARY KEY AGAIN
         execSQL("INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry")
     }
 
     fun createPatchForDatabase(dbDef: DatabaseDefinition<*>): File? {
-        // let's create empty database with correct schema first.
-        val lastSynchronized = dbDef.dao.getLong("lastSynchronized")?: 0
+        val lastPatchWritten = dbDef.dao.getLong("lastPatchWritten")?: 0
         val patchDbFile = CommonUtils.tmpFile
-        val patchDb = dbDef.dbFactory(patchDbFile.absolutePath)
-        patchDb.openHelper.writableDatabase.use {}
 
         var needPatch: Boolean
         dbDef.localDb.openHelper.writableDatabase.run {
-            val amountUpdated = query("SELECT COUNT(*) FROM LogEntry WHERE lastUpdated > $lastSynchronized").getFirst { c -> c.getInt(0)}
+            val amountUpdated = dbDef.dao.countNewLogEntries(lastPatchWritten)
             needPatch = amountUpdated > 0
             if (needPatch) {
+                // let's create empty database with correct schema first.
+                val patchDb = dbDef.dbFactory(patchDbFile.absolutePath)
+                patchDb.openHelper.writableDatabase.use {}
                 Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
                 execSQL("PRAGMA patch.foreign_keys=OFF;")
                 for (tableDef in dbDef.tableDefinitions) {
-                    writePatchData(this, tableDef, lastSynchronized)
+                    writePatchData(this, tableDef, lastPatchWritten)
                 }
                 execSQL("PRAGMA patch.foreign_keys=ON;")
                 execSQL("DETACH DATABASE patch")
+                dbDef.dao.setConfig("lastPatchWritten", System.currentTimeMillis() / 1000)
+            } else {
+                Log.i(TAG, "No new entries ${dbDef.categoryName}")
             }
         }
         val resultFile =
