@@ -121,7 +121,7 @@ object DatabasePatching {
 
     fun createPatchForDatabase(dbDef: DatabaseDefinition<*>): File? {
         val lastPatchWritten = dbDef.dao.getLong("lastPatchWritten")?: 0
-        val patchDbFile = CommonUtils.tmpFile
+        val patchDbFile = File.createTempFile("created-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
 
         var needPatch: Boolean
         dbDef.localDb.openHelper.writableDatabase.run {
@@ -153,14 +153,15 @@ object DatabasePatching {
             } else {
                 null
             }
-        patchDbFile.delete()
+        // TODO!
+        //patchDbFile.delete()
         return resultFile
     }
 
     fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>, patchFiles: Collection<File>) {
         for(gzippedPatchFile in patchFiles) {
             Log.i(TAG, "Applying patch file ${gzippedPatchFile.name}")
-            val patchDbFile = CommonUtils.tmpFile
+            val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", "sqlite3", CommonUtils.tmpDir)
             CommonUtils.gunzipFile(gzippedPatchFile, patchDbFile)
             dbDef.localDb.openHelper.writableDatabase.run {
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
@@ -172,7 +173,8 @@ object DatabasePatching {
                     checkForeignKeys(this)
                 }
             }
-            patchDbFile.delete()
+            // TODO!
+            //patchDbFile.delete()
         }
     }
 
