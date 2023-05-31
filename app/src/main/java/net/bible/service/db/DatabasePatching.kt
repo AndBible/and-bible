@@ -76,9 +76,15 @@ object DatabasePatching {
             where = "($idField1,$idField2)"
             select = "pe.entityId1,pe.entityId2"
         }
-        execSQL("INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $where IN " +
-            "(SELECT $select FROM LogEntry pe WHERE tableName = '$table' AND type = 'UPSERT' AND lastUpdated > $lastPatchWritten)")
-        execSQL("INSERT INTO patch.LogEntry SELECT * FROM LogEntry WHERE tableName = '$table' AND lastUpdated > $lastPatchWritten")
+        execSQL("""
+            INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $where IN 
+            (SELECT $select FROM LogEntry pe WHERE tableName = '$table' AND type = 'UPSERT' 
+            AND lastUpdated > $lastPatchWritten)
+            """.trimIndent())
+        execSQL("""
+            INSERT INTO patch.LogEntry SELECT * FROM LogEntry 
+            WHERE tableName = '$table' AND lastUpdated > $lastPatchWritten
+            """.trimIndent())
     }
 
     private fun readPatchData(
@@ -90,7 +96,9 @@ object DatabasePatching {
         val colList = getColumnNames(this, table)
         val cols = colList.joinToString(",") { "`$it`" }
         val setValues = colList.filterNot {it == idField1 || it == idField2}.joinToString(",\n") { "`$it`=excluded.`$it`" }
-        val amount = query("SELECT COUNT(*) FROM patch.LogEntry WHERE tableName = '$table'").getFirst { it.getInt(0)}
+        val amount = query("SELECT COUNT(*) FROM patch.LogEntry WHERE tableName = '$table'")
+            .getFirst { it.getInt(0)}
+
         Log.i(TAG, "Reading patch data for $table: $amount log entries")
         var idFields = idField1
         var select = "pe.entityId1"
@@ -101,14 +109,15 @@ object DatabasePatching {
 
         // Insert all rows from patch table that don't have more recent entry in LogEntry table
         execSQL("""
-                   INSERT INTO $table ($cols)
-                   SELECT $cols FROM patch.$table WHERE $idFields IN
-                   (SELECT $select FROM patch.LogEntry pe
-                    OUTER LEFT JOIN LogEntry me
-                    ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
-                    WHERE pe.tableName = '$table' AND pe.type = 'UPSERT' AND (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated)
-                  ) ON CONFLICT DO UPDATE SET $setValues;
-                  """.trimIndent())
+            INSERT INTO $table ($cols)
+            SELECT $cols FROM patch.$table WHERE $idFields IN
+            (SELECT $select FROM patch.LogEntry pe
+             OUTER LEFT JOIN LogEntry me
+             ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
+             WHERE pe.tableName = '$table' AND pe.type = 'UPSERT' AND 
+             (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated)
+            ) ON CONFLICT DO UPDATE SET $setValues;
+            """.trimIndent())
 
         // Delete all marked deletions from patch LogEntry table
         // TODO CHECK DATES TOO BECAUSE BookmarkToLabel CAN HAVE SAME PRIMARY KEY AGAIN

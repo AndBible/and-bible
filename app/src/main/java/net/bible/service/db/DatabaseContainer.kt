@@ -74,31 +74,28 @@ fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idField
         } else {
             "$prefix.$idField1,$prefix.$idField2"
         }
-    val timeStampFunc = "CAST(UNIXEPOCH('subsec')*1000)"
+    val timeStampFunc = "CAST(UNIXEPOCH('subsec') * 1000 AS INTEGER)"
 
-    execSQL(
-        """
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName 
-            BEGIN DELETE FROM LogEntry WHERE ${where("NEW")} AND tableName = '$tableName';
-            INSERT INTO LogEntry VALUES ('$tableName', ${insert("NEW")}, 'UPSERT', $timeStampFunc); 
-            END;
-            """.trimIndent()
+    execSQL("""
+        CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName 
+        BEGIN DELETE FROM LogEntry WHERE ${where("NEW")} AND tableName = '$tableName';
+        INSERT INTO LogEntry VALUES ('$tableName', ${insert("NEW")}, 'UPSERT', $timeStampFunc); 
+        END;
+        """.trimIndent()
     )
-    execSQL(
-        """
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName 
-            BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
-            INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'UPSERT', $timeStampFunc); 
-            END;
-            """.trimIndent()
+    execSQL("""
+        CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName 
+        BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
+        INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'UPSERT', $timeStampFunc); 
+        END;
+        """.trimIndent()
     )
-    execSQL(
-        """
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName 
-            BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
-            INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', $timeStampFunc); 
-            END;
-            """.trimIndent()
+    execSQL("""
+        CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName 
+        BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
+        INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', $timeStampFunc); 
+        END;
+        """.trimIndent()
     )
 }
 
