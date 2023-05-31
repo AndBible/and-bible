@@ -151,7 +151,7 @@ object DatabasePatching {
                 endTransaction()
                 execSQL("PRAGMA patch.foreign_keys=ON;")
                 execSQL("DETACH DATABASE patch")
-                dbDef.dao.setConfig("lastPatchWritten", System.currentTimeMillis() / 1000)
+                dbDef.dao.setConfig("lastPatchWritten", System.currentTimeMillis())
             } else {
                 Log.i(TAG, "No new entries ${dbDef.categoryName}")
             }
