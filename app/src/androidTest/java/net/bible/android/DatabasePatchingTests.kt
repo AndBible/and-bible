@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -15,31 +15,22 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+
 package net.bible.android
 
-import androidx.test.core.app.ActivityScenario.launch
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
-import net.bible.android.activity.R
+import androidx.test.filters.SmallTest
 
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.db.DatabaseContainer
-import org.junit.Ignore
 import org.junit.Test
 
-@Ignore("Let's see if one day we have some tests here")
 @RunWith(AndroidJUnit4::class)
-@LargeTest
-class MainBibleActivityTests {
-
+@SmallTest
+class DatabasePatchingTests {
     @Test
-    fun testMainActivity() {
-        launch(MainBibleActivity::class.java).use {
-            //mainBibleActivity.windowControl.activeWindowPageManager.currentPage.key =
-            onView(withId(R.id.speakButton))
-        }
+    fun testDatabase() {
+        DatabaseContainer.ready = true
+        DatabaseContainer.instance
     }
 }

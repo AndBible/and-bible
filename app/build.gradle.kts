@@ -245,7 +245,18 @@ android {
                 }
             }
         }
-
+        managedDevices {
+            devices {
+                maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("pixel3api31").apply {
+                    // Use device profiles you typically see in Android Studio.
+                    device = "Pixel 3"
+                    // Use only API levels 27 and higher.
+                    apiLevel = 31
+                    // To include Google services, use "google".
+                    systemImageSource = "aosp"
+                }
+            }
+        }
     }
 
     bundle {
@@ -389,36 +400,36 @@ dependencies {
     // Android UI testing
 
     // Core library
-    androidTestImplementation("androidx.test:core:1.4.0")
+    androidTestImplementation("androidx.test:core:1.5.0")
 
     // AndroidJUnitRunner and JUnit Rules
-    androidTestImplementation("androidx.test:runner:1.4.0")
-    androidTestImplementation("androidx.test:rules:1.4.0")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
 
     // Assertions
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.ext:truth:1.4.0")
-    androidTestImplementation("com.google.truth:truth:1.1.3")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.ext:truth:1.5.0")
+    androidTestImplementation("com.google.truth:truth:1.1.4")
 
     // Espresso dependencies
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0") {
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.1") {
         // https://github.com/android/android-test/issues/861#issuecomment-1067448610
         exclude(group="org.checkerframework", module="checker")
     }
-    androidTestImplementation("androidx.test.espresso:espresso-intents:3.4.0")
-    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.4.0") {
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.5.1") {
         // https://github.com/android/android-test/issues/861#issuecomment-872582819
         exclude(group="org.checkerframework", module="checker")
     }
     
-    androidTestImplementation("androidx.test.espresso:espresso-web:3.4.0")
-    androidTestImplementation("androidx.test.espresso.idling:idling-concurrent:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-web:3.5.1")
+    androidTestImplementation("androidx.test.espresso.idling:idling-concurrent:3.5.1")
 
     // The following Espresso dependency can be either "implementation"
     // or "androidTestImplementation", depending on whether you want the
     // dependency to appear on your APK's compile classpath or the test APK
     // classpath.
-    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.1")
 }
 
