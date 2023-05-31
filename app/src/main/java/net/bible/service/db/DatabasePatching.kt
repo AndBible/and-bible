@@ -135,9 +135,12 @@ object DatabasePatching {
                 Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
                 execSQL("PRAGMA patch.foreign_keys=OFF;")
+                beginTransaction()
                 for (tableDef in dbDef.tableDefinitions) {
                     writePatchData(this, tableDef, lastPatchWritten)
                 }
+                setTransactionSuccessful()
+                endTransaction()
                 execSQL("PRAGMA patch.foreign_keys=ON;")
                 execSQL("DETACH DATABASE patch")
                 dbDef.dao.setConfig("lastPatchWritten", System.currentTimeMillis() / 1000)
@@ -169,9 +172,12 @@ object DatabasePatching {
             dbDef.localDb.openHelper.writableDatabase.run {
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
                 execSQL("PRAGMA foreign_keys=OFF;")
+                beginTransaction()
                 for (tableDef in dbDef.tableDefinitions) {
                     readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                 }
+                setTransactionSuccessful()
+                endTransaction()
                 execSQL("PRAGMA foreign_keys=ON;")
                 execSQL("DETACH DATABASE patch")
                 if(CommonUtils.isDebugMode) {
