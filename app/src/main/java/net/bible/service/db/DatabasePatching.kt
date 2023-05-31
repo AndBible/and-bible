@@ -112,12 +112,20 @@ object DatabasePatching {
 
         // Delete all marked deletions from patch LogEntry table
         // TODO CHECK DATES TOO BECAUSE BookmarkToLabel CAN HAVE SAME PRIMARY KEY AGAIN
-        execSQL("DELETE FROM $table WHERE $idFields IN (SELECT $select FROM patch.LogEntry pe WHERE tableName = '$table' AND type = 'DELETE')")
+        execSQL("""
+            DELETE FROM $table 
+            WHERE $idFields IN 
+            (SELECT $select FROM patch.LogEntry pe WHERE tableName = '$table' AND type = 'DELETE')
+            """.trimIndent()
+        )
 
         // Let's fix LogEntry table timestamps (all above insertions have created new entries)
 
         // TODO CHECK DATES TOO BECAUSE BookmarkToLabel CAN HAVE SAME PRIMARY KEY AGAIN
-        execSQL("INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry WHERE tableName = '$table'")
+        execSQL("""
+            INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry WHERE tableName = '$table'
+            """.trimIndent()
+        )
     }
 
     fun createPatchForDatabase(dbDef: DatabaseDefinition<*>): File? {
@@ -171,14 +179,12 @@ object DatabasePatching {
             gzippedPatchFile.delete()
             dbDef.localDb.openHelper.writableDatabase.run {
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
-                execSQL("PRAGMA foreign_keys=OFF;")
                 beginTransaction()
                 for (tableDef in dbDef.tableDefinitions) {
                     readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                 }
                 setTransactionSuccessful()
                 endTransaction()
-                execSQL("PRAGMA foreign_keys=ON;")
                 execSQL("DETACH DATABASE patch")
                 if(CommonUtils.isDebugMode) {
                     checkForeignKeys(this)
