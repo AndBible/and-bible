@@ -399,6 +399,7 @@ object GoogleDrive {
         }
 
         DatabasePatching.applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
+        downloadedFiles.forEach { it.delete() }
 
         dbDef.dao.addStatuses(syncStatuses)
     }

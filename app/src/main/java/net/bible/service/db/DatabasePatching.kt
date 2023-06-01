@@ -262,12 +262,11 @@ object DatabasePatching {
         return gzippedOutput
     }
 
-    fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>, vararg patchFiles: File) {
-        for(gzippedPatchFile in patchFiles) {
+    fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>, vararg patchFiles: File?) {
+        for(gzippedPatchFile in patchFiles.filterNotNull()) {
             val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
             Log.i(TAG, "Applying patch file ${patchDbFile.name}")
             CommonUtils.gunzipFile(gzippedPatchFile, patchDbFile)
-            gzippedPatchFile.delete()
             dbDef.writableDb.run {
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
                 execSQL("PRAGMA foreign_keys=OFF;")

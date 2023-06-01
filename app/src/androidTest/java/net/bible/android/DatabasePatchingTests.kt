@@ -69,10 +69,22 @@ class DatabasePatchingTests {
     private fun sync(dbDef1: DatabaseDefinition<*>, dbDef2: DatabaseDefinition<*>) {
         val patch1 = DatabasePatching.createPatchForDatabase(dbDef1)
         val patch2 = DatabasePatching.createPatchForDatabase(dbDef2)
-        if(patch2 != null) DatabasePatching.applyPatchesForDatabase(dbDef1, patch2)
-        if(patch1 != null) DatabasePatching.applyPatchesForDatabase(dbDef2, patch1)
+        DatabasePatching.applyPatchesForDatabase(dbDef1, patch2)
+        DatabasePatching.applyPatchesForDatabase(dbDef2, patch1)
         checkLog(dbDef1, dbDef2)
     }
+
+    private fun sync3(dbDef1: DatabaseDefinition<*>, dbDef2: DatabaseDefinition<*>, dbDef3: DatabaseDefinition<*>) {
+        val patch1 = DatabasePatching.createPatchForDatabase(dbDef1)
+        val patch2 = DatabasePatching.createPatchForDatabase(dbDef2)
+        val patch3 = DatabasePatching.createPatchForDatabase(dbDef3)
+        DatabasePatching.applyPatchesForDatabase(dbDef1, patch2, patch3)
+        DatabasePatching.applyPatchesForDatabase(dbDef2, patch1, patch3)
+        DatabasePatching.applyPatchesForDatabase(dbDef3, patch1, patch2)
+        checkLog(dbDef1, dbDef2)
+        checkLog(dbDef2, dbDef3)
+    }
+
     private fun checkLog(dbDef1: DatabaseDefinition<*>, dbDef2: DatabaseDefinition<*>) {
         dbDef1.dao.allLogEntries() mustEqualTo dbDef2.dao.allLogEntries()
     }
@@ -290,5 +302,65 @@ class DatabasePatchingTests {
         sync(dbDef1, dbDef2)
         assertThat(dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(1))
         assertThat(dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(1))
+    }
+
+    @Test
+    fun testThreeDevices() {
+        val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
+        val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
+        val dbDef3 = getDbDef(File.createTempFile("bookmarks3-", ".sqlite3", CommonUtils.tmpDir))
+        val bookmark1 = BookmarkEntities.Bookmark()
+        val bookmark2 = BookmarkEntities.Bookmark()
+        val bookmark3 = BookmarkEntities.Bookmark()
+        dbDef1.localDb.bookmarkDao().insert(bookmark1)
+        dbDef2.localDb.bookmarkDao().insert(bookmark2)
+        dbDef3.localDb.bookmarkDao().insert(bookmark3)
+        sync3(dbDef1, dbDef2, dbDef3)
+        assertThat(dbDef1.localDb.bookmarkDao().allBookmarks().size, equalTo(3))
+        assertThat(dbDef2.localDb.bookmarkDao().allBookmarks().size, equalTo(3))
+        assertThat(dbDef3.localDb.bookmarkDao().allBookmarks().size, equalTo(3))
+        dbDef1.localDb.bookmarkDao().delete(bookmark3)
+        dbDef2.localDb.bookmarkDao().delete(bookmark1)
+        dbDef3.localDb.bookmarkDao().delete(bookmark2)
+        sync3(dbDef1, dbDef2, dbDef3)
+        assertThat(dbDef1.localDb.bookmarkDao().allBookmarks().size, equalTo(0))
+        assertThat(dbDef2.localDb.bookmarkDao().allBookmarks().size, equalTo(0))
+        assertThat(dbDef3.localDb.bookmarkDao().allBookmarks().size, equalTo(0))
+    }
+
+    @Test
+    fun testThreeDevices1() {
+        val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
+        val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
+        val dbDef3 = getDbDef(File.createTempFile("bookmarks3-", ".sqlite3", CommonUtils.tmpDir))
+        val bookmark1 = BookmarkEntities.Bookmark()
+        val bookmark2 = BookmarkEntities.Bookmark()
+        val bookmark3 = BookmarkEntities.Bookmark()
+        dbDef1.localDb.bookmarkDao().insert(bookmark1)
+        sync3(dbDef1, dbDef2, dbDef3)
+        assertThat(dbDef1.localDb.bookmarkDao().allBookmarks().size, equalTo(1))
+        assertThat(dbDef2.localDb.bookmarkDao().allBookmarks().size, equalTo(1))
+        assertThat(dbDef3.localDb.bookmarkDao().allBookmarks().size, equalTo(1))
+
+        dbDef2.localDb.bookmarkDao().insert(bookmark2)
+        sync3(dbDef1, dbDef2, dbDef3)
+
+        assertThat(dbDef1.localDb.bookmarkDao().allBookmarks().size, equalTo(2))
+        assertThat(dbDef2.localDb.bookmarkDao().allBookmarks().size, equalTo(2))
+        assertThat(dbDef3.localDb.bookmarkDao().allBookmarks().size, equalTo(2))
+
+        dbDef3.localDb.bookmarkDao().insert(bookmark3)
+        sync3(dbDef1, dbDef2, dbDef3)
+
+        assertThat(dbDef1.localDb.bookmarkDao().allBookmarks().size, equalTo(3))
+        assertThat(dbDef2.localDb.bookmarkDao().allBookmarks().size, equalTo(3))
+        assertThat(dbDef3.localDb.bookmarkDao().allBookmarks().size, equalTo(3))
+        dbDef1.localDb.bookmarkDao().delete(bookmark3)
+        dbDef2.localDb.bookmarkDao().delete(bookmark1)
+        dbDef3.localDb.bookmarkDao().delete(bookmark2)
+        sync3(dbDef1, dbDef2, dbDef3)
+        assertThat(dbDef1.localDb.bookmarkDao().allBookmarks().size, equalTo(0))
+        assertThat(dbDef2.localDb.bookmarkDao().allBookmarks().size, equalTo(0))
+        assertThat(dbDef3.localDb.bookmarkDao().allBookmarks().size, equalTo(0))
     }
 }
