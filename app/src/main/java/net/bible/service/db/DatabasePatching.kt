@@ -183,16 +183,22 @@ object DatabasePatching {
             select = "pe.entityId1,pe.entityId2"
         }
 
+        fun where(type: String) =
+            """
+            (SELECT $select FROM patch.LogEntry pe
+              OUTER LEFT JOIN LogEntry me
+              ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
+              WHERE pe.tableName = '$table' AND pe.type = '$type' AND 
+             (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated))
+            """.trimIndent()
+
+
+
         // Insert all rows from patch table that don't have more recent entry in LogEntry table
         execSQL("""
             INSERT INTO $table ($cols)
-            SELECT $cols FROM patch.$table WHERE $idFields IN
-            (SELECT $select FROM patch.LogEntry pe
-             OUTER LEFT JOIN LogEntry me
-             ON pe.entityId1 = me.entityId1 AND pe.entityId2 = me.entityId2 AND pe.tableName = me.tableName
-             WHERE pe.tableName = '$table' AND pe.type = 'UPSERT' AND 
-             (me.lastUpdated IS NULL OR pe.lastUpdated > me.lastUpdated)
-            ) ON CONFLICT DO UPDATE SET $setValues;
+            SELECT $cols FROM patch.$table WHERE $idFields IN ${where("UPSERT")}
+            ON CONFLICT DO UPDATE SET $setValues;
             """.trimIndent())
 
         // Let's fix all foreign key violations. Those will result if target object has been deleted here,
@@ -203,11 +209,8 @@ object DatabasePatching {
         )
 
         // Delete all marked deletions from patch LogEntry table
-        // TODO CHECK DATES TOO BECAUSE BookmarkToLabel CAN HAVE SAME PRIMARY KEY AGAIN
         execSQL("""
-            DELETE FROM $table 
-            WHERE $idFields IN 
-            (SELECT $select FROM patch.LogEntry pe WHERE tableName = '$table' AND type = 'DELETE')
+            DELETE FROM $table WHERE $idFields IN ${where("DELETE")}
             """.trimIndent()
         )
 

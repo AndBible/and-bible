@@ -63,6 +63,13 @@ class DatabasePatchingTests {
         return dbDef
     }
 
+    private fun sync(dbDef1: DatabaseDefinition<*>, dbDef2: DatabaseDefinition<*>) {
+        val patch1 = DatabasePatching.createPatchForDatabase(dbDef1)
+        val patch2 = DatabasePatching.createPatchForDatabase(dbDef2)
+        if(patch2 != null) DatabasePatching.applyPatchesForDatabase(dbDef1, patch2)
+        if(patch1 != null) DatabasePatching.applyPatchesForDatabase(dbDef2, patch1)
+    }
+
     @Test
     fun testSimplePatchFileWritingAndReading() {
         val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
@@ -226,5 +233,58 @@ class DatabasePatchingTests {
         DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
         val bls1 = dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id)
         assertThat(bls1.size, equalTo(0))
+    }
+
+    @Test
+    fun testBookmarkToLabelIsAddedAgain() {
+        val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
+        val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
+        val label1 = BookmarkEntities.Label()
+        val bookmark1 = BookmarkEntities.Bookmark()
+        val bookmark2 = BookmarkEntities.Bookmark()
+        val bl1 = BookmarkEntities.BookmarkToLabel(bookmark1, label1)
+        dbDef1.localDb.bookmarkDao().insert(bookmark1)
+        dbDef2.localDb.bookmarkDao().insert(bookmark2)
+        dbDef1.localDb.bookmarkDao().insert(label1)
+        dbDef1.localDb.bookmarkDao().insert(bl1)
+        sync(dbDef1, dbDef2)
+        assertThat(dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(1))
+        assertThat(dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(1))
+
+        dbDef2.localDb.bookmarkDao().delete(bl1)
+        sync(dbDef1, dbDef2)
+        assertThat(dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(0))
+        assertThat(dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(0))
+
+        dbDef1.localDb.bookmarkDao().insert(bl1)
+        sync(dbDef1, dbDef2)
+        assertThat(dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(1))
+        assertThat(dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(1))
+    }
+
+    @Test
+    fun testBookmarkToLabelIsAddedAgain1() {
+        val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
+        val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
+        val label1 = BookmarkEntities.Label()
+        val bookmark1 = BookmarkEntities.Bookmark()
+        val bookmark2 = BookmarkEntities.Bookmark()
+        val bl1 = BookmarkEntities.BookmarkToLabel(bookmark1, label1)
+        dbDef1.localDb.bookmarkDao().insert(bookmark1)
+        dbDef2.localDb.bookmarkDao().insert(bookmark2)
+        dbDef1.localDb.bookmarkDao().insert(label1)
+        dbDef1.localDb.bookmarkDao().insert(bl1)
+        sync(dbDef1, dbDef2)
+        assertThat(dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(1))
+        assertThat(dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(1))
+
+        dbDef2.localDb.bookmarkDao().delete(bl1)
+        dbDef1.localDb.bookmarkDao().delete(bl1)
+        // but here it is inserted back!
+        dbDef1.localDb.bookmarkDao().insert(bl1)
+
+        sync(dbDef1, dbDef2)
+        assertThat(dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(1))
+        assertThat(dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id).size, equalTo(1))
     }
 }
