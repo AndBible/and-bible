@@ -58,7 +58,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.withLock
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
 import net.bible.android.activity.databinding.FrozenBinding
@@ -83,6 +82,7 @@ import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
@@ -104,7 +104,6 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
-import net.bible.android.view.util.Hourglass
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.BuildVariant
@@ -114,6 +113,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.common.windowPinningVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.WorkspacesUpdatedEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
@@ -1272,12 +1272,37 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
         else {
             lifecycleScope.launch {
-                if(CommonUtils.isGoogleDriveSyncEnabled) {
-                    GoogleDrive.synchronizeWithHourGlass(this@MainBibleActivity)
-                    currentWorkspaceId = currentWorkspaceId
-                }
                 updateActions()
+                if(CommonUtils.isGoogleDriveSyncEnabled) {
+                    GoogleDrive.synchronize()
+                }
             }
+        }
+    }
+
+    fun onEventMainThread(event: WorkspacesUpdatedEvent) {
+        val entries = event.updated
+        val workspaceDeleted = entries.any {
+            it.tableName == "Workspace" &&
+            it.type == LogEntryTypes.DELETE &&
+            it.entityId1 == currentWorkspaceId
+        }
+        if(workspaceDeleted) {
+            nextWorkspace()
+        }
+
+        val windowsChanged = entries.any { entry ->
+            entry.tableName in listOf("Window", "PageManager") &&
+            entry.entityId1 in windowRepository.visibleWindows.map { it.id }
+        }
+
+        val workspaceChanged = entries.any {
+            it.tableName == "Workspace" &&
+            it.type == LogEntryTypes.UPSERT &&
+            it.entityId1 == currentWorkspaceId
+        }
+        if(windowsChanged || workspaceChanged) {
+            currentWorkspaceId = currentWorkspaceId
         }
     }
 

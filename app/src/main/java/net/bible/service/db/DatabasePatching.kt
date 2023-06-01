@@ -20,16 +20,11 @@ package net.bible.service.db
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.activity.R
-import net.bible.android.database.BookmarkDatabase
-import net.bible.android.database.ReadingPlanDatabase
+import net.bible.android.database.LogEntry
 import net.bible.android.database.SyncableRoomDatabase
-import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.forEach
 import net.bible.service.common.getFirst
 import net.bible.service.googledrive.LAST_PATCH_WRITTEN_KEY
 import java.io.File
@@ -77,11 +72,19 @@ class DatabaseDefinition<T: SyncableRoomDatabase>(
     private val _resetLocalDb: () -> T,
     val localDbFile: File,
     val category: DatabaseCategory,
+    val _reactToUpdates: (entries: List<LogEntry>) -> Unit,
     val deviceId: String = CommonUtils.deviceIdentifier
 ) {
     fun resetLocalDb() {
         localDb = _resetLocalDb()
     }
+
+    fun reactToUpdates(lastSynchronized: Long) {
+        val newEntries = dao.newLogEntries(lastSynchronized)
+        if(newEntries.isNotEmpty())
+        _reactToUpdates(newEntries)
+    }
+
     val categoryName get() = category.name.lowercase()
     val dao get() = localDb.syncDao()
     val writableDb get() = localDb.openHelper.writableDatabase

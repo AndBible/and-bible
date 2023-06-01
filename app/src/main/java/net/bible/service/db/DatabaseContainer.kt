@@ -23,7 +23,12 @@ import androidx.room.RoomDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
+import net.bible.android.control.bookmark.BookmarksDeletedEvent
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
+import net.bible.android.database.LogEntry
+import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.OldMonolithicAppDatabase
 import net.bible.android.database.REPO_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
@@ -290,12 +295,22 @@ class DatabaseContainer {
                     { n -> getBookmarkDb(n) }, { resetBookmarkDb() },
                     application.getDatabasePath(BookmarkDatabase.dbFileName),
                     DatabaseCategory.BOOKMARKS,
+                    { entries ->
+                        val bookmarksDeletes = entries.filter { it.type == LogEntryTypes.DELETE && it.tableName == "Bookmark" }.map { it.entityId1 }
+                        ABEventBus.post(BookmarksDeletedEvent(bookmarksDeletes))
+
+                        val bookmarkUpserts = entries.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Bookmark" }.map { it.entityId1 }
+                        ABEventBus.post(BookmarksUpdatedEvent(bookmarkUpserts))
+                    },
                 ) },
                 { DatabaseDefinition(
                     workspaceDb,
                     { n -> getWorkspaceDb(n) }, { resetWorkspaceDb() },
                     application.getDatabasePath(WorkspaceDatabase.dbFileName),
                     DatabaseCategory.WORKSPACES,
+                    {
+                        ABEventBus.post(WorkspacesUpdatedEvent(it))
+                    },
                 ) },
                 { DatabaseDefinition(
                     readingPlanDb,
@@ -303,9 +318,13 @@ class DatabaseContainer {
                     { resetReadingPlanDb() },
                     application.getDatabasePath(ReadingPlanDatabase.dbFileName),
                     DatabaseCategory.READINGPLANS,
+                    {},
                 )},
             )
         }
 
     }
 }
+
+class WorkspacesUpdatedEvent(val updated: List<LogEntry>)
+class BookmarksUpdatedEvent(val updated: List<String>)

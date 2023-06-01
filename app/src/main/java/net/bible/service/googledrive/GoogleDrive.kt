@@ -80,7 +80,7 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
 const val SYNC_FOLDER_FILE_ID_KEY = "syncId"
 const val SYNC_DEVICE_FOLDER_FILE_ID_KEY = "deviceFolderId"
 const val LAST_PATCH_WRITTEN_KEY = "lastPatchWritten"
-
+const val LAST_SYNCHRONIZED_KEY = "lastSynchronized"
 const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 
 fun DriveList.collectAll(): List<DriveFile> {
@@ -316,7 +316,7 @@ object GoogleDrive {
     private fun patchNumber(name: String): Long = patchFilePattern.find(name)!!.groups[1]!!.value.toLong()
 
     private suspend fun downloadAndApplyNewPatches(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
-        val lastSynchronized = dbDef.dao.getLong("lastSynchronized")?: 0
+        val lastSynchronized = dbDef.dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
         val lastSynchronizedString = DateTime(lastSynchronized).toStringRfc3339()
         val syncFolder = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         val deviceSyncFolder = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
@@ -324,7 +324,7 @@ object GoogleDrive {
         Log.i(TAG, "Downloading new patches ${dbDef.categoryName}, last Synced: $lastSynchronizedString. ")
         Log.i(TAG, "This device ${CommonUtils.deviceIdentifier} (id: ${deviceSyncFolder})")
 
-        dbDef.dao.setConfig("lastSynchronized", System.currentTimeMillis())
+        dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, System.currentTimeMillis())
 
         val folderResult = service.files().list()
             .setSpaces("appDataFolder")
@@ -337,7 +337,7 @@ object GoogleDrive {
         }
         Log.i(TAG, "folders \n${folderResult.joinToString("\n") { "${it.id} ${it.name}" }}")
         val folderFilter = folderResult.map { it.id }.joinToString(" or ") { "'$it' in parents" }
-        val filterPatchFiles = "($folderFilter) and mimeType='$GZIP_MIMETYPE'"
+        val filterPatchFiles = "($folderFilter) and mimeType='$GZIP_MIMETYPE' and createdTime > '$lastSynchronizedString'"
         Log.i(TAG, "filterPatchFiles: $filterPatchFiles")
 
         val patchResults = service.files().list()
@@ -391,6 +391,8 @@ object GoogleDrive {
 
         DatabasePatching.applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
         downloadedFiles.forEach { it.delete() }
+
+        dbDef.reactToUpdates(lastSynchronized)
 
         dbDef.dao.addStatuses(syncStatuses)
     }

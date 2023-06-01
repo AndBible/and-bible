@@ -79,6 +79,9 @@ interface SyncDao {
     @Query("SELECT COUNT(*) FROM LogEntry WHERE sourceDevice=:deviceId AND lastUpdated > :lastPatchWritten")
     fun countNewLogEntries(lastPatchWritten: Long, deviceId: String): Long
 
+    @Query("SELECT * FROM LogEntry WHERE lastUpdated > :lastSynchronized")
+    fun newLogEntries(lastSynchronized: Long): List<LogEntry>
+
     @Query("SELECT * FROM LogEntry ORDER BY lastUpdated, tableName, type")
     fun allLogEntries(): List<LogEntry>
 

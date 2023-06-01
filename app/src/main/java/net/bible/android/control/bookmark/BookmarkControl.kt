@@ -34,6 +34,7 @@ import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
+import net.bible.service.db.BookmarksUpdatedEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -71,6 +72,9 @@ open class BookmarkControl @Inject constructor(
     val windowControl: WindowControl,
     resourceProvider: ResourceProvider,
 ) {
+    init {
+        ABEventBus.register(this)
+    }
     // Dummy labels for all / unlabelled
     private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
 
@@ -240,6 +244,14 @@ open class BookmarkControl @Inject constructor(
         addLabels(bookmark)
         addText(bookmark)
         ABEventBus.post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
+    }
+
+    fun onEvent(e: BookmarksUpdatedEvent) {
+        for(b in dao.bookmarksByIds(e.updated)) {
+            addLabels(b)
+            addText(b)
+            ABEventBus.post(BookmarkAddedOrUpdatedEvent(b))
+        }
     }
 
     fun deleteLabels(toList: List<String>) {
