@@ -60,6 +60,7 @@ class DatabasePatchingTests {
             },
             dbFile1,
             DatabaseCategory.BOOKMARKS,
+            {}, 
             deviceId = UUID.randomUUID().toString(),
         )
         DatabasePatching.createTriggers(dbDef)
