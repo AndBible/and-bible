@@ -101,4 +101,56 @@ class DatabasePatchingTests {
         assertThat(DatabasePatching.createPatchForDatabase(dbDef1), equalTo(null))
         assertThat(DatabasePatching.createPatchForDatabase(dbDef2), equalTo(null))
     }
+
+    @Test
+    fun testBasicDeletion() {
+        val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
+        val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
+
+        val label1 = BookmarkEntities.Label(name = "label 1")
+        dbDef1.localDb.bookmarkDao().insert(label1)
+        dbDef1.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
+
+        val patchFile1 = DatabasePatching.createPatchForDatabase(dbDef1)!!
+        DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1)
+
+        dbDef2.localDb.bookmarkDao().delete(label1)
+        val patchFile2 = DatabasePatching.createPatchForDatabase(dbDef2)!!
+
+        DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
+
+        assertThat(dbDef1.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(1))
+        assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(1))
+
+        assertThat(DatabasePatching.createPatchForDatabase(dbDef1), equalTo(null))
+        assertThat(DatabasePatching.createPatchForDatabase(dbDef2), equalTo(null))
+    }
+
+    @Test
+    fun testBasicUpdate() {
+        val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
+        val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
+
+        val label1 = BookmarkEntities.Label(name = "label 1")
+        dbDef1.localDb.bookmarkDao().insert(label1)
+        dbDef1.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
+
+        val patchFile1 = DatabasePatching.createPatchForDatabase(dbDef1)!!
+        DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1)
+
+        val label1mod = label1.copy()
+        label1mod.name = "label 1 mod"
+        dbDef2.localDb.bookmarkDao().update(label1mod)
+        val patchFile2 = DatabasePatching.createPatchForDatabase(dbDef2)!!
+
+        DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
+
+        assertThat(dbDef1.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
+        assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
+
+        assertThat(dbDef1.localDb.bookmarkDao().labelById(label1.id)?.name, equalTo("label 1 mod"));
+
+        assertThat(DatabasePatching.createPatchForDatabase(dbDef1), equalTo(null))
+        assertThat(DatabasePatching.createPatchForDatabase(dbDef2), equalTo(null))
+    }
 }
