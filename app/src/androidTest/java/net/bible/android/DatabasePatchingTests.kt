@@ -153,4 +153,39 @@ class DatabasePatchingTests {
         assertThat(DatabasePatching.createPatchForDatabase(dbDef1), equalTo(null))
         assertThat(DatabasePatching.createPatchForDatabase(dbDef2), equalTo(null))
     }
+
+    @Test
+    fun testSimultaneousUpdate() {
+        val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
+        val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
+
+        val label1 = BookmarkEntities.Label(name = "label 1")
+        dbDef1.localDb.bookmarkDao().insert(label1)
+        dbDef1.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
+
+        val patchFile1 = DatabasePatching.createPatchForDatabase(dbDef1)!!
+        DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1)
+
+        val label1mod1 = label1.copy()
+        val label1mod2 = label1.copy()
+        label1mod1.name = "label 1 mod 1"
+        label1mod2.name = "label 1 mod 2"
+        dbDef2.localDb.bookmarkDao().update(label1mod1)
+        dbDef1.localDb.bookmarkDao().update(label1mod2)
+
+        val patchFile2 = DatabasePatching.createPatchForDatabase(dbDef2)!!
+        val patchFile1b = DatabasePatching.createPatchForDatabase(dbDef1)!!
+
+        DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
+        DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1b)
+
+        assertThat(dbDef1.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
+        assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
+
+        assertThat(dbDef1.localDb.bookmarkDao().labelById(label1.id)?.name, equalTo("label 1 mod 2"));
+        assertThat(dbDef2.localDb.bookmarkDao().labelById(label1.id)?.name, equalTo("label 1 mod 2"));
+
+        assertThat(DatabasePatching.createPatchForDatabase(dbDef1), equalTo(null))
+        assertThat(DatabasePatching.createPatchForDatabase(dbDef2), equalTo(null))
+    }
 }
