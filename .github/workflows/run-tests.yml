@@ -63,11 +63,21 @@ jobs:
         mkdir -p $HOME/.sword
         unzip -o -d $HOME/.sword ./testmods.zip
 
+    - name: Run instrumentation tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 31
+        arch: x86_64
+        disable-animations: true
+        disk-size: 1500M
+        heap-size: 512M
+        script: ./gradlew --console plain connectedAndroidTest
+
 #    - name: Accept licenses
 #      run: /usr/local/lib/android/sdk/sdkmanager --licenses
 
-    - name: Run instrumentation tests
-      run: ./gradlew --console plain emulatorstandardGooglePlayDebugAndroidTest
+#    - name: Run instrumentation tests
+#      run: ./gradlew --console plain emulatorstandardGooglePlayDebugAndroidTest
 
     - name: Build with Gradle and run unit tests
       run: ./gradlew --console plain testStandardGoogleplayRelease
