@@ -71,7 +71,7 @@ jobs:
         disable-animations: true
         disk-size: 1500M
         heap-size: 512M
-        script: ./gradlew --console plain connectedAndroidTest
+        script: ./gradlew --console plain emulatorStandardGoogleplayDebugAndroidTest
 
 #    - name: Accept licenses
 #      run: /usr/local/lib/android/sdk/sdkmanager --licenses

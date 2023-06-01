@@ -30,6 +30,7 @@ import net.bible.service.db.DatabaseCategory
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseDefinition
 import net.bible.service.db.DatabasePatching
+import org.crosswire.jsword.versification.system.Versifications
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Before
 import org.junit.Test
@@ -187,5 +188,22 @@ class DatabasePatchingTests {
 
         assertThat(DatabasePatching.createPatchForDatabase(dbDef1), equalTo(null))
         assertThat(DatabasePatching.createPatchForDatabase(dbDef2), equalTo(null))
+    }
+
+    @Test
+    fun testBookmarkToLabelUpdates() {
+        val dbDef1 = getDbDef(File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir))
+        val dbDef2 = getDbDef(File.createTempFile("bookmarks2-", ".sqlite3", CommonUtils.tmpDir))
+        val label1 = BookmarkEntities.Label()
+        val bookmark1 = BookmarkEntities.Bookmark()
+        val bookmark2 = BookmarkEntities.Bookmark()
+        val bl1 = BookmarkEntities.BookmarkToLabel(bookmark1, label1)
+        dbDef1.localDb.bookmarkDao().insert(bookmark1)
+        dbDef2.localDb.bookmarkDao().insert(bookmark2)
+        dbDef1.localDb.bookmarkDao().insert(label1)
+        dbDef1.localDb.bookmarkDao().insert(bl1)
+
+        val patchFile1 = DatabasePatching.createPatchForDatabase(dbDef1)!!
+        DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1)
     }
 }

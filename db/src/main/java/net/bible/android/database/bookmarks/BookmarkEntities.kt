@@ -135,22 +135,22 @@ class BookmarkEntities {
         ): VerseRangeUser {
 
         constructor(
-            kjvOrdinalStart: Int,
-            kjvOrdinalEnd: Int,
-            ordinalStart: Int,
-            ordinalEnd: Int,
-            v11n: Versification,
-            playbackSettings: PlaybackSettings?,
-            id: String,
-            createdAt: Date,
-            book: AbstractPassageBook?,
-            startOffset: Int?,
-            endOffset: Int?,
-            primaryLabelId: String?,
-            notes: String?,
-            lastUpdatedOn: Date,
-            wholeVerse: Boolean,
-            type: BookmarkType?,
+            kjvOrdinalStart: Int = 0,
+            kjvOrdinalEnd: Int = 0,
+            ordinalStart: Int = 0,
+            ordinalEnd: Int = 0,
+            v11n: Versification = KJVA,
+            playbackSettings: PlaybackSettings? = null,
+            id: String = UUID.randomUUID().toString(),
+            createdAt: Date = Date(System.currentTimeMillis()),
+            book: AbstractPassageBook? = null,
+            startOffset: Int? = null,
+            endOffset: Int? = null,
+            primaryLabelId: String? = null,
+            notes: String? = null,
+            lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+            wholeVerse: Boolean = true,
+            type: BookmarkType? = null,
         ): this(
             kjvOrdinalStart = kjvOrdinalStart,
             kjvOrdinalEnd = kjvOrdinalEnd,
@@ -178,22 +178,6 @@ class BookmarkEntities {
             ordinalEnd = verseRange.end.ordinal,
             v11n = verseRange.versification,
             playbackSettings = null,
-            book = book,
-            startOffset = textRange?.start,
-            endOffset = textRange?.end,
-            wholeVerse = wholeVerse,
-            new = true,
-        )
-
-        constructor(id: String, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?, playbackSettings: PlaybackSettings?): this(
-            kjvOrdinalStart = verseRange.toV11n(KJVA).start.ordinal,
-            kjvOrdinalEnd = verseRange.toV11n(KJVA).end.ordinal,
-            ordinalStart = verseRange.start.ordinal,
-            ordinalEnd = verseRange.end.ordinal,
-            v11n = verseRange.versification,
-            playbackSettings = playbackSettings,
-            id = id,
-            createdAt = createdAt,
             book = book,
             startOffset = textRange?.start,
             endOffset = textRange?.end,
@@ -279,7 +263,9 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
         @ColumnInfo(defaultValue = "0") var indentLevel: Int = 0,
         @ColumnInfo(defaultValue = "0") var expandContent: Boolean = true,
-    )
+    ) {
+        constructor(bookmark: Bookmark, label: Label): this(bookmark.id, label.id)
+    }
 
     @Entity(
         foreignKeys = [
