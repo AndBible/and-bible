@@ -72,6 +72,12 @@ class IdType(
     }
     fun isEmpty() = uuid == null
     fun isNotEmpty() = uuid != null
+
+    override fun equals(other: Any?): Boolean {
+        return if(other is IdType) {
+            uuid == other.uuid
+        } else super.equals(other)
+    }
     companion object {
         fun empty() = IdType(null as String?)
         fun random() = IdType()
