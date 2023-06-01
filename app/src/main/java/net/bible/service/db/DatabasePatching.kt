@@ -195,6 +195,13 @@ object DatabasePatching {
             ) ON CONFLICT DO UPDATE SET $setValues;
             """.trimIndent())
 
+        // Let's fix all foreign key violations. Those will result if target object has been deleted here,
+        // but patch still adds references
+        execSQL("""
+            DELETE FROM $table WHERE rowId in (SELECT rowid FROM pragma_foreign_key_check('$table'));
+            """.trimIndent()
+        )
+
         // Delete all marked deletions from patch LogEntry table
         // TODO CHECK DATES TOO BECAUSE BookmarkToLabel CAN HAVE SAME PRIMARY KEY AGAIN
         execSQL("""
@@ -258,12 +265,14 @@ object DatabasePatching {
             gzippedPatchFile.delete()
             dbDef.localDb.openHelper.writableDatabase.run {
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+                execSQL("PRAGMA foreign_keys=OFF;")
                 beginTransaction()
                 for (tableDef in dbDef.tableDefinitions) {
                     readPatchData(this, tableDef.tableName, tableDef.idField1, tableDef.idField2)
                 }
                 setTransactionSuccessful()
                 endTransaction()
+                execSQL("PRAGMA foreign_keys=ON;")
                 execSQL("DETACH DATABASE patch")
                 if(CommonUtils.isDebugMode) {
                     checkForeignKeys(this)

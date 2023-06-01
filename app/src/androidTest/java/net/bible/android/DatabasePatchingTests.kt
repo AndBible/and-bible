@@ -222,17 +222,9 @@ class DatabasePatchingTests {
         val bls2 = dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id)
         assertThat(bls2.size, equalTo(0))
 
-        /**
-         * Yritetän laittaa BookmarkToLabelia sellaiselle labelille jota ei ole olemassa
-         * Foreign Key Check feilaa siis.
-         *
-         * Kun Label poistetaan, tapahtuu cascade delete BookmarkToLabelille.
-         * Siitä pitäisi tulla oma rivinsä LogEntry-tauluun!
-         *
-         * Label-triggerin pitäisi osata poistaa myös BookmarkToLabelit!
-         */
-        //DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
-        //val bls1 = dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id)
-        //assertThat(bls1.size, equalTo(0))
+        // We try to add BookmarkToLabel to a label that does not exist any more.
+        DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
+        val bls1 = dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id)
+        assertThat(bls1.size, equalTo(0))
     }
 }
