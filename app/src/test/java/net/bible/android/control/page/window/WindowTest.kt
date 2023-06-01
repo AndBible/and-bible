@@ -26,6 +26,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.AbstractSpeakTests
@@ -81,7 +82,7 @@ class WindowTest {
         val pageManager = mockCurrentPageManagerProvider.get()
         var window = Window(
             WorkspaceEntities.Window(
-                workspaceId = "asdf",
+                workspaceId = IdType(),
                 isSynchronized = true,
                 isPinMode = false,
                 isLinksWindow = false,
