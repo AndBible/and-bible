@@ -81,8 +81,9 @@ class DatabaseDefinition<T: SyncableRoomDatabase>(
 
     fun reactToUpdates(lastSynchronized: Long) {
         val newEntries = dao.newLogEntries(lastSynchronized)
-        if(newEntries.isNotEmpty())
-        _reactToUpdates(newEntries)
+        if(newEntries.isNotEmpty()) {
+            _reactToUpdates(newEntries)
+        }
     }
 
     val categoryName get() = category.name.lowercase()

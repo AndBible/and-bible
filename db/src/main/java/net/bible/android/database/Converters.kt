@@ -108,6 +108,12 @@ class Converters {
     @TypeConverter
     fun blobToIdType(value: ByteArray?): IdType? {
         if(value==null) return null
+        if(value.size == 1) {
+            return IdType.empty()
+        }
+        if(value.size != 16) {
+            throw RuntimeException("Blob size != 16 but ${value.size}")
+        }
         var bits1 = 0L
         for (i in 0 until 8) {
             bits1 = bits1 shl java.lang.Byte.SIZE
