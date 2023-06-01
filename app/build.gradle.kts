@@ -249,8 +249,8 @@ android {
             devices {
                 maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("emulator").apply {
                     device = "Pixel 3"
-                    apiLevel = 31
-                    systemImageSource = "google"
+                    apiLevel = 30
+                    systemImageSource = "aosp"
                 }
             }
         }
@@ -395,6 +395,13 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     // Android UI testing
+
+
+    //androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
+    //androidTestImplementation("org.hamcrest:hamcrest-library:2.2")
+    //androidTestImplementation("org.mockito:mockito-core:3.12.4")
+    //androidTestImplementation("junit:junit:4.13.2")
+
 
     // Core library
     androidTestImplementation("androidx.test:core:1.5.0")

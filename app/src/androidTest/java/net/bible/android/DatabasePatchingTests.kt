@@ -18,6 +18,7 @@
 
 package net.bible.android
 
+import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -25,6 +26,8 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.CommonUtils
 
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.DatabasePatching
+import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Test
 import java.io.File
 
@@ -37,11 +40,10 @@ class DatabasePatchingTests {
         DatabaseContainer.instance
         val bmarkFile = File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir)
         val bmarkDb = DatabaseContainer.instance.getBookmarkDb(bmarkFile.absolutePath)
+        DatabasePatching.createBookmarkTriggers(bmarkDb.openHelper.writableDatabase)
 
         bmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 1"))
         bmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
-
-
-
+        assertThat(bmarkDb.syncDao().allLogEntries().size, equalTo(2))
     }
 }

@@ -63,6 +63,9 @@ jobs:
         mkdir -p $HOME/.sword
         unzip -o -d $HOME/.sword ./testmods.zip
 
+#    - name: Accept licenses
+#      run: /usr/local/lib/android/sdk/sdkmanager --licenses
+
     - name: Run instrumentation tests
       run: ./gradlew --console plain emulatorstandardGooglePlayDebugAndroidTest
 
