@@ -102,9 +102,9 @@ interface BookmarkDao {
             JOIN Label ON BookmarkToLabel.labelId = Label.id
             WHERE Label.id = :labelId AND Bookmark.kjvOrdinalStart = :startOrdinal
         """)
-    fun bookmarksForVerseStartWithLabel(labelId: String, startOrdinal: Int): List<Bookmark>
+    fun bookmarksForVerseStartWithLabel(labelId: IdType, startOrdinal: Int): List<Bookmark>
     fun bookmarksForVerseStartWithLabel(verse: Verse, label: Label): List<Bookmark> =
-        bookmarksForVerseStartWithLabel(label.id.toString(), verse.toV11n(KJVA).ordinal)
+        bookmarksForVerseStartWithLabel(label.id, verse.toV11n(KJVA).ordinal)
 
     @Insert fun insert(entity: Bookmark)
 
