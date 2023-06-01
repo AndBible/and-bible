@@ -1288,7 +1288,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             it.entityId1 == currentWorkspaceId
         }
         if(workspaceDeleted) {
-            nextWorkspace()
+            currentWorkspaceId = workspaces.first().id
         }
 
         val windowsChanged = entries.any { entry ->

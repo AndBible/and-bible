@@ -401,8 +401,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             }
             CommonUtils.initializeApp()
             if(CommonUtils.isGoogleDriveSyncEnabled) {
-                GoogleDrive.signIn(this@StartupActivity)
                 spinnerBinding.progressText.text = getString(R.string.synchronizing)
+                GoogleDrive.signIn(this@StartupActivity)
                 GoogleDrive.synchronize()
             }
             startActivity(handlerIntent)
