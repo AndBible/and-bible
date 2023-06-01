@@ -24,8 +24,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseCategory
 
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.DatabaseDefinition
 import net.bible.service.db.DatabasePatching
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Test
@@ -39,11 +41,23 @@ class DatabasePatchingTests {
         DatabaseContainer.ready = true
         DatabaseContainer.instance
         val bmarkFile = File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir)
-        val bmarkDb = DatabaseContainer.instance.getBookmarkDb(bmarkFile.absolutePath)
+        var bmarkDb = DatabaseContainer.instance.getBookmarkDb(bmarkFile.absolutePath)
         DatabasePatching.createBookmarkTriggers(bmarkDb.openHelper.writableDatabase)
 
         bmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 1"))
         bmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
         assertThat(bmarkDb.syncDao().allLogEntries().size, equalTo(2))
+        val dbDef = DatabaseDefinition(
+            bmarkDb,
+            {DatabaseContainer.instance.getBookmarkDb(it)},
+            {
+                bmarkDb.close()
+                bmarkDb = DatabaseContainer.instance.getBookmarkDb(bmarkFile.absolutePath)
+                bmarkDb
+            },
+            bmarkFile,
+            DatabaseCategory.BOOKMARKS,
+        )
+        val patchFile = DatabasePatching.createPatchForDatabase(dbDef)
     }
 }

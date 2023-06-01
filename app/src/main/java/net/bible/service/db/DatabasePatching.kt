@@ -42,6 +42,25 @@ enum class DatabaseCategory {
         BOOKMARKS -> R.string.bookmarks_contents
         WORKSPACES -> R.string.workspaces_contents
     }
+
+    val tables get() = when(this) {
+        BOOKMARKS -> listOf(
+            TableDef("Label"),
+            TableDef("Bookmark"),
+            TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
+            TableDef("StudyPadTextEntry"),
+        )
+        WORKSPACES -> listOf(
+            TableDef("Workspace"),
+            TableDef("Window"),
+            TableDef("PageManager", "windowId"),
+        )
+        READINGPLANS -> listOf(
+            TableDef("ReadingPlan"),
+            TableDef("ReadingPlanStatus"),
+        )
+    }
+
     companion object {
         val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS)
     }
@@ -51,17 +70,16 @@ class DatabaseDefinition<T: SyncableRoomDatabase>(
     var localDb: T,
     val dbFactory: (filename: String) -> T,
     private val _resetLocalDb: () -> T,
-    private val localDbFileName: String,
-    val tableDefinitions: List<TableDef>,
+    val localDbFile: File,
+    val category: DatabaseCategory,
 ) {
     fun resetLocalDb() {
         localDb = _resetLocalDb()
     }
-    val categoryName get() = localDbFileName.split(".").first()
-    val category get() = DatabaseCategory.valueOf(categoryName.uppercase())
-    val localDbFile: File get() = application.getDatabasePath(localDbFileName)
+    val categoryName get() = category.name.lowercase()
     val dao get() = localDb.syncDao()
     val writableDb get() = localDb.openHelper.writableDatabase
+    val tableDefinitions get() = category.tables
 }
 object DatabasePatching {
     private fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idField1: String = "id", idField2: String? = null) = db.run {
@@ -296,26 +314,24 @@ object DatabasePatching {
     }
 
     val dbFactories: List<() -> DatabaseDefinition<*>> get() = DatabaseContainer.instance.run { listOf(
-        {
-            DatabaseDefinition(bookmarkDb, { n -> getBookmarkDb(n)}, {resetBookmarkDb()}, BookmarkDatabase.dbFileName, listOf(
-                TableDef("Label"),
-                TableDef("Bookmark"),
-                TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
-                TableDef("StudyPadTextEntry"),
-            ))
-        },
-        {
-            DatabaseDefinition(workspaceDb, { n -> getWorkspaceDb(n)}, {resetWorkspaceDb()}, WorkspaceDatabase.dbFileName, listOf(
-                TableDef("Workspace"),
-                TableDef("Window"),
-                TableDef("PageManager", "windowId"),
-            ))
-        },
-        {
-            DatabaseDefinition(readingPlanDb, { n -> getReadingPlanDb(n)}, {resetReadingPlanDb()}, ReadingPlanDatabase.dbFileName, listOf(
-                TableDef("ReadingPlan"),
-                TableDef("ReadingPlanStatus"),
-            ))
-        },
+        { DatabaseDefinition(
+            bookmarkDb,
+            { n -> getBookmarkDb(n)}, {resetBookmarkDb()},
+            application.getDatabasePath(BookmarkDatabase.dbFileName),
+            DatabaseCategory.BOOKMARKS,
+        ) },
+        { DatabaseDefinition(
+            workspaceDb,
+            { n -> getWorkspaceDb(n)}, {resetWorkspaceDb()},
+            application.getDatabasePath(WorkspaceDatabase.dbFileName),
+            DatabaseCategory.WORKSPACES,
+        ) },
+        { DatabaseDefinition(
+            readingPlanDb,
+            { n -> getReadingPlanDb(n)},
+            {resetReadingPlanDb()},
+            application.getDatabasePath(ReadingPlanDatabase.dbFileName),
+            DatabaseCategory.READINGPLANS,
+        ) },
     ) }
 }
