@@ -64,7 +64,7 @@ jobs:
         unzip -o -d $HOME/.sword ./testmods.zip
 
     - name: Run instrumentation tests
-      run: ./gradlew --console plain pixel3api31standardGooglePlayDebugAndroidTest
+      run: ./gradlew --console plain emulatorstandardGooglePlayDebugAndroidTest
 
     - name: Build with Gradle and run unit tests
       run: ./gradlew --console plain testStandardGoogleplayRelease

@@ -37,8 +37,10 @@ class DatabasePatchingTests {
         DatabaseContainer.instance
         val bmarkFile = File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir)
         val bmarkDb = DatabaseContainer.instance.getBookmarkDb(bmarkFile.absolutePath)
+
         bmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 1"))
         bmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
+
 
 
     }

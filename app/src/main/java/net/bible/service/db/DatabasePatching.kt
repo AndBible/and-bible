@@ -64,6 +64,86 @@ class DatabaseDefinition<T: SyncableRoomDatabase>(
     val writableDb get() = localDb.openHelper.writableDatabase
 }
 object DatabasePatching {
+    private fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idField1: String = "id", idField2: String? = null) = db.run {
+        fun where(prefix: String): String =
+            if(idField2 == null) {
+                "entityId1 = $prefix.$idField1"
+            } else {
+                "entityId1 = $prefix.$idField1 AND entityId2 = $prefix.$idField2"
+            }
+        fun insert(prefix: String): String =
+            if(idField2 == null) {
+                "$prefix.$idField1,''"
+            } else {
+                "$prefix.$idField1,$prefix.$idField2"
+            }
+        val timeStampFunc = "CAST(UNIXEPOCH('subsec') * 1000 AS INTEGER)"
+
+        execSQL("""
+        CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName 
+        BEGIN DELETE FROM LogEntry WHERE ${where("NEW")} AND tableName = '$tableName';
+        INSERT INTO LogEntry VALUES ('$tableName', ${insert("NEW")}, 'UPSERT', $timeStampFunc); 
+        END;
+        """.trimIndent()
+        )
+        execSQL("""
+        CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName 
+        BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
+        INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'UPSERT', $timeStampFunc); 
+        END;
+        """.trimIndent()
+        )
+        execSQL("""
+        CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName 
+        BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
+        INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', $timeStampFunc); 
+        END;
+        """.trimIndent()
+        )
+    }
+
+    private fun dropTriggersForTable(db: SupportSQLiteDatabase, tableName: String) = db.run {
+        execSQL("DROP TRIGGER IF EXISTS ${tableName}_inserts")
+        execSQL("DROP TRIGGER IF EXISTS ${tableName}_updates")
+        execSQL("DROP TRIGGER IF EXISTS ${tableName}_deletes")
+    }
+
+    fun createBookmarkTriggers(db: SupportSQLiteDatabase) {
+        createTriggersForTable(db, "Bookmark")
+        createTriggersForTable(db, "Label")
+        createTriggersForTable(db, "StudyPadTextEntry")
+        createTriggersForTable(db, "BookmarkToLabel", "bookmarkId", "labelId")
+    }
+
+    fun createWorkspaceTriggers(db: SupportSQLiteDatabase) {
+        createTriggersForTable(db, "Window")
+        createTriggersForTable(db, "Workspace")
+        createTriggersForTable(db, "PageManager", "windowId")
+    }
+
+    fun createReadingPlanTriggers(db: SupportSQLiteDatabase) {
+        createTriggersForTable(db, "ReadingPlan")
+        createTriggersForTable(db, "ReadingPlanStatus")
+    }
+
+    fun dropBookmarkTriggers(db: SupportSQLiteDatabase) {
+        dropTriggersForTable(db, "Bookmark")
+        dropTriggersForTable(db, "Label")
+        dropTriggersForTable(db, "StudyPadTextEntry")
+        dropTriggersForTable(db, "BookmarkToLabel")
+    }
+
+    fun dropWorkspaceTriggers(db: SupportSQLiteDatabase) {
+        dropTriggersForTable(db, "Window")
+        dropTriggersForTable(db, "Workspace")
+        dropTriggersForTable(db, "PageManager")
+    }
+
+    fun dropReadingPlansTriggers(db: SupportSQLiteDatabase) {
+        dropTriggersForTable(db, "ReadingPlan")
+        dropTriggersForTable(db, "ReadingPlanStatus")
+    }
+
     private fun writePatchData(db: SupportSQLiteDatabase, tableDef: TableDef, lastPatchWritten: Long) = db.run {
         val table = tableDef.tableName
         val idField1 = tableDef.idField1

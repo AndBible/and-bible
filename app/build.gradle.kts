@@ -249,7 +249,7 @@ android {
             devices {
                 maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("emulator").apply {
                     device = "Pixel 3"
-                    apiLevel = 33
+                    apiLevel = 31
                     systemImageSource = "google"
                 }
             }
