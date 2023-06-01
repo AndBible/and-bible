@@ -143,8 +143,10 @@ class DatabaseContainer {
     }
 
     init {
-        for(dbDefFac in getDatabaseDefinitions(this)) {
-            DatabasePatching.createTriggers(dbDefFac())
+        if(!application.isRunningTests) {
+            for (dbDefFac in getDatabaseDefinitions(this)) {
+                DatabasePatching.createTriggers(dbDefFac())
+            }
         }
     }
 
