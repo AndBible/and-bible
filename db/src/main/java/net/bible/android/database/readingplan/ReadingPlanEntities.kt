@@ -21,8 +21,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import net.bible.android.database.IdType
 import java.util.Date
-import java.util.UUID
 
 class ReadingPlanEntities {
 
@@ -34,7 +34,7 @@ class ReadingPlanEntities {
         val planCode: String,
         var planStartDate: Date,
         @ColumnInfo(defaultValue = "1") var planCurrentDay: Int = 1,
-        @PrimaryKey val id: String = UUID.randomUUID().toString()
+        @PrimaryKey val id: String = IdType.randomIdType().toString()
     )
 
     @Entity(indices = [Index(value = ["planCode", "planDay"], unique = true)])
@@ -42,6 +42,6 @@ class ReadingPlanEntities {
         val planCode: String,
         val planDay: Int,
         val readingStatus: String,
-        @PrimaryKey val id: String = UUID.randomUUID().toString()
+        @PrimaryKey val id: String = IdType.randomIdType().toString()
     )
 }

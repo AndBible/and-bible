@@ -97,6 +97,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.versification.toVerseRange
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
@@ -380,7 +381,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     val scope get() = mainBibleActivity.lifecycleScope
 
-    internal fun assignLabels(bookmarkId: String) = scope.launch(Dispatchers.IO) {
+    internal fun assignLabels(bookmarkId: IdType) = scope.launch(Dispatchers.IO) {
         val bookmark = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
         val intent = Intent(mainBibleActivity, ManageLabels::class.java)
@@ -876,7 +877,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val id = uri.getQueryParameter("id")
             val bookmarkId = uri.getQueryParameter("bookmarkId")
             if (id != null) {
-                linkControl.openStudyPad(id, bookmarkId)
+                linkControl.openStudyPad(IdType(id), IdType(bookmarkId))
             } else false
         }
         UriConstants.SCHEME_REFERENCE -> {

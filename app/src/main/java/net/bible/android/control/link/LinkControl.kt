@@ -28,6 +28,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
@@ -437,7 +438,7 @@ class LinkControl @Inject constructor(
         return true
     }
 
-    fun openStudyPad(labelId: String, bookmarkId: String?): Boolean {
+    fun openStudyPad(labelId: IdType, bookmarkId: IdType?): Boolean {
         val label = bookmarkControl.labelById(labelId) ?: return false
         val key = StudyPadKey(label, bookmarkId)
         showLink(FakeBookFactory.journalDocument, key)

@@ -42,6 +42,7 @@ import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.base.IntentHelper
@@ -142,17 +143,17 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun saveBookmarkNote(bookmarkId: String, note: String?) {
-        bookmarkControl.saveBookmarkNote(bookmarkId, if(note?.trim()?.isEmpty() == true) null else note)
+        bookmarkControl.saveBookmarkNote(IdType(bookmarkId), if(note?.trim()?.isEmpty() == true) null else note)
     }
 
     @JavascriptInterface
     fun removeBookmark(bookmarkId: String) {
-        bookmarkControl.deleteBookmarksById(listOf(bookmarkId))
+        bookmarkControl.deleteBookmarksById(listOf(IdType(bookmarkId)))
     }
 
     @JavascriptInterface
     fun assignLabels(bookmarkId: String) {
-        bibleView.assignLabels(bookmarkId)
+        bibleView.assignLabels(IdType(bookmarkId))
     }
 
     @JavascriptInterface
@@ -235,26 +236,26 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) {
         val entryOrderNumber: Int = when (entryType) {
-            "bookmark" -> bookmarkControl.getBookmarkToLabel(afterEntryId, labelId)!!.orderNumber
-            "journal" -> bookmarkControl.getStudyPadById(afterEntryId)!!.orderNumber
+            "bookmark" -> bookmarkControl.getBookmarkToLabel(IdType(afterEntryId), IdType(labelId))!!.orderNumber
+            "journal" -> bookmarkControl.getStudyPadById(IdType(afterEntryId))!!.orderNumber
             "none" -> -1
             else -> throw RuntimeException("Illegal entry type")
         }
-        bookmarkControl.createStudyPadEntry(labelId, entryOrderNumber)
+        bookmarkControl.createStudyPadEntry(IdType(labelId), entryOrderNumber)
     }
 
     @JavascriptInterface
-    fun deleteStudyPadEntry(studyPadId: String) = bookmarkControl.deleteStudyPadTextEntry(studyPadId)
+    fun deleteStudyPadEntry(studyPadId: String) = bookmarkControl.deleteStudyPadTextEntry(IdType(studyPadId))
 
     @JavascriptInterface
-    fun removeBookmarkLabel(bookmarkId: String, labelId: String) = bookmarkControl.removeBookmarkLabel(bookmarkId, labelId)
+    fun removeBookmarkLabel(bookmarkId: String, labelId: String) = bookmarkControl.removeBookmarkLabel(IdType(bookmarkId), IdType(labelId))
 
     @JavascriptInterface
     fun updateOrderNumber(labelId: String, data: String) {
         val deserialized: Map<String, List<List<String>>> = json.decodeFromString(serializer(), data)
-        val studyPadTextItems = deserialized["studyPadTextItems"]!!.map { bookmarkControl.getStudyPadById(it[0])!!.apply { orderNumber = it[1].toInt() } }
-        val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(it[0], labelId)!!.apply { orderNumber = it[1].toInt() } }
-        bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, studyPadTextItems)
+        val studyPadTextItems = deserialized["studyPadTextItems"]!!.map { bookmarkControl.getStudyPadById(IdType(it[0]))!!.apply { orderNumber = it[1].toInt() } }
+        val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(IdType(it[0]), IdType(labelId))!!.apply { orderNumber = it[1].toInt() } }
+        bookmarkControl.updateOrderNumbers(IdType(labelId), bookmarksToLabels, studyPadTextItems)
     }
 
     @JavascriptInterface
@@ -284,7 +285,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun shareBookmarkVerse(bookmarkId: String) {
-        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+        val bookmark = bookmarkControl.bookmarkById(IdType(bookmarkId))!!
         scope.launch(Dispatchers.Main) {
             ShareWidget.dialog(mainBibleActivity, bookmark)
         }
@@ -317,7 +318,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openStudyPad(labelId: String, bookmarkId: String) {
         scope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openStudyPad(labelId, bookmarkId)
+            bibleView.linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))
         }
     }
 
@@ -339,23 +340,23 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun setAsPrimaryLabel(bookmarkId: String, labelId: String) {
-        val label = bookmarkControl.labelById(labelId)!!
+        val label = bookmarkControl.labelById(IdType(labelId))!!
         if(label.isUnlabeledLabel) {
             return
         }
-        bookmarkControl.setAsPrimaryLabel(bookmarkId, labelId)
-        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(labelId))
+        bookmarkControl.setAsPrimaryLabel(IdType(bookmarkId), IdType(labelId))
+        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
     }
 
     @JavascriptInterface
     fun toggleBookmarkLabel(bookmarkId: String, labelId: String) {
-        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+        val bookmark = bookmarkControl.bookmarkById(IdType(bookmarkId))!!
         val labels = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
-        val foundLabel = labels.find { it.id == labelId }
+        val foundLabel = labels.find { it.id == IdType(labelId) }
         if(foundLabel != null) {
             labels.remove(foundLabel)
         } else {
-            labels.add(bookmarkControl.labelById(labelId)!!)
+            labels.add(bookmarkControl.labelById(IdType(labelId))!!)
         }
         bookmarkControl.setLabelsForBookmark(bookmark, labels)
     }
@@ -367,7 +368,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
-        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+        val bookmark = bookmarkControl.bookmarkById(IdType(bookmarkId))!!
         if(!value && bookmark.textRange == null) {
             ABEventBus.post(ToastEvent(R.string.cant_change_wholeverse))
             return

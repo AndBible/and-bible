@@ -429,6 +429,9 @@ export function useBookmarks(
 
             filteredBookmarks.forEach(b => {
                 const label = getBookmarkStyleLabel(b);
+                if(!label) {
+                    console.log("tämmönen", {b});
+                }
                 const labelId = label.id;
 
                 if (isMarkerBookmark(b, label) || intersection(new Set(b.labels), hideLabels).size > 0) {

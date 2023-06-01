@@ -27,6 +27,7 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.save
+import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
@@ -64,8 +65,8 @@ open class WindowRepository(val scope: CoroutineScope) {
         }
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
-    var maximizedWindowId: String? = null
-    var primaryTargetLinksWindowId: String? = null
+    var maximizedWindowId: IdType? = null
+    var primaryTargetLinksWindowId: IdType? = null
 
     val primaryTargetLinksWindow: Window get() =
         getWindow(primaryTargetLinksWindowId)
@@ -90,7 +91,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         busyCount --
     }
 
-    var id: String = ""
+    var id: IdType = IdType.empty()
     var name = ""
         set(value) {
             SharedActivityState.currentWorkspaceName = value
@@ -109,12 +110,12 @@ open class WindowRepository(val scope: CoroutineScope) {
     fun initialize() {
         if(initialized) return
         if(id.isEmpty()) {
-            val newId = settings.getString("current_workspace_id")?.apply { id = this }
+            val newId = settings.getString("current_workspace_id")?.let{IdType(it)}?.apply { this@WindowRepository.id = this }
             if (newId == null || dao.workspace(newId) == null) {
                 val newWorkspace = WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
                 id = newWorkspace.id
                 dao.insertWorkspace(newWorkspace)
-                settings.setString("current_workspace_id", id)
+                settings.setString("current_workspace_id", id.toString())
             }
         }
         loadFromDb(id)
@@ -146,7 +147,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     // When in maximized mode, keep track of last used
     // window that was synchronized
-    var lastSyncWindowId: String? = null
+    var lastSyncWindowId: IdType? = null
 
     val visibleWindows: List<Window> get() {
         if (isMaximized) {
@@ -180,7 +181,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     private fun getWindows(state: WindowState)= sortedWindows.filter { it.windowState == state}
 
-    fun getWindow(windowId: String?): Window? = if(windowId == null) null else sortedWindows.find {it.id == windowId}
+    fun getWindow(windowId: IdType?): Window? = if(windowId == null) null else sortedWindows.find {it.id == windowId}
 
     fun addNewWindow(sourceWindow: Window? = null): Window {
         Log.i(TAG, "addNewWindow $sourceWindow")
@@ -264,7 +265,7 @@ open class WindowRepository(val scope: CoroutineScope) {
                     )
                 ).apply {
                     targetLinksWindowId = null
-                    id = UUID.randomUUID().toString()
+                    id = IdType()
                     dao.insertWindow(this)
                 }
 
@@ -346,7 +347,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     lateinit var savedEntity: WorkspaceEntities.Workspace
 
-    fun loadFromDb(workspaceId: String?) {
+    fun loadFromDb(workspaceId: IdType?) {
         Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
         val entity = (if(workspaceId != null) dao.workspace(workspaceId) else null)?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{
@@ -384,7 +385,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         maximizedWindowId = null
         unPinnedWeight = null
         orderNumber = 0
-        id = ""
+        id = IdType.empty()
         lastSyncWindowId = null
         primaryTargetLinksWindowId = null
         for (it in windowList) {
@@ -414,7 +415,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         }
     }
 
-    fun updateRecentLabels(labelIds: List<String>) {
+    fun updateRecentLabels(labelIds: List<IdType>) {
         Log.i(TAG, "updateRecentLabels")
         for(labelId in labelIds) {
             val existingLabel = workspaceSettings.recentLabels.find { it.labelId == labelId }

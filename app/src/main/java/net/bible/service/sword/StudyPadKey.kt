@@ -17,6 +17,7 @@
 
 package net.bible.service.sword
 
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName
 import org.crosswire.common.util.ItemIterator
@@ -26,7 +27,7 @@ import java.lang.UnsupportedOperationException
 
 class StudyPadKey(
     @Transient val label: BookmarkEntities.Label,
-    @Transient val bookmarkId: String? = null,
+    @Transient val bookmarkId: IdType? = null,
 ): Key {
     private val labelId = label.id
 

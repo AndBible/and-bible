@@ -20,6 +20,12 @@ package net.bible.android.database
 
 import android.util.Base64
 import androidx.room.TypeConverter
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.BookmarkType
@@ -40,9 +46,59 @@ import java.io.ObjectOutputStream
 
 import java.util.*
 
+object UUIDSerializer : KSerializer<UUID> {
+    override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): UUID {
+        return UUID.fromString(decoder.decodeString())
+    }
+
+    override fun serialize(encoder: Encoder, value: UUID) {
+        encoder.encodeString(value.toString())
+    }
+}
+
+object IdTypeSerializer : KSerializer<IdType> {
+    override val descriptor = PrimitiveSerialDescriptor("IdType", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): IdType {
+        return IdType(UUID.fromString(decoder.decodeString()))
+    }
+
+    override fun serialize(encoder: Encoder, value: IdType) {
+        encoder.encodeString(value.toString())
+    }
+}
+@Serializable(with = IdTypeSerializer::class)
+class IdType(
+    @Serializable(with = UUIDSerializer::class)
+    val uuid: UUID? = UUID.randomUUID(),
+): Comparable<IdType> {
+    constructor(s: String?): this(if(s == null) null else UUID.fromString(s))
+    override fun compareTo(other: IdType): Int = compareValuesBy(this, other) {it.uuid}
+    override fun toString(): String {
+        return uuid?.toString()?: ""
+    }
+    fun isEmpty() = uuid == null
+    fun isNotEmpty() = uuid != null
+    companion object {
+        fun randomUUID() = IdType(UUID.randomUUID())
+
+        fun empty() = IdType(null as String?)
+        fun randomIdType() = IdType(UUID.randomUUID())
+        fun fromString(value: String) = if(value.isEmpty()) IdType.empty() else IdType(UUID.fromString(value))
+    }
+}
+
 class Converters {
     @TypeConverter
     fun toLabelType(value: String?) = if(value==null) null else LabelType.valueOf(value)
+
+    @TypeConverter
+    fun idtypeToString(value: IdType?) = value?.toString()
+
+    @TypeConverter
+    fun stringToIdType(value: String?) = if(value==null) null else IdType.fromString(value)
 
     @TypeConverter
     fun fromLabelType(value: LabelType?) = value?.name
@@ -138,6 +194,19 @@ class Converters {
     }
 
     @TypeConverter
+    fun strToList4(s: String?): List<IdType>? {
+        if(s == null) return null
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun listToStr4(obj: List<IdType>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+
+    @TypeConverter
     fun strToList1(s: String?): List<Long>? {
         if(s == null) return null
         return json.decodeFromString(serializer(), s)
@@ -169,6 +238,18 @@ class Converters {
 
     @TypeConverter
     fun listToStr2(obj: List<WorkspaceEntities.RecentLabel>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
+    fun strToSet3(s: String?): MutableSet<IdType> {
+        if(s == null) return mutableSetOf()
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun setToStr3(obj: Set<IdType>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }

@@ -33,6 +33,7 @@ import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.windowControl
@@ -48,7 +49,7 @@ class Window (
     val windowRepository: WindowRepository,
     var isLinksWindow: Boolean = entity.isLinksWindow,
 ){
-    private var targetLinksWindowId: String? = entity.targetLinksWindowId
+    private var targetLinksWindowId: IdType? = entity.targetLinksWindowId
     var savedEntity = entity.deepCopy()
     var syncGroup = entity.syncGroup
 
@@ -71,7 +72,7 @@ class Window (
     val isPrimaryLinksWindow get() = isLinksWindow && id == windowRepository.primaryTargetLinksWindowId
 
     val id = entity.id
-    val displayId = id.substring(0, 4)
+    val displayId = id.toString().substring(0, 4)
 
     var weight: Float
         get() =

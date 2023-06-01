@@ -82,6 +82,7 @@ import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.SettingsBundle
@@ -699,7 +700,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             bibleViewFactory.clear()
             windowRepository.loadFromDb(value)
 
-            preferences.setString("current_workspace_id", windowRepository.id)
+            preferences.setString("current_workspace_id", windowRepository.id.toString())
             documentViewManager.buildView(forceUpdate = true)
             windowControl.windowSync.reloadAllWindows()
             windowRepository.updateAllWindowsTextDisplaySettings()
@@ -1394,7 +1395,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         documentViewManager.removeView()
         bibleViewFactory.clear()
         windowControl.windowSync.setResyncRequired()
-        currentWorkspaceId = ""
+        currentWorkspaceId = IdType.empty()
     }
 
     class UpdateMainBibleActivityDocuments
@@ -1418,8 +1419,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     val changed = extras.getBoolean("changed")
 
                     if (resultCode == Activity.RESULT_OK) {
-                        if (workspaceId != null && workspaceId != currentWorkspaceId) {
-                            currentWorkspaceId = workspaceId
+                        if (workspaceId != null && IdType(workspaceId) != currentWorkspaceId) {
+                            currentWorkspaceId = IdType(workspaceId)
                         } else if (changed) {
                             currentWorkspaceId = currentWorkspaceId
                         }
@@ -1442,7 +1443,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         WorkspaceEntities.Colors.fromJson(colorsStr!!)
 
                     if (windowId != null) {
-                        val window = windowRepository.getWindow(windowId)!!
+                        val window = windowRepository.getWindow(IdType(windowId))!!
                         window.pageManager.textDisplaySettings.colors = colors
                         window.bibleView?.updateTextDisplaySettings()
                     } else {

@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.WorkspaceSelectorBinding
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.defaultWorkspaceColor
@@ -58,7 +59,6 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import java.util.UUID
 import javax.inject.Inject
 
 class WorkspaceViewHolder(val layout: ViewGroup): RecyclerView.ViewHolder(layout)
@@ -71,7 +71,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         return WorkspaceViewHolder(view)
     }
 
-    override fun getItemId(position: Int): Long = UUID.fromString(items[position].id).mostSignificantBits
+    override fun getItemId(position: Int): Long = items[position].id.uuid!!.mostSignificantBits
 
     override fun getItemCount() = items.size
 
@@ -100,7 +100,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         dragHolder.setColorFilter(workspaceColor)
 
         layout.setOnClickListener {
-            val workspaceMap = items.associateBy { UUID.fromString(it.id).mostSignificantBits }
+            val workspaceMap = items.associateBy { it.id.uuid!!.mostSignificantBits }
             activity.goToWorkspace(workspaceMap[getItemId(position)]!!.id)
         }
         layout.setOnLongClickListener {true}
@@ -138,8 +138,8 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
 class WorkspaceSelectorActivity: ActivityBase() {
     private var finished = false
     private var isDirty: Boolean = false
-    private val workspacesToBeDeleted = HashSet<String>()
-    private val workspacesCreated = HashSet<String>()
+    private val workspacesToBeDeleted = HashSet<IdType>()
+    private val workspacesCreated = HashSet<IdType>()
     private lateinit var resultIntent: Intent
     @Inject lateinit var windowControl: WindowControl
     internal lateinit var dataSet: MutableList<WorkspaceEntities.Workspace>
@@ -482,13 +482,13 @@ class WorkspaceSelectorActivity: ActivityBase() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun goToWorkspace(itemId: String) {
+    fun goToWorkspace(itemId: IdType) {
         fun apply(save: Boolean) {
             if(save)
                 applyChanges()
             else
                 cancelChanges()
-            resultIntent.putExtra("workspaceId", itemId)
+            resultIntent.putExtra("workspaceId", itemId.toString())
             finishOk()
         }
         if(isDirty) {

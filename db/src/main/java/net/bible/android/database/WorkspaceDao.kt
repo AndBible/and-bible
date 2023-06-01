@@ -22,7 +22,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import java.util.UUID
 
 @Dao
 interface WorkspaceDao {
@@ -31,7 +30,7 @@ interface WorkspaceDao {
     @Update fun updateWorkspace(workspace: WorkspaceEntities.Workspace)
 
     @Transaction
-    fun cloneWorkspace(workspaceId: String, newName: String): WorkspaceEntities.Workspace {
+    fun cloneWorkspace(workspaceId: IdType, newName: String): WorkspaceEntities.Workspace {
         val oldWorkspace = workspace(workspaceId)
             ?: return WorkspaceEntities.Workspace(newName).apply {
                 insertWorkspace(this)
@@ -49,7 +48,7 @@ interface WorkspaceDao {
         for (it in windows) {
             val pageManager = pageManager(it.id)
             it.workspaceId = newWorkspace.id
-            it.id = UUID.randomUUID().toString()
+            it.id = IdType.randomIdType()
             insertWindow(it)
             if(pageManager != null) {
                 pageManager.windowId = it.id
@@ -72,19 +71,19 @@ interface WorkspaceDao {
     fun updatePageManagers(pageManagers: List<WorkspaceEntities.PageManager>)
 
     @Query("DELETE FROM Workspace WHERE id = :workspaceId")
-    fun deleteWorkspace(workspaceId: String)
+    fun deleteWorkspace(workspaceId: IdType)
 
     @Query("DELETE from Window WHERE id = :windowId")
-    fun deleteWindow(windowId: String)
+    fun deleteWindow(windowId: IdType)
 
     @Query("DELETE from HistoryItem WHERE windowId = :windowId")
-    fun deleteHistoryItems(windowId: String)
+    fun deleteHistoryItems(windowId: IdType)
 
     @Query("SELECT * from Window")
     fun allWindows(): List<WorkspaceEntities.Window>
 
     @Query("SELECT * from Workspace WHERE id = :workspaceId")
-    fun workspace(workspaceId: String): WorkspaceEntities.Workspace?
+    fun workspace(workspaceId: IdType): WorkspaceEntities.Workspace?
 
     @Query("SELECT * from Workspace LIMIT 1")
     fun firstWorkspace(): WorkspaceEntities.Workspace?
@@ -93,16 +92,16 @@ interface WorkspaceDao {
     fun allWorkspaces(): List<WorkspaceEntities.Workspace>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId ORDER BY orderNumber ")
-    fun windows(workspaceId: String): List<WorkspaceEntities.Window>
+    fun windows(workspaceId: IdType): List<WorkspaceEntities.Window>
 
     @Query("SELECT * from PageManager WHERE windowId = :windowId")
-    fun pageManager(windowId: String): WorkspaceEntities.PageManager?
+    fun pageManager(windowId: IdType): WorkspaceEntities.PageManager?
 
     @Query("SELECT * from HistoryItem WHERE windowId = :windowId ORDER BY createdAt")
-    fun historyItems(windowId: String): List<WorkspaceEntities.HistoryItem>
+    fun historyItems(windowId: IdType): List<WorkspaceEntities.HistoryItem>
 
     @Transaction
-    fun updateHistoryItems(windowId: String, entities: List<WorkspaceEntities.HistoryItem>) {
+    fun updateHistoryItems(windowId: IdType, entities: List<WorkspaceEntities.HistoryItem>) {
         deleteHistoryItems(windowId)
         insertHistoryItems(entities)
     }

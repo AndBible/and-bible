@@ -33,6 +33,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -77,7 +78,7 @@ open class WindowControl @Inject constructor() {
         }
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
-    fun windowPosition(windowId: String) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
+    fun windowPosition(windowId: IdType) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
     val isSingleWindow get () = !windowRepository.isMultiWindow && windowRepository.minimisedWindows.isEmpty() && !windowRepository.isMaximized
 
     init {

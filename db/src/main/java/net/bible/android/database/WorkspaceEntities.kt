@@ -85,7 +85,7 @@ class WorkspaceEntities {
         ]
     )
     data class PageManager(
-        @PrimaryKey var windowId: String,
+        @PrimaryKey var windowId: IdType,
         @Embedded(prefix="bible_") val biblePage: BiblePage,
         @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage?,
         @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
@@ -324,7 +324,7 @@ class WorkspaceEntities {
     }
 
     @Serializable
-    data class RecentLabel(val labelId: String, var lastAccess: Long)
+    data class RecentLabel(val labelId: IdType, var lastAccess: Long)
 
     @Serializable
     data class WorkspaceSettings(
@@ -334,9 +334,9 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var speakSettings: SpeakSettings? = null,
 
         @ColumnInfo(defaultValue = "NULL") var recentLabels: MutableList<RecentLabel> = mutableListOf(),
-        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<String> = mutableSetOf(),
-        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<String> = mutableSetOf(),
-        @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: String? = null,
+        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<IdType> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: IdType? = null,
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
@@ -351,7 +351,7 @@ class WorkspaceEntities {
         var name: String,
         var contentsText: String? = null,
 
-        @PrimaryKey var id: String = UUID.randomUUID().toString(),
+        @PrimaryKey var id: IdType = IdType.randomIdType(),
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_")
@@ -361,9 +361,9 @@ class WorkspaceEntities {
         val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
 
         @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null,
-        val maximizedWindowId: String? = null,
+        val maximizedWindowId: IdType? = null,
 
-        @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: String? = null,
+        @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: IdType? = null,
     ) {
         fun deepCopy(): Workspace = Workspace(
             name = name,
@@ -391,7 +391,7 @@ class WorkspaceEntities {
         ]
     )
     data class HistoryItem(
-        val windowId: String,
+        val windowId: IdType,
         val createdAt: Date,
         val document: String,
         val key: String,
@@ -413,16 +413,18 @@ class WorkspaceEntities {
         ]
     )
     data class Window(
-        var workspaceId: String,
+        var workspaceId: IdType,
         val isSynchronized: Boolean,
         val isPinMode: Boolean,
 
         val isLinksWindow: Boolean = false,
 
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
-        @PrimaryKey var id: String = UUID.randomUUID().toString(),
+
+        @PrimaryKey var id: IdType = IdType.randomIdType(),
+
         var orderNumber: Int = 0,
-        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: String? = null,
+        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: IdType? = null,
         @ColumnInfo(defaultValue = "0") val syncGroup: Int = 0,
     ) {
         fun deepCopy(): Window =
@@ -442,11 +444,11 @@ class WorkspaceEntities {
 
 @Serializable
 data class SettingsBundle (
-    val workspaceId: String,
+    val workspaceId: IdType,
     val workspaceName: String,
     val workspaceSettings: WorkspaceEntities.TextDisplaySettings,
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
-    val windowId: String? = null,
+    val windowId: IdType? = null,
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
         if(windowId == null)

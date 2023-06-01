@@ -26,6 +26,7 @@ import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
+import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
 import java.lang.ref.WeakReference
 import java.util.UUID
@@ -60,7 +61,7 @@ class BibleViewFactory(val mainBibleActivity: MainBibleActivity) {
         }
     }
 
-    private val windowBibleViewMap: MutableMap<String, BibleView> = HashMap()
+    private val windowBibleViewMap: MutableMap<IdType, BibleView> = HashMap()
     init {
         Log.i(TAG, "New BibleViewFactory ${this.hashCode()}")// ${Log.getStackTraceString(Exception())}")
     }

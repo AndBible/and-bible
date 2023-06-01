@@ -47,8 +47,8 @@ enum class LogEntryTypes {
 )
 data class LogEntry(
     val tableName: String,
-    val entityId1: String,
-    @ColumnInfo(defaultValue = "") val entityId2: String,
+    val entityId1: IdType,
+    @ColumnInfo(defaultValue = "") val entityId2: IdType,
     val type: LogEntryTypes,
     @ColumnInfo(defaultValue = "0") val lastUpdated: Long,
     val sourceDevice: String,

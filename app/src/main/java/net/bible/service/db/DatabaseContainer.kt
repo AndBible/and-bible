@@ -27,6 +27,7 @@ import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
+import net.bible.android.database.IdType
 import net.bible.android.database.LogEntry
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.OldMonolithicAppDatabase
@@ -327,4 +328,4 @@ class DatabaseContainer {
 }
 
 class WorkspacesUpdatedEvent(val updated: List<LogEntry>)
-class BookmarksUpdatedEvent(val updated: List<String>)
+class BookmarksUpdatedEvent(val updated: List<IdType>)

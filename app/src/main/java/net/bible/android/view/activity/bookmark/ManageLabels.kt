@@ -69,6 +69,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.displayName
@@ -267,14 +268,14 @@ class ManageLabels : ListActivityBase() {
     @Serializable
     data class ManageLabelsData(
         val mode: Mode,
-        val selectedLabels: MutableSet<String> = mutableSetOf(),
-        val autoAssignLabels: MutableSet<String> = mutableSetOf(),
-        val favouriteLabels: MutableSet<String> = mutableSetOf(),
-        val deletedLabels: MutableSet<String> = mutableSetOf(),
-        val changedLabels: MutableSet<String> = mutableSetOf(),
+        val selectedLabels: MutableSet<IdType> = mutableSetOf(),
+        val autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
+        val favouriteLabels: MutableSet<IdType> = mutableSetOf(),
+        val deletedLabels: MutableSet<IdType> = mutableSetOf(),
+        val changedLabels: MutableSet<IdType> = mutableSetOf(),
 
-        var autoAssignPrimaryLabel: String? = null,
-        var bookmarkPrimaryLabel: String? = null,
+        var autoAssignPrimaryLabel: IdType? = null,
+        var bookmarkPrimaryLabel: IdType? = null,
 
         val isWindow: Boolean = false,
 
@@ -289,13 +290,13 @@ class ManageLabels : ListActivityBase() {
         val showActiveCategory: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN, Mode.HIDELABELS).contains(mode)
         val hideCategories: Boolean get() = setOf(Mode.STUDYPAD).contains(mode)
 
-        val contextSelectedItems: MutableSet<String> get() =
+        val contextSelectedItems: MutableSet<IdType> get() =
             when (mode) {
                 Mode.WORKSPACE -> autoAssignLabels
                 else -> selectedLabels
             }
 
-        var contextPrimaryLabel: String? get() =
+        var contextPrimaryLabel: IdType? get() =
             when (mode) {
                 Mode.WORKSPACE -> autoAssignPrimaryLabel
                 Mode.ASSIGN -> bookmarkPrimaryLabel

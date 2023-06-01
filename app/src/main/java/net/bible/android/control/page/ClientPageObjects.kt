@@ -23,6 +23,7 @@ import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.versification.toVerseRange
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
@@ -160,7 +161,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
 
 class StudyPadDocument(
     val label: BookmarkEntities.Label,
-    val bookmarkId: String?,
+    val bookmarkId: IdType?,
     val bookmarks: List<BookmarkEntities.Bookmark>,
     private val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
     private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>,
@@ -190,7 +191,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
         return mapOf(
-            "id" to wrapString(bookmark.id),
+            "id" to wrapString(bookmark.id.toString()),
             "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal)),
             "originalOrdinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.start.ordinal, bookmark.verseRange.end.ordinal)),
             "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse || bookmark.book == null) null else bookmark.textRange?.clientList),
@@ -214,7 +215,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
             "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
             "type" to wrapString("bookmark"),
-            "primaryLabelId" to wrapString(bookmark.primaryLabelId),
+            "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
         )
     }
@@ -232,7 +233,7 @@ data class ClientBookmarkStyle(
 
 @Serializable
 data class ClientBookmarkLabel(
-    val id: String,
+    val id: IdType,
     val name: String,
     val style: ClientBookmarkStyle,
     val isRealLabel: Boolean

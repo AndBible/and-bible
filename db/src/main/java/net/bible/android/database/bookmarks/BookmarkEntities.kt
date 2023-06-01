@@ -33,6 +33,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Ignore
 import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
+import net.bible.android.database.IdType
 import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import java.util.*
@@ -116,7 +117,7 @@ class BookmarkEntities {
 
         var playbackSettings: PlaybackSettings?,
 
-        @PrimaryKey var id: String = UUID.randomUUID().toString(),
+        @PrimaryKey var id: IdType = IdType.randomIdType(),
 
         var createdAt: Date = Date(System.currentTimeMillis()),
 
@@ -125,7 +126,7 @@ class BookmarkEntities {
         var startOffset: Int?,
         var endOffset: Int?,
 
-        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: String? = null,
+        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: IdType? = null,
 
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
@@ -141,12 +142,12 @@ class BookmarkEntities {
             ordinalEnd: Int = 0,
             v11n: Versification = KJVA,
             playbackSettings: PlaybackSettings? = null,
-            id: String = UUID.randomUUID().toString(),
+            id: IdType = IdType.randomIdType(),
             createdAt: Date = Date(System.currentTimeMillis()),
             book: AbstractPassageBook? = null,
             startOffset: Int? = null,
             endOffset: Int? = null,
-            primaryLabelId: String? = null,
+            primaryLabelId: IdType? = null,
             notes: String? = null,
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
             wholeVerse: Boolean = true,
@@ -229,7 +230,7 @@ class BookmarkEntities {
             } else {
                 null
             }
-        @Ignore var labelIds: List<String>? = null
+        @Ignore var labelIds: List<IdType>? = null
         @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
         @Ignore var text: String? = null
 
@@ -256,8 +257,8 @@ class BookmarkEntities {
     )
     @Serializable
     data class BookmarkToLabel(
-        val bookmarkId: String,
-        val labelId: String,
+        val bookmarkId: IdType,
+        val labelId: IdType,
 
         // Journal display variables
         @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
@@ -277,8 +278,8 @@ class BookmarkEntities {
     )
     @Serializable
     data class StudyPadTextEntry(
-        @PrimaryKey var id: String = UUID.randomUUID().toString(),
-        val labelId: String,
+        @PrimaryKey var id: IdType = IdType.randomIdType(),
+        val labelId: IdType,
         val text: String = "",
         var orderNumber: Int,
         var indentLevel: Int = 0,
@@ -289,7 +290,7 @@ class BookmarkEntities {
     @Entity
     @Serializable
     data class Label(
-        @PrimaryKey var id: String = UUID.randomUUID().toString(),
+        @PrimaryKey var id: IdType = IdType.randomIdType(),
         var name: String = "",
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
         @ColumnInfo(defaultValue = "0") var markerStyle: Boolean = false,

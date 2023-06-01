@@ -23,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.common.toV11n
+import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
@@ -185,7 +186,7 @@ class CurrentGeneralBookPage internal constructor(
         when (entity?.document) {
             FakeBookFactory.journalDocument.initials -> {
                 val (_, id) = entity!!.key?.split(":") ?: return
-                val label = pageManager.bookmarkControl.labelById(id)
+                val label = pageManager.bookmarkControl.labelById(IdType(id))
                 if (label != null) {
                     doSetKey(StudyPadKey(label))
                     localSetCurrentDocument(FakeBookFactory.journalDocument)

@@ -28,6 +28,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
+import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
@@ -415,7 +416,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
 
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.HIDELABELS,
-            selectedLabels = originalValues.toMutableSet(),
+            selectedLabels = originalValues.map{ IdType(it) }.toMutableSet(),
             isWindow = settings.windowId != null
         ).applyFrom(windowRepository.workspaceSettings).toJSON())
         activity.lifecycleScope.launch (Dispatchers.Main) {

@@ -1136,7 +1136,7 @@ object CommonUtils : CommonUtilsBase() {
                 workspaceDao.insertWorkspace(it)
                 it.id
             }
-            settings.setString("current_workspace_id", workspaceIds[0])
+            settings.setString("current_workspace_id", workspaceIds[0].toString())
         }
     }
 

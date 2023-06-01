@@ -40,6 +40,7 @@ import net.bible.android.activity.databinding.BookmarksBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
@@ -161,7 +162,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     }
 
     private fun assignLabels(bookmarks: List<Bookmark>) = lifecycleScope.launch(Dispatchers.IO) {
-        val labels = mutableSetOf<String>()
+        val labels = mutableSetOf<IdType>()
         for (b in bookmarks) {
             labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
         }
