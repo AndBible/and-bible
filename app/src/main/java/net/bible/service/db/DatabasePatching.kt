@@ -72,6 +72,7 @@ class DatabaseDefinition<T: SyncableRoomDatabase>(
     private val _resetLocalDb: () -> T,
     val localDbFile: File,
     val category: DatabaseCategory,
+    val deviceId: String = CommonUtils.deviceIdentifier
 ) {
     fun resetLocalDb() {
         localDb = _resetLocalDb()
@@ -82,7 +83,10 @@ class DatabaseDefinition<T: SyncableRoomDatabase>(
     val tableDefinitions get() = category.tables
 }
 object DatabasePatching {
-    private fun createTriggersForTable(db: SupportSQLiteDatabase, tableName: String, idField1: String = "id", idField2: String? = null) = db.run {
+    private fun createTriggersForTable(
+        dbDef: DatabaseDefinition<*>,
+        tableDef: TableDef,
+    ) = tableDef.run {
         fun where(prefix: String): String =
             if(idField2 == null) {
                 "entityId1 = $prefix.$idField1"
@@ -97,69 +101,43 @@ object DatabasePatching {
             }
         val timeStampFunc = "CAST(UNIXEPOCH('subsec') * 1000 AS INTEGER)"
 
-        execSQL("""
-        CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName 
-        BEGIN DELETE FROM LogEntry WHERE ${where("NEW")} AND tableName = '$tableName';
-        INSERT INTO LogEntry VALUES ('$tableName', ${insert("NEW")}, 'UPSERT', $timeStampFunc); 
-        END;
+        val db = dbDef.writableDb
+        val deviceId = dbDef.deviceId
+
+        db.execSQL("""
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName 
+            BEGIN DELETE FROM LogEntry WHERE ${where("NEW")} AND tableName = '$tableName';
+            INSERT INTO LogEntry VALUES ('$tableName', ${insert("NEW")}, 'UPSERT', $timeStampFunc, '$deviceId'); 
+            END;
         """.trimIndent()
         )
-        execSQL("""
-        CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName 
-        BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
-        INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'UPSERT', $timeStampFunc); 
-        END;
+        db.execSQL("""
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName 
+            BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
+            INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'UPSERT', $timeStampFunc, '$deviceId'); 
+            END;
         """.trimIndent()
         )
-        execSQL("""
-        CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName 
-        BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
-        INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', $timeStampFunc); 
-        END;
+        db.execSQL("""
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName 
+            BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
+            INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', $timeStampFunc, '$deviceId'); 
+            END;
         """.trimIndent()
         )
     }
 
-    private fun dropTriggersForTable(db: SupportSQLiteDatabase, tableName: String) = db.run {
-        execSQL("DROP TRIGGER IF EXISTS ${tableName}_inserts")
-        execSQL("DROP TRIGGER IF EXISTS ${tableName}_updates")
-        execSQL("DROP TRIGGER IF EXISTS ${tableName}_deletes")
+    private fun dropTriggersForTable(dbDef: DatabaseDefinition<*>, tableDef: TableDef) = dbDef.writableDb.run {
+        execSQL("DROP TRIGGER IF EXISTS ${tableDef.tableName}_inserts")
+        execSQL("DROP TRIGGER IF EXISTS ${tableDef.tableName}_updates")
+        execSQL("DROP TRIGGER IF EXISTS ${tableDef.tableName}_deletes")
     }
 
-    fun createBookmarkTriggers(db: SupportSQLiteDatabase) {
-        createTriggersForTable(db, "Bookmark")
-        createTriggersForTable(db, "Label")
-        createTriggersForTable(db, "StudyPadTextEntry")
-        createTriggersForTable(db, "BookmarkToLabel", "bookmarkId", "labelId")
-    }
 
-    fun createWorkspaceTriggers(db: SupportSQLiteDatabase) {
-        createTriggersForTable(db, "Window")
-        createTriggersForTable(db, "Workspace")
-        createTriggersForTable(db, "PageManager", "windowId")
-    }
-
-    fun createReadingPlanTriggers(db: SupportSQLiteDatabase) {
-        createTriggersForTable(db, "ReadingPlan")
-        createTriggersForTable(db, "ReadingPlanStatus")
-    }
-
-    fun dropBookmarkTriggers(db: SupportSQLiteDatabase) {
-        dropTriggersForTable(db, "Bookmark")
-        dropTriggersForTable(db, "Label")
-        dropTriggersForTable(db, "StudyPadTextEntry")
-        dropTriggersForTable(db, "BookmarkToLabel")
-    }
-
-    fun dropWorkspaceTriggers(db: SupportSQLiteDatabase) {
-        dropTriggersForTable(db, "Window")
-        dropTriggersForTable(db, "Workspace")
-        dropTriggersForTable(db, "PageManager")
-    }
-
-    fun dropReadingPlansTriggers(db: SupportSQLiteDatabase) {
-        dropTriggersForTable(db, "ReadingPlan")
-        dropTriggersForTable(db, "ReadingPlanStatus")
+    fun createTriggers(dbDef: DatabaseDefinition<*>) {
+        for(tableDef in dbDef.tableDefinitions) {
+            createTriggersForTable(dbDef, tableDef)
+        }
     }
 
     private fun writePatchData(db: SupportSQLiteDatabase, tableDef: TableDef, lastPatchWritten: Long) = db.run {
@@ -239,46 +217,40 @@ object DatabasePatching {
         val lastPatchWritten = dbDef.dao.getLong("lastPatchWritten")?: 0
         val patchDbFile = File.createTempFile("created-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
 
-        var needPatch: Boolean
         dbDef.localDb.openHelper.writableDatabase.run {
-            val amountUpdated = dbDef.dao.countNewLogEntries(lastPatchWritten)
-            needPatch = amountUpdated > 0
-            if (needPatch) {
-                // let's create empty database with correct schema first.
-                val patchDb = dbDef.dbFactory(patchDbFile.absolutePath)
-                patchDb.openHelper.writableDatabase.use {}
-                Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
-                execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
-                execSQL("PRAGMA patch.foreign_keys=OFF;")
-                beginTransaction()
-                for (tableDef in dbDef.tableDefinitions) {
-                    writePatchData(this, tableDef, lastPatchWritten)
-                }
-                setTransactionSuccessful()
-                endTransaction()
-                execSQL("PRAGMA patch.foreign_keys=ON;")
-                execSQL("DETACH DATABASE patch")
-                dbDef.dao.setConfig("lastPatchWritten", System.currentTimeMillis())
-            } else {
+            val amountUpdated = dbDef.dao.countNewLogEntries(lastPatchWritten, dbDef.deviceId)
+            if(amountUpdated == 0L) {
                 Log.i(TAG, "No new entries ${dbDef.categoryName}")
+                return null
             }
+            // let's create empty database with correct schema first.
+            val patchDb = dbDef.dbFactory(patchDbFile.absolutePath)
+            patchDb.openHelper.writableDatabase.use {}
+            Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
+            execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+            execSQL("PRAGMA patch.foreign_keys=OFF;")
+            beginTransaction()
+            for (tableDef in dbDef.tableDefinitions) {
+                writePatchData(this, tableDef, lastPatchWritten)
+            }
+            setTransactionSuccessful()
+            endTransaction()
+            execSQL("PRAGMA patch.foreign_keys=ON;")
+            execSQL("DETACH DATABASE patch")
+            dbDef.dao.setConfig("lastPatchWritten", System.currentTimeMillis())
         }
-        val resultFile =
-            if (needPatch) {
-                val gzippedOutput = CommonUtils.tmpFile
-                Log.i(TAG, "Saving patch file ${dbDef.categoryName}")
-                CommonUtils.gzipFile(patchDbFile, gzippedOutput)
-                gzippedOutput
-            } else {
-                null
-            }
+
+        val gzippedOutput = CommonUtils.tmpFile
+        Log.i(TAG, "Saving patch file ${dbDef.categoryName}")
+        CommonUtils.gzipFile(patchDbFile, gzippedOutput)
+
         if(!CommonUtils.isDebugMode) {
             patchDbFile.delete()
         }
-        return resultFile
+        return gzippedOutput
     }
 
-    fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>, patchFiles: Collection<File>) {
+    fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>, vararg patchFiles: File) {
         for(gzippedPatchFile in patchFiles) {
             val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
             Log.i(TAG, "Applying patch file ${patchDbFile.name}")
@@ -312,26 +284,4 @@ object DatabasePatching {
             Dialogs.showErrorMsg("Foreign key check failure: $tableName:$rowId ($parent)")
         }
     }
-
-    val dbFactories: List<() -> DatabaseDefinition<*>> get() = DatabaseContainer.instance.run { listOf(
-        { DatabaseDefinition(
-            bookmarkDb,
-            { n -> getBookmarkDb(n)}, {resetBookmarkDb()},
-            application.getDatabasePath(BookmarkDatabase.dbFileName),
-            DatabaseCategory.BOOKMARKS,
-        ) },
-        { DatabaseDefinition(
-            workspaceDb,
-            { n -> getWorkspaceDb(n)}, {resetWorkspaceDb()},
-            application.getDatabasePath(WorkspaceDatabase.dbFileName),
-            DatabaseCategory.WORKSPACES,
-        ) },
-        { DatabaseDefinition(
-            readingPlanDb,
-            { n -> getReadingPlanDb(n)},
-            {resetReadingPlanDb()},
-            application.getDatabasePath(ReadingPlanDatabase.dbFileName),
-            DatabaseCategory.READINGPLANS,
-        ) },
-    ) }
 }

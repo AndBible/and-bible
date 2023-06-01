@@ -20,7 +20,6 @@ import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
@@ -68,18 +67,6 @@ class DatabaseContainer {
     }
 
     private val dbFactory = if(application.isRunningTests) null else RequerySQLiteOpenHelperFactory()
-
-    private fun createTriggers() {
-        DatabasePatching.createBookmarkTriggers(bookmarkDb.openHelper.writableDatabase)
-        DatabasePatching.createWorkspaceTriggers(workspaceDb.openHelper.writableDatabase)
-        DatabasePatching.createReadingPlanTriggers(readingPlanDb.openHelper.writableDatabase)
-    }
-
-    private fun dropTriggers() {
-        DatabasePatching.dropBookmarkTriggers(bookmarkDb.openHelper.writableDatabase)
-        DatabasePatching.dropWorkspaceTriggers(workspaceDb.openHelper.writableDatabase)
-        DatabasePatching.dropReadingPlansTriggers(readingPlanDb.openHelper.writableDatabase)
-    }
 
     private fun getOldDatabase(): OldMonolithicAppDatabase =
         Room.databaseBuilder(
@@ -156,7 +143,9 @@ class DatabaseContainer {
     }
 
     init {
-        createTriggers()
+        for(dbDefFac in getDatabaseDefinitions(this)) {
+            DatabasePatching.createTriggers(dbDefFac())
+        }
     }
 
     val temporaryDb: TemporaryDatabase =
@@ -290,5 +279,31 @@ class DatabaseContainer {
             SettingsDatabase.dbFileName -> SETTINGS_DATABASE_VERSION
             else -> throw IllegalStateException("Unknown database file: $filename")
         }
+
+        val dbDefFactories get() = getDatabaseDefinitions(instance)
+        fun getDatabaseDefinitions(container: DatabaseContainer): List<() -> DatabaseDefinition<*>> = container.run {
+            listOf(
+                { DatabaseDefinition(
+                    bookmarkDb,
+                    { n -> getBookmarkDb(n) }, { resetBookmarkDb() },
+                    application.getDatabasePath(BookmarkDatabase.dbFileName),
+                    DatabaseCategory.BOOKMARKS,
+                ) },
+                { DatabaseDefinition(
+                    workspaceDb,
+                    { n -> getWorkspaceDb(n) }, { resetWorkspaceDb() },
+                    application.getDatabasePath(WorkspaceDatabase.dbFileName),
+                    DatabaseCategory.WORKSPACES,
+                ) },
+                { DatabaseDefinition(
+                    readingPlanDb,
+                    { n -> getReadingPlanDb(n) },
+                    { resetReadingPlanDb() },
+                    application.getDatabasePath(ReadingPlanDatabase.dbFileName),
+                    DatabaseCategory.READINGPLANS,
+                )},
+            )
+        }
+
     }
 }

@@ -43,16 +43,17 @@ enum class LogEntryTypes {
 
 @Entity(
     primaryKeys = ["tableName", "entityId1", "entityId2"],
-    indices = [Index("lastUpdated")]
+    indices = [Index("lastUpdated"), Index("sourceDevice")]
 )
-class LogEntry(
+data class LogEntry(
     val tableName: String,
     val entityId1: String,
     @ColumnInfo(defaultValue = "") val entityId2: String,
     val type: LogEntryTypes,
     @ColumnInfo(defaultValue = "0") val lastUpdated: Long,
+    val sourceDevice: String,
 ) {
-    override fun toString(): String = "$tableName $type $entityId1 $entityId2 ($lastUpdated)"
+    override fun toString(): String = "$sourceDevice $tableName $type $entityId1 $entityId2 ($lastUpdated)"
 }
 
 @Entity
@@ -79,8 +80,8 @@ interface SyncDao {
     @Query("SELECT patchNumber FROM SyncStatus WHERE sourceDevice = :deviceId ORDER BY patchNumber DESC LIMIT 1")
     fun lastPatchNum(deviceId: String): Long?
 
-    @Query("SELECT COUNT(*) FROM LogEntry WHERE lastUpdated > :lastPatchWritten")
-    fun countNewLogEntries(lastPatchWritten: Long): Long
+    @Query("SELECT COUNT(*) FROM LogEntry WHERE sourceDevice=:deviceId AND lastUpdated > :lastPatchWritten")
+    fun countNewLogEntries(lastPatchWritten: Long, deviceId: String): Long
 
     @Query("SELECT * FROM LogEntry")
     fun allLogEntries(): List<LogEntry>

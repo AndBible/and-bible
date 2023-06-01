@@ -149,6 +149,7 @@ android {
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
         buildConfigField("String", "BuildDate", "\"${SimpleDateFormat("dd/MM/YY HH:mm:ss").format(Date())}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testApplicationId = "org.andbible.tests"
     }
 
     buildTypes {
@@ -249,7 +250,7 @@ android {
             devices {
                 maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("emulator").apply {
                     device = "Pixel 3"
-                    apiLevel = 30
+                    apiLevel = 31
                     systemImageSource = "aosp"
                 }
             }

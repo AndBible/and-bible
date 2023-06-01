@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "30ef369293241170fb246bd828551cc8",
+    "identityHash": "9d42c0066b6e5f31ff715d4e04611f19",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -376,7 +376,7 @@
       },
       {
         "tableName": "LogEntry",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, `sourceDevice` TEXT NOT NULL, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))",
         "fields": [
           {
             "fieldPath": "tableName",
@@ -409,6 +409,12 @@
             "affinity": "INTEGER",
             "notNull": true,
             "defaultValue": "0"
+          },
+          {
+            "fieldPath": "sourceDevice",
+            "columnName": "sourceDevice",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -428,6 +434,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `${TABLE_NAME}` (`lastUpdated`)"
+          },
+          {
+            "name": "index_LogEntry_sourceDevice",
+            "unique": false,
+            "columnNames": [
+              "sourceDevice"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntry_sourceDevice` ON `${TABLE_NAME}` (`sourceDevice`)"
           }
         ],
         "foreignKeys": []
@@ -513,7 +528,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '30ef369293241170fb246bd828551cc8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9d42c0066b6e5f31ff715d4e04611f19')"
     ]
   }
 }

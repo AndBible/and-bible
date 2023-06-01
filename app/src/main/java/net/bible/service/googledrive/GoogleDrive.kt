@@ -55,6 +55,7 @@ import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseCategory
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseDefinition
 import net.bible.service.db.DatabasePatching
 import java.util.Collections
@@ -304,7 +305,7 @@ object GoogleDrive {
             Log.i(TAG, "Synchronizing starts")
             val timerStart = System.currentTimeMillis()
 
-            DatabasePatching.dbFactories.asyncMap {
+            DatabaseContainer.dbDefFactories.asyncMap {
                 val dbDef = it.invoke()
                 if(!prefEnabled(dbDef.category)) return@asyncMap
                 try {
@@ -397,7 +398,7 @@ object GoogleDrive {
             SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.getSize(), it.file.createdTime.value)
         }
 
-        DatabasePatching.applyPatchesForDatabase(dbDef, downloadedFiles)
+        DatabasePatching.applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
 
         dbDef.dao.addStatuses(syncStatuses)
     }
