@@ -208,6 +208,12 @@ class DatabasePatchingTests {
         dbDef2.localDb.bookmarkDao().insert(bl2)
         dbDef1.localDb.bookmarkDao().delete(label1)
 
+        assertThat(dbDef1.dao.findLogEntries("Bookmark", "UPSERT").size, equalTo(1))
+        assertThat(dbDef1.dao.findLogEntries("Label", "UPSERT").size, equalTo(0))
+        assertThat(dbDef1.dao.findLogEntries("Label", "DELETE").size, equalTo(1))
+        // Cascade delete has caused also this row to appear
+        assertThat(dbDef1.dao.findLogEntries("BookmarkToLabel", "DELETE").size, equalTo(1))
+
         // Now these patch files are conflicting: in one, there's new usage of label1, in other, label1 is removed
         val patchFile1b = DatabasePatching.createPatchForDatabase(dbDef1)!!
         val patchFile2 = DatabasePatching.createPatchForDatabase(dbDef2)!!
@@ -217,7 +223,13 @@ class DatabasePatchingTests {
         assertThat(bls2.size, equalTo(0))
 
         /**
-         * Yritetän laittaa BookmarkToLabelia
+         * Yritetän laittaa BookmarkToLabelia sellaiselle labelille jota ei ole olemassa
+         * Foreign Key Check feilaa siis.
+         *
+         * Kun Label poistetaan, tapahtuu cascade delete BookmarkToLabelille.
+         * Siitä pitäisi tulla oma rivinsä LogEntry-tauluun!
+         *
+         * Label-triggerin pitäisi osata poistaa myös BookmarkToLabelit!
          */
         //DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
         //val bls1 = dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id)

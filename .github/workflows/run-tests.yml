@@ -144,7 +144,7 @@ jobs:
         disable-animations: true
         disk-size: 1500M
         heap-size: 512M
-        script: ./gradlew --console plain connectedCheck
+        script: ./gradlew --console plain connectedStandardGooglePlayDebugAndroidTest
 
     - name: Upload test results
       uses: actions/upload-artifact@v3

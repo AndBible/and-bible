@@ -85,7 +85,10 @@ interface SyncDao {
 
     @Query("SELECT * FROM LogEntry")
     fun allLogEntries(): List<LogEntry>
-    
+
+    @Query("SELECT * FROM LogEntry WHERE tableName=:tableName AND type=:type")
+    fun findLogEntries(tableName: String, type: String): List<LogEntry>
+
     @Query("DELETE FROM LogEntry")
     fun clearLog()
 
