@@ -1568,6 +1568,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun preferenceSettingsChanged() {
         resetSystemUi()
         requestSdcardPermission()
+        documentViewManager.removeView()
         documentViewManager.buildView()
         ABEventBus.post(SynchronizeWindowsEvent(true))
         CommonUtils.changeAppIconAndName()
