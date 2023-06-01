@@ -21,9 +21,12 @@ package net.bible.android
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.service.common.CommonUtils
 
 import net.bible.service.db.DatabaseContainer
 import org.junit.Test
+import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -32,5 +35,11 @@ class DatabasePatchingTests {
     fun basicDatabaseTest() {
         DatabaseContainer.ready = true
         DatabaseContainer.instance
+        val bmarkFile = File.createTempFile("bookmarks1-", ".sqlite3", CommonUtils.tmpDir)
+        val bmarkDb = DatabaseContainer.instance.getBookmarkDb(bmarkFile.absolutePath)
+        bmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 1"))
+        bmarkDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 2"))
+
+
     }
 }
