@@ -48,7 +48,7 @@ interface WorkspaceDao {
         for (it in windows) {
             val pageManager = pageManager(it.id)
             it.workspaceId = newWorkspace.id
-            it.id = IdType.randomIdType()
+            it.id = IdType.random()
             insertWindow(it)
             if(pageManager != null) {
                 pageManager.windowId = it.id

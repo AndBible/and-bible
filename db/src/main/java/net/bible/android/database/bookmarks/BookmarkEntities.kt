@@ -117,7 +117,7 @@ class BookmarkEntities {
 
         var playbackSettings: PlaybackSettings?,
 
-        @PrimaryKey var id: IdType = IdType.randomIdType(),
+        @PrimaryKey var id: IdType = IdType.random(),
 
         var createdAt: Date = Date(System.currentTimeMillis()),
 
@@ -142,7 +142,7 @@ class BookmarkEntities {
             ordinalEnd: Int = 0,
             v11n: Versification = KJVA,
             playbackSettings: PlaybackSettings? = null,
-            id: IdType = IdType.randomIdType(),
+            id: IdType = IdType.random(),
             createdAt: Date = Date(System.currentTimeMillis()),
             book: AbstractPassageBook? = null,
             startOffset: Int? = null,
@@ -278,7 +278,7 @@ class BookmarkEntities {
     )
     @Serializable
     data class StudyPadTextEntry(
-        @PrimaryKey var id: IdType = IdType.randomIdType(),
+        @PrimaryKey var id: IdType = IdType.random(),
         val labelId: IdType,
         val text: String = "",
         var orderNumber: Int,
@@ -290,7 +290,7 @@ class BookmarkEntities {
     @Entity
     @Serializable
     data class Label(
-        @PrimaryKey var id: IdType = IdType.randomIdType(),
+        @PrimaryKey var id: IdType = IdType.random(),
         var name: String = "",
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
         @ColumnInfo(defaultValue = "0") var markerStyle: Boolean = false,

@@ -48,27 +48,16 @@ import java.util.*
 
 object UUIDSerializer : KSerializer<UUID> {
     override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
-
-    override fun deserialize(decoder: Decoder): UUID {
-        return UUID.fromString(decoder.decodeString())
-    }
-
-    override fun serialize(encoder: Encoder, value: UUID) {
-        encoder.encodeString(value.toString())
-    }
+    override fun deserialize(decoder: Decoder): UUID = UUID.fromString(decoder.decodeString())
+    override fun serialize(encoder: Encoder, value: UUID) = encoder.encodeString(value.toString())
 }
 
 object IdTypeSerializer : KSerializer<IdType> {
     override val descriptor = PrimitiveSerialDescriptor("IdType", PrimitiveKind.STRING)
-
-    override fun deserialize(decoder: Decoder): IdType {
-        return IdType(UUID.fromString(decoder.decodeString()))
-    }
-
-    override fun serialize(encoder: Encoder, value: IdType) {
-        encoder.encodeString(value.toString())
-    }
+    override fun deserialize(decoder: Decoder): IdType = IdType(UUID.fromString(decoder.decodeString()))
+    override fun serialize(encoder: Encoder, value: IdType) = encoder.encodeString(value.toString())
 }
+
 @Serializable(with = IdTypeSerializer::class)
 class IdType(
     @Serializable(with = UUIDSerializer::class)
@@ -82,10 +71,8 @@ class IdType(
     fun isEmpty() = uuid == null
     fun isNotEmpty() = uuid != null
     companion object {
-        fun randomUUID() = IdType(UUID.randomUUID())
-
         fun empty() = IdType(null as String?)
-        fun randomIdType() = IdType(UUID.randomUUID())
+        fun random() = IdType()
         fun fromString(value: String) = if(value.isEmpty()) IdType.empty() else IdType(UUID.fromString(value))
     }
 }
