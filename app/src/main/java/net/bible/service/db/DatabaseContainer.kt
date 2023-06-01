@@ -225,7 +225,6 @@ class DatabaseContainer {
         createTriggers()
     }
 
-
     val temporaryDb: TemporaryDatabase =
         Room.databaseBuilder(
             application, TemporaryDatabase::class.java, TemporaryDatabase.dbFileName

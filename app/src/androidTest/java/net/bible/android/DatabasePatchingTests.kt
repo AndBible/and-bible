@@ -29,7 +29,7 @@ import org.junit.Test
 @SmallTest
 class DatabasePatchingTests {
     @Test
-    fun testDatabase() {
+    fun basicDatabaseTest() {
         DatabaseContainer.ready = true
         DatabaseContainer.instance
     }

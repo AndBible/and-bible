@@ -21,7 +21,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  run-tests:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
@@ -63,7 +63,10 @@ jobs:
         mkdir -p $HOME/.sword
         unzip -o -d $HOME/.sword ./testmods.zip
 
-    - name: Build with Gradle
+    - name: Run instrumentation tests
+      run: ./gradlew --console plain pixel3api31standardGooglePlayDebugAndroidTest
+
+    - name: Build with Gradle and run unit tests
       run: ./gradlew --console plain testStandardGoogleplayRelease
 
     - name: Upload test results
