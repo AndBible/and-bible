@@ -1,4 +1,4 @@
-name: Run tests
+name: Run Kotlin / Android tests
 
 on:
   push:
