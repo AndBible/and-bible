@@ -26,25 +26,30 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.database.BookmarkDatabase
+import net.bible.android.database.IdType
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.json
+import java.sql.Blob
+import java.util.UUID
 
 // from https://stackoverflow.com/questions/17277735/using-uuids-in-sqlite
-val GENERATE_UUID4_SQL = """
-    LOWER(HEX(RANDOMBLOB(4)) 
-    || '-' 
-    || HEX(RANDOMBLOB(2)) 
-    || '-' 
-    || '4' 
-    || SUBSTR(HEX(RANDOMBLOB(2)), 2) 
-    || '-' 
-    || SUBSTR('AB89', 1 + (ABS(RANDOM()) % 4) , 1) 
-    || SUBSTR(HEX(RANDOMBLOB(2)), 2) 
-    || '-' 
-    || HEX(RANDOMBLOB(6)))""".trimIndent()
+// val GENERATE_UUID4_SQL = """
+//     LOWER(HEX(RANDOMBLOB(4))
+//     || '-'
+//     || HEX(RANDOMBLOB(2))
+//     || '-'
+//     || '4'
+//     || SUBSTR(HEX(RANDOMBLOB(2)), 2)
+//     || '-'
+//     || SUBSTR('AB89', 1 + (ABS(RANDOM()) % 4) , 1)
+//     || SUBSTR(HEX(RANDOMBLOB(2)), 2)
+//     || '-'
+//     || HEX(RANDOMBLOB(6)))""".trimIndent()
+
+const val GENERATE_UUID4_SQL = "randomblob(16)"
 
 class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app: Application) {
 
@@ -70,22 +75,22 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
     private fun bookmarkDb() {
         val dbFileName = app.getDatabasePath(BookmarkDatabase.dbFileName).absolutePath
         SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { _db ->
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `Bookmark` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `book` TEXT, `startOffset` INTEGER, `endOffset` INTEGER, `primaryLabelId` TEXT DEFAULT NULL, `notes` TEXT DEFAULT NULL, `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0, `wholeVerse` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`primaryLabelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `Bookmark` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` BLOB NOT NULL, `createdAt` INTEGER NOT NULL, `book` TEXT, `startOffset` INTEGER, `endOffset` INTEGER, `primaryLabelId` BLOB DEFAULT NULL, `notes` TEXT DEFAULT NULL, `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0, `wholeVerse` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`primaryLabelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalStart` ON `Bookmark` (`kjvOrdinalStart`)");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalEnd` ON `Bookmark` (`kjvOrdinalEnd`)");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_primaryLabelId` ON `Bookmark` (`primaryLabelId`)");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `Label` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `color` INTEGER NOT NULL DEFAULT 0, `markerStyle` INTEGER NOT NULL DEFAULT 0, `markerStyleWholeVerse` INTEGER NOT NULL DEFAULT 0, `underlineStyle` INTEGER NOT NULL DEFAULT 0, `underlineStyleWholeVerse` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL, PRIMARY KEY(`id`))");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `StudyPadTextEntry` (`id` TEXT NOT NULL, `labelId` TEXT NOT NULL, `text` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL, `indentLevel` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `Label` (`id` BLOB NOT NULL, `name` TEXT NOT NULL, `color` INTEGER NOT NULL DEFAULT 0, `markerStyle` INTEGER NOT NULL DEFAULT 0, `markerStyleWholeVerse` INTEGER NOT NULL DEFAULT 0, `underlineStyle` INTEGER NOT NULL DEFAULT 0, `underlineStyleWholeVerse` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL, PRIMARY KEY(`id`))");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `StudyPadTextEntry` (`id` BLOB NOT NULL, `labelId` BLOB NOT NULL, `text` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL, `indentLevel` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_StudyPadTextEntry_labelId` ON `StudyPadTextEntry` (`labelId`)");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `BookmarkToLabel` (`bookmarkId` TEXT NOT NULL, `labelId` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT -1, `indentLevel` INTEGER NOT NULL DEFAULT 0, `expandContent` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`bookmarkId`, `labelId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `BookmarkToLabel` (`bookmarkId` BLOB NOT NULL, `labelId` BLOB NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT -1, `indentLevel` INTEGER NOT NULL DEFAULT 0, `expandContent` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`bookmarkId`, `labelId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `BookmarkToLabel` (`labelId`)");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `LogEntry` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, `sourceDevice` TEXT NOT NULL, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `LogEntry` (`tableName` TEXT NOT NULL, `entityId1` BLOB NOT NULL, `entityId2` BLOB NOT NULL, `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, `sourceDevice` TEXT NOT NULL, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `LogEntry` (`lastUpdated`)");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_sourceDevice` ON `LogEntry` (`sourceDevice`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncConfiguration` (`keyName` TEXT NOT NULL, `stringValue` TEXT, `longValue` INTEGER, `booleanValue` INTEGER, PRIMARY KEY(`keyName`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncStatus` (`sourceDevice` TEXT NOT NULL, `patchNumber` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`sourceDevice`, `patchNumber`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9d42c0066b6e5f31ff715d4e04611f19')");
+            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ff001a92878ddd1e85ad8b5d25fabc95')");
 
             setPragmas(_db)
         }
@@ -94,11 +99,11 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             execSQL("PRAGMA foreign_keys=OFF;")
 
             // Create temporary UUID mapping tables
-            execSQL("CREATE TABLE LabelMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("CREATE TABLE LabelMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO LabelMap SELECT id, $GENERATE_UUID4_SQL FROM Label")
-            execSQL("CREATE TABLE BookmarkMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("CREATE TABLE BookmarkMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO BookmarkMap SELECT id, $GENERATE_UUID4_SQL FROM Bookmark")
-            execSQL("CREATE TABLE StudyPadMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("CREATE TABLE StudyPadMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO StudyPadMap SELECT id, $GENERATE_UUID4_SQL FROM JournalTextEntry")
 
             val labelNewNames = getColumnNames(oldDb, "Label", "new").map {
@@ -157,13 +162,13 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ReadingPlan_planCode` ON `ReadingPlan` (`planCode`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `ReadingPlanStatus` (`planCode` TEXT NOT NULL, `planDay` INTEGER NOT NULL, `readingStatus` TEXT NOT NULL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))");
             _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ReadingPlanStatus_planCode_planDay` ON `ReadingPlanStatus` (`planCode`, `planDay`)");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `LogEntry` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, `sourceDevice` TEXT NOT NULL, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `LogEntry` (`tableName` TEXT NOT NULL, `entityId1` BLOB NOT NULL, `entityId2` BLOB NOT NULL, `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, `sourceDevice` TEXT NOT NULL, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `LogEntry` (`lastUpdated`)");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_sourceDevice` ON `LogEntry` (`sourceDevice`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncConfiguration` (`keyName` TEXT NOT NULL, `stringValue` TEXT, `longValue` INTEGER, `booleanValue` INTEGER, PRIMARY KEY(`keyName`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncStatus` (`sourceDevice` TEXT NOT NULL, `patchNumber` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`sourceDevice`, `patchNumber`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed9d725c9caf6b62f62af67e90444fec')");
+            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '92ca13e6b904cc384bd73ac6fa236149')");
 
             setPragmas(_db)
         }
@@ -171,9 +176,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
             execSQL("PRAGMA foreign_keys=OFF;")
 
-            execSQL("CREATE TABLE ReadingPlanMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("CREATE TABLE ReadingPlanMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO ReadingPlanMap SELECT _id, $GENERATE_UUID4_SQL FROM readingplan")
-            execSQL("CREATE TABLE ReadingPlanStatusMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("CREATE TABLE ReadingPlanStatusMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO ReadingPlanStatusMap SELECT _id, $GENERATE_UUID4_SQL FROM readingplan_status")
 
             val readingPlanNames = getColumnNames(oldDb, "ReadingPlan", "new").map {
@@ -212,20 +217,20 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             null,
             SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY
         ).use { _db ->
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`name` TEXT NOT NULL, `contentsText` TEXT, `id` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `unPinnedWeight` REAL DEFAULT NULL, `maximizedWindowId` TEXT, `primaryTargetLinksWindowId` TEXT DEFAULT NULL, `text_display_settings_strongsMode` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_expandXrefs` INTEGER DEFAULT NULL, `text_display_settings_showXrefs` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `workspace_settings_enableTiltToScroll` INTEGER DEFAULT 0, `workspace_settings_enableReverseSplitMode` INTEGER DEFAULT 0, `workspace_settings_autoPin` INTEGER DEFAULT 1, `workspace_settings_speakSettings` TEXT DEFAULT NULL, `workspace_settings_recentLabels` TEXT DEFAULT NULL, `workspace_settings_favouriteLabels` TEXT DEFAULT NULL, `workspace_settings_autoAssignLabels` TEXT DEFAULT NULL, `workspace_settings_autoAssignPrimaryLabel` TEXT DEFAULT NULL, `workspace_settings_hideCompareDocuments` TEXT DEFAULT NULL, `workspace_settings_limitAmbiguousModalSize` INTEGER DEFAULT 0, `workspace_settings_workspaceColor` INTEGER DEFAULT NULL, PRIMARY KEY(`id`))");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `Window` (`workspaceId` TEXT NOT NULL, `isSynchronized` INTEGER NOT NULL, `isPinMode` INTEGER NOT NULL, `isLinksWindow` INTEGER NOT NULL, `id` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL, `targetLinksWindowId` TEXT DEFAULT NULL, `syncGroup` INTEGER NOT NULL DEFAULT 0, `window_layout_state` TEXT NOT NULL, `window_layout_weight` REAL NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`name` TEXT NOT NULL, `contentsText` TEXT, `id` BLOB NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `unPinnedWeight` REAL DEFAULT NULL, `maximizedWindowId` BLOB, `primaryTargetLinksWindowId` BLOB DEFAULT NULL, `text_display_settings_strongsMode` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_expandXrefs` INTEGER DEFAULT NULL, `text_display_settings_showXrefs` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `workspace_settings_enableTiltToScroll` INTEGER DEFAULT 0, `workspace_settings_enableReverseSplitMode` INTEGER DEFAULT 0, `workspace_settings_autoPin` INTEGER DEFAULT 1, `workspace_settings_speakSettings` TEXT DEFAULT NULL, `workspace_settings_recentLabels` TEXT DEFAULT NULL, `workspace_settings_favouriteLabels` TEXT DEFAULT NULL, `workspace_settings_autoAssignLabels` TEXT DEFAULT NULL, `workspace_settings_autoAssignPrimaryLabel` BLOB DEFAULT NULL, `workspace_settings_hideCompareDocuments` TEXT DEFAULT NULL, `workspace_settings_limitAmbiguousModalSize` INTEGER DEFAULT 0, `workspace_settings_workspaceColor` INTEGER DEFAULT NULL, PRIMARY KEY(`id`))");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `Window` (`workspaceId` BLOB NOT NULL, `isSynchronized` INTEGER NOT NULL, `isPinMode` INTEGER NOT NULL, `isLinksWindow` INTEGER NOT NULL, `id` BLOB NOT NULL, `orderNumber` INTEGER NOT NULL, `targetLinksWindowId` BLOB DEFAULT NULL, `syncGroup` INTEGER NOT NULL DEFAULT 0, `window_layout_state` TEXT NOT NULL, `window_layout_weight` REAL NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Window_workspaceId` ON `Window` (`workspaceId`)");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `HistoryItem` (`windowId` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `document` TEXT NOT NULL, `key` TEXT NOT NULL, `anchorOrdinal` INTEGER DEFAULT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `HistoryItem` (`windowId` BLOB NOT NULL, `createdAt` INTEGER NOT NULL, `document` TEXT NOT NULL, `key` TEXT NOT NULL, `anchorOrdinal` INTEGER DEFAULT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_HistoryItem_windowId` ON `HistoryItem` (`windowId`)");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `PageManager` (`windowId` TEXT NOT NULL, `currentCategoryName` TEXT NOT NULL, `bible_document` TEXT, `bible_verse_versification` TEXT NOT NULL, `bible_verse_bibleBook` INTEGER NOT NULL, `bible_verse_chapterNo` INTEGER NOT NULL, `bible_verse_verseNo` INTEGER NOT NULL, `commentary_document` TEXT, `commentary_anchorOrdinal` INTEGER DEFAULT NULL, `dictionary_document` TEXT, `dictionary_key` TEXT, `dictionary_anchorOrdinal` INTEGER DEFAULT NULL, `general_book_document` TEXT, `general_book_key` TEXT, `general_book_anchorOrdinal` INTEGER DEFAULT NULL, `map_document` TEXT, `map_key` TEXT, `map_anchorOrdinal` INTEGER DEFAULT NULL, `text_display_settings_strongsMode` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_expandXrefs` INTEGER DEFAULT NULL, `text_display_settings_showXrefs` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, PRIMARY KEY(`windowId`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `PageManager` (`windowId` BLOB NOT NULL, `currentCategoryName` TEXT NOT NULL, `bible_document` TEXT, `bible_verse_versification` TEXT NOT NULL, `bible_verse_bibleBook` INTEGER NOT NULL, `bible_verse_chapterNo` INTEGER NOT NULL, `bible_verse_verseNo` INTEGER NOT NULL, `commentary_document` TEXT, `commentary_anchorOrdinal` INTEGER DEFAULT NULL, `dictionary_document` TEXT, `dictionary_key` TEXT, `dictionary_anchorOrdinal` INTEGER DEFAULT NULL, `general_book_document` TEXT, `general_book_key` TEXT, `general_book_anchorOrdinal` INTEGER DEFAULT NULL, `map_document` TEXT, `map_key` TEXT, `map_anchorOrdinal` INTEGER DEFAULT NULL, `text_display_settings_strongsMode` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_expandXrefs` INTEGER DEFAULT NULL, `text_display_settings_showXrefs` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, PRIMARY KEY(`windowId`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
             _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_PageManager_windowId` ON `PageManager` (`windowId`)");
-            _db.execSQL("CREATE TABLE IF NOT EXISTS `LogEntry` (`tableName` TEXT NOT NULL, `entityId1` TEXT NOT NULL, `entityId2` TEXT NOT NULL DEFAULT '', `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, `sourceDevice` TEXT NOT NULL, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `LogEntry` (`tableName` TEXT NOT NULL, `entityId1` BLOB NOT NULL, `entityId2` BLOB NOT NULL, `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, `sourceDevice` TEXT NOT NULL, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `LogEntry` (`lastUpdated`)");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_sourceDevice` ON `LogEntry` (`sourceDevice`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncConfiguration` (`keyName` TEXT NOT NULL, `stringValue` TEXT, `longValue` INTEGER, `booleanValue` INTEGER, PRIMARY KEY(`keyName`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `SyncStatus` (`sourceDevice` TEXT NOT NULL, `patchNumber` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`sourceDevice`, `patchNumber`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd462c182cfb9c8bc1aeeea2888c6d0b1')");
+            _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4bf98e71faae835422c6aad319b3c3e6')");
 
             setPragmas(_db);
         }
@@ -233,9 +238,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
             execSQL("PRAGMA foreign_keys=OFF;")
 
-            execSQL("CREATE TABLE WorkspaceMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("CREATE TABLE WorkspaceMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO WorkspaceMap SELECT id, $GENERATE_UUID4_SQL FROM Workspace")
-            execSQL("CREATE TABLE WindowMap (id INTEGER NOT NULL, uuid TEXT NOT NULL, PRIMARY KEY(id))")
+            execSQL("CREATE TABLE WindowMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO WindowMap SELECT id, $GENERATE_UUID4_SQL FROM Window")
 
             val workspaceNames = getColumnNames(oldDb, "Workspace", "new").map {
@@ -310,30 +315,39 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
                 "autoAssignLabels",
             ).joinToString(",") { "`workspace_settings_$it`" }
 
-            val labelMap = mutableMapOf<Long, String>()
+            val labelMap = mutableMapOf<Long, ByteArray>()
             query("SELECT id,uuid FROM LabelMap").use {
                 while (it.moveToNext()) {
-                    labelMap[it.getLong(0)] = it.getString(1)
+                    labelMap[it.getLong(0)] = it.getBlob(1)
                 }
             }
 
             query("SELECT id,$workspaceSettings,`text_display_settings_bookmarksHideLabels` FROM new.Workspace").use { cur ->
                 while (cur.moveToNext()) {
-                    val id = cur.getString(0)
+                    val id = cur.getBlob(0)
                     val recentLabels: List<OldRecentLabel> = json.decodeFromString(serializer(), cur.getString(1))
                     val favouriteLabels: List<Long> = json.decodeFromString(serializer(), cur.getString(2))
                     val autoAssignLabels: List<Long> = json.decodeFromString(serializer(), cur.getString(3))
                     val newRecentLabels: String = json.encodeToString(serializer(), recentLabels.mapNotNull { OldRecentLabel ->
                         val labelId = labelMap[OldRecentLabel.labelId] ?: return@mapNotNull null
-                        NewRecentLabel(labelId, OldRecentLabel.lastAccess)
+                        NewRecentLabel(IdType.fromByteArray(labelId).toString(), OldRecentLabel.lastAccess)
                     })
-                    val newFavouriteLabels: String = json.encodeToString(serializer(), favouriteLabels.mapNotNull { labelMap[it] })
-                    val newAutoAssignLabels: String = json.encodeToString(serializer(), autoAssignLabels.mapNotNull { labelMap[it] })
+                    val newFavouriteLabels: String = json.encodeToString(serializer(), favouriteLabels.mapNotNull {
+                        val v = labelMap[it] ?: return@mapNotNull null
+                        IdType.fromByteArray(v).toString()
+                    })
+                    val newAutoAssignLabels: String = json.encodeToString(serializer(), autoAssignLabels.mapNotNull {
+                        val v = labelMap[it] ?: return@mapNotNull null
+                        IdType.fromByteArray(v).toString()
+                    })
                     val bookmarksHideLabelsStr = cur.getStringOrNull(4)
                     val newBookmarksHideLabels: String? = if(bookmarksHideLabelsStr != null) {
                         val bookmarksHideLabels: List<Long> =
                             json.decodeFromString(serializer(), bookmarksHideLabelsStr)
-                        json.encodeToString(serializer(), bookmarksHideLabels.mapNotNull { labelMap[it] })
+                        json.encodeToString(serializer(), bookmarksHideLabels.mapNotNull {
+                            val v = labelMap[it] ?: return@mapNotNull null
+                            IdType.fromByteArray(v).toString()
+                        })
                     } else null
 
                     update("new.Workspace", CONFLICT_ABORT, ContentValues().apply {
@@ -347,7 +361,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
 
             query("SELECT windowId,text_display_settings_bookmarksHideLabels FROM new.PageManager WHERE text_display_settings_bookmarksHideLabels IS NOT NULL").use { cur ->
                 while (cur.moveToNext()) {
-                    val id = cur.getString(0)
+                    val id = cur.getBlob(0)
                     val bookmarksHideLabelsStr = cur.getString(1)
                     val newBookmarksHideLabels: String = run {
                         val bookmarksHideLabels: List<Long> =
@@ -419,12 +433,12 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             delete("new.LongSetting", "key = 'current_workspace_id'", null)
 
             val newWorkspaceId = query("SELECT uuid FROM WorkspaceMap WHERE id = ?", arrayOf(oldWorkspaceId)).use { cur ->
-                if (cur.moveToNext()) cur.getString(0) else null
+                if (cur.moveToNext()) cur.getBlob(0) else null
             }
             if(oldWorkspaceId != null && newWorkspaceId != null) {
                 insert("new.StringSetting", CONFLICT_ABORT, ContentValues().apply {
                     put("key", "current_workspace_id")
-                    put("value", newWorkspaceId)
+                    put("value", IdType.fromByteArray(newWorkspaceId).toString())
                 })
             }
 

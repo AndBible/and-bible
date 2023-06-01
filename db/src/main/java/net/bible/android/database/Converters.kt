@@ -41,10 +41,12 @@ import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-
-import java.util.*
+import java.lang.IllegalArgumentException
+import java.util.Date
+import java.util.UUID
 
 object UUIDSerializer : KSerializer<UUID> {
     override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
@@ -63,7 +65,7 @@ class IdType(
     @Serializable(with = UUIDSerializer::class)
     val uuid: UUID? = UUID.randomUUID(),
 ): Comparable<IdType> {
-    constructor(s: String?): this(if(s == null) null else UUID.fromString(s))
+    constructor(s: String?): this(if(s == null) null else try {UUID.fromString(s)} catch (e: IllegalArgumentException) {null})
     override fun compareTo(other: IdType): Int = compareValuesBy(this, other) {it.uuid}
     override fun toString(): String {
         return uuid?.toString()?: ""
@@ -74,6 +76,7 @@ class IdType(
         fun empty() = IdType(null as String?)
         fun random() = IdType()
         fun fromString(value: String) = if(value.isEmpty()) IdType.empty() else IdType(UUID.fromString(value))
+        fun fromByteArray(value: ByteArray) = Converters().blobToIdType(value)
     }
 }
 
@@ -82,10 +85,41 @@ class Converters {
     fun toLabelType(value: String?) = if(value==null) null else LabelType.valueOf(value)
 
     @TypeConverter
-    fun idtypeToString(value: IdType?) = value?.toString()
+    fun idTypeToBlob(value: IdType?): ByteArray? {
+        if(value == null) return null
+        val uuid = value.uuid ?: return null
+        val l1 = uuid.mostSignificantBits
+        val l2 = uuid.leastSignificantBits
+
+        var l = l1
+        val result = ByteArray(16)
+        for (i in 8 - 1 downTo 0) {
+            result[i] = (l and 0xFFL).toByte()
+            l = l shr java.lang.Byte.SIZE
+        }
+        l = l2
+        for (i in 16 - 1 downTo 8) {
+            result[i] = (l and 0xFFL).toByte()
+            l = l shr java.lang.Byte.SIZE
+        }
+        return result
+    }
 
     @TypeConverter
-    fun stringToIdType(value: String?) = if(value==null) null else IdType.fromString(value)
+    fun blobToIdType(value: ByteArray?): IdType? {
+        if(value==null) return null
+        var bits1 = 0L
+        for (i in 0 until 8) {
+            bits1 = bits1 shl java.lang.Byte.SIZE
+            bits1 = bits1 or (value[i].toInt() and 0xFF).toLong()
+        }
+        var bits2 = 0L
+        for (i in 8 until 16) {
+            bits2 = bits2 shl java.lang.Byte.SIZE
+            bits2 = bits2 or (value[i].toInt() and 0xFF).toLong()
+        }
+        return IdType(UUID(bits1, bits2))
+    }
 
     @TypeConverter
     fun fromLabelType(value: LabelType?) = value?.name
