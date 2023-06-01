@@ -31,10 +31,13 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseDefinition
 import net.bible.service.db.DatabasePatching
 import org.hamcrest.CoreMatchers.equalTo
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import java.io.File
 import java.util.UUID
+
+infix fun <E, T : Iterable<E>> T?.mustEqualTo(theOther: Iterable<E>) = Assert.assertEquals(theOther, this)
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -68,6 +71,10 @@ class DatabasePatchingTests {
         val patch2 = DatabasePatching.createPatchForDatabase(dbDef2)
         if(patch2 != null) DatabasePatching.applyPatchesForDatabase(dbDef1, patch2)
         if(patch1 != null) DatabasePatching.applyPatchesForDatabase(dbDef2, patch1)
+        checkLog(dbDef1, dbDef2)
+    }
+    private fun checkLog(dbDef1: DatabaseDefinition<*>, dbDef2: DatabaseDefinition<*>) {
+        dbDef1.dao.allLogEntries() mustEqualTo dbDef2.dao.allLogEntries()
     }
 
     @Test
@@ -81,6 +88,7 @@ class DatabasePatchingTests {
 
         val patchFile = DatabasePatching.createPatchForDatabase(dbDef1)!!
         DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile)
+        checkLog(dbDef1, dbDef2)
         assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
         assertThat(DatabasePatching.createPatchForDatabase(dbDef1), equalTo(null))
         assertThat(DatabasePatching.createPatchForDatabase(dbDef2), equalTo(null))
@@ -96,11 +104,7 @@ class DatabasePatchingTests {
         dbDef2.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 3"))
         dbDef2.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 4"))
 
-        val patchFile1 = DatabasePatching.createPatchForDatabase(dbDef1)!!
-        val patchFile2 = DatabasePatching.createPatchForDatabase(dbDef2)!!
-
-        DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1)
-        DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
+        sync(dbDef1, dbDef2)
 
         assertThat(dbDef1.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(4))
         assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(4))
@@ -120,11 +124,12 @@ class DatabasePatchingTests {
 
         val patchFile1 = DatabasePatching.createPatchForDatabase(dbDef1)!!
         DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1)
+        checkLog(dbDef1, dbDef2)
 
         dbDef2.localDb.bookmarkDao().delete(label1)
         val patchFile2 = DatabasePatching.createPatchForDatabase(dbDef2)!!
-
         DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
+        checkLog(dbDef1, dbDef2)
 
         assertThat(dbDef1.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(1))
         assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(1))
@@ -144,13 +149,14 @@ class DatabasePatchingTests {
 
         val patchFile1 = DatabasePatching.createPatchForDatabase(dbDef1)!!
         DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1)
+        checkLog(dbDef1, dbDef2)
 
         val label1mod = label1.copy()
         label1mod.name = "label 1 mod"
         dbDef2.localDb.bookmarkDao().update(label1mod)
         val patchFile2 = DatabasePatching.createPatchForDatabase(dbDef2)!!
-
         DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
+        checkLog(dbDef1, dbDef2)
 
         assertThat(dbDef1.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
         assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
@@ -172,6 +178,7 @@ class DatabasePatchingTests {
 
         val patchFile1 = DatabasePatching.createPatchForDatabase(dbDef1)!!
         DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1)
+        checkLog(dbDef1, dbDef2)
 
         val label1mod1 = label1.copy()
         val label1mod2 = label1.copy()
@@ -180,11 +187,7 @@ class DatabasePatchingTests {
         dbDef2.localDb.bookmarkDao().update(label1mod1)
         dbDef1.localDb.bookmarkDao().update(label1mod2)
 
-        val patchFile2 = DatabasePatching.createPatchForDatabase(dbDef2)!!
-        val patchFile1b = DatabasePatching.createPatchForDatabase(dbDef1)!!
-
-        DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
-        DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1b)
+        sync(dbDef1, dbDef2)
 
         assertThat(dbDef1.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
         assertThat(dbDef2.localDb.bookmarkDao().allLabelsSortedByName().size, equalTo(2))
@@ -233,6 +236,7 @@ class DatabasePatchingTests {
         DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
         val bls1 = dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id)
         assertThat(bls1.size, equalTo(0))
+        checkLog(dbDef1, dbDef2)
     }
 
     @Test

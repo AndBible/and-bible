@@ -53,7 +53,7 @@ data class LogEntry(
     @ColumnInfo(defaultValue = "0") val lastUpdated: Long,
     val sourceDevice: String,
 ) {
-    override fun toString(): String = "$sourceDevice $tableName $type $entityId1 $entityId2 ($lastUpdated)"
+    override fun toString(): String = "$tableName $type $entityId1 $entityId2 ($lastUpdated) (device: $sourceDevice)"
 }
 
 @Entity
@@ -83,7 +83,7 @@ interface SyncDao {
     @Query("SELECT COUNT(*) FROM LogEntry WHERE sourceDevice=:deviceId AND lastUpdated > :lastPatchWritten")
     fun countNewLogEntries(lastPatchWritten: Long, deviceId: String): Long
 
-    @Query("SELECT * FROM LogEntry")
+    @Query("SELECT * FROM LogEntry ORDER BY lastUpdated, tableName, type")
     fun allLogEntries(): List<LogEntry>
 
     @Query("SELECT * FROM LogEntry WHERE tableName=:tableName AND type=:type")
