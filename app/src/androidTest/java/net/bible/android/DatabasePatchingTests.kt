@@ -30,7 +30,6 @@ import net.bible.service.db.DatabaseCategory
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseDefinition
 import net.bible.service.db.DatabasePatching
-import org.crosswire.jsword.versification.system.Versifications
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Before
 import org.junit.Test
@@ -205,5 +204,23 @@ class DatabasePatchingTests {
 
         val patchFile1 = DatabasePatching.createPatchForDatabase(dbDef1)!!
         DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1)
+        val bl2 = BookmarkEntities.BookmarkToLabel(bookmark2, label1)
+        dbDef2.localDb.bookmarkDao().insert(bl2)
+        dbDef1.localDb.bookmarkDao().delete(label1)
+
+        // Now these patch files are conflicting: in one, there's new usage of label1, in other, label1 is removed
+        val patchFile1b = DatabasePatching.createPatchForDatabase(dbDef1)!!
+        val patchFile2 = DatabasePatching.createPatchForDatabase(dbDef2)!!
+
+        DatabasePatching.applyPatchesForDatabase(dbDef2, patchFile1b)
+        val bls2 = dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id)
+        assertThat(bls2.size, equalTo(0))
+
+        /**
+         * Yritetän laittaa BookmarkToLabelia
+         */
+        //DatabasePatching.applyPatchesForDatabase(dbDef1, patchFile2)
+        //val bls1 = dbDef1.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark1.id)
+        //assertThat(bls1.size, equalTo(0))
     }
 }
