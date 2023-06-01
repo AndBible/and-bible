@@ -76,10 +76,6 @@ class SyncStatus(
 
 @Dao
 interface SyncDao {
-
-    @Query("SELECT patchNumber FROM SyncStatus WHERE sourceDevice = :deviceId ORDER BY patchNumber DESC LIMIT 1")
-    fun lastPatchNum(deviceId: String): Long?
-
     @Query("SELECT COUNT(*) FROM LogEntry WHERE sourceDevice=:deviceId AND lastUpdated > :lastPatchWritten")
     fun countNewLogEntries(lastPatchWritten: Long, deviceId: String): Long
 
@@ -91,6 +87,9 @@ interface SyncDao {
 
     @Query("DELETE FROM LogEntry")
     fun clearLog()
+
+    @Query("SELECT patchNumber FROM SyncStatus WHERE sourceDevice=:deviceId ORDER BY patchNumber DESC LIMIT 1")
+    fun lastPatchNum(deviceId: String): Long?
 
     @Query("SELECT * FROM SyncStatus")
     fun allSyncStatus(): List<SyncStatus>

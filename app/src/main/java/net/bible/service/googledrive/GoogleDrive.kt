@@ -79,6 +79,7 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
 
 const val SYNC_FOLDER_FILE_ID_KEY = "syncId"
 const val SYNC_DEVICE_FOLDER_FILE_ID_KEY = "deviceFolderId"
+const val LAST_PATCH_WRITTEN_KEY = "lastPatchWritten"
 
 const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 
@@ -289,6 +290,9 @@ object GoogleDrive {
         tmpFile.delete()
         dbDef.resetLocalDb()
         dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
+        dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
+        DatabasePatching.dropTriggers(dbDef)
+        DatabasePatching.createTriggers(dbDef)
     }
 
     private val syncMutex = Mutex()
@@ -346,7 +350,7 @@ object GoogleDrive {
         }
         Log.i(TAG, "folders \n${folderResult.joinToString("\n") { "${it.id} ${it.name}" }}")
         val folderFilter = folderResult.map { it.id }.joinToString(" or ") { "'$it' in parents" }
-        val filterPatchFiles = "($folderFilter) and mimeType='$GZIP_MIMETYPE' and createdTime > '$lastSynchronizedString'"
+        val filterPatchFiles = "($folderFilter) and mimeType='$GZIP_MIMETYPE'"
         Log.i(TAG, "filterPatchFiles: $filterPatchFiles")
 
         val patchResults = service.files().list()

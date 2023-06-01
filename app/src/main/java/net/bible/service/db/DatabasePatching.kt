@@ -31,6 +31,7 @@ import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.forEach
 import net.bible.service.common.getFirst
+import net.bible.service.googledrive.LAST_PATCH_WRITTEN_KEY
 import java.io.File
 
 class TableDef(val tableName: String, val idField1: String = "id", val idField2: String? = null)
@@ -140,6 +141,12 @@ object DatabasePatching {
         }
     }
 
+    fun dropTriggers(dbDef: DatabaseDefinition<*>) {
+        for(tableDef in dbDef.tableDefinitions) {
+            dropTriggersForTable(dbDef, tableDef)
+        }
+    }
+
     private fun writePatchData(db: SupportSQLiteDatabase, tableDef: TableDef, lastPatchWritten: Long) = db.run {
         val table = tableDef.tableName
         val idField1 = tableDef.idField1
@@ -226,7 +233,7 @@ object DatabasePatching {
     }
 
     fun createPatchForDatabase(dbDef: DatabaseDefinition<*>): File? {
-        val lastPatchWritten = dbDef.dao.getLong("lastPatchWritten")?: 0
+        val lastPatchWritten = dbDef.dao.getLong(LAST_PATCH_WRITTEN_KEY)?: 0
         val patchDbFile = File.createTempFile("created-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
 
         dbDef.writableDb.run {
@@ -249,7 +256,7 @@ object DatabasePatching {
             endTransaction()
             execSQL("PRAGMA patch.foreign_keys=ON;")
             execSQL("DETACH DATABASE patch")
-            dbDef.dao.setConfig("lastPatchWritten", System.currentTimeMillis())
+            dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
         }
 
         val gzippedOutput = CommonUtils.tmpFile
