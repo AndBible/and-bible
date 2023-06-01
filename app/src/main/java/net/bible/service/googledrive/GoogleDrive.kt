@@ -189,7 +189,7 @@ object GoogleDrive {
                     }
                 }
                 if (initialOperation == null) {
-                    disablePref(dbDef.category)
+                    dbDef.category.setStatus(false)
                     throw CancelSync()
                 } else {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
@@ -235,19 +235,6 @@ object GoogleDrive {
             }
             null -> {}
         }
-    }
-
-    private fun disablePref(category: DatabaseCategory) {
-        val pref = CommonUtils.settings.getStringSet("google_drive_sync", emptySet()).toMutableSet()
-        if(pref.contains(category.name)) {
-            pref.remove(category.name)
-            CommonUtils.settings.setStringSet("google_drive_sync", pref)
-        }
-    }
-
-    private fun prefEnabled(category: DatabaseCategory): Boolean {
-        val pref = CommonUtils.settings.getStringSet("google_drive_sync", emptySet()).toMutableSet()
-        return pref.contains(category.name)
     }
 
     private fun createAndUploadInitial(dbDef: DatabaseDefinition<*>) {
@@ -311,7 +298,7 @@ object GoogleDrive {
 
             DatabaseContainer.dbDefFactories.asyncMap {
                 val dbDef = it.invoke()
-                if(!prefEnabled(dbDef.category)) return@asyncMap
+                if(!dbDef.category.enabled) return@asyncMap
                 try {
                     initializeSync(dbDef)
                 } catch (e: CancelSync) {

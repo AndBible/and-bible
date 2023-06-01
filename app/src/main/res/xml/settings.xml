@@ -94,11 +94,6 @@
 			android:entryValues="@array/prefs_night_mode_values"
 			android:icon="@drawable/ic_night_mode_switching_24dp"
 			android:defaultValue="system"/>
-		<MultiSelectListPreference android:key="google_drive_sync"
-			android:title="@string/prefs_google_drive_sync_title"
-			android:summary="@string/prefs_google_drive_sync_summary"
-			android:icon="@drawable/baseline_add_to_drive_24"
-			/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/prefs_display_customization_cat">

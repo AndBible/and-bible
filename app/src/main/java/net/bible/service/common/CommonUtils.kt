@@ -105,6 +105,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.service.db.DatabaseCategory
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
@@ -1328,11 +1329,11 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    val isGoogleDriveSyncEnabled get () =
+    val isGoogleDriveSyncEnabled: Boolean get () =
         if(BuildVariant.Appearance.isDiscrete)
             false
         else
-            settings.getStringSet("google_drive_sync").isNotEmpty()
+            DatabaseCategory.ALL.filter { it.enabled }.any()
     val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
     val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
 

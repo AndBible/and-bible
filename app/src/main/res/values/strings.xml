@@ -1116,9 +1116,9 @@
     <string name="reference_copied_to_clipboard">Reference copied to clipboard</string>
     <string name="prefs_expand_footnotes_title">Inline cross references</string>
     <string name="prefs_expand_footnotes_summary">Show cross reference content in-line within the text, instead of a link that opens a pop-up dialog</string>
-    <string name="prefs_google_drive_sync_title">Google Drive synchronization</string>
     <string name="prefs_google_drive_sync_summary">
-        Use this if you have multiple devices that you want to keep in sync.
+        If you have multiple devices that you want to keep in sync, you can enable synchronization via Google Drive.
+        You can choose here which categories you wish to synchronize.
         Application is granted access only to applications own files in Google Drive, not any personal files.
     </string>
     <string name="restore_backup_sections">Which backup sections do you want to restore?</string>
@@ -1133,5 +1133,6 @@
     <string name="gdrive_fetch_and_restore_initial">Copy database from Google Drive</string>
     <string name="gdrive_create_new">Copy database to Google Drive</string>
     <string name="gdrive_disable_sync">Cancel &amp; disable sync</string>
-    <string name="gdrive_title">Google Drive Synchronization</string>
+    <string name="gdrive_title">Device synchronization via Google Drive</string>
+    <string name="device_sync">Synchronize devices</string>
 </resources>

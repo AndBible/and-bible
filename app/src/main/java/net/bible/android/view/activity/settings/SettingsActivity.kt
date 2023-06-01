@@ -186,31 +186,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun setupDrivePref(pref: MultiSelectListPreference) {
-        pref.entries = DatabaseCategory.ALL.map {
-            getString(it.contentDescription)
-        }.toTypedArray()
-        pref.entryValues = DatabaseCategory.ALL.map { it.name }.toTypedArray()
-
-        pref.setOnPreferenceChangeListener { preference, newValue ->
-            val newValueSet = newValue as Set<*>
-            if((newValueSet).isNotEmpty()) {
-                lifecycleScope.launch {
-                    if(!GoogleDrive.signedIn) {
-                        val success = GoogleDrive.signIn(this@SettingsFragment.activity as ActivityBase)
-                        if (!success) {
-                            pref.values = null
-                        }
-                    }
-                    if (GoogleDrive.signedIn && newValueSet.isNotEmpty()) {
-                        GoogleDrive.synchronizeWithHourGlass(this@SettingsFragment.activity as ActivityBase)
-                    }
-                }
-            }
-            true
-        }
-    }
-
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
         setPreferencesFromResource(R.xml.settings, rootKey)
@@ -324,12 +299,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         } else {
             openLinksPref.isVisible = false
-        }
-        val googleDrivePreference = preferenceScreen.findPreference<MultiSelectListPreference>("google_drive_sync") as MultiSelectListPreference
-        if (BuildVariant.Appearance.isDiscrete) {
-            googleDrivePreference.isVisible = false
-        } else {
-            setupDrivePref(googleDrivePreference)
         }
 
         for(p in getPreferenceList()) {
