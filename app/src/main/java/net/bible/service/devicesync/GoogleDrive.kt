@@ -46,8 +46,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.backup.FOLDER_MIMETYPE
-import net.bible.android.control.backup.GZIP_MIMETYPE
 import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -61,6 +59,8 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
+const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
+const val GZIP_MIMETYPE = "application/gzip"
 
 suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
     addOnSuccessListener { result ->

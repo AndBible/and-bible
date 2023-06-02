@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
-import io.requery.android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -54,7 +53,6 @@ import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.bridge.BookIndexer
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
-import org.crosswire.jsword.versification.BibleBook
 import java.util.Locale
 
 object MyLocaleProvider: LocaleProvider {
