@@ -35,7 +35,7 @@ import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
-import net.bible.service.db.BookmarksUpdatedEvent
+import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -247,7 +247,7 @@ open class BookmarkControl @Inject constructor(
         ABEventBus.post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
     }
 
-    fun onEvent(e: BookmarksUpdatedEvent) {
+    fun onEvent(e: BookmarksUpdatedViaSyncEvent) {
         for(b in dao.bookmarksByIds(e.updated)) {
             addLabels(b)
             addText(b)

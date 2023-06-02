@@ -114,7 +114,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.common.windowPinningVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.WorkspacesUpdatedEvent
+import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
@@ -1281,7 +1281,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    fun onEventMainThread(event: WorkspacesUpdatedEvent) {
+    fun onEventMainThread(event: WorkspacesUpdatedViaSyncEvent) {
         val entries = event.updated
         val workspaceDeleted = entries.any {
             it.tableName == "Workspace" &&
