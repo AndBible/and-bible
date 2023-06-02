@@ -48,7 +48,7 @@ import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.migrations.workspacesMigrations
 import net.bible.service.db.oldmigrations.oldMigrations
 import net.bible.service.devicesync.DatabaseCategory
-import net.bible.service.devicesync.DatabaseSynchronization
+import net.bible.service.devicesync.DatabaseSync
 import net.bible.service.devicesync.SyncableDatabaseDefinition
 import java.io.File
 import java.text.SimpleDateFormat
@@ -153,7 +153,7 @@ class DatabaseContainer {
     init {
         if(!application.isRunningTests) {
             for (dbDefFac in getDatabaseDefinitions(this)) {
-                DatabaseSynchronization.createTriggers(dbDefFac())
+                DatabaseSync.createTriggers(dbDefFac())
             }
         }
     }

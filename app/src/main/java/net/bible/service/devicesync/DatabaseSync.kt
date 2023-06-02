@@ -93,7 +93,7 @@ class SyncableDatabaseDefinition<T: SyncableRoomDatabase>(
     val writableDb get() = localDb.openHelper.writableDatabase
     val tableDefinitions get() = category.tables
 }
-object DatabaseSynchronization {
+object DatabaseSync {
     private fun createTriggersForTable(
         dbDef: SyncableDatabaseDefinition<*>,
         tableDef: SyncableDatabaseDefinition.TableDefinition,

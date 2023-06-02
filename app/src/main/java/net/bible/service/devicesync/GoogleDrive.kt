@@ -275,8 +275,8 @@ object GoogleDrive {
         dbDef.resetLocalDb()
         dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
-        DatabaseSynchronization.dropTriggers(dbDef)
-        DatabaseSynchronization.createTriggers(dbDef)
+        DatabaseSync.dropTriggers(dbDef)
+        DatabaseSync.createTriggers(dbDef)
     }
 
     private val syncMutex = Mutex()
@@ -386,7 +386,7 @@ object GoogleDrive {
             SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.getSize(), it.file.createdTime.value)
         }
 
-        DatabaseSynchronization.applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
+        DatabaseSync.applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
         downloadedFiles.forEach { it.delete() }
 
         dbDef.reactToUpdates(lastSynchronized)
@@ -395,7 +395,7 @@ object GoogleDrive {
     }
     private suspend fun createAndUploadNewPatch(dbDef: SyncableDatabaseDefinition<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
-        val file = DatabaseSynchronization.createPatchForDatabase(dbDef)?: return@withContext
+        val file = DatabaseSync.createPatchForDatabase(dbDef)?: return@withContext
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
         val content = FileContent(GZIP_MIMETYPE, file)
