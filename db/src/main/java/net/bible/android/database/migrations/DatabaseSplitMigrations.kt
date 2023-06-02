@@ -35,20 +35,6 @@ import net.bible.android.database.json
 import java.sql.Blob
 import java.util.UUID
 
-// from https://stackoverflow.com/questions/17277735/using-uuids-in-sqlite
-// val GENERATE_UUID4_SQL = """
-//     LOWER(HEX(RANDOMBLOB(4))
-//     || '-'
-//     || HEX(RANDOMBLOB(2))
-//     || '-'
-//     || '4'
-//     || SUBSTR(HEX(RANDOMBLOB(2)), 2)
-//     || '-'
-//     || SUBSTR('AB89', 1 + (ABS(RANDOM()) % 4) , 1)
-//     || SUBSTR(HEX(RANDOMBLOB(2)), 2)
-//     || '-'
-//     || HEX(RANDOMBLOB(6)))""".trimIndent()
-
 const val GENERATE_UUID4_SQL = "randomblob(16)"
 
 class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app: Application) {
