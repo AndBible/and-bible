@@ -38,7 +38,6 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 
-@Ignore("Should be fixed at some point... maybe")
 class ProgressStatusTests
     {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
