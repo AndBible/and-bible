@@ -34,7 +34,7 @@ class ReadingPlanEntities {
         val planCode: String,
         var planStartDate: Date,
         @ColumnInfo(defaultValue = "1") var planCurrentDay: Int = 1,
-        @PrimaryKey val id: String = IdType().toString()
+        @PrimaryKey val id: IdType = IdType()
     )
 
     @Entity(indices = [Index(value = ["planCode", "planDay"], unique = true)])
@@ -42,6 +42,6 @@ class ReadingPlanEntities {
         val planCode: String,
         val planDay: Int,
         val readingStatus: String,
-        @PrimaryKey val id: String = IdType().toString()
+        @PrimaryKey val id: IdType = IdType()
     )
 }
