@@ -395,14 +395,7 @@ dependencies {
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("junit:junit:4.13.2")
 
-    // Android UI testing
-
-
-    //androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-    //androidTestImplementation("org.hamcrest:hamcrest-library:2.2")
-    //androidTestImplementation("org.mockito:mockito-core:3.12.4")
-    //androidTestImplementation("junit:junit:4.13.2")
-
+    // Android instrumentation testing
 
     // Core library
     androidTestImplementation("androidx.test:core:1.5.0")
