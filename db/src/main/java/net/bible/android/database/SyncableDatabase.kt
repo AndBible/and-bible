@@ -91,6 +91,9 @@ interface SyncDao {
     @Insert
     fun addStatus(status: SyncStatus): Long
 
+    @Query("DELETE FROM SyncStatus")
+    fun clearSyncStatus()
+
     @Query("SELECT stringValue FROM SyncConfiguration WHERE keyName = :keyName")
     fun getString(keyName: String): String?
 
@@ -105,6 +108,9 @@ interface SyncDao {
 
     @Query("DELETE FROM SyncConfiguration WHERE keyName = :keyName")
     fun removeConfig(keyName: String)
+
+    @Query("DELETE FROM SyncConfiguration")
+    fun clearSyncConfiguration()
 
     fun setConfig(key: String, value: Long) = setConfig(SyncConfiguration(key, longValue = value))
     fun setConfig(key: String, value: String) = setConfig(SyncConfiguration(key, stringValue = value))

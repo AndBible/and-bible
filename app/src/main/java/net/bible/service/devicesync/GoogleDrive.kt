@@ -236,6 +236,7 @@ object GoogleDrive {
 
     private fun createAndUploadInitial(dbDef: SyncableDatabaseDefinition<*>) {
         dbDef.dao.clearLog()
+        dbDef.dao.clearSyncStatus()
         dbDef.writableDb.query("VACUUM;").use {  }
         val tmpFile = CommonUtils.tmpFile
         val gzippedTmpFile = CommonUtils.tmpFile
