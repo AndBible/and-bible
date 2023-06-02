@@ -389,9 +389,7 @@ object GoogleDrive {
 
         DatabaseSync.applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
         downloadedFiles.forEach { it.delete() }
-
         dbDef.reactToUpdates(lastSynchronized)
-
         dbDef.dao.addStatuses(syncStatuses)
     }
     private suspend fun createAndUploadNewPatch(dbDef: SyncableDatabaseDefinition<*>) = withContext(Dispatchers.IO) {
