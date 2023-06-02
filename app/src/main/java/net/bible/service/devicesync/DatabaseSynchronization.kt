@@ -29,6 +29,8 @@ import net.bible.service.common.getFirst
 import net.bible.service.db.TAG
 import java.io.File
 
+const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
+
 enum class DatabaseCategory {
     BOOKMARKS, WORKSPACES, READINGPLANS;
     val contentDescription: Int get() = when(this) {
@@ -112,23 +114,26 @@ object DatabaseSynchronization {
 
         val db = dbDef.writableDb
         val deviceId = dbDef.deviceId
+        val whenCondition = """
+            WHEN (SELECT count(*) FROM SyncConfiguration WHERE keyName='${TRIGGERS_DISABLED_KEY}' AND booleanValue = 1 LIMIT 1) = 0
+            """.trimIndent()
 
         db.execSQL("""
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName 
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName $whenCondition 
             BEGIN DELETE FROM LogEntry WHERE ${where("NEW")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("NEW")}, 'UPSERT', $timeStampFunc, '$deviceId'); 
             END;
         """.trimIndent()
         )
         db.execSQL("""
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName 
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName $whenCondition 
             BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'UPSERT', $timeStampFunc, '$deviceId'); 
             END;
         """.trimIndent()
         )
         db.execSQL("""
-            CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName 
+            CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName $whenCondition 
             BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', $timeStampFunc, '$deviceId'); 
             END;
@@ -294,9 +299,9 @@ object DatabaseSynchronization {
                 execSQL("PRAGMA foreign_keys=OFF;")
                 beginTransaction()
                 for (tableDef in dbDef.tableDefinitions) {
-                    dropTriggersForTable(dbDef, tableDef)
+                    dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
                     readPatchData(dbDef, tableDef)
-                    createTriggersForTable(dbDef, tableDef)
+                    dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
                 }
                 setTransactionSuccessful()
                 endTransaction()
