@@ -17,15 +17,7 @@
 
 package net.bible.android.database
 
-import androidx.room.ColumnInfo
-import androidx.room.Dao
 import androidx.room.Database
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.PrimaryKey
-import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import net.bible.android.database.bookmarks.BookmarkDao
@@ -35,104 +27,6 @@ import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
 import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
-
-enum class LogEntryTypes {
-    UPSERT,
-    DELETE
-}
-
-@Entity(
-    primaryKeys = ["tableName", "entityId1", "entityId2"],
-    indices = [Index("lastUpdated"), Index("sourceDevice")]
-)
-data class LogEntry(
-    val tableName: String,
-    val entityId1: IdType,
-    @ColumnInfo(defaultValue = "") val entityId2: IdType,
-    val type: LogEntryTypes,
-    @ColumnInfo(defaultValue = "0") val lastUpdated: Long,
-    val sourceDevice: String,
-) {
-    override fun toString(): String = "$tableName $type $entityId1 $entityId2 ($lastUpdated) (device: $sourceDevice)"
-}
-
-@Entity
-class SyncConfiguration(
-    @PrimaryKey val keyName: String,
-    val stringValue: String? = null,
-    val longValue: Long? = null,
-    val booleanValue: Boolean? = null,
-)
-
-@Entity(
-    primaryKeys = ["sourceDevice", "patchNumber"],
-)
-class SyncStatus(
-    val sourceDevice: String,
-    val patchNumber: Long,
-    val sizeBytes: Long,
-    val appliedDate: Long,
-)
-
-@Dao
-interface SyncDao {
-    @Query("SELECT COUNT(*) FROM LogEntry WHERE sourceDevice=:deviceId AND lastUpdated > :lastPatchWritten")
-    fun countNewLogEntries(lastPatchWritten: Long, deviceId: String): Long
-
-    @Query("SELECT * FROM LogEntry WHERE lastUpdated > :lastSynchronized")
-    fun newLogEntries(lastSynchronized: Long): List<LogEntry>
-
-    @Query("SELECT * FROM LogEntry ORDER BY lastUpdated, tableName, type")
-    fun allLogEntries(): List<LogEntry>
-
-    @Query("SELECT * FROM LogEntry WHERE tableName=:tableName AND type=:type")
-    fun findLogEntries(tableName: String, type: String): List<LogEntry>
-
-    @Query("DELETE FROM LogEntry")
-    fun clearLog()
-
-    @Query("SELECT patchNumber FROM SyncStatus WHERE sourceDevice=:deviceId ORDER BY patchNumber DESC LIMIT 1")
-    fun lastPatchNum(deviceId: String): Long?
-
-    @Query("SELECT * FROM SyncStatus")
-    fun allSyncStatus(): List<SyncStatus>
-
-    @Insert
-    fun addStatus(status: SyncStatus): Long
-
-    @Query("SELECT stringValue FROM SyncConfiguration WHERE keyName = :keyName")
-    fun getString(keyName: String): String?
-
-    @Query("SELECT longValue FROM SyncConfiguration WHERE keyName = :keyName")
-    fun getLong(keyName: String): Long?
-
-    @Query("SELECT booleanVAlue FROM SyncConfiguration WHERE keyName = :keyName")
-    fun getBoolean(keyName: String): Boolean?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun setConfig(config: SyncConfiguration)
-
-    @Query("DELETE FROM SyncConfiguration WHERE keyName = :keyName")
-    fun removeConfig(keyName: String)
-
-    fun setConfig(key: String, value: Long) = setConfig(SyncConfiguration(key, longValue = value))
-    fun setConfig(key: String, value: String) = setConfig(SyncConfiguration(key, stringValue = value))
-    fun setConfig(key: String, value: Boolean) = setConfig(SyncConfiguration(key, booleanValue = value))
-
-    @Query("SELECT * FROM LogEntry WHERE type = 'DELETE'")
-    fun allDeletions(): List<LogEntry>
-
-    @Insert
-    fun addStatuses(syncStatuses: List<SyncStatus>)
-
-    @Query("SELECT * from SyncStatus WHERE sourceDevice=:name AND patchNumber=:patchNumber")
-    fun syncStatus(name: String, patchNumber: Long): SyncStatus?
-}
-
-
-abstract class SyncableRoomDatabase: RoomDatabase() {
-    abstract fun syncDao(): SyncDao
-}
 
 
 @Database(
