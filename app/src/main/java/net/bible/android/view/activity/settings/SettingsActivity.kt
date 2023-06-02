@@ -27,7 +27,6 @@ import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.MultiSelectListPreference
@@ -35,7 +34,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -47,9 +45,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.makeLarger
 import net.bible.service.common.getPreferenceList
 import net.bible.service.common.htmlToSpan
-import net.bible.service.db.DatabaseCategory
 import net.bible.service.device.ScreenSettings.autoModeAvailable
-import net.bible.service.googledrive.GoogleDrive
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
 

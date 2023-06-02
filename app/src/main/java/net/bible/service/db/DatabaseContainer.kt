@@ -23,7 +23,6 @@ import androidx.room.RoomDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
@@ -48,6 +47,9 @@ import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.migrations.workspacesMigrations
 import net.bible.service.db.oldmigrations.oldMigrations
+import net.bible.service.devicesync.DatabaseCategory
+import net.bible.service.devicesync.DatabaseSynchronization
+import net.bible.service.devicesync.SyncableDatabaseDefinition
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -151,7 +153,7 @@ class DatabaseContainer {
     init {
         if(!application.isRunningTests) {
             for (dbDefFac in getDatabaseDefinitions(this)) {
-                DatabasePatching.createTriggers(dbDefFac())
+                DatabaseSynchronization.createTriggers(dbDefFac())
             }
         }
     }
@@ -289,9 +291,9 @@ class DatabaseContainer {
         }
 
         val dbDefFactories get() = getDatabaseDefinitions(instance)
-        fun getDatabaseDefinitions(container: DatabaseContainer): List<() -> DatabaseDefinition<*>> = container.run {
+        fun getDatabaseDefinitions(container: DatabaseContainer): List<() -> SyncableDatabaseDefinition<*>> = container.run {
             listOf(
-                { DatabaseDefinition(
+                { SyncableDatabaseDefinition(
                     bookmarkDb,
                     { n -> getBookmarkDb(n) }, { resetBookmarkDb() },
                     application.getDatabasePath(BookmarkDatabase.dbFileName),
@@ -304,7 +306,7 @@ class DatabaseContainer {
                         ABEventBus.post(BookmarksUpdatedEvent(bookmarkUpserts))
                     },
                 ) },
-                { DatabaseDefinition(
+                { SyncableDatabaseDefinition(
                     workspaceDb,
                     { n -> getWorkspaceDb(n) }, { resetWorkspaceDb() },
                     application.getDatabasePath(WorkspaceDatabase.dbFileName),
@@ -313,14 +315,14 @@ class DatabaseContainer {
                         ABEventBus.post(WorkspacesUpdatedEvent(it))
                     },
                 ) },
-                { DatabaseDefinition(
+                { SyncableDatabaseDefinition(
                     readingPlanDb,
                     { n -> getReadingPlanDb(n) },
                     { resetReadingPlanDb() },
                     application.getDatabasePath(ReadingPlanDatabase.dbFileName),
                     DatabaseCategory.READINGPLANS,
-                    {},
-                )},
+                )
+                },
             )
         }
 

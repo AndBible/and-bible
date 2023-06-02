@@ -18,8 +18,6 @@
 package net.bible.android.view.activity.settings
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -27,8 +25,8 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.db.DatabaseCategory
-import net.bible.service.googledrive.GoogleDrive
+import net.bible.service.devicesync.DatabaseCategory
+import net.bible.service.devicesync.GoogleDrive
 
 class SyncSettingsActivity: ActivityBase() {
     private lateinit var binding: SettingsDialogBinding

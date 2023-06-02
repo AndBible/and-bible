@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.googledrive
+package net.bible.service.devicesync
 
 import android.accounts.Account
 import android.app.Activity
@@ -54,10 +54,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
-import net.bible.service.db.DatabaseCategory
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.DatabaseDefinition
-import net.bible.service.db.DatabasePatching
 import java.util.Collections
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -135,7 +132,7 @@ object GoogleDrive {
 
     enum class InitialOperation {FETCH_INITIAL, CREATE_NEW}
     private val uiMutex = Mutex()
-    private suspend fun initializeSync(dbDef: DatabaseDefinition<*>) {
+    private suspend fun initializeSync(dbDef: SyncableDatabaseDefinition<*>) {
         var initialOperation: InitialOperation?= null
 
         val syncFolderName = "sync-${dbDef.categoryName}"
@@ -237,7 +234,7 @@ object GoogleDrive {
         }
     }
 
-    private fun createAndUploadInitial(dbDef: DatabaseDefinition<*>) {
+    private fun createAndUploadInitial(dbDef: SyncableDatabaseDefinition<*>) {
         dbDef.dao.clearLog()
         dbDef.writableDb.query("VACUUM;").use {  }
         val tmpFile = CommonUtils.tmpFile
@@ -257,7 +254,7 @@ object GoogleDrive {
         gzippedTmpFile.delete()
     }
 
-    private fun fetchAndRestoreInitial(dbDef: DatabaseDefinition<*>) {
+    private fun fetchAndRestoreInitial(dbDef: SyncableDatabaseDefinition<*>) {
         val deviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val fileId = service.files().list()
             .setSpaces("appDataFolder")
@@ -278,8 +275,8 @@ object GoogleDrive {
         dbDef.resetLocalDb()
         dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
-        DatabasePatching.dropTriggers(dbDef)
-        DatabasePatching.createTriggers(dbDef)
+        DatabaseSynchronization.dropTriggers(dbDef)
+        DatabaseSynchronization.createTriggers(dbDef)
     }
 
     private val syncMutex = Mutex()
@@ -315,7 +312,7 @@ object GoogleDrive {
     private val patchFilePattern = Regex("""(\d+)\.sqlite3\.gz""")
     private fun patchNumber(name: String): Long = patchFilePattern.find(name)!!.groups[1]!!.value.toLong()
 
-    private suspend fun downloadAndApplyNewPatches(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
+    private suspend fun downloadAndApplyNewPatches(dbDef: SyncableDatabaseDefinition<*>) = withContext(Dispatchers.IO) {
         val lastSynchronized = dbDef.dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
         val lastSynchronizedString = DateTime(lastSynchronized).toStringRfc3339()
         val syncFolder = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
@@ -389,16 +386,16 @@ object GoogleDrive {
             SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.getSize(), it.file.createdTime.value)
         }
 
-        DatabasePatching.applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
+        DatabaseSynchronization.applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
         downloadedFiles.forEach { it.delete() }
 
         dbDef.reactToUpdates(lastSynchronized)
 
         dbDef.dao.addStatuses(syncStatuses)
     }
-    private suspend fun createAndUploadNewPatch(dbDef: DatabaseDefinition<*>) = withContext(Dispatchers.IO) {
+    private suspend fun createAndUploadNewPatch(dbDef: SyncableDatabaseDefinition<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
-        val file = DatabasePatching.createPatchForDatabase(dbDef)?: return@withContext
+        val file = DatabaseSynchronization.createPatchForDatabase(dbDef)?: return@withContext
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
         val content = FileContent(GZIP_MIMETYPE, file)

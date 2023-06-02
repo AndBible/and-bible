@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.db
+package net.bible.service.devicesync
 
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -26,10 +26,8 @@ import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.getFirst
-import net.bible.service.googledrive.LAST_PATCH_WRITTEN_KEY
+import net.bible.service.db.TAG
 import java.io.File
-
-class TableDef(val tableName: String, val idField1: String = "id", val idField2: String? = null)
 
 enum class DatabaseCategory {
     BOOKMARKS, WORKSPACES, READINGPLANS;
@@ -41,19 +39,19 @@ enum class DatabaseCategory {
 
     val tables get() = when(this) {
         BOOKMARKS -> listOf(
-            TableDef("Label"),
-            TableDef("Bookmark"),
-            TableDef("BookmarkToLabel", "bookmarkId", "labelId"),
-            TableDef("StudyPadTextEntry"),
+            SyncableDatabaseDefinition.TableDefinition("Label"),
+            SyncableDatabaseDefinition.TableDefinition("Bookmark"),
+            SyncableDatabaseDefinition.TableDefinition("BookmarkToLabel", "bookmarkId", "labelId"),
+            SyncableDatabaseDefinition.TableDefinition("StudyPadTextEntry"),
         )
         WORKSPACES -> listOf(
-            TableDef("Workspace"),
-            TableDef("Window"),
-            TableDef("PageManager", "windowId"),
+            SyncableDatabaseDefinition.TableDefinition("Workspace"),
+            SyncableDatabaseDefinition.TableDefinition("Window"),
+            SyncableDatabaseDefinition.TableDefinition("PageManager", "windowId"),
         )
         READINGPLANS -> listOf(
-            TableDef("ReadingPlan"),
-            TableDef("ReadingPlanStatus"),
+            SyncableDatabaseDefinition.TableDefinition("ReadingPlan"),
+            SyncableDatabaseDefinition.TableDefinition("ReadingPlanStatus"),
         )
     }
 
@@ -66,15 +64,17 @@ enum class DatabaseCategory {
     }
 }
 
-class DatabaseDefinition<T: SyncableRoomDatabase>(
+class SyncableDatabaseDefinition<T: SyncableRoomDatabase>(
     var localDb: T,
     val dbFactory: (filename: String) -> T,
     private val _resetLocalDb: () -> T,
     val localDbFile: File,
     val category: DatabaseCategory,
-    val _reactToUpdates: (entries: List<LogEntry>) -> Unit,
+    val _reactToUpdates: ((entries: List<LogEntry>) -> Unit)? = null,
     val deviceId: String = CommonUtils.deviceIdentifier
 ) {
+    class TableDefinition(val tableName: String, val idField1: String = "id", val idField2: String? = null)
+
     fun resetLocalDb() {
         localDb = _resetLocalDb()
     }
@@ -82,7 +82,7 @@ class DatabaseDefinition<T: SyncableRoomDatabase>(
     fun reactToUpdates(lastSynchronized: Long) {
         val newEntries = dao.newLogEntries(lastSynchronized)
         if(newEntries.isNotEmpty()) {
-            _reactToUpdates(newEntries)
+            _reactToUpdates?.invoke(newEntries)
         }
     }
 
@@ -91,10 +91,10 @@ class DatabaseDefinition<T: SyncableRoomDatabase>(
     val writableDb get() = localDb.openHelper.writableDatabase
     val tableDefinitions get() = category.tables
 }
-object DatabasePatching {
+object DatabaseSynchronization {
     private fun createTriggersForTable(
-        dbDef: DatabaseDefinition<*>,
-        tableDef: TableDef,
+        dbDef: SyncableDatabaseDefinition<*>,
+        tableDef: SyncableDatabaseDefinition.TableDefinition,
     ) = tableDef.run {
         fun where(prefix: String): String =
             if(idField2 == null) {
@@ -136,26 +136,33 @@ object DatabasePatching {
         )
     }
 
-    private fun dropTriggersForTable(dbDef: DatabaseDefinition<*>, tableDef: TableDef) = dbDef.writableDb.run {
+    private fun dropTriggersForTable(
+        dbDef: SyncableDatabaseDefinition<*>,
+        tableDef: SyncableDatabaseDefinition.TableDefinition
+    ) = dbDef.writableDb.run {
         execSQL("DROP TRIGGER IF EXISTS ${tableDef.tableName}_inserts")
         execSQL("DROP TRIGGER IF EXISTS ${tableDef.tableName}_updates")
         execSQL("DROP TRIGGER IF EXISTS ${tableDef.tableName}_deletes")
     }
 
 
-    fun createTriggers(dbDef: DatabaseDefinition<*>) {
+    fun createTriggers(dbDef: SyncableDatabaseDefinition<*>) {
         for(tableDef in dbDef.tableDefinitions) {
             createTriggersForTable(dbDef, tableDef)
         }
     }
 
-    fun dropTriggers(dbDef: DatabaseDefinition<*>) {
+    fun dropTriggers(dbDef: SyncableDatabaseDefinition<*>) {
         for(tableDef in dbDef.tableDefinitions) {
             dropTriggersForTable(dbDef, tableDef)
         }
     }
 
-    private fun writePatchData(db: SupportSQLiteDatabase, tableDef: TableDef, lastPatchWritten: Long) = db.run {
+    private fun writePatchData(
+        db: SupportSQLiteDatabase,
+        tableDef: SyncableDatabaseDefinition.TableDefinition,
+        lastPatchWritten: Long
+    ) = db.run {
         val table = tableDef.tableName
         val idField1 = tableDef.idField1
         val idField2 = tableDef.idField2
@@ -179,8 +186,8 @@ object DatabasePatching {
     }
 
     private fun readPatchData(
-        dbDef: DatabaseDefinition<*>,
-        tableDef: TableDef,
+        dbDef: SyncableDatabaseDefinition<*>,
+        tableDef: SyncableDatabaseDefinition.TableDefinition,
     ) = dbDef.writableDb.run {
         val table = tableDef.tableName
         val idField1 = tableDef.idField1
@@ -240,7 +247,7 @@ object DatabasePatching {
         )
     }
 
-    fun createPatchForDatabase(dbDef: DatabaseDefinition<*>): File? {
+    fun createPatchForDatabase(dbDef: SyncableDatabaseDefinition<*>): File? {
         val lastPatchWritten = dbDef.dao.getLong(LAST_PATCH_WRITTEN_KEY)?: 0
         val patchDbFile = File.createTempFile("created-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
 
@@ -277,7 +284,7 @@ object DatabasePatching {
         return gzippedOutput
     }
 
-    fun applyPatchesForDatabase(dbDef: DatabaseDefinition<*>, vararg patchFiles: File?) {
+    fun applyPatchesForDatabase(dbDef: SyncableDatabaseDefinition<*>, vararg patchFiles: File?) {
         for(gzippedPatchFile in patchFiles.filterNotNull()) {
             val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
             Log.i(TAG, "Applying patch file ${patchDbFile.name}")

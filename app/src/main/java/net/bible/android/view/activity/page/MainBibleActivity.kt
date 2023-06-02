@@ -118,7 +118,7 @@ import net.bible.service.db.WorkspacesUpdatedEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
-import net.bible.service.googledrive.GoogleDrive
+import net.bible.service.devicesync.GoogleDrive
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
