@@ -26,7 +26,6 @@ import androidx.test.filters.LargeTest
 import net.bible.android.activity.R
 
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.db.DatabaseContainer
 import org.junit.Ignore
 import org.junit.Test
 
