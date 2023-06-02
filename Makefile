@@ -27,3 +27,6 @@ test:
 	echo $(TMP)
 	echo $(TMP)
 	ls $(TMP)
+
+instrumented-tests:
+	./gradlew emulatorStandardGoogleplayDebugAndroidTest
