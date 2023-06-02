@@ -351,7 +351,7 @@ class WorkspaceEntities {
         var name: String,
         var contentsText: String? = null,
 
-        @PrimaryKey var id: IdType = IdType.random(),
+        @PrimaryKey var id: IdType = IdType(),
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_")
@@ -421,7 +421,7 @@ class WorkspaceEntities {
 
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
 
-        @PrimaryKey var id: IdType = IdType.random(),
+        @PrimaryKey var id: IdType = IdType(),
 
         var orderNumber: Int = 0,
         @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: IdType? = null,

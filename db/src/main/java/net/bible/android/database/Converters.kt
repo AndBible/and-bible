@@ -75,7 +75,6 @@ data class IdType(
 
     companion object {
         fun empty() = IdType(null as String?)
-        fun random() = IdType()
         fun fromString(value: String) = if(value.isEmpty()) IdType.empty() else IdType(UUID.fromString(value))
         fun fromByteArray(value: ByteArray) = Converters().blobToIdType(value)
     }
