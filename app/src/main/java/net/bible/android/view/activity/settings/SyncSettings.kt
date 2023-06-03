@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.util.Hourglass
 import net.bible.service.devicesync.DatabaseCategory
 import net.bible.service.devicesync.GoogleDrive
 
@@ -53,6 +54,8 @@ class SyncSettingsFragment(val activity: ActivityBase): PreferenceFragmentCompat
         pref.setOnPreferenceClickListener {
             if(category.enabled) {
                 lifecycleScope.launch {
+                    val hourglass = Hourglass(activity)
+                    hourglass.show(R.string.synchronizing)
                     if (!GoogleDrive.signedIn) {
                         val success = GoogleDrive.signIn(activity)
                         if (!success) {
@@ -60,8 +63,9 @@ class SyncSettingsFragment(val activity: ActivityBase): PreferenceFragmentCompat
                         }
                     }
                     if (GoogleDrive.signedIn && category.enabled) {
-                        GoogleDrive.synchronizeWithHourGlass(activity)
+                        GoogleDrive.synchronize()
                     }
+                    hourglass.dismiss()
                 }
             }
             true

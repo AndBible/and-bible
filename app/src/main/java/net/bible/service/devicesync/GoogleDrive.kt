@@ -476,13 +476,6 @@ object GoogleDrive {
         }
         return true
     }
-    suspend fun synchronizeWithHourGlass(activity: ActivityBase) {
-        val hourglass = Hourglass(activity)
-        hourglass.show(R.string.synchronizing)
-        synchronize()
-        syncMutex.withLock {  }
-        hourglass.dismiss()
-    }
 
     const val TAG = "GoogleDrive"
 }
