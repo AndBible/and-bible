@@ -311,7 +311,13 @@ object GoogleDrive {
                     return@asyncMap
                 }
                 createAndUploadNewPatch(dbDef)
-                downloadAndApplyNewPatches(dbDef)
+                try {
+                    downloadAndApplyNewPatches(dbDef)
+                } catch (e: PatchFilesSkipped) {
+                    Log.i(TAG, "Patch files skipped! Retrying download and apply!")
+                    dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, 0)
+                    downloadAndApplyNewPatches(dbDef)
+                }
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
         }
@@ -319,6 +325,8 @@ object GoogleDrive {
 
     private val patchFilePattern = Regex("""(\d+)\.sqlite3\.gz""")
     private fun patchNumber(name: String): Long = patchFilePattern.find(name)!!.groups[1]!!.value.toLong()
+
+    class PatchFilesSkipped: Exception()
 
     private suspend fun downloadAndApplyNewPatches(dbDef: SyncableDatabaseDefinition<*>) = withContext(Dispatchers.IO) {
         val lastSynchronized = dbDef.dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
@@ -375,6 +383,15 @@ object GoogleDrive {
                 DriveFileWithMeta(it, folderWithMeta.folder.name)
             } else null
         }.sortedBy { it.file.createdTime.value }
+
+        for(f in folders.values) {
+            val firstPatch = patches.firstOrNull { it.parentFolderName == f.folder.name } ?: continue
+            if(patchNumber(firstPatch.file.name) > f.loadedCount + 1) {
+                // We are not in sync; need to load older patches.
+                throw PatchFilesSkipped()
+            }
+        }
+
         Log.i(TAG, "Patches after filter: \n${patches.joinToString("\n") { "${it.file.name} ${it.parentFolderName}" }}")
         Log.i(TAG, "Number of patch files after filtering: ${patches.size}")
 
