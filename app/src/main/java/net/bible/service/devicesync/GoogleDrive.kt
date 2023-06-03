@@ -46,9 +46,11 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
@@ -285,6 +287,7 @@ object GoogleDrive {
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
         DatabaseSync.dropTriggers(dbDef)
         DatabaseSync.createTriggers(dbDef)
+        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
     }
 
     private val syncMutex = Mutex()
