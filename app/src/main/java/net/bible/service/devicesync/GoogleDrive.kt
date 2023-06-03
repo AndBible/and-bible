@@ -333,14 +333,14 @@ object GoogleDrive {
 
         val folderResult = service.files().list()
             .setSpaces("appDataFolder")
-            .setQ("'$syncFolder' in parents and mimeType='$FOLDER_MIMETYPE' and not name = '${CommonUtils.deviceIdentifier}'")
+            .setQ("'$syncFolder' in parents and mimeType='$FOLDER_MIMETYPE'")
             .setFields("nextPageToken, files(id, name)")
             .collectAll()
         if (folderResult.isEmpty()) {
-            Log.i(TAG, "No patch folders of other devices yet")
+            Log.i(TAG, "No patch folders yet")
             return@withContext
         }
-        Log.i(TAG, "folders \n${folderResult.joinToString("\n") { "${it.id} ${it.name}" }}")
+        Log.i(TAG, "Folders \n${folderResult.joinToString("\n") { "${it.id} ${it.name}" }}")
         val folderFilter = folderResult.map { it.id }.joinToString(" or ") { "'$it' in parents" }
         val filterPatchFiles = "($folderFilter) and mimeType='$GZIP_MIMETYPE' and createdTime > '$lastSynchronizedString'"
         Log.i(TAG, "filterPatchFiles: $filterPatchFiles")
