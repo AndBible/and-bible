@@ -27,7 +27,6 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.identity.SignInCredential
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
@@ -55,6 +54,8 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
+import java.io.IOException
+import java.net.SocketTimeoutException
 import java.util.Collections
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -124,7 +125,8 @@ object GoogleDrive {
                 val p = Parcel.obtain()
                 p.unmarshall(bytes, 0, bytes.size)
                 p.setDataPosition(0)
-                Account(p)
+                val account = Account(p)
+                account
             } catch (e: Exception) {
                 CommonUtils.settings.removeString("lastAccount")
                 null
@@ -338,6 +340,12 @@ object GoogleDrive {
                 } catch (e: CancelSync) {
                     Log.i(TAG, "Sync cancelled ${dbDef.categoryName}")
                     return@asyncMap
+                } catch (e: SocketTimeoutException) {
+                    Log.i(TAG, "Socket timed out")
+                    return@asyncMap
+                } catch (e: Throwable) {
+                    Log.e(TAG, "Some other exception happened!", e)
+                    return@asyncMap
                 }
                 createAndUploadNewPatch(dbDef)
                 try {
@@ -501,6 +509,12 @@ object GoogleDrive {
         } catch (e: UserRecoverableAuthIOException) {
             val result = activity.awaitIntent(e.intent)
             return result.resultCode == Activity.RESULT_OK
+        } catch (e: IOException) {
+            Log.e(TAG, "Network unavailable", e)
+            return false
+        } catch (e: Throwable) {
+            Log.e(TAG, "ensureDriveAccess error", e)
+            return false
         }
         return true
     }
