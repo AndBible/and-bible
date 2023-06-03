@@ -119,7 +119,7 @@ object GoogleDrive {
 
     private var lastAccount: Account?
         get() {
-            val s = CommonUtils.settings.getString("lastAccount") ?: return null
+            val s = CommonUtils.realSharedPreferences.getString("lastAccount", null)?: return null
             return try {
                 val bytes = Base64.decode(s, Base64.DEFAULT)
                 val p = Parcel.obtain()
@@ -128,18 +128,18 @@ object GoogleDrive {
                 val account = Account(p)
                 account
             } catch (e: Exception) {
-                CommonUtils.settings.removeString("lastAccount")
+                CommonUtils.realSharedPreferences.edit().remove("lastAccount").apply()
                 null
             }
         }
         set(value) {
             if(value == null) {
-                CommonUtils.settings.removeString("lastAccount")
+                CommonUtils.realSharedPreferences.edit().remove("lastAccount").apply()
             } else {
                 val p = Parcel.obtain()
                 value.writeToParcel(p, 0)
                 val s = String(Base64.encode(p.marshall(), Base64.DEFAULT))
-                CommonUtils.settings.setString("lastAccount", s)
+                CommonUtils.realSharedPreferences.edit().putString("lastAccount", s).apply()
             }
         }
 
