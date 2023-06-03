@@ -82,7 +82,7 @@ class SyncableDatabaseDefinition<T: SyncableRoomDatabase>(
     }
 
     fun reactToUpdates(lastSynchronized: Long) {
-        val newEntries = dao.newLogEntries(lastSynchronized)
+        val newEntries = dao.newLogEntries(lastSynchronized, deviceId)
         if(newEntries.isNotEmpty()) {
             _reactToUpdates?.invoke(newEntries)
         }
