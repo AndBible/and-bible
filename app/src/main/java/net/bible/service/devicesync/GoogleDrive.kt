@@ -193,8 +193,15 @@ object GoogleDrive {
                 }
             }
         }
+
         fun createNewSyncFolder(): String {
             Log.i(TAG, "Creating new sync folder ${dbDef.categoryName} $syncFolderName")
+
+            // If there is already sync folder, let's remove it (and its contents)
+            if(preliminarySyncFolderId != null) {
+                service.files().delete(preliminarySyncFolderId).execute()
+            }
+
             return service.files()
                 .create(DriveFile().apply {
                     name = syncFolderName
