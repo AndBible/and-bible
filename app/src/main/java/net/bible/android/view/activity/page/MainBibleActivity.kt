@@ -543,6 +543,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onPause() {
         CommonUtils.windowControl.windowRepository.saveIntoDb(false)
+        if(CommonUtils.isGoogleDriveSyncEnabled) {
+            lifecycleScope.launch { GoogleDrive.synchronize() }
+        }
         fullScreen = false;
         if(CommonUtils.showCalculator) {
             (window.decorView as ViewGroup).removeView(binding.root)
@@ -1255,6 +1258,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     override fun onRestart() {
         super.onRestart()
+        if(CommonUtils.isGoogleDriveSyncEnabled) {
+            lifecycleScope.launch {
+                GoogleDrive.synchronize()
+            }
+        }
         if (mWholeAppWasInBackground) {
             mWholeAppWasInBackground = false
             refreshIfNightModeChange()
@@ -1267,17 +1275,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     fun onEvent(event: AppToBackgroundEvent) {
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
-            if(CommonUtils.isGoogleDriveSyncEnabled) {
-                lifecycleScope.launch { GoogleDrive.synchronize() }
-            }
         }
         else {
-            lifecycleScope.launch {
-                updateActions()
-                if(CommonUtils.isGoogleDriveSyncEnabled) {
-                    GoogleDrive.synchronize()
-                }
-            }
+            updateActions()
         }
     }
 
