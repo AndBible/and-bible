@@ -16,7 +16,7 @@
  */
 import {computed, ref, Ref, watch} from "vue";
 import {setupWindowEventListener} from "@/utils";
-import {debounce} from "lodash";
+import {throttle} from "lodash";
 import {CalculatedConfig, Config} from "@/composables/config";
 import {UseAndroid} from "@/composables/android";
 import {useScroll} from "@/composables/scroll";
@@ -55,7 +55,9 @@ export function useVerseNotifier(
         }
     }
 
-    const onScroll = debounce(() => {
+    // Throttle is preferred over debounce because do not want that bible ref display is
+    // totally frozen during scrolling
+    const onScroll = throttle(() => {
         if (isScrolling.value) return;
         const y = calculatedConfig.value.topOffset + lineHeight.value * 0.8;
 
