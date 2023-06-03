@@ -20,12 +20,13 @@ package net.bible.service.devicesync
 import android.accounts.Account
 import android.app.Activity
 import android.app.AlertDialog
+import android.os.Parcel
+import android.util.Base64
 import android.util.Log
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.identity.SignInCredential
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -51,7 +52,6 @@ import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
@@ -116,11 +116,36 @@ object GoogleDrive {
         }
     }
 
+    private var lastAccount: Account?
+        get() {
+            val s = CommonUtils.settings.getString("lastAccount") ?: return null
+            return try {
+                val bytes = Base64.decode(s, Base64.DEFAULT)
+                val p = Parcel.obtain()
+                p.unmarshall(bytes, 0, bytes.size)
+                p.setDataPosition(0)
+                Account(p)
+            } catch (e: Exception) {
+                CommonUtils.settings.removeString("lastAccount")
+                null
+            }
+        }
+        set(value) {
+            if(value == null) {
+                CommonUtils.settings.removeString("lastAccount")
+            } else {
+                val p = Parcel.obtain()
+                value.writeToParcel(p, 0)
+                val s = String(Base64.encode(p.marshall(), Base64.DEFAULT))
+                CommonUtils.settings.setString("lastAccount", s)
+            }
+        }
+
     suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) {
         Log.i(TAG, "Starting")
         try {
-            account = GoogleSignIn.getLastSignedInAccount(application)?.account ?: oneTapSignIn(activity)
-        } catch (e: ApiException) {
+            account = lastAccount ?: oneTapSignIn(activity).also {lastAccount = it }
+        } catch (e: Throwable) {
             Log.e(TAG, "Error signing in", e)
             account = null
             return@withContext false
@@ -128,6 +153,7 @@ object GoogleDrive {
         val success = ensureDriveAccess(activity)
         if(!success) {
             account = null
+            lastAccount = null
         }
         return@withContext success
     }
@@ -444,6 +470,8 @@ object GoogleDrive {
 
     suspend fun signOut() {
         oneTapClient.signOut().await()
+        lastAccount = null
+        account = null
     }
 
     private suspend fun oneTapSignIn(activity: ActivityBase): Account {
