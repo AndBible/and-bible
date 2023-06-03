@@ -101,6 +101,7 @@ open class BibleApplication : Application() {
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             BugReport.saveScreenshot()
+            Log.e(TAG, "App crashed due to exception", e)
             BugReport.saveLogcat()
             CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
