@@ -37,6 +37,7 @@ import net.bible.android.database.IdType
 import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import java.util.*
+import kotlin.math.abs
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
 
@@ -278,13 +279,14 @@ class BookmarkEntities {
     )
     @Serializable
     data class StudyPadTextEntry(
-        @PrimaryKey var id: IdType = IdType(),
+        @PrimaryKey val id: IdType = IdType(),
         val labelId: IdType,
         val text: String = "",
         var orderNumber: Int,
         var indentLevel: Int = 0,
     ) {
         @Ignore val type: String = "journal"
+        @Ignore val hashCode: Int = abs(id.uuid?.hashCode()?: 0)
     }
 
     @Entity

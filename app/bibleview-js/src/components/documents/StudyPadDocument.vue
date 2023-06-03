@@ -223,11 +223,7 @@ const labelNameStyle = computed(() => {
 });
 
 function studyPadOrdinal(journalEntry: StudyPadItem) {
-    if (journalEntry.type === "bookmark") {
-        return journalEntry.id;
-    } else {
-        return journalEntry.id + 10000;
-    }
+    return journalEntry.hashCode
 }
 
 const journalItemKey = (e: StudyPadItem) => `studypad-${e.type}-${e.id}`

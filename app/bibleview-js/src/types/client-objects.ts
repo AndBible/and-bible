@@ -58,6 +58,7 @@ export type BookmarkToLabel = {
 
 export type Bookmark = {
     readonly id: IdType
+    readonly hashCode: number
     readonly type: "bookmark"
     readonly ordinalRange: OrdinalRange
     readonly originalOrdinalRange: OrdinalRange
@@ -85,6 +86,7 @@ export type Bookmark = {
 
 export type StudyPadTextItem = {
     readonly id: IdType
+    readonly hashCode: number
     readonly type: "journal"
     readonly labelId: IdType
     text: string
