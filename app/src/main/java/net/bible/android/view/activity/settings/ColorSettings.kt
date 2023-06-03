@@ -147,7 +147,7 @@ class ColorSettingsActivity: ActivityBase() {
 
         resultIntent.putExtra("edited", dirty)
         resultIntent.putExtra("reset", reset)
-        resultIntent.putExtra("windowId", settingsBundle.windowId.toString())
+        resultIntent.putExtra("windowId", settingsBundle.windowId?.toString())
         resultIntent.putExtra("colors", colors.toJson())
         resultIntent.putExtra("workspaceColor", workspaceSettings?.workspaceColor)
 
