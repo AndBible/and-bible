@@ -30,7 +30,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
@@ -275,6 +274,11 @@ class BibleJavascriptInterface(
     fun updateStudyPadTextEntry(data: String) {
         val entry: BookmarkEntities.StudyPadTextEntry = json.decodeFromString(serializer(), data)
         bookmarkControl.updateStudyPadTextEntry(entry)
+    }
+
+    @JavascriptInterface
+    fun updateStudyPadTextEntryText(id: String, text: String) {
+        bookmarkControl.updateStudyPadTextEntryText(IdType(id), text)
     }
 
     @JavascriptInterface

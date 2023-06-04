@@ -178,15 +178,17 @@ interface BookmarkDao {
     @Query("SELECT * from Label WHERE id=:id")
     fun labelById(id: IdType): Label?
 
-    @Query("SELECT * from StudyPadTextEntry WHERE labelId=:id ORDER BY orderNumber")
-    fun journalTextEntriesByLabelId(id: IdType): List<BookmarkEntities.StudyPadTextEntry>
+    @Query("SELECT * from StudyPadTextEntryWithText WHERE labelId=:id ORDER BY orderNumber")
+    fun journalTextEntriesByLabelId(id: IdType): List<BookmarkEntities.StudyPadTextEntryWithText>
 
-    @Query("SELECT * from StudyPadTextEntry WHERE id=:id")
-    fun studyPadTextEntryById(id: IdType): BookmarkEntities.StudyPadTextEntry?
+    @Query("SELECT * from StudyPadTextEntryWithText WHERE id=:id")
+    fun studyPadTextEntryById(id: IdType): BookmarkEntities.StudyPadTextEntryWithText?
 
     @Insert fun insert(entity: BookmarkEntities.StudyPadTextEntry)
+    @Insert fun insert(entity: BookmarkEntities.StudyPadTextEntryText)
 
     @Update fun update(entity: BookmarkEntities.StudyPadTextEntry)
+    @Update fun update(entity: BookmarkEntities.StudyPadTextEntryText)
 
     @Insert fun insert(entity: Label)
     @Insert fun insertLabels(entity: List<Label>): List<Long>
@@ -251,7 +253,7 @@ interface BookmarkDao {
     @Query("SELECT COUNT(*) FROM BookmarkToLabel WHERE labelId=:labelId")
     fun countBookmarkEntities(labelId: IdType): Int
 
-    @Query("SELECT COUNT(*) FROM StudyPadTextEntry WHERE labelId=:labelId")
+    @Query("SELECT COUNT(*) FROM StudyPadTextEntryWithText WHERE labelId=:labelId")
     fun countStudyPadTextEntities(labelId: IdType): Int
 
     fun countStudyPadEntities(labelId: IdType) = countBookmarkEntities(labelId) + countStudyPadTextEntities(labelId)

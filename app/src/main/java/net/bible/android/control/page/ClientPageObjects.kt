@@ -165,7 +165,7 @@ class StudyPadDocument(
     val bookmarkId: IdType?,
     val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
     private val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
-    private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>,
+    private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntryWithText>,
 ): Document, DocumentWithBookmarks {
     override val asHashMap: Map<String, Any>
         get() {

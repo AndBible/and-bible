@@ -49,6 +49,7 @@ export type BibleJavascriptInterface = {
     getActiveLanguages: () => string,
     toast: (text: string) => void,
     updateStudyPadTextEntry: (data: JSONString) => void,
+    updateStudyPadTextEntryText: (id: IdType, text: string) => void,
     updateBookmarkToLabel: (data: JSONString) => void
     shareBookmarkVerse: (bookmarkId: IdType) => void,
     shareVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
@@ -353,7 +354,13 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
     function updateStudyPadEntry(entry: StudyPadItem, changes: Partial<StudyPadItem>) {
         const changedEntry = {...entry, ...changes}
         if (entry.type === "journal") {
-            window.android.updateStudyPadTextEntry(JSON.stringify(changedEntry as StudyPadTextItem));
+            const {text, ...rest} = changes;
+            if(text) {
+                window.android.updateStudyPadTextEntryText(entry.id, text);
+            }
+            if(Object.keys(rest).length > 0) {
+                window.android.updateStudyPadTextEntry(JSON.stringify(changedEntry as StudyPadTextItem));
+            }
         } else if (entry.type === "bookmark") {
             const changedBookmarkItem = changedEntry as StudyPadBookmarkItem
             const entry = {

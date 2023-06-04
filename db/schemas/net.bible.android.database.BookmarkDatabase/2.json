@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "e3b4faf25660c09b940fd2726a785800",
+    "identityHash": "672192e2218d0e18c1a48f349d2677a6",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -590,16 +590,16 @@
     "views": [
       {
         "viewName": "BookmarkWithNotes",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn WHERE b.id = bn.bookmarkId"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn ON b.id = bn.bookmarkId"
       },
       {
         "viewName": "StudyPadTextEntryWithText",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t on e.id = t.studyPadTextEntryId"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t ON e.id = t.studyPadTextEntryId"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e3b4faf25660c09b940fd2726a785800')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '672192e2218d0e18c1a48f349d2677a6')"
     ]
   }
 }

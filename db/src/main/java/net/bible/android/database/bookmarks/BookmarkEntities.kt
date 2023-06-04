@@ -106,7 +106,7 @@ class BookmarkEntities {
         val notes: String?
     )
 
-    @DatabaseView("SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn WHERE b.id = bn.bookmarkId")
+    @DatabaseView("SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn ON b.id = bn.bookmarkId")
     data class BookmarkWithNotes(
         var kjvOrdinalStart: Int,
         var kjvOrdinalEnd: Int,
@@ -321,7 +321,6 @@ class BookmarkEntities {
             Index("labelId")
         ]
     )
-    @Serializable
     data class StudyPadTextEntry(
         @PrimaryKey val id: IdType = IdType(),
         val labelId: IdType,
@@ -334,13 +333,13 @@ class BookmarkEntities {
             ForeignKey(entity = StudyPadTextEntry::class, parentColumns = ["id"], childColumns = ["studyPadTextEntryId"], onDelete = ForeignKey.CASCADE)
         ],
     )
-    @Serializable
     data class StudyPadTextEntryText(
         @PrimaryKey val studyPadTextEntryId: IdType = IdType(),
         val text: String = "",
     )
 
-    @DatabaseView("SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t on e.id = t.studyPadTextEntryId")
+    @DatabaseView("SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t ON e.id = t.studyPadTextEntryId")
+    @Serializable
     data class StudyPadTextEntryWithText(
         @PrimaryKey val id: IdType = IdType(),
         val labelId: IdType,
@@ -350,6 +349,8 @@ class BookmarkEntities {
     ) {
         @Ignore val type: String = "journal"
         @Ignore val hashCode: Int = abs(id.hashCode())
+        val studyPadTextEntryEntity get() = StudyPadTextEntry(id, labelId, orderNumber, indentLevel)
+        val studyPadTextEntryTextEntity get() = StudyPadTextEntryText(id, text)
     }
 
     @Entity
