@@ -246,7 +246,21 @@ class BookmarkEntities {
         @Ignore var osisFragment: OsisFragment? = null
 
         val bookmarkEntity get() = Bookmark(
-            kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, playbackSettings, id, createdAt, book, startOffset, endOffset
+            kjvOrdinalStart,
+            kjvOrdinalEnd,
+            ordinalStart,
+            ordinalEnd,
+            v11n,
+            playbackSettings,
+            id,
+            createdAt,
+            book,
+            startOffset,
+            endOffset,
+            primaryLabelId,
+            lastUpdatedOn,
+            wholeVerse,
+            type,
         )
         val noteEntity get() = if(notes == null) null else BookmarkNotes(id, notes!!)
     }
