@@ -1294,7 +1294,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         val windowsChanged = entries.any { entry ->
             entry.tableName in listOf("Window", "PageManager") &&
-            entry.entityId1 in windowRepository.visibleWindows.map { it.id }
+            windowRepository.windowList.firstOrNull { it.id == entry.entityId1 } != null
         }
 
         val workspaceChanged = entries.any {
