@@ -219,7 +219,6 @@ class GoogleDrive: CloudAdapter {
             .setSpaces("appDataFolder")
             .setQ(q.joinToString(" and "))
             .setPageSize(1000) // maximum page size
-            .setOrderBy("createdTime asc")
             .setFields("nextPageToken, files($FIELDS)")
             .collectAll()
             .map { it.toSyncFile() }

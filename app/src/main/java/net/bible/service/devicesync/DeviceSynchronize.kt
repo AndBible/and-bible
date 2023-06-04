@@ -299,7 +299,7 @@ object DeviceSynchronize {
         val patchResults = adapter.listFiles(
             parents = folderResult.map { it.id },
             createdTimeAtLeast = lastSynchronizedDateTime
-        )
+        ).sortedBy { it.createdTime.value }
 
         Log.i(TAG, "Number of patch files in result set: ${patchResults.size}")
 
