@@ -65,7 +65,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
-import net.bible.service.devicesync.GoogleDrive
+import net.bible.service.devicesync.DeviceSynchronize
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
@@ -649,8 +649,8 @@ object BackupControl {
         }
         if (DatabaseContainer.ready) {
             DatabaseContainer.instance
-            if(CommonUtils.isGoogleDriveSyncEnabled && !GoogleDrive.signedIn) {
-                GoogleDrive.signIn(activity)
+            if(CommonUtils.isGoogleDriveSyncEnabled && !DeviceSynchronize.signedIn) {
+                DeviceSynchronize.signIn(activity)
             }
         }
         hourglass.dismiss()

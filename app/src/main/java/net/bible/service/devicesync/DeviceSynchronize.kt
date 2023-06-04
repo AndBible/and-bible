@@ -96,7 +96,7 @@ fun DriveList.collectAll(): List<DriveFile> {
 
 class CancelSync: Exception()
 
-object GoogleDrive {
+object DeviceSynchronize {
     private var oneTapClient: SignInClient = Identity.getSignInClient(application)
     private var account: Account? = null
 

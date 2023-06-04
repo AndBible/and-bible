@@ -27,7 +27,7 @@ import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.util.Hourglass
 import net.bible.service.devicesync.DatabaseCategory
-import net.bible.service.devicesync.GoogleDrive
+import net.bible.service.devicesync.DeviceSynchronize
 
 class SyncSettingsActivity: ActivityBase() {
     private lateinit var binding: SettingsDialogBinding
@@ -56,14 +56,14 @@ class SyncSettingsFragment(val activity: ActivityBase): PreferenceFragmentCompat
                 lifecycleScope.launch {
                     val hourglass = Hourglass(activity)
                     hourglass.show(R.string.synchronizing)
-                    if (!GoogleDrive.signedIn) {
-                        val success = GoogleDrive.signIn(activity)
+                    if (!DeviceSynchronize.signedIn) {
+                        val success = DeviceSynchronize.signIn(activity)
                         if (!success) {
                             category.setStatus(false)
                         }
                     }
-                    if (GoogleDrive.signedIn && category.enabled) {
-                        GoogleDrive.synchronize()
+                    if (DeviceSynchronize.signedIn && category.enabled) {
+                        DeviceSynchronize.synchronize()
                     }
                     hourglass.dismiss()
                 }

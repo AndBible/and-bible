@@ -62,7 +62,7 @@ import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.devicesync.GoogleDrive
+import net.bible.service.devicesync.DeviceSynchronize
 import net.bible.service.sword.SwordDocumentFacade
 
 import org.apache.commons.lang3.StringUtils
@@ -401,8 +401,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             }
             CommonUtils.initializeApp()
             if(CommonUtils.isGoogleDriveSyncEnabled) {
-                GoogleDrive.signIn(this@StartupActivity)
-                GoogleDrive.synchronize()
+                DeviceSynchronize.signIn(this@StartupActivity)
+                DeviceSynchronize.synchronize()
             }
             startActivity(handlerIntent)
             finish()

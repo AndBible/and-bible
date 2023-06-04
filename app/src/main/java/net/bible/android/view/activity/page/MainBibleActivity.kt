@@ -118,7 +118,7 @@ import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
-import net.bible.service.devicesync.GoogleDrive
+import net.bible.service.devicesync.DeviceSynchronize
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -544,7 +544,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun onPause() {
         CommonUtils.windowControl.windowRepository.saveIntoDb(false)
         if(CommonUtils.isGoogleDriveSyncEnabled) {
-            lifecycleScope.launch { GoogleDrive.synchronize() }
+            lifecycleScope.launch { DeviceSynchronize.synchronize() }
         }
         fullScreen = false;
         if(CommonUtils.showCalculator) {
@@ -1260,7 +1260,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         super.onRestart()
         if(CommonUtils.isGoogleDriveSyncEnabled) {
             lifecycleScope.launch {
-                GoogleDrive.synchronize()
+                DeviceSynchronize.synchronize()
             }
         }
         if (mWholeAppWasInBackground) {
