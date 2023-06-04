@@ -36,7 +36,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
 import java.io.FileNotFoundException
-import java.io.OutputStream
 import java.net.SocketTimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -137,6 +136,7 @@ object DeviceSynchronize {
                     throw CancelSync()
                 } else {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
+                    syncFolderId = preliminarySyncFolderId
                 }
             }
         }
@@ -146,17 +146,24 @@ object DeviceSynchronize {
 
             // If there is already sync folder, let's remove it (and its contents)
             if(preliminarySyncFolderId != null) {
+                Log.i(TAG, "Deleting earlier sync folder $preliminarySyncFolderId")
                 adapter.delete(preliminarySyncFolderId!!)
             }
 
             return adapter.createNewFolder(syncFolderName).id.also {
                 Log.i(TAG, "Global sync folder id $it")
                 dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, it)
+                syncFolderId = it
             }
         }
+
         fun createNewDeviceSyncFolder() {
-            Log.i(TAG, "Creating new device sync folder $syncFolderName/${CommonUtils.deviceIdentifier}")
-            adapter.createNewFolder(CommonUtils.deviceIdentifier, dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!)
+            val deviceIdentifier = CommonUtils.deviceIdentifier
+            Log.i(TAG, "Creating new device sync folder $syncFolderName/$deviceIdentifier")
+            adapter.createNewFolder(
+                name = deviceIdentifier,
+                parent = syncFolderId,
+            )
                 .id.also {
                     Log.i(TAG, "This device sync folder id $it")
                     dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, it)
