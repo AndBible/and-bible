@@ -30,6 +30,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
@@ -252,9 +253,9 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun updateOrderNumber(labelId: String, data: String) {
-        val deserialized: Map<String, List<List<String>>> = json.decodeFromString(serializer(), data)
-        val studyPadTextItems = deserialized["studyPadTextItems"]!!.map { bookmarkControl.getStudyPadById(IdType(it[0]))!!.apply { orderNumber = it[1].toInt() } }
-        val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(IdType(it[0]), IdType(labelId))!!.apply { orderNumber = it[1].toInt() } }
+        val deserialized: Map<String, List<Pair<String, Int>>> = json.decodeFromString(serializer(), data)
+        val studyPadTextItems = deserialized["studyPadTextItems"]!!.map { bookmarkControl.getStudyPadById(IdType(it.first))!!.apply { orderNumber = it.second } }
+        val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(IdType(it.first), IdType(labelId))!!.apply { orderNumber = it.second } }
         bookmarkControl.updateOrderNumbers(IdType(labelId), bookmarksToLabels, studyPadTextItems)
     }
 

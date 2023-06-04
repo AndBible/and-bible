@@ -336,8 +336,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
     }
 
     function updateOrderNumber(labelId: IdType, bookmarks: StudyPadBookmarkItem[], studyPadTextItems: StudyPadTextItem[]) {
-        const orderNumberPairs: (l: StudyPadItem[]) => [IdType, number][] =
-            l => l.map((v: StudyPadItem) => [v.id, v.orderNumber])
+        const orderNumberPairs: (l: StudyPadItem[]) => {first: IdType, second: number}[] =
+            l => l.map((v: StudyPadItem) => ({first: v.id, second: v.orderNumber}))
         window.android.updateOrderNumber(labelId, JSON.stringify(
             {
                 bookmarks: orderNumberPairs(bookmarks),

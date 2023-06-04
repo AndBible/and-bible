@@ -1164,7 +1164,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val doc = firstDocument
         val jumpToId =
             if(doc is StudyPadDocument && doc.bookmarkId != null)
-                "studypad-bookmark-${doc.bookmarkId}"
+                "o-${doc.bookmarkId.hashCode()}"
             else null
 
         executeJavascriptOnUiThread("""
@@ -1340,11 +1340,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: StudyPadOrderEvent) {
         val doc = firstDocument
         if(doc !is StudyPadDocument || doc.label.id != event.labelId) return
-        val journalJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
+        val studyPadTextEntryJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
         val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
         val studyPadItems = json.encodeToString(serializer(), event.studyPadOrderChanged)
         executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_study_pad",  {studyPad: $journalJson, bookmarkToLabelsOrdered: $bookmarkToLabels, studyPadItemsOrdered: $studyPadItems});
+            bibleView.emit("add_or_update_study_pad",  {studyPadTextEntry: $studyPadTextEntryJson, bookmarkToLabelsOrdered: $bookmarkToLabels, studyPadItemsOrdered: $studyPadItems});
         """)
     }
 

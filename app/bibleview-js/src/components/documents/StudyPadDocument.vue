@@ -32,11 +32,10 @@
         group="journal-entries"
         ghost-class="drag-ghost"
         chosen-class="drag-chosen"
-        :item-key="journalItemKey"
     >
       <template #item="{element: j}">
         <div
-            :id="`o-${studyPadOrdinal(j)}`"
+            :id="`o-${j.hashCode}`"
             :data-ordinal="studyPadOrdinal(j)"
             class="ordinal"
         >
@@ -168,27 +167,27 @@ const lastEntry = computed(() => journalEntries.value[journalEntries.value.lengt
 
 setupEventBusListener("add_or_update_study_pad", async (
     {
-        studyPad,
+        studyPadTextEntry,
         bookmarkToLabelsOrdered,
         studyPadItemsOrdered
     }: {
-        studyPad: StudyPadTextItem,
+        studyPadTextEntry: StudyPadTextItem,
         bookmarkToLabelsOrdered: BookmarkToLabel[],
         studyPadItemsOrdered: StudyPadTextItem[]
     }) =>
 {
-    if (studyPad && adding.value) {
-        studyPad.new = true
+    if (studyPadTextEntry && adding.value) {
+        studyPadTextEntry.new = true
         adding.value = false;
     }
     updateBookmarkToLabels(...bookmarkToLabelsOrdered);
     updateStudyPadOrdering(...studyPadItemsOrdered);
-    if (studyPad) {
-        updateStudyPadTextEntries(studyPad);
+    if (studyPadTextEntry) {
+        updateStudyPadTextEntries(studyPadTextEntry);
     }
     await nextTick();
-    if (studyPad && studyPad.new) {
-        scrollToId(`studypad-${studyPad.type}-${studyPad.id}`, {duration: 300, onlyIfInvisible: true})
+    if (studyPadTextEntry && studyPadTextEntry.new) {
+        scrollToId(`o-${studyPadTextEntry.hashCode}`, {duration: 300, onlyIfInvisible: true})
     }
 })
 
@@ -225,8 +224,6 @@ const labelNameStyle = computed(() => {
 function studyPadOrdinal(journalEntry: StudyPadItem) {
     return journalEntry.hashCode
 }
-
-const journalItemKey = (e: StudyPadItem) => `studypad-${e.type}-${e.id}`
 
 const {strings} = useCommon()
 </script>
