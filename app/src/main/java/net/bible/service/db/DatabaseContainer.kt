@@ -152,8 +152,9 @@ class DatabaseContainer {
 
     init {
         if(!application.isRunningTests) {
-            for (dbDefFac in getDatabaseDefinitions(this)) {
-                DatabaseSync.createTriggers(dbDefFac())
+            for (dbDef in getDatabaseDefinitions(this).map { it.invoke() }) {
+                DatabaseSync.dropTriggers(dbDef)
+                DatabaseSync.createTriggers(dbDef)
             }
         }
     }
