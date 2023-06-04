@@ -119,7 +119,7 @@ interface BookmarkDao {
     @Update fun update(entity: BookmarkNotes)
 
     @Query("DELETE FROM BookmarkNotes WHERE bookmarkId=:id")
-    fun deleteNotes(id: IdType)
+    fun deleteBookmarkNotes(id: IdType)
 
     @Query("UPDATE Bookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
     fun updateBookmarkDate(id: IdType, lastUpdatedOn: Date = Date(System.currentTimeMillis()))
@@ -262,5 +262,6 @@ interface BookmarkDao {
     fun deleteLabelsByIds(toList: List<IdType>)
 
     @Update fun updateBookmarkToLabels(bookmarkToLabels: List<BookmarkToLabel>)
+
     @Update fun updateStudyPadTextEntries(studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>)
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "672192e2218d0e18c1a48f349d2677a6",
+    "identityHash": "0e8e9bc491c9f6498787c32c143564e6",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -154,7 +154,7 @@
       },
       {
         "tableName": "BookmarkNotes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookmarkId` BLOB NOT NULL, `notes` TEXT, PRIMARY KEY(`bookmarkId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookmarkId` BLOB NOT NULL, `notes` TEXT NOT NULL, PRIMARY KEY(`bookmarkId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "bookmarkId",
@@ -166,7 +166,7 @@
             "fieldPath": "notes",
             "columnName": "notes",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -599,7 +599,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '672192e2218d0e18c1a48f349d2677a6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0e8e9bc491c9f6498787c32c143564e6')"
     ]
   }
 }

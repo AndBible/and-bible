@@ -105,19 +105,22 @@ open class BookmarkControl @Inject constructor(
 
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<BookmarkWithNotes> = dao.allBookmarksWithNotes(orderBy)
 
-    fun addOrUpdateBookmark(bookmark: BookmarkWithNotes, labels: Set<IdType>?=null): BookmarkWithNotes {
+    fun addOrUpdateBookmark(bookmark: BookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BookmarkWithNotes {
         val notes = bookmark.noteEntity
         if(bookmark.new) {
             dao.insert(bookmark.bookmarkEntity)
-            if(notes != null)
+            if(notes != null) {
                 dao.insert(notes)
+            }
             bookmark.new = false
         } else {
             dao.update(bookmark.bookmarkEntity)
-            if(notes != null) {
-                dao.update(notes)
-            } else {
-                dao.deleteNotes(bookmark.id)
+            if(updateNotes) {
+                if (notes != null) {
+                    dao.update(notes)
+                } else {
+                    dao.deleteBookmarkNotes(bookmark.id)
+                }
             }
         }
 
@@ -250,7 +253,11 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun saveBookmarkNote(bookmarkId: IdType, note: String?) {
-        dao.saveBookmarkNote(bookmarkId, note)
+        if(note == null) {
+            dao.deleteBookmarkNotes(bookmarkId)
+        } else {
+            dao.saveBookmarkNote(bookmarkId, note)
+        }
         val bookmark = dao.bookmarkById(bookmarkId)!!
         addLabels(bookmark)
         addText(bookmark)

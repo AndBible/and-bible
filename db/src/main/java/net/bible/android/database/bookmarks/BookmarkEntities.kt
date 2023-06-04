@@ -103,7 +103,7 @@ class BookmarkEntities {
     )
     data class BookmarkNotes(
         @PrimaryKey var bookmarkId: IdType = IdType(),
-        val notes: String?
+        val notes: String
     )
 
     @DatabaseView("SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn ON b.id = bn.bookmarkId")
@@ -248,7 +248,7 @@ class BookmarkEntities {
         val bookmarkEntity get() = Bookmark(
             kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, playbackSettings, id, createdAt, book, startOffset, endOffset
         )
-        val noteEntity get() = if(notes == null) null else BookmarkNotes(id, notes)
+        val noteEntity get() = if(notes == null) null else BookmarkNotes(id, notes!!)
     }
 
     @Entity(
