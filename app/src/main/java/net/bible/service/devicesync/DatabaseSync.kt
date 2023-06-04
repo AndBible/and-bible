@@ -43,10 +43,10 @@ enum class DatabaseCategory {
         BOOKMARKS -> listOf(
             SyncableDatabaseDefinition.TableDefinition("Label"),
             SyncableDatabaseDefinition.TableDefinition("Bookmark"),
-            SyncableDatabaseDefinition.TableDefinition("BookmarkNotes"),
+            SyncableDatabaseDefinition.TableDefinition("BookmarkNotes", "bookmarkId"),
             SyncableDatabaseDefinition.TableDefinition("BookmarkToLabel", "bookmarkId", "labelId"),
             SyncableDatabaseDefinition.TableDefinition("StudyPadTextEntry"),
-            SyncableDatabaseDefinition.TableDefinition("StudyPadTextEntryText"),
+            SyncableDatabaseDefinition.TableDefinition("StudyPadTextEntryText", "studyPadTextEntryId"),
         )
         WORKSPACES -> listOf(
             SyncableDatabaseDefinition.TableDefinition("Workspace"),
