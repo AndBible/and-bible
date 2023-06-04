@@ -193,7 +193,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
         return mapOf(
             "id" to wrapString(bookmark.id.toString()),
-            "hashCode" to (abs(bookmark.id.uuid?.hashCode()?: 0)).toString(),
+            "hashCode" to (abs(bookmark.id.hashCode())).toString(),
             "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal)),
             "originalOrdinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.start.ordinal, bookmark.verseRange.end.ordinal)),
             "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse || bookmark.book == null) null else bookmark.textRange?.clientList),

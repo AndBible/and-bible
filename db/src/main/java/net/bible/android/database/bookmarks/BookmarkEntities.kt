@@ -286,7 +286,7 @@ class BookmarkEntities {
         var indentLevel: Int = 0,
     ) {
         @Ignore val type: String = "journal"
-        @Ignore val hashCode: Int = abs(id.uuid?.hashCode()?: 0)
+        @Ignore val hashCode: Int = abs(id.hashCode())
     }
 
     @Entity

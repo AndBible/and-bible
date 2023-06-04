@@ -41,10 +41,8 @@ import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.DataOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.lang.IllegalArgumentException
 import java.util.Date
 import java.util.UUID
 
@@ -72,6 +70,17 @@ data class IdType(
     }
     fun isEmpty() = uuid == null
     fun isNotEmpty() = uuid != null
+
+    override fun hashCode(): Int {
+        val uuid = this.uuid?: return this.hashCode()
+        val hilo: Long = uuid.mostSignificantBits xor uuid.leastSignificantBits
+        return (hilo shr 32).toInt() xor hilo.toInt()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if(other !is IdType) return false
+        return this.uuid == other.uuid
+    }
 
     companion object {
         fun empty() = IdType(null as String?)
