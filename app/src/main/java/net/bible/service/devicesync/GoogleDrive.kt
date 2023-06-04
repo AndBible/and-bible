@@ -360,8 +360,9 @@ object GoogleDrive {
         }
     }
 
-    private val patchFilePattern = Regex("""(\d+)\.sqlite3\.gz""")
+    private val patchFilePattern = Regex("""(\d+)\.((\d+)\.)?sqlite3\.gz""")
     private fun patchNumber(name: String): Long = patchFilePattern.find(name)!!.groups[1]!!.value.toLong()
+    private fun versionNumber(name: String): Long = patchFilePattern.find(name)?.groups?.get(3)?.value?.toLong() ?: 1
 
     class PatchFilesSkipped: Exception()
 
@@ -415,6 +416,7 @@ object GoogleDrive {
             val parentFolderId = it.parents.first()
             val folderWithMeta = folders[parentFolderId]!!
             val num = patchNumber(it.name)
+            if(versionNumber(it.name) > dbDef.version) return@mapNotNull null
             val existing = dbDef.dao.syncStatus(folderWithMeta.folder.name, patchNumber(it.name))
             if (existing == null && num > folderWithMeta.loadedCount) {
                 DriveFileWithMeta(it, folderWithMeta.folder.name)
@@ -461,7 +463,7 @@ object GoogleDrive {
         val content = FileContent(GZIP_MIMETYPE, file)
         val count = (dbDef.dao.lastPatchNum(CommonUtils.deviceIdentifier)?: 0) + 1
 
-        val fileName = "$count.sqlite3.gz"
+        val fileName = "$count.${dbDef.version}.sqlite3.gz"
         val driveFile = DriveFile().apply {
             name = fileName
             parents = listOf(syncDeviceFolderId)

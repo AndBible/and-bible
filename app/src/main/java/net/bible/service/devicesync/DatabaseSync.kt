@@ -94,6 +94,7 @@ class SyncableDatabaseDefinition<T: SyncableRoomDatabase>(
     val dao get() = localDb.syncDao()
     val writableDb get() = localDb.openHelper.writableDatabase
     val tableDefinitions get() = category.tables
+    val version get() = writableDb.version
 }
 object DatabaseSync {
     private fun createTriggersForTable(
