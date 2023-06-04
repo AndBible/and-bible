@@ -300,7 +300,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
-        if(!CommonUtils.initialized) return;
+        if(!CommonUtils.initialized || !DatabaseContainer.ready) return
         if(stopSpeak) speakControl.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()

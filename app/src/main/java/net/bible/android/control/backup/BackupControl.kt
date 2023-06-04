@@ -509,7 +509,7 @@ object BackupControl {
     }
 
     fun makeDatabaseBackupFile(): File {
-        if(CommonUtils.initialized) {
+        if(CommonUtils.initialized && DatabaseContainer.ready) {
             windowControl.windowRepository.saveIntoDb()
             DatabaseContainer.vacuum()
             DatabaseContainer.sync()
