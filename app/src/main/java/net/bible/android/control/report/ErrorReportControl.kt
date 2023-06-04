@@ -189,28 +189,14 @@ object BugReport {
         // Let's give log buffers a little time to flush themselves
         Thread.sleep(1000)
         val f = File(logDir, "logcat.txt.gz")
-        val log = StringBuilder()
-        try {
-            val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
-            process.inputStream.use {inputStream ->
-                BufferedReader(InputStreamReader(inputStream)).use {bufferedReader ->
-                    var line = bufferedReader.readLine()
-                    while (line != null) {
-                        log.append(line + '\n');
-                        line = bufferedReader.readLine()
-                    }
-                }
-            }
-
-        } catch (_: IOException) {}
-
         logDir.mkdirs()
 
-        FileOutputStream(f).use { fOut ->
-            GZIPOutputStream(fOut).use { gzOut ->
-                gzOut.write(log.toString().toByteArray());
+        try {
+            val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
+            FileOutputStream(f).use { fOut ->
+                GZIPOutputStream(fOut).use { gzOut -> process.inputStream.use { s -> s.copyTo(gzOut)}}
             }
-        }
+        } catch (_: Throwable) {}
     }
 
     fun saveScreenshot() {
