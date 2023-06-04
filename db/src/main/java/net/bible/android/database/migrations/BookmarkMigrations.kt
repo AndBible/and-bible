@@ -17,8 +17,17 @@
 
 package net.bible.android.database.migrations
 
-//val bmTriggers_1_2 = makeMigration(1..2) { _db -> }
+val separateText = makeMigration(1..2) { _db ->
+    _db.execSQL("CREATE TABLE IF NOT EXISTS `BookmarkNotes` (`bookmarkId` BLOB NOT NULL, `notes` TEXT, PRIMARY KEY(`bookmarkId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+    _db.execSQL("CREATE TABLE IF NOT EXISTS `StudyPadTextEntryText` (`studyPadTextEntryId` BLOB NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`studyPadTextEntryId`), FOREIGN KEY(`studyPadTextEntryId`) REFERENCES `StudyPadTextEntry`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+    _db.execSQL("INSERT INTO BookmarkNotes (bookmarkId, notes) SELECT id, notes FROM Bookmark WHERE notes IS NOT NULL")
+    _db.execSQL("INSERT INTO StudyPadTextEntryText (studyPadTextEntryId, text) SELECT id, text FROM StudyPadTextEntry")
+    _db.execSQL("ALTER TABLE Bookmark DROP COLUMN notes")
+    _db.execSQL("ALTER TABLE StudyPadTextEntry DROP COLUMN text")
+    _db.execSQL("CREATE VIEW `BookmarkWithNotes` AS SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn WHERE b.id = bn.bookmarkId");
+    _db.execSQL("CREATE VIEW `StudyPadTextEntryWithText` AS SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t on e.id = t.studyPadTextEntryId");
+}
 
-val bookmarkMigrations: Array<Migration> = arrayOf()
+val bookmarkMigrations: Array<Migration> = arrayOf(separateText)
 
 const val BOOKMARK_DATABASE_VERSION = 2

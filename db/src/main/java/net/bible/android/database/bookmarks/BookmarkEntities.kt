@@ -106,7 +106,7 @@ class BookmarkEntities {
         val notes: String?
     )
 
-    @DatabaseView("""SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn WHERE b.id = bn.bookmarkId""")
+    @DatabaseView("SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn WHERE b.id = bn.bookmarkId")
     data class BookmarkWithNotes(
         var kjvOrdinalStart: Int,
         var kjvOrdinalEnd: Int,
@@ -340,10 +340,7 @@ class BookmarkEntities {
         val text: String = "",
     )
 
-    @DatabaseView("""
-        SELECT e.*, t.text 
-        FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t on e.id = t.studyPadTextEntryId
-        """)
+    @DatabaseView("SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t on e.id = t.studyPadTextEntryId")
     data class StudyPadTextEntryWithText(
         @PrimaryKey val id: IdType = IdType(),
         val labelId: IdType,
