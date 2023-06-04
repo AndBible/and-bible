@@ -30,6 +30,7 @@ import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
 import androidx.room.ColumnInfo
+import androidx.room.DatabaseView
 import androidx.room.Ignore
 import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
@@ -96,18 +97,17 @@ class BookmarkEntities {
     }
 
     @Entity(
-        indices = [
-            Index("kjvOrdinalStart"), Index("kjvOrdinalEnd"), Index("primaryLabelId"),
-        ],
         foreignKeys = [
-            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
+            ForeignKey(entity = Bookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
         ],
     )
-    data class Bookmark(
-        // Verse range in KJV ordinals. For generic lookups, we must store verse ranges in a "standard"
-        // versification. We store also verserange in original versification, as it conveys the more exact
-        // versification-specific information.
+    data class BookmarkNotes(
+        @PrimaryKey var bookmarkId: IdType = IdType(),
+        val notes: String?
+    )
 
+    @DatabaseView("""SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn WHERE b.id = bn.bookmarkId""")
+    data class BookmarkWithNotes(
         var kjvOrdinalStart: Int,
         var kjvOrdinalEnd: Int,
 
@@ -118,7 +118,7 @@ class BookmarkEntities {
 
         var playbackSettings: PlaybackSettings?,
 
-        @PrimaryKey var id: IdType = IdType(),
+        var id: IdType = IdType(),
 
         var createdAt: Date = Date(System.currentTimeMillis()),
 
@@ -127,15 +127,15 @@ class BookmarkEntities {
         var startOffset: Int?,
         var endOffset: Int?,
 
-        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: IdType? = null,
+        var primaryLabelId: IdType? = null,
 
-        @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
-        @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
-        @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
-        @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
-        @Ignore var new: Boolean = false,
-        ): VerseRangeUser {
+        var notes: String? = null,
 
+        var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        var wholeVerse: Boolean = false,
+        var type: BookmarkType? = null,
+        var new: Boolean = false,
+    ): VerseRangeUser {
         constructor(
             kjvOrdinalStart: Int = 0,
             kjvOrdinalEnd: Int = 0,
@@ -244,7 +244,51 @@ class BookmarkEntities {
 
         @Ignore var fullText: String? = null
         @Ignore var osisFragment: OsisFragment? = null
+
+        val bookmarkEntity get() = Bookmark(
+            kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n, playbackSettings, id, createdAt, book, startOffset, endOffset
+        )
+        val noteEntity get() = if(notes == null) null else BookmarkNotes(id, notes)
     }
+
+    @Entity(
+        indices = [
+            Index("kjvOrdinalStart"), Index("kjvOrdinalEnd"), Index("primaryLabelId"),
+        ],
+        foreignKeys = [
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
+        ],
+    )
+    data class Bookmark(
+        // Verse range in KJV ordinals. For generic lookups, we must store verse ranges in a "standard"
+        // versification. We store also verserange in original versification, as it conveys the more exact
+        // versification-specific information.
+
+        var kjvOrdinalStart: Int,
+        var kjvOrdinalEnd: Int,
+
+        var ordinalStart: Int,
+        var ordinalEnd: Int,
+
+        var v11n: Versification,
+
+        var playbackSettings: PlaybackSettings?,
+
+        @PrimaryKey var id: IdType = IdType(),
+
+        var createdAt: Date = Date(System.currentTimeMillis()),
+
+        var book: AbstractPassageBook? = null,
+
+        var startOffset: Int?,
+        var endOffset: Int?,
+
+        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: IdType? = null,
+
+        @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
+    )
 
     @Entity(
         primaryKeys = ["bookmarkId", "labelId"],
@@ -281,9 +325,31 @@ class BookmarkEntities {
     data class StudyPadTextEntry(
         @PrimaryKey val id: IdType = IdType(),
         val labelId: IdType,
-        val text: String = "",
         var orderNumber: Int,
         var indentLevel: Int = 0,
+    )
+
+    @Entity(
+        foreignKeys = [
+            ForeignKey(entity = StudyPadTextEntry::class, parentColumns = ["id"], childColumns = ["studyPadTextEntryId"], onDelete = ForeignKey.CASCADE)
+        ],
+    )
+    @Serializable
+    data class StudyPadTextEntryText(
+        @PrimaryKey val studyPadTextEntryId: IdType = IdType(),
+        val text: String = "",
+    )
+
+    @DatabaseView("""
+        SELECT e.*, t.text 
+        FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t on e.id = t.studyPadTextEntryId
+        """)
+    data class StudyPadTextEntryWithText(
+        @PrimaryKey val id: IdType = IdType(),
+        val labelId: IdType,
+        var orderNumber: Int,
+        var indentLevel: Int = 0,
+        val text: String = "",
     ) {
         @Ignore val type: String = "journal"
         @Ignore val hashCode: Int = abs(id.hashCode())

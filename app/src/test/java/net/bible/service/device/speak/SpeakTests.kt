@@ -37,7 +37,7 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
@@ -545,7 +545,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     fun autoBookmarkOnPauseAddLabel() {
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange, null, true, null)
+        var dto = BookmarkWithNotes(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
         var label = Label(new = true)
         label.name = "Another"
@@ -574,7 +574,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     fun autoBookmarkWhenThereIsDefaultBookmark1() {
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange, null, true, null)
+        var dto = BookmarkWithNotes(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
 
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
@@ -610,7 +610,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     fun autoBookmarkWhenThereIsDefaultBookmark2() {
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange, null, true, null)
+        var dto = BookmarkWithNotes(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
 
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), notNullValue())
@@ -657,7 +657,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         val speakLabel = bookmarkControl.speakLabel
 
         val verseRange = VerseRange(book.versification, getVerse("Ps.14.2"))
-        var dto = Bookmark(verseRange, null, true, null)
+        var dto = BookmarkWithNotes(verseRange, null, true, null)
         dto.playbackSettings = PlaybackSettings(bookmarkWasCreated = true)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
         bookmarkControl.setLabelsForBookmark(dto, mutableListOf(speakLabel))
@@ -749,7 +749,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmark = true)
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange, null, true, null)
+        var dto = BookmarkWithNotes(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
         var label = Label(new = true)
         label.name = "Another"

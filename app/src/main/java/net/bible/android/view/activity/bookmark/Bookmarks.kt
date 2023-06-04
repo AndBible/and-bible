@@ -45,7 +45,7 @@ import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.settings
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.view.activity.base.Dialogs
@@ -84,7 +84,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private var selectedLabelNo = 0
 
     // the document list
-    private val bookmarkList: MutableList<Bookmark> = ArrayList()
+    private val bookmarkList: MutableList<BookmarkWithNotes> = ArrayList()
     private var listActionModeHelper: ListActionModeHelper? = null
     override val integrateWithHistoryManager: Boolean = true
 
@@ -133,7 +133,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
 
         // prepare the document list view
-        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(
+        val bookmarkArrayAdapter: ArrayAdapter<BookmarkWithNotes> = BookmarkItemAdapter(
             this, bookmarkList, bookmarkControl, windowControl
         )
         listAdapter = bookmarkArrayAdapter
@@ -161,7 +161,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return intent
     }
 
-    private fun assignLabels(bookmarks: List<Bookmark>) = lifecycleScope.launch(Dispatchers.IO) {
+    private fun assignLabels(bookmarks: List<BookmarkWithNotes>) = lifecycleScope.launch(Dispatchers.IO) {
         val labels = mutableSetOf<IdType>()
         for (b in bookmarks) {
             labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
@@ -186,7 +186,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    private fun delete(bookmarks: List<Bookmark>) {
+    private fun delete(bookmarks: List<BookmarkWithNotes>) {
         AlertDialog.Builder(this)
             .setMessage(getString(R.string.confirm_delete_bookmarks, bookmarks.size))
             .setPositiveButton(R.string.yes) { _, _ ->
@@ -243,7 +243,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    private fun bookmarkSelected(bookmark: Bookmark) {
+    private fun bookmarkSelected(bookmark: BookmarkWithNotes) {
         Log.i(TAG, "Bookmark selected:" + bookmark.verseRange)
         try {
             if (bookmarkControl.isSpeakBookmark(bookmark)) {
@@ -350,8 +350,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return listView.isItemChecked(position)
     }
 
-    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<Bookmark> {
-        val selectedBookmarks: MutableList<Bookmark> = ArrayList()
+    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<BookmarkWithNotes> {
+        val selectedBookmarks: MutableList<BookmarkWithNotes> = ArrayList()
         for (position in selectedItemPositions) {
             selectedBookmarks.add(bookmarkList[position])
         }

@@ -155,7 +155,7 @@ class Selection(val bookInitials: String?, val startOrdinal: Int,
                 val text: String = ""
 )
 {
-    constructor(bookmark: BookmarkEntities.Bookmark):
+    constructor(bookmark: BookmarkEntities.BookmarkWithNotes):
         this(
             bookmark.book?.initials,
             bookmark.ordinalStart,
@@ -354,7 +354,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(selection.startOffset != null && selection.endOffset != null)
                 BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
             else null
-        val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, wholeVerse, selection.book)
+        val bookmark = BookmarkEntities.BookmarkWithNotes(verseRange, textRange, wholeVerse, selection.book)
         val initialLabels = workspaceSettings.autoAssignLabels
 
         val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel

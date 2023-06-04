@@ -106,7 +106,7 @@ open class OsisDocument(
 }
 
 class BibleDocument(
-    val bookmarks: List<BookmarkEntities.Bookmark>,
+    val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
     val verseRange: VerseRange,
     osisFragment: OsisFragment,
     val swordBook: SwordBook,
@@ -145,7 +145,7 @@ class MultiFragmentDocument(private val osisFragments: List<OsisFragment>, priva
 }
 
 
-class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
+class MyNotesDocument(val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
                       val verseRange: VerseRange): Document, DocumentWithBookmarks
 {
     override val asHashMap: Map<String, Any>
@@ -163,7 +163,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
 class StudyPadDocument(
     val label: BookmarkEntities.Label,
     val bookmarkId: IdType?,
-    val bookmarks: List<BookmarkEntities.Bookmark>,
+    val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
     private val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
     private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>,
 ): Document, DocumentWithBookmarks {
@@ -182,7 +182,7 @@ class StudyPadDocument(
         }
 }
 
-class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versification? = null): Document {
+class ClientBookmark(val bookmark: BookmarkEntities.BookmarkWithNotes, val v11n: Versification? = null): Document {
     @Inject lateinit var bookmarkControl: BookmarkControl
 
     init {

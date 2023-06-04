@@ -26,6 +26,8 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntry
@@ -51,7 +53,7 @@ import kotlin.math.min
 
 abstract class BookmarkEvent
 
-class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark): BookmarkEvent()
+class BookmarkAddedOrUpdatedEvent(val bookmark: BookmarkWithNotes): BookmarkEvent()
 class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BookmarkToLabel)
 class BookmarksDeletedEvent(val bookmarkIds: List<IdType>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
@@ -99,16 +101,24 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    val allBookmarks: List<Bookmark> get() = dao.allBookmarks()
+    val allBookmarks: List<BookmarkWithNotes> get() = dao.allBookmarks()
 
-    fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> = dao.allBookmarksWithNotes(orderBy)
+    fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<BookmarkWithNotes> = dao.allBookmarksWithNotes(orderBy)
 
-    fun addOrUpdateBookmark(bookmark: Bookmark, labels: Set<IdType>?=null): Bookmark {
+    fun addOrUpdateBookmark(bookmark: BookmarkWithNotes, labels: Set<IdType>?=null): BookmarkWithNotes {
+        val notes = bookmark.noteEntity
         if(bookmark.new) {
-            dao.insert(bookmark)
+            dao.insert(bookmark.bookmarkEntity)
+            if(notes != null)
+                dao.insert(notes)
             bookmark.new = false
         } else {
-            dao.update(bookmark)
+            dao.update(bookmark.bookmarkEntity)
+            if(notes != null) {
+                dao.update(notes)
+            } else {
+                dao.deleteNotes(bookmark.id)
+            }
         }
 
         val labelIdsInDb = labels?.mapNotNull {dao.labelById(it)?.id }
@@ -124,7 +134,7 @@ open class BookmarkControl @Inject constructor(
             dao.insert(addBookmarkToLabels)
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
-                dao.update(bookmark)
+                dao.update(bookmark.bookmarkEntity)
             }
             windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests ?.
         }
@@ -137,21 +147,21 @@ open class BookmarkControl @Inject constructor(
         return bookmark
     }
 
-    fun bookmarksByIds(ids: List<IdType>): List<Bookmark> = dao.bookmarksByIds(ids)
+    fun bookmarksByIds(ids: List<IdType>): List<BookmarkWithNotes> = dao.bookmarksByIds(ids)
 
-    fun bookmarkById(id: IdType): Bookmark? = dao.bookmarkById(id)
+    fun bookmarkById(id: IdType): BookmarkWithNotes? = dao.bookmarkById(id)
 
     fun hasBookmarksForVerse(verse: Verse): Boolean = dao.hasBookmarksForVerse(verse)
 
-    fun firstBookmarkStartingAtVerse(key: Verse): Bookmark? = dao.bookmarksStartingAtVerse(key).firstOrNull()
+    fun firstBookmarkStartingAtVerse(key: Verse): BookmarkWithNotes? = dao.bookmarksStartingAtVerse(key).firstOrNull()
 
-    fun deleteBookmark(bookmark: Bookmark) {
+    fun deleteBookmark(bookmark: BookmarkWithNotes) {
         dao.delete(bookmark)
         sanitizeStudyPadOrder(bookmark)
         ABEventBus.post(BookmarksDeletedEvent(listOf(bookmark.id)))
     }
 
-    fun deleteBookmarks(bookmarks: List<Bookmark>) {
+    fun deleteBookmarks(bookmarks: List<BookmarkWithNotes>) {
         val labels = mutableSetOf<IdType>()
         for(b in bookmarks) {
             labels.addAll(labelsForBookmark(b).map { it.id })
@@ -165,7 +175,7 @@ open class BookmarkControl @Inject constructor(
 
     fun deleteBookmarksById(bookmarkIds: List<IdType>) = deleteBookmarks(dao.bookmarksByIds(bookmarkIds))
 
-    fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false): List<Bookmark> {
+    fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false): List<BookmarkWithNotes> {
         val bookmarks = when {
             labelAll == label -> dao.allBookmarks(orderBy)
             labelUnlabelled == label -> dao.unlabelledBookmarks(orderBy)
@@ -180,11 +190,11 @@ open class BookmarkControl @Inject constructor(
 
     fun bookmarksByLabelId(labelId: IdType) = dao.bookmarksWithLabel(labelId, BookmarkSortOrder.ORDER_NUMBER)
 
-    fun labelsForBookmark(bookmark: Bookmark): List<Label> {
+    fun labelsForBookmark(bookmark: BookmarkWithNotes): List<Label> {
         return dao.labelsForBookmark(bookmark.id)
     }
 
-    fun setLabelsForBookmark(bookmark: Bookmark, labels: List<Label>) =
+    fun setLabelsForBookmark(bookmark: BookmarkWithNotes, labels: List<Label>) =
         addOrUpdateBookmark(bookmark, labels.map { it.id }.toSet())
 
     fun insertOrUpdateLabel(label: Label): Label {
@@ -231,10 +241,10 @@ open class BookmarkControl @Inject constructor(
 
     fun reset() {}
 
-    fun isSpeakBookmark(bookmark: Bookmark): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
+    fun isSpeakBookmark(bookmark: BookmarkWithNotes): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
     fun speakBookmarkForVerse(verse: Verse) = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
 
-    fun changeLabelsForBookmark(bookmark: Bookmark, labelIds: List<IdType>) {
+    fun changeLabelsForBookmark(bookmark: BookmarkWithNotes, labelIds: List<IdType>) {
         dao.clearLabels(bookmark)
         dao.insert(labelIds.map { BookmarkToLabel(bookmark.id, it)})
     }
@@ -259,8 +269,8 @@ open class BookmarkControl @Inject constructor(
         dao.deleteLabelsByIds(toList)
     }
 
-    fun bookmarksInBook(book: BibleBook): List<Bookmark> = dao.bookmarksInBook(book)
-    fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<Bookmark> {
+    fun bookmarksInBook(book: BibleBook): List<BookmarkWithNotes> = dao.bookmarksInBook(book)
+    fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<BookmarkWithNotes> {
         val bookmarks = dao.bookmarksForVerseRange(verseRange)
         if(withLabels) for (b in bookmarks) {
             addLabels(b)
@@ -271,13 +281,13 @@ open class BookmarkControl @Inject constructor(
         return bookmarks
     }
 
-    private fun addLabels(b: Bookmark) {
+    private fun addLabels(b: BookmarkWithNotes) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b.id)
         b.bookmarkToLabels = bookmarkToLabels
         b.labelIds = bookmarkToLabels.map { it.labelId }
     }
 
-    internal fun addText(b: Bookmark) {
+    internal fun addText(b: BookmarkWithNotes) {
         val book = b.book ?: windowControl.defaultBibleDoc(false) as SwordBook? ?: return // last ?: return is needed for tests
         b.osisFragment =
             try {
@@ -332,7 +342,7 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun updateBookmarkTimestamp(bookmarkId: IdType) {
-        dao.updateBookmarkDate(dao.bookmarkById(bookmarkId)!!)
+        dao.updateBookmarkDate(dao.bookmarkById(bookmarkId)!!.id)
     }
 
     fun getBookmarkToLabel(bookmarkId: IdType, labelId: IdType): BookmarkToLabel? = dao.getBookmarkToLabel(bookmarkId, labelId)
@@ -389,7 +399,7 @@ open class BookmarkControl @Inject constructor(
             )
     }
 
-    private fun sanitizeStudyPadOrder(bookmark: Bookmark) {
+    private fun sanitizeStudyPadOrder(bookmark: BookmarkWithNotes) {
         for (it in labelsForBookmark(bookmark)) {
             sanitizeStudyPadOrder(it.id)
         }

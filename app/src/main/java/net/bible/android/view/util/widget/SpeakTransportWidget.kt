@@ -43,7 +43,7 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils.buildActivityComponent
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -153,7 +153,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
 
     private fun onBookmarkButtonClick() {
         val bookmarkTitles = ArrayList<String>()
-        val bookmarks = ArrayList<Bookmark>()
+        val bookmarks = ArrayList<BookmarkWithNotes>()
         val label = bookmarkControl.speakLabel
         for (b in bookmarkControl.getBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }) {
 

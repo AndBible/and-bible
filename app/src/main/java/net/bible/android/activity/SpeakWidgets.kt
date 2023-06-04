@@ -174,7 +174,7 @@ class SpeakWidgetManager {
         val views = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget)
 
         views.removeAllViews(R.id.layout)
-        fun addButton(name: String, b: BookmarkEntities.Bookmark?) {
+        fun addButton(name: String, b: BookmarkEntities.BookmarkWithNotes?) {
             val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
             button.setTextViewText(R.id.button, name)
             if(b != null) {

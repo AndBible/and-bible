@@ -32,12 +32,18 @@ import net.bible.android.database.readingplan.ReadingPlanEntities
 @Database(
     entities = [
         BookmarkEntities.Bookmark::class,
+        BookmarkEntities.BookmarkNotes::class,
         BookmarkEntities.Label::class,
         BookmarkEntities.StudyPadTextEntry::class,
+        BookmarkEntities.StudyPadTextEntryText::class,
         BookmarkEntities.BookmarkToLabel::class,
         LogEntry::class,
         SyncConfiguration::class,
         SyncStatus::class,
+    ],
+    views = [
+        BookmarkEntities.BookmarkWithNotes::class,
+        BookmarkEntities.StudyPadTextEntryWithText::class,
     ],
     version = BOOKMARK_DATABASE_VERSION
 )

@@ -390,7 +390,7 @@ object CommonUtils : CommonUtilsBase() {
 
     init {
         try {
-            if (android.os.Build.ID != null) {
+            if (Build.ID != null) {
                 isAndroid = true
             }
         } catch (cnfe: Exception) {
@@ -1070,7 +1070,7 @@ object CommonUtils : CommonUtilsBase() {
             val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255,  100, 0, 150))
             bookmarkDao.insertLabels(highlightLabels)
 
-            fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.Bookmark {
+            fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.BookmarkWithNotes {
                 val v1 = verseRange.toVerseArray()[start.toInt()]
                 val v2 = verseRange.toVerseArray()[end.toInt()]
                 val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true).length
@@ -1078,21 +1078,21 @@ object CommonUtils : CommonUtilsBase() {
                 val tr = BookmarkEntities.TextRange(((start - start.toInt())*l1).roundToInt(), ((end-end.toInt()) * l2).roundToInt())
                 val v = VerseRange(v1.versification, v1, v2)
 
-                return BookmarkEntities.Bookmark(v, textRange = tr, wholeVerse = false, book = defaultBible)
+                return BookmarkEntities.BookmarkWithNotes(v, textRange = tr, wholeVerse = false, book = defaultBible)
             }
 
             if(!hasExistingBookmarks) {
                 bookmarkDao.insert(salvationLabel)
 
                 // first bookmark, full verses, with underline
-                var b = BookmarkEntities.Bookmark(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id }
-                bookmarkDao.insert(b)
+                var b = BookmarkEntities.BookmarkWithNotes(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id }
+                bookmarkDao.insert(b.bookmarkEntity)
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, underlineLabel.id))
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, salvationLabel.id))
 
                 // second bookmark, red
                 b = getBookmark(defaultVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id }
-                bookmarkDao.insert(b)
+                bookmarkDao.insert(b.bookmarkEntity)
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, redLabel.id))
 
                 // third bookmark, green
@@ -1100,7 +1100,8 @@ object CommonUtils : CommonUtilsBase() {
                     primaryLabelId = greenLabel.id
                     notes = lorem
                 }
-                bookmarkDao.insert(b)
+                bookmarkDao.insert(b.bookmarkEntity)
+                bookmarkDao.insert(b.noteEntity!!)
 
                 bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, greenLabel.id))
 
@@ -1112,9 +1113,9 @@ object CommonUtils : CommonUtilsBase() {
 
                 salvationVerses
                     .map {
-                        BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
+                        BookmarkEntities.BookmarkWithNotes(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
                     }.forEach {
-                        bookmarkDao.insert(it)
+                        bookmarkDao.insert(it.bookmarkEntity)
                         bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(it.id, salvationLabel.id))
                     }
             }

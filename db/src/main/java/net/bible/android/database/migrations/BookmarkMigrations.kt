@@ -21,4 +21,4 @@ package net.bible.android.database.migrations
 
 val bookmarkMigrations: Array<Migration> = arrayOf()
 
-const val BOOKMARK_DATABASE_VERSION = 1
+const val BOOKMARK_DATABASE_VERSION = 2
