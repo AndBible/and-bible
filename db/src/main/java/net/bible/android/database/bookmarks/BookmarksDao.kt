@@ -160,7 +160,7 @@ interface BookmarkDao {
     fun bookmarksWithLabel(labelId: IdType, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<BookmarkWithNotes>
         = bookmarksWithLabel(labelId, orderBy.name)
 
-    @Query("""UPDATE BookmarkNotes SET notes=:notes WHERE bookmarkId=:bookmarkId""")
+    @Query("""INSERT INTO BookmarkNotes VALUES (:bookmarkId, :notes) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
     fun _saveBookmarkNote(bookmarkId: IdType, notes: String?)
     @Query("""UPDATE Bookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
     fun saveBookmarkLastUpdatedOn(bookmarkId: IdType, lastUpdatedOn: Long)
