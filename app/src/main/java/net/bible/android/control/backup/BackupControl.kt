@@ -50,6 +50,7 @@ import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SettingsDatabase
+import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
@@ -66,6 +67,8 @@ import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
 import net.bible.service.devicesync.DeviceSynchronize
+import net.bible.service.devicesync.SYNC_DEVICE_FOLDER_FILE_ID_KEY
+import net.bible.service.devicesync.SYNC_FOLDER_FILE_ID_KEY
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
@@ -616,39 +619,53 @@ object BackupControl {
         tmpFile.outputStream().use {inputStream.copyTo(it) }
         CommonUtils.unzipFile(tmpFile, unzipFolder)
 
-        Closeable {
-            tmpFile.delete()
-            unzipFolder.deleteRecursively()
-        }.use {
-            val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
-                .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
-                .map { file -> file.name }
+        val selection =
+            Closeable {
+                tmpFile.delete()
+                unzipFolder.deleteRecursively()
+            }.use {
+                val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
+                    .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
+                    .map { file -> file.name }
 
-            hourglass.dismiss()
-            if (containedBackups.isEmpty()) {
-                Dialogs.showMsg(R.string.restore_unsuccessfull)
-                return@withContext false
-            }
-            val selection = selectDatabaseSections(activity, containedBackups)
+                hourglass.dismiss()
+                if (containedBackups.isEmpty()) {
+                    Dialogs.showMsg(R.string.restore_unsuccessfull)
+                    return@withContext false
+                }
+                val selection = selectDatabaseSections(activity, containedBackups)
 
-            if (selection.isEmpty()) {
-                return@withContext false
+                if (selection.isEmpty()) {
+                    return@withContext false
+                }
+                hourglass.show()
+                DatabaseContainer.reset()
+                for (fileName in selection) {
+                    val f = File(unzipFolder, "db/${fileName}")
+                    Log.i(TAG, "Restoring $fileName")
+                    val targetFilePath = activity.getDatabasePath(fileName).path
+                    val targetFile = File(targetFilePath)
+                    f.copyTo(targetFile, overwrite = true)
+                    File("$targetFilePath-journal").delete()
+                    File("$targetFilePath-shm").delete()
+                    File("$targetFilePath-wal").delete()
+                }
+                selection
             }
-            hourglass.show()
-            DatabaseContainer.reset()
-            for (fileName in selection) {
-                val f = File(unzipFolder, "db/${fileName}")
-                Log.i(TAG, "Restoring $fileName")
-                val targetFilePath = activity.getDatabasePath(fileName).path
-                val targetFile = File(targetFilePath)
-                f.copyTo(targetFile, overwrite = true)
-                File("$targetFilePath-journal").delete()
-                File("$targetFilePath-shm").delete()
-                File("$targetFilePath-wal").delete()
-            }
-        }
         if (DatabaseContainer.ready) {
             DatabaseContainer.instance
+            for(s in selection) {
+                val db: SyncableRoomDatabase? = when(s) {
+                    BookmarkDatabase.dbFileName -> DatabaseContainer.instance.bookmarkDb
+                    ReadingPlanDatabase.dbFileName -> DatabaseContainer.instance.readingPlanDb
+                    WorkspaceDatabase.dbFileName -> DatabaseContainer.instance.workspaceDb
+                    else -> null
+                }
+                if(db != null) {
+                    db.syncDao().removeConfig(SYNC_FOLDER_FILE_ID_KEY)
+                    db.syncDao().removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+                }
+            }
             if(CommonUtils.isGoogleDriveSyncEnabled && !DeviceSynchronize.signedIn) {
                 DeviceSynchronize.signIn(activity)
             }
