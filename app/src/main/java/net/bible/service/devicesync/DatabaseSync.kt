@@ -297,6 +297,8 @@ object DatabaseSync {
             val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
             Log.i(TAG, "Applying patch file ${patchDbFile.name}")
             CommonUtils.gunzipFile(gzippedPatchFile, patchDbFile)
+            // Let's apply possible migrations first
+            dbDef.dbFactory(patchDbFile.absolutePath).openHelper.writableDatabase.use {  }
             dbDef.writableDb.run {
                 execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
                 execSQL("PRAGMA foreign_keys=OFF;")
