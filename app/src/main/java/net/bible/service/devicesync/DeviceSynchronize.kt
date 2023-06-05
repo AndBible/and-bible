@@ -162,7 +162,7 @@ object DeviceSynchronize {
             Log.i(TAG, "Creating new device sync folder $syncFolderName/$deviceIdentifier")
             adapter.createNewFolder(
                 name = deviceIdentifier,
-                parent = syncFolderId,
+                parentId = syncFolderId,
             )
                 .id.also {
                     Log.i(TAG, "This device sync folder id $it")
@@ -195,10 +195,10 @@ object DeviceSynchronize {
         tmpFile.delete()
 
         Log.i(TAG, "uploading initial db, ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
-        adapter.createNewFile(
+        adapter.upload(
             name = INITIAL_BACKUP_FILENAME,
             file = gzippedTmpFile,
-            parent = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
+            parentId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         )
         gzippedTmpFile.delete()
     }
@@ -207,7 +207,7 @@ object DeviceSynchronize {
         val deviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val fileId = adapter
             .listFiles(
-                parents = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!),
+                parentsIds = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!),
                 name = INITIAL_BACKUP_FILENAME
             )
             .first()
@@ -297,7 +297,7 @@ object DeviceSynchronize {
         Log.i(TAG, "Folders \n${folderResult.joinToString("\n") { "${it.id} ${it.name}" }}")
 
         val patchResults = adapter.listFiles(
-            parents = folderResult.map { it.id },
+            parentsIds = folderResult.map { it.id },
             createdTimeAtLeast = lastSynchronizedDateTime
         ).sortedBy { it.createdTime.value }
 
@@ -360,7 +360,7 @@ object DeviceSynchronize {
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val count = (dbDef.dao.lastPatchNum(CommonUtils.deviceIdentifier)?: 0) + 1
         val fileName = "$count.${dbDef.version}.sqlite3.gz"
-        val result = adapter.createNewFile(fileName, file, syncDeviceFolderId)
+        val result = adapter.upload(fileName, file, syncDeviceFolderId)
         Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.length()} bytes, ${result.createdTime.toStringRfc3339()}")
         dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, count, file.length(), result.createdTime.value))
         file.delete()

@@ -28,14 +28,14 @@ interface CloudAdapter {
     suspend fun signOut()
     fun get(id: String): SyncFile
     fun listFiles(
-        parents: List<String>? = null,
+        parentsIds: List<String>? = null,
         name: String? = null,
         mimeType: String? = null,
         createdTimeAtLeast: DateTime? = null
     ): List<SyncFile>
     fun getFolders(parentId: String): List<SyncFile>
-    fun delete(id: String)
     fun download(id: String, outputStream: OutputStream)
-    fun createNewFolder(name: String, parent: String? = null): SyncFile
-    fun createNewFile(name: String, file: File, parent: String? = null): SyncFile
+    fun createNewFolder(name: String, parentId: String? = null): SyncFile
+    fun upload(name: String, file: File, parentId: String? = null): SyncFile
+    fun delete(id: String)
 }

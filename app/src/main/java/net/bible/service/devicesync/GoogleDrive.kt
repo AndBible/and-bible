@@ -186,15 +186,15 @@ class GoogleDrive: CloudAdapter {
         }
 
     override fun listFiles(
-        parents: List<String>?,
+        parentsIds: List<String>?,
         name: String?,
         mimeType: String?,
         createdTimeAtLeast: DateTime?
     ): List<SyncFile> {
         val q = mutableListOf<String>()
-        if (parents != null) {
+        if (parentsIds != null) {
             q.add(
-               parents.joinToString(
+               parentsIds.joinToString(
                    separator = " or ",
                    prefix = "(",
                    postfix = ")",
@@ -225,7 +225,7 @@ class GoogleDrive: CloudAdapter {
     }
 
     override fun getFolders(parentId: String): List<SyncFile> =
-        listFiles(parents = listOf(parentId), mimeType = FOLDER_MIMETYPE)
+        listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
 
     override fun delete(id: String) {
         service.files().delete(id).execute()
@@ -235,21 +235,21 @@ class GoogleDrive: CloudAdapter {
        service.files().get(id).executeMediaAndDownloadTo(outputStream)
     }
 
-    override fun createNewFolder(name: String, parent: String?): SyncFile =
+    override fun createNewFolder(name: String, parentId: String?): SyncFile =
         service.files()
             .create(DriveFile().apply {
                 this.name = name
                 mimeType = FOLDER_MIMETYPE
-                parents = listOf(parent ?: "appDataFolder")
+                parents = listOf(parentId ?: "appDataFolder")
             })
             .setFields(FIELDS)
             .execute().toSyncFile()
 
-    override fun createNewFile(name: String, file: File, parent: String?): SyncFile =
+    override fun upload(name: String, file: File, parentId: String?): SyncFile =
         service.files().create(
             DriveFile().apply {
                 this.name = name
-                parents = listOf(parent?: "appDataFolder")
+                parents = listOf(parentId?: "appDataFolder")
             },
             FileContent(GZIP_MIMETYPE, file)
         )
