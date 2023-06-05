@@ -119,7 +119,7 @@ interface SyncDao {
     @Query("SELECT * FROM LogEntry WHERE type = 'DELETE'")
     fun allDeletions(): List<LogEntry>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addStatuses(syncStatuses: List<SyncStatus>)
 
     @Query("SELECT * from SyncStatus WHERE sourceDevice=:name AND patchNumber=:patchNumber")
