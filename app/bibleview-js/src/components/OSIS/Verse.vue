@@ -36,19 +36,18 @@ import {computed, inject, provide, reactive, ref} from "vue";
 import VerseNumber from "@/components/VerseNumber.vue";
 import {useCommon} from "@/composables";
 import {addEventVerseInfo, getVerseInfo} from "@/utils";
-import {bibleDocumentInfoKey, verseHighlightKey, verseInfoKey} from "@/types/constants";
+import {androidKey, bibleDocumentInfoKey, verseHighlightKey, verseInfoKey} from "@/types/constants";
 import {VerseInfo} from "@/types/common";
 
 const props = defineProps<{ osisID: string, verseOrdinal: string }>();
 
 const shown = ref(true);
 const bibleDocumentInfo = inject(bibleDocumentInfoKey);
+const {querySelection} = inject(androidKey)
+const {highlightedVerses, highlightVerse} = inject(verseHighlightKey)!;
 
 const verseInfo: VerseInfo = {...getVerseInfo(props), v11n: bibleDocumentInfo?.v11n, showStack: reactive([shown])};
-
 provide(verseInfoKey, verseInfo);
-
-const {highlightedVerses, highlightVerse} = inject(verseHighlightKey)!;
 
 const ordinal = computed(() => {
     return parseInt(props.verseOrdinal);
@@ -70,6 +69,8 @@ if (bibleDocumentInfo?.originalOrdinalRange &&
 
 function verseClicked(event: Event) {
     if (!fromBibleDocument.value) return;
+    if(querySelection() != null) return;
+
     const {bookInitials, bibleBookName} = bibleDocumentInfo!;
 
     addEventVerseInfo(event, {bookInitials, bibleBookName, bibleDocumentInfo, ...verseInfo})
