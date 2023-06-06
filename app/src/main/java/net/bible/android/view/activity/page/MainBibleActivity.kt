@@ -1260,6 +1260,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         super.onRestart()
         if(CommonUtils.isGoogleDriveSyncEnabled) {
             lifecycleScope.launch {
+                if(!DeviceSynchronize.signedIn) {
+                    DeviceSynchronize.signIn(this@MainBibleActivity)
+                }
                 DeviceSynchronize.synchronize()
             }
         }
