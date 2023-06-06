@@ -43,7 +43,7 @@ const props = defineProps<{ osisID: string, verseOrdinal: string }>();
 
 const shown = ref(true);
 const bibleDocumentInfo = inject(bibleDocumentInfoKey);
-const {querySelection} = inject(androidKey)
+const {querySelection} = inject(androidKey)!
 const {highlightedVerses, highlightVerse} = inject(verseHighlightKey)!;
 
 const verseInfo: VerseInfo = {...getVerseInfo(props), v11n: bibleDocumentInfo?.v11n, showStack: reactive([shown])};

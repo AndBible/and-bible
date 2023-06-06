@@ -23,8 +23,9 @@ import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
 import {useStrings} from "@/composables/strings";
 import {useConfig} from "@/composables/config";
 import {useVerseHighlight} from "@/composables/verse-highlight";
-import {configKey, stringsKey, verseHighlightKey} from "@/types/constants";
+import {androidKey, configKey, stringsKey, verseHighlightKey} from "@/types/constants";
 import { describe, it, expect, beforeAll} from 'vitest'
+import {useAndroid} from "@/composables/android";
 
 window.bibleViewDebug = {}
 
@@ -38,6 +39,7 @@ describe("Verse.vue", () => {
             [configKey]: config,
             [stringsKey]: strings,
             [verseHighlightKey]: useVerseHighlight(),
+            [androidKey]: {querySelection: () => {}},
         }
         wrapper = shallowMount(Verse,
             {
