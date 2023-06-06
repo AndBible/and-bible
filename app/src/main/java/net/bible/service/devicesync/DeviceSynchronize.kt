@@ -65,14 +65,6 @@ const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 
 class CancelSync: Exception()
 
-class SyncFile(
-    val id: String,
-    val name: String,
-    val size: Long,
-    val createdTime: DateTime,
-    val parentId: String
-)
-
 object DeviceSynchronize {
     val adapter: CloudAdapter = GoogleDrive()
 
@@ -303,7 +295,7 @@ object DeviceSynchronize {
 
         Log.i(TAG, "Number of patch files in result set: ${patchResults.size}")
 
-        class FolderWithMeta(val folder: SyncFile, val loadedCount: Long)
+        class FolderWithMeta(val folder: CloudFile, val loadedCount: Long)
 
         val folders = folderResult
             .map {
@@ -312,7 +304,7 @@ object DeviceSynchronize {
         Log.i(TAG, "Folder counts: \n${folders.values.joinToString("\n") { "${it.folder.name}: ${it.loadedCount}" }}")
         Log.i(TAG, "Patches before filter: \n${patchResults.joinToString("\n") { it.name }}")
 
-        class DriveFileWithMeta(val file: SyncFile, val parentFolderName: String)
+        class DriveFileWithMeta(val file: CloudFile, val parentFolderName: String)
 
         val patches = patchResults.mapNotNull {
             val parentFolderId = it.parentId

@@ -22,20 +22,28 @@ import net.bible.android.view.activity.base.ActivityBase
 import java.io.File
 import java.io.OutputStream
 
+data class CloudFile(
+    val id: String,
+    val name: String,
+    val size: Long,
+    val createdTime: DateTime,
+    val parentId: String
+)
+
 interface CloudAdapter {
     val signedIn: Boolean
     suspend fun signIn(activity: ActivityBase): Boolean
     suspend fun signOut()
-    fun get(id: String): SyncFile
+    fun get(id: String): CloudFile
     fun listFiles(
         parentsIds: List<String>? = null,
         name: String? = null,
         mimeType: String? = null,
         createdTimeAtLeast: DateTime? = null
-    ): List<SyncFile>
-    fun getFolders(parentId: String): List<SyncFile>
+    ): List<CloudFile>
+    fun getFolders(parentId: String): List<CloudFile>
     fun download(id: String, outputStream: OutputStream)
-    fun createNewFolder(name: String, parentId: String? = null): SyncFile
-    fun upload(name: String, file: File, parentId: String? = null): SyncFile
+    fun createNewFolder(name: String, parentId: String? = null): CloudFile
+    fun upload(name: String, file: File, parentId: String? = null): CloudFile
     fun delete(id: String)
 }

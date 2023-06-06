@@ -47,7 +47,7 @@ import java.io.IOException
 import java.io.OutputStream
 import java.util.Collections
 
-fun DriveFile.toSyncFile() = SyncFile(
+fun DriveFile.toSyncFile() = CloudFile(
     id = id,
     name = name,
     size = getSize()?: 0,
@@ -171,7 +171,7 @@ class GoogleDrive: CloudAdapter {
         return true
     }
 
-    override fun get(id: String): SyncFile =
+    override fun get(id: String): CloudFile =
         try {
             service.files()
                 .get(id)
@@ -190,7 +190,7 @@ class GoogleDrive: CloudAdapter {
         name: String?,
         mimeType: String?,
         createdTimeAtLeast: DateTime?
-    ): List<SyncFile> {
+    ): List<CloudFile> {
         val q = mutableListOf<String>()
         if (parentsIds != null) {
             q.add(
@@ -224,7 +224,7 @@ class GoogleDrive: CloudAdapter {
             .map { it.toSyncFile() }
     }
 
-    override fun getFolders(parentId: String): List<SyncFile> =
+    override fun getFolders(parentId: String): List<CloudFile> =
         listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
 
     override fun delete(id: String) {
@@ -235,7 +235,7 @@ class GoogleDrive: CloudAdapter {
        service.files().get(id).executeMediaAndDownloadTo(outputStream)
     }
 
-    override fun createNewFolder(name: String, parentId: String?): SyncFile =
+    override fun createNewFolder(name: String, parentId: String?): CloudFile =
         service.files()
             .create(DriveFile().apply {
                 this.name = name
@@ -245,7 +245,7 @@ class GoogleDrive: CloudAdapter {
             .setFields(FIELDS)
             .execute().toSyncFile()
 
-    override fun upload(name: String, file: File, parentId: String?): SyncFile =
+    override fun upload(name: String, file: File, parentId: String?): CloudFile =
         service.files().create(
             DriveFile().apply {
                 this.name = name
