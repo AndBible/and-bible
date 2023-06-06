@@ -25,6 +25,7 @@ import android.view.ViewConfiguration
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.util.TouchOwner
 import net.bible.service.common.CommonUtils
+import kotlin.math.abs
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
  *
@@ -63,11 +64,15 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
             flingEv = MotionEvent.obtain(e2)
         }
 
+        if(flingEv.isButtonPressed(MotionEvent.BUTTON_PRIMARY)) {
+            return false
+        }
+
         // prevent interference with window separator drag - fast drags were causing a fling
         if (!TouchOwner.isTouchOwned) {
             // get distance between points of the fling
-            val vertical = Math.abs(flingEv.y - e2.y).toDouble()
-            val horizontal = Math.abs(flingEv.x - e2.x).toDouble()
+            val vertical = abs(flingEv.y - e2.y).toDouble()
+            val horizontal = abs(flingEv.x - e2.x).toDouble()
 
             Log.i(TAG, "onFling vertical:$vertical horizontal:$horizontal VelocityX$velocityX")
 
