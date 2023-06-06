@@ -148,11 +148,15 @@ class AppSettingsUpdated
 const val MAX_DOC_STR_LENGTH = 4000000;
 
 @Serializable
-class Selection(val bookInitials: String?, val startOrdinal: Int,
-                val startOffset: Int?, val endOrdinal: Int, val endOffset: Int?,
-                val bookmarks: List<Long>,
-                val notes: String? = null,
-                val text: String = ""
+class Selection(
+    val bookInitials: String?,
+    val startOrdinal: Int,
+    val startOffset: Int?,
+    val endOrdinal: Int,
+    val endOffset: Int?,
+    val bookmarks: List<Long>,
+    val notes: String? = null,
+    val text: String = ""
 )
 {
     constructor(bookmark: BookmarkEntities.BookmarkWithNotes):
