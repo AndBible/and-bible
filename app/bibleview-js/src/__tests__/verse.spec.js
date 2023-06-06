@@ -25,7 +25,6 @@ import {useConfig} from "@/composables/config";
 import {useVerseHighlight} from "@/composables/verse-highlight";
 import {androidKey, configKey, stringsKey, verseHighlightKey} from "@/types/constants";
 import { describe, it, expect, beforeAll} from 'vitest'
-import {useAndroid} from "@/composables/android";
 
 window.bibleViewDebug = {}
 
