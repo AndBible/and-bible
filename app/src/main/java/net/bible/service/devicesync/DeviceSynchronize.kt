@@ -103,9 +103,9 @@ object DeviceSynchronize {
             }
 
             if (initialOperation == InitialOperation.FETCH_INITIAL) {
-                uiMutex.withLock {
+                initialOperation = uiMutex.withLock {
                     val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
-                    initialOperation = withContext(Dispatchers.Main) {
+                    withContext(Dispatchers.Main) {
                         suspendCoroutine {
                             val containsStr = activity.getString(dbDef.category.contentDescription)
                             AlertDialog.Builder(activity)
