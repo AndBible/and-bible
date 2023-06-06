@@ -187,11 +187,12 @@ object DeviceSynchronize {
         tmpFile.delete()
 
         Log.i(TAG, "uploading initial db, ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
-        adapter.upload(
+        val result = adapter.upload(
             name = INITIAL_BACKUP_FILENAME,
             file = gzippedTmpFile,
             parentId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         )
+        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, 0, result.size, result.createdTime.value))
         gzippedTmpFile.delete()
     }
 
