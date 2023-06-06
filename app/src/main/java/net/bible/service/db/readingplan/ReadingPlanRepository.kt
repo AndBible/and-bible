@@ -35,7 +35,7 @@ import kotlin.math.max
 
 @ApplicationScope
 class ReadingPlanRepository @Inject constructor() {
-    private val readingPlanDao: ReadingPlanDao = DatabaseContainer.instance.readingPlanDb.readingPlanDao()
+    private val readingPlanDao: ReadingPlanDao get() = DatabaseContainer.instance.readingPlanDb.readingPlanDao()
     val scope = CoroutineScope(Dispatchers.Default)
 
     fun getReadingStatus(planCode: String, planDay: Int): String? = runBlocking {
