@@ -146,6 +146,9 @@ import kotlin.system.exitProcess
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
+const val DEFAULT_SYNC_INTERVAL = 2*60L // 2 minutes
+
+
 class OpenLink(val url: String)
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
@@ -1282,6 +1285,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 if(signIn && !DeviceSynchronize.signedIn) {
                     DeviceSynchronize.signIn(this@MainBibleActivity)
                 }
+                synchronize(true)
                 syncJob = lifecycleScope.launch { periodicSync() }
             }
         }
@@ -1294,13 +1298,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Periodic sync starting")
             try {
                 while (true) {
-                    synchronize()
-                    delay(CommonUtils.settings.getLong("gdrive_sync_interval", 60L) * 1000)
+                    delay(60*1000) // 1 minute
+                    val syncInterval = CommonUtils.settings.getLong("gdrive_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
+                    if(System.currentTimeMillis() - lastTouched > syncInterval) {
+                        synchronize()
+                    }
                 }
             } catch (e: StopSync) {
                 Log.i(TAG, "Stopping sync")
             }
         }
+    }
+
+    private val lastTouched: Long get() {
+        return windowRepository.windowList.mapNotNull { it.bibleView?.lastTouched }.max()
     }
 
     private suspend fun synchronize(force: Boolean = false) {
