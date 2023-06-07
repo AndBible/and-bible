@@ -81,7 +81,7 @@ object DeviceSynchronize {
     private suspend fun initializeSync(dbDef: SyncableDatabaseDefinition<*>) {
         var initialOperation: InitialOperation?= null
 
-        val syncFolderName = "sync-${dbDef.categoryName}"
+        val syncFolderName = "${application.applicationInfo.packageName}-sync-${dbDef.categoryName}"
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if(syncFolderId != null) {
             // Verify if id is found in Drive
