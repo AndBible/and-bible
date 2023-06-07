@@ -56,7 +56,10 @@ import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
@@ -130,6 +133,8 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
+import java.util.Timer
+import java.util.TimerTask
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -545,6 +550,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun onPause() {
         CommonUtils.windowControl.windowRepository.saveIntoDb(false)
         if(CommonUtils.isGoogleDriveSyncEnabled) {
+            syncJob?.cancel(StopSync())
+            syncJob = null
             lifecycleScope.launch { DeviceSynchronize.start() }
         }
         fullScreen = false;
@@ -1266,13 +1273,34 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    var syncJob: Job? = null
+
     private fun startSync(signIn: Boolean = true) {
         if(CommonUtils.isGoogleDriveSyncEnabled) {
             lifecycleScope.launch {
                 if(signIn && !DeviceSynchronize.signedIn) {
                     DeviceSynchronize.signIn(this@MainBibleActivity)
                 }
-                DeviceSynchronize.start()
+                syncJob = lifecycleScope.launch { periodicSync() }
+            }
+        }
+    }
+
+    class StopSync: CancellationException()
+
+    private suspend fun periodicSync() {
+        if(CommonUtils.isGoogleDriveSyncEnabled && DeviceSynchronize.signedIn) {
+            Log.i(TAG, "Periodic sync starting")
+            try {
+                while (true) {
+                    Log.i(TAG, "Performing periodic sync")
+                    windowRepository.saveIntoDb(false)
+                    DeviceSynchronize.start()
+                    DeviceSynchronize.waitUntilFinished()
+                    delay(CommonUtils.settings.getLong("gdrive_sync_interval", 60L) * 1000)
+                }
+            } catch (e: StopSync) {
+                Log.i(TAG, "Stopping sync")
             }
         }
     }
