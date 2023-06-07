@@ -26,6 +26,7 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.service.readingplan.ReadingPlanTextFileDao
@@ -55,6 +56,18 @@ class ReadingPlanControl @Inject constructor(
 		private val windowControl: WindowControl,
         private val readingPlanRepo: ReadingPlanRepository)
 {
+
+    init {
+        ABEventBus.register(this)
+    }
+
+    fun destroy() {
+        ABEventBus.unregister(this)
+    }
+
+    fun onEventMainThread(e: ReadingPlansUpdatedViaSyncEvent) {
+        // TODO: Reload readingStatus from db
+    }
 
     private val readingPlanTextDao = ReadingPlanTextFileDao()
     private var readingStatus: ReadingStatus? = null
