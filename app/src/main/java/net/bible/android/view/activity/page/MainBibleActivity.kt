@@ -1293,10 +1293,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Periodic sync starting")
             try {
                 while (true) {
-                    Log.i(TAG, "Performing periodic sync")
                     windowRepository.saveIntoDb(false)
-                    DeviceSynchronize.start()
-                    DeviceSynchronize.waitUntilFinished()
+                    if(DeviceSynchronize.hasChanges()) {
+                        Log.i(TAG, "Performing periodic sync")
+                        DeviceSynchronize.start()
+                        DeviceSynchronize.waitUntilFinished()
+                    }
                     delay(CommonUtils.settings.getLong("gdrive_sync_interval", 60L) * 1000)
                 }
             } catch (e: StopSync) {

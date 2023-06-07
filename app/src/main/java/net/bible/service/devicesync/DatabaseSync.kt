@@ -90,6 +90,11 @@ class SyncableDatabaseDefinition<T: SyncableRoomDatabase>(
         }
     }
 
+    val hasChanges: Boolean get() {
+        val lastSynchronized = dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
+        return dao.countNewLogEntries(lastSynchronized, deviceId) > 0
+    }
+
     val categoryName get() = category.name.lowercase()
     val dao get() = localDb.syncDao()
     val writableDb get() = localDb.openHelper.writableDatabase

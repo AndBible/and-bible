@@ -380,5 +380,11 @@ object DeviceSynchronize {
         file.delete()
     }
 
+    suspend fun hasChanges(): Boolean =
+        DatabaseContainer.dbDefFactories.asyncMap {
+            val dbDef = it.invoke()
+            dbDef.category.enabled && dbDef.hasChanges
+        }.any { it }
+
     const val TAG = "GoogleDrive"
 }
