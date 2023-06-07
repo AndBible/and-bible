@@ -18,6 +18,8 @@
 package net.bible.service.devicesync
 
 import android.app.AlertDialog
+import android.content.Intent
+import android.os.Build
 import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.api.client.util.DateTime
@@ -32,6 +34,7 @@ import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
@@ -223,6 +226,24 @@ object DeviceSynchronize {
     }
 
     private val syncMutex = Mutex()
+
+    fun start() {
+        val intent = Intent(application, SyncService::class.java)
+        intent.action = SyncService.START_SERVICE
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            application.startForegroundService(intent)
+            Log.i(TAG, "Foreground service started")
+        }
+        else {
+            application.startService(intent)
+        }
+    }
+
+    suspend fun waitUntilFinished() {
+        syncMutex.withLock {  }
+    }
+
     suspend fun synchronize() = withContext(Dispatchers.IO) {
         if(!adapter.signedIn) {
             Log.i(TAG, "Not signed in")

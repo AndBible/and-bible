@@ -400,10 +400,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 }
             }
             CommonUtils.initializeApp()
-            if(CommonUtils.isGoogleDriveSyncEnabled) {
-                DeviceSynchronize.signIn(this@StartupActivity)
-                DeviceSynchronize.synchronize()
-            }
             startActivity(handlerIntent)
             finish()
         }

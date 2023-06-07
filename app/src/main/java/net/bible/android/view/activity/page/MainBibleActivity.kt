@@ -276,6 +276,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 checkDocBackupDBInSync()
             }
             initialized = true
+            startSync()
         }
         if(intent.hasExtra("openLink")) {
             val uri = Uri.parse(intent.getStringExtra("openLink"))
@@ -544,7 +545,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun onPause() {
         CommonUtils.windowControl.windowRepository.saveIntoDb(false)
         if(CommonUtils.isGoogleDriveSyncEnabled) {
-            lifecycleScope.launch { DeviceSynchronize.synchronize() }
+            lifecycleScope.launch { DeviceSynchronize.start() }
         }
         fullScreen = false;
         if(CommonUtils.showCalculator) {
@@ -1258,17 +1259,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     override fun onRestart() {
         super.onRestart()
-        if(CommonUtils.isGoogleDriveSyncEnabled) {
-            lifecycleScope.launch {
-                if(!DeviceSynchronize.signedIn) {
-                    DeviceSynchronize.signIn(this@MainBibleActivity)
-                }
-                DeviceSynchronize.synchronize()
-            }
-        }
+        startSync()
         if (mWholeAppWasInBackground) {
             mWholeAppWasInBackground = false
             refreshIfNightModeChange()
+        }
+    }
+
+    private fun startSync(signIn: Boolean = true) {
+        if(CommonUtils.isGoogleDriveSyncEnabled) {
+            lifecycleScope.launch {
+                if(signIn && !DeviceSynchronize.signedIn) {
+                    DeviceSynchronize.signIn(this@MainBibleActivity)
+                }
+                DeviceSynchronize.start()
+            }
         }
     }
 

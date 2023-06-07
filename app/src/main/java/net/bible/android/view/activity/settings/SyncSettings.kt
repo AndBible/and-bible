@@ -63,7 +63,8 @@ class SyncSettingsFragment(val activity: ActivityBase): PreferenceFragmentCompat
                         }
                     }
                     if (DeviceSynchronize.signedIn && category.enabled) {
-                        DeviceSynchronize.synchronize()
+                        DeviceSynchronize.start()
+                        DeviceSynchronize.waitUntilFinished()
                     }
                     hourglass.dismiss()
                 }

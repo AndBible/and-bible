@@ -255,6 +255,9 @@
             android:name="net.bible.android.view.activity.discrete.CalculatorActivity"
             android:label="@string/app_name_calculator"
             />
+        <service
+            android:name="net.bible.service.devicesync.SyncService"
+            android:foregroundServiceType="dataSync" />
 
         <service
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService"
