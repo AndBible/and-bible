@@ -27,9 +27,11 @@ import android.widget.ListView
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ListBinding
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.readingplan.OneDaysReadingsDto
 
 import javax.inject.Inject
@@ -66,8 +68,17 @@ class DailyReadingList : ListActivityBase() {
 
         isIntegrateWithHistoryManager = false
         Log.i(TAG, "Finished displaying Search view")
+        ABEventBus.register(this)
     }
 
+    override fun onDestroy() {
+        ABEventBus.unregister(this)
+        super.onDestroy()
+    }
+
+    fun onEventMainThread(e: ReadingPlansUpdatedViaSyncEvent) {
+        recreate()
+    }
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         try {
             itemSelected(readingsList[position])

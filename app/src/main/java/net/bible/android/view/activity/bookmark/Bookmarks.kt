@@ -38,6 +38,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarksBinding
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
@@ -51,6 +52,7 @@ import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
+import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import java.lang.IllegalArgumentException
 import java.util.*
 import javax.inject.Inject
@@ -92,6 +94,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ABEventBus.register(this)
         binding = BookmarksBinding.inflate(layoutInflater)
         setContentView(binding.root)
         settings.setLong("bookmarks-last-used", System.currentTimeMillis())
@@ -108,6 +111,15 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             }
         }
         initialiseView()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ABEventBus.unregister(this)
+    }
+
+    fun onEventMainThread(e: BookmarksUpdatedViaSyncEvent) {
+        recreate()
     }
 
     private fun initialiseView() {

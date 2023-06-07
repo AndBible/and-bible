@@ -302,11 +302,7 @@ class DatabaseContainer {
                     application.getDatabasePath(BookmarkDatabase.dbFileName),
                     DatabaseCategory.BOOKMARKS,
                     { entries ->
-                        val bookmarksDeletes = entries.filter { it.type == LogEntryTypes.DELETE && it.tableName == "Bookmark" }.map { it.entityId1 }
-                        ABEventBus.post(BookmarksDeletedEvent(bookmarksDeletes))
-
-                        val bookmarkUpserts = entries.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Bookmark" }.map { it.entityId1 }
-                        ABEventBus.post(BookmarksUpdatedViaSyncEvent(bookmarkUpserts))
+                        ABEventBus.post(BookmarksUpdatedViaSyncEvent(entries))
                     },
                 ) },
                 { SyncableDatabaseDefinition(
@@ -324,6 +320,9 @@ class DatabaseContainer {
                     { resetReadingPlanDb() },
                     application.getDatabasePath(ReadingPlanDatabase.dbFileName),
                     DatabaseCategory.READINGPLANS,
+                    {
+                        ABEventBus.post(ReadingPlansUpdatedViaSyncEvent(it))
+                    },
                 )
                 },
             )
@@ -332,5 +331,6 @@ class DatabaseContainer {
     }
 }
 
+class ReadingPlansUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)
-class BookmarksUpdatedViaSyncEvent(val updated: List<IdType>)
+class BookmarksUpdatedViaSyncEvent(val updated: List<LogEntry>)

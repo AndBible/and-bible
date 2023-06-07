@@ -70,9 +70,11 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
+import net.bible.android.database.LogEntryTypes
 import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.displayName
+import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import kotlin.collections.ArrayList
 import net.bible.service.device.ScreenSettings
 import java.util.regex.PatternSyntaxException
@@ -136,6 +138,12 @@ class ManageLabels : ListActivityBase() {
             } catch (e: SerializationException) {
                 Log.e(TAG, "Could not deserialize setting", e)
             }
+        }
+    }
+
+    fun onEventMainThread(e: BookmarksUpdatedViaSyncEvent) {
+        if(e.updated.any { it.tableName == "Label" }) {
+            recreate()
         }
     }
 
@@ -400,7 +408,13 @@ class ManageLabels : ListActivityBase() {
                 updateLabelList(rePopulate = true)
             }
         }
+        ABEventBus.register(this)
         reBuildQuickSearchButtonList()
+    }
+
+    override fun onDestroy() {
+        ABEventBus.unregister(this)
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

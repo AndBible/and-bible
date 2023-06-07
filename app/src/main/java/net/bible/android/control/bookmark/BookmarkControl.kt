@@ -25,6 +25,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
+import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -265,7 +266,17 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun onEvent(e: BookmarksUpdatedViaSyncEvent) {
-        for(b in dao.bookmarksByIds(e.updated)) {
+        val labelUpserts = e.updated.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Label" }.map { it.entityId1 }
+        val labels = dao.labelsById(labelUpserts)
+        for(l in labels) {
+            ABEventBus.post(LabelAddedOrUpdatedEvent(l))
+        }
+
+        val bookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "Bookmark" }.map { it.entityId1 }
+        ABEventBus.post(BookmarksDeletedEvent(bookmarksDeletes))
+
+        val bookmarkUpserts = e.updated.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Bookmark" }.map { it.entityId1 }
+        for(b in dao.bookmarksByIds(bookmarkUpserts)) {
             addLabels(b)
             addText(b)
             ABEventBus.post(BookmarkAddedOrUpdatedEvent(b))
