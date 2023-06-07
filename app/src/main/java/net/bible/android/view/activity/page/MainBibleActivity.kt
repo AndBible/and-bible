@@ -619,7 +619,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     drawerLayout.closeDrawers()
                 } else {
                     drawerLayout.openDrawer(GravityCompat.START)
-                    lifecycleScope.launch { synchronize(true) }
                 }
             }
 
