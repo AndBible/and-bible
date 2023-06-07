@@ -616,6 +616,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     drawerLayout.closeDrawers()
                 } else {
                     drawerLayout.openDrawer(GravityCompat.START)
+                    lifecycleScope.launch { synchronize(true) }
                 }
             }
 
@@ -1293,16 +1294,22 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Periodic sync starting")
             try {
                 while (true) {
-                    windowRepository.saveIntoDb(false)
-                    if(DeviceSynchronize.hasChanges()) {
-                        Log.i(TAG, "Performing periodic sync")
-                        DeviceSynchronize.start()
-                        DeviceSynchronize.waitUntilFinished()
-                    }
+                    synchronize()
                     delay(CommonUtils.settings.getLong("gdrive_sync_interval", 60L) * 1000)
                 }
             } catch (e: StopSync) {
                 Log.i(TAG, "Stopping sync")
+            }
+        }
+    }
+
+    private suspend fun synchronize(force: Boolean = false) {
+        if(CommonUtils.isGoogleDriveSyncEnabled && DeviceSynchronize.signedIn) {
+            windowRepository.saveIntoDb(false)
+            if (force || DeviceSynchronize.hasChanges()) {
+                Log.i(TAG, "Performing periodic sync")
+                DeviceSynchronize.start()
+                DeviceSynchronize.waitUntilFinished()
             }
         }
     }
