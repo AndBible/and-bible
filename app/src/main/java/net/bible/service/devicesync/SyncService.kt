@@ -59,7 +59,8 @@ class SyncService: Service() {
         when(intent?.action) {
             START_SERVICE -> synchronize()
             else -> {
-                throw RuntimeException("Unknown action ${intent?.action} in intent $intent")
+                Log.w(TAG, "Unknown command $intent ${intent?.action}")
+                stop()
             }
         }
         return START_STICKY
@@ -118,11 +119,14 @@ class SyncService: Service() {
             DeviceSynchronize.waitUntilFinished()
             Log.i(TAG, "Synchronize finished")
             wakeLock.release()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                stopForeground(STOP_FOREGROUND_REMOVE)
-            } else {
-                stopForeground(true)
-            }
+            stop()
+        }
+    }
+    private fun stop() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            stopForeground(true)
         }
     }
 }
