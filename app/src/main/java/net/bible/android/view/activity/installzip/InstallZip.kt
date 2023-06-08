@@ -352,7 +352,11 @@ class InstallZip : ActivityBase() {
             Pair(it.getString(displayNameIdx), it.getString(mimeTypeIdx))
         }?: throw CantRead()
 
-        if (displayName.lowercase().endsWith(".zip") || mimeType == "application/zip")
+        if (
+            displayName.lowercase().endsWith(".zip")
+            || displayName.lowercase().endsWith(".abmd")
+            || mimeType == "application/zip"
+        )
             return installZip(uri)
 
         val filetype = when {
