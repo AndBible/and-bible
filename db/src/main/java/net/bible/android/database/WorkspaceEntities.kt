@@ -45,10 +45,6 @@ class WorkspaceEntities {
         val document: String?,
         val key: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-
-        @Deprecated("To be removed")
-        @ColumnInfo(name = "currentYOffsetRatio")
-        val deprecatedCurrentYOffsetRatio: Float? = null, // TODO: remove
     )
 
     data class Verse(
@@ -74,10 +70,6 @@ class WorkspaceEntities {
     data class CommentaryPage(
         val document: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
-
-        @Deprecated("To be removed")
-        @ColumnInfo(name = "currentYOffsetRatio")
-        val deprecatedCurrentYOffsetRatio: Float? = null // TODO: remove
     )
 
     @Entity(
@@ -92,21 +84,27 @@ class WorkspaceEntities {
             Index("windowId", unique = true)
         ]
     )
-
     data class PageManager(
-        @PrimaryKey var windowId: Long,
+        @PrimaryKey var windowId: IdType,
         @Embedded(prefix="bible_") val biblePage: BiblePage,
         @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage?,
         @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
         @Embedded(prefix="general_book_") val generalBookPage: Page?,
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
-        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?,
-
-        @Deprecated("To be removed")
-        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels")
-        var deprecatedBookmarksAssignLabels: List<Long>? = null,
-    )
+        @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings?,
+    ) {
+        fun deepCopy(): PageManager = PageManager(
+            windowId = windowId,
+            biblePage = biblePage.copy(),
+            commentaryPage = commentaryPage?.copy(),
+            dictionaryPage = dictionaryPage?.copy(),
+            generalBookPage = generalBookPage?.copy(),
+            mapPage = mapPage?.copy(),
+            currentCategoryName = currentCategoryName,
+            textDisplaySettings = textDisplaySettings?.copy()
+        )
+    }
 
     data class WindowLayout(
         val state: String,
@@ -148,7 +146,7 @@ class WorkspaceEntities {
     data class TextDisplaySettings(
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
         @Embedded(prefix="colors_") var colors: Colors? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "showStrongs") var strongsMode: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var strongsMode: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var expandXrefs: Boolean? = null,
@@ -162,14 +160,10 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var topMargin: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "font_fontSize") var fontSize: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "font_fontFamily") var fontFamily: String? = null,
+        @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showAll") var deprecatedBookmarksShowAllLabels: Boolean? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "bookmarks_showLabels") var bookmarksHideLabels: List<Long>? = null,
-
-        @ColumnInfo(defaultValue = "NULL", name = "colors_dayWorkspaceColor") var deprecatedDayWorkspaceColor: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "colors_nightWorkspaceColor") var deprecatedNightWorkspaceColor: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<String>? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -238,7 +232,7 @@ class WorkspaceEntities {
                 Types.FONTFAMILY -> fontFamily = value as String?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
-                Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<Long>?
+                Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<String>?
             }
         }
 
@@ -330,7 +324,7 @@ class WorkspaceEntities {
     }
 
     @Serializable
-    data class RecentLabel(val labelId: Long, var lastAccess: Long)
+    data class RecentLabel(val labelId: IdType, var lastAccess: Long)
 
     @Serializable
     data class WorkspaceSettings(
@@ -340,9 +334,9 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var speakSettings: SpeakSettings? = null,
 
         @ColumnInfo(defaultValue = "NULL") var recentLabels: MutableList<RecentLabel> = mutableListOf(),
-        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<Long> = mutableSetOf(),
-        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<Long> = mutableSetOf(),
-        @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<IdType> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
+        @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: IdType? = null,
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
@@ -357,25 +351,32 @@ class WorkspaceEntities {
         var name: String,
         var contentsText: String? = null,
 
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @PrimaryKey var id: IdType = IdType(),
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_")
         var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
 
-        // TODO: change prefix to correspond variable name
-        @Embedded(prefix="window_behavior_settings_")
+        @Embedded(prefix="workspace_settings_")
         val workspaceSettings: WorkspaceSettings? = WorkspaceSettings(),
 
         @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null,
-        val maximizedWindowId: Long? = null,
+        val maximizedWindowId: IdType? = null,
 
-        @Deprecated("To be removed")
-        @ColumnInfo(defaultValue = "NULL", name = "text_display_settings_bookmarks_assignLabels")
-        var deprecatedBookmarksAssignLabels: List<Long>? = null,
-
-        @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: Long? = null,
-    )
+        @ColumnInfo(defaultValue = "NULL") var primaryTargetLinksWindowId: IdType? = null,
+    ) {
+        fun deepCopy(): Workspace = Workspace(
+            name = name,
+            contentsText = contentsText,
+            id = id,
+            orderNumber = orderNumber,
+            textDisplaySettings = textDisplaySettings?.copy(),
+            workspaceSettings = workspaceSettings?.copy(),
+            unPinnedWeight = unPinnedWeight,
+            maximizedWindowId = maximizedWindowId,
+            primaryTargetLinksWindowId = primaryTargetLinksWindowId
+        )
+    }
 
     @Entity(
         foreignKeys = [
@@ -390,17 +391,12 @@ class WorkspaceEntities {
         ]
     )
     data class HistoryItem(
-        val windowId: Long,
+        val windowId: IdType,
         val createdAt: Date,
         val document: String,
         val key: String,
         @ColumnInfo(defaultValue = "NULL")
         val anchorOrdinal: Int?,
-
-        @Deprecated("To be removed")
-        @ColumnInfo(name = "yOffsetRatio")
-        val deprecatedYOffsetRatio: Float? = null,
-
         @PrimaryKey(autoGenerate = true) val id: Long = 0,
     )
 
@@ -417,27 +413,42 @@ class WorkspaceEntities {
         ]
     )
     data class Window(
-        var workspaceId: Long,
+        var workspaceId: IdType,
         val isSynchronized: Boolean,
         val isPinMode: Boolean,
 
         val isLinksWindow: Boolean = false,
 
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+
+        @PrimaryKey var id: IdType = IdType(),
+
         var orderNumber: Int = 0,
-        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: Long? = null,
+        @ColumnInfo(defaultValue = "NULL") var targetLinksWindowId: IdType? = null,
         @ColumnInfo(defaultValue = "0") val syncGroup: Int = 0,
-    )
+    ) {
+        fun deepCopy(): Window =
+            Window(
+                workspaceId = workspaceId,
+                isSynchronized = isSynchronized,
+                isPinMode = isPinMode,
+                isLinksWindow = isLinksWindow,
+                windowLayout = windowLayout.copy(),
+                id = id,
+                orderNumber = orderNumber,
+                targetLinksWindowId = targetLinksWindowId,
+                syncGroup = syncGroup
+        )
+    }
 }
 
 @Serializable
 data class SettingsBundle (
-    val workspaceId: Long,
+    val workspaceId: IdType,
     val workspaceName: String,
     val workspaceSettings: WorkspaceEntities.TextDisplaySettings,
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
-    val windowId: Long? = null,
+    val windowId: IdType? = null,
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
         if(windowId == null)

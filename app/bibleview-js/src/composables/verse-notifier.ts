@@ -20,6 +20,7 @@ import {throttle} from "lodash";
 import {CalculatedConfig, Config} from "@/composables/config";
 import {UseAndroid} from "@/composables/android";
 import {useScroll} from "@/composables/scroll";
+import {Nullable} from "@/types/common";
 
 export function useVerseNotifier(
     config: Config,
@@ -33,40 +34,42 @@ export function useVerseNotifier(
     watch(() => currentVerse.value, value => scrolledToOrdinal(value));
 
     const lineHeight = computed(() => {
-            config; // Update also when font settings etc are changed
-            if (!mounted.value || !topElement.value) return 1;
-            return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
-        }
-    );
+        // Update also when font settings etc are changed
+        config.fontSize; config.fontFamily; config.lineSpacing;
+        if (!mounted.value || !topElement.value) return 1;
+        return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
+    });
 
     let lastDirection = "ltr";
     const step = 10;
 
     function* iterate(direction = "ltr") {
         if (direction === "ltr") {
-            for (let x = window.innerWidth - step; x > 0; x -= step) {
+            for (let x = window.innerWidth - Math.max(step, config.marginSize.marginRight); x > 0; x -= step) {
                 yield x;
             }
         } else {
-            for (let x = step; x < window.innerWidth; x += step) {
+            for (let x = Math.max(step, config.marginSize.marginLeft); x < window.innerWidth; x += step) {
                 yield x;
             }
         }
     }
 
+    // Throttle is preferred over debounce because do not want that bible ref display is
+    // totally frozen during scrolling
     const onScroll = throttle(() => {
         if (isScrolling.value) return;
         const y = calculatedConfig.value.topOffset + lineHeight.value * 0.8;
 
         // Find element, starting from right
-        let element: HTMLElement;
+        let element: Nullable<HTMLElement>;
         let directionChanged = true;
         while (directionChanged) {
             directionChanged = false;
             for (const x of iterate(lastDirection)) {
-                element = document.elementFromPoint(x, y) as HTMLElement
+                element = document.elementFromPoint(x, y) as Nullable<HTMLElement>
                 if (element) {
-                    element = element.closest(".ordinal") as HTMLElement;
+                    element = element.closest(".ordinal") as Nullable<HTMLElement>;
                     if (element) {
                         const direction = window.getComputedStyle(element).getPropertyValue("direction");
                         if (direction !== lastDirection) {

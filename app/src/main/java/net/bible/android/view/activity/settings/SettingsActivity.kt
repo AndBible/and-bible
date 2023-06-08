@@ -34,6 +34,10 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.BuildVariant
@@ -74,7 +78,7 @@ class PreferenceStore: PreferenceDataStore() {
     override fun getFloat(key: String, defValue: Float): Float = prefs.getFloat(key, defValue)
 
     override fun putFloat(key: String, value: Float) = prefs.setFloat(key, value)
-    override fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String> = prefs.getStringSet(key, defValues) ?: mutableSetOf()
+    override fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String> = prefs.getStringSet(key, defValues?: emptySet()).toMutableSet()
     override fun putStringSet(key: String, values: MutableSet<String>?)  = prefs.setStringSet(key, values)
 }
 
@@ -136,6 +140,7 @@ class SettingsActivity: ActivityBase() {
                     "discrete_mode",
                     "show_calculator",
                     "calculator_pin",
+                    "google_drive_sync",
                 )
                 for(key in keys) {
                     editor.removeString(key)
@@ -263,6 +268,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
+        val crashAppPref = preferenceScreen.findPreference<EditTextPreference>("crash_app") as Preference
+        if(!CommonUtils.isDebugMode) {
+            crashAppPref.isVisible = false
+        } else {
+            crashAppPref.setOnPreferenceClickListener {
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(10000)
+                    throw RuntimeException("Crash app!")
+                }
+                true
+            }
+        }
         val openLinksPref = preferenceScreen.findPreference<EditTextPreference>("open_links") as Preference
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             openLinksPref.run {
@@ -286,8 +303,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 p.icon = makeLarger(icon, 1.5f)
             }
         }
-
-
     }
 
     companion object {

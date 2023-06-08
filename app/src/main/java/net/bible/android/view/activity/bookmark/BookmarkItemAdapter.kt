@@ -30,7 +30,7 @@ import net.bible.android.activity.databinding.BookmarkListItemBinding
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.service.common.htmlToSpan
 
 /**
@@ -40,10 +40,10 @@ import net.bible.service.common.htmlToSpan
  */
 class BookmarkItemAdapter(
     context: Context,
-    items: List<Bookmark>,
+    items: List<BookmarkWithNotes>,
     private val bookmarkControl: BookmarkControl,
     private val windowControl: WindowControl,
-) : ArrayAdapter<Bookmark>(context, R.layout.bookmark_list_item, items) {
+) : ArrayAdapter<BookmarkWithNotes>(context, R.layout.bookmark_list_item, items) {
     private lateinit var bindings: BookmarkListItemBinding
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -86,7 +86,7 @@ class BookmarkItemAdapter(
         } else {
             bindings.verseText.text = verseName
         }
-        if(item.notes !== null) {
+        if(item.notes != null) {
             bindings.notesText.visibility = View.VISIBLE
             try {
                 val spanned = htmlToSpan(item.notes)

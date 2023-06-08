@@ -127,7 +127,7 @@ abstract class DocumentSelectionBase(
     private lateinit var langArrayAdapter: ArrayAdapter<Language>
 
     private var isPopulated = false
-    private val dao get() = DatabaseContainer.db.documentDao()
+    private val dao get() = DatabaseContainer.instance.temporaryDb.documentSearchDao()
 
     val pseudoBooks = Ref<List<PseudoBook>>()
     val defaultDocuments = Ref<DocumentConfiguration>()

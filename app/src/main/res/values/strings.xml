@@ -648,7 +648,9 @@
     <string name="restore_database">Restore Database File</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces?</string>
     <string name="reading_plans_plural">Reading Plans</string>
+    <string name="restore_success2">Selected database sections restored successfully</string>
     <string name="restore_success">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces restored successfully</string>
+    <string name="downloading_backup">Downloading backup file…</string>
     <string name="loading_backup">Loading database from backup…</string>
     <string name="backup_success2">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces backed up successfully.</string>
     <string name="backup_modules_success">Selected modules backed up successfully.</string>
@@ -851,7 +853,7 @@
     <string name="supported_formats_title">Supported formats</string>
     <string name="choose_file">You have to choose the file that you want to load to AndBible. </string>
     <string name="supported_formats">Supported formats for loading documents from a file: %s</string>
-    <string name="format_zip">Zip file containing Sword module(s), or documents backup file created by AndBible</string>
+    <string name="format_zip">Zip file containing Sword module(s), or documents backup file (*.abmd) created by AndBible</string>
     <string name="format_mysword">MySword documents (*.mybible)</string>
     <string name="format_mybible">MyBible documents (*.SQLite3)</string>
     <string name="redownload_message">
@@ -1114,4 +1116,23 @@
     <string name="reference_copied_to_clipboard">Reference copied to clipboard</string>
     <string name="prefs_expand_footnotes_title">Inline cross references</string>
     <string name="prefs_expand_footnotes_summary">Show cross reference content in-line within the text, instead of a link that opens a pop-up dialog</string>
+    <string name="prefs_google_drive_sync_summary">
+        If you have multiple devices that you want to keep in sync, you can enable synchronization via Google Drive.
+        You can choose here which categories you wish to synchronize.
+        Application is granted access only to applications own files in Google Drive, not any personal files.
+    </string>
+    <string name="restore_backup_sections">Which backup sections do you want to restore?</string>
+    <string name="db_repositories">Repositories and related settings</string>
+    <string name="db_bookmarks">Bookmarks, My Notes, Labels and Study Pads</string>
+    <string name="synchronizing">Synchronizing devices…</string>
+    <string name="sync_locked">Google Drive sync locked by another device</string>
+    <string name="overrideBackup">Existing database that this device is not synchronized to is found in Google Drive. Database contains %s. What do you want to do?</string>
+    <string name="reading_plans_content">Reading plans and their statuses</string>
+    <string name="bookmarks_contents">Bookmarks, Labels and Study Pads</string>
+    <string name="workspaces_contents">Workspaces and Windows</string>
+    <string name="gdrive_fetch_and_restore_initial">Copy database from Google Drive</string>
+    <string name="gdrive_create_new">Copy database to Google Drive</string>
+    <string name="gdrive_disable_sync">Cancel &amp; disable sync</string>
+    <string name="gdrive_title">Device synchronization via Google Drive</string>
+    <string name="device_sync">Synchronize devices</string>
 </resources>

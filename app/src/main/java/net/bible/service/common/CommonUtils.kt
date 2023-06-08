@@ -30,11 +30,13 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
@@ -42,6 +44,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
+import android.provider.Settings
 import android.text.Html
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -69,6 +72,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -100,6 +105,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.service.devicesync.DatabaseCategory
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
@@ -131,6 +137,8 @@ import java.security.Signature
 import java.util.*
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipInputStream
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -311,10 +319,10 @@ object CommonUtils : CommonUtilsBase() {
             return megAvailable
         }
 
-    val booleanSettings get() = DatabaseContainer.db.booleanSettingDao()
-    val longSettings get() = DatabaseContainer.db.longSettingDao()
-    val stringSettings get() = DatabaseContainer.db.stringSettingDao()
-    val doubleSettings get() = DatabaseContainer.db.doubleSettingDao()
+    val booleanSettings get() = DatabaseContainer.instance.settingsDb.booleanSettingDao()
+    val longSettings get() = DatabaseContainer.instance.settingsDb.longSettingDao()
+    val stringSettings get() = DatabaseContainer.instance.settingsDb.stringSettingDao()
+    val doubleSettings get() = DatabaseContainer.instance.settingsDb.doubleSettingDao()
 
     class AndBibleSettings {
         fun getString(key: String, default: String? = null) = stringSettings.get(key, default)
@@ -331,12 +339,12 @@ object CommonUtils : CommonUtilsBase() {
         fun setDouble(key: String, value: Double?) = doubleSettings.set(key, value)
         fun setFloat(key: String, value: Float?) = doubleSettings.set(key, value?.toDouble())
 
-        fun getStringSet(key: String, defValues: MutableSet<String>?): MutableSet<String>? {
+        fun getStringSet(key: String, defValues: Set<String> = emptySet()): Set<String> {
             val s = getString(key, null) ?: return defValues
             return try { json.decodeFromString(serializer(), s) } catch (e: SerializationException) { defValues }
         }
 
-        fun setStringSet(key: String, values: MutableSet<String>?) {
+        fun setStringSet(key: String, values: Set<String>?) {
             if(values == null) removeString(key)
             else setString(key, json.encodeToString(serializer(), values))
         }
@@ -370,9 +378,19 @@ object CommonUtils : CommonUtilsBase() {
             date.time
         }
 
+    val deviceIdentifier: String get() =
+        Settings.Secure.getString(application.contentResolver, Settings.Secure.ANDROID_ID)
+            ?: realSharedPreferences.getString("android_id", null).let {
+                if(it == null) {
+                    val id = UUID.randomUUID().toString()
+                    realSharedPreferences.edit().putString("android_id", id).apply()
+                    id
+                } else { it}
+            }
+
     init {
         try {
-            if (android.os.Build.ID != null) {
+            if (Build.ID != null) {
                 isAndroid = true
             }
         } catch (cnfe: Exception) {
@@ -683,7 +701,7 @@ object CommonUtils : CommonUtilsBase() {
         settings.setString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson())
     }
 
-    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
         class ShowAgain: Exception()
@@ -961,7 +979,7 @@ object CommonUtils : CommonUtilsBase() {
             }
 
             DatabaseContainer.ready = true
-            DatabaseContainer.db
+            DatabaseContainer.instance
 
             buildActivityComponent().inject(this)
 
@@ -1030,12 +1048,11 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     private fun prepareExampleBookmarksAndWorkspaces() {
-        var bid: Long
-        val bookmarkDao = DatabaseContainer.db.bookmarkDao()
-        var highlightIds = listOf<Long>()
+        val bookmarkDao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
         val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
 
         val migratedNotesName = application.getString(R.string.migrated_my_notes)
+        var highlightLabels = emptyList<BookmarkEntities.Label>()
 
         if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") && it.name != migratedNotesName }) {
             val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false)
@@ -1043,7 +1060,7 @@ object CommonUtils : CommonUtilsBase() {
             val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false)
             val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true)
 
-            val highlightLabels = listOf(
+            highlightLabels = listOf(
                 redLabel,
                 greenLabel,
                 underlineLabel,
@@ -1051,10 +1068,9 @@ object CommonUtils : CommonUtilsBase() {
             )
 
             val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255,  100, 0, 150))
-            highlightIds = bookmarkDao.insertLabels(highlightLabels)
-            highlightLabels.zip(highlightIds) { label, id -> label.id = id }
+            bookmarkDao.insertLabels(highlightLabels)
 
-            fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.Bookmark {
+            fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.BookmarkWithNotes {
                 val v1 = verseRange.toVerseArray()[start.toInt()]
                 val v2 = verseRange.toVerseArray()[end.toInt()]
                 val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true).length
@@ -1062,29 +1078,32 @@ object CommonUtils : CommonUtilsBase() {
                 val tr = BookmarkEntities.TextRange(((start - start.toInt())*l1).roundToInt(), ((end-end.toInt()) * l2).roundToInt())
                 val v = VerseRange(v1.versification, v1, v2)
 
-                return BookmarkEntities.Bookmark(v, textRange = tr, wholeVerse = false, book = defaultBible)
+                return BookmarkEntities.BookmarkWithNotes(v, textRange = tr, wholeVerse = false, book = defaultBible)
             }
 
             if(!hasExistingBookmarks) {
-                val salvationId = bookmarkDao.insert(salvationLabel)
-                salvationLabel.id = salvationId
+                bookmarkDao.insert(salvationLabel)
 
                 // first bookmark, full verses, with underline
-                bid = bookmarkDao.insert(BookmarkEntities.Bookmark(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id } )
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, underlineLabel.id))
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationLabel.id))
+                var b = BookmarkEntities.BookmarkWithNotes(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id }
+                bookmarkDao.insert(b.bookmarkEntity)
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, underlineLabel.id))
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, salvationLabel.id))
 
                 // second bookmark, red
-                bid = bookmarkDao.insert(getBookmark(defaultVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id } )
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, redLabel.id))
+                b = getBookmark(defaultVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id }
+                bookmarkDao.insert(b.bookmarkEntity)
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, redLabel.id))
 
                 // third bookmark, green
-                bid = bookmarkDao.insert(getBookmark(defaultVerse, 1.2, 1.4).apply {
+                b = getBookmark(defaultVerse, 1.2, 1.4).apply {
                     primaryLabelId = greenLabel.id
                     notes = lorem
-                } )
+                }
+                bookmarkDao.insert(b.bookmarkEntity)
+                bookmarkDao.insert(b.noteEntity!!)
 
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, greenLabel.id))
+                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, greenLabel.id))
 
                 val salvationVerses = listOf("Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
                     .mapNotNull { try {VerseRangeFactory.fromString(KJVA, it)} catch (e: NoSuchVerseException) {
@@ -1094,30 +1113,31 @@ object CommonUtils : CommonUtilsBase() {
 
                 salvationVerses
                     .map {
-                        BookmarkEntities.Bookmark(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
+                        BookmarkEntities.BookmarkWithNotes(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
                     }.forEach {
-                        bid = bookmarkDao.insert(it)
-                        bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(bid, salvationId))
+                        bookmarkDao.insert(it.bookmarkEntity)
+                        bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(it.id, salvationLabel.id))
                     }
             }
         }
-        val workspaceDao = DatabaseContainer.db.workspaceDao()
+        val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         val ws = workspaceDao.allWorkspaces()
         if(ws.isNotEmpty()) {
             for (it in ws) {
-                it.workspaceSettings?.favouriteLabels?.addAll(highlightIds)
+                it.workspaceSettings?.favouriteLabels?.addAll(highlightLabels.map {it.id})
             }
             workspaceDao.updateWorkspaces(ws)
             settings.setBoolean("first-time", false)
         } else {
-            val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightIds.toMutableSet())
+            val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightLabels.map {it.id}.toMutableSet())
             val workspaceIds = listOf(
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
             ).map {
                 workspaceDao.insertWorkspace(it)
+                it.id
             }
-            settings.setLong("current_workspace_id", workspaceIds[0])
+            settings.setString("current_workspace_id", workspaceIds[0].toString())
         }
     }
 
@@ -1310,6 +1330,11 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
+    val isGoogleDriveSyncEnabled: Boolean get () =
+        if(BuildVariant.Appearance.isDiscrete)
+            false
+        else
+            DatabaseCategory.ALL.filter { it.enabled }.any()
     val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
     val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
 
@@ -1335,6 +1360,7 @@ object CommonUtils : CommonUtilsBase() {
                 val filePath = zipEntry.name.replace('\\', '/')
                 val file = File(destinationDir, filePrefix + filePath)
                 Log.i(TAG, "Writing $file")
+                file.parentFile?.mkdirs()
                 FileOutputStream(file).use { fOut ->
                     var count = zIn.read(buffer)
                     while (count != -1) {
@@ -1343,6 +1369,36 @@ object CommonUtils : CommonUtilsBase() {
                     }
                 }
                 zipEntry = zIn.nextEntry
+            }
+        }
+    }
+
+    val isDebugMode get() = (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
+
+    val tmpDir: File get() {
+        val file = File(application.filesDir, "tmp")
+        file.mkdirs()
+        return file
+    }
+
+    val tmpFile: File get() = File.createTempFile("andbible-", ".tmp", tmpDir)
+
+    fun gzipFile(sourceFile: File, destinationFile: File) {
+        destinationFile.outputStream().use {
+            GZIPOutputStream(it).use {
+                sourceFile.inputStream().use { input ->
+                    input.copyTo(it)
+                }
+            }
+        }
+    }
+
+    fun gunzipFile(sourceFile: File, destinationFile: File) {
+        sourceFile.inputStream().use {
+            GZIPInputStream(it).use {
+                destinationFile.outputStream().use { output ->
+                    it.copyTo(output)
+                }
             }
         }
     }
@@ -1364,3 +1420,33 @@ data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisp
 }
 
 val firstBibleDoc get() = Books.installed().books.first { it.bookCategory == BookCategory.BIBLE } as SwordBook
+
+fun <T> Cursor.map(f: (c: Cursor) -> T): Collection<T> = use {
+    val result = mutableListOf<T>()
+    if(!moveToFirst()) return@use result
+    do {
+        result.add(f.invoke(this))
+    } while(moveToNext())
+    result
+}
+
+fun <T> Cursor.forEach(f: (c: Cursor) -> T) = use {
+    if(!moveToFirst()) return
+    do {
+        f.invoke(this)
+    } while(moveToNext())
+}
+
+fun <T> Cursor.getFirst(f: (c: Cursor) -> T): T = use {
+    if(!moveToFirst()) throw RuntimeException("First item not found")
+    f.invoke(this)
+}
+
+fun <T> Cursor.getFirstOrNull(f: ((c: Cursor) -> T)? = null): T? = use {
+    if(!moveToFirst()) return@use null
+    f?.invoke(this)
+}
+
+suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
+    awaitAll( *map { async { action(it) }}.toTypedArray() )
+}

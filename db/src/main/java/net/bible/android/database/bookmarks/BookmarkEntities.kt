@@ -30,12 +30,15 @@ import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
 import androidx.room.ColumnInfo
+import androidx.room.DatabaseView
 import androidx.room.Ignore
 import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
+import net.bible.android.database.IdType
 import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import java.util.*
+import kotlin.math.abs
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
 
@@ -94,18 +97,17 @@ class BookmarkEntities {
     }
 
     @Entity(
-        indices = [
-            Index("kjvOrdinalStart"), Index("kjvOrdinalEnd"), Index("primaryLabelId"),
-        ],
         foreignKeys = [
-            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
+            ForeignKey(entity = Bookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
         ],
     )
-    data class Bookmark (
-        // Verse range in KJV ordinals. For generic lookups, we must store verse ranges in a "standard"
-        // versification. We store also verserange in original versification, as it conveys the more exact
-        // versification-specific information.
+    data class BookmarkNotes(
+        @PrimaryKey var bookmarkId: IdType = IdType(),
+        val notes: String
+    )
 
+    @DatabaseView("SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn ON b.id = bn.bookmarkId")
+    data class BookmarkWithNotes(
         var kjvOrdinalStart: Int,
         var kjvOrdinalEnd: Int,
 
@@ -116,7 +118,7 @@ class BookmarkEntities {
 
         var playbackSettings: PlaybackSettings?,
 
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        var id: IdType = IdType(),
 
         var createdAt: Date = Date(System.currentTimeMillis()),
 
@@ -125,40 +127,64 @@ class BookmarkEntities {
         var startOffset: Int?,
         var endOffset: Int?,
 
-        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: Long? = null,
+        var primaryLabelId: IdType? = null,
 
-        @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
-        @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
-        @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
-        @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
+        var notes: String? = null,
 
-        ): VerseRangeUser {
-        constructor(verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?): this(
-            verseRange.toV11n(KJVA).start.ordinal,
-            verseRange.toV11n(KJVA).end.ordinal,
-            verseRange.start.ordinal,
-            verseRange.end.ordinal,
-            verseRange.versification,
-            null,
+        var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        var wholeVerse: Boolean = false,
+        var type: BookmarkType? = null,
+        var new: Boolean = false,
+    ): VerseRangeUser {
+        constructor(
+            kjvOrdinalStart: Int = 0,
+            kjvOrdinalEnd: Int = 0,
+            ordinalStart: Int = 0,
+            ordinalEnd: Int = 0,
+            v11n: Versification = KJVA,
+            playbackSettings: PlaybackSettings? = null,
+            id: IdType = IdType(),
+            createdAt: Date = Date(System.currentTimeMillis()),
+            book: AbstractPassageBook? = null,
+            startOffset: Int? = null,
+            endOffset: Int? = null,
+            primaryLabelId: IdType? = null,
+            notes: String? = null,
+            lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+            wholeVerse: Boolean = true,
+            type: BookmarkType? = null,
+        ): this(
+            kjvOrdinalStart = kjvOrdinalStart,
+            kjvOrdinalEnd = kjvOrdinalEnd,
+            ordinalStart = ordinalStart,
+            ordinalEnd = ordinalEnd,
+            v11n = v11n,
+            playbackSettings = playbackSettings,
+            id = id,
+            createdAt = createdAt,
             book = book,
-            startOffset = textRange?.start,
-            endOffset = textRange?.end,
+            startOffset = startOffset,
+            endOffset = endOffset,
+            primaryLabelId = primaryLabelId,
+            notes = notes,
+            lastUpdatedOn = lastUpdatedOn,
             wholeVerse = wholeVerse,
+            type = type,
+            new = false,
         )
 
-        constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?, playbackSettings: PlaybackSettings?): this(
+        constructor(verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?): this(
             kjvOrdinalStart = verseRange.toV11n(KJVA).start.ordinal,
             kjvOrdinalEnd = verseRange.toV11n(KJVA).end.ordinal,
             ordinalStart = verseRange.start.ordinal,
             ordinalEnd = verseRange.end.ordinal,
             v11n = verseRange.versification,
-            playbackSettings = playbackSettings,
-            id = id,
-            createdAt = createdAt,
+            playbackSettings = null,
             book = book,
             startOffset = textRange?.start,
             endOffset = textRange?.end,
             wholeVerse = wholeVerse,
+            new = true,
         )
 
         var textRange: TextRange?
@@ -205,7 +231,7 @@ class BookmarkEntities {
             } else {
                 null
             }
-        @Ignore var labelIds: List<Long>? = null
+        @Ignore var labelIds: List<IdType>? = null
         @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
         @Ignore var text: String? = null
 
@@ -218,7 +244,65 @@ class BookmarkEntities {
 
         @Ignore var fullText: String? = null
         @Ignore var osisFragment: OsisFragment? = null
+
+        val bookmarkEntity get() = Bookmark(
+            kjvOrdinalStart,
+            kjvOrdinalEnd,
+            ordinalStart,
+            ordinalEnd,
+            v11n,
+            playbackSettings,
+            id,
+            createdAt,
+            book,
+            startOffset,
+            endOffset,
+            primaryLabelId,
+            lastUpdatedOn,
+            wholeVerse,
+            type,
+        )
+        val noteEntity get() = if(notes == null) null else BookmarkNotes(id, notes!!)
     }
+
+    @Entity(
+        indices = [
+            Index("kjvOrdinalStart"), Index("kjvOrdinalEnd"), Index("primaryLabelId"),
+        ],
+        foreignKeys = [
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
+        ],
+    )
+    data class Bookmark(
+        // Verse range in KJV ordinals. For generic lookups, we must store verse ranges in a "standard"
+        // versification. We store also verserange in original versification, as it conveys the more exact
+        // versification-specific information.
+
+        var kjvOrdinalStart: Int,
+        var kjvOrdinalEnd: Int,
+
+        var ordinalStart: Int,
+        var ordinalEnd: Int,
+
+        var v11n: Versification,
+
+        var playbackSettings: PlaybackSettings?,
+
+        @PrimaryKey var id: IdType = IdType(),
+
+        var createdAt: Date = Date(System.currentTimeMillis()),
+
+        var book: AbstractPassageBook? = null,
+
+        var startOffset: Int?,
+        var endOffset: Int?,
+
+        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: IdType? = null,
+
+        @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
+        @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
+    )
 
     @Entity(
         primaryKeys = ["bookmarkId", "labelId"],
@@ -232,17 +316,18 @@ class BookmarkEntities {
     )
     @Serializable
     data class BookmarkToLabel(
-        val bookmarkId: Long,
-        val labelId: Long,
+        val bookmarkId: IdType,
+        val labelId: IdType,
 
         // Journal display variables
         @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
         @ColumnInfo(defaultValue = "0") var indentLevel: Int = 0,
         @ColumnInfo(defaultValue = "0") var expandContent: Boolean = true,
-    )
+    ) {
+        constructor(bookmark: Bookmark, label: Label): this(bookmark.id, label.id)
+    }
 
     @Entity(
-        tableName = "JournalTextEntry",
         foreignKeys = [
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
         ],
@@ -250,29 +335,50 @@ class BookmarkEntities {
             Index("labelId")
         ]
     )
-    @Serializable
     data class StudyPadTextEntry(
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
-        val labelId: Long,
-        val text: String = "",
+        @PrimaryKey val id: IdType = IdType(),
+        val labelId: IdType,
         var orderNumber: Int,
         var indentLevel: Int = 0,
+    )
+
+    @Entity(
+        foreignKeys = [
+            ForeignKey(entity = StudyPadTextEntry::class, parentColumns = ["id"], childColumns = ["studyPadTextEntryId"], onDelete = ForeignKey.CASCADE)
+        ],
+    )
+    data class StudyPadTextEntryText(
+        @PrimaryKey val studyPadTextEntryId: IdType = IdType(),
+        val text: String = "",
+    )
+
+    @DatabaseView("SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t ON e.id = t.studyPadTextEntryId")
+    @Serializable
+    data class StudyPadTextEntryWithText(
+        @PrimaryKey val id: IdType = IdType(),
+        val labelId: IdType,
+        var orderNumber: Int,
+        var indentLevel: Int = 0,
+        val text: String = "",
     ) {
         @Ignore val type: String = "journal"
+        @Ignore val hashCode: Int = abs(id.hashCode())
+        val studyPadTextEntryEntity get() = StudyPadTextEntry(id, labelId, orderNumber, indentLevel)
+        val studyPadTextEntryTextEntity get() = StudyPadTextEntryText(id, text)
     }
 
     @Entity
     @Serializable
     data class Label(
-        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @PrimaryKey var id: IdType = IdType(),
         var name: String = "",
-        @ColumnInfo(name = "bookmarkStyle") var bookmarkStyleDeprecated: BookmarkStyle? = null,
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
         @ColumnInfo(defaultValue = "0") var markerStyle: Boolean = false,
         @ColumnInfo(defaultValue = "0") var markerStyleWholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "0") var underlineStyle: Boolean = false,
         @ColumnInfo(defaultValue = "0") var underlineStyleWholeVerse: Boolean = true,
         @ColumnInfo(defaultValue = "NULL") var type: LabelType? = null,
+        @Ignore var new: Boolean = false
     ) {
         override fun toString() = name
         val isSpeakLabel get() = name == SPEAK_LABEL_NAME

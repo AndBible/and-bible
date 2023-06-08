@@ -69,9 +69,12 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
+import net.bible.android.database.LogEntryTypes
 import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.displayName
+import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import kotlin.collections.ArrayList
 import net.bible.service.device.ScreenSettings
 import java.util.regex.PatternSyntaxException
@@ -135,6 +138,12 @@ class ManageLabels : ListActivityBase() {
             } catch (e: SerializationException) {
                 Log.e(TAG, "Could not deserialize setting", e)
             }
+        }
+    }
+
+    fun onEventMainThread(e: BookmarksUpdatedViaSyncEvent) {
+        if(e.updated.any { it.tableName == "Label" }) {
+            recreate()
         }
     }
 
@@ -267,14 +276,14 @@ class ManageLabels : ListActivityBase() {
     @Serializable
     data class ManageLabelsData(
         val mode: Mode,
-        val selectedLabels: MutableSet<Long> = mutableSetOf(),
-        val autoAssignLabels: MutableSet<Long> = mutableSetOf(),
-        val favouriteLabels: MutableSet<Long> = mutableSetOf(),
-        val deletedLabels: MutableSet<Long> = mutableSetOf(),
-        val changedLabels: MutableSet<Long> = mutableSetOf(),
+        val selectedLabels: MutableSet<IdType> = mutableSetOf(),
+        val autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
+        val favouriteLabels: MutableSet<IdType> = mutableSetOf(),
+        val deletedLabels: MutableSet<IdType> = mutableSetOf(),
+        val changedLabels: MutableSet<IdType> = mutableSetOf(),
 
-        var autoAssignPrimaryLabel: Long? = null,
-        var bookmarkPrimaryLabel: Long? = null,
+        var autoAssignPrimaryLabel: IdType? = null,
+        var bookmarkPrimaryLabel: IdType? = null,
 
         val isWindow: Boolean = false,
 
@@ -289,13 +298,13 @@ class ManageLabels : ListActivityBase() {
         val showActiveCategory: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN, Mode.HIDELABELS).contains(mode)
         val hideCategories: Boolean get() = setOf(Mode.STUDYPAD).contains(mode)
 
-        val contextSelectedItems: MutableSet<Long> get() =
+        val contextSelectedItems: MutableSet<IdType> get() =
             when (mode) {
                 Mode.WORKSPACE -> autoAssignLabels
                 else -> selectedLabels
             }
 
-        var contextPrimaryLabel: Long? get() =
+        var contextPrimaryLabel: IdType? get() =
             when (mode) {
                 Mode.WORKSPACE -> autoAssignPrimaryLabel
                 Mode.ASSIGN -> bookmarkPrimaryLabel
@@ -399,7 +408,13 @@ class ManageLabels : ListActivityBase() {
                 updateLabelList(rePopulate = true)
             }
         }
+        ABEventBus.register(this)
         reBuildQuickSearchButtonList()
+    }
+
+    override fun onDestroy() {
+        ABEventBus.unregister(this)
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -536,9 +551,8 @@ class ManageLabels : ListActivityBase() {
 
     private fun newLabel() {
         Log.i(TAG, "newLabel")
-        val newLabel = BookmarkEntities.Label()
+        val newLabel = BookmarkEntities.Label(new = true)
         newLabel.color = randomColor()
-        newLabel.id = -(newLabelCount++)
         editLabel(newLabel)
     }
 
@@ -557,7 +571,7 @@ class ManageLabels : ListActivityBase() {
 
     fun editLabel(label_: BookmarkEntities.Label) {
         var label = label_
-        val isNew = label.id < 0
+        val isNew = label.new
         Log.i(TAG, "editLabel isNew: $isNew")
         val intent = Intent(this, LabelEditActivity::class.java)
         val labelData = LabelEditActivity.LabelData(
@@ -588,10 +602,10 @@ class ManageLabels : ListActivityBase() {
             if (result.resultCode != Activity.RESULT_CANCELED) {
                 Log.i(TAG, "editLabel result NOT CANCELLED")
                 val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
-                    serializer(), result.resultData.getStringExtra("data")!!)
+                    serializer(), result.data?.getStringExtra("data")!!)
 
-                if(newLabelData.label.name.isEmpty() && label.id < 0) {
-                    Log.i(TAG, "editLabel name not specified or id negative")
+                if(newLabelData.label.name.isEmpty() && label.new) {
+                    Log.i(TAG, "editLabel name not specified or is new")
                     return@launch
                 }
 
@@ -661,7 +675,7 @@ class ManageLabels : ListActivityBase() {
         CommonUtils.settings.setBoolean("labels_list_filter_showTextSearch", showTextSearch)
         CommonUtils.settings.setString("labels_list_filter_searchTextOptions", json.encodeToString(serializer(), searchOptionList))
 
-        val deleteLabelIds = data.deletedLabels.filter { it > 0 }.toList()
+        val deleteLabelIds = data.deletedLabels.toList()
         if(deleteLabelIds.isNotEmpty()) {
             bookmarkControl.deleteLabels(deleteLabelIds)
         }
@@ -669,13 +683,13 @@ class ManageLabels : ListActivityBase() {
         val saveLabels = allLabels
             .filter{ data.changedLabels.contains(it.id) && !data.deletedLabels.contains(it.id) }
 
-        val newLabels = saveLabels.filter { it.id < 0 }
-        val existingLabels = saveLabels.filter { it.id > 0 }
+        val newLabels = saveLabels.filter { it.new }
+        val existingLabels = saveLabels.filter { !it.new }
 
         for (it in newLabels) {
             val oldLabel = it.id
-            it.id = 0
             it.id = bookmarkControl.insertOrUpdateLabel(it).id
+            it.new = false
             for(list in listOf(data.selectedLabels, data.autoAssignLabels, data.changedLabels, data.favouriteLabels)) {
                 if(list.contains(oldLabel)) {
                     list.remove(oldLabel)

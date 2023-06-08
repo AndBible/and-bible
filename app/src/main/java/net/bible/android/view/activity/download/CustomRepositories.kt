@@ -48,7 +48,7 @@ const val customRepositoriesWikiUrl = "https://github.com/AndBible/and-bible/wik
 class CustomRepositories : ListActivityBase() {
     private lateinit var binding: CustomRepositoriesBinding
     private var customRepositories = arrayListOf<CustomRepository>()
-    private val dao get() = DatabaseContainer.db.customRepositoryDao()
+    private val dao get() = DatabaseContainer.instance.repoDb.customRepositoryDao()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +93,7 @@ class CustomRepositories : ListActivityBase() {
         intent.putExtra("data", RepositoryData(repo).toJSON())
         lifecycleScope.launch {
             val result = awaitIntent(intent)
-            val data = RepositoryData.fromJSON(result.resultData.getStringExtra("data")!!)
+            val data = RepositoryData.fromJSON(result.data?.getStringExtra("data")!!)
             handleResult(data)
         }
     }
@@ -152,7 +152,7 @@ class CustomRepositories : ListActivityBase() {
         val intent = Intent(this@CustomRepositories, CustomRepositoryEditor::class.java)
         intent.putExtra("data", RepositoryData().toJSON())
         val result = awaitIntent(intent)
-        val data = RepositoryData.fromJSON(result.resultData.getStringExtra("data")!!)
+        val data = RepositoryData.fromJSON(result.data?.getStringExtra("data")!!)
         handleResult(data)
     }
 

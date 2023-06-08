@@ -38,18 +38,21 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarksBinding
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.settings
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
+import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import java.lang.IllegalArgumentException
 import java.util.*
 import javax.inject.Inject
@@ -83,7 +86,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private var selectedLabelNo = 0
 
     // the document list
-    private val bookmarkList: MutableList<Bookmark> = ArrayList()
+    private val bookmarkList: MutableList<BookmarkWithNotes> = ArrayList()
     private var listActionModeHelper: ListActionModeHelper? = null
     override val integrateWithHistoryManager: Boolean = true
 
@@ -91,6 +94,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ABEventBus.register(this)
         binding = BookmarksBinding.inflate(layoutInflater)
         setContentView(binding.root)
         settings.setLong("bookmarks-last-used", System.currentTimeMillis())
@@ -107,6 +111,15 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             }
         }
         initialiseView()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ABEventBus.unregister(this)
+    }
+
+    fun onEventMainThread(e: BookmarksUpdatedViaSyncEvent) {
+        recreate()
     }
 
     private fun initialiseView() {
@@ -132,7 +145,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
 
         // prepare the document list view
-        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(
+        val bookmarkArrayAdapter: ArrayAdapter<BookmarkWithNotes> = BookmarkItemAdapter(
             this, bookmarkList, bookmarkControl, windowControl
         )
         listAdapter = bookmarkArrayAdapter
@@ -160,8 +173,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return intent
     }
 
-    private fun assignLabels(bookmarks: List<Bookmark>) = lifecycleScope.launch(Dispatchers.IO) {
-        val labels = mutableSetOf<Long>()
+    private fun assignLabels(bookmarks: List<BookmarkWithNotes>) = lifecycleScope.launch(Dispatchers.IO) {
+        val labels = mutableSetOf<IdType>()
         for (b in bookmarks) {
             labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
         }
@@ -173,7 +186,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
         val result = awaitIntent(intent)
         if(result.resultCode == RESULT_OK) {
-            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
             for (b in bookmarks) {
                 bookmarkControl.changeLabelsForBookmark(b, resultData.selectedLabels.toList())
             }
@@ -185,7 +198,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    private fun delete(bookmarks: List<Bookmark>) {
+    private fun delete(bookmarks: List<BookmarkWithNotes>) {
         AlertDialog.Builder(this)
             .setMessage(getString(R.string.confirm_delete_bookmarks, bookmarks.size))
             .setPositiveButton(R.string.yes) { _, _ ->
@@ -242,7 +255,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    private fun bookmarkSelected(bookmark: Bookmark) {
+    private fun bookmarkSelected(bookmark: BookmarkWithNotes) {
         Log.i(TAG, "Bookmark selected:" + bookmark.verseRange)
         try {
             if (bookmarkControl.isSpeakBookmark(bookmark)) {
@@ -311,8 +324,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                         mode = ManageLabels.Mode.WORKSPACE,
                     ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
                     val result = awaitIntent(intent)
-                    if(result?.resultCode == RESULT_OK) {
-                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                    if(result.resultCode == RESULT_OK) {
+                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                         windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         withContext(Dispatchers.Main) {
                             loadLabelList()
@@ -349,8 +362,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return listView.isItemChecked(position)
     }
 
-    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<Bookmark> {
-        val selectedBookmarks: MutableList<Bookmark> = ArrayList()
+    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<BookmarkWithNotes> {
+        val selectedBookmarks: MutableList<BookmarkWithNotes> = ArrayList()
         for (position in selectedItemPositions) {
             selectedBookmarks.add(bookmarkList[position])
         }

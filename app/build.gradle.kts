@@ -27,6 +27,7 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("kotlinx-serialization")
+    id("org.jetbrains.kotlin.android")
 }
 
 val jsDir = "bibleview-js"
@@ -148,6 +149,7 @@ android {
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
         buildConfigField("String", "BuildDate", "\"${SimpleDateFormat("dd/MM/YY HH:mm:ss").format(Date())}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testApplicationId = "org.andbible.tests"
     }
 
     buildTypes {
@@ -244,7 +246,15 @@ android {
                 }
             }
         }
-
+        managedDevices {
+            devices {
+                maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("emulator").apply {
+                    device = "Pixel 3"
+                    apiLevel = 31
+                    systemImageSource = "aosp"
+                }
+            }
+        }
     }
 
     bundle {
@@ -309,14 +319,16 @@ dependencies {
     val coroutinesVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
     val roomVersion: String by rootProject.extra
+    val coreKtxVersion: String by rootProject.extra
+    val sqliteAndroidVersion: String by rootProject.extra
 
     implementation(project(":db"))
     implementation("androidx.appcompat:appcompat:1.6.1")
 
+    implementation("androidx.core:core-ktx:$coreKtxVersion")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.media:media:1.6.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.core:core-ktx:1.10.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
@@ -324,6 +336,17 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.6.1")
     implementation("net.objecthunter:exp4j:0.4.8")
+    implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
+
+
+    // Google Drive API
+    implementation("com.google.android.gms:play-services-auth:20.5.0")
+    implementation ("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
+        exclude("org.apache.httpcomponents")
+    }
+     implementation("com.google.api-client:google-api-client-android:2.2.0") {
+        exclude("org.apache.httpcomponents")
+     }
 
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 
@@ -353,7 +376,9 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0") // make sure this is the same version that commons-text depends on
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
 
-    implementation("com.github.AndBible:jsword:$jswordVersion")
+    implementation("com.github.AndBible:jsword:$jswordVersion") {
+        exclude("org.apache.httpcomponents")
+    }
 
     implementation("org.jdom:jdom2:$jdomVersion")
 
@@ -370,39 +395,39 @@ dependencies {
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("junit:junit:4.13.2")
 
-    // Android UI testing
+    // Android instrumentation testing
 
     // Core library
-    androidTestImplementation("androidx.test:core:1.4.0")
+    androidTestImplementation("androidx.test:core:1.5.0")
 
     // AndroidJUnitRunner and JUnit Rules
-    androidTestImplementation("androidx.test:runner:1.4.0")
-    androidTestImplementation("androidx.test:rules:1.4.0")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
 
     // Assertions
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.ext:truth:1.4.0")
-    androidTestImplementation("com.google.truth:truth:1.1.3")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.ext:truth:1.5.0")
+    androidTestImplementation("com.google.truth:truth:1.1.4")
 
     // Espresso dependencies
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0") {
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.1") {
         // https://github.com/android/android-test/issues/861#issuecomment-1067448610
         exclude(group="org.checkerframework", module="checker")
     }
-    androidTestImplementation("androidx.test.espresso:espresso-intents:3.4.0")
-    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.4.0") {
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.5.1") {
         // https://github.com/android/android-test/issues/861#issuecomment-872582819
         exclude(group="org.checkerframework", module="checker")
     }
     
-    androidTestImplementation("androidx.test.espresso:espresso-web:3.4.0")
-    androidTestImplementation("androidx.test.espresso.idling:idling-concurrent:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-web:3.5.1")
+    androidTestImplementation("androidx.test.espresso.idling:idling-concurrent:3.5.1")
 
     // The following Espresso dependency can be either "implementation"
     // or "androidTestImplementation", depending on whether you want the
     // dependency to appear on your APK's compile classpath or the test APK
     // classpath.
-    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.4.0")
+    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.1")
 }
 

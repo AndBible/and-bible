@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -15,10 +15,10 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.db.readingplan
+package net.bible.service.db.oldmigrations
 
 import android.content.ContentValues
-import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
+import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.provider.BaseColumns
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -93,17 +93,17 @@ class ReadingPlanDatabaseOperations {
     fun onCreate(db: SupportSQLiteDatabase) {
 
         try {
-            Log.i(TAG, "Creating table ${readingPlan.TABLE_NAME}")
+            Log.i(TAG, "Creating table ${ReadingPlanDatabaseDefinition.ReadingPlan.TABLE_NAME}")
             db.execSQL(SQL_CREATE_READING_PLAN)
         } catch (e: Exception) {
-            Log.e(TAG, "Error creating table ${readingPlan.TABLE_NAME}")
+            Log.e(TAG, "Error creating table ${ReadingPlanDatabaseDefinition.ReadingPlan.TABLE_NAME}")
         }
 
         try {
-            Log.i(TAG, "Creating table ${readingPlanStatus.TABLE_NAME}")
+            Log.i(TAG, "Creating table ${ReadingPlanDatabaseDefinition.ReadingPlanStatus.TABLE_NAME}")
             db.execSQL(SQL_CREATE_READING_PLAN_STATUS)
         } catch (e: Exception) {
-            Log.e(TAG, "Error creating table ${readingPlanStatus.TABLE_NAME}")
+            Log.e(TAG, "Error creating table ${ReadingPlanDatabaseDefinition.ReadingPlanStatus.TABLE_NAME}")
         }
     }
 
@@ -123,14 +123,14 @@ class ReadingPlanDatabaseOperations {
                 Log.i(TAG, "Importing status for plan $planCode")
                 val start = prefs.getLong(planCode + START_EXT, 0)
                 var day = prefs.getInt(planCode + DAY_EXT, 0)
-                val values = ContentValues().apply { put(readingPlan.COLUMN_PLAN_CODE, planCode) }
+                val values = ContentValues().apply { put(ReadingPlanDatabaseDefinition.ReadingPlan.COLUMN_PLAN_CODE, planCode) }
                 if (start > 0L) {
-                    values.put(readingPlan.COLUMN_PLAN_START_DATE, start)
+                    values.put(ReadingPlanDatabaseDefinition.ReadingPlan.COLUMN_PLAN_START_DATE, start)
                     day = max(day, 1)
                 }
-                if (day > 0) values.put(readingPlan.COLUMN_PLAN_CURRENT_DAY, day)
+                if (day > 0) values.put(ReadingPlanDatabaseDefinition.ReadingPlan.COLUMN_PLAN_CURRENT_DAY, day)
 
-                if ((start > 0L || day > 0) && db.insert(readingPlan.TABLE_NAME, CONFLICT_FAIL, values) < 0)
+                if ((start > 0L || day > 0) && db.insert(ReadingPlanDatabaseDefinition.ReadingPlan.TABLE_NAME, CONFLICT_FAIL, values) < 0)
                     Log.e(TAG, "Error inserting start date and current day to db for plan $planCode")
 
                 val prefKey = "${planCode}_$day"
@@ -173,11 +173,11 @@ class ReadingPlanDatabaseOperations {
             )
         }
         val statusValues = ContentValues().apply {
-            put(readingPlanStatus.COLUMN_READING_STATUS, status.toString())
-            put(readingPlanStatus.COLUMN_PLAN_DAY, day)
-            put(readingPlanStatus.COLUMN_PLAN_CODE, planCode)
+            put(ReadingPlanDatabaseDefinition.ReadingPlanStatus.COLUMN_READING_STATUS, status.toString())
+            put(ReadingPlanDatabaseDefinition.ReadingPlanStatus.COLUMN_PLAN_DAY, day)
+            put(ReadingPlanDatabaseDefinition.ReadingPlanStatus.COLUMN_PLAN_CODE, planCode)
         }
-        if (db.insert(readingPlanStatus.TABLE_NAME, CONFLICT_FAIL, statusValues) < 0)
+        if (db.insert(ReadingPlanDatabaseDefinition.ReadingPlanStatus.TABLE_NAME, CONFLICT_FAIL, statusValues) < 0)
             Log.e(TAG, "Error inserting reading status to db for plan $planCode day #$day")
     }
 

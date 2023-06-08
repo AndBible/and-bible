@@ -42,6 +42,7 @@ import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.base.IntentHelper
@@ -92,6 +93,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun setClientReady() {
         Log.i(TAG, "set client ready")
+
         bibleView.setClientReady()
     }
 
@@ -122,7 +124,7 @@ class BibleJavascriptInterface(
                 putExtra("navigateToVerse", true)
             }
             val result = mainBibleActivity.awaitIntent(intent)
-            val verseStr = result?.resultData?.getStringExtra("verse")
+            val verseStr = result?.data?.getStringExtra("verse")
 
 
             val verse = if(verseStr == null) null else VerseFactory.fromString(KJVA, verseStr)
@@ -140,18 +142,18 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun saveBookmarkNote(bookmarkId: Long, note: String?) {
-        bookmarkControl.saveBookmarkNote(bookmarkId, if(note?.trim()?.isEmpty() == true) null else note)
+    fun saveBookmarkNote(bookmarkId: String, note: String?) {
+        bookmarkControl.saveBookmarkNote(IdType(bookmarkId), if(note?.trim()?.isEmpty() == true) null else note)
     }
 
     @JavascriptInterface
-    fun removeBookmark(bookmarkId: Long) {
-        bookmarkControl.deleteBookmarksById(listOf(bookmarkId))
+    fun removeBookmark(bookmarkId: String) {
+        bookmarkControl.deleteBookmarksById(listOf(IdType(bookmarkId)))
     }
 
     @JavascriptInterface
-    fun assignLabels(bookmarkId: Long) {
-        bibleView.assignLabels(bookmarkId)
+    fun assignLabels(bookmarkId: String) {
+        bibleView.assignLabels(IdType(bookmarkId))
     }
 
     @JavascriptInterface
@@ -232,28 +234,28 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun createNewJournalEntry(labelId: Long, entryType: String, afterEntryId: Long) {
+    fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) {
         val entryOrderNumber: Int = when (entryType) {
-            "bookmark" -> bookmarkControl.getBookmarkToLabel(afterEntryId, labelId)!!.orderNumber
-            "journal" -> bookmarkControl.getJournalById(afterEntryId)!!.orderNumber
+            "bookmark" -> bookmarkControl.getBookmarkToLabel(IdType(afterEntryId), IdType(labelId))!!.orderNumber
+            "journal" -> bookmarkControl.getStudyPadById(IdType(afterEntryId))!!.orderNumber
             "none" -> -1
             else -> throw RuntimeException("Illegal entry type")
         }
-        bookmarkControl.createJournalEntry(labelId, entryOrderNumber)
+        bookmarkControl.createStudyPadEntry(IdType(labelId), entryOrderNumber)
     }
 
     @JavascriptInterface
-    fun deleteJournalEntry(journalId: Long) = bookmarkControl.deleteStudyPadTextEntry(journalId)
+    fun deleteStudyPadEntry(studyPadId: String) = bookmarkControl.deleteStudyPadTextEntry(IdType(studyPadId))
 
     @JavascriptInterface
-    fun removeBookmarkLabel(bookmarkId: Long, labelId: Long) = bookmarkControl.removeBookmarkLabel(bookmarkId, labelId)
+    fun removeBookmarkLabel(bookmarkId: String, labelId: String) = bookmarkControl.removeBookmarkLabel(IdType(bookmarkId), IdType(labelId))
 
     @JavascriptInterface
-    fun updateOrderNumber(labelId: Long, data: String) {
-        val deserialized: Map<String, List<List<Long>>> = json.decodeFromString(serializer(), data)
-        val journalTextEntries = deserialized["journals"]!!.map { bookmarkControl.getJournalById(it[0])!!.apply { orderNumber = it[1].toInt() } }
-        val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(it[0], labelId)!!.apply { orderNumber = it[1].toInt() } }
-        bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, journalTextEntries)
+    fun updateOrderNumber(labelId: String, data: String) {
+        val deserialized: Map<String, List<Pair<String, Int>>> = json.decodeFromString(serializer(), data)
+        val studyPadTextItems = deserialized["studyPadTextItems"]!!.map { bookmarkControl.getStudyPadById(IdType(it.first))!!.apply { orderNumber = it.second } }
+        val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(IdType(it.first), IdType(labelId))!!.apply { orderNumber = it.second } }
+        bookmarkControl.updateOrderNumbers(IdType(labelId), bookmarksToLabels, studyPadTextItems)
     }
 
     @JavascriptInterface
@@ -269,9 +271,14 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun updateJournalTextEntry(data: String) {
+    fun updateStudyPadTextEntry(data: String) {
         val entry: BookmarkEntities.StudyPadTextEntry = json.decodeFromString(serializer(), data)
-        bookmarkControl.updateJournalTextEntry(entry)
+        bookmarkControl.updateStudyPadTextEntry(entry)
+    }
+
+    @JavascriptInterface
+    fun updateStudyPadTextEntryText(id: String, text: String) {
+        bookmarkControl.updateStudyPadTextEntryText(IdType(id), text)
     }
 
     @JavascriptInterface
@@ -282,8 +289,8 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun shareBookmarkVerse(bookmarkId: Long) {
-        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+    fun shareBookmarkVerse(bookmarkId: String) {
+        val bookmark = bookmarkControl.bookmarkById(IdType(bookmarkId))!!
         scope.launch(Dispatchers.Main) {
             ShareWidget.dialog(mainBibleActivity, bookmark)
         }
@@ -314,9 +321,9 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun openStudyPad(labelId: Long, bookmarkId: Long) {
+    fun openStudyPad(labelId: String, bookmarkId: String) {
         scope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openJournal(labelId, bookmarkId)
+            bibleView.linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))
         }
     }
 
@@ -337,24 +344,24 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun setAsPrimaryLabel(bookmarkId: Long, labelId: Long) {
-        val label = bookmarkControl.labelById(labelId)!!
+    fun setAsPrimaryLabel(bookmarkId: String, labelId: String) {
+        val label = bookmarkControl.labelById(IdType(labelId))!!
         if(label.isUnlabeledLabel) {
             return
         }
-        bookmarkControl.setAsPrimaryLabel(bookmarkId, labelId)
-        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(labelId))
+        bookmarkControl.setAsPrimaryLabel(IdType(bookmarkId), IdType(labelId))
+        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
     }
 
     @JavascriptInterface
-    fun toggleBookmarkLabel(bookmarkId: Long, labelId: Long) {
-        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+    fun toggleBookmarkLabel(bookmarkId: String, labelId: String) {
+        val bookmark = bookmarkControl.bookmarkById(IdType(bookmarkId))!!
         val labels = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
-        val foundLabel = labels.find { it.id == labelId }
-        if(foundLabel !== null) {
+        val foundLabel = labels.find { it.id == IdType(labelId) }
+        if(foundLabel != null) {
             labels.remove(foundLabel)
         } else {
-            labels.add(bookmarkControl.labelById(labelId)!!)
+            labels.add(bookmarkControl.labelById(IdType(labelId))!!)
         }
         bookmarkControl.setLabelsForBookmark(bookmark, labels)
     }
@@ -365,8 +372,8 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun setBookmarkWholeVerse(bookmarkId: Long, value: Boolean) {
-        val bookmark = bookmarkControl.bookmarkById(bookmarkId)!!
+    fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
+        val bookmark = bookmarkControl.bookmarkById(IdType(bookmarkId))!!
         if(!value && bookmark.textRange == null) {
             ABEventBus.post(ToastEvent(R.string.cant_change_wholeverse))
             return
@@ -449,7 +456,7 @@ class BibleJavascriptInterface(
 
         scope.launch(Dispatchers.Main) {
             val result = mainBibleActivity.awaitIntent(chooserIntent)
-            val data = result.resultData
+            val data = result.data
             if (result.resultCode == Activity.RESULT_OK && data?.data != null) {
                 val destinationUri = data.data!!
 
@@ -485,5 +492,5 @@ class BibleJavascriptInterface(
         }
     }
 
-    private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
+    private val TAG get() = "BibleView[${bibleView.windowRef.get()?.displayId}] JSInt"
 }

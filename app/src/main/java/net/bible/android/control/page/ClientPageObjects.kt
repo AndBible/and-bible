@@ -23,6 +23,7 @@ import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.versification.toVerseRange
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
@@ -42,6 +43,7 @@ import org.crosswire.jsword.versification.Versification
 import java.util.*
 import java.util.UUID.randomUUID
 import javax.inject.Inject
+import kotlin.math.abs
 
 /*
  * Serializable classes and utils that are used when transferring stuff to JS side
@@ -104,7 +106,7 @@ open class OsisDocument(
 }
 
 class BibleDocument(
-    val bookmarks: List<BookmarkEntities.Bookmark>,
+    val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
     val verseRange: VerseRange,
     osisFragment: OsisFragment,
     val swordBook: SwordBook,
@@ -143,7 +145,7 @@ class MultiFragmentDocument(private val osisFragments: List<OsisFragment>, priva
 }
 
 
-class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
+class MyNotesDocument(val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
                       val verseRange: VerseRange): Document, DocumentWithBookmarks
 {
     override val asHashMap: Map<String, Any>
@@ -160,10 +162,10 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
 
 class StudyPadDocument(
     val label: BookmarkEntities.Label,
-    val bookmarkId: Long?,
-    val bookmarks: List<BookmarkEntities.Bookmark>,
+    val bookmarkId: IdType?,
+    val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
     private val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
-    private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>,
+    private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntryWithText>,
 ): Document, DocumentWithBookmarks {
     override val asHashMap: Map<String, Any>
         get() {
@@ -180,7 +182,7 @@ class StudyPadDocument(
         }
 }
 
-class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versification? = null): Document {
+class ClientBookmark(val bookmark: BookmarkEntities.BookmarkWithNotes, val v11n: Versification? = null): Document {
     @Inject lateinit var bookmarkControl: BookmarkControl
 
     init {
@@ -190,7 +192,8 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
         return mapOf(
-            "id" to bookmark.id.toString(),
+            "id" to wrapString(bookmark.id.toString()),
+            "hashCode" to (abs(bookmark.id.hashCode())).toString(),
             "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal)),
             "originalOrdinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.start.ordinal, bookmark.verseRange.end.ordinal)),
             "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse || bookmark.book == null) null else bookmark.textRange?.clientList),
@@ -214,7 +217,7 @@ class ClientBookmark(val bookmark: BookmarkEntities.Bookmark, val v11n: Versific
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
             "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
             "type" to wrapString("bookmark"),
-            "primaryLabelId" to bookmark.primaryLabelId.toString(),
+            "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
         )
     }
@@ -232,7 +235,7 @@ data class ClientBookmarkStyle(
 
 @Serializable
 data class ClientBookmarkLabel(
-    val id: Long,
+    val id: IdType,
     val name: String,
     val style: ClientBookmarkStyle,
     val isRealLabel: Boolean
@@ -248,7 +251,7 @@ data class ClientBookmarkLabel(
             markerStyle = label.markerStyle,
             markerStyleWholeVerse = label.markerStyleWholeVerse,
         ),
-        !label.isSpecialLabel && label.id > 0
+        !label.isSpecialLabel && !label.new
     )
 }
 

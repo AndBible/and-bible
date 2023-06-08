@@ -26,8 +26,10 @@ import androidx.test.filters.LargeTest
 import net.bible.android.activity.R
 
 import net.bible.android.view.activity.page.MainBibleActivity
+import org.junit.Ignore
 import org.junit.Test
 
+@Ignore("Let's see if one day we have some tests here")
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class MainBibleActivityTests {

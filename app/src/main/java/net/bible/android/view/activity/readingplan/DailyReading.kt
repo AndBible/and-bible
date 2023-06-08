@@ -33,6 +33,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ReadingPlanOneDayBinding
 import net.bible.android.activity.databinding.ReadingPlanOneReadingBinding
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -40,6 +41,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.readingplan.OneDaysReadingsDto
 
 import org.crosswire.jsword.versification.BookName
@@ -95,6 +97,16 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         }
 
         loadDailyReading(null, null)
+        ABEventBus.register(this)
+    }
+
+    override fun onDestroy() {
+        ABEventBus.unregister(this)
+        super.onDestroy()
+    }
+
+    fun onEventMainThread(e: ReadingPlansUpdatedViaSyncEvent) {
+        recreate()
     }
 
     private fun loadDailyReading(planToLoad: String?, dayToLoad: Int?) {
@@ -397,7 +409,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         else -> super.onOptionsItemSelected(item)
     }
 
-    val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uriResult ->
+    private val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uriResult ->
         Log.i(TAG, "Importing plan. Result uri is${if (uriResult != null) " not" else ""} null")
         val uri = uriResult ?: return@registerForActivityResult
 

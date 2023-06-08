@@ -202,7 +202,7 @@ class BibleFrame(
         addWindowButton()
     }
 
-    private val TAG = "BibleFrame[${window.id}]"
+    private val TAG = "BibleFrame[${window.displayId}]"
 
     private fun handleTouchEvent(v:View, event:MotionEvent, window: Window){
         windowControl.minimiseWindow(window)

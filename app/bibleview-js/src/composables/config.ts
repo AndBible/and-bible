@@ -64,8 +64,8 @@ export type Config = {
 
     showBookmarks: boolean,
     showMyNotes: boolean,
-    bookmarksHideLabels: number[],
-    bookmarksAssignLabels: number[],
+    bookmarksHideLabels: IdType[],
+    bookmarksAssignLabels: IdType[],
 
     colors: {
         dayBackground: number,
@@ -92,9 +92,9 @@ export type AppSettings = {
     bottomOffset: number,
     nightMode: boolean,
     errorBox: boolean,
-    favouriteLabels: number[],
-    recentLabels: number[],
-    frequentLabels: number[],
+    favouriteLabels: IdType[],
+    recentLabels: IdType[],
+    frequentLabels: IdType[],
     hideCompareDocuments: string[],
     rightToLeft: boolean,
     activeWindow: boolean,

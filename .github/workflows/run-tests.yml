@@ -1,4 +1,4 @@
-name: Run tests
+name: Run Kotlin / Android tests
 
 on:
   push:
@@ -21,7 +21,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  run-unit-tests:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
@@ -63,14 +63,63 @@ jobs:
         mkdir -p $HOME/.sword
         unzip -o -d $HOME/.sword ./testmods.zip
 
-    - name: Build with Gradle
+    - name: Build with Gradle and run unit tests
       run: ./gradlew --console plain testStandardGoogleplayRelease
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
       if: ${{ always() }}
       with:
-        name: test-results
+        name: unit-test-results
+        path: app/build/reports/**/*.html
+        retention-days: 5
+
+    - name: Before saving cache
+      run: |
+        rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  run-instrument-tests:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 10 # so that recent tags can be found
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Set up Node.js environment
+      uses: actions/setup-node@v3
+      with:
+        # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
+        node-version: '14'
+    - name: Cache gradle dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          ~/.android/build-cache
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: ${{ runner.os }}-gradle-
+
+    - name: Run instrumentation tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 31
+        arch: x86_64
+        disable-animations: true
+        disk-size: 1500M
+        heap-size: 512M
+        script: ./gradlew --console plain connectedStandardGooglePlayDebugAndroidTest
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: ${{ always() }}
+      with:
+        name: instrument-test-results
         path: app/build/reports/**/*.html
         retention-days: 5
 

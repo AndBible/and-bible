@@ -56,7 +56,10 @@ import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
@@ -82,6 +85,8 @@ import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.IdType
+import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
@@ -90,7 +95,6 @@ import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.Bookmarks
@@ -113,9 +117,11 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.common.windowPinningVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
+import net.bible.service.devicesync.DeviceSynchronize
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -127,6 +133,8 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
+import java.util.Timer
+import java.util.TimerTask
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -137,6 +145,9 @@ import kotlin.system.exitProcess
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+const val DEFAULT_SYNC_INTERVAL = 2*60L // 2 minutes
+
 
 class OpenLink(val url: String)
 
@@ -176,8 +187,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             field = value
         }
 
-    private val dao get() = DatabaseContainer.db.workspaceDao()
-    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
+    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     val multiWinMode
         get() =
@@ -247,7 +258,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         // use context to setup backup control dirs
-        BackupControl.setupDirs(this)
         BackupControl.clearBackupDir()
 
         resolveVariables()
@@ -274,6 +284,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 checkDocBackupDBInSync()
             }
             initialized = true
+            startSync()
         }
         if(intent.hasExtra("openLink")) {
             val uri = Uri.parse(intent.getStringExtra("openLink"))
@@ -541,6 +552,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onPause() {
         CommonUtils.windowControl.windowRepository.saveIntoDb(false)
+        if(CommonUtils.isGoogleDriveSyncEnabled) {
+            syncJob?.cancel(StopSync())
+            syncJob = null
+            lifecycleScope.launch { DeviceSynchronize.start() }
+        }
         fullScreen = false;
         if(CommonUtils.showCalculator) {
             (window.decorView as ViewGroup).removeView(binding.root)
@@ -698,7 +714,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             bibleViewFactory.clear()
             windowRepository.loadFromDb(value)
 
-            preferences.setLong("current_workspace_id", windowRepository.id)
+            preferences.setString("current_workspace_id", windowRepository.id.toString())
             documentViewManager.buildView(forceUpdate = true)
             windowControl.windowSync.reloadAllWindows()
             windowRepository.updateAllWindowsTextDisplaySettings()
@@ -1253,9 +1269,58 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     override fun onRestart() {
         super.onRestart()
+        startSync()
         if (mWholeAppWasInBackground) {
             mWholeAppWasInBackground = false
             refreshIfNightModeChange()
+        }
+    }
+
+    var syncJob: Job? = null
+
+    private fun startSync(signIn: Boolean = true) {
+        if(CommonUtils.isGoogleDriveSyncEnabled) {
+            lifecycleScope.launch {
+                if(signIn && !DeviceSynchronize.signedIn) {
+                    DeviceSynchronize.signIn(this@MainBibleActivity)
+                }
+                synchronize(true)
+                syncJob = lifecycleScope.launch { periodicSync() }
+            }
+        }
+    }
+
+    class StopSync: CancellationException()
+
+    private suspend fun periodicSync() {
+        if(CommonUtils.isGoogleDriveSyncEnabled && DeviceSynchronize.signedIn) {
+            Log.i(TAG, "Periodic sync starting")
+            try {
+                while (true) {
+                    delay(60*1000) // 1 minute
+                    val syncInterval = CommonUtils.settings.getLong("gdrive_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
+                    if(System.currentTimeMillis() - lastTouched > syncInterval) {
+                        synchronize()
+                    }
+                }
+            } catch (e: StopSync) {
+                Log.i(TAG, "Stopping sync")
+            }
+        }
+    }
+
+    private val lastTouched: Long get() {
+        return windowRepository.windowList.mapNotNull { it.bibleView?.lastTouched }.max()
+    }
+
+    private suspend fun synchronize(force: Boolean = false) {
+        if(CommonUtils.isGoogleDriveSyncEnabled && DeviceSynchronize.signedIn) {
+            windowRepository.saveIntoDb(false)
+            if (force || DeviceSynchronize.hasChanges()) {
+                Log.i(TAG, "Performing periodic sync")
+                DeviceSynchronize.start()
+                DeviceSynchronize.waitUntilFinished()
+            }
         }
     }
 
@@ -1268,6 +1333,32 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
         else {
             updateActions()
+        }
+    }
+
+    fun onEventMainThread(event: WorkspacesUpdatedViaSyncEvent) {
+        val entries = event.updated
+        val workspaceDeleted = entries.any {
+            it.tableName == "Workspace" &&
+            it.type == LogEntryTypes.DELETE &&
+            it.entityId1 == currentWorkspaceId
+        }
+        if(workspaceDeleted) {
+            currentWorkspaceId = workspaces.first().id
+        }
+
+        val windowsChanged = entries.any { entry ->
+            entry.tableName in listOf("Window", "PageManager") &&
+            windowRepository.windowList.firstOrNull { it.id == entry.entityId1 } != null
+        }
+
+        val workspaceChanged = entries.any {
+            it.tableName == "Workspace" &&
+            it.type == LogEntryTypes.UPSERT &&
+            it.entityId1 == currentWorkspaceId
+        }
+        if(windowsChanged || workspaceChanged) {
+            currentWorkspaceId = currentWorkspaceId
         }
     }
 
@@ -1352,17 +1443,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return super.onKeyUp(keyCode, event)
     }
 
-    class MainBibleAfterRestore
+    class MainBibleAfterRestore()
 
-    fun onEventMainThread(e: MainBibleAfterRestore) = afterRestore()
-
-    private fun afterRestore() {
+    fun onEventMainThread(e: MainBibleAfterRestore) {
         bookmarkControl.reset()
         documentViewManager.removeView()
         bibleViewFactory.clear()
         windowControl.windowSync.setResyncRequired()
-        Dialogs.showMsg(R.string.restore_success)
-        currentWorkspaceId = 0
+        currentWorkspaceId = IdType.empty()
     }
 
     class UpdateMainBibleActivityDocuments
@@ -1382,12 +1470,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (extras != null) {
             when (requestCode) {
                 WORKSPACE_CHANGED -> {
-                    val workspaceId = extras.getLong("workspaceId")
+                    val workspaceId = extras.getString("workspaceId")
                     val changed = extras.getBoolean("changed")
 
                     if (resultCode == Activity.RESULT_OK) {
-                        if (workspaceId != 0L && workspaceId != currentWorkspaceId) {
-                            currentWorkspaceId = workspaceId
+                        if (workspaceId != null && IdType(workspaceId) != currentWorkspaceId) {
+                            currentWorkspaceId = IdType(workspaceId)
                         } else if (changed) {
                             currentWorkspaceId = currentWorkspaceId
                         }
@@ -1397,20 +1485,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 COLORS_CHANGED -> {
                     val edited = extras.getBoolean("edited")
                     val reset = extras.getBoolean("reset")
-                    val windowId = extras.getLong("windowId")
+                    val windowId = extras.getString("windowId")
                     val colorsStr = extras.getString("colors")
 
                     if (!edited && !reset) return
 
                     val colors = if (reset)
-                        if (windowId != 0L) {
+                        if (windowId != null) {
                             null
                         } else TextDisplaySettings.default.colors
                     else
                         WorkspaceEntities.Colors.fromJson(colorsStr!!)
 
-                    if (windowId != 0L) {
-                        val window = windowRepository.getWindow(windowId)!!
+                    if (windowId != null) {
+                        val window = windowRepository.getWindow(IdType(windowId))!!
                         window.pageManager.textDisplaySettings.colors = colors
                         window.bibleView?.updateTextDisplaySettings()
                     } else {
@@ -1561,6 +1649,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun preferenceSettingsChanged() {
         resetSystemUi()
         requestSdcardPermission()
+        documentViewManager.removeView()
         documentViewManager.buildView()
         ABEventBus.post(SynchronizeWindowsEvent(true))
         CommonUtils.changeAppIconAndName()

@@ -144,25 +144,25 @@ open class CurrentPageManager @Inject constructor(
         }
 
     val isStudyPadShown: Boolean
-        get() = currentGeneralBook === currentPage && currentGeneralBook.isStudyPad
+        get() = currentGeneralBook == currentPage && currentGeneralBook.isStudyPad
 
     val isCommentaryShown: Boolean
-        get() = currentCommentary === currentPage
+        get() = currentCommentary == currentPage
     val isBibleShown: Boolean
-        get() = currentBible === currentPage
+        get() = currentBible == currentPage
 
     val isVersePageShown: Boolean
         get() = isBibleShown || isCommentaryShown
 
     val isMyNotesShown: Boolean
-        get() = currentMyNotePage === currentPage
+        get() = currentMyNotePage == currentPage
 
     val isDictionaryShown: Boolean
-        get() = currentDictionary === currentPage
+        get() = currentDictionary == currentPage
     private val isGenBookShown: Boolean
-        get() = currentGeneralBook === currentPage
+        get() = currentGeneralBook == currentPage
     val isMapShown: Boolean
-        get() = currentMap === currentPage
+        get() = currentMap == currentPage
 
 
     /** display a new Document and return the new Page
@@ -264,8 +264,13 @@ open class CurrentPageManager @Inject constructor(
             textDisplaySettings.copy()
         )
 
+    var savedEntity: WorkspaceEntities.PageManager? = null
+
+    val isModified get() = savedEntity != entity
+
     fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?, workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings?=null) {
         pageManagerEntity ?: return
+        savedEntity = pageManagerEntity.deepCopy()
 
         // Order between these two following lines is critical!
         // otherwise currentYOffsetRatio is not set with respect to correct currentBibleVerse!
@@ -285,6 +290,7 @@ open class CurrentPageManager @Inject constructor(
         if(workspaceDisplaySettings != null) {
             WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
             textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
+            savedEntity?.textDisplaySettings = textDisplaySettings.copy()
         }
         currentPage = getBookPage(restoredBookCategory)
         if(currentPage.key == null || currentPage.currentDocument == null) {
@@ -314,5 +320,5 @@ open class CurrentPageManager @Inject constructor(
                 !currentVersification.containsBook(currentBibleBook)
         }
 
-    private val TAG get() = "PageManager[${window.id}]"
+    private val TAG get() = "PageManager[${window.displayId}]"
 }

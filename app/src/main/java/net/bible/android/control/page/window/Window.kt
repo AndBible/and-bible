@@ -33,24 +33,25 @@ import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.windowControl
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseRange
 
 class WindowChangedEvent(val window: Window)
 
 class Window (
-    window: WorkspaceEntities.Window,
+    entity: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
     val windowRepository: WindowRepository,
-    var isLinksWindow: Boolean = window.isLinksWindow,
+    var isLinksWindow: Boolean = entity.isLinksWindow,
 ){
-    private var targetLinksWindowId: Long? = window.targetLinksWindowId
-    var syncGroup = window.syncGroup
+    private var targetLinksWindowId: IdType? = entity.targetLinksWindowId
+    var savedEntity = entity.deepCopy()
+    var syncGroup = entity.syncGroup
 
     val targetLinksWindow: Window
         get() {
@@ -70,7 +71,9 @@ class Window (
     }
     val isPrimaryLinksWindow get() = isLinksWindow && id == windowRepository.primaryTargetLinksWindowId
 
-    val id = window.id
+    val id = entity.id
+    val displayId = id.toString().substring(0, 4)
+
     var weight: Float
         get() =
             if(!isPinMode) {
@@ -87,8 +90,8 @@ class Window (
                 windowLayout.weight = value
         }
 
-    private val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
-    private var workspaceId = window.workspaceId
+    private val windowLayout: WindowLayout = WindowLayout(entity.windowLayout)
+    private var workspaceId = entity.workspaceId
 
     init {
         pageManager.window = this
@@ -110,13 +113,13 @@ class Window (
     var displayedBook: Book? = null
         private set
 
-    var isSynchronised = window.isSynchronized
+    var isSynchronised = entity.isSynchronized
         set(value) {
             field = value
             ABEventBus.post(WindowChangedEvent(this))
         }
 
-    var isPinMode: Boolean = window.isPinMode
+    var isPinMode: Boolean = entity.isPinMode
         get() {
             return when {
                 isLinksWindow -> windowRepository.workspaceSettings.autoPin
@@ -152,7 +155,7 @@ class Window (
 
     fun destroy() = bibleView?.destroy()
 
-    override fun toString(): String = "Window[$id]"
+    override fun toString(): String = "Window[${displayId}]"
 
     var lastUpdated
         get() = bibleView?.lastUpdated ?: 0L
@@ -289,5 +292,5 @@ class Window (
         }
     }
 
-    private val TAG get() = "BibleView[${id}] WIN"
+    private val TAG get() = "BibleView[${displayId}] WIN"
 }

@@ -104,4 +104,6 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 		To easily get started, click below to automatically download recommended default documents.
 		Recommended for first time users! You can change these settings later on.
 	</string>
+	<string name="crash_app">Crash app!</string>
+	<string name="crash_app_summary">Crash app after 10 seconds. Debugging feature, visible only in debug builds.</string>
 </resources>

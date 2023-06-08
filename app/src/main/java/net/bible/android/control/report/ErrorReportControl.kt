@@ -132,7 +132,6 @@ object BugReport {
             append("Model: ").append(Build.MODEL).append("\n")
             append("Storage Mb free: ").append(megabytesFree).append("\n")
             append("WebView version: ").append(WebViewCompat.getCurrentWebViewPackage(BibleApplication.application)?.versionName).append("\n")
-            append("SQLITE version: ").append(BibleApplication.application.sqliteVersion).append("\n")
             val runtime = Runtime.getRuntime()
             val usedMemInMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L
             val maxHeapSizeInMB = runtime.maxMemory() / 1048576L
@@ -187,28 +186,17 @@ object BugReport {
     fun saveLogcat() {
         Log.i(TAG, "Trying to save logcat")
         logBasicInfo()
+        // Let's give log buffers a little time to flush themselves
+        Thread.sleep(1000)
         val f = File(logDir, "logcat.txt.gz")
-        val log = StringBuilder()
-        try {
-            val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
-            val bufferedReader = BufferedReader(
-                InputStreamReader(process.inputStream))
-
-            var line = bufferedReader.readLine()
-            while (line != null) {
-                log.append(line + '\n');
-                line = bufferedReader.readLine()
-            }
-        } catch (_: IOException) {}
-
         logDir.mkdirs()
 
-        val fOut = FileOutputStream(f)
-        val osw = GZIPOutputStream(fOut)
-
-        osw.write(log.toString().toByteArray());
-        osw.flush()
-        osw.close()
+        try {
+            val process = Runtime.getRuntime().exec("logcat -d -v threadtime")
+            FileOutputStream(f).use { fOut ->
+                GZIPOutputStream(fOut).use { gzOut -> process.inputStream.use { s -> s.copyTo(gzOut)}}
+            }
+        } catch (_: Throwable) {}
     }
 
     fun saveScreenshot() {
@@ -318,7 +306,7 @@ object BugReport {
             val chooserIntent = Intent.createChooser(emailIntent, activity.getString(R.string.send_bug_report_title))
             chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveFileIntent))
             chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            activity.awaitIntent(chooserIntent).resultData?.data?.let { destinationUri ->
+            activity.awaitIntent(chooserIntent).data?.data?.let { destinationUri ->
                 activity.lifecycleScope.launch(Dispatchers.IO) {
                     val zipFile = File(logDir, "logcat-screenshot.zip")
                     if (zipFile.exists()) zipFile.delete()

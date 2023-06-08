@@ -151,7 +151,7 @@ class PageTiltScroller(
         }
     }
 
-    private val TAG get() = "PageTiltScroller[${webView.windowRef.get()?.id}]"
+    private val TAG get() = "PageTiltScroller[${webView.windowRef.get()?.displayId}]"
 
     companion object {
         private val FORWARD_KEY = "Forward"

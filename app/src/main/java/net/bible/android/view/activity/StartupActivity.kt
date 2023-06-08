@@ -22,10 +22,8 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
@@ -47,7 +45,6 @@ import net.bible.android.activity.databinding.SpinnerBinding
 import net.bible.android.activity.databinding.StartupViewBinding
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -59,18 +56,17 @@ import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.OpenLink
-import net.bible.android.view.util.Hourglass
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.devicesync.DeviceSynchronize
 import net.bible.service.sword.SwordDocumentFacade
 
 import org.apache.commons.lang3.StringUtils
 import java.util.*
-
 
 /** Called first to show download screen if no documents exist
  *
@@ -80,10 +76,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private lateinit var spinnerBinding: SpinnerBinding
     private lateinit var startupViewBinding: StartupViewBinding
 
-    private val docsDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val docsDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
     private val previousInstallDetected: Boolean get() = docsDao.getKnownInstalled().isNotEmpty();
     override val doNotInitializeApp = true
-
 
     private suspend fun getListOfBooksUserWantsToRedownload(context: Context) : List<SwordDocumentInfo>? {
         var result: List<SwordDocumentInfo>?;
@@ -195,7 +190,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         supportActionBar!!.hide()
         if (!checkForExternalStorage()) return
 
-        BackupControl.setupDirs(this)
         lifecycleScope.launch {
             if(!BuildVariant.Appearance.isDiscrete) {
                 ErrorReportControl.checkCrash(this@StartupActivity)
@@ -216,7 +210,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private suspend fun initializeDatabase() {
         withContext(Dispatchers.IO) {
             DatabaseContainer.ready = true
-            DatabaseContainer.db
+            DatabaseContainer.instance
         }
     }
 
@@ -239,9 +233,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             // only show the splash screen if user has no bibles
             if(!checkPoorTranslations(this@StartupActivity)) return@withContext
             showFirstLayout()
+
         } else {
             Log.i(TAG, "Going to main bible view")
-
             gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
         }
@@ -266,37 +260,75 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 Log.i(TAG, "A previous install was detected")
                 redownloadMessage.visibility = View.VISIBLE
                 redownloadButton.visibility = View.VISIBLE
+                restoreDatabaseButton.visibility = View.GONE
                 redownloadButton.setOnClickListener {
                     lifecycleScope.launch(Dispatchers.Main) {
                         val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
                         if (books != null) {
                             val intent = Intent(this@StartupActivity, FirstDownload::class.java)
                             intent.putExtra(DownloadActivity.DOCUMENT_IDS_EXTRA, json.encodeToString(serializer(), books))
-                            startActivityForResult(intent, DOWNLOAD_DOCUMENT_REQUEST)
+                            lifecycleScope.launch {
+                                awaitIntent(intent)
+                                afterDownload()
+                            }
                         }
                     }
                 }
             } else {
                 Log.i(TAG, "Showing restore button because nothing to redownload")
                 restoreDatabaseButton.visibility = View.VISIBLE
-                restoreDatabaseButton.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_GET_CONTENT)
-                    intent.type = "application/*"
-                    startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
-                }
+                restoreDatabaseButton.setOnClickListener { restoreDatabase() }
             }
             // Enabling this for english only in 4.0. Later we may enable this for other languages.
             if(Locale.getDefault().language == "en") {
                 easyStartMessage.visibility = View.VISIBLE
                 easyStartButton.visibility = View.VISIBLE
-                easyStartButton.setOnClickListener {
-                    val intent = Intent(this@StartupActivity, FirstDownload::class.java)
-                    intent.putExtra("download-recommended", true)
-                    startActivityForResult(intent, DOWNLOAD_DOCUMENT_REQUEST)
-                }
+                easyStartButton.setOnClickListener { easyStart() }
             }
         }
 
+    }
+
+    private fun easyStart() {
+        val intent = Intent(this@StartupActivity, FirstDownload::class.java)
+        intent.putExtra("download-recommended", true)
+        lifecycleScope.launch {
+            awaitIntent(intent)
+            afterDownload()
+        }
+    }
+
+    private fun afterDownload() {
+        Log.i(TAG, "Returned from Download")
+        if (SwordDocumentFacade.bibles.isNotEmpty()) {
+            Log.i(TAG, "Bibles now exist so go to main bible view")
+            // select appropriate default verse e.g. John 3.16 if NT only
+            lifecycleScope.launch(Dispatchers.Main) {
+                gotoMainBibleActivity()
+            }
+
+        } else {
+            Log.i(TAG, "No Bibles exist so start again")
+            lifecycleScope.launch(Dispatchers.Main) {
+                postBasicInitialisationControl()
+            }
+        }
+    }
+
+    private fun restoreDatabase() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "application/*"
+        lifecycleScope.launch {
+            val result = awaitIntent(intent)
+            CurrentActivityHolder.activate(this@StartupActivity)
+            if (result.resultCode == Activity.RESULT_OK) {
+                val inputStream = contentResolver.openInputStream(result.data!!.data!!) ?: return@launch
+                if (BackupControl.restoreAppDatabaseFromInputStreamWithUI(this@StartupActivity, inputStream)) {
+                    Log.i(TAG, "Restored database successfully")
+                    postBasicInitialisationControl()
+                }
+            }
+        }
     }
 
     private fun doGotoDownloadActivity() {
@@ -308,7 +340,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         if (StringUtils.isBlank(errorMessage)) {
             val handlerIntent = Intent(this, FirstDownload::class.java)
-            startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
+            lifecycleScope.launch {
+                awaitIntent(handlerIntent)
+                afterDownload()
+            }
         } else {
             Dialogs.showErrorMsg(errorMessage) { finish() }
         }
@@ -320,7 +355,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private fun onLoadFromZip() {
         Log.i(TAG, "Load from Zip clicked")
         val handlerIntent = Intent(this, InstallZip::class.java).apply { putExtra("doNotInitializeApp", true) }
-        startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
+        lifecycleScope.launch {
+            awaitIntent(handlerIntent)
+            afterDownload()
+        }
     }
 
     private suspend fun checkCalculator(): Boolean {
@@ -361,66 +399,13 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     return@launch
                 }
             }
-
+            CommonUtils.initializeApp()
             startActivity(handlerIntent)
             finish()
         }
     }
 
-    /** on return from download we may go to bible
-     * on return from bible just exit
-     */
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.i(TAG, "Activity result:$resultCode")
-        super.onActivityResult(requestCode, resultCode, data)
-
-        when (requestCode) {
-            DOWNLOAD_DOCUMENT_REQUEST -> {
-                Log.i(TAG, "Returned from Download")
-                if (SwordDocumentFacade.bibles.isNotEmpty()) {
-                    Log.i(TAG, "Bibles now exist so go to main bible view")
-                    // select appropriate default verse e.g. John 3.16 if NT only
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        gotoMainBibleActivity()
-                    }
-
-                } else {
-                    Log.i(TAG, "No Bibles exist so start again")
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        postBasicInitialisationControl()
-                    }
-                }
-            }
-            REQUEST_PICK_FILE_FOR_BACKUP_RESTORE -> {
-                // this and the one in MainActivity could potentially be merged into the same thing
-                CurrentActivityHolder.activate(this)
-                if (resultCode == Activity.RESULT_OK) {
-                    Dialogs.showMsg(R.string.restore_confirmation, true) {
-                        ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
-                        val hourglass = Hourglass(this)
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            hourglass.show()
-                            val inputStream = contentResolver.openInputStream(data!!.data!!)
-                            if (BackupControl.restoreDatabaseViaIntent(inputStream!!)) {
-                                Log.i(TAG, "Restored database successfully")
-
-                                withContext(Dispatchers.Main) {
-                                    Dialogs.showMsg(R.string.restore_success)
-                                    postBasicInitialisationControl()
-                                }
-                            }
-                            hourglass.dismiss()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     companion object {
         private val TAG = "StartupActivity"
-
-        private val DOWNLOAD_DOCUMENT_REQUEST = 2
-        private val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 1
     }
 }

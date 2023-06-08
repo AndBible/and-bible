@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -31,6 +30,7 @@ import net.bible.android.activity.R
 
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.DaggerApplicationComponent
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
@@ -53,7 +53,6 @@ import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.bridge.BookIndexer
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
-import org.crosswire.jsword.versification.BibleBook
 import java.util.Locale
 
 object MyLocaleProvider: LocaleProvider {
@@ -97,9 +96,12 @@ open class BibleApplication : Application() {
     override fun onCreate() {
         Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
+        CommonUtils.tmpDir.deleteRecursively()
+        BackupControl.setupDirs(this)
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             BugReport.saveScreenshot()
+            Log.e(TAG, "App crashed due to exception", e)
             BugReport.saveLogcat()
             CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
@@ -117,8 +119,6 @@ open class BibleApplication : Application() {
         BookType.addSupportedBookType(mySwordDictionary)
 
         LocaleProviderManager.setLocaleProvider(MyLocaleProvider)
-
-        logSqliteVersion()
 
         // This must be done before accessing JSword to prevent default folders being used
         SwordEnvironmentInitialisation.initialiseJSwordFolders()
@@ -138,23 +138,6 @@ open class BibleApplication : Application() {
         // various initialisations required every time at app startup
 
         localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
-    }
-
-    var sqliteVersion = ""
-
-    private fun logSqliteVersion() {
-        try {
-            val db = SQLiteDatabase.openOrCreateDatabase(":memory:", null)
-            val cursor = db.rawQuery("select sqlite_version() AS sqlite_version", null)
-            while (cursor.moveToNext()) {
-                sqliteVersion += cursor.getString(0)
-            }
-            cursor.close()
-            db.close()
-        } catch (e: Throwable) {
-            Log.e(TAG, "Couldn't figure out SQLite version due to error: ", e)
-        }
-        Log.i(TAG, "SQLite version: $sqliteVersion")
     }
 
     /**

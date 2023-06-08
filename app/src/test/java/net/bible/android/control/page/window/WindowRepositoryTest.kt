@@ -60,18 +60,6 @@ class WindowRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun testGetWindow() {
-        assertThat(windowRepository.getWindow(1)?.id, equalTo(1L))
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testGetActiveWindow() {
-        assertThat(windowRepository.activeWindow.id, equalTo(1L))
-    }
-
-    @Test
-    @Throws(Exception::class)
     fun testSetActiveWindow() {
         val newWindow = windowRepository.addNewWindow()
         assertThat(windowRepository.activeWindow.id, not(equalTo(newWindow.id)))

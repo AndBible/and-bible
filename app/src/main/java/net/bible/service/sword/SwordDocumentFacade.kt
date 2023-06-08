@@ -79,8 +79,8 @@ object SwordDocumentFacade {
         }
 
     private fun getDictionaries(keyName: String, fakeBookName: String, type: FeatureType): List<Book> {
-        val bookInitials = CommonUtils.settings.getStringSet(keyName, null)
-        if(bookInitials != null) {
+        val bookInitials = CommonUtils.settings.getStringSet(keyName )
+        if(bookInitials.isNotEmpty()) {
             return bookInitials.mapNotNull{ Books.installed().getBook(it)}
         }
         val dictionaries = Books.installed().books.filter { it.hasFeature(type) }

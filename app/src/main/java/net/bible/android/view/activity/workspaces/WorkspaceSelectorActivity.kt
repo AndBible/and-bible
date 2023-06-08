@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.WorkspaceSelectorBinding
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.defaultWorkspaceColor
@@ -58,7 +59,6 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.device.ScreenSettings
 import javax.inject.Inject
 
 class WorkspaceViewHolder(val layout: ViewGroup): RecyclerView.ViewHolder(layout)
@@ -71,7 +71,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         return WorkspaceViewHolder(view)
     }
 
-    override fun getItemId(position: Int): Long = items[position].id
+    override fun getItemId(position: Int): Long = items[position].id.uuid!!.mostSignificantBits
 
     override fun getItemCount() = items.size
 
@@ -100,7 +100,8 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         dragHolder.setColorFilter(workspaceColor)
 
         layout.setOnClickListener {
-            activity.goToWorkspace(holder.itemId)
+            val workspaceMap = items.associateBy { it.id.uuid!!.mostSignificantBits }
+            activity.goToWorkspace(workspaceMap[getItemId(position)]!!.id)
         }
         layout.setOnLongClickListener {true}
         dragHolder.setOnTouchListener { v, event ->
@@ -137,8 +138,8 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
 class WorkspaceSelectorActivity: ActivityBase() {
     private var finished = false
     private var isDirty: Boolean = false
-    private val workspacesToBeDeleted = HashSet<Long>()
-    private val workspacesCreated = HashSet<Long>()
+    private val workspacesToBeDeleted = HashSet<IdType>()
+    private val workspacesCreated = HashSet<IdType>()
     private lateinit var resultIntent: Intent
     @Inject lateinit var windowControl: WindowControl
     internal lateinit var dataSet: MutableList<WorkspaceEntities.Workspace>
@@ -223,9 +224,9 @@ class WorkspaceSelectorActivity: ActivityBase() {
             })
         }
 
-        dataSet = DatabaseContainer.db.workspaceDao().allWorkspaces().toMutableList()
+        dataSet = DatabaseContainer.instance.workspaceDb.workspaceDao().allWorkspaces().toMutableList()
 
-        val workspace = dataSet.find { it.id == windowControl.windowRepository.id }!!
+        val workspace = dataSet.find { it.id == windowControl.windowRepository.id }
 
         val llm = LinearLayoutManager(this)
         binding.run {
@@ -245,9 +246,10 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 finishOk()
             }
             recyclerView.adapter = workspaceAdapter
-            recyclerView.smoothScrollToPosition(dataSet.indexOf(workspace))
+            if(workspace != null) {
+                recyclerView.smoothScrollToPosition(dataSet.indexOf(workspace))
+            }
         }
-
     }
 
     private fun createNewWorkspace() {
@@ -257,12 +259,13 @@ class WorkspaceSelectorActivity: ActivityBase() {
             .setPositiveButton(R.string.okay) { d, _ ->
                 val windowRepository = windowControl.windowRepository
                 val newWorkspaceEntity = WorkspaceEntities.Workspace(
-                    name.text.toString(), null, 0,
-                    windowRepository.orderNumber,
-                    windowRepository.textDisplaySettings,
-                    windowRepository.workspaceSettings
+                    name = name.text.toString(),
+                    contentsText = null,
+                    orderNumber = windowRepository.orderNumber,
+                    textDisplaySettings = windowRepository.textDisplaySettings,
+                    workspaceSettings = windowRepository.workspaceSettings
                 ).apply {
-                    id = dao.insertWorkspace(this)
+                    dao.insertWorkspace(this)
                 }
                 // To make sure keyboard is closed first
                 lifecycleScope.launch(Dispatchers.Main) {
@@ -445,7 +448,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         CommonUtils.fixAlertDialogButtons(dialog)
     }
 
-    private val dao get() = DatabaseContainer.db.workspaceDao()
+    private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
     override fun onBackPressed() {
         cancelChanges()
@@ -480,13 +483,13 @@ class WorkspaceSelectorActivity: ActivityBase() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun goToWorkspace(itemId: Long) {
+    fun goToWorkspace(itemId: IdType) {
         fun apply(save: Boolean) {
             if(save)
                 applyChanges()
             else
                 cancelChanges()
-            resultIntent.putExtra("workspaceId", itemId)
+            resultIntent.putExtra("workspaceId", itemId.toString())
             finishOk()
         }
         if(isDirty) {

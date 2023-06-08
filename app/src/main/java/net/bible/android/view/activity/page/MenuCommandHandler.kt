@@ -47,6 +47,7 @@ import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.settings.SettingsActivity
+import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
@@ -176,7 +177,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                     mainBibleActivity.lifecycleScope.launch (Dispatchers.Main) {
                         val result = mainBibleActivity.awaitIntent(intent)
                         if(result.resultCode == Activity.RESULT_OK) {
-                            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         }
                     }
@@ -259,6 +260,10 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                 }
                 R.id.needHelp -> {
                     CommonUtils.openLink(needHelpLink)
+                    isHandled = true
+                }
+                R.id.googleDriveSync -> {
+                    handlerIntent = Intent(mainBibleActivity, SyncSettingsActivity::class.java)
                     isHandled = true
                 }
             }

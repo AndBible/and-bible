@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -17,7 +17,7 @@
 /**
  *
  */
-package net.bible.service.db.mynote
+package net.bible.android.database.migrations
 
 import android.provider.BaseColumns
 import android.util.Log
@@ -30,7 +30,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MyNoteDatabaseDefinition
+class DEPRECATED_MyNoteDatabaseDefinition
 /**
  * Private constructor, callers except unit tests should obtain an instance through
  * { link #getInstance(android.content.Context)} instead.
@@ -92,13 +92,13 @@ private constructor() {
 
     companion object {
         private const val TAG = "MyNoteDatabaseDef"
-        private var sSingleton: MyNoteDatabaseDefinition? = null
+        private var sSingleton: DEPRECATED_MyNoteDatabaseDefinition? = null
         @JvmStatic
 		@get:Synchronized
-        val instance: MyNoteDatabaseDefinition
+        val instance: DEPRECATED_MyNoteDatabaseDefinition
             get() {
                 if (sSingleton == null) {
-                    sSingleton = MyNoteDatabaseDefinition()
+                    sSingleton = DEPRECATED_MyNoteDatabaseDefinition()
                 }
                 return sSingleton!!
             }

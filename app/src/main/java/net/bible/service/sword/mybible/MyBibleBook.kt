@@ -17,8 +17,8 @@
 
 package net.bible.service.sword.mybible
 
-import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
+import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import net.bible.android.SharedConstants
 import net.bible.service.sword.SqliteSwordDriver
@@ -163,7 +163,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
                 category = category,
                 hasStrongsDef = hasStrongsDef,
                 hasStrongs = hasStrongs,
-                moduleFileName = db.path,
+                moduleFileName = db.path!!,
             )
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)

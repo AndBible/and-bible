@@ -82,7 +82,7 @@ class WindowButtonWidget(
 
     private fun updateSettings() = binding.apply {
         val syncVisibility =
-            if (window !== null && window.isSyncable && window.isSynchronised && !isMaximised)
+            if (window != null && window.isSyncable && window.isSynchronised && !isMaximised)
                 View.VISIBLE
             else View.INVISIBLE
         synchronize.visibility = syncVisibility

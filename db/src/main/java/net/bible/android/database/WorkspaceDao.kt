@@ -19,35 +19,37 @@ package net.bible.android.database
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 
 @Dao
 interface WorkspaceDao {
-    @Insert
-    fun insertWorkspace(workspace: WorkspaceEntities.Workspace): Long
+    @Insert fun insertWorkspace(workspace: WorkspaceEntities.Workspace)
 
-    @Update
-    fun updateWorkspace(workspace: WorkspaceEntities.Workspace)
+    @Update fun updateWorkspace(workspace: WorkspaceEntities.Workspace)
 
     @Transaction
-    fun cloneWorkspace(workspaceId: Long, newName: String): WorkspaceEntities.Workspace {
+    fun cloneWorkspace(workspaceId: IdType, newName: String): WorkspaceEntities.Workspace {
         val oldWorkspace = workspace(workspaceId)
             ?: return WorkspaceEntities.Workspace(newName).apply {
-                id = insertWorkspace(this)
+                insertWorkspace(this)
             }
-        val newWorkspace = WorkspaceEntities.Workspace(newName, oldWorkspace.contentsText, 0,
-            oldWorkspace.orderNumber, oldWorkspace.textDisplaySettings, oldWorkspace.workspaceSettings)
-        newWorkspace.id = insertWorkspace(newWorkspace)
+        val newWorkspace = WorkspaceEntities.Workspace(
+            name = newName,
+            contentsText = oldWorkspace.contentsText,
+            orderNumber = oldWorkspace.orderNumber,
+            textDisplaySettings = oldWorkspace.textDisplaySettings,
+            workspaceSettings = oldWorkspace.workspaceSettings
+        )
+        insertWorkspace(newWorkspace)
 
         val windows = windows(oldWorkspace.id)
         for (it in windows) {
             val pageManager = pageManager(it.id)
             it.workspaceId = newWorkspace.id
-            it.id = 0
-            it.id = insertWindow(it)
+            it.id = IdType()
+            insertWindow(it)
             if(pageManager != null) {
                 pageManager.windowId = it.id
                 insertPageManager(pageManager)
@@ -55,35 +57,33 @@ interface WorkspaceDao {
         }
         return newWorkspace
     }
-    @Insert
-    fun insertPageManager(pageManager: WorkspaceEntities.PageManager)
+    @Insert fun insertPageManager(pageManager: WorkspaceEntities.PageManager)
 
-    @Insert
-    fun insertWindow(window: WorkspaceEntities.Window): Long
+    @Insert fun insertWindow(window: WorkspaceEntities.Window)
 
-    @Insert
-    fun insertWindows(windows: List<WorkspaceEntities.Window>): Array<Long>
+    @Insert fun insertWindows(windows: List<WorkspaceEntities.Window>)
 
-    @Insert
-    fun insertHistoryItems(historyItems: List<WorkspaceEntities.HistoryItem>)
+    @Insert fun insertHistoryItems(historyItems: List<WorkspaceEntities.HistoryItem>)
+
+    @Update fun updateWindows(windows: List<WorkspaceEntities.Window>)
 
     @Update
-    fun updateWindows(windows: List<WorkspaceEntities.Window>)
-
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     fun updatePageManagers(pageManagers: List<WorkspaceEntities.PageManager>)
 
     @Query("DELETE FROM Workspace WHERE id = :workspaceId")
-    fun deleteWorkspace(workspaceId: Long)
+    fun deleteWorkspace(workspaceId: IdType)
 
     @Query("DELETE from Window WHERE id = :windowId")
-    fun deleteWindow(windowId: Long)
+    fun deleteWindow(windowId: IdType)
 
     @Query("DELETE from HistoryItem WHERE windowId = :windowId")
-    fun deleteHistoryItems(windowId: Long)
+    fun deleteHistoryItems(windowId: IdType)
+
+    @Query("SELECT * from Window")
+    fun allWindows(): List<WorkspaceEntities.Window>
 
     @Query("SELECT * from Workspace WHERE id = :workspaceId")
-    fun workspace(workspaceId: Long): WorkspaceEntities.Workspace?
+    fun workspace(workspaceId: IdType): WorkspaceEntities.Workspace?
 
     @Query("SELECT * from Workspace LIMIT 1")
     fun firstWorkspace(): WorkspaceEntities.Workspace?
@@ -92,16 +92,16 @@ interface WorkspaceDao {
     fun allWorkspaces(): List<WorkspaceEntities.Workspace>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId ORDER BY orderNumber ")
-    fun windows(workspaceId: Long): List<WorkspaceEntities.Window>
+    fun windows(workspaceId: IdType): List<WorkspaceEntities.Window>
 
     @Query("SELECT * from PageManager WHERE windowId = :windowId")
-    fun pageManager(windowId: Long): WorkspaceEntities.PageManager?
+    fun pageManager(windowId: IdType): WorkspaceEntities.PageManager?
 
     @Query("SELECT * from HistoryItem WHERE windowId = :windowId ORDER BY createdAt")
-    fun historyItems(windowId: Long): List<WorkspaceEntities.HistoryItem>
+    fun historyItems(windowId: IdType): List<WorkspaceEntities.HistoryItem>
 
     @Transaction
-    fun updateHistoryItems(windowId: Long, entities: List<WorkspaceEntities.HistoryItem>) {
+    fun updateHistoryItems(windowId: IdType, entities: List<WorkspaceEntities.HistoryItem>) {
         deleteHistoryItems(windowId)
         insertHistoryItems(entities)
     }

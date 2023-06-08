@@ -32,11 +32,10 @@
         group="journal-entries"
         ghost-class="drag-ghost"
         chosen-class="drag-chosen"
-        :item-key="journalItemKey"
     >
       <template #item="{element: j}">
         <div
-            :id="`o-${studyPadOrdinal(j)}`"
+            :id="`o-${j.hashCode}`"
             :data-ordinal="studyPadOrdinal(j)"
             class="ordinal"
         >
@@ -113,11 +112,11 @@ function editLastNote() {
 }
 
 const {
-    journalTextEntries, updateBookmarkToLabels, updateJournalTextEntries,
-    updateJournalOrdering, deleteJournal, bookmarkToLabels
+    journalTextEntries, updateBookmarkToLabels, updateStudyPadTextEntries,
+    updateStudyPadOrdering, deleteJournal, bookmarkToLabels
 } = journal;
 
-updateJournalTextEntries(...journalTextEntries_);
+updateStudyPadTextEntries(...journalTextEntries_);
 updateBookmarkToLabels(...bookmarkToLabels_)
 
 const globalBookmarks = inject(globalBookmarksKey)!;
@@ -166,29 +165,29 @@ const adding = ref(false);
 
 const lastEntry = computed(() => journalEntries.value[journalEntries.value.length - 1]);
 
-setupEventBusListener("add_or_update_journal", async (
+setupEventBusListener("add_or_update_study_pad", async (
     {
-        journal,
+        studyPadTextEntry,
         bookmarkToLabelsOrdered,
-        journalsOrdered
+        studyPadItemsOrdered
     }: {
-        journal: StudyPadTextItem,
+        studyPadTextEntry: StudyPadTextItem,
         bookmarkToLabelsOrdered: BookmarkToLabel[],
-        journalsOrdered: StudyPadTextItem[]
+        studyPadItemsOrdered: StudyPadTextItem[]
     }) =>
 {
-    if (journal && adding.value) {
-        journal.new = true
+    if (studyPadTextEntry && adding.value) {
+        studyPadTextEntry.new = true
         adding.value = false;
     }
     updateBookmarkToLabels(...bookmarkToLabelsOrdered);
-    updateJournalOrdering(...journalsOrdered);
-    if (journal) {
-        updateJournalTextEntries(journal);
+    updateStudyPadOrdering(...studyPadItemsOrdered);
+    if (studyPadTextEntry) {
+        updateStudyPadTextEntries(studyPadTextEntry);
     }
     await nextTick();
-    if (journal && journal.new) {
-        scrollToId(`studypad-${journal.type}-${journal.id}`, {duration: 300, onlyIfInvisible: true})
+    if (studyPadTextEntry && studyPadTextEntry.new) {
+        scrollToId(`o-${studyPadTextEntry.hashCode}`, {duration: 300, onlyIfInvisible: true})
     }
 })
 
@@ -196,7 +195,7 @@ setupEventBusListener("add_or_update_bookmark_to_label", (bookmarkToLabel: Bookm
     updateBookmarkToLabels(bookmarkToLabel);
 })
 
-setupEventBusListener("delete_journal", (journalId: number) => {
+setupEventBusListener("delete_study_pad", (journalId: number) => {
     deleteJournal(journalId)
 })
 
@@ -223,14 +222,8 @@ const labelNameStyle = computed(() => {
 });
 
 function studyPadOrdinal(journalEntry: StudyPadItem) {
-    if (journalEntry.type === "bookmark") {
-        return journalEntry.id;
-    } else {
-        return journalEntry.id + 10000;
-    }
+    return journalEntry.hashCode
 }
-
-const journalItemKey = (e: StudyPadItem) => `studypad-${e.type}-${e.id}`
 
 const {strings} = useCommon()
 </script>

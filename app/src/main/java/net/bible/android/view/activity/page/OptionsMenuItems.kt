@@ -28,6 +28,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
+import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
@@ -411,17 +412,17 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
 class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types): Preference(settings, type) {
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ManageLabels::class.java)
-        val originalValues = value as List<Long>
+        val originalValues = value as List<String>
 
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.HIDELABELS,
-            selectedLabels = originalValues.toMutableSet(),
+            selectedLabels = originalValues.map{ IdType(it) }.toMutableSet(),
             isWindow = settings.windowId != null
         ).applyFrom(windowRepository.workspaceSettings).toJSON())
         activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             if(result.resultCode == Activity.RESULT_OK) {
-                val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                 if(resultData.reset) {
                     setNonSpecific()
                     onReset?.invoke()
@@ -448,7 +449,7 @@ class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSet
         activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             if(result.resultCode == Activity.RESULT_OK) {
-                val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                 if (resultData.reset) {
                     workspaceSettings.autoAssignLabels = mutableSetOf()
                     workspaceSettings.favouriteLabels = mutableSetOf()

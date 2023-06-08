@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -14,23 +14,24 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+
 package net.bible.android.database
 
+
 import android.util.Base64
-import androidx.room.Database
-import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
-import androidx.room.TypeConverters
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.serializer
-import net.bible.android.database.bookmarks.BookmarkDao
-import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.database.readingplan.ReadingPlanDao
-import net.bible.android.database.readingplan.ReadingPlanEntities
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
@@ -42,14 +43,98 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.util.Date
+import java.util.UUID
 
-import java.util.*
+object UUIDSerializer : KSerializer<UUID> {
+    override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
+    override fun deserialize(decoder: Decoder): UUID = UUID.fromString(decoder.decodeString())
+    override fun serialize(encoder: Encoder, value: UUID) = encoder.encodeString(value.toString())
+}
 
-const val DATABASE_VERSION = 68
+object IdTypeSerializer : KSerializer<IdType> {
+    override val descriptor = PrimitiveSerialDescriptor("IdType", PrimitiveKind.STRING)
+    override fun deserialize(decoder: Decoder): IdType = IdType(UUID.fromString(decoder.decodeString()))
+    override fun serialize(encoder: Encoder, value: IdType) = encoder.encodeString(value.toString())
+}
+
+@Serializable(with = IdTypeSerializer::class)
+data class IdType(
+    @Serializable(with = UUIDSerializer::class)
+    val uuid: UUID? = UUID.randomUUID(),
+): Comparable<IdType> {
+    constructor(s: String?): this(if(s == null) null else try {UUID.fromString(s)} catch (e: IllegalArgumentException) {null})
+    override fun compareTo(other: IdType): Int = compareValuesBy(this, other) {it.uuid}
+    override fun toString(): String {
+        return uuid?.toString()?: ""
+    }
+    fun isEmpty() = uuid == null
+    fun isNotEmpty() = uuid != null
+
+    override fun hashCode(): Int {
+        val uuid = this.uuid?: return this.hashCode()
+        val hilo: Long = uuid.mostSignificantBits xor uuid.leastSignificantBits
+        return (hilo shr 32).toInt() xor hilo.toInt()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if(other !is IdType) return false
+        return this.uuid == other.uuid
+    }
+
+    companion object {
+        fun empty() = IdType(null as String?)
+        fun fromString(value: String) = if(value.isEmpty()) IdType.empty() else IdType(UUID.fromString(value))
+        fun fromByteArray(value: ByteArray) = Converters().blobToIdType(value)
+    }
+}
 
 class Converters {
     @TypeConverter
     fun toLabelType(value: String?) = if(value==null) null else LabelType.valueOf(value)
+
+    @TypeConverter
+    fun idTypeToBlob(value: IdType?): ByteArray? {
+        if(value == null) return null
+        val uuid = value.uuid ?: return null
+        val l1 = uuid.mostSignificantBits
+        val l2 = uuid.leastSignificantBits
+
+        var l = l1
+        val result = ByteArray(16)
+        for (i in 8 - 1 downTo 0) {
+            result[i] = (l and 0xFFL).toByte()
+            l = l shr java.lang.Byte.SIZE
+        }
+        l = l2
+        for (i in 16 - 1 downTo 8) {
+            result[i] = (l and 0xFFL).toByte()
+            l = l shr java.lang.Byte.SIZE
+        }
+        return result
+    }
+
+    @TypeConverter
+    fun blobToIdType(value: ByteArray?): IdType? {
+        if(value==null) return null
+        if(value.size == 1) {
+            return IdType.empty()
+        }
+        if(value.size != 16) {
+            throw RuntimeException("Blob size != 16 but ${value.size}")
+        }
+        var bits1 = 0L
+        for (i in 0 until 8) {
+            bits1 = bits1 shl java.lang.Byte.SIZE
+            bits1 = bits1 or (value[i].toInt() and 0xFF).toLong()
+        }
+        var bits2 = 0L
+        for (i in 8 until 16) {
+            bits2 = bits2 shl java.lang.Byte.SIZE
+            bits2 = bits2 or (value[i].toInt() and 0xFF).toLong()
+        }
+        return IdType(UUID(bits1, bits2))
+    }
 
     @TypeConverter
     fun fromLabelType(value: LabelType?) = value?.name
@@ -145,6 +230,19 @@ class Converters {
     }
 
     @TypeConverter
+    fun strToList4(s: String?): List<IdType>? {
+        if(s == null) return null
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun listToStr4(obj: List<IdType>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+
+    @TypeConverter
     fun strToList1(s: String?): List<Long>? {
         if(s == null) return null
         return json.decodeFromString(serializer(), s)
@@ -157,6 +255,18 @@ class Converters {
     }
 
     @TypeConverter
+    fun strToList3(s: String?): List<String>? {
+        if(s == null) return null
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun listToStr3(obj: List<String>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
     fun strToList2(s: String?): MutableList<WorkspaceEntities.RecentLabel> {
         if(s == null) return mutableListOf()
         return json.decodeFromString(serializer(), s)
@@ -164,6 +274,18 @@ class Converters {
 
     @TypeConverter
     fun listToStr2(obj: List<WorkspaceEntities.RecentLabel>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
+    fun strToSet3(s: String?): MutableSet<IdType> {
+        if(s == null) return mutableSetOf()
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun setToStr3(obj: Set<IdType>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
@@ -190,48 +312,5 @@ class Converters {
     fun setToStr2(obj: Set<String>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
-    }
-}
-
-@Database(
-    entities = [
-        BookmarkEntities.Bookmark::class,
-        BookmarkEntities.Label::class,
-        BookmarkEntities.StudyPadTextEntry::class,
-        BookmarkEntities.BookmarkToLabel::class,
-        ReadingPlanEntities.ReadingPlan::class,
-        ReadingPlanEntities.ReadingPlanStatus::class,
-        WorkspaceEntities.Workspace::class,
-        WorkspaceEntities.Window::class,
-        WorkspaceEntities.HistoryItem::class,
-        WorkspaceEntities.PageManager::class,
-        DocumentSearch::class,
-        CustomRepository::class,
-        SwordDocumentInfo::class,
-        BooleanSetting::class,
-        StringSetting::class,
-        LongSetting::class,
-        DoubleSetting::class,
-    ],
-    version = DATABASE_VERSION
-)
-@TypeConverters(Converters::class)
-abstract class AppDatabase: RoomDatabase() {
-    abstract fun readingPlanDao(): ReadingPlanDao
-    abstract fun workspaceDao(): WorkspaceDao
-    abstract fun bookmarkDao(): BookmarkDao
-    abstract fun documentDao(): DocumentSearchDao
-    abstract fun swordDocumentInfoDao(): SwordDocumentInfoDao
-    abstract fun booleanSettingDao(): BooleanSettingDao
-    abstract fun stringSettingDao(): StringSettingDao
-    abstract fun longSettingDao(): LongSettingDao
-    abstract fun doubleSettingDao(): DoubleSettingDao
-    abstract fun customRepositoryDao(): CustomRepositoryDao
-
-    fun sync() { // Sync all data so far into database file
-        val cur = openHelper.writableDatabase
-            .query("PRAGMA wal_checkpoint(FULL)")
-        cur.moveToFirst()
-        cur.close()
     }
 }

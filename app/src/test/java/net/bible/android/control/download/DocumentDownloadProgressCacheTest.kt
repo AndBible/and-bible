@@ -22,6 +22,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.widget.ProgressBar
 import net.bible.android.TEST_SDK
+import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.event.ABEventBus
@@ -47,7 +48,7 @@ import java.io.IOException
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk=[TEST_SDK])
+@Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class DocumentDownloadProgressCacheTest {
     private var documentDownloadProgressCache: DocumentDownloadProgressCache? = null
     private var testData: TestData? = null

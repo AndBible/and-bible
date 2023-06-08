@@ -24,6 +24,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -48,18 +49,18 @@ import javax.inject.Inject
 @ApplicationScope
 class HistoryManager @Inject constructor(private val windowControl: WindowControl) {
 
-    private val windowHistoryStackMap = HashMap<Long, Stack<HistoryItem>>()
+    private val windowHistoryStackMap = HashMap<IdType, Stack<HistoryItem>>()
 
     private var isGoingBack = false
 
     // reverse so most recent items are at top rather than end
-    fun getHistory(windowId: Long): List<HistoryItem> {
+    fun getHistory(windowId: IdType): List<HistoryItem> {
         val allHistory = ArrayList(getHistoryStack(windowId))
         allHistory.reverse()
         return allHistory
     }
 
-    private fun getHistoryStack(windowNo: Long): Stack<HistoryItem> {
+    private fun getHistoryStack(windowNo: IdType): Stack<HistoryItem> {
         var historyStack = windowHistoryStackMap[windowNo]
         if (historyStack == null) {
             synchronized(windowHistoryStackMap) {
@@ -73,7 +74,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
         return historyStack!!
     }
 
-    fun getEntities(windowId: Long): List<WorkspaceEntities.HistoryItem> {
+    fun getEntities(windowId: IdType): List<WorkspaceEntities.HistoryItem> {
         var lastItem: KeyHistoryItem? = null
         return windowHistoryStackMap[windowId]?.mapNotNull {
             if (it is KeyHistoryItem) {
@@ -221,7 +222,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
 
     companion object {
 
-        private const val MAX_HISTORY = 500
+        const val MAX_HISTORY = 500
 
         private val TAG = "HistoryManager"
     }

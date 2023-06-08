@@ -17,6 +17,7 @@
   -->
 
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <files-path name="andBibleDatabase.db" path="backup"/>
-    <files-path name="logcat.txt.gz" path="log"/>
+    <files-path name="internal backup dir" path="backup"/>
+    <files-path name="automatic database backups" path="database_backups/"/>
+    <files-path name="logcat.txt.gz and screenshot" path="log"/>
 </paths>

@@ -19,7 +19,7 @@ package net.bible.android.view.activity.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Instrumentation.ActivityResult
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -29,9 +29,14 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.util.UiUtils.setActionBarColor
@@ -340,6 +345,23 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     val preferences get() = CommonUtils.settings
+
+    private var deferredActivityResult = CompletableDeferred<ActivityResult>()
+    private val deferredActivityResultMutex = Mutex()
+
+    private val intentSenderLauncher =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+            deferredActivityResult.complete(it)
+        }
+    suspend fun awaitPendingIntent(pendingIntent: PendingIntent): ActivityResult = deferredActivityResultMutex.withLock {
+        val defer = CompletableDeferred<ActivityResult>()
+        deferredActivityResult = defer
+        intentSenderLauncher.launch(
+            IntentSenderRequest.Builder(pendingIntent.intentSender).build()
+        )
+        return defer.await()
+    }
+
 
     private fun refreshScreenKeepOn() {
         val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)

@@ -36,6 +36,7 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.DaggerActivityComponent
@@ -173,7 +174,7 @@ class SpeakWidgetManager {
         val views = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget)
 
         views.removeAllViews(R.id.layout)
-        fun addButton(name: String, b: BookmarkEntities.Bookmark?) {
+        fun addButton(name: String, b: BookmarkEntities.BookmarkWithNotes?) {
             val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
             button.setTextViewText(R.id.button, name)
             if(b != null) {
@@ -342,7 +343,7 @@ class SpeakWidgetManager {
             if (intent?.action == ACTION_BOOKMARK) {
                 val bookmarkId = intent.data?.host ?: return
                 Log.i(TAG, "onReceive osisRef $bookmarkId")
-                val dto = bookmarkControl.bookmarksByIds(listOf(bookmarkId.toLong())).first()
+                val dto = bookmarkControl.bookmarksByIds(listOf(IdType(bookmarkId))).first()
                 speakControl.speakFromBookmark(dto)
             }
         }

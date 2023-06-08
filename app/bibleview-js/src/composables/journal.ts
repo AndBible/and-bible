@@ -31,7 +31,7 @@ export function useJournal(label: Label) {
         }
     });
 
-    function updateJournalTextEntries(...entries: StudyPadTextItem[]) {
+    function updateStudyPadTextEntries(...entries: StudyPadTextItem[]) {
         for (const e of entries)
             if (e.labelId === label.id)
                 journalTextEntries.set(e.id, e);
@@ -43,7 +43,7 @@ export function useJournal(label: Label) {
                 bookmarkToLabels.set(e.bookmarkId, e);
     }
 
-    function updateJournalOrdering(...entries: StudyPadTextItem[]) {
+    function updateStudyPadOrdering(...entries: StudyPadTextItem[]) {
         for (const e of entries) {
             journalTextEntries.get(e.id).orderNumber = e.orderNumber;
         }
@@ -55,8 +55,8 @@ export function useJournal(label: Label) {
 
     return {
         journalTextEntries,
-        updateJournalTextEntries,
-        updateJournalOrdering,
+        updateStudyPadTextEntries,
+        updateStudyPadOrdering,
         updateBookmarkToLabels,
         bookmarkToLabels,
         deleteJournal

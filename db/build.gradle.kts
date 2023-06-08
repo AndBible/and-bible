@@ -20,6 +20,7 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("kotlinx-serialization")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -70,14 +71,20 @@ dependencies {
     val jswordVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
     val roomVersion: String by rootProject.extra
+    val coreKtxVersion: String by rootProject.extra
+    val sqliteAndroidVersion: String by rootProject.extra
 
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("com.github.AndBible:jsword:$jswordVersion")
+    implementation("com.github.AndBible:jsword:$jswordVersion") {
+        exclude("org.apache.httpcomponents")
+    }
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
+    implementation("androidx.core:core-ktx:$coreKtxVersion")
+    implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
 
     kapt("androidx.room:room-compiler:$roomVersion")
 }

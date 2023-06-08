@@ -26,6 +26,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.AbstractSpeakTests
@@ -81,12 +82,11 @@ class WindowTest {
         val pageManager = mockCurrentPageManagerProvider.get()
         var window = Window(
             WorkspaceEntities.Window(
-                workspaceId = 0,
+                workspaceId = IdType(),
                 isSynchronized = true,
                 isPinMode = false,
                 isLinksWindow = false,
                 windowLayout = WorkspaceEntities.WindowLayout(WindowState.MINIMISED.toString()),
-                id = 2
             ),
             pageManager,
             windowRepository
@@ -105,7 +105,6 @@ class WindowTest {
         val newPm = mockCurrentPageManagerProvider.get()
         // recreate window from saved state
         window = Window(entity, newPm, windowRepository)
-        assertThat(window.id, equalTo(2L))
         assertThat(window.windowState, equalTo(WindowState.MINIMISED))
         assertThat(window.isSynchronised, equalTo(true))
         assertThat(window.weight, equalTo(1.23456f))
