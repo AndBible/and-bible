@@ -1125,17 +1125,20 @@
     <string name="db_repositories">Repositories and related settings</string>
     <string name="db_bookmarks">Bookmarks, My Notes, Labels and Study Pads</string>
     <string name="synchronizing">Synchronizing devices…</string>
-    <string name="sync_locked">Google Drive sync locked by another device</string>
-    <string name="overrideBackup">Existing database that this device is not synchronized to is found in Google Drive. Database contains %s. What do you want to do?</string>
+    <string name="overrideBackup">
+        Existing database that this device is not synchronized to is found in Cloud.
+        Database contains %s. What do you want to do?
+    </string>
     <string name="reading_plans_content">Reading plans and their statuses</string>
     <string name="bookmarks_contents">Bookmarks, Labels and Study Pads</string>
     <string name="workspaces_contents">Workspaces and Windows</string>
-    <string name="gdrive_fetch_and_restore_initial">Copy database from Google Drive</string>
-    <string name="gdrive_create_new">Copy database to Google Drive</string>
-    <string name="gdrive_disable_sync">Cancel &amp; disable sync</string>
-    <string name="gdrive_title">Device synchronization via Google Drive</string>
+
+    <string name="cloud_fetch_and_restore_initial">Copy from this device to Cloud</string>
+    <string name="cloud_create_new">Copy from Cloud to this device</string>
+    <string name="cloud_disable_sync">Cancel &amp; disable synchronization</string>
+    <string name="cloud_sync_title">Device synchronization</string>
     <string name="device_sync">Synchronize devices</string>
-    <string name="reset_sync">Reset</string>
+    <string name="reset_sync">Sign out &amp; reset</string>
     <string name="prefs_reset_sync_summary">
         Disable synchronizing and reset related stored settings. If you re-enable synchronizing,
         you will be asked if you upload your current database to cloud or download from cloud.

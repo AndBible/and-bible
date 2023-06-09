@@ -132,15 +132,15 @@ object DeviceSynchronize {
                         suspendCoroutine {
                             val containsStr = activity.getString(dbDef.category.contentDescription)
                             AlertDialog.Builder(activity)
-                                .setTitle(R.string.gdrive_title)
+                                .setTitle(R.string.cloud_sync_title)
                                 .setMessage(activity.getString(R.string.overrideBackup, containsStr))
-                                .setPositiveButton(R.string.gdrive_fetch_and_restore_initial) { _, _ ->
+                                .setPositiveButton(R.string.cloud_fetch_and_restore_initial) { _, _ ->
                                     it.resume(InitialOperation.FETCH_INITIAL)
                                 }
-                                .setNegativeButton(R.string.gdrive_create_new) { _, _ ->
+                                .setNegativeButton(R.string.cloud_create_new) { _, _ ->
                                     it.resume(InitialOperation.CREATE_NEW)
                                 }
-                                .setNeutralButton(R.string.gdrive_disable_sync) { _, _ ->
+                                .setNeutralButton(R.string.cloud_disable_sync) { _, _ ->
                                     it.resume(null)
                                 }
                                 .create()
