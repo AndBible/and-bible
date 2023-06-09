@@ -73,8 +73,26 @@ object DeviceSynchronize {
 
     val signedIn get() = adapter.signedIn
 
-    suspend fun signIn(activity: ActivityBase) = adapter.signIn(activity)
-    suspend fun signOut() = adapter.signOut()
+    private val signInMutex = Mutex()
+    suspend fun signIn(activity: ActivityBase): Boolean {
+        if(signInMutex.isLocked) {
+            Log.i(TAG, "Already signing in!")
+            return false
+        }
+        return signInMutex.withLock {
+            adapter.signIn(activity)
+        }
+    }
+    suspend fun signOut() {
+        adapter.signOut()
+        DatabaseContainer.dbDefFactories.asyncMap {
+            val dbDef = it.invoke()
+            val category = dbDef.category
+            category.enabled = false
+            dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
+            dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+        }
+    }
 
     enum class InitialOperation {FETCH_INITIAL, CREATE_NEW}
     private val uiMutex = Mutex()
@@ -106,9 +124,9 @@ object DeviceSynchronize {
             }
 
             if (initialOperation == InitialOperation.FETCH_INITIAL) {
-                Log.i(TAG, "uiMutex ahead...")
+                Log.i(TAG, "uiMutex ahead ${dbDef.categoryName}...")
                 initialOperation = uiMutex.withLock {
-                    Log.i(TAG, "... got through uiMutex!")
+                    Log.i(TAG, "... got through uiMutex ${dbDef.categoryName}!")
                     val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
                     withContext(Dispatchers.Main) {
                         suspendCoroutine {

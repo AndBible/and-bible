@@ -1135,4 +1135,10 @@
     <string name="gdrive_disable_sync">Cancel &amp; disable sync</string>
     <string name="gdrive_title">Device synchronization via Google Drive</string>
     <string name="device_sync">Synchronize devices</string>
+    <string name="reset_sync">Reset</string>
+    <string name="prefs_reset_sync_summary">
+        Disable synchronizing and reset related stored settings. If you re-enable synchronizing,
+        you will be asked if you upload your current database to cloud or download from cloud.
+    </string>
+    <string name="sync_confirmation">Are you sure that you want to reset synchronization?</string>
 </resources>

@@ -156,7 +156,7 @@ object Dialogs {
         return result
     }
 
-    suspend fun simpleQuestion(context: Context, title: String, message: String) = suspendCoroutine {
+    suspend fun simpleQuestion(context: Context, title: String? = null, message: String? = null) = suspendCoroutine {
         AlertDialog.Builder(context)
             .setTitle(title)
             .setMessage(message)

@@ -45,4 +45,10 @@
 		android:defaultValue="false"
 		android:icon="@drawable/ic_reading_plan_24dp"
 		/>
+	<Preference
+		android:key="gdrive_reset_sync"
+		android:title="@string/reset_sync"
+		android:summary="@string/prefs_reset_sync_summary"
+		android:icon="@drawable/ic_baseline_undo_grey_24"
+		/>
 </PreferenceScreen>
