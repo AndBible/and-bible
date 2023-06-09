@@ -97,5 +97,17 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 true
             }
         }
+        preferenceScreen.findPreference<Preference>("gdrive_info")!!.run {
+            if(!CommonUtils.isGoogleDriveSyncEnabled || !DeviceSynchronize.signedIn) {
+                isVisible = false
+            } else {
+                lifecycleScope.launch {
+                    val bytesUsed = DeviceSynchronize.bytesUsed()
+                    val megaBytesUsed = bytesUsed / (1024.0 * 1024)
+                    summary = getString(R.string.cloud_info_summary, String.format("%.2f", megaBytesUsed))
+                }
+            }
+        }
+
     }
 }

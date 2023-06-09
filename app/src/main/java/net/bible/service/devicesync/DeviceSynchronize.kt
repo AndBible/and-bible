@@ -23,6 +23,7 @@ import android.os.Build
 import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.api.client.util.DateTime
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
@@ -89,8 +90,8 @@ object DeviceSynchronize {
             val dbDef = it.invoke()
             val category = dbDef.category
             category.enabled = false
-            dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
-            dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+            dbDef.dao.clearSyncStatus()
+            dbDef.dao.clearSyncConfiguration()
         }
     }
 
@@ -249,7 +250,13 @@ object DeviceSynchronize {
 
     private val syncMutex = Mutex()
 
-    fun start() {
+    fun start(): CompletableDeferred<Boolean> {
+        if(syncStarted != null || syncMutex.isLocked) {
+           Log.i(TAG, "Sync already started!")
+        }
+        val syncStarted = CompletableDeferred<Boolean>()
+        this.syncStarted = syncStarted
+
         val intent = Intent(application, SyncService::class.java)
         intent.action = SyncService.START_SERVICE
 
@@ -260,9 +267,13 @@ object DeviceSynchronize {
         else {
             application.startService(intent)
         }
+        return syncStarted
     }
 
+    private var syncStarted: CompletableDeferred<Boolean>? = null
+
     suspend fun waitUntilFinished() {
+        syncStarted?.await()
         syncMutex.withLock {  }
     }
 
@@ -276,6 +287,8 @@ object DeviceSynchronize {
             return@withContext
         }
         syncMutex.withLock {
+            syncStarted?.complete(true)
+            syncStarted = null
             Log.i(TAG, "Synchronizing starts")
             val timerStart = System.currentTimeMillis()
 
@@ -407,6 +420,12 @@ object DeviceSynchronize {
             val dbDef = it.invoke()
             dbDef.category.enabled && dbDef.hasChanges
         }.any { it }
+
+    suspend fun bytesUsed(): Long =
+        DatabaseContainer.dbDefFactories.asyncMap {
+            val dbDef = it.invoke()
+            dbDef.bytesUsed
+        }.sum()
 
     const val TAG = "GoogleDrive"
 }

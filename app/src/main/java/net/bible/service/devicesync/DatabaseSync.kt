@@ -91,6 +91,9 @@ class SyncableDatabaseDefinition<T: SyncableRoomDatabase>(
         }
     }
 
+    val bytesUsed: Long get() {
+        return dao.totalBytesUsed()
+    }
     val hasChanges: Boolean get() {
         val lastSynchronized = dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
         return dao.countNewLogEntries(lastSynchronized, deviceId) > 0

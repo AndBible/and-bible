@@ -124,6 +124,8 @@ interface SyncDao {
 
     @Query("SELECT * from SyncStatus WHERE sourceDevice=:name AND patchNumber=:patchNumber")
     fun syncStatus(name: String, patchNumber: Long): SyncStatus?
+    @Query("SELECT SUM(sizeBytes) from SyncStatus")
+    fun totalBytesUsed(): Long
 }
 
 

@@ -1144,4 +1144,6 @@
         you will be asked if you upload your current database to cloud or download from cloud.
     </string>
     <string name="sync_confirmation">Are you sure that you want to reset synchronization?</string>
+    <string name="cloud_info">Cloud information</string>
+    <string name="cloud_info_summary">Data in cloud storage: %s Mb</string>
 </resources>
