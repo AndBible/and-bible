@@ -78,7 +78,7 @@ class SyncService: Service() {
             } else {
                 val channel = NotificationChannel(
                     SYNC_NOTIFICATION_CHANNEL,
-                    getString(R.string.device_sync), NotificationManager.IMPORTANCE_LOW
+                    getString(R.string.device_sync), NotificationManager.IMPORTANCE_NONE
                 ).apply {
                     lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 }
@@ -91,23 +91,12 @@ class SyncService: Service() {
             if(BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else SYNC_NOTIFICATION_CHANNEL)
 
 
-        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
-        val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-
         builder
-            .setShowWhen(false)
-            .setContentIntent(contentPendingIntent)
-            .setOnlyAlertOnce(true)
+            .setSmallIcon(R.drawable.ic_sync_white_24dp)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setSilent(true)
+            .setContentTitle(getString(R.string.synchronizing))
 
-        if(CommonUtils.isDiscrete) {
-            builder
-                .setSmallIcon(R.drawable.ic_baseline_headphones_24)
-                .setContentTitle(getString(R.string.speak))
-        } else {
-            builder
-                .setSmallIcon(R.drawable.ic_sync_white_24dp)
-                .setContentTitle(getString(R.string.synchronizing))
-        }
         val notification = builder.build()
         notificationManager.notify(NOTIFICATION_ID, notification)
 
