@@ -59,7 +59,7 @@ class SyncSettingsFragment(val activity: ActivityBase): PreferenceFragmentCompat
                     if (!DeviceSynchronize.signedIn) {
                         val success = DeviceSynchronize.signIn(activity)
                         if (!success) {
-                            category.setStatus(false)
+                            category.enabled = false
                         }
                     }
                     if (DeviceSynchronize.signedIn && category.enabled) {

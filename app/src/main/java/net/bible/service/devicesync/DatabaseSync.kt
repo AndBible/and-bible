@@ -59,8 +59,9 @@ enum class DatabaseCategory {
         )
     }
 
-    val enabled get() = CommonUtils.settings.getBoolean("gdrive_"+ name.lowercase(), false)
-    fun setStatus(newValue: Boolean) = CommonUtils.settings.setBoolean("gdrive_"+name.lowercase(), newValue)
+    var enabled
+        get() = CommonUtils.settings.getBoolean("gdrive_"+ name.lowercase(), false)
+        set(value) = CommonUtils.settings.setBoolean("gdrive_"+name.lowercase(), value)
 
     companion object {
         val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS)

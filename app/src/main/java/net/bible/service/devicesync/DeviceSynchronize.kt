@@ -106,7 +106,9 @@ object DeviceSynchronize {
             }
 
             if (initialOperation == InitialOperation.FETCH_INITIAL) {
+                Log.i(TAG, "uiMutex ahead...")
                 initialOperation = uiMutex.withLock {
+                    Log.i(TAG, "... got through uiMutex!")
                     val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
                     withContext(Dispatchers.Main) {
                         suspendCoroutine {
@@ -115,19 +117,21 @@ object DeviceSynchronize {
                                 .setTitle(R.string.gdrive_title)
                                 .setMessage(activity.getString(R.string.overrideBackup, containsStr))
                                 .setPositiveButton(R.string.gdrive_fetch_and_restore_initial) { _, _ ->
-                                    it.resume(
-                                        InitialOperation.FETCH_INITIAL
-                                    )
+                                    it.resume(InitialOperation.FETCH_INITIAL)
                                 }
-                                .setNegativeButton(R.string.gdrive_create_new) { _, _ -> it.resume(InitialOperation.CREATE_NEW) }
-                                .setNeutralButton(R.string.gdrive_disable_sync) { _, _ -> it.resume(null) }
+                                .setNegativeButton(R.string.gdrive_create_new) { _, _ ->
+                                    it.resume(InitialOperation.CREATE_NEW)
+                                }
+                                .setNeutralButton(R.string.gdrive_disable_sync) { _, _ ->
+                                    it.resume(null)
+                                }
                                 .create()
                                 .show()
                         }
                     }
                 }
                 if (initialOperation == null) {
-                    dbDef.category.setStatus(false)
+                    dbDef.category.enabled = false
                     throw CancelSync()
                 } else {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
