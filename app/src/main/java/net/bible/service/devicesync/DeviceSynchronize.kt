@@ -78,7 +78,7 @@ enum class CloudAdapters {
         GOOGLE_DRIVE -> R.string.adapters_google_drive
     }
     val newAdapter: CloudAdapter get() = when(this) {
-        GOOGLE_DRIVE -> GoogleDrive()
+        GOOGLE_DRIVE -> GoogleDriveCloudAdapter()
     }
 
     companion object {

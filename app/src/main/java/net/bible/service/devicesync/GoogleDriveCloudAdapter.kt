@@ -69,7 +69,7 @@ fun Drive.Files.List.collectAll(): List<DriveFile> {
 private const val FIELDS = "id, name, size, createdTime, parents"
 
 
-class GoogleDrive: CloudAdapter {
+class GoogleDriveCloudAdapter: CloudAdapter {
     private var oneTapClient: SignInClient = Identity.getSignInClient(BibleApplication.application)
     private var account: Account? = null
 
