@@ -105,7 +105,7 @@ class SyncService: Service() {
 
         scope.launch {
             DeviceSynchronize.synchronize()
-            DeviceSynchronize.waitUntilFinished()
+            DeviceSynchronize.waitUntilFinished(true)
             Log.i(TAG, "Synchronize finished")
             wakeLock.release()
             stop()

@@ -276,9 +276,9 @@ object DeviceSynchronize {
 
     private val syncMutex = Mutex()
 
-    fun start(): CompletableDeferred<Boolean> {
-        if(syncStarted != null || syncMutex.isLocked) {
-           Log.i(TAG, "Sync already started!")
+    fun start(): CompletableDeferred<Boolean> = synchronized(this) {
+        if (syncStarted != null || syncMutex.isLocked) {
+            Log.i(TAG, "Sync already started!")
         }
         val syncStarted = CompletableDeferred<Boolean>()
         this.syncStarted = syncStarted
@@ -289,17 +289,18 @@ object DeviceSynchronize {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             application.startForegroundService(intent)
             Log.i(TAG, "Foreground service started")
-        }
-        else {
+        } else {
             application.startService(intent)
         }
-        return syncStarted
+        syncStarted
     }
 
     private var syncStarted: CompletableDeferred<Boolean>? = null
 
-    suspend fun waitUntilFinished() {
-        syncStarted?.await()
+    suspend fun waitUntilFinished(fromService: Boolean = false) {
+        if(!fromService) {
+            syncStarted?.await()
+        }
         syncMutex.withLock {  }
     }
 
