@@ -51,6 +51,11 @@ There are so many ways to contribute to AndBible! See our [contributor guide](ht
 
 AndBible was originally developed by [Martin Denham](https://github.com/mjdenham) (2010-2018)
 
+## Terms of Service and Privacy Policy
+
+- [Terms of Service](https://andbible.org/terms.html)
+- [Privacy Policy](https://andbible.org/privacy.html)
+
 ## Licence
 
 AndBible is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
