@@ -71,7 +71,7 @@ import StudyPadRow from "@/components/StudyPadRow.vue";
 import {androidKey, exportModeKey, globalBookmarksKey, scrollKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
-import {useJournal} from "@/composables/journal";
+import {useStudyPad} from "@/composables/journal";
 import {StudyPadDocument} from "@/types/documents";
 import {BookmarkToLabel, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
 import Color from "color";
@@ -81,7 +81,7 @@ const props = defineProps<{ document: StudyPadDocument }>();
 
 // eslint-disable-next-line vue/no-setup-props-destructure
 const {bookmarks, label, journalTextEntries: journalTextEntries_, bookmarkToLabels: bookmarkToLabels_} = props.document;
-const journal = useJournal(label);
+const journal = useStudyPad(label);
 provide("journal", journal);
 const {scrollToId} = inject(scrollKey)!;
 const android = inject(androidKey)!;
@@ -113,7 +113,7 @@ function editLastNote() {
 
 const {
     journalTextEntries, updateBookmarkToLabels, updateStudyPadTextEntries,
-    updateStudyPadOrdering, deleteJournal, bookmarkToLabels
+    updateStudyPadOrdering, deleteStudyPadTextEntry, bookmarkToLabels
 } = journal;
 
 updateStudyPadTextEntries(...journalTextEntries_);
@@ -128,7 +128,7 @@ const journalEntries: Ref<StudyPadItem[]> = computed({
         () => {
             let entries = [];
             entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)).map(b => {
-                const bookmarkToLabel = bookmarkToLabels.get(b.id);
+                const bookmarkToLabel = bookmarkToLabels.get(b.id)!;
                 return {
                     ...b,
                     orderNumber: bookmarkToLabel.orderNumber,
@@ -141,7 +141,7 @@ const journalEntries: Ref<StudyPadItem[]> = computed({
             entries = sortBy(entries, ['orderNumber']);
             return entries;
         },
-    set(values) {
+    set(values: StudyPadItem[]) {
         let count = 0;
         const changed: StudyPadItem[] = [];
         for (const v of values) {
@@ -195,8 +195,8 @@ setupEventBusListener("add_or_update_bookmark_to_label", (bookmarkToLabel: Bookm
     updateBookmarkToLabels(bookmarkToLabel);
 })
 
-setupEventBusListener("delete_study_pad", (journalId: number) => {
-    deleteJournal(journalId)
+setupEventBusListener("delete_study_pad_text_entry", (studyPadTextEntryId: IdType) => {
+    deleteStudyPadTextEntry(studyPadTextEntryId)
 })
 
 function indentStyle(entry: StudyPadItem) {

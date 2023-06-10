@@ -1371,7 +1371,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: StudyPadTextEntryDeleted) {
         if(firstDocument !is StudyPadDocument) return
         executeJavascriptOnUiThread("""
-            bibleView.emit("delete_study_pad", "${event.studyPadId}");
+            bibleView.emit("delete_study_pad_text_entry", "${event.studyPadTextEntryId}");
         """)
     }
 

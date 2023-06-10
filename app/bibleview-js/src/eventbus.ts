@@ -37,7 +37,7 @@ type EventTypeNames =
     | "back_clicked"
     | "add_or_update_study_pad"
     | "add_or_update_bookmark_to_label"
-    | "delete_study_pad"
+    | "delete_study_pad_text_entry"
     | "config_changed"
     | "reload_addons"
     | "bookmark_note_modified"

@@ -51,7 +51,7 @@ export type CombinedRange = [start: OrdinalOffset, end: OrdinalOffset]
 export type BookmarkToLabel = {
     readonly bookmarkId: IdType
     readonly labelId: IdType
-    readonly orderNumber: number
+    orderNumber: number
     readonly indentLevel: number
     readonly expandContent: boolean
 }

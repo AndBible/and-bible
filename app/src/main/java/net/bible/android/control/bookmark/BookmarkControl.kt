@@ -67,7 +67,7 @@ class StudyPadOrderEvent(
     val studyPadOrderChanged: List<StudyPadTextEntryWithText>
 )
 
-class StudyPadTextEntryDeleted(val studyPadId: IdType)
+class StudyPadTextEntryDeleted(val studyPadTextEntryId: IdType)
 
 val LABEL_ALL_ID = IdType.empty()
 
@@ -284,6 +284,15 @@ open class BookmarkControl @Inject constructor(
             addText(b)
             ABEventBus.post(BookmarkAddedOrUpdatedEvent(b))
         }
+
+        val studyPadTextEntryDeletes = e.updated.filter {
+            (it.type == LogEntryTypes.DELETE && it.tableName == "StudyPadTextEntry")
+        }.map { it.entityId1 }
+
+        for (studyPadTextEntryId in studyPadTextEntryDeletes) {
+            ABEventBus.post(StudyPadTextEntryDeleted(studyPadTextEntryId))
+        }
+
     }
 
     fun deleteLabels(toList: List<IdType>) {

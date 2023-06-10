@@ -19,9 +19,9 @@ import {reactive} from "vue";
 import {setupEventBusListener} from "@/eventbus";
 import {Bookmark, BookmarkToLabel, Label, StudyPadTextItem} from "@/types/client-objects";
 
-export function useJournal(label: Label) {
-    const journalTextEntries = reactive(new Map());
-    const bookmarkToLabels = reactive(new Map());
+export function useStudyPad(label: Label) {
+    const studyPadTextEntries: Map<IdType, StudyPadTextItem> = reactive(new Map());
+    const bookmarkToLabels: Map<IdType, BookmarkToLabel> = reactive(new Map());
 
     setupEventBusListener("add_or_update_bookmarks", (bookmarks: Bookmark[]) => {
         for (const b of bookmarks) {
@@ -34,7 +34,7 @@ export function useJournal(label: Label) {
     function updateStudyPadTextEntries(...entries: StudyPadTextItem[]) {
         for (const e of entries)
             if (e.labelId === label.id)
-                journalTextEntries.set(e.id, e);
+                studyPadTextEntries.set(e.id, e);
     }
 
     function updateBookmarkToLabels(...entries: BookmarkToLabel[]) {
@@ -45,20 +45,20 @@ export function useJournal(label: Label) {
 
     function updateStudyPadOrdering(...entries: StudyPadTextItem[]) {
         for (const e of entries) {
-            journalTextEntries.get(e.id).orderNumber = e.orderNumber;
+            studyPadTextEntries.get(e.id)!.orderNumber = e.orderNumber;
         }
     }
 
-    function deleteJournal(journalId: number) {
-        journalTextEntries.delete(journalId)
+    function deleteStudyPadTextEntry(journalId: IdType) {
+        studyPadTextEntries.delete(journalId)
     }
 
     return {
-        journalTextEntries,
+        journalTextEntries: studyPadTextEntries,
         updateStudyPadTextEntries,
         updateStudyPadOrdering,
         updateBookmarkToLabels,
         bookmarkToLabels,
-        deleteJournal
+        deleteStudyPadTextEntry,
     };
 }
