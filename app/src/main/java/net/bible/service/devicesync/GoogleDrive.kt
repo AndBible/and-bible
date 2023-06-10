@@ -257,7 +257,6 @@ class GoogleDrive: CloudAdapter {
             .execute()
             .toSyncFile()
 
-
     override suspend fun signOut() {
         oneTapClient.signOut().await()
         lastAccount = null

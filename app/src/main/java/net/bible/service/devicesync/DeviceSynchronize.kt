@@ -400,6 +400,11 @@ object DeviceSynchronize {
             } else null
         }.sortedBy { it.file.createdTime.value }
 
+        if(patches.isEmpty()) {
+            Log.i(TAG, "No patches, returning")
+            return@withContext
+        }
+
         for(f in folders.values) {
             val firstPatch = patches.firstOrNull { it.parentFolderName == f.folder.name } ?: continue
             if(patchNumber(firstPatch.file.name) > f.loadedCount + 1) {

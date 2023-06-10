@@ -1134,8 +1134,8 @@
     <string name="bookmarks_contents">Bookmarks, Labels and Study Pads</string>
     <string name="workspaces_contents">Workspaces and Windows</string>
 
-    <string name="cloud_fetch_and_restore_initial">Copy from this device to Cloud</string>
-    <string name="cloud_create_new">Copy from Cloud to this device</string>
+    <string name="cloud_fetch_and_restore_initial">Copy from Cloud to this device</string>
+    <string name="cloud_create_new">Copy from this device to Cloud</string>
     <string name="cloud_disable_sync">Cancel &amp; disable synchronization</string>
     <string name="cloud_sync_title">Device synchronization</string>
     <string name="device_sync">Synchronize Devices</string>
