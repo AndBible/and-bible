@@ -304,6 +304,7 @@ open class BookmarkControl @Inject constructor(
 
         for(studyPadTextEntryId in studyPadTextEntryUpserts) {
             val withText = dao.studyPadTextEntryById(studyPadTextEntryId) ?: continue
+            ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList()))
             labelIds.add(withText.labelId)
         }
 
