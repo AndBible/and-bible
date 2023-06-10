@@ -250,15 +250,14 @@ object DeviceSynchronize {
 
     private fun fetchAndRestoreInitial(dbDef: SyncableDatabaseDefinition<*>) {
         val deviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
-        val fileId = adapter
+        val initialFile = adapter
             .listFiles(
                 parentsIds = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!),
                 name = INITIAL_BACKUP_FILENAME
             )
             .first()
-            .id
         val gzippedTmpFile = CommonUtils.tmpFile
-        gzippedTmpFile.outputStream().use { adapter.download(fileId, it) }
+        gzippedTmpFile.outputStream().use { adapter.download(initialFile.id, it) }
         Log.i(TAG, "Downloaded initial db for ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
         val tmpFile = CommonUtils.tmpFile
         CommonUtils.gunzipFile(gzippedTmpFile, tmpFile)
@@ -271,6 +270,7 @@ object DeviceSynchronize {
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
         DatabaseSync.dropTriggers(dbDef)
         DatabaseSync.createTriggers(dbDef)
+        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, 0, initialFile.size, initialFile.createdTime.value))
         ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
     }
 
