@@ -662,14 +662,15 @@ object BackupControl {
                     else -> null
                 }
                 if(db != null) {
-                    db.syncDao().removeConfig(SYNC_FOLDER_FILE_ID_KEY)
-                    db.syncDao().removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+                    db.syncDao().clearSyncStatus()
+                    db.syncDao().clearSyncConfiguration()
                 }
             }
-            if(CommonUtils.isGoogleDriveSyncEnabled && !DeviceSynchronize.signedIn) {
+            if(CommonUtils.isGoogleDriveSyncEnabled) {
                 hourglass.show(R.string.synchronizing)
                 DeviceSynchronize.signIn(activity)
                 DeviceSynchronize.start()
+                DeviceSynchronize.waitUntilFinished()
                 hourglass.dismiss()
             }
         }
