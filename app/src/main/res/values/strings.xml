@@ -1116,10 +1116,11 @@
     <string name="reference_copied_to_clipboard">Reference copied to clipboard</string>
     <string name="prefs_expand_footnotes_title">Inline cross references</string>
     <string name="prefs_expand_footnotes_summary">Show cross reference content in-line within the text, instead of a link that opens a pop-up dialog</string>
-    <string name="prefs_google_drive_sync_summary">
-        If you have multiple devices that you want to keep in sync, you can enable synchronization via Google Drive.
-        You can choose here which categories you wish to synchronize.
-        Application is granted access only to applications own files in Google Drive, not any personal files.
+    <string name="prefs_sync_introduction_summary1">
+        Choose which backend cloud service you want to use to synchronize multiple devices.
+    </string>
+    <string name="prefs_sync_introduction_summary2">
+        When using Google Drive, %s is granted access only to applications files, not any personal files.
     </string>
     <string name="restore_backup_sections">Which backup sections do you want to restore?</string>
     <string name="db_repositories">Repositories and related settings</string>
@@ -1137,13 +1138,16 @@
     <string name="cloud_create_new">Copy from Cloud to this device</string>
     <string name="cloud_disable_sync">Cancel &amp; disable synchronization</string>
     <string name="cloud_sync_title">Device synchronization</string>
-    <string name="device_sync">Synchronize devices</string>
-    <string name="reset_sync">Sign out &amp; reset</string>
-    <string name="prefs_reset_sync_summary">
-        Disable synchronizing and reset related stored settings. If you re-enable synchronizing,
-        you will be asked if you upload your current database to cloud or download from cloud.
-    </string>
-    <string name="sync_confirmation">Are you sure that you want to reset synchronization?</string>
+    <string name="device_sync">Synchronize Devices</string>
+    <string name="reset_sync">Sign Out</string>
+    <string name="prefs_reset_sync_summary">Disable synchronizing and reset related settings.</string>
+    <string name="sync_confirmation">Are you sure that you want to sign out and reset synchronization?</string>
     <string name="cloud_info">Cloud information</string>
     <string name="cloud_info_summary">Data in cloud storage: %s Mb</string>
+    <string name="sync_adapter">Synchronization Backend</string>
+    <string name="sync_adapter_summary">Current: %s</string>
+    <string name="adapters_google_drive">Google Drive</string>
+    <string name="synchronization_categories">Synchronization categories</string>
+    <string name="sync_general_settings">Info &amp; general settings</string>
+    <string name="sync_introduction">Introduction</string>
 </resources>

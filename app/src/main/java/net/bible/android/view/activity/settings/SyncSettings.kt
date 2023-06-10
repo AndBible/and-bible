@@ -19,6 +19,8 @@ package net.bible.android.view.activity.settings
 
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.ListPreference
+import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -29,6 +31,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
+import net.bible.service.devicesync.CloudAdapters
 import net.bible.service.devicesync.DatabaseCategory
 import net.bible.service.devicesync.DeviceSynchronize
 
@@ -108,6 +111,27 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 }
             }
         }
-
+        preferenceScreen.findPreference<ListPreference>("sync_adapter")!!.run {
+            if(DeviceSynchronize.signedIn) {
+                isEnabled = false
+            }
+            fun setSummary(newValue: CloudAdapters) {
+                val sum1 = getString(R.string.prefs_sync_introduction_summary1)
+                val driveSum = getString(R.string.prefs_sync_introduction_summary2, getString(R.string.app_name_medium))
+                var result = sum1
+                if(newValue == CloudAdapters.GOOGLE_DRIVE) {
+                    result += " $driveSum"
+                }
+                result += " " + getString(R.string.sync_adapter_summary, getString(newValue.displayName))
+                summary = result
+            }
+            setSummary(CloudAdapters.current)
+            entryValues = CloudAdapters.values().map { it.name }.toTypedArray()
+            entries = CloudAdapters.values().map { getString(it.displayName) }.toTypedArray()
+            setOnPreferenceChangeListener { _, newValue ->
+                setSummary(CloudAdapters.valueOf(newValue as String))
+                true
+            }
+        }
     }
 }

@@ -40,6 +40,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
 import java.io.FileNotFoundException
+import java.lang.RuntimeException
 import java.net.SocketTimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -69,10 +70,33 @@ const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 
 class CancelSync: Exception()
 
-object DeviceSynchronize {
-    val adapter: CloudAdapter = GoogleDrive()
+enum class CloudAdapters {
+    GOOGLE_DRIVE;
 
-    val signedIn get() = adapter.signedIn
+    val displayName: Int get() = when(this) {
+        GOOGLE_DRIVE -> R.string.adapters_google_drive
+    }
+    val newAdapter: CloudAdapter get() = when(this) {
+        GOOGLE_DRIVE -> GoogleDrive()
+    }
+
+    companion object {
+        var current: CloudAdapters
+            get() {
+                val adapterStr = CommonUtils.settings.getString("sync_adapter", "GOOGLE_DRIVE")!!
+                return CloudAdapters.valueOf(adapterStr)
+            }
+            set(value) {
+                CommonUtils.settings.setString("sync_adapter", value.name)
+            }
+    }
+}
+
+object DeviceSynchronize {
+    private var _adapter: CloudAdapter? = null
+    private val adapter: CloudAdapter get() = _adapter!!
+
+    val signedIn get() = _adapter != null && adapter.signedIn
 
     private val signInMutex = Mutex()
     suspend fun signIn(activity: ActivityBase): Boolean {
@@ -81,11 +105,13 @@ object DeviceSynchronize {
             return false
         }
         return signInMutex.withLock {
+            _adapter = CloudAdapters.current.newAdapter
             adapter.signIn(activity)
         }
     }
     suspend fun signOut() {
         adapter.signOut()
+        _adapter = null
         DatabaseContainer.dbDefFactories.asyncMap {
             val dbDef = it.invoke()
             val category = dbDef.category

@@ -22,38 +22,49 @@
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	android:key="sync_settings">
-	<Preference
-		android:key="gdrive_help"
-		android:title="@string/device_sync"
-		android:summary="@string/prefs_google_drive_sync_summary"
-		/>
-	<SwitchPreferenceCompat android:key="gdrive_bookmarks"
-		android:title="@string/bookmarks"
-		android:summary="@string/bookmarks_contents"
-		android:defaultValue="false"
-		android:icon="@drawable/ic_bookmark_24dp"
-		/>
-	<SwitchPreferenceCompat android:key="gdrive_workspaces"
-		android:title="@string/help_workspaces_title"
-		android:summary="@string/workspaces_contents"
-		android:defaultValue="false"
-		android:icon="@drawable/ic_baseline_workspace_24"
-		/>
-	<SwitchPreferenceCompat android:key="gdrive_readingplans"
-		android:title="@string/reading_plans_plural"
-		android:summary="@string/reading_plans_content"
-		android:defaultValue="false"
-		android:icon="@drawable/ic_reading_plan_24dp"
-		/>
-	<Preference
-		android:key="gdrive_info"
-		android:title="@string/cloud_info"
-		android:icon="@drawable/ic_info_grey_24dp"
-		/>
-	<Preference
-		android:key="gdrive_reset_sync"
-		android:title="@string/reset_sync"
-		android:summary="@string/prefs_reset_sync_summary"
-		android:icon="@drawable/ic_baseline_undo_grey_24"
-		/>
+	<PreferenceCategory
+		android:key="sync_general"
+		android:title="@string/sync_general_settings"
+		>
+		<ListPreference
+			android:key="sync_adapter"
+			android:title="@string/sync_adapter"
+			android:icon="@drawable/ic_backup_restore_24dp"
+			/>
+		<Preference
+			android:key="gdrive_reset_sync"
+			android:title="@string/reset_sync"
+			android:summary="@string/prefs_reset_sync_summary"
+			android:icon="@drawable/baseline_logout_24"
+			/>
+		<Preference
+			android:key="gdrive_info"
+			android:title="@string/cloud_info"
+			android:icon="@drawable/ic_info_grey_24dp"
+			/>
+	</PreferenceCategory>
+
+	<PreferenceCategory
+		android:key="sync_category"
+		android:title="@string/synchronization_categories"
+		>
+		<SwitchPreferenceCompat android:key="gdrive_bookmarks"
+			android:title="@string/bookmarks"
+			android:summary="@string/bookmarks_contents"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_bookmark_24dp"
+			/>
+		<SwitchPreferenceCompat android:key="gdrive_workspaces"
+			android:title="@string/help_workspaces_title"
+			android:summary="@string/workspaces_contents"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_workspace_24"
+			/>
+		<SwitchPreferenceCompat android:key="gdrive_readingplans"
+			android:title="@string/reading_plans_plural"
+			android:summary="@string/reading_plans_content"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_reading_plan_24dp"
+			/>
+	</PreferenceCategory>
 </PreferenceScreen>
