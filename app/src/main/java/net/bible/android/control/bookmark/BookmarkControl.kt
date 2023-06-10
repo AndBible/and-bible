@@ -275,7 +275,10 @@ open class BookmarkControl @Inject constructor(
         val bookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "Bookmark" }.map { it.entityId1 }
         ABEventBus.post(BookmarksDeletedEvent(bookmarksDeletes))
 
-        val bookmarkUpserts = e.updated.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Bookmark" }.map { it.entityId1 }
+        val bookmarkUpserts = e.updated.filter {
+            (it.type == LogEntryTypes.UPSERT && it.tableName == "Bookmark") || it.tableName == "BookmarkNotes"
+        }.map { it.entityId1 }
+
         for(b in dao.bookmarksByIds(bookmarkUpserts)) {
             addLabels(b)
             addText(b)
