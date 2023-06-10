@@ -667,11 +667,9 @@ object BackupControl {
                 }
             }
             if(CommonUtils.isGoogleDriveSyncEnabled) {
-                hourglass.show(R.string.synchronizing)
                 DeviceSynchronize.signIn(activity)
                 DeviceSynchronize.start()
                 DeviceSynchronize.waitUntilFinished()
-                hourglass.dismiss()
             }
         }
         hourglass.dismiss()

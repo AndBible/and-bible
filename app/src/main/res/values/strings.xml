@@ -1125,7 +1125,7 @@
     <string name="restore_backup_sections">Which backup sections do you want to restore?</string>
     <string name="db_repositories">Repositories and related settings</string>
     <string name="db_bookmarks">Bookmarks, My Notes, Labels and Study Pads</string>
-    <string name="synchronizing">Synchronizing devices…</string>
+    <string name="synchronizing">Synchronizing…</string>
     <string name="overrideBackup">
         Existing database that this device is not synchronized to is found in Cloud.
         Database contains %s. What do you want to do?
