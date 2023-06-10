@@ -19,11 +19,13 @@ package net.bible.android.view.util.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.annotation.RequiresApi
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.WindowButtonBinding
 import net.bible.android.control.event.ABEventBus
@@ -167,6 +169,13 @@ class WindowButtonWidget(
         super.setOnClickListener(l)
     }
 
+    fun setMyContextClickListener(l: (v: View) -> Boolean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            setOnContextClickListener { v -> l.invoke(v) }
+        }
+        setOnLongClickListener { v -> l.invoke(v)}
+    }
+
     override fun setOnLongClickListener(l: OnLongClickListener?) {
         binding.apply {
             unMaximiseImage.setOnLongClickListener(l)
@@ -179,6 +188,18 @@ class WindowButtonWidget(
         super.setOnLongClickListener(l)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun setOnContextClickListener(l: OnContextClickListener?) {
+        binding.apply {
+            unMaximiseImage.setOnContextClickListener(l)
+            windowButton.setOnContextClickListener(l)
+            buttonText.setOnContextClickListener(l)
+            synchronize.setOnContextClickListener(l)
+            pinMode.setOnContextClickListener(l)
+            docType.setOnContextClickListener(l)
+        }
+        super.setOnContextClickListener(l)
+    }
     override fun setOnTouchListener(l: OnTouchListener?) {
         binding.apply {
             windowButton.setOnTouchListener(l)

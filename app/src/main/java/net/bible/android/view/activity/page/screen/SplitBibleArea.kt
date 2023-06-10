@@ -624,7 +624,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             text = getWindowButtonTitleText(window)
 
             setOnClickListener { windowControl.restoreWindow(window) }
-            setOnLongClickListener { v-> showPopupMenu(window, v); true }
+            setMyContextClickListener { v-> showPopupMenu(window, v); true }
         }
     }
 
@@ -637,7 +637,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         ).apply {
             setOnClickListener { windowControl.unMaximise() }
             text = ""
-            setOnLongClickListener { v-> showPopupMenu(window, v); true }
+            setMyContextClickListener { v-> showPopupMenu(window, v); true }
         }
     }
 
