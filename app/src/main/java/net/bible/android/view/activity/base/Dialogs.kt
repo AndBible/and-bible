@@ -156,7 +156,7 @@ object Dialogs {
         return result
     }
 
-    suspend fun simpleQuestion(context: Context, title: String? = null, message: String? = null) = suspendCoroutine {
+    suspend fun simpleQuestion(context: Context, message: String? = null, title: String? = context.getString(R.string.are_you_sure)) = suspendCoroutine {
         AlertDialog.Builder(context)
             .setTitle(title)
             .setMessage(message)
@@ -164,5 +164,11 @@ object Dialogs {
             .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
             .setOnCancelListener { _ -> it.resume(false) }
             .show()
+    }
+
+    suspend fun simpleQuestion(context: Context, message: Int? = null, title: Int? = R.string.are_you_sure) {
+        val titleStr = if(title == null) null else context.getString(title)
+        val messageStr = if(message == null) null else context.getString(message)
+        simpleQuestion(context, message = messageStr, title = titleStr)
     }
 }

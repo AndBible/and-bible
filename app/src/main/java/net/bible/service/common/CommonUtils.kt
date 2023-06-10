@@ -924,8 +924,9 @@ object CommonUtils : CommonUtilsBase() {
         if (isDiscrete) {
             activity.lifecycleScope.launch(Dispatchers.Main) {
                 if(Dialogs.simpleQuestion(activity,
-                        net.bible.android.view.activity.page.application.getString(R.string.external_link),
-                        net.bible.android.view.activity.page.application.getString(R.string.external_link_question, link))
+                        message = net.bible.android.view.activity.page.application.getString(R.string.external_link_question, link),
+                        title = net.bible.android.view.activity.page.application.getString(R.string.external_link),
+                    )
                 ) {
                     activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
                         ActivityBase.STD_REQUEST_CODE

@@ -280,8 +280,8 @@ object BugReport {
 
         withContext(Dispatchers.Main) {
             val result = Dialogs.simpleQuestion(activity,
-                activity.getString(R.string.bug_report_email_title),
-                activity.getString(R.string.bug_report_email_text)
+                message = activity.getString(R.string.bug_report_email_text),
+                title = activity.getString(R.string.bug_report_email_title),
             )
             if(!result) return@withContext
             val subject = activity.getString(R.string.report_bug_email_subject_3, source, CommonUtils.applicationNameMedium, getSubject(exception))

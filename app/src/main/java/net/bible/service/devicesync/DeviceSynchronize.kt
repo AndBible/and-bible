@@ -34,6 +34,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
@@ -155,7 +156,7 @@ object DeviceSynchronize {
                     Log.i(TAG, "... got through uiMutex ${dbDef.categoryName}!")
                     val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
                     withContext(Dispatchers.Main) {
-                        suspendCoroutine {
+                        val q1 = suspendCoroutine {
                             val containsStr = activity.getString(dbDef.category.contentDescription)
                             AlertDialog.Builder(activity)
                                 .setTitle(R.string.cloud_sync_title)
@@ -172,6 +173,18 @@ object DeviceSynchronize {
                                 .create()
                                 .show()
                         }
+                        if(q1 != null) {
+                            val message = when(q1) {
+                                InitialOperation.FETCH_INITIAL -> R.string.are_you_sure_reset_local
+                                InitialOperation.CREATE_NEW -> R.string.are_you_sure_reset_cloud
+                            }
+                            val msgString = activity.getString(message, activity.getString(dbDef.category.contentDescription))
+                            val confirmed = Dialogs.simpleQuestion(activity, msgString)
+                            if(!confirmed) {
+                                return@withContext null
+                            }
+                        }
+                        q1
                     }
                 }
                 if (initialOperation == null) {
