@@ -133,11 +133,10 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
-import java.util.Timer
-import java.util.TimerTask
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
@@ -146,7 +145,7 @@ import kotlin.system.exitProcess
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-const val DEFAULT_SYNC_INTERVAL = 2*60L // 2 minutes
+const val DEFAULT_SYNC_INTERVAL = 5*60L // 5 minutes
 
 
 class OpenLink(val url: String)
@@ -578,8 +577,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             binding.drawerLayout.closeDrawers()
         } else {
             if (!documentViewManager.documentView.backButtonPressed() && !historyTraversal.goBack()) {
-                if(lastBackPressed == null || lastBackPressed < System.currentTimeMillis() - 1000) {
-                    this.lastBackPressed = System.currentTimeMillis()
+                if(lastBackPressed == null || lastBackPressed < now - 1000) {
+                    this.lastBackPressed = now
                     Toast.makeText(this, getString(R.string.one_more_back_press), Toast.LENGTH_SHORT).show()
                 } else {
                     this.lastBackPressed = null
@@ -1284,7 +1283,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 if(signIn && !DeviceSynchronize.signedIn) {
                     DeviceSynchronize.signIn(this@MainBibleActivity)
                 }
-                synchronize(true)
+                if(now - lastSynchronized > syncInterval) {
+                    synchronize(true)
+                }
                 syncJob = lifecycleScope.launch { periodicSync() }
             }
         }
@@ -1298,10 +1299,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             try {
                 while (true) {
                     delay(60*1000) // 1 minute
-                    val syncInterval = CommonUtils.settings.getLong("gdrive_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
-                    if(System.currentTimeMillis() - lastTouched > syncInterval) {
-                        synchronize()
-                    }
+                    synchronize()
                 }
             } catch (e: StopSync) {
                 Log.i(TAG, "Stopping sync")
@@ -1313,16 +1311,26 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return windowRepository.windowList.mapNotNull { it.bibleView?.lastTouched }.max()
     }
 
+    private val syncInterval get() =
+        CommonUtils.settings.getLong("gdrive_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
+    private val lastSynchronized get() =
+        CommonUtils.settings.getLong("globalLastSynchronized", 0L)
+
+    private val now get() = System.currentTimeMillis()
+
     private suspend fun synchronize(force: Boolean = false) {
         if(CommonUtils.isGoogleDriveSyncEnabled && DeviceSynchronize.signedIn) {
             windowRepository.saveIntoDb(false)
-            if (force || DeviceSynchronize.hasChanges()) {
+            if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && DeviceSynchronize.hasChanges())) {
                 Log.i(TAG, "Performing periodic sync")
+                CommonUtils.settings.setLong("globalLastSynchronized", now)
                 DeviceSynchronize.start()
                 DeviceSynchronize.waitUntilFinished()
             }
         }
     }
+
+
 
     /**
      * Need to know when app is returned to foreground to check the screen colours
