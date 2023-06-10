@@ -182,7 +182,7 @@ interface BookmarkDao {
     fun labelsById(ids: List<IdType>): List<Label>
 
     @Query("SELECT * from StudyPadTextEntryWithText WHERE labelId=:id ORDER BY orderNumber")
-    fun journalTextEntriesByLabelId(id: IdType): List<BookmarkEntities.StudyPadTextEntryWithText>
+    fun studyPadTextEntriesByLabelId(id: IdType): List<BookmarkEntities.StudyPadTextEntryWithText>
 
     @Query("SELECT * from StudyPadTextEntryWithText WHERE id=:id")
     fun studyPadTextEntryById(id: IdType): BookmarkEntities.StudyPadTextEntryWithText?
