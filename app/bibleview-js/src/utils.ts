@@ -414,18 +414,36 @@ export function getAllEventFunctions(event: EventWithEventFunctions): Callback[]
 export function draggableElement(element: HTMLElement, dragHandle: HTMLElement) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
-    dragHandle.addEventListener("touchstart", dragMouseDown, {passive: false});
+    dragHandle.addEventListener("touchstart", dragTouchStart, {passive: false});
+    dragHandle.addEventListener("mousedown", dragMouseDown, {passive: false});
 
-    function dragMouseDown(e: TouchEvent) {
+    function dragMouseDown(e: MouseEvent) {
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.addEventListener("mouseup", closeMouseDragElement);
+        document.addEventListener("mousemove", elementDragMouseMove);
+    }
+
+    function dragTouchStart(e: TouchEvent) {
         e.preventDefault();
         const touch = e.touches[0];
         pos3 = touch.clientX;
         pos4 = touch.clientY;
         document.addEventListener("touchend", closeDragElement);
-        document.addEventListener("touchmove", elementDrag);
+        document.addEventListener("touchmove", elementDragTouch);
     }
 
-    function elementDrag(e: TouchEvent) {
+    function elementDragMouseMove(e: MouseEvent) {
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+    }
+
+    function elementDragTouch(e: TouchEvent) {
         const touch = e.touches[0];
         pos1 = pos3 - touch.clientX;
         pos2 = pos4 - touch.clientY;
@@ -435,9 +453,14 @@ export function draggableElement(element: HTMLElement, dragHandle: HTMLElement) 
         element.style.left = (element.offsetLeft - pos1) + "px";
     }
 
+    function closeMouseDragElement() {
+        document.removeEventListener("mouseup", closeMouseDragElement);
+        document.removeEventListener("mousemove", elementDragMouseMove);
+    }
+
     function closeDragElement() {
         document.removeEventListener("touchend", closeDragElement);
-        document.removeEventListener("touchmove", elementDrag);
+        document.removeEventListener("touchmove", elementDragTouch);
     }
 }
 
