@@ -124,7 +124,7 @@ object Dialogs {
 
     enum class Result {OK, CANCEL, REPORT, ERROR}
 
-    private suspend fun showMsg2(activity: ActivityBase, msg: String, isCancelable: Boolean = false, showReport: Boolean = false): Result {
+    suspend fun showMsg2(activity: ActivityBase, msg: String, isCancelable: Boolean = false, showReport: Boolean = false): Result {
         Log.i(TAG, "showErrorMesage message:$msg")
         var result = Result.ERROR
         try {

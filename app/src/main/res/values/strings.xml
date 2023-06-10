@@ -1161,4 +1161,5 @@
         This will reset your cloud database for %s with the content that you have
         in this device.
     </string>
+    <string name="sync_cant_fetch">"The version of database in cloud is higher than the one supported by this app. Disabling synchronizing for %s. "</string>
 </resources>

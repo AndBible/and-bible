@@ -23,6 +23,7 @@ import android.os.Build
 import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.api.client.util.DateTime
+import io.requery.android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -260,7 +261,7 @@ object DeviceSynchronize {
         gzippedTmpFile.delete()
     }
 
-    private fun fetchAndRestoreInitial(dbDef: SyncableDatabaseDefinition<*>) {
+    private suspend fun fetchAndRestoreInitial(dbDef: SyncableDatabaseDefinition<*>) {
         val deviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val initialFile = adapter
             .listFiles(
@@ -274,16 +275,36 @@ object DeviceSynchronize {
         val tmpFile = CommonUtils.tmpFile
         CommonUtils.gunzipFile(gzippedTmpFile, tmpFile)
         gzippedTmpFile.delete()
-        dbDef.localDb.close()
-        tmpFile.copyTo(dbDef.localDbFile, overwrite = true)
-        tmpFile.delete()
-        dbDef.resetLocalDb()
-        dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
-        dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
-        DatabaseSync.dropTriggers(dbDef)
-        DatabaseSync.createTriggers(dbDef)
-        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, 0, initialFile.size, initialFile.createdTime.value))
-        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+        val initialDbVersion = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READONLY).use { it.version }
+        if(initialDbVersion > dbDef.version) {
+            tmpFile.delete()
+            val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
+            Dialogs.showMsg2(
+                activity,
+                activity.getString(R.string.sync_cant_fetch, activity.getString(dbDef.category.contentDescription))
+            )
+            dbDef.category.enabled = false
+            Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > ${dbDef.version}")
+            throw CancelSync()
+        } else {
+            dbDef.localDb.close()
+            tmpFile.copyTo(dbDef.localDbFile, overwrite = true)
+            tmpFile.delete()
+            dbDef.resetLocalDb()
+            dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
+            dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
+            DatabaseSync.dropTriggers(dbDef)
+            DatabaseSync.createTriggers(dbDef)
+            dbDef.dao.addStatus(
+                SyncStatus(
+                    CommonUtils.deviceIdentifier,
+                    0,
+                    initialFile.size,
+                    initialFile.createdTime.value
+                )
+            )
+            ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+        }
     }
 
     private val syncMutex = Mutex()
