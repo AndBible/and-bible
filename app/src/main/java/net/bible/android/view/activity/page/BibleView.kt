@@ -154,7 +154,7 @@ class Selection(
     val startOffset: Int?,
     val endOrdinal: Int,
     val endOffset: Int?,
-    val bookmarks: List<Long>,
+    val bookmarks: List<IdType>,
     val notes: String? = null,
     val text: String = ""
 )
