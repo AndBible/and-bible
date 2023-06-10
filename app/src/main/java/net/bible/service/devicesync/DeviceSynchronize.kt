@@ -338,7 +338,7 @@ object DeviceSynchronize {
     }
 
     suspend fun synchronize() = withContext(Dispatchers.IO) {
-        if(!adapter.signedIn) {
+        if(!signedIn) {
             Log.i(TAG, "Not signed in")
             return@withContext
         }

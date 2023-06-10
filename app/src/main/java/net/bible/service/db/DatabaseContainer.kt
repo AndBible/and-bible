@@ -227,6 +227,7 @@ class DatabaseContainer {
             ready = false
             val backupZipFile = BackupControl.makeDatabaseBackupFile()
             ready = true
+            backupZipFile ?: return
             val versionString = versions.joinToString("-")
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
             val backupPath = CommonUtils.dbBackupPath

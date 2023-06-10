@@ -511,7 +511,7 @@ object BackupControl {
         }
     }
 
-    fun makeDatabaseBackupFile(): File {
+    fun makeDatabaseBackupFile(): File? {
         if(CommonUtils.initialized && DatabaseContainer.ready) {
             windowControl.windowRepository.saveIntoDb()
             DatabaseContainer.vacuum()
@@ -530,9 +530,11 @@ object BackupControl {
                 }
             }
         }
+        val files = ALL_DB_FILENAMES.map {File(internalDbDir, it)}.filter {it.exists()}
+        if(files.isEmpty()) return null
 
         ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
-            for(b in ALL_DB_FILENAMES.map {File(internalDbDir, it)}.filter {it.exists()}) {
+            for(b in files) {
                 addFileToZip(outFile, b)
             }
         }
@@ -540,7 +542,7 @@ object BackupControl {
     }
 
     suspend fun startBackupAppDatabase(callingActivity: ActivityBase) = withContext(Dispatchers.IO) {
-        val backupZipFile = makeDatabaseBackupFile()
+        val backupZipFile = makeDatabaseBackupFile()!!
         saveDbBackupFileViaIntent(callingActivity, backupZipFile)
         backupZipFile.delete()
     }

@@ -71,6 +71,10 @@ class SyncService: Service() {
     private fun synchronize() {
         Log.i(TAG, "Synchronize started")
         val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
+        if (wakeLock.isHeld) {
+            Log.i(TAG, "Wakelock already held, double-synchronize")
+            return
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(BuildVariant.Appearance.isDiscrete) {
@@ -101,13 +105,15 @@ class SyncService: Service() {
         notificationManager.notify(NOTIFICATION_ID, notification)
 
         startForeground(NOTIFICATION_ID, notification)
-        wakeLock.acquire(100)
+        wakeLock.acquire(5*60*1000) // 5 minutes
 
         scope.launch {
             DeviceSynchronize.synchronize()
             DeviceSynchronize.waitUntilFinished(true)
             Log.i(TAG, "Synchronize finished")
-            wakeLock.release()
+            if(wakeLock.isHeld) {
+                wakeLock.release()
+            }
             stop()
         }
     }
