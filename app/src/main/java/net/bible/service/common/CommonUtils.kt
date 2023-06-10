@@ -1450,3 +1450,13 @@ fun <T> Cursor.getFirstOrNull(f: ((c: Cursor) -> T)? = null): T? = use {
 suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
     awaitAll( *map { async { action(it) }}.toTypedArray() )
 }
+
+suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
+    val result = mutableListOf<V>()
+    for(chunk in chunked(maxThreads)) {
+        result.addAll(awaitAll(*chunk.map {
+            async { action(it) }
+        }.toTypedArray()))
+    }
+    result
+}

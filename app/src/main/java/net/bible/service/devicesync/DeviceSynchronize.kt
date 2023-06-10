@@ -40,7 +40,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
 import java.io.FileNotFoundException
-import java.lang.RuntimeException
 import java.net.SocketTimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -417,7 +416,7 @@ object DeviceSynchronize {
         Log.i(TAG, "Patches after filter: \n${patches.joinToString("\n") { "${it.file.name} ${it.parentFolderName}" }}")
         Log.i(TAG, "Number of patch files after filtering: ${patches.size}")
 
-        val downloadedFiles = patches.asyncMap { f ->
+        val downloadedFiles = patches.asyncMap(6) { f ->
             Log.i(TAG, "Downloading ${f.file.name}, ${f.file.size} bytes")
             val tmpFile = CommonUtils.tmpFile
             tmpFile.outputStream().use {
