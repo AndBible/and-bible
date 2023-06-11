@@ -140,6 +140,7 @@ import java.lang.ref.WeakReference
 import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
+import kotlin.math.abs
 import kotlin.math.min
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
@@ -1168,7 +1169,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val doc = firstDocument
         val jumpToId =
             if(doc is StudyPadDocument && doc.bookmarkId != null)
-                "o-${doc.bookmarkId.hashCode()}"
+                "o-${abs(doc.bookmarkId.hashCode())}"
             else null
 
         executeJavascriptOnUiThread("""
