@@ -355,7 +355,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         const changedEntry = {...entry, ...changes}
         if (entry.type === "journal") {
             const {text, ...rest} = changes;
-            if(text) {
+            if(text !== undefined) {
                 window.android.updateStudyPadTextEntryText(entry.id, text);
             }
             if(Object.keys(rest).length > 0) {
