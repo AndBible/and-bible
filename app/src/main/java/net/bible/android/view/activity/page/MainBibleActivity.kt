@@ -57,8 +57,10 @@ import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
@@ -147,6 +149,7 @@ import kotlin.system.exitProcess
 
 const val DEFAULT_SYNC_INTERVAL = 5*60L // 5 minutes
 
+private val syncScope = CoroutineScope(Dispatchers.IO)
 
 class OpenLink(val url: String)
 
@@ -1333,14 +1336,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         syncJob = null
     }
 
-    fun onEvent(event: AppToBackgroundEvent) = lifecycleScope.launch {
+    fun onEvent(event: AppToBackgroundEvent) {
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
             stopPeriodicSync()
-            synchronize(true)
+            syncScope.launch { synchronize(true) }
         } else {
             updateActions()
-            startSync()
+            syncScope.launch { startSync() }
         }
     }
 
