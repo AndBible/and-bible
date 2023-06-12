@@ -1340,8 +1340,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             stopPeriodicSync()
             synchronize(true)
         } else {
-            startSync()
             updateActions()
+            startSync()
         }
     }
 
