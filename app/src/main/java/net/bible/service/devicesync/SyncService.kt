@@ -20,7 +20,6 @@ package net.bible.service.devicesync
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -31,7 +30,6 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.service.common.BuildVariant
@@ -39,7 +37,7 @@ import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
 
 private const val TAG = "SyncService"
-private const val NOTIFICATION_ID=2
+private const val SYNC_NOTIFICATION_ID=2
 private const val SYNC_NOTIFICATION_CHANNEL="sync-notifications"
 private const val WAKELOCK_TAG = "andbible:sync-wakelock"
 
@@ -60,7 +58,6 @@ class SyncService: Service() {
             START_SERVICE -> synchronize()
             else -> {
                 Log.w(TAG, "Unknown command $intent ${intent?.action}")
-                stop()
             }
         }
         return START_STICKY
@@ -72,8 +69,7 @@ class SyncService: Service() {
         Log.i(TAG, "Synchronize started")
         val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
         if (wakeLock.isHeld) {
-            Log.i(TAG, "Wakelock already held, double-synchronize")
-            return
+            throw RuntimeException("Wakelock already held, double-synchronize")
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -102,9 +98,9 @@ class SyncService: Service() {
             .setContentTitle(getString(R.string.synchronizing))
 
         val notification = builder.build()
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        notificationManager.notify(SYNC_NOTIFICATION_ID, notification)
 
-        startForeground(NOTIFICATION_ID, notification)
+        startForeground(SYNC_NOTIFICATION_ID, notification)
         wakeLock.acquire(5*60*1000) // 5 minutes
 
         scope.launch {
@@ -123,5 +119,6 @@ class SyncService: Service() {
         } else {
             stopForeground(true)
         }
+        stopSelf()
     }
 }

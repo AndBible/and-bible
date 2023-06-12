@@ -1267,7 +1267,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if (mWholeAppWasInBackground) {
                 mWholeAppWasInBackground = false
                 refreshIfNightModeChange()
-                startSync()
             }
         }
     }

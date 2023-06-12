@@ -337,7 +337,7 @@ object DeviceSynchronize {
         syncMutex.withLock {  }
     }
 
-    suspend fun synchronize() = withContext(Dispatchers.IO) {
+    internal suspend fun synchronize() = withContext(Dispatchers.IO) {
         if(!signedIn) {
             Log.i(TAG, "Not signed in")
             return@withContext

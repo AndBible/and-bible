@@ -60,7 +60,7 @@ class TextToSpeechNotificationManager {
 
         private const val SPEAK_NOTIFICATIONS_CHANNEL="speak-notifications"
 
-        private const val NOTIFICATION_ID=1
+        private const val TTS_NOTIFICATION_ID=1
 
         private const val WAKELOCK_TAG = "andbible:speak-wakelock"
         private const val TAG = "Speak/TTSService"
@@ -98,7 +98,7 @@ class TextToSpeechNotificationManager {
                 return
             }
             Log.i(TAG, "START_SERVICE")
-            startForeground(NOTIFICATION_ID, foregroundNotification!!)
+            startForeground(TTS_NOTIFICATION_ID, foregroundNotification!!)
             foreground = true
             wakeLock.acquire()
         }
@@ -244,7 +244,7 @@ class TextToSpeechNotificationManager {
             stopForeground(true)
         }
         else {
-            notificationManager.cancel(NOTIFICATION_ID)
+            notificationManager.cancel(TTS_NOTIFICATION_ID)
         }
     }
 
@@ -357,7 +357,7 @@ class TextToSpeechNotificationManager {
         if(isSpeaking) {
             foregroundNotification = notification
         }
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        notificationManager.notify(TTS_NOTIFICATION_ID, notification)
     }
 
     private fun startForeground()
