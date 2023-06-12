@@ -1263,31 +1263,29 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     override fun onRestart() {
         super.onRestart()
-        if(syncJob != null) {
-            startSync()
-        }
-        if (mWholeAppWasInBackground) {
-            mWholeAppWasInBackground = false
-            refreshIfNightModeChange()
+        lifecycleScope.launch {
+            if (mWholeAppWasInBackground) {
+                mWholeAppWasInBackground = false
+                refreshIfNightModeChange()
+                startSync()
+            }
         }
     }
 
     var syncJob: Job? = null
 
-    private fun startSync(signIn: Boolean = true) {
+    private suspend fun startSync(signIn: Boolean = true) {
         if(CommonUtils.isGoogleDriveSyncEnabled) {
-            lifecycleScope.launch {
-                if(signIn && !DeviceSynchronize.signedIn) {
-                    DeviceSynchronize.signIn(this@MainBibleActivity)
-                }
-                if(now - lastSynchronized > syncInterval) {
-                    synchronize(true)
-                }
-                if(syncJob != null) {
-                    Log.e(TAG, "syncJob already exists")
-                } else {
-                    syncJob = lifecycleScope.launch { periodicSync() }
-                }
+            if(signIn && !DeviceSynchronize.signedIn) {
+                DeviceSynchronize.signIn(this@MainBibleActivity)
+            }
+            if(now - lastSynchronized > syncInterval) {
+                synchronize(true)
+            }
+            if(syncJob != null) {
+                Log.e(TAG, "syncJob already exists")
+            } else {
+                syncJob = lifecycleScope.launch { periodicSync() }
             }
         }
     }
@@ -1331,21 +1329,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    private fun stopPeriodicSync() {
+        syncJob?.cancel(StopSync())
+        syncJob = null
+    }
 
-
-    /**
-     * Need to know when app is returned to foreground to check the screen colours
-     */
-    fun onEvent(event: AppToBackgroundEvent) {
+    fun onEvent(event: AppToBackgroundEvent) = lifecycleScope.launch {
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
-            syncJob?.cancel(StopSync())
-            syncJob = null
-            if(CommonUtils.isGoogleDriveSyncEnabled) {
-                lifecycleScope.launch { DeviceSynchronize.start() }
-            }
-        }
-        else {
+            stopPeriodicSync()
+            synchronize(true)
+        } else {
+            startSync()
             updateActions()
         }
     }
