@@ -17,5 +17,7 @@
   -->
 
 <full-backup-content>
-    <exclude domain="external" path="." />
+    <exclude domain="external"/>
+    <exclude domain="sharedpref"/>
+    <include domain="database"/>
 </full-backup-content>
