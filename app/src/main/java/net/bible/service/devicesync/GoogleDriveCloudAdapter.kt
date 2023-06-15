@@ -26,7 +26,6 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.identity.SignInCredential
-import com.google.android.gms.common.api.ApiException
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
@@ -119,11 +118,11 @@ class GoogleDriveCloudAdapter: CloudAdapter {
         }
 
     override suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) {
-        Log.i(DeviceSynchronize.TAG, "Starting")
+        Log.i(TAG, "Starting")
         try {
             account = lastAccount ?: oneTapSignIn(activity).also {lastAccount = it }
         } catch (e: Throwable) {
-            Log.e(DeviceSynchronize.TAG, "Error signing in", e)
+            Log.e(TAG, "Error signing in", e)
             account = null
             return@withContext false
         }
@@ -136,7 +135,7 @@ class GoogleDriveCloudAdapter: CloudAdapter {
     }
 
     private suspend fun oneTapSignIn(activity: ActivityBase): Account {
-        Log.i(DeviceSynchronize.TAG, "Signing in (one tap)")
+        Log.i(TAG, "Signing in (one tap)")
         val signInRequest = BeginSignInRequest.builder()
             .setGoogleIdTokenRequestOptions(
                 BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
@@ -163,10 +162,10 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             val result = activity.awaitIntent(e.intent)
             return result.resultCode == Activity.RESULT_OK
         } catch (e: IOException) {
-            Log.e(DeviceSynchronize.TAG, "Network unavailable", e)
+            Log.e(TAG, "Network unavailable", e)
             return false
         } catch (e: Throwable) {
-            Log.e(DeviceSynchronize.TAG, "ensureDriveAccess error", e)
+            Log.e(TAG, "ensureDriveAccess error", e)
             return false
         }
         return true

@@ -36,7 +36,6 @@ import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
 
-private const val TAG = "SyncService"
 private const val SYNC_NOTIFICATION_ID=2
 private const val SYNC_NOTIFICATION_CHANNEL="sync-notifications"
 private const val WAKELOCK_TAG = "andbible:sync-wakelock"

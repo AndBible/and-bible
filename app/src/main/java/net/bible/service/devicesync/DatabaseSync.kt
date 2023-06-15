@@ -26,7 +26,6 @@ import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.getFirst
-import net.bible.service.db.TAG
 import java.io.File
 
 const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
