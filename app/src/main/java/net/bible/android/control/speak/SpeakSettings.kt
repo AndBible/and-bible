@@ -39,13 +39,13 @@ fun SpeakSettings.save(updateBookmark: Boolean = false) {
 }
 
 fun SpeakSettings.Companion.load(): SpeakSettings {
-    val rv = currentSettings?.makeCopy()?: {
+    val rv = currentSettings?.makeCopy()?: run {
         // Excuse of using realSharedPreferences here is that this is loaded early because of widgets. But in practice,
         // these are persisted to workspace in WindowRepository and loaded from there.
         // This code could be therefore cleaned up.
         val sharedPreferences = CommonUtils.realSharedPreferences
         val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, "")!!)
-        settings }()
+        settings }
     Log.i(TAG, "SpeakSettings loaded! $rv")
     return rv
 }
