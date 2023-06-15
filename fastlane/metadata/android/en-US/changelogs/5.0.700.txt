@@ -1,0 +1,6 @@
+5.0 (beta)
+See "what's new" video: [TODO]
+Release notes: https://github.com/AndBible/and-bible/wiki/v5.0-Release-Notes
+Highlights:
+- Synchronize devices via Google Drive
+- Multiple other major changes, to be listed here later
