@@ -72,8 +72,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -1453,9 +1457,14 @@ suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<
 }
 
 suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
-    val result = mutableListOf<V>()
-    for(chunk in chunked(maxThreads)) {
-        result.addAll(awaitAll(*chunk.map {async { action(it) } }.toTypedArray()))
+    val result = mutableListOf<Deferred<Pair<Int, V>>>()
+    val semaphore = Semaphore(maxThreads)
+    for ((index, item) in this@asyncMap.withIndex()) {
+        result.add(
+            async {
+                semaphore.withPermit { index to action(item) }
+            }
+        )
     }
-    result
+    awaitAll(*result.toTypedArray()).sortedBy { it.first }.map { it.second }
 }
