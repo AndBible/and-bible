@@ -26,6 +26,7 @@ import android.content.res.Resources
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import io.requery.android.database.sqlite.SQLiteDatabase
 import net.bible.android.activity.R
 
 import net.bible.android.control.ApplicationComponent
@@ -120,6 +121,8 @@ open class BibleApplication : Application() {
 
         LocaleProviderManager.setLocaleProvider(MyLocaleProvider)
 
+        logSqliteVersion()
+
         // This must be done before accessing JSword to prevent default folders being used
         SwordEnvironmentInitialisation.initialiseJSwordFolders()
 
@@ -138,6 +141,23 @@ open class BibleApplication : Application() {
         // various initialisations required every time at app startup
 
         localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
+    }
+
+    var sqliteVersion = ""
+
+    private fun logSqliteVersion() {
+        try {
+            val db = SQLiteDatabase.openOrCreateDatabase(":memory:", null)
+            val cursor = db.rawQuery("select sqlite_version() AS sqlite_version", null)
+            while (cursor.moveToNext()) {
+                sqliteVersion += cursor.getString(0)
+            }
+            cursor.close()
+            db.close()
+        } catch (e: Throwable) {
+            Log.e(TAG, "Couldn't figure out SQLite version due to error: ", e)
+        }
+        Log.i(TAG, "SQLite version: $sqliteVersion")
     }
 
     /**

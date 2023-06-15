@@ -132,6 +132,7 @@ object BugReport {
             append("Model: ").append(Build.MODEL).append("\n")
             append("Storage Mb free: ").append(megabytesFree).append("\n")
             append("WebView version: ").append(WebViewCompat.getCurrentWebViewPackage(BibleApplication.application)?.versionName).append("\n")
+            append("SQLITE version: ").append(BibleApplication.application.sqliteVersion).append("\n")
             val runtime = Runtime.getRuntime()
             val usedMemInMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L
             val maxHeapSizeInMB = runtime.maxMemory() / 1048576L
