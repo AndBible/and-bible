@@ -1453,18 +1453,10 @@ fun <T> Cursor.getFirstOrNull(f: ((c: Cursor) -> T)? = null): T? = use {
 }
 
 suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
-    awaitAll( *map { async { action(it) }}.toTypedArray() )
+     map { async { action(it) }}.awaitAll()
 }
 
 suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
-    val result = mutableListOf<Deferred<Pair<Int, V>>>()
     val semaphore = Semaphore(maxThreads)
-    for ((index, item) in this@asyncMap.withIndex()) {
-        result.add(
-            async {
-                semaphore.withPermit { index to action(item) }
-            }
-        )
-    }
-    awaitAll(*result.toTypedArray()).sortedBy { it.first }.map { it.second }
+    map {async {semaphore.withPermit { action(it) } } }.awaitAll()
 }
