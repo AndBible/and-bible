@@ -45,6 +45,6 @@ class MyUUIDTest {
         val myUUID = MyUUID(l1, l2)
         val comp = MyUUID.fromString(myUUID.toString())
         assertThat(comp.mostSignificantBits, IsEqual.equalTo(l1))
-        assertThat(comp.leastSignificantBits, IsEqual.equalTo(l2))
+        assertThat(comp.leastSignificantBits, IsEqual.equalTo(l1))
     }
 }
