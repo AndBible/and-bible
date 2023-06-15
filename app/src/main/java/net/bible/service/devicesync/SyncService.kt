@@ -92,10 +92,15 @@ class SyncService: Service() {
 
 
         builder
-            .setSmallIcon(R.drawable.ic_sync_white_24dp)
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setSilent(true)
             .setContentTitle(getString(R.string.synchronizing))
+
+        if(CommonUtils.isDiscrete) {
+            builder.setSmallIcon(R.drawable.ic_calc_24)
+        } else {
+            builder.setSmallIcon(R.drawable.ic_backup_restore_24dp)
+        }
 
         val notification = builder.build()
         notificationManager.notify(SYNC_NOTIFICATION_ID, notification)
