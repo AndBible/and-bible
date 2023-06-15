@@ -1343,7 +1343,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             syncScope.launch { synchronize(true) }
         } else {
             updateActions()
-            syncScope.launch { startSync() }
+            syncScope.launch { startSync(false) }
         }
     }
 
