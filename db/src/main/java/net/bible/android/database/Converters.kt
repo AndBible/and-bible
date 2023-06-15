@@ -43,100 +43,19 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.security.SecureRandom
 import java.util.Date
-import java.util.UUID
 
-object UUIDSerializer : KSerializer<UUID> {
-    override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
-    override fun deserialize(decoder: Decoder): UUID = UUID.fromString(decoder.decodeString())
-    override fun serialize(encoder: Encoder, value: UUID) = encoder.encodeString(value.toString())
-}
-
-object IdTypeSerializer : KSerializer<IdType> {
-    override val descriptor = PrimitiveSerialDescriptor("IdType", PrimitiveKind.STRING)
-    override fun deserialize(decoder: Decoder): IdType = IdType(UUID.fromString(decoder.decodeString()))
-    override fun serialize(encoder: Encoder, value: IdType) = encoder.encodeString(value.toString())
-}
-
-@Serializable(with = IdTypeSerializer::class)
-data class IdType(
-    @Serializable(with = UUIDSerializer::class)
-    private val uuid: UUID? = UUID.randomUUID(),
-): Comparable<IdType> {
-    constructor(s: String?): this(if(s == null) null else try {UUID.fromString(s)} catch (e: IllegalArgumentException) {null})
-    override fun compareTo(other: IdType): Int = compareValuesBy(this, other) {it.uuid}
-    override fun toString(): String {
-        return uuid?.toString()?: ""
-    }
-    fun isEmpty() = uuid == null
-    fun isNotEmpty() = uuid != null
-
-    override fun hashCode(): Int {
-        this.uuid?: return this.hashCode()
-        val hilo: Long = mostSignificantBits xor leastSignificantBits
-        return (hilo shr 32).toInt() xor hilo.toInt()
-    }
-
-    val mostSignificantBits get() = uuid!!.mostSignificantBits
-    val leastSignificantBits get() = uuid!!.leastSignificantBits
-
-    override fun equals(other: Any?): Boolean {
-        if(other !is IdType) return false
-        return this.uuid == other.uuid
-    }
-
-    companion object {
-        fun empty() = IdType(null as String?)
-        fun fromString(value: String) = if(value.isEmpty()) IdType.empty() else IdType(UUID.fromString(value))
-        fun fromByteArray(value: ByteArray) = Converters().blobToIdType(value)
-    }
-}
 
 class Converters {
     @TypeConverter
     fun toLabelType(value: String?) = if(value==null) null else LabelType.valueOf(value)
 
     @TypeConverter
-    fun idTypeToBlob(value: IdType?): ByteArray? {
-        if(value == null || value.isEmpty()) return null
-        val l1 = value.mostSignificantBits
-        val l2 = value.leastSignificantBits
-
-        var l = l1
-        val result = ByteArray(16)
-        for (i in 8 - 1 downTo 0) {
-            result[i] = (l and 0xFFL).toByte()
-            l = l shr java.lang.Byte.SIZE
-        }
-        l = l2
-        for (i in 16 - 1 downTo 8) {
-            result[i] = (l and 0xFFL).toByte()
-            l = l shr java.lang.Byte.SIZE
-        }
-        return result
-    }
+    fun idTypeToBlob(value: IdType?): ByteArray? = value?.toByteArray()
 
     @TypeConverter
-    fun blobToIdType(value: ByteArray?): IdType? {
-        if(value==null) return null
-        if(value.size == 1) {
-            return IdType.empty()
-        }
-        if(value.size != 16) {
-            throw RuntimeException("Blob size != 16 but ${value.size}")
-        }
-        var bits1 = 0L
-        for (i in 0 until 8) {
-            bits1 = bits1 shl java.lang.Byte.SIZE
-            bits1 = bits1 or (value[i].toInt() and 0xFF).toLong()
-        }
-        var bits2 = 0L
-        for (i in 8 until 16) {
-            bits2 = bits2 shl java.lang.Byte.SIZE
-            bits2 = bits2 or (value[i].toInt() and 0xFF).toLong()
-        }
-        return IdType(UUID(bits1, bits2))
-    }
+    fun blobToIdType(value: ByteArray?): IdType? = IdType.fromByteArray(value)
 
     @TypeConverter
     fun fromLabelType(value: LabelType?) = value?.name

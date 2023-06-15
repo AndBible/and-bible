@@ -85,6 +85,8 @@ dependencies {
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
     implementation("androidx.core:core-ktx:$coreKtxVersion")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
+    testImplementation("junit:junit:4.12")
+    testImplementation("org.hamcrest:hamcrest-library:2.2")
 
     kapt("androidx.room:room-compiler:$roomVersion")
 }

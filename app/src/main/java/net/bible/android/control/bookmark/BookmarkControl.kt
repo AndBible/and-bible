@@ -134,7 +134,7 @@ open class BookmarkControl @Inject constructor(
 
             dao.deleteLabelsFromBookmark(bookmark.id, toBeDeleted.map {it})
 
-            val addBookmarkToLabels = toBeAdded.filter {it.isNotEmpty() }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it)) }
+            val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it)) }
             dao.insert(addBookmarkToLabels)
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
@@ -203,7 +203,7 @@ open class BookmarkControl @Inject constructor(
 
     fun insertOrUpdateLabel(label: Label): Label {
         label.name = label.name.trim()
-        if(label.id.isEmpty()) throw RuntimeException("Illegal empty label.id")
+        if(label.id.isEmpty) throw RuntimeException("Illegal empty label.id")
         if(label.new) {
             dao.insert(label)
             label.new = false
