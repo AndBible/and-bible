@@ -1159,4 +1159,5 @@
     <string name="are_you_sure_reset_local">This will reset your local database for %s with the content that is currently stored in cloud service.</string>
     <string name="are_you_sure_reset_cloud">This will reset your cloud database for %s with the content that you have in this device.</string>
     <string name="sync_cant_fetch">The version of database stored in Cloud is higher than the one supported by this app. Disabling synchronizing for %s.</string>
+    <string name="sign_in_failed">Signing in to synchronization backend service failed.</string>
 </resources>

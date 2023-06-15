@@ -100,14 +100,17 @@ object DeviceSynchronize {
     val signedIn get() = _adapter != null && adapter.signedIn
 
     private val signInMutex = Mutex()
-    suspend fun signIn(activity: ActivityBase): Boolean {
+    suspend fun signIn(activity: ActivityBase) {
         if(signInMutex.isLocked) {
             Log.i(TAG, "Already signing in!")
-            return false
+            return
         }
-        return signInMutex.withLock {
+        val success = signInMutex.withLock {
             _adapter = CloudAdapters.current.newAdapter
             adapter.signIn(activity)
+        }
+        if(!success) {
+            Dialogs.showMsg2(activity, R.string.sign_in_failed)
         }
     }
     suspend fun signOut() {
