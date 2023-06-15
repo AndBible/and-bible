@@ -61,7 +61,7 @@ object IdTypeSerializer : KSerializer<IdType> {
 @Serializable(with = IdTypeSerializer::class)
 data class IdType(
     @Serializable(with = UUIDSerializer::class)
-    val uuid: UUID? = UUID.randomUUID(),
+    private val uuid: UUID? = UUID.randomUUID(),
 ): Comparable<IdType> {
     constructor(s: String?): this(if(s == null) null else try {UUID.fromString(s)} catch (e: IllegalArgumentException) {null})
     override fun compareTo(other: IdType): Int = compareValuesBy(this, other) {it.uuid}
@@ -72,10 +72,13 @@ data class IdType(
     fun isNotEmpty() = uuid != null
 
     override fun hashCode(): Int {
-        val uuid = this.uuid?: return this.hashCode()
-        val hilo: Long = uuid.mostSignificantBits xor uuid.leastSignificantBits
+        this.uuid?: return this.hashCode()
+        val hilo: Long = mostSignificantBits xor leastSignificantBits
         return (hilo shr 32).toInt() xor hilo.toInt()
     }
+
+    val mostSignificantBits get() = uuid!!.mostSignificantBits
+    val leastSignificantBits get() = uuid!!.leastSignificantBits
 
     override fun equals(other: Any?): Boolean {
         if(other !is IdType) return false
@@ -95,10 +98,9 @@ class Converters {
 
     @TypeConverter
     fun idTypeToBlob(value: IdType?): ByteArray? {
-        if(value == null) return null
-        val uuid = value.uuid ?: return null
-        val l1 = uuid.mostSignificantBits
-        val l2 = uuid.leastSignificantBits
+        if(value == null || value.isEmpty()) return null
+        val l1 = value.mostSignificantBits
+        val l2 = value.leastSignificantBits
 
         var l = l1
         val result = ByteArray(16)

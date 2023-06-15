@@ -71,7 +71,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         return WorkspaceViewHolder(view)
     }
 
-    override fun getItemId(position: Int): Long = items[position].id.uuid!!.mostSignificantBits
+    override fun getItemId(position: Int): Long = items[position].id.hashCode().toLong()
 
     override fun getItemCount() = items.size
 
@@ -100,7 +100,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         dragHolder.setColorFilter(workspaceColor)
 
         layout.setOnClickListener {
-            val workspaceMap = items.associateBy { it.id.uuid!!.mostSignificantBits }
+            val workspaceMap = items.associateBy { it.id.hashCode().toLong() }
             activity.goToWorkspace(workspaceMap[getItemId(position)]!!.id)
         }
         layout.setOnLongClickListener {true}
