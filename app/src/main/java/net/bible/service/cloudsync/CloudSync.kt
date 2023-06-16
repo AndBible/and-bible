@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.devicesync
+package net.bible.service.cloudsync
 
 import android.app.AlertDialog
 import android.content.Intent
@@ -94,7 +94,7 @@ enum class CloudAdapters {
     }
 }
 
-object DeviceSynchronize {
+object CloudSync {
     private var _adapter: CloudAdapter? = null
     private val adapter: CloudAdapter get() = _adapter!!
 
@@ -128,7 +128,7 @@ object DeviceSynchronize {
 
     enum class InitialOperation {FETCH_INITIAL, CREATE_NEW}
     private val uiMutex = Mutex()
-    private suspend fun initializeSync(dbDef: SyncableDatabaseDefinition<*>) {
+    private suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>) {
         var initialOperation: InitialOperation?= null
 
         val syncFolderName = "${application.applicationInfo.packageName}-sync-${dbDef.categoryName}"
@@ -245,7 +245,7 @@ object DeviceSynchronize {
         }
     }
 
-    private fun createAndUploadInitial(dbDef: SyncableDatabaseDefinition<*>) {
+    private fun createAndUploadInitial(dbDef: SyncableDatabaseAccessor<*>) {
         dbDef.dao.clearLog()
         dbDef.dao.clearSyncStatus()
         dbDef.writableDb.query("VACUUM;").use {  }
@@ -265,7 +265,7 @@ object DeviceSynchronize {
         gzippedTmpFile.delete()
     }
 
-    private suspend fun fetchAndRestoreInitial(dbDef: SyncableDatabaseDefinition<*>) {
+    private suspend fun fetchAndRestoreInitial(dbDef: SyncableDatabaseAccessor<*>) {
         val deviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val initialFile = adapter
             .listFiles(
@@ -297,8 +297,8 @@ object DeviceSynchronize {
             dbDef.resetLocalDb()
             dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
             dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
-            DatabaseSync.dropTriggers(dbDef)
-            DatabaseSync.createTriggers(dbDef)
+            dropTriggers(dbDef)
+            createTriggers(dbDef)
             dbDef.dao.addStatus(
                 SyncStatus(
                     CommonUtils.deviceIdentifier,
@@ -390,7 +390,7 @@ object DeviceSynchronize {
 
     class PatchFilesSkipped: Exception()
 
-    private suspend fun downloadAndApplyNewPatches(dbDef: SyncableDatabaseDefinition<*>) = withContext(Dispatchers.IO) {
+    private suspend fun downloadAndApplyNewPatches(dbDef: SyncableDatabaseAccessor<*>) = withContext(Dispatchers.IO) {
         val lastSynchronized = dbDef.dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
         val lastSynchronizedDateTime = DateTime(lastSynchronized)
         val syncFolder = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
@@ -467,14 +467,14 @@ object DeviceSynchronize {
             SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.size, it.file.createdTime.value)
         }
 
-        DatabaseSync.applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
+        applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
         downloadedFiles.forEach { it.delete() }
         dbDef.reactToUpdates(lastSynchronized)
         dbDef.dao.addStatuses(syncStatuses)
     }
-    private suspend fun createAndUploadNewPatch(dbDef: SyncableDatabaseDefinition<*>) = withContext(Dispatchers.IO) {
+    private suspend fun createAndUploadNewPatch(dbDef: SyncableDatabaseAccessor<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
-        val file = DatabaseSync.createPatchForDatabase(dbDef)?: return@withContext
+        val file = createPatchForDatabase(dbDef)?: return@withContext
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val count = (dbDef.dao.lastPatchNum(CommonUtils.deviceIdentifier)?: 0) + 1
         val fileName = "$count.${dbDef.version}.sqlite3.gz"

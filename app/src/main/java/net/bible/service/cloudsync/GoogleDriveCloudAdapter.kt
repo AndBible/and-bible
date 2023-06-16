@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.devicesync
+package net.bible.service.cloudsync
 
 import android.accounts.Account
 import android.app.Activity

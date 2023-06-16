@@ -66,9 +66,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
-import net.bible.service.devicesync.DeviceSynchronize
-import net.bible.service.devicesync.SYNC_DEVICE_FOLDER_FILE_ID_KEY
-import net.bible.service.devicesync.SYNC_FOLDER_FILE_ID_KEY
+import net.bible.service.cloudsync.CloudSync
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
@@ -669,9 +667,9 @@ object BackupControl {
                 }
             }
             if(CommonUtils.isGoogleDriveSyncEnabled) {
-                DeviceSynchronize.signIn(activity)
-                DeviceSynchronize.start()
-                DeviceSynchronize.waitUntilFinished()
+                CloudSync.signIn(activity)
+                CloudSync.start()
+                CloudSync.waitUntilFinished()
             }
         }
         hourglass.dismiss()

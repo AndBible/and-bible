@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.devicesync
+package net.bible.service.cloudsync
 
 import com.google.api.client.util.DateTime
 import net.bible.android.view.activity.base.ActivityBase

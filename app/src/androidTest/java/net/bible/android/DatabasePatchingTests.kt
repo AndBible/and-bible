@@ -25,11 +25,11 @@ import androidx.test.filters.SmallTest
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.CommonUtils
-import net.bible.service.devicesync.DatabaseCategory
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
 
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.devicesync.SyncableDatabaseDefinition
-import net.bible.service.devicesync.DatabaseSync
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.service.cloudsync.DatabaseSync
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert
 import org.junit.Before
@@ -48,9 +48,9 @@ class DatabasePatchingTests {
         DatabaseContainer.instance
     }
 
-    private fun getDbDef(dbFile1: File): SyncableDatabaseDefinition<BookmarkDatabase> {
+    private fun getDbDef(dbFile1: File): SyncableDatabaseAccessor<BookmarkDatabase> {
         var bmarkDb = DatabaseContainer.instance.getBookmarkDb(dbFile1.absolutePath)
-        val dbDef = SyncableDatabaseDefinition(
+        val dbDef = SyncableDatabaseAccessor(
             bmarkDb,
             {DatabaseContainer.instance.getBookmarkDb(it)},
             {
@@ -59,14 +59,14 @@ class DatabasePatchingTests {
                 bmarkDb
             },
             dbFile1,
-            DatabaseCategory.BOOKMARKS,
+            SyncableDatabaseDefinition.BOOKMARKS,
             deviceId = UUID.randomUUID().toString(),
         )
         DatabaseSync.createTriggers(dbDef)
         return dbDef
     }
 
-    private fun sync(dbDef1: SyncableDatabaseDefinition<*>, dbDef2: SyncableDatabaseDefinition<*>) {
+    private fun sync(dbDef1: SyncableDatabaseAccessor<*>, dbDef2: SyncableDatabaseAccessor<*>) {
         val patch1 = DatabaseSync.createPatchForDatabase(dbDef1)
         val patch2 = DatabaseSync.createPatchForDatabase(dbDef2)
         DatabaseSync.applyPatchesForDatabase(dbDef1, patch2)
@@ -74,7 +74,7 @@ class DatabasePatchingTests {
         checkLog(dbDef1, dbDef2)
     }
 
-    private fun sync3(dbDef1: SyncableDatabaseDefinition<*>, dbDef2: SyncableDatabaseDefinition<*>, dbDef3: SyncableDatabaseDefinition<*>) {
+    private fun sync3(dbDef1: SyncableDatabaseAccessor<*>, dbDef2: SyncableDatabaseAccessor<*>, dbDef3: SyncableDatabaseAccessor<*>) {
         val patch1 = DatabaseSync.createPatchForDatabase(dbDef1)
         val patch2 = DatabaseSync.createPatchForDatabase(dbDef2)
         val patch3 = DatabaseSync.createPatchForDatabase(dbDef3)
@@ -85,7 +85,7 @@ class DatabasePatchingTests {
         checkLog(dbDef2, dbDef3)
     }
 
-    private fun checkLog(dbDef1: SyncableDatabaseDefinition<*>, dbDef2: SyncableDatabaseDefinition<*>) {
+    private fun checkLog(dbDef1: SyncableDatabaseAccessor<*>, dbDef2: SyncableDatabaseAccessor<*>) {
         dbDef1.dao.allLogEntries() mustEqualTo dbDef2.dao.allLogEntries()
     }
 

@@ -23,12 +23,9 @@ import androidx.room.RoomDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
-import net.bible.android.database.IdType
 import net.bible.android.database.LogEntry
-import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.OldMonolithicAppDatabase
 import net.bible.android.database.REPO_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
@@ -47,9 +44,10 @@ import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.migrations.workspacesMigrations
 import net.bible.service.db.oldmigrations.oldMigrations
-import net.bible.service.devicesync.DatabaseCategory
-import net.bible.service.devicesync.DatabaseSync
-import net.bible.service.devicesync.SyncableDatabaseDefinition
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.service.cloudsync.createTriggers
+import net.bible.service.cloudsync.dropTriggers
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -153,8 +151,8 @@ class DatabaseContainer {
     init {
         if(!application.isRunningTests) {
             for (dbDef in getDatabaseDefinitions(this).map { it.invoke() }) {
-                DatabaseSync.dropTriggers(dbDef)
-                DatabaseSync.createTriggers(dbDef)
+                dropTriggers(dbDef)
+                createTriggers(dbDef)
             }
         }
     }
@@ -295,32 +293,32 @@ class DatabaseContainer {
         }
 
         val dbDefFactories get() = getDatabaseDefinitions(instance)
-        fun getDatabaseDefinitions(container: DatabaseContainer): List<() -> SyncableDatabaseDefinition<*>> = container.run {
+        fun getDatabaseDefinitions(container: DatabaseContainer): List<() -> SyncableDatabaseAccessor<*>> = container.run {
             listOf(
-                { SyncableDatabaseDefinition(
+                { SyncableDatabaseAccessor(
                     bookmarkDb,
                     { n -> getBookmarkDb(n) }, { resetBookmarkDb() },
                     application.getDatabasePath(BookmarkDatabase.dbFileName),
-                    DatabaseCategory.BOOKMARKS,
+                    SyncableDatabaseDefinition.BOOKMARKS,
                     { entries ->
                         ABEventBus.post(BookmarksUpdatedViaSyncEvent(entries))
                     },
                 ) },
-                { SyncableDatabaseDefinition(
+                { SyncableDatabaseAccessor(
                     workspaceDb,
                     { n -> getWorkspaceDb(n) }, { resetWorkspaceDb() },
                     application.getDatabasePath(WorkspaceDatabase.dbFileName),
-                    DatabaseCategory.WORKSPACES,
+                    SyncableDatabaseDefinition.WORKSPACES,
                     {
                         ABEventBus.post(WorkspacesUpdatedViaSyncEvent(it))
                     },
                 ) },
-                { SyncableDatabaseDefinition(
+                { SyncableDatabaseAccessor(
                     readingPlanDb,
                     { n -> getReadingPlanDb(n) },
                     { resetReadingPlanDb() },
                     application.getDatabasePath(ReadingPlanDatabase.dbFileName),
-                    DatabaseCategory.READINGPLANS,
+                    SyncableDatabaseDefinition.READINGPLANS,
                     {
                         ABEventBus.post(ReadingPlansUpdatedViaSyncEvent(it))
                     },

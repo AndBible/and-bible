@@ -20,7 +20,6 @@ package net.bible.android.view.activity.settings
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.ListPreference
-import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -31,9 +30,9 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
-import net.bible.service.devicesync.CloudAdapters
-import net.bible.service.devicesync.DatabaseCategory
-import net.bible.service.devicesync.DeviceSynchronize
+import net.bible.service.cloudsync.CloudAdapters
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.cloudsync.CloudSync
 
 class SyncSettingsActivity: ActivityBase() {
     private lateinit var binding: SettingsDialogBinding
@@ -57,18 +56,18 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
     private val hourglassContainer = lazy { Hourglass(requireContext()) }
     private val hourglass get() = hourglassContainer.value
     private fun setupDrivePref(pref: SwitchPreferenceCompat) {
-        val category = DatabaseCategory.nameToCategory[pref.key.split("_")[1].uppercase()]!!
+        val category = SyncableDatabaseDefinition.nameToCategory[pref.key.split("_")[1].uppercase()]!!
         pref.setOnPreferenceClickListener {
             if(category.enabled) {
                 lifecycleScope.launch {
                     hourglass.show(R.string.synchronizing)
-                    if (!DeviceSynchronize.signedIn) {
-                        DeviceSynchronize.signIn(activity as ActivityBase)
+                    if (!CloudSync.signedIn) {
+                        CloudSync.signIn(activity as ActivityBase)
                     }
-                    if (DeviceSynchronize.signedIn && category.enabled) {
-                        DeviceSynchronize.waitUntilFinished()
-                        DeviceSynchronize.start()
-                        DeviceSynchronize.waitUntilFinished()
+                    if (CloudSync.signedIn && category.enabled) {
+                        CloudSync.waitUntilFinished()
+                        CloudSync.start()
+                        CloudSync.waitUntilFinished()
                     }
                     hourglass.dismiss()
                     activity?.recreate()
@@ -85,14 +84,14 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_readingplans").run { setupDrivePref(this!!) }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_workspaces").run { setupDrivePref(this!!) }
         preferenceScreen.findPreference<Preference>("gdrive_reset_sync")!!.run {
-            if(!CommonUtils.isGoogleDriveSyncEnabled || !DeviceSynchronize.signedIn) {
+            if(!CommonUtils.isGoogleDriveSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
             }
             setOnPreferenceClickListener {
                 lifecycleScope.launch {
                     if(Dialogs.simpleQuestion(requireContext(), message =getString(R.string.sync_confirmation))) {
                         hourglass.show()
-                        DeviceSynchronize.signOut()
+                        CloudSync.signOut()
                         hourglass.dismiss()
                         activity?.recreate()
                     }
@@ -101,18 +100,18 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             }
         }
         preferenceScreen.findPreference<Preference>("gdrive_info")!!.run {
-            if(!CommonUtils.isGoogleDriveSyncEnabled || !DeviceSynchronize.signedIn) {
+            if(!CommonUtils.isGoogleDriveSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
             } else {
                 lifecycleScope.launch {
-                    val bytesUsed = DeviceSynchronize.bytesUsed()
+                    val bytesUsed = CloudSync.bytesUsed()
                     val megaBytesUsed = bytesUsed / (1024.0 * 1024)
                     summary = getString(R.string.cloud_info_summary, String.format("%.2f", megaBytesUsed))
                 }
             }
         }
         preferenceScreen.findPreference<ListPreference>("sync_adapter")!!.run {
-            if(DeviceSynchronize.signedIn) {
+            if(CloudSync.signedIn) {
                 isEnabled = false
             }
             fun setSummary(newValue: CloudAdapters) {

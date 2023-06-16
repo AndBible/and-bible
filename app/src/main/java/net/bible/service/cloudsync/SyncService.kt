@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.devicesync
+package net.bible.service.cloudsync
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -108,8 +108,8 @@ class SyncService: Service() {
         wakeLock.acquire(5*60*1000) // 5 minutes
 
         scope.launch {
-            DeviceSynchronize.synchronize()
-            DeviceSynchronize.waitUntilFinished(true)
+            CloudSync.synchronize()
+            CloudSync.waitUntilFinished(true)
             Log.i(TAG, "Synchronize finished")
             if(wakeLock.isHeld) {
                 wakeLock.release()

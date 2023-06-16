@@ -60,7 +60,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
@@ -123,7 +122,7 @@ import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
-import net.bible.service.devicesync.DeviceSynchronize
+import net.bible.service.cloudsync.CloudSync
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -1278,8 +1277,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private suspend fun startSync(signIn: Boolean = true) {
         if(CommonUtils.isGoogleDriveSyncEnabled) {
-            if(signIn && !DeviceSynchronize.signedIn) {
-                DeviceSynchronize.signIn(this@MainBibleActivity)
+            if(signIn && !CloudSync.signedIn) {
+                CloudSync.signIn(this@MainBibleActivity)
             }
             if(now - lastSynchronized > syncInterval) {
                 synchronize(true)
@@ -1295,7 +1294,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     class StopSync: CancellationException()
 
     private suspend fun periodicSync() {
-        if(CommonUtils.isGoogleDriveSyncEnabled && DeviceSynchronize.signedIn) {
+        if(CommonUtils.isGoogleDriveSyncEnabled && CloudSync.signedIn) {
             Log.i(TAG, "Periodic sync starting")
             try {
                 while (true) {
@@ -1320,13 +1319,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val now get() = System.currentTimeMillis()
 
     private suspend fun synchronize(force: Boolean = false) {
-        if(CommonUtils.isGoogleDriveSyncEnabled && DeviceSynchronize.signedIn) {
+        if(CommonUtils.isGoogleDriveSyncEnabled && CloudSync.signedIn) {
             windowRepository.saveIntoDb(false)
-            if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && DeviceSynchronize.hasChanges())) {
+            if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {
                 Log.i(TAG, "Performing periodic sync")
                 CommonUtils.settings.setLong("globalLastSynchronized", now)
-                DeviceSynchronize.start()
-                DeviceSynchronize.waitUntilFinished()
+                CloudSync.start()
+                CloudSync.waitUntilFinished()
             }
         }
     }
