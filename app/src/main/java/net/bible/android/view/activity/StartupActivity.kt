@@ -130,7 +130,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private suspend fun checkForExternalStorage(): Boolean {
         var time = 0L
         val delayMillis = 50L
-        val timeout = 5000L
+        val timeout = 15000L
         var success = true
         while(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED) {
             delay(delayMillis)
