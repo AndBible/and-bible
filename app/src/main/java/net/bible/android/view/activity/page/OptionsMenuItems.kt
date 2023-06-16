@@ -412,11 +412,11 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
 class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types): Preference(settings, type) {
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ManageLabels::class.java)
-        val originalValues = value as List<String>
+        val originalValues = value as List<IdType>
 
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.HIDELABELS,
-            selectedLabels = originalValues.map{ IdType(it) }.toMutableSet(),
+            selectedLabels = originalValues.toMutableSet(),
             isWindow = settings.windowId != null
         ).applyFrom(windowRepository.workspaceSettings).toJSON())
         activity.lifecycleScope.launch (Dispatchers.Main) {
