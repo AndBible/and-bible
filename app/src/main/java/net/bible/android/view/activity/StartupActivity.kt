@@ -32,6 +32,7 @@ import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
@@ -126,22 +127,25 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         return result;
     }
 
-    private fun checkForExternalStorage(): Boolean {
-        var abortErrorMsgId = 0
-        val state = Environment.getExternalStorageState()
-        Log.i(TAG, "External storage state is $state")
-
-        if (Environment.MEDIA_MOUNTED != state) {
-            abortErrorMsgId = R.string.no_sdcard_error
-        }
-
-        if (abortErrorMsgId != 0) {
-            Dialogs.showErrorMsg(abortErrorMsgId) {
-                finish()
+    private suspend fun checkForExternalStorage(): Boolean {
+        var time = 0L
+        val delayMillis = 50L
+        val timeout = 5000L
+        var success = true
+        while(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED) {
+            delay(delayMillis)
+            time += delayMillis;
+            if(time > timeout) {
+                Log.e(TAG, "waitForBibleView timed out")
+                success = false
+                break
             }
-            return false;
         }
-        return true
+        if(!success) {
+            Dialogs.showMsg2(this@StartupActivity, R.string.no_sdcard_error)
+            finish()
+        }
+        return success
     }
 
     private suspend fun checkWebView(): Boolean {
@@ -187,9 +191,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         setContentView(spinnerBinding.root)
         buildActivityComponent().inject(this)
         supportActionBar!!.hide()
-        if (!checkForExternalStorage()) return
 
         lifecycleScope.launch {
+            if (!checkForExternalStorage()) return@launch
             if(!BuildVariant.Appearance.isDiscrete) {
                 ErrorReportControl.checkCrash(this@StartupActivity)
             }
