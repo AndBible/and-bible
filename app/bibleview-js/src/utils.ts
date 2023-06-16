@@ -557,7 +557,7 @@ export function clickWaiter(handleTouch = true) {
     let clickDeferred: Nullable<Deferred> = null;
 
     async function waitForClick(event: MouseEvent | TouchEvent) {
-        if (event.type === "touchstart" && !handleTouch) {
+        if ((event.type === "touchstart" || event.type === "mousedown") && !handleTouch) {
             return false;
         }
         event.stopPropagation();
@@ -570,7 +570,7 @@ export function clickWaiter(handleTouch = true) {
                     console.error("Deferred not found");
                 }
                 return false;
-            } else if (event.type === "touchstart") {
+            } else if (event.type === "touchstart" || event.type === "mousedown") {
                 clickDeferred = new Deferred();
                 await clickDeferred.wait();
                 return true;

@@ -21,6 +21,7 @@
   <div class="label-list" :class="{singleLine}">
     <div
         @touchstart="labelClicked($event, label)"
+        @mousedown="labelClicked($event, label)"
         @click="labelClicked($event, label)"
         v-for="label in labels"
         :key="label.id"
@@ -165,6 +166,7 @@ defineExpose({openActions});
 }
 
 .label {
+  cursor: pointer;
   position: relative;
   top: -2px;
   margin-top: 3px;

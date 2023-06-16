@@ -30,7 +30,7 @@
     </template>
 
     <template #extra-buttons>
-      <div class="modal-action-button" @click="toggleInfo" @touchstart="toggleInfo">
+      <div class="modal-action-button" @click="toggleInfo" @mousedown="toggleInfo" @touchstart="toggleInfo">
         <template v-if="infoShown">
           <FontAwesomeIcon icon="edit"/>
         </template>
@@ -119,12 +119,12 @@ const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
 
 const bookmark = computed<Bookmark | null>(() => {
     if (!bookmarkId.value) return null;
-    return bookmarkMap.get(bookmarkId.value)!;
+    return bookmarkMap.get(bookmarkId.value!)!;
 });
 
 const labels = computed(() => {
     if (!bookmark.value) return [];
-    return sortBy(bookmark.value.labels.map(l => bookmarkLabels.get(l)!), ["name"])
+    return sortBy(bookmark.value!.labels.map(l => bookmarkLabels.get(l)!), ["name"])
 });
 
 const bookmarkNotes = computed(() => bookmark.value!.notes);
@@ -164,15 +164,15 @@ const {adjustedColor, strings, sprintf, formatTimestamp} = useCommon();
 
 const changeNote = (text: string) => {
     if (bookmark.value) {
-        android.saveBookmarkNote(bookmark.value.id, text);
+        android.saveBookmarkNote(bookmark.value!.id, text);
     }
 }
 
 const originalBookLink = computed(() => {
     if (!bookmark.value) return ""
-    const prefix = bookmark.value.bookInitials ? bookmark.value.bookInitials : "";
-    const bibleUrl = encodeURI(`osis://?osis=${prefix}:${bookmark.value.osisRef}&v11n=${bookmark.value.v11n}`)
-    return `<a href="${bibleUrl}">${bookmark.value.bookName || strings.defaultBook}</a>`;
+    const prefix = bookmark.value!.bookInitials ? bookmark.value!.bookInitials : "";
+    const bibleUrl = encodeURI(`osis://?osis=${prefix}:${bookmark.value!.osisRef}&v11n=${bookmark.value!.v11n}`)
+    return `<a href="${bibleUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
 })
 
 const editDirectly = ref(false);
@@ -194,6 +194,7 @@ async function toggleInfo(event: MouseEvent | TouchEvent) {
 }
 
 .title-text {
+  cursor: default;
   font-weight: normal;
   padding-top: 2px;
 }
@@ -231,10 +232,6 @@ async function toggleInfo(event: MouseEvent | TouchEvent) {
   }
 }
 
-//.action-buttons {
-//  position: relative;
-//  right: 0;
-//}
 .bible-text {
   text-indent: 5pt;
   font-style: italic;
