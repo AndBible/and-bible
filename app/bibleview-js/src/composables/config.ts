@@ -102,6 +102,7 @@ export type AppSettings = {
     hasActiveIndicator: boolean,
     activeSince: number,
     limitAmbiguousModalSize: boolean,
+    windowId: IdType,
 }
 
 export type CalculatedConfig = Ref<{
@@ -175,6 +176,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         hasActiveIndicator: false,
         activeSince: 0,
         limitAmbiguousModalSize: false,
+        windowId: "",
     });
 
     function calcMmInPx() {

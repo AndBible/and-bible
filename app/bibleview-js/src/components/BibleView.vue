@@ -25,6 +25,7 @@
       <AmbiguousSelection ref="ambiguousSelection"/>
     </template>
     <ErrorBox v-if="appSettings.errorBox"/>
+    <div class="window-id" v-if="appSettings.errorBox">{{appSettings.windowId}}</div>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div v-if="calculatedConfig.topMargin > 0" class="top-margin" :style="`height: ${calculatedConfig.topOffset}px;`"/>
     <div v-if="appSettings.hasActiveIndicator">
@@ -483,5 +484,23 @@ a {
   text-align: center;
   text-decoration: none;
   display: inline-block;
+}
+
+.window-id {
+  top: var(--top-offset);
+  position: fixed;
+  padding: 0.5em;
+  color: red;
+
+  [dir=ltr] & {
+    right: 0;
+  }
+
+  [dir=rtl] & {
+    left: 0;
+  }
+
+  width: 5em;
+  height: 1em;
 }
 </style>

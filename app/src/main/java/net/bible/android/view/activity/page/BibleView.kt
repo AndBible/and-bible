@@ -1123,8 +1123,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         recentLabels: $recentLabels, 
                         hideCompareDocuments: $hideCompareDocuments,
                         limitAmbiguousModalSize: $limitAmbiguousModalSize,
+                        windowId: '${window.displayId}',
                     }, 
-                    initial: $initial
+                    initial: $initial,
                     });
                 """
     }

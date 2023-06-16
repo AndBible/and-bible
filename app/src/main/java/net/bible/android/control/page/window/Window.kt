@@ -72,7 +72,7 @@ class Window (
     val isPrimaryLinksWindow get() = isLinksWindow && id == windowRepository.primaryTargetLinksWindowId
 
     val id = entity.id
-    val displayId = id.toString().substring(0, 4)
+    val displayId = id.toString().substring(0, 5)
 
     var weight: Float
         get() =
