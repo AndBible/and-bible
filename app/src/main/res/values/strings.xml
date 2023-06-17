@@ -761,10 +761,10 @@
     <string name="workspace_listing_with_current">%s (current)</string>
 
     <!-- Beta notice -->
-    <string name="beta_notice_title">This is beta version!</string>
+    <string name="beta_notice_title">This is the beta version!</string>
     <string name="beta_notice_content_1">
         In beta version, there are new features that are not yet properly tested,
-        and thus using beta might introduce unexpected behavior, i.e. bugs.
+        and thus using the beta version might result in unexpected behavior, i.e. bugs.
         It is recommended that ordinary Bible readers use stable version instead.
     </string>
 
