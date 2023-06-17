@@ -91,7 +91,7 @@ class SyncService: Service() {
 
 
         builder
-            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSilent(true)
             .setContentTitle(getString(R.string.synchronizing))
 
