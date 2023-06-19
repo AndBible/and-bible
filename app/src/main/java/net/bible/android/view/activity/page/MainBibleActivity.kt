@@ -998,8 +998,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             val searchLastUsed = preferences.getLong("search-last-used", 0)
 
             val funs = arrayListOf(
-                Pair(speakLastUsed, {addSpeak()}),
-                Pair(searchLastUsed, {addSearch()}),
+                Pair(speakLastUsed) { addSpeak() },
+                Pair(searchLastUsed) { addSearch() },
             )
             funs.sortBy { -it.first }
 
