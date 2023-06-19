@@ -349,20 +349,23 @@ class InstallZip : ActivityBase() {
             it.moveToFirst()
             val displayNameIdx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
             val mimeTypeIdx = it.getColumnIndex("mime_type")
-            Pair(it.getString(displayNameIdx), it.getString(mimeTypeIdx))
+            Pair(
+                if(displayNameIdx < 0) null else it.getString(displayNameIdx),
+                if(mimeTypeIdx < 0) null else it.getString(mimeTypeIdx)
+            )
         }?: throw CantRead()
 
         if (
-            displayName.lowercase().endsWith(".zip")
-            || displayName.lowercase().endsWith(".abmd")
+            displayName?.lowercase()?.endsWith(".zip") == true
+            || displayName?.lowercase()?.endsWith(".abmd") == true
             || mimeType == "application/zip"
         )
             return installZip(uri)
 
         val filetype = when {
-            displayName.lowercase().endsWith(".sqlite3") -> "mybible"
-            displayName.lowercase().endsWith(".mybible") -> "mysword"
-            else -> throw InvalidFile(displayName)
+            displayName?.lowercase()?.endsWith(".sqlite3") == true -> "mybible"
+            displayName?.lowercase()?.endsWith(".mybible") == true -> "mysword"
+            else -> throw InvalidFile(displayName?: uri.toString())
         }
 
         binding.loadingIndicator.visibility = View.VISIBLE
