@@ -901,8 +901,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun updateActions() {
         updateTitle()
-        val biblesForVerse = documentControl.biblesForVerse.filter {currentDocument != it}
-        val commentariesForVerse = documentControl.commentariesForVerse.filter {currentDocument != it}
+        val biblesForVerse = documentControl.biblesForVerse
+        val commentariesForVerse = documentControl.commentariesForVerse
 
         val suggestedBible = documentControl.suggestedBible
         val suggestedCommentary = documentControl.suggestedCommentary
@@ -1088,17 +1088,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         updateActions()
     }
 
-    private fun menuForDocs(v: View, documents: List<Book>): Boolean {
+    private fun menuForDocs(v: View, documents: List<Book>) {
         val menu = PopupMenu(this, v)
         val docs = documents.sortedWith(compareBy({it.language.code}, {it.abbreviation}))
         docs.forEachIndexed { i, book ->
-            if(currentDocument != book) {
-                menu.menu.add(Menu.NONE, i, Menu.NONE, getString(R.string.something_with_parenthesis, book.abbreviation, book.language.code))
+            val item = menu.menu.add(Menu.NONE, i, Menu.NONE, getString(R.string.something_with_parenthesis, book.abbreviation, book.language.code))
+            if(currentDocument == book) {
+                item.isEnabled = false
             }
         }
 
-        if (docs.size == 1) {
-            setCurrentDocument(docs[0])
+        if (docs.size == 2) {
+            setCurrentDocument(docs.first { it != currentDocument })
         } else {
             menu.setOnMenuItemClickListener { item ->
                 setCurrentDocument(docs[item.itemId])
@@ -1106,7 +1107,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
             menu.show()
         }
-        return true
     }
 
     private fun setCurrentDocument(book: Book?) {
