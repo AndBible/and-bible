@@ -22,6 +22,7 @@ import android.text.Html
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.*
 import net.bible.service.format.osistohtml.OSISUtil2
 import org.crosswire.jsword.book.OSISUtil
@@ -167,7 +168,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
 
         if(currentState.visible) {
             if(divineNameLevel > 0) {
-                if(speakSettings.replaceDivineName) {
+                if(AdvancedSpeakSettings.replaceDivineName) {
                     for(i in 0 until divineNameOriginal.size) {
                         if(divineNameOriginal[i].isNotEmpty()) {
                             s = s.replace(divineNameOriginal[i], divineNameReplace[i], false)

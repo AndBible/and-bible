@@ -55,6 +55,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
 
 /**
@@ -143,8 +144,7 @@ class SpeakControl @Inject constructor(
     }
 
     fun onEventMainThread(event: SpeakProgressEvent) {
-        val settings = SpeakSettings.load()
-        if (settings.synchronize) {
+        if (AdvancedSpeakSettings.synchronize) {
             val book = speakPageManager.currentPage.currentDocument
             if(setOf(BookCategory.BIBLE, BookCategory.COMMENTARY).contains(book?.bookCategory)) {
                 speakPageManager.setCurrentDocumentAndKey(book, event.key)
@@ -319,7 +319,7 @@ class SpeakControl @Inject constructor(
         }
 
         prepareForSpeaking()
-        if(SpeakSettings.load().synchronize || force) {
+        if(AdvancedSpeakSettings.synchronize || force) {
             speakPageManager.setCurrentDocumentAndKey(book, verse)
         }
         try {

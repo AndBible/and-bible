@@ -17,9 +17,7 @@
 
 package net.bible.android.view.activity.speak
 
-import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
@@ -32,6 +30,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
+import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.common.automaticSpeakBookmarkingVideo
 import net.bible.service.common.htmlToSpan
 
@@ -68,11 +67,11 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
 
     override fun resetView(settings: SpeakSettings) {
         binding.apply {
-            synchronize.isChecked = settings.synchronize
-            replaceDivineName.isChecked = settings.replaceDivineName
-            restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
+            synchronize.isChecked = AdvancedSpeakSettings.synchronize
+            replaceDivineName.isChecked = AdvancedSpeakSettings.replaceDivineName
+            restoreSettingsFromBookmarks.isChecked = AdvancedSpeakSettings.restoreSettingsFromBookmarks
 
-            autoBookmark.isChecked = settings.autoBookmark
+            autoBookmark.isChecked = AdvancedSpeakSettings.autoBookmark
             if (!autoBookmark.isChecked) {
                 restoreSettingsFromBookmarks.isChecked = false
                 restoreSettingsFromBookmarks.isEnabled = false
@@ -93,12 +92,13 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             lastSleepTimer = currentSettings.lastSleepTimer
         }
         binding.apply {
-            settings.synchronize = synchronize.isChecked
-            settings.autoBookmark = autoBookmark.isChecked
-            settings.replaceDivineName = replaceDivineName.isChecked
-            settings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
+            AdvancedSpeakSettings.synchronize = synchronize.isChecked
+            AdvancedSpeakSettings.autoBookmark = autoBookmark.isChecked
+            AdvancedSpeakSettings.replaceDivineName = replaceDivineName.isChecked
+            AdvancedSpeakSettings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
         }
         settings.save(updateBookmark = true)
+        resetView(settings)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

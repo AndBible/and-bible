@@ -74,7 +74,5 @@ abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
     }
 
     abstract fun resetView(settings: SpeakSettings)
-
-
 }
 

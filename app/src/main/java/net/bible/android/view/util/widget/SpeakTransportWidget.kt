@@ -44,6 +44,7 @@ import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
+import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -89,7 +90,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
             rewindButton.setOnClickListener { onButtonClick(it) }
             forwardButton.setOnClickListener { onButtonClick(it) }
             bookmarkButton.setOnClickListener { onBookmarkButtonClick() }
-            bookmarkButton.visibility = if (SpeakSettings.load().autoBookmark) View.VISIBLE else View.GONE
+            bookmarkButton.visibility = if (AdvancedSpeakSettings.autoBookmark) View.VISIBLE else View.GONE
             if (context.theme.obtainStyledAttributes(attributeSet, R.styleable.SpeakTransportWidget, 0, 0)
                     .getBoolean(R.styleable.SpeakTransportWidget_hideStatus, false)
             ) {
@@ -135,7 +136,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                             speakControl.isSpeaking -> speakControl.pause()
                             else -> {
                                 speakControl.speakAny()
-                                if (SpeakSettings.load().synchronize) {
+                                if (AdvancedSpeakSettings.synchronize) {
                                     val intent = Intent(context, MainBibleActivity::class.java)
                                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                                     context.startActivity(intent)
@@ -166,7 +167,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                 .setTitle(R.string.speak_bookmarks_menu_title)
                 .setAdapter(adapter) { _, which ->
                     speakControl.speakFromBookmark(bookmarks[which])
-                    if(SpeakSettings.load().synchronize) {
+                    if(AdvancedSpeakSettings.synchronize) {
                         context.startActivity(Intent(context, MainBibleActivity::class.java)
                             .apply { flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP }
                         )
@@ -185,7 +186,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                     R.drawable.ic_play_arrow_black_24dp
         )
         if(speakSettings != null) {
-            binding.bookmarkButton.visibility = if (speakSettings.autoBookmark) View.VISIBLE else View.GONE
+            binding.bookmarkButton.visibility = if (AdvancedSpeakSettings.autoBookmark) View.VISIBLE else View.GONE
         }
     }
 

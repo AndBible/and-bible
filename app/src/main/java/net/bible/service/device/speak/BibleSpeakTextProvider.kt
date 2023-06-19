@@ -38,6 +38,7 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.service.common.AdvancedSpeakSettings
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
@@ -323,7 +324,7 @@ class BibleSpeakTextProvider(
     }
 
     private fun readBookmark() {
-        if(settings.autoBookmark) {
+        if(AdvancedSpeakSettings.autoBookmark) {
             val verse = currentVerse
 
             val bookmark = bookmarkControl.speakBookmarkForVerse(verse)?: return
@@ -334,7 +335,7 @@ class BibleSpeakTextProvider(
             if(ttsLabel != null) {
                 Log.i(TAG, "Bookmark book ${bookmark.book}")
                 val playbackSettings = bookmark.playbackSettings?.copy()
-                if(playbackSettings != null && settings.restoreSettingsFromBookmarks) {
+                if(playbackSettings != null && AdvancedSpeakSettings.restoreSettingsFromBookmarks) {
                     playbackSettings.bookmarkWasCreated = null
                     playbackSettings.bookId = null
                     settings.playbackSettings = playbackSettings
@@ -371,7 +372,7 @@ class BibleSpeakTextProvider(
 
     private fun saveBookmark() {
         val labelList = mutableSetOf<Label>()
-        if(settings.autoBookmark) {
+        if(AdvancedSpeakSettings.autoBookmark) {
             var bookmark = bookmarkControl.firstBookmarkStartingAtVerse(startVerse)?.run {
                 if(textRange != null) null else this
             }

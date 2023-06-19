@@ -42,6 +42,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
 import net.bible.service.device.speak.TextCommand
@@ -190,7 +191,7 @@ class SpeakWidgetManager {
         }
 
         val label = bookmarkControl.speakLabel
-        if(!SpeakSettings.load().autoBookmark) {
+        if(!AdvancedSpeakSettings.autoBookmark) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
         }
 

@@ -227,8 +227,26 @@ class Ref<T>(var value: T? = null)
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-object CommonUtils : CommonUtilsBase() {
 
+object AdvancedSpeakSettings {
+    var autoBookmark
+        get() = CommonUtils.settings.getBoolean("speak_autoBookmark", false)
+        set(value) = CommonUtils.settings.setBoolean("speak_autoBookmark", value)
+
+    var synchronize
+        get() = CommonUtils.settings.getBoolean("speak_synchronize", false)
+        set(value) = CommonUtils.settings.setBoolean("speak_synchronize", value)
+
+    var replaceDivineName
+        get() = CommonUtils.settings.getBoolean("speak_replaceDivineName", false)
+        set(value) = CommonUtils.settings.setBoolean("speak_replaceDivineName", value)
+
+    var restoreSettingsFromBookmarks
+        get() = CommonUtils.settings.getBoolean("speak_restoreSettingsFromBookmarks", false)
+        set(value) = CommonUtils.settings.setBoolean("speak_restoreSettingsFromBookmarks", value)
+}
+
+object CommonUtils : CommonUtilsBase() {
     private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."

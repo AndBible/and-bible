@@ -82,10 +82,6 @@ data class PlaybackSettings (
 
 @Serializable
 data class SpeakSettings(
-    var synchronize: Boolean = true,
-    var replaceDivineName: Boolean = false,
-    var autoBookmark: Boolean = false,
-    var restoreSettingsFromBookmarks: Boolean = false,
     var playbackSettings: PlaybackSettings = PlaybackSettings(),
     var sleepTimer: Int = 0,
     var lastSleepTimer: Int = 10,
