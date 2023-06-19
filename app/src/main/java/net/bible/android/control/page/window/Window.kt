@@ -187,7 +187,7 @@ class Window (
         displayedKey = currentPage.singleKey
         Log.i(TAG, "updateText ${this.hashCode()}")
 
-        updateScope.launch {
+        updateScope.launch(Dispatchers.IO) {
             if (notifyLocationChange) {
                 PassageChangeMediator.contentChangeStarted()
             }
