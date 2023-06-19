@@ -20,12 +20,6 @@ package net.bible.android.database
 
 import android.util.Base64
 import androidx.room.TypeConverter
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.BookmarkType
@@ -43,7 +37,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.security.SecureRandom
 import java.util.Date
 
 
