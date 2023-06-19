@@ -81,17 +81,18 @@ data class PlaybackSettings (
 }
 
 @Serializable
-data class SpeakSettings(var synchronize: Boolean = true,
-                         var replaceDivineName: Boolean = false,
-                         var autoBookmark: Boolean = false,
-                         var restoreSettingsFromBookmarks: Boolean = false,
-                         var playbackSettings: PlaybackSettings = PlaybackSettings(),
-                         var sleepTimer: Int = 0,
-                         var lastSleepTimer: Int = 10,
-                         // General book speak settings
-                         var queue: Boolean = true,
-                         var repeat: Boolean = false,
-                         var numPagesToSpeakId: Int = 0
+data class SpeakSettings(
+    var synchronize: Boolean = true,
+    var replaceDivineName: Boolean = false,
+    var autoBookmark: Boolean = false,
+    var restoreSettingsFromBookmarks: Boolean = false,
+    var playbackSettings: PlaybackSettings = PlaybackSettings(),
+    var sleepTimer: Int = 0,
+    var lastSleepTimer: Int = 10,
+    // General book speak settings
+    var queue: Boolean = true,
+    var repeat: Boolean = false,
+    var numPagesToSpeakId: Int = 0
 ) {
     enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
 
