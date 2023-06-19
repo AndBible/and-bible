@@ -1587,10 +1587,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
-        val end = min(javascript.length, 500)
-        val subStr = javascript.slice(0 until end)
-
-        Log.i(TAG, "Executing JS: $subStr")
+        Log.i(TAG, "Executing JS: ${javascript.slice(0 until  min(javascript.length, 500))}")
         if(htmlLoadingOngoing) {
             Log.e(TAG,"HTML not yet ready, js execution is doomed to fail. $javascript")
             return;
