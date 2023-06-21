@@ -1294,16 +1294,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     class StopSync: CancellationException()
 
     private suspend fun periodicSync() {
-        if(CommonUtils.isGoogleDriveSyncEnabled && CloudSync.signedIn) {
-            Log.i(TAG, "Periodic sync starting")
-            try {
-                while (true) {
-                    delay(60*1000) // 1 minute
-                    synchronize()
-                }
-            } catch (e: StopSync) {
-                Log.i(TAG, "Stopping sync")
+        Log.i(TAG, "Periodic sync starting")
+        try {
+            while (CommonUtils.isGoogleDriveSyncEnabled && CloudSync.signedIn) {
+                delay(60*1000) // 1 minute
+                synchronize()
             }
+        } catch (e: StopSync) {
+            Log.i(TAG, "Stopping sync")
         }
     }
 
