@@ -303,7 +303,7 @@ open class BibleApplication : Application() {
         notificationManager.notify(GENERIC_NOTIFICATION_ID, notification)
     }
 
-    fun createChannels() {
+    private fun createChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (BuildVariant.Appearance.isDiscrete) {
