@@ -80,7 +80,7 @@ interface SyncDao {
     fun findLogEntries(tableName: String, type: String): List<LogEntry>
 
     @Query("DELETE FROM LogEntry")
-    fun clearLog()
+    suspend fun clearLog()
 
     @Query("SELECT patchNumber FROM SyncStatus WHERE sourceDevice=:deviceId ORDER BY patchNumber DESC LIMIT 1")
     fun lastPatchNum(deviceId: String): Long?
@@ -92,7 +92,7 @@ interface SyncDao {
     fun addStatus(status: SyncStatus)
 
     @Query("DELETE FROM SyncStatus")
-    fun clearSyncStatus()
+    suspend fun clearSyncStatus()
 
     @Query("SELECT stringValue FROM SyncConfiguration WHERE keyName = :keyName")
     fun getString(keyName: String): String?
@@ -110,7 +110,7 @@ interface SyncDao {
     fun removeConfig(keyName: String)
 
     @Query("DELETE FROM SyncConfiguration")
-    fun clearSyncConfiguration()
+    suspend fun clearSyncConfiguration()
 
     fun setConfig(key: String, value: Long) = setConfig(SyncConfiguration(key, longValue = value))
     fun setConfig(key: String, value: String) = setConfig(SyncConfiguration(key, stringValue = value))

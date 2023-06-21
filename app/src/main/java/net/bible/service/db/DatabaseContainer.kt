@@ -150,7 +150,7 @@ class DatabaseContainer {
 
     init {
         if(!application.isRunningTests) {
-            for (dbDef in getDatabaseDefinitions(this).map { it.invoke() }) {
+            for (dbDef in getDatabaseAccessorFactories(this).map { it.invoke() }) {
                 dropTriggers(dbDef)
                 createTriggers(dbDef)
             }
@@ -292,8 +292,9 @@ class DatabaseContainer {
             else -> throw IllegalStateException("Unknown database file: $filename")
         }
 
-        val dbDefFactories get() = getDatabaseDefinitions(instance)
-        fun getDatabaseDefinitions(container: DatabaseContainer): List<() -> SyncableDatabaseAccessor<*>> = container.run {
+        val databaseAccessorFactories get() = getDatabaseAccessorFactories(instance)
+        val databaseAccessors get() = databaseAccessorFactories.map { it.invoke() }
+        fun getDatabaseAccessorFactories(container: DatabaseContainer): List<() -> SyncableDatabaseAccessor<*>> = container.run {
             listOf(
                 { SyncableDatabaseAccessor(
                     bookmarkDb,

@@ -117,7 +117,7 @@ object CloudSync {
     suspend fun signOut() {
         adapter.signOut()
         _adapter = null
-        DatabaseContainer.dbDefFactories.asyncMap {
+        DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
             val category = dbDef.category
             category.enabled = false
@@ -245,7 +245,7 @@ object CloudSync {
         }
     }
 
-    private fun createAndUploadInitial(dbDef: SyncableDatabaseAccessor<*>) {
+    private suspend fun createAndUploadInitial(dbDef: SyncableDatabaseAccessor<*>) {
         dbDef.dao.clearLog()
         dbDef.dao.clearSyncStatus()
         dbDef.writableDb.query("VACUUM;").use {  }
@@ -356,7 +356,7 @@ object CloudSync {
             Log.i(TAG, "Synchronizing starts")
             val timerStart = System.currentTimeMillis()
 
-            DatabaseContainer.dbDefFactories.asyncMap {
+            DatabaseContainer.databaseAccessorFactories.asyncMap {
                 val dbDef = it.invoke()
                 if(!dbDef.category.enabled) return@asyncMap
                 try {
@@ -485,13 +485,13 @@ object CloudSync {
     }
 
     suspend fun hasChanges(): Boolean =
-        DatabaseContainer.dbDefFactories.asyncMap {
+        DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
             dbDef.category.enabled && dbDef.hasChanges
         }.any { it }
 
     suspend fun bytesUsed(): Long =
-        DatabaseContainer.dbDefFactories.asyncMap {
+        DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
             dbDef.bytesUsed
         }.sum()

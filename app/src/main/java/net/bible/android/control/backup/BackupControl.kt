@@ -67,6 +67,7 @@ import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
@@ -188,6 +189,7 @@ object BackupControl {
                     }
                     if(version <= OLD_DATABASE_VERSION) {
                         Log.i(TAG, "Loading from backup database with version $version")
+                        beforeRestore()
                         DatabaseContainer.reset()
                         // When restoring old style db, we need to remove all databases first
                         application.databaseList().forEach { name ->
@@ -196,6 +198,7 @@ object BackupControl {
                         ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
                         if(DatabaseContainer.ready) {
                             DatabaseContainer.instance // initialize (migrate etc)
+                            afterRestore()
                         }
                     }
                 }
@@ -590,6 +593,35 @@ object BackupControl {
         return version <= maxDatabaseVersion(file.name)
     }
 
+    private suspend fun beforeRestore() {
+        if(DatabaseContainer.ready && CloudSync.signedIn) {
+            for (it in DatabaseContainer.databaseAccessors) {
+                it.category.enabled = false
+            }
+            ABEventBus.post(ToastEvent(R.string.disabling_sync))
+            CloudSync.waitUntilFinished()
+            CloudSync.signOut()
+        }
+    }
+
+    private suspend fun afterRestore(selection: List<String>? = null) {
+        for (it in DatabaseContainer.databaseAccessors) {
+            it.category.enabled = false
+        }
+        for(s in selection?: ALL_DB_FILENAMES.toList()) {
+            val db: SyncableRoomDatabase? = when(s) {
+                BookmarkDatabase.dbFileName -> DatabaseContainer.instance.bookmarkDb
+                ReadingPlanDatabase.dbFileName -> DatabaseContainer.instance.readingPlanDb
+                WorkspaceDatabase.dbFileName -> DatabaseContainer.instance.workspaceDb
+                else -> null
+            }
+            if(db != null) {
+                db.syncDao().clearSyncStatus()
+                db.syncDao().clearSyncConfiguration()
+            }
+        }
+    }
+
     private suspend fun restoreDatabaseZipFileInputStreamWithUI(
         activity: ActivityBase,
         inputStream: InputStream
@@ -626,6 +658,7 @@ object BackupControl {
                     return@withContext false
                 }
                 hourglass.show()
+                beforeRestore()
                 DatabaseContainer.reset()
                 for (fileName in selection) {
                     val f = File(unzipFolder, "db/${fileName}")
@@ -641,23 +674,7 @@ object BackupControl {
             }
         if (DatabaseContainer.ready) {
             DatabaseContainer.instance
-            for(s in selection) {
-                val db: SyncableRoomDatabase? = when(s) {
-                    BookmarkDatabase.dbFileName -> DatabaseContainer.instance.bookmarkDb
-                    ReadingPlanDatabase.dbFileName -> DatabaseContainer.instance.readingPlanDb
-                    WorkspaceDatabase.dbFileName -> DatabaseContainer.instance.workspaceDb
-                    else -> null
-                }
-                if(db != null) {
-                    db.syncDao().clearSyncStatus()
-                    db.syncDao().clearSyncConfiguration()
-                }
-            }
-            if(CommonUtils.isGoogleDriveSyncEnabled) {
-                CloudSync.signIn(activity)
-                CloudSync.start()
-                CloudSync.waitUntilFinished()
-            }
+            afterRestore(selection)
         }
         hourglass.dismiss()
         Log.i(TAG, "Restored database successfully")
@@ -665,7 +682,6 @@ object BackupControl {
         Dialogs.showMsg(R.string.restore_success2)
         true
     }
-
 
     private suspend fun restoreOldMonolithicDatabaseFromFileInputStreamWithUI(
         activity: ActivityBase,

@@ -1138,7 +1138,6 @@
     <string name="cloud_create_new">Copy from this device to Cloud</string>
     <string name="cloud_disable_sync">Cancel &amp; disable synchronization</string>
     <string name="cloud_sync_title">Device synchronization</string>
-    <string name="device_sync">Synchronize Devices</string>
     <string name="reset_sync">Sign Out</string>
     <string name="prefs_reset_sync_summary">Disable synchronizing and reset related settings.</string>
     <string name="sync_confirmation">Are you sure that you want to sign out and reset synchronization?</string>
@@ -1160,4 +1159,5 @@
     <string name="are_you_sure_reset_cloud">This will reset your cloud database for %s with the content that you have in this device.</string>
     <string name="sync_cant_fetch">The version of database stored in Cloud is higher than the one supported by this app. Disabling synchronizing for %s.</string>
     <string name="sign_in_failed">Signing in to synchronization backend service failed.</string>
+    <string name="disabling_sync">Disabling cloud synchronizing. You must re-enable manually after restore.</string>
 </resources>

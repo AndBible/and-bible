@@ -77,7 +77,7 @@ class SyncService: Service() {
             } else {
                 val channel = NotificationChannel(
                     SYNC_NOTIFICATION_CHANNEL,
-                    getString(R.string.device_sync), NotificationManager.IMPORTANCE_NONE
+                    getString(R.string.cloud_sync_title), NotificationManager.IMPORTANCE_NONE
                 ).apply {
                     lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 }

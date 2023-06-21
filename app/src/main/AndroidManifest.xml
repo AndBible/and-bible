@@ -191,7 +191,7 @@
         <activity
             android:name="net.bible.android.view.activity.settings.SyncSettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/device_sync"
+            android:label="@string/cloud_sync_title"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.settings.TextDisplaySettingsActivity"
