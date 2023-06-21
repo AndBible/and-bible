@@ -24,7 +24,6 @@ import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.api.client.util.DateTime
 import io.requery.android.database.sqlite.SQLiteDatabase
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -371,14 +370,14 @@ object CloudSync {
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "Some other exception happened in initializeSync!", e)
-                    ABEventBus.post(BibleApplication.NotificationEvent("Some other exception happened in initializeSync!"))
+                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
                     return@asyncMap
                 }
                 try {
                     createAndUploadNewPatch(dbDef)
                 } catch (e: Exception) {
                     Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
-                    ABEventBus.post(BibleApplication.NotificationEvent("createAndUploadNewPatch failed due to error"))
+                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
                 }
                 try {
                     try {
@@ -390,7 +389,7 @@ object CloudSync {
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
-                    ABEventBus.post(BibleApplication.NotificationEvent("downloadAndApplyNewPatches failed due to error"))
+                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
                 }
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")

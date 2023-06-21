@@ -81,7 +81,7 @@ object MyLocaleProvider: LocaleProvider {
     var override: Locale? = null
 }
 
-private const val GENERIC_NOTIFICATION_CHANNEL = "generic-notifications"
+private const val ERROR_NOTIFICATION_CHANNEL = "generic-notifications"
 private const val GENERIC_NOTIFICATION_ID=3
 
 /** Main AndBible application singleton object
@@ -267,36 +267,35 @@ open class BibleApplication : Application() {
         }
     }
 
-    class NotificationEvent(val message: String? = null, val messageId: Int?= null, val isError: Boolean = true) {
+    class ErrorNotificationEvent(val message: String? = null, val messageId: Int?= null) {
         constructor(messageId: Int): this(null, messageId)
         constructor(message: String): this(message, null)
     }
-    fun onEventMainThread(ev: NotificationEvent) {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    fun onEventMainThread(ev: ErrorNotificationEvent) {
         if(BuildVariant.Appearance.isDiscrete) return
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                GENERIC_NOTIFICATION_CHANNEL,
-                getString(R.string.cloud_sync_title), NotificationManager.IMPORTANCE_HIGH
+                ERROR_NOTIFICATION_CHANNEL,
+                getString(R.string.error_notification_channel_name), NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
             notificationManager.createNotificationChannel(channel)
         }
 
-        val builder = NotificationCompat.Builder(this, GENERIC_NOTIFICATION_CHANNEL)
+        val intent = Intent(this, ErrorActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        val action = NotificationCompat.Action.Builder(android.R.drawable.ic_dialog_alert, getString(R.string.report), pendingIntent).build()
 
+        val builder = NotificationCompat.Builder(this, ERROR_NOTIFICATION_CHANNEL)
         builder
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSilent(false)
+            .setContentTitle(getString(R.string.error_occurred))
+            .addAction(action)
 
-        if(ev.isError) {
-            builder.setContentTitle(getString(R.string.error_occurred))
-            val intent = Intent(this, ErrorActivity::class.java)
-            val pendingIntent = PendingIntent.getActivity(this, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-            val action = NotificationCompat.Action.Builder(android.R.drawable.ic_dialog_alert, getString(R.string.report), pendingIntent).build()
-            builder.addAction(action)
-        }
         if(ev.message != null) {
             builder.setContentText(ev.message)
         } else {

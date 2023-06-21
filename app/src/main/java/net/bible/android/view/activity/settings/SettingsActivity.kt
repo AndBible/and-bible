@@ -276,7 +276,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         } else {
             crashAppPref.setOnPreferenceClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
-                    ABEventBus.post(BibleApplication.NotificationEvent("Crashing app in 10 seconds!"))
+                    ABEventBus.post(BibleApplication.ErrorNotificationEvent("Crashing app in 10 seconds!"))
                     delay(10000)
                     throw RuntimeException("Crash app!")
                 }
