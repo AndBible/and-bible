@@ -67,6 +67,7 @@ import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
@@ -547,20 +548,6 @@ object BackupControl {
 
     enum class AbDbFileType {
         SQLITE3, ZIP, UNKNOWN
-    }
-
-    private suspend fun determineFileType(inputStream: BufferedInputStream): AbDbFileType = withContext(Dispatchers.IO) {
-        val header = ByteArray(16)
-        inputStream.mark(16)
-        inputStream.read(header)
-        inputStream.reset()
-        val headerString = String(header)
-        if(headerString == "SQLite format 3\u0000")
-            AbDbFileType.SQLITE3
-        else if(headerString.startsWith("PK\u0003\u0004"))
-            AbDbFileType.ZIP
-        else
-            AbDbFileType.UNKNOWN
     }
 
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {

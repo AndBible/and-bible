@@ -92,6 +92,7 @@ import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.WorkspaceEntities
@@ -128,6 +129,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.spongycastle.util.io.pem.PemReader
+import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -1423,6 +1425,21 @@ object CommonUtils : CommonUtilsBase() {
             }
         }
     }
+
+    suspend fun determineFileType(inputStream: BufferedInputStream): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
+        val header = ByteArray(16)
+        inputStream.mark(16)
+        inputStream.read(header)
+        inputStream.reset()
+        val headerString = String(header)
+        if(headerString == "SQLite format 3\u0000")
+            BackupControl.AbDbFileType.SQLITE3
+        else if(headerString.startsWith("PK\u0003\u0004"))
+            BackupControl.AbDbFileType.ZIP
+        else
+            BackupControl.AbDbFileType.UNKNOWN
+    }
+
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
