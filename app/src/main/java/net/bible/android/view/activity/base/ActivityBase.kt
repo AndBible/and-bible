@@ -130,13 +130,17 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     override fun startActivity(intent: Intent) {
-        historyTraversal.beforeStartActivity()
+        if(integrateWithHistoryManager) {
+            historyTraversal.beforeStartActivity()
+        }
 
         super.startActivity(intent)
     }
 
     override fun startActivityForResult(intent: Intent, requestCode: Int) {
-        historyTraversal.beforeStartActivity()
+        if(integrateWithHistoryManager) {
+            historyTraversal.beforeStartActivity()
+        }
 
         super.startActivityForResult(intent, requestCode)
     }

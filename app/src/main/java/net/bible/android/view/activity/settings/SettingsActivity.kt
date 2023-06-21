@@ -38,7 +38,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
@@ -274,6 +276,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         } else {
             crashAppPref.setOnPreferenceClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
+                    ABEventBus.post(BibleApplication.NotificationEvent("Crashing app in 10 seconds!"))
                     delay(10000)
                     throw RuntimeException("Crash app!")
                 }

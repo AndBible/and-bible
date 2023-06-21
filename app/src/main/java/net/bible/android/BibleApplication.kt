@@ -19,13 +19,19 @@ package net.bible.android
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import io.requery.android.database.sqlite.SQLiteDatabase
 import net.bible.android.activity.R
 
@@ -35,7 +41,9 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
+import net.bible.android.view.activity.base.ErrorActivity
 import net.bible.android.view.util.locale.LocaleHelper
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.sword.SwordDocumentFacade
@@ -72,6 +80,9 @@ object MyLocaleProvider: LocaleProvider {
 
     var override: Locale? = null
 }
+
+private const val GENERIC_NOTIFICATION_CHANNEL = "generic-notifications"
+private const val GENERIC_NOTIFICATION_ID=3
 
 /** Main AndBible application singleton object
  *
@@ -254,6 +265,48 @@ open class BibleApplication : Application() {
         } catch (e: Exception) {
             Log.e(TAG, "Error in showing toast $message", e)
         }
+    }
+
+    class NotificationEvent(val message: String? = null, val messageId: Int?= null, val isError: Boolean = true) {
+        constructor(messageId: Int): this(null, messageId)
+        constructor(message: String): this(message, null)
+    }
+    fun onEventMainThread(ev: NotificationEvent) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if(BuildVariant.Appearance.isDiscrete) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                GENERIC_NOTIFICATION_CHANNEL,
+                getString(R.string.cloud_sync_title), NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val builder = NotificationCompat.Builder(this, GENERIC_NOTIFICATION_CHANNEL)
+
+        builder
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setSilent(false)
+
+        if(ev.isError) {
+            builder.setContentTitle(getString(R.string.error_occurred))
+            val intent = Intent(this, ErrorActivity::class.java)
+            val pendingIntent = PendingIntent.getActivity(this, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+            val action = NotificationCompat.Action.Builder(android.R.drawable.ic_dialog_alert, getString(R.string.report), pendingIntent).build()
+            builder.addAction(action)
+        }
+        if(ev.message != null) {
+            builder.setContentText(ev.message)
+        } else {
+            builder.setContentText(getString(ev.messageId?: R.string.error_occurred))
+        }
+
+        builder.setSmallIcon(R.drawable.ic_ichtys)
+
+        val notification = builder.build()
+        notificationManager.notify(GENERIC_NOTIFICATION_ID, notification)
     }
 
     companion object {

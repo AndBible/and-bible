@@ -255,6 +255,11 @@
             android:name="net.bible.android.view.activity.discrete.CalculatorActivity"
             android:label="@string/app_name_calculator"
             />
+        <activity
+            android:name="net.bible.android.view.activity.base.ErrorActivity"
+            android:label="@string/error_occurred"
+            android:exported="true"
+            />
         <service
             android:name="net.bible.service.cloudsync.SyncService"
             android:foregroundServiceType="dataSync" />

@@ -31,6 +31,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.SyncStatus
@@ -370,12 +371,14 @@ object CloudSync {
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "Some other exception happened in initializeSync!", e)
+                    ABEventBus.post(BibleApplication.NotificationEvent("Some other exception happened in initializeSync!"))
                     return@asyncMap
                 }
                 try {
                     createAndUploadNewPatch(dbDef)
                 } catch (e: Exception) {
                     Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
+                    ABEventBus.post(BibleApplication.NotificationEvent("createAndUploadNewPatch failed due to error"))
                 }
                 try {
                     try {
@@ -387,6 +390,7 @@ object CloudSync {
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
+                    ABEventBus.post(BibleApplication.NotificationEvent("downloadAndApplyNewPatches failed due to error"))
                 }
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
