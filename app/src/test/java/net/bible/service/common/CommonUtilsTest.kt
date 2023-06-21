@@ -17,12 +17,12 @@
 package net.bible.service.common
 
 import net.bible.service.common.CommonUtils.getKeyDescription
-import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import org.crosswire.jsword.versification.BibleBook
-import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.passage.Verse
 import org.hamcrest.CoreMatchers
+import org.hamcrest.MatcherAssert
+import org.hamcrest.core.IsEqual
 import org.junit.Assert
 import org.junit.Test
 
@@ -36,5 +36,22 @@ class CommonUtilsTest {
         Assert.assertThat(getKeyDescription(gen1_1), CoreMatchers.equalTo("Genesis 1:1"))
         val gen1_10 = Verse(kjv, BibleBook.GEN, 1, 10)
         Assert.assertThat(getKeyDescription(gen1_10), CoreMatchers.equalTo("Genesis 1:10"))
+    }
+
+    @Test
+    fun tryCatchFinallyIsRunAlways() {
+        var v = 0
+        try {
+            try {
+                throw Exception()
+            } catch (e: Exception) {
+                throw e
+            } finally {
+                v = 1
+            }
+        } catch (e: Exception) {
+
+        }
+        MatcherAssert.assertThat(v, IsEqual.equalTo(1))
     }
 }
