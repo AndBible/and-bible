@@ -203,14 +203,13 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
 
     fun updateSettings() {
         val settings = SpeakSettings.load()
-
         settings.apply {
             playbackSettings = PlaybackSettings(
-                    speakChapterChanges = binding.speakChapterChanges.isChecked,
-                    speakTitles = binding.speakTitles.isChecked,
-                    speakFootnotes = binding.speakFootnotes.isChecked,
-                    speed = binding.speakSpeed.progress,
-                    verseRange = settings.playbackSettings.verseRange
+                speakChapterChanges = binding.speakChapterChanges.isChecked,
+                speakTitles = binding.speakTitles.isChecked,
+                speakFootnotes = binding.speakFootnotes.isChecked,
+                speed = binding.speakSpeed.progress,
+                verseRange = settings.playbackSettings.verseRange
             )
             sleepTimer = currentSettings.sleepTimer
             lastSleepTimer = currentSettings.lastSleepTimer

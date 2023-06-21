@@ -93,14 +93,18 @@ import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.load
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.LabelType
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
@@ -231,21 +235,40 @@ class Ref<T>(var value: T? = null)
  */
 
 object AdvancedSpeakSettings {
-    var autoBookmark
+    var autoBookmark: Boolean
         get() = CommonUtils.settings.getBoolean("speak_autoBookmark", false)
-        set(value) = CommonUtils.settings.setBoolean("speak_autoBookmark", value)
+        set(value) {
+            CommonUtils.settings.setBoolean("speak_autoBookmark", value)
+            ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
+        }
 
-    var synchronize
-        get() = CommonUtils.settings.getBoolean("speak_synchronize", false)
-        set(value) = CommonUtils.settings.setBoolean("speak_synchronize", value)
+    var synchronize: Boolean
+        get() = CommonUtils.settings.getBoolean("speak_synchronize", true)
+        set(value) {
+            CommonUtils.settings.setBoolean("speak_synchronize", value)
+            ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
+        }
 
-    var replaceDivineName
+    var replaceDivineName: Boolean
         get() = CommonUtils.settings.getBoolean("speak_replaceDivineName", false)
-        set(value) = CommonUtils.settings.setBoolean("speak_replaceDivineName", value)
+        set(value) {
+            CommonUtils.settings.setBoolean("speak_replaceDivineName", value)
+            ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
+        }
 
-    var restoreSettingsFromBookmarks
+    var restoreSettingsFromBookmarks: Boolean
         get() = CommonUtils.settings.getBoolean("speak_restoreSettingsFromBookmarks", false)
-        set(value) = CommonUtils.settings.setBoolean("speak_restoreSettingsFromBookmarks", value)
+        set(value) {
+            CommonUtils.settings.setBoolean("speak_restoreSettingsFromBookmarks", value)
+            ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
+        }
+
+    fun reset() {
+        autoBookmark = false
+        synchronize = true
+        replaceDivineName = false
+        restoreSettingsFromBookmarks = false
+    }
 }
 
 object CommonUtils : CommonUtilsBase() {
