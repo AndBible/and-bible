@@ -347,40 +347,38 @@ class InstallZip : ActivityBase() {
         finish()
     }
 
+    enum class FileType {
+        MYBIBLE, MYSWORD;
+        val displayName get () = name.lowercase()
+    }
+
     private suspend fun installFromFile(uri: Uri): Boolean {
-        val (displayName, mimeType) = contentResolver.query(uri, null, null, null, null)?.use {
+        val displayName = contentResolver.query(uri, null, null, null, null)?.use {
             it.moveToFirst()
             val displayNameIdx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            val mimeTypeIdx = it.getColumnIndex("mime_type")
-            Pair(
-                if(displayNameIdx < 0) null else it.getString(displayNameIdx),
-                if(mimeTypeIdx < 0) null else it.getString(mimeTypeIdx)
-            )
-        }?: throw CantRead()
+            if(displayNameIdx < 0) null else it.getString(displayNameIdx)
+        }?: "unknown-filename"
+
         val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
         val fileTypeFromContent = determineFileType(inputStream)
 
-        if (
-            displayName?.lowercase()?.endsWith(".zip") == true
-            || displayName?.lowercase()?.endsWith(".abmd") == true
-            || mimeType == "application/zip"
-            || fileTypeFromContent == BackupControl.AbDbFileType.ZIP
-        )
+        if (fileTypeFromContent == BackupControl.AbDbFileType.ZIP)
             return installZip(uri)
 
         if(fileTypeFromContent != BackupControl.AbDbFileType.SQLITE3) {
-            throw InvalidFile(displayName?: uri.toString())
+            throw InvalidFile(displayName)
         }
 
+
         val filetype = when {
-            displayName?.lowercase()?.endsWith(".sqlite3") == true -> "mybible"
-            displayName?.lowercase()?.endsWith(".mybible") == true -> "mysword"
-            else -> throw InvalidFile(displayName?: uri.toString())
+            displayName.lowercase().endsWith(".sqlite3") -> FileType.MYBIBLE
+            displayName.lowercase().endsWith(".mybible") -> FileType.MYSWORD
+            else -> throw InvalidFile(displayName)
         }
 
         binding.loadingIndicator.visibility = View.VISIBLE
         inputStream.use { fIn ->
-            val outDir = File(SharedConstants.modulesDir, filetype)
+            val outDir = File(SharedConstants.modulesDir, filetype.displayName)
             outDir.mkdirs()
             val outFile = File(outDir, displayName)
             if(outFile.exists()) {
@@ -414,9 +412,8 @@ class InstallZip : ActivityBase() {
                         out.close()
                     }
                     val book = when(filetype) {
-                        "mybible" -> addMyBibleBook(outFile)
-                        "mysword" -> addMySwordBook(outFile)
-                        else -> throw RuntimeException()
+                        FileType.MYBIBLE -> addMyBibleBook(outFile)
+                        FileType.MYSWORD -> addMySwordBook(outFile)
                     }
                     if(book == null) {
                         outFile.delete()
