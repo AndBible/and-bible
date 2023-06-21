@@ -27,6 +27,7 @@ import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.getFirst
 import java.io.File
+import java.lang.Exception
 
 const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
 
@@ -310,15 +311,21 @@ fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, vararg patchFile
             execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
             execSQL("PRAGMA foreign_keys=OFF;")
             beginTransaction()
-            for (tableDef in dbDef.tableDefinitions) {
-                dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                readPatchData(dbDef, tableDef)
-                dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+            try {
+                for (tableDef in dbDef.tableDefinitions) {
+                    dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
+                    readPatchData(dbDef, tableDef)
+                    dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+                }
+                setTransactionSuccessful()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error occurred in applyPatchesForDatabase", e)
+                throw e
+            } finally {
+                endTransaction()
+                execSQL("PRAGMA foreign_keys=ON;")
+                execSQL("DETACH DATABASE patch")
             }
-            setTransactionSuccessful()
-            endTransaction()
-            execSQL("PRAGMA foreign_keys=ON;")
-            execSQL("DETACH DATABASE patch")
         }
         if(!CommonUtils.isDebugMode) {
             patchDbFile.delete()

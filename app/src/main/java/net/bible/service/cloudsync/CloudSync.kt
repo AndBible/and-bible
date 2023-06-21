@@ -24,6 +24,7 @@ import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.api.client.util.DateTime
 import io.requery.android.database.sqlite.SQLiteDatabase
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -70,7 +71,7 @@ const val LAST_SYNCHRONIZED_KEY = "lastSynchronized"
 const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 const val TAG = "DeviceSync"
 
-class CancelSync: Exception()
+class CancelStartedSync: Exception()
 
 enum class CloudAdapters {
     GOOGLE_DRIVE;
@@ -159,7 +160,7 @@ object CloudSync {
                 Log.i(TAG, "uiMutex ahead ${dbDef.categoryName}...")
                 initialOperation = uiMutex.withLock {
                     Log.i(TAG, "... got through uiMutex ${dbDef.categoryName}!")
-                    val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
+                    val activity = CurrentActivityHolder.currentActivity ?: throw CancelStartedSync()
                     withContext(Dispatchers.Main) {
                         val q1 = suspendCoroutine {
                             val containsStr = activity.getString(dbDef.category.contentDescription)
@@ -194,7 +195,7 @@ object CloudSync {
                 }
                 if (initialOperation == null) {
                     dbDef.category.enabled = false
-                    throw CancelSync()
+                    throw CancelStartedSync()
                 } else {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
                     syncFolderId = preliminarySyncFolderId
@@ -282,14 +283,14 @@ object CloudSync {
         val initialDbVersion = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READONLY).use { it.version }
         if(initialDbVersion > dbDef.version) {
             tmpFile.delete()
-            val activity = CurrentActivityHolder.currentActivity ?: throw CancelSync()
+            val activity = CurrentActivityHolder.currentActivity ?: throw CancelStartedSync()
             Dialogs.showMsg2(
                 activity,
                 activity.getString(R.string.sync_cant_fetch, activity.getString(dbDef.category.contentDescription))
             )
             dbDef.category.enabled = false
             Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > ${dbDef.version}")
-            throw CancelSync()
+            throw CancelStartedSync()
         } else {
             dbDef.localDb.close()
             tmpFile.copyTo(dbDef.localDbFile, overwrite = true)
@@ -361,23 +362,31 @@ object CloudSync {
                 if(!dbDef.category.enabled) return@asyncMap
                 try {
                     initializeSync(dbDef)
-                } catch (e: CancelSync) {
+                } catch (e: CancelStartedSync) {
                     Log.i(TAG, "Sync cancelled ${dbDef.categoryName}")
                     return@asyncMap
                 } catch (e: SocketTimeoutException) {
                     Log.i(TAG, "Socket timed out")
                     return@asyncMap
-                } catch (e: Throwable) {
-                    Log.e(TAG, "Some other exception happened!", e)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Some other exception happened in initializeSync!", e)
                     return@asyncMap
                 }
-                createAndUploadNewPatch(dbDef)
                 try {
-                    downloadAndApplyNewPatches(dbDef)
-                } catch (e: PatchFilesSkipped) {
-                    Log.i(TAG, "Patch files skipped! Retrying download and apply!")
-                    dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, 0)
-                    downloadAndApplyNewPatches(dbDef)
+                    createAndUploadNewPatch(dbDef)
+                } catch (e: Exception) {
+                    Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
+                }
+                try {
+                    try {
+                        downloadAndApplyNewPatches(dbDef)
+                    } catch (e: PatchFilesSkipped) {
+                        Log.i(TAG, "Patch files skipped! Retrying download and apply!")
+                        dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, 0)
+                        downloadAndApplyNewPatches(dbDef)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
                 }
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
@@ -478,7 +487,14 @@ object CloudSync {
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val count = (dbDef.dao.lastPatchNum(CommonUtils.deviceIdentifier)?: 0) + 1
         val fileName = "$count.${dbDef.version}.sqlite3.gz"
-        val result = adapter.upload(fileName, file, syncDeviceFolderId)
+        val result = try {
+            adapter.upload(fileName, file, syncDeviceFolderId)
+        } catch (e: Exception) {
+            file.delete()
+            Log.e(TAG, "Uploading failed due to error", e)
+            file.delete()
+            throw e
+        }
         Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.length()} bytes, ${result.createdTime.toStringRfc3339()}")
         dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, count, file.length(), result.createdTime.value))
         file.delete()
