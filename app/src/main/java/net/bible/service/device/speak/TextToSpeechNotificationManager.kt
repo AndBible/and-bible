@@ -47,6 +47,8 @@ import net.bible.service.device.speak.event.SpeakProgressEvent
 import java.util.*
 import javax.inject.Inject
 
+const val SPEAK_NOTIFICATIONS_CHANNEL="speak-notifications"
+
 @ActivityScope
 class TextToSpeechNotificationManager {
     companion object {
@@ -57,8 +59,6 @@ class TextToSpeechNotificationManager {
         private const val ACTION_NEXT="action_next"
         private const val ACTION_FAST_FORWARD="action_fast_forward"
         private const val ACTION_STOP="action_stop"
-
-        private const val SPEAK_NOTIFICATIONS_CHANNEL="speak-notifications"
 
         private const val TTS_NOTIFICATION_ID=1
 
@@ -211,21 +211,6 @@ class TextToSpeechNotificationManager {
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
 
         ABEventBus.register(this)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if(BuildVariant.Appearance.isDiscrete) {
-                CommonUtils.createDiscreteNotificationChannel()
-            } else {
-                val channel = NotificationChannel(
-                    SPEAK_NOTIFICATIONS_CHANNEL,
-                    getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                }
-                notificationManager.createNotificationChannel(channel)
-            }
-        }
-
     }
 
     fun destroy() {

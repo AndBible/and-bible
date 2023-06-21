@@ -43,9 +43,12 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
 import net.bible.android.view.activity.base.ErrorActivity
 import net.bible.android.view.util.locale.LocaleHelper
+import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
+import net.bible.service.device.ProgressNotificationManager.Companion.PROGRESS_NOTIFICATION_CHANNEL
+import net.bible.service.device.speak.SPEAK_NOTIFICATIONS_CHANNEL
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.mybible.myBibleBible
@@ -152,6 +155,7 @@ open class BibleApplication : Application() {
         // various initialisations required every time at app startup
 
         localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
+        createChannels()
     }
 
     var sqliteVersion = ""
@@ -275,15 +279,6 @@ open class BibleApplication : Application() {
         if(BuildVariant.Appearance.isDiscrete) return
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                ERROR_NOTIFICATION_CHANNEL,
-                getString(R.string.error_notification_channel_name), NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-            }
-            notificationManager.createNotificationChannel(channel)
-        }
 
         val intent = Intent(this, ErrorActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
@@ -306,6 +301,47 @@ open class BibleApplication : Application() {
 
         val notification = builder.build()
         notificationManager.notify(GENERIC_NOTIFICATION_ID, notification)
+    }
+
+    fun createChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (BuildVariant.Appearance.isDiscrete) {
+                CommonUtils.createDiscreteNotificationChannel()
+            } else {
+                val errorChannel = NotificationChannel(
+                    ERROR_NOTIFICATION_CHANNEL,
+                    getString(R.string.error_notification_channel_name), NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(errorChannel)
+
+                val speakChannel = NotificationChannel(
+                    SPEAK_NOTIFICATIONS_CHANNEL,
+                    getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(speakChannel)
+
+                val syncChannel = NotificationChannel(
+                    SYNC_NOTIFICATION_CHANNEL,
+                    getString(R.string.cloud_sync_title), NotificationManager.IMPORTANCE_NONE
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(syncChannel)
+
+                val progressChannel = NotificationChannel(
+                    PROGRESS_NOTIFICATION_CHANNEL,
+                    getString(R.string.notification_channel_progress_status), NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(progressChannel)
+            }
+        }
     }
 
     companion object {

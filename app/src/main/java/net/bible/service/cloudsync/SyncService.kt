@@ -17,8 +17,6 @@
 
 package net.bible.service.cloudsync
 
-import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
@@ -37,7 +35,7 @@ import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
 
 private const val SYNC_NOTIFICATION_ID=2
-private const val SYNC_NOTIFICATION_CHANNEL="sync-notifications"
+const val SYNC_NOTIFICATION_CHANNEL="sync-notifications"
 private const val WAKELOCK_TAG = "andbible:sync-wakelock"
 
 class SyncService: Service() {
@@ -69,20 +67,6 @@ class SyncService: Service() {
         val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
         if (wakeLock.isHeld) {
             throw RuntimeException("Wakelock already held, double-synchronize")
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if(BuildVariant.Appearance.isDiscrete) {
-                CommonUtils.createDiscreteNotificationChannel()
-            } else {
-                val channel = NotificationChannel(
-                    SYNC_NOTIFICATION_CHANNEL,
-                    getString(R.string.cloud_sync_title), NotificationManager.IMPORTANCE_NONE
-                ).apply {
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                }
-                notificationManager.createNotificationChannel(channel)
-            }
         }
 
         val builder = NotificationCompat.Builder(
