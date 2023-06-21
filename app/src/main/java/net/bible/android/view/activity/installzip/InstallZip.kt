@@ -47,14 +47,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
 import net.bible.android.activity.databinding.ActivityInstallZipBinding
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.addMySwordBook
+import java.io.BufferedInputStream
 import java.io.InputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -354,13 +357,20 @@ class InstallZip : ActivityBase() {
                 if(mimeTypeIdx < 0) null else it.getString(mimeTypeIdx)
             )
         }?: throw CantRead()
+        val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
+        val fileTypeFromContent = determineFileType(inputStream)
 
         if (
             displayName?.lowercase()?.endsWith(".zip") == true
             || displayName?.lowercase()?.endsWith(".abmd") == true
             || mimeType == "application/zip"
+            || fileTypeFromContent == BackupControl.AbDbFileType.ZIP
         )
             return installZip(uri)
+
+        if(fileTypeFromContent != BackupControl.AbDbFileType.SQLITE3) {
+            throw InvalidFile(displayName?: uri.toString())
+        }
 
         val filetype = when {
             displayName?.lowercase()?.endsWith(".sqlite3") == true -> "mybible"
@@ -369,8 +379,7 @@ class InstallZip : ActivityBase() {
         }
 
         binding.loadingIndicator.visibility = View.VISIBLE
-        contentResolver.openInputStream(uri).use { fIn ->
-            fIn ?: throw CantRead()
+        inputStream.use { fIn ->
             val outDir = File(SharedConstants.modulesDir, filetype)
             outDir.mkdirs()
             val outFile = File(outDir, displayName)
