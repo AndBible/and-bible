@@ -474,7 +474,7 @@ a {
   &.right {
     align-self: flex-end;
   }
-
+  cursor: pointer;
   background-color: inherit;
   border: none;
   color: white;
