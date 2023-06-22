@@ -282,7 +282,11 @@ open class BibleApplication : Application() {
 
         val intent = Intent(this, ErrorActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-        val action = NotificationCompat.Action.Builder(android.R.drawable.ic_dialog_alert, getString(R.string.report), pendingIntent).build()
+        val action = NotificationCompat.Action.Builder(
+            android.R.drawable.ic_dialog_alert,
+            getString(R.string.report),
+            pendingIntent
+        ).build()
 
         val builder = NotificationCompat.Builder(this, ERROR_NOTIFICATION_CHANNEL)
         builder

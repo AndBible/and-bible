@@ -84,7 +84,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_readingplans").run { setupDrivePref(this!!) }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_workspaces").run { setupDrivePref(this!!) }
         preferenceScreen.findPreference<Preference>("gdrive_reset_sync")!!.run {
-            if(!CommonUtils.isGoogleDriveSyncEnabled || !CloudSync.signedIn) {
+            if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
             }
             setOnPreferenceClickListener {
@@ -100,7 +100,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             }
         }
         preferenceScreen.findPreference<Preference>("gdrive_info")!!.run {
-            if(!CommonUtils.isGoogleDriveSyncEnabled || !CloudSync.signedIn) {
+            if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
             } else {
                 lifecycleScope.launch {

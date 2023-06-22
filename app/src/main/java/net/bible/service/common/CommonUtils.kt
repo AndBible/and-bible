@@ -1376,11 +1376,11 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    val isGoogleDriveSyncEnabled: Boolean get () =
-        if(BuildVariant.Appearance.isDiscrete)
+    val isCloudSyncEnabled: Boolean get () =
+        if(BuildVariant.Appearance.isDiscrete || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1)
             false
         else
-            SyncableDatabaseDefinition.ALL.filter { it.enabled }.any()
+            SyncableDatabaseDefinition.ALL.any { it.enabled }
     val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
     val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
 

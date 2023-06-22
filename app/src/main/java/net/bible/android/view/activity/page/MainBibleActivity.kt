@@ -301,7 +301,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         updateToolbar()
         updateBottomBars()
-
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            binding.navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
+        }
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
@@ -1276,7 +1278,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     var syncJob: Job? = null
 
     private suspend fun startSync(signIn: Boolean = true) {
-        if(CommonUtils.isGoogleDriveSyncEnabled) {
+        if(CommonUtils.isCloudSyncEnabled) {
             if(signIn && !CloudSync.signedIn) {
                 CloudSync.signIn(this@MainBibleActivity)
             }
@@ -1296,7 +1298,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private suspend fun periodicSync() {
         Log.i(TAG, "Periodic sync starting")
         try {
-            while (CommonUtils.isGoogleDriveSyncEnabled && CloudSync.signedIn) {
+            while (CommonUtils.isCloudSyncEnabled && CloudSync.signedIn) {
                 delay(60*1000) // 1 minute
                 synchronize()
             }
@@ -1317,7 +1319,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val now get() = System.currentTimeMillis()
 
     private suspend fun synchronize(force: Boolean = false) {
-        if(CommonUtils.isGoogleDriveSyncEnabled && CloudSync.signedIn) {
+        if(CommonUtils.isCloudSyncEnabled && CloudSync.signedIn) {
             windowRepository.saveIntoDb(false)
             if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {
                 Log.i(TAG, "Performing periodic sync")
