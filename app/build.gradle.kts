@@ -142,7 +142,7 @@ android {
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId = applicationIdStandard
-        minSdk =21
+        minSdk = 23
         targetSdk = 33
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
@@ -212,6 +212,7 @@ android {
 
         create("github") {
             dimension = dimDistributionChannelName
+            minSdk = 21
         }
     }
 
