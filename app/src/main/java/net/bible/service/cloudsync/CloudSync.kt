@@ -43,6 +43,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.net.SocketTimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -367,6 +368,9 @@ object CloudSync {
                     return@asyncMap
                 } catch (e: SocketTimeoutException) {
                     Log.i(TAG, "Socket timed out")
+                    return@asyncMap
+                } catch (e: IOException) {
+                    Log.i(TAG, "IOException (probably network down)")
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "Some other exception happened in initializeSync!", e)
