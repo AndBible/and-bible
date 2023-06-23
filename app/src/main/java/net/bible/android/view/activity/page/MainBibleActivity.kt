@@ -301,7 +301,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         updateToolbar()
         updateBottomBars()
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        if (!CommonUtils.isCloudSyncAvailable) {
             binding.navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->

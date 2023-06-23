@@ -1376,11 +1376,11 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
+    val isCloudSyncAvailable get() = !(BuildVariant.Appearance.isDiscrete || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1)
+
     val isCloudSyncEnabled: Boolean get () =
-        if(BuildVariant.Appearance.isDiscrete || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1)
-            false
-        else
-            SyncableDatabaseDefinition.ALL.any { it.enabled }
+        if(!isCloudSyncAvailable) false
+        else SyncableDatabaseDefinition.ALL.any { it.enabled }
     val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
     val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
 
