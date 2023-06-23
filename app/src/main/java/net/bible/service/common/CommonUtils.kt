@@ -209,7 +209,7 @@ const val windowPinningVideo = windowsAndWorkspacesPlaylist
 const val studyPadsVideo = notesAndStudyPadsPlayList
 const val workspacesVideo = windowsAndWorkspacesPlaylist
 
-const val betaIntroVideo = promoAndNewFeaturesPlaylistAutostart
+const val betaIntroVideo = "https://youtu.be/XdKmoe95KhI" //promoAndNewFeaturesPlaylistAutostart
 const val newFeaturesIntroVideo = promoAndNewFeaturesPlaylistAutostart
 
 const val speakHelpVideo = speakPlayList
