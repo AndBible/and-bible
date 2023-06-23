@@ -80,9 +80,12 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
         setPreferencesFromResource(R.xml.sync_settings, rootKey)
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_bookmarks").run { setupDrivePref(this!!) }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_readingplans").run { setupDrivePref(this!!) }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_workspaces").run { setupDrivePref(this!!) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_bookmarks")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_readingplans")!!.run {
+            //setupDrivePref(this!!)
+            isVisible = false
+        }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_workspaces")!!.run { setupDrivePref(this) }
         preferenceScreen.findPreference<Preference>("gdrive_reset_sync")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
