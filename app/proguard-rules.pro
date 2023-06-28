@@ -99,7 +99,6 @@
 
 # Kotlinx serialization rules
 
--keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
 
 # kotlinx-serialization-json specific. Add this if you have java.lang.NoClassDefFoundError kotlinx.serialization.json.JsonObjectSerializer
@@ -117,14 +116,13 @@
 -keepclasseswithmembers class net.bible.** { # <-- change package name to your app's
     kotlinx.serialization.KSerializer serializer(...);
 }
--keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
 
 
 -keep class net.bible.android.database.bookmarks.VerseRangeSerializer
 
 # Google Drive
--keepattributes Signature,RuntimeVisibleAnnotations,AnnotationDefault
+-keepattributes *Annotation*, InnerClasses,Signature,RuntimeVisibleAnnotations,AnnotationDefault
 -keep class * extends com.google.api.client.json.GenericJson { *; }
 -keep class com.google.api.services.drive.** { *; }
 -keepclassmembers class * {
