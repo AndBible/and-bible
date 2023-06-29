@@ -271,7 +271,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
         val crashAppPref = preferenceScreen.findPreference<EditTextPreference>("crash_app") as Preference
-        if(!CommonUtils.isDebugMode) {
+        if(!CommonUtils.isBeta) {
             crashAppPref.isVisible = false
         } else {
             crashAppPref.setOnPreferenceClickListener {
