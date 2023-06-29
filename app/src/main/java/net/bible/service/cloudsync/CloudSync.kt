@@ -391,6 +391,8 @@ object CloudSync {
                         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, 0)
                         downloadAndApplyNewPatches(dbDef)
                     }
+                } catch (e: SocketTimeoutException) {
+                    Log.e(TAG, "downloadAndApplyNewPatches failed due to SocketTimeoutException", e)
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
                     ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
