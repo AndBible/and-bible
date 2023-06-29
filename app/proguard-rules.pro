@@ -129,3 +129,5 @@
 -keepclassmembers class * {
   @com.google.api.client.util.Key <fields>;
 }
+
+-dontwarn java.lang.invoke.StringConcatFactory
