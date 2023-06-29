@@ -122,7 +122,8 @@
 -keep class net.bible.android.database.bookmarks.VerseRangeSerializer
 
 # Google Drive
--keepattributes *Annotation*, InnerClasses,Signature,RuntimeVisibleAnnotations,AnnotationDefault
+-keepattributes *Annotation*, InnerClasses,Signature
+#,RuntimeVisibleAnnotations,AnnotationDefault
 -keep class * extends com.google.api.client.json.GenericJson { *; }
 -keep class com.google.api.services.drive.** { *; }
 -keepclassmembers class * {
