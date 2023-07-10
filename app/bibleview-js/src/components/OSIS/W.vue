@@ -130,5 +130,6 @@ const showStrongsSeparately = computed(() => !exportMode.value && config.strongs
 .strongs, .morph {
   color: coral;
   text-decoration: none;
+  cursor: pointer;
 }
 </style>

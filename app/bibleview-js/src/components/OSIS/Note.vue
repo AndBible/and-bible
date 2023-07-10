@@ -125,6 +125,7 @@ const showHandle = computed(() => {
 .note-handle-base {
   @extend .superscript;
   padding: 0.2em;
+  cursor: pointer;
 }
 
 .isCrossReference {

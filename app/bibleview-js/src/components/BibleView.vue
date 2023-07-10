@@ -462,6 +462,7 @@ a {
   @extend .superscript;
   font-size: 50%;
   top: -0.8em;
+  cursor: pointer;
 }
 
 .divider {
