@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -119,15 +120,15 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }}
 
         binding.submit.setOnClickListener { onSearch() }
-        //searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
-        //    // If the event is a key-down event on the "enter" button
-        //    if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-        //        // Perform action on key press
-        //        onSearch(null)
-        //        return@OnKeyListener true
-        //    }
-        //    false
-        //})
+        binding.searchText.setOnKeyListener { _, keyCode, event ->
+            // If the event is a key-down event on the "enter" button
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                // Perform action on key press
+                onSearch()
+                return@setOnKeyListener true
+            }
+            false
+        }
 
         // pre-load search string if passed in
         val extras = intent.extras
@@ -199,7 +200,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     fun onCancel(v: View?) = finish()
 
-    fun onSearch() {
+    private fun onSearch() {
         Log.i(TAG, "CLICKED")
         var text = binding.searchText.text.toString()
         if (!StringUtils.isEmpty(text)) {
