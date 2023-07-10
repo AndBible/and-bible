@@ -98,6 +98,14 @@ const documentType = computed<BibleViewDocumentType>(() => {
     return documents[0].type;
 });
 const {config, appSettings, calculatedConfig} = useConfig(documentType);
+
+const lineHeight = computed(() => {
+    // Update also when font settings etc are changed
+    config.fontSize; config.fontFamily; config.lineSpacing;
+    if (!mounted.value || !topElement.value) return 1;
+    return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
+});
+
 const strings = useStrings();
 window.bibleViewDebug.documents = documents;
 const topElement = ref<HTMLElement | null>(null);
@@ -110,7 +118,7 @@ const {doScrolling, scrollToId} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
 const android = useAndroid(globalBookmarks, config);
-useKeyboard(android);
+useKeyboard(android, scroll, lineHeight);
 
 const modal = useModal(android);
 provide(modalKey, modal);
@@ -133,7 +141,7 @@ onMounted(() => {
 })
 onUnmounted(() => mounted.value = false)
 
-const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll);
+const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll, lineHeight);
 const customCss = useCustomCss();
 provide(customCssKey, customCss);
 const customFeatures = useCustomFeatures(android);

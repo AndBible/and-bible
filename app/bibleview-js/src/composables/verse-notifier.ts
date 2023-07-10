@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-import {computed, ref, Ref, watch} from "vue";
+import {computed, ComputedRef, ref, Ref, watch} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {throttle} from "lodash";
 import {CalculatedConfig, Config} from "@/composables/config";
@@ -28,17 +28,11 @@ export function useVerseNotifier(
     mounted: Ref<boolean>,
     {scrolledToOrdinal}: UseAndroid,
     topElement: Ref<HTMLElement | null>,
-    {isScrolling}: ReturnType<typeof useScroll>
+    {isScrolling}: ReturnType<typeof useScroll>,
+    lineHeight: ComputedRef<number>,
 ) {
     const currentVerse = ref<number | null>(null);
     watch(() => currentVerse.value, value => scrolledToOrdinal(value));
-
-    const lineHeight = computed(() => {
-        // Update also when font settings etc are changed
-        config.fontSize; config.fontFamily; config.lineSpacing;
-        if (!mounted.value || !topElement.value) return 1;
-        return parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'));
-    });
 
     let lastDirection = "ltr";
     const step = 10;
