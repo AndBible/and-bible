@@ -1352,16 +1352,17 @@ object CommonUtils : CommonUtilsBase() {
         val activeName = allNames[if(discrete) 1 else 0]
 
         Log.d(TAG, "Changing app icon / name to $activeName")
-
         for (name in allNames) {
+            val value = name == activeName
+            Log.d(TAG, "changing $name to $value")
             application.packageManager.setComponentEnabledSetting(
                 ComponentName(packageName, name),
-                if(name == activeName)
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                if(value) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                 else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                0
+                PackageManager.DONT_KILL_APP
             )
         }
+        forceStopApp()
     }
 
     fun createDiscreteNotificationChannel() {
