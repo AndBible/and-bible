@@ -239,28 +239,24 @@ object AdvancedSpeakSettings {
         get() = CommonUtils.settings.getBoolean("speak_autoBookmark", false)
         set(value) {
             CommonUtils.settings.setBoolean("speak_autoBookmark", value)
-            ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
         }
 
     var synchronize: Boolean
         get() = CommonUtils.settings.getBoolean("speak_synchronize", true)
         set(value) {
             CommonUtils.settings.setBoolean("speak_synchronize", value)
-            ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
         }
 
     var replaceDivineName: Boolean
         get() = CommonUtils.settings.getBoolean("speak_replaceDivineName", false)
         set(value) {
             CommonUtils.settings.setBoolean("speak_replaceDivineName", value)
-            ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
         }
 
     var restoreSettingsFromBookmarks: Boolean
         get() = CommonUtils.settings.getBoolean("speak_restoreSettingsFromBookmarks", false)
         set(value) {
             CommonUtils.settings.setBoolean("speak_restoreSettingsFromBookmarks", value)
-            ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
         }
 
     fun reset() {

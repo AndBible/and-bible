@@ -24,10 +24,12 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.control.versification.BibleTraverser
@@ -101,6 +103,7 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
         assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(true))
         AdvancedSpeakSettings.synchronize = false
+        ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
         assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(false))
     }
 
