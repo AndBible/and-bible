@@ -26,10 +26,14 @@ import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResultsDto
+import net.bible.service.common.CommonUtils.limitTextLength
+import net.bible.service.sword.SwordContentFacade.getPlainText
+import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
@@ -38,6 +42,7 @@ import org.crosswire.jsword.index.lucene.LuceneIndex
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
+import org.jdom2.Element
 import javax.inject.Inject
 
 /** Support for the document search functionality
@@ -51,6 +56,7 @@ class SearchControl @Inject constructor(
     )
 {
     private val isSearchShowingScripture = true
+    var isStrongsSearch: Boolean = false
 
     enum class SearchBibleSection {
         OT, NT, CURRENT_BOOK, ALL
@@ -94,11 +100,33 @@ class SearchControl @Inject constructor(
             "-"
         }
 
-    fun decorateSearchString(searchString: String, searchType: SearchType, bibleSection: SearchBibleSection, currentBookName: String?): String {
-        val cleanSearchString = cleanSearchString(searchString)
+    fun decorateSearchString(searchString: String, searchType: SearchType, bibleSection: SearchBibleSection, currentBookName: String?,
+                             includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = null, proximityWords: Int? = null,
+                             strongs: Char? = null): String {
+        var cleanSearchString = cleanSearchString(searchString)
+        isStrongsSearch = strongs != null
+        if (includeAllEndings || isStrongsSearch || fuzzySearchAccuracy != null) {
+            var newSearchString = ""
+            val wordArray: List<String> = cleanSearchString.split(" ")
+            for (it in wordArray) {
+                var decoratedWord = it
+                if (includeAllEndings) decoratedWord += "* "
+                if (isStrongsSearch) decoratedWord = "strong:$strongs$decoratedWord "
+                if (fuzzySearchAccuracy != null) {
+                    val fuzzySearchAccuracyAdjusted = if (fuzzySearchAccuracy.equals(1.0)) 0.99 else fuzzySearchAccuracy
+                    decoratedWord += "~%.2f ".format(fuzzySearchAccuracyAdjusted)
+                }
+                newSearchString += decoratedWord
+            }
+            cleanSearchString = newSearchString.trim()
+        }
+
+        if (proximityWords != null) {
+            cleanSearchString = "\"$cleanSearchString\"~$proximityWords"
+        }
 
         // add search type (all/any/phrase) to search string
-        var decorated: String = searchType.decorate(cleanSearchString)
+        var decorated = searchType.decorate(cleanSearchString)
         originalSearchString = decorated
 
         // add bible section limitation to search text
@@ -138,6 +166,43 @@ class SearchControl @Inject constructor(
         return searchResults
     }
 
+    fun getSearchResultVerseText(key: Key?): String {
+        // There is similar functionality in BookmarkControl
+        // This is much slower than 'getSearchResultVerseElement'. Why? In the old version this was VERY fast.
+        var verseText = ""
+        try {
+            val doc = windowControl.activeWindowPageManager.currentPage.currentDocument
+            val cat = doc!!.bookCategory
+            verseText = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
+                getPlainText(doc, key)
+            } else {
+                val bible = windowControl.activeWindowPageManager.currentBible.currentDocument!!
+                getPlainText(bible, key)
+            }
+            verseText = limitTextLength(verseText)!!
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting verse text", e)
+        }
+        return verseText
+    }
+
+    fun getSearchResultVerseElement(key: Key?): Element {
+        // There is similar functionality in BookmarkControl
+        var xmlVerse:Element? = null
+        try {
+            val doc = windowControl.activeWindowPageManager.currentPage.currentDocument
+            val cat = doc!!.bookCategory
+            xmlVerse = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
+                readOsisFragment(doc, key)
+            } else {
+                val bible = windowControl.activeWindowPageManager.currentBible.currentDocument!!
+                readOsisFragment(bible, key)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting verse text", e)
+        }
+        return xmlVerse!!
+    }
     /** double spaces, :, and leading or trailing space cause lucene errors
      */
     private fun cleanSearchString(search: String): String {
@@ -211,7 +276,7 @@ class SearchControl @Inject constructor(
         const val TARGET_DOCUMENT = "TargetDocument"
         private const val STRONG_COLON_STRING = LuceneIndex.FIELD_STRONG + ":"
         private const val STRONG_COLON_STRING_PLACE_HOLDER = LuceneIndex.FIELD_STRONG + "COLON"
-        const val MAX_SEARCH_RESULTS = 1000
+        const val MAX_SEARCH_RESULTS = 10000
         private const val TAG = "SearchControl"
     }
 }
