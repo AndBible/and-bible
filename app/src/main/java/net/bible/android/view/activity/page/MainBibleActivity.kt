@@ -1293,17 +1293,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    class StopSync: CancellationException()
-
     private suspend fun periodicSync() {
         Log.i(TAG, "Periodic sync starting")
-        try {
-            while (CommonUtils.isCloudSyncEnabled && CloudSync.signedIn) {
-                delay(60*1000) // 1 minute
-                synchronize()
-            }
-        } catch (e: StopSync) {
-            Log.i(TAG, "Stopping sync")
+        while (CommonUtils.isCloudSyncEnabled && CloudSync.signedIn && syncJob?.isCancelled == false) {
+            delay(60*1000) // 1 minute
+            if(syncJob?.isCancelled == false) synchronize()
         }
     }
 
@@ -1331,7 +1325,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun stopPeriodicSync() {
-        syncJob?.cancel(StopSync())
+        syncJob?.cancel()
         syncJob = null
     }
 
