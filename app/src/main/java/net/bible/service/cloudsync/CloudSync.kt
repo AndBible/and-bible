@@ -492,7 +492,7 @@ object CloudSync {
     }
     private suspend fun createAndUploadNewPatch(dbDef: SyncableDatabaseAccessor<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
-        val file = createPatchForDatabase(dbDef)?: return@withContext
+        val file = createPatchForDatabase(dbDef, false)?: return@withContext
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val count = (dbDef.dao.lastPatchNum(CommonUtils.deviceIdentifier)?: 0) + 1
         val fileName = "$count.${dbDef.version}.sqlite3.gz"

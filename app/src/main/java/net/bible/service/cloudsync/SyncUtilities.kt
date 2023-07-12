@@ -263,7 +263,7 @@ private fun readPatchData(
     )
 }
 
-fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>): File? {
+fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, updateTimestamp: Boolean = true): File? {
     val lastPatchWritten = dbDef.dao.getLong(LAST_PATCH_WRITTEN_KEY)?: 0
     val patchDbFile = File.createTempFile("created-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
 
@@ -295,6 +295,9 @@ fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>): File? {
 
     if(!CommonUtils.isDebugMode) {
         patchDbFile.delete()
+    }
+    if(updateTimestamp) {
+        dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
     }
     return gzippedOutput
 }
