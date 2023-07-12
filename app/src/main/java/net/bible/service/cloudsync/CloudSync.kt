@@ -364,13 +364,10 @@ object CloudSync {
                 try {
                     initializeSync(dbDef)
                 } catch (e: CancelStartedSync) {
-                    Log.i(TAG, "Sync cancelled ${dbDef.categoryName}")
-                    return@asyncMap
-                } catch (e: SocketTimeoutException) {
-                    Log.i(TAG, "Socket timed out")
+                    Log.e(TAG, "Sync cancelled ${dbDef.categoryName}")
                     return@asyncMap
                 } catch (e: IOException) {
-                    Log.i(TAG, "IOException (probably network down)")
+                    Log.e(TAG, "IOException (probably network down)", e)
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "Some other exception happened in initializeSync!", e)
@@ -379,6 +376,9 @@ object CloudSync {
                 }
                 try {
                     createAndUploadNewPatch(dbDef)
+                } catch (e: IOException) {
+                    Log.e(TAG, "IOException", e)
+                    return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
                     ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
@@ -391,8 +391,8 @@ object CloudSync {
                         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, 0)
                         downloadAndApplyNewPatches(dbDef)
                     }
-                } catch (e: SocketTimeoutException) {
-                    Log.e(TAG, "downloadAndApplyNewPatches failed due to SocketTimeoutException", e)
+                } catch (e: IOException) {
+                    Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
                     ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
@@ -496,6 +496,8 @@ object CloudSync {
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val count = (dbDef.dao.lastPatchNum(CommonUtils.deviceIdentifier)?: 0) + 1
         val fileName = "$count.${dbDef.version}.sqlite3.gz"
+        val lastWritten = System.currentTimeMillis();
+
         val result = try {
             adapter.upload(fileName, file, syncDeviceFolderId)
         } catch (e: Exception) {
@@ -505,6 +507,7 @@ object CloudSync {
             throw e
         }
         Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.length()} bytes, ${result.createdTime.toStringRfc3339()}")
+        dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, lastWritten)
         dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, count, file.length(), result.createdTime.value))
         file.delete()
     }

@@ -287,7 +287,6 @@ fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>): File? {
         endTransaction()
         execSQL("PRAGMA patch.foreign_keys=ON;")
         execSQL("DETACH DATABASE patch")
-        dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
     }
 
     val gzippedOutput = CommonUtils.tmpFile
