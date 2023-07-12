@@ -118,10 +118,9 @@ const {doScrolling, scrollToId} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
 const android = useAndroid(globalBookmarks, config);
-useKeyboard(android, scroll, lineHeight);
-
 const modal = useModal(android);
 provide(modalKey, modal);
+useKeyboard(android, scroll, modal, lineHeight);
 
 let footNoteCount = 0;
 
