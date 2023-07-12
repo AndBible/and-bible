@@ -98,6 +98,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
+import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -271,6 +272,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         setupToolbarFlingDetection()
         setSoftKeyboardMode()
 
+        // First launched activity is not having proper night mode if we are using manual mode.
+        // This hack fixes it. See also ActivityBase.fixNightMode.
+        if (firstTime) {
+            firstTime = false
+            lifecycleScope.launch {
+                delay(250)
+                recreate()
+            }
+            return
+        }
+
         lifecycleScope.launch(Dispatchers.Main) {
             if(!initialized) {
                 requestSdcardPermission()
@@ -292,6 +304,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             openLink(uri)
         }
     }
+
+    override fun fixNightMode() {} // handle this manually here
 
     private fun setupUi() {
         documentViewManager.buildView()

@@ -34,7 +34,10 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.bible.android.view.activity.StartupActivity
@@ -46,6 +49,8 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.history.HistoryTraversal
 import net.bible.service.history.HistoryTraversalFactory
 import javax.inject.Inject
+
+var firstTime = true
 
 /** Base class for activities
  *
@@ -100,6 +105,20 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             doNotMarkPaused = savedInstanceState.getBoolean("doNotMarkPaused", false)
             wasPaused = savedInstanceState.getBoolean("wasPaused", false)
             returningFromCalculator = savedInstanceState.getBoolean("returningFromCalculator", false)
+        }
+        fixNightMode()
+    }
+
+    open fun fixNightMode() {
+        // First launched activity is not having proper night mode if we are using manual mode.
+        // This hack fixes it.
+        if(firstTime && allowThemeChange) {
+            firstTime = false
+            lifecycleScope.launch {
+                delay(250)
+                recreate()
+            }
+            return
         }
     }
 

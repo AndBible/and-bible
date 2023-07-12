@@ -198,14 +198,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 ErrorReportControl.checkCrash(this@StartupActivity)
             }
             // switch back to ui thread to continue
-            withContext(Dispatchers.Main) {
-                postBasicInitialisationControl()
-                if(CommonUtils.isDiscrete) {
-                    spinnerBinding.imageView.setImageResource(
-                        R.drawable.ic_calculator_color
-                    )
-                    spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
-                }
+            postBasicInitialisationControl()
+            if(CommonUtils.isDiscrete) {
+                spinnerBinding.imageView.setImageResource(
+                    R.drawable.ic_calculator_color
+                )
+                spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
             }
         }
     }
