@@ -21,8 +21,6 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
-    <string name="app_name_calculator">Simple Calculator</string>
-
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_medium">Bible Study (AndBible)</string>
     <string name="app_name_long">AndBible: Bible Study</string>
@@ -87,27 +85,9 @@
     <string name="search_old_testament">Old Testament</string>
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
-
-    <!-- #2061 strings (not yet merged) -->
-    <string name="search_remember_search_text">Remember search</string>
-    <string name="search_include_all_endings">All endings</string>
-    <string name="search_fuzzy">Fuzzy Search %s</string>
-    <string name="search_strongs">Strongs Number Search</string>
-    <string name="search_showDecoratedText">Show raw search text</string>
-    <string name="search_proximity">Proximity %s</string>
-    <string name="search_results">Search Results</string>
-    <string name="search_statistics">Search Statistics</string>
-    <string name="words">words</string>
-    <string name="accuracy">Accuracy</string>
-    <string name="greek">Greek</string>
-    <string name="hebrew">Hebrew</string>
-    <string name="results_count">Results: %s</string>
-    <string name="verse_count">Verses: %s</string>
-    <string name="book_count">Books: %s</string>
-    <string name="word_count">Words: %s</string>
-    <string name="statistics">Statistics</string>
-    <string name="by_book">By Book</string>
-    <string name="by_word">By Word</string>
+    <string name="type_text_or_bible_reference">Type text or bible reference</string>
+    <string name="go_to_ref">Open %s</string>
+    <string name="search_what">Find \"%s\"</string>
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
@@ -179,6 +159,9 @@
 
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
     <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword/sword folder on internal storage</string>
+
+    <string name="prefs_expand_footnotes_title">Inline cross references</string>
+    <string name="prefs_expand_footnotes_summary">Show cross reference content in-line within the text, instead of a link that opens a pop-up dialog</string>
 
     <string name="all_text_options_window_menutitle">All text options</string>
     <string name="text_options_window_menutitle">Text options</string>
@@ -328,6 +311,7 @@
     <string name="download_errors">Download errors</string>
     <string name="failed_repositories_message">Could not connect to the following document server: \n\n%s\n\n</string>
     <string name="failed_downloads_message">The following files could not be downloaded:\n\n%s\n\n</string>
+    <string name="cant_delete_document">This document can not be deleted.</string>
 
     <!--  Install zip file -->
     <string name="install_zip">Load Documents From Files</string>
@@ -340,9 +324,11 @@
     <string name="install_zip_title">Please wait. Loading modules from a file.</string>
     <string name="overwrite_files">Following files already exists: %s Overwrite?</string>
     <string name="overwrite_files_title">Overwrite files?</string>
+    <string name="could_not_overwrite_files">Could not overwrite files: %s. Apart from that install was successful.</string>
 
     <!-- Daily Reading Plan -->
     <string name="rdg_plan_title">Reading Plan</string>
+    <string name="reading_plans_plural">Reading Plans</string>
     <string name="rdg_plan_selector_title">Choose a Reading Plan</string>
     <string name="rdg_plan_day">Day %s</string>
     <string name="rdg_plan_set_start_date">Set Start Date…</string>
@@ -449,6 +435,8 @@
     <string name="auto_assign_labels_primary">Auto-assign as primary</string>
     <string name="label_color">Label color</string>  <!-- can be removed -->
     <string name="label_color_example">Example</string>
+    <string name="marker_style">Show only marker for selection bookmarks</string>
+    <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
 
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>
@@ -629,17 +617,16 @@
     <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup_modules2">Backup Documents to…</string>
     <string name="backup_app_database2">Backup app database to…</string>
-
     <string name="backup_app2">Backup app (.apk file) to …</string>
-    <string name="application">Application</string>
-    <string name="database">Database</string>
-    <string name="documents">Documents</string>
-    <string name="application_info">Bible Study application file (.APK)</string>
-    <string name="database_info">Bookmarks, labels, notes, study pads, reading plans, workspaces etc.</string>
-    <string name="document_info">Bibles, commentaries, dictionaries, maps etc.</string>
+    <string name="backup_application">Application</string>
+    <string name="backup_database">Database</string>
+    <string name="backup_documents">Documents</string>
+    <string name="backup_application_info">Bible Study application file (.APK)</string>
+    <string name="backup_database_info">Bookmarks, labels, notes, study pads, reading plans, workspaces etc.</string>
+    <string name="backup_document_info">Bibles, commentaries, dictionaries, maps etc.</string>
     <string name="backup_to">Backup to…</string>
-    <string name="restore_from">Restore from…</string>
-    <string name="restore">Restore</string>
+    <string name="backup_restore_from">Restore from…</string>
+    <string name="backup_restore">Restore</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
     <string name="restore_what">What do you want to restore?</string>
@@ -647,7 +634,6 @@
     <string name="restore_app_database">Restore app database from…</string>
     <string name="restore_database">Restore Database File</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces?</string>
-    <string name="reading_plans_plural">Reading Plans</string>
     <string name="restore_success2">Selected database sections restored successfully</string>
     <string name="restore_success">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces restored successfully</string>
     <string name="downloading_backup">Downloading backup file…</string>
@@ -734,6 +720,8 @@
     <string name="error_key_not_in_document2">%s was not found in document %s.</string>
     <string name="empty_list">No items to display</string>
     <string name="error_skip">Skip</string>
+    <string name="bug_report_email_title">Send bug report via email</string>
+    <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
 
     <!-- Notifications -->
     <string name="notification_channel_tts_status">Text to speech</string>
@@ -1039,12 +1027,11 @@
     <string name="progress_status_permission">To show notifications (download status, processing, speak status), we need your permission. </string>
 
     <!-- Discrete mode settings -->
+    <string name="app_name_calculator">Simple Calculator</string>
     <string name="prefs_persecution_cat">Settings for the persecuted</string>
     <string name="prefs_discrete_mode">Hide religious symbols</string>
     <string name="prefs_discrete_mode_desc">Rename the app to \'Calculator\' and show a different icon in the launcher.</string>
-
     <string name="prefs_show_calculator">Calculator</string>
-
     <string name="prefs_calculator_pin">Calculator PIN</string>
     <string name="prefs_calculator_pin_desc">PIN code to enter the app when the calculator is shown. </string>
     <string name="calc_division_by_zero">Division by zero is not allowed</string>
@@ -1074,27 +1061,14 @@
     <string name="discrete_mode_link">
         You can download the latest version of discrete version from %s.
     </string>
-    <string name="external_link">External link</string>
-    <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
-    <string name="bug_report_email_title">Send bug report via email</string>
-    <string name="bug_report_email_text">Next, please select your preferred email application (Gmail for example) to send the report to the developer team.</string>
-    <string name="marker_style">Show only marker for selection bookmarks</string>
-    <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
-    <string name="type_text_or_bible_reference">Type text or bible reference</string>
-    <string name="go_to_ref">Open %s</string>
-    <string name="search_what">Find \"%s\"</string>
-    <string name="app_opened_elsewhere">App opened elsewhere</string>
-    <string name="open_here">Open here</string>
+
+    <!-- Window synchronize groups -->
     <string name="sync_group_submenu">Synchronize group</string>
     <string name="sync_group_n">Group %d</string>
     <string name="disable_sync">Disable synchronize</string>
     <string name="open_in_window">Open results in a window</string>
-    <string name="could_not_overwrite_files">Could not overwrite files: %s. Apart from that install was successful.</string>
-    <string name="cant_delete_document">This document can\'t be deleted.</string>
-    <string name="sqlite_cant_read">Can\'t read the file</string>
-    <string name="sqlite_invalid_file">Invalid module file or filename: %s</string>
-    <string name="sqlite_cant_write">Can\'t (over)write the file</string>
-    <string name="install_failed_reason">Installing module failed for the following reason: %s.</string>
+
+    <!-- Custom repositories -->
     <string name="custom_repositories">Custom repositories</string>
     <string name="custom_repositories_empty_list_message">No custom repositories are defined</string>
     <string name="custom_repositories_create_button_label">Add Custom Repository</string>
@@ -1108,14 +1082,17 @@
     <string name="wiki_page">WIKI page</string>
     <string name="custom_repositories_help0">You can install documents from external custom repositories by installing custom repositories.</string>
     <string name="duplicate_custom_repository">Repository with name %s already exists, can\'t add another.</string>
+
     <string name="packages_dir">Packages directory (Zip files)</string>
     <string name="warn_bad_document">Warning: This document might be (at least partially) bad technical quality.</string>
+
+    <!-- Open links in AndBible (Deep linking) -->
     <string name="open_bible_links_title">Open Bible links in AndBible</string>
     <string name="open_bible_links_summary">When clicks links that refer to AndBible supported Bible URL, open them in AndBible</string>
     <string name="copyReference">Copy link to clipboard</string>
     <string name="reference_copied_to_clipboard">Reference copied to clipboard</string>
-    <string name="prefs_expand_footnotes_title">Inline cross references</string>
-    <string name="prefs_expand_footnotes_summary">Show cross reference content in-line within the text, instead of a link that opens a pop-up dialog</string>
+
+    <!-- Device cloud synchronization -->
     <string name="prefs_sync_introduction_summary1">
         Choose which backend cloud service you want to use to synchronize multiple devices.
     </string>
@@ -1163,4 +1140,17 @@
     <string name="report">Report</string>
     <string name="sync_error">Error occurred in Cloud synchronization</string>
     <string name="error_notification_channel_name">Error notifications</string>
+
+    <!-- MyBible/MySword module support -->
+    <string name="sqlite_cant_read">Can not read the file</string>
+    <string name="sqlite_invalid_file">Invalid module file or filename: %s</string>
+    <string name="sqlite_cant_write">Can not (over)write the file</string>
+    <string name="install_failed_reason">Installing module failed for the following reason: %s.</string>
+
+    <!-- Other / uncategorized -->
+    <string name="app_opened_elsewhere">App opened elsewhere</string>
+    <string name="open_here">Open here</string>
+    <string name="external_link">External link</string>
+    <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
+
 </resources>

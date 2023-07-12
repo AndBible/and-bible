@@ -371,7 +371,7 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="backup_and_restore">Cadangkan &amp; Pulihkan</string>
   <string name="backup">Cadangkan ke...</string>
   <string name="backup_success">Catatanku dan Penanda Buku tersimpan di %s pada kartu SD</string>
-  <string name="restore">Pulihkan dari...</string>
+  <string name="backup_restore">Pulihkan dari...</string>
   <string name="restore_confirmation">Timpa Catatanku, Penanda Buku, Rencana Bacaan, dan Ruang Kerja</string>
   <string name="restore_success">Catatanku, Penanda Buku, Rencana Bacaan, dan Ruang Kerja berhasil dipulihkan</string>
   <string name="error_no_backup_file">File cadangan tidak dapat ditemukan</string>
