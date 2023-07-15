@@ -72,6 +72,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.sync.Semaphore
@@ -112,6 +114,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
@@ -703,21 +706,29 @@ object CommonUtils : CommonUtilsBase() {
         return VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse)
     }
 
+    private val scope = CoroutineScope(Dispatchers.Default)
+
     fun restartApp(callingActivity: Activity) {
         val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
         val pendingIntent = PendingIntent.getActivity(callingActivity, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
 
         val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
-        exitProcess(2)
+        scope.launch {
+            CloudSync.waitUntilFinished()
+            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
+            exitProcess(2)
+        }
     }
 
-    fun forceStopApp() {
+    private fun forceStopApp() {
         Log.i(TAG, "forceStopApp!")
-        exitProcess(2)
+        scope.launch {
+            CloudSync.waitUntilFinished()
+            exitProcess(2)
+        }
     }
 
-    val lastDisplaySettings: List<WorkspaceEntities.TextDisplaySettings.Types> get() {
+    private val lastDisplaySettings: List<WorkspaceEntities.TextDisplaySettings.Types> get() {
         val lastDisplaySettingsString = settings.getString("lastDisplaySettings", null)
         var lastTypes = mutableListOf<WorkspaceEntities.TextDisplaySettings.Types>()
         if(lastDisplaySettingsString!= null) {
