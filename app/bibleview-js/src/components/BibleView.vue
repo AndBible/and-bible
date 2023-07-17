@@ -68,7 +68,7 @@ import {
     customCssKey,
     customFeaturesKey,
     footnoteCountKey,
-    globalBookmarksKey,
+    globalBookmarksKey, keyboardKey,
     modalKey,
     scrollKey,
     stringsKey,
@@ -120,7 +120,8 @@ const globalBookmarks = useGlobalBookmarks(config);
 const android = useAndroid(globalBookmarks, config);
 const modal = useModal(android);
 provide(modalKey, modal);
-useKeyboard(android, scroll, modal, lineHeight);
+const keyboard = useKeyboard(android, scroll, lineHeight);
+provide(keyboardKey, keyboard);
 
 let footNoteCount = 0;
 

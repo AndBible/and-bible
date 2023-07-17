@@ -41,7 +41,7 @@ let cancelOpen = () => {}
 import {inject, ref, watch} from "vue";
 import TextEditor from "@/components/TextEditor.vue";
 import {useCommon} from "@/composables";
-import {exportModeKey} from "@/types/constants";
+import {exportModeKey, keyboardKey} from "@/types/constants";
 import {Nullable} from "@/types/common";
 
 
@@ -64,12 +64,14 @@ const editMode = ref<boolean>(props.editDirectly);
 const parentStyle = ref(`--max-height: ${props.maxEditorHeight}; font-family: var(--font-family); font-size: var(--font-size);`);
 const editText = ref(props.text);
 const exportMode = inject(exportModeKey, ref(false));
+const {setDisableKeybindings} = inject(keyboardKey)!;
 
 function cancelFunc() {
     editMode.value = false;
 }
 
 watch(editMode, mode => {
+    setDisableKeybindings(mode);
     if (!mode) emit("closed", editText.value);
     else {
         emit("opened")

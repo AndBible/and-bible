@@ -28,12 +28,14 @@ import {useModal} from "@/composables/modal";
 import {useStrings} from "@/composables/strings";
 import {useCustomFeatures} from "@/composables/features";
 import {useReferenceCollector} from "@/composables";
+import {useKeyboard} from "@/composables/keyboard";
 
 export const osisFragmentKey: InjectionKey<OsisFragment> = Symbol("osisFragment");
 export const androidKey: InjectionKey<ReturnType<typeof useAndroid>> = Symbol("android");
 export const bibleDocumentInfoKey: InjectionKey<BibleDocumentInfo> = Symbol("bibleDocumentInfo");
 export const verseInfoKey: InjectionKey<VerseInfo> = Symbol("verseInfo");
 export const modalKey: InjectionKey<ReturnType<typeof useModal>> = Symbol("modal");
+export const keyboardKey: InjectionKey<ReturnType<typeof useKeyboard>> = Symbol("keyboard");
 export const footnoteCountKey: InjectionKey<FootNoteCount> = Symbol("footnoteCount");
 export const referenceCollectorKey: InjectionKey<ReturnType<typeof useReferenceCollector>> = Symbol("referenceCollector");
 export const verseHighlightKey: InjectionKey<ReturnType<typeof useVerseHighlight>> = Symbol("verseHighlight");
