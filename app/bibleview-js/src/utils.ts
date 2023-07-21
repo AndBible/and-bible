@@ -639,6 +639,7 @@ export function sprintf(format: string, ...args: any[]) {
 }
 
 export function formatExportLink({ref, v11n, doc}: {ref: string, v11n: string, doc?: string}) {
-    const docStr = doc ? `&document=${doc}`: ""
-    return `https://stepbible.org/?q=reference=${ref}&v11n=${v11n}${docStr}`
+    const docStr = doc ? `|version=${doc}`: ""
+    // this is parsed in MainBibleActivity::openLink(uri: Uri) function for intent parsing
+    return `https://stepbible.org/?q=reference=${ref}${docStr}&v11n=${v11n}`
 }

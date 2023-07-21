@@ -178,7 +178,7 @@ const bibleUrl = computed(
         const osis = bookmarkItem.osisRef;
 
         if(exportMode.value) {
-            return formatExportLink({ref: osis, v11n: bookmarkItem.v11n})
+            return formatExportLink({ref: osis, v11n: bookmarkItem.v11n, doc: bookmarkItem.bookInitials});
         } else {
             return `osis://?osis=${osis}&v11n=${bookmarkItem.v11n}`;
         }
