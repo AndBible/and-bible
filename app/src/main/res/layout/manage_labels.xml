@@ -31,41 +31,6 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		>
-		<androidx.constraintlayout.widget.ConstraintLayout
-			android:id="@+id/buttonLayout"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:paddingTop="5dp"
-			android:orientation="vertical">
-
-			<androidx.constraintlayout.helper.widget.Flow
-				android:id="@+id/flowContainer"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				app:constraint_referenced_ids="searchRevealButton"
-				app:flow_horizontalGap="3dp"
-				app:flow_horizontalStyle="packed"
-				app:flow_horizontalBias="0.5"
-				app:flow_verticalBias="1"
-				app:flow_verticalGap="3dp"
-				app:flow_wrapMode="chain"
-				android:paddingBottom="5dp"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintHorizontal_bias="0.51"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent" >
-			</androidx.constraintlayout.helper.widget.Flow>
-
-			<ImageButton
-				android:id="@+id/searchRevealButton"
-				android:layout_width="wrap_content"
-				android:layout_height="21dp"
-				android:background="@drawable/button_filter"
-				app:tint="@color/grey_800"
-				app:srcCompat="@drawable/ic_search_20dp" />
-
-		</androidx.constraintlayout.widget.ConstraintLayout>
-
 		<LinearLayout
 			android:id="@+id/textSearchLayout"
 			android:layout_width="match_parent"
@@ -104,15 +69,6 @@
 				android:layout_marginTop="5dp"
 				android:backgroundTint="@color/transparent"
 				/>
-			<ImageButton
-				android:id="@+id/saveSearchButton"
-				android:layout_width="40dp"
-				android:layout_height="45dp"
-				app:tint="@color/grey_600"
-				android:layout_marginStart="2dp"
-				android:visibility="gone"
-				app:srcCompat="@drawable/ic_save_20dp" />
-
 		</LinearLayout>
 		<ListView
 			android:id="@android:id/list"
