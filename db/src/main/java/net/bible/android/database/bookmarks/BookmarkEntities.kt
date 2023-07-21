@@ -96,16 +96,6 @@ class BookmarkEntities {
         val clientList get() = listOf(start, end)
     }
 
-    @Entity(
-        foreignKeys = [
-            ForeignKey(entity = Bookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
-        ],
-    )
-    data class BookmarkNotes(
-        @PrimaryKey var bookmarkId: IdType = IdType(),
-        val notes: String
-    )
-
     @DatabaseView("SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn ON b.id = bn.bookmarkId")
     data class BookmarkWithNotes(
         var kjvOrdinalStart: Int,
@@ -264,6 +254,15 @@ class BookmarkEntities {
         )
         val noteEntity get() = if(notes == null) null else BookmarkNotes(id, notes!!)
     }
+    @Entity(
+        foreignKeys = [
+            ForeignKey(entity = Bookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
+        ],
+    )
+    data class BookmarkNotes(
+        @PrimaryKey var bookmarkId: IdType = IdType(),
+        val notes: String
+    )
 
     @Entity(
         indices = [
