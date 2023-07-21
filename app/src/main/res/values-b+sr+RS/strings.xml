@@ -1,39 +1,26 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
-  ~ Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
-  ~
-  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
-  ~
-  ~ AndBible is free software: you can redistribute it and/or modify it under the
-  ~ terms of the GNU General Public License as published by the Free Software Foundation,
-  ~ either version 3 of the License, or (at your option) any later version.
-  ~
-  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  ~ See the GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License along with AndBible.
-  ~ If not, see http://www.gnu.org/licenses/.
-  -->
-
 <resources>
   <string name="app_name_short">Учење Библије</string>
   <string name="app_name_medium">Учење Библије (Анд Библија)</string>
-  <string name="app_name_long">Учење Библије, од \"And Bible Open Source Project\"</string>
+  <string name="app_name_long">Анд Библија: Учење Библије</string>
+  <string name="project">Анд Библија Пројекат Отвореног Кода</string>
   <string name="version_text">Верзија%s</string>
-  <string name="no_sdcard_error">Молим убаците СД картицу и рестартујте апликацију.</string>
+  <string name="no_sdcard_error">Молим Вас убаците СД картицу и рестартујте апликацију.</string>
   <!--Main menu-->
   <string name="menu">Мени</string>
   <string name="chooseBook">Документ</string>
-  <string name="selectPassage">Одељак</string>
+  <string name="selectPassage">Одломак</string>
   <string name="search">Пронађи</string>
-  <string name="settings">Параметри апликације</string>
+  <string name="settings">Поставке апликације</string>
   <string name="history">Историја</string>
   <string name="speak">Изговори</string>
   <string name="help">Помоћ</string>
+  <string name="information">Информације</string>
   <string name="other">Друго</string>
+  <string name="contact">Контакт</string>
   <string name="help_and_tips">Помоћ и савети</string>
   <string name="administration">Управљање</string>
+  <string name="rate_application">Оцените и оставите рецензију</string>
   <string name="chooce_document">Изабери документ</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Изабери књигу</string>
@@ -54,7 +41,7 @@
   <string name="rebuild_index_button">Поново изгради</string>
   <!--Tasks-->
   <string name="progress_status">Напредак</string>
-  <string name="task_kill_warning">Ови дуготрајни задаци могу бити прекинути ако се пребацити на другу апликацију пре но што заврше.</string>
+  <string name="task_kill_warning">Ови дуготрајни задаци могу бити прекинути ако се пребацитe на другу апликацију пре но што заврше.</string>
   <string name="no_tasks_running">Нема задатака који се тренутно извршавају.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Пронађи стихове</string>
@@ -68,49 +55,71 @@
   <string name="search_new_testament">Нови Завет</string>
   <string name="search_old_testament">Стари Завет</string>
   <string name="search_current_book">Тренутна књига</string>
-  <string name="error_executing_search">Нерегуларан упит за претрагу</string>
+  <string name="error_executing_search">Неисправан упит за претрагу</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">Бројеви поглавља и стихова</string>
+  <string name="prefs_show_verseno_summary">Прикажи бројеве поглавља и стихова</string>
+  <string name="prefs_e_ink_mode_title">Црно-бели режим</string>
+  <string name="prefs_eink_mode_summary">Користите апликацију у монохроматском (једнобојном) режиму, прилагођеном за E-ink уређаје.</string>
+  <string name="prefs_disable_animations_title">Искључите анимације</string>
+  <string name="prefs_disable_animations_summary">Искључите разне анимације као што су неприметно скроловање.</string>
+  <string name="prefs_paragraph_spacing_title">Размак између пасуса (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Прилагоди размак између пасуса.</string>
   <string name="prefs_show_verseno_title1">Бројеви стихова</string>
+  <string name="prefs_show_chapter_no_title">Бројеви поглавља</string>
+  <string name="prefs_show_chapter_no_summary">Прикажи бројеве поглавља</string>
   <string name="prefs_verse_per_line_summary">Прикажи сваки стих у посебном реду</string>
   <string name="prefs_show_bookmarks_summary">Одштриклирај да се сакрију сви обележивачи</string>
   <string name="prefs_show_mynotes_summary">Прикажи иконицу у стиховима са Мојом белешком</string>
-  <string name="prefs_show_notes_summary">Прикажи фусноте и унакрсне референце</string>
-  <string name="prefs_show_strongs_summary">Везе ка дефиницијама на грчком и јеврејском</string>
+  <string name="prefs_show_notes_summary">Прикажи фусноте и референце</string>
+  <string name="prefs_show_strongs_summary">Везе ка дефиницијама на грчком и хебрејском</string>
   <string name="prefs_show_morphology_summary">Прикажи Робинсонову грчку морфологију</string>
   <string name="prefs_section_title_summary">Прикажи неканонске наслове делова</string>
   <string name="prefs_red_letter_summary">Прикажи Христове речи црвеном бојом</string>
-  <string name="prefs_text_size_title">Параметри слова</string>
-  <string name="prefs_verse_per_line_title">Један стих у реду</string>
+  <string name="prefs_text_size_title">Поставке слова</string>
+  <string name="prefs_verse_per_line_title">Један стих по реду</string>
   <string name="prefs_show_bookmarks_title">Прикажи обележиваче</string>
   <string name="prefs_show_mynotes_title">Прикажи иконице Моје белешке</string>
   <string name="prefs_show_footnotes_title">Фусноте</string>
-  <string name="prefs_show_notes_title">Фусноте и унакресне референце</string>
+  <string name="prefs_show_xrefs_title">Референце</string>
+  <string name="prefs_show_footnotes_summary">Прикажи фусноте, ако су доступне у документу.</string>
+  <string name="prefs_show_xrefs_summary">Прикажи референце, ако су доступне у документу</string>
+  <string name="prefs_show_notes_title">Фусноте и референце</string>
   <string name="prefs_show_strongs_title">Стронгови бројеви</string>
   <string name="prefs_show_morphology_title">Морфолошки кодови</string>
   <string name="prefs_section_title_title">Наслови одељака</string>
   <string name="prefs_red_letter_title">Црвено Писмо</string>
   <string name="prefs_tilt_to_scroll_title">Нагни за скроловање</string>
+  <string name="prefs_toolbar_button_action_title">Радња за дугме трака са алатима</string>
+  <string name="prefs_toolbar_button_action_summary">Радња за извршити када су притиснута/дуго притиснута дугмад на траци са алатима Библија и Коментар</string>
+  <string name="prefs_toolbar_button_action_default">Притиснути за отварање менија, дуго притиснути за екран са документима (подразумевано)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Притиснути за отварање следећег документа, дуго притиснути за отварање менија</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Притиснути за отварање следећег документа, дуго притиснути за екран са документима</string>
   <string name="prefs_night_mode_title">Контрола ноћног режима</string>
-  <string name="prefs_night_mode_manual">Ручна</string>
+  <string name="prefs_night_mode_summary">Пребацити на ноћни режим аутоматски (ако уређај подржава), ручно или преко подешавања система (Андроид 10+). Ручно пребацивање је могуће преко \"3 тачке\" менија на главном екрану.</string>
+  <string name="prefs_night_mode_manual">Ручно</string>
   <string name="prefs_night_mode_automatic">Аутоматски</string>
-  <string name="prefs_night_mode_system">Системска</string>
+  <string name="prefs_night_mode_system">Системски</string>
   <string name="options_menu_night_mode">Ноћни режим</string>
   <string name="prefs_navigate_to_verse_title">Иди на стих</string>
   <string name="prefs_navigate_to_verse_summary">Изабери стих (и поглавље) када се означи одломак.</string>
-  <string name="prefs_text_size_sample_text">Узорак текста</string>
+  <string name="prefs_open_links_in_special_window_title">Прозор са линковима</string>
+  <string name="prefs_open_links_in_special_window_summary">Отвори линкове у посебном прозору, за бржи приказ рефернци и Стронгова</string>
+  <string name="prefs_text_size_sample_text">Пример текста</string>
   <string name="prefs_screen_keep_on_title">Држи екран укљученим</string>
   <string name="prefs_screen_keep_on_summary">Спречи екран да оде у спавање током коришћења апликације</string>
   <string name="prefs_interface_locale_title">Језик апликације</string>
   <string name="prefs_interface_locale_summary">Изабери посебан језик корисничког окружења</string>
   <string name="reset_fontsize">Поврати</string>
-  <string name="prefs_request_sdcard_permission_title">Постоје ручно инсталирана документа</string>
-  <string name="prefs_request_sdcard_permission_summary">Омогући употребу ручно инсталираних докумената из jsword/sword директоријума на уграђеном складишту</string>
+  <string name="prefs_request_sdcard_permission_title">Постоје ручно инсталирани документи</string>
+  <string name="prefs_request_sdcard_permission_summary">Омогући употребу ручно инсталираних докумената из jsword/sword директоријума на унутрашњој меморији</string>
   <string name="all_text_options_window_menutitle">Све опције текста</string>
   <string name="text_options_window_menutitle">Опције текста</string>
   <string name="auto_fullscreen">Режим целог екрана приликом скроловања</string>
   <string name="reversed_split_mode">Обрнути режим поделе</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d тч</string>
+  <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Аутоматски пребаци на цео екран приликом скроловања текста. Савет: увек можете прећи у приказ преко целог екрана дуплим притиском.</string>
   <string name="prefs_margin_size_title">Измени величину маргина</string>
   <string name="prefs_margin_size_mm_title">Величина екрана (%d/%d/%d mm)</string>
@@ -133,17 +142,38 @@
   <string name="pref_maximum_width_of_text_label_mm">Максимална ширина текста (%d mm)</string>
   <string name="prefs_line_spacing_pt">Размак између редова %1.1fx</string>
   <string name="pref_font_family_label">Породица стила слова</string>
+  <string name="prefs_top_margin_title">Горња маргина</string>
+  <string name="prefs_top_margin_summary">Додај маргину (са визуелном индикацијом) горњем делу прозора који садржи документ Библије. Библија је скролована тако да тренутни стих почиње испод маргине.</string>
   <string name="prefs_hyphenation_title">Преламање</string>
   <string name="prefs_hyphenation_summary">Аутоматски преломи речи, ако језик подржава</string>
   <string name="prefs_line_spacing_pt_title">Размак између редова (%1.1fx)</string>
   <string name="line_spacing_title">Размак између редова</string>
   <string name="line_spacing_summary">Постави размак између редова</string>
   <string name="select_none">Скини означавање</string>
+  <string name="reset_are_you_sure">Да ли сте сигурни да желите да повратите све ове вредности?</string>
   <string name="window_pinning_menutitle">Истицање прозора</string>
   <string name="hide_window_buttons_title">Сакриј дугмиће прозора</string>
+  <string name="hide_window_buttons_summary">Сакривени су дугмићи прозора који се приказују са десне стране прегледа Библије. Линија за навигацију прозора у дну је и даље приказана и можете отворити искачући мени дугим притиском на њу.</string>
+  <string name="hide_bible_reference_overlay_title">Сакриј прекривајући приказ за рефернце Библије</string>
+  <string name="hide_bible_reference_overlay_summary">Не приказуј полу-провидни прекривајући приказ за референце Библије када је апликација у режиму целог екрана</string>
   <string name="full_screen_hide_buttons_pref_title">Сакриј линију дугмића прозора у режиму целог екрана</string>
   <string name="full_screen_hide_buttons_pref_summary">Аутоматски сакриј линију дугмића прозора са дна екрана, када се пребацује у режим рада целог екрана.</string>
+  <string name="prefs_dictionaries_cat">Речници</string>
+  <string name="choose_strongs_greek_dictionary_title">Стронгов речник грчког језика</string>
+  <string name="choose_strongs_greek_dictionary_summary">Изабери Стронгов речник за дефиниције грчких речи</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Стронгов речник хебрејског језика</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Изабери Стронгов речник за дефиниције хебрејских речи</string>
+  <string name="choose_strongs_greek_morphology_title">Робинсонова грчка морфологија</string>
+  <string name="choose_strongs_greek_morphology_summary">Изабери речник за дефиниције Робинсонове грчке морфологије</string>
+  <string name="prefs_top_margin_title_mm">Горња маргина (%d mm)</string>
   <string name="font_size_title">Величина текста</string>
+  <string name="font_size_title_pt">Величина слова (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Прилагоди величину слова главног текста</string>
+  <string name="pref_font_family_label_name">Породица фонтова (%s)</string>
+  <string name="prefs_font_family_summary">Промени породицу фонтова. Савет: још фонтова је могуће инсталирати преко Преузми Документе / Додаци.</string>
+  <string name="prefs_text_bookmarks_title">Обележи и Моје белешке поставке</string>
+  <string name="prefs_enable_bluetooth_title">Омогући Блутут дугмад за медије</string>
+  <string name="prefs_enable_bluetooth_summary">Управљајте Блутут дугмадима  за медије како бисте покренули или зауставили говор.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Поставке боја</string>
   <string name="window_color_settings_title">Поставке боје прозора</string>
@@ -179,7 +209,6 @@
   <string name="next">Следећа</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Молим преузмите Стронгове речнике јеврејског и грчког</string>
-  <string name="no_indexed_bible_with_strongs_ref">Морате преузети Библију која садржи Стронгове бројеве и преузети индекс путем Претраге</string>
   <string name="morph_robinson_not_installed">Молим преузмите речник \"Robinson\'s Morphological Analysis Codes\"</string>
   <!--Module download-->
   <string name="download">Преузми документе</string>
@@ -554,4 +583,5 @@
   <string name="incomplete_translation">Жао нам је, али имамо само делимичан превод корисничког интерфејса на језик %s. То је зато што су %s у потпуности развили волонтери. Ако можете да помогнете у преводу, погледајте %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">упутства за преводиоце</string>
+  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
 </resources>

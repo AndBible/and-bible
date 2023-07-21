@@ -171,6 +171,8 @@
   <string name="pref_font_family_label_name">Семейство шрифтов (%s)</string>
   <string name="prefs_font_family_summary">Измените семейство шрифтов. Совет: дополнительные шрифты можно установить с помощью Скачать ресурсы / Дополнительные компоненты.</string>
   <string name="prefs_text_bookmarks_title">Настройки закладок и заметок</string>
+  <string name="prefs_enable_bluetooth_title">Активировать медиа кнопки Bluetooth</string>
+  <string name="prefs_enable_bluetooth_summary">Управление медиа кнопками Bluetooth для начала/завершения голосовой функции.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Настройки цвета</string>
   <string name="window_color_settings_title">Настройки цвета окна</string>
@@ -206,6 +208,7 @@
   <string name="next">Вперед</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Скачать словари Стронга на греческом и иврите</string>
+  <string name="no_indexed_bible_with_strongs_ref">Вам необходимо загрузить модуль Библии, содержащий номера Стронга, а затем индексировать его посредством Поиска&lt;br&gt;</string>
   <string name="morph_robinson_not_installed">Пожалуйста скачайте словарь \'Морфолочические коды анализа Робинсона\'.</string>
   <string name="go_to_downloads">Перейти к Загрузке</string>
   <!--Module download-->
@@ -847,4 +850,5 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="strongs_text_and_links">Текст и ссылки</string>
   <string name="verse_tip">Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии.</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">Отказано в доступе</string>
 </resources>
