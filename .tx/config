@@ -1,23 +1,30 @@
 [main]
 host = https://www.transifex.com
 
-[andbible.and-bible-stringsxml]
-file_filter = app/src/main/res/values-<lang>/strings.xml
-lang_map = az@latin: az, zh_TW: zh, zh_CN: zh-rCN, en_GB: en, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, he: iw, id: in
-source_file = app/src/main/res/values/strings.xml
-source_lang = en
-minimum_perc = 60
+[o:mjdenham:p:andbible:r:and-bible-stringsxml]
+file_filter            = app/src/main/res/values-<lang>/strings.xml
+source_file            = app/src/main/res/values/strings.xml
+source_lang            = en
+minimum_perc           = 60
+lang_map               = en_GB: en, id: in, az@latin: az, zh_TW: zh, zh_CN: zh-rCN, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, he: iw
+replace_edited_strings = false
+keep_translations      = false
 
-[andbible.play-store-main-description]
-lang_map = bn: bn-BD, pt: pt-PT, az@latin: az-AZ, cs: cs-CZ, de: de-DE, en_GB: en-US, es: es-ES, fi: fi-FI, fr: fr-FR, nl: nl-NL, pl: pl-PL, ru: ru-RU, zh_TW: zh-TW, zh_CN: zh-CN, tr: tr-TR, hi: hi-IN, nb: no-NO, hu: hu-HU, he: iw-IL, sr_RS: sr, my: my-MM, it: it-IT, ko: ko-KR, te:te-IN
-file_filter = play/description-translations/<lang>.yml
-source_file = play/playstore-description.yml
-source_lang = en
-minimum_perc = 100
+[o:mjdenham:p:andbible:r:bibleview-js]
+file_filter            = app/bibleview-js/src/lang/<lang>.yaml
+source_file            = app/bibleview-js/src/lang/default.yaml
+source_lang            = en
+minimum_perc           = 60
+lang_map               = az@latin: az, zh_TW: zh, zh_CN: zh-rCN, en_GB: en, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, id: in
+replace_edited_strings = false
+keep_translations      = false
 
-[andbible.bibleview-js]
-lang_map = az@latin: az, zh_TW: zh, zh_CN: zh-rCN, en_GB: en, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, id: in
-file_filter = app/bibleview-js/src/lang/<lang>.yaml
-source_file = app/bibleview-js/src/lang/default.yaml
-source_lang = en
-minimum_perc = 60
+[o:mjdenham:p:andbible:r:play-store-main-description]
+file_filter            = play/description-translations/<lang>.yml
+source_file            = play/playstore-description.yml
+source_lang            = en
+minimum_perc           = 100
+lang_map               = es: es-ES, fi: fi-FI, ru: ru-RU, zh_TW: zh-TW, he: iw-IL, ko: ko-KR, bn: bn-BD, az@latin: az-AZ, tr: tr-TR, en_GB: en-US, pl: pl-PL, zh_CN: zh-CN, hi: hi-IN, my: my-MM, it: it-IT, cs: cs-CZ, nl: nl-NL, fr: fr-FR, nb: no-NO, hu: hu-HU, sr_RS: sr, te: te-IN, pt: pt-PT, de: de-DE
+replace_edited_strings = false
+keep_translations      = false
+
