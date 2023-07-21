@@ -1,0 +1,67 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "AndBible: دراسة الكتاب المقدس"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: اقرأ الكتاب المقدس أو ادرس التفسيرات أو القواميس أو اقرأ الكتب بدون انترنت.
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: أداة قوية لدراسة الكتاب المقدس
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  يعد "{{title}}" تطبيقًا قويًا وسهل الاستخدام وغير متصل بالإنترنت لدراسة الكتاب المقدس لنظام الاندرويد. لا يهدف التطبيق إلى أن يكون مجرد قارئ للكتاب المقدس، ولكنه يركز على كونه أداة متقدمة للقيام بدراسة شخصية متعمقة للكتاب المقدس.
+paragraph_1_2: >
+  تم تطوير هذا التطبيق من قبل قراء الكتاب المقدس، لقراء الكتاب المقدس. إنه يهدف إلى مساعدتك في جعل دراسة الكتاب المقدس مريحة وعميقة وممتعة. أفضل جزء في هذا المشروع المجتمعي غير الربحي هو أنه مفتوح المصدر ومجاني تمامًا ولا يحتوي على إعلانات. نظرًا لأنه تم إنشاؤه من الألف إلى الياء لنظام اندرويد، فهو صغير الحجم، وبالتالي فهو فعال للغاية وسريع بشكل ملحوظ.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  هناك عدد قليل من إصدارات الكتاب المقدس الشائعة (من العديد من الإصدارات المتوفرة) هي KJV و NASB و NET، وكذلك التعليقات الشائعة مثل Matthew Henry و John Gill.
+subtitle_2: ميزات قوية لدراسة الكتاب المقدس
+paragraph_2_1: >
+  يحتوي التطبيق على العديد من الميزات الأصلية الثاقبة، والتي تجعل تجربة دراسة الكتاب المقدس المركبة والعميقة أكثر سلاسة من أي وقت مضى. أبرز الميزات هي كما يلي:
+feature_01: طرق عرض النص المقسمة التي تتيح مقارنة الترجمات والتفسيرات الاسترشادية
+feature_02: تسمح مساحات العمل بإعدادات متعددة لدراسة الكتاب المقدس بإعداداتها الخاصة
+feature_03: يسمح تكامل Strong بتحليل الكلمات اليونانية والعبرية
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  المراجع التبادلية والحواشي والمستندات المرتبطة؛ القفز إلى المراجع التبادلية والحواشي بمجرد النقر على الرابط؛ إجراء دراسة متعمقة للكتاب المقدس باستخدام التعليقات ذات الروابط التشعبية ({{commentary_examples}}) ومجموعات المراجع التبادلية ({{cross_reference_examples}}) وغيرها من المصادر.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry etc. "
+# Examples of cross-reference collections.
+cross_reference_examples: كنز المعرفة الكتابية، TSKe
+feature_05: تحويل النص إلى كلام متقدم مع نطق الإشارات المرجعية، مما يتيح تجربة استماع سلسة للكتاب المقدس
+feature_06: بحث مرن
+feature_07: ميزات متقدمة لوضع إشارة مرجعية وإبراز مع ملاحظات الدراسة الشخصية
+feature_09: >
+  خطط القراءة: ضع أهدافًا لقراءة الكتاب المقدس 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  مكتبة كبيرة من الوثائق: ترجمات الكتاب المقدس، والتعليقات اللاهوتية، والقواميس، والخرائط، والكتب المسيحية، بإجمالي أكثر من {{total_documents}} من الوثائق بأكثر من {{total_languages}} لغة، موزعة بشكل قانوني بواسطة Crosswire ومستودعات SWORD الأخرى. 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  يتم البحث عن مصدر جميع المستندات للتأكد من أن جميع المستندات يمكن توزيعها بشكل قانوني أو أن الإذن قد تم منحه من قبل صاحب حقوق الطبع والنشر. وهذا أيضًا سبب عدم احتواء هذا التطبيق على مستندات مثل {{unavailable_documents}}.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: ESV و NIV و NKJV
+feature_12: >
+  غير متصل بالإنترنت: المرة الوحيدة التي تحتاج فيها إلى الإنترنت هي لتنزيل المستندات.
+feature_13: >
+  وسادات دراسية لإضافة الملاحظات ومراجع الكتاب المقدس أثناء الاستماع إلى الخطب.
+subtitle_3: فلنصنع معًا أفضل تطبيق للكتاب المقدس!
+paragraph_3_1: >
+  And Bible هو مشروع مجتمعي مفتوح المصدر. في الممارسة العملية، هذا يعني أن أي شخص لديه المهارات المناسبة يمكنه المساهمة في المشروع، ويتم تشجيعه على ذلك من خلال:
+contr_1: تطوير ميزات جديدة،
+contr_2: اختبار ميزات لم يتم إصدارها بعد،
+contr_3: المحافظة على تحديث ترجمات واجهة المستخدم، و
+contr_4: المساعدة في توسيع مكتبة الوحدة النمطية عن طريق الحصول على أذونات من أصحاب حقوق النشر، أو عن طريق تحويل المستندات إلى تنسيق SWORD.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "إذا كنت مهندس برامج محترف أو مختبِراً، فيرجى التفكير في المساهمة في المشروع. لمزيد من المعلومات حول كيفية المساهمة، يرجى الاطلاع على {{how_to_contribute_url}}."
+subtitle_4: الروابط
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  الصفحة الرئيسية: {{homepage_url}}
+link_2: >
+  سجل اعجابك بـ And Bible على فيسبوك: {{facebook_url}}
+link_3: >
+  قناة يوتيوب الخاصة بنا: {{youtube_url}}
+link_4: >
+  الأسئلة الشائعة: {{faq_url}}
+link_5: >
+  صفحة المشروع على Github: {{github_url}}

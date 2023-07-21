@@ -206,6 +206,7 @@
   <string name="next">Наступний</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Завантажте єврейський і грецький словники Стронга</string>
+  <string name="no_indexed_bible_with_strongs_ref">Ви повинні завантажити Біблію, що містить номера Стронга і завантажити її індекс за допомогою пошуку</string>
   <string name="morph_robinson_not_installed">Завантажте словник Робінсона з кодами морфологічного аналізу</string>
   <string name="go_to_downloads">Перейти до Завантаження</string>
   <!--Module download-->
@@ -845,4 +846,5 @@
   <string name="strongs_text_and_links">Текст і посилання</string>
   <string name="verse_tip">Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії</string>
   <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="permission_required">У доступі відмовлено</string>
 </resources>
