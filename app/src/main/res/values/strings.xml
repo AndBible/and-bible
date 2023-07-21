@@ -845,6 +845,7 @@
     <string name="format_zip">Zip file containing Sword module(s), or documents backup file (*.abmd) created by %s</string>
     <string name="format_mysword">MySword documents (*.mybible)</string>
     <string name="format_mybible">MyBible documents (*.SQLite3)</string>
+    <string name="format_epub">EPUB documents (*.epub)</string>
     <string name="redownload_message">
         A list of previous books/documents was found. Click below to easily download them again.
     </string>
