@@ -21,6 +21,7 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
+    <string name="app_name_andbible">AndBible</string>
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_medium">Bible Study (AndBible)</string>
     <string name="app_name_long">AndBible: Bible Study</string>
@@ -839,9 +840,9 @@
         backup.
     </string>
     <string name="supported_formats_title">Supported formats</string>
-    <string name="choose_file">You have to choose the file that you want to load to AndBible. </string>
+    <string name="choose_file">You have to choose the file that you want to load to %s. </string>
     <string name="supported_formats">Supported formats for loading documents from a file: %s</string>
-    <string name="format_zip">Zip file containing Sword module(s), or documents backup file (*.abmd) created by AndBible</string>
+    <string name="format_zip">Zip file containing Sword module(s), or documents backup file (*.abmd) created by %s</string>
     <string name="format_mysword">MySword documents (*.mybible)</string>
     <string name="format_mybible">MyBible documents (*.SQLite3)</string>
     <string name="redownload_message">

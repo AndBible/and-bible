@@ -249,7 +249,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         startupViewBinding.run {
             val welcome = getString(R.string.welcome_message, getString(R.string.app_name_long))
-            val zip = getString(R.string.format_zip)
+            val zip = getString(R.string.format_zip, getString(R.string.app_name_andbible))
             val myBible = getString(R.string.format_mybible)
             val mySword = getString(R.string.format_mysword)
             val formats = getString(R.string.supported_formats, "$zip, $myBible, $mySword")

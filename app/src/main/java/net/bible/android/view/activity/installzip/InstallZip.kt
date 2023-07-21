@@ -294,10 +294,10 @@ class InstallZip : ActivityBase() {
 
     private suspend fun getFileFromUserAndInstall() {
         val proceed = suspendCoroutine {
-            val zip = getString(R.string.format_zip)
+            val zip = getString(R.string.format_zip, getString(R.string.app_name_andbible))
             val myBible = getString(R.string.format_mybible)
             val mySword = getString(R.string.format_mysword)
-            val formats = getString(R.string.choose_file) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword")
+            val formats = getString(R.string.choose_file, getString(R.string.app_name_andbible)) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword")
 
             AlertDialog.Builder(this@InstallZip)
                 .setTitle(R.string.install_zip)
