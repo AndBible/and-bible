@@ -285,10 +285,7 @@ object CloudSync {
         if(initialDbVersion > dbDef.version) {
             tmpFile.delete()
             val activity = CurrentActivityHolder.currentActivity ?: throw CancelStartedSync()
-            Dialogs.showMsg2(
-                activity,
-                activity.getString(R.string.sync_cant_fetch, activity.getString(dbDef.category.contentDescription))
-            )
+            Dialogs.showMsg2(activity, cantFetchString(dbDef.category.contentDescription))
             dbDef.category.enabled = false
             Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > ${dbDef.version}")
             throw CancelStartedSync()
@@ -393,6 +390,10 @@ object CloudSync {
                     }
                 } catch (e: IOException) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
+                } catch (e: IncompatiblePatchVersion) {
+                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(cantFetchString(dbDef.category.contentDescription)))
+                    dbDef.category.enabled = false
+                    return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
                     ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
@@ -402,12 +403,20 @@ object CloudSync {
         }
     }
 
+    private fun cantFetchString(contentDescriptionId: Int): String {
+       val app = application
+       val s1 = app.getString(R.string.sync_cant_fetch)
+       val s2 = app.getString(R.string.sync_disabling, app.getString(contentDescriptionId))
+       val s3 = app.getString(R.string.sync_update_app)
+       return "$s1 $s2 $s3"
+    }
+
     private val patchFilePattern = Regex("""(\d+)\.((\d+)\.)?sqlite3\.gz""")
     private fun patchNumber(name: String): Long = patchFilePattern.find(name)!!.groups[1]!!.value.toLong()
     private fun versionNumber(name: String): Long = patchFilePattern.find(name)?.groups?.get(3)?.value?.toLong() ?: 1
 
     class PatchFilesSkipped: Exception()
-
+    class IncompatiblePatchVersion: Exception()
     private suspend fun downloadAndApplyNewPatches(dbDef: SyncableDatabaseAccessor<*>) = withContext(Dispatchers.IO) {
         val lastSynchronized = dbDef.dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
         val lastSynchronizedDateTime = DateTime(lastSynchronized)
@@ -449,7 +458,7 @@ object CloudSync {
             val parentFolderId = it.parentId
             val folderWithMeta = folders[parentFolderId]!!
             val num = patchNumber(it.name)
-            if(versionNumber(it.name) > dbDef.version) return@mapNotNull null
+            if(versionNumber(it.name) > dbDef.version) throw IncompatiblePatchVersion()
             val existing = dbDef.dao.syncStatus(folderWithMeta.folder.name, patchNumber(it.name))
             if (existing == null && num > folderWithMeta.loadedCount) {
                 DriveFileWithMeta(it, folderWithMeta.folder.name)
