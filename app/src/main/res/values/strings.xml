@@ -622,7 +622,7 @@
     <string name="backup_application">Application</string>
     <string name="backup_database">Database</string>
     <string name="backup_documents">Documents</string>
-    <string name="backup_application_info">Bible Study application file (.APK)</string>
+    <string name="backup_application_info">Application file (.APK)</string>
     <string name="backup_database_info">Bookmarks, labels, notes, study pads, reading plans, workspaces etc.</string>
     <string name="backup_document_info">Bibles, commentaries, dictionaries, maps etc.</string>
     <string name="backup_to">Backup to…</string>
