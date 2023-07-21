@@ -1086,7 +1086,7 @@
 
     <!-- Open links in AndBible (Deep linking) -->
     <string name="open_bible_links_title">Open Bible links in AndBible</string>
-    <string name="open_bible_links_summary">When clicks links that refer to AndBible supported Bible URL, open them in AndBible</string>
+    <string name="open_bible_links_summary">When clicking links that refer to AndBible supported Bible URL, open them in AndBible</string>
     <string name="copyReference">Copy link to clipboard</string>
     <string name="reference_copied_to_clipboard">Reference copied to clipboard</string>
 
