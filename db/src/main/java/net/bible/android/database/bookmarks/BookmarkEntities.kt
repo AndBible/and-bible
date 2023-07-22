@@ -326,6 +326,139 @@ class BookmarkEntities {
         constructor(bookmark: Bookmark, label: Label): this(bookmark.id, label.id)
     }
 
+    @DatabaseView("SELECT b.*, bn.notes FROM GenericBookmark b LEFT OUTER JOIN GenericBookmarkNotes bn ON b.id = bn.bookmarkId")
+    data class GenericBookmarkWithNotes(
+        @PrimaryKey var id: IdType = IdType(),
+        var key: String,
+        var createdAt: Date = Date(System.currentTimeMillis()),
+        var book: Book? = null,
+
+        var ordinalStart: Int,
+        var ordinalEnd: Int,
+        var startOffset: Int,
+        var endOffset: Int,
+
+        var primaryLabelId: IdType? = null,
+        var notes: String? = null,
+        var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        var new: Boolean = false,
+    ) {
+        constructor(
+            id: IdType = IdType(),
+            key: String,
+            createdAt: Date = Date(System.currentTimeMillis()),
+            book: Book? = null,
+            ordinalStart: Int,
+            ordinalEnd: Int,
+            startOffset: Int,
+            endOffset: Int,
+            primaryLabelId: IdType? = null,
+            notes: String? = null,
+            lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        ): this(
+            id = id,
+            key = key,
+            createdAt = createdAt,
+            book = book,
+            ordinalStart = ordinalStart,
+            ordinalEnd = ordinalEnd,
+            startOffset = startOffset,
+            endOffset = endOffset,
+            primaryLabelId = primaryLabelId,
+            notes = notes,
+            lastUpdatedOn = lastUpdatedOn,
+            new = false
+        )
+
+        var textRange: TextRange
+            get() = TextRange(startOffset, endOffset)
+            set(value) {
+                startOffset = value.start
+                endOffset = value.end
+            }
+
+        @Ignore var labelIds: List<IdType>? = null
+        @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
+        @Ignore var text: String? = null
+
+        val highlightedText: String get() {
+            return "$startText<b>$text</b>$endText"
+        }
+
+        @Ignore var startText: String? = null
+        @Ignore var endText: String? = null
+
+        @Ignore var fullText: String? = null
+
+        val bookmarkEntity get() = GenericBookmark(
+            id = id,
+            key = key,
+            ordinalStart = ordinalStart,
+            ordinalEnd = ordinalEnd,
+            createdAt = createdAt,
+            book = book,
+            startOffset = startOffset,
+            endOffset = endOffset,
+            primaryLabelId = primaryLabelId,
+            lastUpdatedOn = lastUpdatedOn,
+        )
+        val noteEntity get() = if(notes == null) null else GenericBookmarkNotes(id, notes!!)
+    }
+
+    @Entity(
+        foreignKeys = [
+            ForeignKey(entity = GenericBookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
+        ],
+    )
+    data class GenericBookmarkNotes(
+        @PrimaryKey var bookmarkId: IdType = IdType(),
+        val notes: String
+    )
+
+    @Entity(
+        indices = [Index("key")],
+        foreignKeys = [
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
+        ],
+    )
+    data class GenericBookmark(
+        @PrimaryKey var id: IdType = IdType(),
+        var key: String,
+        var createdAt: Date = Date(System.currentTimeMillis()),
+        var book: Book? = null,
+
+        var ordinalStart: Int,
+        var ordinalEnd: Int,
+        var startOffset: Int,
+        var endOffset: Int,
+
+        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: IdType? = null,
+        @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+    )
+
+    @Entity(
+        primaryKeys = ["bookmarkId", "labelId"],
+        foreignKeys = [
+            ForeignKey(entity = GenericBookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
+        ],
+        indices = [
+            Index("labelId")
+        ]
+    )
+    @Serializable
+    data class GenericBookmarkToLabel(
+        val bookmarkId: IdType,
+        val labelId: IdType,
+
+        // Journal display variables
+        @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
+        @ColumnInfo(defaultValue = "0") var indentLevel: Int = 0,
+        @ColumnInfo(defaultValue = "0") var expandContent: Boolean = true,
+    ) {
+        constructor(bookmark: GenericBookmark, label: Label): this(bookmark.id, label.id)
+    }
+
     @Entity(
         foreignKeys = [
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)

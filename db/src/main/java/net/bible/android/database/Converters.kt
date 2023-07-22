@@ -26,6 +26,7 @@ import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
@@ -100,6 +101,15 @@ class Converters {
         val book = Books.installed().getBook(s)
         if(book is AbstractPassageBook) book else null
     }
+
+    @TypeConverter
+    fun bookToStr2(v: Book?): String? = v?.initials
+
+    @TypeConverter
+    fun strToBook2(s: String?): Book? = s?.let {
+        return Books.installed().getBook(s)
+    }
+
 
     @TypeConverter
     fun speakSettingsToStr(p: SpeakSettings?): String? {
