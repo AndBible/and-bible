@@ -170,7 +170,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         if (selection.rangeCount < 1 || selection.isCollapsed) return null;
         const selectionOnly = selection.toString();
         const range = selection.getRangeAt(0)!;
-        const documentElem: HTMLElement = range.startContainer.parentElement!.closest(".bible-document")!;
+        const documentElem: HTMLElement = range.startContainer.parentElement!.closest(".document")!;
         if (!documentElem) {
             console.log(`querySelection: returning only selection ${selectionOnly}`)
             return selectionOnly

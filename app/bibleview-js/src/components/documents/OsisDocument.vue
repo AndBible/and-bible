@@ -16,7 +16,10 @@
   -->
 
 <template>
-  <div>
+  <div
+      class="document"
+      :data-book-initials="bookInitials"
+  >
     <OsisFragment :fragment="osisFragment"/>
     <OpenAllLink :v11n="document.v11n"/>
     <FeaturesLink :fragment="osisFragment"/>
@@ -33,8 +36,9 @@ import {provide} from "vue";
 import {OsisDocument} from "@/types/documents";
 
 const props = defineProps<{ document: OsisDocument }>();
+
 // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
-const {osisFragment, bookCategory} = props.document;
+const {osisFragment, bookCategory, bookInitials} = props.document;
 const referenceCollector = useReferenceCollector();
 
 if (bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {

@@ -98,8 +98,8 @@ object SwordContentFacade {
         val pieces = mutableListOf<String>()
         var currentPiece = ""
         for (word in text.split(" ", "\n")) {
-            if (currentPiece.length + word.length > 100) {
-                pieces.add(currentPiece)
+            if (currentPiece.length + word.length + 1 > 100) {
+                pieces.add("$currentPiece ")
                 currentPiece = word
             } else if (currentPiece.isEmpty()) {
                 currentPiece += word
@@ -181,10 +181,14 @@ object SwordContentFacade {
         val all = XPathFactory.instance().compile(".//BWA", Filters.element()).evaluate(element).filter {
             it.getAttribute("ordinal").value.toInt() in startOrdinal..endOrdinal
         }
-        val first = all.first().text.let { it.slice((startOffset ?: 0)until it.length) }
-        val last = all.last().text.let { it.slice(0 until (endOffset ?: it.length )) }
+        return if(all.size == 1) {
+            all.first().text.let { it.slice((startOffset ?: 0) until (endOffset ?: it.length)) }
+        } else {
+            val first = all.first().text.let { it.slice((startOffset ?: 0) until it.length) }
+            val last = all.last().text.let { it.slice(0 until (endOffset ?: it.length)) }
 
-        return first + " " + all.slice(1 until all.size).joinToString(" ") { it.text } + " " + last
+            first + all.slice(1 until all.size - 1).joinToString(" ") { it.text } + last
+        }
     }
 
     /**

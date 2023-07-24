@@ -223,7 +223,7 @@ export function findPreviousSiblingWithClass(node: Node, cls: string): NodeAndSi
 }
 
 export function findParentsBeforeVerseSibling(node: Node): ParentAndSiblings {
-    const candidate = findPreviousSiblingWithClass(node, "verse");
+    const candidate = findPreviousSiblingWithClass(node, "ordinal");
     if (candidate.verseNode) {
         return {
             parent: candidate.node,
@@ -238,9 +238,9 @@ export function findParentsBeforeVerseSibling(node: Node): ParentAndSiblings {
 export function calculateOffsetToVerse(node: Node, offset: number) {
     let parent: Nullable<Element> = null;
     if (textOrCommentNodeTypes.includes(node.nodeType)) {
-        parent = node.parentElement!.closest(".verse");
+        parent = node.parentElement!.closest(".ordinal");
     } else if (node.nodeType === Node.ELEMENT_NODE) {
-        parent = (node as Element).closest(".verse");
+        parent = (node as Element).closest(".ordinal");
         node = (node.firstChild || node.previousSibling)!
     }
     let offsetNow = 0;

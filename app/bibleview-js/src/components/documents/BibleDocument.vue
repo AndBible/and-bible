@@ -17,7 +17,7 @@
 
 <template>
   <div :id="`doc-${document.id}`"
-       class="bible-document"
+       class="document bible-document"
        :data-book-initials="bookInitials"
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>

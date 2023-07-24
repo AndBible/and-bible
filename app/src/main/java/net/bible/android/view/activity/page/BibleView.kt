@@ -88,6 +88,7 @@ import net.bible.android.control.page.DocumentWithBookmarks
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.MyNotesDocument
+import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.StudyPadDocument
@@ -121,6 +122,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
+import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
