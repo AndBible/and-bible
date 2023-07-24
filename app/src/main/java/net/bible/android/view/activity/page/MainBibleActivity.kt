@@ -56,6 +56,7 @@ import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -588,7 +589,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
             binding.drawerLayout.closeDrawers()
         } else {
-            if (!documentViewManager.documentView.backButtonPressed() && !backWasFromKeyboard && !historyTraversal.goBack()) {
+            if (!documentViewManager.documentView.backButtonPressed() && !historyTraversal.goBack()) {
                 if(lastBackPressed == null || lastBackPressed < now - 1000) {
                     this.lastBackPressed = now
                     Toast.makeText(this, getString(R.string.one_more_back_press), Toast.LENGTH_SHORT).show()
@@ -1449,7 +1450,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         refreshIfNightModeChange()
     }
 
-    private var backWasFromKeyboard: Boolean = false
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         Log.i(TAG, "Keycode:$keyCode")
         // common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
@@ -1459,9 +1459,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             val intent = searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, this)
             startActivityForResult(intent, STD_REQUEST_CODE)
             return true
-        }
-        if(keyCode == KeyEvent.KEYCODE_BACK) {
-            backWasFromKeyboard = event.source and InputDevice.SOURCE_KEYBOARD != 0
         }
 
         return super.onKeyUp(keyCode, event)
