@@ -46,8 +46,9 @@ import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
 import org.jdom2.Element
 import org.jdom2.Text
-import org.jdom2.filter.ContentFilter
+import org.jdom2.filter.Filters
 import org.jdom2.input.SAXBuilder
+import org.jdom2.xpath.XPathFactory
 import org.xml.sax.ContentHandler
 import java.io.StringReader
 import java.util.*
@@ -143,7 +144,7 @@ object SwordContentFacade {
             val data = BookData(book, key)
             val frag = data.osisFragment
 
-           if (book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
+            if (book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
                 val verse = frag.getChild("verse")
                     ?: throw DocumentNotFound(
                         application.getString(
@@ -160,10 +161,11 @@ object SwordContentFacade {
                 frag
             } else if(book.bookCategory != BookCategory.BIBLE) {
                 addAnchors(frag)
+
                 frag
             } else {
                 frag
-           }
+            }
         } catch (e: OsisError) {
             throw e
         } catch (e: Throwable) {
@@ -173,6 +175,16 @@ object SwordContentFacade {
                 log.error("Parsing error $e")
             throw JSwordError(application.getString(R.string.error_occurred))
         }
+    }
+
+    fun getTextWithinOrdinals(element: Element, startOrdinal: Int, endOrdinal: Int, startOffset: Int?, endOffset: Int?): String {
+        val all = XPathFactory.instance().compile(".//BWA", Filters.element()).evaluate(element).filter {
+            it.getAttribute("ordinal").value.toInt() in startOrdinal..endOrdinal
+        }
+        val first = all.first().text.let { it.slice((startOffset ?: 0)until it.length) }
+        val last = all.last().text.let { it.slice(0 until (endOffset ?: it.length )) }
+
+        return first + " " + all.slice(1 until all.size).joinToString(" ") { it.text } + " " + last
     }
 
     /**

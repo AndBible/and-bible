@@ -384,6 +384,7 @@ dependencies {
     }
 
     implementation("org.jdom:jdom2:$jdomVersion")
+    implementation("jaxen:jaxen:2.0.0")
 
     debugImplementation("com.facebook.stetho:stetho:1.6.0")
 
