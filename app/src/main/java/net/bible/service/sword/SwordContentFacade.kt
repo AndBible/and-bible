@@ -16,8 +16,6 @@
  */
 package net.bible.service.sword
 
-import android.os.Build
-import android.text.Html
 import android.text.TextUtils
 import android.util.LayoutDirection
 import android.util.Log
@@ -47,12 +45,14 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
 import org.jdom2.Element
+import org.jdom2.Text
+import org.jdom2.filter.ContentFilter
 import org.jdom2.input.SAXBuilder
 import org.xml.sax.ContentHandler
 import java.io.StringReader
-import java.lang.RuntimeException
 import java.util.*
 import kotlin.math.min
+
 
 open class OsisError(xmlMessage: String) : Exception(xmlMessage) {
     val xml: Element = SAXBuilder().build(StringReader("<div>$xmlMessage</div>")).rootElement
@@ -91,14 +91,60 @@ object SwordContentFacade {
         }
     }
 
+    private fun splitString(text: String): List<String> {
+        // By Google Bard, TODO: probably not optimal.
+        if(text.length <= 100) return listOf(text)
+        val pieces = mutableListOf<String>()
+        var currentPiece = ""
+        for (word in text.split(" ", "\n")) {
+            if (currentPiece.length + word.length > 100) {
+                pieces.add(currentPiece)
+                currentPiece = word
+            } else if (currentPiece.isEmpty()) {
+                currentPiece += word
+            } else {
+                currentPiece += " $word"
+            }
+        }
+        if (currentPiece.isNotEmpty()) {
+            pieces.add(currentPiece)
+        }
+        return pieces
+    }
+
+    private fun addAnchors(frag: Element) {
+        var ordinal = 0
+        fun wrapTextWithSpan(element: Element) {
+            for (content in element.content.toList()) {
+                if (content is Text && content.text.trim().isNotEmpty()) {
+                    val textContents = splitString(content.text)
+                    if (textContents.isNotEmpty()) {
+                        var pos = element.indexOf(content)
+                        content.detach()
+                        for (textContent in textContents) {
+                            val span = Element("BWA") // BibleViewAnchor.vue
+                            span.setAttribute("ordinal", "${ordinal++}")
+                            val textNode = Text(textContent)
+                            span.addContent(textNode)
+                            element.addContent(pos++, span)
+                        }
+                    }
+                } else if(content is Element) {
+                    wrapTextWithSpan(content)
+                }
+            }
+        }
+        wrapTextWithSpan(frag)
+    }
     @Throws(OsisError::class)
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
         log.debug("Using standard JSword to fetch document data")
         return try {
             val data = BookData(book, key)
-            if (book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
-                val div = data.osisFragment
-                val verse = div.getChild("verse")
+            val frag = data.osisFragment
+
+           if (book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
+                val verse = frag.getChild("verse")
                     ?: throw DocumentNotFound(
                         application.getString(
                             R.string.error_key_not_in_document2,
@@ -108,12 +154,16 @@ object SwordContentFacade {
                     )
                 val verseContent = verse.content.toList()
                 verse.removeContent()
-                div.removeContent()
-                div.addContent(verseContent)
-                div
+                frag.removeContent()
+                frag.addContent(verseContent)
+                addAnchors(frag)
+                frag
+            } else if(book.bookCategory != BookCategory.BIBLE) {
+                addAnchors(frag)
+                frag
             } else {
-                data.osisFragment
-            }
+                frag
+           }
         } catch (e: OsisError) {
             throw e
         } catch (e: Throwable) {

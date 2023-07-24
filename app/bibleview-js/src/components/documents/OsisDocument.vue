@@ -17,7 +17,7 @@
 
 <template>
   <div>
-    <OsisFragment do-not-convert :fragment="osisFragment"/>
+    <OsisFragment :fragment="osisFragment"/>
     <OpenAllLink :v11n="document.v11n"/>
     <FeaturesLink :fragment="osisFragment"/>
   </div>
@@ -30,14 +30,7 @@ import OpenAllLink from "@/components/OpenAllLink.vue";
 import {useReferenceCollector} from "@/composables";
 import {referenceCollectorKey} from "@/types/constants";
 import {provide} from "vue";
-import {osisToTemplateString} from "@/utils";
 import {OsisDocument} from "@/types/documents";
-
-const parser = new DOMParser();
-
-// https://stackoverflow.com/questions/49836558/split-string-at-space-after-certain-number-of-characters-in-javascript/49836804
-const splitRegex = /.{1,100}(\s|$)/g
-const spacesRegex = /^\s+$/
 
 const props = defineProps<{ document: OsisDocument }>();
 // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
@@ -47,48 +40,4 @@ const referenceCollector = useReferenceCollector();
 if (bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
     provide(referenceCollectorKey, referenceCollector);
 }
-
-function splitString(s: string) {
-    const v = s.match(splitRegex);
-    if (v === null) {
-        return [s];
-    }
-    return v;
-}
-
-function addAnchors(xml: string) {
-    const xmlDoc = parser.parseFromString(xml, "text/xml");
-    const walker = xmlDoc.createTreeWalker(xmlDoc.firstElementChild!, NodeFilter.SHOW_TEXT)
-    const textNodes: Text[] = [];
-    while (walker.nextNode()) {
-        textNodes.push(walker.currentNode as Text);
-    }
-    let count: number = 0;
-
-    function addAnchor(node: Node, textNode: Text) {
-        if (textNode.textContent!.match(spacesRegex)) {
-            node.parentElement!.insertBefore(textNode, node);
-        } else {
-            const anchor = xmlDoc.createElement("BWA"); // BibleViewAnchor.vue
-            anchor.setAttribute("ordinal", `${count++}`);
-            anchor.appendChild(textNode)
-            node.parentElement!.insertBefore(anchor, node);
-        }
-    }
-
-    for (const node of textNodes) {
-        const splitText = splitString(node.textContent!).map(t => xmlDoc.createTextNode(t));
-        for (const txt of splitText) {
-            addAnchor(node, txt)
-        }
-        node.parentNode!.removeChild(node);
-    }
-    return xmlDoc.firstElementChild!.outerHTML;
-}
-
-let xml = osisFragment.xml
-osisFragment.originalXml = xml;
-xml = osisToTemplateString(xml)
-xml = addAnchors(xml);
-osisFragment.xml = xml;
 </script>
