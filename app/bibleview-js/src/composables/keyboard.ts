@@ -19,7 +19,6 @@ import {setupDocumentEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
 import {useScroll} from "@/composables/scroll";
 import {ComputedRef, ref} from "vue";
-import {useModal} from "@/composables/modal";
 
 const altKeys: Set<string> = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyM", "KeyO", "KeyG"]);
 const keys: Set<string> = new Set(["ArrowUp", "ArrowDown"]);
@@ -30,7 +29,7 @@ export function useKeyboard(
     {doScrolling}: ReturnType<typeof useScroll>,
     lineHeight: ComputedRef<number>
 ) {
-    const disableKeybindings = ref(false);
+    const disableKeybindings = ref(0);
     setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
         if (keys.has(e.code) || (e.altKey && altKeys.has(e.code))) {
             let key = e.code;
@@ -38,7 +37,7 @@ export function useKeyboard(
                 key = "Alt" + key;
             }
             if(handleJsSide.has(key)) {
-                if(disableKeybindings.value) {
+                if(disableKeybindings.value > 0) {
                     return
                 }
                 else if(key === "ArrowDown") {
@@ -54,7 +53,7 @@ export function useKeyboard(
         }
     });
     function setDisableKeybindings(value: boolean) {
-        disableKeybindings.value = value;
+        disableKeybindings.value += value ? 1 : -1;
     }
     return {setDisableKeybindings};
 }
