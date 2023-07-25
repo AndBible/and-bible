@@ -121,6 +121,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
+import net.bible.service.sword.BookAndKey
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -902,9 +903,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.SCHEME_REFERENCE -> {
             val osisRef = uri.getQueryParameter("osis")
+            val doc = uri.getQueryParameter("doc")
+            val ordinal = uri.getQueryParameter("ordinal")
             val v11n = uri.getQueryParameter("v11n")
             val forceDoc = uri.getBooleanQueryParameter("force-doc", false)
-            if (osisRef != null) {
+            if(ordinal != null) {
+                val book = Books.installed().getBook(doc)
+                val bookKey = book!!.getKey(osisRef).let {if(it is RangedPassage) it.first() else it }
+                linkControl.showLink(book, BookAndKey(bookKey, book, ordinal.toInt()))
+            } else if (osisRef != null) {
                 linkControl.loadApplicationUrl(BibleLink("osis", osisRef.trim(), v11n, forceDoc = forceDoc))
             } else {
                 val contentRef = uri.getQueryParameter("content")!!
@@ -1374,9 +1381,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(doc !is StudyPadDocument || doc.label.id != event.labelId) return
         val studyPadTextEntryJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
         val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
+        val genericBookmarkToLabels = json.encodeToString(serializer(), event.genericBookmarkToLabelsOrderChanged)
         val studyPadItems = json.encodeToString(serializer(), event.studyPadOrderChanged)
         executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_study_pad",  {studyPadTextEntry: $studyPadTextEntryJson, bookmarkToLabelsOrdered: $bookmarkToLabels, studyPadItemsOrdered: $studyPadItems});
+            bibleView.emit("add_or_update_study_pad",  {
+                studyPadTextEntry: $studyPadTextEntryJson, 
+                bookmarkToLabelsOrdered: $bookmarkToLabels, 
+                genericBookmarkToLabelsOrdered: $genericBookmarkToLabels, 
+                studyPadItemsOrdered: $studyPadItems
+                });
         """)
     }
 
@@ -1563,6 +1576,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return if(value) "true" else "false"
         }
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
+        if(isActive) {
+            PassageChangeMediator.onCurrentVerseChanged(window)
+        }
+    }
+    fun scrollOrJumpToOrdinal(ordinal: Int, forceNow: Boolean = false) {
+        Log.i(TAG, "Scroll or jump to ordinal:$ordinal")
+        val now = !contentVisible || forceNow
+        fun boolString(value: Boolean?): String {
+            if(value == null) return "null"
+            return if(value) "true" else "false"
+        }
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', 'o-$ordinal', {now: ${boolString(now)}});")
         if(isActive) {
             PassageChangeMediator.onCurrentVerseChanged(window)
         }

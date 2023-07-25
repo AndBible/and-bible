@@ -263,7 +263,11 @@ class Window (
             PassageChangeMediator.contentChangeFinished()
             return
         }
-        if(displayedKey == verse) return
+        val anchorOrdinal = pageManager.currentPage.anchorOrdinal
+        if(displayedKey == verse && anchorOrdinal != null) {
+            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal)
+            return
+        }
         loadText(notifyLocationChange = true)
     }
 

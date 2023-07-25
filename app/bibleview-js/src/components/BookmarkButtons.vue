@@ -41,6 +41,7 @@
           </template>
         </div>
         <div
+            v-if="isBibleBookmark(bookmark)"
             class="bookmark-button"
             @click.stop="shareVerse"
             :style="buttonColor(primaryLabel.color)"
@@ -116,11 +117,11 @@ const bookmark = computed(() => props.bookmark);
 const android = inject(androidKey)!;
 
 function toggleWholeVerse() {
-    android.setBookmarkWholeVerse(bookmark.value.id, !bookmark.value.wholeVerse);
+    android.setBookmarkWholeVerse(bookmark.value, !bookmark.value.wholeVerse);
 }
 
 function shareVerse() {
-    android.shareBookmarkVerse(bookmark.value.id);
+    android.shareBookmarkVerse(bookmark.value);
 }
 
 const {bookmarkLabels} = inject(globalBookmarksKey)!;
@@ -135,13 +136,13 @@ const primaryLabel = computed(() => {
 });
 
 function openStudyPad(labelId: IdType) {
-    android.openStudyPad(labelId, bookmark.value.id);
+    android.openStudyPad(labelId, bookmark.value);
 }
 
 async function removeBookmark() {
     if (await areYouSure.value!.areYouSure()) {
         emit("close-bookmark");
-        android.removeBookmark(bookmark.value.id);
+        android.removeBookmark(bookmark.value);
     }
 }
 

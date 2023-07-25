@@ -73,14 +73,27 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
 import {useStudyPad} from "@/composables/journal";
 import {StudyPadDocument} from "@/types/documents";
-import {BaseBookmarkToLabel, StudyPadBibleBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
+import {
+    BaseBookmarkToLabel, BibleBookmarkToLabel, GenericBookmarkToLabel,
+    StudyPadBibleBookmarkItem,
+    StudyPadGenericBookmarkItem,
+    StudyPadItem,
+    StudyPadTextItem
+} from "@/types/client-objects";
 import Color from "color";
 import draggable from "vuedraggable";
 
 const props = defineProps<{ document: StudyPadDocument }>();
 
 // eslint-disable-next-line vue/no-setup-props-destructure
-const {bookmarks, label, journalTextEntries: journalTextEntries_, bookmarkToLabels: bookmarkToLabels_} = props.document;
+const {
+    bookmarks,
+    genericBookmarks,
+    label,
+    journalTextEntries: journalTextEntries_,
+    bookmarkToLabels: bookmarkToLabels_,
+    genericBookmarkToLabels: genericBookmarkToLabels_,
+} = props.document;
 const journal = useStudyPad(label);
 provide("journal", journal);
 const {scrollToId} = inject(scrollKey)!;
@@ -118,10 +131,12 @@ const {
 
 updateStudyPadTextEntries(...journalTextEntries_);
 updateBookmarkToLabels(...bookmarkToLabels_)
+updateBookmarkToLabels(...genericBookmarkToLabels_)
 
 const globalBookmarks = inject(globalBookmarksKey)!;
 
 globalBookmarks.updateBookmarks(bookmarks);
+globalBookmarks.updateBookmarks(genericBookmarks);
 
 const journalEntries: Ref<StudyPadItem[]> = computed({
     get:
@@ -157,8 +172,9 @@ const journalEntries: Ref<StudyPadItem[]> = computed({
         }
         const grouped = groupBy(changed, "type");
         const bookmarks: StudyPadBibleBookmarkItem[] = (grouped["bookmark"] || []) as StudyPadBibleBookmarkItem[];
+        const genericBookmarks: StudyPadGenericBookmarkItem[] = (grouped["generic-bookmark"] || []) as StudyPadGenericBookmarkItem[];
         const journals: StudyPadTextItem[] = (grouped["journal"] || []) as StudyPadTextItem[];
-        android.updateOrderNumber(label.id, bookmarks, journals);
+        android.updateOrderNumber(label.id, bookmarks, genericBookmarks, journals);
     }
 });
 const adding = ref(false);
@@ -169,10 +185,12 @@ setupEventBusListener("add_or_update_study_pad", async (
     {
         studyPadTextEntry,
         bookmarkToLabelsOrdered,
+        genericBookmarkToLabelsOrdered,
         studyPadItemsOrdered
     }: {
         studyPadTextEntry: StudyPadTextItem,
-        bookmarkToLabelsOrdered: BaseBookmarkToLabel[],
+        bookmarkToLabelsOrdered: BibleBookmarkToLabel[],
+        genericBookmarkToLabelsOrdered: GenericBookmarkToLabel[],
         studyPadItemsOrdered: StudyPadTextItem[]
     }) =>
 {
@@ -180,7 +198,7 @@ setupEventBusListener("add_or_update_study_pad", async (
         studyPadTextEntry.new = true
         adding.value = false;
     }
-    updateBookmarkToLabels(...bookmarkToLabelsOrdered);
+    updateBookmarkToLabels(...bookmarkToLabelsOrdered, ...genericBookmarkToLabelsOrdered);
     updateStudyPadOrdering(...studyPadItemsOrdered);
     if (studyPadTextEntry) {
         updateStudyPadTextEntries(studyPadTextEntry);

@@ -26,7 +26,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RestrictionType
 import java.lang.UnsupportedOperationException
 
-class BookAndKey(val key: Key, document: Book? = null): Key {
+class BookAndKey(val key: Key, document: Book? = null, @Transient val ordinal: Int? = null): Key {
     private val documentInitials = document?.initials?: ""
 
     @Transient var _document: Book? = document

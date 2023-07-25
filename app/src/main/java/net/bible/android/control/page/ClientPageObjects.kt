@@ -166,18 +166,23 @@ class StudyPadDocument(
     val label: BookmarkEntities.Label,
     val bookmarkId: IdType?,
     val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
-    private val bookmarkToLabels: List<BookmarkEntities.BaseBookmarkToLabel>,
+    val genericBookmarks: List<BookmarkEntities.GenericBookmarkWithNotes>,
+    private val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
+    private val genericBookmarkToLabels: List<BookmarkEntities.GenericBookmarkToLabel>,
     private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntryWithText>,
 ): Document {
     override val asHashMap: Map<String, Any>
         get() {
             val bookmarks = bookmarks.map { ClientBibleBookmark(it).asJson }
+            val genericBookmarks = genericBookmarks.map { ClientGenericBookmark(it).asJson }
             val clientLabel = ClientBookmarkLabel(label)
             return mapOf(
                 "id" to wrapString("journal_${label.id}"),
                 "type" to wrapString("journal"),
                 "bookmarks" to listToJson(bookmarks),
+                "genericBookmarks" to listToJson(genericBookmarks),
                 "bookmarkToLabels" to json.encodeToString(serializer(), bookmarkToLabels),
+                "genericBookmarkToLabels" to json.encodeToString(serializer(), genericBookmarkToLabels),
                 "journalTextEntries" to json.encodeToString(serializer(), studyPadTextEntries),
                 "label" to json.encodeToString(serializer(), clientLabel),
             )
@@ -234,9 +239,11 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
 
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
+        val keyName = bookmark.book?.getKey(bookmark.key)?.name
         return mapOf(
             "id" to wrapString(bookmark.id.toString()),
             "key" to wrapString(bookmark.key),
+            "keyName" to wrapString(keyName),
             "hashCode" to (abs(bookmark.id.hashCode())).toString(),
             "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.ordinalStart, bookmark.ordinalEnd)),
             "offsetRange" to json.encodeToString(serializer(), bookmark.textRange?.clientList),

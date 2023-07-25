@@ -60,6 +60,11 @@
       <BookmarkText :expanded="bookmarkEntry.expandContent" :bookmark="bookmarkEntry"/>
       <div v-if="(bookmarkEntry.hasNote || editMode) && bookmarkEntry.expandContent" class="note-separator"/>
     </template>
+    <template v-if="journalEntry.type==='generic-bookmark'">
+      <b><a :href="genericUrl">{{ genericBookmarkEntry.bookAbbreviation }}: {{ genericBookmarkEntry.keyName }}</a></b>&nbsp;
+      <BookmarkText :expanded="bookmarkEntry.expandContent" :bookmark="bookmarkEntry"/>
+      <div v-if="(bookmarkEntry.hasNote || editMode) && bookmarkEntry.expandContent" class="note-separator"/>
+    </template>
     <div :class="{'studypad-text-entry': journalEntry.type === 'journal', notes: journalEntry.type === 'bookmark'}">
       <EditableText
           ref="editor"
@@ -84,7 +89,13 @@ import {androidKey, exportModeKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {formatExportLink, isBottomHalfClicked} from "@/utils";
-import {Label, StudyPadBibleBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
+import {
+    Label,
+    StudyPadBibleBookmarkItem,
+    StudyPadGenericBookmarkItem,
+    StudyPadItem,
+    StudyPadTextItem
+} from "@/types/client-objects";
 import {AreYouSureButton} from "@/types/common";
 
 const emit = defineEmits(['edit-opened', 'add'])
@@ -94,6 +105,7 @@ const props = defineProps<{
 }>();
 
 const bookmarkEntry = computed(() => props.journalEntry as StudyPadBibleBookmarkItem)
+const genericBookmarkEntry = computed(() => props.journalEntry as StudyPadGenericBookmarkItem)
 const textEntry = computed(() => props.journalEntry as StudyPadTextItem)
 
 const android = inject(androidKey)!;
@@ -114,7 +126,7 @@ const editMode = computed<boolean>({
 
 function journalTextChanged(newText: string) {
     if (props.journalEntry.type === "bookmark") {
-        android.saveBookmarkNote(props.journalEntry.id, newText);
+        android.saveBookmarkNote(props.journalEntry, newText);
     } else if (props.journalEntry.type === "journal") {
         android.updateStudyPadEntry(props.journalEntry, {text: newText});
     }
@@ -157,9 +169,9 @@ async function deleteEntry() {
             answer = "bookmark"
         }
         if (answer === "only_label") {
-            android.removeBookmarkLabel(props.journalEntry.id, props.label.id);
+            android.removeBookmarkLabel(props.journalEntry, props.label.id);
         } else if (answer === "bookmark") {
-            android.removeBookmark(props.journalEntry.id);
+            android.removeBookmark(props.journalEntry);
         }
     }
 }
@@ -184,6 +196,22 @@ const bibleUrl = computed(
         }
     }
 );
+
+const genericUrl = computed(
+    () => {
+        const bookmarkItem = props.journalEntry as StudyPadGenericBookmarkItem
+        const doc = bookmarkItem.bookInitials;
+        const osis = bookmarkItem.key;
+        const ordinal = bookmarkItem.ordinalRange[0];
+
+        if(exportMode.value) {
+            return ""
+        } else {
+            return `osis://?osis=${osis}&doc=${doc}&ordinal=${ordinal}`;
+        }
+    }
+);
+
 defineExpose({editor});
 </script>
 

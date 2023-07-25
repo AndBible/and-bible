@@ -37,6 +37,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
 import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
+import org.crosswire.jsword.passage.RangedPassage
 import java.util.*
 import kotlin.math.abs
 
@@ -437,6 +438,8 @@ class BookmarkEntities {
         override fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>) {
             bookmarkToLabels = l as List<GenericBookmarkToLabel>
         }
+
+        val bookKey get() = book!!.getKey(key).let {if(it is RangedPassage) it.first() else it }
 
         override val bookmarkEntity get() = GenericBookmark(
             id = id,

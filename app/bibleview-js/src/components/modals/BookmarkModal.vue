@@ -176,12 +176,12 @@ const changeNote = (text: string) => {
 
 const originalBookLink = computed(() => {
     if (!bookmark.value) return ""
-    const prefix = bookmark.value!.bookInitials ? bookmark.value!.bookInitials : "";
+    const doc = bookmark.value!.bookInitials ? bookmark.value!.bookInitials : "";
     if(isBibleBookmark(bookmark.value)) {
-        const bibleUrl = encodeURI(`osis://?osis=${prefix}:${bookmark.value!.osisRef}&v11n=${bookmark.value!.v11n}`)
+        const bibleUrl = encodeURI(`osis://?osis=${doc}:${bookmark.value!.osisRef}&v11n=${bookmark.value!.v11n}`)
         return `<a href="${bibleUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
     } else if(isGenericBookmark(bookmark.value)) {
-        const docUrl = encodeURI(`osis://?osis=${prefix}:${bookmark.value!.osisRef}&ordinal=${bookmark.value.ordinalRange[0]}`)
+        const docUrl = encodeURI(`osis://?osis=${bookmark.value!.key}&doc=${doc}&ordinal=${bookmark.value.ordinalRange[0]}`)
         return `<a href="${docUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
     }
 })

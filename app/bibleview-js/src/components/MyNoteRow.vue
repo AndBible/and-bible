@@ -77,7 +77,7 @@ function editBookmark(event: MouseEvent) {
 }
 
 function save(newText: string) {
-    android.saveBookmarkNote(props.bookmark.id, newText);
+    android.saveBookmarkNote(props.bookmark, newText);
 }
 
 const editor = ref<InstanceType<typeof EditableText> | null>(null);
@@ -91,7 +91,7 @@ const areYouSureDelete = ref<InstanceType<typeof AreYouSure> | null>(null);
 async function deleteEntry() {
     const answer = await areYouSureDelete.value!.areYouSure();
     if (answer) {
-        android.removeBookmark(props.bookmark.id);
+        android.removeBookmark(props.bookmark);
     }
 }
 

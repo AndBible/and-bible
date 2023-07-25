@@ -22,7 +22,7 @@ import {
     Label,
     OrdinalRange,
     OsisFragment,
-    StudyPadTextItem, BaseBookmark, GenericBookmark
+    StudyPadTextItem, BaseBookmark, GenericBookmark, BibleBookmarkToLabel, GenericBookmarkToLabel
 } from "@/types/client-objects";
 
 export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal" | "none"
@@ -80,7 +80,9 @@ export type MyNotesDocument = BaseDocument & {
 export type StudyPadDocument = BaseDocument & {
     type: "journal"
     bookmarks: BaseBookmark[]
-    bookmarkToLabels: BaseBookmarkToLabel[]
+    genericBookmarks: GenericBookmark[]
+    bookmarkToLabels: BibleBookmarkToLabel[]
+    genericBookmarkToLabels: GenericBookmarkToLabel[]
     journalTextEntries: StudyPadTextItem[]
     label: Label
 }

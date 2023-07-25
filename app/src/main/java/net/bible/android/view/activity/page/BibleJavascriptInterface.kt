@@ -157,6 +157,11 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun removeGenericBookmark(bookmarkId: String) {
+        bookmarkControl.deleteGenericBookmarksById(listOf(IdType(bookmarkId)))
+    }
+
+    @JavascriptInterface
     fun assignLabels(bookmarkId: String) {
         val bookmark = bookmarkControl.bookmarkById(IdType(bookmarkId))!!
         bibleView.assignLabels(bookmark)
@@ -249,6 +254,7 @@ class BibleJavascriptInterface(
     fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) {
         val entryOrderNumber: Int = when (entryType) {
             "bookmark" -> bookmarkControl.getBookmarkToLabel(IdType(afterEntryId), IdType(labelId))!!.orderNumber
+            "generic-bookmark" -> bookmarkControl.getGenericBookmarkToLabel(IdType(afterEntryId), IdType(labelId))!!.orderNumber
             "journal" -> bookmarkControl.getStudyPadById(IdType(afterEntryId))!!.orderNumber
             "none" -> -1
             else -> throw RuntimeException("Illegal entry type")
@@ -263,11 +269,15 @@ class BibleJavascriptInterface(
     fun removeBookmarkLabel(bookmarkId: String, labelId: String) = bookmarkControl.removeBookmarkLabel(IdType(bookmarkId), IdType(labelId))
 
     @JavascriptInterface
+    fun removeGenericBookmarkLabel(bookmarkId: String, labelId: String) = bookmarkControl.removeGenericBookmarkLabel(IdType(bookmarkId), IdType(labelId))
+
+    @JavascriptInterface
     fun updateOrderNumber(labelId: String, data: String) {
         val deserialized: Map<String, List<Pair<String, Int>>> = json.decodeFromString(serializer(), data)
         val studyPadTextItems = deserialized["studyPadTextItems"]!!.map { bookmarkControl.getStudyPadById(IdType(it.first))!!.apply { orderNumber = it.second } }
         val bookmarksToLabels = deserialized["bookmarks"]!!.map { bookmarkControl.getBookmarkToLabel(IdType(it.first), IdType(labelId))!!.apply { orderNumber = it.second } }
-        bookmarkControl.updateOrderNumbers(IdType(labelId), bookmarksToLabels, studyPadTextItems)
+        val genericBookmarksToLabels = deserialized["genericBookmarks"]!!.map { bookmarkControl.getGenericBookmarkToLabel(IdType(it.first), IdType(labelId))!!.apply { orderNumber = it.second } }
+        bookmarkControl.updateOrderNumbers(IdType(labelId), bookmarksToLabels, genericBookmarksToLabels, studyPadTextItems)
     }
 
     @JavascriptInterface

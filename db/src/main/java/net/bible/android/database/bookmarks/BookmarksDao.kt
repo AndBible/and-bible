@@ -53,6 +53,8 @@ CASE
     WHEN :orderBy = 'LAST_UPDATED' THEN BookmarkWithNotes.lastUpdatedOn
 END"""
 
+const val genericOrderBy = """book, `key`"""
+
 const val orderBy2 = """
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BookmarkWithNotes.kjvOrdinalStart END,
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BookmarkWithNotes.startOffset END,
@@ -67,6 +69,10 @@ END"""
 interface BookmarkDao {
     @Query("SELECT * from BookmarkWithNotes ORDER BY $orderBy")
     fun allBookmarks(orderBy: String): List<BookmarkWithNotes>
+
+    @Query("SELECT * from GenericBookmarkWithNotes ORDER BY $genericOrderBy")
+    fun allGenericBookmarks(): List<GenericBookmarkWithNotes>
+
     fun allBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<BookmarkWithNotes> =
         allBookmarks(orderBy.name)
 
@@ -178,7 +184,11 @@ interface BookmarkDao {
     @Query("UPDATE Bookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
     fun updateBookmarkDate(id: IdType, lastUpdatedOn: Date = Date(System.currentTimeMillis()))
 
-    fun deleteBookmarks(bs: List<BookmarkWithNotes>) = deleteBookmarksById(bs.map {it.id})
+    fun deleteBookmarks(bs: List<BaseBookmarkWithNotes>) = when(bs.first()) {
+        is BookmarkWithNotes -> deleteBookmarksById(bs.map {it.id})
+        is GenericBookmarkWithNotes -> deleteGenericBookmarksById(bs.map {it.id})
+        else -> throw RuntimeException("Illegal type")
+    }
 
     @Query("DELETE FROM Bookmark WHERE id=:id")
     fun deleteBookmarkById(id: IdType)
@@ -188,6 +198,9 @@ interface BookmarkDao {
     @Query("DELETE FROM Bookmark WHERE id IN (:bs)")
     fun deleteBookmarksById(bs: List<IdType>)
 
+    @Query("DELETE FROM GenericBookmark WHERE id IN (:bs)")
+    fun deleteGenericBookmarksById(bs: List<IdType>)
+
     @Query(
         """
         SELECT * FROM BookmarkWithNotes WHERE NOT EXISTS 
@@ -196,6 +209,16 @@ interface BookmarkDao {
         """
     )
     fun unlabelledBookmarks(orderBy: String): List<BookmarkWithNotes>
+
+    @Query(
+        """
+        SELECT * FROM GenericBookmarkWithNotes WHERE NOT EXISTS 
+            (SELECT * FROM GenericBookmarkToLabel WHERE GenericBookmarkWithNotes.id = GenericBookmarkToLabel.bookmarkId)
+            ORDER BY $genericOrderBy
+        """
+    )
+    fun unlabelledGenericBookmarks(): List<GenericBookmarkWithNotes>
+
     fun unlabelledBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<BookmarkWithNotes> =
         unlabelledBookmarks(orderBy.name)
 
@@ -209,10 +232,23 @@ interface BookmarkDao {
         """
     )
     fun bookmarksWithLabel(labelId: IdType, orderBy: String): List<BookmarkWithNotes>
+
     fun bookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<BookmarkWithNotes>
         = bookmarksWithLabel(label.id, orderBy.name)
     fun bookmarksWithLabel(labelId: IdType, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<BookmarkWithNotes>
         = bookmarksWithLabel(labelId, orderBy.name)
+
+    @Query(
+        """
+        SELECT GenericBookmarkWithNotes.* FROM GenericBookmarkWithNotes 
+            JOIN GenericBookmarkToLabel ON GenericBookmarkWithNotes.id = GenericBookmarkToLabel.bookmarkId 
+            JOIN Label ON GenericBookmarkToLabel.labelId = Label.id
+            WHERE Label.id = :labelId ORDER BY $genericOrderBy
+        """
+    )
+    fun genericBookmarksWithLabel(labelId: IdType): List<GenericBookmarkWithNotes>
+    fun genericBookmarksWithLabel(label: Label): List<GenericBookmarkWithNotes>
+        = genericBookmarksWithLabel(label.id)
 
     @Query("""INSERT INTO BookmarkNotes VALUES (:bookmarkId, :notes) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
     fun _saveBookmarkNote(bookmarkId: IdType, notes: String?)
@@ -307,8 +343,20 @@ interface BookmarkDao {
     @Query("""SELECT * FROM BookmarkToLabel WHERE labelId=:labelId ORDER BY orderNumber""")
     fun getBookmarkToLabelsForLabel(labelId: IdType): List<BookmarkToLabel>
 
+    @Query("""SELECT * FROM GenericBookmarkToLabel WHERE labelId=:labelId ORDER BY orderNumber""")
+    fun getGenericBookmarkToLabelsForLabel(labelId: IdType): List<GenericBookmarkToLabel>
+
     @Query("""SELECT * FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId AND labelId=:labelId""")
     fun getBookmarkToLabel(bookmarkId: IdType, labelId: IdType): BookmarkToLabel?
+
+    @Query("""SELECT * FROM GenericBookmarkToLabel WHERE bookmarkId=:bookmarkId AND labelId=:labelId""")
+    fun getGenericBookmarkToLabel(bookmarkId: IdType, labelId: IdType): GenericBookmarkToLabel?
+
+    fun getBookmarkToLabel(bookmark: BaseBookmarkWithNotes, labelId: IdType): BaseBookmarkToLabel? = when(bookmark) {
+        is BookmarkWithNotes -> getBookmarkToLabel(bookmark.id, labelId)
+        is GenericBookmarkWithNotes -> getGenericBookmarkToLabel(bookmark.id, labelId)
+        else -> throw RuntimeException("Illegal type")
+    }
 
     @Insert fun insert(entity: BookmarkToLabel)
 
@@ -372,6 +420,7 @@ interface BookmarkDao {
     fun deleteLabelsByIds(toList: List<IdType>)
 
     @Update fun updateBookmarkToLabels(bookmarkToLabels: List<BookmarkToLabel>)
+    @Update fun updateGenericBookmarkToLabels(bookmarkToLabels: List<GenericBookmarkToLabel>)
 
     @Update fun updateStudyPadTextEntries(studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>)
 
