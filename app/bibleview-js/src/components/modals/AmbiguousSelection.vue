@@ -67,7 +67,7 @@
         {{ bibleBookName }} {{ verseInfo.chapter }}:{{ verseInfo.verse }}<template v-if="verseInfo.verseTo">-{{ verseInfo.verseTo }}</template>
       </template>
       <template v-else>
-        {{ strings.ambiguousSelection }}
+        {{ strings.bookmarksAndNotes }}
       </template>
     </template>
   </ModalDialog>
