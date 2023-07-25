@@ -290,6 +290,17 @@ open class BookmarkControl @Inject constructor(
         addText(bookmark)
         ABEventBus.post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
     }
+    fun saveGenericBookmarkNote(bookmarkId: IdType, note: String?) {
+        if(note == null) {
+            dao.deleteGenericBookmarkNotes(bookmarkId)
+        } else {
+            dao.saveGenericBookmarkNote(bookmarkId, note)
+        }
+        val bookmark = dao.genericBookmarkById(bookmarkId)!!
+        addLabels(bookmark)
+        addText(bookmark)
+        ABEventBus.post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
+    }
 
     fun onEvent(e: BookmarksUpdatedViaSyncEvent) {
         val labelUpserts = e.updated.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Label" }.map { it.entityId1 }

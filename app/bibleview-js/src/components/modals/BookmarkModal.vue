@@ -109,7 +109,7 @@ import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {clickWaiter} from "@/utils";
 import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
-import {BaseBookmark, BibleBookmark} from "@/types/client-objects";
+import {BaseBookmark} from "@/types/client-objects";
 import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
 
 const showBookmark = ref(false);
@@ -160,7 +160,11 @@ setupEventBusListener("bookmark_clicked",
 function closeBookmark() {
     showBookmark.value = false;
     if (originalNotes !== bookmarkNotes.value)
-        android.saveBookmarkNote(bookmark.value!.id, bookmarkNotes.value);
+        if(isBibleBookmark(bookmark.value!)) {
+            android.saveBookmarkNote(bookmark.value!.id, bookmarkNotes.value);
+        } else if(isGenericBookmark(bookmark.value!)) {
+            android.saveGenericBookmarkNote(bookmark.value!.id, bookmarkNotes.value);
+        }
 
     originalNotes = null;
 }
@@ -169,7 +173,11 @@ const {adjustedColor, strings, sprintf, formatTimestamp} = useCommon();
 
 const changeNote = (text: string) => {
     if (bookmark.value) {
-        android.saveBookmarkNote(bookmark.value!.id, text);
+        if(isBibleBookmark(bookmark.value!)) {
+            android.saveBookmarkNote(bookmark.value!.id, text);
+        } else if(isGenericBookmark(bookmark.value!)) {
+            android.saveGenericBookmarkNote(bookmark.value!.id, text);
+        }
     }
 }
 

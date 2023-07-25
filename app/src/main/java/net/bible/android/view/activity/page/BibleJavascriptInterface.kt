@@ -147,6 +147,11 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun saveGenericBookmarkNote(bookmarkId: String, note: String?) {
+        bookmarkControl.saveGenericBookmarkNote(IdType(bookmarkId), if(note?.trim()?.isEmpty() == true) null else note)
+    }
+
+    @JavascriptInterface
     fun removeBookmark(bookmarkId: String) {
         bookmarkControl.deleteBookmarksById(listOf(IdType(bookmarkId)))
     }

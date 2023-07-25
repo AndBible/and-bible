@@ -41,6 +41,7 @@ export type BibleJavascriptInterface = {
     requestNextChapter: AsyncFunc,
     refChooserDialog: AsyncFunc,
     saveBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
+    saveGenericBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
     removeBookmark: (bookmarkId: IdType) => void,
     assignLabels: (bookmarkId: IdType) => void,
     console: (loggerName: string, message: string) => void
@@ -270,6 +271,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.saveBookmarkNote(bookmarkId, noteText);
     }
 
+    function saveGenericBookmarkNote(bookmarkId: IdType, noteText: Nullable<string>) {
+        window.android.saveGenericBookmarkNote(bookmarkId, noteText);
+    }
+
     function removeBookmark(bookmarkId: IdType) {
         window.android.removeBookmark(bookmarkId);
     }
@@ -427,6 +432,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         setEditing,
         reportInputFocus,
         saveBookmarkNote,
+        saveGenericBookmarkNote,
         requestPreviousChapter,
         requestNextChapter,
         scrolledToOrdinal,

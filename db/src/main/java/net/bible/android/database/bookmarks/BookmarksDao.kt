@@ -78,6 +78,9 @@ interface BookmarkDao {
     @Query("SELECT * from BookmarkWithNotes where id = :bookmarkId")
     fun bookmarkById(bookmarkId: IdType): BookmarkWithNotes?
 
+    @Query("SELECT * from GenericBookmarkWithNotes where id = :bookmarkId")
+    fun genericBookmarkById(bookmarkId: IdType): GenericBookmarkWithNotes?
+
     @Query("SELECT * from BookmarkWithNotes where id IN (:bookmarkIds)")
     fun bookmarksByIds(bookmarkIds: List<IdType>): List<BookmarkWithNotes>
 
@@ -210,12 +213,23 @@ interface BookmarkDao {
 
     @Query("""INSERT INTO BookmarkNotes VALUES (:bookmarkId, :notes) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
     fun _saveBookmarkNote(bookmarkId: IdType, notes: String?)
-    @Query("""UPDATE Bookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
+
+    @Query("""INSERT INTO GenericBookmarkNotes VALUES (:bookmarkId, :notes) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
+    fun _saveGenericBookmarkNote(bookmarkId: IdType, notes: String?)
+     @Query("""UPDATE Bookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
     fun saveBookmarkLastUpdatedOn(bookmarkId: IdType, lastUpdatedOn: Long)
+
+    @Query("""UPDATE GenericBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
+    fun saveGenericBookmarkLastUpdatedOn(bookmarkId: IdType, lastUpdatedOn: Long)
 
     fun saveBookmarkNote(bookmarkId: IdType, notes: String?) {
         _saveBookmarkNote(bookmarkId, notes)
         saveBookmarkLastUpdatedOn(bookmarkId, System.currentTimeMillis())
+    }
+
+    fun saveGenericBookmarkNote(bookmarkId: IdType, notes: String?) {
+        _saveGenericBookmarkNote(bookmarkId, notes)
+        saveGenericBookmarkLastUpdatedOn(bookmarkId, System.currentTimeMillis())
     }
 
     // Labels

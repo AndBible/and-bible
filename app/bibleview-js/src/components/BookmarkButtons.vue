@@ -49,6 +49,7 @@
         </div>
         <div
             class="bookmark-button"
+            v-if="isBibleBookmark(bookmark)"
             @click.stop="toggleWholeVerse"
             :style="buttonColor(primaryLabel.color)"
         >
@@ -97,6 +98,7 @@ import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey} from "@/types/constants";
 import {ColorParam} from "@/types/common";
 import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
+import {isBibleBookmark} from "@/composables/bookmarks";
 
 const props = withDefaults(defineProps<{
     bookmark: BaseBookmark

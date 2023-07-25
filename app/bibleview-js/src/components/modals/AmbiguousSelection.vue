@@ -19,7 +19,12 @@
   <ModalDialog ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled"
                :limit="limitAmbiguousModalSize">
     <template #extra-buttons>
-      <button class="modal-action-button right" @touchstart.stop @click="multiSelectionButtonClicked">
+      <button
+          v-if="verseInfo"
+          class="modal-action-button right"
+          @touchstart.stop
+          @click="multiSelectionButtonClicked"
+      >
         <FontAwesomeIcon icon="plus-circle"/>
       </button>
       <button v-if="modal && (limitAmbiguousModalSize || modal.height > 196)" class="modal-action-button right"
@@ -295,7 +300,9 @@ async function handle(event: MouseEvent) {
                 const s = await select(event, allEventFunctions);
                 if (s && s.type === "callback" && s.callback) s.callback();
             } else {
-                console.error("Should not end up here")
+                // No verse below us. Generic books etc end up here.
+                const s = await select(event, allEventFunctions);
+                if (s && s.type === "callback" && s.callback) s.callback();
             }
         }
     } else {
