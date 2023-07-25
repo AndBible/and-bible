@@ -47,6 +47,7 @@ type BaseOsisDocument = BaseDocument & {
     bookName: string
     key: string
     v11n: string
+    osisRef: string
 }
 
 export type OsisDocument = BaseOsisDocument & {

@@ -37,6 +37,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkToLabel
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import java.util.*
@@ -156,6 +157,15 @@ interface BookmarkDao {
 
     @Query("DELETE FROM BookmarkNotes WHERE bookmarkId=:id")
     fun deleteBookmarkNotes(id: IdType)
+    @Query("DELETE FROM GenericBookmarkNotes WHERE bookmarkId=:id")
+    fun deleteGenericBookmarkNotes(id: IdType)
+    fun deleteBookmarkNotes(bookmark: BookmarkWithNotes) = deleteBookmarkNotes(bookmark.id)
+    fun deleteBookmarkNotes(bookmark: GenericBookmarkWithNotes) = deleteGenericBookmarkNotes(bookmark.id)
+    fun deleteBookmarkNotes(bookmark: BaseBookmarkWithNotes) = when(bookmark) {
+        is BookmarkWithNotes -> deleteBookmarkNotes(bookmark.id)
+        is GenericBookmarkWithNotes -> deleteGenericBookmarkNotes(bookmark.id)
+        else -> throw RuntimeException("Wrong type")
+    }
 
     @Query("UPDATE Bookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
     fun updateBookmarkDate(id: IdType, lastUpdatedOn: Date = Date(System.currentTimeMillis()))

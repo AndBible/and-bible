@@ -19,6 +19,7 @@
   <div :id="`doc-${document.id}`"
        class="document bible-document"
        :data-book-initials="bookInitials"
+       :data-osis-ref="osisRef"
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
@@ -37,7 +38,7 @@ import {BibleDocumentType} from "@/types/documents";
 const props = defineProps<{ document: BibleDocumentType }>();
 
 // eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
-const {id, bibleBookName, bookInitials, bookmarks, ordinalRange, originalOrdinalRange, v11n} = props.document;
+const {id, bibleBookName, bookInitials, bookmarks, ordinalRange, originalOrdinalRange, v11n, osisRef} = props.document;
 
 provide(bibleDocumentInfoKey, {bibleBookName, bookInitials, ordinalRange, originalOrdinalRange, v11n})
 

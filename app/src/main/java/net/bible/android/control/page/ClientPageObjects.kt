@@ -101,6 +101,7 @@ open class OsisDocument(
         "bookAbbreviation" to wrapString(book.abbreviation),
         "bookName" to wrapString(book.name),
         "key" to wrapString(key.uniqueId),
+        "osisRef" to wrapString(key.osisRef),
         "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
     )
 }

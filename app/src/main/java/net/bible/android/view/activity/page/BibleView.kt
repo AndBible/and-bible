@@ -159,29 +159,29 @@ class Selection(
     val endOffset: Int?,
     val bookmarks: List<IdType>,
     val notes: String? = null,
-    val text: String = ""
+    val text: String = "",
+    val osisRef: String? = null,
 )
 {
     constructor(bookmark: BookmarkEntities.BookmarkWithNotes):
         this(
-            bookmark.book?.initials,
-            bookmark.ordinalStart,
-            bookmark.startOffset,
-            bookmark.ordinalEnd,
-            bookmark.endOffset,
-            emptyList(),
-            bookmark.notes
+            bookInitials = bookmark.book?.initials,
+            startOrdinal = bookmark.ordinalStart,
+            startOffset = bookmark.startOffset,
+            endOrdinal = bookmark.ordinalEnd,
+            endOffset = bookmark.endOffset,
+            bookmarks = emptyList(),
+            notes = bookmark.notes
         )
 
     constructor(bookInitials: String, startOrdinal: Int, endOrdinal: Int?):
         this(
-            bookInitials,
-            startOrdinal,
-            0,
-            endOrdinal?: startOrdinal,
-            null,
-            emptyList(),
-            null
+            bookInitials = bookInitials,
+            startOrdinal = startOrdinal,
+            startOffset = 0,
+            endOrdinal = endOrdinal?: startOrdinal,
+            endOffset = null,
+            bookmarks = emptyList(),
         )
 
     @Transient @Inject lateinit var windowControl: WindowControl
@@ -360,49 +360,37 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val initialLabels = workspaceSettings.autoAssignLabels
         val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
 
-        if(selection.book?.bookCategory == BookCategory.BIBLE) {
-            val verseRange = selection.verseRange
-            val textRange =
-                if(selection.startOffset != null && selection.endOffset != null)
-                    BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
-                else null
-            val bookmark = BookmarkEntities.BookmarkWithNotes(verseRange, textRange, wholeVerse, selection.swordBook)
-            if(primaryLabelId != null) {
-                val label = bookmarkControl.labelById(primaryLabelId)
-                if(label != null) {
-                    bookmark.primaryLabelId = primaryLabelId
-                }
-            }
-
-            bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
-            if(initialLabels.isEmpty() || openNotes) {
-                executeJavascriptOnUiThread(
-                    "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
+        val bookmark: BookmarkEntities.BaseBookmarkWithNotes =
+            if(selection.book?.bookCategory == BookCategory.BIBLE) {
+                val verseRange = selection.verseRange
+                val textRange =
+                    if (selection.startOffset != null && selection.endOffset != null)
+                        BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
+                    else null
+                BookmarkEntities.BookmarkWithNotes(verseRange, textRange, wholeVerse, selection.swordBook)
+            } else {
+                BookmarkEntities.GenericBookmarkWithNotes(
+                    key = selection.osisRef!!,
+                    book = selection.book,
+                    ordinalStart = selection.startOrdinal,
+                    ordinalEnd = selection.endOrdinal,
+                    startOffset = selection.startOffset!!,
+                    endOffset = selection.endOffset!!,
+                    new = true,
                 )
             }
-        } else {
-            val bookmark = BookmarkEntities.GenericBookmarkWithNotes(
-                key = "",
-                book = selection.book,
-                ordinalStart = selection.startOrdinal,
-                ordinalEnd = selection.endOrdinal,
-                startOffset = selection.startOffset!!,
-                endOffset = selection.endOffset!!,
-                new = true,
+        if(primaryLabelId != null) {
+            val label = bookmarkControl.labelById(primaryLabelId)
+            if(label != null) {
+                bookmark.primaryLabelId = primaryLabelId
+            }
+        }
+
+        bookmarkControl.addOrUpdateBaseBookmark(bookmark, initialLabels)
+        if(initialLabels.isEmpty() || openNotes) {
+            executeJavascriptOnUiThread(
+                "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
             )
-            if(primaryLabelId != null) {
-                val label = bookmarkControl.labelById(primaryLabelId)
-                if(label != null) {
-                    bookmark.primaryLabelId = primaryLabelId
-                }
-            }
-
-            bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
-            if(initialLabels.isEmpty() || openNotes) {
-                executeJavascriptOnUiThread(
-                    "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
-                )
-            }
         }
     }
 

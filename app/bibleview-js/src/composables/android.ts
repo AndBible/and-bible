@@ -142,6 +142,7 @@ export function patchAndroidConsole() {
 
 export type QuerySelection = {
     bookInitials: string
+    osisRef: string
     startOrdinal: number,
     startOffset: number,
     endOrdinal: number,
@@ -177,6 +178,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         }
 
         const bookInitials = documentElem.dataset.bookInitials!;
+        const osisRef = documentElem.dataset.osisRef!;
         let startOrdinal: number, startOffset: number, endOrdinal: number, endOffset: number;
 
         try {
@@ -212,6 +214,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
 
         const returnSelection: QuerySelection = {
             bookInitials,
+            osisRef,
             startOrdinal,
             startOffset,
             endOrdinal,

@@ -27,6 +27,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
@@ -109,12 +110,12 @@ open class BookmarkControl @Inject constructor(
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<BookmarkWithNotes> = dao.allBookmarksWithNotes(orderBy)
 
     fun addOrUpdateBookmark(bookmark: BookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BookmarkWithNotes =
-        _addOrUpdateBookmark(bookmark, labels, updateNotes) as BookmarkWithNotes
+        addOrUpdateBaseBookmark(bookmark, labels, updateNotes) as BookmarkWithNotes
 
     fun addOrUpdateBookmark(bookmark: GenericBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): GenericBookmarkWithNotes =
-        _addOrUpdateBookmark(bookmark, labels, updateNotes) as GenericBookmarkWithNotes
+        addOrUpdateBaseBookmark(bookmark, labels, updateNotes) as GenericBookmarkWithNotes
 
-    private fun _addOrUpdateBookmark(bookmark: BaseBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BaseBookmarkWithNotes {
+    fun addOrUpdateBaseBookmark(bookmark: BaseBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BaseBookmarkWithNotes {
         val notes = bookmark.noteEntity
         if(bookmark.new) {
             dao.insert(bookmark.bookmarkEntity)
@@ -128,7 +129,7 @@ open class BookmarkControl @Inject constructor(
                 if (notes != null) {
                     dao.update(notes)
                 } else {
-                    dao.deleteBookmarkNotes(bookmark.id)
+                    dao.deleteBookmarkNotes(bookmark)
                 }
             }
         }
@@ -142,8 +143,20 @@ open class BookmarkControl @Inject constructor(
 
             dao.deleteLabelsFromBookmark(bookmark.id, toBeDeleted.map {it})
 
-            val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it)) }
-            dao.insertBookmarkToLabels(addBookmarkToLabels)
+            when(bookmark) {
+                is BookmarkWithNotes -> {
+                    val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map {
+                        BookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it))
+                    }
+                    dao.insertBookmarkToLabels(addBookmarkToLabels)
+                }
+                is GenericBookmarkWithNotes -> {
+                    val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map {
+                        GenericBookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it))
+                    }
+                    dao.insertGenericBookmarkToLabels(addBookmarkToLabels)
+                }
+            }
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
                 dao.update(bookmark.bookmarkEntity)
