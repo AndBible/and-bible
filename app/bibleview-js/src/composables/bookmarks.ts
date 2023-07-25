@@ -38,7 +38,7 @@ import {
     OrdinalOffset,
     OrdinalRange,
 } from "@/types/client-objects";
-import {ColorParam, Nullable} from "@/types/common";
+import {ColorParam} from "@/types/common";
 import Color from "color";
 
 type LabelId = IdType

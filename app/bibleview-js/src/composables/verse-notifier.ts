@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-import {computed, ComputedRef, ref, Ref, watch} from "vue";
+import {ComputedRef, ref, Ref, watch} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {throttle} from "lodash";
 import {CalculatedConfig, Config} from "@/composables/config";

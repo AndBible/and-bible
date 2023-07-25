@@ -174,7 +174,7 @@ const changeNote = (text: string) => {
     }
 }
 
-const originalBookLink = computed(() => {
+const originalBookLink = computed<string>(() => {
     if (!bookmark.value) return ""
     const doc = bookmark.value!.bookInitials ? bookmark.value!.bookInitials : "";
     if(isBibleBookmark(bookmark.value)) {
@@ -183,6 +183,8 @@ const originalBookLink = computed(() => {
     } else if(isGenericBookmark(bookmark.value)) {
         const docUrl = encodeURI(`osis://?osis=${bookmark.value!.key}&doc=${doc}&ordinal=${bookmark.value.ordinalRange[0]}`)
         return `<a href="${docUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
+    } else {
+        throw new Error("Illegal type")
     }
 })
 

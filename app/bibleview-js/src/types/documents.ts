@@ -18,11 +18,14 @@
 import {
     BookCategory,
     BibleBookmark,
-    BaseBookmarkToLabel,
     Label,
     OrdinalRange,
     OsisFragment,
-    StudyPadTextItem, BaseBookmark, GenericBookmark, BibleBookmarkToLabel, GenericBookmarkToLabel
+    StudyPadTextItem,
+    BaseBookmark,
+    GenericBookmark,
+    BibleBookmarkToLabel,
+    GenericBookmarkToLabel
 } from "@/types/client-objects";
 
 export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal" | "none"

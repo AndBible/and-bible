@@ -99,7 +99,7 @@ import {
     modalKey,
     verseHighlightKey
 } from "@/types/constants";
-import {BaseBookmark, BibleBookmark} from "@/types/client-objects";
+import {BaseBookmark} from "@/types/client-objects";
 import {Nullable, Optional, SelectionInfo} from "@/types/common";
 
 const props = withDefaults(
