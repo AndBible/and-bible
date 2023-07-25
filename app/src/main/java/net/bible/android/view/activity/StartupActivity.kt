@@ -219,7 +219,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         if(!checkWebView()) return@withContext
 
         // When I mess up database, I can re-create database like this.
-        //BackupControl.resetDatabase()
+        // BackupControl.deleteAllDatabases()
 
         initializeDatabase()
 
