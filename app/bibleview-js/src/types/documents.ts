@@ -22,7 +22,7 @@ import {
     Label,
     OrdinalRange,
     OsisFragment,
-    StudyPadTextItem, BaseBookmark
+    StudyPadTextItem, BaseBookmark, GenericBookmark
 } from "@/types/client-objects";
 
 export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal" | "none"
@@ -48,6 +48,8 @@ type BaseOsisDocument = BaseDocument & {
     key: string
     v11n: string
     osisRef: string
+    genericBookmarks: GenericBookmark[]
+    ordinalRange: OrdinalRange
 }
 
 export type OsisDocument = BaseOsisDocument & {
@@ -64,7 +66,6 @@ export type BibleDocumentType = BaseOsisDocument & {
     type: "bible"
     bookmarks: BibleBookmark[]
     bibleBookName: string
-    ordinalRange: OrdinalRange
     addChapter: boolean
     chapterNumber: number
     originalOrdinalRange: OrdinalRange

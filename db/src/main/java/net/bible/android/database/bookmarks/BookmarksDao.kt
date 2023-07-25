@@ -40,6 +40,8 @@ import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkToLa
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.passage.Key
 import java.util.*
 
 const val orderBy = """
@@ -314,4 +316,9 @@ interface BookmarkDao {
     @Update fun updateBookmarkToLabels(bookmarkToLabels: List<BookmarkToLabel>)
 
     @Update fun updateStudyPadTextEntries(studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>)
+
+    @Query("SELECT * FROM GenericBookmarkWithNotes WHERE book=:document AND `key`=:key")
+    fun genericBookmarksFor(document: String, key: String): List<GenericBookmarkWithNotes>
+    fun genericBookmarksFor(document: Book, key: Key): List<GenericBookmarkWithNotes> =
+        genericBookmarksFor(document.initials, key.osisRef)
 }

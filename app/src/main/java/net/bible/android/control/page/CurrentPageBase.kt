@@ -144,7 +144,8 @@ abstract class CurrentPageBase protected constructor(
         OsisDocument(
             book = currentDocument,
             key = key,
-            osisFragment = frag
+            osisFragment = frag,
+            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, annotateKey ?: key, withLabels = true)
         )
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)

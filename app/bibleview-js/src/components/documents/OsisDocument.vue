@@ -17,6 +17,7 @@
 
 <template>
   <div
+      :id="`doc-${document.id}`"
       class="document"
       :data-book-initials="bookInitials"
       :data-osis-ref="osisRef"
@@ -31,16 +32,24 @@
 import OsisFragment from "@/components/documents/OsisFragment.vue";
 import FeaturesLink from "@/components/FeaturesLink.vue";
 import OpenAllLink from "@/components/OpenAllLink.vue";
-import {useReferenceCollector} from "@/composables";
-import {referenceCollectorKey} from "@/types/constants";
-import {provide} from "vue";
+import {useCommon, useReferenceCollector} from "@/composables";
+import {globalBookmarksKey, referenceCollectorKey} from "@/types/constants";
+import {inject, provide, ref} from "vue";
 import {OsisDocument} from "@/types/documents";
+import {useBookmarks} from "@/composables/bookmarks";
 
 const props = defineProps<{ document: OsisDocument }>();
 
 // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
-const {osisFragment, bookCategory, bookInitials, osisRef} = props.document;
+const {id, ordinalRange, osisFragment, bookCategory, bookInitials, osisRef, genericBookmarks} = props.document;
 const referenceCollector = useReferenceCollector();
+
+const globalBookmarks = inject(globalBookmarksKey)!;
+globalBookmarks.updateBookmarks(genericBookmarks);
+
+const {config, appSettings, ...common} = useCommon();
+
+useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config, appSettings);
 
 if (bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
     provide(referenceCollectorKey, referenceCollector);

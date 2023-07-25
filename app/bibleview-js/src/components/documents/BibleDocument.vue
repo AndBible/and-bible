@@ -16,7 +16,8 @@
   -->
 
 <template>
-  <div :id="`doc-${document.id}`"
+  <div
+      :id="`doc-${document.id}`"
        class="document bible-document"
        :data-book-initials="bookInitials"
        :data-osis-ref="osisRef"

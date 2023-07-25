@@ -81,10 +81,10 @@ import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.ClientBibleBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
+import net.bible.android.control.page.ClientGenericBookmark
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
-import net.bible.android.control.page.DocumentWithBookmarks
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.MyNotesDocument
@@ -1344,27 +1344,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
         val document = firstDocument
-        if(document !is DocumentWithBookmarks) return
-        when(event.bookmark) {
-            is BookmarkEntities.BookmarkWithNotes -> {
-                if(document is MyNotesDocument && !document.verseRange.overlaps(event.bookmark.kjvVerseRange)) return
 
-                val clientBookmark = ClientBibleBookmark(event.bookmark,
+        // TODO: recheck this for bugs
+        //if(document is MyNotesDocument && !document.verseRange.overlaps(event.bookmark.kjvVerseRange)) return
+
+        val clientBookmark = when(event.bookmark) {
+            is BookmarkEntities.BookmarkWithNotes ->
+                ClientBibleBookmark(event.bookmark,
                     when (document) {
                         is BibleDocument -> document.swordBook.versification
                         is MyNotesDocument -> KJVA
                         else -> null
-                    }
-                )
-                val bookmarkStr = clientBookmark.asJson
-                executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
-        """)
-            }
-            is BookmarkEntities.GenericBookmarkWithNotes -> {
-                // TODO
-            }
+                    })
+            is BookmarkEntities.GenericBookmarkWithNotes -> ClientGenericBookmark(event.bookmark)
+            else -> throw RuntimeException("Invalid type")
         }
+
+        val bookmarkStr = clientBookmark.asJson
+        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);""")
     }
 
     fun onEvent(event: BookmarkNoteModifiedEvent) {

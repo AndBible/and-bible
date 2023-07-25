@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "f2c0d4ae4de7d92f043defee7bcca4da",
+    "identityHash": "ce02effab4e5b4f9df2e835c83e70a2e",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -346,13 +346,14 @@
         },
         "indices": [
           {
-            "name": "index_GenericBookmark_key",
+            "name": "index_GenericBookmark_book_key",
             "unique": false,
             "columnNames": [
+              "book",
               "key"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_GenericBookmark_key` ON `${TABLE_NAME}` (`key`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_GenericBookmark_book_key` ON `${TABLE_NAME}` (`book`, `key`)"
           }
         ],
         "foreignKeys": [
@@ -820,7 +821,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f2c0d4ae4de7d92f043defee7bcca4da')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ce02effab4e5b4f9df2e835c83e70a2e')"
     ]
   }
 }

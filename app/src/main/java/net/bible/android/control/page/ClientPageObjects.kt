@@ -64,8 +64,6 @@ val VerseRange.abbreviated: String get() = synchronized(BookName::class.java) {
     return shorter
 }
 
-interface DocumentWithBookmarks
-
 interface Document {
     val asJson: String get() {
         return asHashMap.map {(key, value) -> "'$key': $value"}.joinToString(",", "{", "}")
@@ -91,18 +89,21 @@ open class OsisDocument(
     val osisFragment: OsisFragment,
     val book: Book,
     val key: Key,
+    val genericBookmarks: List<BookmarkEntities.GenericBookmarkWithNotes> = emptyList(),
 ): Document {
     override val asHashMap: Map<String, String> get () = mapOf(
         "id" to wrapString("${book.initials}-${key.uniqueId}"),
         "type" to wrapString("osis"),
         "osisFragment" to mapToJson(osisFragment.toHashMap),
+        "ordinalRange" to json.encodeToString(serializer(), listOf(0, Int.MAX_VALUE)),
         "bookInitials" to wrapString(book.initials),
         "bookCategory" to wrapString(book.bookCategory.name),
         "bookAbbreviation" to wrapString(book.abbreviation),
         "bookName" to wrapString(book.name),
         "key" to wrapString(key.uniqueId),
-        "osisRef" to wrapString(key.osisRef),
+        "osisRef" to wrapString((osisFragment.annotateRef ?: key).osisRef),
         "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
+        "genericBookmarks" to listToJson(genericBookmarks.map { ClientGenericBookmark(it).asJson }),
     )
 }
 
@@ -112,7 +113,7 @@ class BibleDocument(
     osisFragment: OsisFragment,
     val swordBook: SwordBook,
     val originalKey: Key?,
-): OsisDocument(osisFragment, swordBook, verseRange), DocumentWithBookmarks {
+): OsisDocument(osisFragment, swordBook, verseRange) {
     override val asHashMap: Map<String, String> get () {
         val bookmarks = bookmarks.map { ClientBibleBookmark(it, swordBook.versification).asJson }
         val vrInV11n = verseRange.toV11n(swordBook.versification)
@@ -147,7 +148,7 @@ class MultiFragmentDocument(private val osisFragments: List<OsisFragment>, priva
 
 
 class MyNotesDocument(val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
-                      val verseRange: VerseRange): Document, DocumentWithBookmarks
+                      val verseRange: VerseRange): Document
 {
     override val asHashMap: Map<String, Any>
         get() {
@@ -167,7 +168,7 @@ class StudyPadDocument(
     val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
     private val bookmarkToLabels: List<BookmarkEntities.BaseBookmarkToLabel>,
     private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntryWithText>,
-): Document, DocumentWithBookmarks {
+): Document {
     override val asHashMap: Map<String, Any>
         get() {
             val bookmarks = bookmarks.map { ClientBibleBookmark(it).asJson }
@@ -237,6 +238,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "id" to wrapString(bookmark.id.toString()),
             "key" to wrapString(bookmark.key),
             "hashCode" to (abs(bookmark.id.hashCode())).toString(),
+            "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.ordinalStart, bookmark.ordinalEnd)),
             "offsetRange" to json.encodeToString(serializer(), bookmark.textRange?.clientList),
             "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
                 if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)

@@ -45,7 +45,12 @@ import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.KeyFactory
+import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
@@ -364,6 +369,17 @@ open class BookmarkControl @Inject constructor(
         }
         return bookmarks
     }
+    fun genericBookmarksFor(document: Book, key: Key, withLabels: Boolean = false, withText: Boolean = true): List<GenericBookmarkWithNotes> {
+        if (document.bookCategory == BookCategory.BIBLE) return emptyList()
+        val bookmarks = dao.genericBookmarksFor(document, key)
+        if(withLabels) for (b in bookmarks) {
+            addLabels(b)
+        }
+        if(withText) for (b in bookmarks) {
+            addText(b)
+        }
+        return bookmarks
+    }
 
     private fun addLabels(b: BaseBookmarkWithNotes) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b.id)
@@ -377,7 +393,9 @@ open class BookmarkControl @Inject constructor(
         else -> throw RuntimeException("Illegal type")
     }
     private fun addText(b: GenericBookmarkWithNotes) {
-
+        val key = b.book!!.getKey(b.key).let {if(it is RangedPassage) it.first() else it }
+        val osis = SwordContentFacade.readOsisFragment(b.book, key)
+        b.text = SwordContentFacade.getTextWithinOrdinals(osis, b.ordinalStart, b.ordinalEnd, b.startOffset, b.endOffset)
     }
     private fun addText(b: BookmarkWithNotes) {
         val book = b.book ?: windowControl.defaultBibleDoc(false) as SwordBook? ?: return // last ?: return is needed for tests
