@@ -159,12 +159,9 @@ setupEventBusListener("bookmark_clicked",
 
 function closeBookmark() {
     showBookmark.value = false;
-    if (originalNotes !== bookmarkNotes.value)
-        if(isBibleBookmark(bookmark.value!)) {
-            android.saveBookmarkNote(bookmark.value!.id, bookmarkNotes.value);
-        } else if(isGenericBookmark(bookmark.value!)) {
-            android.saveGenericBookmarkNote(bookmark.value!.id, bookmarkNotes.value);
-        }
+    if (originalNotes !== bookmarkNotes.value) {
+        android.saveBookmarkNote(bookmark.value!, bookmarkNotes.value);
+    }
 
     originalNotes = null;
 }
@@ -173,11 +170,7 @@ const {adjustedColor, strings, sprintf, formatTimestamp} = useCommon();
 
 const changeNote = (text: string) => {
     if (bookmark.value) {
-        if(isBibleBookmark(bookmark.value!)) {
-            android.saveBookmarkNote(bookmark.value!.id, text);
-        } else if(isGenericBookmark(bookmark.value!)) {
-            android.saveGenericBookmarkNote(bookmark.value!.id, text);
-        }
+        android.saveBookmarkNote(bookmark.value, text);
     }
 }
 

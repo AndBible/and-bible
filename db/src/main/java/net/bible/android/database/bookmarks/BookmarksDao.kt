@@ -84,6 +84,9 @@ interface BookmarkDao {
     @Query("SELECT * from BookmarkWithNotes where id IN (:bookmarkIds)")
     fun bookmarksByIds(bookmarkIds: List<IdType>): List<BookmarkWithNotes>
 
+    @Query("SELECT * from GenericBookmarkWithNotes where id IN (:bookmarkIds)")
+    fun genericBookmarksByIds(bookmarkIds: List<IdType>): List<GenericBookmarkWithNotes>
+
     //https://stackoverflow.com/questions/325933/determine-whether-two-date-ranges-overlap
     @Query(
         """SELECT * from BookmarkWithNotes where
@@ -272,8 +275,34 @@ interface BookmarkDao {
     )
     fun labelsForBookmark(bookmarkId: IdType): List<Label>
 
+    fun labelsForBookmark(bookmark: BaseBookmarkWithNotes): List<Label> = when(bookmark) {
+        is BookmarkWithNotes -> labelsForBookmark(bookmark.id)
+        is GenericBookmarkWithNotes -> labelsForGenericBookmark(bookmark.id)
+        else -> throw RuntimeException("Illegal type")
+    }
+
+    @Query(
+        """
+        SELECT Label.* FROM Label 
+            JOIN GenericBookmarkToLabel ON Label.id = GenericBookmarkToLabel.labelId 
+            JOIN GenericBookmarkWithNotes ON GenericBookmarkToLabel.bookmarkId = GenericBookmarkWithNotes.id 
+            WHERE GenericBookmarkWithNotes.id = :bookmarkId
+    """
+    )
+    fun labelsForGenericBookmark(bookmarkId: IdType): List<Label>
+
     @Query("""SELECT * FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId""")
     fun getBookmarkToLabelsForBookmark(bookmarkId: IdType): List<BookmarkToLabel>
+
+    @Query("""SELECT * FROM GenericBookmarkToLabel WHERE bookmarkId=:bookmarkId""")
+    fun getGenericBookmarkToLabelsForBookmark(bookmarkId: IdType): List<GenericBookmarkToLabel>
+
+    fun getBookmarkToLabelsForBookmark(bookmark: BaseBookmarkWithNotes): List<BaseBookmarkToLabel> =
+        when(bookmark) {
+            is BookmarkWithNotes -> getBookmarkToLabelsForBookmark(bookmark.id)
+            is GenericBookmarkWithNotes -> getGenericBookmarkToLabelsForBookmark(bookmark.id)
+            else -> throw RuntimeException("Illegal type")
+        }
 
     @Query("""SELECT * FROM BookmarkToLabel WHERE labelId=:labelId ORDER BY orderNumber""")
     fun getBookmarkToLabelsForLabel(labelId: IdType): List<BookmarkToLabel>
@@ -297,10 +326,22 @@ interface BookmarkDao {
 
     @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId AND labelId IN (:labels)")
     fun _deleteLabelsFromBookmark(bookmarkId: IdType, labels: List<IdType>): Int
+    @Query("DELETE FROM GenericBookmarkToLabel WHERE bookmarkId=:bookmarkId AND labelId IN (:labels)")
+    fun _deleteLabelsFromGenericBookmark(bookmarkId: IdType, labels: List<IdType>): Int
     fun deleteLabelsFromBookmark(bookmarkId: IdType, labels: List<IdType>): Int {
         if (labels.isEmpty()) return 0
         return _deleteLabelsFromBookmark(bookmarkId, labels)
     }
+
+    fun deleteLabelsFromBookmark(bookmark: BaseBookmarkWithNotes, labels: List<IdType>): Int {
+        if (labels.isEmpty()) return 0
+        return when(bookmark) {
+            is BookmarkWithNotes -> _deleteLabelsFromBookmark(bookmark.id, labels)
+            is GenericBookmarkWithNotes -> _deleteLabelsFromGenericBookmark(bookmark.id, labels)
+            else -> throw RuntimeException("Illegal type")
+        }
+    }
+
     fun deleteLabelsFromBookmark(bookmark: BookmarkWithNotes, labels: List<Label>): Int = deleteLabelsFromBookmark(bookmark.id, labels.map { it.id })
 
     @Insert fun insertBookmarkToLabels(entities: List<BookmarkToLabel>)
@@ -319,10 +360,13 @@ interface BookmarkDao {
     @Query("SELECT COUNT(*) FROM BookmarkToLabel WHERE labelId=:labelId")
     fun countBookmarkEntities(labelId: IdType): Int
 
+    @Query("SELECT COUNT(*) FROM GenericBookmarkToLabel WHERE labelId=:labelId")
+    fun countGenericBookmarkEntities(labelId: IdType): Int
+
     @Query("SELECT COUNT(*) FROM StudyPadTextEntryWithText WHERE labelId=:labelId")
     fun countStudyPadTextEntities(labelId: IdType): Int
 
-    fun countStudyPadEntities(labelId: IdType) = countBookmarkEntities(labelId) + countStudyPadTextEntities(labelId)
+    fun countStudyPadEntities(labelId: IdType) = countBookmarkEntities(labelId) + countGenericBookmarkEntities(labelId)+ countStudyPadTextEntities(labelId)
 
     @Query("DELETE FROM Label WHERE id IN (:toList)")
     fun deleteLabelsByIds(toList: List<IdType>)

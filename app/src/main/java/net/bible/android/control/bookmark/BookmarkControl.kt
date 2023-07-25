@@ -49,7 +49,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.KeyFactory
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -105,7 +104,7 @@ open class BookmarkControl @Inject constructor(
         val bookmark = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
         if (bookmark?.playbackSettings != null) {
             bookmark.playbackSettings = settings
-            addOrUpdateBookmark(bookmark)
+            addOrUpdateBibleBookmark(bookmark)
             Log.i("SpeakBookmark", "Updated bookmark settings " + bookmark + settings.speed)
         }
     }
@@ -114,13 +113,13 @@ open class BookmarkControl @Inject constructor(
 
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<BookmarkWithNotes> = dao.allBookmarksWithNotes(orderBy)
 
-    fun addOrUpdateBookmark(bookmark: BookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BookmarkWithNotes =
-        addOrUpdateBaseBookmark(bookmark, labels, updateNotes) as BookmarkWithNotes
+    fun addOrUpdateBibleBookmark(bookmark: BookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BookmarkWithNotes =
+        addOrUpdateBookmark(bookmark, labels, updateNotes) as BookmarkWithNotes
 
-    fun addOrUpdateBookmark(bookmark: GenericBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): GenericBookmarkWithNotes =
-        addOrUpdateBaseBookmark(bookmark, labels, updateNotes) as GenericBookmarkWithNotes
+    fun addOrUpdateGenericBookmark(bookmark: GenericBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): GenericBookmarkWithNotes =
+        addOrUpdateBookmark(bookmark, labels, updateNotes) as GenericBookmarkWithNotes
 
-    fun addOrUpdateBaseBookmark(bookmark: BaseBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BaseBookmarkWithNotes {
+    fun addOrUpdateBookmark(bookmark: BaseBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BaseBookmarkWithNotes {
         val notes = bookmark.noteEntity
         if(bookmark.new) {
             dao.insert(bookmark.bookmarkEntity)
@@ -142,11 +141,11 @@ open class BookmarkControl @Inject constructor(
         val labelIdsInDb = labels?.mapNotNull {dao.labelById(it)?.id }
 
         if(labelIdsInDb != null) {
-            val existingLabels = dao.labelsForBookmark(bookmark.id).map { it.id }.toSet()
+            val existingLabels = dao.labelsForBookmark(bookmark).map { it.id }.toSet()
             val toBeDeleted = existingLabels.filterNot { labelIdsInDb.contains(it) }
             val toBeAdded = labelIdsInDb.filterNot { existingLabels.contains(it) }
 
-            dao.deleteLabelsFromBookmark(bookmark.id, toBeDeleted.map {it})
+            dao.deleteLabelsFromBookmark(bookmark, toBeDeleted.map {it})
 
             when(bookmark) {
                 is BookmarkWithNotes -> {
@@ -176,10 +175,22 @@ open class BookmarkControl @Inject constructor(
         )
         return bookmark
     }
+    fun toggleBookmarkLabel(bookmark: BaseBookmarkWithNotes, labelId: String) {
+        val labels = labelsForBookmark(bookmark).toMutableList()
+        val foundLabel = labels.find { it.id == IdType(labelId) }
+        if(foundLabel != null) {
+            labels.remove(foundLabel)
+        } else {
+            labels.add(labelById(IdType(labelId))!!)
+        }
+        setLabelsForBookmark(bookmark, labels)
+    }
 
     fun bookmarksByIds(ids: List<IdType>): List<BookmarkWithNotes> = dao.bookmarksByIds(ids)
 
     fun bookmarkById(id: IdType): BookmarkWithNotes? = dao.bookmarkById(id)
+
+    fun genericBookmarkById(id: IdType): GenericBookmarkWithNotes? = dao.genericBookmarkById(id)
 
     fun hasBookmarksForVerse(verse: Verse): Boolean = dao.hasBookmarksForVerse(verse)
 
@@ -220,11 +231,9 @@ open class BookmarkControl @Inject constructor(
 
     fun bookmarksByLabelId(labelId: IdType) = dao.bookmarksWithLabel(labelId, BookmarkSortOrder.ORDER_NUMBER)
 
-    fun labelsForBookmark(bookmark: BookmarkWithNotes): List<Label> {
-        return dao.labelsForBookmark(bookmark.id)
-    }
+    fun labelsForBookmark(bookmark: BaseBookmarkWithNotes): List<Label> = dao.labelsForBookmark(bookmark)
 
-    fun setLabelsForBookmark(bookmark: BookmarkWithNotes, labels: List<Label>) =
+    fun setLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labels: List<Label>) =
         addOrUpdateBookmark(bookmark, labels.map { it.id }.toSet())
 
     fun insertOrUpdateLabel(label: Label): Label {
@@ -316,6 +325,13 @@ open class BookmarkControl @Inject constructor(
             (it.type == LogEntryTypes.UPSERT && it.tableName == "Bookmark") || it.tableName == "BookmarkNotes"
         }.map { it.entityId1 }.toMutableSet()
 
+        val genericBookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "GenericBookmark" }.map { it.entityId1 }
+        ABEventBus.post(BookmarksDeletedEvent(genericBookmarksDeletes))
+
+        val genericBookmarkUpserts = e.updated.filter {
+            (it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmark") || it.tableName == "GenericBookmarkNotes"
+        }.map { it.entityId1 }.toMutableSet()
+
         val studyPadTextEntryDeletes = e.updated.filter {
             (it.type == LogEntryTypes.DELETE && it.tableName == "StudyPadTextEntry")
         }.map { it.entityId1 }
@@ -354,11 +370,25 @@ open class BookmarkControl @Inject constructor(
             bookmarkUpserts.add(ids.first)
         }
 
+        val genericBookmarkToLabelUpserts = e.updated.filter {
+            it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmarkToLabel"
+        }.map { Pair(it.entityId1, it.entityId2) }
+
+        for(ids in genericBookmarkToLabelUpserts) {
+            labelIds.add(ids.second)
+            genericBookmarkUpserts.add(ids.first)
+        }
+
         for(labelId in labelIds) {
             sanitizeStudyPadOrder(labelId, true)
         }
 
         for(b in dao.bookmarksByIds(bookmarkUpserts.toList())) {
+            addLabels(b)
+            addText(b)
+            ABEventBus.post(BookmarkAddedOrUpdatedEvent(b))
+        }
+        for(b in dao.genericBookmarksByIds(genericBookmarkUpserts.toList())) {
             addLabels(b)
             addText(b)
             ABEventBus.post(BookmarkAddedOrUpdatedEvent(b))
@@ -393,8 +423,8 @@ open class BookmarkControl @Inject constructor(
     }
 
     private fun addLabels(b: BaseBookmarkWithNotes) {
-        val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b.id)
-        b.bookmarkToLabels = bookmarkToLabels
+        val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b)
+        b.setBaseBookmarkToLabels(bookmarkToLabels)
         b.labelIds = bookmarkToLabels.map { it.labelId }
     }
 
@@ -569,6 +599,12 @@ open class BookmarkControl @Inject constructor(
 
     fun setAsPrimaryLabel(bookmarkId: IdType, labelId: IdType) {
         val bookmark = dao.bookmarkById(bookmarkId)?: return
+        bookmark.primaryLabelId = labelId
+        addOrUpdateBookmark(bookmark)
+    }
+
+    fun setAsPrimaryLabelGeneric(bookmarkId: IdType, labelId: IdType) {
+        val bookmark = dao.genericBookmarkById(bookmarkId)?: return
         bookmark.primaryLabelId = labelId
         addOrUpdateBookmark(bookmark)
     }

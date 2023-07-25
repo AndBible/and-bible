@@ -25,13 +25,13 @@ import {Config, errorBox} from "@/composables/config";
 import {AsyncFunc, StudyPadEntryType, JSONString, LogEntry, Nullable} from "@/types/common";
 import {
     BaseBookmark,
-    BibleBookmark,
     CombinedRange,
     StudyPadBibleBookmarkItem,
     StudyPadItem,
     StudyPadTextItem
 } from "@/types/client-objects";
 import {BibleDocumentType} from "@/types/documents";
+import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
 
 export type BibleJavascriptInterface = {
     scrolledToOrdinal: (ordinal: number) => void,
@@ -44,6 +44,7 @@ export type BibleJavascriptInterface = {
     saveGenericBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
     removeBookmark: (bookmarkId: IdType) => void,
     assignLabels: (bookmarkId: IdType) => void,
+    genericAssignLabels: (bookmarkId: IdType) => void,
     console: (loggerName: string, message: string) => void
     selectionCleared: () => void,
     reportInputFocus: (newValue: boolean) => void,
@@ -67,7 +68,9 @@ export type BibleJavascriptInterface = {
     openMyNotes: (v11n: string, ordinal: number) => void,
     speak: (bookInitials: string, ordinal: number) => void,
     setAsPrimaryLabel: (bookmarkId: IdType, labelId: IdType) => void,
+    setAsPrimaryLabelGeneric: (bookmarkId: IdType, labelId: IdType) => void,
     toggleBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
+    toggleGenericBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
     reportModalState: (value: boolean) => void,
     querySelection: (bookmarkId: IdType, value: boolean) => void,
     setBookmarkWholeVerse: (bookmarkId: IdType, value: boolean) => void,
@@ -267,24 +270,32 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.scrolledToOrdinal(ordinal)
     }
 
-    function saveBookmarkNote(bookmarkId: IdType, noteText: Nullable<string>) {
-        window.android.saveBookmarkNote(bookmarkId, noteText);
-    }
-
-    function saveGenericBookmarkNote(bookmarkId: IdType, noteText: Nullable<string>) {
-        window.android.saveGenericBookmarkNote(bookmarkId, noteText);
+    function saveBookmarkNote(bookmark: BaseBookmark, noteText: Nullable<string>) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.saveBookmarkNote(bookmark.id, noteText);
+        } else if(isGenericBookmark(bookmark)) {
+            window.android.saveGenericBookmarkNote(bookmark.id, noteText);
+        }
     }
 
     function removeBookmark(bookmarkId: IdType) {
         window.android.removeBookmark(bookmarkId);
     }
 
-    function assignLabels(bookmarkId: IdType) {
-        window.android.assignLabels(bookmarkId);
+    function assignLabels(bookmark: BaseBookmark) {
+        if (isBibleBookmark(bookmark)) {
+            window.android.assignLabels(bookmark.id);
+        } else if(isGenericBookmark(bookmark)) {
+            window.android.genericAssignLabels(bookmark.id);
+        }
     }
 
-    function toggleBookmarkLabel(bookmarkId: IdType, labelId: IdType) {
-        window.android.toggleBookmarkLabel(bookmarkId, labelId);
+    function toggleBookmarkLabel(bookmark: BaseBookmark, labelId: IdType) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.toggleBookmarkLabel(bookmark.id, labelId);
+        } else if(isGenericBookmark(bookmark)) {
+            window.android.toggleGenericBookmarkLabel(bookmark.id, labelId);
+        }
     }
 
     function setClientReady() {
@@ -389,8 +400,12 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         }
     }
 
-    function setAsPrimaryLabel(bookmarkId: IdType, labelId: IdType) {
-        window.android.setAsPrimaryLabel(bookmarkId, labelId);
+    function setAsPrimaryLabel(bookmark: BaseBookmark, labelId: IdType) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.setAsPrimaryLabel(bookmark.id, labelId);
+        } else if(isGenericBookmark(bookmark)) {
+            window.android.setAsPrimaryLabelGeneric(bookmark.id, labelId);
+        }
     }
 
     function setBookmarkWholeVerse(bookmarkId: IdType, value: boolean) {
@@ -432,7 +447,6 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         setEditing,
         reportInputFocus,
         saveBookmarkNote,
-        saveGenericBookmarkNote,
         requestPreviousChapter,
         requestNextChapter,
         scrolledToOrdinal,

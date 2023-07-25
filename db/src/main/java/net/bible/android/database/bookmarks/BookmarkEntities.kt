@@ -141,8 +141,8 @@ class BookmarkEntities {
         var new: Boolean
 
         var labelIds: List<IdType>?
-        var bookmarkToLabels: List<BookmarkToLabel>?
         var text: String?
+        fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>)
     }
 
     @DatabaseView("SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn ON b.id = bn.bookmarkId")
@@ -263,9 +263,12 @@ class BookmarkEntities {
         @Ignore
         override var labelIds: List<IdType>? = null
         @Ignore
-        override var bookmarkToLabels: List<BookmarkToLabel>? = null
+        var bookmarkToLabels: List<BookmarkToLabel>? = null
         @Ignore
         override var text: String? = null
+        override fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>) {
+            bookmarkToLabels = l as List<BookmarkToLabel>
+        }
 
         val highlightedText: String get() {
             return "$startText<b>$text</b>$endText"
@@ -429,8 +432,11 @@ class BookmarkEntities {
             }
 
         @Ignore override var labelIds: List<IdType>? = null
-        @Ignore override var bookmarkToLabels: List<BookmarkToLabel>? = null
+        @Ignore var bookmarkToLabels: List<GenericBookmarkToLabel>? = null
         @Ignore override var text: String? = null
+        override fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>) {
+            bookmarkToLabels = l as List<GenericBookmarkToLabel>
+        }
 
         override val bookmarkEntity get() = GenericBookmark(
             id = id,

@@ -386,7 +386,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
         }
 
-        bookmarkControl.addOrUpdateBaseBookmark(bookmark, initialLabels)
+        bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
         if(initialLabels.isEmpty() || openNotes) {
             executeJavascriptOnUiThread(
                 "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
@@ -402,8 +402,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     val scope get() = mainBibleActivity.lifecycleScope
 
-    internal fun assignLabels(bookmarkId: IdType) = scope.launch(Dispatchers.IO) {
-        val bookmark = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
+    internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.IO) {
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
         val intent = Intent(mainBibleActivity, ManageLabels::class.java)
         intent.putExtra("data", ManageLabels.ManageLabelsData(

@@ -123,7 +123,7 @@ class BibleSpeakTextProvider(
                 }
             }
             bookmark.playbackSettings = newPlaybackSettings
-            this.bookmark = bookmarkControl.addOrUpdateBookmark(bookmark)
+            this.bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
         }
     }
 
@@ -358,7 +358,7 @@ class BibleSpeakTextProvider(
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
                 labelList.remove(ttsLabel)
                 bookmark.playbackSettings = null
-                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark)
+                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
                 bookmarkControl.setLabelsForBookmark(bookmark, labelList)
                 Log.i("SpeakBookmark", "Removed speak label from bookmark $bookmark")
             }
@@ -384,13 +384,13 @@ class BibleSpeakTextProvider(
                 playbackSettings.bookmarkWasCreated = true
                 bookmark = BookmarkWithNotes(VerseRange(startVerse.versification, startVerse), null, true, null)
                 bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark)
+                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
             }
             else {
                 playbackSettings.bookmarkWasCreated = bookmark.playbackSettings?.bookmarkWasCreated ?: false
                 labelList.addAll(bookmarkControl.labelsForBookmark(bookmark))
                 bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark)
+                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
             }
 
             labelList.add(bookmarkControl.speakLabel)

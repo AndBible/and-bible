@@ -158,7 +158,14 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun assignLabels(bookmarkId: String) {
-        bibleView.assignLabels(IdType(bookmarkId))
+        val bookmark = bookmarkControl.bookmarkById(IdType(bookmarkId))!!
+        bibleView.assignLabels(bookmark)
+    }
+
+    @JavascriptInterface
+    fun genericAssignLabels(bookmarkId: String) {
+        val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
+        bibleView.assignLabels(bookmark)
     }
 
     @JavascriptInterface
@@ -359,16 +366,25 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun setAsPrimaryLabelGeneric(bookmarkId: String, labelId: String) {
+        val label = bookmarkControl.labelById(IdType(labelId))!!
+        if(label.isUnlabeledLabel) {
+            return
+        }
+        bookmarkControl.setAsPrimaryLabelGeneric(IdType(bookmarkId), IdType(labelId))
+        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
+    }
+
+    @JavascriptInterface
     fun toggleBookmarkLabel(bookmarkId: String, labelId: String) {
         val bookmark = bookmarkControl.bookmarkById(IdType(bookmarkId))!!
-        val labels = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
-        val foundLabel = labels.find { it.id == IdType(labelId) }
-        if(foundLabel != null) {
-            labels.remove(foundLabel)
-        } else {
-            labels.add(bookmarkControl.labelById(IdType(labelId))!!)
-        }
-        bookmarkControl.setLabelsForBookmark(bookmark, labels)
+        return bookmarkControl.toggleBookmarkLabel(bookmark, labelId)
+    }
+
+    @JavascriptInterface
+    fun toggleGenericBookmarkLabel(bookmarkId: String, labelId: String) {
+        val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
+        return bookmarkControl.toggleBookmarkLabel(bookmark, labelId)
     }
 
     @JavascriptInterface
@@ -385,7 +401,7 @@ class BibleJavascriptInterface(
         }
         bookmark.wholeVerse = value
 
-        bookmarkControl.addOrUpdateBookmark(bookmark)
+        bookmarkControl.addOrUpdateBibleBookmark(bookmark)
         if(value) ABEventBus.post(ToastEvent(R.string.whole_verse_turned_on))
     }
 

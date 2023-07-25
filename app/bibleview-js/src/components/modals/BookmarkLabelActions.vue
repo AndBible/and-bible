@@ -78,7 +78,7 @@ const bookmark = computed(() => bookmarkMap.get(props.bookmarkId));
 
 function assignLabels() {
     if (bookmark.value) {
-        android.assignLabels(bookmark.value.id);
+        android.assignLabels(bookmark.value);
     }
 }
 
