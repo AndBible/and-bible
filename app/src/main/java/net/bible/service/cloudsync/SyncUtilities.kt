@@ -46,6 +46,9 @@ enum class SyncableDatabaseDefinition {
             Table("Bookmark"),
             Table("BookmarkNotes", "bookmarkId"),
             Table("BookmarkToLabel", "bookmarkId", "labelId"),
+            Table("GenericBookmark"),
+            Table("GenericBookmarkNotes", "bookmarkId"),
+            Table("GenericBookmarkToLabel", "bookmarkId", "labelId"),
             Table("StudyPadTextEntry"),
             Table("StudyPadTextEntryText", "studyPadTextEntryId"),
         )
