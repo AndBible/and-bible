@@ -141,7 +141,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             showEllipsis = bindings.toggleShowEllipsis.isChecked,
             showQuotes = bindings.toggleShowQuotes.isChecked
         )
-        val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book.language.code)) == LayoutDirection.RTL
+        val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.swordBook.language.code)) == LayoutDirection.RTL
 
         // set widget text based on the new text
         bindings.preview.textDirection = if (isRtl) View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR

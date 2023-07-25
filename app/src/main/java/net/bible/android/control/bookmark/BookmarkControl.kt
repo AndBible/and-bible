@@ -26,6 +26,8 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -54,7 +56,7 @@ import kotlin.math.min
 
 abstract class BookmarkEvent
 
-class BookmarkAddedOrUpdatedEvent(val bookmark: BookmarkWithNotes): BookmarkEvent()
+class BookmarkAddedOrUpdatedEvent(val bookmark: BaseBookmarkWithNotes): BookmarkEvent()
 class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BookmarkToLabel)
 class BookmarksDeletedEvent(val bookmarkIds: List<IdType>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
@@ -106,7 +108,13 @@ open class BookmarkControl @Inject constructor(
 
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<BookmarkWithNotes> = dao.allBookmarksWithNotes(orderBy)
 
-    fun addOrUpdateBookmark(bookmark: BookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BookmarkWithNotes {
+    fun addOrUpdateBookmark(bookmark: BookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BookmarkWithNotes =
+        _addOrUpdateBookmark(bookmark, labels, updateNotes) as BookmarkWithNotes
+
+    fun addOrUpdateBookmark(bookmark: GenericBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): GenericBookmarkWithNotes =
+        _addOrUpdateBookmark(bookmark, labels, updateNotes) as GenericBookmarkWithNotes
+
+    private fun _addOrUpdateBookmark(bookmark: BaseBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BaseBookmarkWithNotes {
         val notes = bookmark.noteEntity
         if(bookmark.new) {
             dao.insert(bookmark.bookmarkEntity)
@@ -135,7 +143,7 @@ open class BookmarkControl @Inject constructor(
             dao.deleteLabelsFromBookmark(bookmark.id, toBeDeleted.map {it})
 
             val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { BookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it)) }
-            dao.insert(addBookmarkToLabels)
+            dao.insertBookmarkToLabels(addBookmarkToLabels)
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
                 dao.update(bookmark.bookmarkEntity)
@@ -250,7 +258,7 @@ open class BookmarkControl @Inject constructor(
 
     fun changeLabelsForBookmark(bookmark: BookmarkWithNotes, labelIds: List<IdType>) {
         dao.clearLabels(bookmark)
-        dao.insert(labelIds.map { BookmarkToLabel(bookmark.id, it)})
+        dao.insertBookmarkToLabels(labelIds.map { BookmarkToLabel(bookmark.id, it)})
     }
 
     fun saveBookmarkNote(bookmarkId: IdType, note: String?) {
@@ -344,13 +352,21 @@ open class BookmarkControl @Inject constructor(
         return bookmarks
     }
 
-    private fun addLabels(b: BookmarkWithNotes) {
+    private fun addLabels(b: BaseBookmarkWithNotes) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b.id)
         b.bookmarkToLabels = bookmarkToLabels
         b.labelIds = bookmarkToLabels.map { it.labelId }
     }
 
-    internal fun addText(b: BookmarkWithNotes) {
+    internal fun addText(b: BaseBookmarkWithNotes) = when(b) {
+        is BookmarkWithNotes -> addText(b)
+        is GenericBookmarkWithNotes -> addText(b)
+        else -> throw RuntimeException("Illegal type")
+    }
+    private fun addText(b: GenericBookmarkWithNotes) {
+
+    }
+    private fun addText(b: BookmarkWithNotes) {
         val book = b.book ?: windowControl.defaultBibleDoc(false) as SwordBook? ?: return // last ?: return is needed for tests
         b.osisFragment =
             try {

@@ -27,11 +27,18 @@ import net.bible.android.database.IdType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
+import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
+import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
-import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkToLabel
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import java.util.*
 
 const val orderBy = """
@@ -112,11 +119,40 @@ interface BookmarkDao {
         bookmarksForVerseStartWithLabel(label.id, verse.toV11n(KJVA).ordinal)
 
     @Insert fun insert(entity: Bookmark)
+    @Insert fun insert(entity: GenericBookmark)
+
+    fun insert(entity: BaseBookmark) = when(entity) {
+        is Bookmark -> insert(entity)
+        is GenericBookmark -> insert(entity)
+        else -> throw RuntimeException("Wrong type")
+    }
+
     @Insert fun insert(entity: BookmarkNotes)
+    @Insert fun insert(entity: GenericBookmarkNotes)
+
+    fun insert(entity: BaseBookmarkNotes)  = when(entity) {
+        is BookmarkNotes -> insert(entity)
+        is GenericBookmarkNotes -> insert(entity)
+        else -> throw RuntimeException("Wrong type")
+    }
 
     @Update fun update(entity: Bookmark)
+    @Update fun update(entity: GenericBookmark)
+
+    fun update(entity: BaseBookmark) = when(entity) {
+        is Bookmark -> update(entity)
+        is GenericBookmark -> update(entity)
+        else -> throw RuntimeException("Wrong type")
+    }
 
     @Update fun update(entity: BookmarkNotes)
+    @Update fun update(entity: GenericBookmarkNotes)
+
+    fun update(entity: BaseBookmarkNotes) = when(entity) {
+        is BookmarkNotes -> update(entity)
+        is GenericBookmarkNotes -> update(entity)
+        else -> throw RuntimeException("Wrong type")
+    }
 
     @Query("DELETE FROM BookmarkNotes WHERE bookmarkId=:id")
     fun deleteBookmarkNotes(id: IdType)
@@ -241,7 +277,8 @@ interface BookmarkDao {
     }
     fun deleteLabelsFromBookmark(bookmark: BookmarkWithNotes, labels: List<Label>): Int = deleteLabelsFromBookmark(bookmark.id, labels.map { it.id })
 
-    @Insert fun insert(entities: List<BookmarkToLabel>)
+    @Insert fun insertBookmarkToLabels(entities: List<BookmarkToLabel>)
+    @Insert fun insertGenericBookmarkToLabels(entities: List<GenericBookmarkToLabel>)
 
     @Query("SELECT * from Label WHERE name = '${SPEAK_LABEL_NAME}' LIMIT 1")
     fun speakLabelByName(): Label?

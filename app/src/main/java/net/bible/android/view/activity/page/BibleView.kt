@@ -88,7 +88,6 @@ import net.bible.android.control.page.DocumentWithBookmarks
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.MyNotesDocument
-import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.StudyPadDocument
@@ -122,7 +121,8 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
-import net.bible.service.sword.SwordContentFacade
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
@@ -192,9 +192,10 @@ class Selection(
 
     val hasRange get() = startOffset != null && endOffset != null
 
-    val book: SwordBook get() = (Books.installed().getBook(bookInitials) as SwordBook?) ?: windowControl.defaultBibleDoc(false)
+    val book: Book? get() = Books.installed().getBook(bookInitials)
+    val swordBook: SwordBook get() = (book as SwordBook?) ?: windowControl.defaultBibleDoc(false)
     val verseRange: VerseRange get() {
-        val v11n = book.versification ?: KJVA
+        val v11n = swordBook.versification ?: KJVA
         return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
     }
 }
@@ -356,27 +357,52 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         selection?: return
         Log.i(TAG, "makeBookmark")
 
-        val verseRange = selection.verseRange
-        val textRange =
-            if(selection.startOffset != null && selection.endOffset != null)
-                BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
-            else null
-        val bookmark = BookmarkEntities.BookmarkWithNotes(verseRange, textRange, wholeVerse, selection.book)
         val initialLabels = workspaceSettings.autoAssignLabels
-
         val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
-        if(primaryLabelId != null) {
-            val label = bookmarkControl.labelById(primaryLabelId)
-            if(label != null) {
-                bookmark.primaryLabelId = primaryLabelId
-            }
-        }
 
-        bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
-        if(initialLabels.isEmpty() || openNotes) {
-            executeJavascriptOnUiThread(
-                "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
+        if(selection.book?.bookCategory == BookCategory.BIBLE) {
+            val verseRange = selection.verseRange
+            val textRange =
+                if(selection.startOffset != null && selection.endOffset != null)
+                    BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
+                else null
+            val bookmark = BookmarkEntities.BookmarkWithNotes(verseRange, textRange, wholeVerse, selection.swordBook)
+            if(primaryLabelId != null) {
+                val label = bookmarkControl.labelById(primaryLabelId)
+                if(label != null) {
+                    bookmark.primaryLabelId = primaryLabelId
+                }
+            }
+
+            bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
+            if(initialLabels.isEmpty() || openNotes) {
+                executeJavascriptOnUiThread(
+                    "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
+                )
+            }
+        } else {
+            val bookmark = BookmarkEntities.GenericBookmarkWithNotes(
+                key = "",
+                book = selection.book,
+                ordinalStart = selection.startOrdinal,
+                ordinalEnd = selection.endOrdinal,
+                startOffset = selection.startOffset!!,
+                endOffset = selection.endOffset!!,
+                new = true,
             )
+            if(primaryLabelId != null) {
+                val label = bookmarkControl.labelById(primaryLabelId)
+                if(label != null) {
+                    bookmark.primaryLabelId = primaryLabelId
+                }
+            }
+
+            bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
+            if(initialLabels.isEmpty() || openNotes) {
+                executeJavascriptOnUiThread(
+                    "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
+                )
+            }
         }
     }
 
@@ -1331,19 +1357,26 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
         val document = firstDocument
         if(document !is DocumentWithBookmarks) return
-        if(document is MyNotesDocument && !document.verseRange.overlaps(event.bookmark.kjvVerseRange)) return
+        when(event.bookmark) {
+            is BookmarkEntities.BookmarkWithNotes -> {
+                if(document is MyNotesDocument && !document.verseRange.overlaps(event.bookmark.kjvVerseRange)) return
 
-        val clientBookmark = ClientBookmark(event.bookmark,
-            when (document) {
-                is BibleDocument -> document.swordBook.versification
-                is MyNotesDocument -> KJVA
-                else -> null
-            }
-        )
-        val bookmarkStr = clientBookmark.asJson
-        executeJavascriptOnUiThread("""
+                val clientBookmark = ClientBookmark(event.bookmark,
+                    when (document) {
+                        is BibleDocument -> document.swordBook.versification
+                        is MyNotesDocument -> KJVA
+                        else -> null
+                    }
+                )
+                val bookmarkStr = clientBookmark.asJson
+                executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
         """)
+            }
+            is BookmarkEntities.GenericBookmarkWithNotes -> {
+                // TODO
+            }
+        }
     }
 
     fun onEvent(event: BookmarkNoteModifiedEvent) {

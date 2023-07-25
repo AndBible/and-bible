@@ -270,7 +270,7 @@ object SwordContentFacade {
 
         class VerseAndText(val verse: Verse, val text: String)
 
-        val book = selection.book
+        val book = selection.swordBook
         val verseTexts = selection.verseRange.map {
             VerseAndText(it as Verse, getCanonicalText(book, it, true).trimEnd())
         }
@@ -287,10 +287,10 @@ object SwordContentFacade {
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
             startVerseNumber = "$startVerseNumber..."
         }
-        val bookLocale = Locale(selection.book.language.code)
+        val bookLocale = Locale(selection.swordBook.language.code)
         val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
 
-        val versionText = if (showVersion) (selection.book.abbreviation) else ""
+        val versionText = if (showVersion) (selection.swordBook.abbreviation) else ""
         val quotationStart = if (showQuotes) "“" else ""
         val quotationEnd = if (showQuotes) "”" else ""
 
