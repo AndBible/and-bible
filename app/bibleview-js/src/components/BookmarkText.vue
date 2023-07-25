@@ -26,8 +26,13 @@
           :fragment="bookmark.osisFragment"
           hide-titles
       />
+      <div
+          @click.stop="$emit('change-expanded', false)"
+          v-else>
+        {{ bookmark.text }}
+      </div>
     </div>
-    <div class="bookmark-text one-liner" v-if="!expanded">
+    <div class="bookmark-text one-liner" v-else>
       <q @click.stop="$emit('change-expanded', true)" class="bible-text">{{ bookmark.text }}</q>
     </div>
   </template>
