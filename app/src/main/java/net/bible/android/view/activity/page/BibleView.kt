@@ -194,9 +194,13 @@ class Selection(
     val hasRange get() = startOffset != null && endOffset != null
 
     val book: Book? get() = Books.installed().getBook(bookInitials)
-    val swordBook: SwordBook get() = (book as SwordBook?) ?: windowControl.defaultBibleDoc(false)
-    val verseRange: VerseRange get() {
-        val v11n = swordBook.versification ?: KJVA
+    val swordBook: SwordBook? get() =
+        if(book is SwordBook)
+            book as SwordBook? ?: windowControl.defaultBibleDoc(false)
+        else null
+    val verseRange: VerseRange? get() {
+        swordBook?: return null
+        val v11n = swordBook?.versification ?: KJVA
         return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
     }
 }
@@ -287,9 +291,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return when(item.itemId) {
             R.id.add_bookmark -> {
                 findViewTreeLifecycleOwner()
-                step2 = true
-                mode.menu.clear()
-                mode.invalidate()
+                val cat = currentSelection?.book?.bookCategory
+                if(cat != null && cat != BookCategory.BIBLE) {
+                    makeBookmark()
+                    mode.finish()
+                } else {
+                    step2 = true
+                    mode.menu.clear()
+                    mode.invalidate()
+                }
                 return false
             }
             R.id.add_bookmark_selection -> {
@@ -368,7 +378,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     if (selection.startOffset != null && selection.endOffset != null)
                         BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
                     else null
-                BookmarkEntities.BookmarkWithNotes(verseRange, textRange, wholeVerse, selection.swordBook)
+                BookmarkEntities.BookmarkWithNotes(verseRange!!, textRange, wholeVerse, selection.swordBook)
             } else {
                 BookmarkEntities.GenericBookmarkWithNotes(
                     key = selection.osisRef!!,

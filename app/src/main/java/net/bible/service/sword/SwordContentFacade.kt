@@ -271,9 +271,9 @@ object SwordContentFacade {
         class VerseAndText(val verse: Verse, val text: String)
 
         val book = selection.swordBook
-        val verseTexts = selection.verseRange.map {
+        val verseTexts = selection.verseRange?.map {
             VerseAndText(it as Verse, getCanonicalText(book, it, true).trimEnd())
-        }
+        }?: return ""
         val startOffset = selection.startOffset ?: 0
         var startVerse = verseTexts.first().text
         val endOffset = selection.endOffset ?: verseTexts.last().text.length
@@ -282,15 +282,15 @@ object SwordContentFacade {
 
         var startVerseNumber = ""
         if (showVerseNumbers && !showReferenceAtFront && verseTexts.size > 1) {
-            startVerseNumber = "${selection.verseRange.start.verse}. "
+            startVerseNumber = "${selection.verseRange?.start?.verse}. "
         }
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
             startVerseNumber = "$startVerseNumber..."
         }
-        val bookLocale = Locale(selection.swordBook.language.code)
+        val bookLocale = selection.book?.language?.code?.let { Locale(it) }
         val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
 
-        val versionText = if (showVersion) (selection.swordBook.abbreviation) else ""
+        val versionText = if (showVersion) (selection.book?.abbreviation) else ""
         val quotationStart = if (showQuotes) "“" else ""
         val quotationEnd = if (showQuotes) "”" else ""
 
@@ -299,12 +299,12 @@ object SwordContentFacade {
                 synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
-                    val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
+                    val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
                     BookName.setFullBookName(oldValue)
                     "$verseRangeName"
                 }
             } else {
-                val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
+                val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
                 "$verseRangeName"
             }
         } else
