@@ -35,8 +35,9 @@ import MyNoteRow from "@/components/MyNoteRow.vue";
 import {sortBy} from "lodash";
 import {intersection} from "@/utils";
 import {globalBookmarksKey} from "@/types/constants";
-import {Bookmark} from "@/types/client-objects";
+import {BibleBookmark} from "@/types/client-objects";
 import {MyNotesDocument} from "@/types/documents";
+import {isBibleBookmark} from "@/composables/bookmarks";
 
 const props = defineProps<{ document: MyNotesDocument }>()
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -48,11 +49,12 @@ const globalBookmarks = inject(globalBookmarksKey)!;
 
 globalBookmarks.updateBookmarks(bookmarks);
 
-const notes = computed<Bookmark[]>(() => {
-    let bs = globalBookmarks.bookmarks.value;
+const notes = computed<BibleBookmark[]>(() => {
+    let bs1 = globalBookmarks.bookmarks.value;
 
     const hideLabels = new Set(config.bookmarksHideLabels);
-    bs = bs.filter(v => intersection(new Set(v.labels), hideLabels).size === 0)
+    // TODO: why narrowing is not working automatically here?
+    let bs = bs1.filter(v => isBibleBookmark(v) && intersection(new Set(v.labels), hideLabels).size === 0) as BibleBookmark[]
 
     if (!config.showBookmarks) {
         bs = bs.filter(v => v.hasNote)

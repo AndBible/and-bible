@@ -23,7 +23,14 @@ import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {Config, errorBox} from "@/composables/config";
 import {AsyncFunc, StudyPadEntryType, JSONString, LogEntry, Nullable} from "@/types/common";
-import {Bookmark, CombinedRange, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
+import {
+    BaseBookmark,
+    BibleBookmark,
+    CombinedRange,
+    StudyPadBibleBookmarkItem,
+    StudyPadItem,
+    StudyPadTextItem
+} from "@/types/client-objects";
 import {BibleDocumentType} from "@/types/documents";
 
 export type BibleJavascriptInterface = {
@@ -151,7 +158,7 @@ export type QuerySelection = {
     text: string
 }
 
-export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: Config) {
+export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, config: Config) {
     const responsePromises = new Map();
 
     function response(callId: number, returnValue: any) {
@@ -197,7 +204,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
             }
         }
 
-        function bookmarkRange(b: Bookmark): CombinedRange {
+        function bookmarkRange(b: BaseBookmark): CombinedRange {
             const offsetRange = b.offsetRange || [0, null]
             if (b.bookInitials !== bookInitials) {
                 offsetRange[0] = 0;
@@ -291,7 +298,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.setEditing(value);
     }
 
-    function createNewJournalEntry(labelId: IdType, afterEntryType: StudyPadEntryType = "none", afterEntryId: IdType = "") {
+    function createNewStudyPadEntry(labelId: IdType, afterEntryType: StudyPadEntryType = "none", afterEntryId: IdType = "") {
         window.android.createNewStudyPadEntry(labelId, afterEntryType, afterEntryId);
     }
 
@@ -339,7 +346,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.openDownloads();
     }
 
-    function updateOrderNumber(labelId: IdType, bookmarks: StudyPadBookmarkItem[], studyPadTextItems: StudyPadTextItem[]) {
+    function updateOrderNumber(labelId: IdType, bookmarks: StudyPadBibleBookmarkItem[], studyPadTextItems: StudyPadTextItem[]) {
         const orderNumberPairs: (l: StudyPadItem[]) => {first: IdType, second: number}[] =
             l => l.map((v: StudyPadItem) => ({first: v.id, second: v.orderNumber}))
         window.android.updateOrderNumber(labelId, JSON.stringify(
@@ -365,7 +372,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
                 window.android.updateStudyPadTextEntry(JSON.stringify(changedEntry as StudyPadTextItem));
             }
         } else if (entry.type === "bookmark") {
-            const changedBookmarkItem = changedEntry as StudyPadBookmarkItem
+            const changedBookmarkItem = changedEntry as StudyPadBibleBookmarkItem
             const entry = {
                 bookmarkId: changedBookmarkItem.id,
                 labelId: changedBookmarkItem.bookmarkToLabel.labelId,
@@ -428,7 +435,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         removeBookmark,
         assignLabels,
         openExternalLink,
-        createNewJournalEntry,
+        createNewJournalEntry: createNewStudyPadEntry,
         deleteStudyPadEntry,
         removeBookmarkLabel,
         updateOrderNumber,

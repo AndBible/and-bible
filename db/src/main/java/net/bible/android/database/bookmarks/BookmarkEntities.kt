@@ -120,6 +120,7 @@ class BookmarkEntities {
         var orderNumber: Int
         var indentLevel: Int
         var expandContent: Boolean
+        val type: String
     }
 
     enum class BookmarkEntityType {BIBLE, GENERIC}
@@ -142,8 +143,6 @@ class BookmarkEntities {
         var labelIds: List<IdType>?
         var bookmarkToLabels: List<BookmarkToLabel>?
         var text: String?
-
-        var fullText: String?
     }
 
     @DatabaseView("SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn ON b.id = bn.bookmarkId")
@@ -275,7 +274,7 @@ class BookmarkEntities {
         @Ignore var startText: String? = null
         @Ignore var endText: String? = null
 
-        @Ignore override var fullText: String? = null
+        @Ignore var fullText: String? = null
         @Ignore var osisFragment: OsisFragment? = null
 
         override val bookmarkEntity get() = Bookmark(
@@ -368,6 +367,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") override var expandContent: Boolean = true,
     ): BaseBookmarkToLabel {
         constructor(bookmark: Bookmark, label: Label): this(bookmark.id, label.id)
+        @Ignore override val type: String = "BookmarkToLabel"
     }
 
     @DatabaseView("SELECT b.*, bn.notes FROM GenericBookmark b LEFT OUTER JOIN GenericBookmarkNotes bn ON b.id = bn.bookmarkId")
@@ -431,8 +431,6 @@ class BookmarkEntities {
         @Ignore override var labelIds: List<IdType>? = null
         @Ignore override var bookmarkToLabels: List<BookmarkToLabel>? = null
         @Ignore override var text: String? = null
-
-        @Ignore override var fullText: String? = null
 
         override val bookmarkEntity get() = GenericBookmark(
             id = id,
@@ -502,6 +500,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") override var expandContent: Boolean = true,
     ): BaseBookmarkToLabel {
         constructor(bookmark: GenericBookmark, label: Label): this(bookmark.id, label.id)
+        @Ignore override val type: String = "GenericBookmarkToLabel"
     }
 
     @Entity(

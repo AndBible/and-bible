@@ -96,10 +96,10 @@ import Color from "color";
 import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey} from "@/types/constants";
 import {ColorParam} from "@/types/common";
-import {Bookmark, LabelAndStyle} from "@/types/client-objects";
+import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
 
 const props = withDefaults(defineProps<{
-    bookmark: Bookmark
+    bookmark: BaseBookmark
     showStudyPadButtons: boolean
     inBookmarkModal: boolean
 }>(), {

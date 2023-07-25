@@ -114,7 +114,7 @@ class BibleDocument(
     val originalKey: Key?,
 ): OsisDocument(osisFragment, swordBook, verseRange), DocumentWithBookmarks {
     override val asHashMap: Map<String, String> get () {
-        val bookmarks = bookmarks.map { ClientBookmark(it, swordBook.versification).asJson }
+        val bookmarks = bookmarks.map { ClientBibleBookmark(it, swordBook.versification).asJson }
         val vrInV11n = verseRange.toV11n(swordBook.versification)
         // Clicked link etc. had more specific reference
         val originalOrdinalRange = if(originalKey is RangedPassage) {
@@ -151,7 +151,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
 {
     override val asHashMap: Map<String, Any>
         get() {
-            val bookmarks = bookmarks.map { ClientBookmark(it, KJVA).asJson }
+            val bookmarks = bookmarks.map { ClientBibleBookmark(it, KJVA).asJson }
             return mapOf(
                 "id" to wrapString(verseRange.uniqueId),
                 "type" to wrapString("notes", true),
@@ -165,12 +165,12 @@ class StudyPadDocument(
     val label: BookmarkEntities.Label,
     val bookmarkId: IdType?,
     val bookmarks: List<BookmarkEntities.BookmarkWithNotes>,
-    private val bookmarkToLabels: List<BookmarkEntities.BookmarkToLabel>,
+    private val bookmarkToLabels: List<BookmarkEntities.BaseBookmarkToLabel>,
     private val studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntryWithText>,
 ): Document, DocumentWithBookmarks {
     override val asHashMap: Map<String, Any>
         get() {
-            val bookmarks = bookmarks.map { ClientBookmark(it).asJson }
+            val bookmarks = bookmarks.map { ClientBibleBookmark(it).asJson }
             val clientLabel = ClientBookmarkLabel(label)
             return mapOf(
                 "id" to wrapString("journal_${label.id}"),
@@ -183,7 +183,7 @@ class StudyPadDocument(
         }
 }
 
-class ClientBookmark(val bookmark: BookmarkEntities.BookmarkWithNotes, val v11n: Versification? = null): Document {
+class ClientBibleBookmark(val bookmark: BookmarkEntities.BookmarkWithNotes, val v11n: Versification? = null): Document {
     @Inject lateinit var bookmarkControl: BookmarkControl
 
     init {
@@ -220,6 +220,39 @@ class ClientBookmark(val bookmark: BookmarkEntities.BookmarkWithNotes, val v11n:
             "type" to wrapString("bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
+        )
+    }
+}
+
+class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNotes): Document {
+    @Inject lateinit var bookmarkControl: BookmarkControl
+
+    init {
+        CommonUtils.buildActivityComponent().inject(this)
+    }
+
+    override val asHashMap: Map<String, String> get() {
+        val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
+        return mapOf(
+            "id" to wrapString(bookmark.id.toString()),
+            "key" to wrapString(bookmark.key),
+            "hashCode" to (abs(bookmark.id.hashCode())).toString(),
+            "offsetRange" to json.encodeToString(serializer(), bookmark.textRange?.clientList),
+            "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
+                if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
+            }),
+            "bookInitials" to wrapString(bookmark.book?.initials),
+            "bookName" to wrapString(bookmark.book?.name),
+            "bookAbbreviation" to wrapString(bookmark.book?.abbreviation),
+            "createdAt" to bookmark.createdAt.time.toString(),
+            "lastUpdatedOn" to bookmark.lastUpdatedOn.time.toString(),
+            "notes" to notes,
+            "hasNote" to (notes != "null").toString(),
+            "text" to wrapString(bookmark.text),
+            "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
+            "type" to wrapString("generic-bookmark"),
+            "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
+            "wholeVerse" to false.toString(),
         )
     }
 }

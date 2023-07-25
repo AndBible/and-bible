@@ -65,9 +65,9 @@ import EditableText from "@/components/EditableText.vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
 import {formatExportLink, isBottomHalfClicked} from "@/utils";
 import {androidKey, exportModeKey} from "@/types/constants";
-import {Bookmark} from "@/types/client-objects";
+import {BibleBookmark} from "@/types/client-objects";
 
-const props = defineProps<{ bookmark: Bookmark }>()
+const props = defineProps<{ bookmark: BibleBookmark }>()
 
 const android = inject(androidKey)!;
 const expanded = ref(false);

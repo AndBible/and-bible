@@ -79,7 +79,7 @@ import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
-import net.bible.android.control.page.ClientBookmark
+import net.bible.android.control.page.ClientBibleBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
@@ -1349,7 +1349,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             is BookmarkEntities.BookmarkWithNotes -> {
                 if(document is MyNotesDocument && !document.verseRange.overlaps(event.bookmark.kjvVerseRange)) return
 
-                val clientBookmark = ClientBookmark(event.bookmark,
+                val clientBookmark = ClientBibleBookmark(event.bookmark,
                     when (document) {
                         is BibleDocument -> document.swordBook.versification
                         is MyNotesDocument -> KJVA

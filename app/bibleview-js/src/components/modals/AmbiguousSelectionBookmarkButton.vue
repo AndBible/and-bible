@@ -48,13 +48,14 @@ import Color from "color";
 import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {globalBookmarksKey, locateTopKey} from "@/types/constants";
+import {BibleBookmark} from "@/types/client-objects";
 
 const $emit = defineEmits(["selected"]);
 const props = defineProps<{ bookmarkId: IdType }>();
 
 const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
 useCommon();
-const bookmark = computed(() => bookmarkMap.get(props.bookmarkId)!);
+const bookmark = computed(() => bookmarkMap.get(props.bookmarkId)! as BibleBookmark);
 const bookmarkNotes = computed(() => bookmark.value.notes!);
 
 const primaryLabel = computed(() => {

@@ -84,7 +84,7 @@ import {androidKey, exportModeKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {formatExportLink, isBottomHalfClicked} from "@/utils";
-import {Label, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
+import {Label, StudyPadBibleBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
 import {AreYouSureButton} from "@/types/common";
 
 const emit = defineEmits(['edit-opened', 'add'])
@@ -93,7 +93,7 @@ const props = defineProps<{
     label: Label
 }>();
 
-const bookmarkEntry = computed(() => props.journalEntry as StudyPadBookmarkItem)
+const bookmarkEntry = computed(() => props.journalEntry as StudyPadBibleBookmarkItem)
 const textEntry = computed(() => props.journalEntry as StudyPadTextItem)
 
 const android = inject(androidKey)!;
@@ -121,7 +121,7 @@ function journalTextChanged(newText: string) {
 }
 
 const journalText = computed(() => {
-    if (props.journalEntry.type === "bookmark") return (props.journalEntry as StudyPadBookmarkItem).notes;
+    if (props.journalEntry.type === "bookmark") return (props.journalEntry as StudyPadBibleBookmarkItem).notes;
     else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
     return null;
 });
@@ -140,7 +140,7 @@ async function deleteEntry() {
         const answer = await areYouSureDelete.value!.areYouSure();
         if (answer) android.deleteStudyPadEntry((props.journalEntry as StudyPadTextItem).id);
     } else if (props.journalEntry.type === "bookmark") {
-        const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
+        const bookmarkItem = props.journalEntry as StudyPadBibleBookmarkItem
         let answer: "bookmark" | "only_label" | undefined;
         if (bookmarkItem.labels.length > 1) {
             const buttons: AreYouSureButton[] = [{
@@ -174,7 +174,7 @@ function changeExpanded(newValue: boolean) {
 
 const bibleUrl = computed(
     () => {
-        const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
+        const bookmarkItem = props.journalEntry as StudyPadBibleBookmarkItem
         const osis = bookmarkItem.osisRef;
 
         if(exportMode.value) {
