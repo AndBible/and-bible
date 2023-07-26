@@ -303,7 +303,10 @@ open class BibleApplication : Application() {
                 .setContentText(ev.message)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(ev.message))
         } else {
-            builder.setContentText(getString(ev.messageId?: R.string.error_occurred))
+            val msg = getString(ev.messageId?: R.string.error_occurred)
+            builder
+                .setContentText(msg)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(msg))
         }
 
         builder.setSmallIcon(R.drawable.ic_ichtys)
