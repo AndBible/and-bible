@@ -119,7 +119,6 @@ const labels = computed<LabelAndStyle[]>(() => {
     }
     //addAll(earlier, ...appSettings.frequentLabels);
     // TODO: add frequent
-    console.log({earlier, shown, bookmark: bookmark.value, lbls: bookmark.value.labels});
     return sortBy(
         Array.from(shown).map(
             (labelId: IdType) => bookmarkLabels.get(labelId)!).filter(v => v),
