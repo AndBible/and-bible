@@ -469,8 +469,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(menuPrepared) {
             mode.menu.clear()
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
+            val sel = currentSelection
+            val isBible = sel?.book?.bookCategory == BookCategory.BIBLE
             // For some reason, these do not seem to be correct from XML, even though specified there
-            if(CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false)) {
+            if(isBible && CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false)) {
                 menu.findItem(R.id.add_bookmark_selection).run {
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     setVisible(true)
@@ -487,7 +489,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.share_verses).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            val sel = currentSelection
             if(sel == null) {
                 menu.findItem(R.id.add_bookmark).isVisible = false
                 menu.findItem(R.id.add_bookmark_selection).isVisible = false
