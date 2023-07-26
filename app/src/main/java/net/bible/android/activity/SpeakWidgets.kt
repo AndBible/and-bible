@@ -195,7 +195,7 @@ class SpeakWidgetManager {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
         }
 
-        for (b in bookmarkControl.getBookmarksWithLabel(label)
+        for (b in bookmarkControl.getBibleBookmarksWithLabel(label)
             .sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
         ){
             val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
@@ -344,7 +344,7 @@ class SpeakWidgetManager {
             if (intent?.action == ACTION_BOOKMARK) {
                 val bookmarkId = intent.data?.host ?: return
                 Log.i(TAG, "onReceive osisRef $bookmarkId")
-                val dto = bookmarkControl.bookmarksByIds(listOf(IdType(bookmarkId))).first()
+                val dto = bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))).first()
                 speakControl.speakFromBookmark(dto)
             }
         }

@@ -58,7 +58,7 @@ class BookmarkControlTest {
 
     @After
     fun tearDown() {
-        val bookmarks = bookmarkControl!!.allBookmarks
+        val bookmarks = bookmarkControl!!.allBibleBookmarks
         for (dto in bookmarks) {
             bookmarkControl!!.deleteBookmark(dto)
         }
@@ -87,7 +87,7 @@ class BookmarkControlTest {
             addTestVerse()
             addTestVerse()
             addTestVerse()
-            val bookmarks = bookmarkControl!!.allBookmarks
+            val bookmarks = bookmarkControl!!.allBibleBookmarks
             Assert.assertTrue(bookmarks.size == 3)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -98,10 +98,10 @@ class BookmarkControlTest {
     @Test
     fun testDeleteBookmark() {
         addTestVerse()
-        var bookmarks = bookmarkControl!!.allBookmarks
+        var bookmarks = bookmarkControl!!.allBibleBookmarks
         val toDelete = bookmarks[0]
         bookmarkControl!!.deleteBookmark(toDelete)
-        bookmarks = bookmarkControl!!.allBookmarks
+        bookmarks = bookmarkControl!!.allBibleBookmarks
         for (bookmark in bookmarks) {
             Assert.assertFalse("delete failed", bookmark.id == toDelete.id)
         }
@@ -129,10 +129,10 @@ class BookmarkControlTest {
 
         // add 2 labels and check they are saved
         bookmarkControl!!.setLabelsForBookmark(bookmark!!, labelList)
-        val list1 = bookmarkControl!!.getBookmarksWithLabel(label1)
+        val list1 = bookmarkControl!!.getBibleBookmarksWithLabel(label1)
         Assert.assertEquals(1, list1.size.toLong())
         Assert.assertEquals(bookmark, list1[0])
-        val list2 = bookmarkControl!!.getBookmarksWithLabel(label2)
+        val list2 = bookmarkControl!!.getBibleBookmarksWithLabel(label2)
         Assert.assertEquals(1, list2.size.toLong())
         Assert.assertEquals(bookmark, list2[0])
 
@@ -140,9 +140,9 @@ class BookmarkControlTest {
         val labelList2: MutableList<Label> = ArrayList()
         labelList2.add(label1)
         bookmarkControl!!.setLabelsForBookmark(bookmark, labelList2)
-        val list3 = bookmarkControl!!.getBookmarksWithLabel(label1)
+        val list3 = bookmarkControl!!.getBibleBookmarksWithLabel(label1)
         Assert.assertEquals(1, list3.size.toLong())
-        val list4 = bookmarkControl!!.getBookmarksWithLabel(label2)
+        val list4 = bookmarkControl!!.getBibleBookmarksWithLabel(label2)
         Assert.assertEquals(0, list4.size.toLong())
     }
 
@@ -155,7 +155,7 @@ class BookmarkControlTest {
 
         // add 2 labels and check they are saved
         bookmarkControl!!.setLabelsForBookmark(bookmark!!, labelList)
-        val list1 = bookmarkControl!!.getBookmarksWithLabel(label1)
+        val list1 = bookmarkControl!!.getBibleBookmarksWithLabel(label1)
         Assert.assertEquals(1, list1.size.toLong())
         Assert.assertEquals(bookmark, list1[0])
     }

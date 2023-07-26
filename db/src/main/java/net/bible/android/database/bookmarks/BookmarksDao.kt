@@ -82,13 +82,13 @@ interface BookmarkDao {
         allBookmarksWithNotes(orderBy.name)
 
     @Query("SELECT * from BibleBookmarkWithNotes where id = :bookmarkId")
-    fun bookmarkById(bookmarkId: IdType): BibleBookmarkWithNotes?
+    fun bibleBookmarkById(bookmarkId: IdType): BibleBookmarkWithNotes?
 
     @Query("SELECT * from GenericBookmarkWithNotes where id = :bookmarkId")
     fun genericBookmarkById(bookmarkId: IdType): GenericBookmarkWithNotes?
 
     @Query("SELECT * from BibleBookmarkWithNotes where id IN (:bookmarkIds)")
-    fun bookmarksByIds(bookmarkIds: List<IdType>): List<BibleBookmarkWithNotes>
+    fun bibleBookmarksByIds(bookmarkIds: List<IdType>): List<BibleBookmarkWithNotes>
 
     @Query("SELECT * from GenericBookmarkWithNotes where id IN (:bookmarkIds)")
     fun genericBookmarksByIds(bookmarkIds: List<IdType>): List<GenericBookmarkWithNotes>
@@ -182,7 +182,7 @@ interface BookmarkDao {
     }
 
     @Query("UPDATE BibleBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
-    fun updateBookmarkDate(id: IdType, lastUpdatedOn: Date = Date(System.currentTimeMillis()))
+    fun updateBibleBookmarkDate(id: IdType, lastUpdatedOn: Date = Date(System.currentTimeMillis()))
 
     @Query("UPDATE GenericBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
     fun updateGenericBookmarkDate(id: IdType, lastUpdatedOn: Date = Date(System.currentTimeMillis()))
@@ -351,13 +351,13 @@ interface BookmarkDao {
     fun getGenericBookmarkToLabelsForLabel(labelId: IdType): List<GenericBookmarkToLabel>
 
     @Query("""SELECT * FROM BibleBookmarkToLabel WHERE bookmarkId=:bookmarkId AND labelId=:labelId""")
-    fun getBookmarkToLabel(bookmarkId: IdType, labelId: IdType): BibleBookmarkToLabel?
+    fun getBibleBookmarkToLabel(bookmarkId: IdType, labelId: IdType): BibleBookmarkToLabel?
 
     @Query("""SELECT * FROM GenericBookmarkToLabel WHERE bookmarkId=:bookmarkId AND labelId=:labelId""")
     fun getGenericBookmarkToLabel(bookmarkId: IdType, labelId: IdType): GenericBookmarkToLabel?
 
     fun getBookmarkToLabel(bookmark: BaseBookmarkWithNotes, labelId: IdType): BaseBookmarkToLabel? = when(bookmark) {
-        is BibleBookmarkWithNotes -> getBookmarkToLabel(bookmark.id, labelId)
+        is BibleBookmarkWithNotes -> getBibleBookmarkToLabel(bookmark.id, labelId)
         is GenericBookmarkWithNotes -> getGenericBookmarkToLabel(bookmark.id, labelId)
         else -> throw RuntimeException("Illegal type")
     }
@@ -437,7 +437,7 @@ interface BookmarkDao {
     @Query("DELETE FROM Label WHERE id IN (:toList)")
     fun deleteLabelsByIds(toList: List<IdType>)
 
-    @Update fun updateBookmarkToLabels(bookmarkToLabels: List<BibleBookmarkToLabel>)
+    @Update fun updateBibleBookmarkToLabels(bookmarkToLabels: List<BibleBookmarkToLabel>)
     @Update fun updateGenericBookmarkToLabels(bookmarkToLabels: List<GenericBookmarkToLabel>)
 
     @Update fun updateStudyPadTextEntries(studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>)

@@ -156,7 +156,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         val bookmarkTitles = ArrayList<String>()
         val bookmarks = ArrayList<BibleBookmarkWithNotes>()
         val label = bookmarkControl.speakLabel
-        for (b in bookmarkControl.getBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }) {
+        for (b in bookmarkControl.getBibleBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }) {
 
             bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})")
             bookmarks.add(b)

@@ -235,7 +235,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 val selectedLabel = labelList[selectedLabelNo]
                 withContext(Dispatchers.Main) {
                     bookmarkList.clear()
-                    bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
+                    bookmarkList.addAll(bookmarkControl.getBibleBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
                     bookmarkList.addAll(bookmarkControl.getGenericBookmarksWithLabel(selectedLabel))
                     notifyDataSetChanged()
 

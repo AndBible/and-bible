@@ -102,9 +102,9 @@ class CurrentGeneralBookPage internal constructor(
             val key = key
             return when(key) {
                 is StudyPadKey -> {
-                    val bookmarks = pageManager.bookmarkControl.getBookmarksWithLabel(key.label, addData = true)
+                    val bookmarks = pageManager.bookmarkControl.getBibleBookmarksWithLabel(key.label, addData = true)
                     val genericBookmarks = pageManager.bookmarkControl.getGenericBookmarksWithLabel(key.label, addData = true)
-                    val journalTextEntries = pageManager.bookmarkControl.getJournalTextEntriesForLabel(key.label)
+                    val journalTextEntries = pageManager.bookmarkControl.getStudyPadTextEntriesForLabel(key.label)
                     val bookmarkToLabels = bookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.BibleBookmarkToLabel? }
                     val genericBookmarkToLabels = genericBookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.GenericBookmarkToLabel? }
                     val bookmarkId = key.bookmarkId
