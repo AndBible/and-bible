@@ -90,6 +90,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {formatExportLink, isBottomHalfClicked} from "@/utils";
 import {
+    BaseStudyPadBookmarkItem,
     Label,
     StudyPadBibleBookmarkItem,
     StudyPadGenericBookmarkItem,
@@ -125,7 +126,7 @@ const editMode = computed<boolean>({
 });
 
 function journalTextChanged(newText: string) {
-    if (props.journalEntry.type === "bookmark") {
+    if (props.journalEntry.type === "bookmark" || props.journalEntry.type === "generic-bookmark") {
         android.saveBookmarkNote(props.journalEntry, newText);
     } else if (props.journalEntry.type === "journal") {
         android.updateStudyPadEntry(props.journalEntry, {text: newText});
@@ -133,7 +134,8 @@ function journalTextChanged(newText: string) {
 }
 
 const journalText = computed(() => {
-    if (props.journalEntry.type === "bookmark") return (props.journalEntry as StudyPadBibleBookmarkItem).notes;
+    if (props.journalEntry.type === "bookmark" || props.journalEntry.type === "generic-bookmark")
+        return (props.journalEntry as BaseStudyPadBookmarkItem).notes;
     else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
     return null;
 });
@@ -151,8 +153,8 @@ async function deleteEntry() {
     if (props.journalEntry.type === "journal") {
         const answer = await areYouSureDelete.value!.areYouSure();
         if (answer) android.deleteStudyPadEntry((props.journalEntry as StudyPadTextItem).id);
-    } else if (props.journalEntry.type === "bookmark") {
-        const bookmarkItem = props.journalEntry as StudyPadBibleBookmarkItem
+    } else if (props.journalEntry.type === "bookmark" || props.journalEntry.type === "generic-bookmark") {
+        const bookmarkItem = props.journalEntry as BaseStudyPadBookmarkItem
         let answer: "bookmark" | "only_label" | undefined;
         if (bookmarkItem.labels.length > 1) {
             const buttons: AreYouSureButton[] = [{
