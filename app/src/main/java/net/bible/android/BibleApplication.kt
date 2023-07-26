@@ -271,7 +271,7 @@ open class BibleApplication : Application() {
         }
     }
 
-    class ErrorNotificationEvent(val message: String? = null, val messageId: Int?= null) {
+    class ErrorNotificationEvent(val message: String? = null, val messageId: Int?= null, val showReportButton: Boolean = true) {
         constructor(messageId: Int): this(null, messageId)
         constructor(message: String): this(message, null)
     }
@@ -293,10 +293,15 @@ open class BibleApplication : Application() {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSilent(false)
             .setContentTitle(getString(R.string.error_occurred))
-            .addAction(action)
+
+        if(ev.showReportButton) {
+            builder.addAction(action)
+        }
 
         if(ev.message != null) {
-            builder.setContentText(ev.message)
+            builder
+                .setContentText(ev.message)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(ev.message))
         } else {
             builder.setContentText(getString(ev.messageId?: R.string.error_occurred))
         }

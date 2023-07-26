@@ -391,7 +391,7 @@ object CloudSync {
                 } catch (e: IOException) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
                 } catch (e: IncompatiblePatchVersion) {
-                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(cantFetchString(dbDef.category.contentDescription)))
+                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(cantFetchString(dbDef.category.contentDescription), showReportButton = false))
                     dbDef.category.enabled = false
                     return@asyncMap
                 } catch (e: Exception) {
