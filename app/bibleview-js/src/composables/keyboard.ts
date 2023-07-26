@@ -52,8 +52,6 @@ export function useKeyboard(
             e.stopPropagation();
         }
     });
-    function setDisableKeybindings(value: boolean) {
-        disableKeybindings.value += value ? 1 : -1;
-    }
-    return {setDisableKeybindings};
+
+    return {disableKeybindings};
 }

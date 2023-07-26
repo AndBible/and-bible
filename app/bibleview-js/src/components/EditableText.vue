@@ -64,16 +64,25 @@ const editMode = ref<boolean>(props.editDirectly);
 const parentStyle = ref(`--max-height: ${props.maxEditorHeight}; font-family: var(--font-family); font-size: var(--font-size);`);
 const editText = ref(props.text);
 const exportMode = inject(exportModeKey, ref(false));
-const {setDisableKeybindings} = inject(keyboardKey)!;
+const {disableKeybindings} = inject(keyboardKey)!;
 
 function cancelFunc() {
     editMode.value = false;
 }
 
-watch(editMode, mode => {
-    setDisableKeybindings(mode);
-    if (!mode) emit("closed", editText.value);
+watch(editMode, (mode, oldValue) => {
+    if (!mode) {
+        if(oldValue) {
+            disableKeybindings.value--;
+            console.log("Disabling", disableKeybindings.value)
+        }
+        emit("closed", editText.value);
+    }
     else {
+        if(!oldValue) {
+            disableKeybindings.value++;
+            console.log("Enabling", disableKeybindings.value)
+        }
         emit("opened")
         if (cancelFunc !== cancelOpen) {
             cancelOpen()
