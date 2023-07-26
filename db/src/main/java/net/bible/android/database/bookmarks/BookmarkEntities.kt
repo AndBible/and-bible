@@ -259,12 +259,9 @@ class BookmarkEntities {
             } else {
                 null
             }
-        @Ignore
-        override var labelIds: List<IdType>? = null
-        @Ignore
-        var bookmarkToLabels: List<BibleBookmarkToLabel>? = null
-        @Ignore
-        override var text: String? = null
+        @Ignore override var labelIds: List<IdType>? = null
+        @Ignore var bookmarkToLabels: List<BibleBookmarkToLabel>? = null
+        @Ignore override var text: String? = null
         override fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>) {
             bookmarkToLabels = l as List<BibleBookmarkToLabel>
         }
