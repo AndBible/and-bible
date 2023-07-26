@@ -76,7 +76,7 @@ const myBibleComponents = {
 const osisComponents = {
     Verse, W, Div, Chapter, Reference, Note, TransChange,
     DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
-    Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
+    Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr, BWA: BibleViewAnchor,
     ...teiComponents, ...andBibleComponents, ...myBibleComponents,
 }
 
@@ -97,7 +97,7 @@ export default defineComponent({
     render() {
         return h({
             template: this.convert ? osisToTemplateString(this.osisTemplate) : this.osisTemplate,
-            components: {BWA: BibleViewAnchor, ...prefixComponents(osisComponents)},
+            components: prefixComponents(osisComponents),
             compilerOptions: {
                 whitespace: 'preserve',
             },

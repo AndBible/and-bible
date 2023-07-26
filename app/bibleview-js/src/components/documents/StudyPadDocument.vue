@@ -73,14 +73,30 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
 import {useStudyPad} from "@/composables/journal";
 import {StudyPadDocument} from "@/types/documents";
-import {BookmarkToLabel, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
+import {
+    BaseBookmarkToLabel,
+    BaseStudyPadBookmarkItem,
+    BibleBookmarkToLabel,
+    GenericBookmarkToLabel,
+    StudyPadBibleBookmarkItem,
+    StudyPadGenericBookmarkItem,
+    StudyPadItem,
+    StudyPadTextItem
+} from "@/types/client-objects";
 import Color from "color";
 import draggable from "vuedraggable";
 
 const props = defineProps<{ document: StudyPadDocument }>();
 
 // eslint-disable-next-line vue/no-setup-props-destructure
-const {bookmarks, label, journalTextEntries: journalTextEntries_, bookmarkToLabels: bookmarkToLabels_} = props.document;
+const {
+    bookmarks,
+    genericBookmarks,
+    label,
+    journalTextEntries: journalTextEntries_,
+    bookmarkToLabels: bookmarkToLabels_,
+    genericBookmarkToLabels: genericBookmarkToLabels_,
+} = props.document;
 const journal = useStudyPad(label);
 provide("journal", journal);
 const {scrollToId} = inject(scrollKey)!;
@@ -89,7 +105,7 @@ const android = inject(androidKey)!;
 type StudyPadRowType = InstanceType<typeof StudyPadRow>
 
 function asBookmarkItem(item: StudyPadItem) {
-    return item as StudyPadBookmarkItem
+    return item as BaseStudyPadBookmarkItem
 }
 
 const studyPadRowRefs: StudyPadRowType[] = [];
@@ -118,15 +134,17 @@ const {
 
 updateStudyPadTextEntries(...journalTextEntries_);
 updateBookmarkToLabels(...bookmarkToLabels_)
+updateBookmarkToLabels(...genericBookmarkToLabels_)
 
 const globalBookmarks = inject(globalBookmarksKey)!;
 
 globalBookmarks.updateBookmarks(bookmarks);
+globalBookmarks.updateBookmarks(genericBookmarks);
 
 const journalEntries: Ref<StudyPadItem[]> = computed({
     get:
         () => {
-            let entries = [];
+            let entries: StudyPadItem[] = [];
             entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)).map(b => {
                 const bookmarkToLabel = bookmarkToLabels.get(b.id)!;
                 return {
@@ -156,9 +174,10 @@ const journalEntries: Ref<StudyPadItem[]> = computed({
 
         }
         const grouped = groupBy(changed, "type");
-        const bookmarks: StudyPadBookmarkItem[] = (grouped["bookmark"] || []) as StudyPadBookmarkItem[];
+        const bookmarks: StudyPadBibleBookmarkItem[] = (grouped["bookmark"] || []) as StudyPadBibleBookmarkItem[];
+        const genericBookmarks: StudyPadGenericBookmarkItem[] = (grouped["generic-bookmark"] || []) as StudyPadGenericBookmarkItem[];
         const journals: StudyPadTextItem[] = (grouped["journal"] || []) as StudyPadTextItem[];
-        android.updateOrderNumber(label.id, bookmarks, journals);
+        android.updateOrderNumber(label.id, bookmarks, genericBookmarks, journals);
     }
 });
 const adding = ref(false);
@@ -169,10 +188,12 @@ setupEventBusListener("add_or_update_study_pad", async (
     {
         studyPadTextEntry,
         bookmarkToLabelsOrdered,
+        genericBookmarkToLabelsOrdered,
         studyPadItemsOrdered
     }: {
         studyPadTextEntry: StudyPadTextItem,
-        bookmarkToLabelsOrdered: BookmarkToLabel[],
+        bookmarkToLabelsOrdered: BibleBookmarkToLabel[],
+        genericBookmarkToLabelsOrdered: GenericBookmarkToLabel[],
         studyPadItemsOrdered: StudyPadTextItem[]
     }) =>
 {
@@ -180,7 +201,7 @@ setupEventBusListener("add_or_update_study_pad", async (
         studyPadTextEntry.new = true
         adding.value = false;
     }
-    updateBookmarkToLabels(...bookmarkToLabelsOrdered);
+    updateBookmarkToLabels(...bookmarkToLabelsOrdered, ...genericBookmarkToLabelsOrdered);
     updateStudyPadOrdering(...studyPadItemsOrdered);
     if (studyPadTextEntry) {
         updateStudyPadTextEntries(studyPadTextEntry);
@@ -191,7 +212,7 @@ setupEventBusListener("add_or_update_study_pad", async (
     }
 })
 
-setupEventBusListener("add_or_update_bookmark_to_label", (bookmarkToLabel: BookmarkToLabel) => {
+setupEventBusListener("add_or_update_bookmark_to_label", (bookmarkToLabel: BaseBookmarkToLabel) => {
     updateBookmarkToLabels(bookmarkToLabel);
 })
 
@@ -206,12 +227,12 @@ function indentStyle(entry: StudyPadItem) {
 
 function addNewEntry() {
     adding.value = true;
-    android.createNewJournalEntry(label.id);
+    android.createNewStudyPadEntry(label.id);
 }
 
 function appendNewEntry() {
     adding.value = true;
-    android.createNewJournalEntry(label.id, lastEntry.value.type, lastEntry.value.id);
+    android.createNewStudyPadEntry(label.id, lastEntry.value.type, lastEntry.value.id);
 }
 
 const labelNameStyle = computed(() => {

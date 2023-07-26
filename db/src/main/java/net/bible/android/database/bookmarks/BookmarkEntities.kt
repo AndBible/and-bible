@@ -37,6 +37,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
 import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
+import org.crosswire.jsword.passage.RangedPassage
 import java.util.*
 import kotlin.math.abs
 
@@ -96,36 +97,73 @@ class BookmarkEntities {
         val clientList get() = listOf(start, end)
     }
 
-    @DatabaseView("SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn ON b.id = bn.bookmarkId")
-    data class BookmarkWithNotes(
+    interface BaseBookmark {
+        var id: IdType
+        var createdAt: Date
+
+        var ordinalStart: Int
+        var ordinalEnd: Int
+        var startOffset: Int?
+        var endOffset: Int?
+
+        var primaryLabelId: IdType?
+        var lastUpdatedOn: Date
+    }
+
+    interface BaseBookmarkNotes {
+        var bookmarkId: IdType
+        val notes: String
+    }
+
+    interface BaseBookmarkToLabel {
+        val bookmarkId: IdType
+        val labelId: IdType
+        var orderNumber: Int
+        var indentLevel: Int
+        var expandContent: Boolean
+        val type: String
+    }
+
+    interface BaseBookmarkWithNotes {
+        val bookmarkEntity: BaseBookmark
+        val noteEntity: BaseBookmarkNotes?
+        var ordinalStart: Int
+        var ordinalEnd: Int
+        var id: IdType
+        var createdAt: Date
+        var startOffset: Int?
+        var endOffset: Int?
+        var primaryLabelId: IdType?
+        var notes: String?
+        var lastUpdatedOn: Date
+        var textRange: TextRange?
+        var new: Boolean
+
+        var labelIds: List<IdType>?
+        var text: String?
+        fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>)
+    }
+
+    @DatabaseView("SELECT b.*, bn.notes FROM BibleBookmark b LEFT OUTER JOIN BibleBookmarkNotes bn ON b.id = bn.bookmarkId")
+    data class BibleBookmarkWithNotes(
         var kjvOrdinalStart: Int,
         var kjvOrdinalEnd: Int,
-
-        var ordinalStart: Int,
-        var ordinalEnd: Int,
-
+        override var ordinalStart: Int,
+        override var ordinalEnd: Int,
         var v11n: Versification,
-
         var playbackSettings: PlaybackSettings?,
-
-        var id: IdType = IdType(),
-
-        var createdAt: Date = Date(System.currentTimeMillis()),
-
+        override var id: IdType = IdType(),
+        override var createdAt: Date = Date(System.currentTimeMillis()),
         var book: AbstractPassageBook? = null,
-
-        var startOffset: Int?,
-        var endOffset: Int?,
-
-        var primaryLabelId: IdType? = null,
-
-        var notes: String? = null,
-
-        var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        override var startOffset: Int?,
+        override var endOffset: Int?,
+        override var primaryLabelId: IdType? = null,
+        override var notes: String? = null,
+        override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         var wholeVerse: Boolean = false,
         var type: BookmarkType? = null,
-        var new: Boolean = false,
-    ): VerseRangeUser {
+        override var new: Boolean = false,
+    ): VerseRangeUser, BaseBookmarkWithNotes {
         constructor(
             kjvOrdinalStart: Int = 0,
             kjvOrdinalEnd: Int = 0,
@@ -177,7 +215,7 @@ class BookmarkEntities {
             new = true,
         )
 
-        var textRange: TextRange?
+        override var textRange: TextRange?
             get() = if(startOffset != null) {
                 TextRange(startOffset!!, endOffset!!)
             } else null
@@ -221,9 +259,12 @@ class BookmarkEntities {
             } else {
                 null
             }
-        @Ignore var labelIds: List<IdType>? = null
-        @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
-        @Ignore var text: String? = null
+        @Ignore override var labelIds: List<IdType>? = null
+        @Ignore var bookmarkToLabels: List<BibleBookmarkToLabel>? = null
+        @Ignore override var text: String? = null
+        override fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>) {
+            bookmarkToLabels = l as List<BibleBookmarkToLabel>
+        }
 
         val highlightedText: String get() {
             return "$startText<b>$text</b>$endText"
@@ -235,7 +276,7 @@ class BookmarkEntities {
         @Ignore var fullText: String? = null
         @Ignore var osisFragment: OsisFragment? = null
 
-        val bookmarkEntity get() = Bookmark(
+        override val bookmarkEntity get() = BibleBookmark(
             kjvOrdinalStart,
             kjvOrdinalEnd,
             ordinalStart,
@@ -252,17 +293,17 @@ class BookmarkEntities {
             wholeVerse,
             type,
         )
-        val noteEntity get() = if(notes == null) null else BookmarkNotes(id, notes!!)
+        override val noteEntity get() = if(notes == null) null else BibleBookmarkNotes(id, notes!!)
     }
     @Entity(
         foreignKeys = [
-            ForeignKey(entity = Bookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
+            ForeignKey(entity = BibleBookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
         ],
     )
-    data class BookmarkNotes(
-        @PrimaryKey var bookmarkId: IdType = IdType(),
-        val notes: String
-    )
+    data class BibleBookmarkNotes(
+        @PrimaryKey override var bookmarkId: IdType = IdType(),
+        override val notes: String
+    ): BaseBookmarkNotes
 
     @Entity(
         indices = [
@@ -272,7 +313,7 @@ class BookmarkEntities {
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
         ],
     )
-    data class Bookmark(
+    data class BibleBookmark(
         // Verse range in KJV ordinals. For generic lookups, we must store verse ranges in a "standard"
         // versification. We store also verserange in original versification, as it conveys the more exact
         // versification-specific information.
@@ -280,33 +321,33 @@ class BookmarkEntities {
         var kjvOrdinalStart: Int,
         var kjvOrdinalEnd: Int,
 
-        var ordinalStart: Int,
-        var ordinalEnd: Int,
+        override var ordinalStart: Int,
+        override var ordinalEnd: Int,
 
         var v11n: Versification,
 
         var playbackSettings: PlaybackSettings?,
 
-        @PrimaryKey var id: IdType = IdType(),
+        @PrimaryKey override var id: IdType = IdType(),
 
-        var createdAt: Date = Date(System.currentTimeMillis()),
+        override var createdAt: Date = Date(System.currentTimeMillis()),
 
         var book: AbstractPassageBook? = null,
 
-        var startOffset: Int?,
-        var endOffset: Int?,
+        override var startOffset: Int?,
+        override var endOffset: Int?,
 
-        @ColumnInfo(defaultValue = "NULL") var primaryLabelId: IdType? = null,
+        @ColumnInfo(defaultValue = "NULL") override var primaryLabelId: IdType? = null,
 
-        @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
-    )
+    ): BaseBookmark
 
     @Entity(
         primaryKeys = ["bookmarkId", "labelId"],
         foreignKeys = [
-            ForeignKey(entity = Bookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
+            ForeignKey(entity = BibleBookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
         ],
         indices = [
@@ -314,16 +355,154 @@ class BookmarkEntities {
         ]
     )
     @Serializable
-    data class BookmarkToLabel(
-        val bookmarkId: IdType,
-        val labelId: IdType,
+    data class BibleBookmarkToLabel(
+        override val bookmarkId: IdType,
+        override val labelId: IdType,
 
-        // Journal display variables
-        @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
-        @ColumnInfo(defaultValue = "0") var indentLevel: Int = 0,
-        @ColumnInfo(defaultValue = "0") var expandContent: Boolean = true,
-    ) {
-        constructor(bookmark: Bookmark, label: Label): this(bookmark.id, label.id)
+        // Studypad display variables
+        @ColumnInfo(defaultValue = "-1") override var orderNumber: Int = -1,
+        @ColumnInfo(defaultValue = "0") override var indentLevel: Int = 0,
+        @ColumnInfo(defaultValue = "0") override var expandContent: Boolean = true,
+    ): BaseBookmarkToLabel {
+        constructor(bookmark: BibleBookmark, label: Label): this(bookmark.id, label.id)
+        @Ignore override val type: String = "BibleBookmarkToLabel"
+    }
+
+    @DatabaseView("SELECT b.*, bn.notes FROM GenericBookmark b LEFT OUTER JOIN GenericBookmarkNotes bn ON b.id = bn.bookmarkId")
+    data class GenericBookmarkWithNotes(
+        @PrimaryKey override var id: IdType = IdType(),
+        var key: String,
+        override var createdAt: Date = Date(System.currentTimeMillis()),
+        var book: Book? = null,
+
+        override var ordinalStart: Int,
+        override var ordinalEnd: Int,
+        override var startOffset: Int?,
+        override var endOffset: Int?,
+
+        override var primaryLabelId: IdType? = null,
+        override var notes: String? = null,
+        override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        override var new: Boolean = false,
+    ): BaseBookmarkWithNotes {
+        constructor(
+            id: IdType = IdType(),
+            key: String,
+            createdAt: Date = Date(System.currentTimeMillis()),
+            book: Book? = null,
+            ordinalStart: Int,
+            ordinalEnd: Int,
+            startOffset: Int,
+            endOffset: Int,
+            primaryLabelId: IdType? = null,
+            notes: String? = null,
+            lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        ): this(
+            id = id,
+            key = key,
+            createdAt = createdAt,
+            book = book,
+            ordinalStart = ordinalStart,
+            ordinalEnd = ordinalEnd,
+            startOffset = startOffset,
+            endOffset = endOffset,
+            primaryLabelId = primaryLabelId,
+            notes = notes,
+            lastUpdatedOn = lastUpdatedOn,
+            new = false
+        )
+
+        override var textRange: TextRange?
+            get() = if(startOffset != null) {
+                TextRange(startOffset!!, endOffset!!)
+            } else null
+            set(value) {
+                if(value == null) {
+                    startOffset = null
+                    endOffset = null
+                } else {
+                    startOffset = value.start
+                    endOffset = value.end
+                }
+            }
+
+        @Ignore override var labelIds: List<IdType>? = null
+        @Ignore var bookmarkToLabels: List<GenericBookmarkToLabel>? = null
+        @Ignore override var text: String? = null
+        override fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>) {
+            bookmarkToLabels = l as List<GenericBookmarkToLabel>
+        }
+
+        val bookKey get() = book!!.getKey(key).let {if(it is RangedPassage) it.first() else it }
+
+        override val bookmarkEntity get() = GenericBookmark(
+            id = id,
+            key = key,
+            ordinalStart = ordinalStart,
+            ordinalEnd = ordinalEnd,
+            createdAt = createdAt,
+            book = book,
+            startOffset = startOffset,
+            endOffset = endOffset,
+            primaryLabelId = primaryLabelId,
+            lastUpdatedOn = lastUpdatedOn,
+        )
+        override val noteEntity get() = if(notes == null) null else GenericBookmarkNotes(id, notes!!)
+    }
+
+    @Entity(
+        foreignKeys = [
+            ForeignKey(entity = GenericBookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
+        ],
+    )
+    data class GenericBookmarkNotes(
+        @PrimaryKey override var bookmarkId: IdType = IdType(),
+        override val notes: String
+    ): BaseBookmarkNotes
+
+    @Entity(
+        indices = [Index(value = ["book", "key"])],
+        foreignKeys = [
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
+        ],
+    )
+    data class GenericBookmark(
+        @PrimaryKey override var id: IdType = IdType(),
+        var key: String,
+        override var createdAt: Date = Date(System.currentTimeMillis()),
+        var book: Book? = null,
+
+        override var ordinalStart: Int,
+        override var ordinalEnd: Int,
+        override var startOffset: Int?,
+        override var endOffset: Int?,
+
+        @ColumnInfo(defaultValue = "NULL") override var primaryLabelId: IdType? = null,
+        @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+    ): BaseBookmark
+
+    @Entity(
+        primaryKeys = ["bookmarkId", "labelId"],
+        foreignKeys = [
+            ForeignKey(entity = GenericBookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
+        ],
+        indices = [
+            Index("labelId")
+        ]
+    )
+    @Serializable
+    data class GenericBookmarkToLabel(
+        override val bookmarkId: IdType,
+        override val labelId: IdType,
+
+        // Studypad display variables
+        @ColumnInfo(defaultValue = "-1") override var orderNumber: Int = -1,
+        @ColumnInfo(defaultValue = "0") override var indentLevel: Int = 0,
+        @ColumnInfo(defaultValue = "0") override var expandContent: Boolean = true,
+    ): BaseBookmarkToLabel {
+        constructor(bookmark: GenericBookmark, label: Label): this(bookmark.id, label.id)
+        @Ignore override val type: String = "GenericBookmarkToLabel"
     }
 
     @Entity(

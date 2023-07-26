@@ -32,6 +32,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils.defaultBible
 import net.bible.service.common.CommonUtils.defaultVerse
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
 
 import org.crosswire.jsword.book.Book
@@ -213,8 +214,13 @@ open class CurrentPageManager @Inject constructor(
                 if(currentBook != null) {
                     nextPage.setCurrentDocument(currentBook)
                 }
-                nextPage.setKey(key)
-                nextPage.anchorOrdinal = anchorOrdinal
+                if(key is BookAndKey) {
+                    nextPage.setKey(key.key)
+                    nextPage.anchorOrdinal = key.ordinal
+                } else {
+                    nextPage.setKey(key)
+                    nextPage.anchorOrdinal = anchorOrdinal
+                }
                 currentPage = nextPage
             }catch (e: Exception) {
                 Log.e(TAG, "Error setting next page doc")

@@ -18,7 +18,10 @@
 <template>
   <div class="ambiguous-button" :style="buttonStyle" @click.stop="openBookmark(false)">
     <div class="verse-range one-liner">
-      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><em>{{ bookmark.text }}</em></q>
+      <template v-if="isBibleBookmark(bookmark)">
+        {{ bookmark.verseRangeAbbreviated }}&nbsp;
+      </template>
+      <q v-if="bookmark.text"><em>{{ bookmark.text }}</em></q>
     </div>
     <div v-if="bookmark.hasNote" class="note one-liner small">
       <FontAwesomeIcon icon="edit" size="xs"/>
@@ -48,13 +51,15 @@ import Color from "color";
 import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {globalBookmarksKey, locateTopKey} from "@/types/constants";
+import {BaseBookmark} from "@/types/client-objects";
+import {isBibleBookmark} from "@/composables/bookmarks";
 
 const $emit = defineEmits(["selected"]);
 const props = defineProps<{ bookmarkId: IdType }>();
 
 const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
 useCommon();
-const bookmark = computed(() => bookmarkMap.get(props.bookmarkId)!);
+const bookmark = computed(() => bookmarkMap.get(props.bookmarkId)! as BaseBookmark);
 const bookmarkNotes = computed(() => bookmark.value.notes!);
 
 const primaryLabel = computed(() => {

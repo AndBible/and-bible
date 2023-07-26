@@ -42,11 +42,12 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.settings
-import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.view.activity.base.Dialogs
@@ -86,7 +87,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private var selectedLabelNo = 0
 
     // the document list
-    private val bookmarkList: MutableList<BookmarkWithNotes> = ArrayList()
+    private val bookmarkList: MutableList<BaseBookmarkWithNotes> = ArrayList()
     private var listActionModeHelper: ListActionModeHelper? = null
     override val integrateWithHistoryManager: Boolean = true
 
@@ -145,7 +146,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
 
         // prepare the document list view
-        val bookmarkArrayAdapter: ArrayAdapter<BookmarkWithNotes> = BookmarkItemAdapter(
+        val bookmarkArrayAdapter: ArrayAdapter<BaseBookmarkWithNotes> = BookmarkItemAdapter(
             this, bookmarkList, bookmarkControl, windowControl
         )
         listAdapter = bookmarkArrayAdapter
@@ -173,7 +174,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return intent
     }
 
-    private fun assignLabels(bookmarks: List<BookmarkWithNotes>) = lifecycleScope.launch(Dispatchers.IO) {
+    private fun assignLabels(bookmarks: List<BaseBookmarkWithNotes>) = lifecycleScope.launch(Dispatchers.IO) {
         val labels = mutableSetOf<IdType>()
         for (b in bookmarks) {
             labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
@@ -198,7 +199,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    private fun delete(bookmarks: List<BookmarkWithNotes>) {
+    private fun delete(bookmarks: List<BaseBookmarkWithNotes>) {
         AlertDialog.Builder(this)
             .setMessage(getString(R.string.confirm_delete_bookmarks, bookmarks.size))
             .setPositiveButton(R.string.yes) { _, _ ->
@@ -234,7 +235,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 val selectedLabel = labelList[selectedLabelNo]
                 withContext(Dispatchers.Main) {
                     bookmarkList.clear()
-                    bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
+                    bookmarkList.addAll(bookmarkControl.getBibleBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
+                    bookmarkList.addAll(bookmarkControl.getGenericBookmarksWithLabel(selectedLabel))
                     notifyDataSetChanged()
 
                     // if in action mode then must exit because the data has changed, invalidating selections
@@ -255,14 +257,23 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    private fun bookmarkSelected(bookmark: BookmarkWithNotes) {
-        Log.i(TAG, "Bookmark selected:" + bookmark.verseRange)
+    private fun bookmarkSelected(bookmark: BaseBookmarkWithNotes) {
+        Log.i(TAG, "Bookmark selected:$bookmark")
         try {
-            if (bookmarkControl.isSpeakBookmark(bookmark)) {
+            if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && bookmarkControl.isSpeakBookmark(bookmark)) {
                 speakControl.speakFromBookmark(bookmark)
             }
             val resultIntent = Intent(this, Bookmarks::class.java)
-            resultIntent.putExtra("verse", bookmark.verseRange.start.osisID)
+            when(bookmark) {
+                is BookmarkEntities.BibleBookmarkWithNotes -> {
+                    resultIntent.putExtra("verse", bookmark.verseRange.start.osisID)
+                }
+                is BookmarkEntities.GenericBookmarkWithNotes -> {
+                    resultIntent.putExtra("key", bookmark.key)
+                    resultIntent.putExtra("book", bookmark.book?.initials)
+                    resultIntent.putExtra("ordinal", bookmark.ordinalStart)
+                }
+            }
             setResult(Activity.RESULT_OK, resultIntent)
             finish()
         } catch (e: Exception) {
@@ -362,8 +373,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return listView.isItemChecked(position)
     }
 
-    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<BookmarkWithNotes> {
-        val selectedBookmarks: MutableList<BookmarkWithNotes> = ArrayList()
+    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<BaseBookmarkWithNotes> {
+        val selectedBookmarks: MutableList<BaseBookmarkWithNotes> = ArrayList()
         for (position in selectedItemPositions) {
             selectedBookmarks.add(bookmarkList[position])
         }

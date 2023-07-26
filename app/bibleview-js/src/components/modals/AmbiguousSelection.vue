@@ -19,7 +19,12 @@
   <ModalDialog ref="modal" :blocking="blocking" v-if="showModal" :locate-top="locateTop" @close="cancelled"
                :limit="limitAmbiguousModalSize">
     <template #extra-buttons>
-      <button class="modal-action-button right" @touchstart.stop @click="multiSelectionButtonClicked">
+      <button
+          v-if="verseInfo"
+          class="modal-action-button right"
+          @touchstart.stop
+          @click="multiSelectionButtonClicked"
+      >
         <FontAwesomeIcon icon="plus-circle"/>
       </button>
       <button v-if="modal && (limitAmbiguousModalSize || modal.height > 196)" class="modal-action-button right"
@@ -62,7 +67,7 @@
         {{ bibleBookName }} {{ verseInfo.chapter }}:{{ verseInfo.verse }}<template v-if="verseInfo.verseTo">-{{ verseInfo.verseTo }}</template>
       </template>
       <template v-else>
-        {{ strings.ambiguousSelection }}
+        {{ strings.bookmarksAndNotes }}
       </template>
     </template>
   </ModalDialog>
@@ -94,7 +99,7 @@ import {
     modalKey,
     verseHighlightKey
 } from "@/types/constants";
-import {Bookmark} from "@/types/client-objects";
+import {BaseBookmark} from "@/types/client-objects";
 import {Nullable, Optional, SelectionInfo} from "@/types/common";
 
 const props = withDefaults(
@@ -144,7 +149,7 @@ const selectedActions = computed<Callback[]>(() => {
     return originalSelections.value.filter(v => !v.options.bookmarkId)
 });
 
-const clickedBookmarks = computed<Bookmark[]>(() => {
+const clickedBookmarks = computed<BaseBookmark[]>(() => {
     if (originalSelections.value === null) return [];
 
     return sortBy(
@@ -155,9 +160,9 @@ const clickedBookmarks = computed<Bookmark[]>(() => {
     );
 });
 
-let deferred: Nullable<Deferred<Bookmark | Callback | undefined>> = null;
+let deferred: Nullable<Deferred<BaseBookmark | Callback | undefined>> = null;
 
-async function select(event: MouseEvent, sel: Callback[]): Promise<Callback | Bookmark | undefined> {
+async function select(event: MouseEvent, sel: Callback[]): Promise<Callback | BaseBookmark | undefined> {
     originalSelections.value = sel;
     locateTop.value = isBottomHalfClicked(event);
     showModal.value = true;
@@ -166,7 +171,7 @@ async function select(event: MouseEvent, sel: Callback[]): Promise<Callback | Bo
     return await deferred.wait();
 }
 
-function selected(s: Callback | Bookmark) {
+function selected(s: Callback | BaseBookmark) {
     deferred!.resolve(s);
 }
 
@@ -222,7 +227,7 @@ function* ordinalRange(): Generator<number> {
     }
 }
 
-const selectedBookmarks = computed<Bookmark[]>(() => {
+const selectedBookmarks = computed<BaseBookmark[]>(() => {
     const clickedIds = new Set(clickedBookmarks.value.map(b => b.id));
     const result: IdType[] = [];
     for (const o of ordinalRange()) {
@@ -230,7 +235,7 @@ const selectedBookmarks = computed<Bookmark[]>(() => {
             ...Array.from(bookmarkIdsByOrdinal.get(o) || [])
                 .filter(bId => !clickedIds.has(bId) && !result.includes(bId)))
     }
-    return result.map(bId => bookmarkMap.get(bId)).filter(b => b) as Bookmark[];
+    return result.map(bId => bookmarkMap.get(bId)).filter(b => b) as BaseBookmark[];
 });
 
 function setInitialVerse(_verseInfo: EventVerseInfo) {
@@ -295,7 +300,9 @@ async function handle(event: MouseEvent) {
                 const s = await select(event, allEventFunctions);
                 if (s && s.type === "callback" && s.callback) s.callback();
             } else {
-                console.error("Should not end up here")
+                // No verse below us. Generic books etc end up here.
+                const s = await select(event, allEventFunctions);
+                if (s && s.type === "callback" && s.callback) s.callback();
             }
         }
     } else {

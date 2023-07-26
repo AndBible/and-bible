@@ -43,7 +43,7 @@ import {addAll, clickWaiter, removeAll} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
 import {androidKey, appSettingsKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
-import {Bookmark, LabelAndStyle} from "@/types/client-objects";
+import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
 
 const props = withDefaults(defineProps<{
@@ -85,7 +85,7 @@ function labelStyle(label: LabelAndStyle) {
 }
 
 const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
-const bookmark = computed<Bookmark>(() => bookmarkMap.get(props.bookmarkId)!);
+const bookmark = computed<BaseBookmark>(() => bookmarkMap.get(props.bookmarkId)!);
 
 function isAssigned(labelId: IdType) {
     return bookmark.value.labels.includes(labelId);
@@ -139,14 +139,14 @@ async function labelClicked(event: MouseEvent | TouchEvent, label: LabelAndStyle
     if (!await waitForClick(event)) return;
 
     if (!isAssigned(label.id)) {
-        android.toggleBookmarkLabel(bookmark.value.id, label.id);
+        android.toggleBookmarkLabel(bookmark.value, label.id);
     } else if (!props.onlyAssign) {
         actions.value!.showActions({locateTop: locateTop.value})
     } else {
         if (isAssigned(label.id) && !isPrimary(label)) {
-            android.setAsPrimaryLabel(bookmark.value.id, label.id);
+            android.setAsPrimaryLabel(bookmark.value, label.id);
         } else {
-            android.toggleBookmarkLabel(bookmark.value.id, label.id);
+            android.toggleBookmarkLabel(bookmark.value, label.id);
         }
     }
 }

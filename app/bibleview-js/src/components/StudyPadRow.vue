@@ -60,6 +60,11 @@
       <BookmarkText :expanded="bookmarkEntry.expandContent" :bookmark="bookmarkEntry"/>
       <div v-if="(bookmarkEntry.hasNote || editMode) && bookmarkEntry.expandContent" class="note-separator"/>
     </template>
+    <template v-if="journalEntry.type==='generic-bookmark'">
+      <b><a :href="genericUrl">{{ genericBookmarkEntry.bookAbbreviation }}: {{ genericBookmarkEntry.keyName }}</a></b>&nbsp;
+      <BookmarkText :expanded="bookmarkEntry.expandContent" :bookmark="bookmarkEntry"/>
+      <div v-if="(bookmarkEntry.hasNote || editMode) && bookmarkEntry.expandContent" class="note-separator"/>
+    </template>
     <div :class="{'studypad-text-entry': journalEntry.type === 'journal', notes: journalEntry.type === 'bookmark'}">
       <EditableText
           ref="editor"
@@ -84,7 +89,14 @@ import {androidKey, exportModeKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {formatExportLink, isBottomHalfClicked} from "@/utils";
-import {Label, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
+import {
+    BaseStudyPadBookmarkItem,
+    Label,
+    StudyPadBibleBookmarkItem,
+    StudyPadGenericBookmarkItem,
+    StudyPadItem,
+    StudyPadTextItem
+} from "@/types/client-objects";
 import {AreYouSureButton} from "@/types/common";
 
 const emit = defineEmits(['edit-opened', 'add'])
@@ -93,7 +105,8 @@ const props = defineProps<{
     label: Label
 }>();
 
-const bookmarkEntry = computed(() => props.journalEntry as StudyPadBookmarkItem)
+const bookmarkEntry = computed(() => props.journalEntry as StudyPadBibleBookmarkItem)
+const genericBookmarkEntry = computed(() => props.journalEntry as StudyPadGenericBookmarkItem)
 const textEntry = computed(() => props.journalEntry as StudyPadTextItem)
 
 const android = inject(androidKey)!;
@@ -113,15 +126,16 @@ const editMode = computed<boolean>({
 });
 
 function journalTextChanged(newText: string) {
-    if (props.journalEntry.type === "bookmark") {
-        android.saveBookmarkNote(props.journalEntry.id, newText);
+    if (props.journalEntry.type === "bookmark" || props.journalEntry.type === "generic-bookmark") {
+        android.saveBookmarkNote(props.journalEntry, newText);
     } else if (props.journalEntry.type === "journal") {
         android.updateStudyPadEntry(props.journalEntry, {text: newText});
     }
 }
 
 const journalText = computed(() => {
-    if (props.journalEntry.type === "bookmark") return (props.journalEntry as StudyPadBookmarkItem).notes;
+    if (props.journalEntry.type === "bookmark" || props.journalEntry.type === "generic-bookmark")
+        return (props.journalEntry as BaseStudyPadBookmarkItem).notes;
     else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
     return null;
 });
@@ -132,15 +146,15 @@ function editBookmark(event: MouseEvent) {
 
 function addNewEntryAfter() {
     emit("add")
-    android.createNewJournalEntry(props.label.id, props.journalEntry.type, props.journalEntry.id);
+    android.createNewStudyPadEntry(props.label.id, props.journalEntry.type, props.journalEntry.id);
 }
 
 async function deleteEntry() {
     if (props.journalEntry.type === "journal") {
         const answer = await areYouSureDelete.value!.areYouSure();
         if (answer) android.deleteStudyPadEntry((props.journalEntry as StudyPadTextItem).id);
-    } else if (props.journalEntry.type === "bookmark") {
-        const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
+    } else if (props.journalEntry.type === "bookmark" || props.journalEntry.type === "generic-bookmark") {
+        const bookmarkItem = props.journalEntry as BaseStudyPadBookmarkItem
         let answer: "bookmark" | "only_label" | undefined;
         if (bookmarkItem.labels.length > 1) {
             const buttons: AreYouSureButton[] = [{
@@ -157,9 +171,9 @@ async function deleteEntry() {
             answer = "bookmark"
         }
         if (answer === "only_label") {
-            android.removeBookmarkLabel(props.journalEntry.id, props.label.id);
+            android.removeBookmarkLabel(props.journalEntry, props.label.id);
         } else if (answer === "bookmark") {
-            android.removeBookmark(props.journalEntry.id);
+            android.removeBookmark(props.journalEntry);
         }
     }
 }
@@ -174,7 +188,7 @@ function changeExpanded(newValue: boolean) {
 
 const bibleUrl = computed(
     () => {
-        const bookmarkItem = props.journalEntry as StudyPadBookmarkItem
+        const bookmarkItem = props.journalEntry as StudyPadBibleBookmarkItem
         const osis = bookmarkItem.osisRef;
 
         if(exportMode.value) {
@@ -184,6 +198,22 @@ const bibleUrl = computed(
         }
     }
 );
+
+const genericUrl = computed(
+    () => {
+        const bookmarkItem = props.journalEntry as StudyPadGenericBookmarkItem
+        const doc = bookmarkItem.bookInitials;
+        const osis = bookmarkItem.key;
+        const ordinal = bookmarkItem.ordinalRange[0];
+
+        if(exportMode.value) {
+            return ""
+        } else {
+            return `osis://?osis=${osis}&doc=${doc}&ordinal=${ordinal}`;
+        }
+    }
+);
+
 defineExpose({editor});
 </script>
 

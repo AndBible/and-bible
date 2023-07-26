@@ -48,7 +48,8 @@ export type OffsetRange = [start: number, end: Nullable<number>]
 export type OrdinalOffset = [start: number, end: Nullable<number>]
 export type CombinedRange = [start: OrdinalOffset, end: OrdinalOffset]
 
-export type BookmarkToLabel = {
+export type BaseBookmarkToLabel = {
+    readonly type: "BibleBookmarkToLabel" | "GenericBookmarkToLabel"
     readonly bookmarkId: IdType
     readonly labelId: IdType
     orderNumber: number
@@ -56,32 +57,53 @@ export type BookmarkToLabel = {
     readonly expandContent: boolean
 }
 
-export type Bookmark = {
+export type BibleBookmarkToLabel = BaseBookmarkToLabel & {
+    readonly type: "BibleBookmarkToLabel"
+}
+
+export type GenericBookmarkToLabel = BaseBookmarkToLabel & {
+    readonly type: "GenericBookmarkToLabel"
+}
+
+export type BaseBookmark = {
     readonly id: IdType
+    readonly type: "bookmark" | "generic-bookmark"
     readonly hashCode: number
-    readonly type: "bookmark"
     readonly ordinalRange: OrdinalRange
-    readonly originalOrdinalRange: OrdinalRange
     readonly offsetRange: OffsetRange
     readonly labels: IdType[]
     readonly bookInitials: string
     readonly bookName: string
     readonly bookAbbreviation: string
     readonly createdAt: number
-    readonly verseRange: string
-    readonly verseRangeOnlyNumber: string
-    readonly verseRangeAbbreviated: string
     readonly text: string
-    readonly osisRef: string
-    readonly v11n: string
-    readonly fullText: string
-    readonly bookmarkToLabels: BookmarkToLabel[]
-    readonly osisFragment: OsisFragment | null
+    readonly bookmarkToLabels: BaseBookmarkToLabel[]
     readonly primaryLabelId: IdType
     lastUpdatedOn: number
     notes: Nullable<string>
     hasNote: boolean
     wholeVerse: boolean
+}
+
+export type BibleBookmark = BaseBookmark & {
+    readonly type: "bookmark"
+    readonly osisRef: string
+    readonly originalOrdinalRange: OrdinalRange
+    readonly verseRange: string
+    readonly verseRangeOnlyNumber: string
+    readonly verseRangeAbbreviated: string
+    readonly v11n: string
+    readonly fullText: string
+    readonly osisFragment: OsisFragment | null
+    readonly bookmarkToLabels: BibleBookmarkToLabel[]
+}
+
+export type GenericBookmark = BaseBookmark & {
+    readonly type: "generic-bookmark"
+    readonly key: string
+    readonly keyName: string
+    readonly bookmarkToLabels: GenericBookmarkToLabel[]
+    wholeVerse: false
 }
 
 export type StudyPadTextItem = {
@@ -95,17 +117,23 @@ export type StudyPadTextItem = {
     new?: boolean
 }
 
-export type StudyPadBookmarkItem = Bookmark & {
+export type BaseStudyPadBookmarkItem = BaseBookmark & {
     orderNumber: number
     indentLevel: number
     expandContent: boolean
-    bookmarkToLabel: BookmarkToLabel
+    bookmarkToLabel: BaseBookmarkToLabel
 }
 
-export type StudyPadItem = StudyPadBookmarkItem | StudyPadTextItem
 
-export type StudyPadItemOf<T> =
-    T extends "journal" ? StudyPadTextItem : StudyPadBookmarkItem
+export type StudyPadBibleBookmarkItem = BaseStudyPadBookmarkItem & BibleBookmark & {
+    bookmarkToLabel: BibleBookmarkToLabel
+}
+
+export type StudyPadGenericBookmarkItem = BaseStudyPadBookmarkItem & GenericBookmark & {
+    bookmarkToLabel: GenericBookmarkToLabel
+}
+
+export type StudyPadItem = BaseStudyPadBookmarkItem | StudyPadTextItem
 
 export type BookmarkStyle = Readonly<{
     color: number

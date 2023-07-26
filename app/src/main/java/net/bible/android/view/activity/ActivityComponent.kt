@@ -20,7 +20,8 @@ import dagger.Component
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.page.ClientBookmark
+import net.bible.android.control.page.ClientBibleBookmark
+import net.bible.android.control.page.ClientGenericBookmark
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.ActivityBase
@@ -112,7 +113,8 @@ interface ActivityComponent {
     // progress status screens
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)
     fun inject(progressStatus: ProgressStatus)
-    fun inject(clientBookmark: ClientBookmark)
+    fun inject(clientBookmark: ClientBibleBookmark)
+    fun inject(clientBookmark: ClientGenericBookmark)
     fun inject(generalPreference: GeneralPreference)
     fun inject(backupControl: BackupControl)
     fun inject(windowRepository: WindowRepository)

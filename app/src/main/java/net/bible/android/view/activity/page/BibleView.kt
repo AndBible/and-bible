@@ -79,12 +79,12 @@ import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
-import net.bible.android.control.page.ClientBookmark
+import net.bible.android.control.page.ClientBibleBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
+import net.bible.android.control.page.ClientGenericBookmark
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
-import net.bible.android.control.page.DocumentWithBookmarks
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.MyNotesDocument
@@ -121,6 +121,9 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
+import net.bible.service.sword.BookAndKey
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
@@ -157,29 +160,29 @@ class Selection(
     val endOffset: Int?,
     val bookmarks: List<IdType>,
     val notes: String? = null,
-    val text: String = ""
+    val text: String = "",
+    val osisRef: String? = null,
 )
 {
-    constructor(bookmark: BookmarkEntities.BookmarkWithNotes):
+    constructor(bookmark: BookmarkEntities.BibleBookmarkWithNotes):
         this(
-            bookmark.book?.initials,
-            bookmark.ordinalStart,
-            bookmark.startOffset,
-            bookmark.ordinalEnd,
-            bookmark.endOffset,
-            emptyList(),
-            bookmark.notes
+            bookInitials = bookmark.book?.initials,
+            startOrdinal = bookmark.ordinalStart,
+            startOffset = bookmark.startOffset,
+            endOrdinal = bookmark.ordinalEnd,
+            endOffset = bookmark.endOffset,
+            bookmarks = emptyList(),
+            notes = bookmark.notes
         )
 
     constructor(bookInitials: String, startOrdinal: Int, endOrdinal: Int?):
         this(
-            bookInitials,
-            startOrdinal,
-            0,
-            endOrdinal?: startOrdinal,
-            null,
-            emptyList(),
-            null
+            bookInitials = bookInitials,
+            startOrdinal = startOrdinal,
+            startOffset = 0,
+            endOrdinal = endOrdinal?: startOrdinal,
+            endOffset = null,
+            bookmarks = emptyList(),
         )
 
     @Transient @Inject lateinit var windowControl: WindowControl
@@ -190,9 +193,14 @@ class Selection(
 
     val hasRange get() = startOffset != null && endOffset != null
 
-    val book: SwordBook get() = (Books.installed().getBook(bookInitials) as SwordBook?) ?: windowControl.defaultBibleDoc(false)
-    val verseRange: VerseRange get() {
-        val v11n = book.versification ?: KJVA
+    val book: Book? get() = Books.installed().getBook(bookInitials)
+    val swordBook: SwordBook? get() =
+        if(book is SwordBook)
+            book as SwordBook? ?: windowControl.defaultBibleDoc(false)
+        else null
+    val verseRange: VerseRange? get() {
+        swordBook?: return null
+        val v11n = swordBook?.versification ?: KJVA
         return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
     }
 }
@@ -283,9 +291,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return when(item.itemId) {
             R.id.add_bookmark -> {
                 findViewTreeLifecycleOwner()
-                step2 = true
-                mode.menu.clear()
-                mode.invalidate()
+                val cat = currentSelection?.book?.bookCategory
+                if(cat != null && cat != BookCategory.BIBLE) {
+                    makeBookmark()
+                    mode.finish()
+                } else {
+                    step2 = true
+                    mode.menu.clear()
+                    mode.invalidate()
+                }
                 return false
             }
             R.id.add_bookmark_selection -> {
@@ -354,15 +368,28 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         selection?: return
         Log.i(TAG, "makeBookmark")
 
-        val verseRange = selection.verseRange
-        val textRange =
-            if(selection.startOffset != null && selection.endOffset != null)
-                BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
-            else null
-        val bookmark = BookmarkEntities.BookmarkWithNotes(verseRange, textRange, wholeVerse, selection.book)
         val initialLabels = workspaceSettings.autoAssignLabels
-
         val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
+
+        val bookmark: BookmarkEntities.BaseBookmarkWithNotes =
+            if(selection.book?.bookCategory == BookCategory.BIBLE) {
+                val verseRange = selection.verseRange
+                val textRange =
+                    if (selection.startOffset != null && selection.endOffset != null)
+                        BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
+                    else null
+                BookmarkEntities.BibleBookmarkWithNotes(verseRange!!, textRange, wholeVerse, selection.swordBook)
+            } else {
+                BookmarkEntities.GenericBookmarkWithNotes(
+                    key = selection.osisRef!!,
+                    book = selection.book,
+                    ordinalStart = selection.startOrdinal,
+                    ordinalEnd = selection.endOrdinal,
+                    startOffset = selection.startOffset!!,
+                    endOffset = selection.endOffset!!,
+                    new = true,
+                )
+            }
         if(primaryLabelId != null) {
             val label = bookmarkControl.labelById(primaryLabelId)
             if(label != null) {
@@ -386,8 +413,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     val scope get() = mainBibleActivity.lifecycleScope
 
-    internal fun assignLabels(bookmarkId: IdType) = scope.launch(Dispatchers.IO) {
-        val bookmark = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
+    internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.IO) {
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
         val intent = Intent(mainBibleActivity, ManageLabels::class.java)
         intent.putExtra("data", ManageLabels.ManageLabelsData(
@@ -887,9 +913,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.SCHEME_REFERENCE -> {
             val osisRef = uri.getQueryParameter("osis")
+            val doc = uri.getQueryParameter("doc")
+            val ordinal = uri.getQueryParameter("ordinal")
             val v11n = uri.getQueryParameter("v11n")
             val forceDoc = uri.getBooleanQueryParameter("force-doc", false)
-            if (osisRef != null) {
+            if(ordinal != null) {
+                val book = Books.installed().getBook(doc)
+                val bookKey = book!!.getKey(osisRef).let {if(it is RangedPassage) it.first() else it }
+                linkControl.showLink(book, BookAndKey(bookKey, book, ordinal.toInt()))
+            } else if (osisRef != null) {
                 linkControl.loadApplicationUrl(BibleLink("osis", osisRef.trim(), v11n, forceDoc = forceDoc))
             } else {
                 val contentRef = uri.getQueryParameter("content")!!
@@ -1328,20 +1360,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
         val document = firstDocument
-        if(document !is DocumentWithBookmarks) return
-        if(document is MyNotesDocument && !document.verseRange.overlaps(event.bookmark.kjvVerseRange)) return
 
-        val clientBookmark = ClientBookmark(event.bookmark,
-            when (document) {
-                is BibleDocument -> document.swordBook.versification
-                is MyNotesDocument -> KJVA
-                else -> null
-            }
-        )
+        val clientBookmark = when(event.bookmark) {
+            is BookmarkEntities.BibleBookmarkWithNotes ->
+                ClientBibleBookmark(event.bookmark,
+                    when (document) {
+                        is BibleDocument -> document.swordBook.versification
+                        is MyNotesDocument -> KJVA
+                        else -> null
+                    })
+            is BookmarkEntities.GenericBookmarkWithNotes -> ClientGenericBookmark(event.bookmark)
+            else -> throw RuntimeException("Invalid type")
+        }
+
         val bookmarkStr = clientBookmark.asJson
-        executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
-        """)
+        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);""")
     }
 
     fun onEvent(event: BookmarkNoteModifiedEvent) {
@@ -1355,18 +1388,28 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(doc !is StudyPadDocument || doc.label.id != event.labelId) return
         val studyPadTextEntryJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
         val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
+        val genericBookmarkToLabels = json.encodeToString(serializer(), event.genericBookmarkToLabelsOrderChanged)
         val studyPadItems = json.encodeToString(serializer(), event.studyPadOrderChanged)
         executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_study_pad",  {studyPadTextEntry: $studyPadTextEntryJson, bookmarkToLabelsOrdered: $bookmarkToLabels, studyPadItemsOrdered: $studyPadItems});
+            bibleView.emit("add_or_update_study_pad",  {
+                studyPadTextEntry: $studyPadTextEntryJson, 
+                bookmarkToLabelsOrdered: $bookmarkToLabels, 
+                genericBookmarkToLabelsOrdered: $genericBookmarkToLabels, 
+                studyPadItemsOrdered: $studyPadItems
+                });
         """)
     }
 
     fun onEvent(event: BookmarkToLabelAddedOrUpdatedEvent) {
         val doc = firstDocument
         if(doc !is StudyPadDocument || doc.label.id != event.bookmarkToLabel.labelId) return
-        val bookmarkToLabel = json.encodeToString(serializer(), event.bookmarkToLabel)
+        val bookmarkToLabelStr = when(event.bookmarkToLabel) {
+            is BookmarkEntities.BibleBookmarkToLabel ->json.encodeToString(serializer(), event.bookmarkToLabel)
+            is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), event.bookmarkToLabel)
+            else -> throw RuntimeException("Illegal type")
+        }
         executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabel);
+            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabelStr);
         """)
     }
 
@@ -1544,6 +1587,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return if(value) "true" else "false"
         }
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${toVerse.ordinal}, ordinalEnd: ${endVerse?.ordinal}});")
+        if(isActive) {
+            PassageChangeMediator.onCurrentVerseChanged(window)
+        }
+    }
+    fun scrollOrJumpToOrdinal(ordinal: Int, forceNow: Boolean = false) {
+        Log.i(TAG, "Scroll or jump to ordinal:$ordinal")
+        val now = !contentVisible || forceNow
+        fun boolString(value: Boolean?): String {
+            if(value == null) return "null"
+            return if(value) "true" else "false"
+        }
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', 'o-$ordinal', {now: ${boolString(now)}});")
         if(isActive) {
             PassageChangeMediator.onCurrentVerseChanged(window)
         }

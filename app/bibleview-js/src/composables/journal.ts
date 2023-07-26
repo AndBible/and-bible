@@ -17,13 +17,13 @@
 
 import {reactive} from "vue";
 import {setupEventBusListener} from "@/eventbus";
-import {Bookmark, BookmarkToLabel, Label, StudyPadTextItem} from "@/types/client-objects";
+import {BaseBookmark, BaseBookmarkToLabel, Label, StudyPadTextItem} from "@/types/client-objects";
 
 export function useStudyPad(label: Label) {
     const studyPadTextEntries: Map<IdType, StudyPadTextItem> = reactive(new Map());
-    const bookmarkToLabels: Map<IdType, BookmarkToLabel> = reactive(new Map());
+    const bookmarkToLabels: Map<IdType, BaseBookmarkToLabel> = reactive(new Map());
 
-    setupEventBusListener("add_or_update_bookmarks", (bookmarks: Bookmark[]) => {
+    setupEventBusListener("add_or_update_bookmarks", (bookmarks: BaseBookmark[]) => {
         for (const b of bookmarks) {
             if (b.bookmarkToLabels) {
                 updateBookmarkToLabels(...b.bookmarkToLabels);
@@ -37,7 +37,7 @@ export function useStudyPad(label: Label) {
                 studyPadTextEntries.set(e.id, e);
     }
 
-    function updateBookmarkToLabels(...entries: BookmarkToLabel[]) {
+    function updateBookmarkToLabels(...entries: BaseBookmarkToLabel[]) {
         for (const e of entries)
             if (e.labelId === label.id)
                 bookmarkToLabels.set(e.bookmarkId, e);

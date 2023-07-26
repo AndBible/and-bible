@@ -65,9 +65,9 @@ import EditableText from "@/components/EditableText.vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
 import {formatExportLink, isBottomHalfClicked} from "@/utils";
 import {androidKey, exportModeKey} from "@/types/constants";
-import {Bookmark} from "@/types/client-objects";
+import {BibleBookmark} from "@/types/client-objects";
 
-const props = defineProps<{ bookmark: Bookmark }>()
+const props = defineProps<{ bookmark: BibleBookmark }>()
 
 const android = inject(androidKey)!;
 const expanded = ref(false);
@@ -77,7 +77,7 @@ function editBookmark(event: MouseEvent) {
 }
 
 function save(newText: string) {
-    android.saveBookmarkNote(props.bookmark.id, newText);
+    android.saveBookmarkNote(props.bookmark, newText);
 }
 
 const editor = ref<InstanceType<typeof EditableText> | null>(null);
@@ -91,7 +91,7 @@ const areYouSureDelete = ref<InstanceType<typeof AreYouSure> | null>(null);
 async function deleteEntry() {
     const answer = await areYouSureDelete.value!.areYouSure();
     if (answer) {
-        android.removeBookmark(props.bookmark.id);
+        android.removeBookmark(props.bookmark);
     }
 }
 

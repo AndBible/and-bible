@@ -31,7 +31,7 @@ window.bibleViewDebug = {}
 const test1 = `
 <!DOCTYPE html>
 <div>
-  <div class="verse" id="o-0">
+  <div class="ordinal" id="o-0">
     text1
     <div id="id1-1">
       text2
@@ -63,7 +63,7 @@ const test1 = `
     <b id="b-3-2">test1</b>
     test
   </div>
-  <div class="verse" id="o-1">
+  <div class="ordinal" id="o-1">
     text6
     <div id="id2-1">
       text7
@@ -93,13 +93,13 @@ describe("highlighting", () => {
        const hlTestDoc = `
 <!DOCTYPE html>
 <div>
-  <div class="verse" id="o-0">
+  <div class="ordinal" id="o-0">
     text1
   </div>
 </div>  
 `;
-       const highLighted = `<html><head></head><body><div><div class="verse" id="o-0"><span style="width:1">text1</span></div></div></body></html>`
-       const unHighLighted = `<html><head></head><body><div><div class="verse" id="o-0">text1</div></div></body></html>`
+       const highLighted = `<html><head></head><body><div><div class="ordinal" id="o-0"><span style="width:1">text1</span></div></div></body></html>`
+       const unHighLighted = `<html><head></head><body><div><div class="ordinal" id="o-0">text1</div></div></body></html>`
        const dom = getDom(hlTestDoc);
        const document = dom.window.document;
        const range = document.createRange();
@@ -131,15 +131,15 @@ describe("highlighting", () => {
         const hlTestDoc = `
 <!DOCTYPE html>
 <div>
-  <div class="verse" id="o-0">
+  <div class="ordinal" id="o-0">
     text1text2
   </div>
 </div>  
 `;
-        const highLighted = `<html><head></head><body><div><div class="verse" id="o-0"><span style="width:1">text1</span><span style="width:2">text2</span></div></div></body></html>`
-        const highLighted1 = `<html><head></head><body><div><div class="verse" id="o-0"><span style="width:1">text1</span>text2</div></div></body></html>`
-        const unHighLighted1 = `<html><head></head><body><div><div class="verse" id="o-0">text1<span style="width:2">text2</span></div></div></body></html>`
-        const unHighLighted = `<html><head></head><body><div><div class="verse" id="o-0">text1text2</div></div></body></html>`
+        const highLighted = `<html><head></head><body><div><div class="ordinal" id="o-0"><span style="width:1">text1</span><span style="width:2">text2</span></div></div></body></html>`
+        const highLighted1 = `<html><head></head><body><div><div class="ordinal" id="o-0"><span style="width:1">text1</span>text2</div></div></body></html>`
+        const unHighLighted1 = `<html><head></head><body><div><div class="ordinal" id="o-0">text1<span style="width:2">text2</span></div></div></body></html>`
+        const unHighLighted = `<html><head></head><body><div><div class="ordinal" id="o-0">text1text2</div></div></body></html>`
         const dom = getDom(hlTestDoc);
         const document = dom.window.document;
         const range = document.createRange();
@@ -194,13 +194,13 @@ describe("highlighting", () => {
         const hlTestDoc = `
 <!DOCTYPE html>
 <div>
-  <div class="verse" id="o-0">
+  <div class="ordinal" id="o-0">
     text1text2
   </div>
 </div>  
 `;
-        const highLighted = `<html><head></head><body><div><div class="verse" id="o-0"><span style="width:1">text1</span><span style="width:1">text2</span></div></div></body></html>`
-        const unHighLighted = `<html><head></head><body><div><div class="verse" id="o-0">text1text2</div></div></body></html>`
+        const highLighted = `<html><head></head><body><div><div class="ordinal" id="o-0"><span style="width:1">text1</span><span style="width:1">text2</span></div></div></body></html>`
+        const unHighLighted = `<html><head></head><body><div><div class="ordinal" id="o-0">text1text2</div></div></body></html>`
         const dom = getDom(hlTestDoc);
         const document = dom.window.document;
         const range = document.createRange();
@@ -267,25 +267,25 @@ describe("findPreviousSiblingsWithClass tests", () => {
 
     it("test1", () => {
         const e = document.querySelector("#between-2").firstChild
-        const {siblings, verseNode} = findPreviousSiblingWithClass(e, "verse")
+        const {siblings, verseNode} = findPreviousSiblingWithClass(e, "ordinal")
         expect(siblings.length).toBe(2);
         expect(verseNode.id).toBe("o-0");
     });
     it("test2", () => {
         const e = document.querySelector("#between-1").firstChild
-        const {siblings, verseNode} = findPreviousSiblingWithClass(e, "verse")
+        const {siblings, verseNode} = findPreviousSiblingWithClass(e, "ordinal")
         expect(siblings.length).toBe(1);
         expect(verseNode.id).toBe("o-0");
     });
     it("test3", () => {
         const e = document.querySelector("#b-3-1").firstChild
-        const {siblings, verseNode} = findPreviousSiblingWithClass(e, "verse")
+        const {siblings, verseNode} = findPreviousSiblingWithClass(e, "ordinal")
         expect(siblings.length).toBe(1);
         expect(verseNode).toBe(null);
     });
     it("test4", () => {
         const e = document.querySelector("#between-3").firstChild
-        const {siblings, verseNode} = findPreviousSiblingWithClass(e, "verse")
+        const {siblings, verseNode} = findPreviousSiblingWithClass(e, "ordinal")
         expect(siblings.length).toBe(3);
         expect(verseNode.id).toBe("o-0");
     });

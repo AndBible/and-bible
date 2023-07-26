@@ -20,14 +20,19 @@
     <AmbiguousSelection ref="ambiguousSelection" @back-clicked="$emit('change-expanded', false)"/>
     <div v-if="expanded" @click.stop="ambiguousSelection?.handle">
       <OsisFragment
-          v-if="bookmark.osisFragment"
+          v-if="isBibleBookmark(bookmark) && bookmark.osisFragment"
           :highlight-ordinal-range="bookmark.originalOrdinalRange"
           :highlight-offset-range="highlightOffset"
           :fragment="bookmark.osisFragment"
           hide-titles
       />
+      <div
+          @click.stop="$emit('change-expanded', false)"
+          v-else>
+        {{ bookmark.text }}
+      </div>
     </div>
-    <div class="bookmark-text one-liner" v-if="!expanded">
+    <div class="bookmark-text one-liner" v-else>
       <q @click.stop="$emit('change-expanded', true)" class="bible-text">{{ bookmark.text }}</q>
     </div>
   </template>
@@ -37,11 +42,12 @@
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {computed, ref} from "vue";
-import {Bookmark} from "@/types/client-objects";
+import {BaseBookmark} from "@/types/client-objects";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
+import {isBibleBookmark} from "@/composables/bookmarks";
 
 const props = withDefaults(defineProps<{
-    bookmark: Bookmark,
+    bookmark: BaseBookmark,
     expanded: boolean
 }>(), {
     expanded: false

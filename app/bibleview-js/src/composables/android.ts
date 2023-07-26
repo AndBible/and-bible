@@ -23,8 +23,16 @@ import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {Config, errorBox} from "@/composables/config";
 import {AsyncFunc, StudyPadEntryType, JSONString, LogEntry, Nullable} from "@/types/common";
-import {Bookmark, CombinedRange, StudyPadBookmarkItem, StudyPadItem, StudyPadTextItem} from "@/types/client-objects";
+import {
+    BaseBookmark,
+    CombinedRange,
+    StudyPadBibleBookmarkItem,
+    StudyPadGenericBookmarkItem,
+    StudyPadItem,
+    StudyPadTextItem
+} from "@/types/client-objects";
 import {BibleDocumentType} from "@/types/documents";
+import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
 
 export type BibleJavascriptInterface = {
     scrolledToOrdinal: (ordinal: number) => void,
@@ -34,8 +42,11 @@ export type BibleJavascriptInterface = {
     requestNextChapter: AsyncFunc,
     refChooserDialog: AsyncFunc,
     saveBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
+    saveGenericBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
     removeBookmark: (bookmarkId: IdType) => void,
+    removeGenericBookmark: (bookmarkId: IdType) => void,
     assignLabels: (bookmarkId: IdType) => void,
+    genericAssignLabels: (bookmarkId: IdType) => void,
     console: (loggerName: string, message: string) => void
     selectionCleared: () => void,
     reportInputFocus: (newValue: boolean) => void,
@@ -45,12 +56,14 @@ export type BibleJavascriptInterface = {
     createNewStudyPadEntry: (labelId: IdType, entryType?: StudyPadEntryType, afterEntryId?: IdType) => void,
     deleteStudyPadEntry: (studyPadId: IdType) => void,
     removeBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
+    removeGenericBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
     updateOrderNumber: (labelId: IdType, data: JSONString) => void,
     getActiveLanguages: () => string,
     toast: (text: string) => void,
     updateStudyPadTextEntry: (data: JSONString) => void,
     updateStudyPadTextEntryText: (id: IdType, text: string) => void,
     updateBookmarkToLabel: (data: JSONString) => void
+    updateGenericBookmarkToLabel: (data: JSONString) => void
     shareBookmarkVerse: (bookmarkId: IdType) => void,
     shareVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
@@ -59,7 +72,9 @@ export type BibleJavascriptInterface = {
     openMyNotes: (v11n: string, ordinal: number) => void,
     speak: (bookInitials: string, ordinal: number) => void,
     setAsPrimaryLabel: (bookmarkId: IdType, labelId: IdType) => void,
+    setAsPrimaryLabelGeneric: (bookmarkId: IdType, labelId: IdType) => void,
     toggleBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
+    toggleGenericBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
     reportModalState: (value: boolean) => void,
     querySelection: (bookmarkId: IdType, value: boolean) => void,
     setBookmarkWholeVerse: (bookmarkId: IdType, value: boolean) => void,
@@ -142,6 +157,7 @@ export function patchAndroidConsole() {
 
 export type QuerySelection = {
     bookInitials: string
+    osisRef: string
     startOrdinal: number,
     startOffset: number,
     endOrdinal: number,
@@ -150,7 +166,7 @@ export type QuerySelection = {
     text: string
 }
 
-export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: Config) {
+export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, config: Config) {
     const responsePromises = new Map();
 
     function response(callId: number, returnValue: any) {
@@ -170,13 +186,14 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         if (selection.rangeCount < 1 || selection.isCollapsed) return null;
         const selectionOnly = selection.toString();
         const range = selection.getRangeAt(0)!;
-        const documentElem: HTMLElement = range.startContainer.parentElement!.closest(".bible-document")!;
+        const documentElem: HTMLElement = range.startContainer.parentElement!.closest(".document")!;
         if (!documentElem) {
             console.log(`querySelection: returning only selection ${selectionOnly}`)
             return selectionOnly
         }
 
         const bookInitials = documentElem.dataset.bookInitials!;
+        const osisRef = documentElem.dataset.osisRef!;
         let startOrdinal: number, startOffset: number, endOrdinal: number, endOffset: number;
 
         try {
@@ -195,7 +212,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
             }
         }
 
-        function bookmarkRange(b: Bookmark): CombinedRange {
+        function bookmarkRange(b: BaseBookmark): CombinedRange {
             const offsetRange = b.offsetRange || [0, null]
             if (b.bookInitials !== bookInitials) {
                 offsetRange[0] = 0;
@@ -212,6 +229,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
 
         const returnSelection: QuerySelection = {
             bookInitials,
+            osisRef,
             startOrdinal,
             startOffset,
             endOrdinal,
@@ -256,20 +274,36 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.scrolledToOrdinal(ordinal)
     }
 
-    function saveBookmarkNote(bookmarkId: IdType, noteText: Nullable<string>) {
-        window.android.saveBookmarkNote(bookmarkId, noteText);
+    function saveBookmarkNote(bookmark: BaseBookmark, noteText: Nullable<string>) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.saveBookmarkNote(bookmark.id, noteText);
+        } else if(isGenericBookmark(bookmark)) {
+            window.android.saveGenericBookmarkNote(bookmark.id, noteText);
+        }
     }
 
-    function removeBookmark(bookmarkId: IdType) {
-        window.android.removeBookmark(bookmarkId);
+    function removeBookmark(bookmark: BaseBookmark) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.removeBookmark(bookmark.id);
+        } else if(isGenericBookmark(bookmark)) {
+            window.android.removeGenericBookmark(bookmark.id);
+        }
     }
 
-    function assignLabels(bookmarkId: IdType) {
-        window.android.assignLabels(bookmarkId);
+    function assignLabels(bookmark: BaseBookmark) {
+        if (isBibleBookmark(bookmark)) {
+            window.android.assignLabels(bookmark.id);
+        } else if(isGenericBookmark(bookmark)) {
+            window.android.genericAssignLabels(bookmark.id);
+        }
     }
 
-    function toggleBookmarkLabel(bookmarkId: IdType, labelId: IdType) {
-        window.android.toggleBookmarkLabel(bookmarkId, labelId);
+    function toggleBookmarkLabel(bookmark: BaseBookmark, labelId: IdType) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.toggleBookmarkLabel(bookmark.id, labelId);
+        } else if(isGenericBookmark(bookmark)) {
+            window.android.toggleGenericBookmarkLabel(bookmark.id, labelId);
+        }
     }
 
     function setClientReady() {
@@ -288,7 +322,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.setEditing(value);
     }
 
-    function createNewJournalEntry(labelId: IdType, afterEntryType: StudyPadEntryType = "none", afterEntryId: IdType = "") {
+    function createNewStudyPadEntry(labelId: IdType, afterEntryType: StudyPadEntryType = "none", afterEntryId: IdType = "") {
         window.android.createNewStudyPadEntry(labelId, afterEntryType, afterEntryId);
     }
 
@@ -300,12 +334,20 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         return JSON.parse(window.android.getActiveLanguages());
     }
 
-    function removeBookmarkLabel(bookmarkId: IdType, labelId: IdType) {
-        window.android.removeBookmarkLabel(bookmarkId, labelId);
+    function removeBookmarkLabel(bookmark: BaseBookmark, labelId: IdType) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.removeBookmarkLabel(bookmark.id, labelId);
+        } else if(isGenericBookmark(bookmark)) {
+            window.android.removeGenericBookmarkLabel(bookmark.id, labelId);
+        }
     }
 
-    function shareBookmarkVerse(bookmarkId: IdType) {
-        window.android.shareBookmarkVerse(bookmarkId);
+    function shareBookmarkVerse(bookmark: BaseBookmark) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.shareBookmarkVerse(bookmark.id);
+        } else {
+            console.error("Only bible bookmarks supported for share feature")
+        }
     }
 
     function shareVerse(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
@@ -320,8 +362,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
-    function openStudyPad(labelId: IdType, bookmarkId: IdType) {
-        window.android.openStudyPad(labelId, bookmarkId);
+    function openStudyPad(labelId: IdType, bookmark: BaseBookmark) {
+        if(isBibleBookmark(bookmark) || isGenericBookmark(bookmark)) {
+            // Exceptionally here bookmark type does not matter
+            window.android.openStudyPad(labelId, bookmark.id);
+        }
     }
 
     function openMyNotes(v11n: string, ordinal: number) {
@@ -336,12 +381,18 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         window.android.openDownloads();
     }
 
-    function updateOrderNumber(labelId: IdType, bookmarks: StudyPadBookmarkItem[], studyPadTextItems: StudyPadTextItem[]) {
+    function updateOrderNumber(
+        labelId: IdType,
+        bookmarks: StudyPadBibleBookmarkItem[],
+        genericBookmarks: StudyPadGenericBookmarkItem[],
+        studyPadTextItems: StudyPadTextItem[]
+    ) {
         const orderNumberPairs: (l: StudyPadItem[]) => {first: IdType, second: number}[] =
             l => l.map((v: StudyPadItem) => ({first: v.id, second: v.orderNumber}))
         window.android.updateOrderNumber(labelId, JSON.stringify(
             {
                 bookmarks: orderNumberPairs(bookmarks),
+                genericBookmarks: orderNumberPairs(genericBookmarks),
                 studyPadTextItems: orderNumberPairs(studyPadTextItems)
             })
         );
@@ -361,25 +412,37 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
             if(Object.keys(rest).length > 0) {
                 window.android.updateStudyPadTextEntry(JSON.stringify(changedEntry as StudyPadTextItem));
             }
-        } else if (entry.type === "bookmark") {
-            const changedBookmarkItem = changedEntry as StudyPadBookmarkItem
-            const entry = {
+        } else if (entry.type === "bookmark" || entry.type === "generic-bookmark") {
+            const changedBookmarkItem = changedEntry as StudyPadBibleBookmarkItem
+            const e = {
                 bookmarkId: changedBookmarkItem.id,
                 labelId: changedBookmarkItem.bookmarkToLabel.labelId,
                 indentLevel: changedBookmarkItem.indentLevel,
                 orderNumber: changedBookmarkItem.orderNumber,
                 expandContent: changedBookmarkItem.expandContent,
             }
-            window.android.updateBookmarkToLabel(JSON.stringify(entry));
+            if(isBibleBookmark(entry)) {
+                window.android.updateBookmarkToLabel(JSON.stringify(e));
+            } else if(isGenericBookmark(entry)) {
+                window.android.updateGenericBookmarkToLabel(JSON.stringify(e));
+            }
         }
     }
 
-    function setAsPrimaryLabel(bookmarkId: IdType, labelId: IdType) {
-        window.android.setAsPrimaryLabel(bookmarkId, labelId);
+    function setAsPrimaryLabel(bookmark: BaseBookmark, labelId: IdType) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.setAsPrimaryLabel(bookmark.id, labelId);
+        } else if(isGenericBookmark(bookmark)) {
+            window.android.setAsPrimaryLabelGeneric(bookmark.id, labelId);
+        }
     }
 
-    function setBookmarkWholeVerse(bookmarkId: IdType, value: boolean) {
-        window.android.setBookmarkWholeVerse(bookmarkId, value);
+    function setBookmarkWholeVerse(bookmark: BaseBookmark, value: boolean) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.setBookmarkWholeVerse(bookmark.id, value);
+        } else {
+            console.error("Unsupported operation for generic bookmarks")
+        }
     }
 
     function reportModalState(value: boolean) {
@@ -425,7 +488,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<Bookmark[]> }, config: 
         removeBookmark,
         assignLabels,
         openExternalLink,
-        createNewJournalEntry,
+        createNewStudyPadEntry,
         deleteStudyPadEntry,
         removeBookmarkLabel,
         updateOrderNumber,

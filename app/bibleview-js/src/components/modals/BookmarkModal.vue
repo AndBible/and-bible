@@ -24,7 +24,8 @@
           <LabelList single-line handle-touch in-bookmark :bookmark-id="bookmark.id" ref="labelList"/>
         </div>
         <div class="title-text one-liner">
-          {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ bookmark.text }}</i></q>
+          <template v-if="isBibleBookmark(bookmark)">{{ bookmark.verseRangeAbbreviated }}</template>
+          <q v-if="bookmark.text"><i>{{ bookmark.text }}</i></q>
         </div>
       </div>
     </template>
@@ -60,7 +61,10 @@
         <BookmarkText expanded :bookmark="bookmark"/>
       </div>
       <div class="links">
-        <div class="link-line">
+        <div
+            v-if="isBibleBookmark(bookmark)"
+            class="link-line"
+        >
           <span class="link-icon"><FontAwesomeIcon icon="file-alt"/></span>
           <a :href="`my-notes://?ordinal=${bookmark.originalOrdinalRange[0]}&v11n=${bookmark.v11n}`">{{
               strings.openMyNotes
@@ -105,7 +109,8 @@ import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {clickWaiter} from "@/utils";
 import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
-import {Bookmark} from "@/types/client-objects";
+import {BaseBookmark} from "@/types/client-objects";
+import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
 
 const showBookmark = ref(false);
 const android = inject(androidKey)!;
@@ -117,7 +122,7 @@ provide(locateTopKey, locateTop);
 
 const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
 
-const bookmark = computed<Bookmark | null>(() => {
+const bookmark = computed<BaseBookmark | null>(() => {
     if (!bookmarkId.value) return null;
     return bookmarkMap.get(bookmarkId.value!)!;
 });
@@ -154,8 +159,9 @@ setupEventBusListener("bookmark_clicked",
 
 function closeBookmark() {
     showBookmark.value = false;
-    if (originalNotes !== bookmarkNotes.value)
-        android.saveBookmarkNote(bookmark.value!.id, bookmarkNotes.value);
+    if (originalNotes !== bookmarkNotes.value) {
+        android.saveBookmarkNote(bookmark.value!, bookmarkNotes.value);
+    }
 
     originalNotes = null;
 }
@@ -164,15 +170,22 @@ const {adjustedColor, strings, sprintf, formatTimestamp} = useCommon();
 
 const changeNote = (text: string) => {
     if (bookmark.value) {
-        android.saveBookmarkNote(bookmark.value!.id, text);
+        android.saveBookmarkNote(bookmark.value, text);
     }
 }
 
-const originalBookLink = computed(() => {
+const originalBookLink = computed<string>(() => {
     if (!bookmark.value) return ""
-    const prefix = bookmark.value!.bookInitials ? bookmark.value!.bookInitials : "";
-    const bibleUrl = encodeURI(`osis://?osis=${prefix}:${bookmark.value!.osisRef}&v11n=${bookmark.value!.v11n}`)
-    return `<a href="${bibleUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
+    const doc = bookmark.value!.bookInitials ? bookmark.value!.bookInitials : "";
+    if(isBibleBookmark(bookmark.value)) {
+        const bibleUrl = encodeURI(`osis://?osis=${doc}:${bookmark.value!.osisRef}&v11n=${bookmark.value!.v11n}`)
+        return `<a href="${bibleUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
+    } else if(isGenericBookmark(bookmark.value)) {
+        const docUrl = encodeURI(`osis://?osis=${bookmark.value!.key}&doc=${doc}&ordinal=${bookmark.value.ordinalRange[0]}`)
+        return `<a href="${docUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
+    } else {
+        throw new Error("Illegal type")
+    }
 })
 
 const editDirectly = ref(false);

@@ -21,7 +21,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.NoSuchVerseException
@@ -58,7 +58,7 @@ class BookmarkControlTest {
 
     @After
     fun tearDown() {
-        val bookmarks = bookmarkControl!!.allBookmarks
+        val bookmarks = bookmarkControl!!.allBibleBookmarks
         for (dto in bookmarks) {
             bookmarkControl!!.deleteBookmark(dto)
         }
@@ -87,7 +87,7 @@ class BookmarkControlTest {
             addTestVerse()
             addTestVerse()
             addTestVerse()
-            val bookmarks = bookmarkControl!!.allBookmarks
+            val bookmarks = bookmarkControl!!.allBibleBookmarks
             Assert.assertTrue(bookmarks.size == 3)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -98,10 +98,10 @@ class BookmarkControlTest {
     @Test
     fun testDeleteBookmark() {
         addTestVerse()
-        var bookmarks = bookmarkControl!!.allBookmarks
+        var bookmarks = bookmarkControl!!.allBibleBookmarks
         val toDelete = bookmarks[0]
         bookmarkControl!!.deleteBookmark(toDelete)
-        bookmarks = bookmarkControl!!.allBookmarks
+        bookmarks = bookmarkControl!!.allBibleBookmarks
         for (bookmark in bookmarks) {
             Assert.assertFalse("delete failed", bookmark.id == toDelete.id)
         }
@@ -129,10 +129,10 @@ class BookmarkControlTest {
 
         // add 2 labels and check they are saved
         bookmarkControl!!.setLabelsForBookmark(bookmark!!, labelList)
-        val list1 = bookmarkControl!!.getBookmarksWithLabel(label1)
+        val list1 = bookmarkControl!!.getBibleBookmarksWithLabel(label1)
         Assert.assertEquals(1, list1.size.toLong())
         Assert.assertEquals(bookmark, list1[0])
-        val list2 = bookmarkControl!!.getBookmarksWithLabel(label2)
+        val list2 = bookmarkControl!!.getBibleBookmarksWithLabel(label2)
         Assert.assertEquals(1, list2.size.toLong())
         Assert.assertEquals(bookmark, list2[0])
 
@@ -140,9 +140,9 @@ class BookmarkControlTest {
         val labelList2: MutableList<Label> = ArrayList()
         labelList2.add(label1)
         bookmarkControl!!.setLabelsForBookmark(bookmark, labelList2)
-        val list3 = bookmarkControl!!.getBookmarksWithLabel(label1)
+        val list3 = bookmarkControl!!.getBibleBookmarksWithLabel(label1)
         Assert.assertEquals(1, list3.size.toLong())
-        val list4 = bookmarkControl!!.getBookmarksWithLabel(label2)
+        val list4 = bookmarkControl!!.getBibleBookmarksWithLabel(label2)
         Assert.assertEquals(0, list4.size.toLong())
     }
 
@@ -155,7 +155,7 @@ class BookmarkControlTest {
 
         // add 2 labels and check they are saved
         bookmarkControl!!.setLabelsForBookmark(bookmark!!, labelList)
-        val list1 = bookmarkControl!!.getBookmarksWithLabel(label1)
+        val list1 = bookmarkControl!!.getBibleBookmarksWithLabel(label1)
         Assert.assertEquals(1, list1.size.toLong())
         Assert.assertEquals(bookmark, list1[0])
     }
@@ -163,8 +163,8 @@ class BookmarkControlTest {
     @Test
     fun testVerseRange() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 2), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 5))
-        val newBookmark = BookmarkWithNotes(verseRange, null, true, null)
-        val newDto = bookmarkControl!!.addOrUpdateBookmark(newBookmark, null)
+        val newBookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
+        val newDto = bookmarkControl!!.addOrUpdateBibleBookmark(newBookmark, null)
         Assert.assertThat(newDto.verseRange, IsEqual.equalTo(verseRange))
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseRange.start), IsEqual.equalTo(true))
     }
@@ -172,8 +172,8 @@ class BookmarkControlTest {
     @Test
     fun testIsBookmarkForAnyVerseRangeWithSameStart() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
-        val newBookmark = BookmarkWithNotes(verseRange, null, true, null)
-        bookmarkControl!!.addOrUpdateBookmark(newBookmark, null)
+        val newBookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
+        bookmarkControl!!.addOrUpdateBibleBookmark(newBookmark, null)
         val startVerse = Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10)
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(startVerse), IsEqual.equalTo(true))
 
@@ -182,7 +182,7 @@ class BookmarkControlTest {
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseWithSameStart), IsEqual.equalTo(false))
     }
 
-    private fun addTestVerse(): BookmarkWithNotes? {
+    private fun addTestVerse(): BibleBookmarkWithNotes? {
         try {
             currentTestVerse = nextTestVerse
             return addBookmark(currentTestVerse)
@@ -193,10 +193,10 @@ class BookmarkControlTest {
     }
 
     @Throws(NoSuchVerseException::class)
-    private fun addBookmark(verse: String?): BookmarkWithNotes {
+    private fun addBookmark(verse: String?): BibleBookmarkWithNotes {
         val verseRange = VerseRangeFactory.fromString(KJV_VERSIFICATION, verse)
-        val bookmark = BookmarkWithNotes(verseRange, null, true, null)
-        return bookmarkControl!!.addOrUpdateBookmark(bookmark, null)
+        val bookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
+        return bookmarkControl!!.addOrUpdateBibleBookmark(bookmark, null)
     }
 
     private fun addTestLabel(): Label {

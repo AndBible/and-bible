@@ -67,7 +67,6 @@ import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.mybible.isMyBibleBook
@@ -192,9 +191,7 @@ object BackupControl {
                         beforeRestore()
                         DatabaseContainer.reset()
                         // When restoring old style db, we need to remove all databases first
-                        application.databaseList().forEach { name ->
-                            application.deleteDatabase(name)
-                        }
+                        deleteAllDatabases()
                         ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
                         if(DatabaseContainer.ready) {
                             DatabaseContainer.instance // initialize (migrate etc)
@@ -207,6 +204,12 @@ object BackupControl {
         tmpFile.delete()
 
         return@withContext ok
+    }
+
+    fun deleteAllDatabases() {
+        application.databaseList().forEach { name ->
+            application.deleteDatabase(name)
+        }
     }
 
     private fun getString(id: Int): String {

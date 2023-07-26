@@ -16,8 +16,6 @@
  */
 package net.bible.service.sword
 
-import android.os.Build
-import android.text.Html
 import android.text.TextUtils
 import android.util.LayoutDirection
 import android.util.Log
@@ -47,12 +45,15 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
 import org.jdom2.Element
+import org.jdom2.Text
+import org.jdom2.filter.Filters
 import org.jdom2.input.SAXBuilder
+import org.jdom2.xpath.XPathFactory
 import org.xml.sax.ContentHandler
 import java.io.StringReader
-import java.lang.RuntimeException
 import java.util.*
 import kotlin.math.min
+
 
 open class OsisError(xmlMessage: String) : Exception(xmlMessage) {
     val xml: Element = SAXBuilder().build(StringReader("<div>$xmlMessage</div>")).rootElement
@@ -91,14 +92,60 @@ object SwordContentFacade {
         }
     }
 
+    private fun splitString(text: String): List<String> {
+        // By Google Bard, TODO: probably not optimal.
+        if(text.length <= 100) return listOf(text)
+        val pieces = mutableListOf<String>()
+        var currentPiece = ""
+        for (word in text.split(" ", "\n")) {
+            if (currentPiece.length + word.length + 1 > 100) {
+                pieces.add("$currentPiece ")
+                currentPiece = word
+            } else if (currentPiece.isEmpty()) {
+                currentPiece += word
+            } else {
+                currentPiece += " $word"
+            }
+        }
+        if (currentPiece.isNotEmpty()) {
+            pieces.add(currentPiece)
+        }
+        return pieces
+    }
+
+    private fun addAnchors(frag: Element) {
+        var ordinal = 0
+        fun wrapTextWithSpan(element: Element) {
+            for (content in element.content.toList()) {
+                if (content is Text && content.text.trim().isNotEmpty()) {
+                    val textContents = splitString(content.text)
+                    if (textContents.isNotEmpty()) {
+                        var pos = element.indexOf(content)
+                        content.detach()
+                        for (textContent in textContents) {
+                            val span = Element("BWA") // BibleViewAnchor.vue
+                            span.setAttribute("ordinal", "${ordinal++}")
+                            val textNode = Text(textContent)
+                            span.addContent(textNode)
+                            element.addContent(pos++, span)
+                        }
+                    }
+                } else if(content is Element) {
+                    wrapTextWithSpan(content)
+                }
+            }
+        }
+        wrapTextWithSpan(frag)
+    }
     @Throws(OsisError::class)
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
         log.debug("Using standard JSword to fetch document data")
         return try {
             val data = BookData(book, key)
+            val frag = data.osisFragment
+
             if (book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
-                val div = data.osisFragment
-                val verse = div.getChild("verse")
+                val verse = frag.getChild("verse")
                     ?: throw DocumentNotFound(
                         application.getString(
                             R.string.error_key_not_in_document2,
@@ -108,11 +155,16 @@ object SwordContentFacade {
                     )
                 val verseContent = verse.content.toList()
                 verse.removeContent()
-                div.removeContent()
-                div.addContent(verseContent)
-                div
+                frag.removeContent()
+                frag.addContent(verseContent)
+                addAnchors(frag)
+                frag
+            } else if(book.bookCategory != BookCategory.BIBLE) {
+                addAnchors(frag)
+
+                frag
             } else {
-                data.osisFragment
+                frag
             }
         } catch (e: OsisError) {
             throw e
@@ -122,6 +174,20 @@ object SwordContentFacade {
             else
                 log.error("Parsing error $e")
             throw JSwordError(application.getString(R.string.error_occurred))
+        }
+    }
+
+    fun getTextWithinOrdinals(element: Element, startOrdinal: Int, endOrdinal: Int, startOffset: Int?, endOffset: Int?): String {
+        val all = XPathFactory.instance().compile(".//BWA", Filters.element()).evaluate(element).filter {
+            it.getAttribute("ordinal").value.toInt() in startOrdinal..endOrdinal
+        }
+        return if(all.size == 1) {
+            all.first().text.let { it.slice((startOffset ?: 0) until (endOffset ?: it.length)) }
+        } else {
+            val first = all.first().text.let { it.slice((startOffset ?: 0) until it.length) }
+            val last = all.last().text.let { it.slice(0 until (endOffset ?: it.length)) }
+
+            first + all.slice(1 until all.size - 1).joinToString(" ") { it.text } + last
         }
     }
 
@@ -204,10 +270,10 @@ object SwordContentFacade {
 
         class VerseAndText(val verse: Verse, val text: String)
 
-        val book = selection.book
-        val verseTexts = selection.verseRange.map {
+        val book = selection.swordBook
+        val verseTexts = selection.verseRange?.map {
             VerseAndText(it as Verse, getCanonicalText(book, it, true).trimEnd())
-        }
+        }?: return ""
         val startOffset = selection.startOffset ?: 0
         var startVerse = verseTexts.first().text
         val endOffset = selection.endOffset ?: verseTexts.last().text.length
@@ -216,15 +282,15 @@ object SwordContentFacade {
 
         var startVerseNumber = ""
         if (showVerseNumbers && !showReferenceAtFront && verseTexts.size > 1) {
-            startVerseNumber = "${selection.verseRange.start.verse}. "
+            startVerseNumber = "${selection.verseRange?.start?.verse}. "
         }
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
             startVerseNumber = "$startVerseNumber..."
         }
-        val bookLocale = Locale(selection.book.language.code)
+        val bookLocale = selection.book?.language?.code?.let { Locale(it) }
         val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
 
-        val versionText = if (showVersion) (selection.book.abbreviation) else ""
+        val versionText = if (showVersion) (selection.book?.abbreviation) else ""
         val quotationStart = if (showQuotes) "“" else ""
         val quotationEnd = if (showQuotes) "”" else ""
 
@@ -233,12 +299,12 @@ object SwordContentFacade {
                 synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
-                    val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
+                    val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
                     BookName.setFullBookName(oldValue)
                     "$verseRangeName"
                 }
             } else {
-                val verseRangeName = selection.verseRange.getNameInLocale(null, bookLocale)
+                val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
                 "$verseRangeName"
             }
         } else

@@ -87,6 +87,7 @@ describe("useBookmark tests", () => {
             [10,20],
             gb,
             "KJV",
+            true,
             fragmentReady,
             {adjustedColor: () => null},
             config
@@ -107,6 +108,7 @@ describe("useBookmark tests", () => {
             bookInitials: "KJV",
             notes: null,
             wholeVerse: false,
+            type: "bookmark",
         }]);
     }
 
