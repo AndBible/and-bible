@@ -74,14 +74,12 @@ watch(editMode, (mode, oldValue) => {
     if (!mode) {
         if(oldValue) {
             disableKeybindings.value--;
-            console.log("Disabling", disableKeybindings.value)
         }
         emit("closed", editText.value);
     }
     else {
         if(!oldValue) {
             disableKeybindings.value++;
-            console.log("Enabling", disableKeybindings.value)
         }
         emit("opened")
         if (cancelFunc !== cancelOpen) {
