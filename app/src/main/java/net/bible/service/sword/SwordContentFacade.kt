@@ -92,20 +92,17 @@ object SwordContentFacade {
         }
     }
 
+    private val splitRegex = Regex("""(?=[ \n])""")
+
     private fun splitString(text: String): List<String> {
-        // By Google Bard, TODO: probably not optimal.
         if(text.length <= 100) return listOf(text)
         val pieces = mutableListOf<String>()
         var currentPiece = ""
-        for (word in text.split(" ", "\n")) {
+        for (word in text.split(splitRegex)) {
             if (currentPiece.length + word.length + 1 > 100) {
-                pieces.add("$currentPiece ")
-                currentPiece = word
-            } else if (currentPiece.isEmpty()) {
-                currentPiece += word
-            } else {
-                currentPiece += " $word"
+                pieces.add(currentPiece)
             }
+            currentPiece += word
         }
         if (currentPiece.isNotEmpty()) {
             pieces.add(currentPiece)
