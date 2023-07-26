@@ -30,6 +30,7 @@ import net.bible.android.activity.databinding.BookmarkListItemBinding
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
 import net.bible.service.common.htmlToSpan
 
@@ -40,10 +41,10 @@ import net.bible.service.common.htmlToSpan
  */
 class BookmarkItemAdapter(
     context: Context,
-    items: List<BookmarkWithNotes>,
+    items: List<BookmarkEntities.BaseBookmarkWithNotes>,
     private val bookmarkControl: BookmarkControl,
     private val windowControl: WindowControl,
-) : ArrayAdapter<BookmarkWithNotes>(context, R.layout.bookmark_list_item, items) {
+) : ArrayAdapter<BookmarkEntities.BaseBookmarkWithNotes>(context, R.layout.bookmark_list_item, items) {
     private lateinit var bindings: BookmarkListItemBinding
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -79,13 +80,22 @@ class BookmarkItemAdapter(
 
         // Set value for the first text field
         val versification = windowControl.activeWindowPageManager.currentBible.versification
-        val verseName = item.verseRange.toV11n(versification).name
-        val book = item.speakBook
-        if (isSpeak && book != null) {
-            bindings.verseText.text = context.getString(R.string.something_with_parenthesis, verseName, book.abbreviation)
-        } else {
-            bindings.verseText.text = verseName
+        when(item) {
+            is BookmarkWithNotes -> {
+                val verseName = item.verseRange.toV11n(versification).name
+                val book = item.speakBook
+                if (isSpeak && book != null) {
+                    bindings.verseText.text = context.getString(R.string.something_with_parenthesis, verseName, book.abbreviation)
+                } else {
+                    bindings.verseText.text = verseName
+                }
+            }
+            is BookmarkEntities.GenericBookmarkWithNotes -> {
+                val keyName = "${item.book?.abbreviation}: ${item.bookKey.name}"
+                bindings.verseText.text = keyName
+            }
         }
+
         if(item.notes != null) {
             bindings.notesText.visibility = View.VISIBLE
             try {
@@ -103,7 +113,11 @@ class BookmarkItemAdapter(
         val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
         bindings.dateText.text = sDt
 
-        val spanned = htmlToSpan(item.highlightedText)
+        val spanned = when(item) {
+            is BookmarkWithNotes -> htmlToSpan(item.highlightedText)
+            is BookmarkEntities.GenericBookmarkWithNotes -> htmlToSpan(item.text)
+            else -> throw RuntimeException("Illegal type")
+        }
 
         bindings.verseContentText.text = spanned
         return convertView ?: bindings.root

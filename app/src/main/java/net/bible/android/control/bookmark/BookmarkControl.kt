@@ -198,7 +198,7 @@ open class BookmarkControl @Inject constructor(
 
     fun firstBookmarkStartingAtVerse(key: Verse): BookmarkWithNotes? = dao.bookmarksStartingAtVerse(key).firstOrNull()
 
-    fun deleteBookmark(bookmark: BookmarkWithNotes) {
+    fun deleteBookmark(bookmark: BaseBookmarkWithNotes) {
         dao.delete(bookmark)
         sanitizeStudyPadOrder(bookmark)
         ABEventBus.post(BookmarksDeletedEvent(listOf(bookmark.id)))
@@ -233,7 +233,7 @@ open class BookmarkControl @Inject constructor(
         return bookmarks
     }
 
-    fun getGenericBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false): List<GenericBookmarkWithNotes> {
+    fun getGenericBookmarksWithLabel(label: Label, addData: Boolean = false): List<GenericBookmarkWithNotes> {
         val bookmarks = when {
             labelAll == label -> dao.allGenericBookmarks()
             labelUnlabelled == label -> dao.unlabelledGenericBookmarks()
@@ -297,12 +297,15 @@ open class BookmarkControl @Inject constructor(
 
     fun reset() {}
 
-    fun isSpeakBookmark(bookmark: BookmarkWithNotes): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
+    fun isSpeakBookmark(bookmark: BaseBookmarkWithNotes): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
     fun speakBookmarkForVerse(verse: Verse) = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
 
-    fun changeLabelsForBookmark(bookmark: BookmarkWithNotes, labelIds: List<IdType>) {
+    fun changeLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) {
         dao.clearLabels(bookmark)
-        dao.insertBookmarkToLabels(labelIds.map { BookmarkToLabel(bookmark.id, it)})
+        when(bookmark) {
+            is BookmarkWithNotes -> dao.insertBookmarkToLabels(labelIds.map { BookmarkToLabel(bookmark.id, it)})
+            is GenericBookmarkWithNotes -> dao.insertGenericBookmarkToLabels(labelIds.map { GenericBookmarkToLabel(bookmark.id, it)})
+        }
     }
 
     fun saveBookmarkNote(bookmarkId: IdType, note: String?) {
@@ -584,7 +587,7 @@ open class BookmarkControl @Inject constructor(
             )
     }
 
-    private fun sanitizeStudyPadOrder(bookmark: BookmarkWithNotes) {
+    private fun sanitizeStudyPadOrder(bookmark: BaseBookmarkWithNotes) {
         for (it in labelsForBookmark(bookmark)) {
             sanitizeStudyPadOrder(it.id)
         }

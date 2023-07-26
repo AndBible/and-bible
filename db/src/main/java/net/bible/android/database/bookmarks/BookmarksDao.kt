@@ -190,10 +190,11 @@ interface BookmarkDao {
         else -> throw RuntimeException("Illegal type")
     }
 
-    @Query("DELETE FROM Bookmark WHERE id=:id")
-    fun deleteBookmarkById(id: IdType)
-
-    fun delete(b: BookmarkWithNotes) = deleteBookmarkById(b.id)
+    fun delete(bookmark: BaseBookmarkWithNotes) = when (bookmark) {
+        is BookmarkWithNotes -> deleteBookmarksById(listOf(bookmark.id))
+        is GenericBookmarkWithNotes -> deleteGenericBookmarksById(listOf(bookmark.id))
+        else -> throw RuntimeException("Illegal type")
+    }
 
     @Query("DELETE FROM Bookmark WHERE id IN (:bs)")
     fun deleteBookmarksById(bs: List<IdType>)
@@ -366,6 +367,14 @@ interface BookmarkDao {
 
     @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId")
     fun clearLabels(bookmarkId: IdType)
+
+    @Query("DELETE FROM GenericBookmarkToLabel WHERE bookmarkId=:bookmarkId")
+    fun clearLabelsGeneric(bookmarkId: IdType)
+    fun clearLabels(bookmark: BaseBookmarkWithNotes) = when(bookmark) {
+        is BookmarkWithNotes -> clearLabels(bookmark.id)
+        is GenericBookmarkWithNotes -> clearLabelsGeneric(bookmark.id)
+        else -> throw RuntimeException("Illegal type")
+    }
     fun clearLabels(bookmark: BookmarkWithNotes) = clearLabels(bookmark.id)
 
     @Delete fun delete(entities: List<BookmarkToLabel>): Int
