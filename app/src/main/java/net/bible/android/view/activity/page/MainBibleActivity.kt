@@ -124,6 +124,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -1557,17 +1558,27 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     if (className != null && classes.contains(className)) {
                         val isFromBookmark = className == Bookmarks::class.java.name
                         val verseStr = extras.getString("verse")
-                        val verse = try {
-                            VerseFactory.fromString(navigationControl.versification, verseStr)
-                        } catch (e: NoSuchVerseException) {
-                            ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
-                            return
+                        val keyStr = extras.getString("key")
+                        val bookStr = extras.getString("book")
+                        if(verseStr != null) {
+                            val verse = try {
+                                VerseFactory.fromString(navigationControl.versification, verseStr)
+                            } catch (e: NoSuchVerseException) {
+                                ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
+                                return
+                            }
+                            val pageManager = windowControl.activeWindowPageManager
+                            if (isFromBookmark && !pageManager.isBibleShown) {
+                                pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
+                            } else
+                                pageManager.currentPage.setKey(verse)
+                        } else if (keyStr != null && bookStr != null){
+                            val book = Books.installed().getBook(bookStr)
+                            val key = book.getKey(keyStr)
+                            val pageManager = windowControl.activeWindowPageManager
+                            val ordinal = extras.getInt("ordinal")
+                            pageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, ordinal))
                         }
-                        val pageManager = windowControl.activeWindowPageManager
-                        if (isFromBookmark && !pageManager.isBibleShown) {
-                            pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
-                        } else
-                            pageManager.currentPage.setKey(verse)
                         return
                     }
                 }

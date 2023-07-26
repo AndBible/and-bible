@@ -270,7 +270,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 }
                 is BookmarkEntities.GenericBookmarkWithNotes -> {
                     resultIntent.putExtra("key", bookmark.key)
-                    resultIntent.putExtra("book", bookmark.book?.name)
+                    resultIntent.putExtra("book", bookmark.book?.initials)
+                    resultIntent.putExtra("ordinal", bookmark.ordinalStart)
                 }
             }
             setResult(Activity.RESULT_OK, resultIntent)
