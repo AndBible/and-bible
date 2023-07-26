@@ -31,8 +31,10 @@ import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icon
 import {Icon, icon} from "@fortawesome/fontawesome-svg-core";
 import {AppSettings, Config, testMode} from "@/composables/config";
 import {
-    BaseBookmark, BibleBookmark,
-    CombinedRange, GenericBookmark,
+    BaseBookmark,
+    BibleBookmark,
+    CombinedRange,
+    GenericBookmark,
     Label,
     LabelAndStyle,
     OrdinalOffset,
