@@ -311,6 +311,13 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun updateGenericBookmarkToLabel(data: String) {
+        val entry: BookmarkEntities.GenericBookmarkToLabel = json.decodeFromString(serializer(), data)
+        bookmarkControl.updateGenericBookmarkTimestamp(entry.bookmarkId)
+        bookmarkControl.updateBookmarkToLabel(entry)
+    }
+
+    @JavascriptInterface
     fun shareBookmarkVerse(bookmarkId: String) {
         val bookmark = bookmarkControl.bookmarkById(IdType(bookmarkId))!!
         scope.launch(Dispatchers.Main) {

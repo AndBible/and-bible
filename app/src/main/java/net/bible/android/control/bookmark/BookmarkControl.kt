@@ -62,7 +62,7 @@ import kotlin.math.min
 abstract class BookmarkEvent
 
 class BookmarkAddedOrUpdatedEvent(val bookmark: BaseBookmarkWithNotes): BookmarkEvent()
-class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BibleBookmarkToLabel)
+class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BookmarkEntities.BaseBookmarkToLabel)
 class BookmarksDeletedEvent(val bookmarkIds: List<IdType>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 class BookmarkNoteModifiedEvent(val bookmarkId: IdType, val notes: String?, val lastUpdatedOn: Long): BookmarkEvent()
@@ -506,13 +506,17 @@ open class BookmarkControl @Inject constructor(
         ABEventBus.post(StudyPadOrderEvent(entry.labelId, withText, emptyList(), emptyList(), emptyList()))
     }
 
-    fun updateBookmarkToLabel(bookmarkToLabel: BibleBookmarkToLabel) {
+    fun updateBookmarkToLabel(bookmarkToLabel: BookmarkEntities.BaseBookmarkToLabel) {
         dao.update(bookmarkToLabel)
         ABEventBus.post(BookmarkToLabelAddedOrUpdatedEvent(bookmarkToLabel))
     }
 
     fun updateBookmarkTimestamp(bookmarkId: IdType) {
         dao.updateBookmarkDate(dao.bookmarkById(bookmarkId)!!.id)
+    }
+
+    fun updateGenericBookmarkTimestamp(bookmarkId: IdType) {
+        dao.updateGenericBookmarkDate(dao.genericBookmarkById(bookmarkId)!!.id)
     }
 
     fun getBookmarkToLabel(bookmarkId: IdType, labelId: IdType): BibleBookmarkToLabel? = dao.getBookmarkToLabel(bookmarkId, labelId)

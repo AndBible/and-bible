@@ -63,6 +63,7 @@ export type BibleJavascriptInterface = {
     updateStudyPadTextEntry: (data: JSONString) => void,
     updateStudyPadTextEntryText: (id: IdType, text: string) => void,
     updateBookmarkToLabel: (data: JSONString) => void
+    updateGenericBookmarkToLabel: (data: JSONString) => void
     shareBookmarkVerse: (bookmarkId: IdType) => void,
     shareVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
@@ -411,16 +412,20 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
             if(Object.keys(rest).length > 0) {
                 window.android.updateStudyPadTextEntry(JSON.stringify(changedEntry as StudyPadTextItem));
             }
-        } else if (entry.type === "bookmark") {
+        } else if (entry.type === "bookmark" || entry.type === "generic-bookmark") {
             const changedBookmarkItem = changedEntry as StudyPadBibleBookmarkItem
-            const entry = {
+            const e = {
                 bookmarkId: changedBookmarkItem.id,
                 labelId: changedBookmarkItem.bookmarkToLabel.labelId,
                 indentLevel: changedBookmarkItem.indentLevel,
                 orderNumber: changedBookmarkItem.orderNumber,
                 expandContent: changedBookmarkItem.expandContent,
             }
-            window.android.updateBookmarkToLabel(JSON.stringify(entry));
+            if(isBibleBookmark(entry)) {
+                window.android.updateBookmarkToLabel(JSON.stringify(e));
+            } else if(isGenericBookmark(entry)) {
+                window.android.updateGenericBookmarkToLabel(JSON.stringify(e));
+            }
         }
     }
 

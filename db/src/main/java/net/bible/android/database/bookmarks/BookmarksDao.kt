@@ -184,6 +184,9 @@ interface BookmarkDao {
     @Query("UPDATE BibleBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
     fun updateBookmarkDate(id: IdType, lastUpdatedOn: Date = Date(System.currentTimeMillis()))
 
+    @Query("UPDATE GenericBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:id")
+    fun updateGenericBookmarkDate(id: IdType, lastUpdatedOn: Date = Date(System.currentTimeMillis()))
+
     fun deleteBookmarks(bs: List<BaseBookmarkWithNotes>) = when(bs.first()) {
         is BibleBookmarkWithNotes -> deleteBookmarksById(bs.map {it.id})
         is GenericBookmarkWithNotes -> deleteGenericBookmarksById(bs.map {it.id})
@@ -364,6 +367,12 @@ interface BookmarkDao {
     @Delete fun delete(entity: BibleBookmarkToLabel): Int
 
     @Update fun update(entity: BibleBookmarkToLabel)
+    @Update fun update(entity: GenericBookmarkToLabel)
+    fun update(entity: BaseBookmarkToLabel) = when(entity) {
+        is BibleBookmarkToLabel -> update(entity)
+        is GenericBookmarkToLabel -> update(entity)
+        else -> throw RuntimeException("Illegal type")
+    }
 
     @Query("DELETE FROM BibleBookmarkToLabel WHERE bookmarkId=:bookmarkId")
     fun clearLabels(bookmarkId: IdType)

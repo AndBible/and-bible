@@ -1406,9 +1406,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: BookmarkToLabelAddedOrUpdatedEvent) {
         val doc = firstDocument
         if(doc !is StudyPadDocument || doc.label.id != event.bookmarkToLabel.labelId) return
-        val bookmarkToLabel = json.encodeToString(serializer(), event.bookmarkToLabel)
+        val bookmarkToLabelStr = when(event.bookmarkToLabel) {
+            is BookmarkEntities.BibleBookmarkToLabel ->json.encodeToString(serializer(), event.bookmarkToLabel)
+            is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), event.bookmarkToLabel)
+            else -> throw RuntimeException("Illegal type")
+        }
         executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabel);
+            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabelStr);
         """)
     }
 
