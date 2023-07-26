@@ -74,7 +74,10 @@ import {adjustedColorOrig} from "@/utils";
 import {useStudyPad} from "@/composables/journal";
 import {StudyPadDocument} from "@/types/documents";
 import {
-    BaseBookmarkToLabel, BibleBookmarkToLabel, GenericBookmarkToLabel,
+    BaseBookmarkToLabel,
+    BaseStudyPadBookmarkItem,
+    BibleBookmarkToLabel,
+    GenericBookmarkToLabel,
     StudyPadBibleBookmarkItem,
     StudyPadGenericBookmarkItem,
     StudyPadItem,
@@ -102,7 +105,7 @@ const android = inject(androidKey)!;
 type StudyPadRowType = InstanceType<typeof StudyPadRow>
 
 function asBookmarkItem(item: StudyPadItem) {
-    return item as StudyPadBibleBookmarkItem
+    return item as BaseStudyPadBookmarkItem
 }
 
 const studyPadRowRefs: StudyPadRowType[] = [];
