@@ -48,7 +48,7 @@ globalBookmarks.updateBookmarks(bookmarks);
 
 const {config, appSettings, ...common} = useCommon();
 
-useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config, appSettings);
+useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, true, ref(true), common, config, appSettings);
 
 let footNoteCount = ordinalRange[0] || 0;
 

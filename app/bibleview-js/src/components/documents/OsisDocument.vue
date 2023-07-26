@@ -49,7 +49,7 @@ globalBookmarks.updateBookmarks(genericBookmarks);
 
 const {config, appSettings, ...common} = useCommon();
 
-useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, ref(true), common, config, appSettings);
+useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, false, ref(true), common, config, appSettings);
 
 if (bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
     provide(referenceCollectorKey, referenceCollector);

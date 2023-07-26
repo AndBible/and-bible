@@ -259,6 +259,7 @@ export function useBookmarks(
         labelsUpdated: Ref<number>
     },
     bookInitials: string,
+    isBibleDocument: boolean,
     documentReady: Ref<boolean>,
     {adjustedColor}: { adjustedColor: (color: ColorParam) => Color },
     config: Config,
@@ -291,7 +292,13 @@ export function useBookmarks(
 
     const documentBookmarks = computed(() => {
         if (!documentReady.value) return [];
-        return bookmarks.value.filter(b => (noOrdinalNeeded(b) || checkOrdinal(b)))
+        return bookmarks.value.filter(b => {
+            if(isBibleDocument) {
+                return isBibleBookmark(b) && (noOrdinalNeeded(b) || checkOrdinal(b));
+            } else {
+                return isGenericBookmark(b) && bookInitials === b.bookInitials;
+            }
+        })
     });
 
     function truncateToOrdinalRange(bookmark: BaseBookmark) {
