@@ -124,7 +124,6 @@ class BookmarkEntities {
         val type: String
     }
 
-    enum class BookmarkEntityType {BIBLE, GENERIC}
     interface BaseBookmarkWithNotes {
         val bookmarkEntity: BaseBookmark
         val noteEntity: BaseBookmarkNotes?
@@ -137,7 +136,6 @@ class BookmarkEntities {
         var primaryLabelId: IdType?
         var notes: String?
         var lastUpdatedOn: Date
-        val entityType: BookmarkEntityType
         var textRange: TextRange?
         var new: Boolean
 
@@ -299,7 +297,6 @@ class BookmarkEntities {
             type,
         )
         override val noteEntity get() = if(notes == null) null else BibleBookmarkNotes(id, notes!!)
-        @Ignore override val entityType = BookmarkEntityType.BIBLE
     }
     @Entity(
         foreignKeys = [
@@ -454,7 +451,6 @@ class BookmarkEntities {
             lastUpdatedOn = lastUpdatedOn,
         )
         override val noteEntity get() = if(notes == null) null else GenericBookmarkNotes(id, notes!!)
-        @Ignore override val entityType = BookmarkEntityType.GENERIC
     }
 
     @Entity(
