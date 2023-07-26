@@ -43,9 +43,9 @@ enum class SyncableDatabaseDefinition {
     val tables get() = when(this) {
         BOOKMARKS -> listOf(
             Table("Label"),
-            Table("Bookmark"),
-            Table("BookmarkNotes", "bookmarkId"),
-            Table("BookmarkToLabel", "bookmarkId", "labelId"),
+            Table("BibleBookmark"),
+            Table("BibleBookmarkNotes", "bookmarkId"),
+            Table("BibleBookmarkToLabel", "bookmarkId", "labelId"),
             Table("GenericBookmark"),
             Table("GenericBookmarkNotes", "bookmarkId"),
             Table("GenericBookmarkToLabel", "bookmarkId", "labelId"),

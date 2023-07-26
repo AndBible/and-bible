@@ -146,8 +146,8 @@ class BookmarkEntities {
         fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>)
     }
 
-    @DatabaseView("SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn ON b.id = bn.bookmarkId")
-    data class BookmarkWithNotes(
+    @DatabaseView("SELECT b.*, bn.notes FROM BibleBookmark b LEFT OUTER JOIN BibleBookmarkNotes bn ON b.id = bn.bookmarkId")
+    data class BibleBookmarkWithNotes(
         var kjvOrdinalStart: Int,
         var kjvOrdinalEnd: Int,
         override var ordinalStart: Int,
@@ -264,11 +264,11 @@ class BookmarkEntities {
         @Ignore
         override var labelIds: List<IdType>? = null
         @Ignore
-        var bookmarkToLabels: List<BookmarkToLabel>? = null
+        var bookmarkToLabels: List<BibleBookmarkToLabel>? = null
         @Ignore
         override var text: String? = null
         override fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>) {
-            bookmarkToLabels = l as List<BookmarkToLabel>
+            bookmarkToLabels = l as List<BibleBookmarkToLabel>
         }
 
         val highlightedText: String get() {
@@ -281,7 +281,7 @@ class BookmarkEntities {
         @Ignore var fullText: String? = null
         @Ignore var osisFragment: OsisFragment? = null
 
-        override val bookmarkEntity get() = Bookmark(
+        override val bookmarkEntity get() = BibleBookmark(
             kjvOrdinalStart,
             kjvOrdinalEnd,
             ordinalStart,
@@ -298,15 +298,15 @@ class BookmarkEntities {
             wholeVerse,
             type,
         )
-        override val noteEntity get() = if(notes == null) null else BookmarkNotes(id, notes!!)
+        override val noteEntity get() = if(notes == null) null else BibleBookmarkNotes(id, notes!!)
         @Ignore override val entityType = BookmarkEntityType.BIBLE
     }
     @Entity(
         foreignKeys = [
-            ForeignKey(entity = Bookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
+            ForeignKey(entity = BibleBookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
         ],
     )
-    data class BookmarkNotes(
+    data class BibleBookmarkNotes(
         @PrimaryKey override var bookmarkId: IdType = IdType(),
         override val notes: String
     ): BaseBookmarkNotes
@@ -319,7 +319,7 @@ class BookmarkEntities {
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
         ],
     )
-    data class Bookmark(
+    data class BibleBookmark(
         // Verse range in KJV ordinals. For generic lookups, we must store verse ranges in a "standard"
         // versification. We store also verserange in original versification, as it conveys the more exact
         // versification-specific information.
@@ -353,7 +353,7 @@ class BookmarkEntities {
     @Entity(
         primaryKeys = ["bookmarkId", "labelId"],
         foreignKeys = [
-            ForeignKey(entity = Bookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
+            ForeignKey(entity = BibleBookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
         ],
         indices = [
@@ -361,7 +361,7 @@ class BookmarkEntities {
         ]
     )
     @Serializable
-    data class BookmarkToLabel(
+    data class BibleBookmarkToLabel(
         override val bookmarkId: IdType,
         override val labelId: IdType,
 
@@ -370,8 +370,8 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") override var indentLevel: Int = 0,
         @ColumnInfo(defaultValue = "0") override var expandContent: Boolean = true,
     ): BaseBookmarkToLabel {
-        constructor(bookmark: Bookmark, label: Label): this(bookmark.id, label.id)
-        @Ignore override val type: String = "BookmarkToLabel"
+        constructor(bookmark: BibleBookmark, label: Label): this(bookmark.id, label.id)
+        @Ignore override val type: String = "BibleBookmarkToLabel"
     }
 
     @DatabaseView("SELECT b.*, bn.notes FROM GenericBookmark b LEFT OUTER JOIN GenericBookmarkNotes bn ON b.id = bn.bookmarkId")

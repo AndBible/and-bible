@@ -31,7 +31,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.common.htmlToSpan
 
 /**
@@ -81,7 +81,7 @@ class BookmarkItemAdapter(
         // Set value for the first text field
         val versification = windowControl.activeWindowPageManager.currentBible.versification
         when(item) {
-            is BookmarkWithNotes -> {
+            is BibleBookmarkWithNotes -> {
                 val verseName = item.verseRange.toV11n(versification).name
                 val book = item.speakBook
                 if (isSpeak && book != null) {
@@ -114,7 +114,7 @@ class BookmarkItemAdapter(
         bindings.dateText.text = sDt
 
         val spanned = when(item) {
-            is BookmarkWithNotes -> htmlToSpan(item.highlightedText)
+            is BibleBookmarkWithNotes -> htmlToSpan(item.highlightedText)
             is BookmarkEntities.GenericBookmarkWithNotes -> htmlToSpan(item.text)
             else -> throw RuntimeException("Illegal type")
         }

@@ -164,7 +164,7 @@ class Selection(
     val osisRef: String? = null,
 )
 {
-    constructor(bookmark: BookmarkEntities.BookmarkWithNotes):
+    constructor(bookmark: BookmarkEntities.BibleBookmarkWithNotes):
         this(
             bookInitials = bookmark.book?.initials,
             startOrdinal = bookmark.ordinalStart,
@@ -378,7 +378,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     if (selection.startOffset != null && selection.endOffset != null)
                         BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
                     else null
-                BookmarkEntities.BookmarkWithNotes(verseRange!!, textRange, wholeVerse, selection.swordBook)
+                BookmarkEntities.BibleBookmarkWithNotes(verseRange!!, textRange, wholeVerse, selection.swordBook)
             } else {
                 BookmarkEntities.GenericBookmarkWithNotes(
                     key = selection.osisRef!!,
@@ -1365,7 +1365,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         //if(document is MyNotesDocument && !document.verseRange.overlaps(event.bookmark.kjvVerseRange)) return
 
         val clientBookmark = when(event.bookmark) {
-            is BookmarkEntities.BookmarkWithNotes ->
+            is BookmarkEntities.BibleBookmarkWithNotes ->
                 ClientBibleBookmark(event.bookmark,
                     when (document) {
                         is BibleDocument -> document.swordBook.versification

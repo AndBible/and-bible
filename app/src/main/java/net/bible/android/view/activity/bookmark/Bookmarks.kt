@@ -260,12 +260,12 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private fun bookmarkSelected(bookmark: BaseBookmarkWithNotes) {
         Log.i(TAG, "Bookmark selected:$bookmark")
         try {
-            if (bookmark is BookmarkEntities.BookmarkWithNotes && bookmarkControl.isSpeakBookmark(bookmark)) {
+            if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && bookmarkControl.isSpeakBookmark(bookmark)) {
                 speakControl.speakFromBookmark(bookmark)
             }
             val resultIntent = Intent(this, Bookmarks::class.java)
             when(bookmark) {
-                is BookmarkEntities.BookmarkWithNotes -> {
+                is BookmarkEntities.BibleBookmarkWithNotes -> {
                     resultIntent.putExtra("verse", bookmark.verseRange.start.osisID)
                 }
                 is BookmarkEntities.GenericBookmarkWithNotes -> {

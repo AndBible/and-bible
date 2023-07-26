@@ -31,9 +31,9 @@ import net.bible.android.database.readingplan.ReadingPlanEntities
 
 @Database(
     entities = [
-        BookmarkEntities.Bookmark::class,
-        BookmarkEntities.BookmarkNotes::class,
-        BookmarkEntities.BookmarkToLabel::class,
+        BookmarkEntities.BibleBookmark::class,
+        BookmarkEntities.BibleBookmarkNotes::class,
+        BookmarkEntities.BibleBookmarkToLabel::class,
         BookmarkEntities.GenericBookmark::class,
         BookmarkEntities.GenericBookmarkNotes::class,
         BookmarkEntities.GenericBookmarkToLabel::class,
@@ -45,7 +45,7 @@ import net.bible.android.database.readingplan.ReadingPlanEntities
         SyncStatus::class,
     ],
     views = [
-        BookmarkEntities.BookmarkWithNotes::class,
+        BookmarkEntities.BibleBookmarkWithNotes::class,
         BookmarkEntities.GenericBookmarkWithNotes::class,
         BookmarkEntities.StudyPadTextEntryWithText::class,
     ],

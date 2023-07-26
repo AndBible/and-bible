@@ -49,7 +49,7 @@ export type OrdinalOffset = [start: number, end: Nullable<number>]
 export type CombinedRange = [start: OrdinalOffset, end: OrdinalOffset]
 
 export type BaseBookmarkToLabel = {
-    readonly type: "BookmarkToLabel" | "GenericBookmarkToLabel"
+    readonly type: "BibleBookmarkToLabel" | "GenericBookmarkToLabel"
     readonly bookmarkId: IdType
     readonly labelId: IdType
     orderNumber: number
@@ -58,7 +58,7 @@ export type BaseBookmarkToLabel = {
 }
 
 export type BibleBookmarkToLabel = BaseBookmarkToLabel & {
-    readonly type: "BookmarkToLabel"
+    readonly type: "BibleBookmarkToLabel"
 }
 
 export type GenericBookmarkToLabel = BaseBookmarkToLabel & {

@@ -34,6 +34,12 @@ val genericTables = makeMigration(2..3) { _db ->
     _db.execSQL("CREATE TABLE IF NOT EXISTS `GenericBookmarkToLabel` (`bookmarkId` BLOB NOT NULL, `labelId` BLOB NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT -1, `indentLevel` INTEGER NOT NULL DEFAULT 0, `expandContent` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`bookmarkId`, `labelId`), FOREIGN KEY(`bookmarkId`) REFERENCES `GenericBookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_GenericBookmarkToLabel_labelId` ON `GenericBookmarkToLabel` (`labelId`)");
     _db.execSQL("CREATE VIEW `GenericBookmarkWithNotes` AS SELECT b.*, bn.notes FROM GenericBookmark b LEFT OUTER JOIN GenericBookmarkNotes bn ON b.id = bn.bookmarkId");
+    _db.execSQL("ALTER TABLE Bookmark RENAME TO BibleBookmark")
+    _db.execSQL("ALTER TABLE BookmarkNotes RENAME TO BibleBookmarkNotes")
+    _db.execSQL("ALTER TABLE BookmarkToLabel RENAME TO BibleBookmarkToLabel")
+    _db.execSQL("ALTER TABLE BookmarkToLabel RENAME TO BibleBookmarkToLabel")
+    _db.execSQL("DROP VIEW BookmarkWithNotes")
+    _db.execSQL("CREATE VIEW `BibleBookmarkWithNotes` AS SELECT b.*, bn.notes FROM BibleBookmark b LEFT OUTER JOIN BibleBookmarkNotes bn ON b.id = bn.bookmarkId");
 }
 
 val bookmarkMigrations: Array<Migration> = arrayOf(separateText, genericTables)

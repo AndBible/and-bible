@@ -305,7 +305,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun updateBookmarkToLabel(data: String) {
-        val entry: BookmarkEntities.BookmarkToLabel = json.decodeFromString(serializer(), data)
+        val entry: BookmarkEntities.BibleBookmarkToLabel = json.decodeFromString(serializer(), data)
         bookmarkControl.updateBookmarkTimestamp(entry.bookmarkId)
         bookmarkControl.updateBookmarkToLabel(entry)
     }

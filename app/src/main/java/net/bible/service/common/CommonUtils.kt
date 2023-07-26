@@ -73,7 +73,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.sync.Semaphore
@@ -95,18 +94,14 @@ import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
-import net.bible.android.control.speak.load
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.LabelType
-import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
@@ -1123,7 +1118,7 @@ object CommonUtils : CommonUtilsBase() {
             val salvationLabel = BookmarkEntities.Label(name = application.getString(R.string.label_salvation), type = LabelType.EXAMPLE, color = Color.argb(255,  100, 0, 150))
             bookmarkDao.insertLabels(highlightLabels)
 
-            fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.BookmarkWithNotes {
+            fun getBookmark(verseRange: VerseRange, start: Double, end: Double): BookmarkEntities.BibleBookmarkWithNotes {
                 val v1 = verseRange.toVerseArray()[start.toInt()]
                 val v2 = verseRange.toVerseArray()[end.toInt()]
                 val l1 = SwordContentFacade.getCanonicalText(defaultBible, v1, true).length
@@ -1131,22 +1126,22 @@ object CommonUtils : CommonUtilsBase() {
                 val tr = BookmarkEntities.TextRange(((start - start.toInt())*l1).roundToInt(), ((end-end.toInt()) * l2).roundToInt())
                 val v = VerseRange(v1.versification, v1, v2)
 
-                return BookmarkEntities.BookmarkWithNotes(v, textRange = tr, wholeVerse = false, book = defaultBible)
+                return BookmarkEntities.BibleBookmarkWithNotes(v, textRange = tr, wholeVerse = false, book = defaultBible)
             }
 
             if(!hasExistingBookmarks) {
                 bookmarkDao.insert(salvationLabel)
 
                 // first bookmark, full verses, with underline
-                var b = BookmarkEntities.BookmarkWithNotes(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id }
+                var b = BookmarkEntities.BibleBookmarkWithNotes(defaultVerse, textRange = null, wholeVerse = true, book = defaultBible).apply { primaryLabelId = underlineLabel.id }
                 bookmarkDao.insert(b.bookmarkEntity)
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, underlineLabel.id))
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, salvationLabel.id))
+                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, underlineLabel.id))
+                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, salvationLabel.id))
 
                 // second bookmark, red
                 b = getBookmark(defaultVerse, 1.0, 1.5).apply { primaryLabelId = redLabel.id }
                 bookmarkDao.insert(b.bookmarkEntity)
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, redLabel.id))
+                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, redLabel.id))
 
                 // third bookmark, green
                 b = getBookmark(defaultVerse, 1.2, 1.4).apply {
@@ -1156,7 +1151,7 @@ object CommonUtils : CommonUtilsBase() {
                 bookmarkDao.insert(b.bookmarkEntity)
                 bookmarkDao.insert(b.noteEntity!!)
 
-                bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(b.id, greenLabel.id))
+                bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(b.id, greenLabel.id))
 
                 val salvationVerses = listOf("Joh.3.3", "Tit.3.3-Tit.3.7", "Rom.3.23-Rom.3.24", "Rom.4.3", "1Tim.1.15", "Eph.2.8-Eph.2.9", "Isa.6.3", "Rev.4.8", "Exo.20.2-Exo.20.17")
                     .mapNotNull { try {VerseRangeFactory.fromString(KJVA, it)} catch (e: NoSuchVerseException) {
@@ -1166,10 +1161,10 @@ object CommonUtils : CommonUtilsBase() {
 
                 salvationVerses
                     .map {
-                        BookmarkEntities.BookmarkWithNotes(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
+                        BookmarkEntities.BibleBookmarkWithNotes(it, textRange = null, wholeVerse = true, book = null).apply { type = BookmarkType.EXAMPLE }
                     }.forEach {
                         bookmarkDao.insert(it.bookmarkEntity)
-                        bookmarkDao.insert(BookmarkEntities.BookmarkToLabel(it.id, salvationLabel.id))
+                        bookmarkDao.insert(BookmarkEntities.BibleBookmarkToLabel(it.id, salvationLabel.id))
                     }
             }
         }

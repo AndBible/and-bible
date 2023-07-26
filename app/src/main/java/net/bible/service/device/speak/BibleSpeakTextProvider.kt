@@ -36,7 +36,7 @@ import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.common.AdvancedSpeakSettings
 import org.crosswire.jsword.book.sword.SwordBook
@@ -70,7 +70,7 @@ class BibleSpeakTextProvider(
     private lateinit var book: SwordBook
     private lateinit var startVerse: Verse
     private lateinit var endVerse: Verse
-    private var bookmark : BookmarkWithNotes? = null
+    private var bookmark : BibleBookmarkWithNotes? = null
     private lateinit var _currentVerse: Verse
     private var currentVerse: Verse
         get() = _currentVerse
@@ -348,7 +348,7 @@ class BibleSpeakTextProvider(
     }
 
     private fun removeBookmark() {
-        var bookmark: BookmarkWithNotes = this.bookmark ?: return
+        var bookmark: BibleBookmarkWithNotes = this.bookmark ?: return
 
         val labelList = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
         val speakLabel = bookmarkControl.speakLabel
@@ -382,7 +382,7 @@ class BibleSpeakTextProvider(
 
             if(bookmark == null) {
                 playbackSettings.bookmarkWasCreated = true
-                bookmark = BookmarkWithNotes(VerseRange(startVerse.versification, startVerse), null, true, null)
+                bookmark = BibleBookmarkWithNotes(VerseRange(startVerse.versification, startVerse), null, true, null)
                 bookmark.playbackSettings = playbackSettings
                 bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
             }

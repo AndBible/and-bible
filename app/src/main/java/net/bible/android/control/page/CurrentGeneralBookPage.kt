@@ -41,7 +41,6 @@ import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordContentFacade
-import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
@@ -106,7 +105,7 @@ class CurrentGeneralBookPage internal constructor(
                     val bookmarks = pageManager.bookmarkControl.getBookmarksWithLabel(key.label, addData = true)
                     val genericBookmarks = pageManager.bookmarkControl.getGenericBookmarksWithLabel(key.label, addData = true)
                     val journalTextEntries = pageManager.bookmarkControl.getJournalTextEntriesForLabel(key.label)
-                    val bookmarkToLabels = bookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.BookmarkToLabel? }
+                    val bookmarkToLabels = bookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.BibleBookmarkToLabel? }
                     val genericBookmarkToLabels = genericBookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.GenericBookmarkToLabel? }
                     val bookmarkId = key.bookmarkId
                     StudyPadDocument(key.label, bookmarkId, bookmarks, genericBookmarks, bookmarkToLabels, genericBookmarkToLabels, journalTextEntries)

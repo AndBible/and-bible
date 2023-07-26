@@ -21,7 +21,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.NoSuchVerseException
@@ -163,7 +163,7 @@ class BookmarkControlTest {
     @Test
     fun testVerseRange() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 2), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 5))
-        val newBookmark = BookmarkWithNotes(verseRange, null, true, null)
+        val newBookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
         val newDto = bookmarkControl!!.addOrUpdateBibleBookmark(newBookmark, null)
         Assert.assertThat(newDto.verseRange, IsEqual.equalTo(verseRange))
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseRange.start), IsEqual.equalTo(true))
@@ -172,7 +172,7 @@ class BookmarkControlTest {
     @Test
     fun testIsBookmarkForAnyVerseRangeWithSameStart() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
-        val newBookmark = BookmarkWithNotes(verseRange, null, true, null)
+        val newBookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
         bookmarkControl!!.addOrUpdateBibleBookmark(newBookmark, null)
         val startVerse = Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10)
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(startVerse), IsEqual.equalTo(true))
@@ -182,7 +182,7 @@ class BookmarkControlTest {
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseWithSameStart), IsEqual.equalTo(false))
     }
 
-    private fun addTestVerse(): BookmarkWithNotes? {
+    private fun addTestVerse(): BibleBookmarkWithNotes? {
         try {
             currentTestVerse = nextTestVerse
             return addBookmark(currentTestVerse)
@@ -193,9 +193,9 @@ class BookmarkControlTest {
     }
 
     @Throws(NoSuchVerseException::class)
-    private fun addBookmark(verse: String?): BookmarkWithNotes {
+    private fun addBookmark(verse: String?): BibleBookmarkWithNotes {
         val verseRange = VerseRangeFactory.fromString(KJV_VERSIFICATION, verse)
-        val bookmark = BookmarkWithNotes(verseRange, null, true, null)
+        val bookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
         return bookmarkControl!!.addOrUpdateBibleBookmark(bookmark, null)
     }
 

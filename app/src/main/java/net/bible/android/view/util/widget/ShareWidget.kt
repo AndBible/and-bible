@@ -177,7 +177,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             }
         }
 
-        fun dialog(context: Context, bookmark: BookmarkEntities.BookmarkWithNotes) =
+        fun dialog(context: Context, bookmark: BookmarkEntities.BibleBookmarkWithNotes) =
             dialog(context, Selection(bookmark))
     }
 }
