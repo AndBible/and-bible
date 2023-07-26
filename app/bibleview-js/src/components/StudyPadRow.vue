@@ -146,7 +146,7 @@ function editBookmark(event: MouseEvent) {
 
 function addNewEntryAfter() {
     emit("add")
-    android.createNewJournalEntry(props.label.id, props.journalEntry.type, props.journalEntry.id);
+    android.createNewStudyPadEntry(props.label.id, props.journalEntry.type, props.journalEntry.id);
 }
 
 async function deleteEntry() {

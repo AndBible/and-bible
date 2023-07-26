@@ -227,12 +227,12 @@ function indentStyle(entry: StudyPadItem) {
 
 function addNewEntry() {
     adding.value = true;
-    android.createNewJournalEntry(label.id);
+    android.createNewStudyPadEntry(label.id);
 }
 
 function appendNewEntry() {
     adding.value = true;
-    android.createNewJournalEntry(label.id, lastEntry.value.type, lastEntry.value.id);
+    android.createNewStudyPadEntry(label.id, lastEntry.value.type, lastEntry.value.id);
 }
 
 const labelNameStyle = computed(() => {

@@ -26,7 +26,8 @@ import {AsyncFunc, StudyPadEntryType, JSONString, LogEntry, Nullable} from "@/ty
 import {
     BaseBookmark,
     CombinedRange,
-    StudyPadBibleBookmarkItem, StudyPadGenericBookmarkItem,
+    StudyPadBibleBookmarkItem,
+    StudyPadGenericBookmarkItem,
     StudyPadItem,
     StudyPadTextItem
 } from "@/types/client-objects";
@@ -479,7 +480,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         removeBookmark,
         assignLabels,
         openExternalLink,
-        createNewJournalEntry: createNewStudyPadEntry,
+        createNewStudyPadEntry,
         deleteStudyPadEntry,
         removeBookmarkLabel,
         updateOrderNumber,
