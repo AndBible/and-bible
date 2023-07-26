@@ -131,3 +131,5 @@
 }
 
 -dontwarn java.lang.invoke.StringConcatFactory
+
+-keep class org.jaxen.saxpath.base.XPathReader
