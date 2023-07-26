@@ -448,7 +448,7 @@ open class BookmarkControl @Inject constructor(
     }
     private fun addText(b: GenericBookmarkWithNotes) {
         val osis = SwordContentFacade.readOsisFragment(b.book, b.bookKey)
-        b.text = SwordContentFacade.getTextWithinOrdinals(osis, b.ordinalStart, b.ordinalEnd, b.startOffset, b.endOffset)
+        b.text = SwordContentFacade.getTextWithinOrdinals(osis, b.ordinalStart, b.ordinalEnd, b.startOffset!!, b.endOffset!!)
     }
     private fun addText(b: BibleBookmarkWithNotes) {
         val book = b.book ?: windowControl.defaultBibleDoc(false) as SwordBook? ?: return // last ?: return is needed for tests

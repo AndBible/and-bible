@@ -101,8 +101,10 @@ object SwordContentFacade {
         for (word in text.split(splitRegex)) {
             if (currentPiece.length + word.length + 1 > 100) {
                 pieces.add(currentPiece)
+                currentPiece = word
+            } else {
+                currentPiece += word
             }
-            currentPiece += word
         }
         if (currentPiece.isNotEmpty()) {
             pieces.add(currentPiece)
@@ -174,15 +176,15 @@ object SwordContentFacade {
         }
     }
 
-    fun getTextWithinOrdinals(element: Element, startOrdinal: Int, endOrdinal: Int, startOffset: Int?, endOffset: Int?): String {
+    fun getTextWithinOrdinals(element: Element, startOrdinal: Int, endOrdinal: Int, startOffset: Int, endOffset: Int): String {
         val all = XPathFactory.instance().compile(".//BWA", Filters.element()).evaluate(element).filter {
             it.getAttribute("ordinal").value.toInt() in startOrdinal..endOrdinal
         }
         return if(all.size == 1) {
-            all.first().text.let { it.slice((startOffset ?: 0) until (endOffset ?: it.length)) }
+            all.first().text.let { it.slice(min(startOffset, it.length)  until min(endOffset, it.length)) }
         } else {
-            val first = all.first().text.let { it.slice((startOffset ?: 0) until it.length) }
-            val last = all.last().text.let { it.slice(0 until (endOffset ?: it.length)) }
+            val first = all.first().text.let { it.slice(min(startOffset, it.length)  until it.length) }
+            val last = all.last().text.let { it.slice(0 until min(endOffset, it.length)) }
 
             first + all.slice(1 until all.size - 1).joinToString(" ") { it.text } + last
         }
