@@ -362,7 +362,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
     }
 
     function openStudyPad(labelId: IdType, bookmark: BaseBookmark) {
-        window.android.openStudyPad(labelId, bookmark.id);
+        if(isBibleBookmark(bookmark) || isGenericBookmark(bookmark)) {
+            // Exceptionally here bookmark type does not matter
+            window.android.openStudyPad(labelId, bookmark.id);
+        }
     }
 
     function openMyNotes(v11n: string, ordinal: number) {
