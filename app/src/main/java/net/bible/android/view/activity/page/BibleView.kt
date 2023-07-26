@@ -493,6 +493,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 menu.findItem(R.id.add_bookmark).isVisible = false
                 menu.findItem(R.id.add_bookmark_selection).isVisible = false
                 menu.findItem(R.id.add_bookmark_whole_verse).isVisible = false
+            }
+            if(!isBible) {
                 menu.findItem(R.id.compare).isVisible = false
                 menu.findItem(R.id.share_verses).isVisible = false
             }
