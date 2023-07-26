@@ -78,6 +78,7 @@ export type MyNotesDocument = BaseDocument & {
     type: "notes"
     bookmarks: BibleBookmark[]
     verseRange: string
+    ordinalRange: OrdinalRange
 }
 
 export type StudyPadDocument = BaseDocument & {

@@ -157,6 +157,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.BibleBookmarkWithNote
                 "id" to wrapString(verseRange.uniqueId),
                 "type" to wrapString("notes", true),
                 "bookmarks" to listToJson(bookmarks),
+                "ordinalRange" to json.encodeToString(serializer(), listOf(verseRange.start.ordinal, verseRange.end.ordinal)),
                 "verseRange" to wrapString(verseRange.name),
             )
         }
