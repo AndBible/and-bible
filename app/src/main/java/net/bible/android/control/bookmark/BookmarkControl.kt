@@ -332,11 +332,11 @@ open class BookmarkControl @Inject constructor(
             ABEventBus.post(LabelAddedOrUpdatedEvent(l))
         }
 
-        val bookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "Bookmark" }.map { it.entityId1 }
+        val bookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "BibleBookmark" }.map { it.entityId1 }
         ABEventBus.post(BookmarksDeletedEvent(bookmarksDeletes))
 
         val bookmarkUpserts = e.updated.filter {
-            (it.type == LogEntryTypes.UPSERT && it.tableName == "Bookmark") || it.tableName == "BookmarkNotes"
+            (it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmark") || it.tableName == "BibleBookmarkNotes"
         }.map { it.entityId1 }.toMutableSet()
 
         val genericBookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "GenericBookmark" }.map { it.entityId1 }
@@ -376,7 +376,7 @@ open class BookmarkControl @Inject constructor(
         }
 
         val bookmarkToLabelUpserts = e.updated.filter {
-            it.type == LogEntryTypes.UPSERT && it.tableName == "BookmarkToLabel"
+            it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmarkToLabel"
         }.map { Pair(it.entityId1, it.entityId2) }
 
         for(ids in bookmarkToLabelUpserts) {
