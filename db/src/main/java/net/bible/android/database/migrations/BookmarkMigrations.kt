@@ -37,7 +37,6 @@ val genericTables = makeMigration(2..3) { _db ->
     _db.execSQL("ALTER TABLE Bookmark RENAME TO BibleBookmark")
     _db.execSQL("ALTER TABLE BookmarkNotes RENAME TO BibleBookmarkNotes")
     _db.execSQL("ALTER TABLE BookmarkToLabel RENAME TO BibleBookmarkToLabel")
-    _db.execSQL("ALTER TABLE BookmarkToLabel RENAME TO BibleBookmarkToLabel")
     _db.execSQL("DROP VIEW BookmarkWithNotes")
     _db.execSQL("CREATE VIEW `BibleBookmarkWithNotes` AS SELECT b.*, bn.notes FROM BibleBookmark b LEFT OUTER JOIN BibleBookmarkNotes bn ON b.id = bn.bookmarkId");
 }
