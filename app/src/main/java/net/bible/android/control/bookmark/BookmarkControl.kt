@@ -26,10 +26,10 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
-import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -506,7 +506,7 @@ open class BookmarkControl @Inject constructor(
         ABEventBus.post(StudyPadOrderEvent(entry.labelId, withText, emptyList(), emptyList(), emptyList()))
     }
 
-    fun updateBookmarkToLabel(bookmarkToLabel: BookmarkEntities.BaseBookmarkToLabel) {
+    fun updateBookmarkToLabel(bookmarkToLabel: BaseBookmarkToLabel) {
         dao.update(bookmarkToLabel)
         ABEventBus.post(BookmarkToLabelAddedOrUpdatedEvent(bookmarkToLabel))
     }
@@ -523,7 +523,7 @@ open class BookmarkControl @Inject constructor(
 
     fun getGenericBookmarkToLabel(bookmarkId: IdType, labelId: IdType): GenericBookmarkToLabel? = dao.getGenericBookmarkToLabel(bookmarkId, labelId)
 
-    fun getBookmarkToLabel(bookmark: BaseBookmarkWithNotes, labelId: IdType): BookmarkEntities.BaseBookmarkToLabel? = dao.getBookmarkToLabel(bookmark, labelId)
+    fun getBookmarkToLabel(bookmark: BaseBookmarkWithNotes, labelId: IdType): BaseBookmarkToLabel? = dao.getBookmarkToLabel(bookmark, labelId)
 
     fun getStudyPadById(journalTextEntryId: IdType): StudyPadTextEntryWithText? = dao.studyPadTextEntryById(journalTextEntryId)
 
@@ -545,7 +545,7 @@ open class BookmarkControl @Inject constructor(
         all.addAll(genericBookmarkToLabels)
         all.sortBy {
             when (it) {
-                is BookmarkEntities.BaseBookmarkToLabel -> it.orderNumber
+                is BaseBookmarkToLabel -> it.orderNumber
                 is StudyPadTextEntryWithText -> it.orderNumber
                 else -> 0
             }
