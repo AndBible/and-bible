@@ -77,7 +77,7 @@
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {computed, inject, provide, ref, Ref} from "vue";
+import {computed, inject, provide, ref, Ref, watch} from "vue";
 import {
     Callback,
     Deferred,
@@ -237,6 +237,18 @@ const selectedBookmarks = computed<BaseBookmark[]>(() => {
     }
     return result.map(bId => bookmarkMap.get(bId)).filter(b => b) as BaseBookmark[];
 });
+
+const numItemsDisplayed = computed(() =>
+    clickedBookmarks.value.length +
+    selectedActions.value.length +
+    selectedBookmarks.value.length
+)
+
+watch(numItemsDisplayed, (value, oldValue) => {
+    if(verseInfo.value === null && value === 0 && oldValue > 0) {
+        cancelled()
+    }
+})
 
 function setInitialVerse(_verseInfo: EventVerseInfo) {
     verseInfo.value = _verseInfo;
