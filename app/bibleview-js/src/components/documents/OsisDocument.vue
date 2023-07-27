@@ -41,7 +41,7 @@ import {useBookmarks} from "@/composables/bookmarks";
 const props = defineProps<{ document: OsisDocument }>();
 
 // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
-const {id, ordinalRange, osisFragment, bookCategory, bookInitials, osisRef, genericBookmarks} = props.document;
+const {id, ordinalRange, osisFragment, bookCategory, bookInitials, key, osisRef, genericBookmarks} = props.document;
 const referenceCollector = useReferenceCollector();
 
 const globalBookmarks = inject(globalBookmarksKey)!;
@@ -49,7 +49,7 @@ globalBookmarks.updateBookmarks(genericBookmarks);
 
 const {config, appSettings, ...common} = useCommon();
 
-useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, false, ref(true), common, config, appSettings);
+useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, key, false, ref(true), common, config, appSettings);
 
 if (bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
     provide(referenceCollectorKey, referenceCollector);

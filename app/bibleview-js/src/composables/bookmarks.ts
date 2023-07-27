@@ -261,6 +261,7 @@ export function useBookmarks(
         labelsUpdated: Ref<number>
     },
     bookInitials: string,
+    key: string|null,
     isBibleDocument: boolean,
     documentReady: Ref<boolean>,
     {adjustedColor}: { adjustedColor: (color: ColorParam) => Color },
@@ -298,7 +299,7 @@ export function useBookmarks(
             if(isBibleDocument) {
                 return isBibleBookmark(b) && (noOrdinalNeeded(b) || checkOrdinal(b));
             } else {
-                return isGenericBookmark(b) && bookInitials === b.bookInitials;
+                return isGenericBookmark(b) && bookInitials === b.bookInitials && key == b.key;
             }
         })
     });

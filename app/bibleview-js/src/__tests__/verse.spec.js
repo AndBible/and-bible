@@ -95,7 +95,7 @@ describe ("bookmark test", () => {
         const globalBookmarks = useGlobalBookmarks();
         const {updateBookmarks, updateBookmarkLabels} = globalBookmarks;
         const {config} = useConfig()
-        const {styleRanges} = useBookmarks("frag-key-1", [0,100], globalBookmarks, "KJV",  {value: true}, {adjustedColor: () => null}, config);
+        const {styleRanges} = useBookmarks("frag-key-1", [0,100], globalBookmarks, "KJV",  null, {value: true}, {adjustedColor: () => null}, config);
         updateBookmarkLabels(testBookmarkLabels);
         const ordinalRange = [0,1];
         updateBookmarks({
