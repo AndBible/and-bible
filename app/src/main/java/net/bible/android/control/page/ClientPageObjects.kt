@@ -101,6 +101,7 @@ open class OsisDocument(
         "bookAbbreviation" to wrapString(book.abbreviation),
         "bookName" to wrapString(book.name),
         "key" to wrapString(key.uniqueId),
+        "annotateRef" to wrapString(osisFragment.annotateRef?.osisRef?: key.osisRef),
         "osisRef" to wrapString((osisFragment.annotateRef ?: key).osisRef),
         "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
         "genericBookmarks" to listToJson(genericBookmarks.map { ClientGenericBookmark(it).asJson }),

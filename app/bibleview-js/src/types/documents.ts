@@ -51,6 +51,7 @@ type BaseOsisDocument = BaseDocument & {
     key: string
     v11n: string
     osisRef: string
+    annotateRef: string
     genericBookmarks: GenericBookmark[]
     ordinalRange: OrdinalRange
 }
