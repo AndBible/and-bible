@@ -37,6 +37,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
 import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import java.util.*
 import kotlin.math.abs
@@ -370,10 +371,10 @@ class BookmarkEntities {
 
     @DatabaseView("SELECT b.*, bn.notes FROM GenericBookmark b LEFT OUTER JOIN GenericBookmarkNotes bn ON b.id = bn.bookmarkId")
     data class GenericBookmarkWithNotes(
-        @PrimaryKey override var id: IdType = IdType(),
+        override var id: IdType = IdType(),
         var key: String,
         override var createdAt: Date = Date(System.currentTimeMillis()),
-        var book: Book? = null,
+        var bookInitials: String,
 
         override var ordinalStart: Int,
         override var ordinalEnd: Int,
@@ -389,7 +390,7 @@ class BookmarkEntities {
             id: IdType = IdType(),
             key: String,
             createdAt: Date = Date(System.currentTimeMillis()),
-            book: Book? = null,
+            bookInitials: String,
             ordinalStart: Int,
             ordinalEnd: Int,
             startOffset: Int,
@@ -401,7 +402,7 @@ class BookmarkEntities {
             id = id,
             key = key,
             createdAt = createdAt,
-            book = book,
+            bookInitials = bookInitials,
             ordinalStart = ordinalStart,
             ordinalEnd = ordinalEnd,
             startOffset = startOffset,
@@ -410,6 +411,33 @@ class BookmarkEntities {
             notes = notes,
             lastUpdatedOn = lastUpdatedOn,
             new = false
+        )
+        constructor(
+            id: IdType = IdType(),
+            key: String,
+            createdAt: Date = Date(System.currentTimeMillis()),
+            book: Book,
+            ordinalStart: Int,
+            ordinalEnd: Int,
+            startOffset: Int,
+            endOffset: Int,
+            primaryLabelId: IdType? = null,
+            notes: String? = null,
+            lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+            new: Boolean = false
+        ): this(
+            id = id,
+            key = key,
+            createdAt = createdAt,
+            bookInitials = book.initials,
+            ordinalStart = ordinalStart,
+            ordinalEnd = ordinalEnd,
+            startOffset = startOffset,
+            endOffset = endOffset,
+            primaryLabelId = primaryLabelId,
+            notes = notes,
+            lastUpdatedOn = lastUpdatedOn,
+            new = new
         )
 
         override var textRange: TextRange?
@@ -433,7 +461,8 @@ class BookmarkEntities {
             bookmarkToLabels = l as List<GenericBookmarkToLabel>
         }
 
-        val bookKey get() = book!!.getKey(key).let {if(it is RangedPassage) it.first() else it }
+        val book: Book? get() = Books.installed().getBook(bookInitials)
+        val bookKey: Key? get() = book?.getKey(key)?.let {if(it is RangedPassage) it.first() else it }
 
         override val bookmarkEntity get() = GenericBookmark(
             id = id,
@@ -441,7 +470,7 @@ class BookmarkEntities {
             ordinalStart = ordinalStart,
             ordinalEnd = ordinalEnd,
             createdAt = createdAt,
-            book = book,
+            bookInitials = bookInitials,
             startOffset = startOffset,
             endOffset = endOffset,
             primaryLabelId = primaryLabelId,
@@ -461,7 +490,7 @@ class BookmarkEntities {
     ): BaseBookmarkNotes
 
     @Entity(
-        indices = [Index(value = ["book", "key"])],
+        indices = [Index(value = ["bookInitials", "key"])],
         foreignKeys = [
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
         ],
@@ -470,7 +499,7 @@ class BookmarkEntities {
         @PrimaryKey override var id: IdType = IdType(),
         var key: String,
         override var createdAt: Date = Date(System.currentTimeMillis()),
-        var book: Book? = null,
+        @ColumnInfo(defaultValue = "''") var bookInitials: String,
 
         override var ordinalStart: Int,
         override var ordinalEnd: Int,

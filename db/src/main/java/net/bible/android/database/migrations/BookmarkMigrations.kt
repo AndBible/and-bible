@@ -40,7 +40,13 @@ val genericTables = makeMigration(2..3) { _db ->
     _db.execSQL("DROP VIEW BookmarkWithNotes")
     _db.execSQL("CREATE VIEW `BibleBookmarkWithNotes` AS SELECT b.*, bn.notes FROM BibleBookmark b LEFT OUTER JOIN BibleBookmarkNotes bn ON b.id = bn.bookmarkId");
 }
+val genericBookmark = makeMigration(3..4) { _db ->
+    _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN bookInitials TEXT NOT NULL DEFAULT ''")
+    _db.execSQL("UPDATE GenericBookmark SET bookInitials = book")
+    _db.execSQL("DROP INDEX `index_GenericBookmark_book_key`");
+    _db.execSQL("ALTER TABLE GenericBookmark DROP COLUMN book")
+    _db.execSQL("CREATE INDEX IF NOT EXISTS `index_GenericBookmark_bookInitials_key` ON `GenericBookmark` (`bookInitials`, `key`)")
+}
+val bookmarkMigrations: Array<Migration> = arrayOf(separateText, genericTables, genericBookmark)
 
-val bookmarkMigrations: Array<Migration> = arrayOf(separateText, genericTables)
-
-const val BOOKMARK_DATABASE_VERSION = 3
+const val BOOKMARK_DATABASE_VERSION = 4

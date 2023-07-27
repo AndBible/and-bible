@@ -55,12 +55,15 @@ import java.util.*
 import kotlin.math.min
 
 
-open class OsisError(xmlMessage: String) : Exception(xmlMessage) {
+open class OsisError(xmlMessage: String, val stringMsg: String) : Exception(xmlMessage) {
+    constructor(msg: String): this(msg, msg)
     val xml: Element = SAXBuilder().build(StringReader("<div>$xmlMessage</div>")).rootElement
 }
 
-class DocumentNotFound(xmlMessage: String) : OsisError(xmlMessage)
-class JSwordError(xmlMessage: String) : OsisError(xmlMessage)
+class DocumentNotFound(xmlMessage: String, stringMsg: String) : OsisError(xmlMessage, stringMsg) {
+    constructor(msg: String): this(msg, msg)
+}
+class JSwordError(message: String) : OsisError(message, message)
 
 /** JSword facade
  *
@@ -80,8 +83,9 @@ object SwordContentFacade {
         Books.installed().getBook(book.initials) == null -> {
             Log.w(TAG, "Book may have been uninstalled:$book")
             val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
-            val errorMsg = application.getString(R.string.document_not_installed, link)
-            throw DocumentNotFound(errorMsg)
+            val errorXml = application.getString(R.string.document_not_installed, link)
+            val errorMsg = application.getString(R.string.document_not_installed, book.initials)
+            throw DocumentNotFound(errorXml, errorMsg)
         }
         !bookContainsAnyOf(book, key) -> {
             Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)

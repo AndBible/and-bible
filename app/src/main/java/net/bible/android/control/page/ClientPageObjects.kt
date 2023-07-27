@@ -240,7 +240,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
 
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
-        val keyName = bookmark.book?.getKey(bookmark.key)?.name
+        val keyName = bookmark.book?.getKey(bookmark.key)?.name?: bookmark.key
         return mapOf(
             "id" to wrapString(bookmark.id.toString()),
             "key" to wrapString(bookmark.key),
@@ -251,9 +251,9 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
                 if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
             }),
-            "bookInitials" to wrapString(bookmark.book?.initials),
-            "bookName" to wrapString(bookmark.book?.name),
-            "bookAbbreviation" to wrapString(bookmark.book?.abbreviation),
+            "bookInitials" to wrapString(bookmark.bookInitials),
+            "bookName" to wrapString(bookmark.book?.name?: bookmark.bookInitials),
+            "bookAbbreviation" to wrapString(bookmark.book?.abbreviation ?: bookmark.bookInitials),
             "createdAt" to bookmark.createdAt.time.toString(),
             "lastUpdatedOn" to bookmark.lastUpdatedOn.time.toString(),
             "notes" to notes,

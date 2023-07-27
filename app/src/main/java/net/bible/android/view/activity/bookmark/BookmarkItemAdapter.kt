@@ -91,7 +91,7 @@ class BookmarkItemAdapter(
                 }
             }
             is BookmarkEntities.GenericBookmarkWithNotes -> {
-                val keyName = "${item.book?.abbreviation}: ${item.bookKey.name}"
+                val keyName = "${item.book?.abbreviation?: item.bookInitials}: ${item.bookKey?.name?: item.key}"
                 bindings.verseText.text = keyName
             }
         }

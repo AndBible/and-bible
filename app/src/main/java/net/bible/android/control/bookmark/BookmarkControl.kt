@@ -44,6 +44,7 @@ import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Book
@@ -447,7 +448,13 @@ open class BookmarkControl @Inject constructor(
         else -> throw RuntimeException("Illegal type")
     }
     private fun addText(b: GenericBookmarkWithNotes) {
-        val osis = SwordContentFacade.readOsisFragment(b.book, b.bookKey)
+        val osis = try {
+            val book = b.book?: FakeBookFactory.giveDoesNotExist(b.bookInitials)
+            SwordContentFacade.readOsisFragment(book, b.bookKey ?: book.getKey(b.key))
+        } catch (e: OsisError) {
+            b.text = e.stringMsg
+            return
+        }
         b.text = SwordContentFacade.getTextWithinOrdinals(osis, b.ordinalStart, b.ordinalEnd, b.startOffset!!, b.endOffset!!)
     }
     private fun addText(b: BibleBookmarkWithNotes) {

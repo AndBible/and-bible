@@ -53,7 +53,7 @@ CASE
     WHEN :orderBy = 'LAST_UPDATED' THEN BibleBookmarkWithNotes.lastUpdatedOn
 END"""
 
-const val genericOrderBy = """book, `key`"""
+const val genericOrderBy = """bookInitials, `key`"""
 
 const val orderBy2 = """
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.kjvOrdinalStart END,
@@ -442,7 +442,7 @@ interface BookmarkDao {
 
     @Update fun updateStudyPadTextEntries(studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>)
 
-    @Query("SELECT * FROM GenericBookmarkWithNotes WHERE book=:document AND `key`=:key")
+    @Query("SELECT * FROM GenericBookmarkWithNotes WHERE bookInitials=:document AND `key`=:key")
     fun genericBookmarksFor(document: String, key: String): List<GenericBookmarkWithNotes>
     fun genericBookmarksFor(document: Book, key: Key): List<GenericBookmarkWithNotes> =
         genericBookmarksFor(document.initials, key.osisRef)

@@ -382,7 +382,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             } else {
                 BookmarkEntities.GenericBookmarkWithNotes(
                     key = selection.osisRef!!,
-                    book = selection.book,
+                    book = selection.book!!,
                     ordinalStart = selection.startOrdinal,
                     ordinalEnd = selection.endOrdinal,
                     startOffset = selection.startOffset!!,
