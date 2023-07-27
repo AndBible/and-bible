@@ -61,7 +61,7 @@ const emit = defineEmits(["save", "close"]);
 
 const android = inject(androidKey)!;
 const {parse, features} = inject(customFeaturesKey)!
-const {disableKeybindings} = inject(keyboardKey)!;
+const {editorMode} = inject(keyboardKey)!;
 const hasRefParser = computed(() => features.has("RefParser"));
 const editorElement = ref<HTMLElement | null>(null);
 
@@ -186,8 +186,7 @@ onMounted(() => {
     });
     editor.value!.content.innerHTML = editText.value;
     editor.value!.content.focus();
-    android.setEditing(true);
-    disableKeybindings.value ++;
+    editorMode.value ++;
 });
 
 setupElementEventListener(editorElement, "keyup", e => {
@@ -203,8 +202,7 @@ onBeforeUnmount(() => {
 });
 
 onUnmounted(() => {
-    android.setEditing(false);
-    disableKeybindings.value --;
+    editorMode.value --;
 })
 
 const {sprintf} = useCommon();
