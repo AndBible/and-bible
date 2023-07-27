@@ -54,13 +54,14 @@ import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {setupElementEventListener} from "@/utils";
-import {androidKey, customFeaturesKey} from "@/types/constants";
+import {androidKey, customFeaturesKey, keyboardKey} from "@/types/constants";
 
 const props = defineProps<{ text: string }>();
 const emit = defineEmits(["save", "close"]);
 
 const android = inject(androidKey)!;
 const {parse, features} = inject(customFeaturesKey)!
+const {disableKeybindings} = inject(keyboardKey)!;
 const hasRefParser = computed(() => features.has("RefParser"));
 const editorElement = ref<HTMLElement | null>(null);
 
@@ -186,6 +187,7 @@ onMounted(() => {
     editor.value!.content.innerHTML = editText.value;
     editor.value!.content.focus();
     android.setEditing(true);
+    disableKeybindings.value ++;
 });
 
 setupElementEventListener(editorElement, "keyup", e => {
@@ -202,6 +204,7 @@ onBeforeUnmount(() => {
 
 onUnmounted(() => {
     android.setEditing(false);
+    disableKeybindings.value --;
 })
 
 const {sprintf} = useCommon();
