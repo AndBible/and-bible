@@ -87,6 +87,7 @@ describe("useBookmark tests", () => {
             [10,20],
             gb,
             "KJV",
+            null,
             true,
             fragmentReady,
             {adjustedColor: () => null},
