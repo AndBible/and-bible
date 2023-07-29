@@ -71,28 +71,41 @@ class JSwordError(message: String) : OsisError(message, message)
  */
 
 object SwordContentFacade {
+    private val cache = WeakHashMap<String, Element>()
+    private fun osisFragmentFromCache(cacheKey: String): Element? =
+        if(cache.containsKey(cacheKey)) cache[cacheKey]
+        else null
+
+    private fun cacheFragment(cacheKey: String, e: Element) = cache.set(cacheKey, e)
 
     /** top level method to fetch html from the raw document data
      */
     @Throws(OsisError::class)
-    fun readOsisFragment(book: Book?, key: Key?): Element = when {
-        book == null || key == null -> {
-            Log.e(TAG, "Key or book was null")
-            throw OsisError(application.getString(R.string.error_no_content))
-        }
-        Books.installed().getBook(book.initials) == null -> {
-            Log.w(TAG, "Book may have been uninstalled:$book")
-            val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
-            val errorXml = application.getString(R.string.document_not_installed, link)
-            val errorMsg = application.getString(R.string.document_not_installed, book.initials)
-            throw DocumentNotFound(errorXml, errorMsg)
-        }
-        !bookContainsAnyOf(book, key) -> {
-            Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
-            throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
-        }
-        else -> {
-            readXmlTextStandardJSwordMethod(book, key)
+    fun readOsisFragment(book: Book?, key: Key?): Element {
+        return osisFragmentFromCache("${book?.initials}-${key?.osisRef}")?:
+        when {
+            book == null || key == null -> {
+                Log.e(TAG, "Key or book was null")
+                throw OsisError(application.getString(R.string.error_no_content))
+            }
+            Books.installed().getBook(book.initials) == null -> {
+                Log.w(TAG, "Book may have been uninstalled:$book")
+                val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
+                val errorXml = application.getString(R.string.document_not_installed, link)
+                val errorMsg = application.getString(R.string.document_not_installed, book.initials)
+                throw DocumentNotFound(errorXml, errorMsg)
+            }
+            !bookContainsAnyOf(book, key) -> {
+                Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
+                throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
+            }
+            else -> {
+                readXmlTextStandardJSwordMethod(book, key)
+            }
+        }.also {
+            if(book != null && key != null) {
+                cacheFragment("${book?.initials}-${key?.osisRef}", it)
+            }
         }
     }
 
