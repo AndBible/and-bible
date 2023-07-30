@@ -109,15 +109,16 @@ object SwordContentFacade {
         }
     }
 
-    private val splitRegex = Regex("""(?=[ \n])""")
+    private val splitMarkers = Regex("""(?<=[.,;:()\[\]])""")
+    private val splitSpaces = Regex("""(?<=\s)""")
 
-    private fun splitString(text: String): List<String> {
-        if(text.length <= 100) return listOf(text)
+    private fun splitString(text: String, splitter: Regex, minCutLength: Int = 50): List<String> {
+        if(text.length <= minCutLength) return listOf(text)
         val pieces = mutableListOf<String>()
         var currentPiece = ""
-        for (word in text.split(splitRegex)) {
-            if (currentPiece.length + word.length + 1 > 100) {
-                pieces.add(currentPiece)
+        for (word in text.split(splitter)) {
+            if (currentPiece.length + word.length + 1 > minCutLength) {
+                if(currentPiece.isNotEmpty()) pieces.add(currentPiece)
                 currentPiece = word
             } else {
                 currentPiece += word
@@ -127,6 +128,20 @@ object SwordContentFacade {
             pieces.add(currentPiece)
         }
         return pieces
+    }
+
+    private fun splitString(text: String): List<String> {
+        val maxLength = 300
+        val firstRound = splitString(text, splitMarkers, 50)
+        val result = mutableListOf<String>()
+        for(r in firstRound) {
+            if(r.length > maxLength) {
+                result.addAll(splitString(r, splitSpaces, maxLength))
+            } else if (r.isNotEmpty()){
+                result.add(r)
+            }
+        }
+        return result
     }
 
     private fun addAnchors(frag: Element) {
