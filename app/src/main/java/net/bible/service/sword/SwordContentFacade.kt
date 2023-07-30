@@ -106,7 +106,7 @@ object SwordContentFacade {
             cacheFragment("${book.initials}-${key.osisRef}", it)
         }
 
-    private val splitMarkers = Regex("""(?<=[.,;:()\[\]])""")
+    private val splitMarkers = Regex("""(?<=[.,])""")
     private val splitSpaces = Regex("""(?<=\s)""")
 
     private fun splitString(text: String, splitter: Regex, minCutLength: Int = 50): List<String> {
