@@ -41,7 +41,7 @@ val Key.uniqueId: String get() {
     return if (this is VerseRange) {
         "ordinal-${start.ordinal}-${end.ordinal}"
     } else {
-        this.osisID.replace(".", "-")
+        this.osisID.replace(".", "-").replace(" ", "_")
     }
 }
 
