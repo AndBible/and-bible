@@ -81,8 +81,8 @@ object SwordContentFacade {
     /** top level method to fetch html from the raw document data
      */
     @Throws(OsisError::class)
-    fun readOsisFragment(book: Book?, key: Key?): Element {
-        return osisFragmentFromCache("${book?.initials}-${key?.osisRef}")?:
+    fun readOsisFragment(book: Book?, key: Key?): Element =
+        osisFragmentFromCache("${book?.initials}-${key?.osisRef}")?:
         when {
             book == null || key == null -> {
                 Log.e(TAG, "Key or book was null")
@@ -105,7 +105,6 @@ object SwordContentFacade {
         }.also {
             cacheFragment("${book.initials}-${key.osisRef}", it)
         }
-    }
 
     private val splitMarkers = Regex("""(?<=[.,;:()\[\]])""")
     private val splitSpaces = Regex("""(?<=\s)""")
