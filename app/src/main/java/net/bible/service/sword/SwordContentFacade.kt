@@ -103,9 +103,7 @@ object SwordContentFacade {
                 readXmlTextStandardJSwordMethod(book, key)
             }
         }.also {
-            if(book != null && key != null) {
-                cacheFragment("${book?.initials}-${key?.osisRef}", it)
-            }
+            cacheFragment("${book.initials}-${key.osisRef}", it)
         }
     }
 
