@@ -109,36 +109,26 @@ object SwordContentFacade {
     private val splitMarkers = Regex("""(?<=[.,])""")
     private val splitSpaces = Regex("""(?<=\s)""")
 
-    private fun splitString(text: String, splitter: Regex, minCutLength: Int = 50): List<String> {
-        if(text.length <= minCutLength) return listOf(text)
+
+    // Avoid possible bible references when separating sentences.
+    private val splitMatch = Regex("""((\D\s+|^)\w+[.,]\s+)(\D)""")
+    fun splitSentences(text: String): List<String> {
+        val matches = splitMatch.findAll(text)
         val pieces = mutableListOf<String>()
+        var lastStartPosition = 0
         var currentPiece = ""
-        for (word in text.split(splitter)) {
-            if (currentPiece.length + word.length + 1 > minCutLength) {
-                if(currentPiece.isNotEmpty()) pieces.add(currentPiece)
-                currentPiece = word
-            } else {
-                currentPiece += word
-            }
+
+        for(m in matches) {
+            currentPiece += text.slice(lastStartPosition until m.range.first) + m.groupValues[1]
+            pieces.add(currentPiece)
+            currentPiece = m.groupValues[3]
+            lastStartPosition = m.range.last + 1
         }
+        currentPiece += text.slice(lastStartPosition   until text.length)
         if (currentPiece.isNotEmpty()) {
             pieces.add(currentPiece)
         }
         return pieces
-    }
-
-    private fun splitString(text: String): List<String> {
-        val maxLength = 300
-        val firstRound = splitString(text, splitMarkers, 50)
-        val result = mutableListOf<String>()
-        for(r in firstRound) {
-            if(r.length > maxLength) {
-                result.addAll(splitString(r, splitSpaces, maxLength))
-            } else if (r.isNotEmpty()){
-                result.add(r)
-            }
-        }
-        return result
     }
 
     private fun addAnchors(frag: Element) {
@@ -146,12 +136,12 @@ object SwordContentFacade {
         fun wrapTextWithSpan(element: Element) {
             for (content in element.content.toList()) {
                 if (content is Text && content.text.trim().isNotEmpty()) {
-                    val textContents = splitString(content.text)
+                    val textContents = splitSentences(content.text)
                     if (textContents.isNotEmpty()) {
                         var pos = element.indexOf(content)
                         content.detach()
                         for (textContent in textContents) {
-                            val span = Element("BWA") // BibleViewAnchor.vue
+                            val span = Element("BVA") // BibleViewAnchor.vue
                             span.setAttribute("ordinal", "${ordinal++}")
                             val textNode = Text(textContent)
                             span.addContent(textNode)
@@ -207,7 +197,7 @@ object SwordContentFacade {
 
     private val ignoredElements = listOf("note")
     fun getTextWithinOrdinals(element: Element, startOrdinal: Int, endOrdinal: Int, startOffset: Int, endOffset: Int): String {
-        val all = XPathFactory.instance().compile(".//BWA", Filters.element()).evaluate(element).filter {
+        val all = XPathFactory.instance().compile(".//BVA", Filters.element()).evaluate(element).filter {
             it.getAttribute("ordinal").value.toInt() in startOrdinal..endOrdinal
                 && it.parentElement?.name?.lowercase() !in ignoredElements
                 && it.parentElement?.parentElement?.name?.lowercase() !in ignoredElements

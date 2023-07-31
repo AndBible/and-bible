@@ -35,9 +35,9 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.core.IsNot.not
-import org.junit.Assert.assertThat
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
@@ -153,6 +153,82 @@ class SwordContentFacadeTest {
         println("Looking for $initials")
         return Books.installed().getBook(initials)
     }
+}
+
+class SentenceSplitTest {
+    @Test fun testSplitSentences01() = assertThat(
+        SwordContentFacade.splitSentences("test test test. test test"),
+        equalTo(listOf("test test test. ", "test test"))
+    )
+
+    @Test fun testSplitSentences02() = assertThat(
+        SwordContentFacade.splitSentences("Returns a sequence of all occurrences of a regular expression within the input string, beginning at the specified startIndex."),
+        equalTo(listOf("Returns a sequence of all occurrences of a regular expression within the input string, ", "beginning at the specified startIndex."))
+    )
+    @Test fun testSplitSentences03() = assertThat(
+        SwordContentFacade.splitSentences("Testilause testilause."),
+        equalTo(listOf("Testilause testilause."))
+    )
+
+    @Test fun testSplitSentences04() = assertThat(
+        SwordContentFacade.splitSentences("Testilause testilause"),
+        equalTo(listOf("Testilause testilause"))
+    )
+
+    @Test fun testSplitSentences05() = assertThat(
+        SwordContentFacade.splitSentences("Testilause"),
+        equalTo(listOf("Testilause"))
+    )
+
+    @Test fun testSplitSentences06() = assertThat(
+        SwordContentFacade.splitSentences(""),
+        equalTo(listOf())
+    )
+
+    @Test fun testSplitSentences07() = assertThat(
+        SwordContentFacade.splitSentences("Test. Test2. Test3."),
+        equalTo(listOf("Test. ", "Test2. Test3."))
+    )
+
+    @Test fun testSplitSentences08() = assertThat(
+        SwordContentFacade.splitSentences("Test. Test2. Test3."),
+        equalTo(listOf("Test. ", "Test2. Test3."))
+    )
+
+    @Test fun testSplitSentences09() = assertThat(
+        SwordContentFacade.splitSentences("Jotain tekstiä (Eph 1:1-2). Jotain tekstiä lisää."),
+        equalTo(listOf("Jotain tekstiä (Eph 1:1-2). Jotain tekstiä lisää."))
+    )
+
+    @Test fun testSplitSentences10() = assertThat(
+        SwordContentFacade.splitSentences("Jotain tekstiä (Eph 1:1-2,3). Jotain tekstiä lisää."),
+        equalTo(listOf("Jotain tekstiä (Eph 1:1-2,3). Jotain tekstiä lisää."))
+    )
+
+    @Test fun testSplitSentences11() = assertThat(
+        SwordContentFacade.splitSentences("Jotain tekstiä (Eph 1:1-2, Matt 2:3). Jotain tekstiä lisää."),
+        equalTo(listOf("Jotain tekstiä (Eph 1:1-2, Matt 2:3). Jotain tekstiä lisää."))
+    )
+
+    @Test fun testSplitSentences12() = assertThat(
+        SwordContentFacade.splitSentences("Jotain tekstiä (Ef. 1:1-2, Matt. 2:3). Jotain tekstiä lisää."),
+                                equalTo(listOf("Jotain tekstiä (Ef. 1:1-2, Matt. 2:3). Jotain tekstiä lisää."))
+    )
+
+    @Test fun testSplitSentences13() = assertThat(
+        SwordContentFacade.splitSentences("Jotain tekstiä (Ef. 1:1-2,Matt. 2:3). Jotain tekstiä lisää."),
+        equalTo(listOf("Jotain tekstiä (Ef. 1:1-2,Matt. 2:3). Jotain tekstiä lisää."))
+    )
+
+    @Test fun testSplitSentences14() = assertThat(
+        SwordContentFacade.splitSentences("Jotain tekstiä Ef. 1:1-2,Matt. 2:3. Jotain tekstiä lisää."),
+        equalTo(listOf("Jotain tekstiä Ef. 1:1-2,Matt. 2:3. Jotain tekstiä lisää."))
+    )
+
+    @Test fun testSplitSentences15() = assertThat(
+        SwordContentFacade.splitSentences("Jotain tekstiä Ef1:1-2,Matt.2:3. Jotain tekstiä lisää."),
+        equalTo(listOf("Jotain tekstiä Ef1:1-2,Matt.2:3. Jotain tekstiä lisää."))
+    )
 }
 
 @RunWith(RobolectricTestRunner::class)
