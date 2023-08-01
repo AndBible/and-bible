@@ -428,6 +428,19 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
+        val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
+        if(!value && bookmark.textRange == null) {
+            ABEventBus.post(ToastEvent(R.string.cant_change_wholeverse))
+            return
+        }
+        bookmark.wholeVerse = value
+
+        bookmarkControl.addOrUpdateGenericBookmark(bookmark)
+        if(value) ABEventBus.post(ToastEvent(R.string.whole_verse_turned_on))
+    }
+
+    @JavascriptInterface
     fun toggleCompareDocument(documentId: String) {
         Log.i(TAG, "toggleCompareDocument")
         val hideDocs = bibleView.workspaceSettings.hideCompareDocuments

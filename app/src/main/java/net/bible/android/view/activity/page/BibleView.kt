@@ -301,15 +301,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return when(item.itemId) {
             R.id.add_bookmark -> {
                 findViewTreeLifecycleOwner()
-                val cat = currentSelection?.book?.bookCategory
-                if(cat != null && cat != BookCategory.BIBLE) {
-                    makeBookmark()
-                    mode.finish()
-                } else {
-                    step2 = true
-                    mode.menu.clear()
-                    mode.invalidate()
-                }
+                step2 = true
+                mode.menu.clear()
+                mode.invalidate()
                 return false
             }
             R.id.add_bookmark_selection -> {
@@ -397,6 +391,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     ordinalStart = selection.startOrdinal,
                     ordinalEnd = selection.endOrdinal,
                     textRange = textRange,
+                    wholeVerse = wholeVerse,
                     new = true,
                 )
             }
@@ -476,13 +471,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         Log.i(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
         if(modalOpen) return false
+
         if(menuPrepared) {
             mode.menu.clear()
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
+            menu.findItem(R.id.add_bookmark_whole_verse).run {
+                setTitle(
+                    if(isBible) R.string.add_bookmark_whole_verse1
+                    else R.string.add_bookmark_whole_sentence
+                )
+            }
+
             val sel = currentSelection
-            val isBible = sel?.book?.bookCategory == BookCategory.BIBLE
+
             // For some reason, these do not seem to be correct from XML, even though specified there
-            if(isBible && CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false)) {
+            if(CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false)) {
                 menu.findItem(R.id.add_bookmark_selection).run {
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     setVisible(true)
@@ -544,6 +547,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(step2) {
                 mode.menu.clear()
                 mode.menuInflater.inflate(R.menu.bibleview_selection2, menu)
+                menu.findItem(R.id.add_bookmark_whole_verse).run {
+                    setTitle(
+                        if(isBible) R.string.add_bookmark_whole_verse1
+                        else R.string.add_bookmark_whole_sentence
+                    )
+                }
                 step2 = false
                 return true
             }
@@ -1671,9 +1680,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return result.await()
     }
 
+    private val isBible get() = firstDocument is BibleDocument
+
     fun requestPreviousChapter(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtTop")
-        if (firstDocument is BibleDocument) {
+        if (isBible) {
             val newChap = minChapter - 1
 
             if(newChap < 1) return@launch
@@ -1687,7 +1698,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun requestNextChapter(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtEnd")
-        if (firstDocument is BibleDocument) {
+        if (isBible) {
             val newChap = maxChapter + 1
             val currentPage = window.pageManager.currentBible
             val verse = currentPage.currentBibleVerse.verse

@@ -50,7 +50,6 @@
         </div>
         <div
             class="bookmark-button"
-            v-if="isBibleBookmark(bookmark)"
             @click.stop="toggleWholeVerse"
             :style="buttonColor(primaryLabel.color)"
         >

@@ -79,6 +79,7 @@ export type BibleJavascriptInterface = {
     reportModalState: (value: boolean) => void,
     querySelection: (bookmarkId: IdType, value: boolean) => void,
     setBookmarkWholeVerse: (bookmarkId: IdType, value: boolean) => void,
+    setGenericBookmarkWholeVerse: (bookmarkId: IdType, value: boolean) => void,
     toggleCompareDocument: (documentId: string) => void,
     helpDialog: (content: string, title: Nullable<string>) => void,
     shareHtml: (html: string) => void,
@@ -446,7 +447,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         if(isBibleBookmark(bookmark)) {
             window.android.setBookmarkWholeVerse(bookmark.id, value);
         } else {
-            console.error("Unsupported operation for generic bookmarks")
+            window.android.setGenericBookmarkWholeVerse(bookmark.id, value);
         }
     }
 

@@ -407,6 +407,7 @@ class BookmarkEntities {
             endOffset: Int?,
             primaryLabelId: IdType? = null,
             notes: String? = null,
+            wholeVerse: Boolean = false,
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         ): this(
             id = id,
@@ -420,6 +421,7 @@ class BookmarkEntities {
             primaryLabelId = primaryLabelId,
             notes = notes,
             lastUpdatedOn = lastUpdatedOn,
+            wholeVerse = wholeVerse,
             new = false
         )
         constructor(
@@ -491,6 +493,7 @@ class BookmarkEntities {
             endOffset = endOffset,
             primaryLabelId = primaryLabelId,
             lastUpdatedOn = lastUpdatedOn,
+            wholeVerse = wholeVerse,
         )
         override val noteEntity get() = if(notes == null) null else GenericBookmarkNotes(id, notes!!)
     }
