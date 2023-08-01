@@ -109,6 +109,7 @@ class BookmarkEntities {
 
         var primaryLabelId: IdType?
         var lastUpdatedOn: Date
+        var wholeVerse: Boolean
     }
 
     interface BaseBookmarkNotes {
@@ -137,6 +138,7 @@ class BookmarkEntities {
         var primaryLabelId: IdType?
         var notes: String?
         var lastUpdatedOn: Date
+        var wholeVerse: Boolean
         var textRange: TextRange?
         var new: Boolean
 
@@ -167,7 +169,7 @@ class BookmarkEntities {
         override var primaryLabelId: IdType? = null,
         override var notes: String? = null,
         override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
-        var wholeVerse: Boolean = false,
+        override var wholeVerse: Boolean = false,
         var type: BookmarkType? = null,
         override var new: Boolean = false,
     ): VerseRangeUser, BaseBookmarkWithNotes {
@@ -223,7 +225,7 @@ class BookmarkEntities {
         )
 
         override var textRange: TextRange?
-            get() = if(startOffset != null) {
+            get() = if(startOffset != null && endOffset != null) {
                 TextRange(startOffset!!, endOffset!!)
             } else null
             set(value) {
@@ -348,7 +350,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "NULL") override var primaryLabelId: IdType? = null,
 
         @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
-        @ColumnInfo(defaultValue = "0") var wholeVerse: Boolean = false,
+        @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
     ): BaseBookmark
 
@@ -391,6 +393,7 @@ class BookmarkEntities {
         override var primaryLabelId: IdType? = null,
         override var notes: String? = null,
         override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        override var wholeVerse: Boolean = false,
         override var new: Boolean = false,
     ): BaseBookmarkWithNotes {
         constructor(
@@ -400,8 +403,8 @@ class BookmarkEntities {
             bookInitials: String,
             ordinalStart: Int,
             ordinalEnd: Int,
-            startOffset: Int,
-            endOffset: Int,
+            startOffset: Int?,
+            endOffset: Int?,
             primaryLabelId: IdType? = null,
             notes: String? = null,
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
@@ -426,11 +429,11 @@ class BookmarkEntities {
             book: Book,
             ordinalStart: Int,
             ordinalEnd: Int,
-            startOffset: Int,
-            endOffset: Int,
+            textRange: TextRange?,
             primaryLabelId: IdType? = null,
             notes: String? = null,
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+            wholeVerse: Boolean = false,
             new: Boolean = false
         ): this(
             id = id,
@@ -439,16 +442,17 @@ class BookmarkEntities {
             bookInitials = book.initials,
             ordinalStart = ordinalStart,
             ordinalEnd = ordinalEnd,
-            startOffset = startOffset,
-            endOffset = endOffset,
+            startOffset = textRange?.start,
+            endOffset = textRange?.end,
             primaryLabelId = primaryLabelId,
             notes = notes,
             lastUpdatedOn = lastUpdatedOn,
+            wholeVerse = wholeVerse,
             new = new
         )
 
         override var textRange: TextRange?
-            get() = if(startOffset != null) {
+            get() = if(startOffset != null && endOffset != null) {
                 TextRange(startOffset!!, endOffset!!)
             } else null
             set(value) {
@@ -520,6 +524,7 @@ class BookmarkEntities {
 
         @ColumnInfo(defaultValue = "NULL") override var primaryLabelId: IdType? = null,
         @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+        @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
     ): BaseBookmark
 
     @Entity(

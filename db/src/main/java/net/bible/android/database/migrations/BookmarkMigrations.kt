@@ -49,6 +49,7 @@ val genericBookmark = makeMigration(3..4) { _db ->
     _db.execSQL("DROP INDEX `index_GenericBookmark_book_key`");
     _db.execSQL("ALTER TABLE GenericBookmark DROP COLUMN book")
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_GenericBookmark_bookInitials_key` ON `GenericBookmark` (`bookInitials`, `key`)")
+    _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN wholeVerse INTEGER NOT NULL DEFAULT 0")
 }
 val bookmarkMigrations: Array<Migration> = arrayOf(separateText, genericTables, genericBookmark)
 

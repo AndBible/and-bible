@@ -456,7 +456,7 @@ open class BookmarkControl @Inject constructor(
             return
         }
         val verseTexts = SwordContentFacade.getTextWithinOrdinals(osis, b.ordinalStart .. b.ordinalEnd)
-        addText(b, verseTexts)
+        addText(b, verseTexts, b.wholeVerse)
     }
 
     private fun addText(b: BaseBookmarkWithNotes, texts: List<String>, wholeVerse: Boolean = false) {

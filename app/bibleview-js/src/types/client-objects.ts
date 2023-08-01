@@ -45,6 +45,10 @@ export type OsisFragment = {
 export type NumberRange = [start: number, end: number]
 export type OrdinalRange = NumberRange
 export type OffsetRange = [start: number, end: Nullable<number>]
+export type OrdinalAndOffsetRange = {
+    ordinalRange: OrdinalRange,
+    offsetRange: OffsetRange
+}
 export type OrdinalOffset = [start: number, end: Nullable<number>]
 export type CombinedRange = [start: OrdinalOffset, end: OrdinalOffset]
 
@@ -70,7 +74,7 @@ export type BaseBookmark = {
     readonly type: "bookmark" | "generic-bookmark"
     readonly hashCode: number
     readonly ordinalRange: OrdinalRange
-    readonly offsetRange: OffsetRange
+    readonly offsetRange: Nullable<OffsetRange>
     readonly labels: IdType[]
     readonly bookInitials: string
     readonly bookName: string
@@ -104,7 +108,6 @@ export type GenericBookmark = BaseBookmark & {
     readonly keyName: string
     readonly bookmarkToLabels: GenericBookmarkToLabel[]
     readonly highlightedText: string
-    wholeVerse: false
 }
 
 export type StudyPadTextItem = {

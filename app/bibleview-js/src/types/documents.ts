@@ -27,6 +27,7 @@ import {
     BibleBookmarkToLabel,
     GenericBookmarkToLabel
 } from "@/types/client-objects";
+import {Nullable} from "@/types/common";
 
 export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal" | "none"
 
@@ -57,7 +58,8 @@ type BaseOsisDocument = BaseDocument & {
 }
 
 export type OsisDocument = BaseOsisDocument & {
-    type: "osis"
+    type: "osis",
+    highlightedOrdinalRange: Nullable<OrdinalRange>
 }
 
 export type ErrorDocument = BaseDocument & {

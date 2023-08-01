@@ -18,7 +18,7 @@
 import Color from "color";
 import {OrdinalRange} from "@/types/client-objects";
 import {Ref} from "vue";
-import {EventVerseInfo} from "@/utils";
+import {EventOrdinalInfo, EventVerseInfo} from "@/utils";
 
 export type ReloadAddonsParams = {
     readonly fontModuleNames: string[],
@@ -46,6 +46,11 @@ export type BibleDocumentInfo = {
     originalOrdinalRange: OrdinalRange,
     v11n: string
 }
+export type OsisDocumentInfo = {
+    bookInitials: string,
+    highlightedOrdinalRange: OrdinalRange | null,
+    osisRef: string,
+}
 
 export type VerseInfo = {
     ordinal: number
@@ -67,7 +72,9 @@ export type AreYouSureButton = {
     result: any
 }
 
-export type SelectionInfo = EventVerseInfo & {
+export type SelectionInfo = {
+    verseInfo: Nullable<EventVerseInfo>
+    ordinalInfo: Nullable<EventOrdinalInfo>
     startOrdinal: number
     endOrdinal: number
 }

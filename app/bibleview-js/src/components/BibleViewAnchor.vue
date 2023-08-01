@@ -16,13 +16,49 @@
   -->
 
 <template>
-  <span :id="`o-${ordinal}`" :data-ordinal="ordinal" class="ordinal"><slot/></span>
+  <span
+      :id="`o-${ordinal}`"
+      :data-ordinal="ordinal"
+      class="ordinal highlight-transition"
+      @click="ordinalClicked"
+      :class="{isHighlighted: highlighted}"
+  ><slot/></span>
 </template>
 
 <script lang="ts" setup>
-defineProps<{ ordinal: string }>();
+import {addEventOrdinalInfo} from "@/utils";
+import {computed, inject} from "vue";
+import {androidKey, osisDocumentInfoKey, verseHighlightKey} from "@/types/constants";
+
+const props = defineProps<{ ordinal: string }>();
+
+const ordinal = computed(() => parseInt(props.ordinal));
+
+const {querySelection} = inject(androidKey)!
+const {highlightedVerses, highlightVerse} = inject(verseHighlightKey)!;
+
+const highlighted = computed(() => highlightedVerses.has(ordinal.value))
+
+const osisDocumentInfo = inject(osisDocumentInfoKey)!;
+
+if (
+    osisDocumentInfo.highlightedOrdinalRange &&
+    ordinal.value <= osisDocumentInfo.highlightedOrdinalRange[1] &&
+    ordinal.value >= osisDocumentInfo.highlightedOrdinalRange[0]
+) {
+    highlightVerse(ordinal.value)
+}
+function ordinalClicked(event: Event) {
+    if(querySelection() != null) return;
+
+    addEventOrdinalInfo(event, {
+        ordinal: ordinal.value,
+        bookInitials: osisDocumentInfo.bookInitials,
+        osisRef: osisDocumentInfo.osisRef
+    })
+}
+
 </script>
-
-<style scoped>
-
+<style lang="scss">
+@import "~@/common.scss";
 </style>

@@ -18,7 +18,7 @@
 import {InjectionKey, Ref} from "vue";
 import {OsisFragment} from "@/types/client-objects";
 import {useAndroid} from "@/composables/android";
-import {BibleDocumentInfo, FootNoteCount, VerseInfo} from "@/types/common";
+import {BibleDocumentInfo, FootNoteCount, OsisDocumentInfo, VerseInfo} from "@/types/common";
 import {useVerseHighlight} from "@/composables/verse-highlight";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
@@ -33,6 +33,7 @@ import {useKeyboard} from "@/composables/keyboard";
 export const osisFragmentKey: InjectionKey<OsisFragment> = Symbol("osisFragment");
 export const androidKey: InjectionKey<ReturnType<typeof useAndroid>> = Symbol("android");
 export const bibleDocumentInfoKey: InjectionKey<BibleDocumentInfo> = Symbol("bibleDocumentInfo");
+export const osisDocumentInfoKey: InjectionKey<OsisDocumentInfo> = Symbol("osisDocumentInfo");
 export const verseInfoKey: InjectionKey<VerseInfo> = Symbol("verseInfo");
 export const modalKey: InjectionKey<ReturnType<typeof useModal>> = Symbol("modal");
 export const keyboardKey: InjectionKey<ReturnType<typeof useKeyboard>> = Symbol("keyboard");

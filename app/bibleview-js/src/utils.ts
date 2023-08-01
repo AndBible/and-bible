@@ -344,16 +344,34 @@ export type EventVerseInfo = VerseInfo & {
     verseTo?: string
 }
 
+export type EventOrdinalInfo = {
+    bookInitials: string
+    osisRef: string
+    ordinal: number
+}
+
 type EventWithVerseInfo = Event & {
     verseInfo?: EventVerseInfo
+}
+
+type EventWithOrdinalInfo = Event & {
+    ordinalInfo?: EventOrdinalInfo
 }
 
 export function addEventVerseInfo(event: EventWithVerseInfo, verseInfo: EventVerseInfo) {
     event.verseInfo = verseInfo;
 }
 
+export function addEventOrdinalInfo(event: EventWithOrdinalInfo, ordinalInfo: EventOrdinalInfo) {
+    event.ordinalInfo = ordinalInfo;
+}
+
 export function getEventVerseInfo(event: EventWithVerseInfo): Nullable<EventVerseInfo> {
     return event.verseInfo || null;
+}
+
+export function getEventOrdinalInfo(event: EventWithOrdinalInfo): Nullable<EventOrdinalInfo> {
+    return event.ordinalInfo || null;
 }
 
 export const EventPriorities = {

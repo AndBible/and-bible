@@ -31,12 +31,12 @@ import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icon
 import {Icon, icon} from "@fortawesome/fontawesome-svg-core";
 import {AppSettings, Config, testMode} from "@/composables/config";
 import {
-    BaseBookmark,
+    BaseBookmark, BaseBookmarkToLabel,
     BibleBookmark,
     CombinedRange,
     GenericBookmark,
     Label,
-    LabelAndStyle,
+    LabelAndStyle, OffsetRange, OrdinalAndOffsetRange,
     OrdinalOffset,
     OrdinalRange,
 } from "@/types/client-objects";
@@ -304,10 +304,10 @@ export function useBookmarks(
         })
     });
 
-    function truncateToOrdinalRange(bookmark: BaseBookmark) {
+    function truncateToOrdinalRange(bookmark: BaseBookmark): OrdinalAndOffsetRange {
         const b = {
-            ordinalRange: bookmark.ordinalRange && bookmark.ordinalRange.slice(),
-            offsetRange: bookmark.offsetRange && bookmark.offsetRange.slice(),
+            ordinalRange: bookmark.ordinalRange && bookmark.ordinalRange.slice() as OrdinalRange,
+            offsetRange: bookmark.offsetRange && bookmark.offsetRange.slice() as OffsetRange,
         };
         b.offsetRange = b.offsetRange || [0, null]
         if (b.ordinalRange[0] < ordinalRange[0]) {
@@ -318,7 +318,7 @@ export function useBookmarks(
             b.ordinalRange[1] = ordinalRange[1];
             b.offsetRange[1] = null;
         }
-        return b;
+        return b as OrdinalAndOffsetRange;
     }
 
     function combinedRange(b: BaseBookmark): CombinedRange {

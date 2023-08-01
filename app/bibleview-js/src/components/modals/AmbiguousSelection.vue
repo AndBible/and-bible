@@ -20,7 +20,6 @@
                :limit="limitAmbiguousModalSize">
     <template #extra-buttons>
       <button
-          v-if="verseInfo"
           class="modal-action-button right"
           @touchstart.stop
           @click="multiSelectionButtonClicked"
@@ -81,8 +80,10 @@ import {computed, inject, provide, ref, Ref, watch} from "vue";
 import {
     Callback,
     Deferred,
+    EventOrdinalInfo,
     EventVerseInfo,
     getAllEventFunctions,
+    getEventOrdinalInfo,
     getEventVerseInfo,
     getHighestPriorityEventFunctions,
     isBottomHalfClicked,
@@ -131,11 +132,13 @@ const locateTop = ref(false);
 provide(locateTopKey, locateTop);
 
 const verseInfo: Ref<Nullable<EventVerseInfo>> = ref(null);
+const ordinalInfo: Ref<Nullable<EventOrdinalInfo>> = ref(null);
 
 const selectionInfo = computed<Nullable<SelectionInfo>>(() => {
-    if (!verseInfo.value) return null;
+    if (!verseInfo.value && !ordinalInfo.value) return null;
     return {
-        ...verseInfo.value,
+        verseInfo: verseInfo.value,
+        ordinalInfo: ordinalInfo.value,
         startOrdinal: startOrdinal.value!,
         endOrdinal: endOrdinal.value!,
     }
@@ -205,13 +208,23 @@ function updateHighlight() {
     }
 }
 
-function multiSelect(_verseInfo: Optional<EventVerseInfo>) {
-    if (!_verseInfo) return false;
-    if (_verseInfo.ordinal < startOrdinal.value!) {
-        endOrdinal.value = null;
-        return false
-    } else {
-        endOrdinal.value = _verseInfo.ordinal;
+function multiSelect(_verseInfo: Optional<EventVerseInfo>, _ordinalInfo: Optional<EventOrdinalInfo>) {
+    if (!_verseInfo && _ordinalInfo) return false;
+    if(_verseInfo) {
+        if (_verseInfo.ordinal < startOrdinal.value!) {
+            endOrdinal.value = null;
+            return false
+        } else {
+            endOrdinal.value = _verseInfo.ordinal;
+        }
+    }
+    if(_ordinalInfo) {
+        if (_ordinalInfo.ordinal < startOrdinal.value!) {
+            endOrdinal.value = null;
+            return false
+        } else {
+            endOrdinal.value = _ordinalInfo.ordinal;
+        }
     }
     updateHighlight();
     return true;
@@ -238,21 +251,16 @@ const selectedBookmarks = computed<BaseBookmark[]>(() => {
     return result.map(bId => bookmarkMap.get(bId)).filter(b => b) as BaseBookmark[];
 });
 
-const numItemsDisplayed = computed(() =>
-    clickedBookmarks.value.length +
-    selectedActions.value.length +
-    selectedBookmarks.value.length
-)
-
-watch(numItemsDisplayed, (value, oldValue) => {
-    if(verseInfo.value === null && value === 0 && oldValue > 0) {
-        cancelled()
-    }
-})
-
 function setInitialVerse(_verseInfo: EventVerseInfo) {
     verseInfo.value = _verseInfo;
     startOrdinal.value = _verseInfo.ordinal;
+    endOrdinal.value = null;
+    updateHighlight();
+}
+
+function setInitialOrdinal(_ordinalInfo: EventOrdinalInfo) {
+    ordinalInfo.value = _ordinalInfo;
+    startOrdinal.value = _ordinalInfo.ordinal;
     endOrdinal.value = null;
     updateHighlight();
 }
@@ -283,12 +291,14 @@ async function handle(event: MouseEvent) {
     if (!isActive && !hasParticularClicks) return;
     emit("back_clicked");
     const _verseInfo: Nullable<EventVerseInfo> = getEventVerseInfo(event);
-    if (multiSelectionMode.value && multiSelect(_verseInfo)) {
+    const _ordinalInfo: Nullable<EventOrdinalInfo> = getEventOrdinalInfo(event);
+
+    if (multiSelectionMode.value && multiSelect(_verseInfo, _ordinalInfo)) {
         return;
     }
     multiSelectionMode.value = false;
 
-    if (eventFunctions.length > 0 || _verseInfo != null) {
+    if (eventFunctions.length > 0 || _verseInfo != null || _ordinalInfo != null) {
         const firstFunc = eventFunctions[0];
         if (
             (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs)
@@ -311,8 +321,8 @@ async function handle(event: MouseEvent) {
                 setInitialVerse(_verseInfo);
                 const s = await select(event, allEventFunctions);
                 if (s && s.type === "callback" && s.callback) s.callback();
-            } else {
-                // No verse below us. Generic books etc end up here.
+            } else if (_ordinalInfo) {
+                setInitialOrdinal(_ordinalInfo);
                 const s = await select(event, allEventFunctions);
                 if (s && s.type === "callback" && s.callback) s.callback();
             }

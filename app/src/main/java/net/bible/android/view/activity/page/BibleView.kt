@@ -184,6 +184,16 @@ class Selection(
             endOffset = null,
             bookmarks = emptyList(),
         )
+    constructor(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int?):
+        this(
+            bookInitials = bookInitials,
+            osisRef = osisRef,
+            startOrdinal = startOrdinal,
+            startOffset = 0,
+            endOrdinal = endOrdinal?: startOrdinal,
+            endOffset = null,
+            bookmarks = emptyList(),
+        )
 
     @Transient @Inject lateinit var windowControl: WindowControl
 
@@ -371,13 +381,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val initialLabels = workspaceSettings.autoAssignLabels
         val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
 
+        val textRange =
+            if (selection.startOffset != null && selection.endOffset != null)
+                BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
+            else null
+
         val bookmark: BookmarkEntities.BaseBookmarkWithNotes =
             if(selection.book?.bookCategory == BookCategory.BIBLE) {
                 val verseRange = selection.verseRange
-                val textRange =
-                    if (selection.startOffset != null && selection.endOffset != null)
-                        BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
-                    else null
                 BookmarkEntities.BibleBookmarkWithNotes(verseRange!!, textRange, wholeVerse, selection.swordBook)
             } else {
                 BookmarkEntities.GenericBookmarkWithNotes(
@@ -385,8 +396,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     book = selection.book!!,
                     ordinalStart = selection.startOrdinal,
                     ordinalEnd = selection.endOrdinal,
-                    startOffset = selection.startOffset!!,
-                    endOffset = selection.endOffset!!,
+                    textRange = textRange,
                     new = true,
                 )
             }

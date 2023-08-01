@@ -31,7 +31,7 @@
       </FontAwesomeLayers>
       <div class="title">{{ vertical ? strings.verseNoteLong : strings.verseNote }}</div>
     </div>
-    <div class="large-action" @click="openMyNotes">
+    <div v-if="verseInfo" class="large-action" @click="openMyNotes">
       <FontAwesomeIcon icon="file-alt"/>
       <div class="title">{{ strings.verseMyNotes }}</div>
     </div>
@@ -39,11 +39,11 @@
       <FontAwesomeIcon icon="headphones"/>
       <div class="title">{{ vertical? strings.verseSpeakLong: strings.verseSpeak }}</div>
     </div -->
-    <div class="large-action" @click="share">
+    <div v-if="verseInfo" class="large-action" @click="share">
       <FontAwesomeIcon icon="share-alt"/>
       <div class="title">{{ vertical ? strings.verseShareLong : strings.verseShare }}</div>
     </div>
-    <div class="large-action" @click="compare">
+    <div v-if="verseInfo" class="large-action" @click="compare">
       <FontAwesomeIcon icon="custom-compare"/>
       <div class="title">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</div>
     </div>
@@ -72,31 +72,45 @@ const {strings} = useCommon()
 const selectionInfo = computed(() => props.selectionInfo);
 const android = inject(androidKey)!;
 
-const v11n = computed(() => selectionInfo.value && selectionInfo.value.v11n!);
-const bookInitials = computed(() => selectionInfo.value && selectionInfo.value.bookInitials);
+const verseInfo = computed(() => selectionInfo.value?.verseInfo || null);
+const ordinalInfo = computed(() => selectionInfo.value?.ordinalInfo || null);
 const startOrdinal = computed(() => selectionInfo.value && selectionInfo.value.startOrdinal);
 const endOrdinal = computed(() => selectionInfo.value && selectionInfo.value.endOrdinal);
 
 function share() {
-    android.shareVerse(bookInitials.value, startOrdinal.value, endOrdinal.value);
+    if(verseInfo.value) {
+        android.shareVerse(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
+    }
 }
 
 function addBookmark() {
-    android.addBookmark(bookInitials.value, startOrdinal.value, endOrdinal.value, false);
+    if(verseInfo.value) {
+        android.addBookmark(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value, false);
+    } else if(ordinalInfo.value) {
+        android.addGenericBookmark(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value, false);
+    }
     emit("close");
 }
 
 function compare() {
-    android.compare(bookInitials.value, startOrdinal.value, endOrdinal.value);
+    if(verseInfo.value) {
+        android.compare(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
+    }
 }
 
 function addNote() {
-    android.addBookmark(bookInitials.value, startOrdinal.value, endOrdinal.value, true);
+    if(verseInfo.value) {
+        android.addBookmark(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value, true);
+    } else if(ordinalInfo.value) {
+        android.addGenericBookmark(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value, true);
+    }
     emit("close");
 }
 
 function openMyNotes() {
-    android.openMyNotes(v11n.value, startOrdinal.value);
+    if(verseInfo.value) {
+        android.openMyNotes(verseInfo.value.v11n!, startOrdinal.value);
+    }
 }
 </script>
 

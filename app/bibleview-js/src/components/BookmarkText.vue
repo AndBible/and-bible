@@ -22,7 +22,7 @@
       <OsisFragment
           v-if="isBibleBookmark(bookmark) && bookmark.osisFragment"
           :highlight-ordinal-range="bookmark.originalOrdinalRange"
-          :highlight-offset-range="highlightOffset"
+          :highlight-offset-range="highlightOffset || undefined"
           :fragment="bookmark.osisFragment"
           hide-titles
       />

@@ -90,22 +90,29 @@ open class OsisDocument(
     val book: Book,
     val key: Key,
     val genericBookmarks: List<BookmarkEntities.GenericBookmarkWithNotes> = emptyList(),
+    val highlightRange: IntRange? = null
 ): Document {
-    override val asHashMap: Map<String, String> get () = mapOf(
-        "id" to wrapString("${book.initials}-${key.uniqueId}"),
-        "type" to wrapString("osis"),
-        "osisFragment" to mapToJson(osisFragment.toHashMap),
-        "ordinalRange" to json.encodeToString(serializer(), listOf(0, Int.MAX_VALUE)),
-        "bookInitials" to wrapString(book.initials),
-        "bookCategory" to wrapString(book.bookCategory.name),
-        "bookAbbreviation" to wrapString(book.abbreviation),
-        "bookName" to wrapString(book.name),
-        "key" to wrapString(key.uniqueId),
-        "annotateRef" to wrapString(osisFragment.annotateRef?.osisRef?: key.osisRef),
-        "osisRef" to wrapString((osisFragment.annotateRef ?: key).osisRef),
-        "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
-        "genericBookmarks" to listToJson(genericBookmarks.map { ClientGenericBookmark(it).asJson }),
-    )
+    override val asHashMap: Map<String, String> get () {
+        val highlightedOrdinalRange =
+            if(highlightRange == null) "null"
+            else json.encodeToString(serializer(), listOf(highlightRange.first, highlightRange.last))
+
+        return mapOf(
+            "id" to wrapString("${book.initials}-${key.uniqueId}"),
+            "type" to wrapString("osis"),
+            "osisFragment" to mapToJson(osisFragment.toHashMap),
+            "ordinalRange" to json.encodeToString(serializer(), listOf(0, Int.MAX_VALUE)),
+            "bookInitials" to wrapString(book.initials),
+            "bookCategory" to wrapString(book.bookCategory.name),
+            "bookAbbreviation" to wrapString(book.abbreviation),
+            "bookName" to wrapString(book.name),
+            "key" to wrapString(key.uniqueId),
+            "annotateRef" to wrapString(osisFragment.annotateRef?.osisRef?: key.osisRef),
+            "osisRef" to wrapString((osisFragment.annotateRef ?: key).osisRef),
+            "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
+            "genericBookmarks" to listToJson(genericBookmarks.map { ClientGenericBookmark(it).asJson }),
+            "highlightedOrdinalRange" to highlightedOrdinalRange)
+    }
 }
 
 class BibleDocument(
@@ -248,7 +255,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "keyName" to wrapString(keyName),
             "hashCode" to (abs(bookmark.id.hashCode())).toString(),
             "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.ordinalStart, bookmark.ordinalEnd)),
-            "offsetRange" to json.encodeToString(serializer(), bookmark.textRange?.clientList),
+            "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse) null else bookmark.textRange?.clientList),
             "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
                 if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
             }),
@@ -265,7 +272,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
             "type" to wrapString("generic-bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
-            "wholeVerse" to false.toString(),
+            "wholeVerse" to bookmark.wholeVerse.toString(),
         )
     }
 }
