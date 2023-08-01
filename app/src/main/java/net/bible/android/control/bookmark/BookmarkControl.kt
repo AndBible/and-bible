@@ -455,8 +455,37 @@ open class BookmarkControl @Inject constructor(
             b.text = e.stringMsg
             return
         }
-        b.text = SwordContentFacade.getTextWithinOrdinals(osis, b.ordinalStart, b.ordinalEnd, b.startOffset!!, b.endOffset!!)
+        val verseTexts = SwordContentFacade.getTextWithinOrdinals(osis, b.ordinalStart .. b.ordinalEnd)
+        addText(b, verseTexts)
     }
+
+    private fun addText(b: BaseBookmarkWithNotes, texts: List<String>, wholeVerse: Boolean = false) {
+        val startOffset = if(wholeVerse) 0 else b.startOffset ?: 0
+        var startVerse = texts.first()
+        var endOffset = if(wholeVerse) startVerse.length else b.endOffset ?: startVerse.length
+        val start = startVerse.slice(0 until min(startOffset, startVerse.length))
+        if(texts.size == 1) {
+            val end = startVerse.slice(endOffset until startVerse.length)
+            b.text = startVerse.slice(startOffset until min(endOffset, startVerse.length)).trim()
+            b.startText = start
+            b.endText = end
+            b.fullText = """$start${b.text}$end""".trim()
+        } else if(texts.size > 1) {
+            startVerse = startVerse.slice(startOffset until startVerse.length)
+            val lastVerse = texts.last()
+            endOffset = if(wholeVerse) lastVerse.length else b.endOffset ?: lastVerse.length
+            val endVerse = lastVerse.slice(0 until min(lastVerse.length, endOffset))
+            val end = lastVerse.slice(endOffset until lastVerse.length)
+            val middleVerses = if(texts.size > 2) {
+                texts.slice(1 until texts.size-1).joinToString(" ")
+            } else ""
+            b.startText = start
+            b.endText = end
+            b.text = "$startVerse$middleVerses$endVerse".trim()
+            b.fullText = """$start${b.text}$end""".trim()
+        }
+    }
+
     private fun addText(b: BibleBookmarkWithNotes) {
         val book = b.book ?: windowControl.defaultBibleDoc(false) as SwordBook? ?: return // last ?: return is needed for tests
         b.osisFragment =
@@ -469,30 +498,7 @@ open class BookmarkControl @Inject constructor(
             }
         val verseTexts = b.verseRange.map {  SwordContentFacade.getCanonicalText(book, it, true) }
         val wholeVerse = b.wholeVerse || b.book == null
-        val startOffset = if(wholeVerse) 0 else b.startOffset ?: 0
-        var startVerse = verseTexts.first()
-        var endOffset = if(wholeVerse) startVerse.length else b.endOffset ?: startVerse.length
-        val start = startVerse.slice(0 until min(startOffset, startVerse.length))
-        if(verseTexts.size == 1) {
-            val end = startVerse.slice(endOffset until startVerse.length)
-            b.text = startVerse.slice(startOffset until min(endOffset, startVerse.length)).trim()
-            b.startText = start
-            b.endText = end
-            b.fullText = """$start${b.text}$end""".trim()
-        } else if(verseTexts.size > 1) {
-            startVerse = startVerse.slice(startOffset until startVerse.length)
-            val lastVerse = verseTexts.last()
-            endOffset = if(wholeVerse) lastVerse.length else b.endOffset ?: lastVerse.length
-            val endVerse = lastVerse.slice(0 until min(lastVerse.length, endOffset))
-            val end = lastVerse.slice(endOffset until lastVerse.length)
-            val middleVerses = if(verseTexts.size > 2) {
-                verseTexts.slice(1 until verseTexts.size-1).joinToString(" ")
-            } else ""
-            b.startText = start
-            b.endText = end
-            b.text = "$startVerse$middleVerses$endVerse".trim()
-            b.fullText = """$start${b.text}$end""".trim()
-        }
+        addText(b, verseTexts, wholeVerse)
     }
 
     fun labelById(id: IdType): Label? = dao.labelById(id)

@@ -260,6 +260,8 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "notes" to notes,
             "hasNote" to (notes != "null").toString(),
             "text" to wrapString(bookmark.text),
+            "fullText" to wrapString(bookmark.fullText),
+            "highlightedText" to wrapString(bookmark.highlightedText),
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
             "type" to wrapString("generic-bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),

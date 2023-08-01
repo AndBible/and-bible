@@ -27,10 +27,10 @@
           hide-titles
       />
       <div
+          v-else-if="isGenericBookmark(bookmark)"
           @click.stop="$emit('change-expanded', false)"
-          v-else>
-        {{ bookmark.text }}
-      </div>
+          v-html="bookmark.highlightedText"
+      />
     </div>
     <div class="bookmark-text one-liner" v-else>
       <q @click.stop="$emit('change-expanded', true)" class="bible-text">{{ bookmark.text }}</q>
@@ -44,7 +44,7 @@ import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {computed, ref} from "vue";
 import {BaseBookmark} from "@/types/client-objects";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
-import {isBibleBookmark} from "@/composables/bookmarks";
+import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
 
 const props = withDefaults(defineProps<{
     bookmark: BaseBookmark,

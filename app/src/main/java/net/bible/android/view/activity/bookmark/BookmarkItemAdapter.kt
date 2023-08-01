@@ -113,11 +113,7 @@ class BookmarkItemAdapter(
         val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
         bindings.dateText.text = sDt
 
-        val spanned = when(item) {
-            is BibleBookmarkWithNotes -> htmlToSpan(item.highlightedText)
-            is BookmarkEntities.GenericBookmarkWithNotes -> htmlToSpan(item.text)
-            else -> throw RuntimeException("Illegal type")
-        }
+        val spanned = htmlToSpan(item.highlightedText)
 
         bindings.verseContentText.text = spanned
         return convertView ?: bindings.root

@@ -77,6 +77,7 @@ export type BaseBookmark = {
     readonly bookAbbreviation: string
     readonly createdAt: number
     readonly text: string
+    readonly fullText: string
     readonly bookmarkToLabels: BaseBookmarkToLabel[]
     readonly primaryLabelId: IdType
     lastUpdatedOn: number
@@ -93,7 +94,6 @@ export type BibleBookmark = BaseBookmark & {
     readonly verseRangeOnlyNumber: string
     readonly verseRangeAbbreviated: string
     readonly v11n: string
-    readonly fullText: string
     readonly osisFragment: OsisFragment | null
     readonly bookmarkToLabels: BibleBookmarkToLabel[]
 }
@@ -103,6 +103,7 @@ export type GenericBookmark = BaseBookmark & {
     readonly key: string
     readonly keyName: string
     readonly bookmarkToLabels: GenericBookmarkToLabel[]
+    readonly highlightedText: string
     wholeVerse: false
 }
 

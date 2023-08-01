@@ -196,21 +196,14 @@ object SwordContentFacade {
     }
 
     private val ignoredElements = listOf("note")
-    fun getTextWithinOrdinals(element: Element, startOrdinal: Int, endOrdinal: Int, startOffset: Int, endOffset: Int): String {
-        val all = XPathFactory.instance().compile(".//BVA", Filters.element()).evaluate(element).filter {
-            it.getAttribute("ordinal").value.toInt() in startOrdinal..endOrdinal
+
+    fun getTextWithinOrdinals(element: Element, ordinalRange: IntRange): List<String> {
+        return XPathFactory.instance().compile(".//BVA", Filters.element()).evaluate(element).filter {
+            it.getAttribute("ordinal").value.toInt() in ordinalRange
                 && it.parentElement?.name?.lowercase() !in ignoredElements
                 && it.parentElement?.parentElement?.name?.lowercase() !in ignoredElements
                 && it.parentElement?.parentElement?.parentElement?.name?.lowercase() !in ignoredElements
-        }
-        return if(all.size == 1) {
-            all.first().text.let { it.slice(min(startOffset, it.length)  until min(endOffset, it.length)) }
-        } else {
-            val first = all.first().text.let { it.slice(min(startOffset, it.length)  until it.length) }
-            val last = all.last().text.let { it.slice(0 until min(endOffset, it.length)) }
-
-            first + all.slice(1 until all.size - 1).joinToString(" ") { it.text } + last
-        }
+        }.map { it.text }
     }
 
     /**

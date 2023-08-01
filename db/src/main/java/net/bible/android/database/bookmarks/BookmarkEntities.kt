@@ -142,6 +142,12 @@ class BookmarkEntities {
 
         var labelIds: List<IdType>?
         var text: String?
+
+        var fullText: String?
+        var startText: String?
+        var endText: String?
+        val highlightedText: String
+
         fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>)
     }
 
@@ -267,14 +273,15 @@ class BookmarkEntities {
             bookmarkToLabels = l as List<BibleBookmarkToLabel>
         }
 
-        val highlightedText: String get() {
-            return "$startText<b>$text</b>$endText"
-        }
+        override val highlightedText: String get() = "$startText<b>$text</b>$endText"
 
-        @Ignore var startText: String? = null
-        @Ignore var endText: String? = null
+        @Ignore
+        override var startText: String? = null
+        @Ignore
+        override var endText: String? = null
 
-        @Ignore var fullText: String? = null
+        @Ignore
+        override var fullText: String? = null
         @Ignore var osisFragment: OsisFragment? = null
 
         override val bookmarkEntity get() = BibleBookmark(
@@ -457,6 +464,11 @@ class BookmarkEntities {
         @Ignore override var labelIds: List<IdType>? = null
         @Ignore var bookmarkToLabels: List<GenericBookmarkToLabel>? = null
         @Ignore override var text: String? = null
+        @Ignore override var fullText: String? = null
+        @Ignore override var startText: String? = null
+        @Ignore override var endText: String? = null
+        override val highlightedText: String get() = "$startText<b>$text</b>$endText"
+
         override fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>) {
             bookmarkToLabels = l as List<GenericBookmarkToLabel>
         }
