@@ -191,33 +191,47 @@ class SentenceSplitTest {
     )
 
     @Test fun testSplitSentences08() = assertThat(
-        SwordContentFacade.splitSentences("Test. Test2. Test3."),
-        equalTo(listOf("Test. ", "Test2. Test3."))
+        SwordContentFacade.splitSentences("Test. Joh 3.2. Test."),
+        equalTo(listOf("Test. ", "Joh 3.2. Test."))
+    )
+    @Test fun testSplitSentences08b() = assertThat(
+        SwordContentFacade.splitSentences("Joh 3.2. Test."),
+        equalTo(listOf("Joh 3.2. Test."))
+    )
+
+    @Test fun testSplitSentences08c() = assertThat(
+        SwordContentFacade.splitSentences("Joh 3.2,4 Matt 3:4"),
+        equalTo(listOf("Joh 3.2,4 Matt 3:4"))
+    )
+
+    @Test fun testSplitSentences08d() = assertThat(
+        SwordContentFacade.splitSentences("Joh. 3.2:4-Matt. 3:4"),
+        equalTo(listOf("Joh. 3.2:4-Matt. 3:4"))
     )
 
     @Test fun testSplitSentences09() = assertThat(
         SwordContentFacade.splitSentences("Jotain tekstiä (Eph 1:1-2). Jotain tekstiä lisää."),
-        equalTo(listOf("Jotain tekstiä (Eph 1:1-2). Jotain tekstiä lisää."))
+        equalTo(listOf("Jotain tekstiä (Eph 1:1-2). ", "Jotain tekstiä lisää."))
     )
 
     @Test fun testSplitSentences10() = assertThat(
         SwordContentFacade.splitSentences("Jotain tekstiä (Eph 1:1-2,3). Jotain tekstiä lisää."),
-        equalTo(listOf("Jotain tekstiä (Eph 1:1-2,3). Jotain tekstiä lisää."))
+        equalTo(listOf("Jotain tekstiä (Eph 1:1-2,3). ", "Jotain tekstiä lisää."))
     )
 
     @Test fun testSplitSentences11() = assertThat(
         SwordContentFacade.splitSentences("Jotain tekstiä (Eph 1:1-2, Matt 2:3). Jotain tekstiä lisää."),
-        equalTo(listOf("Jotain tekstiä (Eph 1:1-2, Matt 2:3). Jotain tekstiä lisää."))
+        equalTo(listOf("Jotain tekstiä (Eph 1:1-2, Matt 2:3). ", "Jotain tekstiä lisää."))
     )
 
     @Test fun testSplitSentences12() = assertThat(
         SwordContentFacade.splitSentences("Jotain tekstiä (Ef. 1:1-2, Matt. 2:3). Jotain tekstiä lisää."),
-                                equalTo(listOf("Jotain tekstiä (Ef. 1:1-2, Matt. 2:3). Jotain tekstiä lisää."))
+                                equalTo(listOf("Jotain tekstiä (Ef. 1:1-2, Matt. 2:3). ", "Jotain tekstiä lisää."))
     )
 
     @Test fun testSplitSentences13() = assertThat(
         SwordContentFacade.splitSentences("Jotain tekstiä (Ef. 1:1-2,Matt. 2:3). Jotain tekstiä lisää."),
-        equalTo(listOf("Jotain tekstiä (Ef. 1:1-2,Matt. 2:3). Jotain tekstiä lisää."))
+        equalTo(listOf("Jotain tekstiä (Ef. 1:1-2,Matt. 2:3). ", "Jotain tekstiä lisää."))
     )
 
     @Test fun testSplitSentences14() = assertThat(
@@ -228,6 +242,26 @@ class SentenceSplitTest {
     @Test fun testSplitSentences15() = assertThat(
         SwordContentFacade.splitSentences("Jotain tekstiä Ef1:1-2,Matt.2:3. Jotain tekstiä lisää."),
         equalTo(listOf("Jotain tekstiä Ef1:1-2,Matt.2:3. Jotain tekstiä lisää."))
+    )
+
+    @Test fun testSplitSentences16() = assertThat(
+        SwordContentFacade.splitSentences("Jotain tekstiä (Ref1 1:2). Jotain tekstiä lisää."),
+        equalTo(listOf("Jotain tekstiä (Ref1 1:2). ", "Jotain tekstiä lisää."))
+    )
+
+    @Test fun testSplitSentences17() = assertThat(
+        SwordContentFacade.splitSentences("Jotain tekstiä (Ref1 1:2). \"Jotain\" tekstiä lisää."),
+        equalTo(listOf("Jotain tekstiä (Ref1 1:2). ", "\"Jotain\" tekstiä lisää."))
+    )
+
+    @Test fun testSplitSentences18() = assertThat(
+        SwordContentFacade.splitSentences("\"Jotain tekstiä (Ref1 1:2)\". \"Jotain\" tekstiä lisää."),
+        equalTo(listOf("\"Jotain tekstiä (Ref1 1:2)\". ", "\"Jotain\" tekstiä lisää."))
+    )
+
+    @Test fun testSplitSentences19() = assertThat(
+        SwordContentFacade.splitSentences("\"Jotain tekstiä (Ref1 1:2).\" \"Jotain\" tekstiä lisää."),
+        equalTo(listOf("\"Jotain tekstiä (Ref1 1:2).\" ", "\"Jotain\" tekstiä lisää."))
     )
 }
 

@@ -106,12 +106,9 @@ object SwordContentFacade {
             cacheFragment("${book.initials}-${key.osisRef}", it)
         }
 
-    private val splitMarkers = Regex("""(?<=[.,])""")
-    private val splitSpaces = Regex("""(?<=\s)""")
+    // Split sentences as well as possible, but avoid splitting bible references.
+    private val splitMatch = Regex("""((\s\w+|^\w+|['"’”)\]}])[.,!?]['"’”]?\s+)(['"’”]?\D)""")
 
-
-    // Avoid possible bible references when separating sentences.
-    private val splitMatch = Regex("""((\D\s+|^)\w+['"’”]?[.,!?]['"’”]?\s+)(\D)""")
     fun splitSentences(text: String): List<String> {
         val matches = splitMatch.findAll(text)
         val pieces = mutableListOf<String>()
