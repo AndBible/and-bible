@@ -263,6 +263,11 @@ class SentenceSplitTest {
         SwordContentFacade.splitSentences("\"Jotain tekstiä (Ref1 1:2).\" \"Jotain\" tekstiä lisää."),
         equalTo(listOf("\"Jotain tekstiä (Ref1 1:2).\" ", "\"Jotain\" tekstiä lisää."))
     )
+
+    @Test fun testSplitSentences20() = assertThat(
+        SwordContentFacade.splitSentences("Jotain tekstiä (Ref1 1:2): \"Jotain\" tekstiä lisää."),
+        equalTo(listOf("Jotain tekstiä (Ref1 1:2): ", "\"Jotain\" tekstiä lisää."))
+    )
 }
 
 @RunWith(RobolectricTestRunner::class)
