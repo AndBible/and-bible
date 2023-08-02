@@ -111,7 +111,7 @@ object SwordContentFacade {
 
 
     // Avoid possible bible references when separating sentences.
-    private val splitMatch = Regex("""((\D\s+|^)[\w'"’”]+[.,!?]\s+)(\D)""")
+    private val splitMatch = Regex("""((\D\s+|^)\w+['"’”]?[.,!?]['"’”]?\s+)(\D)""")
     fun splitSentences(text: String): List<String> {
         val matches = splitMatch.findAll(text)
         val pieces = mutableListOf<String>()
