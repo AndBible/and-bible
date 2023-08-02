@@ -72,14 +72,14 @@ import {
     modalKey,
     scrollKey,
     stringsKey,
-    verseHighlightKey
+    ordinalHighlightKey
 } from "@/types/constants";
 import {useKeyboard} from "@/composables/keyboard";
 import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
 import {useConfig} from "@/composables/config";
-import {useVerseHighlight} from "@/composables/verse-highlight";
+import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
 import {useCustomFeatures} from "@/composables/features";
@@ -110,8 +110,8 @@ const strings = useStrings();
 window.bibleViewDebug.documents = documents;
 const topElement = ref<HTMLElement | null>(null);
 const documentPromise: Ref<Promise<void> | null> = ref(null);
-const verseHighlight = useVerseHighlight();
-provide(verseHighlightKey, verseHighlight);
+const verseHighlight = useOrdinalHighlight();
+provide(ordinalHighlightKey, verseHighlight);
 const {resetHighlights} = verseHighlight;
 const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
 const {doScrolling, scrollToId} = scroll;

@@ -19,14 +19,14 @@ import {computed, nextTick, ref, Ref, watch} from "vue";
 import {setupEventBusListener} from "@/eventbus";
 import {isInViewport} from "@/utils";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
-import {useVerseHighlight} from "@/composables/verse-highlight";
+import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {Nullable} from "@/types/common";
 
 export function useScroll(
     config: Config,
     appSettings: AppSettings,
     calculatedConfig: CalculatedConfig,
-    highlight: ReturnType<typeof useVerseHighlight>,
+    highlight: ReturnType<typeof useOrdinalHighlight>,
     documentPromise: Ref<Promise<void> | null>
 ) {
     const {highlightVerse, resetHighlights} = highlight;

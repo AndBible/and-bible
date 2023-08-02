@@ -19,7 +19,7 @@ import {InjectionKey, Ref} from "vue";
 import {OsisFragment} from "@/types/client-objects";
 import {useAndroid} from "@/composables/android";
 import {BibleDocumentInfo, FootNoteCount, OsisDocumentInfo, VerseInfo} from "@/types/common";
-import {useVerseHighlight} from "@/composables/verse-highlight";
+import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
 import {useCustomCss} from "@/composables/custom-css";
@@ -39,7 +39,7 @@ export const modalKey: InjectionKey<ReturnType<typeof useModal>> = Symbol("modal
 export const keyboardKey: InjectionKey<ReturnType<typeof useKeyboard>> = Symbol("keyboard");
 export const footnoteCountKey: InjectionKey<FootNoteCount> = Symbol("footnoteCount");
 export const referenceCollectorKey: InjectionKey<ReturnType<typeof useReferenceCollector>> = Symbol("referenceCollector");
-export const verseHighlightKey: InjectionKey<ReturnType<typeof useVerseHighlight>> = Symbol("verseHighlight");
+export const ordinalHighlightKey: InjectionKey<ReturnType<typeof useOrdinalHighlight>> = Symbol("verseHighlight");
 export const globalBookmarksKey: InjectionKey<ReturnType<typeof useGlobalBookmarks>> = Symbol("globalBookmarks");
 export const configKey: InjectionKey<Config> = Symbol("config");
 export const appSettingsKey: InjectionKey<AppSettings> = Symbol("appSettings");

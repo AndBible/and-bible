@@ -22,8 +22,8 @@ import {arrayLeq, rangeInside, rangesOverlap, setFrom} from "@/utils";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
 import {useStrings} from "@/composables/strings";
 import {useConfig} from "@/composables/config";
-import {useVerseHighlight} from "@/composables/verse-highlight";
-import {androidKey, configKey, stringsKey, verseHighlightKey} from "@/types/constants";
+import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
+import {androidKey, configKey, stringsKey, ordinalHighlightKey} from "@/types/constants";
 import { describe, it, expect, beforeAll} from 'vitest'
 
 window.bibleViewDebug = {}
@@ -37,7 +37,7 @@ describe("Verse.vue", () => {
         const provide = {
             [configKey]: config,
             [stringsKey]: strings,
-            [verseHighlightKey]: useVerseHighlight(),
+            [ordinalHighlightKey]: useOrdinalHighlight(),
             [androidKey]: {querySelection: () => {}},
         }
         wrapper = shallowMount(Verse,

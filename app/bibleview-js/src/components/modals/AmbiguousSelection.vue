@@ -98,7 +98,7 @@ import {
     globalBookmarksKey,
     locateTopKey,
     modalKey,
-    verseHighlightKey
+    ordinalHighlightKey
 } from "@/types/constants";
 import {BaseBookmark} from "@/types/client-objects";
 import {Nullable, Optional, SelectionInfo} from "@/types/common";
@@ -124,7 +124,7 @@ const {strings} = useCommon();
 const android = inject(androidKey)!;
 const multiSelectionMode = ref(false);
 
-const {resetHighlights, highlightVerse, hasHighlights} = inject(verseHighlightKey)!;
+const {resetHighlights, highlightVerse, hasHighlights} = inject(ordinalHighlightKey)!;
 const {modalOpen, closeModals} = inject(modalKey)!;
 
 const showModal = ref(false);

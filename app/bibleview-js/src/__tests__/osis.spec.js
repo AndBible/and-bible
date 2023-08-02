@@ -25,7 +25,7 @@ import test1Result from "./testdata/eph.2-kjva-result.html";
 import {useConfig} from "@/composables/config";
 import {useStrings} from "@/composables/strings";
 import {useAndroid} from "@/composables/android";
-import {useVerseHighlight} from "@/composables/verse-highlight";
+import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {ref} from "vue";
 import {
     androidKey,
@@ -37,7 +37,7 @@ import {
     modalKey,
     osisFragmentKey,
     stringsKey,
-    verseHighlightKey
+    ordinalHighlightKey
 } from "@/types/constants";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
@@ -64,7 +64,7 @@ function verifyXmlRendering(xmlTemplate, renderedHtml) {
         [footnoteCountKey]: {getFootNoteCount: () => 0},
         [androidKey]: android,
         [stringsKey]: useStrings(),
-        [verseHighlightKey]: useVerseHighlight(),
+        [ordinalHighlightKey]: useOrdinalHighlight(),
         [globalBookmarksKey]: useGlobalBookmarks(config),
         [modalKey]: useModal(android),
     };

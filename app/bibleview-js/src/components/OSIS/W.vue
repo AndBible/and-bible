@@ -39,7 +39,7 @@ import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
 import {computed, inject, ref} from "vue";
 import {strongsModes} from "@/composables/config";
-import {exportModeKey, verseHighlightKey} from "@/types/constants";
+import {exportModeKey, ordinalHighlightKey} from "@/types/constants";
 
 const props = defineProps<{
     lemma?: string // example: strong:H8064 lemma.TR:XXXXX
@@ -56,7 +56,7 @@ checkUnsupportedProps(props, "type", ["x-split"])
 checkUnsupportedProps(props, "subType")
 const {strings, config} = useCommon();
 const isHighlighted = ref(false);
-const {addCustom, resetHighlights} = inject(verseHighlightKey)!;
+const {addCustom, resetHighlights} = inject(ordinalHighlightKey)!;
 
 function prep(string: string): string[] {
     let remainingString = string;

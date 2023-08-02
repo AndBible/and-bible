@@ -17,14 +17,14 @@
 
 import {computed, reactive} from "vue";
 
-export function useVerseHighlight() {
-    const highlightedVerses: Set<number> = reactive(new Set());
+export function useOrdinalHighlight() {
+    const highlightedOrdinals: Set<number> = reactive(new Set());
     const undoCustomHighlights: (() => void)[] = reactive([]);
 
-    const hasHighlights = computed(() => highlightedVerses.size > 0 || undoCustomHighlights.length > 0);
+    const hasHighlights = computed(() => highlightedOrdinals.size > 0 || undoCustomHighlights.length > 0);
 
     function resetHighlights(onlyVerses = false) {
-        highlightedVerses.clear();
+        highlightedOrdinals.clear();
         if (!onlyVerses) {
             undoCustomHighlights.forEach(f => f())
             undoCustomHighlights.splice(0);
@@ -32,12 +32,12 @@ export function useVerseHighlight() {
     }
 
     function highlightVerse(ordinal: number) {
-        highlightedVerses.add(ordinal);
+        highlightedOrdinals.add(ordinal);
     }
 
     function addCustom(func: () => void) {
         undoCustomHighlights.push(func);
     }
 
-    return {highlightVerse, addCustom, highlightedVerses, resetHighlights, hasHighlights}
+    return {highlightVerse, addCustom, highlightedOrdinals, resetHighlights, hasHighlights}
 }

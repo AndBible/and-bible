@@ -23,7 +23,7 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction, EventPriorities, formatExportLink} from "@/utils";
 import {computed, inject, ref} from "vue";
-import {exportModeKey, osisFragmentKey, referenceCollectorKey, verseHighlightKey} from "@/types/constants";
+import {exportModeKey, osisFragmentKey, referenceCollectorKey, ordinalHighlightKey} from "@/types/constants";
 
 const props = defineProps<{
     osisRef?: string
@@ -36,7 +36,7 @@ checkUnsupportedProps(props, "type");
 const clicked = ref(false);
 const isHighlighted = ref(false);
 const {strings} = useCommon();
-const {addCustom, resetHighlights} = inject(verseHighlightKey)!;
+const {addCustom, resetHighlights} = inject(ordinalHighlightKey)!;
 const referenceCollector = inject(referenceCollectorKey);
 const content = ref<HTMLElement | null>(null);
 const osisFragment = inject(osisFragmentKey)!;

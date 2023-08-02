@@ -31,16 +31,16 @@
 <script lang="ts" setup>
 import {addEventOrdinalInfo} from "@/utils";
 import {computed, inject} from "vue";
-import {androidKey, osisDocumentInfoKey, verseHighlightKey} from "@/types/constants";
+import {androidKey, osisDocumentInfoKey, ordinalHighlightKey} from "@/types/constants";
 
 const props = defineProps<{ ordinal: string }>();
 
 const ordinal = computed(() => parseInt(props.ordinal));
 
 const {querySelection} = inject(androidKey)!
-const {highlightedVerses, highlightVerse} = inject(verseHighlightKey)!;
+const {highlightedOrdinals, highlightVerse} = inject(ordinalHighlightKey)!;
 
-const highlighted = computed(() => highlightedVerses.has(ordinal.value))
+const highlighted = computed(() => highlightedOrdinals.has(ordinal.value))
 
 const osisDocumentInfo = inject(osisDocumentInfoKey)!;
 
