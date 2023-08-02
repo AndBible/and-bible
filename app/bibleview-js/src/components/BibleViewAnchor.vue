@@ -19,10 +19,13 @@
   <span
       :id="`o-${ordinal}`"
       :data-ordinal="ordinal"
-      class="ordinal highlight-transition"
+      class="ordinal"
       @click="ordinalClicked"
-      :class="{isHighlighted: highlighted}"
-  ><slot/></span>
+  >
+      <span class="highlight-transition" :class="{isHighlighted: highlighted}">
+        <slot/>
+      </span>
+  </span>
 </template>
 
 <script lang="ts" setup>
