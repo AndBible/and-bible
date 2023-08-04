@@ -509,8 +509,8 @@ class InstallZip : ActivityBase() {
         val dir = File(SharedConstants.modulesDir, "epub/${UUID.randomUUID()}")
         dir.mkdirs()
         unzipInputStream(contentResolver.openInputStream(uri)!!, dir)
-        addManuallyInstalledEpubBooks()
         withContext(Dispatchers.Main) {
+            addManuallyInstalledEpubBooks()
             ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
             binding.loadingIndicator.visibility = View.GONE
             finish()
