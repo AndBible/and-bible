@@ -127,9 +127,9 @@ class EpubBackendState(val epubDir: File): OpenFileState {
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
             val initials = "epub:${epubDir.name}"
-            val title = queryMetadata("title") ?: "-"
-            val description = queryMetadata("description")?: "-" // TODO: should de-encode html stuff
-            val abbreviation = title.slice(0 .. min(5, title.length - 1))
+            val title = queryMetadata("title") ?: epubDir.name
+            val description = queryMetadata("description")?: epubDir.name //TODO: should de-encode html stuff
+            val abbreviation = title //.slice(0 .. min(5, title.length - 1))
             val language = queryMetadata("language") ?: "en"
             val conf = getConfig(
                 initials = initials,
