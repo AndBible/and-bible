@@ -90,9 +90,6 @@ class EpubSwordDriver: AbstractBookDriver() {
     }
 }
 
-private val re = Regex("[^a-zA-z0-9]")
-private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
-
 class EpubBackendState(val epubDir: File): OpenFileState {
     constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
         this.metadata = metadata
@@ -129,7 +126,7 @@ class EpubBackendState(val epubDir: File): OpenFileState {
         xPathInstance.compile(expression, Filters.element(), null, epubNamespace).evaluateFirst(content)
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
-            val initials = "Epub-" + sanitizeModuleName(File(epubDir.path).name)
+            val initials = "epub:${epubDir.name}"
             val title = queryMetadata("title") ?: "-"
             val description = queryMetadata("description")?: "-" // TODO: should de-encode html stuff
             val abbreviation = title.slice(0 .. min(5, title.length - 1))
