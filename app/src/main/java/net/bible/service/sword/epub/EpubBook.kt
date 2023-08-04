@@ -191,10 +191,10 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
 
     override fun indexOf(that: Key): Int =
         state.queryContent("//ns:spine/ns:itemref")
-            .map { it.getAttribute("idref").value }.indexOf(that.name)
+            .map { it.getAttribute("idref").value }.indexOf(that.osisRef)
 
     private fun fileForKey(key: Key): File {
-        val fileName = state.queryFirst("//ns:manifest/ns:item[@id='${key.name}']").getAttribute("href").value
+        val fileName = state.queryFirst("//ns:manifest/ns:item[@id='${key.osisRef}']").getAttribute("href").value
         return File(state.rootFolder, fileName)
     }
 
@@ -236,7 +236,7 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
                 val m = hrefRe.matchEntire(href)
                 if(m != null && !urlRe.matches(href)) {
                     val fileStr = URLDecoder.decode(m.groupValues[1], "UTF-8")
-                    val id = if(fileStr.isEmpty()) key.name else state.fileToId[File(parentFolder, fileStr).toRelativeString(state.rootFolder)]
+                    val id = if(fileStr.isEmpty()) key.osisRef else state.fileToId[File(parentFolder, fileStr).toRelativeString(state.rootFolder)]
                     a.name = "epubRef"
                     a.setAttribute("to-key", id)
                     a.setAttribute("to-id", m.groupValues[2])

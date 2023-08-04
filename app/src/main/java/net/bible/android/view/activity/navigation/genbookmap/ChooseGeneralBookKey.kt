@@ -16,8 +16,11 @@
  */
 package net.bible.android.view.activity.navigation.genbookmap
 
+import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import net.bible.android.control.page.CurrentGeneralBookPage
+import net.bible.android.view.activity.navigation.GridChoosePassageVerse
 import org.crosswire.jsword.passage.Key
 
 /** show a list of keys and allow to select an item
@@ -32,11 +35,10 @@ class ChooseGeneralBookKey : ChooseKeyBase() {
     override val keyList: List<Key> get() = currentGeneralBookPage.cachedGlobalKeyList!!
 
     override fun itemSelected(key: Key) {
-        try {
-            currentGeneralBookPage.setKey(key)
-        } catch (e: Exception) {
-            Log.e(TAG, "error on select of gen book key", e)
-        }
+        val myIntent = Intent(this, ChooseGeneralBookKey::class.java)
+        myIntent.putExtra("key", key.osisRef)
+        myIntent.putExtra("book", currentGeneralBookPage.currentDocument?.initials)
+        setResult(Activity.RESULT_OK, myIntent)
     }
 
     private val currentGeneralBookPage: CurrentGeneralBookPage

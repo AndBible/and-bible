@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.navigation
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -33,6 +34,7 @@ import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordDocumentFacade
@@ -100,13 +102,11 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                 return@launch
             }
             Log.i(TAG, "Book selected:" + selectedDocument.initials)
-            try {
-                documentControl.changeDocument(selectedDocument)
-                // if key is valid then the new doc will have been shown already
-                returnToPreviousScreen()
-            } catch (e: Exception) {
-                Log.e(TAG, "error on select of bible book", e)
-            }
+
+            val myIntent = Intent(this@ChooseDocument, ChooseDocument::class.java)
+            myIntent.putExtra("book", selectedDocument.initials)
+            setResult(Activity.RESULT_OK, myIntent)
+            finish()
         }
     }
 

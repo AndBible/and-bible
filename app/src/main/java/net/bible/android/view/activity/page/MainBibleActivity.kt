@@ -56,7 +56,6 @@ import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -100,9 +99,12 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.bookmark.Bookmarks
+import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.History
+import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
@@ -552,7 +554,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             override fun onLongPress(e: MotionEvent) {
-                startActivityForResult(Intent(this@MainBibleActivity, ChooseDocument::class.java), IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+                startActivityForResult(Intent(this@MainBibleActivity, ChooseDocument::class.java), STD_REQUEST_CODE)
             }
 
             override fun onSingleTapUp(e: MotionEvent): Boolean {
@@ -1038,7 +1040,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun startDocumentChooser(type: String) {
         val intent = Intent(this, ChooseDocument::class.java)
         intent.putExtra("type", type)
-        startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+        startActivityForResult(intent, STD_REQUEST_CODE)
     }
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
@@ -1553,33 +1555,59 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     return
                 }
                 STD_REQUEST_CODE -> {
-                    val classes = arrayOf(GridChoosePassageBook::class.java.name, Bookmarks::class.java.name)
-                    val className = data.component?.className
-                    if (className != null && classes.contains(className)) {
-                        val isFromBookmark = className == Bookmarks::class.java.name
-                        val verseStr = extras.getString("verse")
-                        val keyStr = extras.getString("key")
-                        val bookStr = extras.getString("book")
-                        if(verseStr != null) {
-                            val verse = try {
-                                VerseFactory.fromString(navigationControl.versification, verseStr)
-                            } catch (e: NoSuchVerseException) {
-                                ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
-                                return
+                    CurrentActivityHolder.activate(this) // needed because startKeyChooser is using this
+                    val classes = arrayOf(
+                        GridChoosePassageBook::class.java.name,
+                        Bookmarks::class.java.name
+                    )
+                    val genBookClasses = arrayOf(
+                        ChooseGeneralBookKey::class.java.name,
+                        ChooseDictionaryWord::class.java.name,
+                        ChooseMapKey::class.java.name,
+                    )
+                    when(val className = data.component?.className) {
+                        null -> {}
+                        ChooseDocument::class.java.name -> {
+                            val bookStr = extras.getString("book")
+                            val book = Books.installed().getBook(bookStr)
+                            documentControl.changeDocument(book)
+                            updateActions()
+                            return
+                        }
+                        in classes -> {
+                            val isFromBookmark = className == Bookmarks::class.java.name
+                            val verseStr = extras.getString("verse")
+                            val keyStr = extras.getString("key")
+                            val bookStr = extras.getString("book")
+                            if(verseStr != null) {
+                                val verse = try {
+                                    VerseFactory.fromString(navigationControl.versification, verseStr)
+                                } catch (e: NoSuchVerseException) {
+                                    ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
+                                    return
+                                }
+                                val pageManager = windowControl.activeWindowPageManager
+                                if (isFromBookmark && !pageManager.isBibleShown) {
+                                    pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
+                                } else
+                                    pageManager.currentPage.setKey(verse)
+                            } else if (keyStr != null && bookStr != null){
+                                val book = Books.installed().getBook(bookStr)
+                                val key = book.getKey(keyStr)
+                                val pageManager = windowControl.activeWindowPageManager
+                                val ordinal = extras.getInt("ordinal")
+                                pageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, ordinal))
                             }
-                            val pageManager = windowControl.activeWindowPageManager
-                            if (isFromBookmark && !pageManager.isBibleShown) {
-                                pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
-                            } else
-                                pageManager.currentPage.setKey(verse)
-                        } else if (keyStr != null && bookStr != null){
+                            return
+                        }
+                        in genBookClasses -> {
+                            val keyStr = extras.getString("key")
+                            val bookStr = extras.getString("book")
                             val book = Books.installed().getBook(bookStr)
                             val key = book.getKey(keyStr)
-                            val pageManager = windowControl.activeWindowPageManager
-                            val ordinal = extras.getInt("ordinal")
-                            pageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, ordinal))
+                            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                            return
                         }
-                        return
                     }
                 }
             }

@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.navigation.genbookmap
 
+import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import net.bible.android.control.page.CurrentMapPage
 import org.crosswire.jsword.passage.Key
@@ -32,11 +34,10 @@ class ChooseMapKey : ChooseKeyBase() {
         get() = currentMapPage.cachedGlobalKeyList
 
     override fun itemSelected(key: Key) {
-        try {
-            currentMapPage.setKey(key)
-        } catch (e: Exception) {
-            Log.e(TAG, "error on select of gen book key", e)
-        }
+        val myIntent = Intent(this, ChooseMapKey::class.java)
+        myIntent.putExtra("key", key.osisRef)
+        myIntent.putExtra("book", currentMapPage.currentDocument?.initials)
+        setResult(Activity.RESULT_OK, myIntent)
     }
 
     private val currentMapPage: CurrentMapPage

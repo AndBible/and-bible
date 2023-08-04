@@ -83,30 +83,14 @@ abstract class ChooseKeyBase : ListActivityBase() {
             val selected = mKeyList[position]
             Log.i(TAG, "Selected:$selected")
             itemSelected(selected)
-            returnToMainScreen()
         } catch (e: Exception) {
             Log.e(TAG, "Selection error", e)
             Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
-    }
-
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.i(TAG, "Activity result:$resultCode")
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == FINISHED) {
-            Log.i(TAG, "Leaf key selected so finish")
-            returnToMainScreen()
-        }
-    }
-
-    private fun returnToMainScreen() {
-        // just pass control back to the main screen
-        setResult(FINISHED)
         finish()
     }
 
     companion object {
-        private const val FINISHED = 99
         private const val TAG = "ChooseKeyBase"
         private const val LIST_ITEM_TYPE = android.R.layout.simple_list_item_1
     }

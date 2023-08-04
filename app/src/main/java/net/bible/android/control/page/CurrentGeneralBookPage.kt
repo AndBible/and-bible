@@ -28,6 +28,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
@@ -86,10 +87,10 @@ class CurrentGeneralBookPage internal constructor(
                 FakeBookFactory.multiDocument -> {
                     context.startActivityForResult(
                         Intent(context, ChooseDocument::class.java),
-                        IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
+                        STD_REQUEST_CODE
                     )
                 }
-                else -> context.startActivity(Intent(context, ChooseGeneralBookKey::class.java))
+                else -> context.startActivityForResult(Intent(context, ChooseGeneralBookKey::class.java), STD_REQUEST_CODE)
             }
         }
     }

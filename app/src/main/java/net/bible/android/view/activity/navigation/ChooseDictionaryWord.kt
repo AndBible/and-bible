@@ -34,6 +34,7 @@ import net.bible.android.activity.databinding.ChooseDictionaryPageBinding
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
@@ -230,22 +231,12 @@ class ChooseDictionaryWord : ListActivityBase() {
         itemSelected(mMatchingKeyList[position].key)
     }
 
-    private fun itemSelected(selectedKey: Key?) {
-        try {
-            if (selectedKey != null) {
-                Log.i(TAG, "chose:$selectedKey")
-                windowControl.activeWindowPageManager.setCurrentDocumentAndKey(windowControl.activeWindowPageManager.currentDictionary.currentDocument, selectedKey)
-                doFinish()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Key not found", e)
-            Dialogs.showErrorMsg(R.string.error_occurred, e)
-        }
-    }
-
-    private fun doFinish() {
-        val resultIntent = Intent()
-        setResult(Activity.RESULT_OK, resultIntent)
+    private fun itemSelected(selectedKey: Key) {
+        val myIntent = Intent(this, ChooseGeneralBookKey::class.java)
+        myIntent.putExtra("key", selectedKey.osisRef)
+        setResult(Activity.RESULT_OK, myIntent)
+        val curDoc = windowControl.activeWindowPageManager.currentDictionary.currentDocument!!
+        myIntent.putExtra("book", curDoc.initials)
         finish()
     }
 

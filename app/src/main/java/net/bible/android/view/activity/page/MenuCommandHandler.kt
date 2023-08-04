@@ -91,7 +91,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
             when (menuItem.itemId) {
                 R.id.chooseDocumentButton -> {
                     val intent = Intent(mainBibleActivity, ChooseDocument::class.java)
-                    mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+                    mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
                 }
                 R.id.rateButton -> {
                     val htmlMessage = mainBibleActivity.run {
