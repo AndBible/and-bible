@@ -300,9 +300,9 @@ open class CurrentPageManager @Inject constructor(
             savedEntity?.textDisplaySettings = textDisplaySettings.copy()
         }
         currentPage = getBookPage(restoredBookCategory)
-        //if(currentPage.key == null || currentPage.currentDocument == null) {
-        //    currentPage = currentBible
-        //}
+        if(currentPage.key == null && currentPage.currentDocument == null) {
+            currentPage = currentBible
+        }
     }
 
     /** This is only called after the very first bible download to attempt to ensure the first page is not 'Verse not found'
