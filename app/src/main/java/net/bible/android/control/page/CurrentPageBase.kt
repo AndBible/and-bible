@@ -38,6 +38,7 @@ import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.VerseRange
@@ -267,6 +268,7 @@ abstract class CurrentPageBase protected constructor(
                 try {
                     doSetKey(book.getKey(keyName))
                 } catch (e: Exception) {
+                    doSetKey(DefaultLeafKeyList(keyName))
                     Log.e(TAG, "Key $keyName not be loaded from $document", e)
                     if(e !is NoSuchKeyException) {
                         Dialogs.showErrorMsg(R.string.error_occurred, e)
