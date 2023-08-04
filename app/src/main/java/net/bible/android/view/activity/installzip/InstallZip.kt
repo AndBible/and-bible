@@ -43,7 +43,6 @@ import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
@@ -129,7 +128,7 @@ class ZipHandler(
         }
 
         if(otherFiles.isNotEmpty()) {
-            if(otherFiles.find { it == "OEBPS/content.opf" } != null) {
+            if(otherFiles.find { it == "META-INF/container.xml" } != null) {
                 throw EpubFile()
             } else {
                 zin.close()

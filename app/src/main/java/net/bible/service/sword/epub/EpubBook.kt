@@ -18,8 +18,10 @@
 package net.bible.service.sword.epub
 
 import android.util.Log
+import com.google.api.client.http.UrlEncodedContent
 import net.bible.android.SharedConstants
 import net.bible.android.misc.elementToString
+import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -44,6 +46,8 @@ import org.jdom2.input.SAXBuilder
 import org.jdom2.input.sax.XMLReaders
 import org.jdom2.xpath.XPathFactory
 import java.io.File
+import java.net.URLDecoder
+import java.net.URLEncoder
 import kotlin.math.min
 
 fun getConfig(
@@ -106,7 +110,17 @@ class EpubBackendState(val epubDir: File): OpenFileState {
 
     private val dcNamespace = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/")
     private val epubNamespace = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
-    private val contentXmlFile = File(epubDir, "OEBPS/content.opf")
+    private val containerNamespace = Namespace.getNamespace("ns", "urn:oasis:names:tc:opendocument:xmlns:container")
+    private val metaInfoFile = File(epubDir, "META-INF/container.xml")
+    private val metaInfo = saxBuilder.build(metaInfoFile)
+    private val contentFileName =
+        xPathInstance.compile("//ns:rootfile", Filters.element(), null, containerNamespace)
+            .evaluateFirst(metaInfo)
+            .getAttribute("full-path").value
+
+    private val contentXmlFile = File(epubDir, contentFileName)
+    val rootFolder: File = contentXmlFile.parentFile!!
+
     private val content = saxBuilder.build(contentXmlFile)
     val fileToId = xPathInstance.compile("//ns:manifest/ns:item", Filters.element(), null, epubNamespace)
         .evaluate(content).associate { it.getAttribute("href").value to it.getAttribute("id").value
@@ -178,10 +192,11 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
 
     private fun fileForKey(key: Key): File {
         val fileName = state.queryFirst("//ns:manifest/ns:item[@id='${key.name}']").getAttribute("href").value
-        return File(state.epubDir, "OEBPS/$fileName")
+        return File(state.rootFolder, fileName)
     }
 
-    fun getResource(resourcePath: String): File = File(state.epubDir, "OEBPS/$resourcePath")
+    fun getResource(resourcePath: String): File =
+        File(state.rootFolder, resourcePath)
 
     fun styleSheets(key: Key): List<File> {
         val file = fileForKey(key)
@@ -200,11 +215,10 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
     override fun readRawContent(state: EpubBackendState, key: Key): String {
         val file = fileForKey(key)
         val parentFolder = file.parentFile!!
-        val root = parentFolder.parentFile!!
 
         fun epubSrc(src: String): String {
             val f = File(parentFolder, src)
-            val filePath = f.toRelativeString(root)
+            val filePath = f.toRelativeString(state.rootFolder)
             return "/epub/${state.bookMetaData.initials}/$filePath"
         }
 
@@ -218,8 +232,8 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
                 val href = a.getAttribute("href")?.value?: continue
                 val m = hrefRe.matchEntire(href)
                 if(m != null && !urlRe.matches(href)) {
-                    val fileStr = m.groupValues[1]
-                    val id = if(fileStr.isEmpty()) key.name else state.fileToId[File(parentFolder, fileStr).toRelativeString(root)]
+                    val fileStr = URLDecoder.decode(m.groupValues[1], "UTF-8")
+                    val id = if(fileStr.isEmpty()) key.name else state.fileToId[File(parentFolder, fileStr).toRelativeString(state.rootFolder)]
                     a.name = "epubRef"
                     a.setAttribute("to-key", id)
                     a.setAttribute("to-id", m.groupValues[2])
