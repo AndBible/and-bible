@@ -112,7 +112,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     open fun fixNightMode() {
         // First launched activity is not having proper night mode if we are using manual mode.
         // This hack fixes it.
-        if(firstTime && allowThemeChange) {
+        if(firstTime && allowThemeChange && !doNotInitializeApp) {
             firstTime = false
             lifecycleScope.launch {
                 delay(250)
