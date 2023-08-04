@@ -791,6 +791,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_REFERENCE = "osis"
         const val MULTI_REFERENCE = "multi"
         const val SCHEME_MYNOTES = "my-notes"
+        const val SCHEME_EPUB_REF = "epub-ref"
         const val SCHEME_STUDYPAD = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
@@ -965,6 +966,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val ordinal = uri.getQueryParameter("ordinal")?.toInt()!!
             val v11n = uri.getQueryParameter("v11n")
             linkControl.openMyNotes(v11n!!, ordinal)
+        }
+        UriConstants.SCHEME_EPUB_REF -> {
+            val bookStr = uri.getQueryParameter("book")!!
+            val keyStr = uri.getQueryParameter("toKey")!!
+            val idStr = uri.getQueryParameter("toId")!!
+            val book = Books.installed().getBook(bookStr)
+            val key = book.getKey(keyStr)
+            linkControl.showLink(book, BookAndKey(key, book, htmlId = idStr))
+            true
         }
         UriConstants.MULTI_REFERENCE -> {
             val osisRefs = uri.getQueryParameters("osis")

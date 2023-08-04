@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a href="#link" @click.prevent="openLink($event, toKey, toId)"><slot/></a>
+  <a :href="`epub-ref://?book=${bookInitials}&toKey=${toKey}&toId=${toId}`" @click.prevent="openLink($event, toKey, toId)"><slot/></a>
 </template>
 
 <script setup lang="ts">
