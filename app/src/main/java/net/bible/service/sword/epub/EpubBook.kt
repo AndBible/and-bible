@@ -195,6 +195,7 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
 
     private val xhtmlNamespace = Namespace.getNamespace("x", "http://www.w3.org/1999/xhtml")
     private val hrefRe = Regex("""^([^#]+)?#?(.*)$""")
+    private val urlRe = Regex("""^https?://.*""")
     override fun readRawContent(state: EpubBackendState, key: Key): String {
         val file = fileForKey(key)
         val parentFolder = file.parentFile!!
@@ -215,7 +216,7 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
             for(a in state.xPathInstance.compile("//x:a", Filters.element(), null, xhtmlNamespace).evaluate(e)) {
                 val href = a.getAttribute("href")?.value?: continue
                 val m = hrefRe.matchEntire(href)
-                if(m != null) {
+                if(m != null && !urlRe.matches(href)) {
                     val fileStr = m.groupValues[1]
                     val id = if(fileStr.isEmpty()) key.name else state.fileToId[File(parentFolder, fileStr).toRelativeString(root)]
                     a.name = "epubRef"
