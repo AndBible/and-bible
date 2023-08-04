@@ -69,6 +69,8 @@ import net.bible.service.download.isPseudoBook
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.sword.dbFile
+import net.bible.service.sword.epub.epubDir
+import net.bible.service.sword.epub.isEpubBook
 import net.bible.service.sword.mybible.isMyBibleBook
 import net.bible.service.sword.mysword.isMySwordBook
 import org.crosswire.jsword.book.Book
@@ -324,10 +326,10 @@ object BackupControl {
             return filePath.substring(dirPath.length + 1)
         }
 
-        fun addFile(outFile: ZipOutputStream, rootDir: File, configFile: File) {
-            FileInputStream(configFile).use { inFile ->
+        fun addFile(outFile: ZipOutputStream, rootDir: File, file: File) {
+            FileInputStream(file).use { inFile ->
                 BufferedInputStream(inFile).use { origin ->
-                    val entry = ZipEntry(relativeFileName(rootDir, configFile))
+                    val entry = ZipEntry(relativeFileName(rootDir, file))
                     outFile.putNextEntry(entry)
                     origin.copyTo(outFile)
                 }
@@ -344,6 +346,11 @@ object BackupControl {
                 }
             }
         }
+        fun addModuleDir(outFile: ZipOutputStream, modDir: File) {
+            for (f in modDir.walkTopDown().filter { it.isFile }) {
+                addFile(outFile, moduleDir, f)
+            }
+        }
 
         withContext(Dispatchers.IO) {
             FileOutputStream(zipFile).use { out ->
@@ -354,7 +361,10 @@ object BackupControl {
                             addModuleFile(outFile, b.dbFile)
                         } else if (b.isMySwordBook) {
                             addModuleFile(outFile, b.dbFile)
-                        } else {
+                        } else if (b.isEpubBook) {
+                            addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
+                        }
+                        else {
                             val configFile = bmd.configFile
                             val rootDir = configFile.parentFile!!.parentFile!!
                             addFile(outFile, rootDir, configFile)

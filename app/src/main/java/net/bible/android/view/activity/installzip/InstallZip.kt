@@ -118,7 +118,7 @@ class ZipHandler(
                 // Ignore directory
             } else if (name.startsWith(SwordConstants.DIR_DATA + "/")) {
                 modulesFound = true
-            } else if (name.startsWith("mysword/") || name.startsWith("mybible/")) {
+            } else if (name.startsWith("epub/") || name.startsWith("mysword/") || name.startsWith("mybible/")) {
                 modulesFound = true
                 modsDirFound = true
             } else {
