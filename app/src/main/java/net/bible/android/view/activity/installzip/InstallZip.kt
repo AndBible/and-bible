@@ -61,6 +61,7 @@ import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.addMySwordBook
 import java.io.BufferedInputStream
 import java.io.InputStream
+import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
@@ -475,9 +476,7 @@ class InstallZip : ActivityBase() {
     private fun installEpub(uri: Uri) {
         val epubRootDir = File(SharedConstants.modulesDir, "epub")
         epubRootDir.mkdirs()
-        val numInstalled = epubRootDir.list()!!.size
-        val book = "book-${numInstalled + 1}"
-        val dir = File(SharedConstants.modulesDir, "epub/$book")
+        val dir = File(SharedConstants.modulesDir, "epub/${UUID.randomUUID()}")
         dir.mkdirs()
         unzipInputStream(contentResolver.openInputStream(uri)!!, dir)
     }
