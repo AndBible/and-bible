@@ -37,6 +37,7 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.windowControl
+import net.bible.service.sword.epub.isEpubBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
@@ -176,6 +177,7 @@ class Window (
         Log.i(TAG, "Loading OSIS xml in background")
         var verse: Verse? = null
         var anchorOrdinal: Int? = null
+        var htmlId: String? = null
         val currentPage = pageManager.currentPage
 
         if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
@@ -183,6 +185,12 @@ class Window (
         } else {
             anchorOrdinal = currentPage.anchorOrdinal
         }
+        htmlId = if(currentPage.currentDocument?.isEpubBook == true) {
+            currentPage.htmlId
+        } else {
+            null
+        }
+
         displayedBook = currentPage.currentDocument
         displayedKey = currentPage.singleKey
         Log.i(TAG, "updateText ${this.hashCode()}")
@@ -215,7 +223,7 @@ class Window (
             if(notifyLocationChange) {
                 bibleView?.loadDocument(doc, updateLocation = true)
             } else {
-                bibleView?.loadDocument(doc, verse = verse, anchorOrdinal = anchorOrdinal)
+                bibleView?.loadDocument(doc, verse = verse, anchorOrdinal = anchorOrdinal, htmlId = htmlId)
             }
 
             if(notifyLocationChange)

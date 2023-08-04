@@ -76,7 +76,7 @@
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {computed, inject, provide, ref, Ref, watch} from "vue";
+import {computed, inject, provide, ref, Ref} from "vue";
 import {
     Callback,
     Deferred,

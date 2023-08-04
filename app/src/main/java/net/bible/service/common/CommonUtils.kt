@@ -115,6 +115,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import org.apache.commons.lang3.StringUtils
@@ -135,6 +136,7 @@ import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.math.BigInteger
 import java.security.KeyFactory
@@ -1038,6 +1040,7 @@ object CommonUtils : CommonUtilsBase() {
 
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
+            addManuallyInstalledEpubBooks()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1399,22 +1402,25 @@ object CommonUtils : CommonUtilsBase() {
         else
             "$u/$filename"
 
-    fun unzipFile(zipFile: File, destinationDir: File, filePrefix: String = "") {
-        Log.i(TAG, "Unzipping file $zipFile to $destinationDir")
+    fun unzipFile(zipFile: File, destinationDir: File, filePrefix: String = "") =
+        unzipInputStream(zipFile.inputStream(), destinationDir, filePrefix)
+
+    fun unzipInputStream(inputStream: InputStream, destinationDir: File, filePrefix: String = "") {
         val buffer = ByteArray(8192)
-        ZipInputStream(zipFile.inputStream()).use { zIn ->
+        ZipInputStream(inputStream).use { zIn ->
             var zipEntry = zIn.nextEntry
             while (zipEntry != null) {
-                if (zipEntry.isDirectory) continue
-                val filePath = zipEntry.name.replace('\\', '/')
-                val file = File(destinationDir, filePrefix + filePath)
-                Log.i(TAG, "Writing $file")
-                file.parentFile?.mkdirs()
-                FileOutputStream(file).use { fOut ->
-                    var count = zIn.read(buffer)
-                    while (count != -1) {
-                        fOut.write(buffer, 0, count)
-                        count = zIn.read(buffer)
+                if (!zipEntry.isDirectory) {
+                    val filePath = zipEntry.name.replace('\\', '/')
+                    val file = File(destinationDir, filePrefix + filePath)
+                    Log.i(TAG, "Writing $file")
+                    file.parentFile?.mkdirs()
+                    FileOutputStream(file).use { fOut ->
+                        var count = zIn.read(buffer)
+                        while (count != -1) {
+                            fOut.write(buffer, 0, count)
+                            count = zIn.read(buffer)
+                        }
                     }
                 }
                 zipEntry = zIn.nextEntry

@@ -57,6 +57,7 @@ abstract class CurrentPageBase protected constructor(
     // if key has changed then offsetRatio must be reset because user has changed page
 
     var _anchorOrdinal: Int? = 0
+    override var htmlId: String? = null
 
     /** how far down the page was the user - allows Back to go to correct line on non-Bible pages (Bibles use verse number for positioning)
      */

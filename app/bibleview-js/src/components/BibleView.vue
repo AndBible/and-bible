@@ -113,7 +113,11 @@ const documentPromise: Ref<Promise<void> | null> = ref(null);
 const verseHighlight = useOrdinalHighlight();
 provide(ordinalHighlightKey, verseHighlight);
 const {resetHighlights} = verseHighlight;
-const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
+
+const customCss = useCustomCss();
+provide(customCssKey, customCss);
+
+const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise, customCss);
 const {doScrolling, scrollToId} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
@@ -142,8 +146,7 @@ onMounted(() => {
 onUnmounted(() => mounted.value = false)
 
 const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll, lineHeight);
-const customCss = useCustomCss();
-provide(customCssKey, customCss);
+
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
 

@@ -51,6 +51,7 @@ export type BibleJavascriptInterface = {
     selectionCleared: () => void,
     reportInputFocus: (newValue: boolean) => void,
     openExternalLink: (link: string) => void,
+    openEpubLink: (bookInitials: string, toKey: string, toId: string) => void,
     openDownloads: () => void,
     setEditing: (enabled: boolean) => void,
     createNewStudyPadEntry: (labelId: IdType, entryType?: StudyPadEntryType, afterEntryId?: IdType) => void,
@@ -320,6 +321,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.openExternalLink(link);
     }
 
+    function openEpubLink(bookInitials: string, toKey: string, toId: string) {
+        window.android.openEpubLink(bookInitials, toKey, toId);
+    }
+
     function setEditing(value: boolean) {
         window.android.setEditing(value);
     }
@@ -494,6 +499,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         removeBookmark,
         assignLabels,
         openExternalLink,
+        openEpubLink,
         createNewStudyPadEntry,
         deleteStudyPadEntry,
         removeBookmarkLabel,
