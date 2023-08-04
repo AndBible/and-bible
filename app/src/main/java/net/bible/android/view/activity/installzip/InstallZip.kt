@@ -503,9 +503,11 @@ class InstallZip : ActivityBase() {
         withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
         }
-        val epubRootDir = File(SharedConstants.modulesDir, "epub")
-        epubRootDir.mkdirs()
-        val dir = File(SharedConstants.modulesDir, "epub/${UUID.randomUUID()}")
+        val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
+        val dir = File(SharedConstants.modulesDir, "epub/$displayName")
+        if (dir.exists()) {
+            dir.deleteRecursively()
+        }
         dir.mkdirs()
         unzipInputStream(contentResolver.openInputStream(uri)!!, dir)
         withContext(Dispatchers.Main) {
