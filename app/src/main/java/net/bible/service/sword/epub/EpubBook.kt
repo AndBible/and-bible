@@ -102,7 +102,7 @@ class EpubBackendState(val epubDir: File): OpenFileState {
 
     private var metadata: SwordBookMetaData? = null
     val saxBuilder = SAXBuilder(XMLReaders.NONVALIDATING)
-    val xPathInstance = XPathFactory.instance()
+    val xPathInstance: XPathFactory = XPathFactory.instance()
 
     private val dcNamespace = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/")
     private val epubNamespace = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
@@ -116,7 +116,6 @@ class EpubBackendState(val epubDir: File): OpenFileState {
         xPathInstance.compile("//dc:$key", Filters.element(), null, dcNamespace).evaluateFirst(content)?.value
     fun queryContent(expression: String): List<Element> =
         xPathInstance.compile(expression, Filters.element(), null, epubNamespace).evaluate(content)
-
     fun queryFirst(expression: String): Element =
         xPathInstance.compile(expression, Filters.element(), null, epubNamespace).evaluateFirst(content)
     override fun getBookMetaData(): SwordBookMetaData {
@@ -195,7 +194,7 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
             .map { File(parentFolder, it.getAttribute("href").value) }
     }
 
-    private val xhtmlNamespace = Namespace.getNamespace("x", "http://www.w3.org/1999/xhtml")
+    private val xhtmlNamespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
     private val hrefRe = Regex("""^([^#]+)?#?(.*)$""")
     private val urlRe = Regex("""^https?://.*""")
     override fun readRawContent(state: EpubBackendState, key: Key): String {
@@ -210,12 +209,12 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
         }
 
         fun fixReferences(e: Element): Element {
-            for(img in state.xPathInstance.compile("//x:img", Filters.element(), null, xhtmlNamespace).evaluate(e)) {
+            for(img in state.xPathInstance.compile("//ns:img", Filters.element(), null, xhtmlNamespace).evaluate(e)) {
                 val src = img.getAttribute("src").value
                 val finalSrc = epubSrc(src)
                 img.setAttribute("src", finalSrc)
             }
-            for(a in state.xPathInstance.compile("//x:a", Filters.element(), null, xhtmlNamespace).evaluate(e)) {
+            for(a in state.xPathInstance.compile("//ns:a", Filters.element(), null, xhtmlNamespace).evaluate(e)) {
                 val href = a.getAttribute("href")?.value?: continue
                 val m = hrefRe.matchEntire(href)
                 if(m != null && !urlRe.matches(href)) {
