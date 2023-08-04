@@ -52,12 +52,14 @@ fun getConfig(
     description: String,
     language: String,
     about: String,
+    path: String,
 ): String = """
 [$initials]
 Description=$description
 Abbreviation=$abbreviation
 Category=${BookCategory.GENERAL_BOOK.name}
 AndBibleEpubModule=1
+AndBibleEpubDir=$path
 Lang=$language
 Version=0.0
 Encoding=UTF-8
@@ -84,8 +86,7 @@ class EpubSwordDriver: AbstractBookDriver() {
     }
 
     override fun delete(book: Book) {
-        // TODO
-        //book.epubDir.delete()
+        File(SharedConstants.modulesDir, book.epubDir).deleteRecursively()
         Books.installed().removeBook(book)
     }
 }
@@ -131,6 +132,7 @@ class EpubBackendState(val epubDir: File): OpenFileState {
                 description = title,
                 about = description,
                 language = language,
+                path = epubDir.toRelativeString(SharedConstants.modulesDir)
             )
             Log.i(TAG, "Creating EpubBook metadata $initials, $description $language")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
@@ -270,3 +272,4 @@ fun addManuallyInstalledEpubBooks() {
 }
 
 val Book.isEpubBook get() = bookMetaData.getProperty("AndBibleEpubModule") != null
+val Book.epubDir get() = bookMetaData.getProperty("AndBibleEpubDir")
