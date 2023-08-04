@@ -16,7 +16,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["src/components/OSIS/*.vue", "src/components/MyBible/*.vue"],
+      files: ["src/components/OSIS/*.vue", "src/components/MyBible/*.vue", "src/components/HTML/*.vue"],
       rules: {
         "vue/multi-word-component-names": "off"
       }
