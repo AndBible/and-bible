@@ -29,7 +29,6 @@ import OsisSegment from "@/components/documents/OsisSegment.vue";
 import {useCommon} from "@/composables";
 import {customCssKey, osisFragmentKey} from "@/types/constants";
 import {OffsetRange, OrdinalRange, OsisFragment} from "@/types/client-objects";
-import {Nullable} from "@/types/common";
 
 const props = withDefaults(defineProps<{
     fragment: OsisFragment
