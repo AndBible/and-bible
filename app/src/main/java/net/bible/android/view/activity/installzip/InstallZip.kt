@@ -43,6 +43,7 @@ import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
@@ -51,6 +52,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.common.CommonUtils.unzipInputStream
@@ -291,7 +293,20 @@ class InstallZip : ActivityBase() {
         super.buildActivityComponent().inject(this)
         lifecycleScope.launch {
             when (intent?.action) {
-                Intent.ACTION_VIEW -> installZip(intent!!.data!!)
+                Intent.ACTION_VIEW -> {
+                    val q = getString(R.string.install_do_you_want, intent.data?.run {getDisplayName(this) }?: "?")
+                    val result = Dialogs.simpleQuestion(this@InstallZip, q)
+                    if(result) {
+                        val mimeType = getMimeType(intent.data!!)
+                        if(mimeType == "application/epub+zip") {
+                            installEpub(intent.data!!)
+                        } else {
+                            installZip(intent!!.data!!)
+                        }
+                    } else {
+                        finish()
+                    }
+                }
                 Intent.ACTION_SEND -> installZip(intent.getParcelableExtra(Intent.EXTRA_STREAM)!!)
                 Intent.ACTION_SEND_MULTIPLE -> {
                     for (uri in intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)!!) {
@@ -366,12 +381,26 @@ class InstallZip : ActivityBase() {
         val displayName get () = name.lowercase()
     }
 
-    private suspend fun installFromFile(uri: Uri): Boolean {
-        val displayName = contentResolver.query(uri, null, null, null, null)?.use {
+    private fun getDisplayName(uri: Uri): String? =
+        contentResolver.query(uri, null, null, null, null)?.use {
             it.moveToFirst()
             val displayNameIdx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
             if(displayNameIdx < 0) null else it.getString(displayNameIdx)
-        }?: "unknown-filename"
+        }
+
+    private fun getMimeType(uri: Uri): String? =
+        contentResolver.query(uri, null, null, null, null)?.use {
+            it.moveToFirst()
+            val mimeTypeIdx = it.getColumnIndex("mime_type")
+            if(mimeTypeIdx < 0) null else it.getString(mimeTypeIdx)
+        }
+
+    private suspend fun installFromFile(uri: Uri): Boolean {
+        val displayName = getDisplayName(uri) ?: "unknown-filename"
+        val mimeType = getMimeType(uri)
+        if(mimeType == "application/epub+zip") {
+            return installEpub(uri)
+        }
 
         val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
         val fileTypeFromContent = determineFileType(inputStream)
@@ -382,7 +411,6 @@ class InstallZip : ActivityBase() {
         if(fileTypeFromContent != BackupControl.AbDbFileType.SQLITE3) {
             throw InvalidFile(displayName)
         }
-
 
         val filetype = when {
             displayName.lowercase().endsWith(".sqlite3") -> FileType.MYBIBLE
@@ -467,18 +495,27 @@ class InstallZip : ActivityBase() {
             zh.execute()
         } catch (e: EpubFile) {
             installEpub(uri)
-            addManuallyInstalledEpubBooks()
         }
         binding.loadingIndicator.visibility = View.GONE
         return result
     }
 
-    private fun installEpub(uri: Uri) {
+    private suspend fun installEpub(uri: Uri): Boolean = withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Main) {
+            binding.loadingIndicator.visibility = View.VISIBLE
+        }
         val epubRootDir = File(SharedConstants.modulesDir, "epub")
         epubRootDir.mkdirs()
         val dir = File(SharedConstants.modulesDir, "epub/${UUID.randomUUID()}")
         dir.mkdirs()
         unzipInputStream(contentResolver.openInputStream(uri)!!, dir)
+        addManuallyInstalledEpubBooks()
+        withContext(Dispatchers.Main) {
+            ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
+            binding.loadingIndicator.visibility = View.GONE
+            finish()
+        }
+        true
     }
 
     override fun onBackPressed() {}

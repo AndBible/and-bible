@@ -326,6 +326,7 @@
     <string name="overwrite_files">Following files already exists: %s Overwrite?</string>
     <string name="overwrite_files_title">Overwrite files?</string>
     <string name="could_not_overwrite_files">Could not overwrite files: %s. Apart from that install was successful.</string>
+    <string name="install_do_you_want">Do you want to install module (%s)?</string>
 
     <!-- Daily Reading Plan -->
     <string name="rdg_plan_title">Reading Plan</string>
@@ -1153,5 +1154,4 @@
     <string name="external_link">External link</string>
     <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
     <string name="add_bookmark_whole_sentence">Sentences</string>
-
 </resources>

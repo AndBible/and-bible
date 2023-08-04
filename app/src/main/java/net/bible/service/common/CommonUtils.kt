@@ -1410,16 +1410,17 @@ object CommonUtils : CommonUtilsBase() {
         ZipInputStream(inputStream).use { zIn ->
             var zipEntry = zIn.nextEntry
             while (zipEntry != null) {
-                if (zipEntry.isDirectory) continue
-                val filePath = zipEntry.name.replace('\\', '/')
-                val file = File(destinationDir, filePrefix + filePath)
-                Log.i(TAG, "Writing $file")
-                file.parentFile?.mkdirs()
-                FileOutputStream(file).use { fOut ->
-                    var count = zIn.read(buffer)
-                    while (count != -1) {
-                        fOut.write(buffer, 0, count)
-                        count = zIn.read(buffer)
+                if (!zipEntry.isDirectory) {
+                    val filePath = zipEntry.name.replace('\\', '/')
+                    val file = File(destinationDir, filePrefix + filePath)
+                    Log.i(TAG, "Writing $file")
+                    file.parentFile?.mkdirs()
+                    FileOutputStream(file).use { fOut ->
+                        var count = zIn.read(buffer)
+                        while (count != -1) {
+                            fOut.write(buffer, 0, count)
+                            count = zIn.read(buffer)
+                        }
                     }
                 }
                 zipEntry = zIn.nextEntry
