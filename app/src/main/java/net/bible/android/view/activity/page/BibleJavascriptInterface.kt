@@ -53,6 +53,7 @@ import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
 import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
@@ -188,6 +189,15 @@ class BibleJavascriptInterface(
     fun reportInputFocus(newValue: Boolean) {
         Log.i(TAG, "Focus mode now $newValue")
         ABEventBus.post(BibleViewInputFocusChanged(bibleView, newValue))
+    }
+
+    @JavascriptInterface
+    fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) {
+        val book = Books.installed().getBook(bookInitials)
+        val key = book.getKey(toKeyStr)
+        scope.launch(Dispatchers.Main) {
+            bibleView.linkControl.showLink(book, BookAndKey(key, book, htmlId = toId))
+        }
     }
 
     @JavascriptInterface

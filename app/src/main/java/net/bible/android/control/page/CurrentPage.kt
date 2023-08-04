@@ -79,7 +79,8 @@ interface CurrentPage {
     val isSearchable: Boolean
     val isSpeakable: Boolean
     val isSyncable: Boolean
-    //screen offset as a percentage of total height of screen
+
     var anchorOrdinal: Int?
+    var htmlId: String?
 
 }

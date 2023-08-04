@@ -123,7 +123,6 @@ import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.EpubBackend
-import net.bible.service.sword.epub.isEpubBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -809,6 +808,29 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    class EpubResourcesAssetHandler: PathHandler {
+        private val epubRe = Regex("""^([^/]+)/(.*)$""")
+        override fun handle(path: String): WebResourceResponse? {
+            val epubMatch = epubRe.matchEntire(path)
+            if(epubMatch != null) {
+                val bookInitials = epubMatch.groupValues[1]
+                val resourceStr = epubMatch.groupValues[2]
+                val book = Books.installed().getBook(bookInitials)?: return null
+
+                val file: File =
+                    (if(book is SwordGenBook) {
+                        val backend = book.backend
+                        if (backend is EpubBackend) {
+                            backend.getResource(resourceStr)
+                        } else null
+                    }  else null) ?: return null
+
+                return WebResourceResponse(URLConnection.guessContentTypeFromName(file.name), null, file.inputStream())
+            }
+            return null
+        }
+    }
+
     class ModuleStylesAssetHandler: PathHandler {
         private val epubRe = Regex("""^epub/([^/]+)/([^/]+)/style.css$""")
         override fun handle(path: String): WebResourceResponse? {
@@ -922,6 +944,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         .addPathHandler("/fonts/", FontsAssetHandler())
         .addPathHandler("/features/", FeatureAssetHandler())
         .addPathHandler("/module-style/", ModuleStylesAssetHandler())
+        .addPathHandler("/epub/", EpubResourcesAssetHandler())
         .build()
 
 
@@ -1097,7 +1120,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     suspend fun loadDocument(document: Document,
                              updateLocation: Boolean = false,
                              verse: Verse? = null,
-                             anchorOrdinal: Int? = null)
+                             anchorOrdinal: Int? = null,
+                             htmlId: String? = null,
+    )
     {
         val currentPage = window.pageManager.currentPage
 
@@ -1109,12 +1134,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         initialVerse = verse
 
         initialAnchorOrdinal = anchorOrdinal
+        initialHtmlId = htmlId
 
         if (lastUpdated == 0L || updateLocation) {
             if (listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
                 initialVerse = KeyUtil.getVerse(window.pageManager.currentBibleVerse.verse)
             } else {
                 initialAnchorOrdinal = currentPage.anchorOrdinal
+                initialHtmlId = currentPage.htmlId
             }
         }
 
@@ -1163,6 +1190,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private var initialAnchorOrdinal: Int? = null
+    private var initialHtmlId: String? = null
     internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
     internal val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
@@ -1249,7 +1277,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val jumpToId =
             if(doc is StudyPadDocument && doc.bookmarkId != null)
                 "o-${abs(doc.bookmarkId.hashCode())}"
-            else null
+            else initialHtmlId
 
         executeJavascriptOnUiThread("""
             bibleView.emit("clear_document");

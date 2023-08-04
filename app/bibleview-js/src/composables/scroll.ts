@@ -17,19 +17,22 @@
 
 import {computed, nextTick, ref, Ref, watch} from "vue";
 import {setupEventBusListener} from "@/eventbus";
-import {isInViewport} from "@/utils";
+import {isInViewport, sleep} from "@/utils";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {Nullable} from "@/types/common";
+import {useCustomCss} from "@/composables/custom-css";
 
 export function useScroll(
     config: Config,
     appSettings: AppSettings,
     calculatedConfig: CalculatedConfig,
     highlight: ReturnType<typeof useOrdinalHighlight>,
-    documentPromise: Ref<Promise<void> | null>
+    documentPromise: Ref<Promise<void> | null>,
+    customCss: ReturnType<typeof useCustomCss>
 ) {
     const {highlightVerse, resetHighlights} = highlight;
+    const {customCssPromises} = customCss;
     const currentScrollAnimation = ref<number | null>(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
@@ -187,6 +190,7 @@ export function useScroll(
             bottomOffset: number
         }) {
         await documentPromise.value;
+        await Promise.all(customCssPromises);
         console.log(`setupContent`, jumpToOrdinal, jumpToAnchor, topOffset);
 
         setToolbarOffset(topOffset, bottomOffset, {immediate: true, doNotScroll: true});

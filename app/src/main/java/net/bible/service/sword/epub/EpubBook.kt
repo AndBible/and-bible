@@ -44,8 +44,6 @@ import org.jdom2.input.SAXBuilder
 import org.jdom2.input.sax.XMLReaders
 import org.jdom2.xpath.XPathFactory
 import java.io.File
-import java.io.StringReader
-import java.lang.StringBuilder
 import kotlin.math.min
 
 fun getConfig(
@@ -103,12 +101,15 @@ class EpubBackendState(val epubDir: File): OpenFileState {
 
     private var metadata: SwordBookMetaData? = null
     val saxBuilder = SAXBuilder(XMLReaders.NONVALIDATING)
-    private val xPathInstance = XPathFactory.instance()
+    val xPathInstance = XPathFactory.instance()
 
     private val dcNamespace = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/")
     private val epubNamespace = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
     private val contentXmlFile = File(epubDir, "OEBPS/content.opf")
     private val content = saxBuilder.build(contentXmlFile)
+    val fileToId = xPathInstance.compile("//ns:manifest/ns:item", Filters.element(), null, epubNamespace)
+        .evaluate(content).associate { it.getAttribute("href").value to it.getAttribute("id").value
+    }
 
     private fun queryMetadata(key: String): String? =
         xPathInstance.compile("//dc:$key", Filters.element(), null, dcNamespace).evaluateFirst(content)?.value
@@ -179,6 +180,8 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
         return File(state.epubDir, "OEBPS/$fileName")
     }
 
+    fun getResource(resourcePath: String): File = File(state.epubDir, "OEBPS/$resourcePath")
+
     fun styleSheets(key: Key): List<File> {
         val file = fileForKey(key)
         val htmlRoot = state.saxBuilder.build(file).rootElement
@@ -189,10 +192,43 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
             .filter { it.name == "link" && it.getAttribute("type").value == "text/css" }
             .map { File(parentFolder, it.getAttribute("href").value) }
     }
+
+    private val xhtmlNamespace = Namespace.getNamespace("x", "http://www.w3.org/1999/xhtml")
+    private val hrefRe = Regex("""^([^#]+)?#?(.*)$""")
     override fun readRawContent(state: EpubBackendState, key: Key): String {
-        return state.saxBuilder.build(fileForKey(key)).rootElement.children
+        val file = fileForKey(key)
+        val parentFolder = file.parentFile!!
+        val root = parentFolder.parentFile!!
+
+        fun epubSrc(src: String): String {
+            val f = File(parentFolder, src)
+            val filePath = f.toRelativeString(root)
+            return "/epub/${state.bookMetaData.initials}/$filePath"
+        }
+
+        fun fixReferences(e: Element): Element {
+            for(img in state.xPathInstance.compile("//x:img", Filters.element(), null, xhtmlNamespace).evaluate(e)) {
+                val src = img.getAttribute("src").value
+                val finalSrc = epubSrc(src)
+                img.setAttribute("src", finalSrc)
+            }
+            for(a in state.xPathInstance.compile("//x:a", Filters.element(), null, xhtmlNamespace).evaluate(e)) {
+                val href = a.getAttribute("href")?.value?: continue
+                val m = hrefRe.matchEntire(href)
+                if(m != null) {
+                    val fileStr = m.groupValues[1]
+                    val id = if(fileStr.isEmpty()) key.name else state.fileToId[File(parentFolder, fileStr).toRelativeString(root)]
+                    a.name = "epubRef"
+                    a.setAttribute("to-key", id)
+                    a.setAttribute("to-id", m.groupValues[2])
+                }
+            }
+            return e
+        }
+
+        return state.saxBuilder.build(file).rootElement.children
             .find { it.name == "body" }!!
-            .run { elementToString(this) }
+            .run { elementToString(fixReferences(this)) }
     }
 }
 
