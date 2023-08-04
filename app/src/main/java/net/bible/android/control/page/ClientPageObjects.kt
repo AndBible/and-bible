@@ -19,7 +19,6 @@ package net.bible.android.control.page
 
 import android.util.Log
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
@@ -33,12 +32,9 @@ import net.bible.android.misc.uniqueId
 import net.bible.android.misc.wrapString
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
-import net.bible.service.sword.epub.EpubBackend
-import net.bible.service.sword.epub.isEpubBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_SOURCE_TYPE
-import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.VerseRange

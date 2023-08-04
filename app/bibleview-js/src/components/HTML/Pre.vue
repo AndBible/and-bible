@@ -16,7 +16,9 @@
   -->
 
 <template>
+  <div class="scroll-pre">
   <pre><slot/></pre>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -24,3 +26,10 @@ import {useCommon} from "@/composables";
 
 useCommon();
 </script>
+<style scoped>
+.scroll-pre {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+</style>

@@ -36,7 +36,6 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.installzip.EpubFile
 import net.bible.android.view.activity.page.windowControl
 import net.bible.service.sword.epub.isEpubBook
 import org.crosswire.jsword.book.Book

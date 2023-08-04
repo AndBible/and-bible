@@ -17,7 +17,7 @@
 
 import {computed, nextTick, ref, Ref, watch} from "vue";
 import {setupEventBusListener} from "@/eventbus";
-import {isInViewport, sleep} from "@/utils";
+import {isInViewport} from "@/utils";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {Nullable} from "@/types/common";
