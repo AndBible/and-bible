@@ -449,7 +449,7 @@ open class BookmarkControl @Inject constructor(
     }
     private fun addText(b: GenericBookmarkWithNotes) {
         val osis = try {
-            val book = b.book?: FakeBookFactory.giveDoesNotExist(b.bookInitials)
+            val book = b.book?: return
             SwordContentFacade.readOsisFragment(book, b.bookKey ?: book.getKey(b.key))
         } catch (e: OsisError) {
             b.text = e.stringMsg
