@@ -18,10 +18,8 @@
 package net.bible.service.sword.epub
 
 import android.util.Log
-import com.google.api.client.http.UrlEncodedContent
 import net.bible.android.SharedConstants
 import net.bible.android.misc.elementToString
-import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -43,11 +41,10 @@ import org.jdom2.Element
 import org.jdom2.Namespace
 import org.jdom2.filter.Filters
 import org.jdom2.input.SAXBuilder
-import org.jdom2.input.sax.XMLReaders
 import org.jdom2.xpath.XPathFactory
 import java.io.File
 import java.net.URLDecoder
-import java.net.URLEncoder
+import java.util.concurrent.ArrayBlockingQueue
 import kotlin.math.min
 
 fun getConfig(
@@ -72,9 +69,7 @@ ModDrv=RawGenBook
 About=$about
 """
 
-const val TAG = "MyBibleBook"
-
-private val re = Regex("[^a-zA-z0-9]")
+const val TAG = "EpubBook"
 
 class EpubSwordDriver: AbstractBookDriver() {
     override fun getBooks(): Array<Book> {
@@ -95,7 +90,8 @@ class EpubSwordDriver: AbstractBookDriver() {
     }
 }
 
-fun sanitizeModuleName(name: String): String = name.replace(re, "_")
+private val re = Regex("[^a-zA-z0-9]")
+private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
 
 class EpubBackendState(val epubDir: File): OpenFileState {
     constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
@@ -105,14 +101,13 @@ class EpubBackendState(val epubDir: File): OpenFileState {
     override fun close() {}
 
     private var metadata: SwordBookMetaData? = null
-    val saxBuilder = SAXBuilder(XMLReaders.NONVALIDATING)
     val xPathInstance: XPathFactory = XPathFactory.instance()
 
     private val dcNamespace = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/")
     private val epubNamespace = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
     private val containerNamespace = Namespace.getNamespace("ns", "urn:oasis:names:tc:opendocument:xmlns:container")
     private val metaInfoFile = File(epubDir, "META-INF/container.xml")
-    private val metaInfo = saxBuilder.build(metaInfoFile)
+    private val metaInfo = useSaxBuilder {  it.build(metaInfoFile) }
     private val contentFileName =
         xPathInstance.compile("//ns:rootfile", Filters.element(), null, containerNamespace)
             .evaluateFirst(metaInfo)
@@ -121,7 +116,7 @@ class EpubBackendState(val epubDir: File): OpenFileState {
     private val contentXmlFile = File(epubDir, contentFileName)
     val rootFolder: File = contentXmlFile.parentFile!!
 
-    private val content = saxBuilder.build(contentXmlFile)
+    private val content = useSaxBuilder { it.build(contentXmlFile) }
     val fileToId = xPathInstance.compile("//ns:manifest/ns:item", Filters.element(), null, epubNamespace)
         .evaluate(content).associate { it.getAttribute("href").value to it.getAttribute("id").value
     }
@@ -163,6 +158,14 @@ class EpubBackendState(val epubDir: File): OpenFileState {
         _lastAccess = lastAccess
     }
 }
+private val builders = ArrayBlockingQueue<SAXBuilder>(32)
+
+fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
+    val builder = builders.poll()?: SAXBuilder()
+    val rv = block(builder)
+    builders.offer(builder)
+    return rv
+}
 
 class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<EpubBackendState>(metadata) {
     override fun initState(): EpubBackendState = state
@@ -200,7 +203,7 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
 
     fun styleSheets(key: Key): List<File> {
         val file = fileForKey(key)
-        val htmlRoot = state.saxBuilder.build(file).rootElement
+        val htmlRoot = useSaxBuilder {  it.build(file) }.rootElement
         val head = htmlRoot.children.find { it.name == "head" }!!
         val parentFolder = file.parentFile
 
@@ -242,7 +245,7 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
             return e
         }
 
-        return state.saxBuilder.build(file).rootElement.children
+        return useSaxBuilder { it.build(file) }.rootElement.children
             .find { it.name == "body" }!!
             .run { elementToString(fixReferences(this)) }
     }
