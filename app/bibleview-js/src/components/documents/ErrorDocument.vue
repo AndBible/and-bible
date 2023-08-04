@@ -21,6 +21,7 @@
     <h3 v-if="severity === ErrorSeverity.WARNING">{{ strings.warningTitle }}</h3>
     <h3 v-if="severity === ErrorSeverity.NORMAL">{{ strings.normalTitle }}</h3>
     <OsisSegment convert :osis-template="document.errorMessage"/>
+    <br/>
     <a v-if="severity > ErrorSeverity.NORMAL" href="ab-error://">{{ strings.reportError }}</a>
   </div>
 </template>
