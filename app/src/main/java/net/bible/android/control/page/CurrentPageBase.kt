@@ -29,12 +29,14 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
+import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
@@ -124,6 +126,11 @@ abstract class CurrentPageBase protected constructor(
 
     override val currentPageContent: Document get() {
         val key = key
+        if(currentDocument?.doesNotExist == true) {
+            val link = "<AndBibleLink href='download://?initials=${currentDocument?.initials}'>${currentDocument?.initials}</AndBibleLink>"
+            val errorXml = application.getString(R.string.document_not_installed, link)
+            return ErrorDocument(errorXml, ErrorSeverity.NORMAL)
+        }
         return if(key == null) errorDocument else getPageContent(key)
     }
 
@@ -250,7 +257,7 @@ abstract class CurrentPageBase protected constructor(
         val document = entity.document
         Log.i(TAG, "State document:$document")
         val book = SwordDocumentFacade.getDocumentByInitials(document)
-            ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
+            ?: if(document != null) FakeBookFactory.giveDoesNotExist(document, BookCategory.GENERAL_BOOK) else null
         if (book != null) {
             Log.i(TAG, "Restored document: ${book.name} ${book.initials}")
             // bypass setter to avoid automatic notifications
