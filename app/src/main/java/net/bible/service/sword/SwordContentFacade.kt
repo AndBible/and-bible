@@ -194,8 +194,9 @@ object SwordContentFacade {
 
     private val ignoredElements = listOf("note")
 
+    private val bvaQuery = XPathFactory.instance().compile(".//BVA", Filters.element())
     fun getTextWithinOrdinals(element: Element, ordinalRange: IntRange): List<String> {
-        return XPathFactory.instance().compile(".//BVA", Filters.element()).evaluate(element).filter {
+        return bvaQuery.evaluate(element).filter {
             it.getAttribute("ordinal").value.toInt() in ordinalRange
                 && it.parentElement?.name?.lowercase() !in ignoredElements
                 && it.parentElement?.parentElement?.name?.lowercase() !in ignoredElements

@@ -59,6 +59,7 @@ import Strong from "@/components/MyBible/Strong.vue";
 
 import {Component, defineComponent, h} from "vue";
 import {osisToTemplateString} from "@/utils";
+import Ul from "@/components/HTML/Ul.vue";
 
 const teiComponents = {
     Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
@@ -73,11 +74,15 @@ const myBibleComponents = {
     S, M: NoOp, I, J: Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3, B, Br, Li, Ol, Strong
 }
 
+const htmlComponents = {
+    Ul
+}
+
 const osisComponents = {
     Verse, W, Div, Chapter, Reference, Note, TransChange,
     DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
     Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr, BVA: BibleViewAnchor,
-    ...teiComponents, ...andBibleComponents, ...myBibleComponents,
+    ...teiComponents, ...andBibleComponents, ...myBibleComponents, ...htmlComponents,
 }
 
 function prefixComponents(components: Record<string, Component>): Record<string, Component> {

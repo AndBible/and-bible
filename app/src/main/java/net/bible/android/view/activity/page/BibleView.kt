@@ -122,10 +122,13 @@ import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.epub.EpubBackend
+import net.bible.service.sword.epub.isEpubBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
@@ -807,11 +810,32 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     class ModuleStylesAssetHandler: PathHandler {
+        private val epubRe = Regex("""^epub/([^/]+)/([^/]+)/style.css$""")
         override fun handle(path: String): WebResourceResponse? {
+            val epubMatch = epubRe.matchEntire(path)
+            if(epubMatch != null) {
+                val bookInitials = epubMatch.groupValues[1]
+                val keyStr = epubMatch.groupValues[2]
+                val book = Books.installed().getBook(bookInitials)?: return null
+                val key = book.getKey(keyStr)
+
+                val styleSheets =
+                    (if(book is SwordGenBook) {
+                        val backend = book.backend
+                        if (backend is EpubBackend) {
+                            backend.styleSheets(key)
+                        } else null
+                    }  else null) ?: return null
+
+                val content = styleSheets.joinToString("\n") { String(it.readBytes()) }
+                return WebResourceResponse(URLConnection.guessContentTypeFromName(path), null, content.byteInputStream())
+            }
+
             val parts = path.split("/", limit = 2);
             if(parts.size != 2) return null;
             val (bookName, resourcePath) = parts
             val book = Books.installed().getBook(bookName) ?: return null
+
             val styleFile = book.bookMetaData.getProperty("AndBibleCSS") ?: return null
 
             val location = File(book.bookMetaData.location)

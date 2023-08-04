@@ -53,6 +53,8 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.determineFileType
+import net.bible.service.common.CommonUtils.unzipInputStream
+import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
@@ -74,6 +76,8 @@ class CantOverwrite(val files: List<String>) : Exception()
 
 class InvalidModule : Exception()
 
+class EpubFile : Exception()
+
 const val TAG = "InstallZip"
 
 class ZipHandler(
@@ -84,7 +88,6 @@ class ZipHandler(
 ) {
     private var totalEntries = 0
 
-    @Throws(IOException::class, ModulesExists::class, InvalidModule::class)
     private suspend fun checkZipFile() = withContext(Dispatchers.IO) {
         var modsDirFound = false
         var modulesFound = false
@@ -98,6 +101,7 @@ class ZipHandler(
             throw InvalidModule()
         }
         val existingFiles = mutableListOf<String>()
+        val otherFiles = mutableListOf<String>()
 
         while (entry != null) {
             totalEntries++
@@ -116,10 +120,18 @@ class ZipHandler(
                 modulesFound = true
                 modsDirFound = true
             } else {
+                otherFiles.add(name)
+            }
+            entry = zin.nextEntry
+        }
+
+        if(otherFiles.isNotEmpty()) {
+            if(otherFiles.find { it == "OEBPS/content.opf" } != null) {
+                throw EpubFile()
+            } else {
                 zin.close()
                 throw InvalidModule()
             }
-            entry = zin.nextEntry
         }
 
         if (!(modsDirFound && modulesFound)) {
@@ -132,7 +144,6 @@ class ZipHandler(
     }
 
 
-    @Throws(IOException::class, BookException::class)
     private suspend fun installZipFile() = withContext(Dispatchers.IO) {
         val confFiles = ArrayList<File>()
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
@@ -187,6 +198,7 @@ class ZipHandler(
         }
         addManuallyInstalledMyBibleBooks()
         addManuallyInstalledMySwordBooks()
+        addManuallyInstalledEpubBooks()
     }
 
     suspend fun execute() = withContext(Dispatchers.Main) {
@@ -259,7 +271,7 @@ class ZipHandler(
         val progressNow = (value.toFloat() / totalEntries.toFloat() * 100).roundToInt()
         updateProgress(progressNow/totalEntries)
     }
-    
+
     enum class InstallResult {ERROR, INVALID_MODULE, CANCEL, OK, IGNORE}
 }
 
@@ -297,7 +309,8 @@ class InstallZip : ActivityBase() {
             val zip = getString(R.string.format_zip, getString(R.string.app_name_andbible))
             val myBible = getString(R.string.format_mybible)
             val mySword = getString(R.string.format_mysword)
-            val formats = getString(R.string.choose_file, getString(R.string.app_name_andbible)) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword")
+            val epub = getString(R.string.format_epub)
+            val formats = getString(R.string.choose_file, getString(R.string.app_name_andbible)) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword, $epub")
 
             AlertDialog.Builder(this@InstallZip)
                 .setTitle(R.string.install_zip)
@@ -449,9 +462,24 @@ class InstallZip : ActivityBase() {
             this
         )
         binding.loadingIndicator.visibility = View.VISIBLE
-        zh.execute()
+        try {
+            zh.execute()
+        } catch (e: EpubFile) {
+            installEpub(uri)
+            addManuallyInstalledEpubBooks()
+        }
         binding.loadingIndicator.visibility = View.GONE
         return result
+    }
+
+    private fun installEpub(uri: Uri) {
+        val epubRootDir = File(SharedConstants.modulesDir, "epub")
+        epubRootDir.mkdirs()
+        val numInstalled = epubRootDir.list()!!.size
+        val book = "book-${numInstalled + 1}"
+        val dir = File(SharedConstants.modulesDir, "epub/$book")
+        dir.mkdirs()
+        unzipInputStream(contentResolver.openInputStream(uri)!!, dir)
     }
 
     override fun onBackPressed() {}

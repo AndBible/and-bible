@@ -33,7 +33,7 @@ import OsisFragment from "@/components/documents/OsisFragment.vue";
 import FeaturesLink from "@/components/FeaturesLink.vue";
 import OpenAllLink from "@/components/OpenAllLink.vue";
 import {useCommon, useReferenceCollector} from "@/composables";
-import {globalBookmarksKey, osisDocumentInfoKey, referenceCollectorKey} from "@/types/constants";
+import {customCssKey, globalBookmarksKey, osisDocumentInfoKey, referenceCollectorKey} from "@/types/constants";
 import {inject, provide, ref} from "vue";
 import {OsisDocument} from "@/types/documents";
 import {useBookmarks} from "@/composables/bookmarks";
@@ -41,16 +41,29 @@ import {useBookmarks} from "@/composables/bookmarks";
 const props = defineProps<{ document: OsisDocument }>();
 
 // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
-const {id, ordinalRange, osisFragment, bookCategory, bookInitials, annotateRef, osisRef, genericBookmarks, highlightedOrdinalRange} = props.document;
+const {
+    id,
+    ordinalRange,
+    osisFragment,
+    bookCategory,
+    bookInitials,
+    annotateRef,
+    osisRef,
+    genericBookmarks,
+    highlightedOrdinalRange,
+} = props.document;
 const referenceCollector = useReferenceCollector();
 
 const globalBookmarks = inject(globalBookmarksKey)!;
+const {registerBook} = inject(customCssKey)!;
 globalBookmarks.updateBookmarks(genericBookmarks);
 
 const {config, appSettings, ...common} = useCommon();
 
 useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, annotateRef, false, ref(true), common, config, appSettings);
 provide(osisDocumentInfoKey, {bookInitials, highlightedOrdinalRange, osisRef})
+
+registerBook(`epub/${bookInitials}/${osisRef}`)
 
 if (bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
     provide(referenceCollectorKey, referenceCollector);
