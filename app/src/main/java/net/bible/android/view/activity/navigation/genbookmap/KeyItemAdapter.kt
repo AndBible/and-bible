@@ -47,13 +47,7 @@ class KeyItemAdapter(
             convertView as TextView
         }
 
-        // Set value for the first text field
-        var key = item.osisID
-        // make all uppercase in Calvin's Institutes look nicer
-        if (ABStringUtils.isAllUpperCaseWherePossible(key)) {
-            key = WordUtils.capitalizeFully(key)
-        }
-        view.text = key.replace("_", " ")
+        view.text = item.name
         return view
     }
 
