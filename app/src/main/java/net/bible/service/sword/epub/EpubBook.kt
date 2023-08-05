@@ -124,7 +124,6 @@ class EpubBackendState(val epubDir: File): OpenFileState {
     override fun close() {}
 
     private var metadata: SwordBookMetaData? = null
-    val xPathInstance: XPathFactory = XPathFactory.instance()
 
     private val dcNamespace = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/")
     private val epubNamespace = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
@@ -133,45 +132,63 @@ class EpubBackendState(val epubDir: File): OpenFileState {
 
     private val metaInfoFile = File(epubDir, "META-INF/container.xml")
     private val metaInfo = useSaxBuilder {  it.build(metaInfoFile) }
-    private val contentFileName =
-        xPathInstance.compile("//ns:rootfile", Filters.element(), null, containerNamespace)
+    private val contentFileName = useXPathInstance { xp ->
+        xp.compile("//ns:rootfile", Filters.element(), null, containerNamespace)
             .evaluateFirst(metaInfo)
             .getAttribute("full-path").value
+    }
 
     private val contentXmlFile = File(epubDir, contentFileName)
     val rootFolder: File = contentXmlFile.parentFile!!
 
     private val content = useSaxBuilder { it.build(contentXmlFile) }
-    val fileToId = xPathInstance.compile("//ns:manifest/ns:item", Filters.element(), null, epubNamespace)
-        .evaluate(content).associate {
-            val fileName = URLDecoder.decode(it.getAttribute("href").value, "UTF-8")
-            fileName to it.getAttribute("id").value
+    val fileToId = useXPathInstance { xp ->
+        xp.compile("//ns:manifest/ns:item", Filters.element(), null, epubNamespace)
+            .evaluate(content).associate {
+                val fileName = URLDecoder.decode(it.getAttribute("href").value, "UTF-8")
+                fileName to it.getAttribute("id").value
+            }
     }
 
     val idToFile = fileToId.entries.associate { it.value to it.key }
 
-    private val tocFile = xPathInstance.compile("//ns:manifest/ns:item[@media-type='application/x-dtbncx+xml']", Filters.element(), null, epubNamespace)
-        .evaluateFirst(content)?.getAttribute("href")?.value?.run { File(rootFolder, this) }
+    private val tocFile = useXPathInstance { xp ->
+        xp.compile(
+            "//ns:manifest/ns:item[@media-type='application/x-dtbncx+xml']",
+            Filters.element(),
+            null,
+            epubNamespace
+        )
+            .evaluateFirst(content)?.getAttribute("href")?.value?.run { File(rootFolder, this) }
+    }
 
     private val toc = tocFile?.run {useSaxBuilder { it.build(this) } }
 
-    val fileToTitle = toc?.run {
-        xPathInstance.compile("//ns:navPoint/ns:content", Filters.element(), null, tocNamespace)
+    val fileToTitle = toc?.run { useXPathInstance { xp ->
+        xp.compile("//ns:navPoint/ns:content", Filters.element(), null, tocNamespace)
             .evaluate(this)
             .associate {
-                val textElem = xPathInstance.compile("../ns:navLabel/ns:text", Filters.element(), null, tocNamespace).evaluateFirst(it)
+                val textElem =
+                    useXPathInstance { xp2 ->
+                        xp2.compile("../ns:navLabel/ns:text", Filters.element(), null, tocNamespace)
+                            .evaluateFirst(it)
+                    }
                 val fileAndId = getFileAndId(it.getAttribute("src").value)
-                val fileName = fileAndId?.first?.let {URLDecoder.decode(it, "UTF-8")  }
+                val fileName = fileAndId?.first?.let { URLDecoder.decode(it, "UTF-8") }
                 fileName to textElem.text
             }
-    }
+    } }
 
-    private fun queryMetadata(key: String): String? =
-        xPathInstance.compile("//dc:$key", Filters.element(), null, dcNamespace).evaluateFirst(content)?.value
-    fun queryContent(expression: String): List<Element> =
-        xPathInstance.compile(expression, Filters.element(), null, epubNamespace).evaluate(content)
-    fun queryFirst(expression: String): Element =
-        xPathInstance.compile(expression, Filters.element(), null, epubNamespace).evaluateFirst(content)
+    private fun queryMetadata(key: String): String? = useXPathInstance { xp ->
+        xp.compile ("//dc:$key", Filters.element(), null, dcNamespace)
+            .evaluateFirst(content)?.value
+    }
+    fun queryContent(expression: String): List<Element> = useXPathInstance { xp ->
+        xp.compile(expression, Filters.element(), null, epubNamespace).evaluate(content)
+    }
+    fun queryFirst(expression: String): Element = useXPathInstance { xp ->
+        xp.compile(expression, Filters.element(), null, epubNamespace).evaluateFirst(content)
+    }
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
             val initials = "Epub-" + sanitizeModuleName(File(epubDir.path).name)
@@ -268,12 +285,12 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
         }
 
         fun fixReferences(e: Element): Element {
-            for(img in state.xPathInstance.compile("//ns:img", Filters.element(), null, xhtmlNamespace).evaluate(e)) {
+            for(img in useXPathInstance { xp -> xp.compile("//ns:img", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
                 val src = img.getAttribute("src").value
                 val finalSrc = epubSrc(src)
                 img.setAttribute("src", finalSrc)
             }
-            for(a in state.xPathInstance.compile("//ns:a", Filters.element(), null, xhtmlNamespace).evaluate(e)) {
+            for(a in useXPathInstance { xp -> xp.compile("//ns:a", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
                 val href = a.getAttribute("href")?.value?: continue
                 val fileAndId = getFileAndId(href)
                 if(fileAndId != null && !urlRe.matches(href)) {
