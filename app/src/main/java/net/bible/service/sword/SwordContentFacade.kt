@@ -32,6 +32,7 @@ import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
+import net.bible.service.sword.epub.isEpubBook
 import org.crosswire.common.xml.JDOMSAXEventProvider
 import org.crosswire.common.xml.SAXEventProvider
 import org.crosswire.jsword.book.Book
@@ -156,7 +157,7 @@ object SwordContentFacade {
         return pieces
     }
 
-    private fun addAnchors(frag: Element) {
+    private fun addAnchors(frag: Element, parseRefs: Boolean) {
         var ordinal = 0
         fun wrapTextWithSpan(element: Element) {
             for (content in element.content.toList()) {
@@ -168,7 +169,7 @@ object SwordContentFacade {
                         for (textContent in textContents) {
                             val span = Element("BVA") // BibleViewAnchor.vue
                             span.setAttribute("ordinal", "${ordinal++}")
-                            if(bibleRefParseEnabled && element.name != "reference") {
+                            if(parseRefs && bibleRefParseEnabled && element.name != "reference") {
                                 for ((t, isRef) in bibleRefSplit(textContent)) {
                                     if (!isRef) {
                                         span.addContent(Text(t))
@@ -225,10 +226,10 @@ object SwordContentFacade {
                 verse.removeContent()
                 frag.removeContent()
                 frag.addContent(verseContent)
-                addAnchors(frag)
+                addAnchors(frag, false)
                 frag
             } else if(book.bookCategory != BookCategory.BIBLE) {
-                addAnchors(frag)
+                addAnchors(frag, book.isEpubBook)
 
                 frag
             } else {
