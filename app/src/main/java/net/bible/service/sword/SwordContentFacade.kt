@@ -143,17 +143,15 @@ object SwordContentFacade {
         val matches = bibleRefRe.findAll(text)
         val pieces = mutableListOf<Pair<String, Boolean>>()
         var lastStartPosition = 0
-        var currentPiece = ""
 
         for(m in matches) {
-            currentPiece += text.slice(lastStartPosition until m.range.first)
-            pieces.add(Pair(currentPiece, false))
+            pieces.add(Pair(text.slice(lastStartPosition until m.range.first), false))
             pieces.add(Pair(m.groupValues[0], true))
             lastStartPosition = m.range.last + 1
         }
-        currentPiece += text.slice(lastStartPosition   until text.length)
-        if (currentPiece.isNotEmpty()) {
-            pieces.add(Pair(currentPiece, false))
+        val leftover = text.slice(lastStartPosition   until text.length)
+        if (leftover.isNotEmpty()) {
+            pieces.add(Pair(leftover, false))
         }
         return pieces
     }
