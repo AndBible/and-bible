@@ -21,6 +21,7 @@ import android.util.LayoutDirection
 import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.Logger
@@ -40,9 +41,12 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.VersificationConverter
+import org.jaxen.expr.TextNodeStep
 import org.jdom2.Document
 import org.jdom2.Element
 import org.jdom2.Text
@@ -128,6 +132,28 @@ object SwordContentFacade {
         return pieces
     }
 
+    const val bibleRefParseEnabled = false
+
+    private val bibleRefRe = Regex("""[A-Z]\w+\.? \d+:\d+(-\d+(:\d+)?)?((,? ?(\d+|\d+:\d+)(-\d+(:\d+)?)?)*)""")
+    private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
+        val matches = bibleRefRe.findAll(text)
+        val pieces = mutableListOf<Pair<String, Boolean>>()
+        var lastStartPosition = 0
+        var currentPiece = ""
+
+        for(m in matches) {
+            currentPiece += text.slice(lastStartPosition until m.range.first)
+            pieces.add(Pair(currentPiece, false))
+            pieces.add(Pair(m.groupValues[0], true))
+            lastStartPosition = m.range.last + 1
+        }
+        currentPiece += text.slice(lastStartPosition   until text.length)
+        if (currentPiece.isNotEmpty()) {
+            pieces.add(Pair(currentPiece, false))
+        }
+        return pieces
+    }
+
     private fun addAnchors(frag: Element) {
         var ordinal = 0
         fun wrapTextWithSpan(element: Element) {
@@ -140,8 +166,30 @@ object SwordContentFacade {
                         for (textContent in textContents) {
                             val span = Element("BVA") // BibleViewAnchor.vue
                             span.setAttribute("ordinal", "${ordinal++}")
-                            val textNode = Text(textContent)
-                            span.addContent(textNode)
+                            if(bibleRefParseEnabled && element.name != "reference") {
+                                for ((t, isRef) in bibleRefSplit(textContent)) {
+                                    if (!isRef) {
+                                        span.addContent(Text(t))
+                                    } else {
+                                        val osisRef = try {
+                                            PassageKeyFactory.instance().getKey(KJVA, t).osisRef
+                                        } catch (e: NoSuchKeyException) {
+                                            null
+                                        }
+                                        if (osisRef == null) {
+                                            Log.e(TAG, "Failed parsing ref $t")
+                                            span.addContent(Text(t))
+                                        } else {
+                                            val refNode = Element("reference")
+                                            refNode.addContent(Text(t))
+                                            refNode.setAttribute("osisRef", osisRef)
+                                            span.addContent(refNode)
+                                        }
+                                    }
+                                }
+                            } else {
+                                span.addContent(Text(textContent))
+                            }
                             element.addContent(pos++, span)
                         }
                     }
