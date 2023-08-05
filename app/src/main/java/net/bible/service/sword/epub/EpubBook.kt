@@ -143,7 +143,9 @@ class EpubBackendState(val epubDir: File): OpenFileState {
 
     private val content = useSaxBuilder { it.build(contentXmlFile) }
     val fileToId = xPathInstance.compile("//ns:manifest/ns:item", Filters.element(), null, epubNamespace)
-        .evaluate(content).associate { it.getAttribute("href").value to it.getAttribute("id").value
+        .evaluate(content).associate {
+            val fileName = URLDecoder.decode(it.getAttribute("href").value, "UTF-8")
+            fileName to it.getAttribute("id").value
     }
 
     val idToFile = fileToId.entries.associate { it.value to it.key }
@@ -159,7 +161,8 @@ class EpubBackendState(val epubDir: File): OpenFileState {
             .associate {
                 val textElem = xPathInstance.compile("../ns:navLabel/ns:text", Filters.element(), null, tocNamespace).evaluateFirst(it)
                 val fileAndId = getFileAndId(it.getAttribute("src").value)
-                fileAndId?.first to textElem.text
+                val fileName = fileAndId?.first?.let {URLDecoder.decode(it, "UTF-8")  }
+                fileName to textElem.text
             }
     }
 
