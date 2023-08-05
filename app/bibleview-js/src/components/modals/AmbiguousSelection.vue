@@ -209,7 +209,7 @@ function updateHighlight() {
 }
 
 function multiSelect(_verseInfo: Optional<EventVerseInfo>, _ordinalInfo: Optional<EventOrdinalInfo>) {
-    if (!_verseInfo && _ordinalInfo) return false;
+    if (!_verseInfo && !_ordinalInfo) return false;
     if(_verseInfo) {
         if (_verseInfo.ordinal < startOrdinal.value!) {
             endOrdinal.value = null;
