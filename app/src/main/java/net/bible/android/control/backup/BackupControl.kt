@@ -70,9 +70,9 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.epub.epubDir
-import net.bible.service.sword.epub.isEpubBook
-import net.bible.service.sword.mybible.isMyBibleBook
-import net.bible.service.sword.mysword.isMySwordBook
+import net.bible.service.sword.epub.isManuallyInstalledEpub
+import net.bible.service.sword.mybible.isManuallyInstalledMyBibleBook
+import net.bible.service.sword.mysword.isManuallyInstalledMySwordBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -357,11 +357,11 @@ object BackupControl {
                 ZipOutputStream(out).use { outFile ->
                     for (b in books) {
                         val bmd = b.bookMetaData as SwordBookMetaData
-                        if (b.isMyBibleBook) {
+                        if (b.isManuallyInstalledMyBibleBook) {
                             addModuleFile(outFile, b.dbFile)
-                        } else if (b.isMySwordBook) {
+                        } else if (b.isManuallyInstalledMySwordBook) {
                             addModuleFile(outFile, b.dbFile)
-                        } else if (b.isEpubBook) {
+                        } else if (b.isManuallyInstalledEpub) {
                             addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
                         }
                         else {

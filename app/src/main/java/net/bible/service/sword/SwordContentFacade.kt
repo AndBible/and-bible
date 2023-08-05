@@ -32,7 +32,7 @@ import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
-import net.bible.service.sword.epub.isEpubBook
+import net.bible.service.sword.epub.isEpub
 import org.crosswire.common.xml.JDOMSAXEventProvider
 import org.crosswire.common.xml.SAXEventProvider
 import org.crosswire.jsword.book.Book
@@ -230,7 +230,7 @@ object SwordContentFacade {
                 addAnchors(frag, false)
                 frag
             } else if(book.bookCategory != BookCategory.BIBLE) {
-                addAnchors(frag, book.isEpubBook)
+                addAnchors(frag, book.isEpub)
 
                 frag
             } else {

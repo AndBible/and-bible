@@ -37,7 +37,8 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.windowControl
-import net.bible.service.sword.epub.isEpubBook
+import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.epub.isManuallyInstalledEpub
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
@@ -185,7 +186,7 @@ class Window (
         } else {
             anchorOrdinal = currentPage.anchorOrdinal
         }
-        htmlId = if(currentPage.currentDocument?.isEpubBook == true) {
+        htmlId = if(currentPage.currentDocument?.isEpub == true) {
             currentPage.htmlId
         } else {
             null

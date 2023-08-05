@@ -482,5 +482,5 @@ fun addManuallyInstalledMyBibleBooks() {
     }
 }
 
-val Book.isMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null
+val Book.isManuallyInstalledMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null
 val Book.myBibleDownloadUrl: String get() = bookMetaData.getProperty("AndBibleDownloadUrl")

@@ -455,4 +455,4 @@ fun addManuallyInstalledMySwordBooks() {
     }
 }
 
-val Book.isMySwordBook get() = bookMetaData.getProperty("AndBibleMySwordModule") != null
+val Book.isManuallyInstalledMySwordBook get() = bookMetaData.getProperty("AndBibleMySwordModule") != null

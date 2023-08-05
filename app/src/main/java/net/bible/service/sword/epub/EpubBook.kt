@@ -45,7 +45,6 @@ import org.jdom2.xpath.XPathFactory
 import java.io.File
 import java.net.URLDecoder
 import java.util.concurrent.ArrayBlockingQueue
-import kotlin.math.min
 
 fun getConfig(
     initials: String,
@@ -347,5 +346,6 @@ fun addManuallyInstalledEpubBooks() {
     }
 }
 
-val Book.isEpubBook get() = bookMetaData.getProperty("AndBibleEpubModule") != null
+val Book.isManuallyInstalledEpub get() = bookMetaData.getProperty("AndBibleEpubModule") != null
+val Book.isEpub get() = isManuallyInstalledEpub || ((bookMetaData as? SwordBookMetaData)?.bookType == epubBookType)
 val Book.epubDir get() = bookMetaData.getProperty("AndBibleEpubDir")
