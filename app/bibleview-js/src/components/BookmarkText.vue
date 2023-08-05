@@ -29,7 +29,7 @@
       <div
           v-else-if="isGenericBookmark(bookmark)"
           @click.stop="$emit('change-expanded', false)"
-          v-html="bookmark.highlightedText"
+          v-html="bookmark.wholeVerse ? bookmark.text : bookmark.highlightedText"
       />
     </div>
     <div class="bookmark-text one-liner" v-else>
