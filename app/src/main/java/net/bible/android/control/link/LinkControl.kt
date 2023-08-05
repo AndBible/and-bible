@@ -39,6 +39,7 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.StudyPadKey
+import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.bookAndKeyListOf
 import org.apache.commons.lang3.StringUtils
@@ -362,39 +363,7 @@ class LinkControl @Inject constructor(
     }
     fun resolveRef(searchRef: String, doc: SwordBook? = null): Key? {
         val searchDoc = doc ?: windowControl.defaultBibleDoc(useLinks = true)
-        val bibleNames = BibleNames.instance()
-
-        fun getKey(): Key? {
-            val k =
-                try { PassageKeyFactory.instance().getKey(searchDoc.versification, searchRef) }
-                catch (e: NoSuchKeyException) { null }
-            if(k != null && k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter == 0)  {
-                return null
-            }
-            return k
-        }
-
-        val key =
-            synchronized(bibleNames) {
-                val orig = bibleNames.enableFuzzy
-                bibleNames.enableFuzzy = false
-                val k = getKey()
-                bibleNames.enableFuzzy = orig
-                k
-            } ?:
-            if (searchDoc.language.code != MyLocaleProvider.userLocale.language) {
-                synchronized(bibleNames) {
-                    MyLocaleProvider.override = Locale(searchDoc.language.code)
-                    val orig = bibleNames.enableFuzzy
-                    bibleNames.enableFuzzy = false
-                    val k = getKey()
-                    bibleNames.enableFuzzy = orig
-                    MyLocaleProvider.override = null
-                    k
-                }
-            } else null
-
-        return key
+        return SwordContentFacade.resolveRef(searchRef, searchDoc.language.code, searchDoc.versification)
     }
 
     fun tryToOpenRef(searchRef: String, doc: SwordBook? = null): Boolean {

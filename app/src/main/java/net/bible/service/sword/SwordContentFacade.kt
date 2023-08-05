@@ -21,6 +21,7 @@ import android.util.LayoutDirection
 import android.util.Log
 import android.util.LruCache
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.MyLocaleProvider
 import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SpeakSettings
@@ -44,8 +45,11 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.BibleNames
 import org.crosswire.jsword.versification.BookName
+import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
 import org.jdom2.Element
@@ -80,6 +84,45 @@ object SwordContentFacade {
 
     /** top level method to fetch html from the raw document data
      */
+
+    private val dashes = "‐‑‒–—"
+    private val dashesRe = Regex("[$dashes]")
+    fun resolveRef(searchRef_: String, lang: String, v11n: Versification): Key? {
+        val searchRef = searchRef_.replace(dashesRe, "-")
+        val bibleNames = BibleNames.instance()
+
+        fun getKey(): Key? {
+            val k =
+                try { PassageKeyFactory.instance().getKey(v11n, searchRef) }
+                catch (e: NoSuchKeyException) { null }
+            if(k != null && k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter == 0)  {
+                return null
+            }
+            return k
+        }
+
+        val key =
+            synchronized(bibleNames) {
+                val orig = bibleNames.enableFuzzy
+                bibleNames.enableFuzzy = false
+                val k = getKey()
+                bibleNames.enableFuzzy = orig
+                k
+            } ?:
+            if (lang != MyLocaleProvider.userLocale.language) {
+                synchronized(bibleNames) {
+                    MyLocaleProvider.override = Locale(lang)
+                    val orig = bibleNames.enableFuzzy
+                    bibleNames.enableFuzzy = false
+                    val k = getKey()
+                    bibleNames.enableFuzzy = orig
+                    MyLocaleProvider.override = null
+                    k
+                }
+            } else null
+
+        return key
+    }
     @Throws(OsisError::class)
     fun readOsisFragment(book: Book?, key: Key?): Element {
         val cacheKey = "${book?.initials}-${key?.osisRef}"
@@ -140,7 +183,7 @@ object SwordContentFacade {
 
     private const val bibleRefParseEnabled = true
 
-    private val bibleRefRe = Regex("""(\d\s+)?[A-Z]\w+\.?\s+\d+:\d+([–—-]\d+(:\d+)?)?(,?\s*(\d+|\d+:\d+)([–—-]\d+(:\d+)?)?)*""")
+    private val bibleRefRe = Regex("""(\d\s+)?[A-Z]\w+\.?\s+\d+:\d+([‐‑‒–—-]\d+(:\d+)?)?(,?\s*(\d+|\d+:\d+)([‐‑‒–—-]\d+(:\d+)?)?)*""")
     private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
         val matches = bibleRefRe.findAll(text)
         val pieces = mutableListOf<Pair<String, Boolean>>()
@@ -158,8 +201,10 @@ object SwordContentFacade {
         return pieces
     }
 
-    private fun addAnchors(frag: Element, parseRefs: Boolean) {
+    private fun addAnchors(frag: Element, book: Book) {
         var ordinal = 0
+        val parseRefs = book.isEpub
+        val lang = book.language.code
         fun wrapTextWithSpan(element: Element) {
             for (content in element.content.toList()) {
                 if (content is Text && content.text.trim().isNotEmpty()) {
@@ -175,11 +220,7 @@ object SwordContentFacade {
                                     if (!isRef) {
                                         span.addContent(Text(t))
                                     } else {
-                                        val osisRef = try {
-                                            PassageKeyFactory.instance().getKey(KJVA, t).osisRef
-                                        } catch (e: NoSuchKeyException) {
-                                            null
-                                        }
+                                        val osisRef = resolveRef(t, lang, KJVA)?.osisRef
                                         if (osisRef == null) {
                                             Log.e(TAG, "Failed parsing ref $t")
                                             span.addContent(Text(t))
@@ -227,10 +268,10 @@ object SwordContentFacade {
                 verse.removeContent()
                 frag.removeContent()
                 frag.addContent(verseContent)
-                addAnchors(frag, false)
+                addAnchors(frag, book)
                 frag
             } else if(book.bookCategory != BookCategory.BIBLE) {
-                addAnchors(frag, book.isEpub)
+                addAnchors(frag, book)
 
                 frag
             } else {
