@@ -181,8 +181,6 @@ object SwordContentFacade {
         return pieces
     }
 
-    private const val bibleRefParseEnabled = true
-
     private val bibleRefRe = Regex("""(\d\s+)?[A-Z]\w+\.?\s+\d+:\d+([‐‑‒–—-]\d+(:\d+)?)?(,?\s*(\d+|\d+:\d+)([‐‑‒–—-]\d+(:\d+)?)?)*""")
     private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
         val matches = bibleRefRe.findAll(text)
@@ -215,7 +213,7 @@ object SwordContentFacade {
                         for (textContent in textContents) {
                             val span = Element("BVA") // BibleViewAnchor.vue
                             span.setAttribute("ordinal", "${ordinal++}")
-                            if(parseRefs && bibleRefParseEnabled && element.name != "reference") {
+                            if(parseRefs && element.name != "reference") {
                                 for ((t, isRef) in bibleRefSplit(textContent)) {
                                     if (!isRef) {
                                         span.addContent(Text(t))
