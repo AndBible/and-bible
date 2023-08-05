@@ -122,17 +122,18 @@ object SwordContentFacade {
         val matches = splitMatch.findAll(text)
         val pieces = mutableListOf<String>()
         var lastStartPosition = 0
-        var currentPiece = ""
+        val currentPiece = StringBuilder()
 
         for(m in matches) {
-            currentPiece += text.slice(lastStartPosition until m.range.first) + m.groupValues[1]
-            pieces.add(currentPiece)
-            currentPiece = m.groupValues[3]
+            currentPiece.append(text.slice(lastStartPosition until m.range.first) + m.groupValues[1])
+            pieces.add(currentPiece.toString())
+            currentPiece.clear()
+            currentPiece.append(m.groupValues[3])
             lastStartPosition = m.range.last + 1
         }
-        currentPiece += text.slice(lastStartPosition   until text.length)
+        currentPiece.append(text.slice(lastStartPosition   until text.length))
         if (currentPiece.isNotEmpty()) {
-            pieces.add(currentPiece)
+            pieces.add(currentPiece.toString())
         }
         return pieces
     }
@@ -255,9 +256,20 @@ object SwordContentFacade {
                 && it.parentElement?.name?.lowercase() !in ignoredElements
                 && it.parentElement?.parentElement?.name?.lowercase() !in ignoredElements
                 && it.parentElement?.parentElement?.parentElement?.name?.lowercase() !in ignoredElements
-        }.map { it.text }
+        }.map { getTextRecursively(it) }
     }
-
+    private fun getTextRecursively(element: Element): String {
+        val textBuilder = StringBuilder()
+        for(c in element.content) {
+            if(c is Element) {
+                textBuilder.append(getTextRecursively(c))
+            }
+            if(c is Text) {
+                textBuilder.append(c.text)
+            }
+        }
+        return textBuilder.toString()
+    }
     /**
      * Get just the canonical text of one or more book entries without any
      * markup.
