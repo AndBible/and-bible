@@ -181,7 +181,7 @@ object SwordContentFacade {
         return pieces
     }
 
-    private val bibleRefRe = Regex("""(\d\s+)?[A-Z]\w+\.?\s+\d+:\d+([‐‑‒–—-]\d+(:\d+)?)?(,?\s*(\d+|\d+:\d+)([‐‑‒–—-]\d+(:\d+)?)?)*""")
+    private val bibleRefRe = Regex("""(\d\s+)?[A-Z]\w+\.?\s+\d+:\d+([‐‑‒–—-]\d+(:\d+)?)?(,?\s*(\d+:\d+|\d+)([‐‑‒–—-]\d+(:\d+)?)?)*""")
     private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
         val matches = bibleRefRe.findAll(text)
         val pieces = mutableListOf<Pair<String, Boolean>>()
