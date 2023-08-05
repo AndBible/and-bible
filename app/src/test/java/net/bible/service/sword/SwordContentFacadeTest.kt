@@ -269,6 +269,19 @@ class SentenceSplitTest {
         equalTo(listOf("Jotain tekstiä (Ref1 1:2): ", "\"Jotain\" tekstiä lisää."))
     )
 }
+class BibleRefRegexTest {
+    fun bib(s: String): Boolean {
+        val m = SwordContentFacade.bibleRefRe.find(s)
+        return m?.groupValues?.get(0) == s
+    }
+    @Test fun testRe1() = assertThat(bib("Matt 1:1"), equalTo(true))
+    @Test fun testRe2() = assertThat(bib("Matt 1:1, 1"), equalTo(true))
+    @Test fun testRe3() = assertThat(bib("Matt 1:1, 1:1-2:2"), equalTo(true))
+    @Test fun testRe4() = assertThat(bib("Matt 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
+    @Test fun testRe5() = assertThat(bib("1 Joh 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
+    @Test fun testRe6() = assertThat(bib("1. Joh 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
+    @Test fun testRe7() = assertThat(bib("1. Joh. 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
+}
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
