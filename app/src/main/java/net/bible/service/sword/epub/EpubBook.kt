@@ -93,6 +93,29 @@ class EpubSwordDriver: AbstractBookDriver() {
 private val re = Regex("[^a-zA-z0-9]")
 private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
 
+
+private val builders = ArrayBlockingQueue<SAXBuilder>(32)
+
+fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
+    val builder = builders.poll()?: SAXBuilder()
+    val rv = block(builder)
+    builders.offer(builder)
+    return rv
+}
+
+private val xPathInstances = ArrayBlockingQueue<XPathFactory>(32)
+fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
+    val builder = xPathInstances.poll()?: XPathFactory.instance()
+    val rv = block(builder)
+    xPathInstances.offer(builder)
+    return rv
+}
+
+private val hrefRe = Regex("""^([^#]+)?#?(.*)$""")
+private fun getFileAndId(href: String): Pair<String, String>? {
+    val m = hrefRe.matchEntire(href)?: return null
+    return m.groupValues[1] to m.groupValues[2]
+}
 class EpubBackendState(val epubDir: File): OpenFileState {
     constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
         this.metadata = metadata
@@ -106,6 +129,8 @@ class EpubBackendState(val epubDir: File): OpenFileState {
     private val dcNamespace = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/")
     private val epubNamespace = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
     private val containerNamespace = Namespace.getNamespace("ns", "urn:oasis:names:tc:opendocument:xmlns:container")
+    private val tocNamespace = Namespace.getNamespace("ns", "http://www.daisy.org/z3986/2005/ncx/")
+
     private val metaInfoFile = File(epubDir, "META-INF/container.xml")
     private val metaInfo = useSaxBuilder {  it.build(metaInfoFile) }
     private val contentFileName =
@@ -119,6 +144,23 @@ class EpubBackendState(val epubDir: File): OpenFileState {
     private val content = useSaxBuilder { it.build(contentXmlFile) }
     val fileToId = xPathInstance.compile("//ns:manifest/ns:item", Filters.element(), null, epubNamespace)
         .evaluate(content).associate { it.getAttribute("href").value to it.getAttribute("id").value
+    }
+
+    val idToFile = fileToId.entries.associate { it.value to it.key }
+
+    private val tocFile = xPathInstance.compile("//ns:manifest/ns:item[@media-type='application/x-dtbncx+xml']", Filters.element(), null, epubNamespace)
+        .evaluateFirst(content)?.getAttribute("href")?.value?.run { File(rootFolder, this) }
+
+    private val toc = tocFile?.run {useSaxBuilder { it.build(this) } }
+
+    val fileToTitle = toc?.run {
+        xPathInstance.compile("//ns:navPoint/ns:content", Filters.element(), null, tocNamespace)
+            .evaluate(this)
+            .associate {
+                val textElem = xPathInstance.compile("../ns:navLabel/ns:text", Filters.element(), null, tocNamespace).evaluateFirst(it)
+                val fileAndId = getFileAndId(it.getAttribute("src").value)
+                fileAndId?.first to textElem.text
+            }
     }
 
     private fun queryMetadata(key: String): String? =
@@ -158,14 +200,6 @@ class EpubBackendState(val epubDir: File): OpenFileState {
         _lastAccess = lastAccess
     }
 }
-private val builders = ArrayBlockingQueue<SAXBuilder>(32)
-
-fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
-    val builder = builders.poll()?: SAXBuilder()
-    val rv = block(builder)
-    builders.offer(builder)
-    return rv
-}
 
 class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<EpubBackendState>(metadata) {
     override fun initState(): EpubBackendState = state
@@ -181,13 +215,18 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
 
     override fun iterator(): MutableIterator<Key> =
         state.queryContent("//ns:spine/ns:itemref")
-            .map { DefaultLeafKeyList(it.getAttribute("idref").value) }
+            .map { getKey(it.getAttribute("idref").value) }
             .toMutableList()
             .iterator()
 
+    fun getKey(idRef: String): Key {
+        val keyName = state.fileToTitle?.let {f2t -> state.idToFile[idRef]?.let { f2t[it] } } ?: idRef
+        return DefaultLeafKeyList(keyName, idRef)
+    }
+
     override fun get(index: Int): Key =
         state.queryContent("//ns:spine/ns:itemref")[index]
-            .run { DefaultLeafKeyList(getAttribute("idref").value) }
+            .run { getKey(getAttribute("idref").value) }
 
     override fun indexOf(that: Key): Int =
         state.queryContent("//ns:spine/ns:itemref")
@@ -213,8 +252,8 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
     }
 
     private val xhtmlNamespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
-    private val hrefRe = Regex("""^([^#]+)?#?(.*)$""")
     private val urlRe = Regex("""^https?://.*""")
+
     override fun readRawContent(state: EpubBackendState, key: Key): String {
         val file = fileForKey(key)
         val parentFolder = file.parentFile!!
@@ -233,13 +272,14 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
             }
             for(a in state.xPathInstance.compile("//ns:a", Filters.element(), null, xhtmlNamespace).evaluate(e)) {
                 val href = a.getAttribute("href")?.value?: continue
-                val m = hrefRe.matchEntire(href)
-                if(m != null && !urlRe.matches(href)) {
-                    val fileStr = URLDecoder.decode(m.groupValues[1], "UTF-8")
-                    val id = if(fileStr.isEmpty()) key.osisRef else state.fileToId[File(parentFolder, fileStr).toRelativeString(state.rootFolder)]
+                val fileAndId = getFileAndId(href)
+                if(fileAndId != null && !urlRe.matches(href)) {
+                    val fileStr = URLDecoder.decode(fileAndId.first, "UTF-8")
+                    val fileName = if(fileStr.isEmpty()) null else File(parentFolder, fileStr).toRelativeString(state.rootFolder)
+                    val id: String = fileName?.let {state.fileToId[it] }?: key.osisRef
                     a.name = "epubRef"
                     a.setAttribute("to-key", id)
-                    a.setAttribute("to-id", m.groupValues[2])
+                    a.setAttribute("to-id", fileAndId.second)
                 }
             }
             return e
