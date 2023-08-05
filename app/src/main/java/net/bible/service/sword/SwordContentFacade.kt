@@ -19,6 +19,7 @@ package net.bible.service.sword
 import android.text.TextUtils
 import android.util.LayoutDirection
 import android.util.Log
+import android.util.LruCache
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.KJVA
@@ -43,10 +44,8 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.VersificationConverter
-import org.jaxen.expr.TextNodeStep
 import org.jdom2.Document
 import org.jdom2.Element
 import org.jdom2.Text
@@ -75,40 +74,45 @@ class JSwordError(message: String) : OsisError(message, message)
  */
 
 object SwordContentFacade {
-    private val cache = WeakHashMap<String, Element>()
-    private fun osisFragmentFromCache(cacheKey: String): Element? =
-        if(cache.containsKey(cacheKey)) cache[cacheKey]
-        else null
-
-    private fun cacheFragment(cacheKey: String, e: Element) = cache.set(cacheKey, e)
+    private const val cacheMaxSize = 10*1024*1024 // 10 MB
+    private val osisFragmentCache = LruCache<String, Element>(cacheMaxSize)
 
     /** top level method to fetch html from the raw document data
      */
     @Throws(OsisError::class)
-    fun readOsisFragment(book: Book?, key: Key?): Element =
-        osisFragmentFromCache("${book?.initials}-${key?.osisRef}")?:
-        when {
-            book == null || key == null -> {
-                Log.e(TAG, "Key or book was null")
-                throw OsisError(application.getString(R.string.error_no_content))
+    fun readOsisFragment(book: Book?, key: Key?): Element {
+        val cacheKey = "${book?.initials}-${key?.osisRef}"
+        return osisFragmentCache.get(cacheKey)?: let {
+            Log.e(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
+
+            when {
+                book == null || key == null -> {
+                    Log.e(TAG, "Key or book was null")
+                    throw OsisError(application.getString(R.string.error_no_content))
+                }
+
+                Books.installed().getBook(book.initials) == null -> {
+                    Log.w(TAG, "Book may have been uninstalled:$book")
+                    val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
+                    val errorXml = application.getString(R.string.document_not_installed, link)
+                    val errorMsg = application.getString(R.string.document_not_installed, book.initials)
+                    throw DocumentNotFound(errorXml, errorMsg)
+                }
+
+                !bookContainsAnyOf(book, key) -> {
+                    Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
+                    throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
+                }
+
+                else -> {
+                    readXmlTextStandardJSwordMethod(book, key)
+                }
+            }.also {
+                osisFragmentCache.put(cacheKey, it)
+                Log.i(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
             }
-            Books.installed().getBook(book.initials) == null -> {
-                Log.w(TAG, "Book may have been uninstalled:$book")
-                val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
-                val errorXml = application.getString(R.string.document_not_installed, link)
-                val errorMsg = application.getString(R.string.document_not_installed, book.initials)
-                throw DocumentNotFound(errorXml, errorMsg)
-            }
-            !bookContainsAnyOf(book, key) -> {
-                Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
-                throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
-            }
-            else -> {
-                readXmlTextStandardJSwordMethod(book, key)
-            }
-        }.also {
-            cacheFragment("${book.initials}-${key.osisRef}", it)
         }
+    }
 
     // Split sentences as well as possible, but avoid splitting bible references.
     private val splitMatch = Regex("""((\s\w+|^\w+|['"’”)\]}])[.,;:!?]['"’”]?\s+)(['"’”]?\D)""")
@@ -132,7 +136,7 @@ object SwordContentFacade {
         return pieces
     }
 
-    const val bibleRefParseEnabled = false
+    private const val bibleRefParseEnabled = true
 
     private val bibleRefRe = Regex("""[A-Z]\w+\.? \d+:\d+(-\d+(:\d+)?)?((,? ?(\d+|\d+:\d+)(-\d+(:\d+)?)?)*)""")
     private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
@@ -198,7 +202,10 @@ object SwordContentFacade {
                 }
             }
         }
+        val startTime = System.currentTimeMillis()
         wrapTextWithSpan(frag)
+        val delta = System.currentTimeMillis() - startTime
+        Log.i(TAG, "Parsing took ${delta/1000.0} seconds")
     }
     @Throws(OsisError::class)
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
