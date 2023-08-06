@@ -158,12 +158,12 @@ object SwordContentFacade {
         }
     }
 
-    private const val TARGET_MAX_LENGTH = 50
+    private const val TARGET_MAX_LENGTH = 150
 
-    private val regexCache = LruCache<Int, Regex>(1*1024*1024)
+    private val regexCache = LruCache<Int, Regex>(50*1024)
     private fun getCutRegex(targetLength: Int): Regex =
         regexCache.get(targetLength)
-            ?: Regex("""(?<part1>.{$targetLength}\s[a-z]+\s+)(?<part2>[a-z]+\s.*)""")
+            ?: Regex("""(?<part1>.{$targetLength}\s\w+\s+)(?<part2>\w+\s.*)""")
                 .also { regexCache.put(targetLength, it) }
     private fun cutLongSentences(p: String): List<String> {
         val newPieces = mutableListOf<String>()
