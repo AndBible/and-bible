@@ -190,6 +190,11 @@ class SentenceSplitTest {
         equalTo(listOf("Test. ", "Test2. Test3."))
     )
 
+    @Test fun testSplitSentences07b() = assertThat(
+        SwordContentFacade.splitSentences("Test - Test."),
+        equalTo(listOf("Test - ", "Test."))
+    )
+
     @Test fun testSplitSentences08() = assertThat(
         SwordContentFacade.splitSentences("Test. Joh 3.2. Test."),
         equalTo(listOf("Test. ", "Joh 3.2. Test."))

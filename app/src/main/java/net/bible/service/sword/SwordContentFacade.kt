@@ -159,7 +159,7 @@ object SwordContentFacade {
     }
 
     // Split sentences as well as possible, but avoid splitting bible references.
-    private val splitMatch = Regex("""((\s\w+|^\w+|['"’”)\]}])[.,;:!?]['"’”]?\s+)(['"’”]?\D)""")
+    private val splitMatch = Regex("""(?<before>(\s\w+|^\w+|['"’”)\]}])(?<marker>[.,;:!?]['"’”]?\s+|\s*[‐‑‒–—\-]\s*))(?<after>['"’”]?\D)""")
 
     fun splitSentences(text: String): List<String> {
         val matches = splitMatch.findAll(text)
@@ -168,10 +168,10 @@ object SwordContentFacade {
         val currentPiece = StringBuilder()
 
         for(m in matches) {
-            currentPiece.append(text.slice(lastStartPosition until m.range.first) + m.groupValues[1])
+            currentPiece.append(text.slice(lastStartPosition until m.range.first) + m.groups["before"]!!.value)
             pieces.add(currentPiece.toString())
             currentPiece.clear()
-            currentPiece.append(m.groupValues[3])
+            currentPiece.append(m.groups["after"]!!.value)
             lastStartPosition = m.range.last + 1
         }
         currentPiece.append(text.slice(lastStartPosition   until text.length))
@@ -181,8 +181,24 @@ object SwordContentFacade {
         return pieces
     }
 
-    // Detect bible references, like 1 John 2:3, 4:5-6:7, 4-5.
-    val bibleRefRe = Regex("""(\d\.?\s+)?[A-Z]\w+\.?\s+\d+:\d+([‐‑‒–—-]\d+(:\d+)?)?(,?\s*(\d+:\d+|\d+)([‐‑‒–—-]\d+(:\d+)?)?)*""")
+    /** Detect bible references, like 1 John 2:3-4, 4:5-6:7, 4-5
+     * <begin>: 1 John 2:3
+     * <book> 1 John
+     * <chap1> 2
+     * <ver1> 3
+     * <rangeEnd> -4
+     * <cont[0]> ,4:5-6:7
+     *   <contChapVerse> 4:5
+     *   <contRangeEnd> -6:7
+     * <cont[1]>, 4-5
+     *   <contChapVerse> 4
+     *   <contRangeEnd> -5
+     */
+
+    val bibleRefRe = Regex(
+        """(?<begin>(?<book>(?<bookNum>\d\.?\s+)?[A-Z]\w+\.?)\s+(?<chap1>\d+):(?<ver1>\d+)(?<rangeEnd>[‐‑‒–—\-]\d+(:\d+)?)?)""" +
+            """(?<cont>,?\s*(?<contChapVerse>\d+:\d+|\d+)(?<contRangeEnd>[‐‑‒–—\-]\d+(:\d+)?)?)*"""
+    )
     private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
         val matches = bibleRefRe.findAll(text)
         val pieces = mutableListOf<Pair<String, Boolean>>()
