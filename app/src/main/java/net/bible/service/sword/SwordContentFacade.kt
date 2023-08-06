@@ -158,6 +158,37 @@ object SwordContentFacade {
         }
     }
 
+    private const val TARGET_MAX_LENGTH = 50
+
+    private val regexCache = LruCache<Int, Regex>(1*1024*1024)
+    private fun getCutRegex(targetLength: Int): Regex =
+        regexCache.get(targetLength)
+            ?: Regex("""(?<part1>.{$targetLength}\s[a-z]+\s+)(?<part2>[a-z]+\s.*)""")
+                .also { regexCache.put(targetLength, it) }
+    private fun cutLongSentences(p: String): List<String> {
+        val newPieces = mutableListOf<String>()
+        if (p.length > TARGET_MAX_LENGTH) {
+            val targetLength = p.length/2
+            val re = getCutRegex(targetLength)
+            val m = re.find(p)
+            if(m == null) {
+                newPieces.add(p)
+            }
+            else {
+                for(part in listOf(p.slice(0 until m.range.first) + m.groups["part1"]!!.value, m.groups["part2"]!!.value)) {
+                    if (part.length > TARGET_MAX_LENGTH*1.1) {
+                        newPieces.addAll(cutLongSentences(part))
+                    } else {
+                        newPieces.add(part)
+                    }
+                }
+            }
+        } else {
+            newPieces.add(p)
+        }
+        return newPieces
+    }
+
     // Split sentences as well as possible, but avoid splitting bible references.
     private val splitMatch = Regex("""(?<before>(\s\w+|^\w+|['"’”)\]}])(?<marker>[.,;:!?]['"’”]?\s+|\s*[‐‑‒–—\-]\s*))(?<after>['"’”]?\D)""")
 
@@ -167,16 +198,24 @@ object SwordContentFacade {
         var lastStartPosition = 0
         val currentPiece = StringBuilder()
 
+        fun addStr(s: String) {
+            if(s.length > TARGET_MAX_LENGTH) {
+                pieces.addAll(cutLongSentences(s))
+            } else {
+                pieces.add(s)
+            }
+        }
+
         for(m in matches) {
             currentPiece.append(text.slice(lastStartPosition until m.range.first) + m.groups["before"]!!.value)
-            pieces.add(currentPiece.toString())
+            addStr(currentPiece.toString())
             currentPiece.clear()
             currentPiece.append(m.groups["after"]!!.value)
             lastStartPosition = m.range.last + 1
         }
         currentPiece.append(text.slice(lastStartPosition   until text.length))
         if (currentPiece.isNotEmpty()) {
-            pieces.add(currentPiece.toString())
+            addStr(currentPiece.toString())
         }
         return pieces
     }

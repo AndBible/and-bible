@@ -163,8 +163,19 @@ class SentenceSplitTest {
 
     @Test fun testSplitSentences02() = assertThat(
         SwordContentFacade.splitSentences("Returns a sequence of all occurrences of a regular expression within the input string, beginning at the specified startIndex."),
-        equalTo(listOf("Returns a sequence of all occurrences of a regular expression within the input string, ", "beginning at the specified startIndex."))
+        equalTo(listOf("Returns a sequence of all occurrences of ", "a regular expression ", "within the input string, ", "beginning at the specified startIndex."))
     )
+
+    @Test fun testSplitSentences02c() = assertThat(
+        SwordContentFacade.splitSentences("Returns a sequence of all occurrences of a regular expression within the input Matt 1:2-3:4 ning at the specified startIndex."),
+        equalTo(listOf("Returns a sequence of all occurrences of ", "a regular expression within the ", "input Matt 1:2-3:4 ning at the specified startIndex."))
+    )
+
+    @Test fun testSplitSentences02b() = assertThat(
+        SwordContentFacade.splitSentences("Returns a sequence of all occurrences Matt 1:2 a regular expression within the input string, beginning at the specified startIndex."),
+        equalTo(listOf("Returns a sequence of all occurrences Matt 1:2 a ", "regular expression within the input string, ", "beginning at the specified startIndex."))
+    )
+
     @Test fun testSplitSentences03() = assertThat(
         SwordContentFacade.splitSentences("Testilause testilause."),
         equalTo(listOf("Testilause testilause."))
