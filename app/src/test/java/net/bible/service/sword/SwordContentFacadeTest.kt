@@ -283,13 +283,15 @@ class BibleRefRegexTest {
     @Test fun testRe2() = assertThat(bib("Matt 1:1, 1"), equalTo(true))
     @Test fun testRe3() = assertThat(bib("Matt 1:1, 1:1-2:2"), equalTo(true))
     @Test fun testRe4() = assertThat(bib("Matt 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
+    @Test fun testRe4b() = assertThat(bib("matt 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(false))
     @Test fun testRe5() = assertThat(bib("1 Joh 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
     @Test fun testRe6() = assertThat(bib("1. Joh 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
     @Test fun testRe7() = assertThat(bib("1. Joh. 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
-    @Test fun testRe2_1() = assertThat(bib("Matt 1"), equalTo(false))
+    @Test fun testRe2_1() = assertThat(bib("Matt 1"), equalTo(true))
 
     // To keep regex "simple", we intentionally do not support now book of Jude references that do not include chapter number. Jude 1:1 works fine.
-    @Test fun testRe2_2() = assertThat(bib("Jude 1-5"), equalTo(false))
+    @Test fun testRe2_2() = assertThat(bib("Jude 1-5"), equalTo(true))
+    @Test fun testRe2_3() = assertThat(bib("jude 1-5"), equalTo(false))
 }
 
 @RunWith(RobolectricTestRunner::class)

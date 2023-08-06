@@ -182,10 +182,9 @@ object SwordContentFacade {
     }
 
     /** Detect bible references, like 1 John 2:3-4, 4:5-6:7, 4-5
-     * <begin>: 1 John 2:3
+     * <begin> 1 John 2:3
      * <book> 1 John
-     * <chap1> 2
-     * <ver1> 3
+     * <chapVerse> 2:3
      * <rangeEnd> -4
      * <cont[0]> ,4:5-6:7
      *   <contChapVerse> 4:5
@@ -196,8 +195,7 @@ object SwordContentFacade {
      */
 
     val bibleRefRe = Regex(
-        """(?<begin>(?<book>(?<bookNum>\d\.?\s+)?[A-Z]\w+\.?)\s+(?<chap1>\d+):(?<ver1>\d+)(?<rangeEnd>[‐‑‒–—\-]\d+(:\d+)?)?)""" +
-            """(?<cont>,?\s*(?<contChapVerse>\d+:\d+|\d+)(?<contRangeEnd>[‐‑‒–—\-]\d+(:\d+)?)?)*"""
+        """(?<begin>(?<book>(?<bookNum>\d\.?\s+)?[A-Z]\w+\.?)\s+(?<chapVerse>(\d+)(:\d+)?)(?<rangeEnd>[‐‑‒–—\-]\d+(:\d+)?)?)(?<cont>,?\s*(?<contChapVerse>\d+:\d+|\d+)(?<contRangeEnd>[‐‑‒–—\-]\d+(:\d+)?)?)*"""
     )
     private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
         val matches = bibleRefRe.findAll(text)
