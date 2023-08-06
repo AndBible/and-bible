@@ -191,7 +191,11 @@ object SwordContentFacade {
 
     // IMPORTANT! This may not be changed ever!. If it is changed, non-bible bookmark locations are messed up.
     // Split sentences as well as possible, but avoid splitting bible references.
-    private val splitMatch = Regex("""(?<before>(\s\p{Ll}+|^\p{Ll}+|["'\p{Pe}])(?<marker>[.,;:!?][("'\p{Ps}]?\s+|\s*["'\p{Pd}]\s*))(?<after>["'\p{Pe}]?\p{L})""")
+    private val splitMatch = Regex(
+        """(?<before>(\s\p{Ll}+|^\p{Ll}+|["'\p{Pe}])""" +
+        """(?<marker>[.,;:!?][("'\p{Ps}]?\s+|\s*["'\p{Pd}]\s*))"""+
+        """(?<after>["'\p{Pe}]?\p{L})"""
+    )
 
     fun splitSentences(text: String): List<String> {
         val matches = splitMatch.findAll(text)
@@ -235,7 +239,8 @@ object SwordContentFacade {
      */
 
     val bibleRefRe = Regex(
-        """(?<begin>(?<book>(\d\.?\s+)?\p{Lu}\p{L}+\.?)\s+(?<chapVerse>(\d+)(:\d+)?)(?<rangeEnd>\p{Pd}\d+(:\d+)?)?)(?<cont>,?\s*(?<contChapVerse>\d+:\d+|\d+)(?<contRangeEnd>\p{Pd}\d+(:\d+)?)?)*"""
+        """(?<begin>(?<book>(\d\.?\s+)?\p{Lu}\p{L}+\.?)\s+(?<chapVerse>(\d+)(:\d+)?)(?<rangeEnd>\p{Pd}\d+(:\d+)?)?)"""+
+            """(?<cont>,?\s*(?<contChapVerse>\d+:\d+|\d+)(?<contRangeEnd>\p{Pd}\d+(:\d+)?)?)*"""
     )
     private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
         val matches = bibleRefRe.findAll(text)
