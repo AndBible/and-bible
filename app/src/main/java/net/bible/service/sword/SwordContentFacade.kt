@@ -189,9 +189,11 @@ object SwordContentFacade {
         return newPieces
     }
 
+    // IMPORTANT! This may not be changed ever!. If it is changed, non-bible bookmark locations are messed up.
     // Split sentences as well as possible, but avoid splitting bible references.
-    private val splitMatch = Regex("""(?<before>(\s\p{L}+|^\p{L}+|['"’”)\]}])(?<marker>[.,;:!?]['"’”]?\s+|\s*[‐‑‒–—\-]\s*))(?<after>['"’”]?\D)""")
+    private val splitMatch = Regex("""(?<before>(\s\p{Ll}+|^\p{Ll}+|["'\])}\p{Pe}])(?<marker>[.,;:!?][(\[{"'\p{Ps}]?\s+|\s*["'\p{Pd}]\s*))(?<after>["'\])}\p{Pe}]?\p{L})""")
 
+    val test = Regex("""\{Pe}""")
     fun splitSentences(text: String): List<String> {
         val matches = splitMatch.findAll(text)
         val pieces = mutableListOf<String>()
@@ -253,6 +255,7 @@ object SwordContentFacade {
         return pieces
     }
 
+    // IMPORTANT! The logic of this function not be changed ever! If it is changed, non-bible bookmark locations are messed up.
     private fun addAnchors(frag: Element, book: Book) {
         var ordinal = 0
         val parseRefs = book.isEpub
