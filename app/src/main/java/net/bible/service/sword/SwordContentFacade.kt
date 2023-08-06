@@ -163,7 +163,7 @@ object SwordContentFacade {
     private val regexCache = LruCache<Int, Regex>(50*1024)
     private fun getCutRegex(targetLength: Int): Regex =
         regexCache.get(targetLength)
-            ?: Regex("""(?<part1>.{$targetLength}\s\w+\s+)(?<part2>\w+\s.*)""")
+            ?: Regex("""(?<part1>.{$targetLength}\s\p{L}+\s+)(?<part2>\p{L}+\s.*)""")
                 .also { regexCache.put(targetLength, it) }
     private fun cutLongSentences(p: String): List<String> {
         val newPieces = mutableListOf<String>()
@@ -190,7 +190,7 @@ object SwordContentFacade {
     }
 
     // Split sentences as well as possible, but avoid splitting bible references.
-    private val splitMatch = Regex("""(?<before>(\s\w+|^\w+|['"’”)\]}])(?<marker>[.,;:!?]['"’”]?\s+|\s*[‐‑‒–—\-]\s*))(?<after>['"’”]?\D)""")
+    private val splitMatch = Regex("""(?<before>(\s\p{L}+|^\p{L}+|['"’”)\]}])(?<marker>[.,;:!?]['"’”]?\s+|\s*[‐‑‒–—\-]\s*))(?<after>['"’”]?\D)""")
 
     fun splitSentences(text: String): List<String> {
         val matches = splitMatch.findAll(text)
@@ -234,7 +234,7 @@ object SwordContentFacade {
      */
 
     val bibleRefRe = Regex(
-        """(?<begin>(?<book>(?<bookNum>\d\.?\s+)?[A-Z]\w+\.?)\s+(?<chapVerse>(\d+)(:\d+)?)(?<rangeEnd>[‐‑‒–—\-]\d+(:\d+)?)?)(?<cont>,?\s*(?<contChapVerse>\d+:\d+|\d+)(?<contRangeEnd>[‐‑‒–—\-]\d+(:\d+)?)?)*"""
+        """(?<begin>(?<book>(\d\.?\s+)?\p{Lu}\p{L}+\.?)\s+(?<chapVerse>(\d+)(:\d+)?)(?<rangeEnd>\p{Pd}\d+(:\d+)?)?)(?<cont>,?\s*(?<contChapVerse>\d+:\d+|\d+)(?<contRangeEnd>\p{Pd}\d+(:\d+)?)?)*"""
     )
     private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
         val matches = bibleRefRe.findAll(text)

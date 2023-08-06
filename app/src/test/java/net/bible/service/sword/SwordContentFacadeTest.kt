@@ -163,17 +163,17 @@ class SentenceSplitTest {
 
     @Test fun testSplitSentences02() = assertThat(
         SwordContentFacade.splitSentences("Returns a sequence of all occurrences of a regular expression within the input string, beginning at the specified startIndex."),
-        equalTo(listOf("Returns a sequence of all occurrences of ", "a regular expression ", "within the input string, ", "beginning at the specified startIndex."))
+        equalTo(listOf("Returns a sequence of all occurrences of a regular expression within the input string, ", "beginning at the specified startIndex."))
     )
 
     @Test fun testSplitSentences02c() = assertThat(
         SwordContentFacade.splitSentences("Returns a sequence of all occurrences of a regular expression within the input Matt 1:2-3:4 ning at the specified startIndex."),
-        equalTo(listOf("Returns a sequence of all occurrences of ", "a regular expression within the ", "input Matt 1:2-3:4 ning at the specified startIndex."))
+        equalTo(listOf("Returns a sequence of all occurrences of a regular expression within the input Matt 1:2-3:4 ning at the specified startIndex."))
     )
 
     @Test fun testSplitSentences02b() = assertThat(
         SwordContentFacade.splitSentences("Returns a sequence of all occurrences Matt 1:2 a regular expression within the input string, beginning at the specified startIndex."),
-        equalTo(listOf("Returns a sequence of all occurrences Matt 1:2 a ", "regular expression within the input string, ", "beginning at the specified startIndex."))
+        equalTo(listOf("Returns a sequence of all occurrences Matt 1:2 a regular expression within the input string, ", "beginning at the specified startIndex."))
     )
 
     @Test fun testSplitSentences03() = assertThat(
@@ -284,6 +284,11 @@ class SentenceSplitTest {
         SwordContentFacade.splitSentences("Jotain tekstiä (Ref1 1:2): \"Jotain\" tekstiä lisää."),
         equalTo(listOf("Jotain tekstiä (Ref1 1:2): ", "\"Jotain\" tekstiä lisää."))
     )
+
+    @Test fun testSplitSentences21() = assertThat(
+        SwordContentFacade.splitSentences("1. Joh 4:20"),
+        equalTo(listOf("1. Joh 4:20"))
+    )
 }
 class BibleRefRegexTest {
     fun bib(s: String): Boolean {
@@ -303,6 +308,7 @@ class BibleRefRegexTest {
     // To keep regex "simple", we intentionally do not support now book of Jude references that do not include chapter number. Jude 1:1 works fine.
     @Test fun testRe2_2() = assertThat(bib("Jude 1-5"), equalTo(true))
     @Test fun testRe2_3() = assertThat(bib("jude 1-5"), equalTo(false))
+    @Test fun testRe2_4() = assertThat(bib("1. Joh. 4:20"), equalTo(true))
 }
 
 @RunWith(RobolectricTestRunner::class)
