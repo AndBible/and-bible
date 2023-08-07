@@ -17,6 +17,7 @@
 package net.bible.android.control.bookmark
 
 import android.util.Log
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.common.toV11n
@@ -44,7 +45,6 @@ import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Book
@@ -461,7 +461,13 @@ open class BookmarkControl @Inject constructor(
 
     private fun addText(b: BaseBookmarkWithNotes, texts: List<String>, wholeVerse: Boolean = false) {
         val startOffset = if(wholeVerse) 0 else b.startOffset ?: 0
-        var startVerse = texts.first()
+        var startVerse = texts.firstOrNull() ?: run {
+            b.startText = ""
+            b.endText = ""
+            b.text = application.getString(R.string.error_occurred)
+            b.fullText = b.text
+            return
+        }
         var endOffset = if(wholeVerse) startVerse.length else b.endOffset ?: startVerse.length
         val start = startVerse.slice(0 until min(startOffset, startVerse.length))
         if(texts.size == 1) {
