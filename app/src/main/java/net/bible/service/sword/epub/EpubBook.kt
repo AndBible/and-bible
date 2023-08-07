@@ -20,6 +20,8 @@ package net.bible.service.sword.epub
 import android.util.Log
 import net.bible.android.SharedConstants
 import net.bible.android.misc.elementToString
+import net.bible.service.common.useSaxBuilder
+import net.bible.service.common.useXPathInstance
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -91,24 +93,6 @@ class EpubSwordDriver: AbstractBookDriver() {
 
 private val re = Regex("[^a-zA-z0-9]")
 private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
-
-
-private val builders = ArrayBlockingQueue<SAXBuilder>(32)
-
-fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
-    val builder = builders.poll()?: SAXBuilder()
-    val rv = block(builder)
-    builders.offer(builder)
-    return rv
-}
-
-private val xPathInstances = ArrayBlockingQueue<XPathFactory>(32)
-fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
-    val builder = xPathInstances.poll()?: XPathFactory.instance()
-    val rv = block(builder)
-    xPathInstances.offer(builder)
-    return rv
-}
 
 private val hrefRe = Regex("""^([^#]+)?#?(.*)$""")
 private fun getFileAndId(href: String): Pair<String, String>? {

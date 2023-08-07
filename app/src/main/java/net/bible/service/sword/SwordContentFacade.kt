@@ -28,6 +28,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.Logger
 import net.bible.service.common.htmlToSpan
+import net.bible.service.common.useXPathInstance
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
@@ -263,51 +264,55 @@ object SwordContentFacade {
         return pieces
     }
 
+    private val textQuery = XPathFactory.instance().compile(".//text()", Filters.text())
+
     // IMPORTANT! The logic of this function not be changed ever! If it is changed, non-bible bookmark locations are messed up.
     private fun addAnchors(frag: Element, book: Book) {
         var ordinal = 0
         val parseRefs = book.isEpub
         val lang = book.language.code
-        fun wrapTextWithSpan(element: Element) {
-            for (content in element.content.toList()) {
-                if (content is Text && content.text.trim().isNotEmpty()) {
-                    val textContents = splitSentences(content.text)
-                    if (textContents.isNotEmpty()) {
-                        var pos = element.indexOf(content)
-                        content.detach()
-                        for (textContent in textContents) {
-                            val span = Element("BVA") // BibleViewAnchor.vue
-                            span.setAttribute("ordinal", "${ordinal++}")
-                            if(parseRefs && element.name != "reference") {
-                                for ((t, isRef) in bibleRefSplit(textContent)) {
-                                    if (!isRef) {
-                                        span.addContent(Text(t))
-                                    } else {
-                                        val osisRef = resolveRef(t, lang, KJVA)?.osisRef
-                                        if (osisRef == null) {
-                                            Log.e(TAG, "Failed parsing ref $t")
-                                            span.addContent(Text(t))
-                                        } else {
-                                            val refNode = Element("reference")
-                                            refNode.addContent(Text(t))
-                                            refNode.setAttribute("osisRef", osisRef)
-                                            span.addContent(refNode)
-                                        }
-                                    }
-                                }
-                            } else {
-                                span.addContent(Text(textContent))
-                            }
-                            element.addContent(pos++, span)
+        val startTime = System.currentTimeMillis()
+
+        fun addContent(span: Element, parent: Element, textContent: String) {
+            if(parseRefs && parent.name.lowercase() != "reference") {
+                for ((t, isRef) in bibleRefSplit(textContent)) {
+                    if (!isRef) {
+                        span.addContent(Text(t))
+                    } else {
+                        val osisRef = resolveRef(t, lang, KJVA)?.osisRef
+                        if (osisRef == null) {
+                            Log.e(TAG, "Failed parsing ref $t")
+                            span.addContent(Text(t))
+                        } else {
+                            val refNode = Element("reference")
+                            refNode.addContent(Text(t))
+                            refNode.setAttribute("osisRef", osisRef)
+                            span.addContent(refNode)
                         }
                     }
-                } else if(content is Element) {
-                    wrapTextWithSpan(content)
+                }
+            } else {
+                span.addContent(Text(textContent))
+            }
+        }
+
+
+        for(content in textQuery.evaluate(frag)) {
+            if(content.text.trim().isEmpty()) continue
+            val parent = content.parentElement
+            val textContents = splitSentences(content.text)
+            if (textContents.isNotEmpty()) {
+                var pos = parent.indexOf(content)
+                content.detach()
+                for (textContent in textContents) {
+                    val span = Element("BVA") // BibleViewAnchor.vue
+                    span.setAttribute("ordinal", "${ordinal++}")
+                    addContent(span, parent, textContent)
+                    parent.addContent(pos++, span)
                 }
             }
         }
-        val startTime = System.currentTimeMillis()
-        wrapTextWithSpan(frag)
+
         val delta = System.currentTimeMillis() - startTime
         Log.i(TAG, "Parsing took ${delta/1000.0} seconds")
     }
@@ -351,17 +356,12 @@ object SwordContentFacade {
         }
     }
 
-    private val ignoredElements = listOf("note")
+    fun getTextWithinOrdinals(element: Element, ordinalRange: IntRange): List<String> =
+        useXPathInstance { it.compile(
+            ".//BVA[not(ancestor::note) and @ordinal >= '${ordinalRange.first}' and @ordinal <= '${ordinalRange.last}']",
+            Filters.element()
+        )}.evaluate(element).map { getTextRecursively(it) }
 
-    private val bvaQuery = XPathFactory.instance().compile(".//BVA", Filters.element())
-    fun getTextWithinOrdinals(element: Element, ordinalRange: IntRange): List<String> {
-        return bvaQuery.evaluate(element).filter {
-            it.getAttribute("ordinal").value.toInt() in ordinalRange
-                && it.parentElement?.name?.lowercase() !in ignoredElements
-                && it.parentElement?.parentElement?.name?.lowercase() !in ignoredElements
-                && it.parentElement?.parentElement?.parentElement?.name?.lowercase() !in ignoredElements
-        }.map { getTextRecursively(it) }
-    }
     private fun getTextRecursively(element: Element): String {
         val textBuilder = StringBuilder()
         for(c in element.content) {

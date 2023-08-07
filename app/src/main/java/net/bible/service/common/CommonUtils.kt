@@ -131,6 +131,8 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
+import org.jdom2.input.SAXBuilder
+import org.jdom2.xpath.XPathFactory
 import org.spongycastle.util.io.pem.PemReader
 import java.io.BufferedInputStream
 import java.io.File
@@ -145,6 +147,7 @@ import java.security.Signature
 import java.util.*
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.X509EncodedKeySpec
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipInputStream
@@ -1524,4 +1527,21 @@ suspend fun <T, V> Collection<T>.asyncMap(action: suspend (T) -> V): Collection<
 suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -> V): Collection<V> = withContext(Dispatchers.IO) {
     val semaphore = Semaphore(maxThreads)
     map {async {semaphore.withPermit { action(it) } } }.awaitAll()
+}
+
+private val builders = ArrayBlockingQueue<SAXBuilder>(32)
+
+fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
+    val builder = builders.poll()?: SAXBuilder()
+    val rv = block(builder)
+    builders.offer(builder)
+    return rv
+}
+
+private val xPathInstances = ArrayBlockingQueue<XPathFactory>(32)
+fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
+    val builder = xPathInstances.poll()?: XPathFactory.instance()
+    val rv = block(builder)
+    xPathInstances.offer(builder)
+    return rv
 }
