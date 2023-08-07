@@ -550,7 +550,7 @@ export function useBookmarks(
                 const elem = document.querySelector(`#doc-${documentId} #o-${ord}`) as HTMLElement;
                 if (elem == null) {
                     console.error("Element is not found!", documentId, ord);
-                    return;
+                    continue;
                 }
                 lastElement = elem;
                 const oldStyle = elem.style.backgroundImage;
