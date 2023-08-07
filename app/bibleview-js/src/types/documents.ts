@@ -55,6 +55,7 @@ type BaseOsisDocument = BaseDocument & {
     annotateRef: string
     genericBookmarks: GenericBookmark[]
     ordinalRange: OrdinalRange
+    isEpub: boolean
 }
 
 export type OsisDocument = BaseOsisDocument & {

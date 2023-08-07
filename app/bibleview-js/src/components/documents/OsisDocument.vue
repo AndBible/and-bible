@@ -22,7 +22,7 @@
       :data-book-initials="bookInitials"
       :data-osis-ref="osisRef"
   >
-    <OsisFragment :fragment="osisFragment"/>
+    <OsisFragment :is-epub="document.isEpub" :fragment="osisFragment"/>
     <OpenAllLink :v11n="document.v11n"/>
     <FeaturesLink :fragment="osisFragment"/>
   </div>

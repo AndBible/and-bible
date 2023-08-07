@@ -18,7 +18,7 @@
 <template>
   <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language"
        :dir="fragment.direction">
-    <OsisSegment :osis-template="template"/>
+    <OsisSegment :is-epub="isEpub" :osis-template="template"/>
   </div>
 </template>
 
@@ -36,7 +36,8 @@ const props = withDefaults(defineProps<{
     highlightOffsetRange?: OffsetRange
     hideTitles: boolean
     doNotConvert: boolean
-}>(), {doNotConvert: false, hideTitles: false})
+    isEpub: boolean
+}>(), {doNotConvert: false, hideTitles: false, isEpub: false})
 
 const {bookInitials, osisRef} = toRefs(props.fragment);
 const uniqueId = ref(Date.now().toString());

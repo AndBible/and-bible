@@ -19,7 +19,8 @@
 
 import Verse from "@/components/OSIS/Verse.vue";
 import W from "@/components/OSIS/W.vue";
-import Div from "@/components/OSIS/Div.vue";
+import OsisDiv from "@/components/OSIS/Div.vue";
+import HtmlDiv from "@/components/HTML/Div.vue";
 import Chapter from "@/components/OSIS/Chapter.vue";
 import Reference from "@/components/OSIS/Reference.vue";
 import Note from "@/components/OSIS/Note.vue";
@@ -68,10 +69,11 @@ import Img from "@/components/HTML/Img.vue";
 import Td from "@/components/HTML/Td.vue";
 import Tr from "@/components/HTML/Tr.vue";
 import Span from "@/components/HTML/Span.vue";
+import Body from "@/components/HTML/Body.vue";
 
 const teiComponents = {
-    Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
-    Rdg: Hi, Def: Div, Etym: Hi,
+    Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: OsisDiv,
+    Rdg: Hi, Def: OsisDiv, Etym: Hi,
 }
 
 const andBibleComponents = {
@@ -83,7 +85,7 @@ const myBibleComponents = {
 }
 
 const htmlComponents = {
-    Ul, Pre, H4, H5, Img, Tr, Td, Span
+    Ul, Pre, H4, H5, Img, Tr, Td, Span, Body, Div: HtmlDiv
 }
 
 const epubComponents = {
@@ -91,10 +93,15 @@ const epubComponents = {
 }
 
 const osisComponents = {
-    Verse, W, Div, Chapter, Reference, Note, TransChange,
+    Verse, W, Div: OsisDiv, Chapter, Reference, Note, TransChange,
     DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
-    Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr, BVA: BibleViewAnchor,
-    ...teiComponents, ...andBibleComponents, ...myBibleComponents, ...htmlComponents, ...epubComponents,
+    Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
+}
+
+const allComponents = {
+    BVA: BibleViewAnchor,
+    ...osisComponents, ...teiComponents, ...andBibleComponents, ...myBibleComponents,
+    ...epubComponents,
 }
 
 function prefixComponents(components: Record<string, Component>): Record<string, Component> {
@@ -105,16 +112,21 @@ function prefixComponents(components: Record<string, Component>): Record<string,
     return result;
 }
 
+function getComponents(isEpub: boolean): Record<string, Component> {
+    return {...allComponents, ...(isEpub ? htmlComponents : undefined)}
+}
+
 export default defineComponent({
     name: "OsisSegment",
     props: {
         osisTemplate: {type: String, required: true},
         convert: {type: Boolean, default: false},
+        isEpub: {type: Boolean, default: false},
     },
     render() {
         return h({
             template: this.convert ? osisToTemplateString(this.osisTemplate) : this.osisTemplate,
-            components: prefixComponents(osisComponents),
+            components: prefixComponents(getComponents(this.isEpub)),
             compilerOptions: {
                 whitespace: 'preserve',
             },

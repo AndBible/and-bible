@@ -32,6 +32,7 @@ import net.bible.android.misc.uniqueId
 import net.bible.android.misc.wrapString
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
+import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_SOURCE_TYPE
@@ -111,7 +112,9 @@ open class OsisDocument(
             "osisRef" to wrapString((osisFragment.annotateRef ?: key).osisRef),
             "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
             "genericBookmarks" to listToJson(genericBookmarks.map { ClientGenericBookmark(it).asJson }),
-            "highlightedOrdinalRange" to highlightedOrdinalRange)
+            "highlightedOrdinalRange" to highlightedOrdinalRange,
+            "isEpub" to json.encodeToString(serializer(), book.isEpub),
+        )
     }
 }
 
