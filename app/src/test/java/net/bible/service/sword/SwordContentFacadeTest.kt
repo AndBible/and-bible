@@ -225,6 +225,11 @@ class SentenceSplitTest {
         equalTo(listOf("Joh. 3.2:4-Matt. 3:4"))
     )
 
+    @Test fun testSplitSentences08e() = assertThat(
+        SwordContentFacade.splitSentences("Joh. 3:2-Joh. 3:4"),
+        equalTo(listOf("Joh. 3:2-Joh. 3:4"))
+    )
+
     @Test fun testSplitSentences09() = assertThat(
         SwordContentFacade.splitSentences("Jotain tekstiä (Eph 1:1-2). Jotain tekstiä lisää."),
         equalTo(listOf("Jotain tekstiä (Eph 1:1-2). ", "Jotain tekstiä lisää."))
@@ -294,7 +299,25 @@ class SentenceSplitTest {
         equalTo(listOf("¡Hola sinä mies mikä oletkin! ", "How are you?"))
     )
 
+    @Test fun testSplitSentences23() = assertThat(
+        SwordContentFacade.splitSentences("Test test test! ¡Hola sinä mies mikä oletkin! How are you?"),
+        equalTo(listOf("Test test test! ", "¡Hola sinä mies mikä oletkin! ", "How are you?"))
+    )
 
+    @Test fun testSplitSentences24() = assertThat(
+        SwordContentFacade.splitSentences("We have received in that Beloved. In Him we also."),
+        equalTo(listOf("We have received in that Beloved. ", "In Him we also."))
+    )
+
+    @Test fun testSplitSentences25() = assertThat(
+        SwordContentFacade.splitSentences("We also have “the forgiveness”. You could say that."),
+        equalTo(listOf("We also have “the forgiveness”. ", "You could say that."))
+    )
+
+    @Test fun testSplitSentences26() = assertThat(
+        SwordContentFacade.splitSentences("A picture of the Lamb of God, the Lord Jesus. What you have"),
+        equalTo(listOf("A picture of the Lamb of God, ", "the Lord Jesus. ", "What you have"))
+    )
 }
 class BibleRefRegexTest {
     fun bib(s: String): Boolean {

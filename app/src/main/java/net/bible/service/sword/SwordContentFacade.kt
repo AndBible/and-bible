@@ -189,12 +189,13 @@ object SwordContentFacade {
         return newPieces
     }
 
-    // IMPORTANT! This may not be changed ever!. If it is changed, non-bible bookmark locations are messed up.
+    // IMPORTANT! This may not be changed ever! If it is changed, non-bible bookmark locations are messed up.
     // Split sentences as well as possible, but avoid splitting bible references.
     private val splitMatch = Regex(
-        """(?<before>(\s\p{Ll}+|^\p{Ll}+|["'\p{Pe}])""" +
-        """(?<marker>[.,;:!?][("'\p{Ps}]?\s+|\s*["'\p{Pd}]\s*))"""+
-        """(?<after>["'\p{Pe}]?\p{L})"""
+        ""+
+        """(?<before>(\D)""" +
+        """(?<marker>[.,;:!?]["'\p{Pf}]?\s+|\s*\p{Pd}\s*))"""+
+        """(?<after>["'¡¿\p{Pi}]?\p{L})"""
     )
 
     fun splitSentences(text: String): List<String> {
