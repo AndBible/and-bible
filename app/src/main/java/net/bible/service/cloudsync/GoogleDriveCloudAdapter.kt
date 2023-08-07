@@ -243,7 +243,8 @@ class GoogleDriveCloudAdapter: CloudAdapter {
                 parents = listOf(parentId ?: "appDataFolder")
             })
             .setFields(FIELDS)
-            .execute().toSyncFile()
+            .execute()
+            .toSyncFile()
 
     override fun upload(name: String, file: File, parentId: String?): CloudFile =
         service.files().create(
