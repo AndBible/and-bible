@@ -265,7 +265,7 @@ object SwordContentFacade {
     }
 
 
-    private val textQuery = XPathFactory.instance().compile(".//*[not(ancestor::note) and not(local-name() = 'note')]/text()", Filters.text())
+    private val textQuery = XPathFactory.instance().compile(".//text()[not(ancestor::note)]", Filters.text())
 
     // IMPORTANT! The logic of this function not be changed ever! If it is changed, non-bible bookmark locations are messed up.
     private fun addAnchors(frag: Element, book: Book) {
