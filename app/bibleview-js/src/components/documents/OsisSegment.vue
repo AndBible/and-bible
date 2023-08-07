@@ -65,6 +65,8 @@ import EpubRef from "@/components/ePub/EpubRef.vue";
 import H4 from "@/components/HTML/H4.vue";
 import H5 from "@/components/HTML/H5.vue";
 import Img from "@/components/HTML/Img.vue";
+import Td from "@/components/HTML/Td.vue";
+import Tr from "@/components/HTML/Tr.vue";
 
 const teiComponents = {
     Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
@@ -80,7 +82,7 @@ const myBibleComponents = {
 }
 
 const htmlComponents = {
-    Ul, Pre, H4, H5, Img,
+    Ul, Pre, H4, H5, Img, Tr, Td
 }
 
 const epubComponents = {
