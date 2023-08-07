@@ -16,12 +16,13 @@
   -->
 
 <template>
-  <h3 class="titleStyle" :class="{'skip-offset': !isCanonical, isSubTitle}" v-if="show"><slot/></h3>
+  <h3 class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}" v-if="show"><slot/></h3>
 </template>
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed, inject} from "vue";
+import {bibleDocumentInfoKey} from "@/types/constants";
 
 const props = withDefaults(
     defineProps<{
@@ -33,6 +34,8 @@ const props = withDefaults(
         canonical: "false",
     }
 );
+
+const isBibleDoc = inject(bibleDocumentInfoKey) != undefined
 
 checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
 checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
