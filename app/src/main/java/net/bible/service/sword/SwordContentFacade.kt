@@ -163,7 +163,7 @@ object SwordContentFacade {
     private val regexCache = LruCache<Int, Regex>(50*1024)
     private fun getCutRegex(targetLength: Int): Regex =
         regexCache.get(targetLength)
-            ?: Regex("""(?<part1>.{$targetLength}\s\p{L}+\s+)(?<part2>\p{L}+\s.*)""")
+            ?: Regex("""(.{$targetLength}\s\p{L}+\s+)(\p{L}+\s.*)""")
                 .also { regexCache.put(targetLength, it) }
     private fun cutLongSentences(p: String): List<String> {
         val newPieces = mutableListOf<String>()
@@ -175,7 +175,7 @@ object SwordContentFacade {
                 newPieces.add(p)
             }
             else {
-                for(part in listOf(p.slice(0 until m.range.first) + m.groups["part1"]!!.value, m.groups["part2"]!!.value)) {
+                for(part in listOf(p.slice(0 until m.range.first) + m.groupValues[1], m.groupValues[2])) {
                     if (part.length > TARGET_MAX_LENGTH*1.1) {
                         newPieces.addAll(cutLongSentences(part))
                     } else {
@@ -202,11 +202,13 @@ object SwordContentFacade {
         after: After sentence there must be a real word starting. Before word can be
           some punctuations, like quotation marks etc.
      */
-    private val splitMatch = Regex(
-        ""+
-        """(?<before>(\d{2,}|\D)""" +
-        """(?<marker>(?<m1>[.,;:!?]["'\p{Pf}]?\s+)|(?<m2>\s*\p{Pd}\s*)))"""+
-        """(?<after>["'¡¿\p{Pi}]?\p{L})"""
+    private val splitMatch = Regex(""+
+        // group 1: before marker
+        """((\d{2,}|\D)""" +
+        // marker itself
+        """(([.,;:!?]["'\p{Pf}]?\s+)|(\s*\p{Pd}\s*)))"""+
+        // group 6: after marker
+        """(["'¡¿\p{Pi}]?\p{L})"""
     )
 
     fun splitSentences(text: String): List<String> {
@@ -224,10 +226,10 @@ object SwordContentFacade {
         }
 
         for(m in matches) {
-            currentPiece.append(text.slice(lastStartPosition until m.range.first) + m.groups["before"]!!.value)
+            currentPiece.append(text.slice(lastStartPosition until m.range.first) + m.groupValues[1])
             addStr(currentPiece.toString())
             currentPiece.clear()
-            currentPiece.append(m.groups["after"]!!.value)
+            currentPiece.append(m.groupValues[6])
             lastStartPosition = m.range.last + 1
         }
         currentPiece.append(text.slice(lastStartPosition   until text.length))
@@ -237,22 +239,12 @@ object SwordContentFacade {
         return pieces
     }
 
-    /** Detect bible references, like 1 John 2:3-4, 4:5-6:7, 4-5
-     * <begin> 1 John 2:3
-     * <book> 1 John
-     * <chapVerse> 2:3
-     * <rangeEnd> -4
-     * <cont[0]> ,4:5-6:7
-     *   <contChapVerse> 4:5
-     *   <contRangeEnd> -6:7
-     * <cont[1]>, 4-5
-     *   <contChapVerse> 4
-     *   <contRangeEnd> -5
-     */
-
-    val bibleRefRe = Regex(
-        """(?<begin>(?<book>(\d\.?\s+)?\p{Lu}\p{L}+\.?)\s+(?<chapVerse>(\d+)(:\d+)?)(?<rangeEnd>\p{Pd}\d+(:\d+)?)?)"""+
-            """(?<cont>,?\s*(?<contChapVerse>\d+:\d+|\d+)(?<contRangeEnd>\p{Pd}\d+(:\d+)?)?)*"""
+    // Detect bible references, like 1 John 2:3-4, 4:5-6:7, 4-5
+    val bibleRefRe = Regex("" +
+        // Beginning of bible reference. 1 John 2:3
+        """(((\d\.?\s+)?\p{Lu}\p{L}+\.?)\s+((\d+)(:\d+)?)(\p{Pd}\d+(:\d+)?)?)"""+
+        // Continuation, separated by comma. First: ,4:5-6:7 Second: , 4-5
+        """(,?\s*(\d+:\d+|\d+)(\p{Pd}\d+(:\d+)?)?)*"""
     )
     private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
         val matches = bibleRefRe.findAll(text)
