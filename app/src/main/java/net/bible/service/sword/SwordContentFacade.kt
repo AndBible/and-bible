@@ -189,12 +189,23 @@ object SwordContentFacade {
         return newPieces
     }
 
-    // IMPORTANT! This may not be changed ever! If it is changed, non-bible bookmark locations are messed up.
-    // Split sentences as well as possible, but avoid splitting bible references.
+    /*
+       IMPORTANT! This may not be changed ever! If it is changed, non-bible bookmark locations are messed up.
+       Split sentences as well as possible, but avoid splitting bible references.
+
+        before: before sentence ending punctuation marker, we allow 2 digits or non-digit.
+          We want to avoid matching for example "1. John", but we can safely allow
+          "... sentence ending with Matt 12. ..."
+        marker:
+          m1: after marker there can be also ending quotation marker
+          m2: marker could be also dash.
+        after: After sentence there must be a real word starting. Before word can be
+          some punctuations, like quotation marks etc.
+     */
     private val splitMatch = Regex(
         ""+
-        """(?<before>(\D)""" +
-        """(?<marker>[.,;:!?]["'\p{Pf}]?\s+|\s*\p{Pd}\s*))"""+
+        """(?<before>(\d{2,}|\D)""" +
+        """(?<marker>(?<m1>[.,;:!?]["'\p{Pf}]?\s+)|(?<m2>\s*\p{Pd}\s*)))"""+
         """(?<after>["'¡¿\p{Pi}]?\p{L})"""
     )
 

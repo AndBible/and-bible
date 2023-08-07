@@ -225,6 +225,11 @@ class SentenceSplitTest {
         equalTo(listOf("Joh. 3.2:4-Matt. 3:4"))
     )
 
+    @Test fun testSplitSentences08f() = assertThat(
+        SwordContentFacade.splitSentences("It ends with Matt 12. Then it continues."),
+        equalTo(listOf("It ends with Matt 12. ", "Then it continues."))
+    )
+
     @Test fun testSplitSentences08e() = assertThat(
         SwordContentFacade.splitSentences("Joh. 3:2-Joh. 3:4"),
         equalTo(listOf("Joh. 3:2-Joh. 3:4"))
