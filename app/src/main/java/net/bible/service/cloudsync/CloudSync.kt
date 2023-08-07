@@ -510,7 +510,6 @@ object CloudSync {
         val result = try {
             adapter.upload(fileName, file, syncDeviceFolderId)
         } catch (e: Exception) {
-            file.delete()
             Log.e(TAG, "Uploading failed due to error", e)
             file.delete()
             throw e
