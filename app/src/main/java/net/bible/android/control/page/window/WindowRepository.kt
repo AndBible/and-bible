@@ -68,7 +68,11 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     val primaryTargetLinksWindow: Window get() =
         getWindow(primaryTargetLinksWindowId)
-            ?:  addNewLinksWindow().also {
+            ?: run {
+                windowList.find { it.isLinksWindow }?.also {
+                    primaryTargetLinksWindowId = it.id
+                }
+            } ?: addNewLinksWindow().also {
                 primaryTargetLinksWindowId = it.id
             }
 
