@@ -79,6 +79,9 @@ import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import net.bible.service.download.isPseudoBook
+import net.bible.service.download.isStudyPad
+import net.bible.service.sword.StudyPadKey
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BookName
@@ -644,9 +647,16 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     /**
      * Get the first initial of the doc in the window to show in the minimise restore button
      */
-    private fun getWindowButtonTitleText(window: Window): String = try {
-        window.pageManager.currentPage.currentDocumentAbbreviation
-    } catch (e: Exception) {" "}
+    private fun getWindowButtonTitleText(window: Window): String {
+        return try {
+            val curdoc = window.pageManager.currentPage.currentDocument ?: return " "
+            if(curdoc.isStudyPad) {
+                (window.pageManager.currentPage.key as? StudyPadKey)?.name ?: " "
+            } else {
+                curdoc.abbreviation
+            }
+        } catch (e: Exception) {" "}
+    }
 
     private fun handlePrefItem(window: Window, item: MenuItem) {
         val itemOptions = getItemOptions(window, item)

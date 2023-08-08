@@ -129,6 +129,7 @@ Abbreviation=${application.getString(R.string.studypads)}
 Encoding=UTF-8
 Category=Generic Books
 LCSH=Bible--Commentaries.
+AndBibleIsStudyPad=1
 Versification=KJVA"""
 
     private val COMPARE_DUMMY_CONF get() = """[Compare]
@@ -186,4 +187,5 @@ Versification=KJVA"""
 }
 
 val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null
+val Book.isStudyPad get() = bookMetaData.getProperty("AndBibleIsStudyPad") != null
 val Book.doesNotExist get() = bookMetaData.getProperty("AndBibleDoesNotExist") != null
