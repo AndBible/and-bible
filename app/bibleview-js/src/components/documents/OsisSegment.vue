@@ -62,8 +62,8 @@ import {osisToTemplateString} from "@/utils";
 import epubRef from "@/components/ePub/EpubRef.vue";
 
 const teiComponents = {
-    Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: OsisDiv,
-    Rdg: Hi, Def: OsisDiv, Etym: Hi,
+    Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
+    Rdg: Hi, Def: Div, Etym: Hi,
 }
 
 const andBibleComponents = {
