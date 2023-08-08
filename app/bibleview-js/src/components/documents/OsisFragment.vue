@@ -72,7 +72,7 @@ onMounted(() => {
 
 const template = computed(() => {
     const xml = props.fragment.xml;
-    return !props.doNotConvert ? osisToTemplateString(xml) : xml;
+    return (!props.doNotConvert && !props.isEpub) ? osisToTemplateString(xml) : xml;
 });
 
 watch(props, () => refreshHighlight());

@@ -190,3 +190,12 @@ body {
 .bookmarked {
   padding-bottom: 0.5em;
 }
+
+img {
+  max-width: 100%;
+}
+
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}

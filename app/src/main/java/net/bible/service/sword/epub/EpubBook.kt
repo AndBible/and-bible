@@ -290,7 +290,10 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
 
         return useSaxBuilder { it.build(file) }.rootElement.children
             .find { it.name == "body" }!!
-            .run { elementToString(fixReferences(this)) }
+            .run {
+                name = "div"
+                elementToString(fixReferences(this))
+            }
     }
 }
 
