@@ -109,7 +109,6 @@ export default defineComponent({
         isEpub: {type: Boolean, default: false},
     },
     render() {
-        console.log("isEpub", this.isEpub)
         return h({
             template: this.convert ? osisToTemplateString(this.osisTemplate) : this.osisTemplate,
             components: getComponents(this.isEpub),
