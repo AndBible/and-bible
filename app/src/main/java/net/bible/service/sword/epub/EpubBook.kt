@@ -283,6 +283,8 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
                     a.name = "epubRef"
                     a.setAttribute("to-key", id)
                     a.setAttribute("to-id", fileAndId.second)
+                } else {
+                    a.name = "epubA"
                 }
             }
             return e

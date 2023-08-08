@@ -95,7 +95,7 @@ function prefixComponents(components: Record<string, Component>): Record<string,
 
 function getComponents(isEpub: boolean): Record<string, Component> {
     if(isEpub) {
-        return {BVA: BibleViewAnchor, epubRef, reference: Reference}
+        return {BVA: BibleViewAnchor, epubRef, reference: Reference, epubA: A, ...andBibleComponents}
     } else {
         return prefixComponents(allComponents)
     }
