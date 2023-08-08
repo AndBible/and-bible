@@ -420,13 +420,14 @@ val mySwordDictionary = object: BookType("MySwordDictionary", BookCategory.DICTI
     }
 }
 
-fun addMySwordBook(file: File): AbstractBook? {
-    if(!(file.canRead() && file.isFile)) return null
+fun addMySwordBook(file: File) {
+    if(!(file.canRead() && file.isFile)) return
     val state = SqliteVerseBackendState(file)
     val metadata = try { state.bookMetaData } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load MySword module $file", err)
-        return null
+        return
     }
+    if(Books.installed().getBook(metadata.initials) != null) return
     val backend = SqliteBackend(state, metadata)
     val book =
         if (metadata.bookCategory == BookCategory.DICTIONARY)
@@ -441,7 +442,7 @@ fun addMySwordBook(file: File): AbstractBook? {
     }
 
     Books.installed().addBook(book)
-    return book
+    return
 }
 
 fun addManuallyInstalledMySwordBooks() {

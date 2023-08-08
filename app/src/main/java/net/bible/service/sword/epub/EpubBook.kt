@@ -308,10 +308,11 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
     }
 }
 
-fun addEpubBook(file: File): AbstractBook? {
-    if(!(file.canRead() && file.isDirectory)) return null
+fun addEpubBook(file: File) {
+    if(!(file.canRead() && file.isDirectory)) return
     val state = EpubBackendState(file)
     val metadata = state.bookMetaData
+    if(Books.installed().getBook(metadata.initials) != null) return
     val backend = EpubBackend(state, metadata)
     val book = SwordGenBook(metadata, backend)
 
@@ -322,7 +323,6 @@ fun addEpubBook(file: File): AbstractBook? {
     }
 
     Books.installed().addBook(book)
-    return book
 }
 
 fun addManuallyInstalledEpubBooks() {
