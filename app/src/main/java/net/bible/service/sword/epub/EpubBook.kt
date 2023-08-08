@@ -250,8 +250,8 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
         val parentFolder = file.parentFile
 
         return head.children
-            .filter { it.name == "link" && it.getAttribute("type").value == "text/css" }
-            .map { File(parentFolder, it.getAttribute("href").value) }
+            .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
+            .mapNotNull { it.getAttribute("href").value?.let {File(parentFolder, it) } }
     }
 
     private val xhtmlNamespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
