@@ -346,6 +346,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 )
                 val searchParams = Bundle().apply {
                     putString(SearchControl.SEARCH_TEXT, searchText)
+                    putString(SearchControl.SEARCH_DOCUMENT, currentBible.initials)
                     putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
                 }
 
@@ -574,7 +575,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         val selText = try { json.decodeFromString(serializer(), result) } catch (e: SerializationException) { result }
                         currentSelection = sel
                         currentSelectionText = sel?.text ?: selText
-                        currentSelectionRef = linkControl.resolveRef(selText)
+                        currentSelectionRef = linkControl.resolveRef(currentSelectionText?: "")
                         menuPrepared = true
                     } else {
                         showSystem = true
