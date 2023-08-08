@@ -29,10 +29,8 @@ export function useScroll(
     calculatedConfig: CalculatedConfig,
     highlight: ReturnType<typeof useOrdinalHighlight>,
     documentPromise: Ref<Promise<void> | null>,
-    customCss: ReturnType<typeof useCustomCss>
 ) {
     const {highlightVerse, resetHighlights} = highlight;
-    const {customCssPromises} = customCss;
     const currentScrollAnimation = ref<number | null>(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
@@ -190,7 +188,6 @@ export function useScroll(
             bottomOffset: number
         }) {
         await documentPromise.value;
-        await Promise.all(customCssPromises);
         console.log(`setupContent`, jumpToOrdinal, jumpToAnchor, topOffset);
 
         setToolbarOffset(topOffset, bottomOffset, {immediate: true, doNotScroll: true});

@@ -117,7 +117,7 @@ const {resetHighlights} = verseHighlight;
 const customCss = useCustomCss();
 provide(customCssKey, customCss);
 
-const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise, customCss);
+const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
 const {doScrolling, scrollToId} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
@@ -163,6 +163,7 @@ function addDocuments(...docs: AnyDocument[]) {
         await waitNextAnimationFrame();
         documents.push(...docs);
         await nextTick();
+        await Promise.all(customCss.customCssPromises);
         loadingCount.value--;
     }
 
