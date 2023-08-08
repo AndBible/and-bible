@@ -19,7 +19,7 @@
 
 import Verse from "@/components/OSIS/Verse.vue";
 import W from "@/components/OSIS/W.vue";
-import OsisDiv from "@/components/OSIS/Div.vue";
+import Div from "@/components/OSIS/Div.vue";
 import Chapter from "@/components/OSIS/Chapter.vue";
 import Reference from "@/components/OSIS/Reference.vue";
 import Note from "@/components/OSIS/Note.vue";
@@ -75,7 +75,7 @@ const myBibleComponents = {
 }
 
 const osisComponents = {
-    Verse, W, Div: OsisDiv, Chapter, Reference, Note, TransChange,
+    Verse, W, Div, Chapter, Reference, Note, TransChange,
     DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
     Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
 }
@@ -95,7 +95,7 @@ function prefixComponents(components: Record<string, Component>): Record<string,
 
 function getComponents(isEpub: boolean): Record<string, Component> {
     if(isEpub) {
-        return {BVA: BibleViewAnchor, epubRef}
+        return {BVA: BibleViewAnchor, epubRef, reference: Reference}
     } else {
         return prefixComponents(allComponents)
     }
