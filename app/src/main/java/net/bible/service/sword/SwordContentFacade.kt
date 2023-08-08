@@ -86,8 +86,7 @@ object SwordContentFacade {
     /** top level method to fetch html from the raw document data
      */
 
-    private val dashes = "‐‑‒–—"
-    private val dashesRe = Regex("[$dashes]")
+    private val dashesRe = Regex("""\p{Pd}""")
     fun resolveRef(searchRef_: String, lang: String, v11n: Versification): Key? {
         val searchRef = searchRef_.replace(dashesRe, "-")
         val bibleNames = BibleNames.instance()
