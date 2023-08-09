@@ -480,7 +480,8 @@ class BookmarkEntities {
         }
 
         val book: Book? get() = Books.installed().getBook(bookInitials)
-        val bookKey: Key? get() = book?.getKey(key)?.let {if(it is RangedPassage) it.first() else it }
+        val originalKey: Key? get() = book?.getKey(key)
+        val bookKey: Key? get() = originalKey?.let {if(it is RangedPassage) it.first() else it }
 
         override val bookmarkEntity get() = GenericBookmark(
             id = id,

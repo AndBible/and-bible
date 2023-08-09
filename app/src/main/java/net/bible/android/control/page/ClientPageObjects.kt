@@ -251,11 +251,10 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
 
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
-        val keyName = bookmark.book?.getKey(bookmark.key)?.name?: bookmark.key
         return mapOf(
             "id" to wrapString(bookmark.id.toString()),
             "key" to wrapString(bookmark.key),
-            "keyName" to wrapString(keyName),
+            "keyName" to wrapString(bookmark.originalKey?.name?: bookmark.key),
             "hashCode" to (abs(bookmark.id.hashCode())).toString(),
             "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.ordinalStart, bookmark.ordinalEnd)),
             "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse) null else bookmark.textRange?.clientList),
