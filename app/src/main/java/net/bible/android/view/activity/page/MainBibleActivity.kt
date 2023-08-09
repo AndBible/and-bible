@@ -506,7 +506,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             val extraMessage = """
                 |<b>SPECIAL NOTICE FROM DEVELOPER</b><br><br>
                 |This version includes two major new features: 
-                |bookmarking for non-bible documents (commentaries, dictionaries, general books) and
+                |bookmarking (highlighting) and notes for non-bible documents 
+                |(commentaries, dictionaries, general books) and
                 |epub support.
                 | Please test those features, but <b>do not use  bookmarking feature for 
                 | anything serious yet</b>.
