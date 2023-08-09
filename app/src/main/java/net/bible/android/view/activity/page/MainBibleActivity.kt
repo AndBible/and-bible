@@ -503,7 +503,24 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     + "${getString(R.string.beta_notice_github)}</a>"
 
             )
-            val htmlMessage = "$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, verFull)}</i>"
+            val extraMessage = """
+                |<b>SPECIAL NOTICE FROM DEVELOPER</b><br><br>
+                |This version includes two major new features: 
+                |bookmarking for non-bible documents (commentaries, dictionaries, general books) and
+                |epub support.
+                | Please test those features, but <b>do not use  bookmarking feature for 
+                | anything serious yet</b>.
+                | During beta period, we might need to introduce changes that 
+                | will mess up or remove  
+                | your bookmarks in non-bible documents).
+                | <br><br>
+                | Best regards, Tuomas<br>
+                | P.S. If you haven't tested already, Cloud Sync via Google Drive is also worth trying out.
+                | <br><br>
+                | (Standard beta notice below)
+                | <br><br>
+            """.trimMargin()
+            val htmlMessage = "$extraMessage$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, verFull)}</i>"
 
             val spanned = htmlToSpan(htmlMessage)
 
