@@ -22,6 +22,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.misc.elementToString
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
+import net.bible.service.sword.SwordContentFacade.addAnchors
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -294,7 +295,9 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
             .find { it.name == "body" }!!
             .run {
                 name = "div"
-                elementToString(fixReferences(this))
+                val processed = fixReferences(this)
+                addAnchors(processed, bookMetaData.language.code, true)
+                elementToString(processed)
             }
     }
 }

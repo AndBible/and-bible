@@ -267,14 +267,12 @@ object SwordContentFacade {
     private val textQuery = XPathFactory.instance().compile(".//text()[not(ancestor::note)]", Filters.text())
 
     // IMPORTANT! The logic of this function not be changed ever! If it is changed, non-bible bookmark locations are messed up.
-    private fun addAnchors(frag: Element, book: Book) {
+    fun addAnchors(frag: Element, lang: String, isEpub: Boolean = false) {
         var ordinal = 0
-        val parseRefs = book.isEpub
-        val lang = book.language.code
         val startTime = System.currentTimeMillis()
 
-        fun addContent(span: Element, parent: Element, textContent: String) {
-            if(parseRefs && parent.name.lowercase() != "reference") {
+        fun addContent(span: Element, textContent: String) {
+            if(isEpub) {
                 for ((t, isRef) in bibleRefSplit(textContent)) {
                     if (!isRef) {
                         span.addContent(Text(t))
@@ -307,7 +305,7 @@ object SwordContentFacade {
                 for (textContent in textContents) {
                     val span = Element("BVA") // BibleViewAnchor.vue
                     span.setAttribute("ordinal", "${ordinal++}")
-                    addContent(span, parent, textContent)
+                    addContent(span, textContent)
                     parent.addContent(pos++, span)
                 }
             }
@@ -336,10 +334,12 @@ object SwordContentFacade {
                 verse.removeContent()
                 frag.removeContent()
                 frag.addContent(verseContent)
-                addAnchors(frag, book)
+                addAnchors(frag, book.language.code)
                 frag
             } else if(book.bookCategory != BookCategory.BIBLE) {
-                addAnchors(frag, book)
+                if(!book.isEpub) {
+                    addAnchors(frag, book.language.code)
+                }
 
                 frag
             } else {
