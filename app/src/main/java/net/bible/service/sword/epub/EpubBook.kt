@@ -291,13 +291,20 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
             return e
         }
 
+        val cacheFile = File(file.path + "-cache")
+        if(cacheFile.exists()) return String(cacheFile.readBytes())
+
         return useSaxBuilder { it.build(file) }.rootElement.children
             .find { it.name == "body" }!!
             .run {
                 name = "div"
                 val processed = fixReferences(this)
                 addAnchors(processed, bookMetaData.language.code, true)
-                elementToString(processed)
+                val strContent = elementToString(processed)
+                cacheFile.outputStream().use {
+                    it.write(strContent.toByteArray())
+                }
+                strContent
             }
     }
 }
