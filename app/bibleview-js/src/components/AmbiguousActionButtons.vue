@@ -35,10 +35,10 @@
       <FontAwesomeIcon icon="file-alt"/>
       <div class="title">{{ strings.verseMyNotes }}</div>
     </div>
-    <!-- div class="large-action" @click="speak">
+    <div class="large-action" @click="speak" v-if="ordinalInfo">
       <FontAwesomeIcon icon="headphones"/>
-      <div class="title">{{ vertical? strings.verseSpeakLong: strings.verseSpeak }}</div>
-    </div -->
+      <div class="title">{{ strings.verseSpeak }}</div>
+    </div>
     <div v-if="verseInfo" class="large-action" @click="share">
       <FontAwesomeIcon icon="share-alt"/>
       <div class="title">{{ vertical ? strings.verseShareLong : strings.verseShare }}</div>
@@ -110,6 +110,14 @@ function addNote() {
 function openMyNotes() {
     if(verseInfo.value) {
         android.openMyNotes(verseInfo.value.v11n!, startOrdinal.value);
+    }
+}
+
+function speak() {
+    if(verseInfo.value) {
+        android.speak(verseInfo.value.v11n!, startOrdinal.value, endOrdinal.value);
+    } else if(ordinalInfo.value) {
+        android.speakGeneric(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value);
     }
 }
 </script>

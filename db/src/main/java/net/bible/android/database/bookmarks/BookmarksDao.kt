@@ -117,6 +117,9 @@ interface BookmarkDao {
     fun bookmarksStartingAtVerse(verse: Verse): List<BibleBookmarkWithNotes> =
         bookmarksForKjvOrdinalStart(verse.toV11n(KJVA).ordinal)
 
+    @Query("""SELECT * from GenericBookmarkWithNotes where ordinalStart = :ordinalStart AND `key`=:key AND bookInitials=:book""")
+    fun bookmarksForOrdinalStart(book: String, key: String, ordinalStart: Int): List<GenericBookmarkWithNotes>
+
     @Query("SELECT count(*) > 0 from BibleBookmarkWithNotes where kjvOrdinalStart <= :verseOrdinal AND :verseOrdinal <= kjvOrdinalEnd LIMIT 1")
     fun hasBookmarksForVerse(verseOrdinal: Int): Boolean
     fun hasBookmarksForVerse(verse: Verse): Boolean = hasBookmarksForVerse(verse.toV11n(KJVA).ordinal)
@@ -132,6 +135,20 @@ interface BookmarkDao {
     fun bookmarksForVerseStartWithLabel(labelId: IdType, startOrdinal: Int): List<BibleBookmarkWithNotes>
     fun bookmarksForVerseStartWithLabel(verse: Verse, label: Label): List<BibleBookmarkWithNotes> =
         bookmarksForVerseStartWithLabel(label.id, verse.toV11n(KJVA).ordinal)
+
+    @Query(
+        """
+        SELECT GenericBookmarkWithNotes.* FROM GenericBookmarkWithNotes 
+            JOIN GenericBookmarkToLabel ON GenericBookmarkWithNotes.id = GenericBookmarkToLabel.bookmarkId 
+            JOIN Label ON GenericBookmarkToLabel.labelId = Label.id
+            WHERE 
+                Label.id = :labelId AND 
+                GenericBookmarkWithNotes.ordinalStart = :startOrdinal AND
+                GenericBookmarkWithNotes.bookInitials = :book AND
+                GenericBookmarkWithNotes.`key` = :key
+        """
+    )
+    fun bookmarksForKeyStartWithLabel(book: String, key: String, startOrdinal: Int, labelId: IdType): List<GenericBookmarkWithNotes>
 
     @Insert fun insert(entity: BibleBookmark)
     @Insert fun insert(entity: GenericBookmark)

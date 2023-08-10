@@ -37,11 +37,11 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.common.AdvancedSpeakSettings
@@ -81,10 +81,8 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
             nextButton.setOnClickListener { onButtonClick(it) }
             stopButton.setOnClickListener { onButtonClick(it) }
             configButton.setOnClickListener {
-                val isBible =
-                    windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
                 val intent =
-                    Intent(context, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                    Intent(context, BibleSpeakActivity::class.java)
                 context.startActivity(intent)
             }
             rewindButton.setOnClickListener { onButtonClick(it) }
@@ -154,11 +152,19 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
 
     private fun onBookmarkButtonClick() {
         val bookmarkTitles = ArrayList<String>()
-        val bookmarks = ArrayList<BibleBookmarkWithNotes>()
+        val bookmarks = ArrayList<BookmarkEntities.BaseBookmarkWithNotes>()
         val label = bookmarkControl.speakLabel
-        for (b in bookmarkControl.getBibleBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }) {
+        val bibleBookmarks = bookmarkControl.getBibleBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
+        val genBookmarks = bookmarkControl.getGenericBookmarksWithLabel(label)
 
-            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})")
+        for (b in bibleBookmarks + genBookmarks) {
+            bookmarkTitles.add(
+                when(b) {
+                    is BibleBookmarkWithNotes -> "${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})"
+                    is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} - ${b.bookKey?.name}"
+                    else -> throw RuntimeException("Illegal bookmark type")
+                }
+            )
             bookmarks.add(b)
         }
 

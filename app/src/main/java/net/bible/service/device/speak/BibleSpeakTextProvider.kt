@@ -287,7 +287,7 @@ class BibleSpeakTextProvider(
         val book_ = book ?: this.book
         var cmds = verseRenderLruCache.get(Pair(book_, verse))
         if(cmds == null) {
-            cmds = SwordContentFacade.getSpeakCommands(settings, book_, verse)
+            cmds = SwordContentFacade.getBibleSpeakCommands(settings, book_, verse)
             verseRenderLruCache.put(Pair(book_, verse), cmds)
         }
         return cmds.copy()
@@ -373,7 +373,7 @@ class BibleSpeakTextProvider(
     private fun saveBookmark() {
         val labelList = mutableSetOf<Label>()
         if(AdvancedSpeakSettings.autoBookmark) {
-            var bookmark = bookmarkControl.firstBookmarkStartingAtVerse(startVerse)?.run {
+            var bookmark = bookmarkControl.firstBibleBookmarkStartingAtVerse(startVerse)?.run {
                 if(textRange != null) null else this
             }
 
@@ -522,7 +522,7 @@ class BibleSpeakTextProvider(
         verseRenderLruCache.evictAll()
     }
 
-    override fun getCurrentlyPlayingVerse(): Verse = startVerse
+    override fun getCurrentlyPlayingKey(): Verse = startVerse
     override fun getCurrentlyPlayingBook(): SwordBook = book
 
     override fun persistState() {

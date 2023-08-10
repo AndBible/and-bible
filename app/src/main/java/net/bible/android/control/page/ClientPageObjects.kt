@@ -32,8 +32,10 @@ import net.bible.android.misc.uniqueId
 import net.bible.android.misc.wrapString
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
+import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_SOURCE_TYPE
 import org.crosswire.jsword.passage.Key
@@ -97,12 +99,19 @@ open class OsisDocument(
         val highlightedOrdinalRange =
             if(highlightRange == null) "null"
             else json.encodeToString(serializer(), listOf(highlightRange.first, highlightRange.last))
+        val ordRange =
+            if(book.bookCategory != BookCategory.BIBLE)
+                SwordContentFacade.ordinalRangeFor(book, key)
+            else null
+        val ordinalRange =
+            if (ordRange == null) "null"
+            else json.encodeToString(serializer(), listOf(ordRange.first, ordRange.last))
 
         return mapOf(
             "id" to wrapString("${book.initials}-${key.uniqueId}"),
             "type" to wrapString("osis"),
             "osisFragment" to mapToJson(osisFragment.toHashMap),
-            "ordinalRange" to json.encodeToString(serializer(), listOf(0, Int.MAX_VALUE)),
+            "ordinalRange" to ordinalRange,
             "bookInitials" to wrapString(book.initials),
             "bookCategory" to wrapString(book.bookCategory.name),
             "bookAbbreviation" to wrapString(book.abbreviation),

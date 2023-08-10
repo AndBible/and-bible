@@ -79,6 +79,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.DocumentCategory
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
@@ -110,7 +111,6 @@ import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget
@@ -155,6 +155,7 @@ const val DEFAULT_SYNC_INTERVAL = 5*60L // 5 minutes
 private val syncScope = CoroutineScope(Dispatchers.IO)
 
 class OpenLink(val url: String)
+class SpeakTransportVisibilityChanged(val value: Boolean)
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
@@ -190,6 +191,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         set(value) {
             binding.speakButton.alpha = if(value) 0.7F else 1.0F
             field = value
+            ABEventBus.post(SpeakTransportVisibilityChanged(value))
         }
 
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
@@ -484,12 +486,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             return@suspendCoroutine
         }
 
-        val verFull = CommonUtils.applicationVersionName
-        val ver = verFull.split("#")[0]
+        val announceVersion = 1
+        val displayedVer = preferences.getInt("beta-notice-displayed2", 0)
 
-        val displayedVer = preferences.getString("beta-notice-displayed", "")
-
-        if(displayedVer != ver) {
+        if(displayedVer < announceVersion) {
             val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
             val videoMessageLink = "<a href=\"${betaIntroVideo}\"><b>$videoMessage</b></a>"
 
@@ -521,7 +521,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 | (Standard beta notice below)
                 | <br><br>
             """.trimMargin()
-            val htmlMessage = "$extraMessage$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, verFull)}</i>"
+            val htmlMessage = "$extraMessage$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
 
             val spanned = htmlToSpan(htmlMessage)
 
@@ -531,7 +531,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setIcon(R.drawable.ic_logo)
                 .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
-                    preferences.setString("beta-notice-displayed", ver)
+                    preferences.setInt("beta-notice-displayed2", announceVersion)
                     it.resume(true)
                 }
                 .setOnCancelListener {_ -> it.resume(false)}
@@ -683,8 +683,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             speakButton.setOnLongClickListener {
-                val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
-                val intent = Intent(this@MainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                val intent = Intent(this@MainBibleActivity, BibleSpeakActivity::class.java)
                 startActivityForResult(intent, STD_REQUEST_CODE)
                 true
             }
@@ -1614,7 +1613,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                 val key = book.getKey(keyStr)
                                 val pageManager = windowControl.activeWindowPageManager
                                 val ordinal = extras.getInt("ordinal")
-                                pageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, ordinal))
+                                pageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, OrdinalRange(ordinal)))
                             }
                             return
                         }

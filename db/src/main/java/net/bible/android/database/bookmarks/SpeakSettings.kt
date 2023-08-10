@@ -60,7 +60,9 @@ data class PlaybackSettings (
     // Restoring bookmark from widget uses this.
     var bookId: String? = null,
     var bookmarkWasCreated: Boolean? = null,
-    @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null
+
+    // For bible bookmarks
+    @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null,
 ) {
     companion object {
 

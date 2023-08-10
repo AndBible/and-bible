@@ -39,6 +39,7 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.android.database.migrations.genericBookmark
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
@@ -175,13 +176,18 @@ class SpeakWidgetManager {
         val views = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget)
 
         views.removeAllViews(R.id.layout)
-        fun addButton(name: String, b: BookmarkEntities.BibleBookmarkWithNotes?) {
+        fun addButton(name: String, b: BookmarkEntities.BaseBookmarkWithNotes?) {
             val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
             button.setTextViewText(R.id.button, name)
             if(b != null) {
+                val type = when(b) {
+                    is BookmarkEntities.BibleBookmarkWithNotes -> "bible"
+                    is BookmarkEntities.GenericBookmarkWithNotes -> "generic"
+                    else -> throw RuntimeException("Illegal type")
+                }
                 val intent = Intent(context, SpeakBookmarkWidget::class.java).apply {
                     action = SpeakBookmarkWidget.ACTION_BOOKMARK
-                    data = Uri.parse("bookmarksById://${b.id}")
+                    data = Uri.parse("bookmarksById://${type}/${b.id}")
                 }
                 val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
                 button.setOnClickPendingIntent(R.id.button, bc)
@@ -194,12 +200,15 @@ class SpeakWidgetManager {
         if(!AdvancedSpeakSettings.autoBookmark) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
         }
-
-        for (b in bookmarkControl.getBibleBookmarksWithLabel(label)
-            .sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
-        ){
+        val bibleBookmarks = bookmarkControl.getBibleBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
+        val genBookmarks = bookmarkControl.getGenericBookmarksWithLabel(label)
+        for (b in bibleBookmarks + genBookmarks){
             val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
-            addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"}) $repeatSymbol", b)
+            addButton(when(b) {
+                is BookmarkEntities.BibleBookmarkWithNotes -> "${b.verseRange.start.name} (${b.playbackSettings?.bookId ?: "?"}) $repeatSymbol"
+                is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} ${b.bookKey?.name} $repeatSymbol"
+                else -> throw RuntimeException("Illegal type")
+            }, b)
             Log.i(TAG, "Added button for $b")
         }
         views.setViewVisibility(R.id.helptext, if (bookmarksAdded) View.GONE else View.VISIBLE)
@@ -342,9 +351,15 @@ class SpeakWidgetManager {
             super.onReceive(context, intent)
             Log.i(TAG, "onReceive $context ${intent?.action}")
             if (intent?.action == ACTION_BOOKMARK) {
-                val bookmarkId = intent.data?.host ?: return
-                Log.i(TAG, "onReceive osisRef $bookmarkId")
-                val dto = bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))).first()
+                val bookmarkType = intent.data?.host ?: return
+                val path = intent.data?.path ?: return
+                val bookmarkId = path.slice(1 until path.length)
+                Log.i(TAG, "onReceive osisRef $bookmarkId $bookmarkType")
+                val dto = when(bookmarkType) {
+                    "bible" -> bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))).first()
+                    "generic" -> bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
+                    else -> throw RuntimeException("Illegal type")
+                }
                 speakControl.speakFromBookmark(dto)
             }
         }

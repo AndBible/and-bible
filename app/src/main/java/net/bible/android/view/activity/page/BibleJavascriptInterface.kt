@@ -40,6 +40,7 @@ import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.database.IdType
@@ -87,7 +88,7 @@ class BibleJavascriptInterface(
                     else -> throw RuntimeException("Unsupported doc")
                 }, bibleView.window)
         } else if(doc is OsisDocument || doc is StudyPadDocument) {
-            currentPageManager.currentPage.anchorOrdinal = ordinal
+            currentPageManager.currentPage.anchorOrdinal = OrdinalRange(ordinal)
         }
     }
 
@@ -379,11 +380,22 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun speak(bookInitials: String, ordinal: Int) {
+    fun speak(bookInitials: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials) as SwordBook
             val verse = Verse(book.versification, ordinal)
             mainBibleActivity.speakControl.speakBible(book, verse, force = true)
+        }
+    }
+
+    @JavascriptInterface
+    fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            val book = Books.installed().getBook(bookInitials)
+            val key = book.getKey(osisRef)
+            val ordinalRange = OrdinalRange(ordinal, positiveOrNull(endOrdinal)?: ordinal)
+            val bookAndKey = BookAndKey(key, book, ordinalRange)
+            mainBibleActivity.speakControl.speakGeneric(bookAndKey)
         }
     }
 

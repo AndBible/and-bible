@@ -59,22 +59,22 @@ abstract class CurrentPageBase protected constructor(
     // just pretend we are at the top of the page if error occurs
     // if key has changed then offsetRatio must be reset because user has changed page
 
-    var _anchorOrdinal: Int? = 0
+    var _anchorOrdinal: OrdinalRange? = OrdinalRange(0)
     override var htmlId: String? = null
 
     /** how far down the page was the user - allows Back to go to correct line on non-Bible pages (Bibles use verse number for positioning)
      */
-    override var anchorOrdinal: Int?
+    override var anchorOrdinal: OrdinalRange?
         get() {
             try { // if key has changed then offsetRatio must be reset because user has changed page
                 if (key == null || key != keyWhenAnchorOrdinalSet || currentDocument != docWhenAnchorOrdinalSet) {
-                    return 0
+                    return OrdinalRange(0)
                 }
             } catch (e: Exception) {
                 // cope with occasional NPE thrown by above if statement
                 // just pretend we are at the top of the page if error occurs
                 Log.w(TAG, "NPE getting currentYOffsetRatio")
-                return 0
+                return OrdinalRange(0)
             }
             return _anchorOrdinal
         }
@@ -249,7 +249,7 @@ abstract class CurrentPageBase protected constructor(
             return WorkspaceEntities.Page(
                 currentDocument?.initials,
                 key?.osisRef,
-                anchorOrdinal
+                anchorOrdinal?.start
             )
         }
 
@@ -276,7 +276,8 @@ abstract class CurrentPageBase protected constructor(
                 }
             }
         }
-        anchorOrdinal = entity.anchorOrdinal
+        val ord = entity.anchorOrdinal
+        anchorOrdinal = if(ord != null) OrdinalRange(ord) else null
     }
 
     /** can we enable the main menu Speak button

@@ -28,9 +28,9 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.Logger
 import net.bible.service.common.htmlToSpan
-import net.bible.service.common.useXPathInstance
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
+import net.bible.service.device.speak.TextCommand
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
@@ -80,8 +80,8 @@ class JSwordError(message: String) : OsisError(message, message)
  */
 
 object SwordContentFacade {
-    private const val cacheMaxSize = 10*1024*1024 // 10 MB
-    private val osisFragmentCache = LruCache<String, Element>(cacheMaxSize)
+    private const val docCacheSize = 100
+    private val osisFragmentCache = LruCache<String, Element>(docCacheSize)
 
     /** top level method to fetch html from the raw document data
      */
@@ -160,7 +160,7 @@ object SwordContentFacade {
 
     private const val TARGET_MAX_LENGTH = 150
 
-    private val regexCache = LruCache<Int, Regex>(50*1024)
+    private val regexCache = LruCache<Int, Regex>(1000)
     private fun getCutRegex(targetLength: Int): Regex =
         regexCache.get(targetLength)
             ?: Regex("""(.{$targetLength}\p{Z}\p{L}+\p{Z}+)(\p{L}+\p{Z}.*)""")
@@ -359,11 +359,31 @@ object SwordContentFacade {
         }
     }
 
-    fun getTextWithinOrdinals(element: Element, ordinalRange: IntRange): List<String> =
-        useXPathInstance { it.compile(
-            ".//BVA[not(ancestor::note) and @ordinal >= '${ordinalRange.first}' and @ordinal <= '${ordinalRange.last}']",
-            Filters.element()
-        )}.evaluate(element).map { getTextRecursively(it) }
+    fun getTextWithinOrdinalsAsString(book: Book, key: Key, ordinalRange: IntRange): List<String> {
+        val map = cachedText(book, key)
+        return ordinalRange.mapNotNull { map[it] }
+    }
+
+    private val bvaQuery = XPathFactory.instance().compile(".//BVA", Filters.element())
+
+    private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
+    private fun cachedText(book: Book, key: Key): Map<Int, String> = synchronized(this) {
+        val cacheKey = "${book.initials}-${key.osisRef}"
+        plainTextCache.get(cacheKey) ?: run {
+            val frag = readOsisFragment(book, key)
+            val texts = bvaQuery.evaluate(frag).associate { it.getAttribute("ordinal").value.toInt() to getTextRecursively(it) }
+            plainTextCache.put(cacheKey, texts)
+            texts
+        }
+    }
+
+    fun ordinalRangeFor(book: Book, key: Key): IntRange {
+        val texts = cachedText(book, key)
+        val keys = texts.keys
+        val first = keys.min()
+        val last = keys.max()
+        return first .. last
+    }
 
     private fun getTextRecursively(element: Element): String {
         val textBuilder = StringBuilder()
@@ -562,7 +582,7 @@ object SwordContentFacade {
         ArrayList()
     }
 
-    fun getSpeakCommands(settings: SpeakSettings, book: SwordBook, verse: Verse?): SpeakCommandArray {
+    fun getBibleSpeakCommands(settings: SpeakSettings, book: SwordBook, verse: Verse?): SpeakCommandArray {
         val v11nConverter = VersificationConverter()
         val verse_ = v11nConverter.convert(verse, book.versification)
         val lst = SpeakCommandArray()
@@ -576,6 +596,14 @@ object SwordContentFacade {
         }
         lst.addAll(getSpeakCommandsForVerse(settings, book, verse_))
         return lst
+    }
+
+    fun getGenBookSpeakCommands(key: BookAndKey): SpeakCommandArray {
+        val book = key.document!!
+        val actualKey = key.key
+        val arr = SpeakCommandArray()
+        arr.addAll(getTextWithinOrdinalsAsString(book, actualKey, key.ordinal!!.start .. key.ordinal.start) .map { TextCommand(it) })
+        return arr
     }
 
     /**

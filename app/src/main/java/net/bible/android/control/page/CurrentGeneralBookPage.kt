@@ -29,7 +29,6 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
-import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.navigation.ChooseDocument
@@ -193,7 +192,7 @@ class CurrentGeneralBookPage internal constructor(
                 if (label != null) {
                     doSetKey(StudyPadKey(label))
                     localSetCurrentDocument(FakeBookFactory.journalDocument)
-                    anchorOrdinal = entity.anchorOrdinal
+                    anchorOrdinal = entity.anchorOrdinal?.let { OrdinalRange(it) }
                 }
             }
             FakeBookFactory.multiDocument.initials -> {

@@ -48,7 +48,6 @@ import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsActivity
-import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant
@@ -184,8 +183,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                 }
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {
-                        val isBible = currentPage.documentCategory == DocumentCategory.BIBLE
-                        handlerIntent = Intent(mainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                        handlerIntent = Intent(mainBibleActivity, BibleSpeakActivity::class.java)
                     }
                 }
                 R.id.dailyReadingPlanButton -> {

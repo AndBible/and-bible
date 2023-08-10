@@ -1154,4 +1154,5 @@
     <string name="external_link">External link</string>
     <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
     <string name="add_bookmark_whole_sentence">Sentences</string>
+    <string name="nameless">Name undefined</string>
 </resources>

@@ -33,7 +33,6 @@ import net.bible.service.common.CommonUtils.defaultBible
 import net.bible.service.common.CommonUtils.defaultVerse
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
-import net.bible.service.sword.SwordDocumentFacade
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -205,7 +204,7 @@ open class CurrentPageManager @Inject constructor(
 
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,
-                                 anchorOrdinal: Int? = null
+                                 anchorOrdinal: OrdinalRange? = null
     ): CurrentPage? {
         val nextPage = getBookPage(currentBook, key)
         if (nextPage != null) {

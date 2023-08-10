@@ -53,10 +53,14 @@ import javax.inject.Inject
 import dagger.Lazy
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.bible.android.control.page.CurrentCommentaryPage
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
+import net.bible.service.sword.BookAndKey
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -126,8 +130,8 @@ class SpeakControl @Inject constructor(
     private val currentlyPlayingBook: Book?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingBook
 
-    private val currentlyPlayingVerse: Verse?
-        get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingVerse
+    private val currentlyPlayingVerse: Key?
+        get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingKey
 
     init {
         ABEventBus.register(this)
@@ -146,49 +150,12 @@ class SpeakControl @Inject constructor(
     fun onEventMainThread(event: SpeakProgressEvent) {
         if (AdvancedSpeakSettings.synchronize) {
             val book = speakPageManager.currentPage.currentDocument
-            if(setOf(BookCategory.BIBLE, BookCategory.COMMENTARY).contains(book?.bookCategory)) {
-                speakPageManager.setCurrentDocumentAndKey(book, event.key)
-            }
+            speakPageManager.setCurrentDocumentAndKey(book, event.key)
         }
     }
 
     /** return a list of prompt ids for the speak screen associated with the current document type
      */
-    fun calculateNumPagesToSpeakDefinitions(): Array<NumPagesToSpeakDefinition> {
-        val definitions: Array<NumPagesToSpeakDefinition>
-
-        val currentPage = windowControl.activeWindowPageManager.currentPage
-        val bookCategory = currentPage.currentDocument?.bookCategory
-        if (BookCategory.BIBLE == bookCategory) {
-            val v11n = (currentPage.currentDocument as SwordBook).versification
-            val verse = KeyUtil.getVerse(currentPage.singleKey)
-            var chaptersLeft = 0
-            try {
-                chaptersLeft = v11n.getLastChapter(verse.book) - verse.chapter + 1
-            } catch (e: Exception) {
-                Log.e(TAG, "Error in book no", e)
-            }
-
-            definitions = BIBLE_PAGES_TO_SPEAK_DEFNS
-            definitions[NUM_LEFT_IDX].numPages = chaptersLeft
-        } else if (BookCategory.COMMENTARY == bookCategory) {
-            val v11n = (currentPage.currentDocument as SwordBook).versification
-            val verse = KeyUtil.getVerse(currentPage.singleKey)
-            var versesLeft = 0
-            try {
-                versesLeft = v11n.getLastVerse(verse.book, verse.chapter) - verse.verse + 1
-            } catch (e: Exception) {
-                Log.e(TAG, "Error in book no", e)
-            }
-
-            definitions = COMMENTARY_PAGES_TO_SPEAK_DEFNS
-            definitions[NUM_LEFT_IDX].numPages = versesLeft
-        } else {
-            definitions = DEFAULT_PAGES_TO_SPEAK_DEFNS
-        }
-        return definitions
-    }
-
     private fun resetPassageRepeatIfOutsideRange() {
         val settings = SpeakSettings.load()
         val range = settings.playbackSettings.verseRange
@@ -249,7 +216,7 @@ class SpeakControl @Inject constructor(
                 resetPassageRepeatIfOutsideRange()
                 speakBible()
             } else {
-                speakText()
+                speakGeneric()
             }
 
         } catch (e: Exception) {
@@ -266,7 +233,7 @@ class SpeakControl @Inject constructor(
             resetPassageRepeatIfOutsideRange()
             speakBible()
         } else {
-            speakText()
+            speakGeneric()
         }
     }
 
@@ -274,15 +241,22 @@ class SpeakControl @Inject constructor(
     // (such as headphone switching in the initial startup screen)
     private val booksAvailable: Boolean get() = SwordDocumentFacade.bibles.isNotEmpty()
 
-    /** prepare to speak
-     */
-    fun speakText() {
-        val settings = SpeakSettings.load()
-        val numPagesDefn = calculateNumPagesToSpeakDefinitions()[settings.numPagesToSpeakId]
+    fun speakGeneric() {
+        val page = windowControl.activeWindowPageManager.currentPage
+        val fromBook = page.currentDocument
+        val key =
+            if(page is CurrentCommentaryPage)
+                page.displayKey!!
+            else page.key!!
 
-        //, boolean queue, boolean repeat
-        Log.i(TAG, "Chapters:" + numPagesDefn.numPages)
-        // if a previous speak request is paused clear the cached text
+        val bookAndKey = BookAndKey(
+            key,
+            fromBook,
+            page.anchorOrdinal
+        )
+        speakGeneric(bookAndKey)
+    }
+    fun speakGeneric(bookAndKey: BookAndKey) {
         if (isPaused) {
             Log.i(TAG, "Clearing paused Speak text")
             stop()
@@ -290,26 +264,7 @@ class SpeakControl @Inject constructor(
 
         prepareForSpeaking()
 
-        val page = windowControl.activeWindowPageManager.currentPage
-        val fromBook = page.currentDocument
-
-        try {
-            // first find keys to Speak
-            val keyList = ArrayList<Key>()
-            for (i in 0 until numPagesDefn.numPages) {
-                val key = page.getPagePlus(i)
-                keyList.add(key)
-            }
-            if(fromBook == null) {
-                Log.e(TAG, "currentdocument is null! Can't speak")
-                return
-            }
-            ttsServiceManager.speakText(fromBook, keyList, settings.queue, settings.repeat)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting chapters to speak", e)
-            throw AndRuntimeException("Error preparing Speech", e)
-        }
-
+        ttsServiceManager.speakGeneric(bookAndKey)
     }
 
     fun speakBible(book: SwordBook, verse: Verse, force: Boolean = false) {
@@ -356,12 +311,12 @@ class SpeakControl @Inject constructor(
 
     }
 
-    fun speakKeyList(book: Book, keyList: List<Key>, queue: Boolean, repeat: Boolean) {
+    fun speakKeyListLegacy(book: Book, keyList: List<Key>, queue: Boolean) {
         prepareForSpeaking()
 
         // speak current chapter or stop speech if already speaking
         Log.i(TAG, "Tell TTS to speak")
-        ttsServiceManager.speakText(book, keyList, queue, repeat)
+        ttsServiceManager.speakTextLegacy(book, keyList, queue)
     }
 
     fun rewind(amount: SpeakSettings.RewindAmount? = null) {
@@ -534,27 +489,33 @@ class SpeakControl @Inject constructor(
         return timerTask != null
     }
 
-    fun speakFromBookmark(dto: BibleBookmarkWithNotes) {
-        val book = dto.speakBook as SwordBook?;
+    fun speakFromBookmark(dto: BookmarkEntities.BaseBookmarkWithNotes) {
         if (isSpeaking || isPaused) {
             stop(true)
         }
-        if (book != null) {
-            speakBible(book, dto.verseRange.start)
-        } else {
-            speakBible(dto.verseRange.start)
+        when(dto) {
+            is BibleBookmarkWithNotes -> {
+                val book = dto.speakBook as SwordBook?;
+                if (book != null) {
+                    speakBible(book, dto.verseRange.start)
+                } else {
+                    speakBible(dto.verseRange.start)
+                }
+            }
+            is BookmarkEntities.GenericBookmarkWithNotes -> {
+                speakGeneric(
+                    BookAndKey(
+                        dto.bookKey?: dto.originalKey!!,
+                        dto.book,
+                        OrdinalRange(dto.ordinalStart, dto.ordinalEnd)
+                    )
+
+                )
+            }
         }
     }
 
     companion object {
-
-        private const val NUM_LEFT_IDX = 3
-        private val BIBLE_PAGES_TO_SPEAK_DEFNS = arrayOf(NumPagesToSpeakDefinition(1, R.plurals.num_chapters, true, R.id.numChapters1), NumPagesToSpeakDefinition(2, R.plurals.num_chapters, true, R.id.numChapters2), NumPagesToSpeakDefinition(5, R.plurals.num_chapters, true, R.id.numChapters3), NumPagesToSpeakDefinition(10, R.string.rest_of_book, false, R.id.numChapters4))
-
-        private val COMMENTARY_PAGES_TO_SPEAK_DEFNS = arrayOf(NumPagesToSpeakDefinition(1, R.plurals.num_verses, true, R.id.numChapters1), NumPagesToSpeakDefinition(2, R.plurals.num_verses, true, R.id.numChapters2), NumPagesToSpeakDefinition(5, R.plurals.num_verses, true, R.id.numChapters3), NumPagesToSpeakDefinition(10, R.string.rest_of_chapter, false, R.id.numChapters4))
-
-        private val DEFAULT_PAGES_TO_SPEAK_DEFNS = arrayOf(NumPagesToSpeakDefinition(1, R.plurals.num_pages, true, R.id.numChapters1), NumPagesToSpeakDefinition(2, R.plurals.num_pages, true, R.id.numChapters2), NumPagesToSpeakDefinition(5, R.plurals.num_pages, true, R.id.numChapters3), NumPagesToSpeakDefinition(10, R.plurals.num_pages, true, R.id.numChapters4))
-
         private const val TAG = "SpeakControl"
     }
 }

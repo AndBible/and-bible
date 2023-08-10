@@ -49,11 +49,11 @@
   </teleport>
 </template>
 <script setup lang="ts">
-import {inject, nextTick, onMounted, onUnmounted, ref} from "vue";
+import {inject, nextTick, onMounted, onUnmounted, ref, watch} from "vue";
 import {useCommon} from "@/composables";
 import {draggableElement, setupDocumentEventListener, setupWindowEventListener,} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {modalKey} from "@/types/constants";
+import {appSettingsKey, modalKey} from "@/types/constants";
 
 const emit = defineEmits(["close"]);
 const props = withDefaults(
@@ -127,7 +127,10 @@ onUnmounted(() => {
     observer.disconnect();
 });
 
-useCommon()
+const {appSettings} = useCommon()
+
+watch(() => [appSettings.bottomOffset, appSettings.topOffset], () => resetPosition());
+
 defineExpose({height});
 </script>
 

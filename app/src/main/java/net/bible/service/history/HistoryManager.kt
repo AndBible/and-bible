@@ -22,6 +22,7 @@ import android.util.Log
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
@@ -84,7 +85,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                     lastItem = it
                     WorkspaceEntities.HistoryItem(
                         windowId, it.createdAt, it.document.initials, it.key.osisID,
-                        it.anchorOrdinal
+                        it.anchorOrdinal?.start
                     )
                 }
             } else null
@@ -102,7 +103,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
             }
-            stack.add(KeyHistoryItem(doc, key, entity.anchorOrdinal, window, entity.createdAt))
+            stack.add(KeyHistoryItem(doc, key, entity.anchorOrdinal?.let { OrdinalRange(it) }, window, entity.createdAt))
         }
         windowHistoryStackMap[window.id] = stack
     }

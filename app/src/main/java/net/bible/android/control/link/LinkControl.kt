@@ -19,7 +19,6 @@ package net.bible.android.control.link
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import net.bible.android.MyLocaleProvider
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
@@ -57,7 +56,6 @@ import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.versification.BibleNames
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.io.FileNotFoundException

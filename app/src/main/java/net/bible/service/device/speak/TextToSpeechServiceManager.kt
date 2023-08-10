@@ -27,7 +27,6 @@ import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import androidx.annotation.RequiresApi
 
-import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
@@ -45,6 +44,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState
+import net.bible.service.sword.BookAndKey
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -92,6 +92,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
     private var mSpeakTextProvider: SpeakTextProvider
 
+    private val legacySpeakTextProvider: LegacySpeakTextProvider
     private val generalSpeakTextProvider: GeneralSpeakTextProvider
     private val bibleSpeakTextProvider: BibleSpeakTextProvider
 
@@ -114,7 +115,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
     init {
         Log.i(TAG, "Creating TextToSpeechServiceManager")
-        generalSpeakTextProvider = GeneralSpeakTextProvider()
+        legacySpeakTextProvider = LegacySpeakTextProvider()
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
 
         bibleSpeakTextProvider = BibleSpeakTextProvider(
@@ -122,6 +123,11 @@ class TextToSpeechServiceManager @Inject constructor(
             bookmarkControl = bookmarkControl,
             initialBook = book
         )
+        generalSpeakTextProvider = GeneralSpeakTextProvider(
+            bookmarkControl = bookmarkControl,
+            initialBook = book
+        )
+
         mSpeakTextProvider = bibleSpeakTextProvider
 
         mSpeakTiming = SpeakTiming()
@@ -238,8 +244,8 @@ class TextToSpeechServiceManager @Inject constructor(
         }
     }
 
-    val currentlyPlayingVerse: Verse?
-        get() = mSpeakTextProvider.getCurrentlyPlayingVerse()
+    val currentlyPlayingKey: Key?
+        get() = mSpeakTextProvider.getCurrentlyPlayingKey()
 
     val currentlyPlayingBook: Book?
         get() = mSpeakTextProvider.getCurrentlyPlayingBook()
@@ -258,11 +264,19 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     @Synchronized
-    fun speakText(book: Book, keyList: List<Key>, queue: Boolean, repeat: Boolean) {
-        switchProvider(generalSpeakTextProvider)
-        generalSpeakTextProvider.setupReading(book, keyList, repeat)
+    fun speakTextLegacy(book: Book, keyList: List<Key>, queue: Boolean) {
+        switchProvider(legacySpeakTextProvider)
+        legacySpeakTextProvider.setupReading(book, keyList)
         handleQueue(queue)
         localePreferenceList = calculateLocalePreferenceList(book)
+        initializeTtsOrStartSpeaking()
+    }
+
+    @Synchronized
+    fun speakGeneric(key: BookAndKey) {
+        switchProvider(generalSpeakTextProvider)
+        generalSpeakTextProvider.setupReading(key)
+        localePreferenceList = calculateLocalePreferenceList(key.document!!)
         initializeTtsOrStartSpeaking()
     }
 
@@ -525,6 +539,9 @@ class TextToSpeechServiceManager @Inject constructor(
             val cmd = mSpeakTextProvider.getNextSpeakCommand(utteranceId, i == 0)
             if (!mockedTts) {
                 cmd.speak(mTts!!, utteranceId)
+            }
+            if(!mSpeakTextProvider.isMoreTextToSpeak()) {
+                break
             }
         }
         Log.i(TAG, "Added items to TTS queue. Last utterance id: $utteranceId")

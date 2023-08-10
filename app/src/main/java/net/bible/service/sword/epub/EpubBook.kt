@@ -18,7 +18,9 @@
 package net.bible.service.sword.epub
 
 import android.util.Log
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
+import net.bible.android.activity.R
 import net.bible.android.misc.elementToString
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
@@ -224,7 +226,7 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
             .iterator()
 
     fun getKey(idRef: String): Key {
-        val keyName = state.fileToTitle?.let {f2t -> state.idToFile[idRef]?.let { f2t[it] } } ?: idRef
+        val keyName = state.fileToTitle?.let {f2t -> state.idToFile[idRef]?.let { f2t[it] } } ?: application.getString(R.string.nameless)
         return DefaultLeafKeyList(keyName, idRef)
     }
 
