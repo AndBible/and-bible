@@ -110,6 +110,7 @@ class BookmarkEntities {
         var primaryLabelId: IdType?
         var lastUpdatedOn: Date
         var wholeVerse: Boolean
+        var playbackSettings: PlaybackSettings?
     }
 
     interface BaseBookmarkNotes {
@@ -140,6 +141,7 @@ class BookmarkEntities {
         var lastUpdatedOn: Date
         var wholeVerse: Boolean
         var textRange: TextRange?
+        var playbackSettings: PlaybackSettings?
         var new: Boolean
 
         var labelIds: List<IdType>?
@@ -160,7 +162,7 @@ class BookmarkEntities {
         override var ordinalStart: Int,
         override var ordinalEnd: Int,
         var v11n: Versification,
-        var playbackSettings: PlaybackSettings?,
+        override var playbackSettings: PlaybackSettings?,
         override var id: IdType = IdType(),
         override var createdAt: Date = Date(System.currentTimeMillis()),
         var book: AbstractPassageBook? = null,
@@ -336,7 +338,7 @@ class BookmarkEntities {
 
         var v11n: Versification,
 
-        var playbackSettings: PlaybackSettings?,
+        override var playbackSettings: PlaybackSettings?,
 
         @PrimaryKey override var id: IdType = IdType(),
 
@@ -394,6 +396,7 @@ class BookmarkEntities {
         override var notes: String? = null,
         override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         override var wholeVerse: Boolean = false,
+        override var playbackSettings: PlaybackSettings?,
         override var new: Boolean = false,
     ): BaseBookmarkWithNotes {
         constructor(
@@ -408,6 +411,7 @@ class BookmarkEntities {
             primaryLabelId: IdType? = null,
             notes: String? = null,
             wholeVerse: Boolean = false,
+            playbackSettings: PlaybackSettings? = null,
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         ): this(
             id = id,
@@ -422,6 +426,7 @@ class BookmarkEntities {
             notes = notes,
             lastUpdatedOn = lastUpdatedOn,
             wholeVerse = wholeVerse,
+            playbackSettings = playbackSettings,
             new = false
         )
         constructor(
@@ -436,6 +441,7 @@ class BookmarkEntities {
             notes: String? = null,
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
             wholeVerse: Boolean = false,
+            playbackSettings: PlaybackSettings? = null,
             new: Boolean = false
         ): this(
             id = id,
@@ -450,7 +456,19 @@ class BookmarkEntities {
             notes = notes,
             lastUpdatedOn = lastUpdatedOn,
             wholeVerse = wholeVerse,
+            playbackSettings = playbackSettings,
             new = new
+        )
+        
+        constructor(key: Key, book: Book, textRange: TextRange?, ordinalStart: Int): this(
+            key = key.osisRef,
+            playbackSettings = null,
+            ordinalStart = ordinalStart,
+            ordinalEnd = ordinalStart,
+            book = book,
+            textRange = textRange,
+            wholeVerse = true,
+            new = true,            
         )
 
         override var textRange: TextRange?
@@ -495,6 +513,7 @@ class BookmarkEntities {
             primaryLabelId = primaryLabelId,
             lastUpdatedOn = lastUpdatedOn,
             wholeVerse = wholeVerse,
+            playbackSettings = playbackSettings,
         )
         override val noteEntity get() = if(notes == null) null else GenericBookmarkNotes(id, notes!!)
     }
@@ -529,6 +548,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "NULL") override var primaryLabelId: IdType? = null,
         @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
+        override var playbackSettings: PlaybackSettings? = null,
     ): BaseBookmark
 
     @Entity(

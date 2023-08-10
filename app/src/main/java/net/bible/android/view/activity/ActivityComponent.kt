@@ -56,6 +56,7 @@ import net.bible.android.view.util.widget.ShareWidget
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtilsBase
 import net.bible.service.device.speak.TextToSpeechNotificationManager
+import net.bible.service.sword.SwordContentFacade
 
 /**
  * Dagger Component to allow injection of dependencies into activities.

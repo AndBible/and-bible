@@ -27,7 +27,6 @@ import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import androidx.annotation.RequiresApi
 
-import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
@@ -238,8 +237,8 @@ class TextToSpeechServiceManager @Inject constructor(
         }
     }
 
-    val currentlyPlayingVerse: Verse?
-        get() = mSpeakTextProvider.getCurrentlyPlayingVerse()
+    val currentlyPlayingKey: Key?
+        get() = mSpeakTextProvider.getCurrentlyPlayingKey()
 
     val currentlyPlayingBook: Book?
         get() = mSpeakTextProvider.getCurrentlyPlayingBook()

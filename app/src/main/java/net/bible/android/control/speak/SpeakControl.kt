@@ -126,8 +126,8 @@ class SpeakControl @Inject constructor(
     private val currentlyPlayingBook: Book?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingBook
 
-    private val currentlyPlayingVerse: Verse?
-        get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingVerse
+    private val currentlyPlayingVerse: Key?
+        get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingKey
 
     init {
         ABEventBus.register(this)

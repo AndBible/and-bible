@@ -21,14 +21,11 @@ import android.content.res.Resources
 import android.os.Build
 import android.util.Log
 import android.util.LruCache
-import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.SwordContentFacade
 import net.bible.android.activity.R
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.passage.RangedPassage
-import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
@@ -36,29 +33,30 @@ import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.common.AdvancedSpeakSettings
-import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.versification.BibleNames
-import java.util.Locale
+import net.bible.service.common.getBookAndKey
+import net.bible.service.common.getNextKey
+import net.bible.service.common.getPreviousKey
+import net.bible.service.common.ordinalRangeFor
+import net.bible.service.sword.BookAndKey
+import org.crosswire.jsword.book.Book
 import kotlin.collections.HashMap
 
-class BibleSpeakTextProvider(
-    private val bibleTraverser: BibleTraverser,
+class GeneralSpeakTextProviderNg(
     private val bookmarkControl: BookmarkControl,
-    initialBook: SwordBook
+    initialBook: Book
 ) : SpeakTextProvider  {
-    private data class State(val book: SwordBook,
-                             val startVerse: Verse,
-                             val endVerse: Verse,
-                             val currentVerse: Verse,
-                             val command: SpeakCommand? = null)
+    private data class State(
+        val book: Book,
+        val startKey: BookAndKey,
+        val endKey: BookAndKey,
+        val currentKey: BookAndKey,
+        val command: SpeakCommand? = null,
+    )
 
     companion object {
-        private const val PERSIST_BOOK = "SpeakBibleBook"
-        private const val PERSIST_VERSE = "SpeakBibleVerse"
         const val FLAG_SHOW_PERCENT: Int = 0b1
         const val FLAG_SHOW_BOOK: Int = 0b10
         const val FLAG_SHOW_STATUSITEMS: Int = 0b001
@@ -67,42 +65,29 @@ class BibleSpeakTextProvider(
     }
 
     override val numItemsToTts = 20
-    private lateinit var book: SwordBook
-    private lateinit var startVerse: Verse
-    private lateinit var endVerse: Verse
-    private var bookmark : BibleBookmarkWithNotes? = null
-    private lateinit var _currentVerse: Verse
-    private var currentVerse: Verse
-        get() = _currentVerse
-        set(newValue) {
-            // Skip verse 0, as we merge verse 0 to verse 1 in getSpeakCommands
-            _currentVerse = nextIfZero(newValue)
+    private lateinit var book: Book
+    private lateinit var startKey: BookAndKey
+    private lateinit var endKey: BookAndKey
+    
+    private var bookmark : GenericBookmarkWithNotes? = null
+    private lateinit var currentKey: BookAndKey
 
-        }
-
-    private var lastVerseWithTitle: Verse? = null
+    private var lastVerseWithTitle: BookAndKey? = null
     private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
     private val currentCommands = SpeakCommandArray()
 
-    private val bibleBooks = HashMap<String, String>()
-    private val verseRenderLruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommandArray>(100)
+    private val verseRenderLruCache = LruCache<Pair<Book, BookAndKey>, SpeakCommandArray>(100)
     private lateinit var localizedResources: Resources
 
     init {
         setupBook(initialBook)
     }
 
-    private fun nextIfZero(verse: Verse) =
-        if(verse.verse == 0) {
-            bibleTraverser.getNextVerse(book, verse)
-        } else {
-            verse
-        }
     private var readList = SpeakCommandArray()
     internal var settings = SpeakSettings.load()
 
-    private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startVerse, endVerse, currentVerse)
+    private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startKey, endKey, currentKey)
 
     override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {
         this.settings = speakSettingsChangedEvent.speakSettings
@@ -123,73 +108,36 @@ class BibleSpeakTextProvider(
                 }
             }
             bookmark.playbackSettings = newPlaybackSettings
-            this.bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+            this.bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
         }
     }
 
-    private fun setupBook(book: SwordBook) {
+    private fun setupBook(book: Book) {
         this.book = book
         localizedResources = BibleApplication.application.getLocalizedResources(book.language.code)
-
-        val locale = Locale(book.language.code)
-        bibleBooks.clear()
-
-        for(bibleBook in book.versification.bookIterator) {
-            var bookName = BibleNames.instance().getPreferredNameInLocale(bibleBook, locale)
-            bookName = bookName.replace("1.", localizedResources.getString(R.string.speak_first))
-            bookName = bookName.replace("2.", localizedResources.getString(R.string.speak_second))
-            bookName = bookName.replace("3.", localizedResources.getString(R.string.speak_third))
-            bookName = bookName.replace("4.", localizedResources.getString(R.string.speak_fourth))
-            bookName = bookName.replace("5.", localizedResources.getString(R.string.speak_fifth))
-            bibleBooks[bibleBook.osis] = bookName
-        }
     }
 
-    fun setupReading(book: SwordBook, verse: Verse) {
+    fun setupReading(book: Book, key: BookAndKey) {
         reset()
         setupBook(book)
 
-        currentVerse = verse
-        startVerse = verse
-        endVerse = verse
+        currentKey = key
+        startKey = key
+        endKey = key
     }
 
-    // For tests. In production this is always null.
-    var mockedBooks: ArrayList<SwordBook>? = null
-
-    private fun skipEmptyVerses(verse: Verse): Verse {
-        var cmds = getSpeakCommandsForVerse(verse)
-        var result = verse
-        while(cmds.isEmpty()) {
-            result = getNextVerse(result)
-            cmds = getSpeakCommandsForVerse(result)
-        }
-        return result
-    }
-
-    private fun getCommandsForVerse(prevVerse: Verse, verse: Verse): SpeakCommandArray {
+    private fun getCommandsForKey(prevKey: BookAndKey, key: BookAndKey): SpeakCommandArray {
         val cmds = SpeakCommandArray()
         val res = localizedResources
-        val bookName = bibleBooks[verse.book.osis]
 
-        if(prevVerse.book != verse.book) {
-            cmds.add(PreBookChangeCommand())
-            cmds.add(TextCommand("${res.getString(R.string.speak_book_changed)} $bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
-            cmds.add(SilenceCommand())
-        }
-        else if(prevVerse.chapter != verse.chapter) {
+        if(prevKey.key.osisRef != key.osisRef) {
             if(settings.playbackSettings.speakChapterChanges) {
                 cmds.add(PreChapterChangeCommand(settings))
-                cmds.add(TextCommand("${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+                cmds.add(TextCommand("${res.getString(R.string.speak_chapter_changed)} ${key.name}. "))
                 cmds.add(SilenceCommand())
             }
         }
-        else if(verse.ordinal < prevVerse.ordinal) {
-            // TODO: we could say something special related to repeating
-            cmds.add(TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
-            cmds.add(SilenceCommand())
-        }
-        cmds.addAll(getSpeakCommandsForVerse(verse))
+        cmds.addAll(getSpeakCommandsForVerse(key))
         return cmds
     }
 
@@ -203,63 +151,55 @@ class BibleSpeakTextProvider(
             utteranceState.clear()
             Log.i(TAG, "Marked current utteranceID $utteranceId")
         }
-        utteranceState[utteranceId] = State(book, startVerse, endVerse, currentVerse, cmd)
+        utteranceState[utteranceId] = State(book, startKey, endKey, currentKey, cmd)
         return cmd
     }
 
     private fun getMoreSpeakCommands(): SpeakCommandArray {
         val cmds = SpeakCommandArray()
 
-        var verse = limitToRange(currentVerse)
-        startVerse = verse
+        var key = limitToRange(currentKey)
+        startKey = key
 
         // If there's something left from splitted verse, then we'll speak that first.
         if(readList.isNotEmpty()) {
             cmds.addAll(readList)
             readList.clear()
-            verse = getNextVerse(verse)
+            key = getNextKey(key)
         }
 
-        verse = skipEmptyVerses(verse)
-
-        cmds.addAll(getCommandsForVerse(endVerse, verse))
+        cmds.addAll(getCommandsForKey(endKey, key))
 
         // If verse does not end in period, add the part before period to the current reading
         val rest = SpeakCommandArray()
 
         while (!cmds.endsSentence) {
-            val nextVerse = getNextVerse(verse)
+            val nextKey = getNextKey(key)
             // We can have infinite loop if we are in repeat passage mode
-            if(nextVerse.ordinal < verse.ordinal) {
+            if(nextKey.ordinal!! < key.ordinal!!) {
                 break
             }
-            val nextCommands = getCommandsForVerse(verse, nextVerse)
+            val nextCommands = getCommandsForKey(key, nextKey)
 
             cmds.addUntilSentenceBreak(nextCommands, rest)
-            verse = nextVerse
+            key = nextKey
         }
 
-        currentVerse = if (rest.isNotEmpty()) {
+        currentKey = if (rest.isNotEmpty()) {
             readList.addAll(rest)
-            verse
+            key
         } else {
-            getNextVerse(verse)
+            getNextKey(key)
         }
 
-        endVerse = verse
+        endKey = key
 
         return cmds
     }
 
     override fun getStatusText(showFlag: Int): String {
         val verseRange = settings.playbackSettings.verseRange
-        val percent = if(verseRange == null) {
-            bibleTraverser.getPercentOfBook(currentState.startVerse)
-        } else  {
-            ((currentState.startVerse.ordinal - verseRange.start.ordinal).toFloat()
-                    / (verseRange.end.ordinal-verseRange.start.ordinal) * 100).toInt()
-        }
-        var result = this.verseRange.name
+        var result = this.currentState.currentKey.name
 
         if(showFlag and FLAG_SHOW_STATUSITEMS != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(verseRange != null) {
@@ -270,9 +210,6 @@ class BibleSpeakTextProvider(
             }
         }
 
-        if(showFlag and FLAG_SHOW_PERCENT != 0) {
-            result += " $percent%"
-        }
         if(showFlag and FLAG_SHOW_BOOK != 0) {
             result += " ${currentState.book.abbreviation}"
         }
@@ -281,21 +218,19 @@ class BibleSpeakTextProvider(
 
     override fun getText(utteranceId: String): String = currentState.command.toString()
 
-    val verseRange: VerseRange get() = VerseRange(currentState.book.versification, currentState.startVerse, currentState.endVerse)
-
-    private fun getSpeakCommandsForVerse(verse: Verse, book: SwordBook? = null): SpeakCommandArray {
+    private fun getSpeakCommandsForVerse(key: BookAndKey, book: Book? = null): SpeakCommandArray {
         val book_ = book ?: this.book
-        var cmds = verseRenderLruCache.get(Pair(book_, verse))
+        var cmds = verseRenderLruCache.get(Pair(book_, key))
         if(cmds == null) {
-            cmds = SwordContentFacade.getBibleSpeakCommands(settings, book_, verse)
-            verseRenderLruCache.put(Pair(book_, verse), cmds)
+            cmds = SwordContentFacade.getGenBookSpeakCommands(key)
+            verseRenderLruCache.put(Pair(book_, key), cmds)
         }
         return cmds.copy()
     }
 
     override fun pause() {
         reset()
-        currentVerse = startVerse
+        currentKey = startKey
         updateBookmark()
         isSpeaking = false
     }
@@ -325,9 +260,9 @@ class BibleSpeakTextProvider(
 
     private fun readBookmark() {
         if(AdvancedSpeakSettings.autoBookmark) {
-            val verse = currentVerse
+            val key = currentKey
 
-            val bookmark = bookmarkControl.speakBookmarkForVerse(verse)?: return
+            val bookmark: GenericBookmarkWithNotes = bookmarkControl.speakBookmarkForKey(key)?: return
             val labelList = bookmarkControl.labelsForBookmark(bookmark)
             val speakLabel = bookmarkControl.speakLabel
             val ttsLabel = labelList.find { it.id == speakLabel.id }
@@ -348,7 +283,7 @@ class BibleSpeakTextProvider(
     }
 
     private fun removeBookmark() {
-        var bookmark: BibleBookmarkWithNotes = this.bookmark ?: return
+        var bookmark: GenericBookmarkWithNotes = this.bookmark ?: return
 
         val labelList = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
         val speakLabel = bookmarkControl.speakLabel
@@ -358,7 +293,7 @@ class BibleSpeakTextProvider(
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
                 labelList.remove(ttsLabel)
                 bookmark.playbackSettings = null
-                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+                bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
                 bookmarkControl.setLabelsForBookmark(bookmark, labelList)
                 Log.i("SpeakBookmark", "Removed speak label from bookmark $bookmark")
             }
@@ -373,7 +308,7 @@ class BibleSpeakTextProvider(
     private fun saveBookmark() {
         val labelList = mutableSetOf<Label>()
         if(AdvancedSpeakSettings.autoBookmark) {
-            var bookmark = bookmarkControl.firstBibleBookmarkStartingAtVerse(startVerse)?.run {
+            var bookmark: GenericBookmarkWithNotes? = bookmarkControl.firstGenericBookmarkStartingAtKey(startKey)?.run {
                 if(textRange != null) null else this
             }
 
@@ -382,15 +317,15 @@ class BibleSpeakTextProvider(
 
             if(bookmark == null) {
                 playbackSettings.bookmarkWasCreated = true
-                bookmark = BibleBookmarkWithNotes(VerseRange(startVerse.versification, startVerse), null, true, null)
+                bookmark = GenericBookmarkWithNotes(startKey.key, book, null, startKey.ordinal!!)
                 bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+                bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
             }
             else {
                 playbackSettings.bookmarkWasCreated = bookmark.playbackSettings?.bookmarkWasCreated ?: false
                 labelList.addAll(bookmarkControl.labelsForBookmark(bookmark))
                 bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+                bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
             }
 
             labelList.add(bookmarkControl.speakLabel)
@@ -401,66 +336,83 @@ class BibleSpeakTextProvider(
         }
     }
 
-    private fun limitToRange(verse: Verse): Verse {
-        val range = settings.playbackSettings.verseRange
-        if(range != null && (verse.ordinal > range.end.ordinal || verse.ordinal < range.start.ordinal)) {
-            return nextIfZero(range.start)
+    private fun limitToRange(key: BookAndKey): BookAndKey {
+        val range = settings.playbackSettings.repeatOrdinalRange
+        if(range != null && (key.ordinal!! > range.last || key.ordinal < range.first)) {
+            return BookAndKey(currentKey, book, range.start)
         }
-        return nextIfZero(verse)
+        return key
     }
 
-    private fun getNextVerse(verse: Verse): Verse = limitToRange(bibleTraverser.getNextVerse(book, verse))
+    private fun getNextOrdinal(key: BookAndKey): BookAndKey {
+        val nextOrdinal = key.ordinal!! + 1
+        if(nextOrdinal > book.ordinalRangeFor(key.key).last) {
+            return getNextKey(key)
+        }
+        return BookAndKey(key.key, book, nextOrdinal)
+    }
+
+    private fun getPrevOrdinal(key: BookAndKey): BookAndKey {
+        val nextOrdinal = key.ordinal!! - 1
+        if(nextOrdinal < book.ordinalRangeFor(key.key).first) {
+            val prevKey = getPreviousKey(key)
+            return BookAndKey(prevKey.key, book, book.ordinalRangeFor(prevKey.key).last)
+        }
+        return BookAndKey(key.key, book, nextOrdinal)
+    }
+
+    private fun getNextKey(verse: BookAndKey): BookAndKey = limitToRange(getNextOrdinal(verse))
     override fun rewind(amount: SpeakSettings.RewindAmount?) = rewind(amount, false)
 
     fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean) {
         val lastTitle = this.lastVerseWithTitle
         reset()
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
-        val minimumVerse = Verse(startVerse.versification, startVerse.book, 1, 1)
+        val minimumOrdinal = book.ordinalRangeFor(startKey).first
 
         when(rewindAmount) {
          SpeakSettings.RewindAmount.SMART -> {
-             currentVerse = if(lastTitle != null && lastTitle != startVerse) {
+             currentKey = if(lastTitle != null && lastTitle != startKey) {
                  lastTitle
              } else {
-                 if (startVerse.verse <= 1) {
-                     bibleTraverser.getPrevChapter(book, startVerse)
+                 if (startKey.ordinal!! <= minimumOrdinal) {
+                     getPreviousKey(startKey)
                  } else {
-                     Verse(startVerse.versification, startVerse.book, startVerse.chapter, 1)
+                     startKey
                  }
              }
          }
          SpeakSettings.RewindAmount.ONE_VERSE -> {
-             currentVerse = bibleTraverser.getPrevVerse(book, startVerse)
+             currentKey = getPrevOrdinal(startKey)
          }
          SpeakSettings.RewindAmount.TEN_VERSES -> {
-            currentVerse = startVerse
+            currentKey = startKey
             for(i in 1..10) {
-                currentVerse = bibleTraverser.getPrevVerse(book, currentVerse)
+                currentKey = getPrevOrdinal(currentKey)
             }
          }
          SpeakSettings.RewindAmount.NONE -> {}
         }
 
-        if(autoRewind && currentVerse.ordinal < minimumVerse.ordinal) {
-            currentVerse = minimumVerse
+        if(autoRewind && currentKey.ordinal!! < minimumOrdinal) {
+            currentKey = BookAndKey(startKey.key, book, minimumOrdinal)
         }
 
-        if(lastTitle == null || currentVerse.ordinal < lastTitle.ordinal) {
+        if(lastTitle == null || currentKey.ordinal!! < lastTitle.ordinal!!) {
             clearNotificationAndWidgetTitles()
         }
 
-        startVerse = currentVerse
-        endVerse = currentVerse
+        startKey = currentKey
+        endKey = currentKey
 
-        ABEventBus.post(SpeakProgressEvent(book, verseRange, null))
+        ABEventBus.post(SpeakProgressEvent(book, currentKey, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
-        ABEventBus.post(SpeakProgressEvent(book, startVerse,
+        ABEventBus.post(SpeakProgressEvent(book, startKey,
                 TextCommand("", type=TextCommand.TextType.TITLE)))
-        ABEventBus.post(SpeakProgressEvent(book, startVerse,
+        ABEventBus.post(SpeakProgressEvent(book, startKey,
                 TextCommand("", type=TextCommand.TextType.NORMAL)))
     }
 
@@ -469,23 +421,23 @@ class BibleSpeakTextProvider(
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
         when(rewindAmount) {
             SpeakSettings.RewindAmount.SMART -> {
-                currentVerse = bibleTraverser.getNextChapter(book, startVerse)
+                currentKey = getNextKey(startKey)
 
             }
             SpeakSettings.RewindAmount.ONE_VERSE ->
-                currentVerse = bibleTraverser.getNextVerse(book, startVerse)
+                currentKey = getNextOrdinal(startKey)
             SpeakSettings.RewindAmount.TEN_VERSES -> {
-                currentVerse = startVerse
+                currentKey = startKey
                 for (i in 1..10) {
-                    currentVerse = bibleTraverser.getNextVerse(book, currentVerse)
+                    currentKey = getNextOrdinal(currentKey)
                 }
             }
             SpeakSettings.RewindAmount.NONE -> throw RuntimeException("Invalid settings")
         }
-        startVerse = currentVerse
-        endVerse = currentVerse
+        startKey = currentKey
+        endKey = currentKey
         clearNotificationAndWidgetTitles()
-        ABEventBus.post(SpeakProgressEvent(book, verseRange, null))
+        ABEventBus.post(SpeakProgressEvent(book, currentKey, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}
@@ -496,9 +448,9 @@ class BibleSpeakTextProvider(
         if(state != null) {
             Log.i(TAG, "startUtterance $utteranceId $state")
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
-                lastVerseWithTitle = state.startVerse
+                lastVerseWithTitle = state.startKey
             }
-            ABEventBus.post(SpeakProgressEvent(state.book, VerseRange(state.book.versification, state.startVerse, state.endVerse), state.command!!))
+            ABEventBus.post(SpeakProgressEvent(state.book, state.startKey, state.command!!))
         }
     }
 
@@ -506,14 +458,14 @@ class BibleSpeakTextProvider(
         val state = utteranceState[currentUtteranceId]
         Log.i(TAG, "Resetting. state: $currentUtteranceId $state")
         if(state != null) {
-            startVerse = state.startVerse
-            currentVerse = state.currentVerse
-            endVerse = state.endVerse
+            startKey = state.startKey
+            currentKey = state.currentKey
+            endKey = state.endKey
             book = state.book
         }
         lastVerseWithTitle = null
-        if(this::startVerse.isInitialized) {
-            endVerse = startVerse
+        if(this::startKey.isInitialized) {
+            endKey = startKey
         }
         readList.clear()
         currentCommands.clear()
@@ -522,13 +474,13 @@ class BibleSpeakTextProvider(
         verseRenderLruCache.evictAll()
     }
 
-    override fun getCurrentlyPlayingKey(): Verse = startVerse
-    override fun getCurrentlyPlayingBook(): SwordBook = book
+    override fun getCurrentlyPlayingKey(): BookAndKey = startKey
+    override fun getCurrentlyPlayingBook(): Book = book
 
     override fun persistState() {
         CommonUtils.settings.apply {
             setString(PERSIST_BOOK, book.abbreviation)
-            setString(PERSIST_VERSE, startVerse.osisID)
+            setString(PERSIST_KEY, startKey.osisID)
         }
     }
 
@@ -537,29 +489,24 @@ class BibleSpeakTextProvider(
         if(sharedPreferences.getString(PERSIST_BOOK) != null) {
             val bookStr = sharedPreferences.getString(PERSIST_BOOK, "")
             val book = Books.installed().getBook(bookStr)
-            if(book is SwordBook) {
+            if(book is Book) {
                 this.book = book
             }
         }
-        if(sharedPreferences.getString(PERSIST_VERSE) != null) {
-            val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")!!
-            startVerse = osisIdToVerse(verseStr)?: return false
-            endVerse = startVerse
-            currentVerse = startVerse
+        if(sharedPreferences.getString(PERSIST_KEY) != null) {
+            val verseStr = sharedPreferences.getString(PERSIST_KEY, "")!!
+            startKey = book.getBookAndKey(verseStr)?: return false
+            endKey = startKey
+            currentKey = startKey
             return true
         }
         return false
     }
 
-    private fun osisIdToVerse(osisId: String): Verse? {
-        val verse = book.getKey(osisId) as RangedPassage?
-        return verse?.getVerseAt(0)
-    }
-
     override fun clearPersistedState() {
         CommonUtils.settings.apply {
             removeString(PERSIST_BOOK)
-            removeString(PERSIST_VERSE)
+            removeString(PERSIST_KEY)
         }
     }
 
@@ -567,3 +514,6 @@ class BibleSpeakTextProvider(
     override fun getSpokenChars(): Long = 0
     override fun isMoreTextToSpeak(): Boolean = true
 }
+
+private const val PERSIST_BOOK = "SpeakGenBook"
+private const val PERSIST_KEY = "SpeakGenKey"

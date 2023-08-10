@@ -96,6 +96,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -114,6 +115,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
@@ -124,8 +126,13 @@ import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.basic.AbstractBook
+import org.crosswire.jsword.book.basic.AbstractPassageBook
+import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.crosswire.jsword.book.sword.SwordDictionary
+import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
@@ -140,6 +147,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.lang.IndexOutOfBoundsException
 import java.math.BigInteger
 import java.security.KeyFactory
 import java.security.MessageDigest
@@ -229,6 +237,7 @@ val BookmarkEntities.Label.displayName get() =
 open class CommonUtilsBase {
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var speakControl: SpeakControl
+    @Inject lateinit var bibleTraverser: BibleTraverser
 }
 
 class Ref<T>(var value: T? = null)
@@ -1545,3 +1554,70 @@ fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
     xPathInstances.offer(builder)
     return rv
 }
+
+fun Book.getBookAndKey(keyStr: String, ordinal: Int? = null): BookAndKey? {
+    val k = getKey(keyStr)?: return null
+    return BookAndKey(k, this, ordinal = ordinal?: ordinalRangeFor(k).first)
+}
+
+fun getPreviousKey(key: BookAndKey): BookAndKey {
+    val nextKey: Key = when(key.key) {
+        is VerseRange -> {
+            CommonUtils.bibleTraverser.getPrevVerse(key.document as AbstractPassageBook, key.key.end)
+
+        }
+        is Verse -> {
+            CommonUtils.bibleTraverser.getPrevVerse(key.document as AbstractPassageBook, key.key)
+        }
+        else -> {
+            val backend = when(val book = key.document!!) {
+                is SwordGenBook -> book.backend as AbstractKeyBackend
+                is SwordDictionary -> book.backend as AbstractKeyBackend
+                else -> throw RuntimeException("Unsupported")
+            }
+            val idx = backend.indexOf(key.key)
+            try {
+                backend.get(idx - 1)
+            } catch (e: IndexOutOfBoundsException) {
+                backend.last()
+            }
+        }
+    }
+    return BookAndKey(
+        nextKey,
+        key.document,
+        key.document!!.ordinalRangeFor(nextKey).last
+    )
+}
+
+fun getNextKey(key: BookAndKey): BookAndKey {
+    val nextKey: Key = when(key.key) {
+        is VerseRange -> {
+            CommonUtils.bibleTraverser.getNextVerse(key.document as AbstractPassageBook, key.key.end)
+
+        }
+        is Verse -> {
+            CommonUtils.bibleTraverser.getNextVerse(key.document as AbstractPassageBook, key.key)
+        }
+        else -> {
+            val backend = when(val book = key.document!!) {
+                is SwordGenBook -> book.backend as AbstractKeyBackend
+                is SwordDictionary -> book.backend as AbstractKeyBackend
+                else -> throw RuntimeException("Unsupported")
+            }
+            val idx = backend.indexOf(key.key)
+            try {
+                backend.get(idx + 1)
+            } catch (e: IndexOutOfBoundsException) {
+                backend.first()
+            }
+        }
+    }
+    return BookAndKey(
+        nextKey,
+        key.document,
+        key.document!!.ordinalRangeFor(nextKey).last
+    )
+}
+
+fun Book.ordinalRangeFor(key: Key): IntRange = SwordContentFacade.ordinalRangeFor(this, key)

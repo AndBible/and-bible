@@ -17,6 +17,7 @@
 
 package net.bible.service.sword
 
+import net.bible.service.common.ordinalRangeFor
 import net.bible.service.download.doesNotExist
 import org.crosswire.common.util.ItemIterator
 import org.crosswire.jsword.book.Book
@@ -25,6 +26,7 @@ import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RestrictionType
 import java.lang.UnsupportedOperationException
+val BookAndKey.ordinalRange: IntRange? get() = document?.ordinalRangeFor(key)
 
 class BookAndKey(
     val key: Key,

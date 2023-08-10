@@ -18,6 +18,8 @@
 package net.bible.android.database.bookmarks
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import net.bible.android.database.json
@@ -48,6 +50,26 @@ object VerseRangeSerializer: KSerializer<VerseRange?> {
         return try {VerseRangeFactory.fromString(v11n, splitted[1]) } catch (e: NoSuchVerseException) {null}
     }
 }
+//@Serializer(forClass = IntRange::class)
+object IntRangeSerializer: KSerializer<IntRange?> {
+    override fun serialize(encoder: Encoder, obj: IntRange?) {
+        if(obj != null) {
+            encoder.encodeString("${obj.first}::${obj.last}")
+        }
+        else {
+            encoder.encodeNull()
+        }
+    }
+
+    override val descriptor = PrimitiveSerialDescriptor("IntRange", PrimitiveKind.STRING)
+
+    private val splitRe = Regex("""(\d+)::(\d+)""")
+    override fun deserialize(decoder: Decoder): IntRange? {
+        val str = decoder.decodeString()
+        val m = splitRe.matchEntire(str)?: return null
+        return try {m.groupValues[1].toInt()..m.groupValues[2].toInt()} catch (e: Exception) {null}
+    }
+}
 
 @Serializable
 data class PlaybackSettings (
@@ -60,7 +82,13 @@ data class PlaybackSettings (
     // Restoring bookmark from widget uses this.
     var bookId: String? = null,
     var bookmarkWasCreated: Boolean? = null,
-    @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null
+
+    // For bible bookmarks
+    @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null,
+
+    // For generic bookmarks
+    var repeatKey: String? = null,
+    @Serializable(with=IntRangeSerializer::class) var repeatOrdinalRange: IntRange? = null,
 ) {
     companion object {
 

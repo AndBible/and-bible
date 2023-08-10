@@ -45,6 +45,7 @@ import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Book
@@ -193,7 +194,9 @@ open class BookmarkControl @Inject constructor(
 
     fun hasBookmarksForVerse(verse: Verse): Boolean = dao.hasBookmarksForVerse(verse)
 
-    fun firstBookmarkStartingAtVerse(key: Verse): BibleBookmarkWithNotes? = dao.bookmarksStartingAtVerse(key).firstOrNull()
+    fun firstBibleBookmarkStartingAtVerse(key: Verse): BibleBookmarkWithNotes? = dao.bookmarksStartingAtVerse(key).firstOrNull()
+
+    fun firstGenericBookmarkStartingAtKey(key: BookAndKey): GenericBookmarkWithNotes? = dao.bookmarksForOrdinalStart(key.document!!.initials, key.osisRef, key.ordinal!!).firstOrNull()
 
     fun deleteBookmark(bookmark: BaseBookmarkWithNotes) {
         dao.delete(bookmark)
@@ -294,7 +297,7 @@ open class BookmarkControl @Inject constructor(
 
     fun isSpeakBookmark(bookmark: BaseBookmarkWithNotes): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
     fun speakBookmarkForVerse(verse: Verse) = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
-
+    fun speakBookmarkForKey(key: BookAndKey): GenericBookmarkWithNotes?  = dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.osisRef, key.ordinal!!, speakLabel.id).firstOrNull()
     fun changeLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) {
         dao.clearLabels(bookmark)
         when(bookmark) {
@@ -448,15 +451,15 @@ open class BookmarkControl @Inject constructor(
         else -> throw RuntimeException("Illegal type")
     }
     private fun addText(b: GenericBookmarkWithNotes) {
-        val osis = try {
-            val book = b.book?: return
-            SwordContentFacade.readOsisFragment(book, b.bookKey ?: book.getKey(b.key))
+        val book = b.book?: return
+        val key = b.bookKey ?: book.getKey(b.key)
+        try {
+            val verseTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, b.ordinalStart..b.ordinalEnd)
+            addText(b, verseTexts, b.wholeVerse)
         } catch (e: OsisError) {
             b.text = e.stringMsg
             return
         }
-        val verseTexts = SwordContentFacade.getTextWithinOrdinals(osis, b.ordinalStart .. b.ordinalEnd)
-        addText(b, verseTexts, b.wholeVerse)
     }
 
     private fun addText(b: BaseBookmarkWithNotes, texts: List<String>, wholeVerse: Boolean = false) {

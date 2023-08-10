@@ -187,3 +187,4 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
     }
 
 }
+

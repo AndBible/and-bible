@@ -55,6 +55,10 @@ val wholeVerse = makeMigration(4..5) { _db ->
     _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN wholeVerse INTEGER NOT NULL DEFAULT 0")
 }
 
-val bookmarkMigrations: Array<Migration> = arrayOf(separateText, genericTables, genericBookmark, wholeVerse)
+val playbackSettings = makeMigration(5..6) { _db ->
+    _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN playbackSettings TEXT DEFAULT NULL")
+}
 
-const val BOOKMARK_DATABASE_VERSION = 5
+val bookmarkMigrations: Array<Migration> = arrayOf(separateText, genericTables, genericBookmark, wholeVerse, playbackSettings)
+
+const val BOOKMARK_DATABASE_VERSION = 6
