@@ -484,12 +484,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             return@suspendCoroutine
         }
 
-        val verFull = CommonUtils.applicationVersionName
-        val ver = verFull.split("#")[0]
+        val announceVersion = 1
+        val displayedVer = preferences.getInt("beta-notice-displayed2", 0)
 
-        val displayedVer = preferences.getString("beta-notice-displayed", "")
-
-        if(displayedVer != ver) {
+        if(displayedVer < announceVersion) {
             val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
             val videoMessageLink = "<a href=\"${betaIntroVideo}\"><b>$videoMessage</b></a>"
 
@@ -521,7 +519,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 | (Standard beta notice below)
                 | <br><br>
             """.trimMargin()
-            val htmlMessage = "$extraMessage$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, verFull)}</i>"
+            val htmlMessage = "$extraMessage$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
 
             val spanned = htmlToSpan(htmlMessage)
 
@@ -531,7 +529,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setIcon(R.drawable.ic_logo)
                 .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
-                    preferences.setString("beta-notice-displayed", ver)
+                    preferences.setInt("beta-notice-displayed2", announceVersion)
                     it.resume(true)
                 }
                 .setOnCancelListener {_ -> it.resume(false)}
