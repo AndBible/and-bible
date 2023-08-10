@@ -37,9 +37,9 @@ import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWith
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.common.getBookAndKey
-import net.bible.service.common.getNextKey
-import net.bible.service.common.getPreviousKey
+import net.bible.service.common.next
 import net.bible.service.common.ordinalRangeFor
+import net.bible.service.common.prev
 import net.bible.service.sword.BookAndKey
 import org.crosswire.jsword.book.Book
 import kotlin.collections.HashMap
@@ -77,7 +77,7 @@ class GeneralSpeakTextProviderNg(
     private var currentUtteranceId = ""
     private val currentCommands = SpeakCommandArray()
 
-    private val verseRenderLruCache = LruCache<Pair<Book, BookAndKey>, SpeakCommandArray>(100)
+    private val verseRenderLruCache = LruCache<String, SpeakCommandArray>(100)
     private lateinit var localizedResources: Resources
 
     init {
@@ -130,14 +130,14 @@ class GeneralSpeakTextProviderNg(
         val cmds = SpeakCommandArray()
         val res = localizedResources
 
-        if(prevKey.key.osisRef != key.osisRef) {
+        if(prevKey.osisRef != key.osisRef) {
             if(settings.playbackSettings.speakChapterChanges) {
                 cmds.add(PreChapterChangeCommand(settings))
                 cmds.add(TextCommand("${res.getString(R.string.speak_chapter_changed)} ${key.name}. "))
                 cmds.add(SilenceCommand())
             }
         }
-        cmds.addAll(getSpeakCommandsForVerse(key))
+        cmds.addAll(getSpeakCommandsForKey(key))
         return cmds
     }
 
@@ -218,12 +218,12 @@ class GeneralSpeakTextProviderNg(
 
     override fun getText(utteranceId: String): String = currentState.command.toString()
 
-    private fun getSpeakCommandsForVerse(key: BookAndKey, book: Book? = null): SpeakCommandArray {
-        val book_ = book ?: this.book
-        var cmds = verseRenderLruCache.get(Pair(book_, key))
+    private fun getSpeakCommandsForKey(key: BookAndKey): SpeakCommandArray {
+        val cacheKey = "${key.document!!.initials}-${key.osisRef}-${key.ordinal!!}"
+        var cmds = verseRenderLruCache.get(cacheKey)
         if(cmds == null) {
             cmds = SwordContentFacade.getGenBookSpeakCommands(key)
-            verseRenderLruCache.put(Pair(book_, key), cmds)
+            verseRenderLruCache.put(cacheKey, cmds)
         }
         return cmds.copy()
     }
@@ -347,7 +347,7 @@ class GeneralSpeakTextProviderNg(
     private fun getNextOrdinal(key: BookAndKey): BookAndKey {
         val nextOrdinal = key.ordinal!! + 1
         if(nextOrdinal > book.ordinalRangeFor(key.key).last) {
-            return getNextKey(key)
+            return key.next
         }
         return BookAndKey(key.key, book, nextOrdinal)
     }
@@ -355,7 +355,7 @@ class GeneralSpeakTextProviderNg(
     private fun getPrevOrdinal(key: BookAndKey): BookAndKey {
         val nextOrdinal = key.ordinal!! - 1
         if(nextOrdinal < book.ordinalRangeFor(key.key).first) {
-            val prevKey = getPreviousKey(key)
+            val prevKey = key.prev
             return BookAndKey(prevKey.key, book, book.ordinalRangeFor(prevKey.key).last)
         }
         return BookAndKey(key.key, book, nextOrdinal)
@@ -376,7 +376,7 @@ class GeneralSpeakTextProviderNg(
                  lastTitle
              } else {
                  if (startKey.ordinal!! <= minimumOrdinal) {
-                     getPreviousKey(startKey)
+                     startKey.prev
                  } else {
                      startKey
                  }

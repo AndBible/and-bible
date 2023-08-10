@@ -53,7 +53,9 @@ import javax.inject.Inject
 import dagger.Lazy
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
@@ -291,7 +293,10 @@ class SpeakControl @Inject constructor(
 
         val page = windowControl.activeWindowPageManager.currentPage
         val fromBook = page.currentDocument
-        val key = page.key!!
+        val key =
+            if(page is CurrentCommentaryPage)
+                page.displayKey!!
+            else page.key!!
 
         val bookAndKey = BookAndKey(
             key,

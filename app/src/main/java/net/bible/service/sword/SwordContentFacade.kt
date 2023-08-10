@@ -23,14 +23,11 @@ import android.util.LruCache
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.MyLocaleProvider
 import net.bible.android.activity.R
-import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 import net.bible.service.common.htmlToSpan
-import net.bible.service.common.useXPathInstance
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.device.speak.TextCommand
@@ -64,7 +61,6 @@ import org.jdom2.xpath.XPathFactory
 import org.xml.sax.ContentHandler
 import java.io.StringReader
 import java.util.*
-import javax.inject.Inject
 import kotlin.math.min
 
 

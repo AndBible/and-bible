@@ -94,9 +94,9 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
     } else {
         4000
     }
-    private val endsWithSentenceBreak = Regex(".*[.?!]+[\"']*\\W*")
-    private val splitIntoTwoSentences = Regex("(.*)([.?!]+[\"']*)(\\W*.+)")
-    private val startsWithDelimeter = Regex("([,.?!\"':;()]+|'s)( .*|)")
+    private val endsWithSentenceBreak = Regex(""".*[.?!]+["']*\W*""")
+    private val splitIntoTwoSentences = Regex("""(.*)([.?!]+["']*)(\W*.+)""")
+    private val startsWithDelimeter = Regex("""([,.?!"':;()]+|'s)( .*|)""")
 
     fun copy(): SpeakCommandArray {
         val cmds = SpeakCommandArray()

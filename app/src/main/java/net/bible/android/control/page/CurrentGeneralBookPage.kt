@@ -29,7 +29,6 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
-import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.navigation.ChooseDocument

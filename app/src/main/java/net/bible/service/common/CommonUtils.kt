@@ -126,7 +126,6 @@ import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.basic.AbstractBook
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -1560,22 +1559,22 @@ fun Book.getBookAndKey(keyStr: String, ordinal: Int? = null): BookAndKey? {
     return BookAndKey(k, this, ordinal = ordinal?: ordinalRangeFor(k).first)
 }
 
-fun getPreviousKey(key: BookAndKey): BookAndKey {
-    val nextKey: Key = when(key.key) {
+val BookAndKey.prev: BookAndKey get() {
+    val nextKey: Key = when(this.key) {
         is VerseRange -> {
-            CommonUtils.bibleTraverser.getPrevVerse(key.document as AbstractPassageBook, key.key.end)
+            CommonUtils.bibleTraverser.getPrevVerse(this.document as AbstractPassageBook, this.key.end)
 
         }
         is Verse -> {
-            CommonUtils.bibleTraverser.getPrevVerse(key.document as AbstractPassageBook, key.key)
+            CommonUtils.bibleTraverser.getPrevVerse(this.document as AbstractPassageBook, this.key)
         }
         else -> {
-            val backend = when(val book = key.document!!) {
+            val backend = when(val book = this.document!!) {
                 is SwordGenBook -> book.backend as AbstractKeyBackend
                 is SwordDictionary -> book.backend as AbstractKeyBackend
                 else -> throw RuntimeException("Unsupported")
             }
-            val idx = backend.indexOf(key.key)
+            val idx = backend.indexOf(this.key)
             try {
                 backend.get(idx - 1)
             } catch (e: IndexOutOfBoundsException) {
@@ -1585,27 +1584,26 @@ fun getPreviousKey(key: BookAndKey): BookAndKey {
     }
     return BookAndKey(
         nextKey,
-        key.document,
-        key.document!!.ordinalRangeFor(nextKey).last
+        this.document,
+        this.document!!.ordinalRangeFor(nextKey).last
     )
 }
 
-fun getNextKey(key: BookAndKey): BookAndKey {
-    val nextKey: Key = when(key.key) {
+val BookAndKey.next: BookAndKey get() {
+    val nextKey: Key = when(this.key) {
         is VerseRange -> {
-            CommonUtils.bibleTraverser.getNextVerse(key.document as AbstractPassageBook, key.key.end)
-
+            CommonUtils.bibleTraverser.getNextVerse(this.document as AbstractPassageBook, this.key.end)
         }
         is Verse -> {
-            CommonUtils.bibleTraverser.getNextVerse(key.document as AbstractPassageBook, key.key)
+            CommonUtils.bibleTraverser.getNextVerse(this.document as AbstractPassageBook, this.key)
         }
         else -> {
-            val backend = when(val book = key.document!!) {
+            val backend = when(val book = this.document!!) {
                 is SwordGenBook -> book.backend as AbstractKeyBackend
                 is SwordDictionary -> book.backend as AbstractKeyBackend
                 else -> throw RuntimeException("Unsupported")
             }
-            val idx = backend.indexOf(key.key)
+            val idx = backend.indexOf(this.key)
             try {
                 backend.get(idx + 1)
             } catch (e: IndexOutOfBoundsException) {
@@ -1615,8 +1613,8 @@ fun getNextKey(key: BookAndKey): BookAndKey {
     }
     return BookAndKey(
         nextKey,
-        key.document,
-        key.document!!.ordinalRangeFor(nextKey).last
+        this.document,
+        this.document!!.ordinalRangeFor(nextKey).first
     )
 }
 
