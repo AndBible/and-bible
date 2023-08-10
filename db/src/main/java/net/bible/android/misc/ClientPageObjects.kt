@@ -36,12 +36,16 @@ import org.jdom2.output.support.AbstractXMLOutputProcessor
 import org.jdom2.output.support.FormatStack
 import java.io.Writer
 
+
+val sanitizeRegex = Regex("""[^\p{L}]""")
+fun sanitizeId(s: String): String = s.replace(sanitizeRegex, "_")
+
 // Unique identifier that can be used as ID in DOM
 val Key.uniqueId: String get() {
     return if (this is VerseRange) {
         "ordinal-${start.ordinal}-${end.ordinal}"
     } else {
-        this.osisID.replace(".", "-").replace(" ", "_")
+        sanitizeId(this.osisID)
     }
 }
 

@@ -28,6 +28,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
 import net.bible.android.misc.OsisFragment
+import net.bible.android.misc.sanitizeId
 import net.bible.android.misc.uniqueId
 import net.bible.android.misc.wrapString
 import net.bible.service.common.CommonUtils
@@ -108,7 +109,7 @@ open class OsisDocument(
             else json.encodeToString(serializer(), listOf(ordRange.first, ordRange.last))
 
         return mapOf(
-            "id" to wrapString("${book.initials}-${key.uniqueId}"),
+            "id" to wrapString(sanitizeId("${book.initials}-${key.uniqueId}")),
             "type" to wrapString("osis"),
             "osisFragment" to mapToJson(osisFragment.toHashMap),
             "ordinalRange" to ordinalRange,
