@@ -513,7 +513,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 | anything serious yet</b>.
                 | During beta period, we might need to introduce changes that 
                 | will mess up or remove  
-                | your bookmarks in non-bible documents).
+                | your bookmarks in non-bible documents.
                 | <br><br>
                 | Best regards, Tuomas<br>
                 | P.S. If you haven't tested already, Cloud Sync via Google Drive is also worth trying out.
