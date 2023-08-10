@@ -21,6 +21,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.misc.elementToString
 import net.bible.android.view.activity.page.Selection
+import net.bible.service.sword.SwordContentFacade.bibleRefSplit
 import net.bible.test.DatabaseResetter
 
 import org.crosswire.jsword.book.Book
@@ -325,27 +326,38 @@ class SentenceSplitTest {
     )
 }
 class BibleRefRegexTest {
-    fun bib(s: String): Boolean {
+    fun matchesExact(s: String): Boolean {
         val m = SwordContentFacade.bibleRefRe.find(s)
         return m?.groupValues?.get(0) == s
     }
-    @Test fun testRe1() = assertThat(bib("Matt 1:1"), equalTo(true))
-    @Test fun testRe2() = assertThat(bib("Matt 1:1, 1"), equalTo(true))
-    @Test fun testRe3() = assertThat(bib("Matt 1:1, 1:1-2:2"), equalTo(true))
-    @Test fun testRe4() = assertThat(bib("Matt 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
-    @Test fun testRe4b() = assertThat(bib("matt 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(false))
-    @Test fun testRe5() = assertThat(bib("1 Joh 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
-    @Test fun testRe6() = assertThat(bib("1. Joh 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
-    @Test fun testRe7() = assertThat(bib("1. Joh. 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
-    @Test fun testRe2_1() = assertThat(bib("Matt 1"), equalTo(true))
+    fun matches(s: String): String {
+        val m = SwordContentFacade.bibleRefRe.find(s)
+        return m?.groupValues?.get(0)!!
+    }
+    fun finds(s: String): Boolean {
+        val m = SwordContentFacade.bibleRefRe.find(s)
+        return m != null
+    }
+
+    @Test fun testRe1() = assertThat(matchesExact("Matt 1:1"), equalTo(true))
+    @Test fun testRe2() = assertThat(matchesExact("Matt 1:1, 1"), equalTo(true))
+    @Test fun testRe3() = assertThat(matchesExact("Matt 1:1, 1:1-2:2"), equalTo(true))
+    @Test fun testRe4() = assertThat(matchesExact("Matt 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
+    @Test fun testRe4b() = assertThat(finds("matt 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(false))
+    @Test fun testRe5() = assertThat(matchesExact("1 Joh 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
+    @Test fun testRe6() = assertThat(matchesExact("1. Joh 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
+    @Test fun testRe7() = assertThat(matchesExact("1. Joh. 1:1-2:2, 1-2, 1:1-1:2, 1-2:2, 2-3:1"), equalTo(true))
+    @Test fun testRe2_1() = assertThat(matchesExact("Matt 1"), equalTo(true))
 
     // To keep regex "simple", we intentionally do not support now book of Jude references that do not include chapter number. Jude 1:1 works fine.
-    @Test fun testRe2_2() = assertThat(bib("Jude 1-5"), equalTo(true))
-    @Test fun testRe2_3() = assertThat(bib("jude 1-5"), equalTo(false))
-    @Test fun testRe2_4() = assertThat(bib("1. Joh. 4:20"), equalTo(true))
-    @Test fun testRe2_5() = assertThat(bib("Ex. 13:2"), equalTo(true))
-    @Test fun testRe2_6() = assertThat(bib("Psalms 2; 22; 24; 45; 72"), equalTo(true))
-    @Test fun testRe2_7() = assertThat(bib("Psalms 2; 22; Job 24; 45; 72"), equalTo(false))
+    @Test fun testRe2_2() = assertThat(matchesExact("Jude 1-5"), equalTo(true))
+    @Test fun testRe2_3() = assertThat(finds("jude 1-5"), equalTo(false))
+    @Test fun testRe2_4() = assertThat(matchesExact("1. Joh. 4:20"), equalTo(true))
+    @Test fun testRe2_5() = assertThat(matchesExact("Ex. 13:2"), equalTo(true))
+    @Test fun testRe2_6() = assertThat(matchesExact("Psalms 2; 22; 24; 45; 72"), equalTo(true))
+    @Test fun testRe2_7() = assertThat(matchesExact("Psalms 2; 22; Job 24; 45; 72"), equalTo(false))
+    @Test fun testRe2_8() = assertThat(finds("Acts 1:24; 1 Cor. 4:5"), equalTo(true))
+    @Test fun biblesplit1() = assertThat(bibleRefSplit("Acts 1:24; 1 Cor. 4:5").map { it.first }, equalTo(listOf("Acts 1:24", "; ", "1 Cor. 4:5")))
 }
 
 @RunWith(RobolectricTestRunner::class)

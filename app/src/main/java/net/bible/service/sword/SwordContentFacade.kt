@@ -163,7 +163,7 @@ object SwordContentFacade {
     private val regexCache = LruCache<Int, Regex>(50*1024)
     private fun getCutRegex(targetLength: Int): Regex =
         regexCache.get(targetLength)
-            ?: Regex("""(.{$targetLength}\s\p{L}+\s+)(\p{L}+\s.*)""")
+            ?: Regex("""(.{$targetLength}\p{Z}\p{L}+\p{Z}+)(\p{L}+\p{Z}.*)""")
                 .also { regexCache.put(targetLength, it) }
     private fun cutLongSentences(p: String): List<String> {
         val newPieces = mutableListOf<String>()
@@ -206,7 +206,7 @@ object SwordContentFacade {
         // group 1: before marker
         """((\d{2,}|\D)""" +
         // marker itself
-        """(([.,;:!?]["'\p{Pf}]?\s+)|(\s*\p{Pd}\s*)))"""+
+        """(([.,;:!?]["'\p{Pf}]?\p{Z}+)|(\p{Z}*\p{Pd}\p{Z}*)))"""+
         // group 6: after marker
         """(["'¡¿\p{Pi}]?\p{L})"""
     )
@@ -242,17 +242,20 @@ object SwordContentFacade {
     // Detect bible references, like 1 John 2:3-4, 4:5-6:7, 4-5
     val bibleRefRe = Regex("" +
         // Beginning of bible reference. 1 John 2:3
-        """(((\d\.?\s+)?\p{Lu}\p{L}+\.?)\s+((\d+)(:\d+)?)(\p{Pd}\d+(:\d+)?)?)"""+
+        """(((\d\.?\p{Z}+)?\p{Lu}\p{L}+\.?)\p{Z}+((\d+)(:\d+)?)(\p{Pd}\d+(:\d+)?)?)"""+
         // Continuation, separated by comma. First: ,4:5-6:7 Second: , 4-5
-        """([,;]?\s*(\d+(?!\.?\s*\p{L}):\d+|\d+)(\p{Pd}\d+(:\d+)?)?)*"""
+        """([,;]?\p{Z}*(\d+:\d+|\d+)(?!\.?\p{Z}*\p{L})(\p{Pd}\d+(:\d+)?)?)*"""
     )
-    private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
+    fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
         val matches = bibleRefRe.findAll(text)
         val pieces = mutableListOf<Pair<String, Boolean>>()
         var lastStartPosition = 0
 
         for(m in matches) {
-            pieces.add(Pair(text.slice(lastStartPosition until m.range.first), false))
+            val prevText = text.slice(lastStartPosition until m.range.first)
+            if(prevText.isNotEmpty()) {
+                pieces.add(Pair(prevText, false))
+            }
             pieces.add(Pair(m.groupValues[0], true))
             lastStartPosition = m.range.last + 1
         }
