@@ -68,6 +68,7 @@ class GeneralSpeakTextProviderNg(
     private lateinit var book: Book
     private lateinit var startKey: BookAndKey
     private lateinit var endKey: BookAndKey
+    private var stopOrdinal: Int? = null
     
     private var bookmark : GenericBookmarkWithNotes? = null
     private lateinit var currentKey: BookAndKey
@@ -123,6 +124,7 @@ class GeneralSpeakTextProviderNg(
         currentKey = key
         startKey = key
         endKey = key
+        stopOrdinal = key.ordinal!!.end
     }
 
     private fun getCommandsForKey(prevKey: BookAndKey, key: BookAndKey): SpeakCommandArray {
@@ -154,6 +156,15 @@ class GeneralSpeakTextProviderNg(
         return cmd
     }
 
+    private fun needToStop(key: BookAndKey): Boolean {
+        val stopOrd = stopOrdinal
+        if (stopOrd != null) {
+            return key.ordinal!! > stopOrd
+        }
+        return false
+    }
+
+
     private fun getMoreSpeakCommands(): SpeakCommandArray {
         val cmds = SpeakCommandArray()
 
@@ -175,9 +186,13 @@ class GeneralSpeakTextProviderNg(
         while (!cmds.endsSentence) {
             val nextKey = getNextKey(key)
             // We can have infinite loop if we are in repeat passage mode
+
+            if(needToStop(nextKey)) break
+
             if(nextKey.ordinal!! < key.ordinal!!) {
                 break
             }
+
             val nextCommands = getCommandsForKey(key, nextKey)
 
             cmds.addUntilSentenceBreak(nextCommands, rest)
@@ -510,7 +525,7 @@ class GeneralSpeakTextProviderNg(
 
     override fun getTotalChars(): Long = 0
     override fun getSpokenChars(): Long = 0
-    override fun isMoreTextToSpeak(): Boolean = true
+    override fun isMoreTextToSpeak(): Boolean = !needToStop(currentKey)
 }
 
 private const val PERSIST_BOOK = "SpeakGenBook"

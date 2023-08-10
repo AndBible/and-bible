@@ -58,6 +58,7 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
@@ -380,11 +381,22 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun speak(bookInitials: String, ordinal: Int) {
+    fun speak(bookInitials: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials) as SwordBook
             val verse = Verse(book.versification, ordinal)
             mainBibleActivity.speakControl.speakBible(book, verse, force = true)
+        }
+    }
+
+    @JavascriptInterface
+    fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            val book = Books.installed().getBook(bookInitials)
+            val key = book.getKey(osisRef)
+            val ordinalRange = OrdinalRange(ordinal, positiveOrNull(endOrdinal)?: ordinal)
+            val bookAndKey = BookAndKey(key, book, ordinalRange)
+            mainBibleActivity.speakControl.speakTextNg(bookAndKey)
         }
     }
 

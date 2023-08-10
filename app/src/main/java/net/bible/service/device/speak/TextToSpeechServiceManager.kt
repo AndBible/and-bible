@@ -540,6 +540,9 @@ class TextToSpeechServiceManager @Inject constructor(
             if (!mockedTts) {
                 cmd.speak(mTts!!, utteranceId)
             }
+            if(!mSpeakTextProvider.isMoreTextToSpeak()) {
+                break
+            }
         }
         Log.i(TAG, "Added items to TTS queue. Last utterance id: $utteranceId")
     }

@@ -100,6 +100,7 @@ type TranslatedStrings = {
     refParserHelp: string
     openDownloads: string
     verseShare: string
+    verseSpeak: string
     verseCompare: string
     verseNote: string
     verseMyNotes: string
