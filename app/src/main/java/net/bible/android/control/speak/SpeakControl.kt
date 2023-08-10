@@ -507,7 +507,7 @@ class SpeakControl @Inject constructor(
                     BookAndKey(
                         dto.bookKey?: dto.originalKey!!,
                         dto.book,
-                        OrdinalRange(dto.ordinalStart, dto.ordinalEnd)
+                        OrdinalRange(dto.ordinalStart)
                     )
 
                 )
