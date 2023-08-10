@@ -18,6 +18,7 @@
 package net.bible.service.history
 
 import android.util.Log
+import net.bible.android.control.page.OrdinalRange
 
 import net.bible.android.control.page.window.Window
 import net.bible.service.common.CommonUtils
@@ -34,7 +35,7 @@ import java.util.*
 class KeyHistoryItem(
     val document: Book,
     val key: Key,
-    val anchorOrdinal: Int?,
+    val anchorOrdinal: OrdinalRange?,
     window: Window,
     override val createdAt: Date = Date(System.currentTimeMillis())
 ) : HistoryItemBase(window) {

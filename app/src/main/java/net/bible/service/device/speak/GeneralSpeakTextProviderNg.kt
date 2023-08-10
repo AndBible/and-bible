@@ -29,6 +29,7 @@ import org.crosswire.jsword.book.Books
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
@@ -77,7 +78,6 @@ class GeneralSpeakTextProviderNg(
     private var currentUtteranceId = ""
     private val currentCommands = SpeakCommandArray()
 
-    private val verseRenderLruCache = LruCache<String, SpeakCommandArray>(100)
     private lateinit var localizedResources: Resources
 
     init {
@@ -218,15 +218,8 @@ class GeneralSpeakTextProviderNg(
 
     override fun getText(utteranceId: String): String = currentState.command.toString()
 
-    private fun getSpeakCommandsForKey(key: BookAndKey): SpeakCommandArray {
-        val cacheKey = "${key.document!!.initials}-${key.osisRef}-${key.ordinal!!}"
-        var cmds = verseRenderLruCache.get(cacheKey)
-        if(cmds == null) {
-            cmds = SwordContentFacade.getGenBookSpeakCommands(key)
-            verseRenderLruCache.put(cacheKey, cmds)
-        }
-        return cmds.copy()
-    }
+    private fun getSpeakCommandsForKey(key: BookAndKey): SpeakCommandArray =
+        SwordContentFacade.getGenBookSpeakCommands(key)
 
     override fun pause() {
         reset()
@@ -317,7 +310,7 @@ class GeneralSpeakTextProviderNg(
 
             if(bookmark == null) {
                 playbackSettings.bookmarkWasCreated = true
-                bookmark = GenericBookmarkWithNotes(startKey.key, book, null, startKey.ordinal!!)
+                bookmark = GenericBookmarkWithNotes(startKey.key, book, null, startKey.ordinal!!.start)
                 bookmark.playbackSettings = playbackSettings
                 bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
             }
@@ -339,26 +332,26 @@ class GeneralSpeakTextProviderNg(
     private fun limitToRange(key: BookAndKey): BookAndKey {
         val range = settings.playbackSettings.repeatOrdinalRange
         if(range != null && (key.ordinal!! > range.last || key.ordinal < range.first)) {
-            return BookAndKey(currentKey, book, range.start)
+            return BookAndKey(currentKey, book, OrdinalRange(range.start))
         }
         return key
     }
 
     private fun getNextOrdinal(key: BookAndKey): BookAndKey {
-        val nextOrdinal = key.ordinal!! + 1
+        val nextOrdinal = key.ordinal!!.start + 1
         if(nextOrdinal > book.ordinalRangeFor(key.key).last) {
             return key.next
         }
-        return BookAndKey(key.key, book, nextOrdinal)
+        return BookAndKey(key.key, book, OrdinalRange(nextOrdinal))
     }
 
     private fun getPrevOrdinal(key: BookAndKey): BookAndKey {
-        val nextOrdinal = key.ordinal!! - 1
+        val nextOrdinal = key.ordinal!!.start - 1
         if(nextOrdinal < book.ordinalRangeFor(key.key).first) {
             val prevKey = key.prev
-            return BookAndKey(prevKey.key, book, book.ordinalRangeFor(prevKey.key).last)
+            return BookAndKey(prevKey.key, book, OrdinalRange(book.ordinalRangeFor(prevKey.key).last))
         }
-        return BookAndKey(key.key, book, nextOrdinal)
+        return BookAndKey(key.key, book, OrdinalRange(nextOrdinal))
     }
 
     private fun getNextKey(verse: BookAndKey): BookAndKey = limitToRange(getNextOrdinal(verse))
@@ -395,7 +388,7 @@ class GeneralSpeakTextProviderNg(
         }
 
         if(autoRewind && currentKey.ordinal!! < minimumOrdinal) {
-            currentKey = BookAndKey(startKey.key, book, minimumOrdinal)
+            currentKey = BookAndKey(startKey.key, book, OrdinalRange(minimumOrdinal))
         }
 
         if(lastTitle == null || currentKey.ordinal!! < lastTitle.ordinal!!) {
@@ -450,7 +443,7 @@ class GeneralSpeakTextProviderNg(
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startKey
             }
-            ABEventBus.post(SpeakProgressEvent(state.book, state.startKey, state.command!!))
+            ABEventBus.post(SpeakProgressEvent(state.book, BookAndKey(state.startKey.key, state.book, OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start)), state.command!!))
         }
     }
 
@@ -471,7 +464,6 @@ class GeneralSpeakTextProviderNg(
         currentCommands.clear()
         utteranceState.clear()
         currentUtteranceId = ""
-        verseRenderLruCache.evictAll()
     }
 
     override fun getCurrentlyPlayingKey(): BookAndKey = startKey

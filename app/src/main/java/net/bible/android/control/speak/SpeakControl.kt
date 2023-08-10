@@ -149,9 +149,7 @@ class SpeakControl @Inject constructor(
     fun onEventMainThread(event: SpeakProgressEvent) {
         if (AdvancedSpeakSettings.synchronize) {
             val book = speakPageManager.currentPage.currentDocument
-            if(setOf(BookCategory.BIBLE, BookCategory.COMMENTARY).contains(book?.bookCategory)) {
-                speakPageManager.setCurrentDocumentAndKey(book, event.key)
-            }
+            speakPageManager.setCurrentDocumentAndKey(book, event.key)
         }
     }
 

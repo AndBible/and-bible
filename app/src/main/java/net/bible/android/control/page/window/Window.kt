@@ -31,6 +31,7 @@ import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
@@ -177,7 +178,7 @@ class Window (
 
         Log.i(TAG, "Loading OSIS xml in background")
         var verse: Verse? = null
-        var anchorOrdinal: Int? = null
+        var anchorOrdinal: OrdinalRange? = null
         var htmlId: String? = null
         val currentPage = pageManager.currentPage
 
@@ -252,6 +253,7 @@ class Window (
         val document = pageManager.currentPage.currentDocument
         val verse = pageManager.currentVersePage.currentBibleVerse.verse
         val book = pageManager.currentVersePage.currentBibleVerse.currentBibleBook
+        val key = pageManager.currentPage.singleKey
 
         val documentChanged = displayedBook != document
 
@@ -273,7 +275,7 @@ class Window (
             return
         }
         val anchorOrdinal = pageManager.currentPage.anchorOrdinal
-        if(displayedKey == verse && anchorOrdinal != null) {
+        if(displayedKey == key && anchorOrdinal != null) {
             bibleView?.scrollOrJumpToOrdinal(anchorOrdinal)
             return
         }

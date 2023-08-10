@@ -154,7 +154,7 @@ open class CurrentCommentaryPage internal constructor(
     override val isSearchable get() = !isSpecialDoc
 
     val entity get() =
-        WorkspaceEntities.CommentaryPage(currentDocument?.initials, anchorOrdinal)
+        WorkspaceEntities.CommentaryPage(currentDocument?.initials, anchorOrdinal?.start)
 
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
@@ -170,7 +170,7 @@ open class CurrentCommentaryPage internal constructor(
             // It is already set correctly when CurrentBiblePage is restored.
             // Otherwise versification will be messed up!
             onlySetCurrentDocument(book)
-            anchorOrdinal = entity.anchorOrdinal
+            anchorOrdinal = entity.anchorOrdinal?.let { OrdinalRange(it) }
         }
     }
 

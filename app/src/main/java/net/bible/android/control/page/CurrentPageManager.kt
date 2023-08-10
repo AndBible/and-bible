@@ -204,7 +204,7 @@ open class CurrentPageManager @Inject constructor(
 
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,
-                                 anchorOrdinal: Int? = null
+                                 anchorOrdinal: OrdinalRange? = null
     ): CurrentPage? {
         val nextPage = getBookPage(currentBook, key)
         if (nextPage != null) {

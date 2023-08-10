@@ -17,6 +17,7 @@
 
 package net.bible.service.sword
 
+import net.bible.android.control.page.OrdinalRange
 import net.bible.service.common.ordinalRangeFor
 import net.bible.service.download.doesNotExist
 import org.crosswire.common.util.ItemIterator
@@ -31,7 +32,7 @@ val BookAndKey.ordinalRange: IntRange? get() = document?.ordinalRangeFor(key)
 class BookAndKey(
     _key: Key,
     document: Book? = null,
-    @Transient val ordinal: Int? = null,
+    @Transient val ordinal: OrdinalRange? = null,
     @Transient val htmlId: String? = null
 ): Key {
     val key: Key = if(_key is BookAndKey) {

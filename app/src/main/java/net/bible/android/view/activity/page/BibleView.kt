@@ -88,6 +88,7 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.MyNotesDocument
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.StudyPadDocument
@@ -1000,7 +1001,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(ordinal != null) {
                 val book = Books.installed().getBook(doc)
                 val bookKey = book!!.getKey(osisRef).let {if(it is RangedPassage) it.first() else it }
-                linkControl.showLink(book, BookAndKey(bookKey, book, ordinal.toInt()))
+                linkControl.showLink(book, BookAndKey(bookKey, book, OrdinalRange(ordinal.toInt())))
             } else if (osisRef != null) {
                 linkControl.loadApplicationUrl(BibleLink("osis", osisRef.trim(), v11n, forceDoc = forceDoc))
             } else {
@@ -1131,7 +1132,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     suspend fun loadDocument(document: Document,
                              updateLocation: Boolean = false,
                              verse: Verse? = null,
-                             anchorOrdinal: Int? = null,
+                             anchorOrdinal: OrdinalRange? = null,
                              htmlId: String? = null,
     )
     {
@@ -1200,7 +1201,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private var initialAnchorOrdinal: Int? = null
+    private var initialAnchorOrdinal: OrdinalRange? = null
     private var initialHtmlId: String? = null
     internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
@@ -1296,7 +1297,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             bibleView.emit("add_documents", $documentStr);
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
-                jumpToAnchor: $initialAnchorOrdinal,
+                jumpToAnchor: ${initialAnchorOrdinal?.start},
                 jumpToId: "$jumpToId",
                 topOffset: $topOffset,
                 bottomOffset: $bottomOffset,
@@ -1676,14 +1677,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
-    fun scrollOrJumpToOrdinal(ordinal: Int, forceNow: Boolean = false) {
+    fun scrollOrJumpToOrdinal(ordinal: OrdinalRange, forceNow: Boolean = false) {
         Log.i(TAG, "Scroll or jump to ordinal:$ordinal")
         val now = !contentVisible || forceNow
         fun boolString(value: Boolean?): String {
             if(value == null) return "null"
             return if(value) "true" else "false"
         }
-        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', 'o-$ordinal', {now: ${boolString(now)}});")
+
+        val highlight = !contentVisible || ordinal.end != null
+        val jumpToId = "o-${ordinal.start}"
+
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${ordinal.start}, ordinalEnd: ${ordinal.end}});")
         if(isActive) {
             PassageChangeMediator.onCurrentVerseChanged(window)
         }

@@ -94,6 +94,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
@@ -1556,7 +1557,7 @@ fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
 
 fun Book.getBookAndKey(keyStr: String, ordinal: Int? = null): BookAndKey? {
     val k = getKey(keyStr)?: return null
-    return BookAndKey(k, this, ordinal = ordinal?: ordinalRangeFor(k).first)
+    return BookAndKey(k, this, ordinal = OrdinalRange(ordinal?: ordinalRangeFor(k).first))
 }
 
 val BookAndKey.prev: BookAndKey get() {
@@ -1585,7 +1586,7 @@ val BookAndKey.prev: BookAndKey get() {
     return BookAndKey(
         nextKey,
         this.document,
-        this.document!!.ordinalRangeFor(nextKey).last
+        OrdinalRange(this.document!!.ordinalRangeFor(nextKey).last)
     )
 }
 
@@ -1614,7 +1615,7 @@ val BookAndKey.next: BookAndKey get() {
     return BookAndKey(
         nextKey,
         this.document,
-        this.document!!.ordinalRangeFor(nextKey).first
+        OrdinalRange(this.document!!.ordinalRangeFor(nextKey).first)
     )
 }
 

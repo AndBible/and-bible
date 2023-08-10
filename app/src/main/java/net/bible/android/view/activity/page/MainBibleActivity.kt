@@ -79,6 +79,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.DocumentCategory
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
@@ -1612,7 +1613,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                 val key = book.getKey(keyStr)
                                 val pageManager = windowControl.activeWindowPageManager
                                 val ordinal = extras.getInt("ordinal")
-                                pageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, ordinal))
+                                pageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, OrdinalRange(ordinal)))
                             }
                             return
                         }

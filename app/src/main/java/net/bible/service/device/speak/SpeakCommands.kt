@@ -106,7 +106,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
 
     val endsSentence: Boolean
         get() {
-            val lastCommand = try {this.last()} catch(e: NoSuchElementException) {null}
+            val lastCommand = this.lastOrNull()
             if (lastCommand is TextCommand) {
                 return lastCommand.text.matches(endsWithSentenceBreak)
             }

@@ -24,6 +24,20 @@ import org.crosswire.jsword.passage.Key
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+class OrdinalRange(val start: Int, val end: Int?): Comparable<Any> {
+    constructor(v: IntRange): this(v.first, v.last)
+    constructor(v: Int): this(v, null)
+
+    val intRange: IntRange get() = start.. (end?:start)
+    override fun compareTo(other: Any): Int = when(other) {
+        is OrdinalRange -> start.compareTo(other.start)
+        is Int -> start.compareTo(other)
+        else -> throw UnsupportedOperationException()
+    }
+}
+
+
 interface CurrentPage {
     val currentDocumentAbbreviation: String get () = currentDocument?.abbreviation?: ""
     val currentDocumentName: String get() = currentDocument?.name?:""
@@ -80,7 +94,7 @@ interface CurrentPage {
     val isSpeakable: Boolean
     val isSyncable: Boolean
 
-    var anchorOrdinal: Int?
+    var anchorOrdinal: OrdinalRange?
     var htmlId: String?
 
 }

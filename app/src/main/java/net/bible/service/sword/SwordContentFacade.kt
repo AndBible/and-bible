@@ -600,10 +600,9 @@ object SwordContentFacade {
 
     fun getGenBookSpeakCommands(key: BookAndKey): SpeakCommandArray {
         val book = key.document!!
-        val ordinal = key.ordinal!!
         val actualKey = key.key
         val arr = SpeakCommandArray()
-        arr.addAll(getTextWithinOrdinalsAsString(book, actualKey, ordinal .. ordinal) .map { TextCommand(it) })
+        arr.addAll(getTextWithinOrdinalsAsString(book, actualKey, key.ordinal!!.intRange) .map { TextCommand(it) })
         return arr
     }
 
