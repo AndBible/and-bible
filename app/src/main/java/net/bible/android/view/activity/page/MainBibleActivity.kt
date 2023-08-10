@@ -111,7 +111,6 @@ import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.SpeakTransportWidget

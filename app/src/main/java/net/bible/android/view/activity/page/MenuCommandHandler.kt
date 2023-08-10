@@ -48,7 +48,6 @@ import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsActivity
-import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant

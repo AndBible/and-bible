@@ -49,7 +49,6 @@ import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.widget.ShareWidget
@@ -92,7 +91,6 @@ interface ActivityComponent {
     fun inject(chooseDocument: ShareWidget)
     fun inject(download: DownloadActivity)
 
-    fun inject(speak: GeneralSpeakActivity)
     fun inject(speakBible: BibleSpeakActivity)
     fun inject(speakSettings: SpeakSettingsActivity)
     fun inject(dailyReading: DailyReading)
