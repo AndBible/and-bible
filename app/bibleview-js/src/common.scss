@@ -196,7 +196,12 @@ img {
   max-width: 100%;
 }
 
-pre, table {
+pre {
   max-width: 100%;
   overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
 }
