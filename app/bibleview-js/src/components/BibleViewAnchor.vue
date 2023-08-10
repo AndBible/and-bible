@@ -45,7 +45,7 @@ const highlighted = computed(() => highlightedOrdinals.has(ordinal.value))
 const osisDocumentInfo = inject(osisDocumentInfoKey)!;
 
 if (
-    osisDocumentInfo.highlightedOrdinalRange &&
+    osisDocumentInfo?.highlightedOrdinalRange &&
     ordinal.value <= osisDocumentInfo.highlightedOrdinalRange[1] &&
     ordinal.value >= osisDocumentInfo.highlightedOrdinalRange[0]
 ) {
