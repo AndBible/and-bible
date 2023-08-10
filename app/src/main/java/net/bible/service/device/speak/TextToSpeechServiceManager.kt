@@ -666,8 +666,7 @@ class TextToSpeechServiceManager @Inject constructor(
         if (!isSpeaking && !isPaused) {
             Log.i(TAG, "Attempting to restore any Persisted Pause state")
             val isBible = CommonUtils.settings.getBoolean(PERSIST_BIBLE_PROVIDER, true)
-            //TODO
-            switchProvider(if (isBible) bibleSpeakTextProvider else legacySpeakTextProvider)
+            switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
 
             isPaused = mSpeakTextProvider.restoreState()
             Log.i(TAG, "Now pause state is $isPaused")
