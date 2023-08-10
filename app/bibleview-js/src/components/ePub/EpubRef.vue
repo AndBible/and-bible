@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a :href="`epub-ref://?book=${bookInitials}&toKey=${toKey}&toId=${toId}`" @click.prevent="openLink($event, toKey, toId)"><slot/></a>
+  <a :id="id" :href="`epub-ref://?book=${bookInitials}&toKey=${toKey}&toId=${toId}`" @click.prevent="openLink($event, toKey, toId)"><slot/></a>
 </template>
 
 <script setup lang="ts">
@@ -25,7 +25,7 @@ import {inject} from "vue";
 import {addEventFunction, EventPriorities} from "@/utils";
 import {androidKey, osisDocumentInfoKey} from "@/types/constants";
 
-defineProps<{href: string, toKey: string, toId: string}>();
+defineProps<{id?: string, href: string, toKey: string, toId: string}>();
 const {openEpubLink} = inject(androidKey)!;
 const {bookInitials} = inject(osisDocumentInfoKey)!;
 const {strings} = useCommon()
