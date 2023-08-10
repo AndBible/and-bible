@@ -313,7 +313,7 @@ class ReadingPlanControl @Inject constructor(
         val bible = currentPageManager.currentBible.currentPassageBook
         val keyList = convertReadingVersification(readingKey, bible)
 
-        speakControl.speakKeyList(bible, keyList, true, false)
+        speakControl.speakKeyListLegacy(bible, keyList, true, false)
 
         getReadingStatus(day).setRead(readingNo)
     }
@@ -328,7 +328,7 @@ class ReadingPlanControl @Inject constructor(
             val keyList = convertReadingVersification(key, bible)
             allReadingsWithCorrectV11n.addAll(keyList)
         }
-        speakControl.speakKeyList(bible, allReadingsWithCorrectV11n, true, false)
+        speakControl.speakKeyListLegacy(bible, allReadingsWithCorrectV11n, true, false)
 
         // mark all readings as read
         for (i in allReadings.indices) {

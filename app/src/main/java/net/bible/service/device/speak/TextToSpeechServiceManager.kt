@@ -92,8 +92,8 @@ class TextToSpeechServiceManager @Inject constructor(
 
     private var mSpeakTextProvider: SpeakTextProvider
 
+    private val legacySpeakTextProvider: LegacySpeakTextProvider
     private val generalSpeakTextProvider: GeneralSpeakTextProvider
-    private val generalSpeakTextProviderNg: GeneralSpeakTextProviderNg
     private val bibleSpeakTextProvider: BibleSpeakTextProvider
 
     private val mSpeakTiming: SpeakTiming
@@ -115,7 +115,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
     init {
         Log.i(TAG, "Creating TextToSpeechServiceManager")
-        generalSpeakTextProvider = GeneralSpeakTextProvider()
+        legacySpeakTextProvider = LegacySpeakTextProvider()
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
 
         bibleSpeakTextProvider = BibleSpeakTextProvider(
@@ -123,7 +123,7 @@ class TextToSpeechServiceManager @Inject constructor(
             bookmarkControl = bookmarkControl,
             initialBook = book
         )
-        generalSpeakTextProviderNg = GeneralSpeakTextProviderNg(
+        generalSpeakTextProvider = GeneralSpeakTextProvider(
             bookmarkControl = bookmarkControl,
             initialBook = book
         )
@@ -264,18 +264,18 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     @Synchronized
-    fun speakText(book: Book, keyList: List<Key>, queue: Boolean, repeat: Boolean) {
-        switchProvider(generalSpeakTextProvider)
-        generalSpeakTextProvider.setupReading(book, keyList, repeat)
+    fun speakTextLegacy(book: Book, keyList: List<Key>, queue: Boolean, repeat: Boolean) {
+        switchProvider(legacySpeakTextProvider)
+        legacySpeakTextProvider.setupReading(book, keyList, repeat)
         handleQueue(queue)
         localePreferenceList = calculateLocalePreferenceList(book)
         initializeTtsOrStartSpeaking()
     }
 
     @Synchronized
-    fun speakText(key: BookAndKey) {
-        switchProvider(generalSpeakTextProviderNg)
-        generalSpeakTextProviderNg.setupReading(key)
+    fun speakGeneric(key: BookAndKey) {
+        switchProvider(generalSpeakTextProvider)
+        generalSpeakTextProvider.setupReading(key)
         localePreferenceList = calculateLocalePreferenceList(key.document!!)
         initializeTtsOrStartSpeaking()
     }
@@ -667,7 +667,7 @@ class TextToSpeechServiceManager @Inject constructor(
             Log.i(TAG, "Attempting to restore any Persisted Pause state")
             val isBible = CommonUtils.settings.getBoolean(PERSIST_BIBLE_PROVIDER, true)
             //TODO
-            switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
+            switchProvider(if (isBible) bibleSpeakTextProvider else legacySpeakTextProvider)
 
             isPaused = mSpeakTextProvider.restoreState()
             Log.i(TAG, "Now pause state is $isPaused")
