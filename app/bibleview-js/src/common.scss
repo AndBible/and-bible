@@ -185,6 +185,7 @@ $modal-content-background-color-night: rgb(33, 33, 33);
 body {
   --label-text-white: white;
   --label-text-black: #353535;
+  overflow-wrap: break-word;
 }
 
 .bookmarked {
