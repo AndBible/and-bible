@@ -373,10 +373,11 @@ object SwordContentFacade {
     private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
     private fun cachedText(book: Book, key: Key): Map<Int, String> = synchronized(this) {
         val cacheKey = "${book.initials}-${key.osisRef}"
-        return plainTextCache.get(cacheKey)?: run {
+        plainTextCache.get(cacheKey) ?: run {
             val frag = readOsisFragment(book, key)
             val texts = bvaQuery.evaluate(frag).associate { it.getAttribute("ordinal").value.toInt() to getTextRecursively(it) }
             plainTextCache.put(cacheKey, texts)
+            texts
         }
     }
 

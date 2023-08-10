@@ -57,6 +57,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
+import net.bible.service.sword.BookAndKey
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -266,7 +267,7 @@ class SpeakControl @Inject constructor(
             resetPassageRepeatIfOutsideRange()
             speakBible()
         } else {
-            speakText()
+            speakTextNg()
         }
     }
 
@@ -274,8 +275,33 @@ class SpeakControl @Inject constructor(
     // (such as headphone switching in the initial startup screen)
     private val booksAvailable: Boolean get() = SwordDocumentFacade.bibles.isNotEmpty()
 
-    /** prepare to speak
-     */
+    fun speakTextNg() {
+        val settings = SpeakSettings.load()
+        val numPagesDefn = calculateNumPagesToSpeakDefinitions()[settings.numPagesToSpeakId]
+
+        //, boolean queue, boolean repeat
+        Log.i(TAG, "Chapters:" + numPagesDefn.numPages)
+        // if a previous speak request is paused clear the cached text
+        if (isPaused) {
+            Log.i(TAG, "Clearing paused Speak text")
+            stop()
+        }
+
+        prepareForSpeaking()
+
+        val page = windowControl.activeWindowPageManager.currentPage
+        val fromBook = page.currentDocument
+        val key = page.key!!
+
+        val bookAndKey = BookAndKey(
+            key,
+            fromBook,
+            page.anchorOrdinal
+        )
+
+        ttsServiceManager.speakText(bookAndKey)
+    }
+
     fun speakText() {
         val settings = SpeakSettings.load()
         val numPagesDefn = calculateNumPagesToSpeakDefinitions()[settings.numPagesToSpeakId]

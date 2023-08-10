@@ -44,6 +44,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState
+import net.bible.service.sword.BookAndKey
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -92,6 +93,7 @@ class TextToSpeechServiceManager @Inject constructor(
     private var mSpeakTextProvider: SpeakTextProvider
 
     private val generalSpeakTextProvider: GeneralSpeakTextProvider
+    private val generalSpeakTextProviderNg: GeneralSpeakTextProviderNg
     private val bibleSpeakTextProvider: BibleSpeakTextProvider
 
     private val mSpeakTiming: SpeakTiming
@@ -121,6 +123,11 @@ class TextToSpeechServiceManager @Inject constructor(
             bookmarkControl = bookmarkControl,
             initialBook = book
         )
+        generalSpeakTextProviderNg = GeneralSpeakTextProviderNg(
+            bookmarkControl = bookmarkControl,
+            initialBook = book
+        )
+
         mSpeakTextProvider = bibleSpeakTextProvider
 
         mSpeakTiming = SpeakTiming()
@@ -262,6 +269,14 @@ class TextToSpeechServiceManager @Inject constructor(
         generalSpeakTextProvider.setupReading(book, keyList, repeat)
         handleQueue(queue)
         localePreferenceList = calculateLocalePreferenceList(book)
+        initializeTtsOrStartSpeaking()
+    }
+
+    @Synchronized
+    fun speakText(key: BookAndKey) {
+        switchProvider(generalSpeakTextProviderNg)
+        generalSpeakTextProviderNg.setupReading(key)
+        localePreferenceList = calculateLocalePreferenceList(key.document!!)
         initializeTtsOrStartSpeaking()
     }
 
@@ -648,6 +663,7 @@ class TextToSpeechServiceManager @Inject constructor(
         if (!isSpeaking && !isPaused) {
             Log.i(TAG, "Attempting to restore any Persisted Pause state")
             val isBible = CommonUtils.settings.getBoolean(PERSIST_BIBLE_PROVIDER, true)
+            //TODO
             switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
 
             isPaused = mSpeakTextProvider.restoreState()

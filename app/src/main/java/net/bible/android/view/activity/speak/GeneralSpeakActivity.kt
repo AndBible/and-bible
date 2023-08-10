@@ -130,7 +130,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
                     when {
                         speakControl.isPaused -> speakControl.continueAfterPause()
                         speakControl.isSpeaking -> speakControl.pause()
-                        else -> speakControl.speakText()
+                        else -> speakControl.speakTextNg()
                     }
                 forwardButton -> speakControl.forward()
             }

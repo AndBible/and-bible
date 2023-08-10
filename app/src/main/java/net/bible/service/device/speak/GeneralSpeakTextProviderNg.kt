@@ -117,9 +117,9 @@ class GeneralSpeakTextProviderNg(
         localizedResources = BibleApplication.application.getLocalizedResources(book.language.code)
     }
 
-    fun setupReading(book: Book, key: BookAndKey) {
+    fun setupReading(key: BookAndKey) {
         reset()
-        setupBook(book)
+        setupBook(key.document!!)
 
         currentKey = key
         startKey = key

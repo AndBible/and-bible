@@ -29,11 +29,18 @@ import java.lang.UnsupportedOperationException
 val BookAndKey.ordinalRange: IntRange? get() = document?.ordinalRangeFor(key)
 
 class BookAndKey(
-    val key: Key,
+    _key: Key,
     document: Book? = null,
     @Transient val ordinal: Int? = null,
     @Transient val htmlId: String? = null
 ): Key {
+    val key: Key = if(_key is BookAndKey) {
+        if(_key.document != document) {
+            throw RuntimeException("Document does not match")
+        }
+        _key.key
+    } else _key
+
     private val documentInitials = document?.initials?: ""
 
     @Transient var _document: Book? = document

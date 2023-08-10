@@ -32,6 +32,7 @@ import net.bible.android.misc.uniqueId
 import net.bible.android.misc.wrapString
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
+import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
@@ -97,12 +98,15 @@ open class OsisDocument(
         val highlightedOrdinalRange =
             if(highlightRange == null) "null"
             else json.encodeToString(serializer(), listOf(highlightRange.first, highlightRange.last))
+        val ordRange = SwordContentFacade.ordinalRangeFor(book, key)
+        val ordinalRange =
+            json.encodeToString(serializer(), listOf(ordRange.first, ordRange.last))
 
         return mapOf(
             "id" to wrapString("${book.initials}-${key.uniqueId}"),
             "type" to wrapString("osis"),
             "osisFragment" to mapToJson(osisFragment.toHashMap),
-            "ordinalRange" to json.encodeToString(serializer(), listOf(0, Int.MAX_VALUE)),
+            "ordinalRange" to ordinalRange,
             "bookInitials" to wrapString(book.initials),
             "bookCategory" to wrapString(book.bookCategory.name),
             "bookAbbreviation" to wrapString(book.abbreviation),
