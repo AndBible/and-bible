@@ -156,6 +156,7 @@ const val DEFAULT_SYNC_INTERVAL = 5*60L // 5 minutes
 private val syncScope = CoroutineScope(Dispatchers.IO)
 
 class OpenLink(val url: String)
+class SpeakTransportVisibilityChanged(val value: Boolean)
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
@@ -191,6 +192,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         set(value) {
             binding.speakButton.alpha = if(value) 0.7F else 1.0F
             field = value
+            ABEventBus.post(SpeakTransportVisibilityChanged(value))
         }
 
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()

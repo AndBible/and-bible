@@ -1541,19 +1541,20 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         if(window.isVisible) {
-            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: true});")
+            updateOffsets(true)
             updateActive()
         }
     }
 
-    fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-        if((isTopWindow || isBottomWindow) && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset);")
-    }
+    fun onEvent(event: MainBibleActivity.FullScreenEvent) = updateOffsets()
 
-    fun onEvent(event: RestoreButtonsVisibilityChanged) {
-        if(isBottomWindow && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset);")
+    fun onEvent(event: RestoreButtonsVisibilityChanged) = updateOffsets()
+
+    fun onEvent(event: SpeakTransportVisibilityChanged) = updateOffsets(true)
+
+    private fun updateOffsets(immediate: Boolean = false) {
+        if(isTopWindow || isBottomWindow && contentVisible && window.isVisible)
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate});")
     }
 
     fun onEvent(event: WebViewsBuiltEvent) {
