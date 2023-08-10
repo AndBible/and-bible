@@ -252,7 +252,7 @@ class SpeakControl @Inject constructor(
         val bookAndKey = BookAndKey(
             key,
             fromBook,
-            page.anchorOrdinal
+            page.anchorOrdinal ?: OrdinalRange(0)
         )
         speakGeneric(bookAndKey)
     }

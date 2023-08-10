@@ -119,6 +119,7 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
+import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import org.apache.commons.lang3.StringUtils
@@ -129,6 +130,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
+import org.crosswire.jsword.book.sword.GenBookBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordDictionary
@@ -1600,16 +1602,38 @@ val BookAndKey.next: BookAndKey get() {
         }
         else -> {
             val backend = when(val book = this.document!!) {
-                is SwordGenBook -> book.backend as AbstractKeyBackend
+                is SwordGenBook -> {
+                    if(book.isEpub) {
+                        book.backend as AbstractKeyBackend
+                    } else {
+                        book.backend as GenBookBackend
+                    }
+                }
                 is SwordDictionary -> book.backend as AbstractKeyBackend
                 else -> throw RuntimeException("Unsupported")
             }
-            val idx = backend.indexOf(this.key)
-            try {
-                backend.get(idx + 1)
-            } catch (e: IndexOutOfBoundsException) {
-                backend.first()
+            when (backend) {
+                is AbstractKeyBackend -> {
+                    val idx = backend.indexOf(this.key)
+                    try {
+                        backend.get(idx + 1)
+                    } catch (e: IndexOutOfBoundsException) {
+                        backend.first()
+                    }
+                }
+
+                is GenBookBackend -> {
+                    val keyList = backend.readIndex()
+                    val idx = keyList.indexOf(this.key)
+                    try {
+                        keyList.get(idx + 1)
+                    } catch (e: IndexOutOfBoundsException) {
+                        keyList.first()
+                    }
+                }
+                else -> throw RuntimeException("Unsupported")
             }
+
         }
     }
     return BookAndKey(
