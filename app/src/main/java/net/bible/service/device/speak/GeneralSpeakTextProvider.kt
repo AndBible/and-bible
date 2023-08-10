@@ -171,7 +171,6 @@ class GeneralSpeakTextProvider(
         var key = limitToRange(currentKey)
         startKey = key
 
-        // If there's something left from splitted verse, then we'll speak that first.
         if(readList.isNotEmpty()) {
             cmds.addAll(readList)
             readList.clear()
@@ -180,21 +179,15 @@ class GeneralSpeakTextProvider(
 
         cmds.addAll(getCommandsForKey(endKey, key))
 
-        // If verse does not end in period, add the part before period to the current reading
         val rest = SpeakCommandArray()
 
         while (!cmds.endsSentence) {
             val nextKey = getNextKey(key)
-            // We can have infinite loop if we are in repeat passage mode
-
             if(needToStop(nextKey)) break
-
             if(nextKey.ordinal!! < key.ordinal!!) {
                 break
             }
-
             val nextCommands = getCommandsForKey(key, nextKey)
-
             cmds.addUntilSentenceBreak(nextCommands, rest)
             key = nextKey
         }
@@ -212,13 +205,9 @@ class GeneralSpeakTextProvider(
     }
 
     override fun getStatusText(showFlag: Int): String {
-        val verseRange = settings.playbackSettings.verseRange
         var result = this.currentState.currentKey.name
 
         if(showFlag and FLAG_SHOW_STATUSITEMS != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(verseRange != null) {
-                result += " \t\uD83D\uDD01"
-            }
             if(settings.sleepTimer > 0) {
                 result += " ⌛"
             }
@@ -368,7 +357,7 @@ class GeneralSpeakTextProvider(
         return BookAndKey(key.key, book, OrdinalRange(nextOrdinal))
     }
 
-    private fun getNextKey(verse: BookAndKey): BookAndKey = limitToRange(getNextOrdinal(verse))
+    private fun getNextKey(key: BookAndKey): BookAndKey = limitToRange(getNextOrdinal(key))
     override fun rewind(amount: SpeakSettings.RewindAmount?) = rewind(amount, false)
 
     fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean) {
@@ -507,8 +496,8 @@ class GeneralSpeakTextProvider(
             }
         }
         if(sharedPreferences.getString(PERSIST_KEY) != null) {
-            val verseStr = sharedPreferences.getString(PERSIST_KEY, "")!!
-            startKey = book.getBookAndKey(verseStr)?: return false
+            val keyStr = sharedPreferences.getString(PERSIST_KEY, "")!!
+            startKey = book.getBookAndKey(keyStr)?: return false
             endKey = startKey
             currentKey = startKey
             return true
