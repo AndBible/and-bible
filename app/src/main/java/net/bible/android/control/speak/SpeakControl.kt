@@ -241,7 +241,7 @@ class SpeakControl @Inject constructor(
     // (such as headphone switching in the initial startup screen)
     private val booksAvailable: Boolean get() = SwordDocumentFacade.bibles.isNotEmpty()
 
-    fun speakGeneric() {
+    private fun speakGeneric() {
         val page = windowControl.activeWindowPageManager.currentPage
         val fromBook = page.currentDocument
         val key =
