@@ -237,7 +237,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                 try {
                     state.sqlDb.rawQuery(
                         "select word from dictionary WHERE _rowid_ = ?",
-                        arrayOf("${index}")
+                        arrayOf(index)
                     ).use { c ->
                         c.moveToNext()
                         val topic = c.getString(0)
