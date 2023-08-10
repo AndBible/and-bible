@@ -332,13 +332,7 @@ class GeneralSpeakTextProvider(
         }
     }
 
-    private fun limitToRange(key: BookAndKey): BookAndKey {
-        val range = settings.playbackSettings.repeatOrdinalRange
-        if(range != null && (key.ordinal!! > range.last || key.ordinal < range.first)) {
-            return BookAndKey(currentKey, book, OrdinalRange(range.start))
-        }
-        return key
-    }
+    private fun limitToRange(key: BookAndKey): BookAndKey = key // If we want to implement repeat
 
     private fun getNextOrdinal(key: BookAndKey): BookAndKey {
         val nextOrdinal = key.ordinal!!.start + 1
