@@ -244,7 +244,7 @@ object SwordContentFacade {
         // Beginning of bible reference. 1 John 2:3
         """(((\d\.?\s+)?\p{Lu}\p{L}+\.?)\s+((\d+)(:\d+)?)(\p{Pd}\d+(:\d+)?)?)"""+
         // Continuation, separated by comma. First: ,4:5-6:7 Second: , 4-5
-        """(,?\s*(\d+:\d+|\d+)(\p{Pd}\d+(:\d+)?)?)*"""
+        """([,;]?\s*(\d+(?!\.?\s*\p{L}):\d+|\d+)(\p{Pd}\d+(:\d+)?)?)*"""
     )
     private fun bibleRefSplit(text: String): List<Pair<String, Boolean>> {
         val matches = bibleRefRe.findAll(text)

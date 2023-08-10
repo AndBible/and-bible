@@ -343,6 +343,9 @@ class BibleRefRegexTest {
     @Test fun testRe2_2() = assertThat(bib("Jude 1-5"), equalTo(true))
     @Test fun testRe2_3() = assertThat(bib("jude 1-5"), equalTo(false))
     @Test fun testRe2_4() = assertThat(bib("1. Joh. 4:20"), equalTo(true))
+    @Test fun testRe2_5() = assertThat(bib("Ex. 13:2"), equalTo(true))
+    @Test fun testRe2_6() = assertThat(bib("Psalms 2; 22; 24; 45; 72"), equalTo(true))
+    @Test fun testRe2_7() = assertThat(bib("Psalms 2; 22; Job 24; 45; 72"), equalTo(false))
 }
 
 @RunWith(RobolectricTestRunner::class)
