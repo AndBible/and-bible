@@ -311,12 +311,12 @@ class SpeakControl @Inject constructor(
 
     }
 
-    fun speakKeyListLegacy(book: Book, keyList: List<Key>, queue: Boolean, repeat: Boolean) {
+    fun speakKeyListLegacy(book: Book, keyList: List<Key>, queue: Boolean) {
         prepareForSpeaking()
 
         // speak current chapter or stop speech if already speaking
         Log.i(TAG, "Tell TTS to speak")
-        ttsServiceManager.speakTextLegacy(book, keyList, queue, repeat)
+        ttsServiceManager.speakTextLegacy(book, keyList, queue)
     }
 
     fun rewind(amount: SpeakSettings.RewindAmount? = null) {

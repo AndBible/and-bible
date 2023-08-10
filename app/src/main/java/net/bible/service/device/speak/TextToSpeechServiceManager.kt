@@ -264,9 +264,9 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     @Synchronized
-    fun speakTextLegacy(book: Book, keyList: List<Key>, queue: Boolean, repeat: Boolean) {
+    fun speakTextLegacy(book: Book, keyList: List<Key>, queue: Boolean) {
         switchProvider(legacySpeakTextProvider)
-        legacySpeakTextProvider.setupReading(book, keyList, repeat)
+        legacySpeakTextProvider.setupReading(book, keyList)
         handleQueue(queue)
         localePreferenceList = calculateLocalePreferenceList(book)
         initializeTtsOrStartSpeaking()

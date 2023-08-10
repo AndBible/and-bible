@@ -83,7 +83,7 @@ class LegacySpeakTextProvider : SpeakTextProvider {
         Log.i(TAG, "Total Num blocks in speak queue:" + mTextToSpeak!!.size)
     }
 
-    fun setupReading(book: Book?, keyList: List<Key>, repeat: Boolean) {
+    fun setupReading(book: Book?, keyList: List<Key>) {
         this.book = book
         Log.i(TAG, "Keys:" + keyList.size)
         // build a string containing the text to be spoken
@@ -104,12 +104,6 @@ class LegacySpeakTextProvider : SpeakTextProvider {
         } catch (e: Exception) {
             Log.e(TAG, "Error getting chapters to speak", e)
             throw AndRuntimeException("Error preparing Speech", e)
-        }
-
-        // if repeat was checked then concatenate with itself
-        if (repeat) {
-            textToSpeak.add("\n")
-            textToSpeak.addAll(textToSpeak)
         }
 
         // speak current chapter or stop speech if already speaking
