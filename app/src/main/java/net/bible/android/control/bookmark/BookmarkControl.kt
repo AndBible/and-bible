@@ -196,7 +196,7 @@ open class BookmarkControl @Inject constructor(
 
     fun firstBibleBookmarkStartingAtVerse(key: Verse): BibleBookmarkWithNotes? = dao.bookmarksStartingAtVerse(key).firstOrNull()
 
-    fun firstGenericBookmarkStartingAtKey(key: BookAndKey): GenericBookmarkWithNotes? = dao.bookmarksForOrdinalStart(key.document!!.initials, key.osisRef, key.ordinal!!.start).firstOrNull()
+    fun firstGenericBookmarkStartingAtKey(key: BookAndKey): GenericBookmarkWithNotes? = dao.bookmarksForOrdinalStart(key.document!!.initials, key.key.osisRef, key.ordinal!!.start).firstOrNull()
 
     fun deleteBookmark(bookmark: BaseBookmarkWithNotes) {
         dao.delete(bookmark)
@@ -297,7 +297,7 @@ open class BookmarkControl @Inject constructor(
 
     fun isSpeakBookmark(bookmark: BaseBookmarkWithNotes): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
     fun speakBookmarkForVerse(verse: Verse) = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
-    fun speakBookmarkForKey(key: BookAndKey): GenericBookmarkWithNotes?  = dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.osisRef, key.ordinal!!.start, speakLabel.id).firstOrNull()
+    fun speakBookmarkForKey(key: BookAndKey): GenericBookmarkWithNotes?  = dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.key.osisRef, key.ordinal!!.start, speakLabel.id).firstOrNull()
     fun changeLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) {
         dao.clearLabels(bookmark)
         when(bookmark) {

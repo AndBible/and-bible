@@ -682,8 +682,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             speakButton.setOnLongClickListener {
-                val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
-                val intent = Intent(this@MainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                val intent = Intent(this@MainBibleActivity, BibleSpeakActivity::class.java)
                 startActivityForResult(intent, STD_REQUEST_CODE)
                 true
             }

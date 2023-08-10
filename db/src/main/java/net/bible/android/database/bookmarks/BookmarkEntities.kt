@@ -152,6 +152,8 @@ class BookmarkEntities {
         var endText: String?
         val highlightedText: String
 
+        val speakBook: Book?
+
         fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>)
     }
 
@@ -264,7 +266,7 @@ class BookmarkEntities {
                 kjvOrdinalEnd = value.toV11n(KJVA).end.ordinal
             }
 
-        val speakBook: Book?
+        override val speakBook: Book?
             get() = if (playbackSettings != null && playbackSettings!!.bookId != null) {
                 Books.installed().getBook(playbackSettings!!.bookId)
             } else {
@@ -500,6 +502,8 @@ class BookmarkEntities {
         val book: Book? get() = Books.installed().getBook(bookInitials)
         val originalKey: Key? get() = book?.getKey(key)
         val bookKey: Key? get() = originalKey?.let {if(it is RangedPassage) it.first() else it }
+
+        override val speakBook: Book? get() = book
 
         override val bookmarkEntity get() = GenericBookmark(
             id = id,

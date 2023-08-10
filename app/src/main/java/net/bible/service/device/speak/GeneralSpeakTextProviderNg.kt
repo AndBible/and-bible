@@ -20,7 +20,6 @@ package net.bible.service.device.speak
 import android.content.res.Resources
 import android.os.Build
 import android.util.Log
-import android.util.LruCache
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.SwordContentFacade
@@ -443,7 +442,14 @@ class GeneralSpeakTextProviderNg(
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startKey
             }
-            ABEventBus.post(SpeakProgressEvent(state.book, BookAndKey(state.startKey.key, state.book, OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start)), state.command!!))
+            ABEventBus.post(SpeakProgressEvent(state.book,
+                BookAndKey(
+                    state.startKey.key,
+                    state.book,
+                    OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start)
+                ),
+                state.command!!
+            ))
         }
     }
 

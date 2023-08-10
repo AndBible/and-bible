@@ -184,8 +184,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                 }
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {
-                        val isBible = currentPage.documentCategory == DocumentCategory.BIBLE
-                        handlerIntent = Intent(mainBibleActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                        handlerIntent = Intent(mainBibleActivity, BibleSpeakActivity::class.java)
                     }
                 }
                 R.id.dailyReadingPlanButton -> {

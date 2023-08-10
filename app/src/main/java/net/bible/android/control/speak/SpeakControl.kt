@@ -54,8 +54,10 @@ import dagger.Lazy
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.control.page.CurrentCommentaryPage
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
@@ -276,19 +278,6 @@ class SpeakControl @Inject constructor(
     private val booksAvailable: Boolean get() = SwordDocumentFacade.bibles.isNotEmpty()
 
     fun speakTextNg() {
-        val settings = SpeakSettings.load()
-        val numPagesDefn = calculateNumPagesToSpeakDefinitions()[settings.numPagesToSpeakId]
-
-        //, boolean queue, boolean repeat
-        Log.i(TAG, "Chapters:" + numPagesDefn.numPages)
-        // if a previous speak request is paused clear the cached text
-        if (isPaused) {
-            Log.i(TAG, "Clearing paused Speak text")
-            stop()
-        }
-
-        prepareForSpeaking()
-
         val page = windowControl.activeWindowPageManager.currentPage
         val fromBook = page.currentDocument
         val key =
@@ -301,6 +290,15 @@ class SpeakControl @Inject constructor(
             fromBook,
             page.anchorOrdinal
         )
+        speakTextNg(bookAndKey)
+    }
+    fun speakTextNg(bookAndKey: BookAndKey) {
+        if (isPaused) {
+            Log.i(TAG, "Clearing paused Speak text")
+            stop()
+        }
+
+        prepareForSpeaking()
 
         ttsServiceManager.speakText(bookAndKey)
     }
@@ -563,15 +561,29 @@ class SpeakControl @Inject constructor(
         return timerTask != null
     }
 
-    fun speakFromBookmark(dto: BibleBookmarkWithNotes) {
-        val book = dto.speakBook as SwordBook?;
+    fun speakFromBookmark(dto: BookmarkEntities.BaseBookmarkWithNotes) {
         if (isSpeaking || isPaused) {
             stop(true)
         }
-        if (book != null) {
-            speakBible(book, dto.verseRange.start)
-        } else {
-            speakBible(dto.verseRange.start)
+        when(dto) {
+            is BibleBookmarkWithNotes -> {
+                val book = dto.speakBook as SwordBook?;
+                if (book != null) {
+                    speakBible(book, dto.verseRange.start)
+                } else {
+                    speakBible(dto.verseRange.start)
+                }
+            }
+            is BookmarkEntities.GenericBookmarkWithNotes -> {
+                speakTextNg(
+                    BookAndKey(
+                        dto.bookKey?: dto.originalKey!!,
+                        dto.book,
+                        OrdinalRange(dto.ordinalStart, dto.ordinalEnd)
+                    )
+
+                )
+            }
         }
     }
 
