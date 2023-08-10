@@ -358,7 +358,7 @@ class GeneralSpeakTextProvider(
         val lastTitle = this.lastVerseWithTitle
         reset()
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
-        val minimumOrdinal = book.ordinalRangeFor(startKey).first
+        val minimumOrdinal = book.ordinalRangeFor(startKey.key).first
 
         when(rewindAmount) {
          SpeakSettings.RewindAmount.SMART -> {
@@ -410,12 +410,8 @@ class GeneralSpeakTextProvider(
         reset()
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
         when(rewindAmount) {
-            SpeakSettings.RewindAmount.SMART -> {
-                currentKey = getNextKey(startKey)
-
-            }
-            SpeakSettings.RewindAmount.ONE_VERSE ->
-                currentKey = getNextOrdinal(startKey)
+            SpeakSettings.RewindAmount.SMART -> currentKey = startKey.next
+            SpeakSettings.RewindAmount.ONE_VERSE -> currentKey = getNextOrdinal(startKey)
             SpeakSettings.RewindAmount.TEN_VERSES -> {
                 currentKey = startKey
                 for (i in 1..10) {
