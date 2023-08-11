@@ -1561,7 +1561,7 @@ fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
 }
 
 fun Book.getBookAndKey(keyStr: String, ordinal: Int? = null): BookAndKey? {
-    val k = getKey(keyStr)?: return null
+    val k = try {getKey(keyStr)} catch (e: NoSuchVerseException) {null} ?: return null
     return BookAndKey(k, this, ordinal = OrdinalRange(ordinal?: ordinalRangeFor(k).first))
 }
 

@@ -478,7 +478,7 @@ class GeneralSpeakTextProvider(
     override fun persistState() {
         CommonUtils.settings.apply {
             setString(PERSIST_BOOK, book.abbreviation)
-            setString(PERSIST_KEY, startKey.osisID)
+            setString(PERSIST_KEY, startKey.key.osisID)
         }
     }
 
