@@ -60,10 +60,12 @@ import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import java.io.File
+import java.lang.ClassCastException
 
 
 class BibleJavascriptInterface(
@@ -393,8 +395,9 @@ class BibleJavascriptInterface(
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials)
             val key = book.getKey(osisRef)
+            val singleKey = try {KeyUtil.getVerse(key)} catch (e: ClassCastException) {key}
             val ordinalRange = OrdinalRange(ordinal, positiveOrNull(endOrdinal)?: ordinal)
-            val bookAndKey = BookAndKey(key, book, ordinalRange)
+            val bookAndKey = BookAndKey(singleKey, book, ordinalRange)
             mainBibleActivity.speakControl.speakGeneric(bookAndKey)
         }
     }
