@@ -375,7 +375,11 @@ class GeneralSpeakTextProvider(
                  if (startKey.ordinal!! <= minimumOrdinal) {
                      startKey.prev
                  } else {
-                     startKey
+                     var cur = startKey
+                     for(i in 1..10) {
+                         cur = getPrevOrdinal(cur)
+                     }
+                     cur
                  }
              }
          }
