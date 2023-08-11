@@ -40,6 +40,8 @@ import net.bible.service.common.getBookAndKey
 import net.bible.service.common.next
 import net.bible.service.common.ordinalRangeFor
 import net.bible.service.common.prev
+import net.bible.service.common.shortName
+import net.bible.service.common.tinyName
 import net.bible.service.sword.BookAndKey
 import org.crosswire.jsword.book.Book
 import kotlin.collections.HashMap
@@ -205,14 +207,18 @@ class GeneralSpeakTextProvider(
     }
 
     override fun getStatusText(showFlag: Int): String {
-        var result = this.currentState.currentKey.name
+        var result = this.currentState.currentKey.shortName
 
         if(showFlag and FLAG_SHOW_STATUSITEMS != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(settings.sleepTimer > 0) {
                 result += " ⌛"
             }
         }
-
+        if(showFlag and FLAG_SHOW_PERCENT != 0) {
+            val ordinalRange = book.ordinalRangeFor(currentKey.key)
+            val percent: Int = (((currentState.currentKey.ordinal!!.start - ordinalRange.first).toFloat() / (ordinalRange.last - ordinalRange.first)) * 100).toInt()
+            result += " $percent%"
+        }
         if(showFlag and FLAG_SHOW_BOOK != 0) {
             result += " ${currentState.book.abbreviation}"
         }

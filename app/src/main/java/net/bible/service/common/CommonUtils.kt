@@ -140,6 +140,7 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.BookName
 import org.jdom2.input.SAXBuilder
 import org.jdom2.xpath.XPathFactory
 import org.spongycastle.util.io.pem.PemReader
@@ -1644,3 +1645,24 @@ val BookAndKey.next: BookAndKey get() {
 }
 
 fun Book.ordinalRangeFor(key: Key): IntRange = SwordContentFacade.ordinalRangeFor(this, key)
+
+val Key.tinyName: String get() =
+    synchronized(BookName::class.java) {
+        val prevTruncateLength = BookName.getTruncateShortName()
+        var length = 5
+        var name: String
+        do {
+            BookName.setTruncateShortName(length--)
+            name = this.name
+        } while(length > 0 && name.length > 7)
+        BookName.setTruncateShortName(prevTruncateLength)
+        name
+    }
+
+val Key.shortName: String get() = synchronized(BookName::class.java) {
+    val oldValue = BookName.isFullBookName()
+    BookName.setFullBookName(false)
+    val text = name
+    BookName.setFullBookName(oldValue)
+    return text
+}

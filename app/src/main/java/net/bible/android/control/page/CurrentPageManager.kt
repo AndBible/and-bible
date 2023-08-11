@@ -31,6 +31,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils.defaultBible
 import net.bible.service.common.CommonUtils.defaultVerse
+import net.bible.service.common.tinyName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 
@@ -90,17 +91,7 @@ open class CurrentPageManager @Inject constructor(
 
     val titleText: String get() =
         if(isBibleShown || isCommentaryShown) {
-            synchronized(BookName::class.java) {
-                val prevTruncateLength = BookName.getTruncateShortName()
-                var length = 5
-                var name: String
-                do {
-                    BookName.setTruncateShortName(length--)
-                    name = currentBibleVerse.verse.name
-                } while(length > 0 && name.length > 7)
-                BookName.setTruncateShortName(prevTruncateLength)
-                name
-            }
+            currentBibleVerse.verse.tinyName
         } else {
             ""
         }
