@@ -137,7 +137,9 @@ import org.crosswire.jsword.book.sword.SwordDictionary
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseKey
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.BookName
@@ -1647,22 +1649,28 @@ val BookAndKey.next: BookAndKey get() {
 fun Book.ordinalRangeFor(key: Key): IntRange = SwordContentFacade.ordinalRangeFor(this, key)
 
 val Key.tinyName: String get() =
-    synchronized(BookName::class.java) {
-        val prevTruncateLength = BookName.getTruncateShortName()
-        var length = 5
-        var name: String
-        do {
-            BookName.setTruncateShortName(length--)
-            name = this.name
-        } while(length > 0 && name.length > 7)
-        BookName.setTruncateShortName(prevTruncateLength)
-        name
-    }
+    if(this is VerseKey<*>)
+        synchronized(BookName::class.java) {
+            val prevTruncateLength = BookName.getTruncateShortName()
+            var length = 5
+            var name: String
+            do {
+                BookName.setTruncateShortName(length--)
+                name = this.name
+            } while(length > 0 && name.length > 7)
+            BookName.setTruncateShortName(prevTruncateLength)
+            name
+        }
+    else name
 
-val Key.shortName: String get() = synchronized(BookName::class.java) {
-    val oldValue = BookName.isFullBookName()
-    BookName.setFullBookName(false)
-    val text = name
-    BookName.setFullBookName(oldValue)
-    return text
-}
+
+val Key.shortName: String get() =
+    if(this is VerseKey<*>)
+        synchronized(BookName::class.java) {
+            val oldValue = BookName.isFullBookName()
+            BookName.setFullBookName(false)
+            val text = name
+            BookName.setFullBookName(oldValue)
+            return text
+        }
+    else name
