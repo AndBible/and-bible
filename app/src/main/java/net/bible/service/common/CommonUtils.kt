@@ -136,6 +136,7 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordDictionary
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.Verse
@@ -1561,7 +1562,7 @@ fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
 }
 
 fun Book.getBookAndKey(keyStr: String, ordinal: Int? = null): BookAndKey? {
-    val k = try {getKey(keyStr)} catch (e: NoSuchVerseException) {null} ?: return null
+    val k = try {getKey(keyStr)} catch (e: NoSuchKeyException) {null} ?: return null
     return BookAndKey(k, this, ordinal = OrdinalRange(ordinal?: ordinalRangeFor(k).first))
 }
 
