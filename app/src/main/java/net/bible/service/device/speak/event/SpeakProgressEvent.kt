@@ -21,4 +21,4 @@ import net.bible.service.device.speak.SpeakCommand
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
-data class SpeakProgressEvent(val book: Book, val key: Key, val speakCommand: SpeakCommand?)
+data class SpeakProgressEvent(val book: Book, val key: Key, val speakCommand: SpeakCommand?, val forceFollow: Boolean = false)

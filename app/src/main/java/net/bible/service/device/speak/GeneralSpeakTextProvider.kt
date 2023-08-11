@@ -232,6 +232,7 @@ class GeneralSpeakTextProvider(
     }
 
     private fun updateBookmark() {
+        if(stopOrdinal != null) return
         removeBookmark()
         saveBookmark()
     }
@@ -255,7 +256,7 @@ class GeneralSpeakTextProvider(
     }
 
     private fun readBookmark() {
-        if(AdvancedSpeakSettings.autoBookmark) {
+        if(AdvancedSpeakSettings.autoBookmark && stopOrdinal == null) {
             val key = currentKey
 
             val bookmark: GenericBookmarkWithNotes = bookmarkControl.speakBookmarkForKey(key)?: return
@@ -440,9 +441,10 @@ class GeneralSpeakTextProvider(
                 BookAndKey(
                     state.startKey.key,
                     state.book,
-                    OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start)
+                    OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start),
                 ),
-                state.command!!
+                state.command!!,
+                stopOrdinal != null
             ))
         }
     }
