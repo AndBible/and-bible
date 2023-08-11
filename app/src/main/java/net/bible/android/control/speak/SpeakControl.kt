@@ -148,7 +148,7 @@ class SpeakControl @Inject constructor(
     }
 
     fun onEventMainThread(event: SpeakProgressEvent) {
-        if (AdvancedSpeakSettings.synchronize) {
+        if (AdvancedSpeakSettings.synchronize || event.forceFollow) {
             val book = speakPageManager.currentPage.currentDocument
             speakPageManager.setCurrentDocumentAndKey(book, event.key)
         }
