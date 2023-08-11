@@ -54,7 +54,7 @@
 import {computed, inject} from "vue";
 import {FontAwesomeIcon, FontAwesomeLayers} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
-import {androidKey} from "@/types/constants";
+import {androidKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
 
 const props = withDefaults(defineProps<{
@@ -67,7 +67,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits(["close"]);
-
+const {closeModals} = inject(modalKey)!
 const {strings} = useCommon()
 const selectionInfo = computed(() => props.selectionInfo);
 const android = inject(androidKey)!;
@@ -119,6 +119,7 @@ function speak() {
     } else if(ordinalInfo.value) {
         android.speakGeneric(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value);
     }
+    closeModals()
 }
 </script>
 
