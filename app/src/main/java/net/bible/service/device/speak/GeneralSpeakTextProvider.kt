@@ -437,14 +437,15 @@ class GeneralSpeakTextProvider(
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startKey
             }
-            ABEventBus.post(SpeakProgressEvent(state.book,
-                BookAndKey(
+            ABEventBus.post(SpeakProgressEvent(
+                book = state.book,
+                key = BookAndKey(
                     state.startKey.key,
                     state.book,
                     OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start),
                 ),
-                state.command!!,
-                stopOrdinal != null
+                speakCommand = state.command!!,
+                forceFollow = stopOrdinal != null
             ))
         }
     }

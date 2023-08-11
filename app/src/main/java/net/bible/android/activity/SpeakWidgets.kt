@@ -39,7 +39,6 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.database.migrations.genericBookmark
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils

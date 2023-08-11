@@ -17,7 +17,7 @@
 
 package net.bible.android.database.migrations
 
-val separateText = makeMigration(1..2) { _db ->
+private val separateText = makeMigration(1..2) { _db ->
     _db.execSQL("CREATE TABLE IF NOT EXISTS `BookmarkNotes` (`bookmarkId` BLOB NOT NULL, `notes` TEXT NOT NULL, PRIMARY KEY(`bookmarkId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
     _db.execSQL("CREATE TABLE IF NOT EXISTS `StudyPadTextEntryText` (`studyPadTextEntryId` BLOB NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`studyPadTextEntryId`), FOREIGN KEY(`studyPadTextEntryId`) REFERENCES `StudyPadTextEntry`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
     _db.execSQL("INSERT INTO BookmarkNotes (bookmarkId, notes) SELECT id, notes FROM Bookmark WHERE notes IS NOT NULL")
@@ -27,7 +27,7 @@ val separateText = makeMigration(1..2) { _db ->
     _db.execSQL("CREATE VIEW `BookmarkWithNotes` AS SELECT b.*, bn.notes FROM Bookmark b LEFT OUTER JOIN BookmarkNotes bn ON b.id = bn.bookmarkId");
     _db.execSQL("CREATE VIEW `StudyPadTextEntryWithText` AS SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t ON e.id = t.studyPadTextEntryId");
 }
-val genericTables = makeMigration(2..3) { _db ->
+private val genericTables = makeMigration(2..3) { _db ->
     _db.execSQL("CREATE TABLE IF NOT EXISTS `GenericBookmark` (`id` BLOB NOT NULL, `key` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `book` TEXT, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `startOffset` INTEGER, `endOffset` INTEGER, `primaryLabelId` BLOB DEFAULT NULL, `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`), FOREIGN KEY(`primaryLabelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )");
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_GenericBookmark_book_key` ON `GenericBookmark` (`book`, `key`)");
     _db.execSQL("CREATE TABLE IF NOT EXISTS `GenericBookmarkNotes` (`bookmarkId` BLOB NOT NULL, `notes` TEXT NOT NULL, PRIMARY KEY(`bookmarkId`), FOREIGN KEY(`bookmarkId`) REFERENCES `GenericBookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
@@ -43,7 +43,7 @@ val genericTables = makeMigration(2..3) { _db ->
     _db.execSQL("DROP VIEW BookmarkWithNotes")
     _db.execSQL("CREATE VIEW `BibleBookmarkWithNotes` AS SELECT b.*, bn.notes FROM BibleBookmark b LEFT OUTER JOIN BibleBookmarkNotes bn ON b.id = bn.bookmarkId");
 }
-val genericBookmark = makeMigration(3..4) { _db ->
+private val genericBookmark = makeMigration(3..4) { _db ->
     _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN bookInitials TEXT NOT NULL DEFAULT ''")
     _db.execSQL("UPDATE GenericBookmark SET bookInitials = book")
     _db.execSQL("DROP INDEX `index_GenericBookmark_book_key`");
@@ -51,14 +51,20 @@ val genericBookmark = makeMigration(3..4) { _db ->
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_GenericBookmark_bookInitials_key` ON `GenericBookmark` (`bookInitials`, `key`)")
 }
 
-val wholeVerse = makeMigration(4..5) { _db ->
+private val wholeVerse = makeMigration(4..5) { _db ->
     _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN wholeVerse INTEGER NOT NULL DEFAULT 0")
 }
 
-val playbackSettings = makeMigration(5..6) { _db ->
+private val playbackSettings = makeMigration(5..6) { _db ->
     _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN playbackSettings TEXT DEFAULT NULL")
 }
 
-val bookmarkMigrations: Array<Migration> = arrayOf(separateText, genericTables, genericBookmark, wholeVerse, playbackSettings)
+val bookmarkMigrations: Array<Migration> = arrayOf(
+    separateText,
+    genericTables,
+    genericBookmark,
+    wholeVerse,
+    playbackSettings
+)
 
 const val BOOKMARK_DATABASE_VERSION = 6

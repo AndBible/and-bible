@@ -17,8 +17,10 @@
 
 package net.bible.android.database.migrations
 
-// val rpTriggers_1_2 = makeMigration(1..2) {_db -> }
+// private val rpTriggers_1_2 = makeMigration(1..2) {_db -> }
 
-val readingPlanMigrations: Array<Migration> = arrayOf()
+val readingPlanMigrations: Array<Migration> = arrayOf(
+
+)
 
 const val READING_PLAN_DATABASE_VERSION = 1

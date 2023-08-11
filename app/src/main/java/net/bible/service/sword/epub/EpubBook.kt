@@ -293,7 +293,10 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
             return e
         }
 
-        val cacheFile = File(file.path + "-cache")
+        // Let's delete earlier cache file version
+        File(file.path + "-cache").delete()
+
+        val cacheFile = File(file.path + "-cache2")
         if(cacheFile.exists()) return String(cacheFile.readBytes())
 
         return useSaxBuilder { it.build(file) }.rootElement.children

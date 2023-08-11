@@ -17,10 +17,12 @@
 
 package net.bible.android.database.migrations
 
-val resetMaximizedWindowId_1_2 = makeMigration(1..2) {_db ->
+private val resetMaximizedWindowId = makeMigration(1..2) { _db ->
     _db.execSQL("UPDATE Workspace SET maximizedWindowId=NULL")
 }
 
-val workspacesMigrations: Array<Migration> = arrayOf(resetMaximizedWindowId_1_2)
+val workspacesMigrations: Array<Migration> = arrayOf(
+    resetMaximizedWindowId
+)
 
 const val WORKSPACE_DATABASE_VERSION = 2
