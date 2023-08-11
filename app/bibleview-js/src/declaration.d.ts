@@ -47,6 +47,7 @@ type UntranslatedStrings = {
 }
 
 type TranslatedStrings = {
+    bookmarks: string
     bookmarksAndNotes: string
     openMyNotes: string
     openStudyPad: string
