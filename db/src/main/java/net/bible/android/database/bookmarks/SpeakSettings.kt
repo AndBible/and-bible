@@ -92,7 +92,7 @@ data class SpeakSettings(
     var repeat: Boolean = false,
     var numPagesToSpeakId: Int = 0
 ) {
-    enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
+    enum class RewindAmount {NONE, ONE_VERSE, SMART}
 
     fun toJson(): String {
         return json.encodeToString(serializer(), this)

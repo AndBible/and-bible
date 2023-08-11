@@ -433,12 +433,6 @@ class BibleSpeakTextProvider(
          SpeakSettings.RewindAmount.ONE_VERSE -> {
              currentVerse = bibleTraverser.getPrevVerse(book, startVerse)
          }
-         SpeakSettings.RewindAmount.TEN_VERSES -> {
-            currentVerse = startVerse
-            for(i in 1..10) {
-                currentVerse = bibleTraverser.getPrevVerse(book, currentVerse)
-            }
-         }
          SpeakSettings.RewindAmount.NONE -> {}
         }
 

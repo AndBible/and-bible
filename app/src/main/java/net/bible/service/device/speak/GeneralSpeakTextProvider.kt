@@ -386,12 +386,6 @@ class GeneralSpeakTextProvider(
          SpeakSettings.RewindAmount.ONE_VERSE -> {
              currentKey = getPrevOrdinal(startKey)
          }
-         SpeakSettings.RewindAmount.TEN_VERSES -> {
-            currentKey = startKey
-            for(i in 1..10) {
-                currentKey = getPrevOrdinal(currentKey)
-            }
-         }
          SpeakSettings.RewindAmount.NONE -> {}
         }
 
