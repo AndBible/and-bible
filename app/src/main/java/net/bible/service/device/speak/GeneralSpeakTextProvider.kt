@@ -415,14 +415,13 @@ class GeneralSpeakTextProvider(
         reset()
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
         when(rewindAmount) {
-            SpeakSettings.RewindAmount.SMART -> currentKey = startKey.next
-            SpeakSettings.RewindAmount.ONE_VERSE -> currentKey = getNextOrdinal(startKey)
-            SpeakSettings.RewindAmount.TEN_VERSES -> {
+            SpeakSettings.RewindAmount.SMART -> {
                 currentKey = startKey
                 for (i in 1..10) {
                     currentKey = getNextOrdinal(currentKey)
                 }
             }
+            SpeakSettings.RewindAmount.ONE_VERSE -> currentKey = getNextOrdinal(startKey)
             SpeakSettings.RewindAmount.NONE -> throw RuntimeException("Invalid settings")
         }
         startKey = currentKey
