@@ -270,7 +270,7 @@ object SwordContentFacade {
     private val textQuery = XPathFactory.instance().compile(".//text()[not(ancestor::note)]", Filters.text())
 
     // IMPORTANT! The logic of this function not be changed ever! If it is changed, non-bible bookmark locations are messed up.
-    fun addAnchors(frag: Element, lang: String, isEpub: Boolean = false) {
+    fun addAnchors(frag: Element, lang: String, isEpub: Boolean = false): Int {
         var ordinal = 0
         val startTime = System.currentTimeMillis()
 
@@ -316,6 +316,7 @@ object SwordContentFacade {
 
         val delta = System.currentTimeMillis() - startTime
         Log.i(TAG, "Parsing took ${delta/1000.0} seconds")
+        return ordinal
     }
     @Throws(OsisError::class)
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {

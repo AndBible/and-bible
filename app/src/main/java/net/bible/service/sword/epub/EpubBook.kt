@@ -18,9 +18,15 @@
 package net.bible.service.sword.epub
 
 import android.util.Log
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
+import net.bible.android.database.EpubDatabase
+import net.bible.android.database.EpubFragment
+import net.bible.android.database.epubMigrations
 import net.bible.android.misc.elementToString
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
@@ -29,7 +35,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.KeyType
-import org.crosswire.jsword.book.basic.AbstractBook
 import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.Backend
@@ -45,11 +50,8 @@ import org.crosswire.jsword.passage.Key
 import org.jdom2.Element
 import org.jdom2.Namespace
 import org.jdom2.filter.Filters
-import org.jdom2.input.SAXBuilder
-import org.jdom2.xpath.XPathFactory
 import java.io.File
 import java.net.URLDecoder
-import java.util.concurrent.ArrayBlockingQueue
 
 fun getConfig(
     initials: String,
@@ -75,6 +77,17 @@ About=$about
 
 const val TAG = "EpubBook"
 
+val dbFactory = if(application.isRunningTests) null else RequerySQLiteOpenHelperFactory()
+fun getEpubDatabase(name: String): EpubDatabase =
+    Room.databaseBuilder(
+        application, EpubDatabase::class.java, name
+    )
+        .allowMainThreadQueries()
+        .addMigrations(*epubMigrations)
+        .openHelperFactory(dbFactory)
+        .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+        .build()
+
 class EpubSwordDriver: AbstractBookDriver() {
     override fun getBooks(): Array<Book> {
         return emptyArray()
@@ -89,7 +102,7 @@ class EpubSwordDriver: AbstractBookDriver() {
     }
 
     override fun delete(book: Book) {
-        File(SharedConstants.modulesDir, book.epubDir).deleteRecursively()
+        ((book as? SwordGenBook)?.backend as? EpubBackend)?.delete()
         Books.installed().removeBook(book)
     }
 }
@@ -102,19 +115,23 @@ private fun getFileAndId(href: String): Pair<String, String>? {
     val m = hrefRe.matchEntire(href)?: return null
     return m.groupValues[1] to m.groupValues[2]
 }
-class EpubBackendState(val epubDir: File): OpenFileState {
+
+
+class EpubBackendState(private val epubDir: File): OpenFileState {
     constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
-        this.metadata = metadata
+        this._metadata = metadata
     }
 
     override fun close() {}
 
-    private var metadata: SwordBookMetaData? = null
+    private var _metadata: SwordBookMetaData? = null
 
     private val dcNamespace = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/")
     private val epubNamespace = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
     private val containerNamespace = Namespace.getNamespace("ns", "urn:oasis:names:tc:opendocument:xmlns:container")
     private val tocNamespace = Namespace.getNamespace("ns", "http://www.daisy.org/z3986/2005/ncx/")
+    private val xhtmlNamespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
+    private val urlRe = Regex("""^https?://.*""")
 
     private val metaInfoFile = File(epubDir, "META-INF/container.xml")
     private val metaInfo = useSaxBuilder {  it.build(metaInfoFile) }
@@ -128,7 +145,7 @@ class EpubBackendState(val epubDir: File): OpenFileState {
     val rootFolder: File = contentXmlFile.parentFile!!
 
     private val content = useSaxBuilder { it.build(contentXmlFile) }
-    val fileToId = useXPathInstance { xp ->
+    private val fileToId = useXPathInstance { xp ->
         xp.compile("//ns:manifest/ns:item", Filters.element(), null, epubNamespace)
             .evaluate(content).associate {
                 val fileName = URLDecoder.decode(it.getAttribute("href").value, "UTF-8")
@@ -136,7 +153,7 @@ class EpubBackendState(val epubDir: File): OpenFileState {
             }
     }
 
-    val idToFile = fileToId.entries.associate { it.value to it.key }
+    private val idToFile = fileToId.entries.associate { it.value to it.key }
 
     private val tocFile = useXPathInstance { xp ->
         xp.compile(
@@ -150,7 +167,7 @@ class EpubBackendState(val epubDir: File): OpenFileState {
 
     private val toc = tocFile?.run {useSaxBuilder { it.build(this) } }
 
-    val fileToTitle = toc?.run { useXPathInstance { xp ->
+    private val fileToTitle = toc?.run { useXPathInstance { xp ->
         xp.compile("//ns:navPoint/ns:content", Filters.element(), null, tocNamespace)
             .evaluate(this)
             .associate {
@@ -169,14 +186,188 @@ class EpubBackendState(val epubDir: File): OpenFileState {
         xp.compile ("//dc:$key", Filters.element(), null, dcNamespace)
             .evaluateFirst(content)?.value
     }
-    fun queryContent(expression: String): List<Element> = useXPathInstance { xp ->
+    private fun queryContent(expression: String): List<Element> = useXPathInstance { xp ->
         xp.compile(expression, Filters.element(), null, epubNamespace).evaluate(content)
     }
-    fun queryFirst(expression: String): Element = useXPathInstance { xp ->
+    private fun queryFirst(expression: String): Element = useXPathInstance { xp ->
         xp.compile(expression, Filters.element(), null, epubNamespace).evaluateFirst(content)
     }
+    private fun fileForOriginalKey(key: Key): File {
+        val fileName = queryFirst("//ns:manifest/ns:item[@id='${key.osisRef}']").getAttribute("href").value
+        return File(rootFolder, fileName)
+    }
+    fun styleSheetsForOriginalKey(key: Key): List<File> {
+        val file = fileForOriginalKey(key)
+        val htmlRoot = useSaxBuilder {  it.build(file) }.rootElement
+        val head = htmlRoot.children.find { it.name == "head" }!!
+        val parentFolder = file.parentFile
+
+        return head.children
+            .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
+            .mapNotNull { it.getAttribute("href").value?.let {File(parentFolder, it) } }
+    }
+
+    private fun getFragmentForOptimizedKey(key: Key): EpubFragment = dao.getFragment(key.osisRef.toLong())
+
+    fun styleSheetsForOptimizedKey(key: Key): List<File> {
+        val frag = getFragmentForOptimizedKey(key)
+        return styleSheetsForOriginalKey(getOriginalKey(fileToId[frag.originalHtmlFileName]!!))
+    }
+
+    private fun readOriginal(key: Key): Pair<Element, Int> {
+        val file = fileForOriginalKey(key)
+        val parentFolder = file.parentFile!!
+
+        fun epubSrc(src: String): String {
+            val f = File(parentFolder, src)
+            val filePath = f.toRelativeString(rootFolder)
+            return "/epub/${bookMetaData.initials}/$filePath"
+        }
+
+        fun fixReferences(e: Element): Element {
+            for(img in useXPathInstance { xp -> xp.compile("//ns:img", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
+                val src = img.getAttribute("src").value
+                val finalSrc = epubSrc(src)
+                img.setAttribute("src", finalSrc)
+            }
+            for(a in useXPathInstance { xp -> xp.compile("//ns:a", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
+                val href = a.getAttribute("href")?.value?: continue
+                val fileAndId = getFileAndId(href)
+                if(fileAndId != null && !urlRe.matches(href)) {
+                    val fileStr = URLDecoder.decode(fileAndId.first, "UTF-8")
+                    val fileName = if(fileStr.isEmpty()) null else File(parentFolder, fileStr).toRelativeString(rootFolder)
+                    val id: String = fileName?.let {fileToId[it] }?: key.osisRef
+                    a.name = "epubRef"
+                    a.setAttribute("to-key", id)
+                    a.setAttribute("to-id", fileAndId.second)
+                } else {
+                    a.name = "epubA"
+                }
+            }
+            return e
+        }
+
+        return useSaxBuilder { it.build(file) }.rootElement.children
+            .find { it.name == "body" }!!
+            .run {
+                name = "div"
+                val processed = fixReferences(this)
+                val maxOrdinal = addAnchors(processed, bookMetaData.language.code, true)
+                Pair(processed, maxOrdinal)
+            }
+    }
+    fun indexOfOriginalKey(that: Key): Int =
+        queryContent("//ns:spine/ns:itemref")
+            .map { it.getAttribute("idref").value }.indexOf(that.osisRef)
+    private fun getOriginalKey(idRef: String): Key {
+        val keyName = fileToTitle?.let {f2t -> idToFile[idRef]?.let { f2t[it] } } ?: application.getString(R.string.nameless)
+        return DefaultLeafKeyList(keyName, idRef)
+    }
+
+    private fun getFragmentKey(fragment: EpubFragment): Key {
+        val keyName = fileToTitle?.let {it[fragment.originalHtmlFileName] } ?: application.getString(R.string.nameless)
+        return DefaultLeafKeyList(keyName, "${fragment.id}")
+    }
+
+    fun readOptimized(key: Key): String = String(File(cacheDir, key.osisRef).readBytes())
+
+    fun indexOfOptimizedKey(key: Key): Int = optimizedKeys.indexOf(key)
+
+    // TODO: remove
+    fun getFromOriginalIndex(index: Int): Key =
+        queryContent("//ns:spine/ns:itemref")[index]
+            .run { getOriginalKey(getAttribute("idref").value) }
+
+    fun getFromOptimizedIndex(index: Int): Key = optimizedKeys[index]
+
+    val originalCardinality: Int get() = queryContent("//ns:package/ns:spine/ns:itemref").size
+
+    val optimizedCardinality get() = optimizedKeys.size
+
+    private val originalKeys: List<Key>
+        get() = queryContent("//ns:spine/ns:itemref")
+            .map { getOriginalKey(it.getAttribute("idref").value) }
+
+    val optimizedKeys: List<Key> get() = dao.fragments().map { getFragmentKey(it) }
+
+    private val cacheDir get() = File(epubDir,  "cache/${bookMetaData.initials}")
+
+    private val dbFilename = "epub-${bookMetaData.initials}.sqlite3"
+
+    init {
+        val appDbFile = application.getDatabasePath(dbFilename)
+        val epubDbFile = File(epubDir, dbFilename)
+
+        if(!epubDbFile.exists()) {
+            optimizeEpub()
+            appDbFile.copyTo(epubDbFile)
+        } else {
+            if(!appDbFile.exists())  {
+                epubDbFile.copyTo(appDbFile)
+            }
+        }
+    }
+    private val readDb = getEpubDatabase(dbFilename)
+    private val dao = readDb.epubDao()
+
+    private fun optimizeEpub() {
+        fun splitElement(elem: Element, ordinalRange: IntRange): List<EpubFragment> {
+            val splitPoint: Int = ordinalRange.first + (ordinalRange.last - ordinalRange.first) / 2
+
+            //val splitOrdElem = useXPathInstance { xp ->
+            //    xp.compile("//BVA[@ordinal='$splitPoint']", Filters.element(), null, epubNamespace)
+            //        .evaluateFirst(elem)
+            //} ?: return emptyList() // TODO
+
+            val splitElem = useXPathInstance { xp ->
+                xp.compile(
+                    "//*[descendant::BVA[@ordinal='$splitPoint'] and (following-sibling::p or preceding-sibling::p or self::p)]",
+                    Filters.element(),
+                    null,
+                    epubNamespace
+                )
+                    .evaluateFirst(elem)
+            }
+
+            return emptyList() // TODO
+
+            //EpubFragment(epubDocument.id, originalKey.osisRef, start, end, element = elem1),
+            //EpubFragment(epubDocument.id, originalKey.osisRef, start, end, element = elem2),
+        }
+
+        fun readFragments(originalKey: Key): List<EpubFragment> {
+            val (origElement, maxOrdinal) = readOriginal(originalKey)
+            val elems = splitElement(origElement, 0..maxOrdinal)
+            // TODO
+            return elems
+        }
+
+        fun writeFragment(frag: EpubFragment) {
+            val f = File(cacheDir, "${frag.id}")
+            val strContent = elementToString(frag.element!!)
+            f.outputStream().use {
+                it.write(strContent.toByteArray())
+            }
+        }
+
+        cacheDir.deleteRecursively()
+        cacheDir.mkdirs()
+        val writeDb = getEpubDatabase(dbFilename)
+        val writeDao = writeDb.epubDao()
+
+        for(k in originalKeys) {
+            val fragments = readFragments(k)
+            writeDao.insert(*fragments.toTypedArray())
+            for(frag in fragments) {
+                writeFragment(frag)
+            }
+        }
+    }
+
+    fun getResource(resourcePath: String) = File(rootFolder, resourcePath)
+
     override fun getBookMetaData(): SwordBookMetaData {
-        return metadata?: synchronized(this) {
+        return _metadata?: synchronized(this) {
             val initials = "Epub-" + sanitizeModuleName(File(epubDir.path).name)
             val title = queryMetadata("title") ?: epubDir.name
             val description = queryMetadata("description")?: epubDir.name //TODO: should de-encode html stuff
@@ -193,7 +384,7 @@ class EpubBackendState(val epubDir: File): OpenFileState {
             Log.i(TAG, "Creating EpubBook metadata $initials, $description $language")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
             metadata.driver = EpubSwordDriver()
-            this.metadata = metadata
+            this._metadata = metadata
             return@synchronized metadata
         }
     }
@@ -204,6 +395,12 @@ class EpubBackendState(val epubDir: File): OpenFileState {
     override fun getLastAccess(): Long = _lastAccess
     override fun setLastAccess(lastAccess: Long) {
         _lastAccess = lastAccess
+    }
+
+    fun delete() {
+        epubDir.deleteRecursively()
+        readDb.close()
+        application.deleteDatabase(dbFilename)
     }
 }
 
@@ -216,102 +413,18 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
         }
         return key
     }
-    override fun getCardinality(): Int =
-        state.queryContent("//ns:package/ns:spine/ns:itemref").size
+    override fun getCardinality(): Int = state.optimizedCardinality
 
     override fun iterator(): MutableIterator<Key> =
-        state.queryContent("//ns:spine/ns:itemref")
-            .map { getKey(it.getAttribute("idref").value) }
+        state.optimizedKeys
             .toMutableList()
             .iterator()
-
-    fun getKey(idRef: String): Key {
-        val keyName = state.fileToTitle?.let {f2t -> state.idToFile[idRef]?.let { f2t[it] } } ?: application.getString(R.string.nameless)
-        return DefaultLeafKeyList(keyName, idRef)
-    }
-
-    override fun get(index: Int): Key =
-        state.queryContent("//ns:spine/ns:itemref")[index]
-            .run { getKey(getAttribute("idref").value) }
-
-    override fun indexOf(that: Key): Int =
-        state.queryContent("//ns:spine/ns:itemref")
-            .map { it.getAttribute("idref").value }.indexOf(that.osisRef)
-
-    private fun fileForKey(key: Key): File {
-        val fileName = state.queryFirst("//ns:manifest/ns:item[@id='${key.osisRef}']").getAttribute("href").value
-        return File(state.rootFolder, fileName)
-    }
-
-    fun getResource(resourcePath: String): File =
-        File(state.rootFolder, resourcePath)
-
-    fun styleSheets(key: Key): List<File> {
-        val file = fileForKey(key)
-        val htmlRoot = useSaxBuilder {  it.build(file) }.rootElement
-        val head = htmlRoot.children.find { it.name == "head" }!!
-        val parentFolder = file.parentFile
-
-        return head.children
-            .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
-            .mapNotNull { it.getAttribute("href").value?.let {File(parentFolder, it) } }
-    }
-
-    private val xhtmlNamespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
-    private val urlRe = Regex("""^https?://.*""")
-
-    override fun readRawContent(state: EpubBackendState, key: Key): String {
-        val file = fileForKey(key)
-        val parentFolder = file.parentFile!!
-
-        fun epubSrc(src: String): String {
-            val f = File(parentFolder, src)
-            val filePath = f.toRelativeString(state.rootFolder)
-            return "/epub/${state.bookMetaData.initials}/$filePath"
-        }
-
-        fun fixReferences(e: Element): Element {
-            for(img in useXPathInstance { xp -> xp.compile("//ns:img", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
-                val src = img.getAttribute("src").value
-                val finalSrc = epubSrc(src)
-                img.setAttribute("src", finalSrc)
-            }
-            for(a in useXPathInstance { xp -> xp.compile("//ns:a", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
-                val href = a.getAttribute("href")?.value?: continue
-                val fileAndId = getFileAndId(href)
-                if(fileAndId != null && !urlRe.matches(href)) {
-                    val fileStr = URLDecoder.decode(fileAndId.first, "UTF-8")
-                    val fileName = if(fileStr.isEmpty()) null else File(parentFolder, fileStr).toRelativeString(state.rootFolder)
-                    val id: String = fileName?.let {state.fileToId[it] }?: key.osisRef
-                    a.name = "epubRef"
-                    a.setAttribute("to-key", id)
-                    a.setAttribute("to-id", fileAndId.second)
-                } else {
-                    a.name = "epubA"
-                }
-            }
-            return e
-        }
-
-        // Let's delete earlier cache file version
-        File(file.path + "-cache").delete()
-
-        val cacheFile = File(file.path + "-cache2")
-        if(cacheFile.exists()) return String(cacheFile.readBytes())
-
-        return useSaxBuilder { it.build(file) }.rootElement.children
-            .find { it.name == "body" }!!
-            .run {
-                name = "div"
-                val processed = fixReferences(this)
-                addAnchors(processed, bookMetaData.language.code, true)
-                val strContent = elementToString(processed)
-                cacheFile.outputStream().use {
-                    it.write(strContent.toByteArray())
-                }
-                strContent
-            }
-    }
+    override fun get(index: Int): Key = state.getFromOptimizedIndex(index)
+    override fun indexOf(that: Key): Int = state.indexOfOptimizedKey(that)
+    fun getResource(resourcePath: String): File = state.getResource(resourcePath)
+    fun styleSheets(key: Key): List<File> = state.styleSheetsForOptimizedKey(key)
+    override fun readRawContent(state: EpubBackendState, key: Key): String = state.readOptimized(key)
+    fun delete() = state.delete()
 }
 
 val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyType.TREE) {

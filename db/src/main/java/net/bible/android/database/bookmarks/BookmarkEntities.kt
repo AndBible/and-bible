@@ -533,7 +533,7 @@ class BookmarkEntities {
     ): BaseBookmarkNotes
 
     @Entity(
-        indices = [Index(value = ["bookInitials", "key"])],
+        indices = [Index(value = ["bookInitials", "key"]), Index("primaryLabelId")],
         foreignKeys = [
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
         ],

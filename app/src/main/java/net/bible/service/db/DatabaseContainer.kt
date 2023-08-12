@@ -43,6 +43,7 @@ import net.bible.android.database.migrations.bookmarkMigrations
 import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.migrations.workspacesMigrations
+import net.bible.android.database.temporaryMigrations
 import net.bible.service.db.oldmigrations.oldMigrations
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
@@ -162,7 +163,7 @@ class DatabaseContainer {
             application, TemporaryDatabase::class.java, TemporaryDatabase.dbFileName
         )
             .allowMainThreadQueries()
-            .addMigrations()
+            .addMigrations(*temporaryMigrations)
             .openHelperFactory(dbFactory)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
