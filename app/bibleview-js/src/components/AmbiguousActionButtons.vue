@@ -56,8 +56,7 @@ import {FontAwesomeIcon, FontAwesomeLayers} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {androidKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
-import {ModalButtonId} from "@/composables/config";
-import {intersection} from "@/utils";
+import {BibleModalButtonId, GenericModalButtonId} from "@/composables/config";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo
@@ -80,19 +79,15 @@ const ordinalInfo = computed(() => selectionInfo.value?.ordinalInfo || null);
 const startOrdinal = computed(() => selectionInfo.value && selectionInfo.value.startOrdinal);
 const endOrdinal = computed(() => selectionInfo.value && selectionInfo.value.endOrdinal);
 
-const bibleButtons: Set<ModalButtonId> = new Set(["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK"])
-const genericButtons: Set<ModalButtonId> = new Set(["BOOKMARK", "BOOKMARK_NOTES", "SPEAK"])
-
 const modalButtons = computed(() => {
-    const btns = new Set(appSettings.modalButtons);
     if(verseInfo.value) {
-        return Array.from(intersection(btns, bibleButtons))
+        return appSettings.bibleModalButtons;
     } else {
-        return Array.from(intersection(btns, genericButtons))
+        return appSettings.genericModalButtons;
     }
 });
 
-function hasButton(buttonId: ModalButtonId) {
+function hasButton(buttonId: BibleModalButtonId|GenericModalButtonId) {
     return modalButtons.value.includes(buttonId);
 }
 

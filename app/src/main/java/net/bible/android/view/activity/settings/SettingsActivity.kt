@@ -143,8 +143,11 @@ class SettingsActivity: ActivityBase() {
                     "show_calculator",
                     "calculator_pin",
                     "google_drive_sync",
+                    "bible_bookmark_modal_buttons",
+                    "gen_bookmark_modal_buttons",
                 )
                 for(key in keys) {
+                    editor.removeString(key)
                     editor.removeString(key)
                     editor.removeBoolean(key)
                     editor.removeLong(key)

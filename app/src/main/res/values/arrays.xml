@@ -168,7 +168,7 @@
 		<item>zh-Hant-TW</item>
 		<item>zh-Hans-CN</item>
 	</string-array>
-    <string-array name="prefs_bookmark_modal_action_names">
+    <string-array name="prefs_bible_bookmark_modal_action_names">
 		<item>@string/create_bookmark</item>
 		<item>@string/create_bookmark_with_a_note</item>
 		<item>@string/my_notes_abbreviation</item>
@@ -176,7 +176,7 @@
 		<item>@string/compare</item>
 		<item>@string/speak</item>
 	</string-array>
-	<string-array name="prefs_bookmark_modal_action_ids">
+	<string-array name="prefs_bible_bookmark_modal_action_ids">
 		<item>BOOKMARK</item>
 		<item>BOOKMARK_NOTES</item>
 		<item>MY_NOTES</item>
@@ -184,11 +184,26 @@
 		<item>COMPARE</item>
 		<item>SPEAK</item>
 	</string-array>
-	<string-array name="pref_bookmark_modal_action_defaults">
+	<string-array name="pref_bible_bookmark_modal_action_defaults">
 		<item>BOOKMARK</item>
 		<item>BOOKMARK_NOTES</item>
 		<item>MY_NOTES</item>
 		<item>SHARE</item>
 		<item>COMPARE</item>
+	</string-array>
+	<string-array name="prefs_gen_bookmark_modal_action_names">
+		<item>@string/create_bookmark</item>
+		<item>@string/create_bookmark_with_a_note</item>
+		<item>@string/speak</item>
+	</string-array>
+	<string-array name="prefs_gen_bookmark_modal_action_ids">
+		<item>BOOKMARK</item>
+		<item>BOOKMARK_NOTES</item>
+		<item>SPEAK</item>
+	</string-array>
+	<string-array name="pref_gen_bookmark_modal_action_defaults">
+		<item>BOOKMARK</item>
+		<item>BOOKMARK_NOTES</item>
+		<item>SPEAK</item>
 	</string-array>
 </resources>

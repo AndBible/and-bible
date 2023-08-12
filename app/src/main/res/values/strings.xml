@@ -1157,6 +1157,7 @@
     <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
     <string name="add_bookmark_whole_sentence">Sentences</string>
     <string name="nameless">Name undefined</string>
-    <string name="prefs_in_window_bookmark_modal_buttons_title">One-tap window actions</string>
+    <string name="prefs_in_window_bible_bookmark_modal_buttons_title">One-tap actions (Bibles)</string>
+    <string name="prefs_in_window_gen_bookmark_modal_buttons_title">One-tap actions (Other)</string>
     <string name="prefs_in_window_bookmark_modal_buttons_description">When a text is tapped, one-tap action window is shown. Which action buttons should be shown?</string>
 </resources>

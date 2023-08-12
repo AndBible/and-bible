@@ -1229,8 +1229,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val hideCompareDocuments = json.encodeToString(serializer(), workspaceSettings.hideCompareDocuments)
         val limitAmbiguousModalSize = json.encodeToString(serializer(), workspaceSettings.limitAmbiguousModalSize)
-        val modalButtons = json.encodeToString(serializer(),
-            CommonUtils.settings.getStringSet("bookmark_modal_buttons", setOf("BOOKMARK", "BOOKMARK_NOTES", "SHARE", "COMPARE", "SPEAK"))
+        val bibleModalButtons = json.encodeToString(serializer(),
+            CommonUtils.settings.getStringSet("bible_bookmark_modal_buttons", setOf("BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE"))
+        )
+        val genericModalButtons = json.encodeToString(serializer(),
+            CommonUtils.settings.getStringSet("gen_bookmark_modal_buttons", setOf("BOOKMARK", "BOOKMARK_NOTES", "SPEAK"))
         )
         return """
                 bibleView.emit('set_config', {
@@ -1245,7 +1248,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         hideCompareDocuments: $hideCompareDocuments,
                         limitAmbiguousModalSize: $limitAmbiguousModalSize,
                         windowId: '${window.displayId}',
-                        modalButtons: $modalButtons, 
+                        bibleModalButtons: $bibleModalButtons, 
+                        genericModalButtons: $genericModalButtons, 
                     }, 
                     initial: $initial,
                     });

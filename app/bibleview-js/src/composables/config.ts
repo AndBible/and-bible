@@ -87,7 +87,8 @@ export type Config = {
     topMargin: number,
 }
 
-export type ModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"
+export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"
+export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"
 
 export type AppSettings = {
     topOffset: number,
@@ -105,7 +106,8 @@ export type AppSettings = {
     activeSince: number,
     limitAmbiguousModalSize: boolean,
     windowId: IdType,
-    modalButtons: ModalButtonId[],
+    bibleModalButtons: BibleModalButtonId[],
+    genericModalButtons: GenericModalButtonId[],
 }
 
 export type CalculatedConfig = Ref<{
@@ -180,7 +182,8 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         activeSince: 0,
         limitAmbiguousModalSize: false,
         windowId: "",
-        modalButtons: ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "COMPARE", "SHARE", "SPEAK"],
+        bibleModalButtons: ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "COMPARE", "SHARE"],
+        genericModalButtons: ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK"],
     });
 
     function calcMmInPx() {
