@@ -235,6 +235,8 @@
 
     <string name="prefs_enable_bluetooth_title">Enable Bluetooth media buttons</string>
     <string name="prefs_enable_bluetooth_summary">Handle Bluetooth media buttons to start/stop speaking.</string>
+    <string name="create_bookmark">Create a new Bookmark</string>
+    <string name="create_bookmark_with_a_note">Create a new Bookmark with a note</string>
 
     <!-- Colors preferences -->
     <string name="prefs_text_colors_menutitle">Color settings</string>
@@ -1155,4 +1157,6 @@
     <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
     <string name="add_bookmark_whole_sentence">Sentences</string>
     <string name="nameless">Name undefined</string>
+    <string name="prefs_in_window_bookmark_modal_buttons_title">One-tap window actions</string>
+    <string name="prefs_in_window_bookmark_modal_buttons_description">When a text is tapped, one-tap action window is shown. Which action buttons should be shown?</string>
 </resources>

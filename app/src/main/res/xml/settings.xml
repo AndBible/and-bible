@@ -130,6 +130,14 @@
 			android:icon="@drawable/ic_active_window_24dp"
 			android:defaultValue="true"
 			/>
+		<MultiSelectListPreference android:key="bookmark_modal_buttons"
+			android:title="@string/prefs_in_window_bookmark_modal_buttons_title"
+			android:summary="@string/prefs_in_window_bookmark_modal_buttons_description"
+			android:icon="@drawable/ic_bookmark_24dp"
+			android:entries="@array/prefs_bookmark_modal_action_names"
+			android:entryValues="@array/prefs_bookmark_modal_action_ids"
+			android:defaultValue="@array/pref_bookmark_modal_action_defaults"
+			/>
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="@string/prefs_persecution_cat">

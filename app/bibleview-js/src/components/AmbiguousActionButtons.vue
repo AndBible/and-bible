@@ -17,35 +17,35 @@
 
 <template>
   <div :class="{hasActions, horizontal: !vertical, vertical}">
-    <div class="large-action" @click="addBookmark">
+    <div v-if="hasButton('BOOKMARK')" class="large-action" @click="addBookmark">
       <FontAwesomeLayers>
         <FontAwesomeIcon icon="bookmark"/>
         <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
       </FontAwesomeLayers>
       <div class="title">{{ strings.addBookmark }}</div>
     </div>
-    <div class="large-action" @click="addNote">
+    <div v-if="hasButton('BOOKMARK_NOTES')" class="large-action" @click="addNote">
       <FontAwesomeLayers>
         <FontAwesomeIcon icon="edit"/>
         <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
       </FontAwesomeLayers>
       <div class="title">{{ vertical ? strings.verseNoteLong : strings.verseNote }}</div>
     </div>
-    <div v-if="verseInfo" class="large-action" @click="openMyNotes">
+    <div v-if="hasButton('MY_NOTES')" class="large-action" @click="openMyNotes">
       <FontAwesomeIcon icon="file-alt"/>
       <div class="title">{{ strings.verseMyNotes }}</div>
     </div>
-    <div class="large-action" @click="speak" v-if="ordinalInfo">
-      <FontAwesomeIcon icon="headphones"/>
-      <div class="title">{{ strings.verseSpeak }}</div>
-    </div>
-    <div v-if="verseInfo" class="large-action" @click="share">
+    <div v-if="hasButton('SHARE')" class="large-action" @click="share">
       <FontAwesomeIcon icon="share-alt"/>
       <div class="title">{{ vertical ? strings.verseShareLong : strings.verseShare }}</div>
     </div>
-    <div v-if="verseInfo" class="large-action" @click="compare">
+    <div v-if="hasButton('COMPARE')" class="large-action" @click="compare">
       <FontAwesomeIcon icon="custom-compare"/>
       <div class="title">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</div>
+    </div>
+    <div v-if="hasButton('SPEAK')" class="large-action" @click="speak">
+      <FontAwesomeIcon icon="headphones"/>
+      <div class="title">{{ strings.verseSpeak }}</div>
     </div>
   </div>
 </template>
@@ -56,6 +56,8 @@ import {FontAwesomeIcon, FontAwesomeLayers} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {androidKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
+import {ModalButtonId} from "@/composables/config";
+import {intersection} from "@/utils";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo
@@ -68,7 +70,8 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits(["close"]);
 const {closeModals} = inject(modalKey)!
-const {strings} = useCommon()
+const {strings, appSettings} = useCommon()
+
 const selectionInfo = computed(() => props.selectionInfo);
 const android = inject(androidKey)!;
 
@@ -76,6 +79,23 @@ const verseInfo = computed(() => selectionInfo.value?.verseInfo || null);
 const ordinalInfo = computed(() => selectionInfo.value?.ordinalInfo || null);
 const startOrdinal = computed(() => selectionInfo.value && selectionInfo.value.startOrdinal);
 const endOrdinal = computed(() => selectionInfo.value && selectionInfo.value.endOrdinal);
+
+const bibleButtons: Set<ModalButtonId> = new Set(["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK"])
+const genericButtons: Set<ModalButtonId> = new Set(["BOOKMARK", "BOOKMARK_NOTES", "SPEAK"])
+
+const modalButtons = computed(() => {
+    const btns = new Set(appSettings.modalButtons);
+    if(verseInfo.value) {
+        return Array.from(intersection(btns, bibleButtons))
+    } else {
+        return Array.from(intersection(btns, genericButtons))
+    }
+});
+
+function hasButton(buttonId: ModalButtonId) {
+    return modalButtons.value.includes(buttonId);
+}
+
 
 function share() {
     if(verseInfo.value) {

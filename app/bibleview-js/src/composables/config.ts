@@ -87,6 +87,8 @@ export type Config = {
     topMargin: number,
 }
 
+export type ModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"
+
 export type AppSettings = {
     topOffset: number,
     bottomOffset: number,
@@ -103,6 +105,7 @@ export type AppSettings = {
     activeSince: number,
     limitAmbiguousModalSize: boolean,
     windowId: IdType,
+    modalButtons: ModalButtonId[],
 }
 
 export type CalculatedConfig = Ref<{
@@ -177,6 +180,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         activeSince: 0,
         limitAmbiguousModalSize: false,
         windowId: "",
+        modalButtons: ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "COMPARE", "SHARE", "SPEAK"],
     });
 
     function calcMmInPx() {
