@@ -311,23 +311,24 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     private val dao = readDb.epubDao()
 
     private fun optimizeEpub() {
-        fun splitElement(elem: Element, ordinalRange: IntRange): List<EpubFragment> {
+        fun splitElement(elem: Element, ordinalRange: IntRange): List<EpubFragment>? {
             val splitPoint: Int = ordinalRange.first + (ordinalRange.last - ordinalRange.first) / 2
-
-            //val splitOrdElem = useXPathInstance { xp ->
-            //    xp.compile("//BVA[@ordinal='$splitPoint']", Filters.element(), null, epubNamespace)
-            //        .evaluateFirst(elem)
-            //} ?: return emptyList() // TODO
-
             val splitElem = useXPathInstance { xp ->
                 xp.compile(
-                    "//*[descendant::BVA[@ordinal='$splitPoint'] and (following-sibling::p or preceding-sibling::p or self::p)]",
+                    "//*[descendant::BVA[@ordinal='$splitPoint'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]",
                     Filters.element(),
                     null,
-                    epubNamespace
+                    xhtmlNamespace
                 )
                     .evaluateFirst(elem)
-            }
+            } ?: return null
+
+            val doc1 = elem.clone()
+            val doc2 = elem.clone()
+
+
+
+
 
             return emptyList() // TODO
 

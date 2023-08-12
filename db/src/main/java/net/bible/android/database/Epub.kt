@@ -38,7 +38,6 @@ class EpubHtmlToFrag(
 
 @Entity
 class EpubFragment(
-    val epubDocumentId: Long,
     val originalHtmlFileName: String,
     val ordinalStart: Int,
     val ordinalEnd: Int,
