@@ -111,6 +111,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.page.Selection
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
@@ -463,6 +464,22 @@ object CommonUtils : CommonUtilsBase() {
         return DaggerActivityComponent.builder()
                 .applicationComponent(application.applicationComponent)
                 .build()
+    }
+
+    fun getShareableDocumentText(selection: Selection): String {
+        return SwordContentFacade.getSelectionText(
+            selection,
+            showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
+            advertiseApp = settings.getBoolean("share_show_add", true),
+            abbreviateReference = settings.getBoolean("share_abbreviate_reference", true),
+            showNotes = settings.getBoolean("show_notes", true),
+            showVersion = settings.getBoolean("share_show_version", true),
+            showReference = settings.getBoolean("share_show_reference", true),
+            showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
+            showSelectionOnly = settings.getBoolean("show_selection_only", true),
+            showEllipsis = settings.getBoolean("show_ellipsis", true),
+            showQuotes = settings.getBoolean("share_show_quotes", false)
+        )
     }
 
     fun getFreeSpace(path: String): Long {

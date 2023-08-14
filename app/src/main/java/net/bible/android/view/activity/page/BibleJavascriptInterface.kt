@@ -351,6 +351,13 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            bibleView.copySelectionToClipboard(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
     fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
         bibleView.makeBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
     }

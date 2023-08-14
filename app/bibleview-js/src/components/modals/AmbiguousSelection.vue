@@ -87,6 +87,7 @@ import {
     getEventVerseInfo,
     getHighestPriorityEventFunctions,
     isBottomHalfClicked,
+    setupDocumentEventListener,
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton.vue";
 import {emit} from "@/eventbus";
@@ -341,6 +342,18 @@ const noActions = computed(() => selectedActions.value.length === 0);
 function help() {
     android.helpBookmarks()
 }
+
+setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
+    if (e.ctrlKey && e.code === "KeyC") {
+        if (selectionInfo.value?.verseInfo) {
+            console.log("Ctrl + c pressed. Copying (book initial, start ordinal, end ordinal)", selectionInfo.value?.verseInfo.bookInitials, startOrdinal.value, endOrdinal.value)
+            android.copyVerse(selectionInfo.value.verseInfo.bookInitials, startOrdinal.value!, endOrdinal.value!)
+
+            e.preventDefault()
+            e.stopPropagation()
+        }
+    }
+})
 
 const modal = ref<InstanceType<typeof ModalDialog> | null>(null);
 defineExpose({handle});

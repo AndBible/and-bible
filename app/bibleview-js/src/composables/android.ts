@@ -67,6 +67,7 @@ export type BibleJavascriptInterface = {
     updateGenericBookmarkToLabel: (data: JSONString) => void
     shareBookmarkVerse: (bookmarkId: IdType) => void,
     shareVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    copyVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
@@ -362,6 +363,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.shareVerse(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    function copyVerse(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.copyVerse(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
     function addBookmark(bookInitials: string, startOrdinal: number, endOrdinal?: number, addNote: boolean = false) {
         window.android.addBookmark(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1, addNote);
     }
@@ -523,6 +528,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         openDownloads,
         refChooserDialog,
         shareVerse,
+        copyVerse,
         addBookmark,
         addGenericBookmark,
         compare,
