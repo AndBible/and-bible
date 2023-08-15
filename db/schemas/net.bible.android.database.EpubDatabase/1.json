@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "eaf244a61cac763b5c9b40e14d2360d8",
+    "identityHash": "2107ed889e5b741361279ad71050ca17",
     "entities": [
       {
         "tableName": "EpubHtmlToFrag",
@@ -32,14 +32,8 @@
       },
       {
         "tableName": "EpubFragment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`epubDocumentId` INTEGER NOT NULL, `originalHtmlFileName` TEXT NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`originalHtmlFileName` TEXT NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
-          {
-            "fieldPath": "epubDocumentId",
-            "columnName": "epubDocumentId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "originalHtmlFileName",
             "columnName": "originalHtmlFileName",
@@ -78,7 +72,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eaf244a61cac763b5c9b40e14d2360d8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2107ed889e5b741361279ad71050ca17')"
     ]
   }
 }
