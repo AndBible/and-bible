@@ -47,6 +47,7 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
+import org.jdom2.Document
 import org.jdom2.Element
 import org.jdom2.Namespace
 import org.jdom2.filter.Filters
@@ -311,36 +312,138 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     private val dao = readDb.epubDao()
 
     private fun optimizeEpub() {
-        fun splitElement(elem: Element, ordinalRange: IntRange): List<EpubFragment>? {
-            val splitPoint: Int = ordinalRange.first + (ordinalRange.last - ordinalRange.first) / 2
-            val splitElem = useXPathInstance { xp ->
-                xp.compile(
-                    "//*[descendant::BVA[@ordinal='$splitPoint'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]",
-                    Filters.element(),
-                    null,
-                    xhtmlNamespace
-                )
-                    .evaluateFirst(elem)
-            } ?: return null
+        val ordinalsPerFragment = 100
 
-            val doc1 = elem.clone()
-            val doc2 = elem.clone()
-
-
-
-
-
-            return emptyList() // TODO
-
-            //EpubFragment(epubDocument.id, originalKey.osisRef, start, end, element = elem1),
-            //EpubFragment(epubDocument.id, originalKey.osisRef, start, end, element = elem2),
+        fun getSplitPoint(element: Element, splitPoint: Int): Element = useXPathInstance { xp ->
+            xp.compile(
+                "//*[descendant::BVA[@ordinal='$splitPoint'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]",
+                Filters.element(), null, xhtmlNamespace
+            ).evaluateFirst(element)!!
         }
 
-        fun readFragments(originalKey: Key): List<EpubFragment> {
+        fun removeSiblingsBefore(ele: Element) {
+            val parent = ele.parentElement
+            val idx = parent.indexOf(ele)
+            for(i in 0 .. idx) {
+                parent.removeContent(0)
+            }
+        }
+
+        fun removeSiblingsAfter(ele: Element) {
+            val parent = ele.parentElement
+            val idx = parent.indexOf(ele) + 1
+            val removeAmount = parent.contentSize - idx
+            for(i in 0..removeAmount) {
+                parent.removeContent(idx)
+            }
+        }
+
+        fun extractBetween(orig: Document, splitOrdinal1: Int?, splitOrdinal2: Int?): Document? {
+            val doc = orig.clone()
+            val splitElem1 = splitOrdinal1?.let { getSplitPoint(doc.rootElement, it) }
+            val splitElem2 = splitOrdinal2?.let { getSplitPoint(doc.rootElement, it) }
+
+            // TODO: check that this test works in JDOM2
+            if(splitElem1 == splitElem2) return null // contained inside same paragraph
+
+            if(splitElem1 != null) {
+                removeSiblingsBefore(splitElem1)
+                var parent = splitElem1.parentElement
+                while (parent != null) {
+                    removeSiblingsBefore(parent)
+                    parent = parent.parentElement
+                }
+            }
+            if(splitElem2 != null) {
+                removeSiblingsAfter(splitElem2)
+                var parent = splitElem2.parentElement
+                while (parent != null) {
+                    removeSiblingsAfter(parent)
+                    parent = parent.parentElement
+                }
+            }
+            return doc
+        }
+
+        fun splitIntoN(doc: Document, ordinalRange: IntRange, n: Int): List<Document> {
+            val pieceLength = (ordinalRange.last - ordinalRange.first) / n
+
+            val firstFrag = extractBetween(doc, null, pieceLength)
+            val lastFrag = extractBetween(doc, pieceLength*(n-1), null)
+
+            if(firstFrag == null || lastFrag == null) return listOf(doc)
+
+            if(n == 2) return listOf(firstFrag, lastFrag)
+
+            var splitPoint1 = pieceLength
+            var splitPoint2 = pieceLength * 2
+
+            val docs = mutableListOf<Document>()
+            for(i in 1 until n-1) {
+                val doc2 = extractBetween(doc, splitPoint1, splitPoint2)
+                if(doc2 != null) {
+                    splitPoint1 = splitPoint2
+                    splitPoint2 = pieceLength * (i+1)
+                    docs.add(doc2)
+                }
+            }
+
+            return docs
+        }
+
+        fun splitIntoTwo(doc: Document, ordinalRange: IntRange): Pair<Document, Document> {
+            val splitOrdinal = ordinalRange.first + (ordinalRange.last - ordinalRange.first) / 2
+            val doc1 = doc.clone()
+            val doc2 = doc.clone()
+            val splitElem1 = getSplitPoint(doc1.rootElement, splitOrdinal)
+
+            removeSiblingsBefore(splitElem1)
+            var parent = splitElem1.parentElement
+            while(parent != null) {
+                removeSiblingsBefore(parent)
+                parent = parent.parentElement
+            }
+
+            val splitElem2 = getSplitPoint(doc2.rootElement, splitOrdinal)
+
+            removeSiblingsAfter(splitElem2)
+            var parent2 = splitElem2.parentElement
+            while(parent2 != null) {
+                removeSiblingsAfter(parent2)
+                parent2 = parent2.parentElement
+            }
+            return Pair(doc1, doc2)
+        }
+
+
+        fun splitIntoFragments(originalKey: Key): List<EpubFragment> {
             val (origElement, maxOrdinal) = readOriginal(originalKey)
-            val elems = splitElement(origElement, 0..maxOrdinal)
+
+            var splitPoint = ordinalsPerFragment
+
+
+            //val splitPoint: Int = ordinalRange.first + (ordinalRange.last - ordinalRange.first) / 2
+            //val splitPoint: Int = ordinalRange.first + (ordinalRange.last - ordinalRange.first) / 2
+            while(elementsRemaining) {
+                val firstElementOfNextFragment = getSplitPoint(origElement, splitPoint)
+
+                val origParent = firstElementOfNextFragment.parentElement
+                val lastIndex = origParent.indexOf(firstElementOfNextFragment) - 1
+
+                val fragDocument  = Document()
+                val newParent: Element = createParent(origParent, fragDocument)
+
+                for(i in 0 .. lastIndex) {
+                    newParent.addContent(origParent.content.toList()[i].detach())
+                }
+            }
+            //val doc1 = elem.clone()
+            //val doc2 = elem.clone()
+
+
+            //val elems = splitElement(origElement, 0..maxOrdinal)
             // TODO
-            return elems
+            return emptyList()
         }
 
         fun writeFragment(frag: EpubFragment) {
@@ -357,7 +460,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         val writeDao = writeDb.epubDao()
 
         for(k in originalKeys) {
-            val fragments = readFragments(k)
+            val fragments = splitIntoFragments(k)
             writeDao.insert(*fragments.toTypedArray())
             for(frag in fragments) {
                 writeFragment(frag)
