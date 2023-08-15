@@ -27,7 +27,6 @@ import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import net.bible.android.database.migrations.Migration
-import net.bible.android.database.migrations.makeMigration
 import org.jdom2.Element
 
 @Entity
