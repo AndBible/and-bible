@@ -40,14 +40,14 @@ class EpubFragment(
     val originalHtmlFileName: String,
     val ordinalStart: Int,
     val ordinalEnd: Int,
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
 ) {
     @Ignore var element: Element? = null
 }
 
 @Dao
 interface EpubDao {
-    @Insert fun insert(vararg items: EpubFragment)
+    @Insert fun insert(vararg items: EpubFragment): List<Long>
     @Insert fun insert(vararg items: EpubHtmlToFrag)
 
     @Query(

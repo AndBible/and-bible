@@ -317,11 +317,11 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     private fun optimizeEpub() {
         val ordinalsPerFragment = 100
 
-        fun getSplitPoint(element: Document, splitPoint: Int): Element = useXPathInstance { xp ->
+        fun getSplitPoint(element: Document, splitPoint: Int): Element? = useXPathInstance { xp ->
             xp.compile(
                 "//*[descendant::BVA[@ordinal='$splitPoint'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]",
                 Filters.element(), null, xhtmlNamespace
-            ).evaluateFirst(element)!!
+            ).evaluateFirst(element)
         }
 
         fun removeSiblingsBefore(ele: Element) {
@@ -389,7 +389,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
                 val doc2 = extractBetween(doc, splitPoint1, splitPoint2)
                 if(doc2 != null) {
                     splitPoint1 = splitPoint2
-                    splitPoint2 = first+pieceLength * (i+1)
+                    splitPoint2 = first+pieceLength * (i+2)
                     docs.add(doc2)
                 }
             }
@@ -434,9 +434,15 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         val writeDao = writeDb.epubDao()
 
         for(k in originalKeys) {
+            Log.i(TAG, "${epubDir.name}: optimizing ${k.osisRef}")
+
             val fragments = splitIntoFragments(k)
-            writeDao.insert(*fragments.toTypedArray())
+            val ids = writeDao.insert(*fragments.toTypedArray())
+            for((id, frag) in ids.zip(fragments)) {
+                frag.id = id
+            }
             for(frag in fragments) {
+                Log.i(TAG, "${epubDir.name}: writing frag ${frag.id}")
                 writeFragment(frag)
             }
         }
