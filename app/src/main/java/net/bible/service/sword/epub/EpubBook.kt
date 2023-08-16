@@ -299,6 +299,8 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     init {
         val appDbFile = application.getDatabasePath(dbFilename)
         val epubDbFile = File(epubDir, dbFilename)
+        appDbFile.delete()
+        epubDbFile.delete()
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
@@ -334,7 +336,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             val parent = ele.parentElement
             val idx = parent.indexOf(ele) + 1
             val removeAmount = parent.contentSize - idx
-            for(i in 0..removeAmount) {
+            for(i in 0 until removeAmount) {
                 parent.removeContent(idx)
             }
         }
@@ -358,7 +360,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             if(splitElem2 != null) {
                 removeSiblingsAfter(splitElem2)
                 var parent = splitElem2.parentElement
-                while (parent != null) {
+                while (parent?.parentElement != null) {
                     removeSiblingsAfter(parent)
                     parent = parent.parentElement
                 }
@@ -367,6 +369,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         }
 
         fun splitIntoN(doc: Document, ordinalRange: IntRange, n: Int): List<Document> {
+            if(n == 0) return listOf(doc)
             val first = ordinalRange.first
             val pieceLength = (ordinalRange.last - first) / n
 
@@ -381,6 +384,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             var splitPoint2 = first+pieceLength * 2
 
             val docs = mutableListOf<Document>()
+            docs.add(firstFrag)
             for(i in 1 until n-1) {
                 val doc2 = extractBetween(doc, splitPoint1, splitPoint2)
                 if(doc2 != null) {
@@ -389,6 +393,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
                     docs.add(doc2)
                 }
             }
+            docs.add(lastFrag)
 
             return docs
         }
@@ -400,6 +405,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
                     Filters.element(), null, xhtmlNamespace
                 ).evaluate(doc)
             }
+            if(bvas.size == 0) return 0..0
             return bvas.first().getAttribute("ordinal").intValue ..
                 bvas.last().getAttribute("ordinal").intValue
         }
