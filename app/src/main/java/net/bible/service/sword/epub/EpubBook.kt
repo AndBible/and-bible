@@ -369,7 +369,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
                     removeSiblingsAfter(parent)
                     parent = parent.parentElement
                 }
-            }
+            } // JOSTAIN SYYSTÄ LOPPUUN TULEE  (MELKEIN) KOKONAINEN DOKUMENTTI
             return doc
         }
 
