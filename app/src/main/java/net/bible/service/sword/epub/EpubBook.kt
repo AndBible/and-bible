@@ -197,7 +197,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         val fileName = queryFirst("//ns:manifest/ns:item[@id='${key.osisRef}']").getAttribute("href").value
         return File(rootFolder, fileName)
     }
-    fun styleSheetsForOriginalKey(key: Key): List<File> {
+    private fun styleSheetsForOriginalKey(key: Key): List<File> {
         val file = fileForOriginalKey(key)
         val htmlRoot = useSaxBuilder {  it.build(file) }.rootElement
         val head = htmlRoot.children.find { it.name == "head" }!!
@@ -212,7 +212,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     fun styleSheetsForOptimizedKey(key: Key): List<File> {
         val frag = getFragmentForOptimizedKey(key)
-        return styleSheetsForOriginalKey(getOriginalKey(fileToId[frag.originalHtmlFileName]!!))
+        return styleSheetsForOriginalKey(getOriginalKey(frag.originalHtmlFileName))
     }
 
     private fun readOriginal(key: Key): Pair<Document, Int> {
@@ -267,11 +267,15 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     }
 
     private fun getFragmentKey(fragment: EpubFragment): Key {
-        val keyName = fileToTitle?.let {it[fragment.originalHtmlFileName] } ?: application.getString(R.string.nameless)
+        val filePath = idToFile.let { it[fragment.originalHtmlFileName] }
+        val keyName = filePath?.let { fp -> fileToTitle?.let {it[fp] } } ?: application.getString(R.string.nameless)
         return DefaultLeafKeyList(keyName, "${fragment.id}")
     }
 
-    fun readOptimized(key: Key): String = String(File(cacheDir, key.osisRef).readBytes())
+    fun readOptimized(key: Key): String {
+        val frag = getFragmentForOptimizedKey(key)
+        return String(File(cacheDir, frag.cacheFileName).readBytes())
+    }
 
     fun indexOfOptimizedKey(key: Key): Int = optimizedKeys.indexOf(key)
 
@@ -292,6 +296,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     val optimizedKeys: List<Key> get() = dao.fragments().map { getFragmentKey(it) }
 
+    // TODO: no need initials...
     private val cacheDir get() = File(epubDir,  "cache/${bookMetaData.initials}")
 
     private val dbFilename = "epub-${bookMetaData.initials}.sqlite3"
@@ -421,7 +426,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         }
 
         fun writeFragment(frag: EpubFragment) {
-            val f = File(cacheDir, "${frag.id}")
+            val f = File(cacheDir, frag.cacheFileName)
             val strContent = elementToString(frag.element!!)
             f.outputStream().use {
                 it.write(strContent.toByteArray())
@@ -503,11 +508,17 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
         state.optimizedKeys
             .toMutableList()
             .iterator()
-    override fun get(index: Int): Key = state.getFromOptimizedIndex(index)
-    override fun indexOf(that: Key): Int = state.indexOfOptimizedKey(that)
+    override fun get(index: Int): Key {
+        return state.getFromOptimizedIndex(index)
+    }
+    override fun indexOf(that: Key): Int {
+        return state.indexOfOptimizedKey(that)
+    }
     fun getResource(resourcePath: String): File = state.getResource(resourcePath)
     fun styleSheets(key: Key): List<File> = state.styleSheetsForOptimizedKey(key)
-    override fun readRawContent(state: EpubBackendState, key: Key): String = state.readOptimized(key)
+    override fun readRawContent(state: EpubBackendState, key: Key): String {
+        return state.readOptimized(key)
+    }
     fun delete() = state.delete()
 }
 

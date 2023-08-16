@@ -37,12 +37,16 @@ class EpubHtmlToFrag(
 
 @Entity
 class EpubFragment(
-    val originalHtmlFileName: String,
+    val originalHtmlFileName: String, // TODO: rename to originalHtmlId tai jotain
     val ordinalStart: Int,
     val ordinalEnd: Int,
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
 ) {
     @Ignore var element: Element? = null
+    val cacheFileName: String get() = id.toString().padStart(3, '0') // TODO: add .xhtml
+    override fun toString(): String {
+        return "$id $originalHtmlFileName $ordinalStart $ordinalEnd"
+    }
 }
 
 @Dao
