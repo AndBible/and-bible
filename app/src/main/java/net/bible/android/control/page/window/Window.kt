@@ -222,11 +222,7 @@ class Window (
             lastUpdated = System.currentTimeMillis()
             lastChecksum = checksum
 
-            if(notifyLocationChange) {
-                bibleView?.loadDocument(doc, updateLocation = true)
-            } else {
-                bibleView?.loadDocument(doc, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId)
-            }
+            bibleView?.loadDocument(doc, updateLocation = notifyLocationChange, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId)
 
             if(notifyLocationChange)
                 PassageChangeMediator.contentChangeFinished()
