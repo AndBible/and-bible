@@ -77,8 +77,9 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document, Int> {
             Pair(it, maxOrdinal)
         }
 }
+
+const val ORDINALS_PER_FRAGMENT = 400
 fun EpubBackendState.optimizeEpub() {
-    val ordinalsPerFragment = 100
 
     fun getSplitPoint(element: Document, splitPoint: Int): Element? = useXPathInstance { xp ->
         xp.compile(
@@ -174,7 +175,7 @@ fun EpubBackendState.optimizeEpub() {
     }
 
     fun splitIntoFragments(originalId: String, origDocument: Document, maxOrdinal: Int): List<EpubFragment> {
-        return splitIntoN(origDocument, 0..maxOrdinal, maxOrdinal/ordinalsPerFragment).map {
+        return splitIntoN(origDocument, 0..maxOrdinal, maxOrdinal/ORDINALS_PER_FRAGMENT).map {
             val ordinalRange = getOrdinalRange(it)
             EpubFragment(originalId = originalId, ordinalRange.first, ordinalRange.last).apply {
                 element=it.rootElement
@@ -213,7 +214,7 @@ fun EpubBackendState.optimizeEpub() {
     fragDir.mkdirs()
     val writeDb = getEpubDatabase(dbFilename)
     val writeDao = writeDb.epubDao()
-
+    val start = System.currentTimeMillis()
     for(k in originalIds) {
         val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: application.getString(R.string.nameless)
         val s = application.getString(R.string.processing_epub, "${bookMetaData.name}: $title")
@@ -247,4 +248,6 @@ fun EpubBackendState.optimizeEpub() {
         }
         fileForOriginalId(k).delete()
     }
+    val total = (System.currentTimeMillis() - start) / 1000;
+    Log.i(TAG, "Total time in optimization: $total")
 }
