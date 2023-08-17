@@ -34,6 +34,7 @@ import net.bible.service.device.speak.TextCommand
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
+import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.common.xml.JDOMSAXEventProvider
 import org.crosswire.common.xml.SAXEventProvider
@@ -43,6 +44,7 @@ import org.crosswire.jsword.book.BookData
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -379,12 +381,16 @@ object SwordContentFacade {
     }
 
     fun ordinalRangeFor(book: Book, key: Key): IntRange {
-        val texts = cachedText(book, key)
-        val keys = texts.keys
-        if(keys.isEmpty()) return 0..0
-        val first = keys.min()
-        val last = keys.max()
-        return first .. last
+        return if(book.isEpub) {
+            ((book as SwordGenBook).backend as EpubBackend).getOrdinalRange(key)
+        } else {
+            val texts = cachedText(book, key)
+            val keys = texts.keys
+            if (keys.isEmpty()) return 0..0
+            val first = keys.min()
+            val last = keys.max()
+            first..last
+        }
     }
 
     private fun getTextRecursively(element: Element): String {

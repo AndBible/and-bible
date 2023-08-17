@@ -22,6 +22,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.database.EpubFragment
+import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
@@ -186,8 +187,8 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
     init {
         val appDbFile = BibleApplication.application.getDatabasePath(dbFilename)
         val epubDbFile = File(epubDir, "$dbFilename.gz")
-        appDbFile.delete()
-        epubDbFile.delete()
+        //appDbFile.delete()
+        //epubDbFile.delete()
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
@@ -243,5 +244,17 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
     fun getKey(originalKey: String, htmlId: String): Key {
         val frag = dao.getFragment("$originalKey#$htmlId")
         return getKey(frag)
+    }
+
+    fun getOrigKey(key: Key): Key {
+        val frag = getFragment(key)
+        val file = idToFile[frag.originalId]
+        val title = fileToTitle?.let { it[file] }?: application.getString(R.string.nameless)
+        return DefaultLeafKeyList(frag.originalId, title)
+    }
+
+    fun getOrdinalRange(key: Key): IntRange {
+        val frag = getFragment(key)
+        return frag.ordinalStart .. frag.ordinalEnd
     }
 }

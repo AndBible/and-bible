@@ -119,6 +119,8 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
     fun styleSheets(key: Key): List<File> = state.styleSheets(key)
     override fun readRawContent(state: EpubBackendState, key: Key): String = state.read(key)
     fun delete() = state.delete()
+    fun getOrigKey(key: Key): Key = state.getOrigKey(key)
+    fun getOrdinalRange(key: Key) = state.getOrdinalRange(key)
 }
 
 val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyType.TREE) {
