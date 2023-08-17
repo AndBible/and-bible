@@ -73,10 +73,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.Serializable
@@ -1036,7 +1034,7 @@ object CommonUtils : CommonUtilsBase() {
     private var ttsWidgetManager: SpeakWidgetManager? = null
 
     var initialized = false
-    var booksInitialized = false
+    private var booksInitialized = false
 
     fun initializeApp() {
         if(!initialized) {
