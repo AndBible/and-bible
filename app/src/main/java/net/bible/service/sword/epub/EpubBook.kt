@@ -304,8 +304,8 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     init {
         val appDbFile = application.getDatabasePath(dbFilename)
         val epubDbFile = File(epubDir, dbFilename)
-        appDbFile.delete()
-        epubDbFile.delete()
+        //appDbFile.delete()
+        //epubDbFile.delete()
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
@@ -330,15 +330,15 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         }
 
         fun removeSiblingsBefore(ele: Element) {
-            val parent = ele.parentElement
+            val parent = ele.parentElement?: return
             val idx = parent.indexOf(ele)
-            for(i in 0 .. idx) {
+            for(i in 0 until idx) {
                 parent.removeContent(0)
             }
         }
 
         fun removeSiblingsAfter(ele: Element) {
-            val parent = ele.parentElement
+            val parent = ele.parentElement ?:return
             val idx = parent.indexOf(ele) + 1
             val removeAmount = parent.contentSize - idx
             for(i in 0 until removeAmount) {
@@ -346,6 +346,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             }
         }
 
+        // Extract document that contains splitOrdinal1, but paragraph containing splitOrdinal2 will be left out
         fun extractBetween(orig: Document, splitOrdinal1: Int?, splitOrdinal2: Int?): Document? {
             val doc = orig.clone()
             val splitElem1 = splitOrdinal1?.let { getSplitPoint(doc, it) }
@@ -363,12 +364,15 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
                 }
             }
             if(splitElem2 != null) {
-                removeSiblingsAfter(splitElem2)
+                // Let's this element as well as all content after this element
                 var parent = splitElem2.parentElement
                 while (parent?.parentElement != null) {
                     removeSiblingsAfter(parent)
                     parent = parent.parentElement
                 }
+                removeSiblingsAfter(splitElem2)
+                splitElem2.detach()
+
             } // JOSTAIN SYYSTÄ LOPPUUN TULEE  (MELKEIN) KOKONAINEN DOKUMENTTI
             return doc
         }
@@ -378,28 +382,25 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             val first = ordinalRange.first
             val pieceLength = (ordinalRange.last - first) / n
 
-            val firstFrag = extractBetween(doc, null, pieceLength)
-            val lastFrag = extractBetween(doc, pieceLength*(n-1), null)
-
-            if(firstFrag == null || lastFrag == null) return listOf(doc)
-
-            if(n == 2) return listOf(firstFrag, lastFrag)
+            val firstFrag = extractBetween(doc, null, first+pieceLength) ?: return listOf(doc)
 
             var splitPoint1 = first+pieceLength
             var splitPoint2 = first+pieceLength * 2
 
             val docs = mutableListOf<Document>()
             docs.add(firstFrag)
-            for(i in 1 until n-1) {
-                val doc2 = extractBetween(doc, splitPoint1, splitPoint2)
-                if(doc2 != null) {
+            while(splitPoint2 < ordinalRange.last) {
+                val extractedDoc = extractBetween(doc, splitPoint1, splitPoint2)
+                if(extractedDoc != null) {
                     splitPoint1 = splitPoint2
-                    splitPoint2 = first+pieceLength * (i+2)
-                    docs.add(doc2)
+                    docs.add(extractedDoc)
                 }
+                splitPoint2 += pieceLength
             }
-            docs.add(lastFrag)
-
+            if(splitPoint1 < ordinalRange.last) {
+                val lastFrag = extractBetween(doc, splitPoint1, null)
+                lastFrag?.let { docs.add(it) }
+            }
             return docs
         }
 
@@ -449,6 +450,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             for(frag in fragments) {
                 Log.i(TAG, "${epubDir.name}: writing frag ${frag.id}")
                 writeFragment(frag)
+                frag.element = null // clear up memory
             }
         }
     }

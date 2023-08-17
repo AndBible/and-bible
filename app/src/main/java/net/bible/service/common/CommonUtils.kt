@@ -138,7 +138,6 @@ import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
-import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseKey
 import org.crosswire.jsword.passage.VerseRange
@@ -1555,9 +1554,9 @@ fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
 
 private val xPathInstances = ArrayBlockingQueue<XPathFactory>(32)
 fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
-    val builder = xPathInstances.poll()?: XPathFactory.instance()
-    val rv = block(builder)
-    xPathInstances.offer(builder)
+    val xPath = xPathInstances.poll()?: XPathFactory.instance()
+    val rv = block(xPath)
+    xPathInstances.offer(xPath)
     return rv
 }
 
