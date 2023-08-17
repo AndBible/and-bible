@@ -22,6 +22,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.database.EpubFragment
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
 import net.bible.service.sword.BookAndKey
@@ -184,16 +185,16 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
 
     init {
         val appDbFile = BibleApplication.application.getDatabasePath(dbFilename)
-        val epubDbFile = File(epubDir, dbFilename)
+        val epubDbFile = File(epubDir, "$dbFilename.gz")
         appDbFile.delete()
         epubDbFile.delete()
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
-            appDbFile.copyTo(epubDbFile)
+            CommonUtils.gzipFile(appDbFile, epubDbFile)
         } else {
             if(!appDbFile.exists())  {
-                epubDbFile.copyTo(appDbFile)
+                CommonUtils.gunzipFile(epubDbFile, appDbFile)
             }
         }
     }
