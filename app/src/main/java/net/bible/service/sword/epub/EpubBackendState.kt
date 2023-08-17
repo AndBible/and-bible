@@ -231,15 +231,6 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
 
     fun indexOfOptimizedKey(key: Key): Int = optimizedKeys.indexOf(key)
 
-    // TODO: remove
-    fun getFromOriginalIndex(index: Int): Key =
-        queryContent("//ns:spine/ns:itemref")[index]
-            .run { getOriginalKey(getAttribute("idref").value) }
-    fun indexOfOriginalKey(that: Key): Int =
-        queryContent("//ns:spine/ns:itemref")
-            .map { it.getAttribute("idref").value }.indexOf(that.osisRef)
-    val originalCardinality: Int get() = queryContent("//ns:package/ns:spine/ns:itemref").size
-
     fun getFromOptimizedIndex(index: Int): Key = optimizedKeys[index]
 
     val optimizedCardinality get() = optimizedKeys.size
