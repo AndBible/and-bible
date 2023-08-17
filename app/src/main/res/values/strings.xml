@@ -1160,5 +1160,5 @@
     <string name="prefs_in_window_bible_bookmark_modal_buttons_title">One-tap actions (Bibles)</string>
     <string name="prefs_in_window_gen_bookmark_modal_buttons_title">One-tap actions (Other)</string>
     <string name="prefs_in_window_bookmark_modal_buttons_description">When a text is tapped, one-tap action window is shown. Which action buttons should be shown?</string>
-    <string name="processing_epub">Processing Epub: %s</string>
+    <string name="processing_epub">Processing EPUB: %s</string>
 </resources>
