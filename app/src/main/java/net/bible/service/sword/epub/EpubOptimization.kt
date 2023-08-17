@@ -78,7 +78,7 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document, Int> {
         }
 }
 
-const val ORDINALS_PER_FRAGMENT = 400
+const val ORDINALS_PER_FRAGMENT = 500
 fun EpubBackendState.optimizeEpub() {
 
     fun getSplitPoint(element: Document, splitPoint: Int): Element? = useXPathInstance { xp ->

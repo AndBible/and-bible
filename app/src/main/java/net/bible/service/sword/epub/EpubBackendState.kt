@@ -117,12 +117,12 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
             .evaluateFirst(content)?.value
     }
 
-    private fun getFragment(key: Key): EpubFragment = dao.getFragment(key.osisRef.toLong())
+    private fun getFragment(key: Key): EpubFragment? = dao.getFragment(key.osisRef.toLong())
 
     fun fileForOriginalId(id: String) = File(rootFolder, idToFile[id]!!)
 
     fun styleSheets(key: Key): List<File> {
-        val frag = getFragment(key)
+        val frag = getFragment(key)?: return emptyList()
         val file = fileForOriginalId(frag.originalId)
         val parentFolder = file.parentFile
         return dao.styleSheets(frag.originalId).map { File(parentFolder, it.styleSheetFile) }
@@ -157,7 +157,7 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
     }
 
     fun read(key: Key): String {
-        val frag = getFragment(key)
+        val frag = getFragment(key)?: return ""
         val sourceFile = File(fragDir, frag.fragFileName)
         val bytes = sourceFile.inputStream().use { inp ->
             GZIPInputStream(inp).use {gzip ->
@@ -246,7 +246,7 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
     }
 
     fun getOrdinalRange(key: Key): IntRange {
-        val frag = getFragment(key)
+        val frag = getFragment(key) ?: return 0..0
         return frag.ordinalStart .. frag.ordinalEnd
     }
 }

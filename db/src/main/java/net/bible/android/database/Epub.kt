@@ -72,7 +72,7 @@ interface EpubDao {
     fun getFragment(htmlId: String): EpubFragment
 
     @Query("SELECT * from EpubFragment WHERE id=:id")
-    fun getFragment(id: Long): EpubFragment
+    fun getFragment(id: Long): EpubFragment?
 
     @Query("SELECT f.* FROM EpubFragment f")
     fun fragments(): List<EpubFragment>
