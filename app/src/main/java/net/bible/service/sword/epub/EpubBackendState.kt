@@ -22,7 +22,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.database.EpubFragment
-import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
@@ -48,6 +47,7 @@ internal fun getFileAndId(href: String): Pair<String, String>? {
     return m.groupValues[1] to m.groupValues[2]
 }
 
+val xhtmlNamespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
 
 class EpubBackendState(internal val epubDir: File): OpenFileState {
     constructor(epubDir: File, metadata: SwordBookMetaData): this(epubDir) {
@@ -62,7 +62,6 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
     private val epubNamespace = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
     private val containerNamespace = Namespace.getNamespace("ns", "urn:oasis:names:tc:opendocument:xmlns:container")
     private val tocNamespace = Namespace.getNamespace("ns", "http://www.daisy.org/z3986/2005/ncx/")
-    internal val xhtmlNamespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
 
     private val metaInfoFile = File(epubDir, "META-INF/container.xml")
     private val metaInfo = useSaxBuilder {  it.build(metaInfoFile) }

@@ -82,7 +82,7 @@ fun EpubBackendState.optimizeEpub() {
 
     fun getSplitPoint(element: Document, splitPoint: Int): Element? = useXPathInstance { xp ->
         xp.compile(
-            "//*[descendant::BVA[@ordinal='$splitPoint'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]",
+            "//*[descendant::ns:BVA[@ordinal='$splitPoint'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]",
             Filters.element(), null, xhtmlNamespace
         ).evaluateFirst(element)
     }
@@ -164,7 +164,7 @@ fun EpubBackendState.optimizeEpub() {
     fun getOrdinalRange(doc: Document): IntRange {
         val bvas = useXPathInstance { xp ->
             xp.compile(
-                "//BVA",
+                "//ns:BVA",
                 Filters.element(), null, xhtmlNamespace
             ).evaluate(doc)
         }
