@@ -36,6 +36,7 @@ import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.MultiFragmentDocument
@@ -82,7 +83,7 @@ class BibleJavascriptInterface(
     val scope get() = mainBibleActivity.lifecycleScope
 
     @JavascriptInterface
-    fun scrolledToOrdinal(ordinal: Int) {
+    fun scrolledToOrdinal(keyStr: String, ordinal: Int) {
         val doc = bibleView.firstDocument
         if (doc is BibleDocument || doc is MyNotesDocument) {
             currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal,
@@ -92,7 +93,14 @@ class BibleJavascriptInterface(
                     else -> throw RuntimeException("Unsupported doc")
                 }, bibleView.window)
         } else if(doc is OsisDocument || doc is StudyPadDocument) {
-            currentPageManager.currentPage.anchorOrdinal = OrdinalRange(ordinal)
+            val curPage = currentPageManager.currentPage
+            if(curPage.key?.osisRef != keyStr) {
+                curPage.currentDocument?.getKey(keyStr)?.let {
+                    curPage.doSetKey(it)
+                    ABEventBus.post(CurrentVerseChangedEvent(window = bibleView.window))
+                }
+            }
+            curPage.anchorOrdinal = OrdinalRange(ordinal)
         }
     }
 
