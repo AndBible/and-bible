@@ -297,15 +297,15 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     val optimizedKeys: List<Key> get() = dao.fragments().map { getFragmentKey(it) }
 
     // TODO: no need initials...
-    private val cacheDir get() = File(epubDir,  "cache/${bookMetaData.initials}")
+    private val cacheDir get() = File(epubDir,  "optimized")
 
     private val dbFilename = "epub-${bookMetaData.initials}.sqlite3"
 
     init {
         val appDbFile = application.getDatabasePath(dbFilename)
         val epubDbFile = File(epubDir, dbFilename)
-        //appDbFile.delete()
-        //epubDbFile.delete()
+        appDbFile.delete()
+        epubDbFile.delete()
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
@@ -352,7 +352,6 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             val splitElem1 = splitOrdinal1?.let { getSplitPoint(doc, it) }
             val splitElem2 = splitOrdinal2?.let { getSplitPoint(doc, it) }
 
-            // TODO: check that this test works in JDOM2
             if(splitElem1 == splitElem2) return null // contained inside same paragraph
 
             if(splitElem1 != null) {
