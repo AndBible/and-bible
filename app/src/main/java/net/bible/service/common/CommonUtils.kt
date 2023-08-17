@@ -1075,7 +1075,7 @@ object CommonUtils : CommonUtilsBase() {
                 }
             }
             booksInitialized = true
-        }        
+        }
     }
 
     suspend fun initializeAppCoroutine() {

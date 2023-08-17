@@ -54,7 +54,6 @@ import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
 import org.jdom2.Element
-import org.jdom2.Namespace
 import org.jdom2.Text
 import org.jdom2.filter.Filters
 import org.jdom2.input.SAXBuilder
@@ -307,10 +306,10 @@ object SwordContentFacade {
                 var pos = parent.indexOf(content)
                 content.detach()
                 for (textContent in textContents) {
-                    val span = Element("BVA") // BibleViewAnchor.vue
-                    span.setAttribute("ordinal", "${ordinal++}")
-                    addContent(span, textContent)
-                    parent.addContent(pos++, span)
+                    val bva = Element("BVA") // BibleViewAnchor.vue
+                    bva.setAttribute("ordinal", "${ordinal++}")
+                    addContent(bva, textContent)
+                    parent.addContent(pos++, bva)
                 }
             }
         }
