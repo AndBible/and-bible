@@ -118,7 +118,7 @@ private fun getFileAndId(href: String): Pair<String, String>? {
 }
 
 
-class EpubBackendState(private val epubDir: File): OpenFileState {
+class EpubBackendState(internal val epubDir: File): OpenFileState {
     constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
         this._metadata = metadata
     }
@@ -131,7 +131,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     private val epubNamespace = Namespace.getNamespace("ns", "http://www.idpf.org/2007/opf")
     private val containerNamespace = Namespace.getNamespace("ns", "urn:oasis:names:tc:opendocument:xmlns:container")
     private val tocNamespace = Namespace.getNamespace("ns", "http://www.daisy.org/z3986/2005/ncx/")
-    private val xhtmlNamespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
+    internal val xhtmlNamespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
     private val urlRe = Regex("""^https?://.*""")
 
     private val metaInfoFile = File(epubDir, "META-INF/container.xml")
@@ -215,7 +215,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         return styleSheetsForOriginalKey(getOriginalKey(frag.originalHtmlFileName))
     }
 
-    private fun readOriginal(key: Key): Pair<Document, Int> {
+    internal fun readOriginal(key: Key): Pair<Document, Int> {
         val file = fileForOriginalKey(key)
         val parentFolder = file.parentFile!!
 
@@ -290,16 +290,16 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     val optimizedCardinality get() = optimizedKeys.size
 
-    private val originalKeys: List<Key>
+    internal val originalKeys: List<Key>
         get() = queryContent("//ns:spine/ns:itemref")
             .map { getOriginalKey(it.getAttribute("idref").value) }
 
     val optimizedKeys: List<Key> get() = dao.fragments().map { getFragmentKey(it) }
 
     // TODO: no need initials...
-    private val cacheDir get() = File(epubDir,  "optimized")
+    internal val cacheDir get() = File(epubDir,  "optimized")
 
-    private val dbFilename = "epub-${bookMetaData.initials}.sqlite3"
+    internal val dbFilename = "epub-${bookMetaData.initials}.sqlite3"
 
     init {
         val appDbFile = application.getDatabasePath(dbFilename)
@@ -318,141 +318,6 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     }
     private val readDb = getEpubDatabase(dbFilename)
     private val dao = readDb.epubDao()
-
-    private fun optimizeEpub() {
-        val ordinalsPerFragment = 100
-
-        fun getSplitPoint(element: Document, splitPoint: Int): Element? = useXPathInstance { xp ->
-            xp.compile(
-                "//*[descendant::BVA[@ordinal='$splitPoint'] and (following-sibling::ns:p or preceding-sibling::ns:p or self::ns:p)]",
-                Filters.element(), null, xhtmlNamespace
-            ).evaluateFirst(element)
-        }
-
-        fun removeSiblingsBefore(ele: Element) {
-            val parent = ele.parentElement?: return
-            val idx = parent.indexOf(ele)
-            for(i in 0 until idx) {
-                parent.removeContent(0)
-            }
-        }
-
-        fun removeSiblingsAfter(ele: Element) {
-            val parent = ele.parentElement ?:return
-            val idx = parent.indexOf(ele) + 1
-            val removeAmount = parent.contentSize - idx
-            for(i in 0 until removeAmount) {
-                parent.removeContent(idx)
-            }
-        }
-
-        // Extract document that contains splitOrdinal1, but paragraph containing splitOrdinal2 will be left out
-        fun extractBetween(orig: Document, splitOrdinal1: Int?, splitOrdinal2: Int?): Document? {
-            val doc = orig.clone()
-            val splitElem1 = splitOrdinal1?.let { getSplitPoint(doc, it) }
-            val splitElem2 = splitOrdinal2?.let { getSplitPoint(doc, it) }
-
-            if(splitElem1 == splitElem2) return null // contained inside same paragraph
-
-            if(splitElem1 != null) {
-                removeSiblingsBefore(splitElem1)
-                var parent = splitElem1.parentElement
-                while (parent != null) {
-                    removeSiblingsBefore(parent)
-                    parent = parent.parentElement
-                }
-            }
-            if(splitElem2 != null) {
-                // Let's this element as well as all content after this element
-                var parent = splitElem2.parentElement
-                while (parent?.parentElement != null) {
-                    removeSiblingsAfter(parent)
-                    parent = parent.parentElement
-                }
-                removeSiblingsAfter(splitElem2)
-                splitElem2.detach()
-
-            } // JOSTAIN SYYSTÄ LOPPUUN TULEE  (MELKEIN) KOKONAINEN DOKUMENTTI
-            return doc
-        }
-
-        fun splitIntoN(doc: Document, ordinalRange: IntRange, n: Int): List<Document> {
-            if(n == 0) return listOf(doc)
-            val first = ordinalRange.first
-            val pieceLength = (ordinalRange.last - first) / n
-
-            val firstFrag = extractBetween(doc, null, first+pieceLength) ?: return listOf(doc)
-
-            var splitPoint1 = first+pieceLength
-            var splitPoint2 = first+pieceLength * 2
-
-            val docs = mutableListOf<Document>()
-            docs.add(firstFrag)
-            while(splitPoint2 < ordinalRange.last) {
-                val extractedDoc = extractBetween(doc, splitPoint1, splitPoint2)
-                if(extractedDoc != null) {
-                    splitPoint1 = splitPoint2
-                    docs.add(extractedDoc)
-                }
-                splitPoint2 += pieceLength
-            }
-            if(splitPoint1 < ordinalRange.last) {
-                val lastFrag = extractBetween(doc, splitPoint1, null)
-                lastFrag?.let { docs.add(it) }
-            }
-            return docs
-        }
-
-        fun getOrdinalRange(doc: Document): IntRange {
-            val bvas = useXPathInstance { xp ->
-                xp.compile(
-                    "//BVA",
-                    Filters.element(), null, xhtmlNamespace
-                ).evaluate(doc)
-            }
-            if(bvas.size == 0) return 0..0
-            return bvas.first().getAttribute("ordinal").intValue ..
-                bvas.last().getAttribute("ordinal").intValue
-        }
-
-        fun splitIntoFragments(originalKey: Key): List<EpubFragment> {
-            val (origElement, maxOrdinal) = readOriginal(originalKey)
-            return splitIntoN(origElement, 0..maxOrdinal, maxOrdinal/ordinalsPerFragment).map {
-                val ordinalRange = getOrdinalRange(it)
-                EpubFragment(originalHtmlFileName = originalKey.osisRef, ordinalRange.first, ordinalRange.last).apply {
-                    element=it.rootElement
-                }
-            }
-        }
-
-        fun writeFragment(frag: EpubFragment) {
-            val f = File(cacheDir, frag.cacheFileName)
-            val strContent = elementToString(frag.element!!)
-            f.outputStream().use {
-                it.write(strContent.toByteArray())
-            }
-        }
-
-        cacheDir.deleteRecursively()
-        cacheDir.mkdirs()
-        val writeDb = getEpubDatabase(dbFilename)
-        val writeDao = writeDb.epubDao()
-
-        for(k in originalKeys) {
-            Log.i(TAG, "${epubDir.name}: optimizing ${k.osisRef}")
-
-            val fragments = splitIntoFragments(k)
-            val ids = writeDao.insert(*fragments.toTypedArray())
-            for((id, frag) in ids.zip(fragments)) {
-                frag.id = id
-            }
-            for(frag in fragments) {
-                Log.i(TAG, "${epubDir.name}: writing frag ${frag.id}")
-                writeFragment(frag)
-                frag.element = null // clear up memory
-            }
-        }
-    }
 
     fun getResource(resourcePath: String) = File(rootFolder, resourcePath)
 
