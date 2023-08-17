@@ -195,15 +195,15 @@ fun EpubBackendState.optimizeEpub() {
     }
 
     fun writeFragment(frag: EpubFragment) {
-        val f = File(cacheDir, frag.cacheFileName)
+        val f = File(optimizedDir, frag.cacheFileName)
         val strContent = elementToString(frag.element!!)
         f.outputStream().use {
             it.write(strContent.toByteArray())
         }
     }
 
-    cacheDir.deleteRecursively()
-    cacheDir.mkdirs()
+    optimizedDir.deleteRecursively()
+    optimizedDir.mkdirs()
     val writeDb = getEpubDatabase(dbFilename)
     val writeDao = writeDb.epubDao()
 

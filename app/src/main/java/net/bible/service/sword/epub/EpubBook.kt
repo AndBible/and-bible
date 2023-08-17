@@ -103,22 +103,21 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
         }
         return key
     }
-    override fun getCardinality(): Int = state.optimizedCardinality
+    override fun getCardinality(): Int = state.cardinality
 
     override fun iterator(): MutableIterator<Key> =
-        state.optimizedKeys
+        state.keys
             .toMutableList()
             .iterator()
     fun getKey(originalKey: String, htmlId: String): Key = state.getKey(originalKey, htmlId)
-    override fun get(index: Int): Key = state.getFromOptimizedIndex(index)
-    override fun indexOf(that: Key): Int = state.indexOfOptimizedKey(that)
+    override fun get(index: Int): Key = state.get(index)
+    override fun indexOf(that: Key): Int = state.indexOf(that)
 
     val tocKeys: List<Key> get() = state.tocKeys
 
     fun getResource(resourcePath: String): File = state.getResource(resourcePath)
-    fun styleSheets(key: Key): List<File> = state.styleSheetsForOptimizedKey(key)
-    override fun readRawContent(state: EpubBackendState, key: Key): String =
-        state.readOptimized(key)
+    fun styleSheets(key: Key): List<File> = state.styleSheets(key)
+    override fun readRawContent(state: EpubBackendState, key: Key): String = state.read(key)
     fun delete() = state.delete()
 }
 

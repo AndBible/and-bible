@@ -30,7 +30,6 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
-import org.jdom2.Element
 import org.jdom2.Namespace
 import org.jdom2.filter.Filters
 import java.io.File
@@ -115,16 +114,13 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
         xp.compile ("//dc:$key", Filters.element(), null, dcNamespace)
             .evaluateFirst(content)?.value
     }
-    private fun queryContent(expression: String): List<Element> = useXPathInstance { xp ->
-        xp.compile(expression, Filters.element(), null, epubNamespace).evaluate(content)
-    }
 
-    private fun getFragmentForOptimizedKey(key: Key): EpubFragment = dao.getFragment(key.osisRef.toLong())
+    private fun getFragment(key: Key): EpubFragment = dao.getFragment(key.osisRef.toLong())
 
     fun fileForOriginalId(id: String) = File(rootFolder, idToFile[id]!!)
 
-    fun styleSheetsForOptimizedKey(key: Key): List<File> {
-        val frag = getFragmentForOptimizedKey(key)
+    fun styleSheets(key: Key): List<File> {
+        val frag = getFragment(key)
         val file = fileForOriginalId(frag.originalId)
         val htmlRoot = useSaxBuilder {  it.build(file) }.rootElement
         val head = htmlRoot.children.find { it.name == "head" }!!
@@ -135,7 +131,7 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
             .mapNotNull { it.getAttribute("href").value?.let { File(parentFolder, it) } }
     }
 
-    private fun getFragmentKey(fragment: EpubFragment): Key {
+    private fun getKey(fragment: EpubFragment): Key {
         val filePath = idToFile.let { it[fragment.originalId] }
         val keyName = filePath?.let { fp -> fileToTitle?.let {it[fp] } } ?: BibleApplication.application.getString(R.string.nameless)
         return DefaultLeafKeyList(keyName, "${fragment.id}")
@@ -158,29 +154,29 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
                 "$id#$htmlId"
             }
             val frag = dao.getFragment(keyStr)
-            val key = getFragmentKey(frag)
+            val key = getKey(frag)
             BookAndKey(key, book, htmlId = htmlId)
         }
     }
 
-    fun readOptimized(key: Key): String {
-        val frag = getFragmentForOptimizedKey(key)
-        return String(File(cacheDir, frag.cacheFileName).readBytes())
+    fun read(key: Key): String {
+        val frag = getFragment(key)
+        return String(File(optimizedDir, frag.cacheFileName).readBytes())
     }
 
-    fun indexOfOptimizedKey(key: Key): Int = optimizedKeys.indexOf(key)
+    fun indexOf(key: Key): Int = keys.indexOf(key)
 
-    fun getFromOptimizedIndex(index: Int): Key = optimizedKeys[index]
+    fun get(index: Int): Key = keys[index]
 
-    val optimizedCardinality get() = optimizedKeys.size
+    val cardinality get() = keys.size
 
-    internal val originalIds: List<String>
-        get() = queryContent("//ns:spine/ns:itemref")
-            .map { it.getAttribute("idref").value }
+    internal val originalIds: List<String> get() = useXPathInstance { xp ->
+        xp.compile("//ns:spine/ns:itemref", Filters.element(), null, epubNamespace).evaluate(content)
+    }.map { it.getAttribute("idref").value }
 
-    val optimizedKeys: List<Key> get() = dao.fragments().map { getFragmentKey(it) }
+    val keys: List<Key> get() = dao.fragments().map { getKey(it) }
 
-    internal val cacheDir get() = File(epubDir,  "optimized")
+    internal val optimizedDir get() = File(epubDir,  "optimized")
 
     internal val dbFilename = "epub-${bookMetaData.initials}.sqlite3"
 
@@ -243,6 +239,6 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
 
     fun getKey(originalKey: String, htmlId: String): Key {
         val frag = dao.getFragment("$originalKey#$htmlId")
-        return getFragmentKey(frag)
+        return getKey(frag)
     }
 }
