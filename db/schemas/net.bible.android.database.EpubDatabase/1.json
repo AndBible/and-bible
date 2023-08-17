@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6a88dd1c437b4e03edf975f0e5edacf1",
+    "identityHash": "43d48821f276e21ff5f94d39a0a5f0da",
     "entities": [
       {
         "tableName": "EpubHtmlToFrag",
@@ -67,12 +67,54 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "StyleSheet",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`origId` TEXT NOT NULL, `styleSheetFile` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "origId",
+            "columnName": "origId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "styleSheetFile",
+            "columnName": "styleSheetFile",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_StyleSheet_origId",
+            "unique": false,
+            "columnNames": [
+              "origId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_StyleSheet_origId` ON `${TABLE_NAME}` (`origId`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6a88dd1c437b4e03edf975f0e5edacf1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '43d48821f276e21ff5f94d39a0a5f0da')"
     ]
   }
 }

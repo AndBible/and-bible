@@ -21,6 +21,7 @@ import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Ignore
+import androidx.room.Index
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
@@ -50,9 +51,17 @@ class EpubFragment(
     }
 }
 
+@Entity(indices = [Index("origId")])
+class StyleSheet(
+    val origId: String,
+    val styleSheetFile: String,
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
+)
+
 @Dao
 interface EpubDao {
     @Insert fun insert(vararg items: EpubFragment): List<Long>
+    @Insert fun insert(vararg items: StyleSheet): List<Long>
     @Insert(onConflict = OnConflictStrategy.REPLACE) fun insert(vararg items: EpubHtmlToFrag)
 
     @Query(
@@ -67,6 +76,9 @@ interface EpubDao {
 
     @Query("SELECT f.* FROM EpubFragment f")
     fun fragments(): List<EpubFragment>
+
+    @Query("SELECT * FROM StyleSheet WHERE origId=:origId")
+    fun styleSheets(origId: String): List<StyleSheet>
 }
 
 
@@ -78,6 +90,7 @@ val epubMigrations = arrayOf<Migration>()
     entities = [
         EpubHtmlToFrag::class,
         EpubFragment::class,
+        StyleSheet::class,
     ],
     version = EPUB_DATABASE_VERSION
 )

@@ -122,13 +122,8 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
     fun styleSheets(key: Key): List<File> {
         val frag = getFragment(key)
         val file = fileForOriginalId(frag.originalId)
-        val htmlRoot = useSaxBuilder {  it.build(file) }.rootElement
-        val head = htmlRoot.children.find { it.name == "head" }!!
         val parentFolder = file.parentFile
-
-        return head.children
-            .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
-            .mapNotNull { it.getAttribute("href").value?.let { File(parentFolder, it) } }
+        return dao.styleSheets(frag.originalId).map { File(parentFolder, it.styleSheetFile) }
     }
 
     private fun getKey(fragment: EpubFragment): Key {

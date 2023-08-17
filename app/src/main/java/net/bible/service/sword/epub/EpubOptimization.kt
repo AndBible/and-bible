@@ -22,6 +22,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.EpubFragment
 import net.bible.android.database.EpubHtmlToFrag
+import net.bible.android.database.StyleSheet
 import net.bible.android.misc.elementToString
 import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.android.view.activity.page.application
@@ -68,14 +69,11 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document, Int> {
         return e
     }
 
-    return useSaxBuilder { it.build(file) }.rootElement.children
-        .find { it.name == "body" }!!
-        .run {
-            name = "div"
-            val processed = fixReferences(this)
+    return useSaxBuilder { it.build(file) }
+        .let {
+            val processed = fixReferences(it.rootElement)
             val maxOrdinal = SwordContentFacade.addAnchors(processed, bookMetaData.language.code, true)
-            val resultDoc = Document(processed.clone())
-            Pair(resultDoc, maxOrdinal)
+            Pair(it, maxOrdinal)
         }
 }
 fun EpubBackendState.optimizeEpub() {
@@ -174,9 +172,8 @@ fun EpubBackendState.optimizeEpub() {
             bvas.last().getAttribute("ordinal").intValue
     }
 
-    fun splitIntoFragments(originalId: String): List<EpubFragment> {
-        val (origElement, maxOrdinal) = readOriginal(originalId)
-        return splitIntoN(origElement, 0..maxOrdinal, maxOrdinal/ordinalsPerFragment).map {
+    fun splitIntoFragments(originalId: String, origDocument: Document, maxOrdinal: Int): List<EpubFragment> {
+        return splitIntoN(origDocument, 0..maxOrdinal, maxOrdinal/ordinalsPerFragment).map {
             val ordinalRange = getOrdinalRange(it)
             EpubFragment(originalId = originalId, ordinalRange.first, ordinalRange.last).apply {
                 element=it.rootElement
@@ -196,7 +193,14 @@ fun EpubBackendState.optimizeEpub() {
 
     fun writeFragment(frag: EpubFragment) {
         val f = File(optimizedDir, frag.cacheFileName)
-        val strContent = elementToString(frag.element!!)
+        val body = useXPathInstance { xp ->
+            xp.compile(
+                "//ns:body",
+                Filters.element(), null, xhtmlNamespace
+            ).evaluateFirst(frag.element)
+        }
+        body.name = "div"
+        val strContent = elementToString(body)
         f.outputStream().use {
             it.write(strContent.toByteArray())
         }
@@ -213,12 +217,22 @@ fun EpubBackendState.optimizeEpub() {
         ABEventBus.post(InstallZipEvent(s))
         Log.i(TAG, "${bookMetaData.name}: optimizing $k")
 
-        val fragments = splitIntoFragments(k)
+        val (origDocument, maxOrdinal) = readOriginal(k)
+
+        val fragments = splitIntoFragments(k, origDocument, maxOrdinal)
         val ids = writeDao.insert(*fragments.toTypedArray())
         for((id, frag) in ids.zip(fragments)) {
             frag.id = id
         }
         writeDao.insert(EpubHtmlToFrag(k, fragments[0].id))
+
+        val head = origDocument.rootElement.children.find { it.name == "head" }!!
+        val styleSheets = head.children
+            .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
+            .mapNotNull { StyleSheet(k, it.getAttribute("href").value) }.toTypedArray()
+
+        writeDao.insert(*styleSheets)
+
         for(frag in fragments) {
             Log.i(TAG, "${bookMetaData.name}: writing frag ${frag.id}")
             writeFragment(frag)
