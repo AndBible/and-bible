@@ -172,6 +172,7 @@ fun EpubBackendState.optimizeEpub() {
         for((id, frag) in ids.zip(fragments)) {
             frag.id = id
         }
+        writeDao.insert(EpubHtmlToFrag(k.osisRef, fragments[0].id))
         for(frag in fragments) {
             Log.i(TAG, "${bookMetaData.name}: writing frag ${frag.id}")
             writeFragment(frag)

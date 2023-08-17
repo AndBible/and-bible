@@ -24,7 +24,9 @@ import net.bible.android.activity.R
 import net.bible.android.database.EpubFragment
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.DefaultLeafKeyList
@@ -200,6 +202,28 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
         return DefaultLeafKeyList(keyName, "${fragment.id}")
     }
 
+    val tocKeys: List<Key> get() {
+        val content = useXPathInstance { xp ->
+            xp.compile("//ns:navPoint/ns:content", Filters.element(), null, tocNamespace)
+                .evaluate(toc)
+        }
+        val book = Books.installed().getBook(bookMetaData.initials)
+        return content.map { c ->
+            val fileAndId = getFileAndId(c.getAttribute("src").value)
+            val fileName = fileAndId?.first?.let { URLDecoder.decode(it, "UTF-8") }
+            val htmlId = fileAndId?.second?.let { it.ifEmpty { null } }
+            val id = fileToId[fileName]!!
+            val keyStr: String = if(htmlId == null) {
+                id
+            } else {
+                "$id#$htmlId"
+            }
+            val frag = dao.getFragment(keyStr)
+            val key = getFragmentKey(frag)
+            BookAndKey(key, book, htmlId = htmlId)
+        }
+    }
+
     fun readOptimized(key: Key): String {
         val frag = getFragmentForOptimizedKey(key)
         return String(File(cacheDir, frag.cacheFileName).readBytes())
@@ -233,8 +257,8 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
     init {
         val appDbFile = BibleApplication.application.getDatabasePath(dbFilename)
         val epubDbFile = File(epubDir, dbFilename)
-        appDbFile.delete()
-        epubDbFile.delete()
+        //appDbFile.delete()
+        //epubDbFile.delete()
 
         if(!epubDbFile.exists()) {
             optimizeEpub()

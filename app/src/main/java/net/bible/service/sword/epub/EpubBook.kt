@@ -112,6 +112,9 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
     fun getKey(originalKey: String, htmlId: String): Key = state.getKey(originalKey, htmlId)
     override fun get(index: Int): Key = state.getFromOptimizedIndex(index)
     override fun indexOf(that: Key): Int = state.indexOfOptimizedKey(that)
+
+    val tocKeys: List<Key> get() = state.tocKeys
+
     fun getResource(resourcePath: String): File = state.getResource(resourcePath)
     fun styleSheets(key: Key): List<File> = state.styleSheetsForOptimizedKey(key)
     override fun readRawContent(state: EpubBackendState, key: Key): String =

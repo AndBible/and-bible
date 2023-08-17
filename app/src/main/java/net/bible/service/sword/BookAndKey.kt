@@ -17,7 +17,11 @@
 
 package net.bible.service.sword
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import net.bible.android.control.page.OrdinalRange
+import net.bible.android.view.activity.bookmark.LabelEditActivity
+import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.ordinalRangeFor
 import net.bible.service.download.doesNotExist
 import org.crosswire.common.util.ItemIterator
@@ -29,12 +33,35 @@ import org.crosswire.jsword.passage.RestrictionType
 import java.lang.UnsupportedOperationException
 val BookAndKey.ordinalRange: IntRange? get() = document?.ordinalRangeFor(key)
 
+@Serializable
+class BookAndKeySerialized(
+    val key: String,
+    val document: String,
+    val ordinalRange: OrdinalRange?,
+    val htmlId: String?,
+) {
+    val bookAndKey: BookAndKey get () {
+        val book = Books.installed().getBook(document)
+        val key = book.getKey(key)
+        return BookAndKey(key, book, ordinalRange, htmlId)
+    }
+
+    companion object {
+        fun fromJSON(str: String): BookAndKeySerialized = json.decodeFromString(serializer(), str)
+    }
+}
+
 class BookAndKey(
     _key: Key,
     document: Book? = null,
     @Transient val ordinal: OrdinalRange? = null,
     @Transient val htmlId: String? = null
 ): Key {
+    val serialized: String get() {
+        val s = BookAndKeySerialized(key.osisRef, documentInitials, ordinal, htmlId)
+        return json.encodeToString(serializer(), s)
+    }
+
     val key: Key = if(_key is BookAndKey) {
         if(_key.document != document) {
             throw RuntimeException("Document does not match")

@@ -1059,11 +1059,10 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.instance
             withContext(Dispatchers.Main) {
                 buildActivityComponent().inject(this@CommonUtils)
-            }
-
-            ttsNotificationManager = TextToSpeechNotificationManager()
-            if(!BuildVariant.Appearance.isDiscrete) {
-                ttsWidgetManager = SpeakWidgetManager()
+                ttsNotificationManager = TextToSpeechNotificationManager()
+                if(!BuildVariant.Appearance.isDiscrete) {
+                    ttsWidgetManager = SpeakWidgetManager()
+                }
             }
             withContext(Dispatchers.IO) {
                 addManuallyInstalledMyBibleBooks()

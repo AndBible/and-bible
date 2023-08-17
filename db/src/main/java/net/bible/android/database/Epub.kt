@@ -32,7 +32,7 @@ import org.jdom2.Element
 
 @Entity
 class EpubHtmlToFrag(
-    @PrimaryKey val htmlId: String, // contains epub doc id and html id
+    @PrimaryKey val htmlId: String, // contains epub doc id (and possibly #htmlId)
     val fragId: Long,
 )
 

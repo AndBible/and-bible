@@ -382,6 +382,7 @@ object SwordContentFacade {
     fun ordinalRangeFor(book: Book, key: Key): IntRange {
         val texts = cachedText(book, key)
         val keys = texts.keys
+        if(keys.isEmpty()) return 0..0
         val first = keys.min()
         val last = keys.max()
         return first .. last
