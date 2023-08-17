@@ -1781,8 +1781,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         } else {
             val currentPage = window.pageManager.currentGeneralBook
             firstKey ?: return@launch
-            firstKey = currentPage.getKeyPlus(firstKey, -1)
-            val doc = firstKey?.let {currentPage.getPageContent(it) } ?: return@launch
+            val prevKey = currentPage.getKeyPlus(firstKey, -1)
+            firstKey = prevKey
+            val doc = currentPage.getPageContent(prevKey)
             executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
         }
     }
@@ -1802,8 +1803,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         } else {
             val currentPage = window.pageManager.currentGeneralBook
             lastKey ?: return@launch
-            lastKey = currentPage.getKeyPlus(lastKey, 1)
-            val doc = lastKey?.let {currentPage.getPageContent(it) } ?: return@launch
+            val nextKey = currentPage.getKeyPlus(lastKey, 1)
+            lastKey = nextKey
+            val doc = currentPage.getPageContent(nextKey)
             executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
         }
     }
