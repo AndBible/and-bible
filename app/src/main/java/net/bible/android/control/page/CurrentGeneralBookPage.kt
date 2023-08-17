@@ -152,9 +152,7 @@ class CurrentGeneralBookPage internal constructor(
             }
             FakeBookFactory.multiDocument -> {}
             else -> {
-                getKeyPlus(1).let {
-                    setKey(it)
-                }
+                setKey(getKeyPlus(1))
             }
         }
     }
@@ -168,9 +166,7 @@ class CurrentGeneralBookPage internal constructor(
             }
             FakeBookFactory.multiDocument -> {}
             else -> {
-                getKeyPlus(-1).let {
-                    setKey(it)
-                }
+                setKey(getKeyPlus(-1))
             }
         }
     }

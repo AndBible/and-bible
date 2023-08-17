@@ -23,8 +23,10 @@ import androidx.room.TypeConverters
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
+import net.bible.android.database.migrations.Migration
 import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
 import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
+import net.bible.android.database.migrations.makeMigration
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 
@@ -97,6 +99,8 @@ abstract class WorkspaceDatabase: SyncableRoomDatabase() {
     }
 }
 
+val temporaryMigrations: Array<Migration> = arrayOf()
+
 const val TEMPORARY_DATABASE_VERSION = 1
 
 @Database(
@@ -108,6 +112,7 @@ const val TEMPORARY_DATABASE_VERSION = 1
 @TypeConverters(Converters::class)
 abstract class TemporaryDatabase: RoomDatabase() {
     abstract fun documentSearchDao(): DocumentSearchDao
+
     companion object {
         const val dbFileName = "temporary.sqlite3"
     }

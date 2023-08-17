@@ -32,7 +32,8 @@ export function useVerseNotifier(
     lineHeight: ComputedRef<number>,
 ) {
     const currentVerse = ref<number | null>(null);
-    watch(() => currentVerse.value, value => scrolledToOrdinal(value));
+    const currentKey = ref<string>("")
+    watch(() => currentVerse.value, value => scrolledToOrdinal(currentKey.value!!, value));
 
     let lastDirection = "ltr";
     const step = 10;
@@ -72,6 +73,8 @@ export function useVerseNotifier(
                             break;
                         }
                         currentVerse.value = parseInt(element.dataset.ordinal!)
+                        const doc = element.closest(".document") as Nullable<HTMLElement>
+                        currentKey.value = doc?.dataset.osisRef || ""
                         break;
                     }
                 }

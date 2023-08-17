@@ -37,7 +37,7 @@ import org.jdom2.output.support.FormatStack
 import java.io.Writer
 
 
-val sanitizeRegex = Regex("""[^\p{L}]""")
+val sanitizeRegex = Regex("""[^\p{L}\d]""")
 fun sanitizeId(s: String): String = s.replace(sanitizeRegex, "_")
 
 // Unique identifier that can be used as ID in DOM

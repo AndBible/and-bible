@@ -138,7 +138,6 @@ import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
-import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseKey
 import org.crosswire.jsword.passage.VerseRange
@@ -1035,7 +1034,7 @@ object CommonUtils : CommonUtilsBase() {
     private var ttsWidgetManager: SpeakWidgetManager? = null
 
     var initialized = false
-    var booksInitialized = false
+    private var booksInitialized = false
 
     fun initializeApp() {
         if(!initialized) {
@@ -1048,17 +1047,58 @@ object CommonUtils : CommonUtilsBase() {
 
             DatabaseContainer.ready = true
             DatabaseContainer.instance
-
-            buildActivityComponent().inject(this)
-
+            buildActivityComponent().inject(this@CommonUtils)
             ttsNotificationManager = TextToSpeechNotificationManager()
             if(!BuildVariant.Appearance.isDiscrete) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
-
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
             addManuallyInstalledEpubBooks()
+
+            // IN practice we don't need to restore this data, because it is stored by JSword in book
+            // metadata (persisted by JSWORD to files) too.
+            //docDao.getAll().forEach {
+            //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
+            //}
+
+            initialized = true
+        }
+
+        if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
+            if(!application.isRunningTests) {
+                for (it in docDao.getUnlocked()) {
+                    val book = Books.installed().getBook(it.initials)
+                    book.unlock(it.cipherKey)
+                }
+            }
+            booksInitialized = true
+        }
+    }
+
+    suspend fun initializeAppCoroutine() {
+        if(!initialized) {
+            try {
+                val pid = android.os.Process.myPid()
+                Runtime.getRuntime().exec("logcat -P '$pid'").waitFor()
+            } catch (e: Exception) {
+                Log.w(TAG, "Logcat could not be run")
+            }
+
+            DatabaseContainer.ready = true
+            DatabaseContainer.instance
+            withContext(Dispatchers.Main) {
+                buildActivityComponent().inject(this@CommonUtils)
+                ttsNotificationManager = TextToSpeechNotificationManager()
+                if(!BuildVariant.Appearance.isDiscrete) {
+                    ttsWidgetManager = SpeakWidgetManager()
+                }
+            }
+            withContext(Dispatchers.IO) {
+                addManuallyInstalledMyBibleBooks()
+                addManuallyInstalledMySwordBooks()
+                addManuallyInstalledEpubBooks()
+            }
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1555,9 +1595,9 @@ fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
 
 private val xPathInstances = ArrayBlockingQueue<XPathFactory>(32)
 fun <R> useXPathInstance(block: (it: XPathFactory) -> R): R {
-    val builder = xPathInstances.poll()?: XPathFactory.instance()
-    val rv = block(builder)
-    xPathInstances.offer(builder)
+    val xPath = xPathInstances.poll()?: XPathFactory.instance()
+    val rv = block(xPath)
+    xPathInstances.offer(xPath)
     return rv
 }
 

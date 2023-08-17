@@ -21,6 +21,10 @@ import android.content.Intent
 import android.util.Log
 import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.view.activity.navigation.GridChoosePassageVerse
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.epub.EpubBackend
+import net.bible.service.sword.epub.isEpub
+import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 
 /** show a list of keys and allow to select an item
@@ -32,12 +36,25 @@ class ChooseGeneralBookKey : ChooseKeyBase() {
         get() = currentGeneralBookPage.key
 
 
-    override val keyList: List<Key> get() = currentGeneralBookPage.cachedGlobalKeyList!!
+    override val keyList: List<Key> get() {
+        val doc = currentGeneralBookPage.currentDocument!!
+        return if(doc.isEpub) {
+            val backend = (doc as SwordGenBook).backend as EpubBackend
+            backend.tocKeys
+        } else {
+            currentGeneralBookPage.cachedGlobalKeyList!!
+        }
+    }
 
     override fun itemSelected(key: Key) {
         val myIntent = Intent(this, ChooseGeneralBookKey::class.java)
-        myIntent.putExtra("key", key.osisRef)
-        myIntent.putExtra("book", currentGeneralBookPage.currentDocument?.initials)
+        if(key is BookAndKey) {
+            myIntent.putExtra("bookAndKey", key.serialized)
+        } else {
+            myIntent.putExtra("key", key.osisRef)
+            myIntent.putExtra("book", currentGeneralBookPage.currentDocument?.initials)
+        }
+
         setResult(Activity.RESULT_OK, myIntent)
     }
 

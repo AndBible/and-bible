@@ -24,13 +24,14 @@
 import {nextTick, onMounted} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
-import {AnyDocument} from "@/types/documents";
+import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import {Nullable} from "@/types/common";
 
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
     documents: AnyDocument[]
 ) {
+    const enabledTypes: Set<BibleViewDocumentType> = new Set(["bible", "osis"]);
     let
         currentPos: number,
         lastAddMoreTime = 0,
@@ -48,11 +49,11 @@ export function useInfiniteScroll(
         loadTextAtTop = async () => insertThisTextAtTop(await requestPreviousChapter()),
         loadTextAtEnd = async () => insertThisTextAtEnd(await requestNextChapter()),
         addMoreAtEnd = () => {
-            if (documents[0].type !== "bible") return;
+            if (!enabledTypes.has(documents[0].type)) return;
             return loadTextAtEnd();
         },
         addMoreAtTop = () => {
-            if (documents[0].type !== "bible") return;
+            if (!enabledTypes.has(documents[0].type)) return;
             if (touchDown) {
                 // adding at top is tricky and if the user is stil holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;
