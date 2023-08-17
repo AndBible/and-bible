@@ -1039,11 +1039,43 @@ object CommonUtils : CommonUtilsBase() {
     var booksInitialized = false
 
     fun initializeApp() {
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                initializeAppCoroutine()
+        if(!initialized) {
+            try {
+                val pid = android.os.Process.myPid()
+                Runtime.getRuntime().exec("logcat -P '$pid'").waitFor()
+            } catch (e: Exception) {
+                Log.w(TAG, "Logcat could not be run")
             }
+
+            DatabaseContainer.ready = true
+            DatabaseContainer.instance
+            buildActivityComponent().inject(this@CommonUtils)
+            ttsNotificationManager = TextToSpeechNotificationManager()
+            if(!BuildVariant.Appearance.isDiscrete) {
+                ttsWidgetManager = SpeakWidgetManager()
+            }
+            addManuallyInstalledMyBibleBooks()
+            addManuallyInstalledMySwordBooks()
+            addManuallyInstalledEpubBooks()
+
+            // IN practice we don't need to restore this data, because it is stored by JSword in book
+            // metadata (persisted by JSWORD to files) too.
+            //docDao.getAll().forEach {
+            //    Books.installed().getBook(it.initials)?.putProperty(REPOSITORY_KEY, it.repository)
+            //}
+
+            initialized = true
         }
+
+        if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
+            if(!application.isRunningTests) {
+                for (it in docDao.getUnlocked()) {
+                    val book = Books.installed().getBook(it.initials)
+                    book.unlock(it.cipherKey)
+                }
+            }
+            booksInitialized = true
+        }        
     }
 
     suspend fun initializeAppCoroutine() {
