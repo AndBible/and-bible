@@ -73,8 +73,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.Serializable
@@ -1037,6 +1039,12 @@ object CommonUtils : CommonUtilsBase() {
     var booksInitialized = false
 
     fun initializeApp() {
+        runBlocking {
+            initializeAppCoroutine()
+        }
+    }
+
+    suspend fun initializeAppCoroutine() = withContext(Dispatchers.Main) {
         if(!initialized) {
             try {
                 val pid = android.os.Process.myPid()
@@ -1048,16 +1056,17 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
 
-            buildActivityComponent().inject(this)
+            buildActivityComponent().inject(this@CommonUtils)
 
             ttsNotificationManager = TextToSpeechNotificationManager()
             if(!BuildVariant.Appearance.isDiscrete) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
-
-            addManuallyInstalledMyBibleBooks()
-            addManuallyInstalledMySwordBooks()
-            addManuallyInstalledEpubBooks()
+            withContext(Dispatchers.IO) {
+                addManuallyInstalledMyBibleBooks()
+                addManuallyInstalledMySwordBooks()
+                addManuallyInstalledEpubBooks()
+            }
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.

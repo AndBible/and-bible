@@ -18,8 +18,13 @@
 package net.bible.service.sword.epub
 
 import android.util.Log
+import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.EpubFragment
 import net.bible.android.misc.elementToString
+import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.activity.installzip.InstallZipEvent
+import net.bible.android.view.activity.page.application
 import net.bible.service.common.useXPathInstance
 import org.crosswire.jsword.passage.Key
 import org.jdom2.Document
@@ -148,6 +153,8 @@ fun EpubBackendState.optimizeEpub() {
     val writeDao = writeDb.epubDao()
 
     for(k in originalKeys) {
+        val s = application.getString(R.string.optimizingEpub, "${epubDir.name}: ${k.name}")
+        ABEventBus.post(InstallZipEvent(s))
         Log.i(TAG, "${epubDir.name}: optimizing ${k.osisRef}")
 
         val fragments = splitIntoFragments(k)

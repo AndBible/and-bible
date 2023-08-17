@@ -73,6 +73,8 @@ import kotlin.math.roundToInt
  * @author Tuomas Airaksinen [tuomas.airaksinen at gmail dot com]
  */
 
+class InstallZipEvent(val message: String)
+
 class ModulesExists(val files: List<String>) : Exception()
 class CantOverwrite(val files: List<String>) : Exception()
 
@@ -289,6 +291,7 @@ class InstallZip : ActivityBase() {
         Log.i(TAG, "Install from Zip starting")
         binding = ActivityInstallZipBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        ABEventBus.register(this)
         super.buildActivityComponent().inject(this)
         lifecycleScope.launch {
             when (intent?.action) {
@@ -317,6 +320,11 @@ class InstallZip : ActivityBase() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        ABEventBus.unregister(this)
+        super.onDestroy()
     }
 
     private suspend fun getFileFromUserAndInstall() {
@@ -499,6 +507,10 @@ class InstallZip : ActivityBase() {
         return result
     }
 
+    fun onEventMainThread(e: InstallZipEvent) {
+        binding.statusText.text = e.message
+    }
+
     private suspend fun installEpub(uri: Uri): Boolean = withContext(Dispatchers.IO) {
         withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
@@ -510,8 +522,8 @@ class InstallZip : ActivityBase() {
         }
         dir.mkdirs()
         unzipInputStream(contentResolver.openInputStream(uri)!!, dir)
+        addManuallyInstalledEpubBooks()
         withContext(Dispatchers.Main) {
-            addManuallyInstalledEpubBooks()
             ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
             binding.loadingIndicator.visibility = View.GONE
             finish()

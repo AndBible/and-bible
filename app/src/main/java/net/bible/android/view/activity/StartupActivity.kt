@@ -55,6 +55,7 @@ import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.OpenLink
 import net.bible.service.common.BuildVariant
@@ -186,6 +187,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "StartupActivity.onCreate")
         super.onCreate(savedInstanceState)
+        ABEventBus.register(this)
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
         startupViewBinding = StartupViewBinding.inflate(layoutInflater)
         setContentView(spinnerBinding.root)
@@ -206,6 +208,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
             }
         }
+    }
+
+    override fun onDestroy() {
+        ABEventBus.unregister(this)
+        super.onDestroy()
     }
 
     private suspend fun initializeDatabase() {
@@ -237,8 +244,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         } else {
             Log.i(TAG, "Going to main bible view")
-            gotoMainBibleActivity()
             spinnerBinding.progressText.text =getString(R.string.initializing_app)
+            gotoMainBibleActivity()
         }
     }
 
@@ -401,10 +408,14 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     return@launch
                 }
             }
-            CommonUtils.initializeApp()
+            CommonUtils.initializeAppCoroutine()
             startActivity(handlerIntent)
             finish()
         }
+    }
+
+    fun onEventMainThread(e: InstallZipEvent) {
+        spinnerBinding.progressText.text = e.message
     }
 
     companion object {

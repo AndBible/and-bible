@@ -28,7 +28,8 @@
         android:text="@string/install_zip_title"
         android:padding="10dip"
         app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -49,4 +50,11 @@
         tools:layout_editor_absoluteX="32dp"
         android:visibility="gone"
         />
+    <TextView
+        android:id="@+id/statusText"
+        app:layout_constraintTop_toBottomOf="@id/progressBar"
+        app:layout_constraintStart_toEndOf="parent"
+        android:padding="10dip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
