@@ -246,13 +246,6 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
         return getKey(frag)
     }
 
-    fun getOrigKey(key: Key): Key {
-        val frag = getFragment(key)
-        val file = idToFile[frag.originalId]
-        val title = fileToTitle?.let { it[file] }?: application.getString(R.string.nameless)
-        return DefaultLeafKeyList(frag.originalId, title)
-    }
-
     fun getOrdinalRange(key: Key): IntRange {
         val frag = getFragment(key)
         return frag.ordinalStart .. frag.ordinalEnd
