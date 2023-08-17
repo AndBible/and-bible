@@ -80,7 +80,10 @@ abstract class CachedKeyPage internal constructor(
     /** add or subtract a number of pages from the current position and return Verse
      */
     override fun getKeyPlus(num: Int): Key {
-        val currentKey = key
+        return getKeyPlus(key, num)
+    }
+
+    fun getKeyPlus(currentKey: Key?, num: Int): Key {
         val keyPos = findIndexOf(currentKey)
         // move forward or backward to new posn
         var newKeyPos = keyPos + num
@@ -90,6 +93,7 @@ abstract class CachedKeyPage internal constructor(
         // get the actual key at that posn
         return cachedGlobalKeyList!![newKeyPos]
     }
+
 
     /** find index of key in cached key list but cater for TreeKeys too
      */

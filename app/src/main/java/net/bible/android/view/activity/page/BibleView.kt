@@ -1204,6 +1204,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var initialAnchorOrdinal: OrdinalRange? = null
     private var initialHtmlId: String? = null
     internal var initialKey: Key? = null
+        set(value) {
+            firstKey = value
+            lastKey = value
+            field = value
+        }
+    private var lastKey: Key? = null
+    private var firstKey: Key? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
     internal val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
 
@@ -1771,6 +1778,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val doc = currentPage.getDocumentForChapter(newChap)
             addChapter(newChap)
             executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+        } else {
+            val currentPage = window.pageManager.currentGeneralBook
+            firstKey = currentPage.getKeyPlus(firstKey, -1)
+            val doc = firstKey?.let {currentPage.getPageContent(it) } ?: return@launch
+            executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
         }
     }
 
@@ -1785,6 +1797,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(newChap > lastChap) return@launch
             val doc = currentPage.getDocumentForChapter(newChap)
             addChapter(newChap)
+            executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+        } else {
+            val currentPage = window.pageManager.currentGeneralBook
+            lastKey = currentPage.getKeyPlus(lastKey, 1)
+            val doc = lastKey?.let {currentPage.getPageContent(it) } ?: return@launch
             executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
         }
     }
