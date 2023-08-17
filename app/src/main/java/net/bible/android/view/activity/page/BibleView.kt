@@ -973,8 +973,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val bookStr = uri.getQueryParameter("book")!!
             val keyStr = uri.getQueryParameter("toKey")!!
             val idStr = uri.getQueryParameter("toId")!!
-            val book = Books.installed().getBook(bookStr)
-            val key = book.getKey(keyStr)
+
+            val book = Books.installed().getBook(bookStr) as SwordGenBook
+            val backend = book.backend as EpubBackend
+            val key = backend.getKey(keyStr, idStr)
+
             linkControl.showLink(book, BookAndKey(key, book, htmlId = idStr))
             true
         }
