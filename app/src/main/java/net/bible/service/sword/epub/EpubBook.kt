@@ -304,8 +304,8 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     init {
         val appDbFile = application.getDatabasePath(dbFilename)
         val epubDbFile = File(epubDir, dbFilename)
-        appDbFile.delete()
-        epubDbFile.delete()
+        //appDbFile.delete()
+        //epubDbFile.delete()
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
