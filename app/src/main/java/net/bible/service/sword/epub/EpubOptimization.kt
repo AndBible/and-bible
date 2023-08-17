@@ -25,14 +25,59 @@ import net.bible.android.database.EpubHtmlToFrag
 import net.bible.android.misc.elementToString
 import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.android.view.activity.page.application
+import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
-import org.crosswire.jsword.passage.Key
+import net.bible.service.sword.SwordContentFacade
 import org.jdom2.Document
 import org.jdom2.Element
 import org.jdom2.filter.Filters
 import java.io.File
+import java.net.URLDecoder
 
+private val urlRe = Regex("""^https?://.*""")
+fun EpubBackendState.readOriginal(origId: String): Pair<Document, Int> {
+    val file = fileForOriginalId(origId)
+    val parentFolder = file.parentFile!!
 
+    fun epubSrc(src: String): String {
+        val f = File(parentFolder, src)
+        val filePath = f.toRelativeString(rootFolder)
+        return "/epub/${bookMetaData.initials}/$filePath"
+    }
+
+    fun fixReferences(e: Element): Element {
+        for(img in useXPathInstance { xp -> xp.compile("//ns:img", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
+            val src = img.getAttribute("src").value
+            val finalSrc = epubSrc(src)
+            img.setAttribute("src", finalSrc)
+        }
+        for(a in useXPathInstance { xp -> xp.compile("//ns:a", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
+            val href = a.getAttribute("href")?.value?: continue
+            val fileAndId = getFileAndId(href)
+            if(fileAndId != null && !urlRe.matches(href)) {
+                val fileStr = URLDecoder.decode(fileAndId.first, "UTF-8")
+                val fileName = if(fileStr.isEmpty()) null else File(parentFolder, fileStr).toRelativeString(rootFolder)
+                val id: String = fileName?.let {fileToId[it] }?: origId
+                a.name = "epubRef"
+                a.setAttribute("to-key", id)
+                a.setAttribute("to-id", fileAndId.second)
+            } else {
+                a.name = "epubA"
+            }
+        }
+        return e
+    }
+
+    return useSaxBuilder { it.build(file) }.rootElement.children
+        .find { it.name == "body" }!!
+        .run {
+            name = "div"
+            val processed = fixReferences(this)
+            val maxOrdinal = SwordContentFacade.addAnchors(processed, bookMetaData.language.code, true)
+            val resultDoc = Document(processed.clone())
+            Pair(resultDoc, maxOrdinal)
+        }
+}
 fun EpubBackendState.optimizeEpub() {
     val ordinalsPerFragment = 100
 
@@ -129,11 +174,11 @@ fun EpubBackendState.optimizeEpub() {
             bvas.last().getAttribute("ordinal").intValue
     }
 
-    fun splitIntoFragments(originalKey: Key): List<EpubFragment> {
-        val (origElement, maxOrdinal) = readOriginal(originalKey)
+    fun splitIntoFragments(originalId: String): List<EpubFragment> {
+        val (origElement, maxOrdinal) = readOriginal(originalId)
         return splitIntoN(origElement, 0..maxOrdinal, maxOrdinal/ordinalsPerFragment).map {
             val ordinalRange = getOrdinalRange(it)
-            EpubFragment(originalHtmlFileName = originalKey.osisRef, ordinalRange.first, ordinalRange.last).apply {
+            EpubFragment(originalId = originalId, ordinalRange.first, ordinalRange.last).apply {
                 element=it.rootElement
             }
         }
@@ -162,22 +207,23 @@ fun EpubBackendState.optimizeEpub() {
     val writeDb = getEpubDatabase(dbFilename)
     val writeDao = writeDb.epubDao()
 
-    for(k in originalKeys) {
-        val s = application.getString(R.string.processing_epub, "${bookMetaData.name}: ${k.name}")
+    for(k in originalIds) {
+        val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: application.getString(R.string.nameless)
+        val s = application.getString(R.string.processing_epub, "${bookMetaData.name}: $title")
         ABEventBus.post(InstallZipEvent(s))
-        Log.i(TAG, "${bookMetaData.name}: optimizing ${k.osisRef}")
+        Log.i(TAG, "${bookMetaData.name}: optimizing $k")
 
         val fragments = splitIntoFragments(k)
         val ids = writeDao.insert(*fragments.toTypedArray())
         for((id, frag) in ids.zip(fragments)) {
             frag.id = id
         }
-        writeDao.insert(EpubHtmlToFrag(k.osisRef, fragments[0].id))
+        writeDao.insert(EpubHtmlToFrag(k, fragments[0].id))
         for(frag in fragments) {
             Log.i(TAG, "${bookMetaData.name}: writing frag ${frag.id}")
             writeFragment(frag)
             val epubHtmlToFrags = findIds(frag).map {
-                EpubHtmlToFrag("${k.osisRef}#$it", frag.id)
+                EpubHtmlToFrag("$k#$it", frag.id)
             }.toTypedArray()
             writeDao.insert(*epubHtmlToFrags)
             frag.element = null // clear up memory
