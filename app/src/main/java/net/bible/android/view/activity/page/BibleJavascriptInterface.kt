@@ -57,7 +57,6 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
-import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import org.crosswire.jsword.book.Books
@@ -88,7 +87,7 @@ class BibleJavascriptInterface(
         if (doc is BibleDocument || doc is MyNotesDocument) {
             currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal,
                 when (doc) {
-                    is BibleDocument -> bibleView.initialVerse!!.versification
+                    is BibleDocument -> (bibleView.initialKey as Verse).versification
                     is MyNotesDocument -> KJVA
                     else -> throw RuntimeException("Unsupported doc")
                 }, bibleView.window)

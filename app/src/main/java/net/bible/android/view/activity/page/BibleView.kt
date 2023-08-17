@@ -1131,7 +1131,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     suspend fun loadDocument(document: Document,
                              updateLocation: Boolean = false,
-                             verse: Verse? = null,
+                             key: Key? = null,
                              anchorOrdinal: OrdinalRange? = null,
                              htmlId: String? = null,
     )
@@ -1143,14 +1143,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         bookmarkControl.speakLabel
 
         bookmarkLabels = bookmarkControl.assignableLabels.toMutableList()
-        initialVerse = verse
+        initialKey = key
 
         initialAnchorOrdinal = anchorOrdinal
         initialHtmlId = htmlId
 
         if (lastUpdated == 0L || updateLocation) {
             if (listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
-                initialVerse = KeyUtil.getVerse(window.pageManager.currentBibleVerse.verse)
+                initialKey = KeyUtil.getVerse(window.pageManager.currentBibleVerse.verse)
             } else {
                 initialAnchorOrdinal = currentPage.anchorOrdinal
                 initialHtmlId = currentPage.htmlId
@@ -1159,12 +1159,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         contentVisible = false
 
-        val chapter = initialVerse?.chapter
+        val chapter = (initialKey as? Verse)?.chapter
         if (chapter != null) {
             addChapter(chapter)
         }
 
-        Log.i(TAG, "Show $initialVerse, $initialAnchorOrdinal Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
+        Log.i(TAG, "Show $initialKey, $initialAnchorOrdinal Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
         this.firstDocument = document
         synchronized(this) {
             var docStr = document.asJson
@@ -1203,7 +1203,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private var initialAnchorOrdinal: OrdinalRange? = null
     private var initialHtmlId: String? = null
-    internal var initialVerse: Verse? = null
+    internal var initialKey: Key? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
     internal val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
 
@@ -1280,11 +1280,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun replaceDocument() {
         Log.i(TAG, "replaceDocument")
         val documentStr = latestDocumentStr
+        val verse = initialKey as? Verse
         synchronized(this) {
             needsDocument = false
             contentVisible = true
-            minChapter = initialVerse?.chapter ?: -1
-            maxChapter = initialVerse?.chapter ?: -1
+            minChapter = verse?.chapter ?: -1
+            maxChapter = verse?.chapter ?: -1
         }
 
         if(!labelsUploaded) {
@@ -1304,7 +1305,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             ${getUpdateConfigCommand(true)}
             bibleView.emit("add_documents", $documentStr);
             bibleView.emit("setup_content", {
-                jumpToOrdinal: ${initialVerse?.ordinal}, 
+                jumpToOrdinal: ${verse?.ordinal}, 
                 jumpToAnchor: ${initialAnchorOrdinal?.start},
                 jumpToId: "$jumpToId",
                 topOffset: $topOffset,
@@ -1666,7 +1667,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             else -> throw RuntimeException("illegal type")
         }
-        val v = initialVerse
+        val v = initialKey as? Verse
         if(firstDocument is MyNotesDocument) {
             toVerse = toVerse.toV11n(KJVA)
             endVerse = endVerse?.toV11n(KJVA)
