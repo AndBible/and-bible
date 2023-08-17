@@ -83,7 +83,7 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
             }
     }
 
-    private val idToFile = fileToId.entries.associate { it.value to it.key }
+    internal val idToFile = fileToId.entries.associate { it.value to it.key }
 
     private val tocFile = useXPathInstance { xp ->
         xp.compile(
@@ -234,8 +234,8 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
     init {
         val appDbFile = BibleApplication.application.getDatabasePath(dbFilename)
         val epubDbFile = File(epubDir, dbFilename)
-        //appDbFile.delete()
-        //epubDbFile.delete()
+        appDbFile.delete()
+        epubDbFile.delete()
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
@@ -286,5 +286,10 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
         epubDir.deleteRecursively()
         readDb.close()
         BibleApplication.application.deleteDatabase(dbFilename)
+    }
+
+    fun getKey(originalKey: String, htmlId: String): Key {
+        val frag = dao.getFragment("$originalKey#$htmlId")
+        return getFragmentKey(frag)
     }
 }

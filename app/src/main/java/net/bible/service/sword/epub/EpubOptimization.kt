@@ -21,8 +21,8 @@ import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.EpubFragment
+import net.bible.android.database.EpubHtmlToFrag
 import net.bible.android.misc.elementToString
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.useXPathInstance
@@ -139,6 +139,16 @@ fun EpubBackendState.optimizeEpub() {
         }
     }
 
+    fun findIds(frag: EpubFragment): List<String> {
+        val elemsWithId = useXPathInstance { xp ->
+            xp.compile(
+                "//*[@id]",
+                Filters.element(), null, xhtmlNamespace
+            ).evaluate(frag.element)
+        }
+        return elemsWithId.map { it.getAttribute("id").value }
+    }
+
     fun writeFragment(frag: EpubFragment) {
         val f = File(cacheDir, frag.cacheFileName)
         val strContent = elementToString(frag.element!!)
@@ -153,9 +163,9 @@ fun EpubBackendState.optimizeEpub() {
     val writeDao = writeDb.epubDao()
 
     for(k in originalKeys) {
-        val s = application.getString(R.string.optimizingEpub, "${epubDir.name}: ${k.name}")
+        val s = application.getString(R.string.processing_epub, "${bookMetaData.name}: ${k.name}")
         ABEventBus.post(InstallZipEvent(s))
-        Log.i(TAG, "${epubDir.name}: optimizing ${k.osisRef}")
+        Log.i(TAG, "${bookMetaData.name}: optimizing ${k.osisRef}")
 
         val fragments = splitIntoFragments(k)
         val ids = writeDao.insert(*fragments.toTypedArray())
@@ -163,8 +173,12 @@ fun EpubBackendState.optimizeEpub() {
             frag.id = id
         }
         for(frag in fragments) {
-            Log.i(TAG, "${epubDir.name}: writing frag ${frag.id}")
+            Log.i(TAG, "${bookMetaData.name}: writing frag ${frag.id}")
             writeFragment(frag)
+            val epubHtmlToFrags = findIds(frag).map {
+                EpubHtmlToFrag("${k.osisRef}#$it", frag.id)
+            }.toTypedArray()
+            writeDao.insert(*epubHtmlToFrags)
             frag.element = null // clear up memory
         }
     }
