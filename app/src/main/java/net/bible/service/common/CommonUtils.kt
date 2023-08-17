@@ -1040,11 +1040,13 @@ object CommonUtils : CommonUtilsBase() {
 
     fun initializeApp() {
         runBlocking {
-            initializeAppCoroutine()
+            withContext(Dispatchers.IO) {
+                initializeAppCoroutine()
+            }
         }
     }
 
-    suspend fun initializeAppCoroutine() = withContext(Dispatchers.Main) {
+    suspend fun initializeAppCoroutine() {
         if(!initialized) {
             try {
                 val pid = android.os.Process.myPid()
@@ -1055,8 +1057,9 @@ object CommonUtils : CommonUtilsBase() {
 
             DatabaseContainer.ready = true
             DatabaseContainer.instance
-
-            buildActivityComponent().inject(this@CommonUtils)
+            withContext(Dispatchers.Main) {
+                buildActivityComponent().inject(this@CommonUtils)
+            }
 
             ttsNotificationManager = TextToSpeechNotificationManager()
             if(!BuildVariant.Appearance.isDiscrete) {
