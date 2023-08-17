@@ -34,6 +34,7 @@ import org.jdom2.Element
 import org.jdom2.filter.Filters
 import java.io.File
 import java.net.URLDecoder
+import java.util.zip.GZIPOutputStream
 
 private val urlRe = Regex("""^https?://.*""")
 fun EpubBackendState.readOriginal(origId: String): Pair<Document, Int> {
@@ -192,7 +193,7 @@ fun EpubBackendState.optimizeEpub() {
     }
 
     fun writeFragment(frag: EpubFragment) {
-        val f = File(optimizedDir, frag.cacheFileName)
+        val f = File(fragDir, frag.fragFileName)
         val body = useXPathInstance { xp ->
             xp.compile(
                 "//ns:body",
@@ -201,13 +202,15 @@ fun EpubBackendState.optimizeEpub() {
         }
         body.name = "div"
         val strContent = elementToString(body)
-        f.outputStream().use {
-            it.write(strContent.toByteArray())
+        f.outputStream().use {out ->
+            GZIPOutputStream(out).use {gzip ->
+                gzip.write(strContent.toByteArray())
+            }
         }
     }
 
-    optimizedDir.deleteRecursively()
-    optimizedDir.mkdirs()
+    fragDir.deleteRecursively()
+    fragDir.mkdirs()
     val writeDb = getEpubDatabase(dbFilename)
     val writeDao = writeDb.epubDao()
 
@@ -242,5 +245,6 @@ fun EpubBackendState.optimizeEpub() {
             writeDao.insert(*epubHtmlToFrags)
             frag.element = null // clear up memory
         }
+        fileForOriginalId(k).delete()
     }
 }

@@ -45,7 +45,7 @@ class EpubFragment(
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
 ) {
     @Ignore var element: Element? = null
-    val cacheFileName: String get() = id.toString().padStart(3, '0') + ".xhtml"
+    val fragFileName: String get() = id.toString().padStart(3, '0') + ".xhtml.gz"
     override fun toString(): String {
         return "$id $originalId $ordinalStart $ordinalEnd"
     }

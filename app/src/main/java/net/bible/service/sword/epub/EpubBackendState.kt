@@ -34,6 +34,7 @@ import org.jdom2.Namespace
 import org.jdom2.filter.Filters
 import java.io.File
 import java.net.URLDecoder
+import java.util.zip.GZIPInputStream
 
 
 private val re = Regex("[^a-zA-z0-9]")
@@ -156,7 +157,13 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
 
     fun read(key: Key): String {
         val frag = getFragment(key)
-        return String(File(optimizedDir, frag.cacheFileName).readBytes())
+        val sourceFile = File(fragDir, frag.fragFileName)
+        val bytes = sourceFile.inputStream().use { inp ->
+            GZIPInputStream(inp).use {gzip ->
+                gzip.readBytes()
+            }
+        }
+        return String(bytes)
     }
 
     fun indexOf(key: Key): Int = keys.indexOf(key)
@@ -171,15 +178,15 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
 
     val keys: List<Key> get() = dao.fragments().map { getKey(it) }
 
-    internal val optimizedDir get() = File(epubDir,  "optimized")
+    internal val fragDir get() = File(epubDir,  "optimized")
 
     internal val dbFilename = "epub-${bookMetaData.initials}.sqlite3"
 
     init {
         val appDbFile = BibleApplication.application.getDatabasePath(dbFilename)
         val epubDbFile = File(epubDir, dbFilename)
-        //appDbFile.delete()
-        //epubDbFile.delete()
+        appDbFile.delete()
+        epubDbFile.delete()
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
