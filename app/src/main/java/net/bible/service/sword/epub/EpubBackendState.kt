@@ -83,7 +83,7 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
             }
     }
 
-    internal val idToFile = fileToId.entries.associate { it.value to it.key }
+    private val idToFile = fileToId.entries.associate { it.value to it.key }
 
     private val tocFile = useXPathInstance { xp ->
         xp.compile(
@@ -187,9 +187,7 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
                 Pair(resultDoc, maxOrdinal)
             }
     }
-    fun indexOfOriginalKey(that: Key): Int =
-        queryContent("//ns:spine/ns:itemref")
-            .map { it.getAttribute("idref").value }.indexOf(that.osisRef)
+
     private fun getOriginalKey(idRef: String): Key {
         val keyName = fileToTitle?.let {f2t -> idToFile[idRef]?.let { f2t[it] } } ?: BibleApplication.application.getString(
             R.string.nameless)
@@ -213,10 +211,12 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
     fun getFromOriginalIndex(index: Int): Key =
         queryContent("//ns:spine/ns:itemref")[index]
             .run { getOriginalKey(getAttribute("idref").value) }
+    fun indexOfOriginalKey(that: Key): Int =
+        queryContent("//ns:spine/ns:itemref")
+            .map { it.getAttribute("idref").value }.indexOf(that.osisRef)
+    val originalCardinality: Int get() = queryContent("//ns:package/ns:spine/ns:itemref").size
 
     fun getFromOptimizedIndex(index: Int): Key = optimizedKeys[index]
-
-    val originalCardinality: Int get() = queryContent("//ns:package/ns:spine/ns:itemref").size
 
     val optimizedCardinality get() = optimizedKeys.size
 
@@ -226,7 +226,6 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
 
     val optimizedKeys: List<Key> get() = dao.fragments().map { getFragmentKey(it) }
 
-    // TODO: no need initials...
     internal val cacheDir get() = File(epubDir,  "optimized")
 
     internal val dbFilename = "epub-${bookMetaData.initials}.sqlite3"

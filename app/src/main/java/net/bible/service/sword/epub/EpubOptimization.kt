@@ -86,7 +86,7 @@ fun EpubBackendState.optimizeEpub() {
             removeSiblingsAfter(splitElem2)
             splitElem2.detach()
 
-        } // JOSTAIN SYYSTÄ LOPPUUN TULEE  (MELKEIN) KOKONAINEN DOKUMENTTI
+        }
         return doc
     }
 
