@@ -38,6 +38,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.page.BibleDocument
+import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
@@ -94,7 +95,7 @@ class BibleJavascriptInterface(
                 }, bibleView.window)
         } else if(doc is OsisDocument || doc is StudyPadDocument) {
             val curPage = currentPageManager.currentPage
-            if(doc is OsisDocument && curPage.key?.osisRef != keyStr) {
+            if(curPage is CurrentGeneralBookPage && curPage.key?.osisRef != keyStr) {
                 curPage.currentDocument?.getKey(keyStr)?.let {
                     curPage.doSetKey(it)
                     ABEventBus.post(CurrentVerseChangedEvent(window = bibleView.window))

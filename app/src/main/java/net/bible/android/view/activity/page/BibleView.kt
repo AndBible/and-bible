@@ -1290,7 +1290,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun replaceDocument() {
         Log.i(TAG, "replaceDocument")
         val documentStr = latestDocumentStr
-        val verse = initialKey as? Verse
+        val verse = if(isBible) initialKey as? Verse else null
         synchronized(this) {
             needsDocument = false
             contentVisible = true
