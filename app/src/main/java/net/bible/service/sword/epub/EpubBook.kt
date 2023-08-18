@@ -131,9 +131,18 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
     }
 }
 
-fun addEpubBook(file: File) {
-    if(!(file.canRead() && file.isDirectory)) return
-    val state = EpubBackendState(file)
+fun addEpubBook(epubDir: File) {
+    if(!(epubDir.canRead() && epubDir.isDirectory)) return
+
+    val optimizeLockFile = File(epubDir, "optimize.lock")
+    if(optimizeLockFile.exists()) {
+        // Optimization has failed, better we remove module so that
+        // it does crash every time. Hoping user also sends bug report about crash...
+        epubDir.deleteRecursively()
+        return
+    }
+
+    val state = EpubBackendState(epubDir)
     val metadata = state.bookMetaData
     if(Books.installed().getBook(metadata.initials) != null) return
     val backend = EpubBackend(state, metadata)

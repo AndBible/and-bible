@@ -212,6 +212,7 @@ fun EpubBackendState.optimizeEpub() {
 
     fragDir.deleteRecursively()
     fragDir.mkdirs()
+    optimizeLockFile.outputStream().use { it.write(1)}
     val writeDb = getEpubDatabase(dbFilename)
     val writeDao = writeDb.epubDao()
     val start = System.currentTimeMillis()
@@ -249,5 +250,6 @@ fun EpubBackendState.optimizeEpub() {
         fileForOriginalId(k).delete()
     }
     val total = (System.currentTimeMillis() - start) / 1000;
+    optimizeLockFile.delete()
     Log.i(TAG, "Total time in optimization: $total")
 }

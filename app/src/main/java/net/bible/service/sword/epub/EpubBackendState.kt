@@ -49,7 +49,7 @@ internal fun getFileAndId(href: String): Pair<String, String>? {
 
 val xhtmlNamespace: Namespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
 
-class EpubBackendState(internal val epubDir: File): OpenFileState {
+class EpubBackendState(private val epubDir: File): OpenFileState {
     constructor(epubDir: File, metadata: SwordBookMetaData): this(epubDir) {
         this._metadata = metadata
     }
@@ -180,6 +180,8 @@ class EpubBackendState(internal val epubDir: File): OpenFileState {
     val keys: List<Key> get() = dao.fragments().map { getKey(it) }
 
     internal val fragDir get() = File(epubDir,  "optimized")
+
+    internal val optimizeLockFile = File(epubDir, "optimize.lock")
 
     internal val dbFilename = "epub-${bookMetaData.initials}.sqlite3"
 

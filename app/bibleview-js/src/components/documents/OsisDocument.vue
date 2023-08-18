@@ -23,7 +23,7 @@
       :data-osis-ref="osisRef"
   >
     <OsisFragment :is-epub="document.isEpub" :fragment="osisFragment"/>
-    <OpenAllLink :v11n="document.v11n"/>
+    <OpenAllLink v-if="document.bookCategory != 'GENERAL_BOOK'" :v11n="document.v11n"/>
     <FeaturesLink :fragment="osisFragment"/>
   </div>
 </template>
