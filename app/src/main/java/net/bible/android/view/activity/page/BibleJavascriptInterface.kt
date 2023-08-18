@@ -94,7 +94,7 @@ class BibleJavascriptInterface(
                 }, bibleView.window)
         } else if(doc is OsisDocument || doc is StudyPadDocument) {
             val curPage = currentPageManager.currentPage
-            if(curPage.key?.osisRef != keyStr) {
+            if(doc is OsisDocument && curPage.key?.osisRef != keyStr) {
                 curPage.currentDocument?.getKey(keyStr)?.let {
                     curPage.doSetKey(it)
                     ABEventBus.post(CurrentVerseChangedEvent(window = bibleView.window))
