@@ -836,7 +836,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     class ModuleStylesAssetHandler: PathHandler {
         private val epubRe = Regex("""^epub/([^/]+)/([^/]+)/style.css$""")
-        private val colorRe = Regex("""\b(background-color|color):[^;]+;""")
+        private val colorRe = Regex("""\b(background-color|background|background-image|color):[^;]+;""")
         override fun handle(path: String): WebResourceResponse? {
             val epubMatch = epubRe.matchEntire(path)
             if(epubMatch != null) {
