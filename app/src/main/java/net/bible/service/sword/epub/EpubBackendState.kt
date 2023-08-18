@@ -128,9 +128,9 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         return dao.styleSheets(frag.originalId).map { File(parentFolder, it.styleSheetFile) }
     }
 
-    private fun getKey(fragment: EpubFragment): Key {
+    private fun getKey(fragment: EpubFragment, label: String? = null): Key {
         val filePath = idToFile.let { it[fragment.originalId] }
-        val keyName = filePath?.let { fp -> fileToTitle?.let {it[fp] } } ?: BibleApplication.application.getString(R.string.nameless)
+        val keyName = label ?: filePath?.let { fp -> fileToTitle?.let {it[fp] } } ?: BibleApplication.application.getString(R.string.nameless)
         return DefaultLeafKeyList(keyName, "${fragment.id}")
     }
 
@@ -141,6 +141,11 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         }
         val book = Books.installed().getBook(bookMetaData.initials)
         return content.map { c ->
+            val label =
+                useXPathInstance { xp2 ->
+                    xp2.compile("../ns:navLabel/ns:text", Filters.element(), null, tocNamespace)
+                        .evaluateFirst(c)
+                }?.text
             val fileAndId = getFileAndId(c.getAttribute("src").value)
             val fileName = fileAndId?.first?.let { URLDecoder.decode(it, "UTF-8") }
             val htmlId = fileAndId?.second?.let { it.ifEmpty { null } }
@@ -151,7 +156,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
                 "$id#$htmlId"
             }
             val frag = dao.getFragment(keyStr)
-            val key = getKey(frag)
+            val key = getKey(frag, label = label)
             BookAndKey(key, book, htmlId = htmlId)
         }
     }
