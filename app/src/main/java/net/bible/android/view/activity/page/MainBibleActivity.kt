@@ -1313,7 +1313,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    var syncJob: Job? = null
+    private var syncJob: Job? = null
 
     private suspend fun startSync(signIn: Boolean = true) {
         if(CommonUtils.isCloudSyncEnabled) {
