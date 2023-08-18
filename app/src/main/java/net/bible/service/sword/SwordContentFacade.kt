@@ -290,7 +290,7 @@ object SwordContentFacade {
                             Log.e(TAG, "Failed parsing ref $t")
                             span.addContent(Text(t))
                         } else {
-                            val refNode = Element("reference")
+                            val refNode = Element("reference", ns)
                             refNode.addContent(Text(t))
                             refNode.setAttribute("osisRef", osisRef)
                             span.addContent(refNode)
