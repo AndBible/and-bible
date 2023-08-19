@@ -1137,7 +1137,7 @@
     <string name="are_you_sure_reset_cloud">This will reset your cloud database for %s with the content that you have in this device.</string>
     <string name="sync_cant_fetch">The version of database or patch file stored in Cloud is higher than the one supported by this app. </string>
     <string name="sync_disabling">Disabling synchronizing for %s for now.</string>
-    <string name="sync_update_app">Please update the app and then re-enable synchronization.</string>
+    <string name="sync_update_app">Please update the app to continue synchronization.</string>
     <string name="sign_in_failed">Signing in to synchronization backend service failed.</string>
     <string name="disabling_sync">Disabling cloud synchronizing. You must re-enable manually after restore.</string>
     <string name="report">Report</string>
