@@ -358,6 +358,7 @@ object CloudSync {
             DatabaseContainer.databaseAccessorFactories.asyncMap {
                 val dbDef = it.invoke()
                 if(!dbDef.category.enabled) return@asyncMap
+                if(dbDef.dao.getLong("disabledForVersion") == dbDef.version.toLong()) return@asyncMap
                 try {
                     initializeSync(dbDef)
                 } catch (e: CancelStartedSync) {
@@ -392,7 +393,7 @@ object CloudSync {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
                 } catch (e: IncompatiblePatchVersion) {
                     ABEventBus.post(BibleApplication.ErrorNotificationEvent(cantFetchString(dbDef.category.contentDescription), showReportButton = false))
-                    dbDef.category.enabled = false
+                    dbDef.dao.setConfig("disabledForVersion", dbDef.version.toLong())
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)

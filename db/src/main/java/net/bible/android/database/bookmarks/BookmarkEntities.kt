@@ -38,6 +38,7 @@ import net.bible.android.database.IdType
 import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
 import java.util.*
 import kotlin.math.abs
@@ -500,8 +501,8 @@ class BookmarkEntities {
         }
 
         val book: Book? get() = Books.installed().getBook(bookInitials)
-        val originalKey: Key? get() = book?.getKey(key)
-        val bookKey: Key? get() = originalKey?.let {if(it is RangedPassage) it.first() else it }
+        val originalKey: Key? get() = try { book?.getKey(key) } catch (e: NoSuchKeyException) { null }
+        val bookKey: Key? get() = originalKey?.let {if(it is RangedPassage) it.firstOrNull() else it }
 
         override val speakBook: Book? get() = book
 
@@ -533,7 +534,7 @@ class BookmarkEntities {
     ): BaseBookmarkNotes
 
     @Entity(
-        indices = [Index(value = ["bookInitials", "key"])],
+        indices = [Index(value = ["bookInitials", "key"]), Index("primaryLabelId")],
         foreignKeys = [
             ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["primaryLabelId"], onDelete = ForeignKey.SET_NULL),
         ],

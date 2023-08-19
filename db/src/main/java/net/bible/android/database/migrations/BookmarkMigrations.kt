@@ -59,12 +59,18 @@ private val playbackSettings = makeMigration(5..6) { _db ->
     _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN playbackSettings TEXT DEFAULT NULL")
 }
 
+private val genBookmarkIndex = makeMigration(6..7) {_db ->
+    _db.execSQL("CREATE INDEX IF NOT EXISTS `index_GenericBookmark_primaryLabelId` ON `GenericBookmark` (`primaryLabelId`)")
+}
+
+
 val bookmarkMigrations: Array<Migration> = arrayOf(
     separateText,
     genericTables,
     genericBookmark,
     wholeVerse,
-    playbackSettings
+    playbackSettings,
+    genBookmarkIndex,
 )
 
-const val BOOKMARK_DATABASE_VERSION = 6
+const val BOOKMARK_DATABASE_VERSION = 7

@@ -52,6 +52,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import java.lang.IndexOutOfBoundsException
@@ -452,12 +453,15 @@ open class BookmarkControl @Inject constructor(
     }
     private fun addText(b: GenericBookmarkWithNotes) {
         val book = b.book?: return
-        val key = b.bookKey ?: book.getKey(b.key)
         try {
+            val key = b.bookKey ?: book.getKey(b.key)
             val verseTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, b.ordinalStart..b.ordinalEnd)
             addText(b, verseTexts, b.wholeVerse)
         } catch (e: OsisError) {
             b.text = e.stringMsg
+            return
+        } catch (e: NoSuchKeyException) {
+            b.text = e.message
             return
         }
     }

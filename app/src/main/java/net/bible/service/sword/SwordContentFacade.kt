@@ -34,7 +34,9 @@ import net.bible.service.device.speak.TextCommand
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
+import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.epub.xhtmlNamespace
 import org.crosswire.common.xml.JDOMSAXEventProvider
 import org.crosswire.common.xml.SAXEventProvider
 import org.crosswire.jsword.book.Book
@@ -43,6 +45,7 @@ import org.crosswire.jsword.book.BookData
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -54,6 +57,7 @@ import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
 import org.jdom2.Element
+import org.jdom2.Namespace
 import org.jdom2.Text
 import org.jdom2.filter.Filters
 import org.jdom2.input.SAXBuilder
@@ -268,9 +272,10 @@ object SwordContentFacade {
 
 
     private val textQuery = XPathFactory.instance().compile(".//text()[not(ancestor::note)]", Filters.text())
+    private val ns =  Namespace.getNamespace("http://www.w3.org/1999/xhtml")
 
     // IMPORTANT! The logic of this function not be changed ever! If it is changed, non-bible bookmark locations are messed up.
-    fun addAnchors(frag: Element, lang: String, isEpub: Boolean = false) {
+    fun addAnchors(frag: Element, lang: String, isEpub: Boolean = false): Int {
         var ordinal = 0
         val startTime = System.currentTimeMillis()
 
@@ -285,7 +290,7 @@ object SwordContentFacade {
                             Log.e(TAG, "Failed parsing ref $t")
                             span.addContent(Text(t))
                         } else {
-                            val refNode = Element("reference")
+                            val refNode = Element("reference", ns)
                             refNode.addContent(Text(t))
                             refNode.setAttribute("osisRef", osisRef)
                             span.addContent(refNode)
@@ -297,7 +302,6 @@ object SwordContentFacade {
             }
         }
 
-
         for(content in textQuery.evaluate(frag)) {
             if(content.text.trim().isEmpty()) continue
             val parent = content.parentElement
@@ -306,16 +310,17 @@ object SwordContentFacade {
                 var pos = parent.indexOf(content)
                 content.detach()
                 for (textContent in textContents) {
-                    val span = Element("BVA") // BibleViewAnchor.vue
-                    span.setAttribute("ordinal", "${ordinal++}")
-                    addContent(span, textContent)
-                    parent.addContent(pos++, span)
+                    val bva = Element("BVA", ns) // BibleViewAnchor.vue
+                    bva.setAttribute("ordinal", "${ordinal++}")
+                    addContent(bva, textContent)
+                    parent.addContent(pos++, bva)
                 }
             }
         }
 
         val delta = System.currentTimeMillis() - startTime
         Log.i(TAG, "Parsing took ${delta/1000.0} seconds")
+        return ordinal
     }
     @Throws(OsisError::class)
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
@@ -364,7 +369,7 @@ object SwordContentFacade {
         return ordinalRange.mapNotNull { map[it] }
     }
 
-    private val bvaQuery = XPathFactory.instance().compile(".//BVA", Filters.element())
+    private val bvaQuery = XPathFactory.instance().compile(".//ns:BVA", Filters.element(), null, xhtmlNamespace)
 
     private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
     private fun cachedText(book: Book, key: Key): Map<Int, String> = synchronized(this) {
@@ -378,11 +383,16 @@ object SwordContentFacade {
     }
 
     fun ordinalRangeFor(book: Book, key: Key): IntRange {
-        val texts = cachedText(book, key)
-        val keys = texts.keys
-        val first = keys.min()
-        val last = keys.max()
-        return first .. last
+        return if(book.isEpub) {
+            ((book as SwordGenBook).backend as EpubBackend).getOrdinalRange(key)
+        } else {
+            val texts = cachedText(book, key)
+            val keys = texts.keys
+            if (keys.isEmpty()) return 0..0
+            val first = keys.min()
+            val last = keys.max()
+            first..last
+        }
     }
 
     private fun getTextRecursively(element: Element): String {

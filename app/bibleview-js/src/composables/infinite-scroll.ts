@@ -21,16 +21,18 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-import {nextTick, onMounted} from "vue";
+import {computed, nextTick, onMounted} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
-import {AnyDocument} from "@/types/documents";
+import {AnyDocument, BibleViewDocumentType, isOsisDocument} from "@/types/documents";
 import {Nullable} from "@/types/common";
+import {BookCategory} from "@/types/client-objects";
 
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
     documents: AnyDocument[]
 ) {
+    const enabledCategories: Set<BookCategory> = new Set(["BIBLE", "GENERAL_BOOK"]);
     let
         currentPos: number,
         lastAddMoreTime = 0,
@@ -40,6 +42,14 @@ export function useInfiniteScroll(
         textToBeInsertedAtTop: Nullable<AnyDocument> = null;
 
     const
+        isEnabled = computed(() => {
+           const doc = documents[0];
+           if(isOsisDocument(doc)) {
+                return enabledCategories.has(doc.bookCategory)
+           } else {
+               return doc.type === "bible";
+           }
+        }),
         UP_MARGIN = 2,
         DOWN_MARGIN = 200,
         bodyHeight = () => document.body.scrollHeight,
@@ -48,11 +58,11 @@ export function useInfiniteScroll(
         loadTextAtTop = async () => insertThisTextAtTop(await requestPreviousChapter()),
         loadTextAtEnd = async () => insertThisTextAtEnd(await requestNextChapter()),
         addMoreAtEnd = () => {
-            if (documents[0].type !== "bible") return;
+            if (!isEnabled.value) return;
             return loadTextAtEnd();
         },
         addMoreAtTop = () => {
-            if (documents[0].type !== "bible") return;
+            if (!isEnabled.value) return;
             if (touchDown) {
                 // adding at top is tricky and if the user is stil holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;

@@ -163,7 +163,7 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             return result.resultCode == Activity.RESULT_OK
         } catch (e: IOException) {
             Log.e(TAG, "Network unavailable", e)
-            return false
+            return true // We do not want to log out because of this!
         } catch (e: Throwable) {
             Log.e(TAG, "ensureDriveAccess error", e)
             return false

@@ -36,7 +36,9 @@ import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.page.BibleDocument
+import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
@@ -56,10 +58,12 @@ import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
@@ -80,17 +84,24 @@ class BibleJavascriptInterface(
     val scope get() = mainBibleActivity.lifecycleScope
 
     @JavascriptInterface
-    fun scrolledToOrdinal(ordinal: Int) {
+    fun scrolledToOrdinal(keyStr: String, ordinal: Int) {
         val doc = bibleView.firstDocument
         if (doc is BibleDocument || doc is MyNotesDocument) {
             currentPageManager.currentBible.setCurrentVerseOrdinal(ordinal,
                 when (doc) {
-                    is BibleDocument -> bibleView.initialVerse!!.versification
+                    is BibleDocument -> (bibleView.initialKey as Verse).versification
                     is MyNotesDocument -> KJVA
                     else -> throw RuntimeException("Unsupported doc")
                 }, bibleView.window)
         } else if(doc is OsisDocument || doc is StudyPadDocument) {
-            currentPageManager.currentPage.anchorOrdinal = OrdinalRange(ordinal)
+            val curPage = currentPageManager.currentPage
+            if(curPage is CurrentGeneralBookPage && doc is OsisDocument && curPage.key?.osisRef != keyStr) {
+                curPage.currentDocument?.getKey(keyStr)?.let {
+                    curPage.doSetKey(it)
+                    ABEventBus.post(CurrentVerseChangedEvent(window = bibleView.window))
+                }
+            }
+            curPage.anchorOrdinal = OrdinalRange(ordinal)
         }
     }
 
@@ -196,8 +207,9 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) {
-        val book = Books.installed().getBook(bookInitials)
-        val key = book.getKey(toKeyStr)
+        val book = Books.installed().getBook(bookInitials) as SwordGenBook
+        val backend = book.backend as EpubBackend
+        val key = backend.getKey(toKeyStr, toId)
         scope.launch(Dispatchers.Main) {
             bibleView.linkControl.showLink(book, BookAndKey(key, book, htmlId = toId))
         }

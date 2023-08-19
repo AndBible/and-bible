@@ -127,6 +127,7 @@ import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -1312,13 +1313,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    var syncJob: Job? = null
+    private var syncJob: Job? = null
 
-    private suspend fun startSync(signIn: Boolean = true) {
+    private suspend fun startSync() {
         if(CommonUtils.isCloudSyncEnabled) {
-            if(signIn && !CloudSync.signedIn) {
-                CloudSync.signIn(this@MainBibleActivity)
-            }
             if(now - lastSynchronized > syncInterval) {
                 synchronize(true)
             }
@@ -1332,7 +1330,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private suspend fun periodicSync() {
         Log.i(TAG, "Periodic sync starting")
-        while (CommonUtils.isCloudSyncEnabled && CloudSync.signedIn && syncJob?.isCancelled == false) {
+        while (CommonUtils.isCloudSyncEnabled && syncJob?.isCancelled == false) {
             delay(60*1000) // 1 minute
             if(syncJob?.isCancelled == false) synchronize()
         }
@@ -1350,11 +1348,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val now get() = System.currentTimeMillis()
 
     private suspend fun synchronize(force: Boolean = false) {
-        if(CommonUtils.isCloudSyncEnabled && CloudSync.signedIn) {
+        if(CommonUtils.isCloudSyncEnabled) {
             windowRepository.saveIntoDb(false)
             if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {
                 Log.i(TAG, "Performing periodic sync")
                 CommonUtils.settings.setLong("globalLastSynchronized", now)
+                if(!CloudSync.signedIn) {
+                    CloudSync.signIn(this@MainBibleActivity)
+                }
                 CloudSync.start()
                 CloudSync.waitUntilFinished()
             }
@@ -1373,7 +1374,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             syncScope.launch { synchronize(true) }
         } else {
             updateActions()
-            syncScope.launch { startSync(false) }
+            syncScope.launch { startSync() }
         }
     }
 
@@ -1620,9 +1621,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         in genBookClasses -> {
                             val keyStr = extras.getString("key")
                             val bookStr = extras.getString("book")
-                            val book = Books.installed().getBook(bookStr)
-                            val key = book.getKey(keyStr)
-                            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                            val bookAndKeyStr = extras.getString("bookAndKey")
+                            if(bookAndKeyStr != null) {
+                                val bookAndKey = BookAndKeySerialized.fromJSON(bookAndKeyStr).bookAndKey
+                                val pageManager = windowControl.activeWindowPageManager
+                                pageManager.setCurrentDocumentAndKey(bookAndKey.document, bookAndKey)
+                            } else {
+                                val book = Books.installed().getBook(bookStr)
+                                val key = book.getKey(keyStr)
+                                windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                            }
                             return
                         }
                     }

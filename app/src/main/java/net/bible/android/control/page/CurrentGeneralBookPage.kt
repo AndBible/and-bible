@@ -152,9 +152,7 @@ class CurrentGeneralBookPage internal constructor(
             }
             FakeBookFactory.multiDocument -> {}
             else -> {
-                getKeyPlus(1).let {
-                    setKey(it)
-                }
+                setKey(getKeyPlus(1))
             }
         }
     }
@@ -168,9 +166,7 @@ class CurrentGeneralBookPage internal constructor(
             }
             FakeBookFactory.multiDocument -> {}
             else -> {
-                getKeyPlus(-1).let {
-                    setKey(it)
-                }
+                setKey(getKeyPlus(-1))
             }
         }
     }
@@ -187,7 +183,9 @@ class CurrentGeneralBookPage internal constructor(
     override fun restoreFrom(entity: WorkspaceEntities.Page?) {
         when (entity?.document) {
             FakeBookFactory.journalDocument.initials -> {
-                val (_, id) = entity!!.key?.split(":") ?: return
+                val splitted = entity!!.key?.split(":")?: return
+                if(splitted.size != 2) return
+                val id = splitted[1]
                 val label = pageManager.bookmarkControl.labelById(IdType(id))
                 if (label != null) {
                     doSetKey(StudyPadKey(label))

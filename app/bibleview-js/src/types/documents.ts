@@ -111,3 +111,7 @@ export type DocumentOfType<T extends BibleViewDocumentType> =
                     T extends "osis" ? OsisDocument :
                         T extends "multi" ? MultiFragmentDocument :
                             BaseDocument
+
+export function isOsisDocument(t: AnyDocument): t is OsisDocument {
+    return t.type === "osis";
+}
