@@ -100,8 +100,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         dragHolder.setColorFilter(workspaceColor)
 
         layout.setOnClickListener {
-            val workspaceMap = items.associateBy { it.id.hashCode().toLong() }
-            activity.goToWorkspace(workspaceMap[getItemId(position)]!!.id)
+            activity.goToWorkspace(workspaceEntity.id)
         }
         layout.setOnLongClickListener {true}
         dragHolder.setOnTouchListener { v, event ->
