@@ -38,8 +38,8 @@ export type BibleJavascriptInterface = {
     scrolledToOrdinal: (key: string, ordinal: number) => void,
     setClientReady: () => void,
     setLimitAmbiguousModalSize: (value: boolean) => void,
-    requestPreviousChapter: AsyncFunc,
-    requestNextChapter: AsyncFunc,
+    requestMoreToBeginning: AsyncFunc,
+    requestMoreToEnd: AsyncFunc,
     refChooserDialog: AsyncFunc,
     saveBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
     saveGenericBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
@@ -262,11 +262,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
     }
 
     async function requestPreviousChapter(): Promise<BibleDocumentType> {
-        return deferredCall((callId) => window.android.requestPreviousChapter(callId));
+        return deferredCall((callId) => window.android.requestMoreToBeginning(callId));
     }
 
     async function requestNextChapter(): Promise<BibleDocumentType> {
-        return deferredCall((callId) => window.android.requestNextChapter(callId));
+        return deferredCall((callId) => window.android.requestMoreToEnd(callId));
     }
 
     async function refChooserDialog(): Promise<string> {

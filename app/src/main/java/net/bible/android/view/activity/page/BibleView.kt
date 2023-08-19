@@ -1709,6 +1709,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    fun highlightOrdinalRange(range: IntRange) {
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', null, {now: false, highlight: true, ordinalStart: ${range.first}, ordinalEnd: ${range.last}});")
+    }
     fun executeJavascriptOnUiThread(javascript: String): Boolean {
         if(htmlLoadingOngoing) {
             Log.e(TAG,"HTML not yet ready, js execution is doomed to fail. $javascript")
@@ -1765,7 +1768,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val isBible get() = firstDocument is BibleDocument
 
-    fun requestPreviousChapter(callId: Long) = scope.launch(Dispatchers.IO) {
+    val verseRangeLoaded: VerseRange? get() {
+        val key = (firstKey as? Verse)?: return null
+        return CommonUtils.getWholeChapters(key.versification, key.book, minChapter, maxChapter)
+    }
+
+    fun requestMoreToBeginning(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtTop")
         if (isBible) {
             val newChap = minChapter - 1
@@ -1786,7 +1794,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun requestNextChapter(callId: Long) = scope.launch(Dispatchers.IO) {
+    fun requestMoreToEnd(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtEnd")
         if (isBible) {
             val newChap = maxChapter + 1

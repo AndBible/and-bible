@@ -72,7 +72,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
-import androidx.room.ColumnInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -80,7 +79,6 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
@@ -100,7 +98,6 @@ import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -145,7 +142,9 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseKey
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
+import org.crosswire.jsword.versification.Versification
 import org.jdom2.input.SAXBuilder
 import org.jdom2.xpath.XPathFactory
 import org.spongycastle.util.io.pem.PemReader
@@ -721,6 +720,13 @@ object CommonUtils : CommonUtilsBase() {
 
         // convert to full chapter before returning because bible view is for a full chapter
         return VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse)
+    }
+
+    fun getWholeChapters(v11n: Versification, book: BibleBook, chapter1: Int, chapter2: Int): VerseRange {
+        val targetChapterFirstVerse = Verse(v11n, book, chapter1, 0)
+        val targetChapterLastVerse = Verse(v11n, book, chapter2, v11n.getLastVerse(book, chapter2))
+
+        return VerseRange(v11n, targetChapterFirstVerse, targetChapterLastVerse)
     }
 
     private val scope = CoroutineScope(Dispatchers.Default)
