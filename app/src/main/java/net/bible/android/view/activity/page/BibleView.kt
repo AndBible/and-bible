@@ -1230,7 +1230,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.settings.getBoolean("show_errorbox", false) else false
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
-        val favouriteLabels = json.encodeToString(serializer(), workspaceSettings.favouriteLabels)
+        val favouriteLabels = json.encodeToString(serializer(), CommonUtils.favouriteLabels)
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val hideCompareDocuments = json.encodeToString(serializer(), workspaceSettings.hideCompareDocuments)
         val limitAmbiguousModalSize = json.encodeToString(serializer(), workspaceSettings.limitAmbiguousModalSize)

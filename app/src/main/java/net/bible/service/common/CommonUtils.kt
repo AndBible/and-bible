@@ -72,6 +72,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
+import androidx.room.ColumnInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -79,6 +80,7 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
@@ -98,6 +100,7 @@ import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -336,6 +339,16 @@ object CommonUtils : CommonUtilsBase() {
         val ver = verFull.split("#")[0]
         return ver.endsWith("-beta") || ver.endsWith("-alpha") || application.packageName.endsWith(".next") || isDebugMode
     }
+
+    var favouriteLabels: Set<IdType>
+        set(value) {
+            val serialized = json.encodeToString(serializer(), value)
+            settings.setString("favouriteLabels", serialized)
+        }
+        get() {
+            val s = settings.getString("favouriteLabels") ?: return mutableSetOf()
+            return json.decodeFromString(serializer(), s)
+        }
 
     val applicationVersionNumber: Int
         get() {
@@ -1231,14 +1244,12 @@ object CommonUtils : CommonUtilsBase() {
         }
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         val ws = workspaceDao.allWorkspaces()
+        favouriteLabels = highlightLabels.map {it.id}.toSet()
         if(ws.isNotEmpty()) {
-            for (it in ws) {
-                it.workspaceSettings?.favouriteLabels?.addAll(highlightLabels.map {it.id})
-            }
             workspaceDao.updateWorkspaces(ws)
             settings.setBoolean("first-time", false)
         } else {
-            val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightLabels.map {it.id}.toMutableSet())
+            val workspaceSettings = WorkspaceEntities.WorkspaceSettings()
             val workspaceIds = listOf(
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),

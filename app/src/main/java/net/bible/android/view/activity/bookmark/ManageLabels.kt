@@ -89,7 +89,7 @@ val json = Json {
 fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.ManageLabelsData) {
     Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
     autoAssignLabels = resultData.autoAssignLabels
-    favouriteLabels = resultData.favouriteLabels
+    CommonUtils.favouriteLabels = resultData.favouriteLabels
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
     ABEventBus.post(AppSettingsUpdated())
 }
@@ -242,7 +242,7 @@ class ManageLabels : ListActivityBase() {
         fun toJSON(): String = json.encodeToString(serializer(), this)
         fun applyFrom(workspaceSettings: WorkspaceEntities.WorkspaceSettings?): ManageLabelsData {
             workspaceSettings?: return this
-            favouriteLabels.addAll(workspaceSettings.favouriteLabels)
+            favouriteLabels.addAll(CommonUtils.favouriteLabels)
             autoAssignLabels.addAll(workspaceSettings.autoAssignLabels)
             autoAssignPrimaryLabel = workspaceSettings.autoAssignPrimaryLabel
             return this

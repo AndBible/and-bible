@@ -334,7 +334,6 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var speakSettings: SpeakSettings? = null,
 
         @ColumnInfo(defaultValue = "NULL") var recentLabels: MutableList<RecentLabel> = mutableListOf(),
-        @ColumnInfo(defaultValue = "NULL") var favouriteLabels: MutableSet<IdType> = mutableSetOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: IdType? = null,
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
