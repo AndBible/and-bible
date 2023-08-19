@@ -1315,11 +1315,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private var syncJob: Job? = null
 
-    private suspend fun startSync(signIn: Boolean = true) {
+    private suspend fun startSync() {
         if(CommonUtils.isCloudSyncEnabled) {
-            if(signIn && !CloudSync.signedIn) {
-                CloudSync.signIn(this@MainBibleActivity)
-            }
             if(now - lastSynchronized > syncInterval) {
                 synchronize(true)
             }
@@ -1333,7 +1330,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private suspend fun periodicSync() {
         Log.i(TAG, "Periodic sync starting")
-        while (CommonUtils.isCloudSyncEnabled && CloudSync.signedIn && syncJob?.isCancelled == false) {
+        while (CommonUtils.isCloudSyncEnabled && syncJob?.isCancelled == false) {
             delay(60*1000) // 1 minute
             if(syncJob?.isCancelled == false) synchronize()
         }
@@ -1351,11 +1348,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val now get() = System.currentTimeMillis()
 
     private suspend fun synchronize(force: Boolean = false) {
-        if(CommonUtils.isCloudSyncEnabled && CloudSync.signedIn) {
+        if(CommonUtils.isCloudSyncEnabled) {
             windowRepository.saveIntoDb(false)
             if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {
                 Log.i(TAG, "Performing periodic sync")
                 CommonUtils.settings.setLong("globalLastSynchronized", now)
+                if(!CloudSync.signedIn) {
+                    CloudSync.signIn(this@MainBibleActivity)
+                }
                 CloudSync.start()
                 CloudSync.waitUntilFinished()
             }
@@ -1374,7 +1374,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             syncScope.launch { synchronize(true) }
         } else {
             updateActions()
-            syncScope.launch { startSync(false) }
+            syncScope.launch { startSync() }
         }
     }
 
