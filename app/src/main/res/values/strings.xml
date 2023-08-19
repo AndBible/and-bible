@@ -441,6 +441,8 @@
     <string name="label_color_example">Example</string>
     <string name="marker_style">Show only marker for selection bookmarks</string>
     <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
+    <string name="hide_style">Hide for selection bookmarks</string>
+    <string name="hide_style_whole_verse">Hide for whole verse bookmarks</string>
 
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>

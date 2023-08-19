@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 8,
-    "identityHash": "4331f864b416d62940dbcff5483158b5",
+    "identityHash": "54225b4499694e59661056b08cb3e920",
     "entities": [
       {
         "tableName": "BibleBookmark",
@@ -514,7 +514,7 @@
       },
       {
         "tableName": "Label",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `name` TEXT NOT NULL, `color` INTEGER NOT NULL DEFAULT 0, `markerStyle` INTEGER NOT NULL DEFAULT 0, `markerStyleWholeVerse` INTEGER NOT NULL DEFAULT 0, `underlineStyle` INTEGER NOT NULL DEFAULT 0, `underlineStyleWholeVerse` INTEGER NOT NULL DEFAULT 0, `hideStyle` INTEGER NOT NULL DEFAULT 0, `favourite` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `name` TEXT NOT NULL, `color` INTEGER NOT NULL DEFAULT 0, `markerStyle` INTEGER NOT NULL DEFAULT 0, `markerStyleWholeVerse` INTEGER NOT NULL DEFAULT 0, `underlineStyle` INTEGER NOT NULL DEFAULT 0, `underlineStyleWholeVerse` INTEGER NOT NULL DEFAULT 0, `hideStyle` INTEGER NOT NULL DEFAULT 0, `hideStyleWholeVerse` INTEGER NOT NULL DEFAULT 0, `favourite` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -566,6 +566,13 @@
           {
             "fieldPath": "hideStyle",
             "columnName": "hideStyle",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "hideStyleWholeVerse",
+            "columnName": "hideStyleWholeVerse",
             "affinity": "INTEGER",
             "notNull": true,
             "defaultValue": "0"
@@ -868,7 +875,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4331f864b416d62940dbcff5483158b5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '54225b4499694e59661056b08cb3e920')"
     ]
   }
 }

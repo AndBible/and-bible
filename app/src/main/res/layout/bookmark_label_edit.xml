@@ -99,13 +99,29 @@
 			android:text="@string/marker_style_whole_verse"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/markerStyle" />
+		<androidx.appcompat.widget.AppCompatCheckBox
+			android:id="@+id/hideStyle"
+			style="@style/EditBookmarkLabelItemTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/hide_style"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/markerStyleWholeVerse" />
+		<androidx.appcompat.widget.AppCompatCheckBox
+			android:id="@+id/hideStyleWholeVerse"
+			style="@style/EditBookmarkLabelItemTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/hide_style_whole_verse"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/hideStyle" />
 
 		<TextView
 			android:id="@+id/favouriteLabelTitle"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			app:layout_constraintEnd_toStartOf="@+id/favouriteLabelCheckBox"
-			app:layout_constraintTop_toBottomOf="@id/markerStyleWholeVerse" />
+			app:layout_constraintTop_toBottomOf="@id/hideStyleWholeVerse" />
 
 		<androidx.appcompat.widget.AppCompatCheckBox
 			android:id="@+id/favouriteLabelCheckBox"
@@ -114,7 +130,7 @@
 			android:layout_height="0dp"
 			android:text="@string/favourite_label"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/markerStyleWholeVerse" />
+			app:layout_constraintTop_toBottomOf="@+id/hideStyleWholeVerse" />
 
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:id="@+id/thisBookmarkCategory"

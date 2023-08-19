@@ -395,6 +395,10 @@ export function useBookmarks(
             return point;
     }
 
+    function isHiddenBookmark(b: BaseBookmark, label = getBookmarkStyleLabel(b)) {
+        return (b.wholeVerse && label.hideStyleWholeVerse) || (!b.wholeVerse && label.hideStyle);
+    }
+
     function isMarkerBookmark(b: BaseBookmark, label = getBookmarkStyleLabel(b)) {
         return (b.wholeVerse && label.markerStyleWholeVerse) || (!b.wholeVerse && label.markerStyle);
     }
@@ -456,7 +460,7 @@ export function useBookmarks(
                 const label = getBookmarkStyleLabel(b);
                 const labelId = label.id;
 
-                if (isMarkerBookmark(b, label) || intersection(new Set(b.labels), hideLabels).size > 0) {
+                if (isHiddenBookmark(b, label) || isMarkerBookmark(b, label) || intersection(new Set(b.labels), hideLabels).size > 0) {
                     hiddenLabels.add(labelId);
                     hiddenLabelCount.set(labelId, (hiddenLabelCount.get(labelId) || 0) + 1);
                 } else if ((b.wholeVerse && label.underlineWholeVerse) || (!b.wholeVerse && label.underline)) {

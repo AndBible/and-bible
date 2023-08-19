@@ -297,6 +297,8 @@ data class ClientBookmarkStyle(
     val underlineWholeVerse: Boolean,
     val markerStyle: Boolean,
     val markerStyleWholeVerse: Boolean,
+    val hideStyle: Boolean,
+    val hideStyleWholeVerse: Boolean,
 )
 
 @Serializable
@@ -316,6 +318,8 @@ data class ClientBookmarkLabel(
             underlineWholeVerse = label.underlineStyleWholeVerse,
             markerStyle = label.markerStyle,
             markerStyleWholeVerse = label.markerStyleWholeVerse,
+            hideStyle = label.hideStyle,
+            hideStyleWholeVerse = label.hideStyleWholeVerse,
         ),
         !label.isSpecialLabel && !label.new
     )

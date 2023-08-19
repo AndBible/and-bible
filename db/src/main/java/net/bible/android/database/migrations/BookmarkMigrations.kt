@@ -65,6 +65,7 @@ private val genBookmarkIndex = makeMigration(6..7) {_db ->
 
 private val labelFields = makeMigration(7..8) { _db  ->
     _db.execSQL("ALTER TABLE Label ADD COLUMN hideStyle INTEGER NOT NULL DEFAULT 0")
+    _db.execSQL("ALTER TABLE Label ADD COLUMN hideStyleWholeVerse INTEGER NOT NULL DEFAULT 0")
     _db.execSQL("ALTER TABLE Label ADD COLUMN favourite INTEGER NOT NULL DEFAULT 0")
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Label_favourite` ON `Label` (`favourite`)")
 }

@@ -146,6 +146,8 @@ export type BookmarkStyle = Readonly<{
     underlineWholeVerse: boolean
     markerStyle: boolean
     markerStyleWholeVerse: boolean
+    hideStyle: boolean
+    hideStyleWholeVerse: boolean
 }>
 
 export type Label = Readonly<{
