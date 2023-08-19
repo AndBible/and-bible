@@ -1692,7 +1692,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
-    fun scrollOrJumpToOrdinal(ordinal: OrdinalRange, forceNow: Boolean = false) {
+    fun scrollOrJumpToOrdinal(ordinal: OrdinalRange?, htmlId: String?, forceNow: Boolean = false) {
         Log.i(TAG, "Scroll or jump to ordinal:$ordinal")
         val now = !contentVisible || forceNow
         fun boolString(value: Boolean?): String {
@@ -1700,10 +1700,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return if(value) "true" else "false"
         }
 
-        val highlight = !contentVisible || ordinal.end != null
-        val jumpToId = "o-${ordinal.start}"
+        val highlight = !contentVisible || ordinal?.end != null
+        val jumpToId = if(ordinal != null) "o-${ordinal.start}" else htmlId!!
 
-        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${ordinal.start}, ordinalEnd: ${ordinal.end}});")
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${ordinal?.start}, ordinalEnd: ${ordinal?.end}});")
         if(isActive) {
             PassageChangeMediator.onCurrentVerseChanged(window)
         }

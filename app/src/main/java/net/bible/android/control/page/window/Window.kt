@@ -254,7 +254,7 @@ class Window (
         val documentChanged = displayedBook != document
 
         if(documentChanged) {
-            loadText(true)
+            loadText(notifyLocationChange = true)
             return
         }
 
@@ -271,8 +271,9 @@ class Window (
             return
         }
         val anchorOrdinal = pageManager.currentPage.anchorOrdinal
-        if(displayedKey == key && anchorOrdinal != null) {
-            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal)
+        val htmlId = pageManager.currentPage.htmlId
+        if(prevKey == key && (anchorOrdinal != null || htmlId != null)) {
+            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal, htmlId)
             return
         }
         loadText(notifyLocationChange = true)
