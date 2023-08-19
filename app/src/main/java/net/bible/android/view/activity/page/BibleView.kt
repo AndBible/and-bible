@@ -304,9 +304,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return when(item.itemId) {
             R.id.add_bookmark -> {
                 findViewTreeLifecycleOwner()
-                step2 = true
-                mode.menu.clear()
-                mode.invalidate()
+                val cat = currentSelection?.book?.bookCategory
+                if(cat != null && cat != BookCategory.BIBLE) {
+                    makeBookmark()
+                    mode.finish()
+                } else {
+                    step2 = true
+                    mode.menu.clear()
+                    mode.invalidate()
+                }
                 return false
             }
             R.id.add_bookmark_selection -> {
@@ -479,17 +485,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(menuPrepared) {
             mode.menu.clear()
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
-            menu.findItem(R.id.add_bookmark_whole_verse).run {
-                setTitle(
-                    if(isBible) R.string.add_bookmark_whole_verse1
-                    else R.string.add_bookmark_whole_sentence
-                )
-            }
 
             val sel = currentSelection
 
             // For some reason, these do not seem to be correct from XML, even though specified there
-            if(CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false)) {
+            if(isBible && CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false)) {
                 menu.findItem(R.id.add_bookmark_selection).run {
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     setVisible(true)
@@ -551,12 +551,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(step2) {
                 mode.menu.clear()
                 mode.menuInflater.inflate(R.menu.bibleview_selection2, menu)
-                menu.findItem(R.id.add_bookmark_whole_verse).run {
-                    setTitle(
-                        if(isBible) R.string.add_bookmark_whole_verse1
-                        else R.string.add_bookmark_whole_sentence
-                    )
-                }
                 step2 = false
                 return true
             }
