@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Biblia de Estudio</string>
-  <string name="app_name_medium">Biblia de Estudio (And Bible)</string>
+  <string name="app_name_medium">Biblia de Estudio (AndBible)</string>
   <string name="app_name_long">AndBible: Biblia de Estudio</string>
-  <string name="project">Proyecto de Código Abierto And Bible</string>
+  <string name="project">Proyecto de Código Abierto AndBible</string>
   <string name="version_text">Versión %s</string>
   <string name="no_sdcard_error">Por favor inserte una tarjeta SD y reinicie la aplicación.</string>
   <!--Main menu-->
@@ -11,6 +12,7 @@
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Pasaje</string>
   <string name="search">Encuentra</string>
+  <string name="search_in_andbible">Encontrar en la Biblia</string>
   <string name="settings">Preferencias de aplicación</string>
   <string name="history">Historia</string>
   <string name="speak">Con voz</string>
@@ -56,6 +58,7 @@
   <string name="search_old_testament">Antiguo testamento</string>
   <string name="search_current_book">Libro actual</string>
   <string name="error_executing_search">Criterio de búsqueda inválido</string>
+  <string name="search_what">Encontrar \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Números de capítulo y versículo</string>
   <string name="prefs_show_verseno_summary">Mostrar números de capítulo y versículo</string>
@@ -244,17 +247,16 @@
   <string name="failed_repositories_message">No se pudo conectar al siguiente servidor de documentos: \n\n%s\n\n</string>
   <string name="failed_downloads_message">No se pudieron descargar los siguientes archivos: \n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Cargar documento desde zip</string>
   <string name="install_zip_module">Instalar módulo de Biblia</string>
   <string name="install_zip_successfull">El módulo se ha instalado correctamente</string>
   <string name="extracting_zip_file">Extrayendo Zip...</string>
   <string name="checking_zip_file">Comprobando el archivo...</string>
   <string name="invalid_module">El archivo no contiene un módulo SWORD válido</string>
-  <string name="install_zip_title">Por favor, espere. Cargando archivo Zip.</string>
   <string name="overwrite_files">Los siguientes archivos ya existen: %s ¿Sobrescribir?</string>
   <string name="overwrite_files_title">¿Sobrescribir archivos?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lectura</string>
+  <string name="reading_plans_plural">Planes de lectura</string>
   <string name="rdg_plan_selector_title">Elige plan de lectura</string>
   <string name="rdg_plan_day">Día %s</string>
   <string name="rdg_plan_set_start_date">Seleccione Fecha de Inicio...</string>
@@ -508,15 +510,15 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="mynotes">Mis Notas</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Copia de seguridad y restauración</string>
-  <string name="backup_modules">Compartir o Guardar copia de seguridad de documentos en...</string>
-  <string name="backup_app_database">Compartir o Guardar copia de seguridad de la base de datos de la aplicación en...</string>
-  <string name="backup_app">Compartir o Guardar copia de seguridad de aplicación (archivo .apk) en...</string>
+  <string name="backup_modules2">Guardar copia de seguridad de documentos en...</string>
+  <string name="backup_to">Guardar copia de seguridad en...</string>
+  <string name="backup_restore_from">Restaurar copia de seguridad desde...</string>
+  <string name="backup_restore">Resturar</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">¿Qué quiere restaurar?</string>
   <string name="restore_app_database">Restaurar la base de datos de la aplicación desde...</string>
   <string name="restore_database">Restaurar archivo de la base de datos desde...</string>
   <string name="restore_confirmation">¿Sobreescribir Mis Notas, Marcadores, Pizarras de Estudio, Planes de Lectura y Espacios?</string>
-  <string name="reading_plans_plural">Planes de lectura</string>
   <string name="restore_success">Mis notas, marcadores, pizarras de estudio, planes de lectura y espacios restaurados con éxito</string>
   <string name="loading_backup">Cargando base de datos desde la copia de seguridad...</string>
   <string name="backup_success2">Mis notas, marcadores, pizarras de estudio, planes de lectura y espacios guardados con éxito.</string>
@@ -526,10 +528,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="backup_email_subject_2">Copia de seguridad de la base de datos de %s</string>
   <string name="backup_email_message_2">Se adjunta su base de datos de %s que contiene marcadores, mis notas, planes de lectura y espacios</string>
   <string name="restore_unsuccessfull">La restauración de la base de datos tuvo un error. Tal vez le dio un archivo de base de datos no válido.</string>
-  <string name="backup_phone_storage">Almacenamiento del teléfono</string>
-  <string name="backup_backup_title">Guardar copia de seguridad en...</string>
-  <string name="backup_backup_message">¿Guardar copia de seguridad en el teléfono o en otro lugar a través de la función compartir (correo electrónico, Google Drive, etc.)?</string>
-  <string name="backup_share">Compartir</string>
   <string name="restore_modules">Restaurar documentos desde...</string>
   <string name="send_backup_file">Enviar un archivo de copia de seguridad</string>
   <string name="backup_modules_title">Seleccione qué módulos desea guardar</string>
@@ -727,7 +725,6 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="unlock_module">Establecer contraseña del módulo</string>
   <string name="unlock_info">Información de desbloqueo de módulo cifrado</string>
   <string name="try_again_passphrase">La contraseña no funcionó, ¿intentar de nuevo?</string>
-  <string name="cant_delete_last_bible">No se pudo eliminar el último documento de Biblia</string>
   <string name="show_unlock_info">Módulo e información de desbloqueo</string>
   <string name="prefs_show_error_box_title">Mostrar la caja de errores Javascript</string>
   <string name="prefs_show_error_box_summary">Útil para desarrolladores que están depurando errores javascript de BibleView. Esto ralentizará la aplicación.</string>
@@ -761,9 +758,6 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Proceda seguro</string>
   <string name="rate_title">Calificar y revisar la aplicación</string>
-  <string name="rate_message5">
-Las revisiones positivas y detalladas ayudan mucho al Proyecto de Código Abierto de la Biblia. ¡Gracias!
-</string>
   <string name="rate_message6">
 Antes de revisar la reseña negativa, considere lo siguiente:
 </string>
@@ -857,6 +851,14 @@ informe los problemas a los mantenedores de texto
   <string name="strongs_links">Enlaces</string>
   <string name="strongs_text_and_links">Texto y Enlaces</string>
   <string name="verse_tip">Para hace una selección parcial o de muchos versículos puede mantener presionado el texto de la Biblia</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Se necesita permiso</string>
+  <string name="labels_search_hint">Búsqueda</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Información</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

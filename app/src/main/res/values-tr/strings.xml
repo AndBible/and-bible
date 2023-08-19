@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Kutsal Kitap Çalışması</string>
-  <string name="app_name_medium">Kutsal Kitap Çalışması (And Bible)</string>
   <string name="app_name_long">AndBible: İncil Çalışma </string>
-  <string name="project">And Bible Açık Kaynak Projesi</string>
   <string name="version_text">Sürüm %s</string>
   <string name="no_sdcard_error">Lütfen bir hafıza kartı takıp uygulamayı yeniden başlatın.</string>
   <!--Main menu-->
@@ -238,17 +236,16 @@ Modül sunucularından yapılan tüm indirmeler şifrelenir (HTTPS).</string>
   <string name="failed_repositories_message">Aşağıdaki belge sunucusuna bağlanılamadı: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Aşağıdaki dosyalar indirilemedi: \n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Zip\'ten Dökumanı Aç</string>
   <string name="install_zip_module">İncil Modülü Yükle</string>
   <string name="install_zip_successfull">Modül başarıyla yüklenmiştir</string>
   <string name="extracting_zip_file">Zip dosyası ayıklanıyor...</string>
   <string name="checking_zip_file">Verilen dosya denetleniyor...</string>
   <string name="invalid_module">Dosya geçerli SWORD modülü içermiyor</string>
-  <string name="install_zip_title">Lütfen bekleyin. Zip dosyası yükleniyor.</string>
   <string name="overwrite_files">Aşağıdaki dosyalar zaten mevcut: %s Üzerine yazılsın mı? </string>
   <string name="overwrite_files_title">Dosyaların üzerine yazılsın mı?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Okuma Planı</string>
+  <string name="reading_plans_plural">Okuma Planları</string>
   <string name="rdg_plan_selector_title">Okuma Planını Seçin</string>
   <string name="rdg_plan_day">%s. Gün</string>
   <string name="rdg_plan_set_start_date">Başlama Tarihini Seçin...</string>
@@ -449,15 +446,14 @@ konuşma tanımlanan ayet aralığının dışında başladı.</string>
   <string name="mynotes">Notlarım</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
-  <string name="backup_modules">Belgeleri Paylaşma veya Yedekleme hedefi...</string>
-  <string name="backup_app_database">Uygulama veritabanını Paylaşma veya Yedekleme hedefi...</string>
-  <string name="backup_app">Uygulamayı (.apk dosyası) Paylaşma veya Yedekleme hedefi...</string>
+  <string name="backup_modules2">Belgeler yedekleme hedefi...</string>
+  <string name="backup_to">Yedekleme hedefi...</string>
+  <string name="backup_restore">Yedekten geri yükle</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Neyi geri yüklemek istiyorsunuz?</string>
   <string name="restore_app_database">Uygulama veritabanını şuradan geri yükle...</string>
   <string name="restore_database">Veritabanı Dosyasını Geri Yükle</string>
   <string name="restore_confirmation">Notlarımın, Yer İmlerimin, Çalışma Defterlerimin, Okuma Planlarımın ve Çalışma Alanlarımın üzerine yazılsın mı?</string>
-  <string name="reading_plans_plural">Okuma Planları</string>
   <string name="restore_success">Notlarım, Yer İmleri, Çalışma Defterleri, Okuma Planları ve Çalışma Alanları başarıyla geri yüklendi</string>
   <string name="loading_backup">Veritabanı yedeklemeden yükleniyor...</string>
   <string name="backup_success2">Notlarım, Yer İmleri, Çalışma Defterleri, Okuma Planları ve Çalışma Alanları başarıyla yedeklendi.</string>
@@ -467,10 +463,6 @@ konuşma tanımlanan ayet aralığının dışında başladı.</string>
   <string name="backup_email_subject_2">%s veritabanını yedeklemek</string>
   <string name="backup_email_message_2">Yer imlerinizi, notlarınızı, okuma planlarınızı ve çalışma alanlarınızı içeren %s veritabanınız ektedir</string>
   <string name="restore_unsuccessfull">Veritabanı geri yüklenemedi. Belki de geçersiz veritabanı dosyası verdiniz.</string>
-  <string name="backup_phone_storage">Telefon hafıza</string>
-  <string name="backup_backup_title">Nereye yedeklensin?</string>
-  <string name="backup_backup_message">Telefona ya da Paylaş fonksiyonuyla  (email, Google Drive vb.) başka yere yedekle?</string>
-  <string name="backup_share">Paylaş</string>
   <string name="restore_modules">Belgeleri Geri Yükle...</string>
   <string name="send_backup_file">Yedekleme dosyasını gönder</string>
   <string name="backup_modules_title">Hangi modüllerin yedekleneceğini seçin</string>
@@ -611,7 +603,6 @@ bu birkaç pencereye özgü işlevleri kullanmanıza ve pencere görünümünü 
   <string name="unlock_module">Modül parolasını ayarla</string>
   <string name="unlock_info">Şifrelenmiş modülün kilit açma bilgisi</string>
   <string name="try_again_passphrase">Parola çalışmadı, tekrar dener misiniz?</string>
-  <string name="cant_delete_last_bible">Son İncil belgesi kaldırılamıyor</string>
   <string name="show_unlock_info">Modül &amp; kilit açma bilgisi</string>
   <string name="prefs_show_error_box_title">Javascript hata kutusunu göster</string>
   <string name="prefs_show_error_box_summary">BibleView javascript taraflı hataları ayıklarken geliştiriciler için kullanışlıdır. Bu, uygulamayı yavaşlatacaktır.</string>
@@ -645,8 +636,6 @@ bu birkaç pencereye özgü işlevleri kullanmanıza ve pencere görünümünü 
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Yine de devam et</string>
   <string name="rate_title">Uygulamayı derecelendir ve incele</string>
-  <string name="rate_message5">
-Olumlu ve detaylı incelemeler And Bible Open Source Project\'e çok yardımcı olur. Teşekkürler!</string>
   <string name="rate_message6">
 Olumsuz inceleme getirmeden önce lütfen aşağıdakileri göz önünde bulundurun:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -707,6 +696,14 @@ geliştiricilere e-posta gönderin</string>
   <string name="strongs_links">Bağlantılar</string>
   <string name="strongs_text_and_links">Metin ve Bağlantılar</string>
   <string name="verse_tip">Kısmi veya çok sayıda ayet seçmek için İncil metnine uzun basabilirsiniz.</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">İzin gerekli</string>
+  <string name="labels_search_hint">Ara</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Bilgi</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

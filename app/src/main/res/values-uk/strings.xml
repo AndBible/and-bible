@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Дослідження Біблії</string>
-  <string name="app_name_medium">Дослідження Біблії (And Bible)</string>
+  <string name="app_name_medium">Дослідження Біблії (AndBible)</string>
   <string name="app_name_long">AndBible: Вивчення Біблії</string>
-  <string name="project">And Bible проект з відкритим кодом</string>
+  <string name="project">AndBible проект з відкритим кодом</string>
   <string name="version_text">Версія %s</string>
   <string name="no_sdcard_error">Вставте SD-карту та перезавантажте програму.</string>
   <!--Main menu-->
@@ -11,6 +12,8 @@
   <string name="chooseBook">Ресурс</string>
   <string name="selectPassage">Уривок</string>
   <string name="search">Знайти</string>
+  <string name="search_in_andbible">Знайти в Біблії</string>
+  <string name="search_with_results2">%1s результати у %2s</string>
   <string name="settings">Параметри програми</string>
   <string name="history">Журнал</string>
   <string name="speak">Озвучити</string>
@@ -18,7 +21,7 @@
   <string name="information">Інформація</string>
   <string name="other">Інше</string>
   <string name="contact">Контакти</string>
-  <string name="help_and_tips">Довідка і поради</string>
+  <string name="help_and_tips">Довідка та поради</string>
   <string name="administration">Адміністрування</string>
   <string name="rate_application">Оцінка та огдяд</string>
   <string name="chooce_document">Вибрати ресурс</string>
@@ -56,6 +59,9 @@
   <string name="search_old_testament">Старий Заповіт</string>
   <string name="search_current_book">Поточна книга</string>
   <string name="error_executing_search">Неприпустимий запит пошуку</string>
+  <string name="type_text_or_bible_reference">Введіть текст або біблійне посилання</string>
+  <string name="go_to_ref">Відкрити %s</string>
+  <string name="search_what">Знайти \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номери розділів та віршів</string>
   <string name="prefs_show_verseno_summary">Показати номери розділів та віршів</string>
@@ -113,6 +119,8 @@
   <string name="reset_fontsize">Скинути</string>
   <string name="prefs_request_sdcard_permission_title">Модулі, встановлені вручну, існують</string>
   <string name="prefs_request_sdcard_permission_summary">Увімкнути використання встановлених вручну модулів/ресурсів із папки jsword/sword у внутрішньому сховищі</string>
+  <string name="prefs_expand_footnotes_title">Вбудовані перехресні посилання</string>
+  <string name="prefs_expand_footnotes_summary">Показувати перехресне посилання у тексті замість ссилки, яка відкриває спливаюче діалогове вікно</string>
   <string name="all_text_options_window_menutitle">Усі параметри тексту</string>
   <string name="text_options_window_menutitle">Параметри тексту</string>
   <string name="auto_fullscreen">Повноекранний перегляд прокручуванням</string>
@@ -171,10 +179,13 @@
   <string name="pref_font_family_label_name">Сімейство шрифтів (%s)</string>
   <string name="prefs_font_family_summary">Змінити сімейство шрифтів. Порада: можна встановити більше шрифтів з меню Завантажити модулі / Додаткові компоненти.</string>
   <string name="prefs_text_bookmarks_title">Налаштування Закладок і Моїх приміток</string>
+  <string name="prefs_enable_bluetooth_title">Увімкнути мультимедійні кнопки Bluetooth</string>
+  <string name="prefs_enable_bluetooth_summary">Використовуйте мультимедійні кнопки Bluetooth, щоб розпочати/припинити говорити.</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Налаштування кольору</string>
   <string name="window_color_settings_title">Налаштування кольору вікон</string>
   <string name="workspace_color_settings_title">Налаштування кольору робочої області за замовчуванням </string>
+  <string name="color_workspace">Колір робочої області</string>
   <string name="color_text">Колір тексту</string>
   <string name="color_background">Колір фону</string>
   <string name="colors_day_mode_title">Денний режим</string>
@@ -239,18 +250,22 @@
   <string name="download_errors">Помилки завантаження</string>
   <string name="failed_repositories_message">Не вдалося підключитися до сервера ресурсів: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Не вдалося завантажити файли:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Цей ресурс не можна видалити.</string>
   <!--Install zip file-->
-  <string name="install_zip">Завантажити модуль із zip-архіва</string>
+  <string name="install_zip">Завантажувати ресурси з файлів</string>
   <string name="install_zip_module">Завантажити біблійний модуль</string>
+  <string name="install_zip_module_discrete">Завантажити модуль калькулятора</string>
   <string name="install_zip_successfull">Модуль успішно завантажений</string>
   <string name="extracting_zip_file">Витягування Zip-файлу…</string>
   <string name="checking_zip_file">Перевірка заданого файлу…</string>
   <string name="invalid_module">Файл не містить дійсний SWORD-модуль</string>
-  <string name="install_zip_title">Зачекайте. Zip-файл завантажується.</string>
+  <string name="install_zip_title">Будь ласка, зачекайте. Модулі завантажуються з файлу.</string>
   <string name="overwrite_files">Наступні файли вже існують: %s Перезаписати?</string>
   <string name="overwrite_files_title">Перезаписати файли?</string>
+  <string name="could_not_overwrite_files">Не вдалося перезаписати файли: %s. Крім того, встановлення пройшло успішно.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План читання</string>
+  <string name="reading_plans_plural">Плани читання</string>
   <string name="rdg_plan_selector_title">Вибрати план читання</string>
   <string name="rdg_plan_day">День %s</string>
   <string name="rdg_plan_set_start_date">Встановити дату початку…</string>
@@ -327,7 +342,7 @@
   <string name="open_link_in_new_window">Відкрити посилання в новому вікні</string>
   <string name="open_link_in_special_window">Відкрити посилання в окремому вікні</string>
   <!--Bookmarks-->
-  <string name="bookmarks_and_mynotes_title">Закладки і Мої примітки</string>
+  <string name="bookmarks_and_mynotes_title">Закладки та Мої примітки</string>
   <string name="migrated_my_notes">Перенесено Мої примітки</string>
   <string name="bookmarks">Закладки</string>
   <string name="bookmark_added">Закладка добавлена</string>
@@ -353,6 +368,8 @@
   <string name="label_color">Колір мітки</string>
   <!--can be removed-->
   <string name="label_color_example">Приклад</string>
+  <string name="marker_style">Показувати лише позначку для закладок вибору</string>
+  <string name="marker_style_whole_verse">Показувати лише позначку для закладок цілих віршів</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Сортувати за датою</string>
   <string name="sort_by_bible_book">Сортувати у біблійному порядку</string>
@@ -501,16 +518,26 @@
   <string name="mynotes">Мої примітки</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Резервне копіювання та відновлення</string>
-  <string name="backup_modules">Поділитися або резервне копіювання ресурсів у…</string>
-  <string name="backup_app_database">Поділитися або резервне копіювання бази даних додатку у…</string>
-  <string name="backup_app">Поділитися або резервне копіювання додатку (файл .apk) у…</string>
+  <string name="backup_modules2">Резервне копіювання документів у…</string>
+  <string name="backup_app_database2">Резервне копіювання бази даних додатку у…</string>
+  <string name="backup_app2">Резервне копіювання програми (.apk-файл) до…</string>
+  <string name="backup_application">Додаток</string>
+  <string name="backup_database">База даних</string>
+  <string name="backup_documents">Ресурси</string>
+  <string name="backup_application_info">Файл програми (.APK)</string>
+  <string name="backup_database_info">Закладки, мітки, нотатки, навчальні блокноти, плани читання, робочі області тощо.</string>
+  <string name="backup_document_info">Біблії, коментарі, словники, карти тощо</string>
+  <string name="backup_to">Резервне копіювання в ...</string>
+  <string name="backup_restore_from">Відновити з...</string>
+  <string name="backup_restore">Відновлення</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Що ви хочете відновити?</string>
   <string name="restore_app_database">Відновити базу даних додатку з…</string>
   <string name="restore_database">Відновити файл бази даних</string>
   <string name="restore_confirmation">Перезаписати Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області?</string>
-  <string name="reading_plans_plural">Плани читання</string>
+  <string name="restore_success2">Вибрані розділи бази даних успішно відновлено</string>
   <string name="restore_success">Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області відновлено успішно</string>
+  <string name="downloading_backup">Завантаження файлу резервної копії…</string>
   <string name="loading_backup">Завантаження бази даних із резервної копії…</string>
   <string name="backup_success2">Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області, резервне копіювання яких успішно виконано.</string>
   <string name="backup_modules_success">Резервне копіювання вибраних модулів виконано успішно.</string>
@@ -519,10 +546,6 @@
   <string name="backup_email_subject_2">%s резервне копіювання бази даних</string>
   <string name="backup_email_message_2">Ваша %s база даних, що містить закладки, примітки, плани читання та робочі місця додана</string>
   <string name="restore_unsuccessfull">Відновити базу даних не вдалося. Можливо, ви дали недійсний файл бази даних.</string>
-  <string name="backup_phone_storage">Пам\'ять телефону</string>
-  <string name="backup_backup_title">Резервне копіювання куди?</string>
-  <string name="backup_backup_message">Резервне копіювання на телефон або в інше місце за допомогою функції Поділитись (електронна пошта, Google Drive тощо)?</string>
-  <string name="backup_share">Поділитись</string>
   <string name="restore_modules">Відновити ресурси з…</string>
   <string name="send_backup_file">Надіслати файл резервної копії</string>
   <string name="backup_modules_title">Виберіть модулі для резервного копіювання</string>
@@ -589,6 +612,8 @@
   <string name="error_key_not_in_document2">%s не знайдено в ресурсі %s.</string>
   <string name="empty_list">Немає елементів для відображення</string>
   <string name="error_skip">Пропустити</string>
+  <string name="bug_report_email_title">Надіслати звіт про помилку електронною поштою</string>
+  <string name="bug_report_email_text">Далі, виберіть бажану програму електронної пошти (наприклад, Gmail), щоб надіслати звіт команді розробників.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Синтез мовлення</string>
   <string name="notification_channel_progress_status">Сповіщення про стан виконання завантаження модулів і т.д.</string>
@@ -647,7 +672,7 @@
 Довго натискайте на елемент документа у списку \"Вибрати ресурс\" або \"Завантажити\", щоб видалити ресурс або переглянути інформацію.
 Довго натискайте закладку в списку закладок, щоб додати мітки або видалити закладку.
 Довго натискайте посилання, щоб вибрати, чи відкрити їх у поточному вікні, новому вікні чи у вікні спеціальних посилань.</string>
-  <string name="help_bookmarks_title">Закладки і Мої примітки</string>
+  <string name="help_bookmarks_title">Закладки та Мої примітки</string>
   <string name="help_bookmarks_text">Закладки можна створити, вибравши певний текст і натиснувши \"Закладка\"
 у контекстному меню. Ви можете додати власні нотатки до нової закладки, натиснувши 
 виділений текст у перегляді Біблії. У коментарях також є спеціальний ресурс \"Мої примітки\", який дозволяє вам
@@ -687,6 +712,13 @@
   <string name="welcome_message">Дякуємо за завантаження %s. На даний момент біблії та інші ресурси не встановлені. Щоб продовжити, будь ласка, встановіть
 принаймні 1 ресурс, завантаживши з Інтернету, або завантаживши із zip-файлу
 резервного копіювання.</string>
+  <string name="supported_formats_title">Підтримувані формати</string>
+  <string name="choose_file">Ви повинні вибрати файл, який ви хочете завантажити в %s.</string>
+  <string name="supported_formats">Підтримувані формати для завантаження документів з файлу: %s</string>
+  <string name="format_zip">Zip-файл, що містить модуль(лі) Sword, або файл резервної копії ресурсів (*.abmd), створений %s</string>
+  <string name="format_mysword">MySword ресурси (*.mybible)</string>
+  <string name="format_mybible">MyBible ресурси (*.SQLite3)</string>
+  <string name="format_epub">EPUB ресурси (*.epub)</string>
   <string name="redownload_message">
         Знайдено список попередніх книг / ресурсів. Клацніть нижче, щоб легко завантажити їх знову.
     </string>
@@ -715,7 +747,6 @@
   <string name="unlock_module">Встановити парольну фразу модуля</string>
   <string name="unlock_info">Інформація про розблокування зашифрованого модуля</string>
   <string name="try_again_passphrase">Парольна фраза не спрацювала, спробувати ще раз?</string>
-  <string name="cant_delete_last_bible">Не вдається видалити останній біблійний документ</string>
   <string name="show_unlock_info">Модуль і інформацію про розблокування </string>
   <string name="prefs_show_error_box_title">Показати вікно з помилкою Javascript</string>
   <string name="prefs_show_error_box_summary">Корисно для розробників при налагодженні побічних BibleView javascript помилок. Це зробить додаток повільнішим.</string>
@@ -729,16 +760,22 @@
   <string name="tell_friend_message1">Рекомендую тобі додаток %s для глибокого і зручного вивчення Біблії.</string>
   <string name="tell_friend_message2">Це потужний, але простий у використанні додаток для вивчення Біблії в автономному режимі для Android.</string>
   <string name="tell_friend_message3">Встановіть його з Play Store: %s</string>
-  <string name="tell_friend_message4">Детальніше і більше варіантів інсталяції: %s</string>
+  <string name="tell_friend_message4">Детальніше та більше варіантів встановлення: %s</string>
   <string name="share_verse_ok">Поділитися / скопіювати</string>
   <string name="verse_action_copy">Скопіювати</string>
   <string name="share_verse_menu_title">Поділитися / скопіювати...</string>
   <string name="show_versenumbers">Показати номери віршів</string>
   <string name="show_full_verses">Показати повні вірші</string>
+  <string name="show_selection_only">Показати лише виділений текст</string>
   <string name="advertise_app">Рекламуйте додаток</string>
   <string name="verse_share_advertise">Надіслано за допомогою %s.</string>
+  <string name="show_reference">Показати посилання</string>
+  <string name="show_reference_at_front">Покажіть перед віршем</string>
   <string name="abbreviate_reference">Скоротити посилання</string>
   <string name="version_name">Назва перекладу</string>
+  <string name="show_version_name">Вмістити назву версії</string>
+  <string name="show_ellipsis">Показати три крапки (...)</string>
+  <string name="show_quotes">Показати цитати</string>
   <string name="backup_button">Резервне копіювання</string>
   <string name="back_button">Назад</string>
   <string name="upgrading_database">Оновлення бази даних. Зачекайте, будь ласка ...</string>
@@ -748,9 +785,10 @@
   <string name="old_webview">Пакет Android WebView застарілий (%s). Вам потрібно оновити пакет Android WebView принаймні до версії %s, щоб використовувати %s. Для більшості пристроїв це можна зробити через %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Все одно продовжити</string>
+  <string name="proceed">Продовжити</string>
   <string name="rate_title">Оцінка та огляд додатка</string>
   <string name="rate_message5">
-        Позитивні та докладні відгуки дуже допомагають And Bible проекту з відкритим кодом. Дякуємо за підтримку!
+        Позитивні та докладні відгуки дуже допомагають AndBible Open Source Project. Щиро Дякуємо! Рясних Божих Вам Благословінь!
     </string>
   <string name="rate_message6">
         Перш ніж залишити негативний відгук, врахуйте наступне:
@@ -801,6 +839,8 @@
   <string name="recent_labels">Останні мітки</string>
   <string name="other_labels">Інші мітки</string>
   <string name="book_menu_sort_row_opt">Упорядкувати книги по горизонталі</string>
+  <string name="book_menu_group_by_category">Групувати книги за категоріями</string>
+  <string name="book_menu_show_long_book_name">Показати довгу назву книги</string>
   <string name="reset_workspace_labels">Скинути налаштування автоматичного призначення та налаштування улюблених для цієї робочої області?</string>
   <string name="reset_hide_labels">Скинути налаштування для приховування заданих налаштувань мітків?</string>
   <string name="reorder">Змінити порядок</string>
@@ -845,6 +885,122 @@
   <string name="strongs_links">Посилання</string>
   <string name="strongs_text_and_links">Текст і посилання</string>
   <string name="verse_tip">Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">У доступі відмовлено</string>
+  <string name="labels_search_hint">Пошук</string>
+  <string name="progress_status_permission">Щоб показувати сповіщення (статус завантаження, обробка, статус озвучення), нам потрібен ваш дозвіл.</string>
+  <!--Discrete mode settings-->
+  <string name="app_name_calculator">Простий калькулятор</string>
+  <string name="prefs_persecution_cat">Налаштування для переслідуваних</string>
+  <string name="prefs_discrete_mode">Заховати релігійні символи</string>
+  <string name="prefs_discrete_mode_desc">Перейменуйте програму на «Калькулятор» і відобразіть іншу піктограму на панелі запуску.</string>
+  <string name="prefs_show_calculator">Калькулятор</string>
+  <string name="prefs_calculator_pin">PIN-код калькулятора</string>
+  <string name="prefs_calculator_pin_desc">PIN-код для входу в програму, коли відображається калькулятор.</string>
+  <string name="calc_division_by_zero">Ділення на нуль не допускається</string>
+  <string name="calc_wrong_format">Неправильний формат</string>
+  <string name="calc_wrong_format_operand">Неправильний формат. Операнд без чисел?</string>
+  <string name="prefs_persecuted_help">Прочитайте спочатку це!</string>
+  <string name="prefs_persecuted_summary">Інструкція з налаштування та інформація про конкретну дискретну збірку .</string>
+  <string name="calculator_par1">
+        Перед входом у програму відображається екран калькулятора.
+    </string>
+  <string name="calculator_par2">
+        У ньому ви можете виконувати стандартні обчислення, а коли захочете увійти в додаток, ви
+просто введіть свій PIN-код (за замовчуванням 1234), а потім натисніть кнопку \"=\".
+    </string>
+  <string name="calculator_par3">
+        Ви можете встановити спеціальний PIN-код за допомогою параметра «PIN-код калькулятора».
+    </string>
+  <string name="discrete_mode_info_par1">
+        Ви використовуєте стандартну версію програми, а це означає, що в інформації про програму все ще можна бачити справжню назву та піктограму програми.
+    </string>
+  <string name="discrete_mode_info_par2">
+        Для покращення безпеки в середовищі де переслідування за віру, ми настійно рекомендуємо використовувати дискретну, непомітну версію програми, яка завжди відображає калькулятор, навіть якщо дані програми видалено.
+    </string>
+  <string name="discrete_mode_link">
+        Ви можете завантажити останню версію дискретної, непомітної версії з %s.
+    </string>
+  <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Синхронізувати групу</string>
+  <string name="sync_group_n">Група %d</string>
+  <string name="disable_sync">Вимкнути синхронізацію</string>
+  <string name="open_in_window">Відкрийте результати у вікні</string>
+  <!--Custom repositories-->
+  <string name="custom_repositories">Індивідуальні сховища</string>
+  <string name="custom_repositories_empty_list_message">Індивідуальні сховища не визначені</string>
+  <string name="custom_repositories_create_button_label">Добавити індивідуальне сховище</string>
+  <string name="custom_repositories_info_button_label">Інформація</string>
+  <string name="name_for_repository">Назва сховища</string>
+  <string name="repository_specification">URL-адрес сховища</string>
+  <string name="delete_custom_repository">Ви хочете видалити індивідуальне сховище %s?</string>
+  <string name="invalid_repository_not_saved">Специфікація сховища була недійсною, і її не було збережено.</string>
+  <string name="custom_repositories_help1">Щоб додати нове індивідуальне сховище, введіть або скопіюйте &amp; вставте тут URL-адресу спеціального сховища.</string>
+  <string name="custom_repositories_help2">Ви можете прочитати більше інформації про індивідуальні сховища в %s.</string>
+  <string name="wiki_page">Сторінка WIKI</string>
+  <string name="custom_repositories_help0">Ви можете встановити ресурси із зовнішніх сховищ, встановивши індивідуальні, особисті сховища.</string>
+  <string name="duplicate_custom_repository">Сховище із назвою %s вже існує, не можна додати те саме.</string>
+  <string name="packages_dir">Каталог пакетів (Zip-файли)</string>
+  <string name="warn_bad_document">Увага: цей ресурс може бути (принаймні частково) поганої технічної якості.</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Відкрити біблійні посилання в AndBible</string>
+  <string name="open_bible_links_summary">Натискаючи посилання, які посилаються на біблійну URL-адресу, яка підтримується AndBible, відкривайте їх в AndBible</string>
+  <string name="copyReference">Копіювати посилання в буфер обміну</string>
+  <string name="reference_copied_to_clipboard">Посилання скопійовано в буфер обміну</string>
+  <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+Виберіть серверну хмарну службу, яку ви хочете використовувати для синхронізації кількох пристроїв.
+    </string>
+  <string name="prefs_sync_introduction_summary2">
+        Під час використання Диска Google, %s надається доступ лише до файлів додатку, а не до особистих файлів.
+    </string>
+  <string name="restore_backup_sections">Які резервні розділи ви хочете відновити?</string>
+  <string name="db_repositories">Сховища та відповідні налаштування</string>
+  <string name="db_bookmarks">Закладки, нотатки, етикетки та блокноти для навчання</string>
+  <string name="synchronizing">Синхронізація…</string>
+  <string name="overrideBackup">
+        Існуюча база даних, з якою цей пристрій не синхронізовано, знаходиться в хмарі. База даних містить %s. Що ви хочете робити?
+    </string>
+  <string name="reading_plans_content">Плани читання та їх статуси</string>
+  <string name="bookmarks_contents">Закладки, мітки та блокноти для навчання</string>
+  <string name="workspaces_contents">Робочі області та вікна</string>
+  <string name="cloud_fetch_and_restore_initial">Копіювати з хмари на цей пристрій</string>
+  <string name="cloud_create_new">Копіювати з цього пристрою в хмару</string>
+  <string name="cloud_disable_sync">Скасувати та відключити синхронізацію</string>
+  <string name="cloud_sync_title">Синхронізація пристрою</string>
+  <string name="reset_sync">Вийти</string>
+  <string name="prefs_reset_sync_summary">Вимкніть синхронізацію та скиньте відповідні налаштування.</string>
+  <string name="sync_confirmation">Ви впевнені, що бажаєте вийти та скинути синхронізацію?</string>
+  <string name="cloud_info">Хмарна інформація</string>
+  <string name="cloud_info_summary">Дані в хмарному сховищі: %s Мб</string>
+  <string name="sync_adapter">Сервер синхронізації</string>
+  <string name="sync_adapter_summary">Поточний: %s</string>
+  <string name="adapters_google_drive">Диск Google</string>
+  <string name="adapters_next_cloud">Наступна хмара</string>
+  <string name="auth_title">Аутентифікація в %s</string>
+  <string name="auth_username">Ім\'я користувача</string>
+  <string name="auth_password">Пароль</string>
+  <string name="auth_access_token">Маркер доступу</string>
+  <string name="synchronization_categories">Категорії синхронізації</string>
+  <string name="sync_general_settings">Інформація та загальні налаштування</string>
+  <string name="sync_introduction">Вступ</string>
+  <string name="are_you_sure">Ви впевнені?</string>
+  <string name="are_you_sure_reset_local">Це скине вашу локальну базу даних для %s, і замінить контентом який наразі зберігається в хмарній службі.</string>
+  <string name="are_you_sure_reset_cloud">Це скине вашу хмарну базу даних для %s, і замінить контентом який ви маєте на цьому пристрої.</string>
+  <string name="sync_cant_fetch">Версія бази даних або файлу виправлення, що зберігається в хмарі, є вищою за ту, що підтримується цією програмою.</string>
+  <string name="sync_disabling">Наразі синхронізація відключається для %s.</string>
+  <string name="sign_in_failed">Сталася помилка під час входу в серверну службу синхронізації.</string>
+  <string name="disabling_sync">Вимкнення хмарної синхронізації. Ви повинні повторно ввімкнути синхронізацію вручну після відновлення.</string>
+  <string name="report">Звіт</string>
+  <string name="sync_error">Сталася помилка синхронізації з хмарою</string>
+  <string name="error_notification_channel_name">Повідомлення помилок</string>
+  <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Неможливо прочитати файл</string>
+  <string name="sqlite_invalid_file">Недійсний файл модуля або назва файлу: %s</string>
+  <string name="sqlite_cant_write">Неможливо (пере)записати файл</string>
+  <string name="install_failed_reason">Не вдалося встановити модуль з наступної причини: %s.</string>
+  <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Додаток відкрито в іншому місці</string>
+  <string name="open_here">Відкрити тут</string>
+  <string name="external_link">Зовнішнє посилання</string>
+  <string name="external_link_question">Зовнішнє посилання %s відкриється в браузері. Відкрити?</string>
 </resources>

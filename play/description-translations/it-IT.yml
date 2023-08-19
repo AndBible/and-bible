@@ -46,7 +46,7 @@ feature_13: >
   Appunti di studio per aggiungere annotazioni e riferimenti biblici durante l'ascolto dei sermoni.
 subtitle_3: Creiamo insieme la migliore app della Bibbia!
 paragraph_3_1: >
-  And Bible è un progetto comunitario open-source. In pratica, questo significa che chiunque abbia competenze adeguate può ed è incoraggiato a contribuire al progetto:
+  AndBible è un progetto della community open-source. In pratica, ciò significa che chiunque abbia le competenze adeguate può contribuire al progetto ed è incoraggiato a farlo:
 contr_1: "sviluppando nuove funzionalità,"
 contr_2: "testando le nuove caratteristiche,"
 contr_3: "mantenendo aggiornate le traduzioni dell'interfaccia utente, e"
@@ -58,7 +58,7 @@ subtitle_4: Collegamenti
 link_1: >
   Pagina principale: {{homepage_url}}
 link_2: >
-  Metti un like ad And Bible su Facebook: {{facebook_url}}
+  Metti mi piace a AndBible su Facebook: {{facebook_url}}
 link_3: >
   Il nostro canale Youtube: {{youtube_url}}
 link_4: >

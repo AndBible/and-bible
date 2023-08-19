@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Studium Biblii</string>
-  <string name="app_name_medium">Studium Biblii (And Bible)</string>
   <string name="app_name_long">AndBible: Studium Biblii</string>
-  <string name="project">Otwartoźródłowy projekt And Bible</string>
   <string name="version_text">Wersja %s</string>
   <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić aplikację.</string>
   <!--Main menu-->
@@ -234,17 +232,16 @@
   <string name="failed_repositories_message">Nie można połączyć się z następującymi serwerami dokumentów: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Nie udało się pobrać następujących plików:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Załaduj dokument z pliku zip</string>
   <string name="install_zip_module">Zainstaluj moduł Biblii</string>
   <string name="install_zip_successfull">Moduł został pomyślnie zainstalowany</string>
   <string name="extracting_zip_file">Rozpakowywanie pliku zip…</string>
   <string name="checking_zip_file">Sprawdzanie pliku…</string>
   <string name="invalid_module">Plik nie zawiera poprawnego modułu SWORD</string>
-  <string name="install_zip_title">Proszę czkać. Ładowanie pliku .zip.</string>
   <string name="overwrite_files">Następujące pliki jeż istnieją: %s. Czy nadpisać je?</string>
   <string name="overwrite_files_title">Czy nadpisać pliki?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan czytania</string>
+  <string name="reading_plans_plural">Plany czytania</string>
   <string name="rdg_plan_selector_title">Wybierz plan czytania</string>
   <string name="rdg_plan_day">Dzień %s</string>
   <string name="rdg_plan_set_start_date">Wybierz datę rozpoczęcia…</string>
@@ -469,15 +466,15 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="mynotes">Moje notatki</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Kopia zapasowa</string>
-  <string name="backup_modules">Udostępnij / kopiuj dokumenty do…</string>
-  <string name="backup_app_database">Udostępnij / kopiuj bazę danych aplikacji do…</string>
-  <string name="backup_app">Udostępnij / kopiuj aplikację (plik .apk) do…</string>
+  <string name="backup_modules2">Utwórz kopię zapasową dokumentów…</string>
+  <string name="backup_to">Utwórz kopię zapasową…</string>
+  <string name="backup_restore_from">Przywróć z kopii zapasowej…</string>
+  <string name="backup_restore">Przywróć</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Co przywrócić?</string>
   <string name="restore_app_database">Przywróć bazę danych z…</string>
   <string name="restore_database">Plik bazy danych</string>
   <string name="restore_confirmation">Czy nadpisać notatki, zakładki, bloczki notatek, plany czytania i obszary robocze?</string>
-  <string name="reading_plans_plural">Plany czytania</string>
   <string name="restore_success">Pomyślnie przywrócono notatki, zakładki, bloczki notatek, plany czytania i obszary robocze</string>
   <string name="loading_backup">Wczytywanie bazy danych z kopii zapasowej…</string>
   <string name="backup_success2">Pomyślnie utworzono kopię zapasową notatek, zakładek, bloczków notatek, planów czytania i obszarów roboczych.</string>
@@ -487,10 +484,6 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="backup_email_subject_2">%s: kopia zapasowa bazy danych</string>
   <string name="backup_email_message_2">W załączniku znajduje się kopia zapasowa bazy danych aplikacji %s zawierająca Twoje zakładki, notatki, plany czytania i obszary robocze</string>
   <string name="restore_unsuccessfull">Nie udało się przywrócić bazy danych z kopii zapasowej. Prawdopodobnie plik jest uszkodzony.</string>
-  <string name="backup_phone_storage">Pamięć wewnętrzna</string>
-  <string name="backup_backup_title">Dokąd?</string>
-  <string name="backup_backup_message">Czy utworzyć kopię zapasową w pamięci wewnętrznej, czy używając funkcji „udostępnij” (poczta, Dysk Google, itp.)?</string>
-  <string name="backup_share">Udostępnij</string>
   <string name="restore_modules">Przywróć dokumenty z…</string>
   <string name="send_backup_file">Wyślij plik kopii zapasowej</string>
   <string name="backup_modules_title">Wybór modułów do kopii zapasowej</string>
@@ -655,7 +648,6 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="unlock_module">Ustaw hasło modułu</string>
   <string name="unlock_info">Informacja o szyfrowanych modułach</string>
   <string name="try_again_passphrase">Błędne hasło, czy spróbować ponownie?</string>
-  <string name="cant_delete_last_bible">Nie można usunąć ostatniego dokumentu Biblii</string>
   <string name="show_unlock_info">O szyfrowanym module</string>
   <string name="prefs_show_error_box_title">Wyświetl konsolę błędów JavaScript</string>
   <string name="prefs_show_error_box_summary">Przydatne dla programistów do naprawy błędów JavaScript komponentu BibleView. Spowoduje spowolnienie aplikacji.</string>
@@ -689,8 +681,6 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Kontynuuj mimo to</string>
   <string name="rate_title">Oceń i recenzuj aplikację</string>
-  <string name="rate_message5">
-Szczegółowe i zachęcające recenzje są niezwykle pomocne dla projektu And Bible. Dziękujemy!</string>
   <string name="rate_message6">
 Przed napisaniem niepochlebnej opinii, prosimy rozważyć:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -773,6 +763,14 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="strongs_links">Odnośniki</string>
   <string name="strongs_text_and_links">Teksty i odnośniki</string>
   <string name="verse_tip">Aby wybrać część bądź kilka wersetów, stuknij i przytrzymaj tekst Biblii</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Wymagane uprawnienie</string>
+  <string name="labels_search_hint">Szukaj</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Informacje</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

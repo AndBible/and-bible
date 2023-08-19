@@ -36,7 +36,9 @@ class CountsNotMatch(Exception):
 
 def check_counts(counts, default_counts):
     for string, count in counts.items():
-        target_count = default_counts[string]
+        target_count = default_counts.get(string)
+        if(target_count == None):
+            continue
         if target_count != count:
             raise CountsNotMatch(string, count, target_count)
 

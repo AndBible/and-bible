@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Biblijos studijos</string>
-  <string name="app_name_medium">Biblijos studijos (And Bible)</string>
   <string name="app_name_long">AndBible: Biblija</string>
-  <string name="project">And Bible atvirojo kodo projektas</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Įdėkite SD kortelę ir paleiskite programėlę iš naujo.</string>
   <!--Main menu-->
@@ -240,17 +238,16 @@
   <string name="failed_repositories_message">Nepavyko prisijungti prie šių dokumentų saugyklų: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Nepavyko atsisiųsti šių failų:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Įkelti dokumentą iš Zip failo</string>
   <string name="install_zip_module">Įdiegti Biblijos modulį</string>
   <string name="install_zip_successfull">Modulis sėkmingai įdiegtas</string>
   <string name="extracting_zip_file">Išpakuojamas Zip failas...</string>
   <string name="checking_zip_file">Tikrinamas pateiktas failas...</string>
   <string name="invalid_module">Faile nėra SWORD modulio</string>
-  <string name="install_zip_title">Palaukite. Įkeliamas Zip failas.</string>
   <string name="overwrite_files">Šie failai jau yra: %s Perrašyti?</string>
   <string name="overwrite_files_title">Perrašyti failus?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Skaitymo planas</string>
+  <string name="reading_plans_plural">Skaitymo planai</string>
   <string name="rdg_plan_selector_title">Pasirinkite „Skaitomą planą“</string>
   <string name="rdg_plan_day">Diena %s</string>
   <string name="rdg_plan_set_start_date">Nustatyti pradžios datą</string>
@@ -502,15 +499,15 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="mynotes">Mano pastabos</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Saugoti ir atkurti atsargines kopijas</string>
-  <string name="backup_modules">Bendrinti arba saugoti dokumentų atsargines kopijas į...</string>
-  <string name="backup_app_database">Bendrinti arba saugoti programėlės duomenų bazės atsarginę kopiją į...</string>
-  <string name="backup_app">Bendrinti arba saugoti programėlę (.apk failą) į...</string>
+  <string name="backup_modules2">Saugoti dokumentų atsargines kopijas į...</string>
+  <string name="backup_to">Daryti atsarginę kopiją į…</string>
+  <string name="backup_restore_from">Atkurti iš…</string>
+  <string name="backup_restore">Atstatyti</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Ką norite atkurti?</string>
   <string name="restore_app_database">Atkurti programėlės duomenų bazę iš…</string>
   <string name="restore_database">Atkurti duomenų bazės failą</string>
   <string name="restore_confirmation">Perrašyti mano pastabas, žymes, bloknotus, skaitymo planus ir darbo sritis?</string>
-  <string name="reading_plans_plural">Skaitymo planai</string>
   <string name="restore_success">Mano pastabos, žymės, bloknotai, skaitymo planai ir darbo sritys sėkmingai atkurtos</string>
   <string name="loading_backup">Įkeliama duomenų bazė iš atsarginės kopijos…</string>
   <string name="backup_success2">Sėkmingai padaryta mano pastabų, žymių, bloknotų, skaitymo planų ir darbo sričių atsarginė kopija.</string>
@@ -520,10 +517,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="backup_email_subject_2">%s duomenų bazės atsarginė kopija</string>
   <string name="backup_email_message_2">Jūsų %s duomenų bazė su žymėmis, pastabomis, skaitymo planais ir darbo sritimis yra pridėta</string>
   <string name="restore_unsuccessfull">Duomenų bazės atkūrimas buvo nesėkmingas. Galbūt, pateikėte neteisingą duomenų bazės failą.</string>
-  <string name="backup_phone_storage">Telefono saugykla</string>
-  <string name="backup_backup_title">Kur išsaugoti atsarginę kopiją?</string>
-  <string name="backup_backup_message">Išsaugoti atsarginę kopiją telefone arba kitur naudojant bendrinimo funkciją (el. paštas, „Google“ Diskas ir kt.)?</string>
-  <string name="backup_share">Bendrinti</string>
   <string name="restore_modules">Atkurti dokumentus iš…</string>
   <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
   <string name="backup_modules_title">Pasirinkite kurių modulių atsargines kopijas darysite</string>
@@ -719,7 +712,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="unlock_module">Nustatyti modulio slaptafrazę</string>
   <string name="unlock_info">Informacija apie šifruoto modulio atrakinimą</string>
   <string name="try_again_passphrase">Slaptafrazė nesuveikė, bandyti dar kartą?</string>
-  <string name="cant_delete_last_bible">Negalima pašalinti paskutinio Biblijos dokumento</string>
   <string name="show_unlock_info">Modulis ir informacija apie atrakinimą</string>
   <string name="prefs_show_error_box_title">Rodyti Javascript klaidų langą</string>
   <string name="prefs_show_error_box_summary">Praverčia plėtotojams derinant BibleView javascript pusės klaidas. Tai sulėtins programėlės veikimą.</string>
@@ -753,9 +745,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="play">„Google Play“</string>
   <string name="proceed_anyway">Vis tiek tęsti</string>
   <string name="rate_title">Programėlės įvertinimas ir apžvalga</string>
-  <string name="rate_message5">
-        Teigiamos ir išsamios apžvalgos labai padeda And Bible atvirojo kodo projektui. Dėkojame!
-    </string>
   <string name="rate_message6">
         Prieš rašydami neigiamą apžvalgą, turėkite omenyje šiuos dalykus:
     </string>
@@ -849,6 +838,14 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="strongs_links">Nuorodos</string>
   <string name="strongs_text_and_links">Tekstas ir nuorodos</string>
   <string name="verse_tip">Norėdami žymėti kelias eilutes ar eilutės dalį, paspauskite ir palaikykite ant Biblijos teksto</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Reikalingas leidimas</string>
+  <string name="labels_search_hint">Ieškoti</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Informacija</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

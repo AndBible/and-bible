@@ -36,7 +36,7 @@ And Bible je projekt odprtokodne skupnosti. V praksi to pomeni, da lahko vsak, k
 Povezave
 
  * Domača stran: https://andbible.github.io
- * Všečkaj And Bible na Facebooku: https://www.facebook.com/AndBible/
+ * Like AndBible on Facebook: https://www.facebook.com/AndBible/
  * Naš Youtube kanal: https://www.youtube.com/c/AndBible
  * Pogosto zastavljena vprašanja: https://git.io/JJm8E
  * Projektna stran na Githubu: https://github.com/AndBible/and-bible

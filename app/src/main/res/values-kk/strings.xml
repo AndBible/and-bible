@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Киелі Кітапті Зерттеу</string>
-  <string name="app_name_medium">Киелі Кітапті Зерттеу (And Bible)</string>
   <string name="app_name_long">AndBible: Киелі Кітап+</string>
-  <string name="project">And Bible Ашық Көзді Ақпаратты Жоба</string>
   <string name="version_text">Нұсқа %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және қолданбаны қайта іске қосыңыз.</string>
   <!--Main menu-->
@@ -239,17 +237,16 @@
   <string name="failed_repositories_message">Келесі құжаттың серверге қосылу мүмкіндігі болмады: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Келесі файлдар жүктеле алмады:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Zip файлдан жүктеу</string>
   <string name="install_zip_module">Киелі Кітап Модулін Орнатыңыз</string>
   <string name="install_zip_successfull">Модуль сәтті орнатылды</string>
   <string name="extracting_zip_file">Zip файлын қазір шығару ...</string>
   <string name="checking_zip_file">Берілген файл тексерілуде ...</string>
   <string name="invalid_module">Файлдың мазмұнында жарамды SWORD модулі жоқ</string>
-  <string name="install_zip_title">Күте тұрыңыз. Zip файл жүктелуде.</string>
   <string name="overwrite_files">Келесі файлдар бұрыннан бар:%s Қайта үстінен жазу керек пе?</string>
   <string name="overwrite_files_title">Файлдарды қайта үстінен жазу керек пе?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Оқу Жоспары</string>
+  <string name="reading_plans_plural">Оқу Жоспарлары</string>
   <string name="rdg_plan_selector_title">Оқу Жоспарын Таңдаңыз</string>
   <string name="rdg_plan_day">Күн %s</string>
   <string name="rdg_plan_set_start_date">Басталу Күнін Орнату...</string>
@@ -478,15 +475,13 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="mynotes">Менің Ескертпелерім</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Сақтық көшіру мен Қалпына келтіру</string>
-  <string name="backup_modules">Құжаттармен Бөлісіңіз немесе Сақтық көшіру осы жерге...</string>
-  <string name="backup_app_database">Қолданбаның дерекқорымен Бөлісіңіз немесе Сақтық көшіру осы жерге…</string>
-  <string name="backup_app">Қолданбамен (.apk файлмен) бөлісіңіз немесе Сақтық көшіру осы жерге…</string>
+  <string name="backup_modules2">Құжаттардың Сақтық көшірмесін жасау</string>
+  <string name="backup_restore">Қалпына келтіру</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Сіз нені қалпына келтіргіңіз келеді?</string>
   <string name="restore_app_database">Қолданбалар дерекқорын қалпына келтіріңіз осы жерден...</string>
   <string name="restore_database">Дерекқор Файлды Қалпына келтіріңіз</string>
   <string name="restore_confirmation">Менің жазбаларым, бетбелгілерім, оқу планшеттерді, оқитын жоспарларымды және жұмыс кеңістіктерімді қайта жазу керек па?</string>
-  <string name="reading_plans_plural">Оқу Жоспарлары</string>
   <string name="restore_success">Менің Жазбаларым, Бетбелгілерім, Оқу Планшеттерім, Оқу Жоспарлары мен Жұмыс Кеңістіктері қалпына сәтті келтірілді</string>
   <string name="loading_backup">Деректер базасы сақтық көшірмеден жүктелуде…</string>
   <string name="backup_success2">Менің Жазбаларым, Бетбелгілерім, Оқу Планшеттерім, Оқу Жоспарлары мен Жұмыс Кеңістіктері сақтық көшірмесіне сәтті сақталған.</string>
@@ -496,10 +491,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="backup_email_subject_2">%s мәліметтер базасын сақтыққа көшіру</string>
   <string name="backup_email_message_2">Сіздің мәліметтер базасында қамтылған кітап белгілердің, ескертпелердің, оқу жоспарлардың және жұмыс кеңістіктердің %s жүктеліп қосылған</string>
   <string name="restore_unsuccessfull">Деректер базасын қалпына келтіру сәтсіз аяқталды. Мүмкін сіз жарамсыз дерекқор файлын берген шығарсыз.</string>
-  <string name="backup_phone_storage">Телефон жад қоймасы</string>
-  <string name="backup_backup_title">Сақтық көшірме қайда жасау керек?</string>
-  <string name="backup_backup_message">Бөлісу функциясы арқылы (электрондық пошта, Google Drive т.б.с.с.) телефонға немесе басқа жерге сақтық көшірме жасау керек пе?</string>
-  <string name="backup_share">Бөлісу</string>
   <string name="restore_modules">Келесіден құжаттарды қалпына келтіру...</string>
   <string name="send_backup_file">Сақтық көшірме файлын жіберу</string>
   <string name="backup_modules_title"> Модульдердің қайсысын сақтық көшіруге жіберетінін таңдау</string>
@@ -677,7 +668,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="unlock_module">Модульдің құпия сөзін орнатыңыз</string>
   <string name="unlock_info">Шифрланған модуль ақпаратты бұғаттан шығару</string>
   <string name="try_again_passphrase">Құпия сөзді қабылдамады, қайталап көрдіңіз бе?</string>
-  <string name="cant_delete_last_bible">Соңғы Киелі кітап құжатын жою мүмкін емес</string>
   <string name="show_unlock_info">Модуль және; ақпаратты бұғаттан шығару</string>
   <string name="prefs_show_error_box_title">Javascript қате терезесін көрсету</string>
   <string name="prefs_show_error_box_summary">Bible View-де JavaScript қателерін түзету кезінде әзірлеушілері үшін пайдалы. Бұл қосымшаның жұмысын баяулатады.</string>
@@ -711,7 +701,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Кез келген жағдайда жалғастыру</string>
   <string name="rate_title">Бағалау және шолу қолданбасы</string>
-  <string name="rate_message5">Жағымды және егжей-тегжейлі шолулар And Bible Open Source Project үшін өте пайдалы. Рахмет!</string>
   <string name="rate_message6">Теріс шолу жасамас бұрын, келесілерді ескеріңіз:</string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
@@ -797,5 +786,13 @@ Google Play -ге өтіңіз
   <string name="strongs_links">Сілтемелер</string>
   <string name="strongs_text_and_links">Мәтін мен Сілтемелер</string>
   <string name="verse_tip">Ішінара немесе көптеген аяттарды таңдау үшін Сіз Киелі кітаптың мәтінін ұзақ басуыңызға болады</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="labels_search_hint">Іздеу</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Ақпарат</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

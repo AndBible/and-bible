@@ -24,7 +24,7 @@ Aplicația are multe caracteristici originale și interesante, care fac ca exper
 
 Haideți să facem împreună cea mai bună aplicație biblică!
 
-And Bible este un proiect comunitar open-source. În practică, acest lucru înseamnă că orice persoană cu aptitudini adecvate poate și este încurajată să contribuie la proiect prin:
+AndBible este un proiect comunitar care are codul sursă public. În practică, aceasta înseamnă că orice persoană cu competențe adecvate poate și este încurajată să contribuie la proiect prin:
 
  * realizarea de noi caracteristici,
  * testarea caracteristicilor care nu au fost încă lansate,
@@ -36,7 +36,7 @@ Dacă ești programator sau ai experiență la încercarea aplicațiilor, te rug
 Legături
 
  * Pagina principală: https://andbible.github.io
- * Dă Like la And Bible pe Facebook: https://www.facebook.com/AndBible/
+ * Pune îmi place AndBible pe Facebook: https://www.facebook.com/AndBible/
  * Canalul nostru de Youtube: https://www.youtube.com/c/AndBible
  * Întrebări frecvente: https://git.io/JJm8E
  * Pagina Github a proiectului: https://github.com/AndBible/and-bible

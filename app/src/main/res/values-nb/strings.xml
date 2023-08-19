@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Bibelstudie</string>
-  <string name="app_name_medium">Bibelstudie (And Bible)</string>
   <string name="app_name_long">AndBible: Bibelstudie</string>
-  <string name="project">And Bible åpen kildekode-prosjekt</string>
   <string name="version_text">Versjon %s</string>
   <string name="no_sdcard_error">Sett inn minnekort og restart applikasjonen</string>
   <!--Main menu-->
@@ -233,17 +231,16 @@
   <string name="failed_repositories_message">Kunne ikke koble til modulserver: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Følgende filer kunne ikke lastes ned:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Last inn moduler fra ZIP</string>
   <string name="install_zip_module">Installer bibelmodul</string>
   <string name="install_zip_successfull">Modulen ble installert</string>
   <string name="extracting_zip_file">Pakker ut zip-fil...</string>
   <string name="checking_zip_file">Sjekker fil...</string>
   <string name="invalid_module">Filen inneholder ikke en gyldig SWORD-modul</string>
-  <string name="install_zip_title">Vennligst vent, laster zip-fil.</string>
   <string name="overwrite_files">Følgende filer finnes allerede: %s Overskrive?</string>
   <string name="overwrite_files_title">Overskrive filer?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leseplan</string>
+  <string name="reading_plans_plural">Leseplaner</string>
   <string name="rdg_plan_selector_title">Velg en leseplan</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Sett startdato...</string>
@@ -417,9 +414,10 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="mynotes">Mine notater</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sikkerhetskopiering</string>
+  <string name="backup_modules2">Sikkerhetskopier dokumenter til...</string>
+  <string name="backup_restore">Gjenopprett</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_confirmation">Skrive over mine notater, bokmerker, studiebrett, leseplaner og arbeidsområder?</string>
-  <string name="reading_plans_plural">Leseplaner</string>
   <string name="restore_success">Mine notater, bokmerker, studiebrett, leseplaner  og arbeidsområder er tilbakeført.</string>
   <string name="loading_backup">Leser database fra sikkerhetskopi</string>
   <string name="backup_success2">Mine notater, bokmerker, studiebrett, leseplaner og arbeidsområder er sikkerhetskopiert.</string>
@@ -428,10 +426,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="backup_email_subject_2">Sikkerhetskopi av %s sin database</string>
   <string name="backup_email_message_2">Din %s database som inneholder bokmerker, notater, leseplaner og arbeidsområder er vedlagt</string>
   <string name="restore_unsuccessfull">Gjenoppretting av database feilet. Kanskje du har valgt feil databasefil.</string>
-  <string name="backup_phone_storage">Telefonlager</string>
-  <string name="backup_backup_title">Sikkerhetskopier til hvor?</string>
-  <string name="backup_backup_message">Sikkerhetskopier til telefon eller andre steder via delefunksjonen (epost, Google Drive etc.)?</string>
-  <string name="backup_share">Del</string>
   <string name="restore_modules">Gjenopprett dokumenter fra...</string>
   <string name="send_backup_file">Send en sikkerhetskopi-fil</string>
   <string name="backup_modules_title">Velg hvilke moduler som skal sikkerhetskopieres</string>
@@ -579,7 +573,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="unlock_module">Sett modulpassord</string>
   <string name="unlock_info">Informasjon om åpning av kryptert modul</string>
   <string name="try_again_passphrase">Passord fungerte ikke, prøve igjen?</string>
-  <string name="cant_delete_last_bible">Kan ikke slette siste bibelmodul</string>
   <string name="app_licence_title">Lisens for åpen kildekode</string>
   <string name="how_to_contribute">Hvordan bidra?</string>
   <string name="module_size_megabytes">%.1f MB</string>
@@ -602,8 +595,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Fortsett allikevel</string>
   <string name="rate_title">Vurdering og anmeldelse av appen</string>
-  <string name="rate_message5">
-      Positive og detaljerte anmeldelser hjelper And Bible-prosjektet mye. Tusen takk!</string>
   <string name="rate_message6">
         Før du gir en negativ vurdering, vennligst les følgende:
     </string>
@@ -670,6 +661,14 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="strongs_off">Av</string>
   <string name="strongs_links">Lenker</string>
   <string name="strongs_text_and_links">Tekster og lenker</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Tilgang kreves</string>
+  <string name="labels_search_hint">Søk</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Informasjon</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

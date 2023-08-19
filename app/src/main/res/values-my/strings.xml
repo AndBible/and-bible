@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">ကျမ်းစာလေ့လာခြင်း</string>
-  <string name="app_name_medium">ကျမ်းစာလေ့လာခြင်း (And Bible) </string>
   <string name="app_name_long">AndBible: သမ္မာကျမ်းစာ</string>
-  <string name="project">And သမ္မာကျမ်းစာ အခမဲ့ အရင်းအမြစ် လုပ်ငန်း </string>
   <string name="version_text">ဗားရှင်း %s</string>
   <string name="no_sdcard_error">ကျေးဇူးပြုပြီး အက်စ်ဒီကဒ်ကို ထည့်ပါ၊ ထို့နောက် အက်ပ်ကို ပိတ်ပြီးပြန်ဖွင့်ပါ။</string>
   <!--Main menu-->
@@ -237,17 +235,16 @@
   <string name="failed_repositories_message">အောက်ပါမှတ်တမ်းဆာဗာနှင့် ဆက်သွယ်၍မရပါ: \n\n%s\n\n</string>
   <string name="failed_downloads_message">အောက်ပါဖိုင်များကို ဒေါင်းလုပ်ဆွဲ၍မရပါ: \n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">မှတ်တမ်းကို Zip မှ ဖွင့်ပါ</string>
   <string name="install_zip_module">Bible Module ကို ထည့်သွင်းအသုံးပြုပါ</string>
   <string name="install_zip_successfull">Module အား အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ</string>
   <string name="extracting_zip_file">Zip ဖိုင်ကို ယခုထုတ်ယူပါ...</string>
   <string name="checking_zip_file">ပေးထားသည့်ဖိုင်ကို စစ်ဆေးနေသည်...</string>
   <string name="invalid_module">ဖိုင်တွင် တရားဝင် SWORD module မပါဝင်ပါ</string>
-  <string name="install_zip_title">Zip ဖိုင်ကို ဖွင့်နေပါသည်။ ကျေးဇူးပြု၍ စောင့်ဆိုင်းပါ။</string>
   <string name="overwrite_files">အောက်ပါဖိုင်များသည် ရှိပြီးသားဖြစ်သည်: %s ထပ်ရေးချင်ပါသလား။</string>
   <string name="overwrite_files_title">ဖိုင်များကို ထပ်ရေးချင်ပါသလား။ </string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">စာဖတ်ခြင်း အစီအစဉ်</string>
+  <string name="reading_plans_plural">စာဖတ်ခြင်း အစီအစဉ်များ</string>
   <string name="rdg_plan_selector_title">စာဖတ်ခြင်း အစီအစဉ်တစ်ခုကို ရွေးချယ်ပါ</string>
   <string name="rdg_plan_day">နေ့ရက် %s</string>
   <string name="rdg_plan_set_start_date">အစပြုနေ့ရက် သတ်မှတ်ပါ</string>
@@ -482,15 +479,11 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="mynotes">ကိုယ်ပိုင်မှတ်စုများ</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">&amp; အားအရန်ဖိုင် ပြုလုပ်ပါ; ပြန်ယူပါ</string>
-  <string name="backup_modules">မှတ်တမ်းများအား... သို့ ဝေမျှပါ သို့မဟုတ် အရန်ဖိုင် ပြုလုပ်ပါ</string>
-  <string name="backup_app_database">အက်ပ် ဒေတာဘေ့စ်အား... သို့ ဝေမျှပါ သို့မဟုတ် အရန်ဖိုင် ပြုလုပ်ပါ</string>
-  <string name="backup_app">အက်ပ် (.apk file) အား... သို့ ဝေမျှပါ သို့မဟုတ် အရန်ဖိုင် ပြုလုပ်ပါ</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">မည်သည့်အရာကို ပြန်ယူလိုပါသနည်း။ </string>
   <string name="restore_app_database">အက်ပ် ဒေတာဘေ့စ်အား ...မှ ပြန်ယူပါ</string>
   <string name="restore_database">ဒေတာဘေ့စ်ဖိုင်ကို ပြန်ယူပါ</string>
   <string name="restore_confirmation">ကိုယ်ပိုင်မှတ်စုများ၊ စာညှပ်များ၊ လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့် အလုပ်ခွင်များအား အသစ်ပြန်ရေးလိုပါသလား။ </string>
-  <string name="reading_plans_plural">စာဖတ်ခြင်း အစီအစဉ်များ</string>
   <string name="restore_success">ကိုယ်ပိုင်မှတ်စုများ၊ စာညှပ်များ၊ လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့် အလုပ်ခွင်များအား အောင်မြင်စွာ ပြန်ယူပြီးပါပြီ</string>
   <string name="loading_backup">ဒေတာဘေ့စ်အား အရန်ဖိုင်မှ ဖွင့်နေပါသည်</string>
   <string name="backup_success2">ကိုယ်ပိုင်မှတ်စုများ၊စာညှပ်များ၊လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့်အလုပ်ခွင်များအား အောင်မြင်စွာ အရန်ဖိုင်လုပ်ပြီးပါပြီ။</string>
@@ -500,10 +493,6 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="backup_email_subject_2">%s ဒေတာဘေ့စ် အရန်ဖိုင်လုပ်ခြင်း</string>
   <string name="backup_email_message_2">စာညှပ်များ၊ မှတ်စုများ၊ စာဖတ်ခြင်းအစီအစဉ်များနှင့် အလုပ်ခွင်များပါဝင်သည့် သင်၏ %s ဒေတာဘေ့စ်အား ဖိုင်တွဲထားပါသည်</string>
   <string name="restore_unsuccessfull">ဒေတာဘေ့စ်ပြန်ယူခြင်း မအောင်မြင်ပါ။ သင်က မမှန်သည့် ဒေတာဘေ့စ်ဖိုင် ပေးထားသောကြောင့် ဖြစ်နိုင်ပါသည်။ </string>
-  <string name="backup_phone_storage">ဖုန်းသိုလှောင်ပမာဏ</string>
-  <string name="backup_backup_title">ဘယ်နေရာတွင် အရန်ဖိုင်လုပ်မည်နည်း။ </string>
-  <string name="backup_backup_message">ဖုန်း သို့မဟုတ် အခြားနေရာများဖြစ်တဲ့ ဝေမျှ လုပ်ဆောင်ချက် (email, Google Drive etc.)တို့တွင် အရန်ဖိုင် လုပ်လိုပါသလား။ </string>
-  <string name="backup_share">မျှဝေပါ</string>
   <string name="restore_modules">မှတ်စုများအား ...မှ ပြန်ယူပါ</string>
   <string name="send_backup_file">အရန်ဖိုင်တစ်ခုကို ပို့ပါ</string>
   <string name="backup_modules_title">အရန်ဖိုင်လုပ်မည့် သင်ခန်းစာများကို ရွေးချယ်ပါ</string>
@@ -666,7 +655,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="unlock_module">သင်ခန်းစာအတွက် စကားဝှက် လုပ်ပါ</string>
   <string name="unlock_info">စကားဝှက်ခံထားသည့်သင်ခန်းစာများ သော့ဖွင့်ခြင်း သတင်းအချက်အလက်</string>
   <string name="try_again_passphrase">သော့ဖွင့်ခြင်း မအောင်မြင်ပါ၊ ထပ်လုပ်မှာလား။</string>
-  <string name="cant_delete_last_bible">နောက်ဆုံးသုံးခဲ့သည့် ကျမ်းစာမှတ်တမ်းကို ဖယ်ရှားမရပါ</string>
   <string name="show_unlock_info">&amp; သင်ခန်းစာ; သော့ဖွင့်ခြင်း သတင်းအချက်အလက်</string>
   <string name="prefs_show_error_box_title">Javascript မှားယွင်းမှုသေတ္တာကို ပြပါ</string>
   <string name="prefs_show_error_box_summary">ဖန်တီးသူများအတွက် ကျမ်းစာမြင်ကွင်း javascript မှချို့ယွင်းချက်များကို ရှာဖွေဖယ်ရှားရာ၌  အသုံး ဝင်သည်။ ၎င်းသည် အက်ပ်ကိုနှေးကွေးစေလိမ့်မည်။ </string>
@@ -700,9 +688,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="play">Google Play</string>
   <string name="proceed_anyway">မည်သို့ပင်ဆိုစေ ဆက်သွားပါ</string>
   <string name="rate_title">အက်ပ်အား နှုန်းသတ်မှတ်ခြင်းနှင့်သုံးသပ်ခြင်း</string>
-  <string name="rate_message5">
-အသေးစိတ်ပြီး အပြုသဘောဆောင်သည့် သုံးသပ်ချက်များသည် And Bible Open Source Project အား များစွာအကျိုးပြုပါသည်။ ကျေးဇူးတင်ပါသည်။
-    </string>
   <string name="rate_message6">
         အနုတ်သဘောမသုံးသပ်ခင် ကျေးဇူးပြုပြီး အောက်ပါအချက်ကိုထည့်သွင်းစဉ်းစားစေလိုပါသည်။
     </string>
@@ -794,5 +779,13 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="added_to_bookmark">ဤစာညှပ်ကို တာဝန်ပေးပါ</string>
   <string name="strongs_links">လင့်ခ်များ</string>
   <string name="verse_tip">အခန်းငယ် များစွာ သို့မဟုတ် တစ်စိတ်တစ်ပိုင်းကို မှတ်သားလိုလျှင် ကျမ်းစာစာသားအား ကြာကြာဖိထားရပါမည်</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="labels_search_hint">ရှာဖွေပါ</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">သတင်းအချက်အလက်</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

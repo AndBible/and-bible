@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bybel Studie</string>
-  <string name="app_name_medium">Bybel studie (And Bible)</string>
+  <string name="app_name_medium">Bybel Studie (AndBible)</string>
   <string name="app_name_long">AndBible: Bybel Studie</string>
-  <string name="project">And Bible Oop bron projek</string>
+  <string name="project">AndBible Oop Bron Projek </string>
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
   <!--Main menu-->
@@ -11,6 +12,8 @@
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Teks</string>
   <string name="search">Vind</string>
+  <string name="search_in_andbible">Vind in die Bybel </string>
+  <string name="search_with_results2">%1s resultate in  %2s</string>
   <string name="settings">Toepassing voorkeure</string>
   <string name="history">Geskiedenis</string>
   <string name="speak">Praat</string>
@@ -56,6 +59,9 @@
   <string name="search_old_testament">Ou Testament</string>
   <string name="search_current_book">Huidige boek</string>
   <string name="error_executing_search">Ongeldige soektog</string>
+  <string name="type_text_or_bible_reference">Tik teks of Bybel verwysing</string>
+  <string name="go_to_ref">Maak Oop %s</string>
+  <string name="search_what">Vind \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofstuk &amp; vers nommers</string>
   <string name="prefs_show_verseno_summary">Wys hoofstuk &amp; vers nommers</string>
@@ -113,6 +119,8 @@
   <string name="reset_fontsize">Herstel</string>
   <string name="prefs_request_sdcard_permission_title">Handmatig geïnstalleerde dokumente bestaan</string>
   <string name="prefs_request_sdcard_permission_summary">Aktiveer die gebruik van dokumente wat met die hand geïnstalleer is, vanaf die jsword- / swaardmap op interne berging</string>
+  <string name="prefs_expand_footnotes_title">Inlyn kruis verwysings </string>
+  <string name="prefs_expand_footnotes_summary">Wys kruis verwysinhoud in lyn binne die teks, in plaas van \'n skakel wat \'n opspring dialoog oopmaak</string>
   <string name="all_text_options_window_menutitle">Alle teks opsies</string>
   <string name="text_options_window_menutitle">Teks opsies</string>
   <string name="auto_fullscreen">Volskerm deur te blaai</string>
@@ -178,6 +186,7 @@ Woordafbreking</string>
   <string name="prefs_text_colors_menutitle">Kleur instellings</string>
   <string name="window_color_settings_title">Venster kleur instellings</string>
   <string name="workspace_color_settings_title">Werkruimte kleur Standaard instellings</string>
+  <string name="color_workspace">Werkspasie kleur</string>
   <string name="color_text">Teks kleur</string>
   <string name="color_background">Agtergrond kleur</string>
   <string name="colors_day_mode_title">Dag mode</string>
@@ -242,18 +251,22 @@ Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="download_errors">Fout met aflaai</string>
   <string name="failed_repositories_message">Kon nie met die volgende dokument bediener verbind nie: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Die volgende lêers kon nie afgelaai word nie:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Hierdie dokument kan nie verwyder word nie.</string>
   <!--Install zip file-->
-  <string name="install_zip">Laai dokument van Zip </string>
+  <string name="install_zip">Laai dokumente van uit lêers </string>
   <string name="install_zip_module">Installeer Bybel Module</string>
+  <string name="install_zip_module_discrete">Installeer sakrekenaar module</string>
   <string name="install_zip_successfull">Module is suksesvol geïnstalleer</string>
   <string name="extracting_zip_file">Haal uit inligting  van zip lêer nou...</string>
   <string name="checking_zip_file">Kontroleer die gegewe lêer ...</string>
   <string name="invalid_module">Lêer nie \'n geldige SWORD module nie</string>
-  <string name="install_zip_title">Wag asseblief. Besig om zip-lêer te laai.</string>
+  <string name="install_zip_title">Wag asseblief. Laai modules van uit \'n lêer.</string>
   <string name="overwrite_files">Volgende lêers bestaan reeds%s Oorskryf?</string>
   <string name="overwrite_files_title">Oorskryf lêers?</string>
+  <string name="could_not_overwrite_files">Kon nie lêers oorheers nie: %s Afgesien daarvan was die installasie suksesvol.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lees Plan</string>
+  <string name="reading_plans_plural">Lees Planne</string>
   <string name="rdg_plan_selector_title">Kies \'n lees plan</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Stel die begin datum ...</string>
@@ -355,6 +368,8 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="label_color">Etiketteer kleur</string>
   <!--can be removed-->
   <string name="label_color_example">Voorbeeld</string>
+  <string name="marker_style">Wys slegs merker vir boekmerke seleksie</string>
+  <string name="marker_style_whole_verse">Wys slegs merker vir hele vers van boekmerke</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datum volgorde</string>
   <string name="sort_by_bible_book">Bybelse volgorde</string>
@@ -495,16 +510,26 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="mynotes">My Notas</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Rugsteun &amp; herstel</string>
-  <string name="backup_modules">Deel of rugsteun dokumente na ...</string>
-  <string name="backup_app_database">Deel of rugsteun toep databasis na ...</string>
-  <string name="backup_app">Deel of rugsteun toep (.apk-lêer) na ...</string>
+  <string name="backup_modules2">Rugsteun dokumente na ...</string>
+  <string name="backup_app_database2">Rugsteun program databasis na...</string>
+  <string name="backup_app2">Rugsteun toep (.apk-lêer) na …</string>
+  <string name="backup_application">Toep</string>
+  <string name="backup_database">Databasis</string>
+  <string name="backup_documents">Dokumente</string>
+  <string name="backup_application_info">Toep lêer (.APK)</string>
+  <string name="backup_database_info">Boekmerke, etikette, notas, studie blokkies, lees planne, werks pasies ens.</string>
+  <string name="backup_document_info">Bybels, kommentare, woordeboeke, kaarte ens.</string>
+  <string name="backup_to">Rugsteun na ...</string>
+  <string name="backup_restore_from">Herstel vanaf ...</string>
+  <string name="backup_restore">Herstel</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Wat wil jy herstel?</string>
   <string name="restore_app_database">Rugsteun toep databasis vanaf ...</string>
   <string name="restore_database">Rugsteun databasis leer ...</string>
   <string name="restore_confirmation">Herskryf My notas, boekmerke, studie blokkies, lees planne en werkruimtes?</string>
-  <string name="reading_plans_plural">Lees Planne</string>
+  <string name="restore_success2">Geselekteerde databasis afdelings is suksesvol herstel</string>
   <string name="restore_success">My Notas, Boekmerke, Studie blokkies, Lees planne en Werkruimtes suksesvol herstel</string>
+  <string name="downloading_backup">Laai rugsteunlêer af ... </string>
   <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
   <string name="backup_success2">My Notas, Boekmerke, Studie Blokkies, Lees Planne en Werkruimtes is suksesvol gerugsteun.</string>
   <string name="backup_modules_success">Geselekteerde modules is suksesvol gerugsteun.</string>
@@ -514,10 +539,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="backup_email_message_2">Jou %s databasis met boekmerke, notas, leesplanne en werkruimtes is aangeheg</string>
   <string name="restore_unsuccessfull">Die herstel van die databasis was onsuksesvol. Miskien het jy \'n ongeldige databasis lêer gegee.
  </string>
-  <string name="backup_phone_storage">Foon berging</string>
-  <string name="backup_backup_title">Rugsteun na waar?</string>
-  <string name="backup_backup_message">Rugsteun na foon of elders via die deel-funksie (e-pos, Google Drive, ens.)?</string>
-  <string name="backup_share">Deel</string>
   <string name="restore_modules">Herstel dokumente vanaf ...</string>
   <string name="send_backup_file">Stuur \'n rugsteunlêer</string>
   <string name="backup_modules_title">Kies watter modules om te rugsteun</string>
@@ -583,6 +604,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="error_key_not_in_document2">%s is nie in dokument gevind nie %s.</string>
   <string name="empty_list">Geen items om te wys</string>
   <string name="error_skip">Vermy</string>
+  <string name="bug_report_email_title">Stuur fout verslag per e-pos </string>
+  <string name="bug_report_email_text">Kies vervolgens u voorkeur-e-postoepassing (byvoorbeeld Gmail) om die verslag aan die ontwikkelaarspan te stuur.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teks na spraak</string>
   <string name="notification_channel_progress_status">Vordering status kennisgewing vir die aflaai van dokumente ens.</string>
@@ -684,6 +707,13 @@ ander ekstra materiaal as jy die bybel bestudeer.</string>
   <string name="welcome_message">Dankie vir die aflaai %s. Daar is tans geen Bybels of dokumente geïnstalleer nie. Om voort te gaan, installeer asseblief
 Ten minste 1 dokument deur van die internet af te laai, of deur \'n zip lêer dokument te laai
 Rugsteun.</string>
+  <string name="supported_formats_title">Ondersteunde formate </string>
+  <string name="choose_file">Jy moet die lêer kies waarna jy dit wil laai %s.</string>
+  <string name="supported_formats">Ondersteunde formate vir die laai van dokumente vanaf \'n lêer: %s</string>
+  <string name="format_zip">Zip-lêer wat Sword-module (s) bevat, of dokumente-rugsteunlêer (*.abmd) geskep deur %s</string>
+  <string name="format_mysword">MySword dokumente (*.mybible)</string>
+  <string name="format_mybible">MyBible dokumente (*. SQLite3)</string>
+  <string name="format_epub">EPUB dokumente (*.epub) </string>
   <string name="redownload_message">
 n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af te laai. </string>
   <!--Uncategorized-->
@@ -711,7 +741,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="unlock_module">Stel module wagfrase</string>
   <string name="unlock_info">Geënkripteerde module ontsluitings inligting</string>
   <string name="try_again_passphrase">Wagfrase het nie gewerk nie. Probeer weer?</string>
-  <string name="cant_delete_last_bible">Kan nie laaste Bybel dokument verwyder nie</string>
   <string name="show_unlock_info">Module &amp; ontsluit inligting</string>
   <string name="prefs_show_error_box_title">Wys Javascript fout vak</string>
   <string name="prefs_show_error_box_summary">Nuttig vir ontwikkelaars wanneer BibleView javascript kantfoute ontfout word. Dit sal die toep stadiger maak.</string>
@@ -731,10 +760,16 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
   <string name="show_versenumbers">Wys vers nommers</string>
   <string name="show_full_verses">Wys volledige verse</string>
+  <string name="show_selection_only">Wys slegs geselekteerde teks </string>
   <string name="advertise_app">Adverteer  toep</string>
   <string name="verse_share_advertise">Deel toep met %s.</string>
+  <string name="show_reference">Wys verwysing</string>
+  <string name="show_reference_at_front">Wys voor in vers</string>
   <string name="abbreviate_reference">Verkorte verwysing</string>
   <string name="version_name">Naam van Weergawe </string>
+  <string name="show_version_name">Sluit weergawe naam in</string>
+  <string name="show_ellipsis">Wys beletselteken (...) </string>
+  <string name="show_quotes">Wys aanhalings </string>
   <string name="backup_button">Rugsteun</string>
   <string name="back_button">Terug</string>
   <string name="upgrading_database">Opgradering van databasis. Wag asseblief...</string>
@@ -744,9 +779,10 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="old_webview">Android WebView-pakket is te oud (%s). Jy moet jou Android WebView-pakket opgradeer na ten minste weergawe %som te gebruik %s. Vir die meeste toestelle kan dit via %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Gaan in elk geval voort</string>
+  <string name="proceed">Gaan voort</string>
   <string name="rate_title">Gradering en hersiening van program</string>
   <string name="rate_message5">
-Positiewe en gedetailleerde resensies help And Bible Open Source Project baie. Dankie!</string>
+       Positiewe en gedetailleerde resensies help AndBible Oop Bron Projek baie. Dankie!</string>
   <string name="rate_message6">
 Voordat u negatiewe oorsig hersien, oorweeg asseblief die volgende</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -785,6 +821,8 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="recent_labels">Onlangse etikette</string>
   <string name="other_labels">Ander etikette</string>
   <string name="book_menu_sort_row_opt">Maak boeke horisontaal</string>
+  <string name="book_menu_group_by_category">Groepeer boeke volgens kategorie</string>
+  <string name="book_menu_show_long_book_name">Wys lang boek naam </string>
   <string name="reset_workspace_labels">Wil jy outo-toewysing en gunsteling instellings vir hierdie werkruimte terugstel?</string>
   <string name="reset_hide_labels">Wil jy instelling terugstel om gespesifiseerde etikette instellings weg te steek?</string>
   <string name="reorder">Herbestelling</string>
@@ -829,6 +867,116 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="strongs_links">Skakels</string>
   <string name="strongs_text_and_links">Teks en Skakels</string>
   <string name="verse_tip">Om gedeeltelike of baie verse te kies, kan jy Bybel teks lank druk</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Toestemming benodig</string>
+  <string name="labels_search_hint">Soek</string>
+  <string name="progress_status_permission">Om kennisgewings (aflaai status, verwerking, praat status) te wys, het ons jou toestemming nodig.</string>
+  <!--Discrete mode settings-->
+  <string name="app_name_calculator">Eenvoudige Sakrekenaar</string>
+  <string name="prefs_persecution_cat">Instellings vir die vervolgde</string>
+  <string name="prefs_discrete_mode">Versteek godsdienstige simbole</string>
+  <string name="prefs_discrete_mode_desc">Hernoem die toep na \'Sakrekenaar\' en wys \'n ander ikoon in die lanseerder.</string>
+  <string name="prefs_show_calculator">Sakrekenaar</string>
+  <string name="prefs_calculator_pin">Sakrekenaar PIN</string>
+  <string name="prefs_calculator_pin_desc">PIN-kode om die toep oop te maak wanneer die sakrekenaar gewys word.</string>
+  <string name="calc_division_by_zero">Deel deur nul word nie toegelaat nie</string>
+  <string name="calc_wrong_format">Verkeerde Formaat</string>
+  <string name="calc_wrong_format_operand">Verkeerde Formaat. Operand Sonder enige getalle?</string>
+  <string name="prefs_persecuted_help">Lees dit eers! </string>
+  <string name="prefs_persecuted_summary">Instruksies vir die instellings en inligting oor spesifieke diskrete bou.</string>
+  <string name="calculator_par1">
+      Voordat u die toep binnegaan, word die sakrekenaarskerm vertoon.</string>
+  <string name="calculator_par2">
+Daarin kan jy standaard rekene doen, en wanneer jy die toepassing wil betree, moet jy
+tik net jou PIN-kode (verstek is 1234) en druk dan \'=\' knoppie</string>
+  <string name="calculator_par3">
+ Jy kan \'n pasgemaakte PIN-kode opstel deur \'Sakrekenaar-PIN\'-instelling.</string>
+  <string name="discrete_mode_info_par1">
+Jy gebruik standaard toepassing weergawe, wat beteken dat dit steeds moontlik is om te sien
+die regte naam en ikoon van die toepassing in toep inligting.</string>
+  <string name="discrete_mode_info_par2">
+Vir verbeterde sekuriteit in \'n vervolgde omgewing, beveel ons sterk aan om diskrete weergawek
+van die toep, wat altyd \'n sakrekenaar sal vertoon, selfs al is die toep data uitgevee.</string>
+  <string name="discrete_mode_link">
+Jy kan die nuutste weergawe van diskrete weergawe aflaai vanaf %s.</string>
+  <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Sinkroniseer groep</string>
+  <string name="sync_group_n">Groep %d</string>
+  <string name="disable_sync">Deaktiveer sinchroniseer</string>
+  <string name="open_in_window">Maak resultate in \'n venster oop</string>
+  <!--Custom repositories-->
+  <string name="custom_repositories">Pasgemaakte bewaarplekke</string>
+  <string name="custom_repositories_empty_list_message">Geen pasgemaakte bewaarplekke word gedefinieer nie</string>
+  <string name="custom_repositories_create_button_label">Voeg Pasgemaakte Bewaarplek by</string>
+  <string name="custom_repositories_info_button_label">Inligting</string>
+  <string name="name_for_repository">Naam vir die bewaarplek</string>
+  <string name="repository_specification">URL van bewaarplek </string>
+  <string name="delete_custom_repository">Wil jy persoonlike bewaarplek verwyder %s?</string>
+  <string name="invalid_repository_not_saved">Bewaarspesifikasie was ongeldig en dit is nie gestoor nie.</string>
+  <string name="custom_repositories_help1">Om \'n nuwe pasgemaakte bewaarplek by te voeg, tik of kopieer en plak pasgemaakte bewaarplek-URL hier.</string>
+  <string name="custom_repositories_help2">Jy kan meer inligting oor persoonlike bewaarplekke in lees by %s.</string>
+  <string name="wiki_page">WIKI bladsy</string>
+  <string name="custom_repositories_help0">U kan dokumente vanaf eksterne aangepaste bewaarplekke installeer, deur ook pasgemaakte bewaarplekke te installeer.</string>
+  <string name="duplicate_custom_repository">Bewaarplek met naam %s bestaan ​​reeds, kan nie \'n ander byvoeg nie.</string>
+  <string name="packages_dir">Pakketgids (zip-lêers)</string>
+  <string name="warn_bad_document">Waarskuwing: Hierdie dokument kan (ten minste gedeeltelik) slegte tegniese gehalte wees.</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Maak Bybel skakels oop in AndBible</string>
+  <string name="open_bible_links_summary">As jy op skakels klik wat verwys na AndBible ondersteunde Bybel URL, maak dit oop in AndBible</string>
+  <string name="copyReference">Kopieer skakel na knipbord </string>
+  <string name="reference_copied_to_clipboard">Verwysing gekopieer na knipbord</string>
+  <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+Kies watter backend cloud jy wil gebruik om verskeie toestelle te sinchroniseer.</string>
+  <string name="prefs_sync_introduction_summary2">
+Wanneer Google Drive gebruik word, kry %s slegs toegang tot toepassinglêers, nie enige persoonlike lêers nie.</string>
+  <string name="restore_backup_sections">Watter rugsteun afdelings wil jy herstel?</string>
+  <string name="db_repositories">Bewaarplekke en verwante instellings</string>
+  <string name="db_bookmarks">Boekmerke, My Notas, Etikette en Studie Blokkies</string>
+  <string name="synchronizing">Sinchroniseer...</string>
+  <string name="overrideBackup">
+Bestaande databasis waarmee hierdie toestel nie gesinchroniseer is nie, word in Cloud gevind.
+Databasis bevat  %s. Wat wil jy doen?</string>
+  <string name="reading_plans_content">Lees planne en hul statusse</string>
+  <string name="bookmarks_contents">Boekmerke, etikette en studieblokkies</string>
+  <string name="workspaces_contents">Werkspasies en Windows</string>
+  <string name="cloud_fetch_and_restore_initial">Kopieer vanaf Cloud na hierdie toestel</string>
+  <string name="cloud_create_new">Kopieer vanaf hierdie toestel na Cloud</string>
+  <string name="cloud_disable_sync">Kanselleer &amp;amp deaktiveer sinchronisasie</string>
+  <string name="cloud_sync_title">Toestel sinchronisasie</string>
+  <string name="reset_sync">Teken uit</string>
+  <string name="prefs_reset_sync_summary">Deaktiveer sinchronisasie en stel verwante instellings terug.</string>
+  <string name="sync_confirmation">Is jy seker jy wil uit teken en sinchronisasie terugstel?</string>
+  <string name="cloud_info">Cloud Informasie</string>
+  <string name="cloud_info_summary">Data incloud berging: %sMb</string>
+  <string name="sync_adapter">Sinchronisasie Backend</string>
+  <string name="sync_adapter_summary">Huidige: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Volgende Cloud</string>
+  <string name="auth_title">Verifikasie aan %s</string>
+  <string name="auth_username">Gebruiker naam</string>
+  <string name="auth_password">Wagwoord</string>
+  <string name="auth_access_token">Toegang teken </string>
+  <string name="synchronization_categories">Sinchronisasie kategorieë</string>
+  <string name="sync_general_settings">Inligting &amp; algemene instellings</string>
+  <string name="sync_introduction">Inleiding</string>
+  <string name="are_you_sure">Is jy seker?</string>
+  <string name="are_you_sure_reset_local">Dit sal jou plaaslike databasis terugstel vir %s met die inhoud wat tans in cloud diens gestoor word.</string>
+  <string name="are_you_sure_reset_cloud">Dit sal u cloud databasis terugstel vir %s s met die inhoud wat u op hierdie toestel het.</string>
+  <string name="sync_cant_fetch"><div></div></string>
+  <string name="sync_disabling">Deaktiveer sinchronisasie vir %s vir eers.</string>
+  <string name="sign_in_failed">Aanmelding by sinchronisasie backend diens het misluk.</string>
+  <string name="disabling_sync">Deaktiveer wolk sinchronisasie. U moet handmatig inskakel na herstel.</string>
+  <string name="report">Verslag</string>
+  <string name="sync_error">Fout het voorgekom in Clud sinchronisasie</string>
+  <string name="error_notification_channel_name">Fout kennisgewings </string>
+  <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Kan nie die lêer lees nie </string>
+  <string name="sqlite_invalid_file">Ongeldige modulelêer of lêernaam: %s</string>
+  <string name="sqlite_cant_write">Kan nie die lêer (oor) skryf nie</string>
+  <string name="install_failed_reason">Die installeringsmodule het om die volgende rede misluk: %s.</string>
+  <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Toep is elders oopgemaak</string>
+  <string name="open_here">Maak hier oop </string>
+  <string name="external_link">Eksterne skakel </string>
+  <string name="external_link_question">Dit sal eksterne skakel %s in \'n blaaiertoepassing oopmaak, wil jy voortgaan?</string>
 </resources>

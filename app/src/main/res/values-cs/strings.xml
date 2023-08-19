@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Bible</string>
-  <string name="app_name_medium">Bible (And Bible)</string>
   <string name="app_name_long">AndBible: Studium Bible</string>
-  <string name="project">And Bible Open Source Projekt</string>
   <string name="version_text">Verze %s</string>
   <string name="no_sdcard_error">Prosím zasuňte SD kartu a restartujte aplikaci.</string>
   <!--Main menu-->
@@ -237,17 +235,16 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="failed_repositories_message">Nelze se spojit s následujícím serverem: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Následující soubory nemohly být staženy:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Načíst dokument ze Zip</string>
   <string name="install_zip_module">Instalace modulu Bible</string>
   <string name="install_zip_successfull">Modul byl úspěšně nainstalován</string>
   <string name="extracting_zip_file">Rozbaluji ZIP soubor…</string>
   <string name="checking_zip_file">Kontroluji příslušný soubor…</string>
   <string name="invalid_module">Soubor neobsahuje platný modul SWORD</string>
-  <string name="install_zip_title">Čekejte prosím. Načítám Zip soubor.</string>
   <string name="overwrite_files">Následující soubory již existují: %s Přepsat?</string>
   <string name="overwrite_files_title">Přepsat soubory?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čtení</string>
+  <string name="reading_plans_plural">Plány čtení</string>
   <string name="rdg_plan_selector_title">Vybrat plán čtení</string>
   <string name="rdg_plan_day">Den %s</string>
   <string name="rdg_plan_set_start_date">Nastavit datum začátku...</string>
@@ -501,15 +498,14 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="mynotes">Poznámky</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Záloha a obnova</string>
-  <string name="backup_modules">Sdílet / zálohovat dokumenty do…</string>
-  <string name="backup_app_database">Sdílet / zálohovat databázi aplikace do…</string>
-  <string name="backup_app">Sdílet / zálohovat aplikaci (soubor .apk) do…</string>
+  <string name="backup_to">Zálohovat do...</string>
+  <string name="backup_restore_from">Obnovit z...</string>
+  <string name="backup_restore">Obnovit</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Které položky chcete obnovit?</string>
   <string name="restore_app_database">Obnovit databázi aplikace z…</string>
   <string name="restore_database">Obnovit databázový soubor</string>
   <string name="restore_confirmation">Přepsat poznámky, záložky, studijní složky, plány čtení a pracovní plochy?</string>
-  <string name="reading_plans_plural">Plány čtení</string>
   <string name="restore_success">Poznámky, záložky, studijní složky, plány čtení a pracovní plochy úspěšně obnoveny.</string>
   <string name="loading_backup">Načítání databáze ze zálohy...</string>
   <string name="backup_success2">Poznámky, záložky, studijní složky, plány čtení a pracovní plochy úspěšně zálohovány.</string>
@@ -519,10 +515,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="backup_email_subject_2">záloha databáze %s</string>
   <string name="backup_email_message_2">Vaše databáze %s obsahující záložky, poznámky, plány čtení a pracovní plochy přiložena</string>
   <string name="restore_unsuccessfull">Obnova databáze se nezdařila. Možná jste zadali nesprávný soubor s databází.</string>
-  <string name="backup_phone_storage">Úložiště telefonu</string>
-  <string name="backup_backup_title">Umístění zálohy</string>
-  <string name="backup_backup_message">Zálohovat do telefonu nebo pomocí sdílení (e-mail, Google Drive apod.)?</string>
-  <string name="backup_share">Sdílet</string>
   <string name="restore_modules">Načíst dokumenty z...</string>
   <string name="send_backup_file">Odeslat soubor zálohy</string>
   <string name="backup_modules_title">Vyberte, které moduly zálohovat</string>
@@ -720,7 +712,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="unlock_module">Nastavit heslo modulu</string>
   <string name="unlock_info">Informace o zabezpečení modulu</string>
   <string name="try_again_passphrase">Heslo je nefunkční, zkustt znovu?</string>
-  <string name="cant_delete_last_bible">Nemohu odstranit poslední biblický dokument</string>
   <string name="show_unlock_info">Informace o modulu a zabezpečení</string>
   <string name="prefs_show_error_box_title">Zobrazit chybové okno Javascriptu</string>
   <string name="prefs_show_error_box_summary">Vhodné pro vývojáře při debugování chyb BibleView Javascript. Zpomaluje běh aplikace.</string>
@@ -754,9 +745,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Přesto pokračovat</string>
   <string name="rate_title">Ohodnotit aplikaci</string>
-  <string name="rate_message5">
-        Pozitivní a detailní hodnocení Open Source projektu And Bible velmi pomůže. Moc díky!
-</string>
   <string name="rate_message6">
         Pokud chcete dát negativní hodnocení, prosíme zvažte následující:
     </string>
@@ -850,5 +838,13 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Text a odkazy</string>
   <string name="verse_tip">Pasáž textu označíte přidržením textu na delší dobu.</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="labels_search_hint">Hledat</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Informace</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

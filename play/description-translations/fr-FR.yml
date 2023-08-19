@@ -1,9 +1,9 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "AndBible: La Bible"
+title: "AndBible : Bible Study"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Lire la Bible, avec des commentaires, des dictionnaires, tout cela hors ligne."
 # Main (first) subtitle of the Play Store main (long) description text.
-subtitle_1: Puissant outil d'étude biblique
+subtitle_1: Puissant outil d’étude biblique
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
   "{{ title }}" est une puissante application d'étude biblique hors ligne pour Android, facile à utiliser. L'application ne vise pas à être un simple lecteur de la Bible, mais se concentre sur un outil avancé pour faire une étude personnelle approfondie de la Bible.
@@ -46,7 +46,7 @@ feature_13: >
   Des bloc-notes pour ajouter des notes et des références bibliques tout en écoutant les sermons.
 subtitle_3: Créons ensemble la meilleure application biblique !
 paragraph_3_1: >
-  And Bible est un projet communautaire à code source ouvert. En pratique, cela signifie que toute personne possédant les compétences nécessaires peut contribuer au projet, et est encouragée à le faire :
+  AndBible est un projet communautaire à code source ouvert. En pratique, cela signifie que toute personne possédant les compétences nécessaires peut contribuer au projet, et est encouragée à le faire :
 contr_1: "en développant de nouvelles fonctionnalités,"
 contr_2: "en testant les fonctionnalités pas encore publiées,"
 contr_3: "en gardant la traduction de l’interface utilisateur à jour, et"
@@ -58,7 +58,7 @@ subtitle_4: Liens
 link_1: >
   Page d'accueil : {{homepage_url}}
 link_2: >
-  Like And Bible sur Facebook : {{facebook_url}}
+  J’aime AndBible sur Facebook : {{facebook_url}}
 link_3: >
   Notre chaîne Youtube : {{youtube_url}}
 link_4: >

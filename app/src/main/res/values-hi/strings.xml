@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">बाइबिल अध्ययन</string>
-  <string name="app_name_medium">बाइबिल अध्ययन (ऐंड बाइबिल )</string>
   <string name="app_name_long">AndBible: बाइबिल</string>
-  <string name="project">ऐंड बाइबिल ओपन सोर्स प्रोजेक्ट</string>
   <string name="version_text">संस्करण %s</string>
   <string name="no_sdcard_error"> कृपया एसडी कार्ड डालें और ऐप पुनः आरंभ करें।</string>
   <!--Main menu-->
@@ -241,17 +239,16 @@
   <string name="failed_repositories_message">निम्न दस्तावेज़ सर्वर से कनेक्ट नहीं हो सका: \n\n%s\n\n</string>
   <string name="failed_downloads_message">निम्न फ़ाइलों को डाउनलोड नहीं किया जा सका: \ n \ n%s \ n \ n</string>
   <!--Install zip file-->
-  <string name="install_zip"> ज़िप से दस्तावेज़ लोड करें</string>
   <string name="install_zip_module"> बाइबिल मॉड्यूल इंस्रेंटॉल करें</string>
   <string name="install_zip_successfull"> मॉड्यूल सफलतापूर्वक इंस्टॉल किया गया</string>
   <string name="extracting_zip_file">अब ज़िप फ़ाइल एक् एक्स्ट्रैक्ट हो रहा है ...</string>
   <string name="checking_zip_file">दी गई फ़ाइल की जाँच हो रही है ...</string>
   <string name="invalid_module"> फ़ाइल में एक मान्य SWORD मॉड्यूल नहीं है</string>
-  <string name="install_zip_title"> कृपया प्रतीक्षा कीजिये। ज़िप फ़ाइल लोड हो रही है।</string>
   <string name="overwrite_files">निम्न फ़ाइलें पहले से मौजूद हैं: %s ओवरराइट करे?</string>
   <string name="overwrite_files_title">फाइल्स ओवरराइट करे?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">पठन-योजना</string>
+  <string name="reading_plans_plural">पढ़ने की योजना</string>
   <string name="rdg_plan_selector_title">एक पठन-योजना चुनें</string>
   <string name="rdg_plan_day">दिवस %s</string>
   <string name="rdg_plan_set_start_date"> प्रारंभ तिथि निर्धारित करें ...</string>
@@ -503,15 +500,13 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="mynotes">मेरे टिप्पणीयां</string>
   <!--Backup and restore-->
   <string name="backup_and_restore"> बैकअप &amp; रिस्टोर</string>
-  <string name="backup_modules">दस्तावेज़ों को साझा करें या उनका बैकअप लें…</string>
-  <string name="backup_app_database">ऐप डेटाबेस को साझा करें या बैकअप करें…</string>
-  <string name="backup_app">ऐप (.apk फ़ाइल) को शेयर या बैकअप करें …</string>
+  <string name="backup_modules2">पुस्तक बैकअप करे...</string>
+  <string name="backup_restore">बैकअप से नवीकरण</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">आप क्या पुनर्स्थापित करना चाहते हैं?</string>
   <string name="restore_app_database">ऐप डेटाबेस यहाँ से पुनर्स्थापित करें…</string>
   <string name="restore_database">डेटाबेस फ़ाइल को पुनर्स्थापित करें</string>
   <string name="restore_confirmation">मेरे नोट्स, बुकमार्क, स्टडी पैड, पढ़ने की योजना और कार्यक्षेत्र को ओवरराइट करें?</string>
-  <string name="reading_plans_plural">पढ़ने की योजना</string>
   <string name="restore_success">मेरे नोट्स, बुकमार्क, स्टडी पैड, पढ़ने की योजना और कार्यक्षेत्र सफलतापूर्वक पुनर्स्थापित हो गए</string>
   <string name="loading_backup">डेटाबेस को बैकअप से लोड किया जा रहा हैं...</string>
   <string name="backup_success2">मेरे नोट्स, बुकमार्क, स्टडी पैड, पढ़ने की योजना और कार्यक्षेत्र सफलतापूर्वक बैकअप लिए गए।</string>
@@ -521,10 +516,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="backup_email_subject_2">%s डेटाबेस बैकअप</string>
   <string name="backup_email_message_2">आपका %s डेटाबेस, जिसमें बुकमार्क्स,  टिप्पणियां, पढ़ने की योजना और कार्यक्षेत्र है, जुड़ा हुआ है</string>
   <string name="restore_unsuccessfull">डेटाबेस रिस्टोर करना असफल रहा। शायद आपने गलत डेटाबेस फाइल चुना।</string>
-  <string name="backup_phone_storage">फोन स्टोरेज</string>
-  <string name="backup_backup_title">कहां बैकअप करे?</string>
-  <string name="backup_backup_message">फोन में बैकअप करें या कहीं औरा (ईमेल, गूगल ड्राइव आदि) शेयर फंक्शन के द्वारा?</string>
-  <string name="backup_share">शेयर</string>
   <string name="restore_modules">पुस्तक रिस्टोर करे...</string>
   <string name="send_backup_file">बैकअप फाइल भेजे</string>
   <string name="backup_modules_title"> बैकअप के लिए मॉड्यूल का चयन करें</string>
@@ -726,7 +717,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="unlock_module">मॉड्यूल पासफ़्रेज़ सेट करें</string>
   <string name="unlock_info">एन्क्रिप्टेड मॉड्यूल अनलॉक जानकारी</string>
   <string name="try_again_passphrase">पासफ़्रेज़ काम नहीं किया, पुन: प्रयास करें?</string>
-  <string name="cant_delete_last_bible">पिछले बाइबिल दस्तावेज़ को नहीं हटा सकते</string>
   <string name="show_unlock_info">मॉड्यूल &amp; अनलॉक जानकारी</string>
   <string name="prefs_show_error_box_title">जावास्क्रिप्ट त्रुटि बॉक्स दिखाएं</string>
   <string name="prefs_show_error_box_summary">बाइबिलव्यू जावास्क्रिप्ट साइड त्रुटियों को डीबग करते समय डेवलपर्स के लिए उपयोगी। यह ऐप को धीमा कर देगा।</string>
@@ -760,9 +750,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="play">गूगल प्ले</string>
   <string name="proceed_anyway">कोई बात नहीं आगे बढ़ो</string>
   <string name="rate_title">रेटिंग और रिव्यु करने वाला ऐप</string>
-  <string name="rate_message5">
-सकारात्मक और विस्तृत रिव्यु ऐंड बाइबिल ओपन सोर्स प्रोजेक्ट को बहुत मदद करती हैं। शुक्रिया!
- </string>
   <string name="rate_message6">
 नकारात्मक रिव्यु देने से पहले, कृपया निम्नलिखित पर विचार करें:
  </string>
@@ -854,5 +841,13 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="added_to_bookmark">इस बुकमार्क को असाइन किया गया</string>
   <string name="strongs_links">लिंक</string>
   <string name="verse_tip">अधूरा या कई छंदों का चयन करने के लिए, आप बाइबिल पाठ को देर तक दबा सकते हैं</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="labels_search_hint"> खोज</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">जानकारी</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

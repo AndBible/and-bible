@@ -24,7 +24,8 @@ Das Programm hat viele originelle und aufschlussreiche Funktionen, die ein kompl
 
 Lasst uns gemeinsam die beste Bibelleseapp entwickeln!
 
-And Bible ist ein Open-Source Community Projekt. Das bedeutet in der Praxis, dass jeder, der die entsprechenden Fähigkeiten mitbringt eingeladen ist, zu dem Projekt beizutragen, durch:
+Bibel+ (AndBibel) ist ein Opensource Gemeinschaftprojekt. Das bedeutet in der Praxis, das jeder, der die entsprechenden Fähigkeiten hat, zu diesem Projekt beitragen kann, ja dazu sogar herzlich eingeladen ist.
+Man kann beitragen durch:
 
  * Entwickeln neuer Funktionen,
  * Testen noch nicht freigegebener Funktionen,
@@ -36,7 +37,7 @@ Wenn du professioneller Softwareingenieur oder -tester bist, überlege dir bitte
 Links
 
  * Homepage: https://andbible.github.io
- * Like And Bible on Facebook: https://www.facebook.com/AndBible/
+ * Like AndBible on Facebook: https://www.facebook.com/AndBible/
  * Unser Youtube Kanal: https://www.youtube.com/c/AndBible
  * Häufig gestellte Fragen: https://git.io/JJm8E
  * Projektseite auf Github: https://github.com/AndBible/and-bible

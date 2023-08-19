@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Bijbelstudie</string>
-  <string name="app_name_medium">Bijbelstudie (And Bible)</string>
   <string name="app_name_long">AndBible: Bijbelstudie</string>
-  <string name="project">And Bible open-source-project</string>
   <string name="version_text">Versie %s</string>
   <string name="no_sdcard_error">Voer een SD-kaart in en start And Bible opnieuw.</string>
   <!--Main menu-->
@@ -241,17 +239,16 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="failed_repositories_message">Verbinding met de volgende documentserver is mislukt: \n\n%s\n\n</string>
   <string name="failed_downloads_message">De volgende bestanden zijn niet gedownload:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Document laden uit ZIP-bestand</string>
   <string name="install_zip_module">Bijbelmodule installeren</string>
   <string name="install_zip_successfull">De module is geïnstalleerd</string>
   <string name="extracting_zip_file">Bezig met uitpakken van ZIP-bestand...</string>
   <string name="checking_zip_file">Bezig met controleren van opgegeven bestand...</string>
   <string name="invalid_module">Het bestand bevat geen geldige SWORD-module</string>
-  <string name="install_zip_title">Bezig met laden van ZIP-bestand; even geduld...</string>
   <string name="overwrite_files">De volgende bestanden bestaan al: %s. Overschrijven?</string>
   <string name="overwrite_files_title">Bestanden overschrijven?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leesplan</string>
+  <string name="reading_plans_plural">Leesplannen</string>
   <string name="rdg_plan_selector_title">Kies een leesplan</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Stel startdatum in...</string>
@@ -497,15 +494,12 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="mynotes">Mijn notities</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Back-up en herstel</string>
-  <string name="backup_modules">Deel of back-up Documenten naar...</string>
-  <string name="backup_app_database">Deel of Back-up app database naar...</string>
-  <string name="backup_app">Deel of Back-up app (.apk bestand) naar...</string>
+  <string name="backup_restore">Herstellen</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Wat wilt u herstellen?</string>
   <string name="restore_app_database">Terugzetten app database vanuit...</string>
   <string name="restore_database">Terugzetten Database bestand</string>
   <string name="restore_confirmation">Overschrijf Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen?</string>
-  <string name="reading_plans_plural">Leesplannen</string>
   <string name="restore_success">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol teruggezet</string>
   <string name="loading_backup">Database aan het laden vanuit backup...</string>
   <string name="backup_success2">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol geback-upt.</string>
@@ -515,10 +509,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="backup_email_subject_2">%sdatabase backup</string>
   <string name="backup_email_message_2">Uw %s database met bladwijzers, notities, leesplannen en werkbladen is toegevoegd</string>
   <string name="restore_unsuccessfull">Database herstellen is mislukt. Misschien gaf u een verkeerd database bestand.</string>
-  <string name="backup_phone_storage">Telefoonopslag</string>
-  <string name="backup_backup_title">Waar backup opslaan?</string>
-  <string name="backup_backup_message">Back-up naar telefoon of elders via Deel functie (email, Google Drive etc.)?</string>
-  <string name="backup_share">Delen</string>
   <string name="restore_modules">Terugzetten Documenten vanuit...</string>
   <string name="send_backup_file">Back-up bestand verzenden</string>
   <string name="backup_modules_title">Selecteer welke modules geback-upt moeten worden</string>
@@ -697,7 +687,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="unlock_module">Instellen module wachtwoordzin</string>
   <string name="unlock_info">Versleutelde module ontgrendel info</string>
   <string name="try_again_passphrase">Wachtwoord werkte niet, probeer het nog eens?</string>
-  <string name="cant_delete_last_bible">Kan laatste Bijbeldocument niet verwijderen</string>
   <string name="show_unlock_info">Module &amp; ontgrendel info</string>
   <string name="prefs_show_error_box_title">Toon Javascript foutvenster</string>
   <string name="prefs_show_error_box_summary">Handig voor ontwikkelaars tijdens foutzoeken naar BibleView javascript fouten. Dit zal de app langzamer maken.</string>
@@ -731,9 +720,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Toch doorgaan</string>
   <string name="rate_title">App beoordelen en reviewen</string>
-  <string name="rate_message5">
-        Positieve en gedetailleerde reviews helpen het And Bible open source-project. Hartelijk dank!
-    </string>
   <string name="rate_message6">
         Voor u een negatieve review instuurt, overweeg alstublieft het volgende:
     </string>
@@ -826,6 +812,14 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="strongs_links">Links</string>
   <string name="strongs_text_and_links">Tekst en links</string>
   <string name="verse_tip">Om gedeeltes of meerdere versen te selecteerd, kunt u lang drukken op Bijbel tekst</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Permissie nodig</string>
+  <string name="labels_search_hint">Zoeken</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Informatie</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

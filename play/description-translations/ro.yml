@@ -46,7 +46,7 @@ feature_13: >
   Notițe de studiu pentru a adăuga comentarii și trimiteri biblice în timp ce asculți predicile.
 subtitle_3: Haideți să facem împreună cea mai bună aplicație biblică!
 paragraph_3_1: >
-  And Bible este un proiect comunitar open-source. În practică, acest lucru înseamnă că orice persoană cu aptitudini adecvate poate și este încurajată să contribuie la proiect prin:
+  AndBible este un proiect comunitar care are codul sursă public. În practică, aceasta înseamnă că orice persoană cu competențe adecvate poate și este încurajată să contribuie la proiect prin:
 contr_1: "realizarea de noi caracteristici,"
 contr_2: "testarea caracteristicilor care nu au fost încă lansate,"
 contr_3: menținerea la zi a traducerilor interfeței cu utilizatorul și
@@ -58,7 +58,7 @@ subtitle_4: Legături
 link_1: >
   Pagina principală: {{homepage_url}}
 link_2: >
-  Dă Like la And Bible pe Facebook: {{facebook_url}}
+  Pune îmi place AndBible pe Facebook: {{facebook_url}}
 link_3: >
   Canalul nostru de Youtube: {{youtube_url}}
 link_4: >
