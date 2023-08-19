@@ -231,7 +231,7 @@ class DatabaseContainer {
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
             val backupPath = CommonUtils.dbBackupPath
             val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
-            val backupFile = File(backupPath, "dbBackup-$versionString-$timeStamp.abdb")
+            val backupFile = File(backupPath, "dbBackup-${CommonUtils.applicationVersionNumber}-$versionString-$timeStamp.abdb")
             backupZipFile.copyTo(backupFile, true)
             backupZipFile.delete()
         }
