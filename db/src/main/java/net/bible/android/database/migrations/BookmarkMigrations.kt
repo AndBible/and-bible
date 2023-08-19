@@ -63,6 +63,11 @@ private val genBookmarkIndex = makeMigration(6..7) {_db ->
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_GenericBookmark_primaryLabelId` ON `GenericBookmark` (`primaryLabelId`)")
 }
 
+private val labelFields = makeMigration(7..8) { _db  ->
+    _db.execSQL("ALTER TABLE Label ADD COLUMN hideStyle INTEGER NOT NULL DEFAULT 0")
+    _db.execSQL("ALTER TABLE Label ADD COLUMN favourite INTEGER NOT NULL DEFAULT 0")
+    _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Label_favourite` ON `Label` (`favourite`)")
+}
 
 val bookmarkMigrations: Array<Migration> = arrayOf(
     separateText,
@@ -71,6 +76,7 @@ val bookmarkMigrations: Array<Migration> = arrayOf(
     wholeVerse,
     playbackSettings,
     genBookmarkIndex,
+    labelFields,
 )
 
-const val BOOKMARK_DATABASE_VERSION = 7
+const val BOOKMARK_DATABASE_VERSION = 8

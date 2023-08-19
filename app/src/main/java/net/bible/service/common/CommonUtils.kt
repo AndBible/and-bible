@@ -340,16 +340,6 @@ object CommonUtils : CommonUtilsBase() {
         return ver.endsWith("-beta") || ver.endsWith("-alpha") || application.packageName.endsWith(".next") || isDebugMode
     }
 
-    var favouriteLabels: Set<IdType>
-        set(value) {
-            val serialized = json.encodeToString(serializer(), value)
-            settings.setString("favouriteLabels", serialized)
-        }
-        get() {
-            val s = settings.getString("favouriteLabels") ?: return mutableSetOf()
-            return json.decodeFromString(serializer(), s)
-        }
-
     val applicationVersionNumber: Int
         get() {
             // TODO we have to change this to Long if we one day will have very long version numbers.
@@ -1177,10 +1167,10 @@ object CommonUtils : CommonUtilsBase() {
         var highlightLabels = emptyList<BookmarkEntities.Label>()
 
         if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") && it.name != migratedNotesName }) {
-            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false)
-            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false)
-            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false)
-            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true)
+            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false, favourite = true)
+            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false, favourite = true)
+            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false, favourite = true)
+            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true, favourite = true)
 
             highlightLabels = listOf(
                 redLabel,
@@ -1244,7 +1234,6 @@ object CommonUtils : CommonUtilsBase() {
         }
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         val ws = workspaceDao.allWorkspaces()
-        favouriteLabels = highlightLabels.map {it.id}.toSet()
         if(ws.isNotEmpty()) {
             workspaceDao.updateWorkspaces(ws)
             settings.setBoolean("first-time", false)

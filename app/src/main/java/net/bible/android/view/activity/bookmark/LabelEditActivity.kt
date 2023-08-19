@@ -98,7 +98,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         var label: BookmarkEntities.Label,
 
         var isAutoAssign: Boolean,
-        var isFavourite: Boolean,
 
         var isAutoAssignPrimary: Boolean,
         var isThisBookmarkSelected: Boolean,
@@ -125,7 +124,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         data.label.underlineStyleWholeVerse = underLineStyleWholeVerse.isChecked
         data.label.markerStyle = markerStyle.isChecked
         data.label.markerStyleWholeVerse = markerStyleWholeVerse.isChecked
-        data.isFavourite = favouriteLabelCheckBox.isChecked
+        data.label.favourite = favouriteLabelCheckBox.isChecked
         data.isAutoAssign = autoAssignCheckBox.isChecked
         data.isAutoAssignPrimary = primaryAutoAssignCheckBox.isChecked
         if(!data.isAutoAssign) {
@@ -140,7 +139,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
     private fun updateUI() = binding.apply {
         Log.i(TAG, "updateUI")
-        favouriteLabelCheckBox.isChecked = data.isFavourite
+        favouriteLabelCheckBox.isChecked = data.label.favourite
         autoAssignCheckBox.isChecked = data.isAutoAssign
         primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
         primaryLabelCheckBox.isChecked = data.isThisBookmarkPrimary

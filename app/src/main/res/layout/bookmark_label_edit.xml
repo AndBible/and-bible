@@ -99,11 +99,28 @@
 			android:text="@string/marker_style_whole_verse"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/markerStyle" />
+
+		<TextView
+			android:id="@+id/favouriteLabelTitle"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintEnd_toStartOf="@+id/favouriteLabelCheckBox"
+			app:layout_constraintTop_toBottomOf="@id/markerStyleWholeVerse" />
+
+		<androidx.appcompat.widget.AppCompatCheckBox
+			android:id="@+id/favouriteLabelCheckBox"
+			style="@style/EditBookmarkLabelItemTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="0dp"
+			android:text="@string/favourite_label"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/markerStyleWholeVerse" />
+
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:id="@+id/thisBookmarkCategory"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:layout_constraintTop_toBottomOf="@+id/markerStyleWholeVerse"
+			app:layout_constraintTop_toBottomOf="@+id/favouriteLabelCheckBox"
 			tools:layout_editor_absoluteX="20dp">
 			<TextView
 				android:id="@+id/selectedLabelTitle"
@@ -144,27 +161,11 @@
 			app:layout_constraintTop_toBottomOf="@+id/thisBookmarkCategory" />
 
 		<TextView
-			android:id="@+id/favouriteLabelTitle"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			app:layout_constraintEnd_toStartOf="@+id/favouriteLabelCheckBox"
-			app:layout_constraintTop_toBottomOf="@id/thisWorkspaceTitle" />
-
-		<androidx.appcompat.widget.AppCompatCheckBox
-			android:id="@+id/favouriteLabelCheckBox"
-			style="@style/EditBookmarkLabelItemTitle"
-			android:layout_width="wrap_content"
-			android:layout_height="0dp"
-			android:text="@string/favourite_label"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/thisWorkspaceTitle" />
-
-		<TextView
 			android:id="@+id/autoAssignTitle"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			app:layout_constraintEnd_toStartOf="@+id/autoAssignCheckBox"
-			app:layout_constraintTop_toBottomOf="@+id/favouriteLabelCheckBox" />
+			app:layout_constraintTop_toBottomOf="@+id/thisWorkspaceTitle" />
 
 		<androidx.appcompat.widget.AppCompatCheckBox
 			android:id="@+id/autoAssignCheckBox"
@@ -173,7 +174,7 @@
 			android:layout_height="0dp"
 			android:text="@string/auto_assign_labels1"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/favouriteLabelCheckBox" />
+			app:layout_constraintTop_toBottomOf="@+id/thisWorkspaceTitle" />
 
 
 		<androidx.appcompat.widget.AppCompatCheckBox
