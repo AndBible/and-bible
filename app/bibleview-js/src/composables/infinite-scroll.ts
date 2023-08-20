@@ -21,7 +21,7 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-import {computed, nextTick, onMounted} from "vue";
+import {computed, nextTick, onMounted, watch} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
 import {AnyDocument, BibleViewDocumentType, isOsisDocument} from "@/types/documents";
@@ -43,6 +43,7 @@ export function useInfiniteScroll(
 
     const
         isEnabled = computed(() => {
+           if(documents.length === 0) return false;
            const doc = documents[0];
            if(isOsisDocument(doc)) {
                 return enabledCategories.has(doc.bookCategory)
@@ -121,7 +122,10 @@ export function useInfiniteScroll(
         currentPos = scrollPosition();
     }
 
-    setupWindowEventListener('scroll', scrollHandler)
+    setupWindowEventListener('scroll', scrollHandler);
+    watch(isEnabled, enabled => {
+        if(enabled) scrollHandler();
+    })
     setupWindowEventListener('touchstart', touchstartListener, false);
     setupWindowEventListener('touchend', touchendListener, false);
     setupWindowEventListener("touchcancel", touchendListener, false);

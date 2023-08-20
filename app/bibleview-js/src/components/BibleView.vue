@@ -183,6 +183,7 @@ setupEventBusListener("clear_document", function clearDocument() {
     clearLog();
     globalBookmarks.clearBookmarks();
     documents.splice(0)
+    scroll.scrollToId("top", {now: true});
 });
 
 setupEventBusListener("add_documents", addDocuments);
