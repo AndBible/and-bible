@@ -258,7 +258,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                    isHandled = true
                 }
                 R.id.buyDevelopment -> {
-                    CommonUtils.openLink(contributeLink)
+                    CommonUtils.openLink(buyDevelopmentLink)
                     isHandled = true
                 }
                 R.id.needHelp -> {
