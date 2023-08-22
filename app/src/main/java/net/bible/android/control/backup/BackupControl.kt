@@ -185,7 +185,7 @@ object BackupControl {
                         out.write(dbHeader)
                         inputStream.copyTo(out)
                     }
-                    val version = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READONLY).use {
+                    val version = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READWRITE).use {
                         it.version
                     }
                     if(version <= OLD_DATABASE_VERSION) {
@@ -602,7 +602,7 @@ object BackupControl {
     private suspend fun verifyDatabaseBackupFile(file: File): Boolean {
         val inputStream = BufferedInputStream(file.inputStream())
         if(!isSqliteFile(inputStream)) return false
-        val version = SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READONLY).use { it.version }
+        val version = SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
         return version <= maxDatabaseVersion(file.name)
     }
 

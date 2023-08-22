@@ -281,7 +281,7 @@ object CloudSync {
         val tmpFile = CommonUtils.tmpFile
         CommonUtils.gunzipFile(gzippedTmpFile, tmpFile)
         gzippedTmpFile.delete()
-        val initialDbVersion = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READONLY).use { it.version }
+        val initialDbVersion = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
         if(initialDbVersion > dbDef.version) {
             tmpFile.delete()
             val activity = CurrentActivityHolder.currentActivity ?: throw CancelStartedSync()

@@ -200,7 +200,7 @@ class DatabaseContainer {
 
     private fun backupOldDatabase(oldDb: File) {
         val dbVersion =
-            SQLiteDatabase.openDatabase(oldDb.path, null, SQLiteDatabase.OPEN_READONLY).use { it.version }
+            SQLiteDatabase.openDatabase(oldDb.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
         Log.i(TAG, "backupping old database of version $dbVersion)")
         val backupPath = CommonUtils.dbBackupPath
         val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
@@ -213,7 +213,7 @@ class DatabaseContainer {
         val versions = ALL_DB_FILENAMES.map {
             val file = application.getDatabasePath(it)
             if(file.exists()) {
-                SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READONLY).use { it.version }
+                SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
             } else {
                 0
             }
