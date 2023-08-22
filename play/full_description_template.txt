@@ -27,6 +27,7 @@
 {{paragraph_3_1}}
 
  * {{contr_1}}
+ * {{buy_development}}: {{buy_development_link}}
  * {{contr_2}}
  * {{contr_3}}
  * {{contr_4}}

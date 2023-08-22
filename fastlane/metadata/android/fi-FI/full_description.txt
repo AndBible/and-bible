@@ -27,6 +27,7 @@ Sovelluksessa on monia oivaltavia ja alkuperäisiä ominaisuuksia, jotka tekevä
 And Bible on yhteisöllinen avoimen lähdekoodin projekti. Käytännössä se tarkoittaa että rohkaisemme kaikkia, jolla on tarvittava osaaminen, antamaan panoksensa projektiin:
 
  * kehittämällä uusia ominaisuuksia,
+ * : https://andbible.org/buy
  * testaamalla ominaisuuksia joita ei ole vielä julkaistu,
  * pitämällä käyttöliittymän käännökset ajan tasalla, ja
  * auttamalla moduulikirjaston laajentamisessa; hankkimalla lupia tekijänoikeusten haltijoilta ja muuntamalla dokumentteja SWORD-muotoon.
@@ -35,7 +36,7 @@ Jos olet ohjelmistoalan ammattilainen (kehittäjä tai testaaja), pyydämme sinu
 
 <b>Linkkejä</b>
 
- * Kotisivu: https://andbible.github.io
+ * Kotisivu: https://andbible.org
  * Tykkää And Biblesta Facebookissa: https://www.facebook.com/AndBible/
  * Meidän Youtube-kanava: https://www.youtube.com/c/AndBible
  * Usein kysytyt kysymykset (FAQ): https://git.io/JJm8E

@@ -27,6 +27,7 @@ Créons ensemble la meilleure application biblique !
 AndBible est un projet communautaire à code source ouvert. En pratique, cela signifie que toute personne possédant les compétences nécessaires peut contribuer au projet, et est encouragée à le faire :
 
  * en développant de nouvelles fonctionnalités,
+ * : https://andbible.org/buy
  * en testant les fonctionnalités pas encore publiées,
  * en gardant la traduction de l’interface utilisateur à jour, et
  * en contribuant à l'extension de la bibliothèque de modules en obtenant les autorisations des détenteurs de droits d'auteur ou en convertissant les documents au format SWORD.
@@ -35,7 +36,7 @@ Si vous êtes informaticien ou un testeur professionnel, veuillez envisager de c
 
 Liens
 
- * Page d'accueil : https://andbible.github.io
+ * Page d'accueil : https://andbible.org
  * J’aime AndBible sur Facebook : https://www.facebook.com/AndBible/
  * Notre chaîne Youtube : https://www.youtube.com/c/AndBible
  * Questions fréquemment posées : https://git.io/JJm8E

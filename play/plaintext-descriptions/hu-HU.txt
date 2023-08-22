@@ -27,6 +27,7 @@ Segítsen az alkalmazás jobbá tételében!
 Az And Bible nyilt forráskódú közösségi projekt. Bárkit, aki megfelelő tudással rendelkezik, bátorítunk a közreműködésre:
 
  * új funkciók kifejlesztésével
+ * : https://andbible.org/buy
  * újonnan fejlesztett funkciók tesztelésével
  * a felhasználói felület fordításainak karbantartásával és
  * a modulkönyvtár fejlesztésével: dokumentumok SWORD formátumba konvertálásával vagy a jogtulajdonosoktól a megfelelő engedélyek beszerzésével.
@@ -35,7 +36,7 @@ Ha hivatásos szoftverfejlesztő vagy tesztelő, kérjük vegyen részt az alkal
 
 Hivatkozások
 
- * Internetcím: https://andbible.github.io
+ * Internetcím: https://andbible.org
  * Kövesse az And Bible projektet a Facebookon: https://www.facebook.com/AndBible/
  * YouTube csatornánk: https://www.youtube.com/c/AndBible
  * Gyakori kérdések (FAQ): https://git.io/JJm8E
