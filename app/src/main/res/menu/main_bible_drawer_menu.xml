@@ -84,6 +84,10 @@
                 android:title="@string/how_to_contribute"
                 android:icon="@drawable/ic_baseline_emoji_people_24"/>
 
+            <item android:id="@+id/buyDevelopment"
+                android:title="@string/buy_development"
+                android:icon="@drawable/baseline_attach_money_24"/>
+
             <item android:id="@+id/appLicence"
                 android:title="@string/app_licence_title"
                 android:icon="@drawable/ic_baseline_copyright_24"/>
