@@ -249,7 +249,8 @@ fun EpubBackendState.optimizeEpub() {
         }
         fileForOriginalId(k).delete()
     }
-    val total = (System.currentTimeMillis() - start) / 1000;
+    val total = (System.currentTimeMillis() - start) / 1000
+    writeDb.close()
     optimizeLockFile.delete()
     Log.i(TAG, "Total time in optimization: $total")
 }
