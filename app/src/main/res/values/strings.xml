@@ -443,6 +443,12 @@
     <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
     <string name="hide_style">Hide for selection bookmarks</string>
     <string name="hide_style_whole_verse">Hide for whole verse bookmarks</string>
+    <string name="bookmark_warning">There are bookmarks and/or notes for this document.</string>
+    <string name="bookmark_warning2">
+        If document structure has changed, updating this document could make
+        the locations of these bookmarks/notes move inside the document or disappear completely.
+    </string>
+    <string name="bookmark_warning3">Do you still want to update module?</string>
 
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>
