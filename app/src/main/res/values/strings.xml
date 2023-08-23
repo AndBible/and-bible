@@ -1152,7 +1152,7 @@
     <string name="sync_error">Error occurred in Cloud synchronization</string>
     <string name="error_notification_channel_name">Error notifications</string>
     <string name="restore_from_cloud_description">If you have Device Synchronization enabled in another device, you can start by restoring database from Cloud.</string>
-    <string name="restore_from_sync">Restore from Cloud</string>
+    <string name="enable_sync">Enable synchronization</string>
 
     <!-- MyBible/MySword module support -->
     <string name="sqlite_cant_read">Can not read the file</string>
