@@ -190,7 +190,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     internal val optimizeLockFile = File(epubDir, "optimize.lock")
 
     private val epubDbFilename = "optimized.sqlite3.gz"
-    private val appDbFilename = "epub-${bookMetaData.initials}.sqlite3"
+    internal val appDbFilename = "epub-${bookMetaData.initials}.sqlite3"
     private val alternativeEpubDbFilename = "${appDbFilename}.gz"
 
     init {
@@ -209,10 +209,11 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             }
         }
     }
-    private val readDb = getEpubDatabase(epubDbFilename)
+    private val readDb = getEpubDatabase(appDbFilename)
     private val dao = readDb.epubDao()
 
-    fun getResource(resourcePath: String) = File(rootFolder, resourcePath)
+    fun getResource(resourcePath: String) =
+        File(rootFolder, resourcePath)
 
     override fun getBookMetaData(): SwordBookMetaData {
         return _metadata?: synchronized(this) {

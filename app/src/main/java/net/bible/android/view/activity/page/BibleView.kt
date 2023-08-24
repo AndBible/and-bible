@@ -89,6 +89,7 @@ import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OrdinalRange
+import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.StudyPadDocument
@@ -805,26 +806,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    class EpubResourcesAssetHandler: PathHandler {
-        private val epubRe = Regex("""^([^/]+)/(.*)$""")
+    inner class EpubResourcesAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse? {
-            val epubMatch = epubRe.matchEntire(path)
-            if(epubMatch != null) {
-                val bookInitials = epubMatch.groupValues[1]
-                val resourceStr = epubMatch.groupValues[2]
-                val book = Books.installed().getBook(bookInitials)?: return null
-
-                val file: File =
-                    (if(book is SwordGenBook) {
-                        val backend = book.backend
-                        if (backend is EpubBackend) {
-                            backend.getResource(resourceStr)
-                        } else null
-                    }  else null) ?: return null
-
-                return WebResourceResponse(URLConnection.guessContentTypeFromName(file.name), null, file.inputStream())
-            }
-            return null
+            val book = (firstDocument as? OsisDocument)?.book ?: return null
+            val file: File = ((book as? SwordGenBook)?.backend as? EpubBackend)?.getResource(path) ?: return null
+            return WebResourceResponse(URLConnection.guessContentTypeFromName(file.name), null, file.inputStream())
         }
     }
 

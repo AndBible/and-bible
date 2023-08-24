@@ -44,7 +44,7 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document, Int> {
     fun epubSrc(src: String): String {
         val f = File(parentFolder, src)
         val filePath = f.toRelativeString(rootFolder)
-        return "/epub/${bookMetaData.initials}/$filePath"
+        return "/epub/$filePath"
     }
 
     fun fixReferences(e: Element): Element {
@@ -218,7 +218,7 @@ fun EpubBackendState.optimizeEpub() {
     fragDir.deleteRecursively()
     fragDir.mkdirs()
     optimizeLockFile.outputStream().use { it.write(1)}
-    val writeDb = getEpubDatabase(dbFilename)
+    val writeDb = getEpubDatabase(appDbFilename)
     val writeDao = writeDb.epubDao()
     val start = System.currentTimeMillis()
     for(k in originalIds) {
