@@ -48,6 +48,11 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document, Int> {
     }
 
     fun fixReferences(e: Element): Element {
+        for(img in useXPathInstance { xp -> xp.compile("//svg:image[@xlink:href]", Filters.element(), null, svgNamespace, xlinkNamespace).evaluate(e) }) {
+            val src = img.getAttribute("href", xlinkNamespace).value
+            val finalSrc = epubSrc(src)
+            img.setAttribute("href", finalSrc, xlinkNamespace)
+        }
         for(img in useXPathInstance { xp -> xp.compile("//ns:img", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
             val src = img.getAttribute("src").value
             val finalSrc = epubSrc(src)

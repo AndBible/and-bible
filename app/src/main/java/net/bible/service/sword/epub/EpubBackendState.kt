@@ -48,7 +48,8 @@ internal fun getFileAndId(href: String): Pair<String, String>? {
 }
 
 val xhtmlNamespace: Namespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
-
+val svgNamespace: Namespace = Namespace.getNamespace("svg", "http://www.w3.org/2000/svg")
+val xlinkNamespace: Namespace = Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink");
 class EpubBackendState(private val epubDir: File): OpenFileState {
     constructor(epubDir: File, metadata: SwordBookMetaData): this(epubDir) {
         this._metadata = metadata
