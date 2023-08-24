@@ -29,7 +29,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
-import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -132,7 +131,10 @@ abstract class CurrentPageBase protected constructor(
             val errorXml = application.getString(R.string.document_not_installed, link)
             return ErrorDocument(errorXml, ErrorSeverity.NORMAL)
         }
-        return if(key == null) errorDocument else getPageContent(key)
+        return if(key == null) {
+            Log.e(TAG, "Key was null, giving ErrorDocument")
+            ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.WARNING)
+        } else getPageContent(key)
     }
 
     var annotateKey: VerseRange? = null
@@ -161,12 +163,9 @@ abstract class CurrentPageBase protected constructor(
         when (e) {
             is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
             is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
-            else -> errorDocument
+            else -> ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)
         }
     }
-
-    private val errorDocument: ErrorDocument get() =
-        ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)
 
     override fun checkCurrentDocumenInstalled(): Boolean {
         if(_currentDocument?.doesNotExist == true) {
