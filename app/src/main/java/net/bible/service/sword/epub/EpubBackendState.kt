@@ -249,7 +249,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun delete() {
         epubDir.deleteRecursively()
         readDb.close()
-        BibleApplication.application.deleteDatabase(epubDbFilename)
+        BibleApplication.application.deleteDatabase(appDbFilename)
     }
 
     fun getKey(originalKey: String, htmlId: String): Key {

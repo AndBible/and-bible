@@ -810,6 +810,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         override fun handle(path: String): WebResourceResponse? {
             val book = (firstDocument as? OsisDocument)?.book ?: return null
             val file: File = ((book as? SwordGenBook)?.backend as? EpubBackend)?.getResource(path) ?: return null
+            if(!file.canRead()) return null
             return WebResourceResponse(URLConnection.guessContentTypeFromName(file.name), null, file.inputStream())
         }
     }
