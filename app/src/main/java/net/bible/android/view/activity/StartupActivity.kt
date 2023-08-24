@@ -51,6 +51,7 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.FirstDownload
@@ -199,6 +200,14 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             if(!BuildVariant.Appearance.isDiscrete) {
                 ErrorReportControl.checkCrash(this@StartupActivity)
             }
+            // fixNightMode() for StartupActivity needs to be here
+            if(firstTime) {
+                firstTime = false
+                delay(250)
+                recreate()
+                return@launch
+            }
+
             // switch back to ui thread to continue
             postBasicInitialisationControl()
             if(CommonUtils.isDiscrete) {

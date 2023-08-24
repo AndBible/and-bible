@@ -27,6 +27,7 @@ Aplikacija ima številne vpogledne, izvirne funkcije, zaradi česar je kompleksn
 And Bible je projekt odprtokodne skupnosti. V praksi to pomeni, da lahko vsak, ki ima ustrezna znanja, k projektu prispeva in ga spodbuja z:
 
  * razvojem novih funkcij,
+ * : https://andbible.org/buy
  * testiranjem še neobjavljenih funkcij,
  * posodabljanjem prevodov uporabniškega vmesnika in
  * pomoč pri razširitvi knjižnice modulov s pridobivanjem dovoljenj imetnikov avtorskih pravic ali s pretvorbo dokumentov v SWORD obliko.
@@ -35,8 +36,8 @@ And Bible je projekt odprtokodne skupnosti. V praksi to pomeni, da lahko vsak, k
 
 <b>Povezave</b>
 
- * Domača stran: https://andbible.github.io
- * Všečkaj And Bible na Facebooku: https://www.facebook.com/AndBible/
+ * Domača stran: https://andbible.org
+ * Like AndBible on Facebook: https://www.facebook.com/AndBible/
  * Naš Youtube kanal: https://www.youtube.com/c/AndBible
  * Pogosto zastavljena vprašanja: https://git.io/JJm8E
  * Projektna stran na Githubu: https://github.com/AndBible/and-bible

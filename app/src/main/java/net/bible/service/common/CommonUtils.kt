@@ -143,7 +143,9 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseKey
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
+import org.crosswire.jsword.versification.Versification
 import org.jdom2.input.SAXBuilder
 import org.jdom2.xpath.XPathFactory
 import org.spongycastle.util.io.pem.PemReader
@@ -737,6 +739,13 @@ object CommonUtils : CommonUtilsBase() {
         return VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse)
     }
 
+    fun getWholeChapters(v11n: Versification, book: BibleBook, chapter1: Int, chapter2: Int): VerseRange {
+        val targetChapterFirstVerse = Verse(v11n, book, chapter1, 0)
+        val targetChapterLastVerse = Verse(v11n, book, chapter2, v11n.getLastVerse(book, chapter2))
+
+        return VerseRange(v11n, targetChapterFirstVerse, targetChapterLastVerse)
+    }
+
     private val scope = CoroutineScope(Dispatchers.Default)
 
     fun restartApp(callingActivity: Activity) {
@@ -1181,10 +1190,10 @@ object CommonUtils : CommonUtilsBase() {
         var highlightLabels = emptyList<BookmarkEntities.Label>()
 
         if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") && it.name != migratedNotesName }) {
-            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false)
-            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false)
-            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false)
-            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true)
+            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false, favourite = true)
+            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false, favourite = true)
+            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false, favourite = true)
+            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true, favourite = true)
 
             highlightLabels = listOf(
                 redLabel,
@@ -1249,13 +1258,10 @@ object CommonUtils : CommonUtilsBase() {
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         val ws = workspaceDao.allWorkspaces()
         if(ws.isNotEmpty()) {
-            for (it in ws) {
-                it.workspaceSettings?.favouriteLabels?.addAll(highlightLabels.map {it.id})
-            }
             workspaceDao.updateWorkspaces(ws)
             settings.setBoolean("first-time", false)
         } else {
-            val workspaceSettings = WorkspaceEntities.WorkspaceSettings(favouriteLabels = highlightLabels.map {it.id}.toMutableSet())
+            val workspaceSettings = WorkspaceEntities.WorkspaceSettings()
             val workspaceIds = listOf(
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),

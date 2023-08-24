@@ -55,12 +55,6 @@ open class WindowRepository(val scope: CoroutineScope) {
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
     var windowList: MutableList<Window> = ArrayList()
-    var busyCount: Int = 0
-        set(value) {
-            synchronized(this) {
-                field = value
-            }
-        }
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
     var maximizedWindowId: IdType? = null
@@ -83,15 +77,6 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     val isMaximized get() = maximizedWindowId != null
     val maximizedWindow get() = getWindow(maximizedWindowId)
-    val isBusy get() = busyCount > 0
-
-    fun onEvent(event: IncrementBusyCount) {
-        busyCount ++
-    }
-
-    fun onEvent(event: DecrementBusyCount) {
-        busyCount --
-    }
 
     var id: IdType = IdType.empty()
     var name = ""
@@ -106,7 +91,6 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     init {
         CommonUtils.buildActivityComponent().inject(this)
-        ABEventBus.safelyRegister(this)
     }
 
     fun initialize() {

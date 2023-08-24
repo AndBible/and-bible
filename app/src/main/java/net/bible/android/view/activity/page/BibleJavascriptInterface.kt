@@ -120,15 +120,15 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun requestPreviousChapter(callId: Long) {
+    fun requestMoreToBeginning(callId: Long) {
         Log.i(TAG, "Request more text at top")
-        bibleView.requestPreviousChapter(callId)
+        bibleView.requestMoreToBeginning(callId)
     }
 
     @JavascriptInterface
-    fun requestNextChapter(callId: Long) {
+    fun requestMoreToEnd(callId: Long) {
         Log.i(TAG, "Request more text at end")
-        bibleView.requestNextChapter(callId)
+        bibleView.requestMoreToEnd(callId)
     }
 
     @JavascriptInterface

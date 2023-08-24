@@ -89,16 +89,13 @@ class ManageLabelItemAdapter(context: Context?,
                     labelIcon.setImageResource(R.drawable.ic_baseline_studypads_24)
                 }
 
-                val isFavourite = data.favouriteLabels.contains(label.id)
+                val isFavourite = label.favourite
                 val isPrimary = data.contextPrimaryLabel == label.id
 
                 favouriteIcon.setImageResource(if (isFavourite) R.drawable.ic_baseline_favorite_24 else R.drawable.ic_baseline_favorite_border_24)
                 favouriteIcon.setOnClickListener {
-                    if (isFavourite) {
-                        data.favouriteLabels.remove(label.id)
-                    } else {
-                        data.favouriteLabels.add(label.id)
-                    }
+                    label.favourite = !label.favourite
+                    manageLabels.data.changedLabels.add(label.id)
                     notifyDataSetChanged()
                 }
 

@@ -27,6 +27,7 @@
 And Bible是一個開源計劃。這代表了我們需要所有有能之士，為此計劃一同用以下方式貢獻：
 
  * 開發新功能，
+ * : https://andbible.org/buy
  * 測驗未開放的新功能，
  * 保持介面翻譯更新，及
  * 協助取得版權及授權、轉換文件至SWORD格式以擴充模組庫。
@@ -35,7 +36,7 @@ And Bible是一個開源計劃。這代表了我們需要所有有能之士，�
 
 <b>連結</b>
 
- * 主頁：https://andbible.github.io
+ * 主頁：https://andbible.org
  * 在 Facebook 上讚好 And Bible：https://www.facebook.com/AndBible/
  * 我們的 Youtube 頻道：https://www.youtube.com/c/AndBible
  * 常見問題：https://git.io/JJm8E

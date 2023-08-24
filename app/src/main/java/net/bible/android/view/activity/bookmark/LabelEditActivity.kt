@@ -98,7 +98,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         var label: BookmarkEntities.Label,
 
         var isAutoAssign: Boolean,
-        var isFavourite: Boolean,
 
         var isAutoAssignPrimary: Boolean,
         var isThisBookmarkSelected: Boolean,
@@ -125,7 +124,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         data.label.underlineStyleWholeVerse = underLineStyleWholeVerse.isChecked
         data.label.markerStyle = markerStyle.isChecked
         data.label.markerStyleWholeVerse = markerStyleWholeVerse.isChecked
-        data.isFavourite = favouriteLabelCheckBox.isChecked
+        data.label.hideStyle = hideStyle.isChecked
+        data.label.hideStyleWholeVerse = hideStyleWholeVerse.isChecked
+        data.label.favourite = favouriteLabelCheckBox.isChecked
         data.isAutoAssign = autoAssignCheckBox.isChecked
         data.isAutoAssignPrimary = primaryAutoAssignCheckBox.isChecked
         if(!data.isAutoAssign) {
@@ -140,19 +141,28 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
     private fun updateUI() = binding.apply {
         Log.i(TAG, "updateUI")
-        favouriteLabelCheckBox.isChecked = data.isFavourite
+        favouriteLabelCheckBox.isChecked = data.label.favourite
         autoAssignCheckBox.isChecked = data.isAutoAssign
         primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
         primaryLabelCheckBox.isChecked = data.isThisBookmarkPrimary
         labelName.setText(data.label.displayName)
         underLineStyle.isChecked = data.label.underlineStyle
         underLineStyleWholeVerse.isChecked = data.label.underlineStyleWholeVerse
+        val isHideStyle = data.label.hideStyle
+        val isHideStyleWholeVerse = data.label.hideStyleWholeVerse
         val isMarkerStyle = data.label.markerStyle
         val isMarkerStyleWholeVerse = data.label.markerStyleWholeVerse
         markerStyle.isChecked = isMarkerStyle
         markerStyleWholeVerse.isChecked = isMarkerStyleWholeVerse
-        underLineStyle.isEnabled = !isMarkerStyle
-        underLineStyleWholeVerse.isEnabled = !isMarkerStyleWholeVerse
+
+        hideStyle.isChecked = isHideStyle
+        hideStyleWholeVerse.isChecked = isHideStyleWholeVerse
+
+        underLineStyle.isEnabled = !isHideStyle && !isMarkerStyle
+        underLineStyleWholeVerse.isEnabled = !isHideStyleWholeVerse && !isMarkerStyleWholeVerse
+        markerStyle.isEnabled = !isHideStyle
+        markerStyleWholeVerse.isEnabled = !isHideStyleWholeVerse
+
         updateColor()
         if (data.label.isSpecialLabel) {
             labelName.isEnabled = false
@@ -223,7 +233,14 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
             titleIcon.setOnClickListener { editColor() }
 
-            for(v in listOf(autoAssignCheckBox, markerStyle, markerStyleWholeVerse, selectedLabelCheckBox)) {
+            for(v in listOf(
+                autoAssignCheckBox,
+                markerStyle,
+                markerStyleWholeVerse,
+                selectedLabelCheckBox,
+                hideStyle,
+                hideStyleWholeVerse,
+            )) {
                 v.setOnCheckedChangeListener { _, _ ->
                     updateData()
                     updateUI()

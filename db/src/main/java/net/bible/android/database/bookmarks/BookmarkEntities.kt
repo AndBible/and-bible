@@ -620,7 +620,7 @@ class BookmarkEntities {
         val studyPadTextEntryTextEntity get() = StudyPadTextEntryText(id, text)
     }
 
-    @Entity
+    @Entity(indices = [Index("favourite")])
     @Serializable
     data class Label(
         @PrimaryKey var id: IdType = IdType(),
@@ -630,6 +630,9 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") var markerStyleWholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "0") var underlineStyle: Boolean = false,
         @ColumnInfo(defaultValue = "0") var underlineStyleWholeVerse: Boolean = true,
+        @ColumnInfo(defaultValue = "0") var hideStyle: Boolean = false,
+        @ColumnInfo(defaultValue = "0") var hideStyleWholeVerse: Boolean = false,
+        @ColumnInfo(defaultValue = "0") var favourite: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: LabelType? = null,
         @Ignore var new: Boolean = false
     ) {

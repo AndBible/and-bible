@@ -59,6 +59,7 @@ const val contributeLink = "https://github.com/AndBible/and-bible/wiki/How-to-co
 const val needHelpLink = "https://github.com/AndBible/and-bible/wiki/Support"
 const val howToAdd = "https://github.com/AndBible/and-bible/wiki/FAQ#please-add-module-x-to-and-bible"
 const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-text-issue-in-one-of-the-bible--commentary-etc-modules-in-and-bible"
+const val buyDevelopmentLink = "https://github.com/AndBible/and-bible/wiki/Buy-development-work"
 
 /** Handle requests from the main menu
  *
@@ -256,6 +257,10 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                    CommonUtils.openLink(contributeLink)
                    isHandled = true
                 }
+//                R.id.buyDevelopment -> {
+//                    CommonUtils.openLink(buyDevelopmentLink)
+//                    isHandled = true
+//                }
                 R.id.needHelp -> {
                     CommonUtils.openLink(needHelpLink)
                     isHandled = true

@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible: Bibel+</string>
   <string name="app_name_short">Bibel+</string>
-  <string name="app_name_medium">Bibel+ (And Bibel)</string>
+  <string name="app_name_medium">Bibel+ (AndBible)</string>
   <string name="app_name_long">AndBible: Bibel+</string>
-  <string name="project">And Bible Open Source Projekt</string>
+  <string name="project">AndBible Open Source Project</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Bitte setzen Sie eine SD-Karte ein und starten das Programm neu.</string>
   <!--Main menu-->
@@ -11,6 +12,8 @@
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Navigation</string>
   <string name="search">Suche</string>
+  <string name="search_in_andbible">In der Bibel finden</string>
+  <string name="search_with_results2">%1s Ergebnisse in %2s</string>
   <string name="settings">Voreinstellungen</string>
   <string name="history">Verlauf</string>
   <string name="speak">Vorlesen</string>
@@ -56,6 +59,9 @@
   <string name="search_old_testament">AT</string>
   <string name="search_current_book">Derzeitiges Buch</string>
   <string name="error_executing_search">Ungültige Suchabfrage</string>
+  <string name="type_text_or_bible_reference">Text oder Querverweis einfügen</string>
+  <string name="go_to_ref">Öffne %s</string>
+  <string name="search_what">Finde \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- &amp; Versnummern</string>
   <string name="prefs_show_verseno_summary">Zeige Kapitel- &amp; Versnummern</string>
@@ -113,6 +119,8 @@
   <string name="reset_fontsize">Zurücksetzen</string>
   <string name="prefs_request_sdcard_permission_title">Es gibt händisch installierte Dokumente</string>
   <string name="prefs_request_sdcard_permission_summary">Die Verwendung manuell installierte Dokumente aus dem Ordner /jsword/sword des internen Speichers ermöglichen</string>
+  <string name="prefs_expand_footnotes_title">Inline-Querverweis</string>
+  <string name="prefs_expand_footnotes_summary">Zeige statt einem Link zu einem Pop-up Fenster den Inhalt des Querverweises direkt an</string>
   <string name="all_text_options_window_menutitle">Alle Textoptionen</string>
   <string name="text_options_window_menutitle">Textoptionen</string>
   <string name="auto_fullscreen">Vollbild-Textvorlauf</string>
@@ -176,6 +184,7 @@
   <string name="prefs_text_colors_menutitle">Farbeinstellungen</string>
   <string name="window_color_settings_title">Fensterfarben</string>
   <string name="workspace_color_settings_title">Voreinstellungen der Arbeitsbereichsfarben</string>
+  <string name="color_workspace">Arbeitsbereich-Farbe</string>
   <string name="color_text">Textfarbe</string>
   <string name="color_background">Hintergrundfarbe</string>
   <string name="colors_day_mode_title">Tagmodus</string>
@@ -240,18 +249,22 @@ Alle Dokumente werden verschlüsselt von den Servern übertragen (über HTTPS).<
   <string name="download_errors">Downloadfehler</string>
   <string name="failed_repositories_message">Konnte nicht mit dem folgenden Dokumentserver verbinden: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Die folgenden Dateien konnten nicht heruntergeladen werden:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Dieses Dokument kann nicht gelöscht werden</string>
   <!--Install zip file-->
-  <string name="install_zip">Lade Dokument aus Zip-Datei</string>
+  <string name="install_zip">Lade Dokumente aus Dateien</string>
   <string name="install_zip_module">Bibelmodul installieren</string>
+  <string name="install_zip_module_discrete">Installiere das Rechner-Modul</string>
   <string name="install_zip_successfull">Modul wurde erfolgreich installiert</string>
   <string name="extracting_zip_file">Das Zip-Archiv wird entpackt...</string>
   <string name="checking_zip_file">Die angegebene Datei wird überprüft...</string>
   <string name="invalid_module">Datei enthält kein SWORD Modul</string>
-  <string name="install_zip_title">Bitte warten, Zip-Datei wird geladen.</string>
+  <string name="install_zip_title">Bitte warten, Module werden aus einer Datei geladen.</string>
   <string name="overwrite_files">Die folgende Datei existiert bereits: %s Überschreiben?</string>
   <string name="overwrite_files_title">Dateien überschreiben?</string>
+  <string name="could_not_overwrite_files">Konnte Dateien %s nicht überschreiben. Abgesehen davon war die Installation erfolgreich.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leseplan</string>
+  <string name="reading_plans_plural">Lesepläne</string>
   <string name="rdg_plan_selector_title">Leseplan auswählen</string>
   <string name="rdg_plan_day">Tag %s</string>
   <string name="rdg_plan_set_start_date">Setze Startdatum...</string>
@@ -339,6 +352,8 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="label_color">Kategorienfarbe</string>
   <!--can be removed-->
   <string name="label_color_example">Beispiel</string>
+  <string name="marker_style">Zeige nur Markierung für Auswahl-Lesezeichen</string>
+  <string name="marker_style_whole_verse">Zeige nur Markierung für Lesezeichen ganzer Verse</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Sortieren nach Datum</string>
   <string name="sort_by_bible_book">Sortieren nach Buch</string>
@@ -477,16 +492,26 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="mynotes">Eigene Notizen</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sicherung &amp; Wiederherstellung</string>
-  <string name="backup_modules">Teilen oder Sichern von Dokumenten nach...</string>
-  <string name="backup_app_database">Teilen oder Sichern der App-Datenbank nach...</string>
-  <string name="backup_app">Teilen oder Sichern der App-Datei (.apk) nach...</string>
+  <string name="backup_modules2">Dokumente sichern nach...</string>
+  <string name="backup_app_database2">Sicherungsdatenbank sichern nach...</string>
+  <string name="backup_app2">Sichern der App-Datei (.apk) nach...</string>
+  <string name="backup_application">Anwendung</string>
+  <string name="backup_database">Datenbank</string>
+  <string name="backup_documents">Dokumente</string>
+  <string name="backup_application_info">Anwendungsdatei (.apk)</string>
+  <string name="backup_database_info">Lesezeichen, Labels, Notizen, Studienmappen, Lesepläne, Arbeitsbereiche etc.</string>
+  <string name="backup_document_info">Bibeln, Kommentare, Wörterbücher, Landkarten etc.</string>
+  <string name="backup_to">Sicherung auf...</string>
+  <string name="backup_restore_from">Wiederherstellen von...</string>
+  <string name="backup_restore">Wiederherstellen</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Was möchtest du wiederherstellen?</string>
   <string name="restore_app_database">Wiederherstellen der Datenbank von...</string>
   <string name="restore_database">Wiederherstellen der Datenbankdatei</string>
   <string name="restore_confirmation">Überschreiben von eigenen Notizen, Lesezeichen, Studienmappen, Leseplänen und Arbeitsräumen?</string>
-  <string name="reading_plans_plural">Lesepläne</string>
+  <string name="restore_success2">Ausgewählte Datenbankabschnitte erfolgreich wiederhergestellt</string>
   <string name="restore_success">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsbereiche erfolgreich wiederhergestellt</string>
+  <string name="downloading_backup">Sicherungsdatei wird heruntergeladen</string>
   <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
   <string name="backup_success2">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsbereiche erfolgreich gesichert</string>
   <string name="backup_modules_success">Aufgewählte Module erfolgreich gesichert</string>
@@ -495,10 +520,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="backup_email_subject_2">%s Datenbanksicherung</string>
   <string name="backup_email_message_2">Ihre %s Datenbank mit Lesezeichen, Notizen, Leseplänen und Arbeitsbereichen ist angehängt.</string>
   <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
-  <string name="backup_phone_storage">Handyspeicher</string>
-  <string name="backup_backup_title">Wohin speichern?</string>
-  <string name="backup_backup_message">Auf dem Handy speichern oder über die Teilen-Funktion woandershin (E-Mail, Google Drive, etc.)?</string>
-  <string name="backup_share">Teilen</string>
   <string name="restore_modules">Dokumente wiederherstellen von...</string>
   <string name="send_backup_file">Sende Backup</string>
   <string name="backup_modules_title">Zu sichernde Module auswählen</string>
@@ -564,6 +585,8 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="error_key_not_in_document2">%s wurde nicht in Dokumen %s gefunden.</string>
   <string name="empty_list">Nichts anzuzeigen</string>
   <string name="error_skip">Üerspringen</string>
+  <string name="bug_report_email_title">Fehlerbericht via E-Mail senden</string>
+  <string name="bug_report_email_text">Als nächstes wähle bitte deine bevorzugte E-Mail Anwendung (z.B. Gmail) aus, um den Fehlerbericht an das Entwicklerteam zu senden.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text zu Sprache</string>
   <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
@@ -645,6 +668,13 @@ Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster an
   <!--Welcome text-->
   <string name="redownload_documents">Schneller erneuter Download</string>
   <string name="welcome_message">Danke für das Herunterladen von%s. Zur Zeit sind keine Bibeln oder andere Dokumente installiert. Um fortzufahren, installiere bitte mindestens ein Dokument aus dem Internet oder aus einer Sicherungsdatei.</string>
+  <string name="supported_formats_title">Unterstützte Formate</string>
+  <string name="choose_file">Du hast die Datei ausgewählt, die du nach %s laden willst.</string>
+  <string name="supported_formats">Unterstützte Formate zum Laden von Dokumenten aus einer Datei: %s</string>
+  <string name="format_zip">Zip-Datei, die Sword-Modul(e) enthält, oder Backup-Datei (*.abmd) erstellt von %s</string>
+  <string name="format_mysword">MySword Dokumente (*.mybible)</string>
+  <string name="format_mybible">MyBible Dokumente (*.sqlite3)</string>
+  <string name="format_epub">EPUB Dokumente (*.epub)</string>
   <string name="redownload_message">
 Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um sie auf einmal wieder herunterzuladen.</string>
   <!--Uncategorized-->
@@ -672,7 +702,6 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="unlock_module">Modulpasswort festlegen</string>
   <string name="unlock_info">Information zum Entschlüsseln des Moduls</string>
   <string name="try_again_passphrase">Passwort fehlerhaft, neu probieren?</string>
-  <string name="cant_delete_last_bible">Das letzte Bibeldokument kann nicht entfernt werden</string>
   <string name="show_unlock_info">Informationen zum Modul &amp; zum Entschlüsseln</string>
   <string name="prefs_show_error_box_title">Javascript Fehlerbox anzeigen</string>
   <string name="prefs_show_error_box_summary">Nützlich für Entwickler um BibleView Javascript Fehler zu korrigieren. Das wird die App verlangsamen.</string>
@@ -692,10 +721,16 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="share_verse_menu_title">Teilen/Kopieren...</string>
   <string name="show_versenumbers">Zeige Versnummern</string>
   <string name="show_full_verses">Zeige die ganzen Verse</string>
+  <string name="show_selection_only">Nur ausgewählten Text anzeigen</string>
   <string name="advertise_app">Programm bewerben</string>
   <string name="verse_share_advertise">Geteilt mit %s.</string>
+  <string name="show_reference">Verweis anzeigen</string>
+  <string name="show_reference_at_front">Zeige am Beginn des Verses</string>
   <string name="abbreviate_reference">Querverweis abkürzen</string>
   <string name="version_name">Versionsname</string>
+  <string name="show_version_name">Versionsname inkludieren</string>
+  <string name="show_ellipsis">Auslassung anzeigen (...)</string>
+  <string name="show_quotes">Zitate anzeigen</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Zurück</string>
   <string name="upgrading_database">Datenbank wird erneuert. Bitte warten...</string>
@@ -705,9 +740,10 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="old_webview">Android WebView Paket ist zu alt ( %s ). Du must dein Android Webview Paket zumindest zu Version %s updaten um %s zu verwenden. Für die meisten Geräte geht das einfach über %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Trotzdem fortfahren</string>
+  <string name="proceed">Fortfahren</string>
   <string name="rate_title">Programm bewerten</string>
   <string name="rate_message5">
-Positive und ausführliche Bewertngen helfen dem And Bible Open Source Projekt sehr. Herzlichen Dank!</string>
+Positive und ausführliche Bewertungen helfen dem AndBible Open Source Projekt sehr. Herzlichen Dank!</string>
   <string name="rate_message6">
 Vor dem Posten einer negativen Bewertung beachte bitte Folgendes:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -748,6 +784,8 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="recent_labels">Kürzliche Kategorien</string>
   <string name="other_labels">Andere Kategorien</string>
   <string name="book_menu_sort_row_opt">Sortiere Bücher horizontal</string>
+  <string name="book_menu_group_by_category">Bücher nach Kategorie gruppieren</string>
+  <string name="book_menu_show_long_book_name">Zeige langen Buchnamen</string>
   <string name="reset_workspace_labels">Möchtest du die automatische Zuweisung und Favoriteneinstellung für diesen Arbeitsbereich auf Standardwerte zurücksetzen?</string>
   <string name="reset_hide_labels">Möchtest du die Einstellung zum Verstecken bestimmter Kategorien zurücksetzen?</string>
   <string name="reorder">Neu sortieren</string>
@@ -792,6 +830,116 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="strongs_links">Verweise</string>
   <string name="strongs_text_and_links">Text und Verweise</string>
   <string name="verse_tip">Um Versteile oder mehrere Verse zu markieren, den Bibeltext drücken und halten</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Genehmigung benötigt</string>
+  <string name="labels_search_hint">Suche</string>
+  <string name="progress_status_permission">Um Benachrichtigungen anzuzeigen (Downloadstatus, Fortschrittsanzeigen, Sprachstatus), brauchen wir deine Genehmigung</string>
+  <!--Discrete mode settings-->
+  <string name="app_name_calculator">Einfacher Taschenrechner</string>
+  <string name="prefs_persecution_cat">Einstellungen für verfolgte Geschwister</string>
+  <string name="prefs_discrete_mode">Verstecke religiöse Symbole</string>
+  <string name="prefs_discrete_mode_desc">Benenne die Anwendung in \"Taschenrechner\" um und zeige ein anderes Symbol im Startmenü</string>
+  <string name="prefs_show_calculator">Taschenrechner</string>
+  <string name="prefs_calculator_pin">Taschenrechner PIN</string>
+  <string name="prefs_calculator_pin_desc">PIN-Code, um die Anwendung zu starten während der Taschenrechner angezeigt wird.</string>
+  <string name="calc_division_by_zero">Division durch Null ist nicht gestattet</string>
+  <string name="calc_wrong_format">Falsches Format</string>
+  <string name="calc_wrong_format_operand">Falsches Format. Operand ohne Nummern?</string>
+  <string name="prefs_persecuted_help">Lies dies zuerst!</string>
+  <string name="prefs_persecuted_summary">Anleitungen für die Einstellungen und Informationen über die spezifische Version der versteckten Anwendung</string>
+  <string name="calculator_par1">
+Bevor die Anwenung startet, wird der Taschenrechner angezeigt
+</string>
+  <string name="calculator_par2">Damit kannst du einfache Rechnungen durchführen; wenn du die Bibelanwendung starten willst,
+gib einfach deinen PIN-Code ein (Standard ist 1234) und drücke danach den \"=\" Knopf.
+</string>
+  <string name="calculator_par3">
+Du kannst einen eigenen PIN-Code in den Einstellungen unter \"Taschenrechner PIN\" setzen.
+</string>
+  <string name="discrete_mode_info_par1">
+Du verwendest immer noch die normale Anwendungsversion. Das bedeutet, es ist immer noch mögllich,
+den echten Namen und das Anwendungssymbol in der Anwendungsinfo zu sehen.
+</string>
+  <string name="discrete_mode_info_par2">Für größere Sicherheit in einem Land mit Verfolgung empfehlen wir sehr, die versteckte Version der Anwendung zu verwenden. Diese wird immer als Taschenrechner angezeigt, sogar wenn Anwendungsdaten gelöscht werden.</string>
+  <string name="discrete_mode_link">Du kannst die neueste Version der verstecken Version von %s herunterladen.</string>
+  <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Gruppe abgleichen</string>
+  <string name="sync_group_n">Gruppe %d</string>
+  <string name="disable_sync">Synchronisation abschalten</string>
+  <string name="open_in_window">Ergebnisse in einem Fenster öffnen</string>
+  <!--Custom repositories-->
+  <string name="custom_repositories">Benutzerdefinierte Quellen</string>
+  <string name="custom_repositories_empty_list_message">Keine benutzerdefinierten Quellen festgelegt</string>
+  <string name="custom_repositories_create_button_label">Benutzerdefinierte Quelle hinzufügen</string>
+  <string name="custom_repositories_info_button_label">Information</string>
+  <string name="name_for_repository">Name der Quelle</string>
+  <string name="repository_specification">URL der Quelle</string>
+  <string name="delete_custom_repository">Möchtest du die benutzerdefinierte Quelle %s entfernen?</string>
+  <string name="invalid_repository_not_saved">Quellenangabe ungültig. Es wurde nichts gespeichert.</string>
+  <string name="custom_repositories_help1">Um eine neue benutzerdefinierte Quelle anzulegen, gib die URL der Quelle hier ein.</string>
+  <string name="custom_repositories_help2">Du kannst in %s mehr über benutzerdefinierte Quellen nachlesen.</string>
+  <string name="wiki_page">WIKI Seite</string>
+  <string name="custom_repositories_help0">Du kannst Dokumente von externen benutzerdefinierten Quellen installieren, indem du sie hier anlegst.</string>
+  <string name="duplicate_custom_repository">Quellverzeichnis mit Namen %s existiert bereits, es kann kein anderes angelegt werden.</string>
+  <string name="packages_dir">Paketverzeichnis (ZIP-Dateien)</string>
+  <string name="warn_bad_document">Achtung: dieses Dokument könnte (zumindest teilweise) schlechter Qualität sein.</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Verknüpfungen von Bibelstellen in Bibel+ öffnen</string>
+  <string name="open_bible_links_summary">Wenn Internetlinks angeklickt werden, die von Bibel+ unterstützt werden, diese in Bibel+ öffnen</string>
+  <string name="copyReference">Verknüpfung in die Zwischenablage kopieren</string>
+  <string name="reference_copied_to_clipboard">Verweis wurde in die Zwischenablage kopiert</string>
+  <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+Wähle, welchen Internetservice du für die Synchronisation zwischen verschiedenen Geräten verwenden möchtest.</string>
+  <string name="prefs_sync_introduction_summary2">
+Wenn Google Drive verwendet wird, hat %s nur Zugriff auf Dateien der Anwendung, keine persönlichen Daten.</string>
+  <string name="restore_backup_sections">Welche Teile der Sicherung möchtest du wiederherstellen?</string>
+  <string name="db_repositories">Quellverzeichnisse und verwandte Einstellungen</string>
+  <string name="db_bookmarks">Lesezeichen, eigene Notizen, Labels und Studienmappen</string>
+  <string name="synchronizing">Synchronisiere...</string>
+  <string name="overrideBackup">
+Eine existierende Datenbank mit der dieses Gerät nicht abgeglichen wird, wurde in der Cloud gefunden.
+Die Datenbank enthält %s. Was möchtest du tun?</string>
+  <string name="reading_plans_content">Lesepläne und ihr Stand</string>
+  <string name="bookmarks_contents">Lesezeichen, Labels und Studienmappen</string>
+  <string name="workspaces_contents">Arbeitsumgebungen und Fenster</string>
+  <string name="cloud_fetch_and_restore_initial">Kopiere von der Cloud auf dieses Gerät</string>
+  <string name="cloud_create_new">Kopiere von diesem Gerät in die Cloud</string>
+  <string name="cloud_disable_sync">Abbrechen &amp; Synchronisation ausschalten</string>
+  <string name="cloud_sync_title">Gerätesynchronisation</string>
+  <string name="reset_sync">Abmelden</string>
+  <string name="prefs_reset_sync_summary">Synchronisation abschalten und zugehörige Einstellungen zurücksetzen</string>
+  <string name="sync_confirmation">Bist du sicher, dass du dich abmelden und die Synchronisierung zurücksetzen möchtest?</string>
+  <string name="cloud_info">Information der Cloud</string>
+  <string name="cloud_info_summary">In der Cloud gespeicherte Daten: %s Mb</string>
+  <string name="sync_adapter">Synchronisierungsbackend</string>
+  <string name="sync_adapter_summary">Zur Zeit: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">Authentifizierung für %s</string>
+  <string name="auth_username">Benutzer</string>
+  <string name="auth_password">Passwort</string>
+  <string name="auth_access_token">Access token</string>
+  <string name="synchronization_categories">Synchronisationskategorien</string>
+  <string name="sync_general_settings">Info &amp; allgemeine Einstellungen</string>
+  <string name="sync_introduction">Einführung</string>
+  <string name="are_you_sure">Bist du sicher?</string>
+  <string name="are_you_sure_reset_local">Das wird deine lokale Datenbank für %s mit den Inhalten ersetzen, die zur Zeit in der Cloud gespeichert sind.</string>
+  <string name="are_you_sure_reset_cloud">Das wird deine Datenbank in der Cloud für %s mit den Inhalten ersetzen, die auf deinem lokalen Gerät gespeichert sind.</string>
+  <string name="sync_cant_fetch">Die in der Cloud gespeicherte Datenbankversion ist höher, als die Anwendung auf dem lokalen Gerät unterstützt.</string>
+  <string name="sync_disabling">Deaktiviere die Synchronisation für %svorerst.</string>
+  <string name="sign_in_failed">Die Anmeldung zum Internetservice der Synchronisation ist fehlgeschlagen.</string>
+  <string name="disabling_sync">Deaktiviere die Synchronisation mit der Cloud. Du musst sie nach der Wiederherstellung händisch reaktivieren.</string>
+  <string name="report">Bericht</string>
+  <string name="sync_error">Fehler bei der Synchronisation mit der Cloud</string>
+  <string name="error_notification_channel_name">Fehlermeldungen</string>
+  <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Datei kann nicht gelesen werden</string>
+  <string name="sqlite_invalid_file">Ungültige Moduldatei oder Dateiname: %s</string>
+  <string name="sqlite_cant_write">Datei konnte nicht überschrieben werden</string>
+  <string name="install_failed_reason">Die Modulinstallation ist aus folgendem Grund fehlgeschlagen: %s</string>
+  <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Die Anwendung ist woanders geöffnet</string>
+  <string name="open_here">Hier öffnen</string>
+  <string name="external_link">Externe Verknüpfung</string>
+  <string name="external_link_question">Das wird die externe Verknüpfung %s in einem Browserfenster öffnen, möchtest du fortfahren?</string>
 </resources>

@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Bible Study</string>
-  <string name="app_name_medium">Bible Study (And Bible)</string>
   <string name="app_name_long">AndBible: la Bible</string>
-  <string name="project">Projet Open source And Bible</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer l\'application.</string>
   <!--Main menu-->
@@ -238,17 +236,16 @@ Tous les téléchargements à partir des dépôts de modules sont cryptés (HTTP
   <string name="failed_repositories_message">Impossible de se connecter aux dépôts de documents suivants : \n\n %s\n\n</string>
   <string name="failed_downloads_message">Les fichiers suivants n\'ont pas pu être téléchargés :\n\n %s \n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Charger un document au format Zip</string>
   <string name="install_zip_module">Installe un module de Bible</string>
   <string name="install_zip_successfull">Le module a été installé avec succès</string>
   <string name="extracting_zip_file">Extraire le fichier Zip maintenant…</string>
   <string name="checking_zip_file">Vérification du fichier donné…</string>
   <string name="invalid_module">Le fichier ne contient pas de module Sword valide</string>
-  <string name="install_zip_title">Chargement du fichier Zip. Merci de patienter.</string>
   <string name="overwrite_files">Les fichiers suivants existent déjà : %s Les écraser ?</string>
   <string name="overwrite_files_title">Écraser les fichiers ?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lecture</string>
+  <string name="reading_plans_plural">Plans de lecture</string>
   <string name="rdg_plan_selector_title">Choix d\'un plan de lecture</string>
   <string name="rdg_plan_day">Jour %s</string>
   <string name="rdg_plan_set_start_date">Définir la date de début…</string>
@@ -485,15 +482,15 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="mynotes">Mes notes</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
-  <string name="backup_modules">Partager ou sauvegarde les documents vers...</string>
-  <string name="backup_app_database">Partager ou sauvegarde la base de données de l\'application vers…</string>
-  <string name="backup_app">Partagez ou sauvegardez l\'application (fichier .apk) sur…</string>
+  <string name="backup_modules2">Sauvegarde les documents vers...</string>
+  <string name="backup_to">Sauvegarder vers...</string>
+  <string name="backup_restore_from">Restaurer de...</string>
+  <string name="backup_restore">Restaurer</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Que voulez-vous restaurer ?</string>
   <string name="restore_app_database">Restaurer la base de données de l\'application depuis…</string>
   <string name="restore_database">Restaurer le fichier de base de données</string>
   <string name="restore_confirmation">Écraser mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ?</string>
-  <string name="reading_plans_plural">Plans de lecture</string>
   <string name="restore_success">Mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ont été restaurés avec succès.</string>
   <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
   <string name="backup_success2">Mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ont été sauvegardés avec succès.</string>
@@ -504,10 +501,6 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="backup_email_message_2">Votre base de données %s contenant des signets, des notes, des plans de lecture et des espaces de travail est jointe</string>
   <string name="restore_unsuccessfull">La restauration de la base de données a échoué.
 Le fichier est peut-être invalide.</string>
-  <string name="backup_phone_storage">Stockage de téléphone</string>
-  <string name="backup_backup_title">Vers où sauvegarder ?</string>
-  <string name="backup_backup_message">Sauvegarder sur le téléphone ou ailleurs via la fonction Partager (courriel, Google Drive, etc.) ?</string>
-  <string name="backup_share">Partager</string>
   <string name="restore_modules">Restaurer les documents depuis…</string>
   <string name="send_backup_file">Soumettre un fichier de sauvegarde</string>
   <string name="backup_modules_title">Sélectionner quels modules sauvergarder</string>
@@ -697,7 +690,6 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="unlock_module">Définir la phrase de passe du module</string>
   <string name="unlock_info">Infos de déverrouillage du module crypté</string>
   <string name="try_again_passphrase">La phrase de passe n\'a pas fonctionné, essayez à nouveau ?</string>
-  <string name="cant_delete_last_bible">Impossible de supprimer le dernier document biblique</string>
   <string name="show_unlock_info">Module et info de déverrouillage</string>
   <string name="prefs_show_error_box_title">Afficher la boîte d\'erreur Javascript</string>
   <string name="prefs_show_error_box_summary">Utile pour les développeurs lors du débogage des erreurs javascript de BibleView. Cela rendra l\'application plus lente.</string>
@@ -731,9 +723,6 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Accéder malgré tout</string>
   <string name="rate_title">Évaluation et révision de l\'application</string>
-  <string name="rate_message5">
-         Les critiques positives et détaillées aident beaucoup le projet à code source ouvert And Bible. Merci !
-    </string>
   <string name="rate_message6">
      Avant d\'examiner un avis négatif, veuillez prendre en compte les éléments suivants :
     </string>
@@ -824,5 +813,13 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="added_to_bookmark">Assigner à ce signet</string>
   <string name="strongs_links">Liens</string>
   <string name="verse_tip">Pour sélectionner un ou plusieurs versets, vous pouvez appuyer longuement sur le texte biblique.</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="labels_search_hint">Rechercher</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Information</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

@@ -1,11 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">לימוד הכתובים</string>
-  <string name="app_name_medium">לימוד הכתובים (And Bible)</string>
   <string name="app_name_long">לתנ\"ך, :AndBible
 
 </string>
-  <string name="project">פרוייק הקוד הפתוח And Bible</string>
   <string name="version_text">גרסה %s</string>
   <string name="no_sdcard_error">אנא הכנס כרטיס זכרון והפעל מחדש את המכשיר</string>
   <!--Main menu-->
@@ -241,17 +239,16 @@
   <string name="failed_repositories_message">נכשלה ההתחברות אל שרת המסמכים הבא: \n\n%s\n\n</string>
   <string name="failed_downloads_message">לא ניתן להוריד את הקבצים:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">טען מסמך מקובץ ZIP</string>
   <string name="install_zip_module">התקנת מודולים של טקסטים מקראיים</string>
   <string name="install_zip_successfull">המודול הותקן בהצלחה</string>
   <string name="extracting_zip_file">פורש קובץ ZIP כעת....</string>
   <string name="checking_zip_file">בדיקת הקובץ מתבצעת....</string>
   <string name="invalid_module">הקובץ אינו מכיל מודול SWORD תקין</string>
-  <string name="install_zip_title">אנא המתן. קובץ ZIP בטעינה</string>
   <string name="overwrite_files">הקבצים הבאים כבר קיימים: %s האם לדרוס?</string>
   <string name="overwrite_files_title">האם לדרוס את הקבצים?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">תוכנית קריאה</string>
+  <string name="reading_plans_plural">תוכניות קריאה</string>
   <string name="rdg_plan_selector_title">בחר תוכנית קריאה</string>
   <string name="rdg_plan_day">יום %s</string>
   <string name="rdg_plan_set_start_date">הגדרת תאריך התחלה....</string>
@@ -488,15 +485,13 @@
   <string name="mynotes">הערות אישיות</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">גיבוי ושחזור</string>
-  <string name="backup_modules">שיתוף או גיבוי של מסמכים אל...</string>
-  <string name="backup_app_database">שיתוף או גיבוי של מסד נתוני היישום אל...</string>
-  <string name="backup_app">שתף או גבה את היישום (קובץ ‎.apk) אל...</string>
+  <string name="backup_modules2">גיבוי מסמכים ל....</string>
+  <string name="backup_restore">שחזור</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">מה לשחזר?</string>
   <string name="restore_app_database">שחזר את מסד נתוני היישום מתוך...</string>
   <string name="restore_database">שחזור קובץ מסד נתונים</string>
   <string name="restore_confirmation">שחזור ידרוס את כל הנתונים הבאים: הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה, מסכי עבודה. האם לשחזר?</string>
-  <string name="reading_plans_plural">תוכניות קריאה</string>
   <string name="restore_success">הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה ומסכי עבודה שוחזרו בהצלחה.</string>
   <string name="loading_backup">טוען נתונים מהגיבוי....</string>
   <string name="backup_success2">הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה ומסכי עבודה גובו בהצלחה.</string>
@@ -506,10 +501,6 @@
   <string name="backup_email_subject_2">%s גיבוי מסד נתונים</string>
   <string name="backup_email_message_2">מסד הנתונים %s שלך המכיל סימניות, הערות, תוכניות קריאה וסביבות עבודה מצורף.</string>
   <string name="restore_unsuccessfull">שחזור הגיבוי נכשל. ייתכן שקובץ הגיבוי פגום.</string>
-  <string name="backup_phone_storage">אחסון המכשיר</string>
-  <string name="backup_backup_title">היכן לגבות?</string>
-  <string name="backup_backup_message">גיבוי לזכרון המכשיר או באמצעות שיתוף (אימייל, Google Drive ועוד) ?</string>
-  <string name="backup_share">שתף</string>
   <string name="restore_modules">שחזור מסמכים מ....</string>
   <string name="send_backup_file">שליחת קובץ גיבוי</string>
   <string name="backup_modules_title">בחירת מודולים לגיבוי</string>
@@ -680,7 +671,6 @@
   <string name="unlock_module">קביעת סיסמה למסמך</string>
   <string name="unlock_info">מידע לפתיחת מסמך מוצפן</string>
   <string name="try_again_passphrase">הסיסמה לא עבדה, לנסות שוב?</string>
-  <string name="cant_delete_last_bible">אי אפשר למחוק את מסמך התנ\"ך האחרון שנשאר מותקן.</string>
   <string name="show_unlock_info">מידע על פתיחת מסמך</string>
   <string name="prefs_show_error_box_title">הצג תיבת שגיאות ג\'אווהסקריפט</string>
   <string name="prefs_show_error_box_summary">שימושי למפתחים לפענוח שגיאות ג\'אווהסקריפט. גורם ליישום לפעול יותר לאט.</string>
@@ -714,8 +704,6 @@
   <string name="play">חנות גוגל</string>
   <string name="proceed_anyway">המשך בכל זאת</string>
   <string name="rate_title">דירוג וביקורת האפליקציה</string>
-  <string name="rate_message5">
-סקירות חיוביות ומפורטות עוזרות מאוד לפרוייקט הקוד הפתוח And Bible. תודה!</string>
   <string name="rate_message6">
 בטרם תכתבו סקירה שלילית, אנא שקלו את הדברים הבאים:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -799,6 +787,14 @@
   <string name="strongs_links">קישורים</string>
   <string name="strongs_text_and_links">טקסט וקישורים</string>
   <string name="verse_tip">ניתן ללחוץ לחיצה ארוכה כדי לבחור חלק של פסוק או מספר פסוקים</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">נדרשת הרשאה</string>
+  <string name="labels_search_hint">חיפוש</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">מידע</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

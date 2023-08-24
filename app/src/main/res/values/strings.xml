@@ -441,6 +441,14 @@
     <string name="label_color_example">Example</string>
     <string name="marker_style">Show only marker for selection bookmarks</string>
     <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
+    <string name="hide_style">Hide for selection bookmarks</string>
+    <string name="hide_style_whole_verse">Hide for whole verse bookmarks</string>
+    <string name="bookmark_warning">There are bookmarks and/or notes for this document.</string>
+    <string name="bookmark_warning2">
+        If document structure has changed, updating this document could make
+        the locations of these bookmarks/notes move inside the document or disappear completely.
+    </string>
+    <string name="bookmark_warning3">Do you still want to update module?</string>
 
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>
@@ -1143,6 +1151,8 @@
     <string name="report">Report</string>
     <string name="sync_error">Error occurred in Cloud synchronization</string>
     <string name="error_notification_channel_name">Error notifications</string>
+    <string name="restore_from_cloud_description">If you have Device Synchronization enabled in another device, you can start by restoring database from Cloud.</string>
+    <string name="enable_sync">Enable synchronization</string>
 
     <!-- MyBible/MySword module support -->
     <string name="sqlite_cant_read">Can not read the file</string>
@@ -1155,9 +1165,10 @@
     <string name="open_here">Open here</string>
     <string name="external_link">External link</string>
     <string name="external_link_question">This will open external link %s in an browser application, do you wish to continue?</string>
-    <string name="nameless">Name undefined</string>
+    <string name="nameless">Title not defined</string>
     <string name="prefs_in_window_bible_bookmark_modal_buttons_title">One-tap actions (Bibles)</string>
     <string name="prefs_in_window_gen_bookmark_modal_buttons_title">One-tap actions (Other)</string>
     <string name="prefs_in_window_bookmark_modal_buttons_description">When a text is tapped, one-tap action window is shown. Which action buttons should be shown?</string>
     <string name="processing_epub">Processing EPUB: %s</string>
+    <string name="buy_development">Buy development work</string>
 </resources>

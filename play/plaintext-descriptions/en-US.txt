@@ -27,6 +27,7 @@ Let’s make the best Bible app together!
 AndBible is an open-source community project. In practice, this means that anyone with suitable skills can, and is encouraged to, contribute to the project by:
 
  * developing new features,
+ * by buying development time for AndBible: https://andbible.org/buy
  * testing not-yet-released features,
  * keeping user interface translations up-to-date, and
  * helping to extend the module library by obtaining permissions from copyright holders, or by converting documents to SWORD format.
@@ -35,7 +36,7 @@ If you are a professional software engineer or tester, please consider contribut
 
 Links
 
- * Homepage: https://andbible.github.io
+ * Homepage: https://andbible.org
  * Like AndBible on Facebook: https://www.facebook.com/AndBible/
  * Our Youtube Channel: https://www.youtube.com/c/AndBible
  * Frequently Asked Questions: https://git.io/JJm8E

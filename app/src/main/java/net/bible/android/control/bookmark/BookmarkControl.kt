@@ -89,6 +89,9 @@ open class BookmarkControl @Inject constructor(
     init {
         ABEventBus.register(this)
     }
+
+    val favouriteLabels: List<Label> get() = dao.favouriteLabels()
+
     // Dummy labels for all / unlabelled
     private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
 

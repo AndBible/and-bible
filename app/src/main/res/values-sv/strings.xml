@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Bibelstudier</string>
-  <string name="app_name_medium">Bibelstudier (Och Bibeln)</string>
   <string name="app_name_long">AndBible: Bible Study</string>
-  <string name="project">And Bible Open Source Project</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Vänligen mata in ett SD-kort och starta om appen.</string>
   <!--Main menu-->
@@ -238,17 +236,16 @@ Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="failed_repositories_message">Kunde inte ansluta till följande dokumentserver: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Följande filer kunde inte laddas ner:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Lägg in bok från zip-fil</string>
   <string name="install_zip_module">Installera Bibelmodul</string>
   <string name="install_zip_successfull">Modulen installerades utan problem</string>
   <string name="extracting_zip_file">Packar upp Zip filen...</string>
   <string name="checking_zip_file">Kontrollerar angiven fil...</string>
   <string name="invalid_module">Filen innehåller inte en giltig SWORD-modul</string>
-  <string name="install_zip_title">Var god vänta. Laddar Zip filen.</string>
   <string name="overwrite_files">Följande filer finns redan: %s, Vill du skriva över?  </string>
   <string name="overwrite_files_title">Skriva över filer?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Läsningsplan</string>
+  <string name="reading_plans_plural">Läsplaner</string>
   <string name="rdg_plan_selector_title">Välj en läsningsplan</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Välj startdatum...</string>
@@ -397,17 +394,11 @@ i GT och NT varje dag.
   <!--User Notes-->
   <string name="mynotes">Anteckningar</string>
   <!--Backup and restore-->
-  <string name="backup_modules">Dela eller Säkerhetskopiera dokument till...</string>
-  <string name="backup_app_database">Dela eller Säkerhetskopiera app databasen till...</string>
-  <string name="backup_app">Dela eller Säkerhetskopiera appen (.apk fil) till...</string>
+  <string name="backup_restore">Återställ</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Vill du återställa?</string>
   <string name="restore_app_database">Återställ appdatabasen från...</string>
   <string name="restore_database">Återställ Databasfilen</string>
-  <string name="reading_plans_plural">Läsplaner</string>
-  <string name="backup_phone_storage">Telefon laging</string>
-  <string name="backup_backup_title">Var vill du Säkerhetskopiera?</string>
-  <string name="backup_share">Dela</string>
   <string name="restore_modules">Återställ dokumenten från...</string>
   <string name="send_backup_file">Skicka en säkerhetskopieringsfil</string>
   <string name="backup_modules_title">Välj vilken modul att säkerhetskopiera</string>
@@ -521,7 +512,6 @@ i GT och NT varje dag.
   <string name="unlocking_failed">Upplåsning misslyckades, ogiltigt lösenordsfras</string>
   <string name="unlock_info">Krypterad modul upplåsningsinformation</string>
   <string name="try_again_passphrase">Lösenordsfras funderade inte, försök igen?</string>
-  <string name="cant_delete_last_bible">Kan inte radera senaste Bibel dokumentet</string>
   <string name="prefs_show_error_box_title">Visa Javascript error box</string>
   <string name="active_window_indicator_title">Visa aktiv fönsterindekator</string>
   <string name="app_licence_title">Öppen källkod licens</string>
@@ -597,6 +587,14 @@ vänligen rapportera problemen till text ansvariga
   <string name="strongs_off">Stäng av</string>
   <string name="strongs_links">Länkar</string>
   <string name="strongs_text_and_links">Text och Länkar</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Rättigheter behövs</string>
+  <string name="labels_search_hint">Sök</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Information</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

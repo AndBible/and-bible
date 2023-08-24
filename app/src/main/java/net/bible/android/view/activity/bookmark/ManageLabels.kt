@@ -89,7 +89,6 @@ val json = Json {
 fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.ManageLabelsData) {
     Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
     autoAssignLabels = resultData.autoAssignLabels
-    favouriteLabels = resultData.favouriteLabels
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
     ABEventBus.post(AppSettingsUpdated())
 }
@@ -191,7 +190,6 @@ class ManageLabels : ListActivityBase() {
         val mode: Mode,
         val selectedLabels: MutableSet<IdType> = mutableSetOf(),
         val autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
-        val favouriteLabels: MutableSet<IdType> = mutableSetOf(),
         val deletedLabels: MutableSet<IdType> = mutableSetOf(),
         val changedLabels: MutableSet<IdType> = mutableSetOf(),
 
@@ -242,7 +240,6 @@ class ManageLabels : ListActivityBase() {
         fun toJSON(): String = json.encodeToString(serializer(), this)
         fun applyFrom(workspaceSettings: WorkspaceEntities.WorkspaceSettings?): ManageLabelsData {
             workspaceSettings?: return this
-            favouriteLabels.addAll(workspaceSettings.favouriteLabels)
             autoAssignLabels.addAll(workspaceSettings.autoAssignLabels)
             autoAssignPrimaryLabel = workspaceSettings.autoAssignPrimaryLabel
             return this
@@ -455,7 +452,6 @@ class ManageLabels : ListActivityBase() {
         data.deletedLabels.add(label.id)
         data.selectedLabels.remove(label.id)
         data.autoAssignLabels.remove(label.id)
-        data.favouriteLabels.remove(label.id)
         data.changedLabels.remove(label.id)
         allLabels.myRemoveIf { it.id == label.id }
 
@@ -472,7 +468,6 @@ class ManageLabels : ListActivityBase() {
             isAssigning = data.mode == Mode.ASSIGN,
             label = label,
             isAutoAssign = data.autoAssignLabels.contains(label.id),
-            isFavourite = data.favouriteLabels.contains(label.id),
             isAutoAssignPrimary = data.autoAssignPrimaryLabel == label.id,
             isThisBookmarkPrimary = data.bookmarkPrimaryLabel == label.id,
             isThisBookmarkSelected = data.selectedLabels.contains(label.id)
@@ -517,11 +512,6 @@ class ManageLabels : ListActivityBase() {
                         data.autoAssignLabels.add(label.id)
                     } else {
                         data.autoAssignLabels.remove(label.id)
-                    }
-                    if (newLabelData.isFavourite) {
-                        data.favouriteLabels.add(label.id)
-                    } else {
-                        data.favouriteLabels.remove(label.id)
                     }
                     if (newLabelData.isAutoAssignPrimary) {
                         data.autoAssignPrimaryLabel = label.id
@@ -582,7 +572,7 @@ class ManageLabels : ListActivityBase() {
             val oldLabel = it.id
             it.id = bookmarkControl.insertOrUpdateLabel(it).id
             it.new = false
-            for(list in listOf(data.selectedLabels, data.autoAssignLabels, data.changedLabels, data.favouriteLabels)) {
+            for(list in listOf(data.selectedLabels, data.autoAssignLabels, data.changedLabels)) {
                 if(list.contains(oldLabel)) {
                     list.remove(oldLabel)
                     list.add(it.id)

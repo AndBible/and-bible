@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">성경 공부</string>
-  <string name="app_name_medium">성경 공부 (And Bible)</string>
   <string name="app_name_long">AndBible: 성경 공부</string>
-  <string name="project">And Bible 오픈 소스 프로젝트</string>
   <string name="version_text">버전 %s</string>
   <string name="no_sdcard_error">SD 카드를 넣고 어플리케이션을 다시 시작하세요.</string>
   <!--Main menu-->
@@ -238,17 +236,16 @@
   <string name="failed_repositories_message">다음 서버에 연결하지 못했습니다: \n\n%s\n\n</string>
   <string name="failed_downloads_message">다음 파일들을 다운로드하지 못했습니다:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">zip 파일에서 문서 가져오기</string>
   <string name="install_zip_module">성경 모듈 설치</string>
   <string name="install_zip_successfull">문서 설치 성공</string>
   <string name="extracting_zip_file">zip 파일을 푸는 중…</string>
   <string name="checking_zip_file">파일 검사 중…</string>
   <string name="invalid_module">유효한 Sword 모듈이 포함되지 않은 파일</string>
-  <string name="install_zip_title">기다려 주세요. zip 파일을 읽고 있습니다.</string>
   <string name="overwrite_files">이 파일은 이미 있습니다: %s 덮어쓸까요?</string>
   <string name="overwrite_files_title">파일을 덮어쓸까요?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">읽기 계획</string>
+  <string name="reading_plans_plural">읽기 계획</string>
   <string name="rdg_plan_selector_title">읽기 계획을 선택</string>
   <string name="rdg_plan_day">일 %s</string>
   <string name="rdg_plan_set_start_date">시작일 설정…</string>
@@ -482,15 +479,12 @@
   <string name="mynotes">내 참고들</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">백업과 복원</string>
-  <string name="backup_modules">문서를 다음으로 공유 또는 백업...</string>
-  <string name="backup_app_database">앱 데이터베이스를 다음으로 공유 또는 백업...</string>
-  <string name="backup_app">앱 (.apk 파일)을 다음으로 공유 또는 백업...</string>
+  <string name="backup_restore">복원</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">무엇을 복원할까요?</string>
   <string name="restore_app_database">앱 데이터베이스를 다음에서 복원...</string>
   <string name="restore_database">데이터베이스 파일 복원</string>
   <string name="restore_confirmation">내 노트, 북마크, 스터디 패드, 읽기 계획, 워크플레이스를 덮어쓸까요?</string>
-  <string name="reading_plans_plural">읽기 계획</string>
   <string name="restore_success">내 노트, 북마크, 스터디 패드, 읽기 계획, 워크플레이스 복원 성공</string>
   <string name="loading_backup">백업에서 데이터베이스 읽는 중...</string>
   <string name="backup_success2">내 노트, 북마크, 스터디 패드, 읽기 계획과 워크스페이스를 성공적으로 백업하였습니다.</string>
@@ -500,10 +494,6 @@
   <string name="backup_email_subject_2">%s 데이터베이스 백업</string>
   <string name="backup_email_message_2">북마크, 노트, 읽기 계획, 그리고 워크스페이스를 포함하는 %s 데이터베이스를 첨부하였습니다</string>
   <string name="restore_unsuccessfull">데이터 복원이 실파했습니다. 아마 잘못된 데이터베이스 파일을 선택한 것 같습니다.</string>
-  <string name="backup_phone_storage">폰 저장소</string>
-  <string name="backup_backup_title">어디에 백업할까요?</string>
-  <string name="backup_backup_message">전화기에 백업할까요 아니면 공유 기능을 이용해 다른 곳(이메일, 구글 드라이브 등)에 백업할까요?</string>
-  <string name="backup_share">공유</string>
   <string name="restore_modules">다음에서 문서 복원...</string>
   <string name="send_backup_file">백업 파일 보내기</string>
   <string name="backup_modules_title">어떤 모듈을 백업할지 선택</string>
@@ -656,9 +646,6 @@
   <string name="play">Google Play</string>
   <string name="proceed_anyway">그냥 계속 진행</string>
   <string name="rate_title">앱 평가 및 리뷰하기</string>
-  <string name="rate_message5">
-        긍정적이고 구체적인 리뷰를 올려 주시면 And Bible 오픈소스 프로젝트에 큰 도움이 됩니다. 감사합니다!
-    </string>
   <string name="rate_message6">
         혹시나 부정적인 리뷰를 작성하시려거든, 그 전에 다음 사항들을 확인해 주세요.
     </string>
@@ -697,5 +684,13 @@
   <string name="questions_title2">도움이 필요하신가요?</string>
   <string name="strongs_links">링크</string>
   <string name="verse_tip">절의 일부나 여러 절을 선택하려면, 성경 본문을 길게 누릅니다</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="labels_search_hint">검색</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">정보</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

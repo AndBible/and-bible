@@ -46,7 +46,7 @@ feature_13: >
   Študijné zložky pre pridávanie poznámok a referencií na Bibliu pri počúvaní kázní.
 subtitle_3: Urobme spolu najlepšiu aplikáciu pre Bibliu!
 paragraph_3_1: >
-  A Biblia je komunitný projekt s otvoreným zdrojovým kódom. V praxi to znamená, že ktokoľvek s vhodnými zručnosťami môže a je povzbudzovaný, aby prispel k projektu tým, že:
+  AndBible je komunitný projekt s otvoreným kódom. V praxi to znamená, že ktokoľvek s vhodnými zručnosťami môže prispieť (povzbudzujeme k tomu) k projektu:
 contr_1: vyvinie nové vlastnosti/funkcie
 contr_2: "testovaním ešte nezverejnených vlastností,"
 contr_3: "udržiavaním aktuálneho prekladu používateľského rozhrania, a"
@@ -57,8 +57,8 @@ subtitle_4: Odkazy
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 link_1: >
   Domovská stránka: {{homepage_url}}
-link_2: >2
-   And Bible na Facebooku: {{facebook_url}}
+link_2: >
+  Like AndBible na Facebook-u: {{facebook_url}}
 link_3: >
   Náš Youtube kanál: {{youtube_url}}
 link_4: >

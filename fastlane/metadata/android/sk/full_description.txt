@@ -24,9 +24,10 @@ Aplikácia má mnoho podnetných a originálnych funkcií, vďaka ktorým je kom
 
 <b>Urobme spolu najlepšiu aplikáciu pre Bibliu!</b>
 
-A Biblia je komunitný projekt s otvoreným zdrojovým kódom. V praxi to znamená, že ktokoľvek s vhodnými zručnosťami môže a je povzbudzovaný, aby prispel k projektu tým, že:
+AndBible je komunitný projekt s otvoreným kódom. V praxi to znamená, že ktokoľvek s vhodnými zručnosťami môže prispieť (povzbudzujeme k tomu) k projektu:
 
  * vyvinie nové vlastnosti/funkcie
+ * : https://andbible.org/buy
  * testovaním ešte nezverejnených vlastností,
  * udržiavaním aktuálneho prekladu používateľského rozhrania, a
  * pomocou pri rozširovaní knižnice modulov získavaním povolení od držiteľov autorských práv alebo konvertovaní dokumentov do formátu SWORD.
@@ -35,8 +36,8 @@ Ak ste profesionálny softvérový inžinier alebo tester, zvážte zapojenie sa
 
 <b>Odkazy</b>
 
- * Domovská stránka: https://andbible.github.io
- * And Bible na Facebooku: https://www.facebook.com/AndBible/
+ * Domovská stránka: https://andbible.org
+ * Like AndBible na Facebook-u: https://www.facebook.com/AndBible/
  * Náš Youtube kanál: https://www.youtube.com/c/AndBible
  * Často kladené otázky: https://git.io/JJm8E
  * Projekt na Githube: https://github.com/AndBible/and-bible

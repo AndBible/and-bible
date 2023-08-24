@@ -914,9 +914,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     BookName.setFullBookName(oldValue)
                 }
             }
-        } catch (e: KeyIsNull) {
-            Log.e(TAG, "Key is null, not updating", e)
-        }
+        } catch (_: KeyIsNull) {}
         binding.documentTitle.text = documentTitleText
         updateStrongsButton()
     }

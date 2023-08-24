@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">دراسة الكتاب المقدس</string>
-  <string name="app_name_medium">دراسة الكتاب المقدس (AndBible)</string>
   <string name="app_name_long">دراسة الكتاب المقدس :AndBible</string>
-  <string name="project">And Bible تطبيق مفتوح المصدر</string>
   <string name="version_text">إصدار %s</string>
   <string name="no_sdcard_error">برجاء وضع شريحة الذاكرة وإعادة تشغيل التطبيق.</string>
   <!--Main menu-->
@@ -242,17 +240,16 @@
   <string name="failed_repositories_message">تعذر الاتصال بخادم المستندات التالي: \n\n%s\n\n</string>
   <string name="failed_downloads_message">تعذر تحميل الملفات التالية:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">تحميل مستند من Zip</string>
   <string name="install_zip_module">تثبيت وحدة الكتاب المقدس</string>
   <string name="install_zip_successfull">تم تثبيت الوحدة النمطية بنجاح</string>
   <string name="extracting_zip_file">جارٍ فك الضغط الآن...</string>
   <string name="checking_zip_file">جارٍ فحص الملف المحدد...</string>
   <string name="invalid_module">لا يحتوي الملف على وحدة SWORD نمطية صالحة</string>
-  <string name="install_zip_title">برجاء الانتظار. جارٍ تحميل الملف المضغوط.</string>
   <string name="overwrite_files">الملفات التالية موجودة بالفعل: %s هل تريد الكتابة فوقها؟</string>
   <string name="overwrite_files_title">الكتابة فوق الملفات؟</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">خطة القراءة</string>
+  <string name="reading_plans_plural">خطط القراءة</string>
   <string name="rdg_plan_selector_title">اختيار خطة القراءة</string>
   <string name="rdg_plan_day">يوم %s</string>
   <string name="rdg_plan_set_start_date">تعيين تاريخ البدء...</string>
@@ -443,20 +440,14 @@
   <!--User Notes-->
   <string name="mynotes">ملاحظاتي</string>
   <!--Backup and restore-->
-  <string name="backup_modules">مشاركة أو نسخ المستندات احتياطيًا إلى...</string>
-  <string name="backup_app_database">مشاركة أو نسخ احتياطي لقاعدة بيانات التطبيق إلى ...</string>
-  <string name="backup_app">مشاركة أو نسخ احتياطي للتطبيق (ملف .apk) إلى ...</string>
+  <string name="backup_restore">إستعادة</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">ماذا تريد أن تستعيد؟</string>
   <string name="restore_app_database">استعادة قاعدة بيانات التطبيق من...</string>
   <string name="restore_database">استعادة ملف قاعدة البيانات</string>
   <string name="restore_confirmation">الكتابة فوق ملاحظاتي، والإشارات المرجعية، واللوحات الدراسية، وخطط القراءة ومساحات العمل؟</string>
-  <string name="reading_plans_plural">خطط القراءة</string>
   <string name="restore_success">تمت استعادة ملاحظاتي والإشارات المرجعية واللوحات الدراسية وخطط القراءة ومساحات العمل الخاصة بي بنجاح</string>
   <string name="loading_backup">تحميل قاعدة البيانات من النسخة الاحتياطية...</string>
-  <string name="backup_phone_storage">ذاكرة الهاتف</string>
-  <string name="backup_backup_title">النسخ الاحتياطي إلى أين؟</string>
-  <string name="backup_share">مشاركة</string>
   <string name="restore_modules">استعادة المستندات من...</string>
   <string name="send_backup_file">إرسال ملف النسخة الاحتياطية</string>
   <!--About-->
@@ -565,7 +556,6 @@
   <string name="http_not_found">غير موجود</string>
   <string name="http_unknown">خطأ آخر</string>
   <string name="unlocking_failed">فشل إلغاء القفل ، عبارة مرور غير صالحة</string>
-  <string name="cant_delete_last_bible">لا يمكن إزالة وثيقة الكتاب المقدس الأخيرة</string>
   <string name="active_window_indicator_title">عرض مؤشر النافذة النشطة</string>
   <string name="how_to_contribute">كيف تساهم؟</string>
   <string name="confirm_delete_bookmarks">هل تريد إزالة %d إشارات مرجعية وملاحظاتها؟</string>
@@ -636,6 +626,14 @@
   <string name="strongs_links">الروابط</string>
   <string name="strongs_text_and_links">النص والروابط</string>
   <string name="verse_tip">لتحديد آيات جزئية أو عدة آيات، يمكنك الضغط مطولاً على نص الكتاب المقدس</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">الإذن مطلوب</string>
+  <string name="labels_search_hint">بحث</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">معلومات</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

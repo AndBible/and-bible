@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">研经工具</string>
-  <string name="app_name_medium">研经工具 (And Bible)</string>
   <string name="app_name_long">AndBible: 研经工具</string>
-  <string name="project">And Bible 开源计划</string>
   <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">请插入SD Card及重新开始程式</string>
   <!--Main menu-->
@@ -241,17 +239,16 @@
   <string name="failed_repositories_message">未能连接以下文件伺服器：\n\n%s\n\n</string>
   <string name="failed_downloads_message">未能下载以下档案:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">从Zip载入文件</string>
   <string name="install_zip_module">安装圣经模组</string>
   <string name="install_zip_successfull">模组已成功安装</string>
   <string name="extracting_zip_file">正在解压缩Zip档案...</string>
   <string name="checking_zip_file">正在检查所选文件...</string>
   <string name="invalid_module">档案不包含兼容的SWORD模组</string>
-  <string name="install_zip_title">请稍等。正在载入Zip档案。</string>
   <string name="overwrite_files">以下文件已经存在: %s 覆写吗？</string>
   <string name="overwrite_files_title">覆写档案？</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">读经计划</string>
+  <string name="reading_plans_plural">读经计划</string>
   <string name="rdg_plan_selector_title">选择读经计划</string>
   <string name="rdg_plan_day">第 %s 天</string>
   <string name="rdg_plan_set_start_date">设定开始日期...</string>
@@ -503,15 +500,12 @@ http://www.heartlight.org 准予使用
   <string name="mynotes">笔记列表</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">备份及回复</string>
-  <string name="backup_modules">分享或备份文件至...</string>
-  <string name="backup_app_database">分享或备份程式资料库至...</string>
-  <string name="backup_app">分享或备份程式 (.apk file) 至...</string>
+  <string name="backup_modules2">备份文件</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">你想回复什么？</string>
   <string name="restore_app_database">回复程式资料库来源</string>
   <string name="restore_database">回复资料库档案</string>
   <string name="restore_confirmation">覆写我的笔记、书签、个人笔记、读经计划及工作检视吗？</string>
-  <string name="reading_plans_plural">读经计划</string>
   <string name="restore_success">成功回复我的笔记、书签、个人笔记、读经计划及工作检视</string>
   <string name="loading_backup">正在从备份载入资料库</string>
   <string name="backup_success2">成功备份我的笔记、书签、个人笔记、读经计划及工作检视</string>
@@ -521,10 +515,6 @@ http://www.heartlight.org 准予使用
   <string name="backup_email_subject_2">%s 资料库备份</string>
   <string name="backup_email_message_2">你的%s载有书签、笔记、读经计划及工作检视的资料库已包括在内</string>
   <string name="restore_unsuccessfull">未能回复资料库。或许你的资料库档案无效。</string>
-  <string name="backup_phone_storage">手机空间</string>
-  <string name="backup_backup_title">备份目的地</string>
-  <string name="backup_backup_message">以分享功能备份至手机或其他目的地 (电邮、Google Drive等)？</string>
-  <string name="backup_share">分享</string>
   <string name="restore_modules">回复文件</string>
   <string name="send_backup_file">传送备份档案</string>
   <string name="backup_modules_title">选择备份模组</string>
@@ -706,7 +696,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="unlock_module">设定模组密码</string>
   <string name="unlock_info">加密模组解锁资讯</string>
   <string name="try_again_passphrase">密码无效，要再试吗？</string>
-  <string name="cant_delete_last_bible">无法移除圣经文件</string>
   <string name="show_unlock_info">模组及解锁资讯</string>
   <string name="prefs_show_error_box_title">显示JavaScript错误窗口</string>
   <string name="prefs_show_error_box_summary">对于开发者排除BibleView JavaScreipt错误时有用。这会令程式稍慢。</string>
@@ -740,9 +729,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">忽略并继续</string>
   <string name="rate_title">评分及评论此app</string>
-  <string name="rate_message5">
-        鼓励及详细的评论将有效地帮助 And Bible 开源计划。谢谢你
-    </string>
   <string name="rate_message6">
         留下负面评论前，请先参看以下讯息：
     </string>
@@ -836,5 +822,13 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="strongs_links">连结</string>
   <string name="strongs_text_and_links">文字及连结</string>
   <string name="verse_tip">长按以选择部份或多节经文</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="labels_search_hint">搜寻</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">资讯</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

@@ -41,7 +41,6 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
@@ -61,6 +60,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeySerialized
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -130,7 +130,7 @@ class SpeakControl @Inject constructor(
     private val currentlyPlayingBook: Book?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingBook
 
-    private val currentlyPlayingVerse: Key?
+    private val currentlyPlayingKey: Key?
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingKey
 
     init {
@@ -299,12 +299,16 @@ class SpeakControl @Inject constructor(
         speakBible(currentBook as SwordBook, verse)
     }
 
-    private fun speakBible(bookRef: String, osisRef: String) {
-        val book = Books.installed().getBook(bookRef) as SwordBook
-
+    private fun speakAny(bookRef: String, osisRef: String) {
+        val book = Books.installed().getBook(bookRef)
         try {
-            val verse = (book.getKey(osisRef) as RangedPassage).getVerseAt(0)
-            speakBible(book, verse)
+            if(book is SwordBook) {
+                val verse = (book.getKey(osisRef) as RangedPassage).getVerseAt(0)
+                speakBible(book, verse)
+            } else {
+                val key = BookAndKeySerialized.fromJSON(osisRef).bookAndKey
+                speakGeneric(key)
+            }
         } catch (e: NoSuchKeyException) {
             Log.e(TAG, "Key not found $osisRef in $currentBook")
         }
@@ -370,10 +374,15 @@ class SpeakControl @Inject constructor(
 
     private fun saveCurrentPosition() {
         val bookRef = currentlyPlayingBook?.initials
-        val osisRef = currentlyPlayingVerse?.osisRef
+        val key = currentlyPlayingKey
+        val osisRef = if(key is BookAndKey) {
+            key.serialized
+        } else {
+            key?.osisRef
+        }
         if(bookRef != null && osisRef != null) {
             CommonUtils.settings.setString("lastSpeakBook",bookRef);
-            CommonUtils.settings.setString("lastSpeakRef",osisRef);
+            CommonUtils.settings.setString("lastSpeakRef", osisRef);
         } else {
             CommonUtils.settings.removeString("lastSpeakBook");
             CommonUtils.settings.removeString("lastSpeakRef");
@@ -388,7 +397,7 @@ class SpeakControl @Inject constructor(
         val bookRef = CommonUtils.settings.getString("lastSpeakBook")
         val osisRef = CommonUtils.settings.getString("lastSpeakRef")
         Log.i(TAG, "continueLastPosition $bookRef $osisRef")
-        if(bookRef != null && osisRef != null) speakBible(bookRef, osisRef)
+        if(bookRef != null && osisRef != null) speakAny(bookRef, osisRef)
         else startSpeakingFromDefault()
     }
 

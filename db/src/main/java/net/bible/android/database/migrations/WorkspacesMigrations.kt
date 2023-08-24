@@ -21,8 +21,13 @@ private val resetMaximizedWindowId = makeMigration(1..2) { _db ->
     _db.execSQL("UPDATE Workspace SET maximizedWindowId=NULL")
 }
 
+private val removeFavouriteLabels = makeMigration(2..3) { _db ->
+    _db.execSQL("ALTER TABLE Workspace DROP COLUMN workspace_settings_favouriteLabels")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
-    resetMaximizedWindowId
+    resetMaximizedWindowId,
+    removeFavouriteLabels,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 2
+const val WORKSPACE_DATABASE_VERSION = 3

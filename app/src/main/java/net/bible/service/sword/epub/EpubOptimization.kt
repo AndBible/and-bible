@@ -44,10 +44,15 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document, Int> {
     fun epubSrc(src: String): String {
         val f = File(parentFolder, src)
         val filePath = f.toRelativeString(rootFolder)
-        return "/epub/${bookMetaData.initials}/$filePath"
+        return "/epub/$filePath"
     }
 
     fun fixReferences(e: Element): Element {
+        for(img in useXPathInstance { xp -> xp.compile("//svg:image[@xlink:href]", Filters.element(), null, svgNamespace, xlinkNamespace).evaluate(e) }) {
+            val src = img.getAttribute("href", xlinkNamespace).value
+            val finalSrc = epubSrc(src)
+            img.setAttribute("href", finalSrc, xlinkNamespace)
+        }
         for(img in useXPathInstance { xp -> xp.compile("//ns:img", Filters.element(), null, xhtmlNamespace).evaluate(e) }) {
             val src = img.getAttribute("src").value
             val finalSrc = epubSrc(src)
@@ -213,7 +218,7 @@ fun EpubBackendState.optimizeEpub() {
     fragDir.deleteRecursively()
     fragDir.mkdirs()
     optimizeLockFile.outputStream().use { it.write(1)}
-    val writeDb = getEpubDatabase(dbFilename)
+    val writeDb = getEpubDatabase(appDbFilename)
     val writeDao = writeDb.epubDao()
     val start = System.currentTimeMillis()
     for(k in originalIds) {
@@ -249,7 +254,8 @@ fun EpubBackendState.optimizeEpub() {
         }
         fileForOriginalId(k).delete()
     }
-    val total = (System.currentTimeMillis() - start) / 1000;
+    val total = (System.currentTimeMillis() - start) / 1000
+    writeDb.close()
     optimizeLockFile.delete()
     Log.i(TAG, "Total time in optimization: $total")
 }

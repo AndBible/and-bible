@@ -48,7 +48,8 @@ internal fun getFileAndId(href: String): Pair<String, String>? {
 }
 
 val xhtmlNamespace: Namespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
-
+val svgNamespace: Namespace = Namespace.getNamespace("svg", "http://www.w3.org/2000/svg")
+val xlinkNamespace: Namespace = Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink");
 class EpubBackendState(private val epubDir: File): OpenFileState {
     constructor(epubDir: File, metadata: SwordBookMetaData): this(epubDir) {
         this._metadata = metadata
@@ -188,13 +189,16 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     internal val optimizeLockFile = File(epubDir, "optimize.lock")
 
-    internal val dbFilename = "epub-${bookMetaData.initials}.sqlite3"
+    private val epubDbFilename = "optimized.sqlite3.gz"
+    internal val appDbFilename = "epub-${bookMetaData.initials}.sqlite3"
+    private val alternativeEpubDbFilename = "${appDbFilename}.gz"
 
     init {
-        val appDbFile = BibleApplication.application.getDatabasePath(dbFilename)
-        val epubDbFile = File(epubDir, "$dbFilename.gz")
-        //appDbFile.delete()
-        //epubDbFile.delete()
+        val appDbFile = BibleApplication.application.getDatabasePath(appDbFilename)
+        var epubDbFile = File(epubDir, alternativeEpubDbFilename)
+        if(!epubDbFile.exists()) {
+            epubDbFile = File(epubDir, epubDbFilename)
+        }
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
@@ -205,10 +209,11 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             }
         }
     }
-    private val readDb = getEpubDatabase(dbFilename)
+    private val readDb = getEpubDatabase(appDbFilename)
     private val dao = readDb.epubDao()
 
-    fun getResource(resourcePath: String) = File(rootFolder, resourcePath)
+    fun getResource(resourcePath: String) =
+        File(rootFolder, resourcePath)
 
     override fun getBookMetaData(): SwordBookMetaData {
         return _metadata?: synchronized(this) {
@@ -244,7 +249,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun delete() {
         epubDir.deleteRecursively()
         readDb.close()
-        BibleApplication.application.deleteDatabase(dbFilename)
+        BibleApplication.application.deleteDatabase(appDbFilename)
     }
 
     fun getKey(originalKey: String, htmlId: String): Key {

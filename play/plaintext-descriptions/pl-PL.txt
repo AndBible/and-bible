@@ -27,6 +27,7 @@ Razem stwórzmy najlepszą apkę do czytania Biblii!
 And Bible jest otwartoźródłowym projektem społecznościowym. Oznacza to, że każdy posiadający odpowiednie umiejętności może – i jest zachęcany – do uczestnictwa w rozwoju projektu poprzez:
 
  * programowanie nowych funkcji;
+ * : https://andbible.org/buy
  * testowanie funkcji próbnych;
  * tłumaczenie interfejsu programu;
  * oraz rozszerzanie biblioteki modułów poprzez otrzymanie pozwoleń od właścicieli praw autorskich lub konwertując dokumenty do formatu SWORD.
@@ -35,7 +36,7 @@ Jeżeli jesteś zawodowym programistą lub testerem, prosimy rozważyć włącze
 
 Odnośniki
 
- * strona programu: https://andbible.github.io
+ * strona programu: https://andbible.org
  * polub nas na Facebooku: https://www.facebook.com/AndBible/
  * nasz kanał na YouTube: https://www.youtube.com/c/AndBible
  * często zadawane pytania (w j. angielskim): https://git.io/JJm8E

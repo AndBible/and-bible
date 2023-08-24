@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Štúdium Biblie</string>
-  <string name="app_name_medium">Štúdium Biblie (And Bible)</string>
+  <string name="app_name_medium">Štúdium Biblie (AndBible)</string>
   <string name="app_name_long">AndBible: Bible Study</string>
-  <string name="project">And Bible Open Source Project</string>
+  <string name="project">AndBible - projekt s otvoreným kódom</string>
   <string name="version_text">Verzia %s</string>
   <string name="no_sdcard_error">Prosím vložte SD kartu a reštartujte aplikáciu.</string>
   <!--Main menu-->
@@ -11,6 +12,8 @@
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Pasáž</string>
   <string name="search">Hľadať</string>
+  <string name="search_in_andbible">Vyhľadať v Biblii</string>
+  <string name="search_with_results2">%1s výsledkov v %2s</string>
   <string name="settings">Nastavenia aplikácie</string>
   <string name="history">História</string>
   <string name="speak">Predčítanie</string>
@@ -56,6 +59,9 @@
   <string name="search_old_testament">Starý zákon</string>
   <string name="search_current_book">Aktuálna kniha</string>
   <string name="error_executing_search">Neplatná vyhľadávacia požiadavka</string>
+  <string name="type_text_or_bible_reference">Napíšte text alebo biblický odkaz</string>
+  <string name="go_to_ref">Otvoriť %s</string>
+  <string name="search_what">Hľadať \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitola a číslo verša</string>
   <string name="prefs_show_verseno_summary">Zobraziť kapitolu a číslo verša</string>
@@ -113,6 +119,8 @@
   <string name="reset_fontsize">Reset</string>
   <string name="prefs_request_sdcard_permission_title">Dostupné manuále nainštalované dokumenty</string>
   <string name="prefs_request_sdcard_permission_summary">Povoliť používanie manuálne nainštalovaných dokumentov z jsword/sword priečinku na internom úložisku</string>
+  <string name="prefs_expand_footnotes_title">Vnorené krížové referencie</string>
+  <string name="prefs_expand_footnotes_summary">Zobraziť obsah krížovej referencie priamo v texte namiesto odkazu, ktorý otvorí kontextové dialógové okno</string>
   <string name="all_text_options_window_menutitle">Všetky nastavenia textu</string>
   <string name="text_options_window_menutitle">Nastavenia textu</string>
   <string name="auto_fullscreen">Režim celej obrazovky pri posúvaní</string>
@@ -154,7 +162,7 @@
   <string name="window_pinning_menutitle">Pripínanie okna</string>
   <string name="hide_window_buttons_title">Kryť tlačidlá okna</string>
   <string name="hide_window_buttons_summary">Tlačidlá okien, ktoré sa zobrazujú na pravej strane zobrazení Biblie, sú skryté. Navigačný panel v spodnej časti okna je stále zobrazený a vyskakovacie okno je možné otvoriť dlhým kliknutím. </string>
-  <string name="hide_bible_reference_overlay_title">Skryť prekrytie odkazov na Bibliu </string>
+  <string name="hide_bible_reference_overlay_title">Skryť prekrytie referencií na Bibliu </string>
   <string name="hide_bible_reference_overlay_summary">Nezobrazovať polo-transparentné okno s Biblickými referencia pri celo-obrazovkovom režime aplikácie</string>
   <string name="full_screen_hide_buttons_pref_title">Skryť panel tlačidiel pri celoobrázkovom režime</string>
   <string name="full_screen_hide_buttons_pref_summary">Pri prepínaní do režimu celej obrazovky automaticky skryť panel s tlačidlami v spodnej časti obrazovky </string>
@@ -177,7 +185,8 @@
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavenia farieb</string>
   <string name="window_color_settings_title">Nastavenie farieb okna</string>
-  <string name="workspace_color_settings_title">Prednastavené farby pracovného priestoru</string>
+  <string name="workspace_color_settings_title">Prednastavené farby pracovnej plochy</string>
+  <string name="color_workspace">Farba pracovnej plochy</string>
   <string name="color_text">Farba textu</string>
   <string name="color_background">Farba pozadia</string>
   <string name="colors_day_mode_title">Denný režim</string>
@@ -243,18 +252,22 @@
   <string name="download_errors">Chyby sťahovania</string>
   <string name="failed_repositories_message">Nie je možné sa pripojiť k nasledujúcemu dokumentovému  serveru: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Nasledujúce súbory nie je možné stiahnuť:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Dokument nie je možné zmazať.</string>
   <!--Install zip file-->
-  <string name="install_zip">Načítať Dokument z archívu ZIP</string>
+  <string name="install_zip">Načítať dokumenty zo súborov</string>
   <string name="install_zip_module">Inštalovať modul Biblie</string>
+  <string name="install_zip_module_discrete">Inštalovať modul Kalkulačka</string>
   <string name="install_zip_successfull">Modul bol úspešne inštalovaný</string>
   <string name="extracting_zip_file">Teraz extrahujem súbory zo ZIP…</string>
   <string name="checking_zip_file">Kontrolovanie daného súboru…</string>
   <string name="invalid_module">Súbor neobsahuje platný SWORD modul</string>
-  <string name="install_zip_title">Čakajte prosím. Načítavam Zip súbor.</string>
+  <string name="install_zip_title">Čakajte prosím. Načítavam moduly zo súboru.</string>
   <string name="overwrite_files">Nasledujúce súbory už existujú: %s Prepísať ich?</string>
   <string name="overwrite_files_title">Prepísať súbory? </string>
+  <string name="could_not_overwrite_files">Nie je možné prepísať súbory: %s. Okrem toho bola inštalácia úspešná.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čítania</string>
+  <string name="reading_plans_plural">Plány čítania</string>
   <string name="rdg_plan_selector_title">Vybrať plán čitania</string>
   <string name="rdg_plan_day">Deň %s</string>
   <string name="rdg_plan_set_start_date">Zadať začiatočný deň…</string>
@@ -322,7 +335,7 @@
   <string name="delete_doc">Vymazať %s?</string>
   <string name="delete_search_index_doc">Vymazať index pre %s?</string>
   <!--Verse context menu-->
-  <string name="notes">Poznámky pod čiarou a odkazy</string>
+  <string name="notes">Poznámky pod čiarou a referencie</string>
   <string name="share_verse">Zdieľať…</string>
   <string name="share_verse_widget_title">Zdieľať výber</string>
   <string name="share_verse_subject_2">Biblický verš bol s tebou zdielaný cez %s.</string>
@@ -358,6 +371,8 @@
   <string name="label_color">Farba štítka</string>
   <!--can be removed-->
   <string name="label_color_example">Príklad</string>
+  <string name="marker_style">Zobraziť iba značku pre výberové záložky</string>
+  <string name="marker_style_whole_verse">Zobraziť iba značku pre záložky s celým veršom</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Zoradiť podľa dátumu</string>
   <string name="sort_by_bible_book">Zoradiť podľa kníh Biblie</string>
@@ -438,19 +453,19 @@
   <string name="assing_labels_help4">Klepnutím %s sa pridá štítok k vášmu zoznamu obľúbených pre rýchly prístup</string>
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Klepnutím %s zmeníte poradie zoznamu na základe vašich výberov. </string>
-  <string name="workspace_text_options_help_title">Nastavenia textu pracovného priestoru</string>
-  <string name="workspace_text_options_help1">Tieto nastavenia určujú predvolené hodnoty pre všetky okná pracovného priestoru.</string>
+  <string name="workspace_text_options_help_title">Nastavenia textu pracovnej plochy</string>
+  <string name="workspace_text_options_help1">Tieto nastavenia určujú predvolené hodnoty pre všetky okná pracovnej plochy.</string>
   <string name="workspace_text_options_help2">Tieto môžete prepísať zmenou nastavení jednotlivých okien.</string>
   <string name="window_text_options_help_title">Nastavenia textu okna</string>
   <!--Parameter is actual icon-->
-  <string name="window_text_options_help1">%s ikona indikuje, že nastavenia pochádzajú z nastavení pracovného priestoru.</string>
+  <string name="window_text_options_help1">%s ikona indikuje, že nastavenia pochádzajú z nastavení pracovnej plochy.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s  ikona indikuje, že nastavenia boli zmenené pre toto konkrétne okno.</string>
-  <string name="window_text_options_help3">Nastavenia pracovného priestoru nebude mať vplyv na toto okno.</string>
+  <string name="window_text_options_help3">Nastavenia pracovnej plochy nebude mať vplyv na toto okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Použitím %s tlačidla sa zresetujú všetky nastavenia späť na %s.</string>
   <string name="reset_defaults">prednastavené hodnoty</string>
-  <string name="reset_workspace_defaults">prednastavené hodnoty pracovného priestoru</string>
+  <string name="reset_workspace_defaults">prednastavené hodnoty pracovnej plochy</string>
   <string name="speak_bookmark_help">Pomoc k záložkách čítania</string>
   <string name="speak_help_auto_bookmark">
 Záložka čítania sa automaticky vytvorí akonáhle je čítanie prerušené alebo zastavené.
@@ -508,28 +523,34 @@ Režim opakovania bol vypnutý, pretože
   <string name="mynotes">Moje poznámky</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Záloha a obnovenie</string>
-  <string name="backup_modules">Zdielať alebo zálohovať dokumenty do…</string>
-  <string name="backup_app_database">Zdielať alebo zálohovať databázu aplikácie do…</string>
-  <string name="backup_app">Zdielať alebo zálohovať aplikáciu (.apk súbor) do…</string>
+  <string name="backup_modules2">Zálohovať dokument do…</string>
+  <string name="backup_app_database2">Zálohovať apl. databázu do…</string>
+  <string name="backup_app2">Zálohovať apl. (.apk súbor) do…</string>
+  <string name="backup_application">Aplikácia</string>
+  <string name="backup_database">Databáza</string>
+  <string name="backup_documents">Dokumenty</string>
+  <string name="backup_application_info">Súbor aplikácie (.APK)</string>
+  <string name="backup_database_info">Záložky, štítky, poznámky, študijné zložky, plány čítania, pracovné plochy atď.</string>
+  <string name="backup_document_info">Biblie, komentáre, slovníky, mapy atď.</string>
+  <string name="backup_to">Zálohovať do…</string>
+  <string name="backup_restore_from">Obnoviť z…</string>
+  <string name="backup_restore">Obnoviť</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Čo chcete obnoviť?</string>
   <string name="restore_app_database">Obnoviť databázu aplikácie z…</string>
   <string name="restore_database">Obnoviť databázový súbor.</string>
-  <string name="restore_confirmation">Prepísať Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovné priestory? </string>
-  <string name="reading_plans_plural">Plány čítania</string>
-  <string name="restore_success">Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovné priestory boli úspešne obnovené </string>
+  <string name="restore_confirmation">Prepísať Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovnej plochy? </string>
+  <string name="restore_success2">Vybrané sekcie databázy boli úspešne obnovené</string>
+  <string name="restore_success">Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovnej plochy boli úspešne obnovené </string>
+  <string name="downloading_backup">Sťahovanie záložného súboru…</string>
   <string name="loading_backup">Načítavanie databázy zo zálohy…</string>
-  <string name="backup_success2">Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovné priestory boli úspešne zálohované</string>
+  <string name="backup_success2">Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovnej plochy boli úspešne zálohované</string>
   <string name="backup_modules_success">Označené moduly boli úspešne zálohované.</string>
   <string name="backup_modules_email_subject_2">záloha modulov %s</string>
   <string name="backup_modules_email_message_2">Priložená záloha modulov %s, obsahujúca nasledujúce moduly: %s</string>
   <string name="backup_email_subject_2">záloha databázy %s</string>
-  <string name="backup_email_message_2">Vaša databáza %s obsahujúca záložky, poznámky, plán čítania a pracovné priestory je pripojená.</string>
+  <string name="backup_email_message_2">Vaša databáza %s obsahujúca záložky, poznámky, plán čítania a pracovnej plochy je pripojená.</string>
   <string name="restore_unsuccessfull">Obnovenie databázy nebolo úspešné. Pravdepodobne ste zadali neplatný databázový súbor. </string>
-  <string name="backup_phone_storage">Úložisko telefónu</string>
-  <string name="backup_backup_title">Kam zálohovať?</string>
-  <string name="backup_backup_message">Zálohovať do telefónu alebo inam cez funkciu Zdielať (e-mail, Google Drive apod.)?</string>
-  <string name="backup_share">Zdielať</string>
   <string name="restore_modules">Obnoviť Dokumenty z…</string>
   <string name="send_backup_file">Odoslať zálohovací súbor</string>
   <string name="backup_modules_title">Vybrať, ktoré moduly zálohovať</string>
@@ -596,26 +617,28 @@ Režim opakovania bol vypnutý, pretože
   <string name="error_key_not_in_document2">%s nebolo nájdené v dokumente %s.</string>
   <string name="empty_list">Žiadne položky k zobrazeniu</string>
   <string name="error_skip">Preskočiť</string>
+  <string name="bug_report_email_title">Poslať hlásenie o chybe e-mailom</string>
+  <string name="bug_report_email_text">Potom vyberte preferovanú e-mailovú aplikáciu (napríklad Gmail), aby ste správu odoslali tímu vývojárov.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Prevod textu na reč</string>
   <string name="notification_channel_progress_status">Informácia o stave sťahovania dokumentov atď.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nový</string>
-  <string name="switch_to_workspace">Pracovné priestory</string>
+  <string name="switch_to_workspace">Pracovnej plochy</string>
   <string name="delete_workspace">Odstrániť</string>
   <string name="new_copied_workspace">Skopírovať ako nové</string>
-  <string name="workspace_number">Pracovný priestor %d</string>
+  <string name="workspace_number">Pracovná plocha %d</string>
   <string name="rename_workspace">Premenovať</string>
-  <string name="workspace_selector_title">Výber pracovného priestoru</string>
+  <string name="workspace_selector_title">Výber pracovnej plochy</string>
   <string name="workspace_settings">Nastavenia…</string>
-  <string name="give_name_workspace">Zadajte názov pre nový pracovný priestor</string>
+  <string name="give_name_workspace">Zadajte názov pre novú pracovnú plochu</string>
   <string name="save_and_exit">Uložiť</string>
-  <string name="workspace_save_changes">Aplikovať zmeny na pracovný priestor?</string>
+  <string name="workspace_save_changes">Aplikovať zmeny na pracovnú plochu?</string>
   <string name="copy_of_workspace">Kópia %s</string>
   <string name="copy_workspace_settings">Kopírovať nastavenia…</string>
   <string name="copy_settings_title">Ktoré nastavenia chcete skopírovať?</string>
   <string name="select_all">Vybrať všetky</string>
-  <string name="copy_settings_workspaces_title">Do ktorých pracovných priestorov chcete skopírovať nastavenia?</string>
+  <string name="copy_settings_workspaces_title">Do ktorých pracovných plôch chcete skopírovať nastavenia?</string>
   <string name="reset_settings">Reset</string>
   <string name="workspace_dismiss">Odmietnuť</string>
   <string name="workspace_listing_with_current">%s (aktuálne)</string>
@@ -664,7 +687,7 @@ Režim opakovania bol vypnutý, pretože
     </string>
   <string name="help_studypads_text">
         Študijné zložky sú navrhnuté tak, aby vám uľahčili písanie kázní, prípravu kázní alebo len tak
-        si zapíšte osobné poznámky k štúdiu Biblie, ktoré majú viacero biblických odkazov. Každá študijná podložka je spojená s jedným štítkom záložky.
+        si zapíšte osobné poznámky k štúdiu Biblie, ktoré majú viacero biblických referencií. Každá študijná podložka je spojená s jedným štítkom záložky.
         Všetky záložky, ktoré boli vytvorené s príslušným štítkom, sa automaticky zobrazia v dokumente študijného bloku.
         Okrem záložiek môžu byť v študijnom bloku aj vlastné textové položky.
     </string>
@@ -673,14 +696,14 @@ Režim opakovania bol vypnutý, pretože
 (viď \"Apache Lucene - Query Parser Syntax\" pre viac detailov)</string>
   <string name="help_workspaces_title">Pracovné plochy</string>
   <string name="help_workspaces_text">
-        Pracovné priestory umožňujú mať viacero pracovných prostredí závislých od kontextu. Funkcie pracovného priestoru
-        sú prístupné cez položku Pracovné priestory v ponuke možností (pravý horný roh). Rýchly spôsob prístupu do pracovných priestorov je
+        Pracovné plochy umožňujú mať viacero pracovných prostredí závislých od kontextu. Funkcie pracovnej plochy
+        sú prístupné cez položku Pracovné plochy v ponuke možností (pravý horný roh). Rýchly spôsob prístupu do pracovných priestorov je
         cez gesto posunutia prsta nadol z panela s nástrojmi. Na panel nástrojov môžete tiež použiť gestá potiahnutia doľava a doprava
         prepnúť na predchádzajúci / nasledujúci pracovný priestor.
     </string>
   <string name="help_hidden_features_title">Skryté skratky</string>
   <string name="help_hidden_features_text">
-        Potiahnutím prstom nadol z panela s nástrojmi zobrazíte výber pracovného priestoru.
+        Potiahnutím prstom nadol z panela s nástrojmi zobrazíte výber pracovnej plochy.
         Dlhým stlačením okna rýchlo minimalizujete.
         Dlhým stlačením tlačidla hovoriť, sa rýchlo dostanete k nastaveniam hlasu.
         Dlhým stlačením názvu umiestnenia verša na paneli s nástrojmi, preskočíte do výberu dokumentov.
@@ -702,6 +725,13 @@ Režim opakovania bol vypnutý, pretože
         aspoň 1 dokument stiahnutím z internetu alebo načítaním dokumentu zo súboru zip
         zálohy.
     </string>
+  <string name="supported_formats_title">Podporované formáty</string>
+  <string name="choose_file">Musíte vybrať súbor, ktorý chcete nahrať do %s. </string>
+  <string name="supported_formats">Podporované formáty pre nahrávanie dokumentov zo súboru: %s</string>
+  <string name="format_zip">Zip súbor obsahujúci Sword modul(y), alebo záložný súbor s dokumentami (*.abmd) vytvorený %s</string>
+  <string name="format_mysword">MySword dokumenty (*.mybible)</string>
+  <string name="format_mybible">MyBible dokumenty (*.SQLite3)</string>
+  <string name="format_epub">EPUB dokumenty (*.epub)</string>
   <string name="redownload_message">
         Bol nájdený zoznam predchádzajúcich kníh/dokumentov. Kliknutím nižšie ich jednoducho stiahnete znova.
     </string>
@@ -730,7 +760,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="unlock_module">Zadať heslo k modulu</string>
   <string name="unlock_info">Info k odomknutiu šifrovaného modulu</string>
   <string name="try_again_passphrase">Heslo nefungovalo, skúsiť znova?</string>
-  <string name="cant_delete_last_bible">Nie je možné odstrániť posledný Biblický dokument</string>
   <string name="show_unlock_info">Informácie o module a odomknutí</string>
   <string name="prefs_show_error_box_title">Zobraziť chybové okno Javascript </string>
   <string name="prefs_show_error_box_summary">Vhodné pre vývojárov pri odhaľovaní chýb v BibleView javascript. Spomalí chod aplikácie.</string>
@@ -750,10 +779,16 @@ Režim opakovania bol vypnutý, pretože
   <string name="share_verse_menu_title">Zdielať / kopírovať…</string>
   <string name="show_versenumbers">Zobraziť čísla veršov</string>
   <string name="show_full_verses">Zobraziť celé verše</string>
+  <string name="show_selection_only">Zobraziť iba zvolený text</string>
   <string name="advertise_app">Propagovať aplikáciu</string>
   <string name="verse_share_advertise">Zdielané cez %s.</string>
-  <string name="abbreviate_reference">Skrátiť odkaz</string>
+  <string name="show_reference">Zobraziť referenciu</string>
+  <string name="show_reference_at_front">Zobraziť na začiatku verša</string>
+  <string name="abbreviate_reference">Skrátiť referenciu</string>
   <string name="version_name">Názov verzie</string>
+  <string name="show_version_name">Uveďte názov verzie</string>
+  <string name="show_ellipsis">Zobraziť trojbodky (…)</string>
+  <string name="show_quotes">Zobraziť úvodzovky</string>
   <string name="backup_button">Záloha</string>
   <string name="back_button">Späť</string>
   <string name="upgrading_database">Aktualizácia databázy. Čakajte prosím…</string>
@@ -763,9 +798,10 @@ Režim opakovania bol vypnutý, pretože
   <string name="old_webview">Balíček Android WebView je príliš starý (%s). Musíte aktualizovať svoj balík Android WebView na verziu najmenej %s ak chcete používať %s. Na väčšine zariadení to možno vykonať prostredníctvom %s.</string>
   <string name="play">Google Play Store</string>
   <string name="proceed_anyway">Aj tak pokračovať </string>
+  <string name="proceed">Pokračovať</string>
   <string name="rate_title">Hodnotenie a recenzovanie aplikácie</string>
   <string name="rate_message5">
-        Pozitívne a detailné recenzie veľmi pomáhajú  And Bible Open Source projektu. Ďakujeme!
+       Pozitívne a podrobné recenzie veľmi pomáhajú AndBible - projektu s otvoreným kódom. Ďakujeme!
     </string>
   <string name="rate_message6">
         Pred zaslaním negatívnej recenzie prosím zvážte nasledovné:
@@ -797,7 +833,7 @@ Režim opakovania bol vypnutý, pretože
         Prejsť do Google Play
     </string>
   <string name="text_maintainers">
-       prosím reportuje problémy správcom dokumentov
+       prosím nahlasujte problémy správcom dokumentov
     </string>
   <string name="does_not_exist_abbreviation">Neexistuje</string>
   <string name="cant_change_wholeverse">Pre túto záložku nie je možné vypnúť označovanie celých veršov</string>
@@ -815,13 +851,15 @@ Režim opakovania bol vypnutý, pretože
   <string name="recent_labels">Posledné štítky</string>
   <string name="other_labels">Ostatné štítky</string>
   <string name="book_menu_sort_row_opt">Horizontálne usporiadať knihy</string>
-  <string name="reset_workspace_labels">Chcete zresetovať automaticky priraďovanie a obľúbené nastavenia pre tento pracovný priestor?</string>
+  <string name="book_menu_group_by_category">Zoskupiť knihy podľa kategórie</string>
+  <string name="book_menu_show_long_book_name">Zobraziť dlhý názov knihy</string>
+  <string name="reset_workspace_labels">Chcete zresetovať automaticky priraďovanie a obľúbené nastavenia pre túto pracovnú plochu?</string>
   <string name="reset_hide_labels">Chcete resetovať nastavenia pre skrytie zadaných nastavení štítkov?</string>
   <string name="reorder">Pre-usporiadať</string>
   <string name="system_items">Systémové akcie</string>
   <string name="system_items1">Viac</string>
   <string name="system_action2">Android akcie</string>
-  <string name="text_copied_to_clicpboard">Skopírovať text do schránky</string>
+  <string name="text_copied_to_clicpboard">Text skopírovaný do schránky</string>
   <string name="prefs_disable_two_step_bookmarking_title">Rýchle záložky</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Zobraziť položky „Výber“ a „Verše“ priamo v ponuke Výberu okna Biblie</string>
   <string name="prefs_double_tap_to_fullscreen_title">Dvojitým klepnutím na celú obrazovku </string>
@@ -859,6 +897,125 @@ Režim opakovania bol vypnutý, pretože
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Texty a odkazy</string>
   <string name="verse_tip">Dlhým stlačením Biblického textu označíte časť alebo viacero veršov</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Vyžaduje sa povolenie</string>
+  <string name="labels_search_hint">Hľadať</string>
+  <string name="progress_status_permission">Na zobrazenie upozornení (stav sťahovania, spracovania, stavu hovorenia) potrebujeme vaše povolenie.</string>
+  <!--Discrete mode settings-->
+  <string name="app_name_calculator">Jednoduchá kalkulačka</string>
+  <string name="prefs_persecution_cat">Nastavenia pre prenasledovaných</string>
+  <string name="prefs_discrete_mode">Skryť náboženské symboly</string>
+  <string name="prefs_discrete_mode_desc">Premenovať aplikáciu na \'Kalkulačka\' a zobraziť inú ikonu v spúšťači.</string>
+  <string name="prefs_show_calculator">Kalkulačka</string>
+  <string name="prefs_calculator_pin">PIN kalkulačky</string>
+  <string name="prefs_calculator_pin_desc">PIN kód pre vstup do aplikácie, keď sa zobrazí kalkulačka</string>
+  <string name="calc_division_by_zero">Delenie nulou nie je povolené</string>
+  <string name="calc_wrong_format">Zlý formát</string>
+  <string name="calc_wrong_format_operand">Zlý formát. Operand bez akýchkoľvek čísel?</string>
+  <string name="prefs_persecuted_help">Najskôr si prečítajte toto!</string>
+  <string name="prefs_persecuted_summary">Pokyny pre nastavenia a informácie o konkrétnej diskrétnej zostave.</string>
+  <string name="calculator_par1">
+        Pred vstupom do aplikácie sa zobrazí kalkulačka.
+    </string>
+  <string name="calculator_par2">
+  V nej môžete robiť štandardné výpočty a keď chcete vstúpiť do aplikácie,
+  stačí zadať váš PIN kód (predvolené je 1234) a potom stlačiť tlačidlo \"=\".
+    </string>
+  <string name="calculator_par3">
+        Svoj PIN kód si môžete zvoliť v nastaveniach \"PIN kalkulačky\".
+    </string>
+  <string name="discrete_mode_info_par1">
+        Používate štandardnú verziu aplikácie, čo znamená, že je stále možné vidieť
+        skutočný názov a ikonu aplikácie v informáciách o aplikácii.
+    </string>
+  <string name="discrete_mode_info_par2">
+        Pre lepšiu bezpečnosť v prenasledovanom prostredí dôrazne odporúčame používať diskrétne
+        verziu aplikácie, ktorá vždy zobrazuje kalkulačku, aj keď sú údaje aplikácie vymazané.
+    </string>
+  <string name="discrete_mode_link">
+        Aktuálnu diskrétnu verziu si môžete stiahnuť z %s.
+    </string>
+  <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Synchronizovať skupinu</string>
+  <string name="sync_group_n">Skupina %d</string>
+  <string name="disable_sync">Vypnúť synchronizáciu</string>
+  <string name="open_in_window">Otvoriť výsledky v okne</string>
+  <!--Custom repositories-->
+  <string name="custom_repositories">Vlastné repozitáre</string>
+  <string name="custom_repositories_empty_list_message">Žiadny vlastný repozitár nie je zadefinovaný</string>
+  <string name="custom_repositories_create_button_label">Pridať vlastný repozitár</string>
+  <string name="custom_repositories_info_button_label">Informácie</string>
+  <string name="name_for_repository">Názov pre repozitár</string>
+  <string name="repository_specification">URL repozitára</string>
+  <string name="delete_custom_repository">Chcete odstrániť vlastný repozitár %s?</string>
+  <string name="invalid_repository_not_saved">Špecifikácia repozitára bola neplatná a nebola uložená.</string>
+  <string name="custom_repositories_help1">Ak chcete pridať nové vlastný repozitár, napíšte alebo skopírujte a vložte sem vlastnú adresu URL úložiska.</string>
+  <string name="custom_repositories_help2">Viac informácií o vlastných repozitároch si môžete prečítať v %s.</string>
+  <string name="wiki_page">WIKI stránka</string>
+  <string name="custom_repositories_help0">Môžete nainštalovať dokumenty z vlastných externých repozitárov cez inštaláciu vlastných repozitárov.</string>
+  <string name="duplicate_custom_repository">Repozitár s názvom %s už existuje, nie je možné pridať ďalší.</string>
+  <string name="packages_dir">Priečinok s balíčkami (Zip súbory)</string>
+  <string name="warn_bad_document">Varovanie: Tento dokument môže mať (aspoň čiastočne) zlú technickú kvalitu.</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Open Bible odkazy v AndBible</string>
+  <string name="open_bible_links_summary">Po klinutí na odkazy, ktoré odkazujú na URL Biblie podporovanú AndBible, otvoria sa v AndBible</string>
+  <string name="copyReference">Skopírovať odkaz do schránky</string>
+  <string name="reference_copied_to_clipboard">Referencia skopírovaná do schránky</string>
+  <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+        Vyberte, ktorú cloudovú službu chcete použiť na synchronizáciu viacerých zariadení.
+    </string>
+  <string name="prefs_sync_introduction_summary2">
+        Pri používaní Disku Google, %s má udelený prístup iba k súborom aplikácií, nie k osobným súborom.
+    </string>
+  <string name="restore_backup_sections">Ktoré sekcie zálohy chcete obnoviť?</string>
+  <string name="db_repositories">Repozitáre a súvisiace nastavenia</string>
+  <string name="db_bookmarks">Záložky, Moje poznámky, Štítky a Študijné zložky</string>
+  <string name="synchronizing">Synchronizujem…</string>
+  <string name="overrideBackup">
+        Existujúca databáza, s ktorou toto zariadenie nie je synchronizované, sa nachádza v cloude.
+        Databáza obsahuje %s. Čo chcete urobiť?
+    </string>
+  <string name="reading_plans_content">Plány čítania a ich stavy</string>
+  <string name="bookmarks_contents">Záložky, Štítky a Študijné zložky</string>
+  <string name="workspaces_contents">Pracovné plochy a Okná</string>
+  <string name="cloud_fetch_and_restore_initial">Skopírovať z claudu na toto zariadenie</string>
+  <string name="cloud_create_new">Skopírovať z tohoto zariadenia do cloudu</string>
+  <string name="cloud_disable_sync">Zrušiť &amp; zakázať synchronizáciu</string>
+  <string name="cloud_sync_title">Synchronizácia zariadenia</string>
+  <string name="reset_sync">Odhlásiť sa</string>
+  <string name="prefs_reset_sync_summary">Zakázať synchronizáciu a obnoviť súvisiace nastavenia.</string>
+  <string name="sync_confirmation">Ste si istý, že sa chcete odhlásiť a reštartovať synchronizáciu?</string>
+  <string name="cloud_info">Informácie o cloude</string>
+  <string name="cloud_info_summary">Dáta v cloudovom úložisku: %s Mb</string>
+  <string name="sync_adapter">Backend synchronizácie</string>
+  <string name="sync_adapter_summary">Aktuálne: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">Autentifikácia do %s</string>
+  <string name="auth_username">Používateľské meno</string>
+  <string name="auth_password">Heslo</string>
+  <string name="auth_access_token">Prístupový token</string>
+  <string name="synchronization_categories">Synchronizačné kategórie</string>
+  <string name="sync_general_settings">Info &amp; všeobecné nastavenia</string>
+  <string name="sync_introduction">Úvod</string>
+  <string name="are_you_sure">Ste si istý?</string>
+  <string name="are_you_sure_reset_local">Toto resetuje vašu lokálnu databázu pre %s s obsahom, ktorý je momentálne uložený v cloudovej službe.</string>
+  <string name="are_you_sure_reset_cloud">Toto resetuje vašu cloudovú databázu pre %s s obsahom, ktorý je máte na tomto zariadení.</string>
+  <string name="sync_cant_fetch">Verzia databázy alebo súboru opravy uložená v cloude je vyššia ako verzia podporovaná touto aplikáciou.</string>
+  <string name="sync_disabling">Nateraz vypínam synchronizáciu pre %s.</string>
+  <string name="sign_in_failed">Prihlásenie do služby backendu synchronizácie zlyhalo.</string>
+  <string name="disabling_sync">Vypínam synchronizácie s cloudom. Po obnovení ho musíte znova povoliť manuálne.</string>
+  <string name="report">Hlásenie</string>
+  <string name="sync_error">Vyskytla sa chyba pri synchronizácii s cloudom.</string>
+  <string name="error_notification_channel_name">Upozornenia na chyby</string>
+  <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Súbor sa nedá prečítať</string>
+  <string name="sqlite_invalid_file">Neplatný súbor modulu alebo názov súboru: %s</string>
+  <string name="sqlite_cant_write">Nedá sa (pre)písať súbor</string>
+  <string name="install_failed_reason">Inštalácia modulu zlyhala z nasledujúceho dôvodu: %s.</string>
+  <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Aplikácia bola otvorená inde</string>
+  <string name="open_here">Otvoriť tu</string>
+  <string name="external_link">Externý odkaz</string>
+  <string name="external_link_question">Týmto sa otvorí externý odkaz %s v prehliadači, chcete pokračovať?</string>
 </resources>

@@ -38,10 +38,14 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.windowControl
+import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.service.device.speak.event.SpeakProgressEvent
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 class WindowChangedEvent(val window: Window)
 
@@ -97,6 +101,7 @@ class Window (
 
     init {
         pageManager.window = this
+        ABEventBus.register(this)
     }
 
     val entity get () =
@@ -110,10 +115,9 @@ class Window (
             isLinksWindow = isLinksWindow,
             syncGroup = syncGroup
         )
-    var displayedKey: Key? = null
-        private set
-    var displayedBook: Book? = null
-        private set
+
+    private var displayedKey: Key? = null
+    private var displayedBook: Book? = null
 
     var isSynchronised = entity.isSynchronized
         set(value) {
@@ -155,7 +159,10 @@ class Window (
 
     var bibleView: BibleView? = null
 
-    fun destroy() = bibleView?.destroy()
+    fun destroy() {
+        ABEventBus.unregister(this)
+        bibleView?.destroy()
+    }
 
     override fun toString(): String = "Window[${displayId}]"
 
@@ -176,9 +183,8 @@ class Window (
         if(!isVisible) return
 
         Log.i(TAG, "Loading OSIS xml in background")
-        var key: Key? = null
+        val key: Key?
         var anchorOrdinal: OrdinalRange? = null
-        var htmlId: String? = null
         val currentPage = pageManager.currentPage
 
         if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
@@ -187,14 +193,14 @@ class Window (
             key = pageManager.currentPage.key
             anchorOrdinal = currentPage.anchorOrdinal
         }
-        htmlId = if(currentPage.currentDocument?.isEpub == true) {
+        val htmlId = if(currentPage.currentDocument?.isEpub == true) {
             currentPage.htmlId
         } else {
             null
         }
 
         displayedBook = currentPage.currentDocument
-        displayedKey = currentPage.singleKey
+        displayedKey = currentPage.key
         Log.i(TAG, "updateText ${this.hashCode()}")
 
         updateScope.launch(Dispatchers.IO) {
@@ -245,6 +251,21 @@ class Window (
         }
     }
 
+    fun onEvent(e: SpeakProgressEvent) {
+        if(AdvancedSpeakSettings.synchronize || e.forceFollow) return // handled in SpeakControl
+        val speakKey = (e.key as? BookAndKey)?.key?: e.key
+        val currentWindowKey = pageManager.currentPage.key
+
+        val isContained = bibleView?.verseRangeLoaded?.contains(speakKey) ?: false
+        if(displayedBook == e.book && (speakKey == currentWindowKey || isContained)) {
+            if(e.key is BookAndKey) {
+                bibleView?.highlightOrdinalRange(e.key.ordinal!!.start .. (e.key.ordinal.end ?: e.key.ordinal.start))
+            } else if(e.key is VerseRange) {
+                bibleView?.highlightOrdinalRange(e.key.start.ordinal .. e.key.end.ordinal)
+            }
+        }
+    }
+
     fun updateText() {
         val document = pageManager.currentPage.currentDocument
         val verse = pageManager.currentVersePage.currentBibleVerse.verse
@@ -254,15 +275,15 @@ class Window (
         val documentChanged = displayedBook != document
 
         if(documentChanged) {
-            loadText(true)
+            loadText(notifyLocationChange = true)
             return
         }
 
         val prevKey = displayedKey
 
         if( pageManager.isBibleShown
-            && prevKey is Verse
-            && prevKey.book == book
+            && prevKey is VerseRange
+            && prevKey.start.book == book
             && hasChapterLoaded(verse.chapter)
         ) {
             val originalKey = pageManager.currentBible.originalKey
@@ -271,8 +292,9 @@ class Window (
             return
         }
         val anchorOrdinal = pageManager.currentPage.anchorOrdinal
-        if(displayedKey == key && anchorOrdinal != null) {
-            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal)
+        val htmlId = pageManager.currentPage.htmlId
+        if(prevKey == key && (anchorOrdinal != null || htmlId != null)) {
+            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal, htmlId)
             return
         }
         loadText(notifyLocationChange = true)
@@ -296,7 +318,7 @@ class Window (
     }
 
     fun updateTextIfNeeded() {
-        if((displayedKey != pageManager.currentPage.singleKey || displayedBook != pageManager.currentPage.currentDocument)
+        if((displayedKey != pageManager.currentPage.key || displayedBook != pageManager.currentPage.currentDocument)
             || (windowControl.windowSync.lastForceSyncAll > lastUpdated))
         {
             loadText()

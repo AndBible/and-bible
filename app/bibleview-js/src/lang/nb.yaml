@@ -1,0 +1,64 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: Bokmerker
+bookmarksAndNotes: ""
+openMyNotes: Åpne i Mine notater
+openStudyPad: Åpne i studiebrett (%s)
+noteText: Fotnoter (%s)
+noteTextWithoutType: Fotnoter
+crossReferenceText: Kryssreferanser
+findAllOccurrences: Finn alle forekomstene
+reportError: Rapporter feil
+errorTitle: En feil oppstod
+warningTitle: Advarsel
+normalTitle: ""
+footnoteTypeStudy: Studie
+footnoteTypeExplanation: Forklaring
+footnoteTypeVariant: ""
+footnoteTypeAlternative: ""
+footnoteTypeTranslation: Oversettelse
+clearLog: Tøm feilloggen
+editTextPlaceholder: Tapp for å redigere
+inputPlaceholder: Skriv her
+inputReference: Skriv bibelreferanse
+invalidReference: Vers ble ikke funnet
+bookmarkAccurate: Bokmerke ble opprettet i %s
+bookmarkInaccurate: ""
+defaultBook: standard bibeloversettelse
+ok: OK
+yes: "Ja"
+ambiguousSelection: ""
+cancel: Avbryt
+removeBookmarkConfirmationTitle: "Slette bokmerke?"
+removeBookmarkConfirmation: "Er du sikker på at du vil slette dette bokmerket?"
+createdAt: "Opprettet: %s"
+lastUpdatedOn: "Sist endret: %s"
+strongsAndMorph: Definisjoner og morfologi
+externalLink: Åpne ekstern lenke
+referenceLink: Åpne referanselenke
+openFootnote: Åpne fotnote
+noMyNotesTitle: Du har ingen notater for dette kapittelet
+noMyNotesDescription: >
+  Kom i gang ved å opprette bokmerker i en Bibel. Bokmerket vil vises her, og du kan legge inn personlige notater til dem.
+emptyStudyPad: >
+doYouWantToDeleteEntry: ""
+removeStudyPadConfirmationTitle: ""
+dragHelp: ""
+openAll: ""
+editBookmarkPlaceholder: ""
+onlyLabel: ""
+wholeBookmark: ""
+assignLabelsMenuEntry1: ""
+favouriteLabels: ""
+recentLabels: ""
+bookmarkLabels: ""
+refParserHelp: ""
+openDownloads: ""
+verseShare: Del
+verseSpeak: Høytlesing
+verseCompare: Sammenlign
+verseNote: ""
+verseMyNotes: Mine notater
+verseShareLong: ""
+verseCompareLong: ""
+verseNoteLong: ""
+addBookmark: Bokmerke

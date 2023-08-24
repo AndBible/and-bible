@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Studi Biblion</string>
-  <string name="app_name_medium">Studi Biblion (And Biblio)</string>
   <string name="app_name_long">AndBible: Studi Biblion</string>
-  <string name="project">La malfermkoda projekto de And Bible</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Enmetu SD‑karton kaj restartigu la aplikaĵon.</string>
   <!--Main menu-->
@@ -234,17 +232,16 @@
   <string name="failed_repositories_message">Ne povis konekti al la jenaj deponejoj de dokumentoj:\n\n%s\n\n</string>
   <string name="failed_downloads_message">Ne povis elŝuti la jenajn dosierojn:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Ŝargi dokumenton el zip-dosiero</string>
   <string name="install_zip_module">Instali modulon de Biblio</string>
   <string name="install_zip_successfull">Modulo instalita sukcese</string>
   <string name="extracting_zip_file">Eltirado de zip-dosiero…</string>
   <string name="checking_zip_file">Kontrolado de dosiero…</string>
   <string name="invalid_module">Dosiero ne enhavas ĝustan SWORD-modulon</string>
-  <string name="install_zip_title">Bonvolu atendi. Ŝargado de zip-dosiero.</string>
   <string name="overwrite_files">La jenaj dosieroj jam ekzistas: %s Ĉu anstataŭigi ilin?</string>
   <string name="overwrite_files_title">Ĉu anstataŭigi dosierojn?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Legplano</string>
+  <string name="reading_plans_plural">Legplanoj</string>
   <string name="rdg_plan_selector_title">Elektu planon de legado</string>
   <string name="rdg_plan_day">%s-a tago</string>
   <string name="rdg_plan_set_start_date">Agordi daton de komenco…</string>
@@ -476,15 +473,15 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="mynotes">Miaj notoj</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sekurkopio</string>
-  <string name="backup_modules">Kunhavigi aŭ sekurkopii dokumentojn al…</string>
-  <string name="backup_app_database">Kunhavigi aŭ sekurkopii datumbazon al…</string>
-  <string name="backup_app">Kunhavigi aŭ sekurkopii aplikaĵon (dosieron .apk) al…</string>
+  <string name="backup_modules2">Sekurkopii dokumentojn al…</string>
+  <string name="backup_to">Sekurkopii al…</string>
+  <string name="backup_restore_from">Restarigi el…</string>
+  <string name="backup_restore">Restarigi</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Kion vi volas restarigi?</string>
   <string name="restore_app_database">Restarigi datumbazon el…</string>
   <string name="restore_database">Dosiero de datumbazo</string>
   <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn?</string>
-  <string name="reading_plans_plural">Legplanoj</string>
   <string name="restore_success">Sukcese restarigis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn</string>
   <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
   <string name="backup_success2">Sukcese sekurkopiis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn.</string>
@@ -494,10 +491,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="backup_email_subject_2">%s: sekurkopio de datumbazo</string>
   <string name="backup_email_message_2">Datumbazo enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn de la programo %s troviĝas en la kunsendaĵo</string>
   <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
-  <string name="backup_phone_storage">Konservejo</string>
-  <string name="backup_backup_title">Kien sekurkopii?</string>
-  <string name="backup_backup_message">Ĉu sekurkopii al konservejo aŭ ĉu per la menuo “kunhavigi” (retpoŝto, Google Drive, ktp.)?</string>
-  <string name="backup_share">Kunhavigi</string>
   <string name="restore_modules">Restarigi dokumentojn el…</string>
   <string name="send_backup_file">Sendi dosieron de sekurkopio</string>
   <string name="backup_modules_title">Elekti modulojn por sekurkopii</string>
@@ -664,7 +657,6 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="unlock_module">Agordi pasvorton por modulo</string>
   <string name="unlock_info">Informoj pri malfermi ĉifritan modulon</string>
   <string name="try_again_passphrase">Erara pasvorto; ĉu reprovi?</string>
-  <string name="cant_delete_last_bible">Ne povas forigi la lastan dokumenton de Biblio</string>
   <string name="show_unlock_info">Pri ĉifrita modulo</string>
   <string name="prefs_show_error_box_title">Montri JavaScript-erarujon</string>
   <string name="prefs_show_error_box_summary">Uzebla por programistoj por solvi JavaScript‑rilatajn erarojn en BibleView. Tio ĉi malrapidigos la aplikaĵon.</string>
@@ -698,8 +690,6 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Pluigi malgraŭe</string>
   <string name="rate_title">Taksi kaj recenzi la aplikaĵon</string>
-  <string name="rate_message5">
-Detalaj favoraj recenzoj multe helpas al la malfermkoda projekto And Bible. Dankon!</string>
   <string name="rate_message6">
 Antaŭ skribi malfavoran recenzon, bonvolu konsideri:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -783,6 +773,14 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="strongs_links">Ligiloj</string>
   <string name="strongs_text_and_links">Tekstoj kaj ligiloj</string>
   <string name="verse_tip">Por elekti parton aŭ plurajn versojn, frapetadu la tekston de Biblio</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Permeso postulata</string>
+  <string name="labels_search_hint">Serĉi</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Informoj</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

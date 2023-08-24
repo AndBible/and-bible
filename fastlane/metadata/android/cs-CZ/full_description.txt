@@ -27,6 +27,7 @@ Aplikace obsahuje mnohé podnětné, originální funkce, které složitý a hlu
 Projekt And Bible je komunitní otevřený software. V praxi to znamená, že může přispívat kdokoli s vhodnými znalostmi:
 
  * vývojem nových funkcí,
+ * : https://andbible.org/buy
  * testováním nezveřejněných funkcí,
  * aktualizací překladu uživatelského rozhraní a
  * rozšiřováním modulové knihovny získáváním svolení od vlastníků autorských práv nebo převodem dokumentů do formátu SWORD.
@@ -35,7 +36,7 @@ Pokud jste profesionální vývojář softwaru nebo tester, zvažte prosím, zda
 
 <b>Odkazy</b>
 
- * Domovská stránka: https://andbible.github.io
+ * Domovská stránka: https://andbible.org
  * Sledujte And Bible na Facebooku: https://www.facebook.com/AndBible/
  * Náš kanál Youtube: https://www.youtube.com/c/AndBible
  * Často kladené otázky: https://git.io/JJm8E

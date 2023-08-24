@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Raamattu</string>
-  <string name="app_name_medium">Raamattu (And Bible)</string>
   <string name="app_name_long">AndBible: Raamattu</string>
-  <string name="project">And Bible avoimen lähdekoodin projekti</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä ohjelma uudelleen.</string>
   <!--Main menu-->
@@ -237,17 +235,16 @@
   <string name="failed_repositories_message">Yhteyden otto seuraaviin dokumenttipalvelimiin epäonnistui: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Seuraavia tiedostoja ei voitu ladata\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Lataa teos Zip-tiedostosta</string>
   <string name="install_zip_module">Asenna raamattumoduuli</string>
   <string name="install_zip_successfull">Moduuli asennettiin onnistuneesti</string>
   <string name="extracting_zip_file">Puretaan Zip-tiedostoa…</string>
   <string name="checking_zip_file">Tarkastetaan annettua tiedostoa…</string>
   <string name="invalid_module">Tiedostossa ei ole kelvollista SWORD moduulia</string>
-  <string name="install_zip_title">Ole hyvä ja odota. Ladataan Zip tiedostoa.</string>
   <string name="overwrite_files">Seuraavat tiedosto ovat jo olemassa: %s Ylikirjoitetaanko?</string>
   <string name="overwrite_files_title">Ylikirjoitetaanko tiedostot?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lukusuunnitelma</string>
+  <string name="reading_plans_plural">Lukusuunnitelmat</string>
   <string name="rdg_plan_selector_title">Valitse lukusuunnitelma</string>
   <string name="rdg_plan_day">Päivä %s</string>
   <string name="rdg_plan_set_start_date">Aseta alkupäivämäärä…</string>
@@ -487,15 +484,15 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="mynotes">Omat kommentit</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varmuuskopioi &amp; palauta</string>
-  <string name="backup_modules">Jaa tai varmuuskopioi dokumentit...</string>
-  <string name="backup_app_database">Jaa tai varmuuskopioi sovelluksen tietokanta…</string>
-  <string name="backup_app">Jaa tai varmuuskopioi ohjelmisto (.apk-tiedosto)...</string>
+  <string name="backup_modules2">Varmuuskopioi dokumentit…</string>
+  <string name="backup_to">Varmuuskopioi…</string>
+  <string name="backup_restore_from">Palauta varmuuskopiosta…</string>
+  <string name="backup_restore">Palauta</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Mitä haluat palauttaa?</string>
   <string name="restore_app_database">Palauta sovelluksen tietokanta...</string>
   <string name="restore_database">Palauta tietokantatiedosto</string>
   <string name="restore_confirmation">Palauta omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat nykyisten päälle?</string>
-  <string name="reading_plans_plural">Lukusuunnitelmat</string>
   <string name="restore_success">Omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat on palautettu onnistuneesti</string>
   <string name="loading_backup">Lataan tietokantaa varmuuskopiosta…</string>
   <string name="backup_success2">Omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat on varmuuskopioitu onnistuneesti.</string>
@@ -505,10 +502,6 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="backup_email_subject_2">Sovelluksen %s tietokannan varmuuskopio</string>
   <string name="backup_email_message_2">Liitetiedostona on sovelluksen %s tietokanta, joka sisältää kirjanmerkit, muistiinpanot, lukusuunnitelmat ja työtilat.</string>
   <string name="restore_unsuccessfull">Tietokannan palauttaminen varmuuskopiosta epäonnistui. Annoit ehkä virheellisen tietokantatiedoston.</string>
-  <string name="backup_phone_storage">Puhelimen muisti</string>
-  <string name="backup_backup_title">Mihin varmuuskopioidaan?</string>
-  <string name="backup_backup_message">Varmuuskopioidaanko puhelimen muistiin vai muualle Jaa -toimintoa käyttäen (sähköposti, Google Drive jne.)?</string>
-  <string name="backup_share">Jaa</string>
   <string name="restore_modules">Palauta dokumentteja…</string>
   <string name="send_backup_file">Lähetä varmuuskopiotiedosto</string>
   <string name="backup_modules_title">Valitse mitkä moduulit varmuuskopioidaan</string>
@@ -668,7 +661,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="unlock_module">Aseta moduulin salasana</string>
   <string name="unlock_info">Salatun moduulin avaustiedot</string>
   <string name="try_again_passphrase">Salasana ei toiminut, yritä uudelleen?</string>
-  <string name="cant_delete_last_bible">Ei voida poistaa viimeistä raamattudokumenttia</string>
   <string name="show_unlock_info">Moduulin tiedot &amp; ohjeet salasanan hankkimiseksi</string>
   <string name="prefs_show_error_box_title">Näytä Javascript-virheiden laatikko</string>
   <string name="prefs_show_error_box_summary">Hyödyllinen kehittäjille silloin kun he debuggaavat BibleViewin javascript-puolen virheitä. Tämä tekee sovelluksesta hitaamman. </string>
@@ -702,7 +694,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Jatka joka tapauksessa</string>
   <string name="rate_title">Sovelluksen arviointi</string>
-  <string name="rate_message5">Positiiviset ja yksityiskohtaiset arviot auttavat And Bible avoimen lähdekoodin projektia paljon. Kiitokset!</string>
   <string name="rate_message6">Ennen kuin annat negatiivisen arvion, huomioithan seuraavat:</string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">Jos sinulla on ongelmia sovelluksen kanssa, %s tai %s sen sijaan.</string>
@@ -776,6 +767,14 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="strongs_links">Linkkejä</string>
   <string name="strongs_text_and_links">Teksti ja linkit</string>
   <string name="verse_tip">Valitaksesi osittaisia tai useita jakeita, napauta pitkään Raamatun tekstiä</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Lupa tarvitaan</string>
+  <string name="labels_search_hint">Etsi</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Tietoja</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

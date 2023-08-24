@@ -27,6 +27,7 @@ Programėlėje yra daug sumanių, išskirtinių ypatybių, kurios sudėtingą ir
 And Bible yra atvirojo kodo bendruomenės projektas. Praktiškai, tai reiškia, kad kiekvienas žmogus su tinkamais įgūdžiai gali, ir yra skatinamas, talkinti projektui:
 
  * plėtojant naujas ypatybes,
+ * : https://andbible.org/buy
  * išbandant kol kas neišleistas ypatybes,
  * palaikant naudotojo sąsają išverstą į savo kalbą bei
  * padedant išplėsti modulių biblioteką gaunant leidimus iš autorių teisių turėtojo arba konvertuojant dokumentus į „SWORD“ formatą.
@@ -35,7 +36,7 @@ Jei esate profesionalus programinės įrangos specialistas ar testuotojas, apsva
 
 <b>Nuorodos</b>
 
- * Pagrindinis puslapis: https://andbible.github.io
+ * Pagrindinis puslapis: https://andbible.org
  * Spauskite „Patinka“ And Bible „Facebook“ puslapyje: https://www.facebook.com/AndBible/
  * Mūsų „Youtube“ kanalas: https://www.youtube.com/c/AndBible
  * Dažnai užduodami klausimai: https://git.io/JJm8E

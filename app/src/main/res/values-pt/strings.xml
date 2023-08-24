@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Bíblia</string>
-  <string name="app_name_medium">Bíblia (And Bible)</string>
   <string name="app_name_long">AndBible: Estudo Biblico</string>
-  <string name="project">Projeto Open Source And Bible</string>
   <string name="version_text">Versão %s</string>
   <string name="no_sdcard_error">Insira um cartão SD e reinicie a aplicação.</string>
   <!--Main menu-->
@@ -238,18 +236,17 @@
   <string name="failed_repositories_message">Não foi possível conectar ao seguinte servidor de documentos: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Não foi possível fazer o download dos seguintes ficheiros:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Carregar Documento de Arquivo ZIP</string>
   <string name="install_zip_module">Instalar o módulo de Bíblia</string>
   <string name="install_zip_successfull">Módulo instalado com sucesso</string>
   <string name="extracting_zip_file">Extraindo o Documento de Arquivo ZIP</string>
   <string name="checking_zip_file">Verificando o arquivo fornecido ...</string>
   <string name="invalid_module">Este arquivo não contém um módulo SWORD válido</string>
-  <string name="install_zip_title">Por favor espere. Carregando o ficheiro ZIP</string>
   <string name="overwrite_files">Os seguintes ficheiros já existem: %s
 Substituir?</string>
   <string name="overwrite_files_title">Substituir ficheiros?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plano de leitura</string>
+  <string name="reading_plans_plural">Planos de Leitura</string>
   <string name="rdg_plan_selector_title">Escolha um plano de leitura</string>
   <string name="rdg_plan_day">Dia %s</string>
   <string name="rdg_plan_set_start_date">Definir Data de Começo</string>
@@ -481,15 +478,13 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="mynotes">Anotações</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Backup e Restauro</string>
-  <string name="backup_modules">Partilhar ou fazer Backup de Documentos para...</string>
-  <string name="backup_app_database">Partilhar ou fazer Backup da base de dados das aplicações para...</string>
-  <string name="backup_app">Partilhar ou fazer Backup de aplicação (ficheiro .apk) para...</string>
+  <string name="backup_modules2">Fazer Backup dos Documentos para...</string>
+  <string name="backup_restore">Restaurar</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">O que deseja restaurar?</string>
   <string name="restore_app_database">Restaurar base de dados da aplicação a partir de...</string>
   <string name="restore_database">Restaurar o Ficheiro da Base de Dados</string>
   <string name="restore_confirmation">Substituir As Minhas Notas, Áre de Estudo, Plano de Leitura e Área de Trabalho?</string>
-  <string name="reading_plans_plural">Planos de Leitura</string>
   <string name="restore_success">As Minhas Notas, Marcadores, Áreas de Estudo, Planos de Leitura, e Áreas de Trabalho, foram restauradas com sucesso</string>
   <string name="loading_backup">Carregando a base de dados a partir do backup...</string>
   <string name="backup_success2">As Minhas Notas, Marcadores, Áreas de Estudo, Panos de Leitura e Áreas de Trabalho, tiveram backup com sucesso.</string>
@@ -499,10 +494,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_email_subject_2">%sde backup da base de dados</string>
   <string name="backup_email_message_2">A sua %sbase de dados contém marcadores, anotações, planos de leitura e áreas de trabalho em anexo</string>
   <string name="restore_unsuccessfull">Não foi possível restaurar a base de dados. Talvez tenha fornecido um ficheiro de base de dados inválido.</string>
-  <string name="backup_phone_storage">Armanezamento do telefone</string>
-  <string name="backup_backup_title">Fazer backup para onde?</string>
-  <string name="backup_backup_message">Backup para telefone ou outro local através da função Compartilhar (e-mail, Google Drive etc.)?</string>
-  <string name="backup_share">Partilhar</string>
   <string name="restore_modules">Restaurar documentos a partir de...</string>
   <string name="send_backup_file">Enviar ficheiro de backup</string>
   <string name="backup_modules_title">Escolher quais os módulos para incluir no backup</string>
@@ -689,7 +680,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="unlock_module">Escolha a palavra passe para o módulo</string>
   <string name="unlock_info">Informação sobre o desbloqueamento do módulo</string>
   <string name="try_again_passphrase">A Palavra passe não foi reconhecida, tentar de novo?</string>
-  <string name="cant_delete_last_bible">Não é possível remover o último de documento de Bíblia</string>
   <string name="show_unlock_info">Informação de módulo e de desbloqueamento</string>
   <string name="prefs_show_error_box_title">Mostrar a caixa de erro Javascript</string>
   <string name="prefs_show_error_box_summary">Útil para programadores ao depurar erros secundários de BibleView javascript. Isso tornará o aplicação mais lenta.</string>
@@ -723,8 +713,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Continuar mesmo assim</string>
   <string name="rate_title">Classificação e revisão da aplicação</string>
-  <string name="rate_message5">
-Avaliações positivas e detalhadas ajudam muito o Projeto de Open Source And Bible. Obrigado! </string>
   <string name="rate_message6">
 Antes de dar uma avaliação negativa, por favor considere o seguinte:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -806,5 +794,13 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="added_to_bookmark">Atribuído a este marcador</string>
   <string name="strongs_links">Atalhos</string>
   <string name="verse_tip">Para selecionar parte ou vários versículos, mantenha premido o texto da Bíblia</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
+  <string name="labels_search_hint">Procurar</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Informação</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

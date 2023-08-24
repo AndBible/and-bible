@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Изучение Библии</string>
-  <string name="app_name_medium">Изучение Библии (And Bible)</string>
+  <string name="app_name_medium">Изучение Библии (AndBible) </string>
   <string name="app_name_long">AndBible: Изучение Библии</string>
-  <string name="project">And Bible с открытым исходным кодом</string>
+  <string name="project">AndBible Проект с открытым исходным кодом</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">Вставьте SD-карту и перезапустите приложение.</string>
   <!--Main menu-->
@@ -11,6 +12,8 @@
   <string name="chooseBook">Ресурсы</string>
   <string name="selectPassage">Отрывок</string>
   <string name="search">Найти</string>
+  <string name="search_in_andbible">Найти в Библии</string>
+  <string name="search_with_results2">%1s результатов в %2s</string>
   <string name="settings">Настройки приложения</string>
   <string name="history">История</string>
   <string name="speak">Прослушать</string>
@@ -56,6 +59,9 @@
   <string name="search_old_testament">Ветхий Завет</string>
   <string name="search_current_book">Текущая книга</string>
   <string name="error_executing_search">Неверный запрос</string>
+  <string name="type_text_or_bible_reference">Введите текст или библейскую ссылку</string>
+  <string name="go_to_ref">Открыть %s</string>
+  <string name="search_what">Найти \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номера глав и стихов</string>
   <string name="prefs_show_verseno_summary">Показать номера глав и стихов</string>
@@ -177,6 +183,7 @@
   <string name="prefs_text_colors_menutitle">Настройки цвета</string>
   <string name="window_color_settings_title">Настройки цвета окна</string>
   <string name="workspace_color_settings_title">Настройки цвета рабочей области по умолчанию</string>
+  <string name="color_workspace">Цвет рабочей области</string>
   <string name="color_text">Цвет текста</string>
   <string name="color_background">Фоновый цвет</string>
   <string name="colors_day_mode_title">Дневной режим</string>
@@ -242,17 +249,18 @@
   <string name="failed_repositories_message">Не удалось подключиться к следующему серверу ресурсов: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Следующие файлы не могут быть загружены:\n\n%s\n\n</string>
   <!--Install zip file-->
-  <string name="install_zip">Установить из zip-архива</string>
   <string name="install_zip_module">Установить библейский модуль</string>
+  <string name="install_zip_module_discrete">Установить модуль калькулятора</string>
   <string name="install_zip_successfull">Модуль установлен успешно</string>
   <string name="extracting_zip_file">Извлечение Zip файла...</string>
   <string name="checking_zip_file">Проверка данного файла...</string>
   <string name="invalid_module">Файл не содержит правильный SWORD-модуль </string>
-  <string name="install_zip_title">Пожалуйста, подождите. Zip-файл загружается.</string>
+  <string name="install_zip_title">Пожалуйста, подождите. Загрузка модулей из файла.</string>
   <string name="overwrite_files">Следующие файлы уже существуют: %s Перезаписать?</string>
   <string name="overwrite_files_title">Перезаписать файлы?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План чтения</string>
+  <string name="reading_plans_plural">Планы чтения</string>
   <string name="rdg_plan_selector_title">Выбрать план чтения</string>
   <string name="rdg_plan_day">День %s</string>
   <string name="rdg_plan_set_start_date">Установить дату начала...</string>
@@ -508,15 +516,13 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="mynotes">Мои заметки</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
-  <string name="backup_modules">Отправка или резервное копирование документов в…</string>
-  <string name="backup_app_database">Отправить или создать резервную копию базы данных приложения в…</string>
-  <string name="backup_app">Отправить или создать резервную копию приложения (файл .apk) в…</string>
+  <string name="backup_modules2">Резервное копирование документов на...</string>
+  <string name="backup_restore">Восстановить</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Что вы хотите восстановить?</string>
   <string name="restore_app_database">Восстановить базу данных приложения из…</string>
   <string name="restore_database">Восстановить файл базы данных</string>
   <string name="restore_confirmation">Перезаписать Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области?</string>
-  <string name="reading_plans_plural">Планы чтения</string>
   <string name="restore_success">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно восстановлены.</string>
   <string name="loading_backup">Загрузка базы данных из резервной копии...</string>
   <string name="backup_success2">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно скопированы.</string>
@@ -526,10 +532,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_email_subject_2">%s резервное копирование базы данных</string>
   <string name="backup_email_message_2">Ваша %s база данных, содержащая закладки, заметки, планы чтения и рабочие области, прилагается</string>
   <string name="restore_unsuccessfull">Восстановление базы данных не удалось. Возможно, вы указали неверный файл базы данных.</string>
-  <string name="backup_phone_storage">Память телефона</string>
-  <string name="backup_backup_title">Сохранить резервную копию куда?</string>
-  <string name="backup_backup_message">Резервное копирование на телефон или в другое место через функцию «Поделиться» (электронная почта, Google Drive и т. д.)?</string>
-  <string name="backup_share">Поделиться</string>
   <string name="restore_modules">Восстановить документы из…</string>
   <string name="send_backup_file">Отправить файл резервной копии</string>
   <string name="backup_modules_title">Выберите модули для резервного копирования</string>
@@ -719,7 +721,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="unlock_module">Установить парольную фразу модуля</string>
   <string name="unlock_info">Информация о разблокировке зашифрованного модуля</string>
   <string name="try_again_passphrase">Парольная фраза не сработала, попробовать еще раз?</string>
-  <string name="cant_delete_last_bible">Невозможно удалить последний библейский ресурс</string>
   <string name="show_unlock_info">Информация о модуле и разблокировке</string>
   <string name="prefs_show_error_box_title">Показать окно ошибки Javascript</string>
   <string name="prefs_show_error_box_summary">Полезно для разработчиков при исправлении побочных ошибок JavaScript в BibleView. Это замедлит работу приложения.</string>
@@ -753,9 +754,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Все равно продолжить</string>
   <string name="rate_title">Оценка и обзор приложения</string>
-  <string name="rate_message5">
-        Положительные и подробные отзывы очень помогают And Bible проекту с открытым исходным кодом. Спасибо!
-    </string>
   <string name="rate_message6">
         Прежде чем оставить отрицательный отзыв, обратите внимание на следующее:
     </string>
@@ -849,6 +847,14 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="strongs_links">Ссылки</string>
   <string name="strongs_text_and_links">Текст и ссылки</string>
   <string name="verse_tip">Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии.</string>
-  <!--Android 12 requires new permission, and we need to add this string here for TTS users-->
   <string name="permission_required">Отказано в доступе</string>
+  <string name="labels_search_hint">Поиск</string>
+  <!--Discrete mode settings-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <string name="custom_repositories_info_button_label">Информация</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <!--Device cloud synchronization-->
+  <!--MyBible/MySword module support-->
+  <!--Other / uncategorized-->
 </resources>

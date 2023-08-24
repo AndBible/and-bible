@@ -27,6 +27,7 @@ De applicatie heeft veel handige, originele functies die complexe en grondige bi
 And Bible is een open-source project. Dat betekent in de praktijk dat iedereen met passende vaardigheden kan en mag bijdragen (graag zelfs!) aan het project door:
 
  * nieuwe functionaliteit te ontwikkelen,
+ * : https://andbible.org/buy
  * nog uit-te-komen functionaliteit te testen,
  * de vertalingen up-to-date te houden voor de user interface, en
  * te helpen de bibliotheek uit te breiden door toestemming te vragen aan eigenaren van copyright, of door documenten te converteren naar het SWORD formaat.
@@ -35,7 +36,7 @@ Als je een professionele software-ontwikkelaar bent, of -tester, overweeg dan aa
 
 <b>Links</b>
 
- * Homepagina: https://andbible.github.io
+ * Homepagina: https://andbible.org
  * Vind And Bible leuk op Facebook: https://www.facebook.com/AndBible/
  * Ons Youtube-kanaal: https://www.youtube.com/c/AndBible
  * Meest gestelde vragen: https://git.io/JJm8E

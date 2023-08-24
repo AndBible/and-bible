@@ -27,6 +27,7 @@ Kom ons maak die beste Bybel toep saam!
 And Bible is 'n oop brone gemeenskapsprojek. In die praktyk beteken dit dat enigiemand met geskikte vaardighede kan, en word aangemoedig om, by te dra tot die projek deur:
 
  * ontwikkeling van nuwe kenmerke,
+ * : https://andbible.org/buy
  * toets nog nie vrygestelde kenmerke nie,
  * hou gebruiker skoppelvlak vertalings op datum, en
  * help om die module biblioteek uit te brei deur toestemmings van kopiereg houers te verkry, of deur dokumente na SWORD-formaat om te skakel.
@@ -35,7 +36,7 @@ As jy 'n professionele sagteware-ingenieur of toetser is, oorweeg dit asseblief 
 
 Skakels
 
- * Tuisblad: https://andbible.github.io
+ * Tuisblad: https://andbible.org
  * Hou van Abd Bible Facebook: https://www.facebook.com/AndBible/
  * Ons Youtube kanaal: https://www.youtube.com/c/AndBible
  * Algemene vrae: https://git.io/JJm8E

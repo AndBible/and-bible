@@ -48,6 +48,22 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@id/titleIcon"
 			app:layout_constraintTop_toTopOf="parent" />
+		<TextView
+			android:id="@+id/favouriteLabelTitle"
+			style="@style/EditBookmarkLabelItemTitle"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintEnd_toStartOf="@+id/favouriteLabelCheckBox"
+			app:layout_constraintTop_toBottomOf="@id/labelName" />
+
+		<androidx.appcompat.widget.AppCompatCheckBox
+			android:id="@+id/favouriteLabelCheckBox"
+			style="@style/EditBookmarkLabelItemTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="0dp"
+			android:text="@string/favourite_label"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/labelName" />
 
 		<TextView
 			android:id="@+id/bookmarkStyleTitle"
@@ -56,7 +72,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/bookmark_style"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/titleIcon" />
+			app:layout_constraintTop_toBottomOf="@id/favouriteLabelTitle" />
 
 		<Space
 			android:id="@+id/space3"
@@ -99,11 +115,28 @@
 			android:text="@string/marker_style_whole_verse"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/markerStyle" />
+		<androidx.appcompat.widget.AppCompatCheckBox
+			android:id="@+id/hideStyle"
+			style="@style/EditBookmarkLabelItemTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/hide_style"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/markerStyleWholeVerse" />
+		<androidx.appcompat.widget.AppCompatCheckBox
+			android:id="@+id/hideStyleWholeVerse"
+			style="@style/EditBookmarkLabelItemTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/hide_style_whole_verse"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/hideStyle" />
+
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:id="@+id/thisBookmarkCategory"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:layout_constraintTop_toBottomOf="@+id/markerStyleWholeVerse"
+			app:layout_constraintTop_toBottomOf="@+id/hideStyleWholeVerse"
 			tools:layout_editor_absoluteX="20dp">
 			<TextView
 				android:id="@+id/selectedLabelTitle"
@@ -144,27 +177,11 @@
 			app:layout_constraintTop_toBottomOf="@+id/thisBookmarkCategory" />
 
 		<TextView
-			android:id="@+id/favouriteLabelTitle"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			app:layout_constraintEnd_toStartOf="@+id/favouriteLabelCheckBox"
-			app:layout_constraintTop_toBottomOf="@id/thisWorkspaceTitle" />
-
-		<androidx.appcompat.widget.AppCompatCheckBox
-			android:id="@+id/favouriteLabelCheckBox"
-			style="@style/EditBookmarkLabelItemTitle"
-			android:layout_width="wrap_content"
-			android:layout_height="0dp"
-			android:text="@string/favourite_label"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/thisWorkspaceTitle" />
-
-		<TextView
 			android:id="@+id/autoAssignTitle"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			app:layout_constraintEnd_toStartOf="@+id/autoAssignCheckBox"
-			app:layout_constraintTop_toBottomOf="@+id/favouriteLabelCheckBox" />
+			app:layout_constraintTop_toBottomOf="@+id/thisWorkspaceTitle" />
 
 		<androidx.appcompat.widget.AppCompatCheckBox
 			android:id="@+id/autoAssignCheckBox"
@@ -173,7 +190,7 @@
 			android:layout_height="0dp"
 			android:text="@string/auto_assign_labels1"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/favouriteLabelCheckBox" />
+			app:layout_constraintTop_toBottomOf="@+id/thisWorkspaceTitle" />
 
 
 		<androidx.appcompat.widget.AppCompatCheckBox

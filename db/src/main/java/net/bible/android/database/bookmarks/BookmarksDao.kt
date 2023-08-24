@@ -322,6 +322,8 @@ interface BookmarkDao {
 
     @Delete fun delete(b: Label)
 
+    @Query("SELECT * FROM Label WHERE favourite=1")
+    fun favouriteLabels(): List<Label>
     @Query(
         """
         SELECT Label.* FROM Label 

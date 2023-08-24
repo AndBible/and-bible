@@ -93,6 +93,7 @@ import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OrdinalRange
+import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.StudyPadDocument
@@ -834,26 +835,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    class EpubResourcesAssetHandler: PathHandler {
-        private val epubRe = Regex("""^([^/]+)/(.*)$""")
+    inner class EpubResourcesAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse? {
-            val epubMatch = epubRe.matchEntire(path)
-            if(epubMatch != null) {
-                val bookInitials = epubMatch.groupValues[1]
-                val resourceStr = epubMatch.groupValues[2]
-                val book = Books.installed().getBook(bookInitials)?: return null
-
-                val file: File =
-                    (if(book is SwordGenBook) {
-                        val backend = book.backend
-                        if (backend is EpubBackend) {
-                            backend.getResource(resourceStr)
-                        } else null
-                    }  else null) ?: return null
-
-                return WebResourceResponse(URLConnection.guessContentTypeFromName(file.name), null, file.inputStream())
-            }
-            return null
+            val book = (firstDocument as? OsisDocument)?.book ?: return null
+            val file: File = ((book as? SwordGenBook)?.backend as? EpubBackend)?.getResource(path) ?: return null
+            if(!file.canRead()) return null
+            return WebResourceResponse(URLConnection.guessContentTypeFromName(file.name), null, file.inputStream())
         }
     }
 
@@ -1259,7 +1246,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.settings.getBoolean("show_errorbox", false) else false
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
-        val favouriteLabels = json.encodeToString(serializer(), workspaceSettings.favouriteLabels)
+        val favouriteLabels = json.encodeToString(serializer(), bookmarkControl.favouriteLabels.map {it.id})
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val hideCompareDocuments = json.encodeToString(serializer(), workspaceSettings.hideCompareDocuments)
         val limitAmbiguousModalSize = json.encodeToString(serializer(), workspaceSettings.limitAmbiguousModalSize)
@@ -1721,7 +1708,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
-    fun scrollOrJumpToOrdinal(ordinal: OrdinalRange, forceNow: Boolean = false) {
+    fun scrollOrJumpToOrdinal(ordinal: OrdinalRange?, htmlId: String?, forceNow: Boolean = false) {
         Log.i(TAG, "Scroll or jump to ordinal:$ordinal")
         val now = !contentVisible || forceNow
         fun boolString(value: Boolean?): String {
@@ -1729,15 +1716,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return if(value) "true" else "false"
         }
 
-        val highlight = !contentVisible || ordinal.end != null
-        val jumpToId = "o-${ordinal.start}"
+        val highlight = !contentVisible || ordinal?.end != null
+        val jumpToId = if(ordinal != null) "o-${ordinal.start}" else htmlId!!
 
-        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${ordinal.start}, ordinalEnd: ${ordinal.end}});")
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', '$jumpToId', {now: ${boolString(now)}, highlight: ${boolString(highlight)}, ordinalStart: ${ordinal?.start}, ordinalEnd: ${ordinal?.end}});")
         if(isActive) {
             PassageChangeMediator.onCurrentVerseChanged(window)
         }
     }
 
+    fun highlightOrdinalRange(range: IntRange) {
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', null, {now: false, highlight: true, ordinalStart: ${range.first}, ordinalEnd: ${range.last}});")
+    }
     fun executeJavascriptOnUiThread(javascript: String): Boolean {
         if(htmlLoadingOngoing) {
             Log.e(TAG,"HTML not yet ready, js execution is doomed to fail. $javascript")
@@ -1794,7 +1784,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val isBible get() = firstDocument is BibleDocument
 
-    fun requestPreviousChapter(callId: Long) = scope.launch(Dispatchers.IO) {
+    val verseRangeLoaded: VerseRange? get() {
+        val key = (firstKey as? Verse)?: return null
+        return CommonUtils.getWholeChapters(key.versification, key.book, minChapter, maxChapter)
+    }
+
+    fun requestMoreToBeginning(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtTop")
         if (isBible) {
             val newChap = minChapter - 1
@@ -1815,7 +1810,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun requestNextChapter(callId: Long) = scope.launch(Dispatchers.IO) {
+    fun requestMoreToEnd(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtEnd")
         if (isBible) {
             val newChap = maxChapter + 1
