@@ -609,7 +609,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         scope.launch {
             // use currentSelection for partial selected text, otherwise
             // JS has to send Selection by book and ordinals which is passed in selection parameter
-            setCurrentSelection()
+            currentSelection = null
+            if (selection == null)
+                setCurrentSelection()
             (currentSelection ?: selection)?.copyToClipboard(context)
         }
     }
