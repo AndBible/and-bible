@@ -19,6 +19,7 @@ package net.bible.android.database
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -61,7 +62,7 @@ interface WorkspaceDao {
 
     @Insert fun insertWindow(window: WorkspaceEntities.Window)
 
-    @Insert fun insertHistoryItems(historyItems: List<WorkspaceEntities.HistoryItem>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE) fun insertHistoryItems(historyItems: List<WorkspaceEntities.HistoryItem>)
 
     @Update fun updateWindows(windows: List<WorkspaceEntities.Window>)
 
