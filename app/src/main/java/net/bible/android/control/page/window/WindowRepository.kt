@@ -91,7 +91,6 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     init {
         CommonUtils.buildActivityComponent().inject(this)
-        ABEventBus.safelyRegister(this)
     }
 
     fun initialize() {
