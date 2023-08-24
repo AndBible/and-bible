@@ -195,9 +195,9 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     init {
         val appDbFile = BibleApplication.application.getDatabasePath(appDbFilename)
-        var epubDbFile = File(epubDir, epubDbFilename)
+        var epubDbFile = File(epubDir, alternativeEpubDbFilename)
         if(!epubDbFile.exists()) {
-            epubDbFile = File(epubDir, alternativeEpubDbFilename)
+            epubDbFile = File(epubDir, epubDbFilename)
         }
 
         if(!epubDbFile.exists()) {
