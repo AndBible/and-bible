@@ -189,13 +189,16 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     internal val optimizeLockFile = File(epubDir, "optimize.lock")
 
-    internal val dbFilename = "epub-${bookMetaData.initials}.sqlite3"
+    private val epubDbFilename = "optimized.sqlite3.gz"
+    private val appDbFilename = "epub-${bookMetaData.initials}.sqlite3"
+    private val alternativeEpubDbFilename = "${appDbFilename}.gz"
 
     init {
-        val appDbFile = BibleApplication.application.getDatabasePath(dbFilename)
-        val epubDbFile = File(epubDir, "$dbFilename.gz")
-        //appDbFile.delete()
-        //epubDbFile.delete()
+        val appDbFile = BibleApplication.application.getDatabasePath(appDbFilename)
+        var epubDbFile = File(epubDir, epubDbFilename)
+        if(!epubDbFile.exists()) {
+            epubDbFile = File(epubDir, alternativeEpubDbFilename)
+        }
 
         if(!epubDbFile.exists()) {
             optimizeEpub()
@@ -206,7 +209,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             }
         }
     }
-    private val readDb = getEpubDatabase(dbFilename)
+    private val readDb = getEpubDatabase(epubDbFilename)
     private val dao = readDb.epubDao()
 
     fun getResource(resourcePath: String) = File(rootFolder, resourcePath)
@@ -245,7 +248,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun delete() {
         epubDir.deleteRecursively()
         readDb.close()
-        BibleApplication.application.deleteDatabase(dbFilename)
+        BibleApplication.application.deleteDatabase(epubDbFilename)
     }
 
     fun getKey(originalKey: String, htmlId: String): Key {
