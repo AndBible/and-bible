@@ -285,7 +285,12 @@ object BugReport {
                 title = activity.getString(R.string.bug_report_email_title),
             )
             if(!result) return@withContext
-            val subject = activity.getString(R.string.report_bug_email_subject_3, source, CommonUtils.applicationNameMedium, getSubject(exception))
+            val subject = activity.getString(
+                R.string.report_bug_email_subject_3,
+                "${CommonUtils.applicationVersionNumber} $source",
+                CommonUtils.applicationNameMedium, getSubject(exception
+                )
+            )
             val message = getBugReportMessage(activity, exception)
 
             val uris = ArrayList(listOf(logcatFile, screenshotFile).filter { it.canRead() }.map {
