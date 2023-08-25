@@ -449,7 +449,7 @@
         the locations of these bookmarks/notes move inside the document or disappear completely.
     </string>
     <string name="bookmark_warning3">Do you still want to update module?</string>
-
+    <string name="bookmark_warning4">It is recommended that you backup the module before updating.</string>
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>
     <string name="sort_by_bible_book">Biblical order</string>
