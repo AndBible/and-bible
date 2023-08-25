@@ -93,6 +93,7 @@ class DailyReading : CustomTitlebarActivityBase() {
         }
 
         loadDailyReading(null, null)
+        setupRecycler()
         ABEventBus.register(this)
     }
 
@@ -215,8 +216,6 @@ class DailyReading : CustomTitlebarActivityBase() {
             }
             // end All
 
-            setupRecycler()
-
             Log.i(TAG, "Finished displaying Reading view")
         } catch (e: Exception) {
             Log.e(TAG, "Error showing daily readings", e)
@@ -228,12 +227,21 @@ class DailyReading : CustomTitlebarActivityBase() {
     private lateinit var viewAdapter: DailyReadingDayBarAdapter
     private fun setupRecycler() {
         val days = readingPlanControl.currentPlansReadingDayBarItems
-        viewAdapter = DailyReadingDayBarAdapter()
+        viewAdapter = DailyReadingDayBarAdapter(object : OnItemClickListener {
+            override fun onItemClick(item: DayBarItem) {
+                days.forEach { d -> if (d.dayActive) {
+                    d.dayActive = false
+                    viewAdapter.notifyItemChanged(days.indexOf(d))
+                } }
+                item.dayActive = true
+                loadDailyReading(planCodeLoaded, item.dayNumber)
+                viewAdapter.notifyItemChanged(days.indexOf(item))
+            }
+        })
         viewAdapter.submitList(days)
         binding.daysRecycler.apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
             adapter = viewAdapter
-            addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.HORIZONTAL))
         }
     }
 

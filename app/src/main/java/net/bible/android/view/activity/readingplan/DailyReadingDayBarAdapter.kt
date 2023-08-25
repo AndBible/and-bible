@@ -30,8 +30,10 @@ import net.bible.service.common.CommonUtils.getResourceColor
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class DailyReadingDayBarAdapter : ListAdapter<DayBarItem, DailyReadingDayBarAdapter.ViewHolder>(DIFF_CALLBACK) {
-
+interface OnItemClickListener {
+    fun onItemClick(item: DayBarItem)
+}
+class DailyReadingDayBarAdapter(private val itemClickListener: OnItemClickListener) : ListAdapter<DayBarItem, DailyReadingDayBarAdapter.ViewHolder>(DIFF_CALLBACK) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ReadingDayBarBoxBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
@@ -39,6 +41,9 @@ class DailyReadingDayBarAdapter : ListAdapter<DayBarItem, DailyReadingDayBarAdap
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position) ?: return
+        holder.itemView.setOnClickListener {
+            itemClickListener.onItemClick(item)
+        }
         holder.binding.apply {
             dayNumberView.text = item.dayNumber.toString()
             dateView.text = SimpleDateFormat("MMM dd", Locale.getDefault()).format(item.date)
