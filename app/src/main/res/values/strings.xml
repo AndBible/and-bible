@@ -1171,4 +1171,21 @@
     <string name="prefs_in_window_bookmark_modal_buttons_description">When a text is tapped, one-tap action window is shown. Which action buttons should be shown?</string>
     <string name="processing_epub">Processing EPUB: %s</string>
     <string name="buy_development">Buy development work</string>
+    <string name="new_version_warning">
+        A new release is coming soon. The anticipated release date is %1$s. Watch our
+        %2$s to discover new features and improvements.
+    </string>
+    <string name="new_version_trailer">trailer video</string>
+    <string name="new_version_warning2">
+        After release, this version is not maintained.
+    </string>
+    <string name="new_version_warning3">
+        It will not receive bug fixes or updates.
+    </string>
+    <string name="new_version_warning4">
+        If you don\'t want to upgrade, please disable \'Automatic Updates\' in your app store (Google Play / F-Droid etc).
+    </string>
+    <string name="dont_show">
+        Don\'t show this message again
+    </string>
 </resources>
