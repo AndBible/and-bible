@@ -940,7 +940,7 @@
 
     <!-- parameters are actions (file a bug, send email) -->
     <string name="rate_message1">
-        If have a problem with app, please %s or %s instead.
+        If have a problem with app, please %1$s or %2$s instead.
     </string>
     <!-- param is "please report maintainers" -->
     <string name="rate_message2">
