@@ -47,11 +47,8 @@ feature_10: >
   Vast library of documents: Bible translations, theological commentaries, dictionaries, maps, and
   christian books, totaling over {{total_documents}} documents in over {{total_languages}} languages,
   legally distributed by Crosswire and other SWORD repositories. 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  The provenance of all documents is researched to ensure that all documents can be legally
-  distributed or that permission has been granted by the copyright holder. That is also the reason
-  this app does not include documents like {{unavailable_documents}}.
+feature_10_1: >
+  Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: ESV, NIV and NKJV
@@ -82,4 +79,10 @@ link_4: >
   Frequently Asked Questions: {{faq_url}}
 link_5: >
   Project page on Github: {{github_url}}
-buy_development: by buying development time for AndBible
+buy_title: >
+  Support by buying development time!
+buy_1: >
+  If you don't have time or skills for project contributions, you can also support 
+  project by buying professional developer working time.
+buy_2: >
+  See options

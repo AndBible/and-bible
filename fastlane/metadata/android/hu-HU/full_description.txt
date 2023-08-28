@@ -20,6 +20,7 @@ Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és al
  * Jegyzetlapok jegyzetekkel és biblia hivatkozásokkal: igehirdetésre készülve vagy igehirdetés hallgatása közben.
  * Olvasási tervek: olvassa a bibliát előre összeállított tervek szerint, és állítson be olvasási célokat
  * Modulkönyvtár: bibliafordítások, teológiai kommentárok, szótárak, térképek és keresztény irodalom, összesen 1500 mű, 700 nyelven,  jogtisztán letölthetően a Crosswire és egyéb SWORD modulkönyvtárakból.
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
  * Offline: csak a bibliamodulok letöltésekor van szükség aktív internetkapcsolatra.
 
 <b>Segítsen az alkalmazás jobbá tételében!</b>
@@ -27,12 +28,17 @@ Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és al
 Az And Bible nyilt forráskódú közösségi projekt. Bárkit, aki megfelelő tudással rendelkezik, bátorítunk a közreműködésre:
 
  * új funkciók kifejlesztésével
- * : https://andbible.org/buy
  * újonnan fejlesztett funkciók tesztelésével
  * a felhasználói felület fordításainak karbantartásával és
  * a modulkönyvtár fejlesztésével: dokumentumok SWORD formátumba konvertálásával vagy a jogtulajdonosoktól a megfelelő engedélyek beszerzésével.
 
 Ha hivatásos szoftverfejlesztő vagy tesztelő, kérjük vegyen részt az alkalmazás feljlesztésében! Bővebb információ: https://git.io/JUnaj.
+
+<b>Support by buying development time!</b>
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://andbible.org/buy
 
 <b>Hivatkozások</b>
 

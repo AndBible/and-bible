@@ -20,6 +20,7 @@
  * 個人筆記可以讓你在聆聽講道時新增筆記及參考。
  * 讀經計劃：訂立聖經閱讀目標
  * 龐大的文件庫：700種語言、超過1500份聖經譯本、神學註釋、字典、地點及基督教書籍。全部均由Crosswire及其他SWORD資料庫授權分發。
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
  * 離線可用：只有下載文件時需要上網。
 
 <b>我們需要大家一起造出最好的聖經工具！</b>
@@ -27,12 +28,17 @@
 And Bible是一個開源計劃。這代表了我們需要所有有能之士，為此計劃一同用以下方式貢獻：
 
  * 開發新功能，
- * : https://andbible.org/buy
  * 測驗未開放的新功能，
  * 保持介面翻譯更新，及
  * 協助取得版權及授權、轉換文件至SWORD格式以擴充模組庫。
 
 如果你是專業軟件開發者或測試員，請考慮義務幫助此計劃。如想要更多資訊，請參見 https://git.io/JUnaj 。
+
+<b>Support by buying development time!</b>
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://andbible.org/buy
 
 <b>連結</b>
 

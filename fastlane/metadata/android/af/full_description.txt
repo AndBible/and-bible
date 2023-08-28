@@ -20,6 +20,7 @@ Die toepassing het baie insiggewende, oorspronklike kenmerke, wat 'n komplekse e
  * Bestudeer blokke vir die toevoeging van notas en Bybel verwysings terwyl jy na preke luister.
  * Leesplanne: stel doelwitte vir die lees van die Bybel
  * Groot biblioteek van dokumente: Bybelvertalings, teologiese kommentare, woordeboeke, kaarte en christelike boeke, wat meer as 1500 dokumente in meer as 700 tale beloop, wettig versprei deur Crosswire en ander SWAARDbewaarplekke.
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
  * Vanlyn: die enigste keer wat jy internet nodig het, is vir die aflaai van documents.
 
 <b>Kom ons maak die beste Bybel toep saam!</b>
@@ -27,12 +28,17 @@ Die toepassing het baie insiggewende, oorspronklike kenmerke, wat 'n komplekse e
 And Bible is 'n oop brone gemeenskapsprojek. In die praktyk beteken dit dat enigiemand met geskikte vaardighede kan, en word aangemoedig om, by te dra tot die projek deur:
 
  * ontwikkeling van nuwe kenmerke,
- * : https://andbible.org/buy
  * toets nog nie vrygestelde kenmerke nie,
  * hou gebruiker skoppelvlak vertalings op datum, en
  * help om die module biblioteek uit te brei deur toestemmings van kopiereg houers te verkry, of deur dokumente na SWORD-formaat om te skakel.
 
 As jy 'n professionele sagteware-ingenieur of toetser is, oorweeg dit asseblief om by te dra tot die projek. Vir meer inligting oor hoe om by te dra, sien asseblief https://git.io/JUnaj.
+
+<b>Support by buying development time!</b>
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://andbible.org/buy
 
 <b>Skakels</b>
 

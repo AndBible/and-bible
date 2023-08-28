@@ -31,7 +31,10 @@ title_template = jinja2.Template("{{title}}")
 def render(filename, template=full_description_template, skip_issues=False):
     description = yaml.load(open(filename).read(), yaml.SafeLoader)
 
-    variables = dict(**description, **constants)
+    variables = dict()
+    variables.update(english_description)
+    variables.update(description)
+    variables.update(constants)
     variables = {key: str(value).strip() for key, value in variables.items()}
     variables = {key: jinja2.Template(value).render(**variables) for key, value in variables.items()}
 
@@ -52,6 +55,7 @@ def give_path(lang, path="../fastlane/metadata/android/", txt_file="full_descrip
 
 
 en_US_yml = os.path.join(dir_path,"playstore-description.yml")
+english_description = yaml.load(open(en_US_yml).read(), yaml.SafeLoader)
 with open(give_path("en-US"), "w") as f:
     f.write(render(en_US_yml))
 

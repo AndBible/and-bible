@@ -20,6 +20,7 @@ L'applicazione ha molte caratteristiche intuitive e originali, che rendono una c
  * Appunti di studio per aggiungere annotazioni e riferimenti biblici durante l'ascolto dei sermoni.
  * Piani di lettura: fissa degli obiettivi di lettura della Bibbia
  * Vasta biblioteca di documenti: traduzioni della Bibbia, commentari teologici, dizionari, mappe e libri cristiani, per un totale di oltre 1500 documenti in oltre 700 lingue, distribuiti legalmente da Crosswire e altri repository SWORD.
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
  * Offline: l'unica volta che hai bisogno di internet è per scaricare i documenti.
 
 Creiamo insieme la migliore app della Bibbia!
@@ -27,12 +28,17 @@ Creiamo insieme la migliore app della Bibbia!
 AndBible è un progetto della community open-source. In pratica, ciò significa che chiunque abbia le competenze adeguate può contribuire al progetto ed è incoraggiato a farlo:
 
  * sviluppando nuove funzionalità,
- * : https://andbible.org/buy
  * testando le nuove caratteristiche,
  * mantenendo aggiornate le traduzioni dell'interfaccia utente, e
  * aiutando ad estendere la libreria dei moduli ottenendo i permessi dai detentori del copyright, o convertendo i documenti in formato SWORD.
 
 Se sei uno sviluppatore software o un tester, per favore considera di contribuire al progetto. Per maggiori informazioni su come contribuire, vedi https://git.io/JUnaj.
+
+Support by buying development time!
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://andbible.org/buy
 
 Collegamenti
 

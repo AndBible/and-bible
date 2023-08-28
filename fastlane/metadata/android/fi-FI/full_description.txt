@@ -20,6 +20,7 @@ Sovelluksessa on monia oivaltavia ja alkuperäisiä ominaisuuksia, jotka tekevä
  * Opintoalustat joihin voi kirjoittaa merkintöjä ja raamattuviitteitä saarnoja kuunnellessa.
  * Lukusuunnitelmat: aseta tavoitteita Raamatun lukemiselle
  * Kattava kirjasto erilaisia teoksia: Raamatun käännöksiä, teologisia kommentaareja, sanakirjoja, karttoja ja kristillisiä kirjoja, yhteensä yli 1500 teosta yli  700 kielellä, laillisesti Crosswirelta ja muista SWORD repositorioista .
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
  * Offline: tarvitset internetyhteyttä vain dokumenttien lataamiseen.
 
 <b>Tehdään yhdessä paras Raamattusovellus!</b>
@@ -27,12 +28,17 @@ Sovelluksessa on monia oivaltavia ja alkuperäisiä ominaisuuksia, jotka tekevä
 And Bible on yhteisöllinen avoimen lähdekoodin projekti. Käytännössä se tarkoittaa että rohkaisemme kaikkia, jolla on tarvittava osaaminen, antamaan panoksensa projektiin:
 
  * kehittämällä uusia ominaisuuksia,
- * : https://andbible.org/buy
  * testaamalla ominaisuuksia joita ei ole vielä julkaistu,
  * pitämällä käyttöliittymän käännökset ajan tasalla, ja
  * auttamalla moduulikirjaston laajentamisessa; hankkimalla lupia tekijänoikeusten haltijoilta ja muuntamalla dokumentteja SWORD-muotoon.
 
 Jos olet ohjelmistoalan ammattilainen (kehittäjä tai testaaja), pyydämme sinua harkistemaan aikasi antamista tälle projektille. Lue lisää tietoa siitä kuinka voit osallistua:  https://git.io/JUnaj.
+
+<b>Support by buying development time!</b>
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://andbible.org/buy
 
 <b>Linkkejä</b>
 

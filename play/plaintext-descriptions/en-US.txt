@@ -20,6 +20,7 @@ The application has many insightful, original features, that makes a complex and
  * Study Pads for adding notes and Bible references while listening to sermons.
  * Reading plans: set goals for reading the Bible
  * Vast library of documents: Bible translations, theological commentaries, dictionaries, maps, and christian books, totaling over 1500 documents in over 700 languages, legally distributed by Crosswire and other SWORD repositories.
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
  * Offline: the only time you need internet is for downloading documents.
 
 Let’s make the best Bible app together!
@@ -27,12 +28,17 @@ Let’s make the best Bible app together!
 AndBible is an open-source community project. In practice, this means that anyone with suitable skills can, and is encouraged to, contribute to the project by:
 
  * developing new features,
- * by buying development time for AndBible: https://andbible.org/buy
  * testing not-yet-released features,
  * keeping user interface translations up-to-date, and
  * helping to extend the module library by obtaining permissions from copyright holders, or by converting documents to SWORD format.
 
 If you are a professional software engineer or tester, please consider contributing to the project. For more information on how to contribute, please see https://git.io/JUnaj.
+
+Support by buying development time!
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://andbible.org/buy
 
 Links
 

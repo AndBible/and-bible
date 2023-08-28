@@ -20,6 +20,7 @@
  * 个人笔记可以让你在聆听讲道时新增笔记及参考。
  * 读经计划：订立圣经阅读目标
  * 庞大的文件库：700种语言、超过1500份圣经译本、神学注释、字典、地点及基督教书籍。全部均由Crosswire及其他SWORD资料库授权分发。
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
  * 离线可用：只有下载文件时需要上网。
 
 我们需要大家一起造出最好的圣经工具！
@@ -27,12 +28,17 @@
 And Bible是一个开源计划。这代表了我们需要所有有能之士，为此计划一同用以下方式贡献：
 
  * 开发新功能，
- * : https://andbible.org/buy
  * 测验未开放的新功能，
  * 保持介面翻译更新，及
  * 协助取得版权及授权、转换文件至SWORD格式以扩充模组库。
 
 如果你是专业软件开发者或测试员，请考虑义务帮助此计划。如想要更多资讯，请参见 https://git.io/JUnaj 。
+
+Support by buying development time!
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://andbible.org/buy
 
 连结
 
