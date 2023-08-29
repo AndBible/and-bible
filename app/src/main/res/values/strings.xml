@@ -90,6 +90,7 @@
     <string name="type_text_or_bible_reference">Type text or bible reference</string>
     <!-- Open (bible reference X) -->
     <string name="go_to_ref">Open %s</string>
+    <!-- Finx "(keywords x)", keywords based on text selection -->
     <string name="search_what">Find \"%s\"</string>
 
     <!-- Preferences -->
