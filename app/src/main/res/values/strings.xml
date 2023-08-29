@@ -1171,6 +1171,7 @@
     <string name="prefs_in_window_bookmark_modal_buttons_description">When a text is tapped, one-tap action window is shown. Which action buttons should be shown?</string>
     <string name="processing_epub">Processing EPUB: %s</string>
     <string name="buy_development">Buy development work</string>
+    <string name="buy_development2">Support project</string>
     <string name="new_version_warning">
         A new release is coming soon. The anticipated release date is %1$s. Watch our
         %2$s to discover new features and improvements.
