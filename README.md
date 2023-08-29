@@ -40,9 +40,9 @@ There are so many ways to contribute to AndBible! See our [contributor guide](ht
 
 ## Buy development work for AndBible
 
-You can support AndBible project in terms of money by buying professional software development working time. Tuomas Airaksinen Consulting is offering you to purchase professional software development time that will be used to development of AndBible: Study Bible application by AndBible Open Source Project.
+You can support AndBible project in terms of money by buying professional software development working time.
 
-For more information, see [Tuomas' Webshop](https://shop.tuomasairaksinen.fi/).
+For more information, see [WIKI page](https://github.com/AndBible/and-bible/wiki/Buy-development-work).
 
 ## Development team
 
