@@ -21,7 +21,7 @@ buildscript {
     val kotlinVersion by extra("1.8.20")
     val coroutinesVersion by extra("1.6.4")
     val roomVersion by extra("2.5.1")
-    val jswordVersion by extra("2.3.89")
+    val jswordVersion by extra("2.3.90")
     val jdomVersion by extra("2.0.6") // make sure this is same version as in jsword!
     val commonsTextVersion by extra("1.9") // 1.10.0 crashes on Android 5.1
     val kotlinxSerializationVersion by extra("1.5.0")
