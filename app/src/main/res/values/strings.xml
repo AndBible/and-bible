@@ -853,9 +853,12 @@
         at least 1 document by downloading from the internet, or by loading from a zip file document
         backup.
     </string>
+    <!-- Supported file formats for documents -->
     <string name="supported_formats_title">Supported formats</string>
+    <!-- argument is app_name_andbible (AndBible). -->
     <string name="choose_file">You have to choose the file that you want to load to %s. </string>
     <string name="supported_formats">Supported formats for loading documents from a file: %s</string>
+    <!-- argument is app_name_andbible (AndBible). -->
     <string name="format_zip">Zip file containing Sword module(s), or documents backup file (*.abmd) created by %s</string>
     <string name="format_mysword">MySword documents (*.mybible)</string>
     <string name="format_mybible">MyBible documents (*.SQLite3)</string>
@@ -919,8 +922,9 @@
     <string name="show_reference_at_front">Show at front of verse</string>
     <string name="abbreviate_reference">Abbreviate reference</string>
     <string name="version_name">Version name</string>
+    <!-- meaning, bible version name -->
     <string name="show_version_name">Include version name</string>
-    <string name="show_ellipsis">Show ellipsis (...)</string>
+    <string name="show_ellipsis">Show ellipsis (…)</string>
     <string name="show_quotes">Show quotes</string>
 
     <string name="backup_button">Backup</string>
@@ -1047,9 +1051,11 @@
     <string name="prefs_calculator_pin">Calculator PIN</string>
     <string name="prefs_calculator_pin_desc">PIN code to enter the app when the calculator is shown. </string>
     <string name="calc_division_by_zero">Division by zero is not allowed</string>
+    <!-- Context: calculator. Wrong number format etc. -->
     <string name="calc_wrong_format">Wrong Format</string>
     <string name="calc_wrong_format_operand">Wrong Format. Operand Without any numbers?</string>
     <string name="prefs_persecuted_help">Read this first!</string>
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
     <string name="prefs_persecuted_summary">Instructions for the settings and information about specific discrete build.</string>
 
     <string name="calculator_par1">
@@ -1081,6 +1087,7 @@
     <string name="open_in_window">Open results in a window</string>
 
     <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
     <string name="custom_repositories">Custom repositories</string>
     <string name="custom_repositories_empty_list_message">No custom repositories are defined</string>
     <string name="custom_repositories_create_button_label">Add Custom Repository</string>
@@ -1150,6 +1157,7 @@
     <string name="sync_disabling">Disabling synchronizing for %s for now.</string>
     <string name="sync_update_app">Please update the app to continue synchronization.</string>
     <string name="sign_in_failed">Signing in to synchronization backend service failed.</string>
+    <!--  ... after restoring from backup file -->
     <string name="disabling_sync">Disabling cloud synchronizing. You must re-enable manually after restore.</string>
     <string name="report">Report</string>
     <string name="sync_error">Error occurred in Cloud synchronization</string>
