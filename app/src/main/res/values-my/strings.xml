@@ -37,6 +37,7 @@
   <string name="search_in">%s တွင် ရှာဖွေပါ</string>
   <string name="do_in_background">နောက်ခံတွင် ဆက်အသုံးပြုပါ</string>
   <string name="rebuild_index_button">ပြန်လည်တည်ဆောက်ပါ</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">လုပ်ငန်းစဉ် </string>
   <string name="task_kill_warning">လည်ပတ်နေသောလုပ်ငန်းများသည် မပြီးဆုံးသေးခင် အခြားအက်ပ်များ ပြောင်းလဲအသုံးပြုပါက ရပ်တန့်သွားနိုင်သည်။ </string>
@@ -54,6 +55,8 @@
   <string name="search_old_testament">ဓမ္မဟောင်းကျမ်း</string>
   <string name="search_current_book">လက်ရှိစာအုပ်</string>
   <string name="error_executing_search">စုံစမ်းရှာဖွေမှု မမှန်ကန်ပါ</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">အခန်းကြီး &amp; အခန်းငယ်နံပါတ်များ</string>
   <string name="prefs_show_verseno_summary">အခန်းကြီး &amp;အားပြပါ; အခန်းငယ်နံပါတ်များ</string>
@@ -120,7 +123,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">စာများကို အပေါ်အောက်ဆွဲစဉ်တွင် အလိုအလျေက် မျက်နှာပြင်အပြည့်သို့ ပြောင်းပါ။ အရိပ်အမြွက်: မျက်နှာပြင်ကို နှစ်ချက်ထိ၍လည်း မျက်နှာပြင်အပြည့် ပြောင်းနိုင်သည်။ </string>
   <string name="prefs_margin_size_title">မာဂျင် အရွယ်အစား ပြောင်းလဲပါ</string>
-  <string name="prefs_margin_size_mm_title">မာဂျင် အရွယ်အစား (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">အဆင့်မြင့် ဆက်တင်များ</string>
   <string name="prefs_display_customization_cat">&amp; ကြည့်ပါ; ခံစားကြည့်ပါ</string>
   <string name="prefs_behavior_customization_cat">အက်ပ်ပလီကေးရှင်း အပြုအမူ</string>
@@ -190,10 +192,8 @@
   <string name="windowMinimise">ချုံ့ပါ</string>
   <string name="windowSynchronise">ထပ်တူကျအောင်ပြုပါ</string>
   <string name="move_window">...သို့ရွှေ့ပြောင်းပါ</string>
-  <string name="move_window_to_position2">တည်နေရာ %d (%s:%s)</string>
   <string name="copy_settings">...သို့ ဆက်တင်များကို ကော်ပီကူးခြင်း</string>
   <string name="copy_settings_to_workspace">အလုပ်ခွင်</string>
-  <string name="copy_settings_to_window">ဝင်းဒိုး %d (%s:%s)</string>
   <string name="change_to_normal">ပုံမှန် ဝင်းဒိုးသို့ ပြောင်းပါ</string>
   <string name="window_pin_mode">တွဲပါ</string>
   <!--Notes screen-->
@@ -215,7 +215,6 @@
   <string name="download_document_confirm_prefix">ဒေါင်းလုပ်ဆွဲပါ</string>
   <string name="download_refresh_book_list_menu_item">ပြန်လည်လန်းဆန်းစေပါ</string>
   <string name="error_downloading">ဒေါင်းလုပ်ဆွဲနေစဉ်အတွင်း မှားယွင်းမှုတစ်ခု ဖြစ်ပေါ်ခဲ့သည်။ သင်၏အင်တာနက် ဆက်သွယ်မှုကို စစ်ဆေးပါ။ </string>
-  <string name="error_downloading_status"> %sကိုလက်ခံပေးသော ဆာဗာသည်  %s (%d) ကြောင့်ချို့ယွင်းမှု ဖြစ်ပေါ်ခဲ့သည်။</string>
   <string name="storage_space_warning">သင်၏ သိုလှောင်နေရာ မလုံလောက်ပါ</string>
   <string name="too_many_jobs">လုပ်ငန်းထမ်းဆောင်မှုများ များပြားလွန်းနေသည်။ အချို့ကိုပြီးစီးအောင်စောင့်ပြီး ပြန်ကြိုးစားကြည့်ပါ။ </string>
   <string name="document_not_installed">ကျေးဇူးပြုပြီး ဒေါင်းလုပ်ဆွဲပါ \'%s\'</string>
@@ -429,7 +428,6 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="window_text_options_help2">ဤဆက်တင်သည် သီးသန့်ဝင်းဒိုးတစ်ခုအတွက် ပြောင်းလဲထားပြီဟု %s တင်္ကေတမှ ဖော်ပြသည်။</string>
   <string name="window_text_options_help3">အလုပ်ခွင်ဆက်တင်သည် ဤဝင်းဒိုးအပေါ်အကျိုးသက်ရောက်စေမည် မဟုတ်ပါ။ </string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">ဤဆက်တင်များအားလုံးကို မူလနေရာ %sသို့ပြန်လည်ထားရန် %s ခလုတ်ကို အသုံးပြုပါ။ </string>
   <string name="reset_defaults">ပုံသေ တန်ဖိုးများ</string>
   <string name="reset_workspace_defaults">အလုပ်ခွင် ပုံသေ တန်ဖိုးများ</string>
   <string name="speak_bookmark_help">စာညှပ်အကူအညီကို အသံဖြင့်ပြောပါ</string>
@@ -489,7 +487,6 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="backup_success2">ကိုယ်ပိုင်မှတ်စုများ၊စာညှပ်များ၊လေ့လာရေးစာရွက်များ၊ စာဖတ်အစီအစဉ်များနှင့်အလုပ်ခွင်များအား အောင်မြင်စွာ အရန်ဖိုင်လုပ်ပြီးပါပြီ။</string>
   <string name="backup_modules_success">ရွေးချယ်ထားသော သင်ခန်းစာများအား အောင်မြင်စွာအရန်ဖိုင်လုပ်ပြီးပါပြီ။</string>
   <string name="backup_modules_email_subject_2">%s သင်ခန်းစာများအား အရန်ဖိုင်လုပ်ခြင်း</string>
-  <string name="backup_modules_email_message_2">အောက်ပါသင်ခန်းစာများ :%s ပါဝင်သည့် သင်၏ %s သင်ခန်းစာများ အရန်ဖိုင်အား ဖိုင်တွဲပေးထားပါသည်။ </string>
   <string name="backup_email_subject_2">%s ဒေတာဘေ့စ် အရန်ဖိုင်လုပ်ခြင်း</string>
   <string name="backup_email_message_2">စာညှပ်များ၊ မှတ်စုများ၊ စာဖတ်ခြင်းအစီအစဉ်များနှင့် အလုပ်ခွင်များပါဝင်သည့် သင်၏ %s ဒေတာဘေ့စ်အား ဖိုင်တွဲထားပါသည်</string>
   <string name="restore_unsuccessfull">ဒေတာဘေ့စ်ပြန်ယူခြင်း မအောင်မြင်ပါ။ သင်က မမှန်သည့် ဒေတာဘေ့စ်ဖိုင် ပေးထားသောကြောင့် ဖြစ်နိုင်ပါသည်။ </string>
@@ -499,8 +496,6 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="install_zip_canceled">သင်ခန်းစာ ထည့်သွင်းခြင်းအား ပယ်ဖျက်လိုက်ပါပြီ</string>
   <!--About-->
   <string name="module_about_copyright">မူပိုင်ခွင့်: %s</string>
-  <string name="module_about_installed_version">ဗားရှင်းထည့်သွင်းပြီးပါပြီ: %s (%s)</string>
-  <string name="module_about_latest_version">နောက်ဆုံးထွက် ဗားရှင်း: %s (%s)</string>
   <string name="module_about_versification">ဗားရှင်းဖွဲ့နွဲ့နည်း: %s</string>
   <string name="module_about_repository">ဖြန့်ဖြူးခြင်း ဆာဗာ: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -508,7 +503,6 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="send_bug_report_title1">စက်ချို့ယွင်းမှု သတင်းပို့ခြင်း</string>
   <string name="send_feedback_title">တုံ့ပြန်ချက်</string>
   <string name="send_bug_report_title">တုံ့ပြန်ချက် / စက်ချို့ယွင်းမှု သတင်းပို့ခြင်း</string>
-  <string name="report_bug_email_subject_3">[%s] ...အတွက် စက်ချို့ယွင်းမှု သတင်းပို့ခြင်း %s %s</string>
   <string name="report_bug_big_heading">ဤမျဉ်းအပေါ်တွင် သင်၏တုံ့ပြန်ချက် သို့မဟုတ် စက်ချို့ယွင်းမှုကို ကျေးဇူးပြုပြီး သတင်းပို့ပါ</string>
   <string name="report_bug_heading1">လမ်းညွှန်ချက်များ</string>
   <string name="report_bug_line_1">စက်ချို့ယွင်းမှုဖြစ်ပေါ်စဉ် မည်သို့ဖြစ်နေပြီး / သင်ဘာလုပ်သည်ကို ကျွန်တော်တို့အား အကျဉ်းချုံးပြောပြပေးပါ။</string>
@@ -597,9 +591,7 @@ Beta ဗားရှင်းတွင် စနစ်တကျမစမ်း�
   <string name="beta_notice_dismiss_until_update">နောက် အပ်ပ်ဒိတ် မတိုင်မီအထိ ပယ်ချပါ</string>
   <string name="stable_notice_title">အက်ပ်ပလီကေးရှင်းကို အဆင့်မြှင့်တင်ပြီးပါပြီ။</string>
   <string name="upgrade_video_message">ဤအသစ်ထုတ်ထားသည့် (%s)၏ အသွင်အပြင်အသစ်များကို တင်ထားသည့် ဗီဒီကိုအသစ်ကို ကျေးဇူးပြုပြီး ကြည့်ပါ။ </string>
-  <string name="stable_notice_par1">ဗားရှင်းအသစ် %s ၏ %s အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။</string>
   <!--History-->
-  <string name="history_for">သုံးခဲ့သည့်မှတ်တမ်း (%s: ဝင်းဒိုး %d)</string>
   <!--Help-->
   <string name="help_nav_title">ညွှန်ကြားပြသခြင်း</string>
   <string name="help_nav_text">မျက်နှာပြင်ကို သင်၏လက်မနှင့် ပွတ်ဆွဲခြင်းဖြင့် ရှေ့နှင့်နောက် အခန်းကြီးသို့ သွားပါ။ မျက်နှာပြင် အပြည့်အသွင်ကို ပြောင်းရန် ကျမ်းစာစာသားအား နှစ်ချက်နှိပ်ပါ။ မျက်နှာပြင်ခွဲခြင်းများ (ဝင်းဒိုးများဟု လည်းခေါ်)တွင် ညာဖက် အပေါ်ထောင့်၌ မီနူးခလုတ် ရှိပြီး ၎င်းသည် ဝင်းဒိုးသီးသန့် လုပ်ဆာင်ချက် အများအပြားကို အသုံးပြုခွင့်အပါအဝင် ဝင်းဒိုးသွင်ပြင်နှင့် အပြုအမူများအား စိတ်ကြိုက် ဖန်တီးခွင့်ကို ပေးသည်။  </string>
@@ -627,12 +619,14 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <!--Welcome text-->
   <string name="redownload_documents">အမြန် ပြန်လည်ဒေါင်းလုပ်ဆွဲပါ</string>
   <string name="welcome_message">%s ဒေါင်းလုပ်ဆွဲသည့်အတွက် ကျေးဇူးတင်ပါသည်။ လက်ရှိတွင် သမ္မာကျမ်းစာနှင့် မှတ်စုများ ထည့်သွင်းထားခြင်း မရှိပါ။ ဆက်လက် လုပ်ဆောင်ရန် အနည်းဆုံး မှတ်စု 1 ခုကို အင်တာနက်မှ ဒေါင်းလုပ်ဆွဲခြင်း သို့မဟုတ် အရန် zip ဖိုင်မှတ်စုတစ်ခုကို ဖွင့်ခြင်းဖြင့် ထည့်သွင်းပေးပါ။ </string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">
         ယခင်က စာအုပ်များ /မှတ်စုများစာရင်းကို တွေ့ရှိထားပါသည်။ သူတို့ကို အလွယ်တကူ ထပ်ဒေါင်းလုပ်ဆွဲရန် အောက်တွင် နှိပ်ပါ။
     </string>
   <!--Uncategorized-->
   <string name="close">ပိတ်ပါ</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">နားလည်ပါသည်</string>
   <string name="first_time_help_show_next_time">နောက်တစ်ကြိမ်တွင် ထပ်ဖော်ပြပါ</string>
   <string name="strongs_mode_title">Strong အသွင်အား ရွေးချယ်ပါ</string>
@@ -678,13 +672,13 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="verse_share_advertise">%sကို အသုံးပြုပြီး ဝေမျှပြီးပါပြီ</string>
   <string name="abbreviate_reference">ကိုးကားချက် အတိုကောက်</string>
   <string name="version_name">ဗားရှင်း အမည်</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">အရန်ဖိုင်</string>
   <string name="back_button">နောက်သို့</string>
   <string name="upgrading_database">ဒေတာဘေ့စ်ကို အဆင့်မြှင့်တင်ခြင်း။ ကျေးဇူးပြု၍ စောင့်ပါ...</string>
   <string name="initializing_app">အက်ပလီကေးရှင်းကို စတင်ခြင်း... </string>
   <string name="show_notes">မှတ်စုများကို ပြပါ</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android ကွန်ယက်မြင်ကွင်း ပက်ကေ့ချ်သည် အလွန်ဟောင်းနေသည် (%s)။  %s ကို အသုံးပြုရန် Android ကွန်ယက်မြင်ကွင်းအား အနည်းဆုံး %s သို့ အဆင့်မြှင့်တင်ရန် လိုအပ်ပါသည်။ စက်အများစုအား  %sမှတစ်ဆင့် ပြုလုပ်နိုင်ပါသည်။ </string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">မည်သို့ပင်ဆိုစေ ဆက်သွားပါ</string>
   <string name="rate_title">အက်ပ်အား နှုန်းသတ်မှတ်ခြင်းနှင့်သုံးသပ်ခြင်း</string>
@@ -692,9 +686,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
         အနုတ်သဘောမသုံးသပ်ခင် ကျေးဇူးပြုပြီး အောက်ပါအချက်ကိုထည့်သွင်းစဉ်းစားစေလိုပါသည်။
     </string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-       အက်ပ်နှင့်ပတ်သက်ပြီး ပြဿနာရှိလျှင် %s သို့မဟုတ် %s ...သာလုပ်ပေးပါ။
-    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         အချို့စာသား / ကျမ်းစာဘာသာပြန်တွင် မှားယွင်းချက် ရှိလျှင်%s.
@@ -770,7 +761,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="chooser_select"> %sကို ရွေးပါ</string>
   <string name="chooser_pref_reset">စာအုပ်/အခန်းကြီးကို ရွေးချယ်ထားသည့်အခါ အခန်းကြီး/အခန်းငယ်ကို 1 သို့ ပြန်လည်မသတ်မှတ်ပါနှင့်</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">%s ဘာသာစကားတွင် ကြားခံစနစ် ဘာသာပြန် အသုံးပြုသူ တစ်စိတ်တစ်ပိုင်းသာရှိပါသဖြင့် စိတ်မကောင်းပါခင်ဗျာ။ %sကို တည်ဆောက် သူများသည် စေတနာ့ဝန်ထမ်း သက်သက်မျှသာ ဖြစ်သောကြောင့် ဖြစ်ပါသည်။ ဘာသာ ကူပြန်ပေးနိုင်ပါလျှင် ကျေးဇူးပြုပြီး %s ကို ကြည့်ပါ။ </string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">ဘာသာပြန်သူများအတွက် လမ်းညွှန်ချက်များ</string>
   <string name="questions_title">မေးခွန်းမေးလိုပါသလား။</string>
@@ -781,11 +771,15 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="verse_tip">အခန်းငယ် များစွာ သို့မဟုတ် တစ်စိတ်တစ်ပိုင်းကို မှတ်သားလိုလျှင် ကျမ်းစာစာသားအား ကြာကြာဖိထားရပါမည်</string>
   <string name="labels_search_hint">ရှာဖွေပါ</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">သတင်းအချက်အလက်</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

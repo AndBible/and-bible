@@ -37,6 +37,7 @@
   <string name="search_in">%s에서 찾기</string>
   <string name="do_in_background">백그라운드에서 계속</string>
   <string name="rebuild_index_button">재생성</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">진행</string>
   <string name="task_kill_warning">다른 어플리케이션으로 전환하면, 이 긴 작업은 마치기 전에 중단될 수 있습니다.</string>
@@ -54,6 +55,8 @@
   <string name="search_old_testament">구약 성경</string>
   <string name="search_current_book">현재 도서</string>
   <string name="error_executing_search">잘못된 검색어</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">장 &amp; 절 번호</string>
   <string name="prefs_show_verseno_summary">장 &amp; 절 번호 보이기</string>
@@ -120,7 +123,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">텍스트를 스크롤링할 때 자동으로 전체 화면으로 전환. 팁: 화면을 두 번 탭하면 언제나 전체 화면으로 변경할 수 있습니다.</string>
   <string name="prefs_margin_size_title">여백 크기 변경</string>
-  <string name="prefs_margin_size_mm_title">여백 크기 (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">고급 설정</string>
   <string name="prefs_display_customization_cat">룩앤필</string>
   <string name="prefs_behavior_customization_cat">어플리케이션 행동</string>
@@ -190,10 +192,8 @@
   <string name="windowMinimise">최소화</string>
   <string name="windowSynchronise">동기화</string>
   <string name="move_window">이동</string>
-  <string name="move_window_to_position2">위치 %d (%s:%s)</string>
   <string name="copy_settings">설정을 다음으로 복사</string>
   <string name="copy_settings_to_workspace">워크스페이스</string>
-  <string name="copy_settings_to_window">윈도우 %d (%s: %s)</string>
   <string name="change_to_normal">보통 윈도우로 변경</string>
   <string name="window_pin_mode">고정하기</string>
   <!--Notes screen-->
@@ -215,7 +215,6 @@
   <string name="download_document_confirm_prefix">다운로드</string>
   <string name="download_refresh_book_list_menu_item">새로고침</string>
   <string name="error_downloading">다운로드 중 문제가 발생했습니다. 인터넷 연결을 확인하세요.</string>
-  <string name="error_downloading_status">%s 문서를 제공하는 서버가 %s 때문에 에러를 반환했습니다 (%d).</string>
   <string name="storage_space_warning">저장 공간 부족</string>
   <string name="too_many_jobs">너무 많은 작업이 실행중입니다. 몇 개가 끝나기를 기다린 후 다시 시도하세요.</string>
   <string name="document_not_installed">‘%s’을(를) 다운로드하세요</string>
@@ -439,7 +438,6 @@
   <string name="window_text_options_help2">%s 아이콘은 이 설정이 이 윈도우에 대해 변경되었음을 나타냅니다.</string>
   <string name="window_text_options_help3">워크스페이스 설정은 이 윈도우에 영향을 미치지 않습니다.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">%s 버튼을 사용하여 모든 설정을 %s로 리셋합니다.</string>
   <string name="reset_defaults">기본 값</string>
   <string name="reset_workspace_defaults">워크플레이스 기본 값</string>
   <string name="speak_bookmark_help">북마크 읽기 도움말</string>
@@ -490,7 +488,6 @@
   <string name="backup_success2">내 노트, 북마크, 스터디 패드, 읽기 계획과 워크스페이스를 성공적으로 백업하였습니다.</string>
   <string name="backup_modules_success">선택한 모듈들을 성공적으로 백업하였습니다.</string>
   <string name="backup_modules_email_subject_2">%s 모듈 백업</string>
-  <string name="backup_modules_email_message_2">첨부 파일은 %s 모듈 백업으로, 다음의 모듈들을 포함합니다: %s</string>
   <string name="backup_email_subject_2">%s 데이터베이스 백업</string>
   <string name="backup_email_message_2">북마크, 노트, 읽기 계획, 그리고 워크스페이스를 포함하는 %s 데이터베이스를 첨부하였습니다</string>
   <string name="restore_unsuccessfull">데이터 복원이 실파했습니다. 아마 잘못된 데이터베이스 파일을 선택한 것 같습니다.</string>
@@ -500,8 +497,6 @@
   <string name="install_zip_canceled">모듈 설치가 취소됨</string>
   <!--About-->
   <string name="module_about_copyright">저작권: %s</string>
-  <string name="module_about_installed_version">설치된 버전: %s (%s)</string>
-  <string name="module_about_latest_version">최신 버전: %s (%s)</string>
   <string name="module_about_versification">시형: %s</string>
   <string name="module_about_repository">배포 서버: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -509,7 +504,6 @@
   <string name="send_bug_report_title1">버그 리포트</string>
   <string name="send_feedback_title">피드백</string>
   <string name="send_bug_report_title">피드백 / 버그 리포트</string>
-  <string name="report_bug_email_subject_3">[%s] %s %s에 대한 버그 리포트</string>
   <string name="report_bug_big_heading">이 라인 위에 피드백이나 버그 리포트를 적어주세요</string>
   <string name="report_bug_heading1">안내:</string>
   <string name="report_bug_line_1">문제가 발생했을 때 무엇을 하셨는지 / 어떤 일이 일어났는지 간단하게 말씀해 주세요.</string>
@@ -604,6 +598,9 @@
         최소한 1개의 문서를 인터넷으로 다운로드하여 설치하거나, zip 파일 백업으로부터 문서를 복구하시기
         바랍니다.
     </string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <!--Uncategorized-->
   <string name="close">닫기</string>
   <string name="first_time_help_do_not_show_again">알겠습니다</string>
@@ -638,6 +635,7 @@
   <string name="verse_share_advertise">%s(으)로 공유했습니다.</string>
   <string name="abbreviate_reference">약어 참조</string>
   <string name="version_name">번역본 이름</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">백업</string>
   <string name="back_button">뒤로</string>
   <string name="upgrading_database">데이터베이스를 업그레이드하고 있습니다. 잠시만 기다리세요…</string>
@@ -650,9 +648,6 @@
         혹시나 부정적인 리뷰를 작성하시려거든, 그 전에 다음 사항들을 확인해 주세요.
     </string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-        앱 사용에 문제가 있으시다면 %s 또는 %s을(를) 해 주세요.
-    </string>
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
   <string name="bug_report">
@@ -677,7 +672,6 @@
   <string name="chooser_style_lists">목록</string>
   <string name="chooser_select">%s 선택</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">죄송합니다. %s 언어로 된 부분적인 사용자 인터페이스 번역만 있습니다. %s은(는) 전적으로 자원 봉사자에 의해 개발되었기 때문입니다. 번역에 도움이 되시면 %s을(를) 참조하십시오.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">번역가를 위한 지침</string>
   <string name="questions_title">질문이 있나요?</string>
@@ -686,11 +680,15 @@
   <string name="verse_tip">절의 일부나 여러 절을 선택하려면, 성경 본문을 길게 누릅니다</string>
   <string name="labels_search_hint">검색</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">정보</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

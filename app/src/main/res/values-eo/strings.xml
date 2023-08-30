@@ -37,6 +37,7 @@
   <string name="search_in">Serĉi en %s</string>
   <string name="do_in_background">Pluigi fone</string>
   <string name="rebuild_index_button">Rekrei</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Tiuj ĉi tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
@@ -54,6 +55,8 @@
   <string name="search_old_testament">Malnova Testamento</string>
   <string name="search_current_book">la nuna libro</string>
   <string name="error_executing_search">Erara serĉmendo</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numeroj de versoj k ĉapitroj</string>
   <string name="prefs_show_verseno_summary">Montri numerojn de versoj kaj ĉapitroj</string>
@@ -120,7 +123,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Aŭtomate baskuli al plenekrano dum rulumi tekston. Konsilo: vi ĉiam povas baskuli al plenekrano per dufoje frapeti la ekranon.</string>
   <string name="prefs_margin_size_title">Ŝanĝi grandojn de marĝenoj</string>
-  <string name="prefs_margin_size_mm_title">Grandoj de marĝenoj (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Spertulaj agordoj</string>
   <string name="prefs_display_customization_cat">Aspekto</string>
   <string name="prefs_behavior_customization_cat">Sinteno</string>
@@ -190,10 +192,8 @@
   <string name="windowMinimise">Kaŝi</string>
   <string name="windowSynchronise">Samtempigi</string>
   <string name="move_window">Movi al</string>
-  <string name="move_window_to_position2">Pozicio %d (%s:%s)</string>
   <string name="copy_settings">Kopii agordojn al</string>
   <string name="copy_settings_to_workspace">laborspaco</string>
-  <string name="copy_settings_to_window">fenestro %d (%s: %s)</string>
   <string name="change_to_normal">Ŝanĝi al norma fenestro</string>
   <string name="window_pin_mode">Alpingli</string>
   <!--Notes screen-->
@@ -215,7 +215,6 @@
   <string name="download_document_confirm_prefix">Elŝuti</string>
   <string name="download_refresh_book_list_menu_item">Aktualigi</string>
   <string name="error_downloading">Eraro okazis dum elŝutado. Bonvolu kontroli vian retkonekton.</string>
-  <string name="error_downloading_status">La servilo enhavanta la dosieron %s liveris eraron: %s (%d).</string>
   <string name="storage_space_warning">Nesufiĉa spaco en loka konservejo.</string>
   <string name="too_many_jobs">Tro multe de taskoj estas lanĉataj. Atendu ĝis iujn finiĝos kaj reprovu.</string>
   <string name="document_not_installed">Bonvolu elŝuti “%s”</string>
@@ -425,7 +424,6 @@ laŭ ilia permeso.</string>
   <string name="window_text_options_help2">La emblemo %s signifas, ke la agordo estas ŝanĝita por tiu ĉi fenestro.</string>
   <string name="window_text_options_help3">La agordo de laborspaco ne aplikiĝos al tiu ĉi fenestro.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Uzu la butonon %s por reagordi ĉiujn tiujn agordojn al %s.</string>
   <string name="reset_defaults">implicitaj valoroj</string>
   <string name="reset_workspace_defaults">implicitaj valoroj de la laborspaco</string>
   <string name="speak_bookmark_help">Helpo pri parola legosigno</string>
@@ -487,7 +485,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="backup_success2">Sukcese sekurkopiis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn.</string>
   <string name="backup_modules_success">Sukcese sekurkopiis la elektitajn modulojn.</string>
   <string name="backup_modules_email_subject_2">%s: sekurkopio de moduloj</string>
-  <string name="backup_modules_email_message_2">Datumbazo enhavanta la jenajn modulojn de la programo %s: %s troviĝas en la kunsendaĵo</string>
   <string name="backup_email_subject_2">%s: sekurkopio de datumbazo</string>
   <string name="backup_email_message_2">Datumbazo enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn de la programo %s troviĝas en la kunsendaĵo</string>
   <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
@@ -497,8 +494,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="install_zip_canceled">Rezignis instali modulon</string>
   <!--About-->
   <string name="module_about_copyright">Aŭtorrajto: %s</string>
-  <string name="module_about_installed_version">Instalita versio: %s (%s)</string>
-  <string name="module_about_latest_version">Plej nova versio: %s (%s)</string>
   <string name="module_about_versification">Versarto: %s</string>
   <string name="module_about_repository">Deponejo: %s</string>
   <string name="module_about_osisId">OSIS-identigilo: %s</string>
@@ -506,7 +501,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="send_bug_report_title1">Erar-raporto</string>
   <string name="send_feedback_title">Opinio</string>
   <string name="send_bug_report_title">Raporti eraron / sendi opinion</string>
-  <string name="report_bug_email_subject_3">[%s] Erar‑raporto pri %s %s</string>
   <string name="report_bug_big_heading">SKRIBU VIAN OPINION AŬ ERAR‑RAPORTON SUPER TIU ĈI LINIO</string>
   <string name="report_bug_heading1">Instrukcioj:</string>
   <string name="report_bug_line_1">Koncize priskribu kion vi faris aŭ io okazis, kiam la problemo okazis.</string>
@@ -592,9 +586,7 @@ Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</stri
   <string name="beta_notice_dismiss_until_update">Ignori ĝis la sekva ĝisdatigo</string>
   <string name="stable_notice_title">Aplikaĵo estis ĝisdatigita!</string>
   <string name="upgrade_video_message">Bonvolu spekti filmeton prezentantan novajn trajtojn de tiu ĉi versio (%s).</string>
-  <string name="stable_notice_par1">Sukcese instalis la novan version (%s) de la aplikaĵo %s!</string>
   <!--History-->
-  <string name="history_for">Historio (%s: fenestro %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigi</string>
   <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, fingrumu la ekranon (mal)dekstren.
@@ -630,11 +622,13 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punkto
   <!--Welcome text-->
   <string name="redownload_documents">Rapide reelŝuti</string>
   <string name="welcome_message">Dankon pro elŝuti la aplikaĵon %s. Nuntempe neniu Biblio aŭ dokumento estas instalita. Por pluigi, instalu almenaŭ 1 dokumenton per elŝuti ĝin el la interreto aŭ per ŝargi ĝin el la ZIP‑dosiero.</string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">
 Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝuti ilin.</string>
   <!--Uncategorized-->
   <string name="close">Fermi</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Kompreneble</string>
   <string name="first_time_help_show_next_time">Montri denove poste</string>
   <string name="strongs_mode_title">Reĝimo de Strong-numerado</string>
@@ -680,21 +674,19 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="verse_share_advertise">Kunhavigita per la aplikaĵo %s.</string>
   <string name="abbreviate_reference">Mallongigi referencon</string>
   <string name="version_name">Nomo de eldonaĵo</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">Konservi</string>
   <string name="back_button">Reen</string>
   <string name="upgrading_database">Ĝisdatigado de datumbazo. Bonvolu atendi…</string>
   <string name="initializing_app">Ekigado de aplikaĵo…</string>
   <string name="show_notes">Montri notojn</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">La pakaĵo Android WebView estas tro malnova (%s). Necesas ĝisdatigi la pakaĵon almenaŭ al la versio %s por uzi la aplikaĵon %s. Por plejparto da aparato tio ĉi eblas per la vendejo %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Pluigi malgraŭe</string>
   <string name="rate_title">Taksi kaj recenzi la aplikaĵon</string>
   <string name="rate_message6">
 Antaŭ skribi malfavoran recenzon, bonvolu konsideri:</string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-• se vi spertas problemon pri la aplikaĵo, %s aŭ %s;</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 • se iu biblia teksto aŭ traduko enhavas eraron, %s;</string>
@@ -762,7 +754,6 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="chooser_select">Elekti %s</string>
   <string name="chooser_pref_reset">Ne agordi ĉapitron/verson al 1 dum elekti libron/ĉapitron</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Bedaŭrinde la fasado de la aplikaĵo estas nur parte tradukita al %s. La aplikaĵo %s estas evoluigata nur de volontuloj. Se vi volus helpi traduki ĝin, bonvolu ekkoni kun %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instrukcioj por tradukantoj</string>
   <string name="questions_title">Demandoj?</string>
@@ -776,11 +767,15 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="permission_required">Permeso postulata</string>
   <string name="labels_search_hint">Serĉi</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Informoj</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

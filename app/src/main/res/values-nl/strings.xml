@@ -37,6 +37,7 @@
   <string name="search_in">Zoeken in %s</string>
   <string name="do_in_background">Doorgaan in de achtergrond</string>
   <string name="rebuild_index_button">Opnieuw bouwen</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">Voortgang</string>
   <string name="task_kill_warning">Deze langlopende taken kunnen beëindigd worden als je overschakelt naar een andere app.</string>
@@ -54,6 +55,8 @@
   <string name="search_old_testament">Oude Testament</string>
   <string name="search_current_book">Huidig boek</string>
   <string name="error_executing_search">Ongeldige zoekopdracht</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofdstuk- en versnummers</string>
   <string name="prefs_show_verseno_summary">Toon hoofdstuk- en versnummers</string>
@@ -120,7 +123,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Wissel automatisch naar volledig scherm tijdens het scrollen van de tekst. Tip: u kunt altijd naar volledig scherm wisselen door dubbel te tikken op het scherm.</string>
   <string name="prefs_margin_size_title">Wijzig margegrootte</string>
-  <string name="prefs_margin_size_mm_title">Margegrootte (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Geavanceerde instellingen</string>
   <string name="prefs_display_customization_cat">Uiterlijk</string>
   <string name="prefs_behavior_customization_cat">Applicatie gedrag</string>
@@ -193,10 +195,8 @@
   <string name="windowMinimise">Minimaliseren</string>
   <string name="windowSynchronise">Synchroniseren</string>
   <string name="move_window">Ga naar</string>
-  <string name="move_window_to_position2">Positie %d (%s:%s)</string>
   <string name="copy_settings">Kopieer instellingen naar</string>
   <string name="copy_settings_to_workspace">Werkblad</string>
-  <string name="copy_settings_to_window">venster %d (%s: %s)</string>
   <string name="change_to_normal">Wisselen naar normaal venster</string>
   <string name="window_pin_mode">Zet vast</string>
   <!--Notes screen-->
@@ -219,7 +219,6 @@
   <string name="download_document_confirm_prefix">Downloaden</string>
   <string name="download_refresh_book_list_menu_item">Verversen</string>
   <string name="error_downloading">Fout tijdens downloaden. Controleer uw internet verbinding svp.</string>
-  <string name="error_downloading_status">De server die %s bevat, geeft een foutmelding vanwege %s (%d)</string>
   <string name="storage_space_warning">Onvoldoende lokale opslagruimte.</string>
   <string name="too_many_jobs">Er worden teveel taken uitgevoerd. Wacht tot sommige beëindigd zijn en probeer het opnieuw.</string>
   <string name="document_not_installed">Download \'%s\'</string>
@@ -432,7 +431,6 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="window_text_options_help2">%s geeft aan dat deze instelling is aangepast voor dit specifieke venster.</string>
   <string name="window_text_options_help3">De werkblad-instellingen hebben geen effect op dit venster.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Gebruik de knop %s om de instellingen terug te zetten naar %s.</string>
   <string name="reset_defaults">standaardwaarden</string>
   <string name="reset_workspace_defaults">standaardwaarden voor werkblad</string>
   <string name="speak_bookmark_help">Hulp bij voorleesbladwijzers</string>
@@ -505,7 +503,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="backup_success2">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol geback-upt.</string>
   <string name="backup_modules_success">Geselecteerde modules succesvol geback-upt.</string>
   <string name="backup_modules_email_subject_2">%s modules back-up</string>
-  <string name="backup_modules_email_message_2">Toegevoegd is uw %s modules back-up, welke de volgende modules bevat: %s</string>
   <string name="backup_email_subject_2">%sdatabase backup</string>
   <string name="backup_email_message_2">Uw %s database met bladwijzers, notities, leesplannen en werkbladen is toegevoegd</string>
   <string name="restore_unsuccessfull">Database herstellen is mislukt. Misschien gaf u een verkeerd database bestand.</string>
@@ -515,8 +512,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="install_zip_canceled">Module installatie afgebroken</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
-  <string name="module_about_installed_version">Geïnstalleerde versie: %s (%s)</string>
-  <string name="module_about_latest_version">Nieuwste versie: %s(%s)</string>
   <string name="module_about_versification">Versificatie: %s</string>
   <string name="module_about_repository">Distributie server: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -524,7 +519,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="send_bug_report_title1">Bug-melding</string>
   <string name="send_feedback_title">Terugkoppeling</string>
   <string name="send_bug_report_title">Terugkoppeling / foutrapportage</string>
-  <string name="report_bug_email_subject_3">[%s] Bug-melding voor %s %s</string>
   <string name="report_bug_big_heading">SCHRIJF ALSTUBLIEFT UW TERUGKOPPELING OF FOUT RAPPORTAGE BOVEN DEZE LIJN</string>
   <string name="report_bug_heading1">Instructies:</string>
   <string name="report_bug_line_1">Vertel in het kort wat u deed of wat er gebeurde toen het probleem zich voor deed.</string>
@@ -611,9 +605,7 @@ Beta gebruikers worden aangemoedigd om foutrapportages te sturen via Google Play
   <string name="beta_notice_dismiss_until_update">Negeren tot volgende update</string>
   <string name="stable_notice_title">Applicatie is vernieuwd!</string>
   <string name="upgrade_video_message">Bekijk alstublieft de video waar de nieuwe functies van deze uitgave worden belicht (%s).</string>
-  <string name="stable_notice_par1">Nieuwe versie %s van %s is succesvol geïnstalleerd!</string>
   <!--History-->
-  <string name="history_for">Geschiedenis (%s: Venster %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigatie</string>
   <string name="help_nav_text">Ga naar het volgende of vorige hoofdstuk door met je vinger over het scherm te vegen. 
@@ -660,11 +652,13 @@ Je wilt misschien Bijbel documenten als vastgemaakt venster en commentaren en ma
   <!--Welcome text-->
   <string name="redownload_documents">Snel herdownloaden</string>
   <string name="welcome_message">Bedankt voor het downloaden van %s. Er zijn momenteel geen Bijbels of documenten geïnstalleerd. Om verder te gaan, installeer dan minstens 1 document van internet, of door het laden van een zip document backup bestand.</string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">
 Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om ze makkelijk nogmaals te downloaden.</string>
   <!--Uncategorized-->
   <string name="close">Sluiten</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Ik begrijp het</string>
   <string name="first_time_help_show_next_time">Laat volgende keer weer zien</string>
   <string name="strongs_mode_title">Kies Strong\'s modus</string>
@@ -710,13 +704,13 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="verse_share_advertise">Gedeeld met %s.</string>
   <string name="abbreviate_reference">Verwijzing afkorten</string>
   <string name="version_name">Vertaling</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">Back-up maken</string>
   <string name="back_button">Terug</string>
   <string name="upgrading_database">Upgrade van database. Even geduld alstublieft.</string>
   <string name="initializing_app">Bezig met starten...</string>
   <string name="show_notes">Notities zien</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Het pakket Android WebView is te oud (%s). U dient uw Android WebView-pakket te updaten naar version %sof hoger, om %s te kunnen gebruiken. Voor de meeste apparaten kunt u dit doen via %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Toch doorgaan</string>
   <string name="rate_title">App beoordelen en reviewen</string>
@@ -724,9 +718,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
         Voor u een negatieve review instuurt, overweeg alstublieft het volgende:
     </string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-        Bij problemen met de app, %s of %s.
-    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Bij problemen met een tekst / Bijbelvertaling, %s.
@@ -801,7 +792,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="chooser_select">Selecteer %s</string>
   <string name="chooser_pref_reset">Reset niet het hoofdstuk/vers naar 1 wanneer boek/hoofdstuk is geselecteerd</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Het spijt ons, maar we hebben slechts een gedeeltelijke vertaling van de gebruikersinterface in de taal %s. Dat komt omdat %s volledig door vrijwilligers is ontwikkeld. Als je kunt helpen bij het vertalen, zie %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instructies voor vertalers</string>
   <string name="questions_title">Vragen?</string>
@@ -815,11 +805,15 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="permission_required">Permissie nodig</string>
   <string name="labels_search_hint">Zoeken</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Informatie</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

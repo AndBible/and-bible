@@ -37,6 +37,7 @@
   <string name="search_in">Finn i %s</string>
   <string name="do_in_background">Fortsett i bakgrunnen</string>
   <string name="rebuild_index_button">Bygg på nytt</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">Fremdrift</string>
   <string name="task_kill_warning">Vær klar over at Android kan avlutte disse tidkrevende jobbende hvis du skifter til en annen applikasjon før jobben er utført.</string>
@@ -54,6 +55,8 @@
   <string name="search_old_testament">Det gamle testamentet</string>
   <string name="search_current_book">Gjeldene bok</string>
   <string name="error_executing_search">Feil i søkestrengen</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapittel- og versnummer</string>
   <string name="prefs_show_verseno_summary">Vis kapittel- og versnummer</string>
@@ -117,7 +120,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Automatisk bytte til fullskjerm ved tekstrulling. Tips: du kan også dobbeltklikke på skjermen for fullskjerm-modus.</string>
   <string name="prefs_margin_size_title">Endre margstørrelse</string>
-  <string name="prefs_margin_size_mm_title">Margstørrelse (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Avanserte innstillinger</string>
   <string name="prefs_display_customization_cat">Utseende og utforming</string>
   <string name="prefs_behavior_customization_cat">Applikasjonsoppførsel</string>
@@ -184,10 +186,8 @@
   <string name="windowMinimise">Minimer</string>
   <string name="windowSynchronise">Synkroniser</string>
   <string name="move_window">Flytt til</string>
-  <string name="move_window_to_position2">Posisjon %d (%s:%s)</string>
   <string name="copy_settings">Kopier innstillinger til</string>
   <string name="copy_settings_to_workspace">Arbeidsområde</string>
-  <string name="copy_settings_to_window">Vindu %d (%s:%s)</string>
   <string name="change_to_normal">Endre til normalt vindu</string>
   <string name="window_pin_mode">Fest</string>
   <!--Notes screen-->
@@ -210,7 +210,6 @@
   <string name="download_document_confirm_prefix">Last ned</string>
   <string name="download_refresh_book_list_menu_item">Oppdater</string>
   <string name="error_downloading">En feil oppstod under nedlasting. Vennligst sjekk internettilkoblingen din.</string>
-  <string name="error_downloading_status">Serveren som inneholder %s returnerte en feil på grunn av %s (%d).</string>
   <string name="storage_space_warning">Ikke nok lokal lagringsplass.</string>
   <string name="too_many_jobs">For mange oppgaver kjører. Vennligst vent til noen avslutter og prøv igjen.</string>
   <string name="document_not_installed">Vennligst last ned \'%s\'</string>
@@ -374,7 +373,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="window_text_options_help2">%s ikon viser at denne innstillingen har blitt endret for dette vinduet.</string>
   <string name="window_text_options_help3">Arbeidsområdeinnstillingene påvirker ikke dette vinduet.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Bruk %s-knappen  for å tilbakestille disse innstillingene til %s.</string>
   <string name="reset_defaults">standardverdiene</string>
   <string name="reset_workspace_defaults">standardverdiene for arbeidsområder</string>
   <string name="speak_help_playback_settings_example">
@@ -422,7 +420,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="loading_backup">Leser database fra sikkerhetskopi</string>
   <string name="backup_success2">Mine notater, bokmerker, studiebrett, leseplaner og arbeidsområder er sikkerhetskopiert.</string>
   <string name="backup_modules_email_subject_2">%s moduler sikkerhetskopiert</string>
-  <string name="backup_modules_email_message_2">Vedlagt er sikkerhetskopi av dine %s moduler, som inneholder følgende: %s</string>
   <string name="backup_email_subject_2">Sikkerhetskopi av %s sin database</string>
   <string name="backup_email_message_2">Din %s database som inneholder bokmerker, notater, leseplaner og arbeidsområder er vedlagt</string>
   <string name="restore_unsuccessfull">Gjenoppretting av database feilet. Kanskje du har valgt feil databasefil.</string>
@@ -432,15 +429,12 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="install_zip_canceled">Installasjon av modul avbrutt</string>
   <!--About-->
   <string name="module_about_copyright">Opphavsrett: %s</string>
-  <string name="module_about_installed_version">Installert versjon: %s (%s)</string>
-  <string name="module_about_latest_version">Siste versjon: %s (%s)</string>
   <string name="module_about_versification">Versifisering: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title1">Feilrapport</string>
   <string name="send_feedback_title">Tilbakemelding</string>
   <string name="send_bug_report_title">Tilbakemelding/feilrapport</string>
-  <string name="report_bug_email_subject_3">[%s] Feilrapport for %s %s</string>
   <string name="report_bug_big_heading">VENNLIGST SKRIV DIN TILBAKEMELDING ELLER FEILRAPPORT OVER DENNE LINJEN</string>
   <string name="report_bug_heading1">Instruksjoner:</string>
   <string name="report_bug_line_1">Fortell oss i korte trekk hva du gjorde, eller hva som hendte, da feilen oppstod.</string>
@@ -527,9 +521,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="beta_notice_dismiss_until_update">Fjern melding inntil neste versjon</string>
   <string name="stable_notice_title">Applikasjonen har blitt oppgradert!</string>
   <string name="upgrade_video_message">Vennligst se video over nye funksjoner i denne utgaven (%s).</string>
-  <string name="stable_notice_par1">Ny versjon %s av %s har blitt installert!</string>
   <!--History-->
-  <string name="history_for">Historikk (%s: Vindu%d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigasjon</string>
   <string name="help_bookmarks_title">Bokmerker og mine notater</string>
@@ -551,11 +543,13 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="welcome_message">Takk for at du laster ned %s. Det er for øyeblikket ingen bibeldokumenter installert. For å fortsette, vennligst installér
         minst ett dokument ved å laste ned fra internett, eller ved å laste inn en sikkerhetskopi i
         ZIP-format.</string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">
         En liste av tidligere bøker/dokumenter ble funnet. Klikk nedenfor for å laste disse ned igjen.</string>
   <!--Uncategorized-->
   <string name="close">Lukk</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Jeg forstår</string>
   <string name="first_time_help_show_next_time">Vis igjen neste gang</string>
   <string name="strongs_mode_title">Velg Strong-modus</string>
@@ -585,13 +579,13 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="verse_share_advertise">Delt gjennom %s.</string>
   <string name="abbreviate_reference">Forkorting av referansen</string>
   <string name="version_name">Bibelmodulnavn</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">Sikkerhetskopi</string>
   <string name="back_button">Tilbake</string>
   <string name="upgrading_database">Oppgraderer databasen. Vennligst vent...</string>
   <string name="initializing_app">Setter opp applikasjonen</string>
   <string name="show_notes">Vis notater</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView package er for gammel (%s). Du må oppgradere Android WebView package til minst versjon %s for å bruke %s. For de fleste enheter kan dette gjøres gjennom %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Fortsett allikevel</string>
   <string name="rate_title">Vurdering og anmeldelse av appen</string>
@@ -599,9 +593,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
         Før du gir en negativ vurdering, vennligst les følgende:
     </string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-        Ved problemer med appen, vennligst %s eller %s istedet.
-    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Dersom en modul/bibeloversettelse har en feil, %s.
@@ -652,7 +643,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="chooser_style_lists">Lister</string>
   <string name="chooser_select">Velg %s</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Vi har dessverre bare delvis oversettelse av brukergrensesnittet for %s. Dette er fordi %s utvikles av frivillige. Hvis du ønsker å hjelpe til med å oversette, kan du sjekke %s. </string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instruksjoner for oversettere</string>
   <string name="questions_title">Spørsmål?</string>
@@ -664,11 +654,15 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="permission_required">Tilgang kreves</string>
   <string name="labels_search_hint">Søk</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Informasjon</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

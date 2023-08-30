@@ -1,6 +1,6 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Järjehoidjad
-bookmarksAndNotes: ""
+bookmarksAndNotes: Järjehoidjad ja minu märkmed
 openMyNotes: Ava minu märkmetes
 openStudyPad: Ava õppetükis (%s)
 noteText: Allmärkused (%s)
@@ -34,7 +34,7 @@ createdAt: "Loodud: %s"
 lastUpdatedOn: "Viimati uuendatud: %s"
 strongsAndMorph: Definisioon ja morfoloogia
 externalLink: ""
-referenceLink: ""
+referenceLink: Ava viide
 openFootnote: Ava allmärkus
 noMyNotesTitle: Selle peatüki kohta märkmeid pole
 noMyNotesDescription: >
@@ -44,7 +44,7 @@ emptyStudyPad: >
 doYouWantToDeleteEntry: "Kas kustutada õppetüki sissekanne?"
 removeStudyPadConfirmationTitle: Õppetüki sissekande kustutamine
 dragHelp: Lohista järjekorra muutmiseks
-openAll: ""
+openAll: Ava kõik viited
 editBookmarkPlaceholder: Puuduta minu märkmete lisamiseks
 onlyLabel: Ainult silt
 wholeBookmark: ""

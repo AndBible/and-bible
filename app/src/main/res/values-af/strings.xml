@@ -13,7 +13,6 @@
   <string name="selectPassage">Teks</string>
   <string name="search">Vind</string>
   <string name="search_in_andbible">Vind in die Bybel </string>
-  <string name="search_with_results2">%1s resultate in  %2s</string>
   <string name="settings">Toepassing voorkeure</string>
   <string name="history">Geskiedenis</string>
   <string name="speak">Praat</string>
@@ -42,6 +41,8 @@
   <string name="search_in">Vind in %s</string>
   <string name="do_in_background">Gaan voort in die agtergrond</string>
   <string name="rebuild_index_button">Herbou</string>
+  <!--X results in module Y-->
+  <string name="search_with_results2">%1s resultate in  %2s</string>
   <!--Tasks-->
   <string name="progress_status">Vordering</string>
   <string name="task_kill_warning">As And Bible lank oop is, mag hy gestop word as jy oorskakel na \'n ander program voordat And Bible klaar is.</string>
@@ -60,7 +61,9 @@
   <string name="search_current_book">Huidige boek</string>
   <string name="error_executing_search">Ongeldige soektog</string>
   <string name="type_text_or_bible_reference">Tik teks of Bybel verwysing</string>
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">Maak Oop %s</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Vind \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofstuk &amp; vers nommers</string>
@@ -130,7 +133,6 @@
   <string name="value_mm">%dmm</string>
   <string name="auto_fullscreen_summary">Skakel outomaties oor na volskerm wanneer u teks blaai. Wenk: u kan ook altyd oorskakel na die volledige skerm deur te dubbel klik op die skerm.</string>
   <string name="prefs_margin_size_title">Verander kantruimte grootte</string>
-  <string name="prefs_margin_size_mm_title">Kantruimte grootte (%d/%d/%dmm)</string>
   <string name="prefs_advanced_settings_cat">Gevorderde instellings</string>
   <string name="prefs_display_customization_cat">Aanskou &amp; voel</string>
   <string name="prefs_behavior_customization_cat">Toepassings gedrag</string>
@@ -205,10 +207,8 @@ Woordafbreking</string>
   <string name="windowMinimise">Verminder</string>
   <string name="windowSynchronise">Sinchroniseer</string>
   <string name="move_window">Beweeg  na</string>
-  <string name="move_window_to_position2">Posisie %d (%s:%s)</string>
   <string name="copy_settings">Kopieer instellings na</string>
   <string name="copy_settings_to_workspace">Werkspasie</string>
-  <string name="copy_settings_to_window">Venster %d (%s: %s)</string>
   <string name="change_to_normal">Verander na normale venster</string>
   <string name="window_pin_mode">Speld</string>
   <!--Notes screen-->
@@ -231,7 +231,6 @@ Woordafbreking</string>
   <string name="download_document_confirm_prefix">Laai af</string>
   <string name="download_refresh_book_list_menu_item">Hernu</string>
   <string name="error_downloading">\'n Fout het voorgekom terwyl dit afgelaai is. Kontroleer asseblief jou internetverbinding.</string>
-  <string name="error_downloading_status">Die bediener wat gasheer is %shet \'n fout teruggestuur as gevolg van %s (%d)</string>
   <string name="storage_space_warning">Onvoldoende lokale stoorplek.</string>
   <string name="too_many_jobs">Te veel take loop. Wag asseblief dat sommige klaar is en probeer weer.</string>
   <string name="document_not_installed">Laai \'%s\' asseblief af</string>
@@ -460,7 +459,6 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="window_text_options_help2">%sikoon dui aan dat hierdie instelling vir hierdie spesifieke venster verander is.</string>
   <string name="window_text_options_help3">Die werkruimte instelling sal nie hierdie venster beïnvloed nie.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Gebruik %s knoppie om al hierdie instellings terug te stel na %s.</string>
   <string name="reset_defaults">Staande waardes</string>
   <string name="reset_workspace_defaults">werkruimte staande waardes</string>
   <string name="speak_bookmark_help">Praat Boekmeke hulp</string>
@@ -534,7 +532,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="backup_success2">My Notas, Boekmerke, Studie Blokkies, Lees Planne en Werkruimtes is suksesvol gerugsteun.</string>
   <string name="backup_modules_success">Geselekteerde modules is suksesvol gerugsteun.</string>
   <string name="backup_modules_email_subject_2">%s modules rugsteun</string>
-  <string name="backup_modules_email_message_2">Aangeheg is jou %s rugsteun van modules, wat die volgende modules bevat:%s</string>
   <string name="backup_email_subject_2">%s databasis rugsteun</string>
   <string name="backup_email_message_2">Jou %s databasis met boekmerke, notas, leesplanne en werkruimtes is aangeheg</string>
   <string name="restore_unsuccessfull">Die herstel van die databasis was onsuksesvol. Miskien het jy \'n ongeldige databasis lêer gegee.
@@ -545,8 +542,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="install_zip_canceled">Module installasie gekanselleer</string>
   <!--About-->
   <string name="module_about_copyright">Kopiereg:%s</string>
-  <string name="module_about_installed_version">Geïnstalleerde weergawe:%s(%s)</string>
-  <string name="module_about_latest_version">Nuutste weergawe:%s (%s)</string>
   <string name="module_about_versification">Verifiëring:%s</string>
   <string name="module_about_repository">Verspreidings bediener: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -554,7 +549,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="send_bug_report_title1">Fout verslag</string>
   <string name="send_feedback_title">Terugvoer</string>
   <string name="send_bug_report_title">Terugvoer / fout verslag</string>
-  <string name="report_bug_email_subject_3">[%s]Fout verslag vir %s %s</string>
   <string name="report_bug_big_heading">HUUR SKRYF JOU TERUGVOER OF FOUTVERSLAG BO HIERDIE LYN</string>
   <string name="report_bug_heading1">Instruksies:</string>
   <string name="report_bug_line_1">Vertel ons kortliks wat het jy gedoen / wat gebeur het toe die kwessie plaasgevind het</string>
@@ -649,9 +643,7 @@ Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
   <string name="beta_notice_dismiss_until_update">Los tot volgende opdatering</string>
   <string name="stable_notice_title">Die aansoek is opgegradeer!</string>
   <string name="upgrade_video_message">Sien asseblief video met nuwe kenmerke van hierdie vrystelling (%s)</string>
-  <string name="stable_notice_par1">Die nuwe weergawe %s s van %s is suksesvol geïnstalleer!</string>
   <!--History-->
-  <string name="history_for">Geskiedenis (%s:Venster %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigasie</string>
   <string name="help_nav_text">Gaan na die volgende of vorige hoofstuk deur die skerm met jou vinger te vee.
@@ -707,9 +699,12 @@ ander ekstra materiaal as jy die bybel bestudeer.</string>
   <string name="welcome_message">Dankie vir die aflaai %s. Daar is tans geen Bybels of dokumente geïnstalleer nie. Om voort te gaan, installeer asseblief
 Ten minste 1 dokument deur van die internet af te laai, of deur \'n zip lêer dokument te laai
 Rugsteun.</string>
+  <!--Supported file formats for documents-->
   <string name="supported_formats_title">Ondersteunde formate </string>
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Jy moet die lêer kies waarna jy dit wil laai %s.</string>
   <string name="supported_formats">Ondersteunde formate vir die laai van dokumente vanaf \'n lêer: %s</string>
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Zip-lêer wat Sword-module (s) bevat, of dokumente-rugsteunlêer (*.abmd) geskep deur %s</string>
   <string name="format_mysword">MySword dokumente (*.mybible)</string>
   <string name="format_mybible">MyBible dokumente (*. SQLite3)</string>
@@ -718,7 +713,6 @@ Rugsteun.</string>
 n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af te laai. </string>
   <!--Uncategorized-->
   <string name="close">Eindig</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Ek verstaan</string>
   <string name="first_time_help_show_next_time">Wys volgende keer weer</string>
   <string name="strongs_mode_title">Kies strong modus</string>
@@ -767,8 +761,8 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="show_reference_at_front">Wys voor in vers</string>
   <string name="abbreviate_reference">Verkorte verwysing</string>
   <string name="version_name">Naam van Weergawe </string>
+  <!--meaning, bible version name-->
   <string name="show_version_name">Sluit weergawe naam in</string>
-  <string name="show_ellipsis">Wys beletselteken (...) </string>
   <string name="show_quotes">Wys aanhalings </string>
   <string name="backup_button">Rugsteun</string>
   <string name="back_button">Terug</string>
@@ -776,7 +770,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="initializing_app">Inisialiseer tans die program…</string>
   <string name="show_notes">Wys notas</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView-pakket is te oud (%s). Jy moet jou Android WebView-pakket opgradeer na ten minste weergawe %som te gebruik %s. Vir die meeste toestelle kan dit via %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Gaan in elk geval voort</string>
   <string name="proceed">Gaan voort</string>
@@ -786,7 +779,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="rate_message6">
 Voordat u negatiewe oorsig hersien, oorweeg asseblief die volgende</string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">Asseblief as jy \'n probleem met toep het, %sof %sEerder</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 As een of ander teks / Bybelvertaling \'n probleem het, %s.</string>
@@ -856,7 +848,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="chooser_select">Kies %s</string>
   <string name="chooser_pref_reset">Moenie hoofstuk/vers na 1 terugstel wanneer boek/hoofstuk gekies word nie</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Ons is jammer, maar ons het net gedeeltelike gebruikers koppelvlak vertaling in %s taal. Dit is omdat %s heeltemal deur vrywilligers ontwikkel word. As jy kan help om te vertaal, sien asseblief %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instruksies vir vertalers</string>
   <string name="questions_title">Vrae?</string>
@@ -879,9 +870,11 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="prefs_calculator_pin">Sakrekenaar PIN</string>
   <string name="prefs_calculator_pin_desc">PIN-kode om die toep oop te maak wanneer die sakrekenaar gewys word.</string>
   <string name="calc_division_by_zero">Deel deur nul word nie toegelaat nie</string>
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Verkeerde Formaat</string>
   <string name="calc_wrong_format_operand">Verkeerde Formaat. Operand Sonder enige getalle?</string>
   <string name="prefs_persecuted_help">Lees dit eers! </string>
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Instruksies vir die instellings en inligting oor spesifieke diskrete bou.</string>
   <string name="calculator_par1">
       Voordat u die toep binnegaan, word die sakrekenaarskerm vertoon.</string>
@@ -904,6 +897,7 @@ Jy kan die nuutste weergawe van diskrete weergawe aflaai vanaf %s.</string>
   <string name="disable_sync">Deaktiveer sinchroniseer</string>
   <string name="open_in_window">Maak resultate in \'n venster oop</string>
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Pasgemaakte bewaarplekke</string>
   <string name="custom_repositories_empty_list_message">Geen pasgemaakte bewaarplekke word gedefinieer nie</string>
   <string name="custom_repositories_create_button_label">Voeg Pasgemaakte Bewaarplek by</string>
@@ -965,6 +959,7 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="sync_cant_fetch"><div></div></string>
   <string name="sync_disabling">Deaktiveer sinchronisasie vir %s vir eers.</string>
   <string name="sign_in_failed">Aanmelding by sinchronisasie backend diens het misluk.</string>
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">Deaktiveer wolk sinchronisasie. U moet handmatig inskakel na herstel.</string>
   <string name="report">Verslag</string>
   <string name="sync_error">Fout het voorgekom in Clud sinchronisasie</string>

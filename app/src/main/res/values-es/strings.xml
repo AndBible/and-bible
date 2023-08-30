@@ -41,6 +41,7 @@
   <string name="search_in">Encuentra en %s</string>
   <string name="do_in_background">Continuar en el fondo</string>
   <string name="rebuild_index_button">Reconstruir</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Estas tareas de larga duración pueden interrumpirse si cambia a otra aplicación antes de que terminen.</string>
@@ -58,6 +59,8 @@
   <string name="search_old_testament">Antiguo testamento</string>
   <string name="search_current_book">Libro actual</string>
   <string name="error_executing_search">Criterio de búsqueda inválido</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Encontrar \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Números de capítulo y versículo</string>
@@ -125,7 +128,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Cambia automáticamente a pantalla completa al desplazar texto. Consejo: siempre puede cambiar a pantalla completa tocando dos veces la pantalla.</string>
   <string name="prefs_margin_size_title">Cambiar el tamaño del margen</string>
-  <string name="prefs_margin_size_mm_title">Tamaño de margen (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Ajustes avanzados</string>
   <string name="prefs_display_customization_cat">Mira &amp; siente</string>
   <string name="prefs_behavior_customization_cat">Comportamiento de la aplicación</string>
@@ -199,10 +201,8 @@
   <string name="windowMinimise">Minimizar</string>
   <string name="windowSynchronise">Sincronizar</string>
   <string name="move_window">Mover a</string>
-  <string name="move_window_to_position2">Posición %d (%s:%s)</string>
   <string name="copy_settings">Copia ajustes a</string>
   <string name="copy_settings_to_workspace">Espacio</string>
-  <string name="copy_settings_to_window">Ventana %d (%s: %s)</string>
   <string name="change_to_normal">Cambiar a ventana normal</string>
   <string name="window_pin_mode">Fijar</string>
   <!--Notes screen-->
@@ -225,7 +225,6 @@
   <string name="download_document_confirm_prefix">Descarga</string>
   <string name="download_refresh_book_list_menu_item">Refresca</string>
   <string name="error_downloading">Ocurrió un error durante la descarga. Por favor compruebe la conexión a internet.</string>
-  <string name="error_downloading_status">El servidor que aloja %s devolvió un error debido a %s (%d).</string>
   <string name="storage_space_warning">No hay suficiente espacio local de almacenamiento.</string>
   <string name="too_many_jobs">Demasiadas tareas en ejecución.  Por favor espere que algunas terminen e intente nuevamente.</string>
   <string name="document_not_installed">Por favor descarga \'%s\'</string>
@@ -450,7 +449,6 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="window_text_options_help2">El icono %s indica que esta configuración ha sido cambiada para esta ventana particular.</string>
   <string name="window_text_options_help3">Esta configuración de espacio no afectará a esta ventana.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Use el botón %s para restablecer todas estas configuraciones a los %s.</string>
   <string name="reset_defaults">valores por defecto</string>
   <string name="reset_workspace_defaults">valores por defecto del espacio</string>
   <string name="speak_bookmark_help">Ayuda de marcadores de voz</string>
@@ -524,7 +522,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="backup_success2">Mis notas, marcadores, pizarras de estudio, planes de lectura y espacios guardados con éxito.</string>
   <string name="backup_modules_success">Se ha hecho copia de seguridad correctamente de los módulos seleccionados.</string>
   <string name="backup_modules_email_subject_2">Copia de seguridad de módulos de %s</string>
-  <string name="backup_modules_email_message_2">Se adjunta la copia de seguridad de sus módulos de %s, que contiene los siguientes módulos: %s</string>
   <string name="backup_email_subject_2">Copia de seguridad de la base de datos de %s</string>
   <string name="backup_email_message_2">Se adjunta su base de datos de %s que contiene marcadores, mis notas, planes de lectura y espacios</string>
   <string name="restore_unsuccessfull">La restauración de la base de datos tuvo un error. Tal vez le dio un archivo de base de datos no válido.</string>
@@ -534,8 +531,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="install_zip_canceled">La instalación del módulo fue cancelada</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
-  <string name="module_about_installed_version">Versión instalada: %s (%s)</string>
-  <string name="module_about_latest_version">Ultima versión: %s (%s)</string>
   <string name="module_about_versification">Versificación: %s</string>
   <string name="module_about_repository">Servidor de distribución: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -543,7 +538,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="send_bug_report_title1">Reporte de fallo</string>
   <string name="send_feedback_title">Retroalimentación</string>
   <string name="send_bug_report_title">Comentarios / informe de fallo</string>
-  <string name="report_bug_email_subject_3">[%s] Informe de fallo sobre %s %s</string>
   <string name="report_bug_big_heading">POR FAVOR ESCRIBA SU COMENTARIO O INFORME DE FALLO POR ENCIMA DE ESTA LÍNEA</string>
   <string name="report_bug_heading1">Instrucciones:</string>
   <string name="report_bug_line_1">Comente brevemente qué hizo / qué pasó cuando ocurrió el problema.</string>
@@ -634,9 +628,7 @@ a través de %s usted mismo. :-)</string>
   <string name="beta_notice_dismiss_until_update">Descartar hasta la próxima actualización</string>
   <string name="stable_notice_title">¡Se ha actualizado la aplicación!</string>
   <string name="upgrade_video_message">Por favor vea el vídeo que muestra las nuevas características de esta versión (%s).</string>
-  <string name="stable_notice_par1">¡La nueva versión %s de %s se ha instalado correctamente!</string>
   <!--History-->
-  <string name="history_for">Historia (%s: Ventana %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navegación</string>
   <string name="help_nav_text">Vaya al capítulo siguiente o anterior deslizando el dedo sobre la pantalla.
@@ -697,12 +689,14 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
 al menos 1 documento descargándolo de Internet o cargándolo desde un documento de archivo zip
 respaldo.
 </string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">
 Se encontró una lista de libros / documentos anteriores. Haga clic a continuación para volver a descargarlos fácilmente.
 </string>
   <!--Uncategorized-->
   <string name="close">Cerrar</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Entiendo</string>
   <string name="first_time_help_show_next_time">Mostrar de nuevo la próxima vez</string>
   <string name="strongs_mode_title">Elegir modo de Strong</string>
@@ -748,13 +742,13 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="verse_share_advertise">Compartido con %s.</string>
   <string name="abbreviate_reference">Abreviar referencia</string>
   <string name="version_name">Nombre de la versión</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">Copia de seguridad</string>
   <string name="back_button">Atrás</string>
   <string name="upgrading_database">Actualizando la base de datos. Por favor espere…</string>
   <string name="initializing_app">Inicializando la aplicación…</string>
   <string name="show_notes">Mostrar notas</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">El paquete WebView de Android es demasiado antiguo (%s). Necesita actualizar su paquete WebView de Android al menos a la versión %s para usar %s. Para la mayoría de los dispositivos, esto se puede hacer a través de %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Proceda seguro</string>
   <string name="rate_title">Calificar y revisar la aplicación</string>
@@ -762,9 +756,6 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
 Antes de revisar la reseña negativa, considere lo siguiente:
 </string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-Si tiene un problema con la aplicación, %s o %s en su lugar.
-</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 Si algún texto / traducción de la Biblia tiene algún problema, %s.
@@ -840,7 +831,6 @@ informe los problemas a los mantenedores de texto
   <string name="chooser_select">Seleccione %s</string>
   <string name="chooser_pref_reset">No restablezca el capítulo/versículo a 1 cuando se selecciona libro/capítulo</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Lo sentimos, sólo tenemos una traducción parcial de la interfaz de usuario en el idioma %s. Esto es debido a que %s es completamente desarrollado por voluntarios. Si usted puede ayudar traduciendo por favor vea %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instrucciones para traductoras</string>
   <string name="questions_title">¿Preguntas?</string>
@@ -854,11 +844,15 @@ informe los problemas a los mantenedores de texto
   <string name="permission_required">Se necesita permiso</string>
   <string name="labels_search_hint">Búsqueda</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Información</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

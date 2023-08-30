@@ -13,7 +13,6 @@
   <string name="selectPassage">Knjiga</string>
   <string name="search">Išči</string>
   <string name="search_in_andbible">Najdi v Bibliji</string>
-  <string name="search_with_results2">%1s rezultati v %2s</string>
   <string name="settings">Nastavitve aplikacije</string>
   <string name="history">Zgodovina</string>
   <string name="speak">Govor</string>
@@ -42,6 +41,8 @@
   <string name="search_in">Išči v %s</string>
   <string name="do_in_background">Nadaljuj v ozadju</string>
   <string name="rebuild_index_button">Ponovno zgradi</string>
+  <!--X results in module Y-->
+  <string name="search_with_results2">%1s rezultati v %2s</string>
   <!--Tasks-->
   <string name="progress_status">Napredek</string>
   <string name="task_kill_warning">Ta dolgo trajajoča opravila lahko končate, če preklopite na drugo aplikacijo, še preden se le-ta zaključijo.</string>
@@ -60,7 +61,9 @@
   <string name="search_current_book">Trenutna knjiga</string>
   <string name="error_executing_search">Napačna iskalna poizvedba</string>
   <string name="type_text_or_bible_reference">Vnesite besedilo ali sklic na Biblijo</string>
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">Odpri %s</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Najdi \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Poglavje in številke vrstic</string>
@@ -130,7 +133,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Ko se pomikate po besedilu samodejno preklopi na cel zaslon. Nasvet: na celozaslonski način lahko vedno preklopite tako, da dvakrat tapnete po zaslonu.</string>
   <string name="prefs_margin_size_title">Spremeni velikost robu</string>
-  <string name="prefs_margin_size_mm_title">Robovi (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Napredne nastavitve</string>
   <string name="prefs_display_customization_cat">Poglej in začuti</string>
   <string name="prefs_behavior_customization_cat">Vedenje aplikacije</string>
@@ -205,10 +207,8 @@
   <string name="windowMinimise">Minimiraj</string>
   <string name="windowSynchronise">Sinhroniziraj</string>
   <string name="move_window">Premakni na</string>
-  <string name="move_window_to_position2">Položaj %d (%s:%s)</string>
   <string name="copy_settings">Kopiraj nastavitve v</string>
   <string name="copy_settings_to_workspace">Delovni prostor</string>
-  <string name="copy_settings_to_window">Okno %d (%s: %s)</string>
   <string name="change_to_normal">Spremeni v običajno okno</string>
   <string name="window_pin_mode">Pripni</string>
   <!--Notes screen-->
@@ -231,7 +231,6 @@
   <string name="download_document_confirm_prefix">Prenos</string>
   <string name="download_refresh_book_list_menu_item">Osveži</string>
   <string name="error_downloading">Med prenosom se je zgodila napaka.  Prosim preverite vašo povezavo z internetom.</string>
-  <string name="error_downloading_status">Strežnik, ki gosti %s je sporočil napako zaradi %s (%d).</string>
   <string name="storage_space_warning">Premalo lokalnega prostora za shranjevanje.</string>
   <string name="too_many_jobs">Izvaja se preveč opravil.  Prosim počakajte, da se jih nekaj dokonča in ponovno poskusite.</string>
   <string name="document_not_installed">Prosim prenesite \'%s\'</string>
@@ -462,7 +461,6 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="window_text_options_help2">%s ikona pomeni, da je bila ta nastavitev spremenjena za to okno.</string>
   <string name="window_text_options_help3">Nastavitev delovnega prostora ne bo vplivala na to okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Uporabite %s gumb za ponastavitev vseh teh nastavitev nazaj na %s.</string>
   <string name="reset_defaults">privzete vrednosti</string>
   <string name="reset_workspace_defaults">privzete vrednosti delovnega prostora</string>
   <string name="speak_bookmark_help">Govori zaznamki pomoč</string>
@@ -547,7 +545,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="backup_success2">Zaznamki, Moje opombe, Beležnice, Načrti branja in Delovni prostori so uspešno arhivirani.</string>
   <string name="backup_modules_success">Izbrani moduli so bili uspešno arhivirani.</string>
   <string name="backup_modules_email_subject_2">%s modulov je bilo varnostno kopiranih</string>
-  <string name="backup_modules_email_message_2">Priložena je vaša %s varnostna kopija modulov, ki vsebuje naslednje module: %s</string>
   <string name="backup_email_subject_2">%s varnostno kopiranje</string>
   <string name="backup_email_message_2">Vaša %s baza podatkov, ki vsebuje zaznamke, opombe, načrte za branje in delovne prostore, je pripeta</string>
   <string name="restore_unsuccessfull">Obnovitev baze podatkov ni bila uspešna. Morda ste navedli neveljavno datoteko baze podatkov.</string>
@@ -557,8 +554,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="install_zip_canceled">Namestitev modula je preklicana</string>
   <!--About-->
   <string name="module_about_copyright">Avtorske pravice: %s</string>
-  <string name="module_about_installed_version">Nameščena verzija: %s (%s)</string>
-  <string name="module_about_latest_version">Zadnja verzija: %s (%s)</string>
   <string name="module_about_versification">Verzifikacija: %s</string>
   <string name="module_about_repository">Distribucijski strežnik: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -566,7 +561,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="send_bug_report_title1">Poročilo o napaki</string>
   <string name="send_feedback_title">Povratne informacije </string>
   <string name="send_bug_report_title">Povratne informacije / poročilo o napaki</string>
-  <string name="report_bug_email_subject_3">[%s] Poročilo o napaki za%s %s</string>
   <string name="report_bug_big_heading">PROSIMO, DA NAD TO VRSTICO NAPIŠETE POVRATNE INFORMACIJE ALI POROČILO O NAPAKI</string>
   <string name="report_bug_heading1">Navodila:</string>
   <string name="report_bug_line_1">Povejte nam na kratko, kaj ste storili / kaj se je zgodilo, ko je prišlo do težave.</string>
@@ -659,9 +653,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="beta_notice_dismiss_until_update">Prekliči do naslednjega popravka</string>
   <string name="stable_notice_title">Aplikacija je bila nadgrajena!</string>
   <string name="upgrade_video_message">Oglejte si video z novimi funkcijami te različice (%s).</string>
-  <string name="stable_notice_par1">Nova verzija%s %s, je bila uspešno nameščena! </string>
   <!--History-->
-  <string name="history_for">Zgodovina (%s: Okno %d)</string>
   <!--Help-->
   <string name="help_nav_title">Krmarjenje</string>
   <string name="help_nav_text">Na naslednje ali prejšnje poglavje greste tako, da s prstom povlečete levo ali desno čez zaslon.
@@ -713,9 +705,12 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="redownload_documents">Hitro ponovno nalaganje</string>
   <string name="welcome_message">Hvala za prenos %s.  Trenutno ni nameščene nobene Biblije ali dokumentov. Za nadaljevanje namestite
         vsaj 1 dokument s prenosom iz interneta ali z nalaganjem iz arhivske zip datoteke</string>
+  <!--Supported file formats for documents-->
   <string name="supported_formats_title">Podprti formati</string>
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Izbrati morate datoteko, ki jo želite naložiti v %s.</string>
   <string name="supported_formats">Podprti formati za nalaganje dokumentov iz datoteke: %s</string>
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Datoteka Zip, ki vsebuje modul(e) Sword ali arhivsko datoteko dokumentov (*.abmd), ki jo je ustvaril%s</string>
   <string name="format_mysword">Dokumenti MySword (*.mybible)</string>
   <string name="format_mybible">Dokumenti MyBible (*.SQLite3)</string>
@@ -725,7 +720,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
     </string>
   <!--Uncategorized-->
   <string name="close">Zapri</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Razumem</string>
   <string name="first_time_help_show_next_time">Ponovno pokaži prihodnjič</string>
   <string name="strongs_mode_title">Izberite Strongov način</string>
@@ -774,8 +768,8 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="show_reference_at_front">Prikaži pred vrstico</string>
   <string name="abbreviate_reference">Skrajšana referenca</string>
   <string name="version_name">Ime verzije</string>
+  <!--meaning, bible version name-->
   <string name="show_version_name">Vključite ime različice</string>
-  <string name="show_ellipsis">Prikaži elipso (...)</string>
   <string name="show_quotes">Prikaži citate</string>
   <string name="backup_button">Arhiv</string>
   <string name="back_button">Nazaj</string>
@@ -783,7 +777,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="initializing_app">Inicializacija aplikacije...</string>
   <string name="show_notes">Pokaži opombe</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Paket Android WebView je prestar (%s). Paket Android WebView morate nadgraditi na vsaj različico %s, da uporabljate %s. Za večino naprav je to mogoče storiti prek %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Vseeno nadaljuj</string>
   <string name="proceed">Nadaljuj</string>
@@ -795,9 +788,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
        Pred pregledom negativne ocene upoštevajte naslednje:
 </string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-        Če imate težave z aplikacijo, vas prosimo %s ali namesto tega %s.
-    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Če ima kakšen prevod besedila ali Biblije težavo, %s.
@@ -875,7 +865,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="chooser_select">Izberi %s</string>
   <string name="chooser_pref_reset">Poglavja ali vrstice ne ponastavite na 1, medtem ko je izbrana knjiga ali poglavje</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Žal nam je, vendar imamo le delni prevod uporabniškega vmesnika v %s jezik. To je zato, ker  %s v celoti razvijajo prostovoljci. Če želite pomagati pri prevajanju, si poglejte %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">navodila za prevajalce</string>
   <string name="questions_title">Vprašanja?</string>
@@ -898,9 +887,11 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="prefs_calculator_pin">PIN kalkulatorja</string>
   <string name="prefs_calculator_pin_desc">Koda PIN za vstop v aplikacijo, ko se prikaže kalkulator.</string>
   <string name="calc_division_by_zero">Deljenje z nič ni dovoljeno</string>
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Napačen format</string>
   <string name="calc_wrong_format_operand">Napačen format. Operand brez številk?</string>
   <string name="prefs_persecuted_help">Najprej preberite to!</string>
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Navodila za nastavitve in informacije o posebni diskretni verziji.</string>
   <string name="calculator_par1">
         Pred vstopom v aplikacijo se prikaže zaslon kalkulatorja.</string>
@@ -929,6 +920,7 @@ lahko.
   <string name="disable_sync">Onemogoči sinhronizacijo</string>
   <string name="open_in_window">Rezultate odprite v oknu</string>
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Shrambe po meri</string>
   <string name="custom_repositories_empty_list_message">Nobene shrambe po meri ni opredeljene.</string>
   <string name="custom_repositories_create_button_label">Dodajanje shrambe po meri</string>
@@ -990,6 +982,7 @@ lahko.
   <string name="sync_cant_fetch">Različica podatkovne zbirke ali datoteke popravkov, shranjene v oblaku, je višja od različice, ki jo podpira ta aplikacija.</string>
   <string name="sync_disabling">Za zdaj onemogočite sinhronizacijo za %s.</string>
   <string name="sign_in_failed">Prijava v zaledno storitev sinhronizacije ni uspela.</string>
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">Onemogočanje sinhronizacije v oblaku. Po obnovitvi morate ponovno ročno omogočiti.</string>
   <string name="report">Poročilo</string>
   <string name="sync_error">Pri sinhronizaciji v oblaku je prišlo do napake</string>

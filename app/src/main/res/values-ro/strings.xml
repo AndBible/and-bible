@@ -13,7 +13,6 @@
   <string name="selectPassage">Pasaj</string>
   <string name="search">Caută</string>
   <string name="search_in_andbible">Caută în Biblie</string>
-  <string name="search_with_results2">%1s rezultate în %2s</string>
   <string name="settings">Preferințe</string>
   <string name="history">Cronologia</string>
   <string name="speak">Audio</string>
@@ -42,6 +41,8 @@
   <string name="search_in">Caută în %s</string>
   <string name="do_in_background">Continuă în ascuns</string>
   <string name="rebuild_index_button">Refă</string>
+  <!--X results in module Y-->
+  <string name="search_with_results2">%1s rezultate în %2s</string>
   <!--Tasks-->
   <string name="progress_status">Progres</string>
   <string name="task_kill_warning">Aceste lucrări de lungă durată se pot întrerupe dacă treci la o altă aplicație înainte de terminarea lor.</string>
@@ -60,7 +61,9 @@
   <string name="search_current_book">Cartea actuală</string>
   <string name="error_executing_search">Căutare greșită</string>
   <string name="type_text_or_bible_reference">Introdu textul sau trimiterea biblică</string>
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">Deschide %s</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Caută „%s”</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numărul capitolului și al versetului</string>
@@ -130,7 +133,7 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Dă automat pe tot ecranul atunci cînd se mișcă textul. Sfat: poți să dai mereu pe tot ecranul și apăsînd de două ori pe ecran.</string>
   <string name="prefs_margin_size_title">Modifică marginile</string>
-  <string name="prefs_margin_size_mm_title">Dimensiunile marginilor (%d/%d/%d mm)</string>
+  <string name="prefs_margin_size_mm_title">Dimensiunile marginilor (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Reglări avansate</string>
   <string name="prefs_display_customization_cat">Aspectul aplicației</string>
   <string name="prefs_behavior_customization_cat">Comportamentul aplicației</string>
@@ -182,6 +185,8 @@
   <string name="prefs_text_bookmarks_title">Semne de carte și Notițele mele</string>
   <string name="prefs_enable_bluetooth_title">Activează butoanele media Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Folosește butoanele media Bluetooth pentru a începe/opri vorbirea.</string>
+  <string name="create_bookmark">Creează un nou semn de carte</string>
+  <string name="create_bookmark_with_a_note">Creează un nou semn de carte cu o notiță</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Culori</string>
   <string name="window_color_settings_title">Culoarea ferestrei</string>
@@ -205,10 +210,10 @@
   <string name="windowMinimise">Minimizează</string>
   <string name="windowSynchronise">Sincronizează</string>
   <string name="move_window">Mută în</string>
-  <string name="move_window_to_position2">Poziția %d (%s:%s)</string>
+  <string name="move_window_to_position2">Poziția %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Copiază reglările în</string>
   <string name="copy_settings_to_workspace">Spațiu de studiu</string>
-  <string name="copy_settings_to_window">Fereastra %d (%s: %s)</string>
+  <string name="copy_settings_to_window">Fereastra %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Treci la fereastra normală</string>
   <string name="window_pin_mode">Fixează</string>
   <!--Notes screen-->
@@ -231,7 +236,7 @@
   <string name="download_document_confirm_prefix">Descarcă</string>
   <string name="download_refresh_book_list_menu_item">Actualizează</string>
   <string name="error_downloading">A apărut o eroare în timpul descărcării. Verifică conexiunea la internet.</string>
-  <string name="error_downloading_status">Serverul care găzduiește %s a returnat o eroare din cauza %s (%d).</string>
+  <string name="error_downloading_status">Serverul care găzduiește %1$s a generat o eroare din cauza %2$s (%3$d).</string>
   <string name="storage_space_warning">Spațiu de stocare insuficient.</string>
   <string name="too_many_jobs">Se execută prea multe operații. Așteaptă să se termine unele și apoi încearcă din nou.</string>
   <string name="document_not_installed">Descarcă „%s”</string>
@@ -265,6 +270,7 @@
   <string name="overwrite_files">Următoarele fișiere există deja: %s Scrii peste ele? </string>
   <string name="overwrite_files_title">Scrii peste fișiere?</string>
   <string name="could_not_overwrite_files">Nu s-a putut scrie peste fișierele: %s. În afară de asta, instalarea a avut succes.</string>
+  <string name="install_do_you_want">Vrei să instalezi modulul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de citire</string>
   <string name="reading_plans_plural">Planuri de citire</string>
@@ -373,6 +379,15 @@
   <string name="label_color_example">Exemplu</string>
   <string name="marker_style">Evidențiază numai semnele de carte ale textului ales</string>
   <string name="marker_style_whole_verse">Evidențiază numai semnele de carte ale versetului</string>
+  <string name="hide_style">Ascunde pentru semnele de carte ale textului ales</string>
+  <string name="hide_style_whole_verse">Ascunde pentru semnele de carte ale versetului</string>
+  <string name="bookmark_warning">Există semne de carte și/sau notițe pentru acest document.</string>
+  <string name="bookmark_warning2">
+        Dacă structura documentului s-a modificat, actualizarea acestui document ar putea face ca
+        pozițiile acestor semne de carte/notițe să se mute în interiorul documentului sau să dispară.
+    </string>
+  <string name="bookmark_warning3">Mai vrei să actualizezi modulul?</string>
+  <string name="bookmark_warning4">Se recomandă efectuarea unei copii de rezervă a modulului înainte de actualizare.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">În ordinea datei</string>
   <string name="sort_by_bible_book">În ordine biblică</string>
@@ -463,7 +478,7 @@
   <string name="window_text_options_help2">Simbolul%s arată că reglările au fost modificate pentru această fereastră.</string>
   <string name="window_text_options_help3">Reglările spațiului de studiu nu afectează această fereastră.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Folosește butonul %s pentru a restabili aceste reglări la %s.</string>
+  <string name="text_options_reset_help">Folosește butonul  %1$s pentru a readuce aceste reglări la %2$s.</string>
   <string name="reset_defaults">valori prestabilite</string>
   <string name="reset_workspace_defaults">valori prestabilite ale spațiului de studiu</string>
   <string name="speak_bookmark_help">Ajutor pentru semnele de carte audio</string>
@@ -551,7 +566,7 @@
   <string name="backup_success2">Notițele mele, Semne de carte, Notițe de studiu, Planuri de citire și Spații de studiu, copiate cu succes.</string>
   <string name="backup_modules_success">Fișierele alese au fost copiate cu succes.</string>
   <string name="backup_modules_email_subject_2">%s copie de rezervă</string>
-  <string name="backup_modules_email_message_2">Atașat este copia de rezervă a %s care conține următoarele fișiere: %s</string>
+  <string name="backup_modules_email_message_2">Atașat este copia de rezervă a modulelor %1$s care conține următoarele module: %2$s</string>
   <string name="backup_email_subject_2">%s copie a bazei de date</string>
   <string name="backup_email_message_2">Baza de date a %s care conține semne de carte, notițe, planuri de citire și spații de studiu este atașată</string>
   <string name="restore_unsuccessfull">Restabilirea bazei de date nu a reușit. Poate ai furnizat un fișier greșit.</string>
@@ -561,8 +576,8 @@
   <string name="install_zip_canceled">Instalarea a fost anulată</string>
   <!--About-->
   <string name="module_about_copyright">Drepturi de autor: %s</string>
-  <string name="module_about_installed_version">Versiune instalată: %s (%s)</string>
-  <string name="module_about_latest_version">Ultima versiune: %s (%s)</string>
+  <string name="module_about_installed_version">Versiunea instalată: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Ultima versiune: %1$s (%2$s)</string>
   <string name="module_about_versification">Versificare: %s</string>
   <string name="module_about_repository">Server de distribuție: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -570,7 +585,7 @@
   <string name="send_bug_report_title1">Raportare erori</string>
   <string name="send_feedback_title">Părere</string>
   <string name="send_bug_report_title">Părere / Raportare erori</string>
-  <string name="report_bug_email_subject_3">[%s] Raport de eroare pentru %s %s</string>
+  <string name="report_bug_email_subject_3">[%1$s] Raport de eroare pentru %2$s %3$s</string>
   <string name="report_bug_big_heading">SCRIE PĂREREA TA SAU RAPORTUL DE EROARE DEASUPRA ACESTEI LINII</string>
   <string name="report_bug_heading1">Instrucțiuni:</string>
   <string name="report_bug_line_1">Spune-ne pe scurt ce ai făcut / ce s-a întîmplat cînd a avut loc problema.</string>
@@ -665,9 +680,9 @@
   <string name="beta_notice_dismiss_until_update">Ignoră pînă la următoarea actualizare</string>
   <string name="stable_notice_title">Aplicația a fost actualizată!</string>
   <string name="upgrade_video_message">Te rugăm să vezi videoclipul cu noile caracteristici ale acestei versiuni (%s).</string>
-  <string name="stable_notice_par1">Versiunea %s a %s a fost instalată cu succes!</string>
+  <string name="stable_notice_par1">Versiunea %1$s a %2$s a fost instalată cu succes!</string>
   <!--History-->
-  <string name="history_for">Cronologia (%s: Fereastra %d)</string>
+  <string name="history_for">Cronologia (%1$s: Fereastra %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigare</string>
   <string name="help_nav_text">Treci la capitolul următor sau anterior mișcînd lateral cu degetul pe ecran.
@@ -730,9 +745,12 @@
         cel puțin 1 document descărcîndu-l de pe internet sau încărcîndu-l dintr-un fișier
         Zip de rezervă.
     </string>
+  <!--Supported file formats for documents-->
   <string name="supported_formats_title">Formate acceptate</string>
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Trebuie să alegi fișierul pe care vrei să-l încarci în %s. </string>
   <string name="supported_formats">Formate acceptate pentru încărcarea documentelor dintr-un fișier: %s</string>
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Fișier zip care conține modul(e) Sword sau copie de rezervă a documentelor (*.abmd) creată de %s</string>
   <string name="format_mysword">Documente MySword (*.mybible)</string>
   <string name="format_mybible">Documente MyBible (*.SQLite3)</string>
@@ -742,7 +760,7 @@
     </string>
   <!--Uncategorized-->
   <string name="close">Închide</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Am înțeles</string>
   <string name="first_time_help_show_next_time">Arată din nou data viitoare</string>
   <string name="strongs_mode_title">Alege modul Strong</string>
@@ -791,8 +809,9 @@
   <string name="show_reference_at_front">Arată în fața versetului</string>
   <string name="abbreviate_reference">Trimitere prescurtată</string>
   <string name="version_name">Numele traducerii</string>
+  <!--meaning, bible version name-->
   <string name="show_version_name">Include numele versiunii</string>
-  <string name="show_ellipsis">Arată trei puncte (...)</string>
+  <string name="show_ellipsis">Arată trei puncte (…)</string>
   <string name="show_quotes">Arată ghilimele</string>
   <string name="backup_button">Copie de rezervă</string>
   <string name="back_button">Înapoi</string>
@@ -800,7 +819,7 @@
   <string name="initializing_app">Se inițializează aplicația…</string>
   <string name="show_notes">Arată notițele</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView este prea veche (%s). Trebuie să actualizezi aplicația Android WebView la versiunea %s pentru a folosi %s. Pentru majoritatea telefoanelor, acest lucru se poate face prin %s.</string>
+  <string name="old_webview">Android WebView este prea veche (%1$s). Trebuie să actualizezi aplicația Android WebView la versiunea %2$s pentru a folosi %3$s. Pentru majoritatea telefoanelor, acest lucru se poate face prin %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Continuă oricum</string>
   <string name="proceed">Continuă</string>
@@ -813,7 +832,7 @@
     </string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
-        Dacă ai o problemă cu aplicația, %s sau %s.
+        Dacă ai o problemă cu aplicația, %1$s sau %2$s.
     </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
@@ -851,8 +870,8 @@
   <string name="favourite_label">Etichetă preferată</string>
   <string name="edit_label">Modifică eticheta</string>
   <string name="delete_label_confirmation">Vrei să elimini eticheta semnului de carte „%s”? Vor fi eliminate toate notițele asociate notițelor de studiu.</string>
-  <string name="bookmark_underline_style_arbitrary">Tipul subliniere pentru semnele de carte ale textului ales</string>
-  <string name="bookmark_underline_style_whole_verse">Tipul subliniere pentru semnele de carte ale versetului</string>
+  <string name="bookmark_underline_style_arbitrary">Tipul de subliniere pentru semnele de carte ale textului ales</string>
+  <string name="bookmark_underline_style_whole_verse">Tipul de subliniere pentru semnele de carte ale versetului</string>
   <string name="active_labels">Etichete alese</string>
   <string name="recent_labels">Etichete recente</string>
   <string name="other_labels">Alte etichete</string>
@@ -892,7 +911,7 @@
   <string name="chooser_select">Alege %s</string>
   <string name="chooser_pref_reset">Nu restabili capitolul/versul la 1 cînd alegi cartea/capitolul</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Ne pare rău, dar avem doar o traducere parțială a interfeței cu utilizatorul în limba %s. Acest lucru se datorează faptului că %s este realizată în întregime de voluntari. Dacă poți ajuta la traducere, te rugăm să vezi %s.</string>
+  <string name="incomplete_translation">Ne pare rău, dar avem doar o traducere parțială a interfeței cu utilizatorul în limba %1$s. Acest lucru se datorează faptului că %2$s este realizată în întregime de voluntari. Dacă poți ajuta la traducere, te rugăm să vezi %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instrucțiuni pentru traducători</string>
   <string name="questions_title">Întrebări?</string>
@@ -915,9 +934,11 @@
   <string name="prefs_calculator_pin">PIN Calculator</string>
   <string name="prefs_calculator_pin_desc">Cod PIN pentru a intra în aplicație când este afișat calculatorul.</string>
   <string name="calc_division_by_zero">Împărțirea la zero nu este permisă</string>
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Format greșit</string>
   <string name="calc_wrong_format_operand">Format greșit. Operand fără numere?</string>
   <string name="prefs_persecuted_help">Citește asta înainte!</string>
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Instrucțiuni și informații despre versiunile discrete ale aplicației.</string>
   <string name="calculator_par1">
         Înainte să apară aplicația, apare ecranul calculatorului.
@@ -946,6 +967,7 @@
   <string name="disable_sync">Dezactivează sincronizarea</string>
   <string name="open_in_window">Deschide rezultatele într-o fereastră</string>
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Depozite personalizate</string>
   <string name="custom_repositories_empty_list_message">Niciun depozit personalizat stabilit</string>
   <string name="custom_repositories_create_button_label">Adaugă un depozit personalizat</string>
@@ -1009,11 +1031,15 @@
   <string name="are_you_sure_reset_cloud">Acest lucru va înlocui baza de date din Cloud pentru %s cu conținutul din acest aparat.</string>
   <string name="sync_cant_fetch">Versiunea bazei de date sau a fișierului stocat în Cloud este mai mare decât cea acceptată de această aplicație.</string>
   <string name="sync_disabling">Dezactivarea sincronizării pentru %s deocamdată.</string>
+  <string name="sync_update_app">Actualizează aplicația pentru a continua sincronizarea.</string>
   <string name="sign_in_failed">Conectarea la serviciul de sincronizare a eșuat.</string>
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">Se dezactivează sincronizarea în „cloud”. Trebuie reactivată manual după recuperare.</string>
   <string name="report">Raport</string>
   <string name="sync_error">A apărut o eroare în sincronizarea Cloud</string>
   <string name="error_notification_channel_name">Notificări de eroare</string>
+  <string name="restore_from_cloud_description">Dacă ai activată funcția „Sincronizarea aparatului” în alt aparat, poți începe prin recuperarea bazei de date din Cloud.</string>
+  <string name="enable_sync">Activează sincronizarea</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Nu se poate citi fișierul</string>
   <string name="sqlite_invalid_file">Fișier sau nume de fișier incorect: %s</string>
@@ -1024,4 +1050,28 @@
   <string name="open_here">Deschide aici</string>
   <string name="external_link">Legătură externă</string>
   <string name="external_link_question">Acest lucru va deschide legătura externă %s într-o aplicație de navigare în internet, vrei să continui?</string>
+  <string name="nameless">Titlu necunoscut</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acțiuni cu o singură atingere (Biblii)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Acțiuni cu o singură atingere (Altele)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">La atingerea unui text, se afișează fereastra de acțiune cu o singură atingere. Ce butoane de acțiune ar trebui să fie arătate?</string>
+  <string name="processing_epub">Procesare EPUB: %s</string>
+  <string name="buy_development">Cumpără muncă de programare</string>
+  <string name="buy_development2">Sprijină proiectul</string>
+  <string name="new_version_warning">
+        Se pregătește lansarea unei noi versiuni. Data anticipată a lansării este %1$s. Urmărește
+        %2$s pentru a descoperi noile caracteristici și îmbunătățiri.
+    </string>
+  <string name="new_version_trailer">video</string>
+  <string name="new_version_warning2">
+        După lansare, această versiune nu va mai fi întreținută.
+    </string>
+  <string name="new_version_warning3">
+        Aceasta nu va primi corectări de erori sau actualizări.
+    </string>
+  <string name="new_version_warning4">
+        Dacă nu vrei să actualizezi, dezactivează „Actualizări automate” în magazinul de aplicații (Google Play / F-Droid etc.).
+    </string>
+  <string name="dont_show">
+        Nu mai arăta acest mesaj
+    </string>
 </resources>

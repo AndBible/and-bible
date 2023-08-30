@@ -13,7 +13,6 @@
   <string name="selectPassage">Navigation</string>
   <string name="search">Suche</string>
   <string name="search_in_andbible">In der Bibel finden</string>
-  <string name="search_with_results2">%1s Ergebnisse in %2s</string>
   <string name="settings">Voreinstellungen</string>
   <string name="history">Verlauf</string>
   <string name="speak">Vorlesen</string>
@@ -42,6 +41,8 @@
   <string name="search_in">Finde in %s</string>
   <string name="do_in_background">Im Hintergrund fertigstellen</string>
   <string name="rebuild_index_button">Erneut aufbauen</string>
+  <!--X results in module Y-->
+  <string name="search_with_results2">%1s Ergebnisse in %2s</string>
   <!--Tasks-->
   <string name="progress_status">Fortschritt</string>
   <string name="task_kill_warning">Diese Aufgaben dauern länger und könnten abgebrochen werden, wenn Sie zu einem anderen Programm wechseln.</string>
@@ -60,7 +61,9 @@
   <string name="search_current_book">Derzeitiges Buch</string>
   <string name="error_executing_search">Ungültige Suchabfrage</string>
   <string name="type_text_or_bible_reference">Text oder Querverweis einfügen</string>
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">Öffne %s</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Finde \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- &amp; Versnummern</string>
@@ -130,7 +133,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Bei aktiviertem Textvorlauf automatisch in den Vollbildmodus wechseln, Tipp: Man kann den Vollbildmodus auch durch Doppeltippen auf den Bildschirm aktivieren.</string>
   <string name="prefs_margin_size_title">Randgröße verändern</string>
-  <string name="prefs_margin_size_mm_title">Randgröße (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Erweiterte Einstellungen</string>
   <string name="prefs_display_customization_cat">Look &amp; feel</string>
   <string name="prefs_behavior_customization_cat">Verhalten der Anwendung</string>
@@ -203,10 +205,8 @@
   <string name="windowMinimise">Minimiere</string>
   <string name="windowSynchronise">Synchronisierung</string>
   <string name="move_window">Verschieben nach</string>
-  <string name="move_window_to_position2">Position %d (%s:%s)</string>
   <string name="copy_settings">Kopiere Einstellungen auf</string>
   <string name="copy_settings_to_workspace">Arbeitsbereich</string>
-  <string name="copy_settings_to_window">Fenster %d (%s: %s)</string>
   <string name="change_to_normal">Zu normalem Fenster wechseln</string>
   <string name="window_pin_mode">Fixieren</string>
   <!--Notes screen-->
@@ -229,7 +229,6 @@
   <string name="download_document_confirm_prefix">Download</string>
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
   <string name="error_downloading">Während des Herunterladens ist ein Fehler aufgetreten. Bitte überprüfe deine Internetverbindung.</string>
-  <string name="error_downloading_status">Der Server, auf dem %s liegt, hat einen Fehler zurückgegeben: %s (%d).</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
   <string name="too_many_jobs">Es werden zu viele Aufgaben ausgeführt. Bitte warte, bis einige beendet worden sind und versuche es dann erneut.</string>
   <string name="document_not_installed">Bitte \'%s\' herunterladen</string>
@@ -444,7 +443,6 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="window_text_options_help2">%s zeigt an, dass diese Einstellungen für dieses spezielle Fenster angepasst wurden.</string>
   <string name="window_text_options_help3">Die Arbeitsbereichseinstellungen beinflussen dieses Fenster nicht.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Tippe auf %s, um alle diese Einstellungen auf %s zurückzusetzen.</string>
   <string name="reset_defaults">Standardwerte</string>
   <string name="reset_workspace_defaults">Standardeinstellungen f. d. Arbeitsbereich</string>
   <string name="speak_bookmark_help">Sprachhilfe</string>
@@ -516,7 +514,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="backup_success2">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsbereiche erfolgreich gesichert</string>
   <string name="backup_modules_success">Aufgewählte Module erfolgreich gesichert</string>
   <string name="backup_modules_email_subject_2">%s Modulbackup</string>
-  <string name="backup_modules_email_message_2">Angehängt finden Sie ihr %s Modulbackup, das folgende Module enthält: %s</string>
   <string name="backup_email_subject_2">%s Datenbanksicherung</string>
   <string name="backup_email_message_2">Ihre %s Datenbank mit Lesezeichen, Notizen, Leseplänen und Arbeitsbereichen ist angehängt.</string>
   <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
@@ -526,8 +523,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="install_zip_canceled">Modulinstallation abgebrochen</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
-  <string name="module_about_installed_version">Installierte Version: %s (%s)</string>
-  <string name="module_about_latest_version">Neueste Version: %s (%s)</string>
   <string name="module_about_versification">Versnummerierung: %s</string>
   <string name="module_about_repository">Quellverzeichnis: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -535,7 +530,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="send_bug_report_title1">Fehlerbericht</string>
   <string name="send_feedback_title">Rückmeldung</string>
   <string name="send_bug_report_title">Rückmeldung / Fehlermeldung</string>
-  <string name="report_bug_email_subject_3">[%s] Fehlermeldung für %s %s</string>
   <string name="report_bug_big_heading">BITTE SCHREIBE DEINE RÜCKMELDUNG ODER ODER FEHLERMELDUNG OBERHALB DIESER LINIE</string>
   <string name="report_bug_heading1">Anleitung:</string>
   <string name="report_bug_line_1">Schreib uns kurz, was du gemacht hast bzw was passierte, als das Problem auftrat.</string>
@@ -625,9 +619,7 @@ Benutzer der Beta-Version werden gebeten, Fehler über Google Play oder (bevorzu
   <string name="beta_notice_dismiss_until_update">Bis zum nächsten Update verwerfen</string>
   <string name="stable_notice_title">Die Applikation hat ein Upgrade erhalten! </string>
   <string name="upgrade_video_message">Sieh dir ein Video mit den neuen Funktionen der neuen Version an: (%s).</string>
-  <string name="stable_notice_par1">Die neue Version %s von %s wurde erfolgreich installiert!</string>
   <!--History-->
-  <string name="history_for">Chronik (%s: Fenster %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigation</string>
   <string name="help_nav_text">Gehe zum nächsten oder vorhergehenden Kapitel durch Wischen mit dem Finger.
@@ -668,9 +660,12 @@ Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster an
   <!--Welcome text-->
   <string name="redownload_documents">Schneller erneuter Download</string>
   <string name="welcome_message">Danke für das Herunterladen von%s. Zur Zeit sind keine Bibeln oder andere Dokumente installiert. Um fortzufahren, installiere bitte mindestens ein Dokument aus dem Internet oder aus einer Sicherungsdatei.</string>
+  <!--Supported file formats for documents-->
   <string name="supported_formats_title">Unterstützte Formate</string>
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Du hast die Datei ausgewählt, die du nach %s laden willst.</string>
   <string name="supported_formats">Unterstützte Formate zum Laden von Dokumenten aus einer Datei: %s</string>
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Zip-Datei, die Sword-Modul(e) enthält, oder Backup-Datei (*.abmd) erstellt von %s</string>
   <string name="format_mysword">MySword Dokumente (*.mybible)</string>
   <string name="format_mybible">MyBible Dokumente (*.sqlite3)</string>
@@ -679,7 +674,6 @@ Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster an
 Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um sie auf einmal wieder herunterzuladen.</string>
   <!--Uncategorized-->
   <string name="close">Schließen</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Verstanden</string>
   <string name="first_time_help_show_next_time">Das nächste Mal erneut anzeigen</string>
   <string name="strongs_mode_title">Strong-Modus auswählen</string>
@@ -728,8 +722,8 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="show_reference_at_front">Zeige am Beginn des Verses</string>
   <string name="abbreviate_reference">Querverweis abkürzen</string>
   <string name="version_name">Versionsname</string>
+  <!--meaning, bible version name-->
   <string name="show_version_name">Versionsname inkludieren</string>
-  <string name="show_ellipsis">Auslassung anzeigen (...)</string>
   <string name="show_quotes">Zitate anzeigen</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Zurück</string>
@@ -737,7 +731,6 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="initializing_app">Programm wird gestartet...</string>
   <string name="show_notes">Notizen anzeigen</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView Paket ist zu alt ( %s ). Du must dein Android Webview Paket zumindest zu Version %s updaten um %s zu verwenden. Für die meisten Geräte geht das einfach über %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Trotzdem fortfahren</string>
   <string name="proceed">Fortfahren</string>
@@ -747,8 +740,6 @@ Positive und ausführliche Bewertungen helfen dem AndBible Open Source Projekt s
   <string name="rate_message6">
 Vor dem Posten einer negativen Bewertung beachte bitte Folgendes:</string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-Wenn du ein Problem mit dem Programm hast, dann kannst du stattdessen %soder %s.</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 Wenn ein Text oder eine Bibelübersetzung ein Problem hat, %s
@@ -819,7 +810,6 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="chooser_select">Auswahl %s</string>
   <string name="chooser_pref_reset">Kapitel und Vers nach Auswahl eines Buches oder Kapitels nicht auf 1 zurücksetzen</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Es tut uns leid, aber es gibt nur eine teilweise Übersetzung der Benutzeroberfläche in die Sprache %s. %s wird vollkommen von Freiwilligen betreut. Wenn du bei der Übersetzung helfen kannst, dann bitte lies %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">Anweisungen für Übersetzer</string>
   <string name="questions_title">Fragen?</string>
@@ -842,9 +832,11 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="prefs_calculator_pin">Taschenrechner PIN</string>
   <string name="prefs_calculator_pin_desc">PIN-Code, um die Anwendung zu starten während der Taschenrechner angezeigt wird.</string>
   <string name="calc_division_by_zero">Division durch Null ist nicht gestattet</string>
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Falsches Format</string>
   <string name="calc_wrong_format_operand">Falsches Format. Operand ohne Nummern?</string>
   <string name="prefs_persecuted_help">Lies dies zuerst!</string>
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Anleitungen für die Einstellungen und Informationen über die spezifische Version der versteckten Anwendung</string>
   <string name="calculator_par1">
 Bevor die Anwenung startet, wird der Taschenrechner angezeigt
@@ -867,6 +859,7 @@ den echten Namen und das Anwendungssymbol in der Anwendungsinfo zu sehen.
   <string name="disable_sync">Synchronisation abschalten</string>
   <string name="open_in_window">Ergebnisse in einem Fenster öffnen</string>
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Benutzerdefinierte Quellen</string>
   <string name="custom_repositories_empty_list_message">Keine benutzerdefinierten Quellen festgelegt</string>
   <string name="custom_repositories_create_button_label">Benutzerdefinierte Quelle hinzufügen</string>
@@ -928,6 +921,7 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="sync_cant_fetch">Die in der Cloud gespeicherte Datenbankversion ist höher, als die Anwendung auf dem lokalen Gerät unterstützt.</string>
   <string name="sync_disabling">Deaktiviere die Synchronisation für %svorerst.</string>
   <string name="sign_in_failed">Die Anmeldung zum Internetservice der Synchronisation ist fehlgeschlagen.</string>
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">Deaktiviere die Synchronisation mit der Cloud. Du musst sie nach der Wiederherstellung händisch reaktivieren.</string>
   <string name="report">Bericht</string>
   <string name="sync_error">Fehler bei der Synchronisation mit der Cloud</string>

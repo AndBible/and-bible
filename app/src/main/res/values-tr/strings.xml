@@ -37,6 +37,7 @@
   <string name="search_in">%s içinde bul</string>
   <string name="do_in_background">Arka planda devam et</string>
   <string name="rebuild_index_button">Yeniden oluşur</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">İlerleme</string>
   <string name="task_kill_warning">Bu işlem zaman alacaktır. Eğer uygulamadan çıkarsanız, işlem bitmeden sonlandırılabilir.</string>
@@ -54,6 +55,8 @@
   <string name="search_old_testament">Eski Antlaşma</string>
   <string name="search_current_book">Seçili Kitapta</string>
   <string name="error_executing_search">Arama metini geçersiz</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Bölüm ve ayet rakamları</string>
   <string name="prefs_show_verseno_summary">Bölüm ve ayet rakamlarını göster</string>
@@ -120,7 +123,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Metni kaydırırken otomatik olarak tam ekrana geçin. İpucu: Ayrıca ekrana çift dokunarak her zaman tam ekrana geçebilirsiniz.</string>
   <string name="prefs_margin_size_title">Kenar boşluğunu değiştir</string>
-  <string name="prefs_margin_size_mm_title">Kenar boşluğu (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Gelişmiş ayarlar</string>
   <string name="prefs_display_customization_cat">Görünüm &amp; his</string>
   <string name="prefs_behavior_customization_cat">Uygulama davranışı</string>
@@ -190,10 +192,8 @@
   <string name="windowMinimise">Küçült</string>
   <string name="windowSynchronise">Senkronize et</string>
   <string name="move_window">Taşı</string>
-  <string name="move_window_to_position2">Konum %d (%s:%s)</string>
   <string name="copy_settings">Ayarları kaydet...</string>
   <string name="copy_settings_to_workspace">Çalışma Alanı</string>
-  <string name="copy_settings_to_window">Pencere %d(%s:%s)</string>
   <string name="change_to_normal">Normal pencereye geç</string>
   <string name="window_pin_mode">İğnele</string>
   <!--Notes screen-->
@@ -215,7 +215,6 @@
   <string name="download_document_confirm_prefix">İndir</string>
   <string name="download_refresh_book_list_menu_item">Yenilen</string>
   <string name="error_downloading">İndirirken bir hata oldu.  Lütfen internet bağlantınızı kontrol edin.</string>
-  <string name="error_downloading_status">%s barındıran sunucu, %s (%d) nedeniyle bir hata döndürdü.</string>
   <string name="storage_space_warning">Yerel depo yetersiz</string>
   <string name="too_many_jobs">Çok fazla görev çalışıyor. Lütfen bazılarının bitmesini bekleyin ve tekrar deneyin.</string>
   <string name="document_not_installed">Lütfen \'%s\' dosyasını indirin</string>
@@ -418,7 +417,6 @@ Wholosome Words\'un nezaketiyle, http://www.wholesomewords.org/, izin verildi</s
   <string name="window_text_options_help2">%s simgesi, bu belirli pencere için bu ayarın değiştiğini gösterir.</string>
   <string name="window_text_options_help3">Çalışma alanı ayarı bu pencereyi etkilemeyecektir.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">%s düğmesiyle tüm bu ayarları %s durumuna sıfırlayabilirsiniz.</string>
   <string name="reset_defaults">varsayılan değerler</string>
   <string name="reset_workspace_defaults">çalışma alanı varsayılan değerleri</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
@@ -459,7 +457,6 @@ konuşma tanımlanan ayet aralığının dışında başladı.</string>
   <string name="backup_success2">Notlarım, Yer İmleri, Çalışma Defterleri, Okuma Planları ve Çalışma Alanları başarıyla yedeklendi.</string>
   <string name="backup_modules_success">Seçilen modüller başarıyla yedeklendi.</string>
   <string name="backup_modules_email_subject_2">%s modüllerini yedeklemek</string>
-  <string name="backup_modules_email_message_2">%s modüllerinin yedeği ektedir, aşağıdaki modülleri içerir: %s</string>
   <string name="backup_email_subject_2">%s veritabanını yedeklemek</string>
   <string name="backup_email_message_2">Yer imlerinizi, notlarınızı, okuma planlarınızı ve çalışma alanlarınızı içeren %s veritabanınız ektedir</string>
   <string name="restore_unsuccessfull">Veritabanı geri yüklenemedi. Belki de geçersiz veritabanı dosyası verdiniz.</string>
@@ -469,15 +466,12 @@ konuşma tanımlanan ayet aralığının dışında başladı.</string>
   <string name="install_zip_canceled">Modül yüklemesi iptal edildi</string>
   <!--About-->
   <string name="module_about_copyright">Telif hakkı: %s</string>
-  <string name="module_about_installed_version">Mevcut sürüm: %s (%s)</string>
-  <string name="module_about_latest_version">Son çıkan sürüm: %s (%s)</string>
   <string name="module_about_versification">Ayet düzeni: %s</string>
   <string name="module_about_repository">Dağıtım sunucusu: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title1">Hata raporu</string>
   <string name="send_feedback_title">Geri bildirim</string>
   <string name="send_bug_report_title">Geri bildirim / hata raporu</string>
-  <string name="report_bug_email_subject_3">[%s] %s%s için hata raporu</string>
   <string name="report_bug_big_heading">LÜTFEN BU SATIRIN ÜZERİNE GERİ BİLDİRİMİNİZİ VEYA HATA RAPORUNU YAZINIZ</string>
   <string name="report_bug_heading1">Yönergeler:</string>
   <string name="report_bug_line_1">Bize kısaca ne yaptığınızı / sorun oluştuğunda ne olduğunu söyleyin.</string>
@@ -562,9 +556,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="beta_notice_dismiss_until_update">Bir sonraki güncellemeye kadar yok say</string>
   <string name="stable_notice_title">Uygulama güncellendi!</string>
   <string name="upgrade_video_message">Lütfen bu sürümün yeni özelliklerini içeren videoyu izleyin (%s)</string>
-  <string name="stable_notice_par1">%s sürümlü %s başarıyla kuruldu!</string>
   <!--History-->
-  <string name="history_for">Geçmiş (%s: Window %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigasyon</string>
   <string name="help_nav_text">Parmağınızla ekranı kaydırarak sonraki ya da önceki bölüme gidin.
@@ -578,10 +570,12 @@ bu birkaç pencereye özgü işlevleri kullanmanıza ve pencere görünümünü 
   <string name="help_hidden_features_title">Gizli kısayollar</string>
   <string name="help_window_pinning_title">Pencere iğneleme</string>
   <!--Welcome text-->
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">Önceki kitapların/belgelerin bir listesi bulundu. Bunları kolayca tekrar indirmek için aşağıya tıklayın.</string>
   <!--Uncategorized-->
   <string name="close">Kapat</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Anladım</string>
   <string name="first_time_help_show_next_time">Bir daha sefere tekrar göster</string>
   <string name="strongs_mode_title">Strongs modunu seç</string>
@@ -626,13 +620,13 @@ bu birkaç pencereye özgü işlevleri kullanmanıza ve pencere görünümünü 
   <string name="verse_share_advertise">%s kullanılarak paylaşıldı.</string>
   <string name="abbreviate_reference">Kısaltılmış referans</string>
   <string name="version_name">Versiyon adı</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">Yedekle</string>
   <string name="back_button">Geri</string>
   <string name="upgrading_database">Veritabanı güncelleniyor. Lütfen bekleyin...</string>
   <string name="initializing_app">Uygulama başlatılıyor...</string>
   <string name="show_notes">Notları görüntüle</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView paketi çok eski (%s). Android WebView paketinizi en azından %s sürümününe %s kullanabilmek için yükseltmeniz gerekir. Çoğu cihaz %s aracılığıyla bunu yapabilir.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Yine de devam et</string>
   <string name="rate_title">Uygulamayı derecelendir ve incele</string>
@@ -685,7 +679,6 @@ geliştiricilere e-posta gönderin</string>
   <string name="chooser_select">Seç %s</string>
   <string name="chooser_pref_reset">Kitap/bölüm seçildiğinde bölüm/ayet\'i 1\'e sıfırlamayın.</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Üzgünüz, ancak %s dilinde yalnızca kısmi bir kullanıcı arayüzü çevirisine sahibiz. Bunun nedeni, %s \'nin tamamen gönüllüler tarafından geliştirilmiş olmasıdır. Çeviride yardımcı olabilirseniz, lütfen %s \'ye bakın.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">çevirmenler için talimatlar</string>
   <string name="questions_title">Sorularınız?</string>
@@ -699,11 +692,15 @@ geliştiricilere e-posta gönderin</string>
   <string name="permission_required">İzin gerekli</string>
   <string name="labels_search_hint">Ara</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Bilgi</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Biblijos studijos</string>
-  <string name="app_name_long">AndBible: Biblija</string>
+  <string name="app_name_medium">Biblijos studijos (AndBible)</string>
+  <string name="app_name_long">AndBible: Biblijos studijos</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Įdėkite SD kortelę ir paleiskite programėlę iš naujo.</string>
   <!--Main menu-->
@@ -37,6 +39,7 @@
   <string name="search_in">Ieškoti čia: %s</string>
   <string name="do_in_background">Tęsti fone</string>
   <string name="rebuild_index_button">Perkurti</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">Pažanga</string>
   <string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
@@ -54,6 +57,9 @@
   <string name="search_old_testament">Senajame Testamente</string>
   <string name="search_current_book">Esamoje knygoje</string>
   <string name="error_executing_search">Neteisinga paieškos užklausa</string>
+  <!--Open (bible reference X)-->
+  <string name="go_to_ref">Atverti %s</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Skyrių &amp; eilučių numeriai</string>
   <string name="prefs_show_verseno_summary">Rodyti skyrių &amp; eilučių numerius</string>
@@ -120,7 +126,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Slenkant tekstą, automatiškai perjungti į viso ekrano veikseną. Pastaba: visuomet galima perjungti į viso ekrano veikseną spustelėjus dukart ekrane.</string>
   <string name="prefs_margin_size_title">Keisti paraščių dydį</string>
-  <string name="prefs_margin_size_mm_title">Paraščių dydis (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Išplėstiniai nustatymai</string>
   <string name="prefs_display_customization_cat">Išvaizda ir turinys</string>
   <string name="prefs_behavior_customization_cat">Programėlės elgsena</string>
@@ -173,7 +178,8 @@
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Spalvos nustatymai</string>
   <string name="window_color_settings_title">Lango spalvų nustatymai</string>
-  <string name="workspace_color_settings_title">Numatytieji darbalaukio spalvų nustatymai</string>
+  <string name="workspace_color_settings_title">Numatytieji darbo srities spalvų nustatymai</string>
+  <string name="color_workspace">Darbo srities spalva</string>
   <string name="color_text">Teksto spalva</string>
   <string name="color_background">Fono spalva</string>
   <string name="colors_day_mode_title">Dienos veiksena</string>
@@ -192,10 +198,8 @@
   <string name="windowMinimise">Suskleisti</string>
   <string name="windowSynchronise">Sinchronizuoti</string>
   <string name="move_window">Perkelti į</string>
-  <string name="move_window_to_position2">Pozicija %d (%s:%s)</string>
   <string name="copy_settings">Kopijuoti nustatymus į</string>
   <string name="copy_settings_to_workspace">Darbo sritis</string>
-  <string name="copy_settings_to_window">Langas %d (%s: %s)</string>
   <string name="change_to_normal">Keisti į normalų</string>
   <string name="window_pin_mode">Prisegti</string>
   <!--Notes screen-->
@@ -218,7 +222,6 @@
   <string name="download_document_confirm_prefix">Atsisiųsti</string>
   <string name="download_refresh_book_list_menu_item">Atnaujinti</string>
   <string name="error_downloading">Atsiunčiant įvyko klaida. Patikrinkite interneto ryšį.</string>
-  <string name="error_downloading_status">Serveris, kuriame yra %s, grąžino klaidą dėl %s (%d).</string>
   <string name="storage_space_warning">Nepakanka vietos vietinėje saugykloje.</string>
   <string name="too_many_jobs">Vykdoma per daug užduočių. Prašome palaukti, kol kai kurios bus baigtos ir bandyti vėl.</string>
   <string name="document_not_installed">Atsisiųskite „%s“</string>
@@ -237,6 +240,7 @@
   <string name="download_errors">Atsiuntimo klaidos</string>
   <string name="failed_repositories_message">Nepavyko prisijungti prie šių dokumentų saugyklų: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Nepavyko atsisiųsti šių failų:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Šis dokumentas negali būti ištrintas.</string>
   <!--Install zip file-->
   <string name="install_zip_module">Įdiegti Biblijos modulį</string>
   <string name="install_zip_successfull">Modulis sėkmingai įdiegtas</string>
@@ -442,7 +446,6 @@
   <string name="window_text_options_help2">%s piktograma nurodo, kad šis nustatymas buvo pakeistas šiam konkrečiam langui.</string>
   <string name="window_text_options_help3">Darbo srities nustatymas nepaveiks šio lango.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Naudokite mygtuką %s norėdami atstatyti visus šiuos nustatymus į %s.</string>
   <string name="reset_defaults">numatytąsias reikšmes</string>
   <string name="reset_workspace_defaults">darbo srities numatytąsias reikšmes</string>
   <string name="speak_bookmark_help">Kalbėjimo žymių pagalba</string>
@@ -500,6 +503,8 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Saugoti ir atkurti atsargines kopijas</string>
   <string name="backup_modules2">Saugoti dokumentų atsargines kopijas į...</string>
+  <string name="backup_database">Duomenų bazė</string>
+  <string name="backup_documents">Dokumentai</string>
   <string name="backup_to">Daryti atsarginę kopiją į…</string>
   <string name="backup_restore_from">Atkurti iš…</string>
   <string name="backup_restore">Atstatyti</string>
@@ -513,7 +518,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="backup_success2">Sėkmingai padaryta mano pastabų, žymių, bloknotų, skaitymo planų ir darbo sričių atsarginė kopija.</string>
   <string name="backup_modules_success">Sėkmingai padaryta pasirinktų modulių atsarginė kopija.</string>
   <string name="backup_modules_email_subject_2">%s modulių atsarginės kopijos</string>
-  <string name="backup_modules_email_message_2">Pridėtos jūsų %s modulių atsarginės kopijos, kuriose yra tokie moduliai: %s</string>
   <string name="backup_email_subject_2">%s duomenų bazės atsarginė kopija</string>
   <string name="backup_email_message_2">Jūsų %s duomenų bazė su žymėmis, pastabomis, skaitymo planais ir darbo sritimis yra pridėta</string>
   <string name="restore_unsuccessfull">Duomenų bazės atkūrimas buvo nesėkmingas. Galbūt, pateikėte neteisingą duomenų bazės failą.</string>
@@ -523,8 +527,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="install_zip_canceled">Modulio diegimo atsisakyta</string>
   <!--About-->
   <string name="module_about_copyright">Autorių teisės: %s</string>
-  <string name="module_about_installed_version">Įdiegta versija: %s (%s)</string>
-  <string name="module_about_latest_version">Naujausia versija: %s (%s)</string>
   <string name="module_about_versification">Versijavimas: %s</string>
   <string name="module_about_repository">Platinimo serveris: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -532,7 +534,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="send_bug_report_title1">Pranešimas apie klaidą</string>
   <string name="send_feedback_title">Atsiliepimas</string>
   <string name="send_bug_report_title">Atsiliepimas / pranešimas apie klaidą</string>
-  <string name="report_bug_email_subject_3">[%s] Pranešimas apie klaidą %s %s</string>
   <string name="report_bug_big_heading">RAŠYKITE ATSILIEPIMĄ AR PRANEŠIMĄ APIE KLAIDĄ VIRŠ ŠIOS LINIJOS</string>
   <string name="report_bug_heading1">Instrukcija:</string>
   <string name="report_bug_line_1">Trumpai aprašykite, ką darėte / kas nutiko, kai įvyko klaida.</string>
@@ -626,9 +627,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="beta_notice_dismiss_until_update">Atmesti iki kito atnaujinimo</string>
   <string name="stable_notice_title">Programėlė atnaujinta!</string>
   <string name="upgrade_video_message">Žiūrėkite vaizdo įrašą, kuriame demonstruojamos naujos programėlės ypatybės (%s).</string>
-  <string name="stable_notice_par1">Nauja versija %s %s sėkmingai įdiegta!</string>
   <!--History-->
-  <string name="history_for">Istorija (%s: Langas %d)</string>
   <!--Help-->
   <string name="help_nav_title">Naršymas</string>
   <string name="help_nav_text">Eikite į kitą arba ankstesnį skyrių pirštu braukdami per ekraną iš kairės į dešinę arba atvirkščiai.
@@ -684,12 +683,17 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="welcome_message">Dėkojame, kad atsisiuntėte %s. Šiuo metu nėra įdiegta jokių dokumentų ar Biblijų. Norėdami tęsti, įsidiekite
         bent 1 dokumentą, atsisiųsdami jį iš interneto arba įkeldami iš zip failo dokumento atsarginės kopijos.
     </string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_mysword">MySword dokumentai (*.mybible)</string>
+  <string name="format_mybible">MyBible dokumentai (*.SQLite3)</string>
+  <string name="format_epub">EPUB dokumentai (*.epub)</string>
   <string name="redownload_message">
         Buvo rastas ankstesnių knygų/dokumentų sąrašas. Spustelėkite žemiau, norėdami vėl juos lengvai atsisiųsti.
     </string>
   <!--Uncategorized-->
   <string name="close">Užverti</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Aš suprantu</string>
   <string name="first_time_help_show_next_time">Rodyti ir kitą kartą</string>
   <string name="strongs_mode_title">Pasirinkite Strongo veikseną</string>
@@ -735,23 +739,21 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="verse_share_advertise">Bendrinama naudojant %s.</string>
   <string name="abbreviate_reference">Sutrumpinti nuorodą</string>
   <string name="version_name">Versijos pavadinimas</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">Atsarginė kopija</string>
   <string name="back_button">Atgal</string>
   <string name="upgrading_database">Naujinama duomenų bazė. Palaukite…</string>
   <string name="initializing_app">Inicijuojama programėlė…</string>
   <string name="show_notes">Rodyti pastabas</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">„Android WebView“ paketas yra per senas (%s). Turite atnaujinti savo „Android WebView“ paketą bent iki versijos %s, kad galėtumėte naudoti %s. Daugumoje įrenginių, tai galima atlikti per %s.</string>
   <string name="play">„Google Play“</string>
   <string name="proceed_anyway">Vis tiek tęsti</string>
+  <string name="proceed">Tęsti</string>
   <string name="rate_title">Programėlės įvertinimas ir apžvalga</string>
   <string name="rate_message6">
         Prieš rašydami neigiamą apžvalgą, turėkite omenyje šiuos dalykus:
     </string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-        Jei susidūrėte su problema programėlėje, %s arba, vietoj to, %s.
-    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Jei tekste / Biblijos vertime yra klaida, %s.
@@ -827,7 +829,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="chooser_select">Pasirinkti %s</string>
   <string name="chooser_pref_reset">Pasirinkus knygą/skyrių, neatstatyti skyriaus/eilutės į 1</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Atleiskite, bet naudotojo sąsajos vertimas %s kalba yra tik dalinis. Taip yra todėl, kad %s yra pilnai plėtojama tik savanorių. Jei galite padėti išversti, žiūrėkite %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instrukciją vertėjams</string>
   <string name="questions_title">Turite klausimų?</string>
@@ -841,11 +842,24 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="permission_required">Reikalingas leidimas</string>
   <string name="labels_search_hint">Ieškoti</string>
   <!--Discrete mode settings-->
+  <string name="app_name_calculator">Paprastas skaičiuotuvas</string>
+  <string name="prefs_discrete_mode">Slėpti religinius simbolius</string>
+  <string name="prefs_show_calculator">Skaičiuotuvas</string>
+  <!--Context: calculator. Wrong number format etc.-->
+  <string name="calc_wrong_format">Neteisingas formatas</string>
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Informacija</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="copyReference">Kopijuoti nuorodą į iškarpinę</string>
   <!--Device cloud synchronization-->
+  <string name="synchronizing">Sinchronizuojama…</string>
+  <string name="are_you_sure">Ar tikrai?</string>
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Nepavyksta perskaityti fail</string>
   <!--Other / uncategorized-->
+  <string name="processing_epub">Apdorojama EPUB: %s</string>
 </resources>
