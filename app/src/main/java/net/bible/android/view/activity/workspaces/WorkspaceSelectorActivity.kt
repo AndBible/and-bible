@@ -302,7 +302,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         workspacesToBeDeleted.forEach {
             dao.deleteWorkspace(it)
         }
-        dao.updateWorkspaces(dataSet.filter { changedWorkspaces.contains(it.id) && !workspacesToBeDeleted.contains(it.id) })
+        dao.updateWorkspaces(dataSet.filter { changedWorkspaces.contains(it.id) })
     }
 
     private fun cancelChanges() {

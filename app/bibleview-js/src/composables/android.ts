@@ -31,7 +31,7 @@ import {
     StudyPadItem,
     StudyPadTextItem
 } from "@/types/client-objects";
-import {BibleDocumentType} from "@/types/documents";
+import {AnyDocument, BibleDocumentType} from "@/types/documents";
 import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
 
 export type BibleJavascriptInterface = {
@@ -261,11 +261,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         return returnValue
     }
 
-    async function requestPreviousChapter(): Promise<BibleDocumentType> {
+    async function requestPreviousChapter(): Promise<Nullable<AnyDocument>> {
         return deferredCall((callId) => window.android.requestMoreToBeginning(callId));
     }
 
-    async function requestNextChapter(): Promise<BibleDocumentType> {
+    async function requestNextChapter(): Promise<Nullable<AnyDocument>> {
         return deferredCall((callId) => window.android.requestMoreToEnd(callId));
     }
 

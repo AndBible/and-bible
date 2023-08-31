@@ -98,7 +98,7 @@ object SwordContentFacade {
         fun getKey(): Key? {
             val k =
                 try { PassageKeyFactory.instance().getKey(v11n, searchRef) }
-                catch (e: NoSuchKeyException) { null }
+                catch (e: Exception) { null }
             if(k != null && k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter == 0)  {
                 return null
             }
