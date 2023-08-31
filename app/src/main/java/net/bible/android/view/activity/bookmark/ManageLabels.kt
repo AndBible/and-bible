@@ -232,7 +232,7 @@ class ManageLabels : ListActivityBase() {
             return when(mode) {
                 Mode.ASSIGN -> R.string.assign_labels
                 Mode.STUDYPAD -> R.string.studypads
-                Mode.WORKSPACE -> R.string.auto_assign_labels_title
+                Mode.WORKSPACE -> R.string.labels
                 Mode.HIDELABELS -> R.string.bookmark_settings_hide_labels_title
             }
         }
@@ -400,7 +400,7 @@ class ManageLabels : ListActivityBase() {
 
         val title = getString(when(helpMode) {
             HelpMode.ASSIGN -> R.string.assign_labels
-            HelpMode.WORKSPACE -> R.string.auto_assign_labels_title
+            HelpMode.WORKSPACE -> R.string.labels
             HelpMode.HIDE -> R.string.bookmark_settings_hide_labels_title
         })
 
