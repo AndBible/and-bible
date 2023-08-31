@@ -1760,71 +1760,66 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return CommonUtils.getWholeChapters(key.versification, key.book, minChapter, maxChapter)
     }
 
-    fun requestMoreToBeginning(callId: Long) = scope.launch(Dispatchers.IO) {
+    fun requestMoreToBeginning(callId: Long) = synchronized(this) {
         Log.i(TAG, "requestMoreTextAtTop")
         if (isBible) {
-            val newChap = synchronized(this) {
-                val newChap = minChapter - 1
-                if (newChap < 1) {
-                    executeJavascriptOnUiThread("bibleView.response($callId, null);")
-                    return@launch
-                }
-                addChapter(newChap)
-                newChap
+            val newChap = minChapter - 1
+            if (newChap < 1) {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
             }
+            addChapter(newChap)
 
             val currentPage = window.pageManager.currentBible
-            val doc = currentPage.getDocumentForChapter(newChap)
-            executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            scope.launch(Dispatchers.IO) {
+                val doc = currentPage.getDocumentForChapter(newChap)
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            }
         } else {
             val currentPage = window.pageManager.currentGeneralBook
-            val prevKey = synchronized(this) {
-                firstKey ?: run {
-                    executeJavascriptOnUiThread("bibleView.response($callId, null);")
-                    return@launch
-                }
-                val prevKey = currentPage.getKeyPlus(firstKey, -1)
-                firstKey = prevKey
-                prevKey
+            firstKey ?: run {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
             }
+            val prevKey = currentPage.getKeyPlus(firstKey, -1)
+            firstKey = prevKey
 
-            val doc = currentPage.getPageContent(prevKey)
-            executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            scope.launch(Dispatchers.IO) {
+                val doc = currentPage.getPageContent(prevKey)
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            }
         }
     }
 
-    fun requestMoreToEnd(callId: Long) = scope.launch(Dispatchers.IO) {
+    fun requestMoreToEnd(callId: Long) = synchronized(this) {
         Log.i(TAG, "requestMoreTextAtEnd")
         if (isBible) {
             val currentPage = window.pageManager.currentBible
-            val newChap = synchronized(this) {
-                val newChap = maxChapter + 1
-                val verse = currentPage.currentBibleVerse.verse
-                val lastChap = verse.versification.getLastChapter(verse.book)
-                if (newChap > lastChap) {
-                    executeJavascriptOnUiThread("bibleView.response($callId, null);")
-                    return@launch
-                }
-                addChapter(newChap)
-                newChap
+            val newChap = maxChapter + 1
+            val verse = currentPage.currentBibleVerse.verse
+            val lastChap = verse.versification.getLastChapter(verse.book)
+            if (newChap > lastChap) {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
             }
+            addChapter(newChap)
 
-            val doc = currentPage.getDocumentForChapter(newChap)
-            executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            scope.launch(Dispatchers.IO) {
+                val doc = currentPage.getDocumentForChapter(newChap)
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            }
         } else {
             val currentPage = window.pageManager.currentGeneralBook
-            val nextKey = synchronized(this) {
-                lastKey ?: run {
-                    executeJavascriptOnUiThread("bibleView.response($callId, null);")
-                    return@launch
-                }
-                val nextKey = currentPage.getKeyPlus(lastKey, 1)
-                lastKey = nextKey
-                nextKey
+            lastKey ?: run {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
             }
-
-            val doc = currentPage.getPageContent(nextKey)
-            executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            val nextKey = currentPage.getKeyPlus(lastKey, 1)
+            lastKey = nextKey
+            scope.launch(Dispatchers.IO) {
+                val doc = currentPage.getPageContent(nextKey)
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            }
         }
     }
 
