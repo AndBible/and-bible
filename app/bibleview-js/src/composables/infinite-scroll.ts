@@ -52,20 +52,32 @@ export function useInfiniteScroll(
 
     async function processQueues() {
         if(isProcessing) return;
+        console.log("inf: processQueues")
         isProcessing = true;
         // noinspection UnnecessaryLocalVariableJS
         const clearCountStart = clearDocumentCount;
         try {
             while(addChaptersToEnd.length > 0 || addChaptersToTop.length > 0) {
+                console.log("inf: Waiting for chapters")
                 const [endChaps, topChaps] = await Promise.all([
                     Promise.all(addChaptersToEnd.splice(0)),
                     Promise.all(addChaptersToTop.splice(0))
                 ]);
-                if(clearCountStart > clearDocumentCount) return;
-                insertThisTextAtEnd(...endChaps);
-                await nextTick();
-                await insertThisTextAtTop(topChaps);
-                await nextTick();
+                console.log("inf: Received chapters")
+                if(clearCountStart > clearDocumentCount) {
+                    console.log("inf: Document cleared in between, stopping")
+                    return;
+                }
+                if(endChaps.length > 0) {
+                    console.log("inf: Displaying received chapters at end")
+                    insertThisTextAtEnd(...endChaps);
+                    await nextTick();
+                }
+                if(topChaps.length > 0) {
+                    console.log("inf: Displaying received chapters at top")
+                    await insertThisTextAtTop(topChaps);
+                    await nextTick();
+                }
             }
         } finally {
             isProcessing = false;
