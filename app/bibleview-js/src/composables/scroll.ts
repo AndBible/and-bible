@@ -21,7 +21,6 @@ import {isInViewport} from "@/utils";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {Nullable} from "@/types/common";
-import {useCustomCss} from "@/composables/custom-css";
 
 export function useScroll(
     config: Config,
