@@ -30,21 +30,50 @@ import {BookCategory} from "@/types/client-objects";
 
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
-    documents: AnyDocument[]
+    bibleViewDocuments: AnyDocument[]
 ) {
     const enabledCategories: Set<BookCategory> = new Set(["BIBLE", "GENERAL_BOOK"]);
-    let
-        currentPos: number,
-        lastAddMoreTime = 0,
-        addMoreAtTopOnTouchUp = false,
-        bottomElem: HTMLElement,
-        touchDown = false,
-        textToBeInsertedAtTop: Nullable<AnyDocument> = null;
+    let currentPos: number;
+    let lastAddMoreTime = 0;
+    let addMoreAtTopOnTouchUp = false;
+    let bottomElem: HTMLElement;
+    let touchDown = false;
+    let textToBeInsertedAtTop: Nullable<AnyDocument[]> = null;
+    let isProcessing = false;
+    const addChaptersToTop: Promise<AnyDocument>[] = [];
+    const addChaptersToEnd: Promise<AnyDocument>[] = [];
+
+    async function processQueues() {
+        if(isProcessing) return;
+        isProcessing = true;
+        try {
+            while(addChaptersToEnd.length > 0 || addChaptersToTop.length > 0) {
+                const endChaps = Promise.all(addChaptersToEnd.splice(0));
+                const topChaps = Promise.all(addChaptersToTop.splice(0));
+                insertThisTextAtEnd(...(await endChaps));
+                await nextTick();
+                await insertThisTextAtTop(await topChaps);
+                await nextTick();
+            }
+        } finally {
+            isProcessing = false;
+        }
+    }
+
+    function loadTextAtTop() {
+        addChaptersToTop.push(requestPreviousChapter())
+        processQueues();
+    }
+
+    function loadTextAtEnd() {
+        addChaptersToEnd.push(requestNextChapter())
+        processQueues();
+    }
 
     const
         isEnabled = computed(() => {
-           if(documents.length === 0) return false;
-           const doc = documents[0];
+           if(bibleViewDocuments.length === 0) return false;
+           const doc = bibleViewDocuments[0];
            if(isOsisDocument(doc)) {
                 return enabledCategories.has(doc.bookCategory)
            } else {
@@ -56,8 +85,6 @@ export function useInfiniteScroll(
         bodyHeight = () => document.body.scrollHeight,
         scrollPosition = () => window.pageYOffset,
         setScrollPosition = (offset: number) => window.scrollTo(0, offset),
-        loadTextAtTop = async () => insertThisTextAtTop(await requestPreviousChapter()),
-        loadTextAtEnd = async () => insertThisTextAtEnd(await requestNextChapter()),
         addMoreAtEnd = () => {
             if (!isEnabled.value) return;
             return loadTextAtEnd();
@@ -78,6 +105,7 @@ export function useInfiniteScroll(
         touchDown = false;
         if (textToBeInsertedAtTop) {
             insertThisTextAtTop(textToBeInsertedAtTop);
+            textToBeInsertedAtTop = null;
         }
         if (addMoreAtTopOnTouchUp) {
             addMoreAtTopOnTouchUp = false;
@@ -85,14 +113,17 @@ export function useInfiniteScroll(
         }
     }
 
-    async function insertThisTextAtTop(document: AnyDocument) {
+    async function insertThisTextAtTop(docs: AnyDocument[]) {
         if (touchDown) {
-            textToBeInsertedAtTop = document;
+            textToBeInsertedAtTop = docs;
         } else {
             const priorHeight = bodyHeight();
             const origPosition = scrollPosition();
 
-            if (document) documents.unshift({...document});
+            if (docs) {
+                docs.reverse();
+                bibleViewDocuments.unshift(...docs);
+            }
             await nextTick();
 
             // do no try to get scrollPosition here because it has not settled
@@ -101,8 +132,8 @@ export function useInfiniteScroll(
         }
     }
 
-    function insertThisTextAtEnd(document: AnyDocument) {
-        if (document) documents.push({...document});
+    function insertThisTextAtEnd(...docs: AnyDocument[]) {
+        if (docs) bibleViewDocuments.push(...docs);
     }
 
     function scrollHandler() {
