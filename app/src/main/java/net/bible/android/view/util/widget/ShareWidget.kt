@@ -92,8 +92,8 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
      *   - CommonUtils counterparts of widget options
      */
     private fun updateWidgetState() {
-        updateText()
         updateSelectionOptions()
+        updateText()
     }
 
     /**
@@ -128,19 +128,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
      */
     private fun updateText() {
         // get currently selected text with markup, based on widget options
-        val text = SwordContentFacade.getSelectionText(
-            selection,
-            showVerseNumbers = bindings.toggleVersenumbers.isChecked,
-            advertiseApp = bindings.advertise.isChecked,
-            abbreviateReference = bindings.toggleAbbreviateReference.isChecked,
-            showNotes = bindings.toggleNotes.isChecked,
-            showVersion = bindings.toggleShowVersion.isChecked,
-            showReference = bindings.toggleShowReference.isChecked,
-            showReferenceAtFront = bindings.toggleShowReferenceAtFront.isChecked,
-            showSelectionOnly = bindings.toggleShowSelectionOnly.isChecked,
-            showEllipsis = bindings.toggleShowEllipsis.isChecked,
-            showQuotes = bindings.toggleShowQuotes.isChecked
-        )
+        val text = CommonUtils.getShareableDocumentText(selection)
         val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book!!.language.code)) == LayoutDirection.RTL
 
         // set widget text based on the new text

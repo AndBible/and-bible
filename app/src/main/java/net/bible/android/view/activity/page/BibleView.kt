@@ -19,6 +19,9 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -72,6 +75,7 @@ import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
@@ -216,6 +220,13 @@ class Selection(
         swordBook?: return null
         val v11n = swordBook?.versification ?: KJVA
         return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
+    }
+
+    fun copyToClipboard(context: Context) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText(verseRange?.name, CommonUtils.getShareableDocumentText(this))
+        clipboard.setPrimaryClip(clip)
+        ABEventBus.post(ToastEvent(context.getString(R.string.text_copied_to_clicpboard)))
     }
 }
 
@@ -561,27 +572,47 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             } else {
                 menu.clear()
                 scope.launch {
-                    val result = evaluateJavascriptAsync("bibleView.querySelection()")
-                    if (result != "null") {
-                        val sel = try {
-                            json.decodeFromString(serializer<Selection?>(), result)
-                        } catch (e: SerializationException) {
-                            null
-                        }
-                        val selText = try { json.decodeFromString(serializer(), result) } catch (e: SerializationException) { result }
-                        currentSelection = sel
-                        currentSelectionText = sel?.text ?: selText
-                        currentSelectionRef = linkControl.resolveRef(currentSelectionText?: "")
+                    if (setCurrentSelection())
                         menuPrepared = true
-                    } else {
+                    else
                         showSystem = true
-                    }
+
                     withContext(Dispatchers.Main) {
                         mode.invalidate()
                     }
                 }
                 return false
             }
+        }
+    }
+
+    /** @return true if bibleView.querySelection() result was not null */
+    private suspend fun setCurrentSelection(): Boolean = withContext(Dispatchers.Main) {
+        val result = evaluateJavascriptAsync("bibleView.querySelection()")
+        if (result != "null") {
+            val sel = try {
+                json.decodeFromString(serializer<Selection?>(), result)
+            } catch (e: SerializationException) {
+                null
+            }
+            val selText = try { json.decodeFromString(serializer(), result) } catch (e: SerializationException) { result }
+            currentSelection = sel
+            currentSelectionText = sel?.text ?: selText
+            currentSelectionRef = linkControl.resolveRef(currentSelectionText?: "")
+            return@withContext true
+        }
+
+        return@withContext false
+    }
+
+    fun copySelectionToClipboard(selection: Selection? = null) {
+        scope.launch {
+            // use currentSelection for partial selected text, otherwise
+            // JS has to send Selection by book and ordinals which is passed in selection parameter
+            currentSelection = null
+            if (selection == null)
+                setCurrentSelection()
+            (currentSelection ?: selection)?.copyToClipboard(context)
         }
     }
 

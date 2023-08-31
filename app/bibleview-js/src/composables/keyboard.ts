@@ -21,6 +21,7 @@ import {useScroll} from "@/composables/scroll";
 import {computed, ComputedRef, ref, watch} from "vue";
 
 const altKeys: Set<string> = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyM", "KeyO", "KeyG"]);
+const ctrlKeys: Set<string> = new Set(["KeyC"]);
 const keys: Set<string> = new Set(["ArrowUp", "ArrowDown"]);
 const handleJsSide: Set<string> = new Set(["ArrowUp", "ArrowDown"]);
 
@@ -37,10 +38,13 @@ export function useKeyboard(
     })
 
     setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
-        if (keys.has(e.code) || (e.altKey && altKeys.has(e.code))) {
+        if (keys.has(e.code) || (e.altKey && altKeys.has(e.code)) || (e.ctrlKey && ctrlKeys.has(e.code))) {
             let key = e.code;
             if (e.altKey) {
                 key = "Alt" + key;
+            }
+            if (e.ctrlKey) {
+                key = "Ctrl" + key;
             }
             if(handleJsSide.has(key)) {
                 if(isEditing.value) return
