@@ -95,6 +95,7 @@ import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.OrdinalRange
+import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
@@ -1551,6 +1552,24 @@ object CommonUtils : CommonUtilsBase() {
             BackupControl.AbDbFileType.ZIP
         else
             BackupControl.AbDbFileType.UNKNOWN
+    }
+
+    fun makeAndBibleUrl(doc: Book?, key: Key, ordinal: Int?): String? {
+        var url = "https://andbible.org/bible/${key.osisRef}"
+        val queryParameters = mutableListOf<String>()
+        if(doc != null) {
+            queryParameters.add("document=${doc.initials}")
+            if(doc is SwordBook) {
+                queryParameters.add("v11n=${doc.versification.name}")
+            }
+        }
+        if(ordinal != null) {
+            queryParameters.add("ordinal=${ordinal}")
+        }
+        if(queryParameters.isNotEmpty()) {
+            url += "?${queryParameters.joinToString("&")}"
+        }
+        return url
     }
 
 }
