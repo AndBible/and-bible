@@ -21,7 +21,6 @@ L'application comporte de nombreuses fonctionnalités originales et petinentes, 
  * Plans de lecture : fixer des objectifs de lecture de la Bible
  * Vaste bibliothèque de documents : Traductions de la Bible, commentaires théologiques, dictionnaires, cartes et livres chrétiens, totalisant plus de 1500 documents dans plus de 700 langues, distribués légalement par Crosswire et d'autres dépôts SWORD.
  * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
- * Hors ligne  : vous n'avez besoin de l'internet que pour télécharger des documents.
 
 Créons ensemble la meilleure application biblique !
 

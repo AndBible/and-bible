@@ -21,7 +21,6 @@
  * {{feature_09}}
  * {{feature_10}}
  * {{feature_10_1}}
- * {{feature_12}}
 
 {{subtitle_3}}
 

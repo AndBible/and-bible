@@ -21,7 +21,6 @@ Aplikacija ima številne vpogledne, izvirne funkcije, zaradi česar je kompleksn
  * Načrti branja: določite si cilje za branje Biblije
  * Ogromna knjižnica dokumentov: prevodi Biblije, komentarji, slovarji, zemljevidi in krščanske knjige, skupaj več kot 1500 dokumentov v več 700 jezikih, ki jih zakonito distribuira Crosswire in druge SWORD shrambe.
  * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
- * Brez internetne povezave: internet se potrebujete le za enkraten prenos dokumentov.
 
 Skupaj naredimo najboljšo biblijsko aplikacijo!
 

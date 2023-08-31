@@ -21,7 +21,6 @@ Aplikácia má mnoho podnetných a originálnych funkcií, vďaka ktorým je kom
  * Plány čítanie: nastavte si ciele pre prečítanie Biblie
  * Rozsiahla knižnica dokumentov: preklady Biblie, teologické komentáre, slovníky, mapy a kresťanské knihy v celkovom počte viac ako 1500 dokumentov vo viac ako 700 jazykoch, legálne distribuované spoločnosťou Crosswire a inými archívmi SWORD.
  * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
- * Offline: internet potrebujete iba na stiahnutie dokumentov.
 
 <b>Urobme spolu najlepšiu aplikáciu pre Bibliu!</b>
 

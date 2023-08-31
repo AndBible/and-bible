@@ -21,7 +21,6 @@ Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és al
  * Olvasási tervek: olvassa a bibliát előre összeállított tervek szerint, és állítson be olvasási célokat
  * Modulkönyvtár: bibliafordítások, teológiai kommentárok, szótárak, térképek és keresztény irodalom, összesen 1500 mű, 700 nyelven,  jogtisztán letölthetően a Crosswire és egyéb SWORD modulkönyvtárakból.
  * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
- * Offline: csak a bibliamodulok letöltésekor van szükség aktív internetkapcsolatra.
 
 <b>Segítsen az alkalmazás jobbá tételében!</b>
 

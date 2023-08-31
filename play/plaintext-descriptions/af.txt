@@ -21,7 +21,6 @@ Die toepassing het baie insiggewende, oorspronklike kenmerke, wat 'n komplekse e
  * Leesplanne: stel doelwitte vir die lees van die Bybel
  * Groot biblioteek van dokumente: Bybelvertalings, teologiese kommentare, woordeboeke, kaarte en christelike boeke, wat meer as 1500 dokumente in meer as 700 tale beloop, wettig versprei deur Crosswire en ander SWAARDbewaarplekke.
  * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
- * Vanlyn: die enigste keer wat jy internet nodig het, is vir die aflaai van documents.
 
 Kom ons maak die beste Bybel toep saam!
 

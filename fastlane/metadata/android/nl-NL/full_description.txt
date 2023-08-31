@@ -21,7 +21,6 @@ De applicatie heeft veel handige, originele functies die complexe en grondige bi
  * Bijbelleesplannen: stel je doelen voor het bijbellezen
  * Uitgebreide bibliotheek: Bijbelvertalingen, theologische commentaren, woordenboeken, landkaarten en christelijke literatuur, samen meer dan 1500 documenten in meer dan 700 talen, legaal verspreid door Crosswire en andere SWORD repositories.
  * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
- * Offline: Internet is enkel nodig om de documenten te downloaden.
 
 <b>Help mee dit de beste bijbelapp te maken!</b>
 

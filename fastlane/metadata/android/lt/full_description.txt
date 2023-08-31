@@ -21,7 +21,6 @@ Programėlėje yra daug sumanių, išskirtinių ypatybių, kurios sudėtingą ir
  * Skaitymo planai: nusistatykite Biblijos skaitymo tikslus
  * Didelė dokumentų biblioteka: Biblijos vertimai, teologiniai komentarai, žodynai, žemėlapiai bei krikščioniškos knygos, iš viso virš 1500 dokumentų, daugiau nei 700 kalbų, kuriuos teisėtai platina Crosswire ir kitos SWORD saugyklos.
  * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
- * Nereikalauja interneto: interneto reikia tik vienintelį kartą, atsisiunčiant dokumentus.
 
 <b>Sukurkime geriausią Biblijos programėlę kartu!</b>
 
