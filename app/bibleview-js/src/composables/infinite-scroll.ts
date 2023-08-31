@@ -28,15 +28,12 @@ import {AnyDocument, isOsisDocument} from "@/types/documents";
 import {Nullable} from "@/types/common";
 import {BookCategory} from "@/types/client-objects";
 
-const ADD_DELAY = 0;
-
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
     bibleViewDocuments: AnyDocument[]
 ) {
     const enabledCategories: Set<BookCategory> = new Set(["BIBLE", "GENERAL_BOOK"]);
     let currentPos: number;
-    let lastAddMoreTime = 0;
     let addMoreAtTopOnTouchUp = false;
     let bottomElem: HTMLElement;
     let touchDown = false;
@@ -173,17 +170,9 @@ export function useInfiniteScroll(
         currentPos = scrollPosition();
         const scrollingUp = currentPos < previousPos;
         const scrollingDown = currentPos > previousPos;
-        if (scrollingDown
-            && currentPos >= (bottomElem.offsetTop - window.innerHeight) - DOWN_MARGIN
-            && Date.now() > lastAddMoreTime + ADD_DELAY
-        ) {
-            lastAddMoreTime = Date.now();
+        if (scrollingDown && currentPos >= (bottomElem.offsetTop - window.innerHeight) - DOWN_MARGIN) {
             addMoreAtEnd();
-        } else if (scrollingUp
-            && currentPos < UP_MARGIN
-            && Date.now() > lastAddMoreTime + ADD_DELAY
-        ) {
-            lastAddMoreTime = Date.now();
+        } else if (scrollingUp && currentPos < UP_MARGIN) {
             addMoreAtTop();
         }
         currentPos = scrollPosition();
