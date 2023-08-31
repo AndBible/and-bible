@@ -26,6 +26,8 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -94,8 +96,9 @@ import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.OrdinalRange
-import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
@@ -1572,6 +1575,11 @@ object CommonUtils : CommonUtilsBase() {
         return url
     }
 
+    fun copyToClipboard(clip: ClipData, toastMessage: Int = R.string.text_copied_to_clicpboard) {
+        val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(clip)
+        ABEventBus.post(ToastEvent(application.getString(toastMessage)))
+    }
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"

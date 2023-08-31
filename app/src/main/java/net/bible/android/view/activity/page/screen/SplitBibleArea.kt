@@ -852,12 +852,10 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                     val ordinal = window.pageManager.currentPage.anchorOrdinal?.start
 
                     val url = CommonUtils.makeAndBibleUrl(doc, key, ordinal)?: return@CommandPreference
-
-                    // Copy url to clipboard
-                    val clipboard = mainBibleActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText(key.name, url)
-                    clipboard.setPrimaryClip(clip)
-                    ABEventBus.post(ToastEvent(mainBibleActivity.getString(R.string.reference_copied_to_clipboard)))
+                    CommonUtils.copyToClipboard(
+                        ClipData.newPlainText(key.name, url),
+                        R.string.reference_copied_to_clipboard
+                    )
                 },
             )
             R.id.windowMinimise -> CommandPreference(

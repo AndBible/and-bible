@@ -222,11 +222,10 @@ class Selection(
         return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
     }
 
-    fun copyToClipboard(context: Context) {
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText(verseRange?.name, CommonUtils.getShareableDocumentText(this))
-        clipboard.setPrimaryClip(clip)
-        ABEventBus.post(ToastEvent(context.getString(R.string.text_copied_to_clicpboard)))
+    fun copyToClipboard() {
+        CommonUtils.copyToClipboard(
+            ClipData.newPlainText(verseRange?.name, CommonUtils.getShareableDocumentText(this))
+        )
     }
 }
 
@@ -612,7 +611,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             currentSelection = null
             if (selection == null)
                 setCurrentSelection()
-            (currentSelection ?: selection)?.copyToClipboard(context)
+            (currentSelection ?: selection)?.copyToClipboard()
         }
     }
 
