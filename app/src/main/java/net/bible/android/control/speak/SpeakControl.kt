@@ -340,7 +340,7 @@ class SpeakControl @Inject constructor(
     }
 
     fun pause() {
-        pause(false, true)
+        pause(willContinueAfterThis = false, toast = true)
     }
 
     fun setupMockedTts() {

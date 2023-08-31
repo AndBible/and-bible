@@ -72,7 +72,7 @@ export type BibleJavascriptInterface = {
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
-    speak: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    speak: (bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) => void,
     speakGeneric: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
     setAsPrimaryLabel: (bookmarkId: IdType, labelId: IdType) => void,
     setAsPrimaryLabelGeneric: (bookmarkId: IdType, labelId: IdType) => void,
@@ -385,8 +385,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.openMyNotes(v11n, ordinal);
     }
 
-    function speak(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
-        window.android.speak(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    function speak(bookInitials: string, v11n: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.speak(bookInitials, v11n, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
     function speakGeneric(bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal?: number) {
