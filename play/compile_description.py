@@ -78,7 +78,7 @@ for ymlfile in os.listdir(translation_folder):
     yml_file = os.path.join(translation_folder, ymlfile)
     descr = render(yml_file, full_description_template)
     if len(descr) > 4000:
-        print("Too long full description", lang)
+        print("Too long full description", lang, len(descr))
     with open(give_path(lang), "w") as f:
         f.write(descr)
     descr = render(yml_file, full_description_template_plaintext)
