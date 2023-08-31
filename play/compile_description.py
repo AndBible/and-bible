@@ -76,14 +76,21 @@ matcher = re.compile(r"^([a-zA-Z-]+)\.yml$")
 for ymlfile in os.listdir(translation_folder):
     lang = matcher.match(ymlfile).group(1)
     yml_file = os.path.join(translation_folder, ymlfile)
+    descr = render(yml_file, full_description_template)
+    if len(descr) > 4000:
+        print("Too long full description", lang)
     with open(give_path(lang), "w") as f:
-        f.write(render(yml_file, full_description_template))
-
+        f.write(descr)
+    descr = render(yml_file, full_description_template_plaintext)
     with open(os.path.join(dir_path, f"./plaintext-descriptions/{lang}.txt"), "w") as f:
-        f.write(render(yml_file, full_description_template_plaintext))
-
+        f.write(descr)
+    short = render(yml_file, short_description_template)
+    if len(short) > 80:
+        print("Too long short description", lang)
     with open(give_path(lang, txt_file="short_description.txt"), "w") as f:
-        f.write(render(yml_file, short_description_template))
-
+        f.write(short)
+    title = render(yml_file, title_template)
+    if len(title) > 30:
+        print("Too long title", lang)
     with open(give_path(lang, txt_file="title.txt"), "w") as f:
-        f.write(render(yml_file, title_template))
+        f.write(title)

@@ -1053,5 +1053,21 @@ Režim opakovania bol vypnutý, pretože
   <string name="processing_epub">Spracovávanie EPUB: %s</string>
   <string name="buy_development">Kúpiť vývojové práce</string>
   <string name="buy_development2">Podporiť projekt</string>
+  <string name="new_version_warning">
+        Čoskoro bude vydaná nová verzia. Predpokladaný dátum vydania je %1$s. Sledujte naše
+        %2$s a objavte nové funkcie a vylepšenia.
+    </string>
   <string name="new_version_trailer">krátka filmová ukážka</string>
+  <string name="new_version_warning2">
+        Po vydaní novej verzie, súčasná už nebude udržiavaná.
+    </string>
+  <string name="new_version_warning3">
+        Nebude dostávať opravy chýb ani aktualizácie.
+    </string>
+  <string name="new_version_warning4">
+        Ak nechcete aktualizovať, vypnite vo svojom obchode s aplikáciami „Automatické aktualizácie“ (Google Play / F-Droid atď).
+    </string>
+  <string name="dont_show">
+        Túto správu už nezobrazovať
+    </string>
 </resources>
