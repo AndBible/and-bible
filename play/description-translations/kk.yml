@@ -34,8 +34,8 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Құжаттардың көлемді кітапханасы: Киелі Кітаптың аудармалары, теологиялық пікірлер, түсіндірмелер, сөздіктер, карталар және мәсіхшілік кітаптар, {{total_languages}} әр-түрлі тілдерде Crosswire және SWORD репозиторийлерінде заңды түрде таратылатын көптеген {{total_documents}} құжаттар. 
-feature_10_1: >-
-  MyBible, MySword және EPUB файлдарына арналған жергілікті қолдау кітапханаңызды одан әрі кеңейтуге мүмкіндік береді.
+feature_10_1: >
+  MyBible, MySword және EPUB файлдары жергілікті қолдау кітапханаңызды одан әрі кеңейтуге мүмкіндік береді.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "ESV, NIV және NKJV"
@@ -44,8 +44,8 @@ feature_12: >
 feature_13: >
   Уағыздарды тыңдау кезінде жазбалар мен Киелі кітапқа сілтемелер қосуға арналған оқу тақталары.
 subtitle_3: Ең жақсы Киелі Кітап қолданбасын бірге жасайық!
-paragraph_3_1: >-
-  AndBible – бұл ашық коды бар қауымдық жоба. Іс жүзінде бұл сәйкес дағдылары бар кез келген адам жобаға келесі жолдармен үлес қоса алады және жігерлендіре алады:
+paragraph_3_1: >
+  AndBible – бұл ашық коды бар қауымдық жоба. Іс жүзінде бұл сәйкес дағдылары бар кез келген адам жобаға келесі жолдармен үлес қоса алады және ынталандыра алады:
 contr_1: "жаңа мүмкіндіктерді дамыту,"
 contr_2: "әлі шығарылмаған функцияларды тексеру,"
 contr_3: пайдаланушы интерфейсінің аудармаларын жаңартып отыру және
@@ -56,7 +56,7 @@ subtitle_4: Сілтемелер
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 link_1: >
   Негізгі бет: {{homepage_url}}
-link_2: >-
+link_2: >
   Facebook-те AndBible сияқты: {{facebook_url}}
 link_3: >
   Біздің Youtube каналымыз: {{youtube_url}}
@@ -64,9 +64,9 @@ link_4: >
   Жиі қойылатын сұрақтар: {{faq_url}}
 link_5: >
   Github-дағы жоба парақшасы: {{github_url}}
-buy_title: >-
+buy_title: >
   Әзірлеу уақытын сатып алу арқылы қолдау көрсетіңіз!
-buy_1: >-
+buy_1: >
   Егер сізде жобаға үлес қосуға уақытыңыз немесе дағдыларыңыз болмаса, кәсіби әзірлеушінің жұмыс уақытын сатып алу арқылы жобаны қолдауға болады.
-buy_2: >-
+buy_2: >
   Варианттарды көру

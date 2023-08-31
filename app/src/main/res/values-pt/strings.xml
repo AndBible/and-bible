@@ -319,6 +319,8 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="migrated_my_notes">Migrar As Minhas Notas</string>
   <string name="bookmarks">Marcadores</string>
   <string name="bookmark_added">O marcador foi adicionado</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Etiquetas</string>
   <string name="manage_labels">Gerir Etiquetas</string>
   <string name="assign_labels">Atribuir etiquetas</string>
   <string name="new_item">Novo</string>

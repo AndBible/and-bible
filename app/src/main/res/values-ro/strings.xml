@@ -355,6 +355,8 @@
   <string name="migrated_my_notes">Notițe transferate</string>
   <string name="bookmarks">Semne de carte</string>
   <string name="bookmark_added">Semn de carte adăugat</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Etichete</string>
   <string name="manage_labels">Gestionează etichete</string>
   <string name="assign_labels">Pune etichete</string>
   <string name="new_item">Nou</string>

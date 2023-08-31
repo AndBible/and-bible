@@ -322,6 +322,8 @@
   <string name="migrated_my_notes">ההערות שלי שולבו</string>
   <string name="bookmarks">סימניות</string>
   <string name="bookmark_added">הסימניה נוספה</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">תוויות</string>
   <string name="manage_labels">ניהול תגיות</string>
   <string name="assign_labels">הוסף תוויות</string>
   <string name="new_item">חדש</string>

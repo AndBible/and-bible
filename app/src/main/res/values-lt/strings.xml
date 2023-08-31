@@ -334,6 +334,8 @@
   <string name="migrated_my_notes">Perkeltos mano pastabos</string>
   <string name="bookmarks">Žymės</string>
   <string name="bookmark_added">Žymė pridėta</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Etiketės</string>
   <string name="manage_labels">Tvarkyti etiketes</string>
   <string name="assign_labels">Priskirti etiketes</string>
   <string name="new_item">Naujas</string>

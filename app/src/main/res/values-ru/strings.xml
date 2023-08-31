@@ -340,6 +340,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="migrated_my_notes">Мои заметки перенесены</string>
   <string name="bookmarks">Закладки</string>
   <string name="bookmark_added">Закладка добавлена</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Метки</string>
   <string name="manage_labels">Управление ярлыками</string>
   <string name="assign_labels">Прикрепить ярлыки</string>
   <string name="new_item">Новый</string>

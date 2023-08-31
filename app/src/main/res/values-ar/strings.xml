@@ -287,6 +287,8 @@
   <string name="migrated_my_notes">ترحيل ملاحظاتي</string>
   <string name="bookmarks">إشارات مرجعية</string>
   <string name="bookmark_added">تم أضافة أشارة مرجعية</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">تسميات</string>
   <string name="manage_labels">إدارة الملصقات</string>
   <string name="assign_labels">تعيين التسميات</string>
   <string name="new_item">جديد</string>

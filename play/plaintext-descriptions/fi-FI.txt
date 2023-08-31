@@ -20,12 +20,12 @@ Sovelluksessa on monia oivaltavia ja alkuperäisiä ominaisuuksia, jotka tekevä
  * Opintoalustat joihin voi kirjoittaa merkintöjä ja raamattuviitteitä saarnoja kuunnellessa.
  * Lukusuunnitelmat: aseta tavoitteita Raamatun lukemiselle
  * Kattava kirjasto erilaisia teoksia: Raamatun käännöksiä, teologisia kommentaareja, sanakirjoja, karttoja ja kristillisiä kirjoja, yhteensä yli 1500 teosta yli  700 kielellä, laillisesti Crosswirelta ja muista SWORD repositorioista .
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
+ * Voit laajentaa kirjastoasi entisestään sovelluksen tukemien MyBible- MySword- ja EPUB-tiedostojen avulla.
  * Offline: tarvitset internetyhteyttä vain dokumenttien lataamiseen.
 
 Tehdään yhdessä paras Raamattusovellus!
 
-And Bible on yhteisöllinen avoimen lähdekoodin projekti. Käytännössä se tarkoittaa että rohkaisemme kaikkia, jolla on tarvittava osaaminen, antamaan panoksensa projektiin:
+AndBible on yhteisöllinen avoimen lähdekoodin projekti. Käytännössä se tarkoittaa että rohkaisemme kaikkia, jolla on tarvittava osaaminen, antamaan panoksensa projektiin:
 
  * kehittämällä uusia ominaisuuksia,
  * testaamalla ominaisuuksia joita ei ole vielä julkaistu,
@@ -34,16 +34,16 @@ And Bible on yhteisöllinen avoimen lähdekoodin projekti. Käytännössä se ta
 
 Jos olet ohjelmistoalan ammattilainen (kehittäjä tai testaaja), pyydämme sinua harkistemaan aikasi antamista tälle projektille. Lue lisää tietoa siitä kuinka voit osallistua:  https://git.io/JUnaj.
 
-Support by buying development time!
+Tue ostamalla kehitysaikaa!
 
-If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+Jos sinulla ei ole aikaa tai taitoja olla mukana projektissa, voit myös tukea projektia ostamalla sovelluskehittäjän työaikaa.
 
-See options: https://andbible.org/buy
+Katso vaihtoehdot: https://andbible.org/buy
 
 Linkkejä
 
  * Kotisivu: https://andbible.org
- * Tykkää And Biblesta Facebookissa: https://www.facebook.com/AndBible/
+ * Tykkää AndBiblesta Facebookissa: https://www.facebook.com/AndBible/
  * Meidän Youtube-kanava: https://www.youtube.com/c/AndBible
  * Usein kysytyt kysymykset (FAQ): https://git.io/JJm8E
  * Projektin sivu Githubissa: https://github.com/AndBible/and-bible

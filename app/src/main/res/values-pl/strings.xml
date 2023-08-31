@@ -305,6 +305,8 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="migrated_my_notes">Zaimportowane notatki</string>
   <string name="bookmarks">Zakładki</string>
   <string name="bookmark_added">Dodano zakładkę</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Etykiety</string>
   <string name="manage_labels">Zarządzaj etykietami</string>
   <string name="assign_labels">Przypisz etykiety</string>
   <string name="new_item">Nowa</string>

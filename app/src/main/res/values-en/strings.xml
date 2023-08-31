@@ -28,6 +28,7 @@
   <!--Verse context menu-->
   <!--Link context menu-->
   <!--Bookmarks-->
+  <!--Bookmark / note labels-->
   <string name="label_unlabelled">Unlabeled</string>
   <string name="auto_assign_labels_primary">Set as the main label</string>
   <!--can be removed-->

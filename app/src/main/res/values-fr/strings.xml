@@ -344,6 +344,8 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="migrated_my_notes">Migrer mes notes</string>
   <string name="bookmarks">Signets</string>
   <string name="bookmark_added">Signet ajouté</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Étiquettes</string>
   <string name="manage_labels">Gérer les étiquettes</string>
   <string name="assign_labels">Attribuer des étiquettes</string>
   <string name="new_item">Nouveau</string>
@@ -866,6 +868,8 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <!--Discrete mode settings-->
   <string name="prefs_persecution_cat">Paramètres pour les persécutés</string>
   <string name="prefs_discrete_mode">Cache les symboles religieux</string>
+  <string name="prefs_show_calculator">Calculateur</string>
+  <string name="prefs_calculator_pin">PIN du calculateur</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Mauvais format</string>
   <string name="prefs_persecuted_help">Lisez cela en premier !</string>
@@ -882,12 +886,17 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="name_for_repository">Nom pour le dépôt</string>
   <string name="repository_specification">URL du dépôt</string>
   <string name="wiki_page">Page de WIKI</string>
+  <string name="packages_dir">dossier de paquets (fichiers Zip)</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Ouvrir les liens bibliques dans Andbible</string>
   <string name="copyReference">Copier dans le presse-papier</string>
   <string name="reference_copied_to_clipboard">La référence a été copiée dans le presse-papier</string>
   <!--Device cloud synchronization-->
+  <string name="db_repositories">Dépôts et paramètres connexes</string>
+  <string name="db_bookmarks">Signets, notes, étiquettes et blocs-notes</string>
   <string name="synchronizing">Synchronisation…</string>
   <string name="bookmarks_contents">Marque-pages, étiquettes, et bloc-notes</string>
+  <string name="workspaces_contents">Espaces et fenêtres</string>
   <string name="cloud_fetch_and_restore_initial">Copiez du Cloud vers le périphérique</string>
   <string name="cloud_create_new">Copier du périphérique vers le Cloud</string>
   <string name="cloud_sync_title">Synchronisation du périphérique</string>
@@ -904,15 +913,37 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="sync_general_settings">Info &amp; paramètres généraux</string>
   <string name="sync_introduction">Introduction</string>
   <string name="are_you_sure">Êtes-vous certain ?</string>
+  <string name="sync_disabling">Désactivation de la synchronisation pour %s pour l\'instant.</string>
   <!--... after restoring from backup file-->
+  <string name="report">Rapport</string>
   <string name="sync_error">Une erreur est survenue durant la synchronisation du Cloud</string>
   <string name="error_notification_channel_name">Erreur de notifications</string>
+  <string name="restore_from_cloud_description">Si la synchronisation des appareils est activée sur un autre appareil, vous pouvez commencer par restaurer la base de données à partir du Cloud.</string>
   <string name="enable_sync">Activer la synchronisation</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Ne peut pas lire ce fichier</string>
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Application ouverte ailleurs</string>
   <string name="open_here">Ouvrir ici</string>
   <string name="external_link">Lien externe</string>
+  <string name="external_link_question">Cela ouvrira un lien externe %s dans un navigateur. Souhaitez-vous continuer ?</string>
+  <string name="nameless">Titre non définis</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Actions d’une seule touche (Bibles)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Actions d’une seule touche (Autres)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Lorsque l\'on touche un texte, une fenêtre d\'action s\'affiche. Quels boutons d’action doivent être affichés ?</string>
+  <string name="buy_development">Financer des travaux de développement</string>
+  <string name="buy_development2">Soutenir le projet</string>
+  <string name="new_version_warning">
+Une nouvelle version est bientôt disponible. La date de sortie prévue est le %1$s. Consultez notre
+%2$s pour découvrir les nouvelles fonctionnalités et améliorations.
+</string>
+  <string name="new_version_trailer">vidéo de la bande-annonce</string>
+  <string name="new_version_warning2">
+Après la publication, cette version n\'est plus maintenue.
+</string>
+  <string name="new_version_warning3">
+Il ne recevra pas de corrections de bogues ni de mises à jour.
+</string>
   <string name="new_version_warning4">
 Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises à jour automatiques » dans votre magasin d\'applications (Google Play / F-Droid, etc.).</string>
   <string name="dont_show">

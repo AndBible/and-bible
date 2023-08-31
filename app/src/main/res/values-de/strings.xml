@@ -329,6 +329,8 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="migrated_my_notes">Eigene Notizen wurden migriert</string>
   <string name="bookmarks">Lesezeichen</string>
   <string name="bookmark_added">Lesezeichen hinzugefügt</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Kategorien</string>
   <string name="manage_labels">Kategorien verwalten</string>
   <string name="assign_labels">Kategorie auswählen</string>
   <string name="new_item">Neu</string>

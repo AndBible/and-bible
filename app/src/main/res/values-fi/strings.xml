@@ -336,6 +336,8 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="migrated_my_notes">Siirretyt Omat Merkinnät</string>
   <string name="bookmarks">Kirjanmerkit</string>
   <string name="bookmark_added">Kirjanmerkki lisätty</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Ryhmät</string>
   <string name="manage_labels">Hallitse kirjanmerkkiryhmiä</string>
   <string name="assign_labels">Sijoita ryhmään</string>
   <string name="new_item">Uusi</string>

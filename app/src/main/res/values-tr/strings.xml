@@ -309,6 +309,7 @@ Wholosome Words\'un nezaketiyle, http://www.wholesomewords.org/, izin verildi</s
   <string name="migrated_my_notes">Notlarım Taşındı</string>
   <string name="bookmarks">Yer İmleri</string>
   <string name="bookmark_added">Yer imi eklendi</string>
+  <!--Bookmark / note labels-->
   <string name="manage_labels">Etiketleri yönet</string>
   <string name="assign_labels">Etiketle</string>
   <string name="new_item">Yeni</string>

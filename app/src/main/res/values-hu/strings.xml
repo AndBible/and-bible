@@ -328,6 +328,8 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="migrated_my_notes">Előző verzióból származó jegyzetek</string>
   <string name="bookmarks">Könyvjelzők</string>
   <string name="bookmark_added">Könyvjelző hozzáadva</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Címkék</string>
   <string name="manage_labels">Címkék</string>
   <string name="assign_labels">Címke hozzárendelése</string>
   <string name="new_item">Új</string>

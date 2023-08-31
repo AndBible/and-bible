@@ -345,6 +345,8 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="migrated_my_notes">Migreer my notas</string>
   <string name="bookmarks">Boekmerke</string>
   <string name="bookmark_added">Boekmerk bygevoeg</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Etikette</string>
   <string name="manage_labels">Bestuur Etikette</string>
   <string name="assign_labels">Ken etikette toe</string>
   <string name="new_item">Nuut</string>

@@ -312,6 +312,8 @@ laŭ ilia permeso.</string>
   <string name="migrated_my_notes">Enportitaj notoj</string>
   <string name="bookmarks">Legosignoj</string>
   <string name="bookmark_added">Legosigno aldonita</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Etikedoj</string>
   <string name="manage_labels">Administri etikedojn</string>
   <string name="assign_labels">Aldoni etikedojn</string>
   <string name="new_item">Nova</string>

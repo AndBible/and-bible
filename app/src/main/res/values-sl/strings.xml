@@ -347,6 +347,8 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="migrated_my_notes">Prenesi Moje opombe</string>
   <string name="bookmarks">Zaznamki</string>
   <string name="bookmark_added">Zaznamek dodan</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Oznake</string>
   <string name="manage_labels">Upravljaj oznake</string>
   <string name="assign_labels">Dodaj oznake</string>
   <string name="new_item">Nov</string>

@@ -2,9 +2,9 @@
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Киелі Кітапті Зерттеу</string>
-  <string name="app_name_medium">Киелі Кітапті Зерттеу (AndBible)</string>
+  <string name="app_name_medium">Киелі Кітапты Зерттеу (AndBible)</string>
   <string name="app_name_long">AndBible: Киелі Кітап+</string>
-  <string name="project">AndBible Ашық Бастапқы коды Жобасы</string>
+  <string name="project">AndBible Ашық Бастапқы код Жобасы</string>
   <string name="version_text">Нұсқа %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және қолданбаны қайта іске қосыңыз.</string>
   <!--Main menu-->
@@ -42,6 +42,7 @@
   <string name="do_in_background">Артқы аясында жалғастыру</string>
   <string name="rebuild_index_button">Қайта құру</string>
   <!--X results in module Y-->
+  <string name="search_with_results2">%1s нәтиже береді %2s</string>
   <!--Tasks-->
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Егер сіз тапсырмалардың соңына жетпей басқа қолдабаға ауыстарсаңыз, осы ұзақ жұмыс істейтін тапсырмалар тоқтатылуы мүмкін.</string>
@@ -61,7 +62,7 @@
   <string name="error_executing_search">Іздеу сауалы қате</string>
   <string name="type_text_or_bible_reference">Мәтінді немесе Киелі кітап сілтемесін теріңіз</string>
   <!--Open (bible reference X)-->
-  <string name="go_to_ref">Ашық%s</string>
+  <string name="go_to_ref">Ашу %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Табу%s</string>
   <!--Preferences-->
@@ -122,6 +123,7 @@
   <string name="prefs_request_sdcard_permission_title">Қолмен басқарлатын түрде орнатылған құжаттар бар</string>
   <string name="prefs_request_sdcard_permission_summary">Ішкі ес-қоймасындағы, jsword/sword қалтасынан қолмен орнатылған құжаттардың пайдалануын қосыңыз</string>
   <string name="prefs_expand_footnotes_title">Кірістірілген айқас сілтемелер</string>
+  <string name="prefs_expand_footnotes_summary">Қалқымалы тілқатысу терезесін ашатын сілтеменің орнына мәтін ішінде көлденең сілтеме мазмұнын көрсетіңіз</string>
   <string name="all_text_options_window_menutitle">Барлық мәтін опциялары</string>
   <string name="text_options_window_menutitle">Текст опциялары</string>
   <string name="auto_fullscreen">Айналдыру арқылы толық бейнені ашу</string>
@@ -181,8 +183,7 @@
   <string name="prefs_font_family_summary">Қаріптер тобын өзгерту. Кеңес: қосымша қаріптерді Жүктелетін Құжаттар / Қондырмалар арқылы орнатуға болады.</string>
   <string name="prefs_text_bookmarks_title">Бетбелгілер және Менің жазбаларым реттеулері</string>
   <string name="prefs_enable_bluetooth_title">Bluetooth медиа түймелерін қосыңыз</string>
-  <string name="prefs_enable_bluetooth_summary">Сөйлеуді бастау/тоқтату үшін Bluetooth медиа түймелерін басқарыңыз.
-</string>
+  <string name="prefs_enable_bluetooth_summary">Сөйлеуді бастау/тоқтату үшін Bluetooth медиа түймелерін ұстаңыз.</string>
   <string name="create_bookmark">Жаңа бетбелгі жасаңыз</string>
   <string name="create_bookmark_with_a_note">Жазбамен жаңа бетбелгі жасаңыз</string>
   <!--Colors preferences-->
@@ -246,8 +247,7 @@
   <string name="download_question_message">Егерде сіз қудалау бар елде тұрып жатсаңыз,
  Мәсіхшілік материалдарды интернет желісінен жүктеу барысында абай болуыңыз қажет. 
 Мүмкін сіз оның орнына, қауіпсіз жолмен модульдердің zip файлдарын алып, оларды орнатқыңыз келеді.
- Жүктеуді жалғастырғыңыз келетініне сенімдісіз бе? Барлық жүктеулер модуль серверлерінен шифрланған (HTTPS)
-</string>
+ Жүктеуді жалғастырғыңыз келетініне сенімдісіз бе? Барлық жүктеулер модуль серверлерінен шифрланған (HTTPS)</string>
   <string name="do_not_ask_again">Иә, басқа сұрамаңыз </string>
   <string name="recommended_document">Ұсынылады!</string>
   <string name="about_version_history">Тарих нұсқасы:%s</string>
@@ -287,8 +287,8 @@
   <string name="delete_reading_plan">Жоспарды өшіру</string>
   <string name="reading_plan_deleted">Оқу жоспары өшірілген</string>
   <string name="reading_plan_ships_with_ab">Оқу жоспары жеткізіледі %s</string>
-  <string name="confirm_delete_reading_plan">Сіз оны оқу тарихымен бірге жойғыңыз келетініне сенімдісіз бе? %sКеңес: егер сізге жоспарды жаңарту қажет болса, оны сол файл атауымен қайтадан импорттауға болады және тарих сақталады
-</string>
+  <string name="confirm_delete_reading_plan">
+Сіз оны оқу тарихымен бірге жойғыңыз келетініне сенімдісіз бе? %sКеңес: егер сізге жоспарды жаңарту қажет болса, оны сол файл атауымен қайтадан импорттауға болады және тарих сақталады</string>
   <string name="plan_duplicate_user_plan">
 SD картасында пайдаланушының оқу жоспары бар,
 jsword/ оқу жоспарының аталуы ішкі жоспарының аталуымен бірдей. Оны мұнда тізімдеуге болмайды.
@@ -341,6 +341,8 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="migrated_my_notes">Жазбалырымды көшіру</string>
   <string name="bookmarks">Кітап белгілері</string>
   <string name="bookmark_added">Кітап белгісі қосылды</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Жапсырмалар</string>
   <string name="manage_labels">Белгілерді басқару</string>
   <string name="assign_labels">Таңбаларды белгілеу</string>
   <string name="new_item">Жаңа</string>
@@ -368,10 +370,11 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="hide_style">Таңдау бетбелгілері үшін жасыру</string>
   <string name="hide_style_whole_verse">Бүкіл аят бетбелгілері үшін жасыру</string>
   <string name="bookmark_warning">Бұл бетбелгілер және/немесе ескертпелер бар құжат үшін .</string>
-  <string name="bookmark_warning2">Құжат құрылымы өзгерсе, бұл құжатты жаңартуға болады
-бұл бетбелгілердің/ескертпелердің орындары құжат ішінде жылжиды немесе толығымен жоғалады.
-</string>
+  <string name="bookmark_warning2">
+Құжат құрылымы өзгерсе, бұл құжатты жаңартуға болады.
+    бұл бетбелгілердің/ескертпелердің орындары құжат ішінде жылжиды немесе толығымен жоғалады. </string>
   <string name="bookmark_warning3">Модульді әлі де жаңартқыңыз келе ме?</string>
+  <string name="bookmark_warning4">Жаңарту алдында модульдің сақтық көшірмесін жасау ұсынылады.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Күн реті</string>
   <string name="sort_by_bible_book">Киелі Кітап реті</string>
@@ -462,7 +465,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="window_text_options_help2">%s белгішесі бұл баптаудың осы арнайы нақты терезе үшін өзгертілгенің көрсетеді.</string>
   <string name="window_text_options_help3">Жұмыс кеңістігінің баптауы бұл терезеге әсер етпейді.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Қолданыңыз %1$s барлық осы параметрлерді қалпына келтіру үшін түймесін басыңыз %2$s.</string>
+  <string name="text_options_reset_help">%1$sқолданыңыз,  барлық осы параметрлерді қалпына келтіру үшін түймесін басыңыз %2$s.</string>
   <string name="reset_defaults">әдепкі мәндер</string>
   <string name="reset_workspace_defaults">жұмыс кеңістігінің әдепкі мәндері</string>
   <string name="speak_bookmark_help">Сөйлеу Кітап белгісінің көмегі</string>
@@ -532,6 +535,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="backup_success2">Менің Жазбаларым, Бетбелгілерім, Оқу Планшеттерім, Оқу Жоспарлары мен Жұмыс Кеңістіктері сақтық көшірмесіне сәтті сақталған.</string>
   <string name="backup_modules_success">Таңдалған модуль көрсеткіштері сақтық көшірмесіне сәтті сақталған.</string>
   <string name="backup_modules_email_subject_2">%s модульдерді сақтыққа көшіру</string>
+  <string name="backup_modules_email_message_2">Модульдердің сақтық көшірмесі %1$s қоса берілген, ол келесі модульдерді қамтиды: %2$s</string>
   <string name="backup_email_subject_2">%s мәліметтер базасын сақтыққа көшіру</string>
   <string name="backup_email_message_2">Сіздің мәліметтер базасында қамтылған кітап белгілердің, ескертпелердің, оқу жоспарлардың және жұмыс кеңістіктердің %s жүктеліп қосылған</string>
   <string name="restore_unsuccessfull">Деректер базасын қалпына келтіру сәтсіз аяқталды. Мүмкін сіз жарамсыз дерекқор файлын берген шығарсыз.</string>
@@ -752,6 +756,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="version_name">Нұсқаның аты</string>
   <!--meaning, bible version name-->
   <string name="show_version_name">Нұсқа атауын қосыңыз</string>
+  <string name="show_ellipsis">Эллипсті көрсету (…)</string>
   <string name="show_quotes">Дәйексөздерді көрсету</string>
   <string name="backup_button">Сақтық көшірме</string>
   <string name="back_button">Артқа</string>
@@ -759,13 +764,17 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="initializing_app">Қолданбаны бастаңыз....</string>
   <string name="show_notes">Жазбаларды көрсету</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Android WebView бумасы тым ескі (%1$s). Android WebView бумасын %2$sкем дегенде %3$sнұсқасын  қолданып жаңартуыңыз қажет. Көптеген құрылғылар үшін бұл %4$sарқылы жасауға болады.  </string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Кез келген жағдайда жалғастыру</string>
   <string name="proceed">Жалғастыру</string>
   <string name="rate_title">Бағалау және шолу қолданбасы</string>
-  <string name="rate_message5">Оң және егжей-тегжейлі шолулар AndBible Open Source жобасына көп көмектеседі. Рақмет сізге!</string>
+  <string name="rate_message5">
+Оң және егжей-тегжейлі шолулар AndBible Open Source жобасына көп көмектеседі. Рақмет сізге!</string>
   <string name="rate_message6">Теріс шолу жасамас бұрын, келесілерді ескеріңіз:</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+Қолданбаға қатысты мәселе болса, өтінемін %1$s немесе %2$sорнына.</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 Егер Киелі кітаптың қандайда бір мәтінінде / аудармасында мәселе болса, %s.
@@ -837,13 +846,14 @@ Google Play -ге өтіңіз
   <string name="chooser_select">%s Таңда</string>
   <string name="chooser_pref_reset">Кітаб/тарау таңдалған кезде тарау/аятты 1ге дейн қалпына келтірмеңіз</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Кешіріңіз, бірақ бізде тілдегі пайдаланушы интерфейсінің жартылай %1$sаудармасы ғана бар.  Себебі %2$s оны толығымен еріктілер әзірлейді. Аударуға көмектесетін болсаңыз, %3$s қараңыз.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">аудармашыларға арналған нұсқаулық</string>
   <string name="questions_title">Сұрақтар?</string>
   <string name="questions_title2">Көмек қажет пе?</string>
   <string name="bookmark_style">Бетбелгі стилі</string>
   <string name="added_to_bookmark">Бұл бетбелгіге тағайындалды</string>
-  <string name="strongs_off">өшірулі</string>
+  <string name="strongs_off">Өшірулі</string>
   <string name="strongs_links">Сілтемелер</string>
   <string name="strongs_text_and_links">Мәтін мен Сілтемелер</string>
   <string name="verse_tip">Ішінара немесе көптеген аяттарды таңдау үшін Сіз Киелі кітаптың мәтінін ұзақ басуыңызға болады</string>
@@ -865,12 +875,21 @@ Google Play -ге өтіңіз
   <string name="prefs_persecuted_help">Алдымен мынаны оқы!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Параметрлерге арналған нұсқаулар және арнайы дискретті құрастыру туралы ақпарат.</string>
-  <string name="calculator_par1">Қолданбаға кірмес бұрын калькулятор экраны көрсетіледі.</string>
-  <string name="calculator_par2">Онда сіз стандартты есептеулер жасай аласыз және қолданбаға кіргіңіз келсе, сіз
-жай ғана PIN кодын теріңіз (әдепкі – 1234), содан кейін «=\" түймесін басыңыз.
-</string>
-  <string name="calculator_par3">\"Калькулятордың PIN коды\" параметрі арқылы пайдаланушы PIN кодын орнатуға болады.</string>
-  <string name="discrete_mode_link">Дискретті нұсқаның соңғы нұсқасын мына жерден жүктеп алуға болады %s</string>
+  <string name="calculator_par1">
+Қолданбаға кірмес бұрын калькулятор экраны көрсетіледі.</string>
+  <string name="calculator_par2">
+        Онда сіз стандартты есептеулер жасай аласыз және қолданбаға кіргіңіз келсе, сіз 
+жай ғана PIN кодын теріңіз (әдепкі – 1234), содан кейін «=\" түймесін басыңыз.</string>
+  <string name="calculator_par3">
+\"Калькулятордың PIN коды\" параметрі арқылы пайдаланушы PIN кодын орнатуға болады.</string>
+  <string name="discrete_mode_info_par1">
+Сіз қолданбаның стандартты нұсқасын пайдаланып жатырсыз, яғни оны әлі де көруге болады. 
+қолданба ақпаратындағы қолданбаның нақты аты мен белгішесі.</string>
+  <string name="discrete_mode_info_par2">
+Қудаланатын ортада қауіпсіздікті жақсарту үшін дискретті пайдалануды ұсынамыз. 
+Қолданба деректері жойылса да, әрқашан калькуляторды көрсететін қолданба нұсқасы.</string>
+  <string name="discrete_mode_link">
+Дискретті нұсқаның соңғы нұсқасын мына жерден жүктеп алуға болады %s</string>
   <!--Window synchronize groups-->
   <string name="sync_group_submenu">Топты синхрондау</string>
   <string name="sync_group_n">Топ %d</string>
@@ -885,9 +904,95 @@ Google Play -ге өтіңіз
   <string name="name_for_repository">Репозиторий атауы</string>
   <string name="repository_specification">Репозиторий URL</string>
   <string name="delete_custom_repository">Пайдаланушы репозиторийін жойғыңыз келе ме %s?</string>
+  <string name="invalid_repository_not_saved">Репозиторий сипаттамасы жарамсыз және ол сақталмады.</string>
+  <string name="custom_repositories_help1">Жаңа пайдаланушы репозиторийін қосу үшін теріңіз немесе көшіріңіз &amp; реттелетін репозитарий URL мекенжайын осы жерге қойыңыз.</string>
+  <string name="custom_repositories_help2">Пайдаланушы репозиторийлері туралы қосымша ақпаратты мына жерден оқи аласыз %s.</string>
+  <string name="wiki_page">WIKI беті</string>
+  <string name="custom_repositories_help0">Пайдаланушы репозитарийлерін орнату арқылы құжаттарды сыртқы реттелетін репозитарийлерден орнатуға болады.</string>
+  <string name="duplicate_custom_repository">Аты бар репозиторий %s бұрыннан бар, басқасын қосу мүмкін емес.</string>
+  <string name="packages_dir">Пакеттер каталогы (Zip файлдары)</string>
+  <string name="warn_bad_document">Ескерту: Бұл құжат (кем дегенде ішінара) нашар техникалық сапа болуы мүмкін.</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">AndBible қолданбасында Киелі кітап сілтемелерін ашыңыз</string>
+  <string name="open_bible_links_summary">AndBible қолдайтын Bible URL мекенжайына сілтемелерді басқан кезде, оларды AndBible ішінде ашыңыз</string>
+  <string name="copyReference">Сілтемені алмасу буферіне көшіріңіз</string>
+  <string name="reference_copied_to_clipboard">Анықтама алмасу буферіне көшірілді</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+Бірнеше құрылғыны синхрондау үшін пайдаланғыңыз келетін бұлттық қызметті таңдаңыз.</string>
+  <string name="prefs_sync_introduction_summary2">
+Google Drive пайдаланған кезде, %s кез келген жеке файлдарға емес, қолданба файлдарына ғана рұқсат беріледі.</string>
+  <string name="restore_backup_sections">Қай сақтық көшірме бөлімдерін қалпына келтіргіңіз келеді?</string>
+  <string name="db_repositories">Репозиторийлер және қатысты параметрлер</string>
+  <string name="db_bookmarks">Бетбелгілер, Менің жазбаларым, белгілер және оқу тақталары</string>
+  <string name="synchronizing">Синхрондау...</string>
+  <string name="overrideBackup">
+Бұл құрылғы синхрондалмаған бар дерекқор бұлтта табылған.
+Деректер базасы %s бар.  Сіз не істегіңіз келеді?</string>
+  <string name="reading_plans_content">Оқу жоспарлары және олардың күйлері</string>
+  <string name="bookmarks_contents">Бетбелгілер, белгілер және оқу тақталары</string>
+  <string name="workspaces_contents">Жұмыс кеңістігі және Windows</string>
+  <string name="cloud_fetch_and_restore_initial">Бұлттан осы құрылғыға көшіріңіз</string>
+  <string name="cloud_create_new">Осы құрылғыдан бұлтқа көшіріңіз</string>
+  <string name="cloud_disable_sync">Бас тарту &amp; синхрондауды өшіру</string>
+  <string name="cloud_sync_title">Құрылғыны синхрондау</string>
+  <string name="reset_sync">Шығу</string>
+  <string name="prefs_reset_sync_summary">Қадамдастыруды өшіріп, қатысты параметрлерді қалпына келтіріңіз.</string>
+  <string name="sync_confirmation">Жүйеден шығып, синхрондауды қалпына келтіргіңіз келетініне сенімдісіз бе?</string>
+  <string name="cloud_info">Бұлттық ақпарат</string>
+  <string name="cloud_info_summary">Бұлттық қоймадағы деректер: %s Мб</string>
+  <string name="sync_adapter">Синхрондау сервері</string>
+  <string name="sync_adapter_summary">Ағымдағы: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Келесі бұлт</string>
+  <string name="auth_title">Аутентификация %s</string>
+  <string name="auth_username">Пайдаланушы аты</string>
+  <string name="auth_password">Құпия сөз</string>
+  <string name="auth_access_token">Қолжетімділік белгісі</string>
+  <string name="synchronization_categories">Синхрондау категориялары</string>
+  <string name="sync_general_settings">Ақпарат &amp; жалпы параметрлер</string>
+  <string name="sync_introduction">Кіріспе</string>
+  <string name="are_you_sure">Сіз сенімдісіз бе?</string>
+  <string name="are_you_sure_reset_local">Қазіргі уақытта бұлттық қызметте сақталған мазмұнмен бұл сіздің жергілікті дерекқорыңызды %s қалпына келтіреді. </string>
+  <string name="are_you_sure_reset_cloud">Осы құрылғыдағы мазмұнмен бұл бұлттық дерекқорды %sқалпына келтіреді.  </string>
+  <string name="sync_cant_fetch">Бұлтта сақталған дерекқордың немесе патч файлының нұсқасы осы қолданба қолдайтын нұсқасынан жоғары.</string>
+  <string name="sync_disabling">Синхрондау әзірге %s өшірілуде.</string>
+  <string name="sync_update_app">Синхрондауды жалғастыру үшін қолданбаны жаңартыңыз.</string>
+  <string name="sign_in_failed">Синхрондау серверіне кіру сәтсіз аяқталды.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">Бұлтты синхрондауды өшіру. Қалпына келтіргеннен кейін қолмен қайта қосу керек.</string>
+  <string name="report">Есеп беру</string>
+  <string name="sync_error">Бұлтты синхрондауда қателік орын алды</string>
+  <string name="error_notification_channel_name">Қате туралы хабарландырулар</string>
+  <string name="restore_from_cloud_description">Басқа құрылғыда құрылғыны синхрондау қосылған болса, дерекқорды бұлттан қалпына келтіру арқылы бастауға болады.</string>
+  <string name="enable_sync">Синхрондауды қосыңыз</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Файлды оқу мүмкін емес</string>
+  <string name="sqlite_invalid_file">Жарамсыз модуль файлы немесе файл атауы: %s</string>
+  <string name="sqlite_cant_write">(артық) файлды жазу мүмкін емес</string>
+  <string name="install_failed_reason">Модульді орнату келесі себептерге байланысты сәтсіз аяқталды: %s. </string>
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Қолданба басқа жерде ашылды</string>
+  <string name="open_here">Осы жерден ашыңыз</string>
+  <string name="external_link">Сыртқы сілтеме</string>
+  <string name="external_link_question">Бұл браузер қолданбасында сыртқы сілтемені %s ашады, жалғастырғыңыз келе ме?</string>
+  <string name="nameless">Тақырып анықталмаған</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Бір рет түрту әрекеттері (Киелі кітап)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Бір рет түрту әрекеттері (Басқа)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Мәтін түртілгенде, бір рет түрту әрекеті терезесі көрсетіледі. Қандай әрекет түймелері көрсетілуі керек?</string>
+  <string name="processing_epub">EPUB өңделуде: %s</string>
+  <string name="buy_development">Әзірлеу жұмыстарын сатып алыңыз</string>
+  <string name="buy_development2">Қолдау жобасы</string>
+  <string name="new_version_warning">
+Жақында жаңа шығарылым шығады. Болжалды шығарылым күні %1$s. Біздің 
+%2$s жаңа мүмкіндіктер мен жақсартуларды табу.</string>
+  <string name="new_version_trailer">Трейлер бейне</string>
+  <string name="new_version_warning2">
+Шығарғаннан кейін бұл нұсқа сақталмайды.</string>
+  <string name="new_version_warning3">
+Ол қателерді түзетуді немесе жаңартуларды алмайды.</string>
+  <string name="new_version_warning4">
+Жаңартқыңыз келмесе, қолданбалар дүкенінде (Google Play / F-Droid т.б.) \"Автоматты жаңартуларды\" өшіріңіз.</string>
+  <string name="dont_show">
+Бұл хабарды қайта көрсетпеңіз</string>
 </resources>

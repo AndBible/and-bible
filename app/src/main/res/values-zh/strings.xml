@@ -329,6 +329,8 @@ http://www.heartlight.org 准予使用
   <string name="migrated_my_notes">合併我的筆記</string>
   <string name="bookmarks">書籤</string>
   <string name="bookmark_added">書籤已保存</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">標籤</string>
   <string name="manage_labels">管理標籤</string>
   <string name="assign_labels">分配標籤</string>
   <string name="new_item">建立</string>

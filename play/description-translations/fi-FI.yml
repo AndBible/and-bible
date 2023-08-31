@@ -34,9 +34,8 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Kattava kirjasto erilaisia teoksia: Raamatun käännöksiä, teologisia kommentaareja, sanakirjoja, karttoja ja kristillisiä kirjoja, yhteensä yli {{total_documents}} teosta yli  {{total_languages}} kielellä, laillisesti Crosswirelta ja muista SWORD repositorioista . 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >-
-  Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä sovelluksessa ei ole dokumentteja kuten {{unavailable_documents}}.
+feature_10_1: >
+  Voit laajentaa kirjastoasi entisestään sovelluksen tukemien MyBible- MySword- ja EPUB-tiedostojen avulla.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "ESV, NIV and NKJV"
@@ -46,7 +45,7 @@ feature_13: >
   Opintoalustat joihin voi kirjoittaa merkintöjä ja raamattuviitteitä saarnoja kuunnellessa.
 subtitle_3: Tehdään yhdessä paras Raamattusovellus!
 paragraph_3_1: >
-  And Bible on yhteisöllinen avoimen lähdekoodin projekti. Käytännössä se tarkoittaa että rohkaisemme kaikkia, jolla on tarvittava osaaminen, antamaan panoksensa projektiin:
+  AndBible on yhteisöllinen avoimen lähdekoodin projekti. Käytännössä se tarkoittaa että rohkaisemme kaikkia, jolla on tarvittava osaaminen, antamaan panoksensa projektiin:
 contr_1: "kehittämällä uusia ominaisuuksia,"
 contr_2: "testaamalla ominaisuuksia joita ei ole vielä julkaistu,"
 contr_3: "pitämällä käyttöliittymän käännökset ajan tasalla, ja"
@@ -58,10 +57,16 @@ subtitle_4: Linkkejä
 link_1: >
   Kotisivu: {{homepage_url}}
 link_2: >
-  Tykkää And Biblesta Facebookissa: {{facebook_url}}
+  Tykkää AndBiblesta Facebookissa: {{facebook_url}}
 link_3: >
   Meidän Youtube-kanava: {{youtube_url}}
 link_4: >
   Usein kysytyt kysymykset (FAQ): {{faq_url}}
 link_5: >
   Projektin sivu Githubissa: {{github_url}}
+buy_title: >
+  Tue ostamalla kehitysaikaa!
+buy_1: >
+  Jos sinulla ei ole aikaa tai taitoja olla mukana projektissa, voit myös tukea projektia ostamalla sovelluskehittäjän työaikaa. 
+buy_2: >
+  Katso vaihtoehdot

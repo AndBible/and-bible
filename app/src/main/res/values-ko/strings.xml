@@ -326,6 +326,8 @@
   <string name="migrated_my_notes">내 노트 이전함</string>
   <string name="bookmarks">즐겨찾기</string>
   <string name="bookmark_added">추가된 즐겨찾기</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">레이블</string>
   <string name="manage_labels">레이블 관리</string>
   <string name="assign_labels">할당 레이블</string>
   <string name="new_item">새로운</string>

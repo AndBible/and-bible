@@ -322,6 +322,8 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="migrated_my_notes">నా \"నోట్స్\" గమనికలను తరలించాను</string>
   <string name="bookmarks">బుక్ మార్క్‌స్</string>
   <string name="bookmark_added">బుక్ మార్క్‌స్ చేర్చబడ్డవి</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">లేబుల్స్</string>
   <string name="manage_labels">లేబుల్‌లను నిర్వహించండి</string>
   <string name="assign_labels">గుర్తులను నిర్నయించుట</string>
   <string name="new_item">కొత్త</string>

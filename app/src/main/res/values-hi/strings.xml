@@ -327,6 +327,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="migrated_my_notes">माइग्रेट मेरे नोट्स</string>
   <string name="bookmarks"> बुकमार्क</string>
   <string name="bookmark_added"> बुकमार्क जोड़ा गया</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">लेबल</string>
   <string name="manage_labels">लेबल मैनेज करें</string>
   <string name="assign_labels">लेबल लिखना/देना</string>
   <string name="new_item">नया</string>

@@ -304,6 +304,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="bookmarks_and_mynotes_title">Bokmerker og mine notater</string>
   <string name="bookmarks">Bokmerker</string>
   <string name="bookmark_added">Bokmerke lagret</string>
+  <!--Bookmark / note labels-->
   <string name="assign_labels">Legg til i grupper</string>
   <string name="new_item">Ny</string>
   <string name="new_label">Ny gruppe</string>

@@ -345,6 +345,8 @@
   <string name="migrated_my_notes">Перенесено Мої примітки</string>
   <string name="bookmarks">Закладки</string>
   <string name="bookmark_added">Закладка добавлена</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Мітки</string>
   <string name="manage_labels">Налаштування міток</string>
   <string name="assign_labels">Призначення етикетки</string>
   <string name="new_item">Нова</string>

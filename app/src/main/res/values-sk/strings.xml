@@ -133,6 +133,7 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Pri posúvaní textu sa automaticky prepnúť na celú obrazovku. Tip: Na celú obrazovku sa môžete kedykoľvek prepnúť aj dvojitým klepnutím na obrazovku. </string>
   <string name="prefs_margin_size_title">Zmeniť veľkosť okraja</string>
+  <string name="prefs_margin_size_mm_title">Veľkosť okraja (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Pokročilé nastavenia</string>
   <string name="prefs_display_customization_cat">Vzhľad aplikácie</string>
   <string name="prefs_behavior_customization_cat">Nastavenie aplikácie</string>
@@ -184,6 +185,8 @@
   <string name="prefs_text_bookmarks_title">Nastavenie Záložiek a Mojich poznámok</string>
   <string name="prefs_enable_bluetooth_title">Povoliť Bluetooth mediálne tlačidlá</string>
   <string name="prefs_enable_bluetooth_summary">Ovládať spustenie/zastavenie predčítavania pomocou bluetooth mediálne tlačidlá</string>
+  <string name="create_bookmark">Vytvoriť novú záložku</string>
+  <string name="create_bookmark_with_a_note">Vytvoriť novú záložku s poznámkou</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Nastavenia farieb</string>
   <string name="window_color_settings_title">Nastavenie farieb okna</string>
@@ -207,8 +210,10 @@
   <string name="windowMinimise">Skryť</string>
   <string name="windowSynchronise">Synchronizovať</string>
   <string name="move_window">Presunúť do</string>
+  <string name="move_window_to_position2">Pozícia %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Skopírovať nastavenia do</string>
   <string name="copy_settings_to_workspace">Pracovná plocha</string>
+  <string name="copy_settings_to_window">Okno %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Zmeniť na normálne okno</string>
   <string name="window_pin_mode">Pripnúť</string>
   <!--Notes screen-->
@@ -231,6 +236,7 @@
   <string name="download_document_confirm_prefix">Stiahnuť</string>
   <string name="download_refresh_book_list_menu_item">Obnoviť</string>
   <string name="error_downloading">Pri sťahovaní sa vyskytla chyba. Skontrolujte svoje internetové pripojenie. </string>
+  <string name="error_downloading_status">Server, na ktorom je %1$s, vrátil chybu kvôli %2$s (%3$d).</string>
   <string name="storage_space_warning">Nedostatok miesta na lokálnom úložisku.</string>
   <string name="too_many_jobs">Je spustených príliš veľa úloh. Počkajte, kým sa niektoré dokončia, a skúste to znova. </string>
   <string name="document_not_installed">Prosím stiahnete \'%s\'</string>
@@ -264,6 +270,7 @@
   <string name="overwrite_files">Nasledujúce súbory už existujú: %s Prepísať ich?</string>
   <string name="overwrite_files_title">Prepísať súbory? </string>
   <string name="could_not_overwrite_files">Nie je možné prepísať súbory: %s. Okrem toho bola inštalácia úspešná.</string>
+  <string name="install_do_you_want">Chcete nainštalovať modul (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čítania</string>
   <string name="reading_plans_plural">Plány čítania</string>
@@ -348,6 +355,8 @@
   <string name="migrated_my_notes">Presunuté Moje poznámky</string>
   <string name="bookmarks">Záložky</string>
   <string name="bookmark_added">Záložka pridaná</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Štítky</string>
   <string name="manage_labels">Spravovanie štítkov</string>
   <string name="assign_labels">Priradiť štítok</string>
   <string name="new_item">Nový</string>
@@ -372,6 +381,15 @@
   <string name="label_color_example">Príklad</string>
   <string name="marker_style">Zobraziť iba značku pre výberové záložky</string>
   <string name="marker_style_whole_verse">Zobraziť iba značku pre záložky s celým veršom</string>
+  <string name="hide_style">Skryť označené záložky</string>
+  <string name="hide_style_whole_verse">Skryť pre záložky celého verša</string>
+  <string name="bookmark_warning">Tento dokument obsahuje záložky a/alebo poznámky.</string>
+  <string name="bookmark_warning2">
+        Ak sa zmenila štruktúra dokumentu, jeho aktualizácia môže spôsobiť 
+        zmenu umiestnenia záložiek/poznámok, alebo ich úplné zmiznutie.
+    </string>
+  <string name="bookmark_warning3">Stále chcete aktualizovať modul?</string>
+  <string name="bookmark_warning4">Pred aktualizáciou sa odporúča zálohovať modul.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Zoradiť podľa dátumu</string>
   <string name="sort_by_bible_book">Zoradiť podľa kníh Biblie</string>
@@ -462,6 +480,7 @@
   <string name="window_text_options_help2">%s  ikona indikuje, že nastavenia boli zmenené pre toto konkrétne okno.</string>
   <string name="window_text_options_help3">Nastavenia pracovnej plochy nebude mať vplyv na toto okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Pomocou tlačidla%1$s zresetujete všetky tieto nastavenia späť na  %2$s.</string>
   <string name="reset_defaults">prednastavené hodnoty</string>
   <string name="reset_workspace_defaults">prednastavené hodnoty pracovnej plochy</string>
   <string name="speak_bookmark_help">Pomoc k záložkách čítania</string>
@@ -545,6 +564,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="backup_success2">Moje poznámky, Záložky, Študijné zložky, Plány čítania a Pracovnej plochy boli úspešne zálohované</string>
   <string name="backup_modules_success">Označené moduly boli úspešne zálohované.</string>
   <string name="backup_modules_email_subject_2">záloha modulov %s</string>
+  <string name="backup_modules_email_message_2">V prílohe je %1$s záloha vašich modulov, ktorá obsahuje nasledujúce moduly: %2$s</string>
   <string name="backup_email_subject_2">záloha databázy %s</string>
   <string name="backup_email_message_2">Vaša databáza %s obsahujúca záložky, poznámky, plán čítania a pracovnej plochy je pripojená.</string>
   <string name="restore_unsuccessfull">Obnovenie databázy nebolo úspešné. Pravdepodobne ste zadali neplatný databázový súbor. </string>
@@ -554,6 +574,8 @@ Režim opakovania bol vypnutý, pretože
   <string name="install_zip_canceled">Inštalovanie modulov prerušené</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
+  <string name="module_about_installed_version">Inštalovaná verzia: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Posledná verzia: %1$s (%2$s)</string>
   <string name="module_about_versification">Verzifikácia: %s</string>
   <string name="module_about_repository">Distribučný server: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -561,6 +583,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="send_bug_report_title1">Nahlásenie chyby</string>
   <string name="send_feedback_title">Spätná väzba</string>
   <string name="send_bug_report_title">Spätná väzba / nahlásenie chyby</string>
+  <string name="report_bug_email_subject_3">[%1$s] Hlásenie chyba pre %2$s %3$s</string>
   <string name="report_bug_big_heading">PROSÍM NAPÍŠTE SVOJU REAKCIU ALEBO CHYBOVÉ HLÁSENIA NAD TÝMTO RIADKOM</string>
   <string name="report_bug_heading1">Inštrukcie:</string>
   <string name="report_bug_line_1">Stručne nám povedzte, čo ste urobili / čo sa stalo, keď došlo k problému. </string>
@@ -655,7 +678,9 @@ Režim opakovania bol vypnutý, pretože
   <string name="beta_notice_dismiss_until_update">Odmietnuť do ďalšej aktualizácie </string>
   <string name="stable_notice_title">Aplikácia bola aktualizovaná!</string>
   <string name="upgrade_video_message">Pozrite si video s novými funkciami tohto vydania (%s).</string>
+  <string name="stable_notice_par1">Nová verzia %1$s %2$s bola nainštalovaná úspešne!</string>
   <!--History-->
+  <string name="history_for">História (%1$s: Okno %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigácia</string>
   <string name="help_nav_text">Prejdite na nasledujúcu alebo predchádzajúcu kapitolu potiahnutím prsta po obrazovke.
@@ -732,6 +757,7 @@ Režim opakovania bol vypnutý, pretože
     </string>
   <!--Uncategorized-->
   <string name="close">Zatvoriť</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Rozumiem</string>
   <string name="first_time_help_show_next_time">Nabudúce ukázať znova </string>
   <string name="strongs_mode_title">Zvoliť režim strongov</string>
@@ -782,6 +808,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="version_name">Názov verzie</string>
   <!--meaning, bible version name-->
   <string name="show_version_name">Uveďte názov verzie</string>
+  <string name="show_ellipsis">Zobraziť trojbodku (…)</string>
   <string name="show_quotes">Zobraziť úvodzovky</string>
   <string name="backup_button">Záloha</string>
   <string name="back_button">Späť</string>
@@ -789,6 +816,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="initializing_app">Inicializácia aplikácie…</string>
   <string name="show_notes">Zobraziť poznámky</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Balík Android WebView je príliš starý (%1$s). Musíte aktualizovať svoj balík Android WebView aspoň na verziu %2$s pre používanie %3$s. Pre väčšinu zariadení to možno vykonať prostredníctvom %4$s.</string>
   <string name="play">Google Play Store</string>
   <string name="proceed_anyway">Aj tak pokračovať </string>
   <string name="proceed">Pokračovať</string>
@@ -800,6 +828,9 @@ Režim opakovania bol vypnutý, pretože
         Pred zaslaním negatívnej recenzie prosím zvážte nasledovné:
     </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        Ak máte problém s aplikáciou prosím %1$s alebo %2$s.
+    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Ak nejaký text / preklad Biblie preklad má problém, %s.
@@ -876,6 +907,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="chooser_select">Vybrať %s</string>
   <string name="chooser_pref_reset">Neresetovať kapitolu/verš na 1, pri zmene knihy/kapitoly</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Ľutujeme, ale máme len čiastočný preklad používateľského rozhrania v %1$s jazyku. Je to z dôvodu, že %2$s je úplne vyvíjaný dobrovoľníkmi. Ak môžete pomôcť s prekladom, pozrite si %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">pokyny pre prekladateľov</string>
   <string name="questions_title">Otázky?</string>
@@ -995,12 +1027,15 @@ Režim opakovania bol vypnutý, pretože
   <string name="are_you_sure_reset_cloud">Toto resetuje vašu cloudovú databázu pre %s s obsahom, ktorý je máte na tomto zariadení.</string>
   <string name="sync_cant_fetch">Verzia databázy alebo súboru opravy uložená v cloude je vyššia ako verzia podporovaná touto aplikáciou.</string>
   <string name="sync_disabling">Nateraz vypínam synchronizáciu pre %s.</string>
+  <string name="sync_update_app">Ak chcete pokračovať v synchronizácii, aktualizujte aplikáciu.</string>
   <string name="sign_in_failed">Prihlásenie do služby backendu synchronizácie zlyhalo.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Vypínam synchronizácie s cloudom. Po obnovení ho musíte znova povoliť manuálne.</string>
   <string name="report">Hlásenie</string>
   <string name="sync_error">Vyskytla sa chyba pri synchronizácii s cloudom.</string>
   <string name="error_notification_channel_name">Upozornenia na chyby</string>
+  <string name="restore_from_cloud_description">Ak máte na inom zariadení povolenú synchronizáciu zariadenia, môžete začať obnovením databázy z cloudu.</string>
+  <string name="enable_sync">Povoliť synchronizáciu</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Súbor sa nedá prečítať</string>
   <string name="sqlite_invalid_file">Neplatný súbor modulu alebo názov súboru: %s</string>
@@ -1011,4 +1046,12 @@ Režim opakovania bol vypnutý, pretože
   <string name="open_here">Otvoriť tu</string>
   <string name="external_link">Externý odkaz</string>
   <string name="external_link_question">Týmto sa otvorí externý odkaz %s v prehliadači, chcete pokračovať?</string>
+  <string name="nameless">Titulok nie je definovaný</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akcie jedným klepnutím (Biblie)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Akcie jedným klepnutím (Ostatné)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Keď klepnete na text, zobrazí sa okno akcie jedným klepnutím. Ktoré tlačidlá akcií by sa mali zobrazovať?</string>
+  <string name="processing_epub">Spracovávanie EPUB: %s</string>
+  <string name="buy_development">Kúpiť vývojové práce</string>
+  <string name="buy_development2">Podporiť projekt</string>
+  <string name="new_version_trailer">krátka filmová ukážka</string>
 </resources>

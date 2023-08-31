@@ -316,6 +316,8 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="migrated_my_notes">ကိုယ်ပိုင် မှတ်စုများရွှေ့ပြောင်းပြီး</string>
   <string name="bookmarks">စာညှပ်များ</string>
   <string name="bookmark_added">စာညှပ်များ ပေါင်းထည့်ပြီး</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">လေဘယ်လ်များ</string>
   <string name="manage_labels">လေဘယ်လ်များကို စီမံခန့်ခွဲပါ</string>
   <string name="assign_labels">လေဘယ်လ်များကို တာဝန်ပေးအပ်ပါ</string>
   <string name="new_item">အသစ် </string>

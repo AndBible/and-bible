@@ -319,6 +319,8 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="migrated_my_notes">Migreer mijn notities</string>
   <string name="bookmarks">Bladwijzers</string>
   <string name="bookmark_added">Bladwijzer toegevoegd</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Labels</string>
   <string name="manage_labels">Labels beheren</string>
   <string name="assign_labels">Labels toewijzen</string>
   <string name="new_item">Nieuw</string>
