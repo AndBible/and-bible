@@ -1765,7 +1765,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if (isBible) {
             val newChap = synchronized(this) {
                 val newChap = minChapter - 1
-                if (newChap < 1) return@launch
+                if (newChap < 1) {
+                    executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                    return@launch
+                }
                 addChapter(newChap)
                 newChap
             }
@@ -1776,7 +1779,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         } else {
             val currentPage = window.pageManager.currentGeneralBook
             val prevKey = synchronized(this) {
-                firstKey ?: return@launch
+                firstKey ?: run {
+                    executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                    return@launch
+                }
                 val prevKey = currentPage.getKeyPlus(firstKey, -1)
                 firstKey = prevKey
                 prevKey
@@ -1795,7 +1801,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val newChap = maxChapter + 1
                 val verse = currentPage.currentBibleVerse.verse
                 val lastChap = verse.versification.getLastChapter(verse.book)
-                if (newChap > lastChap) return@launch
+                if (newChap > lastChap) {
+                    executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                    return@launch
+                }
                 addChapter(newChap)
                 newChap
             }
@@ -1805,7 +1814,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         } else {
             val currentPage = window.pageManager.currentGeneralBook
             val nextKey = synchronized(this) {
-                lastKey ?: return@launch
+                lastKey ?: run {
+                    executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                    return@launch
+                }
                 val nextKey = currentPage.getKeyPlus(lastKey, 1)
                 lastKey = nextKey
                 nextKey

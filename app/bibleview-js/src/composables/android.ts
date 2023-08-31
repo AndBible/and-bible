@@ -261,11 +261,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         return returnValue
     }
 
-    async function requestPreviousChapter(): Promise<AnyDocument> {
+    async function requestPreviousChapter(): Promise<Nullable<AnyDocument>> {
         return deferredCall((callId) => window.android.requestMoreToBeginning(callId));
     }
 
-    async function requestNextChapter(): Promise<AnyDocument> {
+    async function requestNextChapter(): Promise<Nullable<AnyDocument>> {
         return deferredCall((callId) => window.android.requestMoreToEnd(callId));
     }
 

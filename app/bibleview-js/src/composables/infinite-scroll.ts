@@ -22,11 +22,13 @@
  */
 
 import {computed, nextTick, onMounted, watch} from "vue";
-import {setupWindowEventListener} from "@/utils";
+import {filterNotNull, setupWindowEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
-import {AnyDocument, BibleViewDocumentType, isOsisDocument} from "@/types/documents";
+import {AnyDocument, isOsisDocument} from "@/types/documents";
 import {Nullable} from "@/types/common";
 import {BookCategory} from "@/types/client-objects";
+
+const ADD_DELAY = 0;
 
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
@@ -40,8 +42,11 @@ export function useInfiniteScroll(
     let touchDown = false;
     let textToBeInsertedAtTop: Nullable<AnyDocument[]> = null;
     let isProcessing = false;
-    const addChaptersToTop: Promise<AnyDocument>[] = [];
-    const addChaptersToEnd: Promise<AnyDocument>[] = [];
+    const addChaptersToTop: Promise<Nullable<AnyDocument>>[] = [];
+    const addChaptersToEnd: Promise<Nullable<AnyDocument>>[] = [];
+
+    console.log("inf: Queues", {addChaptersToTop, addChaptersToEnd});
+
     let clearDocumentCount = 0;
 
     function documentsCleared() {
@@ -57,11 +62,13 @@ export function useInfiniteScroll(
         // noinspection UnnecessaryLocalVariableJS
         const clearCountStart = clearDocumentCount;
         try {
-            while(addChaptersToEnd.length > 0 || addChaptersToTop.length > 0) {
-                console.log("inf: Waiting for chapters")
+            do {
+                const endPromises =addChaptersToEnd.splice(0);
+                const topPromises = addChaptersToTop.splice(0);
+                console.log("inf: Waiting for chapters", {endPromises, topPromises});
                 const [endChaps, topChaps] = await Promise.all([
-                    Promise.all(addChaptersToEnd.splice(0)),
-                    Promise.all(addChaptersToTop.splice(0))
+                    Promise.all(endPromises),
+                    Promise.all(topPromises)
                 ]);
                 console.log("inf: Received chapters")
                 if(clearCountStart > clearDocumentCount) {
@@ -70,17 +77,18 @@ export function useInfiniteScroll(
                 }
                 if(endChaps.length > 0) {
                     console.log("inf: Displaying received chapters at end")
-                    insertThisTextAtEnd(...endChaps);
+                    insertThisTextAtEnd(...filterNotNull(endChaps));
                     await nextTick();
                 }
                 if(topChaps.length > 0) {
                     console.log("inf: Displaying received chapters at top")
-                    await insertThisTextAtTop(topChaps);
+                    await insertThisTextAtTop(filterNotNull(topChaps));
                     await nextTick();
                 }
-            }
+            } while ((addChaptersToEnd.length > 0 || addChaptersToTop.length > 0))
         } finally {
             isProcessing = false;
+            console.log("inf: finally isProcessing = false")
         }
     }
 
@@ -116,7 +124,7 @@ export function useInfiniteScroll(
         addMoreAtTop = () => {
             if (!isEnabled.value) return;
             if (touchDown) {
-                // adding at top is tricky and if the user is stil holding there seems no way to set the scroll position after insert
+                // adding at top is tricky and if the user is still holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;
             } else {
                 loadTextAtTop();
@@ -167,10 +175,14 @@ export function useInfiniteScroll(
         const scrollingDown = currentPos > previousPos;
         if (scrollingDown
             && currentPos >= (bottomElem.offsetTop - window.innerHeight) - DOWN_MARGIN
-            && Date.now() > lastAddMoreTime + 1000) {
+            && Date.now() > lastAddMoreTime + ADD_DELAY
+        ) {
             lastAddMoreTime = Date.now();
             addMoreAtEnd();
-        } else if (scrollingUp && currentPos < UP_MARGIN && Date.now() > lastAddMoreTime + 1000) {
+        } else if (scrollingUp
+            && currentPos < UP_MARGIN
+            && Date.now() > lastAddMoreTime + ADD_DELAY
+        ) {
             lastAddMoreTime = Date.now();
             addMoreAtTop();
         }
