@@ -42,17 +42,29 @@ export function useInfiniteScroll(
     let isProcessing = false;
     const addChaptersToTop: Promise<AnyDocument>[] = [];
     const addChaptersToEnd: Promise<AnyDocument>[] = [];
+    let clearDocumentCount = 0;
+
+    function documentsCleared() {
+        addChaptersToTop.splice(0);
+        addChaptersToEnd.splice(0);
+        clearDocumentCount ++;
+    }
 
     async function processQueues() {
         if(isProcessing) return;
         isProcessing = true;
+        // noinspection UnnecessaryLocalVariableJS
+        const clearCountStart = clearDocumentCount;
         try {
             while(addChaptersToEnd.length > 0 || addChaptersToTop.length > 0) {
-                const endChaps = Promise.all(addChaptersToEnd.splice(0));
-                const topChaps = Promise.all(addChaptersToTop.splice(0));
-                insertThisTextAtEnd(...(await endChaps));
+                const [endChaps, topChaps] = await Promise.all([
+                    Promise.all(addChaptersToEnd.splice(0)),
+                    Promise.all(addChaptersToTop.splice(0))
+                ]);
+                if(clearCountStart > clearDocumentCount) return;
+                insertThisTextAtEnd(...endChaps);
                 await nextTick();
-                await insertThisTextAtTop(await topChaps);
+                await insertThisTextAtTop(topChaps);
                 await nextTick();
             }
         } finally {
@@ -165,4 +177,6 @@ export function useInfiniteScroll(
         currentPos = scrollPosition();
         bottomElem = document.getElementById("bottom")!;
     });
+
+    return {documentsCleared};
 }

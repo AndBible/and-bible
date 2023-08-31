@@ -150,7 +150,7 @@ const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, andro
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
 
-useInfiniteScroll(android, documents);
+const {documentsCleared} = useInfiniteScroll(android, documents);
 const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {
@@ -178,6 +178,7 @@ setupEventBusListener("config_changed", async (deferred: Deferred) => {
 
 setupEventBusListener("clear_document", function clearDocument() {
     footNoteCount = 0;
+    documentsCleared();
     resetHighlights();
     closeModals();
     clearLog();
