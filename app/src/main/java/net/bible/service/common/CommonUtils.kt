@@ -1557,14 +1557,19 @@ object CommonUtils : CommonUtilsBase() {
             BackupControl.AbDbFileType.UNKNOWN
     }
 
-    fun makeAndBibleUrl(doc: Book?, key: Key, ordinal: Int?): String? {
-        var url = "https://andbible.org/bible/${key.osisRef}"
+    fun makeAndBibleUrl(
+        keyStr: String,
+        docInitials: String? = null,
+        v11n: String? = null,
+        ordinal: Int? = null
+    ): String {
+        var url = "https://andbible.org/bible/$keyStr"
         val queryParameters = mutableListOf<String>()
-        if(doc != null) {
-            queryParameters.add("document=${doc.initials}")
-            if(doc is SwordBook) {
-                queryParameters.add("v11n=${doc.versification.name}")
-            }
+        if(docInitials != null) {
+            queryParameters.add("document=$docInitials")
+        }
+        if(v11n != null) {
+            queryParameters.add("v11n=$v11n")
         }
         if(ordinal != null) {
             queryParameters.add("ordinal=${ordinal}")

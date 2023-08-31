@@ -20,8 +20,6 @@ package net.bible.android.view.activity.page
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -75,7 +73,6 @@ import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
@@ -1108,21 +1105,42 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     internal inner class LinkLongPressContextMenuInfo(private val targetLink: String) : BibleViewContextMenuInfo {
         override fun onContextItemSelected(item: MenuItem): Boolean {
-            val windowMode = when (item.itemId) {
-                R.id.open_link_in_special_window -> WindowMode.WINDOW_MODE_SPECIAL
-                R.id.open_link_in_new_window -> WindowMode.WINDOW_MODE_NEW
-                R.id.open_link_in_this_window -> WindowMode.WINDOW_MODE_THIS
-                else -> WindowMode.WINDOW_MODE_UNDEFINED
+            val uri = Uri.parse(targetLink)
+            if(item.itemId == R.id.copy_link_to_clipboard) {
+                val osisRef = uri.getQueryParameter("osis")?: return false
+                val doc = uri.getQueryParameter("doc")
+                val ordinal = uri.getQueryParameter("ordinal")?.toInt()
+                val v11n = uri.getQueryParameter("v11n")
+                val abUrl = CommonUtils.makeAndBibleUrl(
+                    osisRef,
+                    doc,
+                    v11n,
+                    ordinal
+                )
+                CommonUtils.copyToClipboard(
+                    ClipData.newPlainText(abUrl, abUrl),
+                    R.string.reference_copied_to_clipboard
+                )
+            } else {
+                val windowMode = when (item.itemId) {
+                    R.id.open_link_in_special_window -> WindowMode.WINDOW_MODE_SPECIAL
+                    R.id.open_link_in_new_window -> WindowMode.WINDOW_MODE_NEW
+                    R.id.open_link_in_this_window -> WindowMode.WINDOW_MODE_THIS
+                    else -> WindowMode.WINDOW_MODE_UNDEFINED
+                }
+                linkControl.windowMode = windowMode
+                openLink(uri)
+                linkControl.windowMode = WindowMode.WINDOW_MODE_UNDEFINED
+                contextMenuInfo = null
             }
-            linkControl.windowMode = windowMode
-            openLink(Uri.parse(targetLink))
-            linkControl.windowMode = WindowMode.WINDOW_MODE_UNDEFINED
-            contextMenuInfo = null
             return true
         }
 
         override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.link_context_menu, menu)
+
+            val parsed: Uri = Uri.parse(targetLink)
+            menu.findItem(R.id.copy_link_to_clipboard).isVisible = parsed.scheme == UriConstants.SCHEME_REFERENCE
             val openLinksInSpecialWindowByDefault = CommonUtils.settings.getBoolean("open_links_in_special_window_pref", true)
             val item =
                 if(openLinksInSpecialWindowByDefault)

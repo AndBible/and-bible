@@ -847,11 +847,15 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.copyReference -> CommandPreference(
                 launch = { _, _, _ ->
-                    val doc = window.pageManager.currentPage.currentDocument
+                    val doc = window.pageManager.currentPage.currentDocument?: return@CommandPreference
                     val key = window.pageManager.currentPage.singleKey?: return@CommandPreference
                     val ordinal = window.pageManager.currentPage.anchorOrdinal?.start
 
-                    val url = CommonUtils.makeAndBibleUrl(doc, key, ordinal)?: return@CommandPreference
+                    val url = CommonUtils.makeAndBibleUrl(
+                        keyStr = key.osisRef,
+                        docInitials = doc.initials,
+                        ordinal = ordinal
+                    )
                     CommonUtils.copyToClipboard(
                         ClipData.newPlainText(key.name, url),
                         R.string.reference_copied_to_clipboard
