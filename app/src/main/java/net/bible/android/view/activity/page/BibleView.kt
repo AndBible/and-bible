@@ -1763,19 +1763,25 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun requestMoreToBeginning(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtTop")
         if (isBible) {
-            val newChap = minChapter - 1
-
-            if(newChap < 1) return@launch
+            val newChap = synchronized(this) {
+                val newChap = minChapter - 1
+                if (newChap < 1) return@launch
+                addChapter(newChap)
+                newChap
+            }
 
             val currentPage = window.pageManager.currentBible
             val doc = currentPage.getDocumentForChapter(newChap)
-            addChapter(newChap)
             executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
         } else {
             val currentPage = window.pageManager.currentGeneralBook
-            firstKey ?: return@launch
-            val prevKey = currentPage.getKeyPlus(firstKey, -1)
-            firstKey = prevKey
+            val prevKey = synchronized(this) {
+                firstKey ?: return@launch
+                val prevKey = currentPage.getKeyPlus(firstKey, -1)
+                firstKey = prevKey
+                prevKey
+            }
+
             val doc = currentPage.getPageContent(prevKey)
             executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
         }
@@ -1784,20 +1790,27 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun requestMoreToEnd(callId: Long) = scope.launch(Dispatchers.IO) {
         Log.i(TAG, "requestMoreTextAtEnd")
         if (isBible) {
-            val newChap = maxChapter + 1
             val currentPage = window.pageManager.currentBible
-            val verse = currentPage.currentBibleVerse.verse
-            val lastChap = verse.versification.getLastChapter(verse.book)
+            val newChap = synchronized(this) {
+                val newChap = maxChapter + 1
+                val verse = currentPage.currentBibleVerse.verse
+                val lastChap = verse.versification.getLastChapter(verse.book)
+                if (newChap > lastChap) return@launch
+                addChapter(newChap)
+                newChap
+            }
 
-            if(newChap > lastChap) return@launch
             val doc = currentPage.getDocumentForChapter(newChap)
-            addChapter(newChap)
             executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
         } else {
             val currentPage = window.pageManager.currentGeneralBook
-            lastKey ?: return@launch
-            val nextKey = currentPage.getKeyPlus(lastKey, 1)
-            lastKey = nextKey
+            val nextKey = synchronized(this) {
+                lastKey ?: return@launch
+                val nextKey = currentPage.getKeyPlus(lastKey, 1)
+                lastKey = nextKey
+                nextKey
+            }
+
             val doc = currentPage.getPageContent(nextKey)
             executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
         }
