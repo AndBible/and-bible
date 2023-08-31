@@ -853,6 +853,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 launch = { _, _, _ ->
                     val doc = window.pageManager.currentPage.currentDocument
                     val key = window.pageManager.currentPage.singleKey?: return@CommandPreference
+                    val ordinal = window.pageManager.currentPage.anchorOrdinal?.start
                     var url = "https://andbible.org/bible/${key.osisRef}"
                     val queryParameters = mutableListOf<String>()
                     if(doc != null) {
@@ -860,6 +861,9 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                         if(doc is SwordBook) {
                             queryParameters.add("v11n=${doc.versification.name}")
                         }
+                    }
+                    if(ordinal != null) {
+                        queryParameters.add("ordinal=${ordinal}")
                     }
                     if(queryParameters.isNotEmpty()) {
                         url += "?${queryParameters.joinToString("&")}"
