@@ -26,6 +26,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
@@ -44,7 +45,6 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
 class WindowChangedEvent(val window: Window)
@@ -254,9 +254,11 @@ class Window (
     fun onEvent(e: SpeakProgressEvent) {
         if(AdvancedSpeakSettings.synchronize || e.forceFollow) return // handled in SpeakControl
         val speakKey = (e.key as? BookAndKey)?.key?: e.key
-        val currentWindowKey = pageManager.currentPage.key
+        val curPage = pageManager.currentPage
+        val currentWindowKey = curPage.key
 
-        val isContained = bibleView?.verseRangeLoaded?.contains(speakKey) ?: false
+        val commentaryRange = (curPage as? CurrentCommentaryPage)?.annotateKey
+        val isContained = (commentaryRange?: bibleView?.verseRangeLoaded)?.contains(speakKey) ?: false
         if(displayedBook == e.book && (speakKey == currentWindowKey || isContained)) {
             if(e.key is BookAndKey) {
                 bibleView?.highlightOrdinalRange(e.key.ordinal!!.start .. (e.key.ordinal.end ?: e.key.ordinal.start))
