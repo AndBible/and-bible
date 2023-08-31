@@ -852,7 +852,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             R.id.copyReference -> CommandPreference(
                 launch = { _, _, _ ->
                     val doc = window.pageManager.currentPage.currentDocument
-                    val key = window.pageManager.currentPage.key?: return@CommandPreference
+                    val key = window.pageManager.currentPage.singleKey?: return@CommandPreference
                     var url = "https://andbible.org/bible/${key.osisRef}"
                     val queryParameters = mutableListOf<String>()
                     if(doc != null) {
