@@ -153,6 +153,7 @@ class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
 
 const val MAX_DOC_STR_LENGTH = 4000000;
+private val notFound = WebResourceResponse(null, null, null)
 
 @Serializable
 class Selection(
@@ -813,23 +814,23 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     class ModuleAssetHandler: PathHandler {
-        override fun handle(path: String): WebResourceResponse? {
+        override fun handle(path: String): WebResourceResponse {
             val parts = path.split("/", limit = 2);
-            if(parts.size != 2) return null;
+            if(parts.size != 2) return notFound
             val (bookName, resourcePath) = parts
             val location = File(Books.installed().getBook(bookName).bookMetaData.location)
             val f = File(location, resourcePath)
             return if(f.isFile && f.exists()) {
                 WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
-            } else null
+            } else notFound
         }
     }
 
     inner class EpubResourcesAssetHandler: PathHandler {
-        override fun handle(path: String): WebResourceResponse? {
-            val book = (firstDocument as? OsisDocument)?.book ?: return null
-            val file: File = ((book as? SwordGenBook)?.backend as? EpubBackend)?.getResource(path) ?: return null
-            if(!file.canRead()) return null
+        override fun handle(path: String): WebResourceResponse {
+            val book = (firstDocument as? OsisDocument)?.book ?: return notFound
+            val file: File = ((book as? SwordGenBook)?.backend as? EpubBackend)?.getResource(path) ?: return notFound
+            if(!file.canRead()) return notFound
             return WebResourceResponse(URLConnection.guessContentTypeFromName(file.name), null, file.inputStream())
         }
     }
@@ -837,12 +838,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     class ModuleStylesAssetHandler: PathHandler {
         private val epubRe = Regex("""^epub/([^/]+)/([^/]+)/style.css$""")
         private val colorRe = Regex("""\b(background-color|background|background-image|color):[^;]+;""")
-        override fun handle(path: String): WebResourceResponse? {
+        override fun handle(path: String): WebResourceResponse {
             val epubMatch = epubRe.matchEntire(path)
             if(epubMatch != null) {
                 val bookInitials = epubMatch.groupValues[1]
                 val keyStr = epubMatch.groupValues[2]
-                val book = Books.installed().getBook(bookInitials)?: return null
+                val book = Books.installed().getBook(bookInitials)?: return notFound
                 val key = book.getKey(keyStr)
 
                 val styleSheets =
@@ -851,18 +852,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         if (backend is EpubBackend) {
                             backend.styleSheets(key)
                         } else null
-                    }  else null) ?: return null
+                    }  else null) ?: return notFound
 
                 val content = styleSheets.joinToString("\n") { String(it.readBytes()) }.replace(colorRe, "")
                 return WebResourceResponse(URLConnection.guessContentTypeFromName(path), null, content.byteInputStream())
             }
 
             val parts = path.split("/", limit = 2);
-            if(parts.size != 2) return null;
+            if(parts.size != 2) return notFound
             val (bookName, resourcePath) = parts
-            val book = Books.installed().getBook(bookName) ?: return null
+            val book = Books.installed().getBook(bookName) ?: return notFound
 
-            val styleFile = book.bookMetaData.getProperty("AndBibleCSS") ?: return null
+            val styleFile = book.bookMetaData.getProperty("AndBibleCSS") ?: return notFound
 
             val location = File(book.bookMetaData.location)
             var f = File(location, styleFile)
@@ -872,19 +873,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             return if (f.isFile && f.exists()) {
                 WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
-            } else null
+            } else notFound
         }
     }
 
     class FontsAssetHandler: PathHandler {
-        override fun handle(path: String): WebResourceResponse? {
+        override fun handle(path: String): WebResourceResponse {
             val parts = path.split("/", limit = 2);
-            if(parts.size != 2) return null;
+            if(parts.size != 2) return notFound
             val (moduleName, resourcePath) = parts
-            val book = Books.installed().getBook(moduleName) ?: return null
+            val book = Books.installed().getBook(moduleName) ?: return notFound
             if(resourcePath == "fonts.css") {
                 val fontCss = StringBuilder()
-                val fonts = fontsByModule[book.initials] ?: return null
+                val fonts = fontsByModule[book.initials] ?: return notFound
                 for(font in fonts) {
                     fontCss.append("""@font-face {
                         |font-family: '${font.name}';
@@ -899,22 +900,22 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val f = File(location, resourcePath)
                 return if (f.isFile && f.exists()) {
                     WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
-                } else null
+                } else notFound
             }
         }
     }
 
     class FeatureAssetHandler: PathHandler {
-        override fun handle(path: String): WebResourceResponse? {
+        override fun handle(path: String): WebResourceResponse {
             val parts = path.split("/", limit = 2);
-            if(parts.size != 2) return null;
+            if(parts.size != 2) return notFound;
             val (moduleName, resourcePath) = parts
-            val book = Books.installed().getBook(moduleName) ?: return null
+            val book = Books.installed().getBook(moduleName) ?: return notFound
             val location = File(book.bookMetaData.location)
             val f = File(location, resourcePath)
             return if (f.isFile && f.exists() && checkSignature(f)) {
                 WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
-            } else null
+            } else notFound
         }
 
         private fun checkSignature(file: File): Boolean {
@@ -922,9 +923,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return CommonUtils.verifySignature(file, signatureFile)
         }
     }
-
     inner class MyAssetsPathHandler: PathHandler {
-        override fun handle(path: String): WebResourceResponse? {
+        override fun handle(path: String): WebResourceResponse {
             return try {
                 val inputStream = context.resources.assets.open(path)
                 val mimeType = when(File(path).extension) {
@@ -937,9 +937,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 WebResourceResponse(mimeType, null, inputStream)
             } catch (e: IOException) {
                 Log.e(TAG, "Error opening asset path: $path", e)
-                WebResourceResponse(null, null, null)
+                notFound
             }
         }
+    }
+    class NotFoundHandler: PathHandler {
+        override fun handle(path: String): WebResourceResponse = notFound
     }
 
     val assetLoader = WebViewAssetLoader.Builder()
@@ -949,6 +952,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         .addPathHandler("/features/", FeatureAssetHandler())
         .addPathHandler("/module-style/", ModuleStylesAssetHandler())
         .addPathHandler("/epub/", EpubResourcesAssetHandler())
+        .addPathHandler("/", NotFoundHandler())
         .build()
 
 
