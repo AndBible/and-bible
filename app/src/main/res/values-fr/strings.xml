@@ -370,6 +370,9 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="label_color_example">Exemple</string>
   <string name="marker_style">Afficher uniquement le marqueur pour les signets de sélection</string>
   <string name="marker_style_whole_verse">Afficher uniquement le marqueur pour les signets de versets entiers</string>
+  <string name="hide_style">Masquer les signets de sélection</string>
+  <string name="hide_style_whole_verse">Masquer les signets de versets entiers</string>
+  <string name="bookmark_warning">Ce document comporte des signets et/ou des notes.</string>
   <string name="bookmark_warning2">
 Si la structure du document a été modifiée, la mise à jour de ce document peut entraîner le déplacement de ces signets/notes à l\'intérieur du document ou leur disparition complète
 l’emplacement de ces signets/notes se déplace à l\'intérieur du document ou disparaît complètement.</string>
@@ -821,6 +824,8 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="recent_labels">Étiquettes récentes</string>
   <string name="other_labels">Autres étiquettes</string>
   <string name="book_menu_sort_row_opt">Ranger les livres horizontalement</string>
+  <string name="book_menu_group_by_category">Groupe de livres par catégories</string>
+  <string name="book_menu_show_long_book_name">Montrer le nom long du livre</string>
   <string name="reset_workspace_labels">Voulez-vous réinitialiser les paramètres d\'auto-assignation et de favoris pour cet espace de travail ?</string>
   <string name="reset_hide_labels">Voulez-vous réinitialiser les paramètres de masquage des étiquettes spécifiées ?</string>
   <string name="reorder">Réordonner</string>
@@ -866,10 +871,11 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="permission_required">Permission nécessaire</string>
   <string name="labels_search_hint">Rechercher</string>
   <!--Discrete mode settings-->
+  <string name="app_name_calculator">Simple calculatrice</string>
   <string name="prefs_persecution_cat">Paramètres pour les persécutés</string>
   <string name="prefs_discrete_mode">Cache les symboles religieux</string>
-  <string name="prefs_show_calculator">Calculateur</string>
-  <string name="prefs_calculator_pin">PIN du calculateur</string>
+  <string name="prefs_show_calculator">Calculatrice</string>
+  <string name="prefs_calculator_pin">PIN du calculatrice</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Mauvais format</string>
   <string name="prefs_persecuted_help">Lisez cela en premier !</string>

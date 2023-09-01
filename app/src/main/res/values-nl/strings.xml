@@ -1,7 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bijbelstudie</string>
+  <string name="app_name_medium">Bijbelstudie (And Bible)</string>
   <string name="app_name_long">AndBible: Bijbelstudie</string>
+  <string name="project">AndBible open-source-project</string>
   <string name="version_text">Versie %s</string>
   <string name="no_sdcard_error">Voer een SD-kaart in en start And Bible opnieuw.</string>
   <!--Main menu-->
@@ -9,6 +12,7 @@
   <string name="chooseBook">Document</string>
   <string name="selectPassage">Passage</string>
   <string name="search">Zoeken</string>
+  <string name="search_in_andbible">Zoek in Bijbel</string>
   <string name="settings">Applicatievoorkeuren</string>
   <string name="history">Geschiedenis</string>
   <string name="speak">Voorlezen</string>
@@ -38,6 +42,7 @@
   <string name="do_in_background">Doorgaan in de achtergrond</string>
   <string name="rebuild_index_button">Opnieuw bouwen</string>
   <!--X results in module Y-->
+  <string name="search_with_results2">%1s resulteert in %2s</string>
   <!--Tasks-->
   <string name="progress_status">Voortgang</string>
   <string name="task_kill_warning">Deze langlopende taken kunnen beëindigd worden als je overschakelt naar een andere app.</string>
@@ -55,8 +60,11 @@
   <string name="search_old_testament">Oude Testament</string>
   <string name="search_current_book">Huidig boek</string>
   <string name="error_executing_search">Ongeldige zoekopdracht</string>
+  <string name="type_text_or_bible_reference">Typ tekst of bijbelverwijzing</string>
   <!--Open (bible reference X)-->
+  <string name="go_to_ref">Open %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
+  <string name="search_what">Zoek \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofdstuk- en versnummers</string>
   <string name="prefs_show_verseno_summary">Toon hoofdstuk- en versnummers</string>
@@ -114,6 +122,8 @@
   <string name="reset_fontsize">Reset</string>
   <string name="prefs_request_sdcard_permission_title">Handmatige geïnstalleerde documenten</string>
   <string name="prefs_request_sdcard_permission_summary">Het gebruik van handmatig geïnstalleerde documenten inschakelen uit de jsword-map op interne opslag</string>
+  <string name="prefs_expand_footnotes_title">Inline verwijzingen</string>
+  <string name="prefs_expand_footnotes_summary">Toon verwijzingen in de tekst, in plaats van een link die een pop-upvenster opent</string>
   <string name="all_text_options_window_menutitle">Alle tekstopties</string>
   <string name="text_options_window_menutitle">Tekstopties</string>
   <string name="auto_fullscreen">Volledig scherm door te scrollen</string>
@@ -123,6 +133,7 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Wissel automatisch naar volledig scherm tijdens het scrollen van de tekst. Tip: u kunt altijd naar volledig scherm wisselen door dubbel te tikken op het scherm.</string>
   <string name="prefs_margin_size_title">Wijzig margegrootte</string>
+  <string name="prefs_margin_size_mm_title">Margegrootte (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Geavanceerde instellingen</string>
   <string name="prefs_display_customization_cat">Uiterlijk</string>
   <string name="prefs_behavior_customization_cat">Applicatie gedrag</string>
@@ -173,6 +184,8 @@
   <string name="prefs_text_bookmarks_title">Instellingen voor Bladwijzers &amp; Mijn notities</string>
   <string name="prefs_enable_bluetooth_title">Schakel Bluetooth-mediaknoppen in</string>
   <string name="prefs_enable_bluetooth_summary">Gebruik Bluetooth-mediaknoppen om spreken te starten/stoppen.</string>
+  <string name="create_bookmark">Maak een nieuwe bladwijzer</string>
+  <string name="create_bookmark_with_a_note">Maak een nieuwe bladwijzer met een notitie</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleurinstellingen</string>
   <string name="window_color_settings_title">Instellingen voor schermkleur.</string>
