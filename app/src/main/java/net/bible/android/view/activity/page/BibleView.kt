@@ -529,7 +529,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 item.isVisible = true
                 item.title = context.getString(R.string.search_what, searchText)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && searchText != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelectionText != null) {
                 var menuItemOrder = 100
                 for (resolveInfo in getSupportedActivities()) {
                     menu.add(Menu.NONE, Menu.NONE,
@@ -552,7 +552,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             if (showSystem || editingTextInJs) {
-                showSystem = false
                 return true
             } else {
                 menu.clear()
@@ -627,7 +626,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            if(modalOpen) {
+            if(modalOpen || showSystem) {
+                showSystem = false
+                mode.finish()
                 return callback.onActionItemClicked(mode, item)
             }
             val handled = onActionMenuItemClicked(mode, item)
