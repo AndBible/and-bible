@@ -94,8 +94,6 @@ import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.StudyPadDocument
-import net.bible.android.control.page.window.DecrementBusyCount
-import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
@@ -269,14 +267,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @Volatile private var latestDocumentStr: String? = null
     @Volatile private var needsDocument: Boolean = false
     @Volatile private var htmlLoadingOngoing: Boolean = true
-        set(value) {
-            if(value != field) {
-                ABEventBus.post(if (value) IncrementBusyCount() else DecrementBusyCount())
-            }
-            field = value
-        }
-
-    val htmlReady get() = !htmlLoadingOngoing
 
     var window: Window
         get() = windowRef.get()!!
@@ -304,9 +294,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         setOnLongClickListener(BibleViewLongClickListener())
     }
 
-    var showSystem = false
-
-    var step2 = false
+    private var showSystem = false
+    private var step2 = false
 
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when(item.itemId) {
