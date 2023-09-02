@@ -300,7 +300,7 @@ open class CurrentPageManager @Inject constructor(
      */
     fun setFirstUseDefaultVerse() {
         currentBible.setCurrentDocument(defaultBible)
-        currentBible.doSetKey(defaultVerse)
+        currentBible.doSetKey(defaultVerse.start)
     }
 
     /**

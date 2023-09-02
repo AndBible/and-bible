@@ -1178,7 +1178,11 @@ object CommonUtils : CommonUtilsBase() {
 
     val defaultBible get() = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }[0] as SwordBook
     val defaultVerse: VerseRange get() {
-        val (otVerse, ntVerse, psVerse) = listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3").map { VerseRangeFactory.fromString(KJVA, it).toV11n(defaultBible.versification) }
+        val (otVerse, ntVerse, psVerse) =
+            listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3")
+                .map {
+                    VerseRangeFactory.fromString(KJVA, it).toV11n(defaultBible.versification)
+                }
         return when {
             defaultBible.contains(ntVerse.start) -> ntVerse
             defaultBible.contains(otVerse.start) -> otVerse
