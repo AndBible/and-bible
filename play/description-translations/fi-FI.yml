@@ -41,6 +41,7 @@ feature_10_1: >
 unavailable_documents: "ESV, NIV and NKJV"
 feature_12: >
   Offline: tarvitset internetyhteyttä vain dokumenttien lataamiseen.
+# UNUSED
 feature_13: >
   Opintoalustat joihin voi kirjoittaa merkintöjä ja raamattuviitteitä saarnoja kuunnellessa.
 subtitle_3: Tehdään yhdessä paras Raamattusovellus!

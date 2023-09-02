@@ -336,6 +336,7 @@ Wholosome Words\'un nezaketiyle, http://www.wholesomewords.org/, izin verildi</s
   <string name="sort_by_date">Tarih Sırası</string>
   <string name="sort_by_bible_book">Kutsal Kitap Sırası</string>
   <string name="sort_by_alphabetical">Alfabetik sıralama</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Sözlük</string>
   <string name="search_dictionary_hint">Sözlükte bul</string>

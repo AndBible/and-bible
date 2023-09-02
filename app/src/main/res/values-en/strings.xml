@@ -33,6 +33,7 @@
   <string name="auto_assign_labels_primary">Set as the main label</string>
   <!--can be removed-->
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <!--General Book-->
   <!--Speak-->

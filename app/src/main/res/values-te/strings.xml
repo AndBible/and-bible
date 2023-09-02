@@ -350,6 +350,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="sort_by_date">తేది క్రమం</string>
   <string name="sort_by_bible_book">గ్రంథాల క్రమం</string>
   <string name="sort_by_alphabetical">వర్ణమాల క్రమం</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">నిఘంటువు</string>
   <string name="search_dictionary_hint">నిఘంటువులో వెతకుట</string>

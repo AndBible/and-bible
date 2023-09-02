@@ -41,6 +41,7 @@ feature_10_1: >
 unavailable_documents: "ESV, NIV și NKJV"
 feature_12: >
   Offline: singurul moment în care aveți nevoie de internet este pentru a descărca documente.
+# UNUSED
 feature_13: >
   Notițe de studiu pentru a adăuga comentarii și trimiteri biblice în timp ce asculți predicile.
 subtitle_3: Haideți să facem împreună cea mai bună aplicație biblică!

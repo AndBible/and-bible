@@ -377,6 +377,7 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="sort_by_date">Urejeno po datumu</string>
   <string name="sort_by_bible_book">Urejeno po bibliji</string>
   <string name="sort_by_alphabetical">Abecedni vrstni red</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Slovar</string>
   <string name="search_dictionary_hint">Išči po slovarju</string>

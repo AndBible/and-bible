@@ -360,6 +360,7 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="sort_by_date">Datumvolgorde</string>
   <string name="sort_by_bible_book">Bijbelse volgorde</string>
   <string name="sort_by_alphabetical">Alfabetische volgorde</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Woordenboek</string>
   <string name="search_dictionary_hint">Woordenboek doorzoeken</string>

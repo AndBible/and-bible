@@ -356,6 +356,7 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="sort_by_date">Hozzáadás sorrendje</string>
   <string name="sort_by_bible_book">Bibliai sorrend</string>
   <string name="sort_by_alphabetical">Ábécérend</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Szótár</string>
   <string name="search_dictionary_hint">Keresés a szótárban</string>

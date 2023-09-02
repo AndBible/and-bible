@@ -394,6 +394,7 @@
   <string name="sort_by_date">În ordinea datei</string>
   <string name="sort_by_bible_book">În ordine biblică</string>
   <string name="sort_by_alphabetical">În ordine alfabetică</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Dicționar</string>
   <string name="search_dictionary_hint">Caută în dicționar</string>

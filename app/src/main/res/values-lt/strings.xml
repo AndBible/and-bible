@@ -362,6 +362,7 @@
   <string name="sort_by_date">Rikiavimas pagal datą</string>
   <string name="sort_by_bible_book">Rikiavimas pagal Bibliją</string>
   <string name="sort_by_alphabetical">Abėcėlinė tvarka</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Žodynas</string>
   <string name="search_dictionary_hint">Ieškoti žodyne</string>

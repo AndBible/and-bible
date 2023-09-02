@@ -368,6 +368,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="sort_by_date">По датам</string>
   <string name="sort_by_bible_book">Библейский порядок</string>
   <string name="sort_by_alphabetical">Сортировка по алфавиту</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Словарь</string>
   <string name="search_dictionary_hint">Найти словарь</string>

@@ -313,6 +313,7 @@
   <string name="sort_by_date">ترتيب التاريخ</string>
   <string name="sort_by_bible_book">ترتيب الكتاب المقدس</string>
   <string name="sort_by_alphabetical">ترتيب ابجدي</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">القاموس</string>
   <string name="search_dictionary_hint">إبحث في القاموس</string>

@@ -41,6 +41,7 @@ feature_10_1: >
 unavailable_documents: "ESV, NIV e NKJV"
 feature_12: >
   Offline: l'unica volta che hai bisogno di internet è per scaricare i documenti.
+# UNUSED
 feature_13: >
   Appunti di studio per aggiungere annotazioni e riferimenti biblici durante l'ascolto dei sermoni.
 subtitle_3: Creiamo insieme la migliore app della Bibbia!

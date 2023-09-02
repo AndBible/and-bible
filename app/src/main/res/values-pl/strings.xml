@@ -333,6 +333,7 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="sort_by_date">Porządek chronologiczny</string>
   <string name="sort_by_bible_book">Porządek biblijny</string>
   <string name="sort_by_alphabetical">Porządek alfabetyczny</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Słownik</string>
   <string name="search_dictionary_hint">Znajdź w słowniku</string>

@@ -350,6 +350,7 @@
   <string name="sort_by_date">סדר תאריכים</string>
   <string name="sort_by_bible_book">סדר הספרים</string>
   <string name="sort_by_alphabetical">סדר לפי א-ב</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">מילון</string>
   <string name="search_dictionary_hint">חיפוש במילון</string>

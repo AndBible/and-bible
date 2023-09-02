@@ -390,6 +390,7 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
   <string name="sort_by_date">Datum volgorde</string>
   <string name="sort_by_bible_book">Bybelse volgorde</string>
   <string name="sort_by_alphabetical">Alfabetiese volgorde</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Woordeboek</string>
   <string name="search_dictionary_hint">Soek woordeboek</string>

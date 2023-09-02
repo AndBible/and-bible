@@ -319,6 +319,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="sort_by_date">Datorekkefølge</string>
   <string name="sort_by_bible_book">Bibelsk rekkefølge</string>
   <string name="sort_by_alphabetical">Alfabetisk rekkefølge</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Bibelordbok</string>
   <string name="search_dictionary_hint">Søk i ordbok</string>

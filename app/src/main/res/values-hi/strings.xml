@@ -355,6 +355,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="sort_by_date">दिनांक अनुक्रम</string>
   <string name="sort_by_bible_book">बाइबिल का अनुक्रम</string>
   <string name="sort_by_alphabetical">वर्णमाला क्रम</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">शब्दकोश</string>
   <string name="search_dictionary_hint">शब्दकोश में खोजें</string>

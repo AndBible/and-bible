@@ -357,6 +357,7 @@ http://www.heartlight.org 准予使用
   <string name="sort_by_date">日期順序</string>
   <string name="sort_by_bible_book">聖經書序</string>
   <string name="sort_by_alphabetical">字母順序</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">字典</string>
   <string name="search_dictionary_hint">查詢字典</string>

@@ -354,6 +354,7 @@
   <string name="sort_by_date">날짜 순서</string>
   <string name="sort_by_bible_book">성경의 순서</string>
   <string name="sort_by_alphabetical">알파벳 순서</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">사전</string>
   <string name="search_dictionary_hint">사전 검색</string>

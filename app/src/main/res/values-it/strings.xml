@@ -370,6 +370,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="sort_by_date">Ordine per data</string>
   <string name="sort_by_bible_book">Ordine biblico</string>
   <string name="sort_by_alphabetical">Ordine alfabetico</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Dizionario</string>
   <string name="search_dictionary_hint">Cerca nel dizionario</string>

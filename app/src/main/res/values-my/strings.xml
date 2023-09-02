@@ -344,6 +344,7 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="sort_by_date">နေ့ရက် အစီအစဉ်</string>
   <string name="sort_by_bible_book">သမ္မာကျမ်းစာဆိုင်ရာ အစီအစဉ်</string>
   <string name="sort_by_alphabetical">အက္ခရာစဉ်</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">အဘိဓာန်များ</string>
   <string name="search_dictionary_hint">အဘိဓာန်တွင် ရှာပါ</string>
