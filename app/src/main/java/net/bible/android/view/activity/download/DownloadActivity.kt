@@ -101,13 +101,11 @@ open class DownloadActivity : DocumentSelectionBase(
     private val genericFileDownloader = GenericFileDownloader(this) {
         invalidateOptionsMenu()
     }
-    private val downloadManager = DownloadManager {
-        invalidateOptionsMenu()
-    }
+    private lateinit var downloadManager: DownloadManager
 
     private val hasErrors get() = genericFileDownloader.errors.isNotEmpty() || downloadManager.failedRepos.isNotEmpty()
 
-    private val repoFactory = RepoFactory(downloadManager)
+    private lateinit var repoFactory: RepoFactory
     private val booksNotFound = ArrayList<String>()
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
@@ -185,6 +183,10 @@ open class DownloadActivity : DocumentSelectionBase(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
+        downloadManager = DownloadManager {
+            invalidateOptionsMenu()
+        }
+        repoFactory = RepoFactory(downloadManager)
 
         // reconfigure the layout:
         //  * ensure the ProgressBar for the ChooseDocument activity is hidden

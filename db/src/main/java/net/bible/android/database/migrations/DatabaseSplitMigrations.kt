@@ -85,6 +85,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             execSQL("PRAGMA foreign_keys=OFF;")
 
             // Create temporary UUID mapping tables
+            execSQL("DROP TABLE IF EXISTS LabelMap")
+            execSQL("DROP TABLE IF EXISTS BookmarkMap")
+            execSQL("DROP TABLE IF EXISTS StudyPadMap")
             execSQL("CREATE TABLE LabelMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO LabelMap SELECT id, $GENERATE_UUID4_SQL FROM Label")
             execSQL("CREATE TABLE BookmarkMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
@@ -162,6 +165,8 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
             execSQL("PRAGMA foreign_keys=OFF;")
 
+            execSQL("DROP TABLE IF EXISTS ReadingPlanMap")
+            execSQL("DROP TABLE IF EXISTS ReadingPlanStatusMap")
             execSQL("CREATE TABLE ReadingPlanMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO ReadingPlanMap SELECT _id, $GENERATE_UUID4_SQL FROM readingplan")
             execSQL("CREATE TABLE ReadingPlanStatusMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
@@ -224,6 +229,8 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             execSQL("ATTACH DATABASE '${dbFileName}' AS new")
             execSQL("PRAGMA foreign_keys=OFF;")
 
+            execSQL("DROP TABLE IF EXISTS WorkspaceMap")
+            execSQL("DROP TABLE IF EXISTS WindowMap")
             execSQL("CREATE TABLE WorkspaceMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")
             execSQL("INSERT INTO WorkspaceMap SELECT id, $GENERATE_UUID4_SQL FROM Workspace")
             execSQL("CREATE TABLE WindowMap (id INTEGER NOT NULL, uuid BLOB NOT NULL, PRIMARY KEY(id))")

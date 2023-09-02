@@ -13,7 +13,6 @@
   <string name="selectPassage">Отрывок</string>
   <string name="search">Найти</string>
   <string name="search_in_andbible">Найти в Библии</string>
-  <string name="search_with_results2">%1s результатов в %2s</string>
   <string name="settings">Настройки приложения</string>
   <string name="history">История</string>
   <string name="speak">Прослушать</string>
@@ -42,6 +41,8 @@
   <string name="search_in">Найти в %s</string>
   <string name="do_in_background">Продолжить в фоновом режиме</string>
   <string name="rebuild_index_button">Перестроить</string>
+  <!--X results in module Y-->
+  <string name="search_with_results2">%1s результатов в %2s</string>
   <!--Tasks-->
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
@@ -60,7 +61,9 @@
   <string name="search_current_book">Текущая книга</string>
   <string name="error_executing_search">Неверный запрос</string>
   <string name="type_text_or_bible_reference">Введите текст или библейскую ссылку</string>
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">Открыть %s</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Найти \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номера глав и стихов</string>
@@ -128,7 +131,6 @@
   <string name="value_mm">%d мм</string>
   <string name="auto_fullscreen_summary">Автоматически переключаться в полноэкранный режим при прокрутке текста. Совет: вы также всегда можете переключиться в полноэкранный режим, дважды нажав экран.</string>
   <string name="prefs_margin_size_title">Изменить размер поля</string>
-  <string name="prefs_margin_size_mm_title">Размер поля (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Расширенные настройки</string>
   <string name="prefs_display_customization_cat">Оформление и удобство</string>
   <string name="prefs_behavior_customization_cat">Поведение приложения</string>
@@ -202,10 +204,8 @@
   <string name="windowMinimise">Свернуть</string>
   <string name="windowSynchronise">Синхронизировать</string>
   <string name="move_window">Переместить в</string>
-  <string name="move_window_to_position2">Положение%d (%s:%s)</string>
   <string name="copy_settings">Копировать настройки в</string>
   <string name="copy_settings_to_workspace">Рабочая область</string>
-  <string name="copy_settings_to_window">Окно %d (%s: %s)</string>
   <string name="change_to_normal">Изменить на нормальное окно</string>
   <string name="window_pin_mode">Прикрепить</string>
   <!--Notes screen-->
@@ -228,7 +228,6 @@
   <string name="download_document_confirm_prefix">Скачать</string>
   <string name="download_refresh_book_list_menu_item">Обновить</string>
   <string name="error_downloading">Произошла ошибка при загрузке. Пожалуйста, проверьте подключение к интернету.</string>
-  <string name="error_downloading_status">Сервер, на котором размещен %s, возвратил ошибку из-за %s(%d).</string>
   <string name="storage_space_warning">Недостаточно места на устройсве.</string>
   <string name="too_many_jobs">Выполняется слишком много задач. Подождите, пока некоторые из них закончат, и попробуйте еще раз.</string>
   <string name="document_not_installed">Пожалуйста скачайте \'%s\'</string>
@@ -341,6 +340,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="migrated_my_notes">Мои заметки перенесены</string>
   <string name="bookmarks">Закладки</string>
   <string name="bookmark_added">Закладка добавлена</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Метки</string>
   <string name="manage_labels">Управление ярлыками</string>
   <string name="assign_labels">Прикрепить ярлыки</string>
   <string name="new_item">Новый</string>
@@ -453,7 +454,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="window_text_options_help2">%s значок указывает, что этот параметр был изменен для этого конкретного окна.</string>
   <string name="window_text_options_help3">Настройка рабочей области не повлияет на это окно.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Используйте %s кнопку, чтобы сбросить все эти настройки обратно на %s.</string>
   <string name="reset_defaults">значения по умолчанию</string>
   <string name="reset_workspace_defaults">значения по умолчанию для рабочей области</string>
   <string name="speak_bookmark_help">Помощь по закладкам прослушивания</string>
@@ -528,7 +528,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_success2">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно скопированы.</string>
   <string name="backup_modules_success">Резервное копирование выбранных модулей успешно выполнено.</string>
   <string name="backup_modules_email_subject_2">%s резервное копирование модулей</string>
-  <string name="backup_modules_email_message_2">Прилагается %s резервная копия ваших модулей, которая содержит следующие модули:%s</string>
   <string name="backup_email_subject_2">%s резервное копирование базы данных</string>
   <string name="backup_email_message_2">Ваша %s база данных, содержащая закладки, заметки, планы чтения и рабочие области, прилагается</string>
   <string name="restore_unsuccessfull">Восстановление базы данных не удалось. Возможно, вы указали неверный файл базы данных.</string>
@@ -538,8 +537,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="install_zip_canceled">Установка модуля отменена</string>
   <!--About-->
   <string name="module_about_copyright">Авторское право: %s</string>
-  <string name="module_about_installed_version">Установленная версия: %s (%s)</string>
-  <string name="module_about_latest_version">Последняя версия: %s (%s)</string>
   <string name="module_about_versification">Версия: %s</string>
   <string name="module_about_repository">Сервер распространения : %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -547,7 +544,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="send_bug_report_title1">Отчет об ошибке</string>
   <string name="send_feedback_title">Отзыв</string>
   <string name="send_bug_report_title">Отзыв / отчет об ошибке</string>
-  <string name="report_bug_email_subject_3">[%s] Отчет об ошибке для %s %s</string>
   <string name="report_bug_big_heading">ПОЖАЛУЙСТА, НАПИШИТЕ ОТЗЫВЫ ИЛИ ОТЧЕТ ОБ ОШИБКЕ ВЫШЕ ЭТОЙ СТРОКИ</string>
   <string name="report_bug_heading1">Инструкция:</string>
   <string name="report_bug_line_1">Расскажите нам вкратце, что вы делали / что произошло, когда возникла проблема.</string>
@@ -639,9 +635,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="beta_notice_dismiss_until_update">Отклонить до следующего обновления</string>
   <string name="stable_notice_title">Приложение обновлено!</string>
   <string name="upgrade_video_message">См. видео, в котором представлены новые функции этого выпуска. (%s).</string>
-  <string name="stable_notice_par1">Новая версия %s\" %s\" успешно установлена!</string>
   <!--History-->
-  <string name="history_for">История (%s: Окно %d)</string>
   <!--Help-->
   <string name="help_nav_title">Навигация</string>
   <string name="help_nav_text">Чтобы перейти к следующей или предыдущей главе, проведите пальцем по экрану.
@@ -693,12 +687,14 @@ http://www.heartlight.org, разрешение предоставлено
   <!--Welcome text-->
   <string name="redownload_documents">Быстрая повторная загрузка</string>
   <string name="welcome_message">Спасибо за скачивание проложения %s. В настоящее время Библии, ресурсы не установлены. Чтобы продолжить, установите хотя бы 1 ресурс, загрузив его из Интернета или загрузив из резервной копии документа в zip-архиве.</string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">
         Был найден список предыдущих книг / ресурсов. Нажмите ниже, чтобы легко загрузить их снова.
     </string>
   <!--Uncategorized-->
   <string name="close">Закрыть</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Понятно</string>
   <string name="first_time_help_show_next_time">Показать снова в следующий раз</string>
   <string name="strongs_mode_title">Выберите режим Стронга</string>
@@ -744,13 +740,13 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="verse_share_advertise">Отправлено используя %s.</string>
   <string name="abbreviate_reference">Сокращенная ссылка</string>
   <string name="version_name">Название перевода</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">Резервное копирование</string>
   <string name="back_button">Назад</string>
   <string name="upgrading_database">Обновление базы данных. Пожалуйста, подождите…</string>
   <string name="initializing_app">Инициализация приложения…</string>
   <string name="show_notes">Показать заметки</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Пакет Android WebView слишком старый (%s). Вам необходимо обновить пакет Android WebView как минимум до версии %s чтобы использовать %s. Для большинства устройств это можно сделать через %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Все равно продолжить</string>
   <string name="rate_title">Оценка и обзор приложения</string>
@@ -758,9 +754,6 @@ http://www.heartlight.org, разрешение предоставлено
         Прежде чем оставить отрицательный отзыв, обратите внимание на следующее:
     </string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-        Если у вас возникли проблемы с приложением, пожалуйста %s или %s.
-    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Если с некоторым текстом / переводом Библии есть проблемы, %s.
@@ -836,7 +829,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="chooser_select">Выбрать %s</string>
   <string name="chooser_pref_reset">Не сбрасывать главу/стих на 1, когда выбрана книга/глава</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Мы сожалеем, но у нас есть только частичный перевод пользовательского интерфейса на %s языке. Это потому, что %s полностью разработана волонтерами. Если вы можете помочь с переводом, смотрите %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">инструкции для переводчиков</string>
   <string name="questions_title">Вопросы?</string>
@@ -850,11 +842,15 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="permission_required">Отказано в доступе</string>
   <string name="labels_search_hint">Поиск</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Информация</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

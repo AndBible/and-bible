@@ -127,7 +127,10 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
             items.removeAt(from + 1)
 
         for((idx, ws) in items.withIndex()) {
-            ws.orderNumber = idx
+            if(ws.orderNumber != idx) {
+                activity.changedWorkspaces.add(ws.id)
+                ws.orderNumber = idx
+            }
         }
         notifyItemMoved(from, to)
     }
@@ -299,7 +302,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         workspacesToBeDeleted.forEach {
             dao.deleteWorkspace(it)
         }
-        dao.updateWorkspaces(dataSet)
+        dao.updateWorkspaces(dataSet.filter { changedWorkspaces.contains(it.id) })
     }
 
     private fun cancelChanges() {
@@ -462,6 +465,8 @@ class WorkspaceSelectorActivity: ActivityBase() {
         super.onDetachedFromWindow()
     }
 
+    internal val changedWorkspaces = mutableSetOf<IdType>()
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode == WORKSPACE_SETTINGS_CHANGED) {
             val extras = data!!.extras!!
@@ -478,6 +483,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             }
             workspaceAdapter.notifyItemChanged(dataSet.indexOf(workspaceItem))
             setDirty()
+            changedWorkspaces.add(workspaceItem.id)
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

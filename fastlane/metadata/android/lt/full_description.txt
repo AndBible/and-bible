@@ -20,19 +20,24 @@ Programėlėje yra daug sumanių, išskirtinių ypatybių, kurios sudėtingą ir
  * Bloknotai, skirti, klausantis pamokslo, pridėti pastabas ir Biblijos nuorodas.
  * Skaitymo planai: nusistatykite Biblijos skaitymo tikslus
  * Didelė dokumentų biblioteka: Biblijos vertimai, teologiniai komentarai, žodynai, žemėlapiai bei krikščioniškos knygos, iš viso virš 1500 dokumentų, daugiau nei 700 kalbų, kuriuos teisėtai platina Crosswire ir kitos SWORD saugyklos.
- * Nereikalauja interneto: interneto reikia tik vienintelį kartą, atsisiunčiant dokumentus.
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
 
 <b>Sukurkime geriausią Biblijos programėlę kartu!</b>
 
 And Bible yra atvirojo kodo bendruomenės projektas. Praktiškai, tai reiškia, kad kiekvienas žmogus su tinkamais įgūdžiai gali, ir yra skatinamas, talkinti projektui:
 
  * plėtojant naujas ypatybes,
- * : https://andbible.org/buy
  * išbandant kol kas neišleistas ypatybes,
  * palaikant naudotojo sąsają išverstą į savo kalbą bei
  * padedant išplėsti modulių biblioteką gaunant leidimus iš autorių teisių turėtojo arba konvertuojant dokumentus į „SWORD“ formatą.
 
 Jei esate profesionalus programinės įrangos specialistas ar testuotojas, apsvarstykite galimybę prisidėti prie projekto. Išsamesnei informacijai apie tai kaip talkinti, žiūrėkite https://git.io/JUnaj.
+
+<b>Support by buying development time!</b>
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://andbible.org/buy
 
 <b>Nuorodos</b>
 

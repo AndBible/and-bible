@@ -39,6 +39,7 @@
   <string name="search_in">חפש ב %s</string>
   <string name="do_in_background">המשך ברקע</string>
   <string name="rebuild_index_button">בנייה-מחדש</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">בתהליך</string>
   <string name="task_kill_warning">יותר מדי משימות רצות כעת, ולכן אם תצא מהתוכנה הן עלולות להסגר לפני שיסתיימו.</string>
@@ -56,6 +57,8 @@
   <string name="search_old_testament">התנ\"ך בלבד</string>
   <string name="search_current_book">הספר הנוכחי</string>
   <string name="error_executing_search">שגיאה בשאילתת החיפוש</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">מספרי פרקים ופסוקים</string>
   <string name="prefs_show_verseno_summary">הצגת מספרי פרקים ופסוקים</string>
@@ -122,7 +125,6 @@
   <string name="value_mm">%d מ\"מ</string>
   <string name="auto_fullscreen_summary">מעבר אוטומטי למסך מלא בעת גלילת הטקסט. טיפ: אפשר לעבור למסך מלא בהקשה כפולה על המסך.</string>
   <string name="prefs_margin_size_title">שינוי שוליים</string>
-  <string name="prefs_margin_size_mm_title">מידות שוליים  (%d/%d/%d ממ)</string>
   <string name="prefs_advanced_settings_cat">הגדרות מתקדמות</string>
   <string name="prefs_display_customization_cat">מראה והתנהגות</string>
   <string name="prefs_behavior_customization_cat">התנהגות היישום</string>
@@ -196,10 +198,8 @@
   <string name="windowMinimise">הקטן</string>
   <string name="windowSynchronise">סנכרון</string>
   <string name="move_window">העבר אל</string>
-  <string name="move_window_to_position2">מיקום %d (%s:%s)</string>
   <string name="copy_settings">העתקת הגדרות אל</string>
   <string name="copy_settings_to_workspace">סביבת עבודה</string>
-  <string name="copy_settings_to_window">חלון %d (%s: %s)</string>
   <string name="change_to_normal">החלף לחלון רגיל</string>
   <string name="window_pin_mode">נעיצה</string>
   <!--Notes screen-->
@@ -222,7 +222,6 @@
   <string name="download_document_confirm_prefix">הורדה</string>
   <string name="download_refresh_book_list_menu_item">רענון</string>
   <string name="error_downloading">אירעה תקלה בזמן ההורדה. נא לבדוק את החיבור לאינטרנט.</string>
-  <string name="error_downloading_status">השרת שמאחסן \"%s\" החזיר הודעת שגיאה \"%s\" (שגיאה מספר %d).</string>
   <string name="storage_space_warning">אין מספיק מקום אחסון.</string>
   <string name="too_many_jobs">יותר מדי משימות רצות כרגע. נא להמתין עד שחלקן יסתיימו ולנסות שוב.</string>
   <string name="document_not_installed">אנא הורד \'%s\'</string>
@@ -323,6 +322,8 @@
   <string name="migrated_my_notes">ההערות שלי שולבו</string>
   <string name="bookmarks">סימניות</string>
   <string name="bookmark_added">הסימניה נוספה</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">תוויות</string>
   <string name="manage_labels">ניהול תגיות</string>
   <string name="assign_labels">הוסף תוויות</string>
   <string name="new_item">חדש</string>
@@ -435,7 +436,6 @@
   <string name="window_text_options_help2">האייקון  \"%s\" מציין שההגדרה שונתה עבור חלון מסויים זה.</string>
   <string name="window_text_options_help3">ההגדרה במסך העבודה לא תשפיע על חלון זה.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">השתמש בכפתור \"%s\" כדי לאפס את כל ההגדרות האלו חזרה ל\"%s\".</string>
   <string name="reset_defaults">ערכי ברירת מחדל</string>
   <string name="reset_workspace_defaults">ערכי ברירת מחדל של סביבת העבודה</string>
   <string name="speak_bookmark_help">עזרה לגבי סימניית השמעה</string>
@@ -497,7 +497,6 @@
   <string name="backup_success2">הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה ומסכי עבודה גובו בהצלחה.</string>
   <string name="backup_modules_success">המודולים הנבחרים גובו בהצלחה.</string>
   <string name="backup_modules_email_subject_2">גיבוי %s מודולים</string>
-  <string name="backup_modules_email_message_2">מצורף גיבוי  %s של המודולים שלך, שמכיל את המודולים הבאים: %s</string>
   <string name="backup_email_subject_2">%s גיבוי מסד נתונים</string>
   <string name="backup_email_message_2">מסד הנתונים %s שלך המכיל סימניות, הערות, תוכניות קריאה וסביבות עבודה מצורף.</string>
   <string name="restore_unsuccessfull">שחזור הגיבוי נכשל. ייתכן שקובץ הגיבוי פגום.</string>
@@ -507,8 +506,6 @@
   <string name="install_zip_canceled">התקנת המודול בוטלה</string>
   <!--About-->
   <string name="module_about_copyright">כל הזכויות שמורות: %s</string>
-  <string name="module_about_installed_version">גרסא מותקנת: %s (%s)</string>
-  <string name="module_about_latest_version"> גרסא עדכנית: %s (%s)</string>
   <string name="module_about_versification">חריזה: %s</string>
   <string name="module_about_repository">שרת הפצה: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -516,7 +513,6 @@
   <string name="send_bug_report_title1">דווח שגיאה</string>
   <string name="send_feedback_title">משוב</string>
   <string name="send_bug_report_title">משוב / דווח שגיאה</string>
-  <string name="report_bug_email_subject_3">[ %s ] דוח תקלה עבור %s %s</string>
   <string name="report_bug_big_heading">נא לכתוב את המשוב או דוח התקלה מעל שורה זו</string>
   <string name="report_bug_heading1">הוראות:</string>
   <string name="report_bug_line_1">ספר בקצרה מה עשית או מה קרה, כשהאירוע התרחש</string>
@@ -607,9 +603,7 @@
   <string name="beta_notice_dismiss_until_update">התעלם עד לעדכון הבא</string>
   <string name="stable_notice_title">האפליקציה עברה שדרוג!</string>
   <string name="upgrade_video_message">אנא צפו בסרטון המדגים יכולות חדשות בגירסה זו (%s).</string>
-  <string name="stable_notice_par1">גירסה חדשה %s של %s הותקנה בהצלחה!</string>
   <!--History-->
-  <string name="history_for">היסטוריה (%s: חלון %d)</string>
   <!--Help-->
   <string name="help_nav_title">נווט</string>
   <string name="help_nav_text">מעבר לפרק הבא או הקודם ע\"י החלקה על המסך ימינה או שמאלה.
@@ -645,10 +639,12 @@
   <!--Welcome text-->
   <string name="redownload_documents">הורדה מהירה</string>
   <string name="welcome_message">תודה על הורדת %s. לא מותקנים כרגע תנ\"כים או מסמכים אחרים. כדי להמשיך, נא להתקין לפחות מסמך אחד, ע\"י הורדה מהאינטרנט, או טעינה מקובץ ZIP/גיבוי מסמכים.</string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">נמצאה רשימה קודמת של ספרים/מסמכים. נא ללחוץ למטה כדי לטעון אותם מחדש בקלות.</string>
   <!--Uncategorized-->
   <string name="close">סגירה</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">אני מבין</string>
   <string name="first_time_help_show_next_time">הצג שוב בפעם הבאה</string>
   <string name="strongs_mode_title">בחירת מצב סטרונג</string>
@@ -694,21 +690,19 @@
   <string name="verse_share_advertise">שותף עם %s.</string>
   <string name="abbreviate_reference">לקצר מראה מקום</string>
   <string name="version_name">שם הגרסה</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">גיבוי</string>
   <string name="back_button">חזרה</string>
   <string name="upgrading_database">מעדכן את מסד הנתונים. אנא המתן...</string>
   <string name="initializing_app">מאתחל את היישום</string>
   <string name="show_notes">הצג הערות</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">חבילת Android WebView ישנה מדי (%s). יש לשדרג אותה לגירסה %s לפחות כדי להשתמש ב %s. עבור רוב המכשירים אפשר לעשות את זה דרך %s.</string>
   <string name="play">חנות גוגל</string>
   <string name="proceed_anyway">המשך בכל זאת</string>
   <string name="rate_title">דירוג וביקורת האפליקציה</string>
   <string name="rate_message6">
 בטרם תכתבו סקירה שלילית, אנא שקלו את הדברים הבאים:</string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-אם יש לכם בעיה עם היישום, אנא דווחו ב %s או %s.</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 אם יש בעיה באחד הטקסטים/תנ\"כים, %s.</string>
@@ -776,7 +770,6 @@
   <string name="chooser_select">בחירת %s</string>
   <string name="chooser_pref_reset">לא לאפס פרק/פסוק ל 1 כשבוחרים ספר/פרק</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">אנו מצטערים, אך יש לנו תרגום ממשק משתמש חלקי בלבד בשפת %s. הסיבה לכך היא ש %s מפותח כולו על ידי מתנדבים. אם אתה יכול לעזור בתרגום, ראה %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">הוראות למתרגמים</string>
   <string name="questions_title">שאלות?</string>
@@ -790,11 +783,15 @@
   <string name="permission_required">נדרשת הרשאה</string>
   <string name="labels_search_hint">חיפוש</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">מידע</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

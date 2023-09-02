@@ -20,7 +20,7 @@ Das Programm hat viele originelle und aufschlussreiche Funktionen, die ein kompl
  * Studienmappen für Notizen und Querverweise während Predigten.
  * Bibellesepläne: setze dir Ziele für deine Bibellese
  * Große Sammlung von Dokumenten: Bibelübersetzungen, theologische Kommentare, Wörterbücher, Landkarten und christliche Bücher, insgesamt über  1500 Dokumente in über 700 Sprachen, gesetzeskonform zur Verfügung gestellt von Crosswire und anderen SWORD Quellen.
- * Offline: das Internet wird nur für das Herunterladen der gewünschten Dokumente benötigt.
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
 
 <b>Lasst uns gemeinsam die beste Bibelleseapp entwickeln!</b>
 
@@ -28,12 +28,17 @@ Bibel+ (AndBibel) ist ein Opensource Gemeinschaftprojekt. Das bedeutet in der Pr
 Man kann beitragen durch:
 
  * Entwickeln neuer Funktionen,
- * : https://andbible.org/buy
  * Testen noch nicht freigegebener Funktionen,
  * Aktuell Halten der Übersetzungen der Benutzeroberflächen, und
  * Hilfe beim Erweitern der Dokumentbibliothek durch das Beschaffen von Genehmigungen bei den Rechteinhabern, oder durch das Konvertieren freier Dokumente in das SWORD Format.
 
 Wenn du professioneller Softwareingenieur oder -tester bist, überlege dir bitte, ob du zu dem Projekt beitragen willst. Für mehr Informationen dazu, bitte lies https://git.io/JUnaj.
+
+<b>Support by buying development time!</b>
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://andbible.org/buy
 
 <b>Links</b>
 

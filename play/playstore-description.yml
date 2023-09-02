@@ -12,9 +12,7 @@ paragraph_1_1: >
 paragraph_1_2: >
   This application is developed by Bible readers, for Bible readers. It aims at helping you make
   your Bible study convenient, deep and fun. The best part about this non-profit community project
-  is that it is open-source, completely free, and contains no advertisements. Having been built
-  from the ground up for Android, it is a small download, and therefore very efficient and
-  remarkably fast.
+  is that it is open-source, completely free, and contains no advertisements.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   A few popular Bible versions (of the many available) are KJV, NASB, NET, and also popular
@@ -47,16 +45,14 @@ feature_10: >
   Vast library of documents: Bible translations, theological commentaries, dictionaries, maps, and
   christian books, totaling over {{total_documents}} documents in over {{total_languages}} languages,
   legally distributed by Crosswire and other SWORD repositories. 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  The provenance of all documents is researched to ensure that all documents can be legally
-  distributed or that permission has been granted by the copyright holder. That is also the reason
-  this app does not include documents like {{unavailable_documents}}.
+feature_10_1: >
+  Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: ESV, NIV and NKJV
 feature_12: >
   Offline: the only time you need internet is for downloading documents.
+# UNUSED
 feature_13: >
   Study Pads for adding notes and Bible references while listening to sermons.
 subtitle_3: Let’s make the best Bible app together!
@@ -82,4 +78,10 @@ link_4: >
   Frequently Asked Questions: {{faq_url}}
 link_5: >
   Project page on Github: {{github_url}}
-buy_development: by buying development time for AndBible
+buy_title: >
+  Support by buying development time!
+buy_1: >
+  If you don't have time or skills for project contributions, you can also support 
+  project by buying professional developer working time.
+buy_2: >
+  See options

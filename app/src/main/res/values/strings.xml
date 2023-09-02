@@ -36,7 +36,6 @@
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
     <string name="search_in_andbible">Find in Bible</string>
-    <string name="search_with_results2">%1s results in %2s</string>
     <string name="settings">Application preferences</string>
     <string name="history">History</string>
     <string name="speak">Speak</string>
@@ -67,6 +66,8 @@
     <string name="search_in">Find in %s</string>
     <string name="do_in_background">Continue in background</string>
     <string name="rebuild_index_button">Rebuild</string>
+    <!-- X results in module Y -->
+    <string name="search_with_results2">%1s results in %2s</string>
 
     <!-- Tasks -->
     <string name="progress_status">Progress</string>
@@ -87,7 +88,9 @@
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
     <string name="type_text_or_bible_reference">Type text or bible reference</string>
+    <!-- Open (bible reference X) -->
     <string name="go_to_ref">Open %s</string>
+    <!-- Finx "(keywords x)", keywords based on text selection -->
     <string name="search_what">Find \"%s\"</string>
 
     <!-- Preferences -->
@@ -175,7 +178,7 @@
     <string name="value_mm">%d mm</string>
     <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text. Tip: you can always also switch to full screen by doubletapping screen.</string>
     <string name="prefs_margin_size_title">Change margin size</string>
-    <string name="prefs_margin_size_mm_title">Margin size (%d/%d/%d mm)</string>
+    <string name="prefs_margin_size_mm_title">Margin size (%1$d/%2$d/%3$d mm)</string>
     <string name="prefs_advanced_settings_cat">Advanced settings</string>
     <string name="prefs_display_customization_cat">Look &amp; feel</string>
     <string name="prefs_behavior_customization_cat">Application behavior</string>
@@ -264,10 +267,10 @@
     <string name="windowMinimise">Minimise</string>
     <string name="windowSynchronise">Synchronise</string>
     <string name="move_window">Move to</string>
-    <string name="move_window_to_position2">Position %d (%s:%s)</string>
+    <string name="move_window_to_position2">Position %1$d (%2$s:%3$s)</string>
     <string name="copy_settings">Copy settings to</string>
     <string name="copy_settings_to_workspace">Workspace</string>
-    <string name="copy_settings_to_window">Window %d (%s: %s)</string>
+    <string name="copy_settings_to_window">Window %1$d (%2$s: %3$s)</string>
     <string name="change_to_normal">Change to normal window</string>
     <string name="window_pin_mode">Pin</string>
 
@@ -293,7 +296,7 @@
     <string name="download_document_confirm_prefix">Download</string>
     <string name="download_refresh_book_list_menu_item">Refresh</string>
     <string name="error_downloading">An error occurred while downloading.  Please check your internet connection.</string>
-    <string name="error_downloading_status">The server which hosts %s returned an error due to %s (%d).</string>
+    <string name="error_downloading_status">The server which hosts %1$s returned an error due to %2$s (%3$d).</string>
     <string name="storage_space_warning">Insufficient local storage space.</string>
     <string name="too_many_jobs">Too many tasks are running.  Please wait for some to finish and try again.</string>
     <string name="document_not_installed">Please download \'%s\'</string>
@@ -418,6 +421,8 @@
     <string name="migrated_my_notes">Migrated My Notes</string>
     <string name="bookmarks">Bookmarks</string>
     <string name="bookmark_added">Bookmark added</string>
+    <!-- Bookmark / note labels -->
+    <string name="labels">Labels</string>
     <string name="manage_labels">Manage Labels</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_item">New</string>
@@ -556,7 +561,7 @@
     <string name="window_text_options_help3">The workspace setting will not affect this window.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
-    <string name="text_options_reset_help">Use %s button to reset all these settings back to %s.</string>
+    <string name="text_options_reset_help">Use %1$s button to reset all these settings back to %2$s.</string>
     <string name="reset_defaults">default values</string>
     <string name="reset_workspace_defaults">workspace default values</string>
 
@@ -654,7 +659,7 @@
     <string name="backup_modules_success">Selected modules backed up successfully.</string>
 
     <string name="backup_modules_email_subject_2">%s modules backup</string>
-    <string name="backup_modules_email_message_2">Attached is your %s modules backup, which contains the following modules: %s</string>
+    <string name="backup_modules_email_message_2">Attached is your %1$s modules backup, which contains the following modules: %2$s</string>
 
     <string name="backup_email_subject_2">%s database backup</string>
     <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
@@ -666,8 +671,8 @@
 
     <!-- About -->
     <string name="module_about_copyright">Copyright: %s</string>
-    <string name="module_about_installed_version">Installed version: %s (%s)</string>
-    <string name="module_about_latest_version">Latest version: %s (%s)</string>
+    <string name="module_about_installed_version">Installed version: %1$s (%2$s)</string>
+    <string name="module_about_latest_version">Latest version: %1$s (%2$s)</string>
     <string name="module_about_versification">Versification: %s</string>
     <string name="module_about_repository">Distribution server: %s</string>
     <string name="module_about_osisId">OSIS ID: %s</string>
@@ -676,7 +681,7 @@
     <string name="send_bug_report_title1">Bug report</string>
     <string name="send_feedback_title">Feedback</string>
     <string name="send_bug_report_title">Feedback / bug report</string>
-    <string name="report_bug_email_subject_3">[%s] Bug report for %s %s</string>
+    <string name="report_bug_email_subject_3">[%1$s] Bug report for %2$s %3$s</string>
 
     <string name="report_bug_big_heading">PLEASE WRITE YOUR FEEDBACK OR BUG REPORT ABOVE THIS LINE</string>
     <string name="report_bug_heading1">Instructions:</string>
@@ -781,10 +786,10 @@
 
     <string name="stable_notice_title">Application has been upgraded!</string>
     <string name="upgrade_video_message">Please see video featuring new features of this release (%s).</string>
-    <string name="stable_notice_par1">New version %s of %s has been installed successfully!</string>
+    <string name="stable_notice_par1">New version %1$s of %2$s has been installed successfully!</string>
 
     <!-- History -->
-    <string name="history_for">History (%s: Window %d)</string>
+    <string name="history_for">History (%1$s: Window %2$d)</string>
 
     <!-- Help -->
     <string name="help_nav_title">Navigation</string>
@@ -850,9 +855,12 @@
         at least 1 document by downloading from the internet, or by loading from a zip file document
         backup.
     </string>
+    <!-- Supported file formats for documents -->
     <string name="supported_formats_title">Supported formats</string>
+    <!-- argument is app_name_andbible (AndBible). -->
     <string name="choose_file">You have to choose the file that you want to load to %s. </string>
     <string name="supported_formats">Supported formats for loading documents from a file: %s</string>
+    <!-- argument is app_name_andbible (AndBible). -->
     <string name="format_zip">Zip file containing Sword module(s), or documents backup file (*.abmd) created by %s</string>
     <string name="format_mysword">MySword documents (*.mybible)</string>
     <string name="format_mybible">MyBible documents (*.SQLite3)</string>
@@ -863,7 +871,7 @@
 
     <!-- Uncategorized -->
     <string name="close">Close</string>
-    <string name="something_with_parenthesis">%s (%s)</string>
+    <string name="something_with_parenthesis">%1$s (%2$s)</string>
     <string name="first_time_help_do_not_show_again">I understand</string>
     <string name="first_time_help_show_next_time">Show again next time</string>
 
@@ -916,8 +924,9 @@
     <string name="show_reference_at_front">Show at front of verse</string>
     <string name="abbreviate_reference">Abbreviate reference</string>
     <string name="version_name">Version name</string>
+    <!-- meaning, bible version name -->
     <string name="show_version_name">Include version name</string>
-    <string name="show_ellipsis">Show ellipsis (...)</string>
+    <string name="show_ellipsis">Show ellipsis (…)</string>
     <string name="show_quotes">Show quotes</string>
 
     <string name="backup_button">Backup</string>
@@ -926,7 +935,7 @@
     <string name="initializing_app">Initializing application…</string>
     <string name="show_notes">Show notes</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
-    <string name="old_webview">Android WebView package is too old (%s). You need to upgrade your Android WebView package to at least version %s to use %s. For most devices this can be done via %s.</string>
+    <string name="old_webview">Android WebView package is too old (%1$s). You need to upgrade your Android WebView package to at least version %2$s to use %3$s. For most devices this can be done via %4$s.</string>
     <string name="play">Google Play</string>
     <string name="proceed_anyway">Proceed anyway</string>
     <string name="proceed">Proceed</string>
@@ -940,7 +949,7 @@
 
     <!-- parameters are actions (file a bug, send email) -->
     <string name="rate_message1">
-        If have a problem with app, please %s or %s instead.
+        If have a problem with app, please %1$s or %2$s instead.
     </string>
     <!-- param is "please report maintainers" -->
     <string name="rate_message2">
@@ -1019,7 +1028,7 @@
     <string name="chooser_select">Select %s</string>
     <string name="chooser_pref_reset">Do not reset chapter/verse to 1 when book/chapter is selected</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
-    <string name="incomplete_translation">We are sorry, but we have only partial user interface translation in %s language. That is because %s is entirely developed by volunteers. If you can help in translating, please see %s.</string>
+    <string name="incomplete_translation">We are sorry, but we have only partial user interface translation in %1$s language. That is because %2$s is entirely developed by volunteers. If you can help in translating, please see %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
     <string name="instructions_for_translators">instructions for translators</string>
     <string name="questions_title">Questions?</string>
@@ -1044,9 +1053,11 @@
     <string name="prefs_calculator_pin">Calculator PIN</string>
     <string name="prefs_calculator_pin_desc">PIN code to enter the app when the calculator is shown. </string>
     <string name="calc_division_by_zero">Division by zero is not allowed</string>
+    <!-- Context: calculator. Wrong number format etc. -->
     <string name="calc_wrong_format">Wrong Format</string>
     <string name="calc_wrong_format_operand">Wrong Format. Operand Without any numbers?</string>
     <string name="prefs_persecuted_help">Read this first!</string>
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
     <string name="prefs_persecuted_summary">Instructions for the settings and information about specific discrete build.</string>
 
     <string name="calculator_par1">
@@ -1078,6 +1089,7 @@
     <string name="open_in_window">Open results in a window</string>
 
     <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
     <string name="custom_repositories">Custom repositories</string>
     <string name="custom_repositories_empty_list_message">No custom repositories are defined</string>
     <string name="custom_repositories_create_button_label">Add Custom Repository</string>
@@ -1147,6 +1159,7 @@
     <string name="sync_disabling">Disabling synchronizing for %s for now.</string>
     <string name="sync_update_app">Please update the app to continue synchronization.</string>
     <string name="sign_in_failed">Signing in to synchronization backend service failed.</string>
+    <!--  ... after restoring from backup file -->
     <string name="disabling_sync">Disabling cloud synchronizing. You must re-enable manually after restore.</string>
     <string name="report">Report</string>
     <string name="sync_error">Error occurred in Cloud synchronization</string>
@@ -1171,4 +1184,22 @@
     <string name="prefs_in_window_bookmark_modal_buttons_description">When a text is tapped, one-tap action window is shown. Which action buttons should be shown?</string>
     <string name="processing_epub">Processing EPUB: %s</string>
     <string name="buy_development">Buy development work</string>
+    <string name="buy_development2">Support project</string>
+    <string name="new_version_warning">
+        A new release is coming soon. The anticipated release date is %1$s. Watch our
+        %2$s to discover new features and improvements.
+    </string>
+    <string name="new_version_trailer">trailer video</string>
+    <string name="new_version_warning2">
+        After release, this version is not maintained.
+    </string>
+    <string name="new_version_warning3">
+        It will not receive bug fixes or updates.
+    </string>
+    <string name="new_version_warning4">
+        If you don\'t want to upgrade, please disable \'Automatic Updates\' in your app store (Google Play / F-Droid etc).
+    </string>
+    <string name="dont_show">
+        Don\'t show this message again
+    </string>
 </resources>

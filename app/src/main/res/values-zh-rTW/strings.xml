@@ -37,6 +37,7 @@
   <string name="search_in">在 %s 中尋找</string>
   <string name="do_in_background">背景中繼續</string>
   <string name="rebuild_index_button">重建</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">進度</string>
   <string name="task_kill_warning">請稍等！切換至其他程式會中止當前任務。</string>
@@ -54,6 +55,8 @@
   <string name="search_old_testament">舊約</string>
   <string name="search_current_book">本書卷</string>
   <string name="error_executing_search">搜尋項目無效</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">章節號碼</string>
   <string name="prefs_show_verseno_summary">顯示章節號碼</string>
@@ -120,7 +123,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">捲動文字時，自動切換為全螢幕。提示：你可以隨時以雙點切換至全螢幕</string>
   <string name="prefs_margin_size_title">更改邊界大小</string>
-  <string name="prefs_margin_size_mm_title">邊界大小 (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">進階設定</string>
   <string name="prefs_display_customization_cat">外觀與感覺</string>
   <string name="prefs_behavior_customization_cat">程式行為</string>
@@ -192,10 +194,8 @@
   <string name="windowMinimise">最小化</string>
   <string name="windowSynchronise">同步</string>
   <string name="move_window">移動至</string>
-  <string name="move_window_to_position2">位置 %d (%s:%s)</string>
   <string name="copy_settings">複製設定至</string>
   <string name="copy_settings_to_workspace">工作檢視</string>
-  <string name="copy_settings_to_window">視窗 %d (%s:%s)</string>
   <string name="change_to_normal">轉換至正常視窗</string>
   <string name="window_pin_mode">釘選</string>
   <!--Notes screen-->
@@ -218,7 +218,6 @@
   <string name="download_document_confirm_prefix">下載</string>
   <string name="download_refresh_book_list_menu_item">更新</string>
   <string name="error_downloading">下載時出錯。請檢查你的連線。</string>
-  <string name="error_downloading_status">%s 的伺服器由於 %s 出錯 (%d)。</string>
   <string name="storage_space_warning">SD卡儲存空間不足</string>
   <string name="too_many_jobs">同時進行太多工作。請先等候部份工作完成後再試。</string>
   <string name="document_not_installed">請下載 \"%s\"</string>
@@ -330,6 +329,8 @@ http://www.heartlight.org 准予使用
   <string name="migrated_my_notes">合併我的筆記</string>
   <string name="bookmarks">書籤</string>
   <string name="bookmark_added">書籤已保存</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">標籤</string>
   <string name="manage_labels">管理標籤</string>
   <string name="assign_labels">分配標籤</string>
   <string name="new_item">建立</string>
@@ -442,7 +443,6 @@ http://www.heartlight.org 准予使用
   <string name="window_text_options_help2">%s 圖示標示此設定已被更改至此視窗</string>
   <string name="window_text_options_help3">工作檢視設定不會影響此視窗</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">用 %s 按鍵重設所有設定至 %s。</string>
   <string name="reset_defaults">預設數值</string>
   <string name="reset_workspace_defaults">工作檢視預設數值</string>
   <string name="speak_bookmark_help">朗讀書籤說明</string>
@@ -513,7 +513,6 @@ http://www.heartlight.org 准予使用
   <string name="backup_success2">成功備份我的筆記、書籤、個人筆記、讀經計劃及工作檢視</string>
   <string name="backup_modules_success">選擇的模組已成功備份</string>
   <string name="backup_modules_email_subject_2">%s 模組備份</string>
-  <string name="backup_modules_email_message_2">此附你的 %s 模組備份，包含了以下模組: %s</string>
   <string name="backup_email_subject_2">%s 資料庫備份</string>
   <string name="backup_email_message_2">你的%s載有書籤、筆記、讀經計劃及工作檢視的資料庫已包括在內</string>
   <string name="restore_unsuccessfull">未能回復資料庫。或許你的資料庫檔案無效。</string>
@@ -523,8 +522,6 @@ http://www.heartlight.org 准予使用
   <string name="install_zip_canceled">模組安裝已取消</string>
   <!--About-->
   <string name="module_about_copyright">版權: %s</string>
-  <string name="module_about_installed_version">安裝版本: %s (%s)</string>
-  <string name="module_about_latest_version">最新版本: %s (%s)</string>
   <string name="module_about_versification">章節化: %s</string>
   <string name="module_about_repository">分發伺服器：%s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -532,7 +529,6 @@ http://www.heartlight.org 准予使用
   <string name="send_bug_report_title1">回報錯誤</string>
   <string name="send_feedback_title">意見</string>
   <string name="send_bug_report_title">意見或回報錯誤</string>
-  <string name="report_bug_email_subject_3">[%s] 回報 %s %s 的錯誤</string>
   <string name="report_bug_big_heading">請在此行以上填寫你的意見及錯誤回報</string>
   <string name="report_bug_heading1">指示：</string>
   <string name="report_bug_line_1">概略告訴我們你進行了什麼動作、或它怎樣發生的。</string>
@@ -621,9 +617,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="beta_notice_dismiss_until_update">關閉至下一次更新</string>
   <string name="stable_notice_title">程式已更新！</string>
   <string name="upgrade_video_message">請參看影片以觀看此版本的新功能 (%s)。</string>
-  <string name="stable_notice_par1">新版本%s的%s已成功安裝！</string>
   <!--History-->
-  <string name="history_for">歷史 (%s: 視窗 %d)</string>
   <!--Help-->
   <string name="help_nav_title">導航</string>
   <string name="help_nav_text">左右滑動以瀏覽上一章或下一章。
@@ -670,12 +664,14 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <!--Welcome text-->
   <string name="redownload_documents">快速重新下載</string>
   <string name="welcome_message">感謝你下載 %s。現時並未有下載聖經或文件。請下載至少一份文件，或從Zip備份檔案匯入。</string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">
 找到書本及文件列表。點選下方下載。
 </string>
   <!--Uncategorized-->
   <string name="close">關閉</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">我明白</string>
   <string name="first_time_help_show_next_time">下次再顯示</string>
   <string name="strongs_mode_title">還擇Strong\'s模式</string>
@@ -721,13 +717,13 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="verse_share_advertise">已透過 %s 分享。</string>
   <string name="abbreviate_reference">縮寫參考</string>
   <string name="version_name">版本名稱</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">備份</string>
   <string name="back_button">返回</string>
   <string name="upgrading_database">正升級資料庫。請稍候...</string>
   <string name="initializing_app">正在啟動程式...</string>
   <string name="show_notes">顯示筆記</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView封包太舊 (%s)。你需要更新你的Android WebView封包至%s，以使用%s。多數裝置可以透過%s完成。</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">忽略並繼續</string>
   <string name="rate_title">評分及評論此app</string>
@@ -735,9 +731,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
         留下負面評論前，請先參看以下訊息：
     </string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-        如遇上問題，請先 %s 或 %s。
-    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         如果文字 / 聖經翻譯出錯， %s.
@@ -813,7 +806,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="chooser_select">選擇%s</string>
   <string name="chooser_pref_reset">選取書卷/章時，不要把章/節重設為1</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">十分抱歉，%s只完成部份程式介面翻譯。這是因為%s完全是義務開發及翻譯。如果你想參與協助，請參見%s。</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">給翻譯者的指示</string>
   <string name="questions_title">問題？</string>
@@ -827,11 +819,15 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="permission_required">需要權限</string>
   <string name="labels_search_hint">搜尋</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">資訊</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

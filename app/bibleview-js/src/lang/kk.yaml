@@ -1,6 +1,6 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Кітап белгілері
-bookmarksAndNotes: ""
+bookmarksAndNotes: Бетбелгілер және менің жазбаларым
 openMyNotes: Менің жазбаларымнан ашыңыз
 openStudyPad: Оқу тақтасында ашу (%s)
 noteText: Сілтемелер (%s)
@@ -56,7 +56,7 @@ bookmarkLabels: Бетбелгі белгілері
 refParserHelp: Ағылшын тілінен басқа тілдерде сілтемелерді пайдалану үшін %s модулін орнатыңыз.
 openDownloads: Қосымша жүктеулерге өтіңіз
 verseShare: Бөлісу
-verseSpeak: Дауыстап оқу
+verseSpeak: Сөйлеу
 verseCompare: Салыстыр
 verseNote: Ескерту
 verseMyNotes: Менің Ескертпелерім

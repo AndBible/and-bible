@@ -92,8 +92,8 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
      *   - CommonUtils counterparts of widget options
      */
     private fun updateWidgetState() {
-        updateText()
         updateSelectionOptions()
+        updateText()
     }
 
     /**
@@ -128,20 +128,9 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
      */
     private fun updateText() {
         // get currently selected text with markup, based on widget options
-        val text = SwordContentFacade.getSelectionText(
-            selection,
-            showVerseNumbers = bindings.toggleVersenumbers.isChecked,
-            advertiseApp = bindings.advertise.isChecked,
-            abbreviateReference = bindings.toggleAbbreviateReference.isChecked,
-            showNotes = bindings.toggleNotes.isChecked,
-            showVersion = bindings.toggleShowVersion.isChecked,
-            showReference = bindings.toggleShowReference.isChecked,
-            showReferenceAtFront = bindings.toggleShowReferenceAtFront.isChecked,
-            showSelectionOnly = bindings.toggleShowSelectionOnly.isChecked,
-            showEllipsis = bindings.toggleShowEllipsis.isChecked,
-            showQuotes = bindings.toggleShowQuotes.isChecked
-        )
-        val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book!!.language.code)) == LayoutDirection.RTL
+        val text = CommonUtils.getShareableDocumentText(selection)
+        val locale = selection.book?.language?.code ?.let { Locale(it) } ?: Locale.getDefault()
+        val isRtl = TextUtils.getLayoutDirectionFromLocale(locale) == LayoutDirection.RTL
 
         // set widget text based on the new text
         bindings.preview.textDirection = if (isRtl) View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
@@ -153,7 +142,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             AlertDialog.Builder(context).apply {
                 val layout = ShareWidget(context, null, selection)
                 setView(layout)
-                setPositiveButton(R.string.backup_button) { _, _ ->
+                setPositiveButton(R.string.share_verse) { _, _ ->
 
                     val emailIntent = Intent(Intent.ACTION_SEND).apply {
                         putExtra(Intent.EXTRA_TEXT, layout.bindings.preview.text)

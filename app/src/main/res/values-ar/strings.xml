@@ -37,6 +37,7 @@
   <string name="search_in">ابحث في %s</string>
   <string name="do_in_background">استكمال في الخلفية</string>
   <string name="rebuild_index_button">اعادة بناء</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">الحالة</string>
   <string name="task_kill_warning">قد ينقطع تنفيذ المهام إذا تحولت إلى برنامج آخر قبل أن تنتهي العملية.</string>
@@ -54,6 +55,8 @@
   <string name="search_old_testament">العهد القديم</string>
   <string name="search_current_book">السفر الحالي</string>
   <string name="error_executing_search">مدخلات البحث غير صحيحة</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">الإصحاح وأعداد الآية</string>
   <string name="prefs_show_verseno_summary">عرض الإصحاح وأعداد الآية</string>
@@ -120,7 +123,6 @@
   <string name="value_mm">%dمم</string>
   <string name="auto_fullscreen_summary">التبديل تلقائيًا إلى وضع ملء الشاشة عند تمرير النص. نصيحة: يمكنك دائمًا التبديل إلى ملء الشاشة عن طريق النقر المزدوج على الشاشة.</string>
   <string name="prefs_margin_size_title">تغيير حجم الهامش</string>
-  <string name="prefs_margin_size_mm_title">حجم الهامش (%d/%d/%d مم)</string>
   <string name="prefs_advanced_settings_cat">اعدادات متقدمة</string>
   <string name="prefs_display_customization_cat">المظهر و الاحساس</string>
   <string name="prefs_behavior_customization_cat">سلوك التطبيق</string>
@@ -193,10 +195,8 @@
   <string name="windowMinimise">تصغير</string>
   <string name="windowSynchronise">مزامنة</string>
   <string name="move_window">الانتقال إلى</string>
-  <string name="move_window_to_position2">موقع %d (%s:%s)</string>
   <string name="copy_settings">نسخ الإعدادات إلى</string>
   <string name="copy_settings_to_workspace">مساحة العمل</string>
-  <string name="copy_settings_to_window">النافذة %d (%s: %s)</string>
   <string name="change_to_normal">التغيير إلى نافذة عادية</string>
   <string name="window_pin_mode">تثبيت</string>
   <!--Notes screen-->
@@ -219,7 +219,6 @@
   <string name="download_document_confirm_prefix">تحميل</string>
   <string name="download_refresh_book_list_menu_item">اعادة تحديث (refresh)</string>
   <string name="error_downloading">حدث خطأ أثناء التنزيل. الرجاء التحقق من اتصال الانترنت الخاص بك.</string>
-  <string name="error_downloading_status">الخادم الذي يستضيف %s أرجع خطأ بسبب %s (%d).</string>
   <string name="storage_space_warning">لا يوجد مساحة مناسبة على الجهاز</string>
   <string name="too_many_jobs">هناك عدد كبير جدًا من المهام قيد التشغيل. الرجاء الانتظار حتى ينتهي البعض وحاول مرة أخرى.</string>
   <string name="document_not_installed">برجاء تحميل \'%s\'</string>
@@ -288,6 +287,8 @@
   <string name="migrated_my_notes">ترحيل ملاحظاتي</string>
   <string name="bookmarks">إشارات مرجعية</string>
   <string name="bookmark_added">تم أضافة أشارة مرجعية</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">تسميات</string>
   <string name="manage_labels">إدارة الملصقات</string>
   <string name="assign_labels">تعيين التسميات</string>
   <string name="new_item">جديد</string>
@@ -452,8 +453,6 @@
   <string name="send_backup_file">إرسال ملف النسخة الاحتياطية</string>
   <!--About-->
   <string name="module_about_copyright">حقوق النشر: %s</string>
-  <string name="module_about_installed_version">الإصدار المثبت: %s (%s)</string>
-  <string name="module_about_latest_version">أحدث إصدار: %s (%s)</string>
   <string name="module_about_versification">رقم المنظومة: %s</string>
   <string name="module_about_repository">خادم التوزيعة: %s</string>
   <!--Bug reporting-->
@@ -539,9 +538,11 @@
   <string name="help_window_pinning_title">تثبيت النافذة</string>
   <!--Welcome text-->
   <string name="redownload_documents">إعادة تنزيل سريعة</string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <!--Uncategorized-->
   <string name="close">إغلاق</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">مفهوم</string>
   <string name="first_time_help_show_next_time">عرض مرة أخرى في المرة القادمة</string>
   <string name="strongs_mode_title">اختر وضع strongs</string>
@@ -567,6 +568,7 @@
   <string name="show_full_verses">عرض آيات كاملة</string>
   <string name="advertise_app">الإعلان عن التطبيق</string>
   <string name="version_name">اسم الإصدار</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">عمل نسخة احتياطية للرجوع</string>
   <string name="back_button">رجوع</string>
   <string name="upgrading_database">ترقية قاعدة البيانات. برجاء الانتظار…</string>
@@ -629,11 +631,15 @@
   <string name="permission_required">الإذن مطلوب</string>
   <string name="labels_search_hint">بحث</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">معلومات</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

@@ -26,6 +26,8 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -94,6 +96,8 @@ import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -111,6 +115,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.page.Selection
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
@@ -464,6 +469,22 @@ object CommonUtils : CommonUtilsBase() {
         return DaggerActivityComponent.builder()
                 .applicationComponent(application.applicationComponent)
                 .build()
+    }
+
+    fun getShareableDocumentText(selection: Selection): String {
+        return SwordContentFacade.getSelectionText(
+            selection,
+            showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
+            advertiseApp = settings.getBoolean("share_show_add", true),
+            abbreviateReference = settings.getBoolean("share_abbreviate_reference", true),
+            showNotes = settings.getBoolean("show_notes", true),
+            showVersion = settings.getBoolean("share_show_version", true),
+            showReference = settings.getBoolean("share_show_reference", true),
+            showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
+            showSelectionOnly = settings.getBoolean("show_selection_only", true),
+            showEllipsis = settings.getBoolean("show_ellipsis", true),
+            showQuotes = settings.getBoolean("share_show_quotes", false)
+        )
     }
 
     fun getFreeSpace(path: String): Long {
@@ -1419,19 +1440,29 @@ object CommonUtils : CommonUtilsBase() {
         )
 
         val activeName = allNames[if(discrete) 1 else 0]
-
+        var settingsChanged = false
         Log.d(TAG, "Changing app icon / name to $activeName")
         for (name in allNames) {
             val value = name == activeName
             Log.d(TAG, "changing $name to $value")
-            application.packageManager.setComponentEnabledSetting(
-                ComponentName(packageName, name),
+            val component = ComponentName(packageName, name)
+            val currentSettings = application.packageManager.getComponentEnabledSetting(component)
+            val newSetting =
                 if(value) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP
-            )
+                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+
+            if(currentSettings != newSetting) {
+                application.packageManager.setComponentEnabledSetting(
+                    component,
+                    newSetting,
+                    PackageManager.DONT_KILL_APP
+                )
+                settingsChanged = true
+            }
         }
-        forceStopApp()
+        if(settingsChanged) {
+            forceStopApp()
+        }
     }
 
     fun createDiscreteNotificationChannel() {
@@ -1536,6 +1567,34 @@ object CommonUtils : CommonUtilsBase() {
             BackupControl.AbDbFileType.UNKNOWN
     }
 
+    fun makeAndBibleUrl(
+        keyStr: String,
+        docInitials: String? = null,
+        v11n: String? = null,
+        ordinal: Int? = null
+    ): String {
+        var url = "https://andbible.org/bible/$keyStr"
+        val queryParameters = mutableListOf<String>()
+        if(docInitials != null) {
+            queryParameters.add("document=$docInitials")
+        }
+        if(v11n != null) {
+            queryParameters.add("v11n=$v11n")
+        }
+        if(ordinal != null) {
+            queryParameters.add("ordinal=${ordinal}")
+        }
+        if(queryParameters.isNotEmpty()) {
+            url += "?${queryParameters.joinToString("&")}"
+        }
+        return url
+    }
+
+    fun copyToClipboard(clip: ClipData, toastMessage: Int = R.string.text_copied_to_clicpboard) {
+        val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(clip)
+        ABEventBus.post(ToastEvent(application.getString(toastMessage)))
+    }
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"

@@ -91,6 +91,9 @@ class DatabaseContainer {
     private fun migrateOldDatabaseIfNeeded() {
         val oldDbFile = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
         if(oldDbFile.exists()) {
+            for (name in application.databaseList().filterNot { it == OLD_MONOLITHIC_DATABASE_NAME }) {
+                application.deleteDatabase(name)
+            }
             getOldDatabase().openHelper.writableDatabase.use {
                 val migrations = DatabaseSplitMigrations(it, application)
                 migrations.migrateAll()

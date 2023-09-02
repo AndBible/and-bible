@@ -130,7 +130,7 @@ function openMyNotes() {
 
 function speak() {
     if(verseInfo.value) {
-        android.speak(verseInfo.value.v11n!, startOrdinal.value, endOrdinal.value);
+        android.speak(verseInfo.value.bookInitials, verseInfo.value.v11n!, startOrdinal.value, endOrdinal.value);
     } else if(ordinalInfo.value) {
         android.speakGeneric(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value);
     }

@@ -1,7 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Raamattu</string>
+  <string name="app_name_medium">Raamattu (AndBible)</string>
   <string name="app_name_long">AndBible: Raamattu</string>
+  <string name="project">AndBible (vapaan lähdekoodin projekti)</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä ohjelma uudelleen.</string>
   <!--Main menu-->
@@ -9,6 +12,7 @@
   <string name="chooseBook">Teos</string>
   <string name="selectPassage">Siirry</string>
   <string name="search">Etsi</string>
+  <string name="search_in_andbible">Etsi Raamatusta</string>
   <string name="settings">Sovelluksen asetukset</string>
   <string name="history">Historia</string>
   <string name="speak">Puhe</string>
@@ -37,6 +41,8 @@
   <string name="search_in">Etsi dokumentissa %s</string>
   <string name="do_in_background">Jatka taustalla</string>
   <string name="rebuild_index_button">Luo indeksi</string>
+  <!--X results in module Y-->
+  <string name="search_with_results2"> %2s:  %1s tulosta</string>
   <!--Tasks-->
   <string name="progress_status">Edistyminen</string>
   <string name="task_kill_warning">Pitkäkestoiset tehtävät voivat keskeytyä, jos siirryt toiseen sovellukseen ennen kuin ne on suoritettu loppuun.</string>
@@ -54,6 +60,11 @@
   <string name="search_old_testament">Vanhaan testamenttiin</string>
   <string name="search_current_book">Avoin kirja</string>
   <string name="error_executing_search">Virheellinen haku</string>
+  <string name="type_text_or_bible_reference">Kirjoita tekstiä  tai raamattuviite</string>
+  <!--Open (bible reference X)-->
+  <string name="go_to_ref">Avaa %s</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
+  <string name="search_what">Etsi \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Luku- ja jaenumerot</string>
   <string name="prefs_show_verseno_summary">Näytä luku- ja jaenumerot</string>
@@ -111,6 +122,8 @@
   <string name="reset_fontsize">Tyhjää</string>
   <string name="prefs_request_sdcard_permission_title">Käytä manuaalisesti asennettuja dokumentteja</string>
   <string name="prefs_request_sdcard_permission_summary">Ota käyttöön manuaalisesti asennetut dokumentit jsword/sword-kansioissa sisäisessä muistissa</string>
+  <string name="prefs_expand_footnotes_title">Ristiviitteet tekstin seassa</string>
+  <string name="prefs_expand_footnotes_summary">Näytä ristiviitteiden sisältö tekstin seassa pop-up ikkunan avaavan linkin sijaan.</string>
   <string name="all_text_options_window_menutitle">Kaikki tekstivalinnat</string>
   <string name="text_options_window_menutitle">Tekstivalinnat</string>
   <string name="auto_fullscreen">Kokoruututilaan vierittämällä</string>
@@ -120,7 +133,7 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Vaihda automaattisesti kokoruututilaan tekstiä vieritettäessä. Vinkki: voit aina myös vaihtaa kokoruututilaan ruutua kaksoisnapsauttamalla.</string>
   <string name="prefs_margin_size_title">Vaihda marginaalin kokoa</string>
-  <string name="prefs_margin_size_mm_title">Marginaalin koko (%d/%d/%d mm)</string>
+  <string name="prefs_margin_size_mm_title">Marginaalin koko (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Lisäasetukset</string>
   <string name="prefs_display_customization_cat">Ulkonäkö</string>
   <string name="prefs_behavior_customization_cat">Sovelluksen käyttäytyminen</string>
@@ -170,10 +183,13 @@
   <string name="prefs_text_bookmarks_title">Kirjanmerkkien &amp; Omien merkintöjen asetukset</string>
   <string name="prefs_enable_bluetooth_title">Laita päälle bluetooth media-painikkeet</string>
   <string name="prefs_enable_bluetooth_summary">Käytä bluetooth mediapainikkeita puheen aloittamiseen/lopettamiseen.</string>
+  <string name="create_bookmark">Luo uusi kirjanmerkki</string>
+  <string name="create_bookmark_with_a_note">Luo uusi kirjanmerkki huomion kanssa</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Värien asetukset</string>
   <string name="window_color_settings_title">Ikkunan värien asetukset</string>
   <string name="workspace_color_settings_title">Työtilan väriasetusten oletusarvot</string>
+  <string name="color_workspace">Työtilan väri</string>
   <string name="color_text">Tekstin väri</string>
   <string name="color_background">Taustaväri</string>
   <string name="colors_day_mode_title">Päivätila</string>
@@ -192,10 +208,10 @@
   <string name="windowMinimise">Pienennä</string>
   <string name="windowSynchronise">Synkronoi</string>
   <string name="move_window">Siirrä</string>
-  <string name="move_window_to_position2">Sijaintiin %d (%s: %s)</string>
+  <string name="move_window_to_position2">Sijaintiin %1$d (%2$s: %3$s)</string>
   <string name="copy_settings">Kopioi asetukset</string>
   <string name="copy_settings_to_workspace">Työtilaan</string>
-  <string name="copy_settings_to_window">Ikkunaan %d (%s: %s)</string>
+  <string name="copy_settings_to_window">Ikkunaan %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Muuta tavalliseksi ikkunaksi</string>
   <string name="window_pin_mode">Kiinnitys</string>
   <!--Notes screen-->
@@ -218,7 +234,7 @@
   <string name="download_document_confirm_prefix">Lataa</string>
   <string name="download_refresh_book_list_menu_item">Päivitä</string>
   <string name="error_downloading">Lataamisen aikana tapahtui virhe. Ole hyvä ja tarkista internetyhteytesi toimivuus.</string>
-  <string name="error_downloading_status">Palvelin joka tarjoaa dokumentin %s palautti virheen %s(%d).</string>
+  <string name="error_downloading_status">Palvelin, joka tarjoaa moduulin %1$s, palautti virheen %2$s (%3$d).</string>
   <string name="storage_space_warning">Liian vähän tallennustilaa teoksen tallentamiseen.</string>
   <string name="too_many_jobs">Liian monta tehtävää samaan aikaan käynnissä. Odota, että tehtävät valmistuvat ja yritä uudelleen.</string>
   <string name="document_not_installed">Ole hyvä ja lataa \'%s\'</string>
@@ -234,14 +250,20 @@
   <string name="download_errors">Virheet latauksessa</string>
   <string name="failed_repositories_message">Yhteyden otto seuraaviin dokumenttipalvelimiin epäonnistui: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Seuraavia tiedostoja ei voitu ladata\n\n%s\n\n</string>
+  <string name="cant_delete_document">Tätä dokumenttia ei voi poistaa.</string>
   <!--Install zip file-->
+  <string name="install_zip">Lataa dokumentteja tiedostoista</string>
   <string name="install_zip_module">Asenna raamattumoduuli</string>
+  <string name="install_zip_module_discrete">Asenna laskimen moduuli</string>
   <string name="install_zip_successfull">Moduuli asennettiin onnistuneesti</string>
   <string name="extracting_zip_file">Puretaan Zip-tiedostoa…</string>
   <string name="checking_zip_file">Tarkastetaan annettua tiedostoa…</string>
   <string name="invalid_module">Tiedostossa ei ole kelvollista SWORD moduulia</string>
+  <string name="install_zip_title">Odota hetki. Lataan moduuleja tiedostosta. </string>
   <string name="overwrite_files">Seuraavat tiedosto ovat jo olemassa: %s Ylikirjoitetaanko?</string>
   <string name="overwrite_files_title">Ylikirjoitetaanko tiedostot?</string>
+  <string name="could_not_overwrite_files">Ei voitu ylikirjoittaa tiedostoja: %s. Tätä lukuunottamatta asennus onnistui.</string>
+  <string name="install_do_you_want">Haluatko asentaa moduulin (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lukusuunnitelma</string>
   <string name="reading_plans_plural">Lukusuunnitelmat</string>
@@ -314,6 +336,8 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="migrated_my_notes">Siirretyt Omat Merkinnät</string>
   <string name="bookmarks">Kirjanmerkit</string>
   <string name="bookmark_added">Kirjanmerkki lisätty</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Ryhmät</string>
   <string name="manage_labels">Hallitse kirjanmerkkiryhmiä</string>
   <string name="assign_labels">Sijoita ryhmään</string>
   <string name="new_item">Uusi</string>
@@ -336,6 +360,15 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="label_color">Kirjanmerkkiryhmän väri</string>
   <!--can be removed-->
   <string name="label_color_example">Esimerkki</string>
+  <string name="marker_style">Näytä vain merkki tekstivalinnan sisältäville kirjanmerkeille</string>
+  <string name="marker_style_whole_verse">Näytä vain merkki koko jakeen kirjanmerkeille</string>
+  <string name="hide_style">Piilota tekstivalinnan sisältävät kirjanmerkit</string>
+  <string name="hide_style_whole_verse">Piilota koko jakeen kirjanmerkit</string>
+  <string name="bookmark_warning">Tässä dokumentissa on kirjanmerkkejä ja/tai merkintöjä.</string>
+  <string name="bookmark_warning2">
+Jos dokumentin rakenne on muuttunut, dokumentin päivittäminen voi saada aikaan sen, että näiden kirjanmerkkit / merkinnöt siirtyvät dokumentin sisällä tai katoavat kokonaan.</string>
+  <string name="bookmark_warning3">Haluatko silti päivittää moduulin?</string>
+  <string name="bookmark_warning4">On suositeltavaa että varmuuskopioit moduulin ennen päivitystä.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Aikajärjestys</string>
   <string name="sort_by_bible_book">Kirjajärjestys</string>
@@ -426,7 +459,7 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="window_text_options_help2">%s kertoo että asetusta on muutettu tälle ikkunalle.</string>
   <string name="window_text_options_help3">Työtilan asetukset eivät vaikuta tähän ikkunaan.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Käytä %s alustaaksesi kaikki nämä asetukset takaisin %s.</string>
+  <string name="text_options_reset_help">Käytä %1$s alustaaksesi kaikki nämä asetukset takaisin %2$s.</string>
   <string name="reset_defaults">oletusarvoihinsa</string>
   <string name="reset_workspace_defaults">työtilan oletusarvoihin</string>
   <string name="speak_bookmark_help">Puheen kirjanmerkkien ohje</string>
@@ -485,6 +518,14 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varmuuskopioi &amp; palauta</string>
   <string name="backup_modules2">Varmuuskopioi dokumentit…</string>
+  <string name="backup_app_database2">Varmuuskopioi sovelluksen tietokanta…</string>
+  <string name="backup_app2">Varmuuskopioi sovellus (.apk -tiedosto) …</string>
+  <string name="backup_application">Sovellus</string>
+  <string name="backup_database">Tietokanta</string>
+  <string name="backup_documents">Dokumentit</string>
+  <string name="backup_application_info">Sovellustiedosto (.APK)</string>
+  <string name="backup_database_info">Kirjanmerkit, kirjanmerkkiryhmät, merkinnät, opintoalustat, lukusuunnitelmat, työtilat jne.</string>
+  <string name="backup_document_info">Raamatut, kommentaarit, sanakirjat, kartat jne.</string>
   <string name="backup_to">Varmuuskopioi…</string>
   <string name="backup_restore_from">Palauta varmuuskopiosta…</string>
   <string name="backup_restore">Palauta</string>
@@ -493,12 +534,14 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="restore_app_database">Palauta sovelluksen tietokanta...</string>
   <string name="restore_database">Palauta tietokantatiedosto</string>
   <string name="restore_confirmation">Palauta omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat nykyisten päälle?</string>
+  <string name="restore_success2">Valitut tietokannan osat palautettu onnistuneesti</string>
   <string name="restore_success">Omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat on palautettu onnistuneesti</string>
+  <string name="downloading_backup">Lataa varmuuskopiotiedosto…</string>
   <string name="loading_backup">Lataan tietokantaa varmuuskopiosta…</string>
   <string name="backup_success2">Omat merkinnät, kirjanmerkit, opintoalustat, lukusuunnitelmat ja työtilat on varmuuskopioitu onnistuneesti.</string>
   <string name="backup_modules_success">Valitut moduulit varmuuskopioitu onnistuneesti.</string>
   <string name="backup_modules_email_subject_2">%s dokumenttien varmuuskopiointi</string>
-  <string name="backup_modules_email_message_2">Liitteenä on sovelluksen %s dokumenttien varmuuskopio, joka sisältää seuraavat moduulit: %s</string>
+  <string name="backup_modules_email_message_2">Liitteenä on sovelluksen %1$s dokumenttien varmuuskopio, joka sisältää seuraavat moduulit: %2$s</string>
   <string name="backup_email_subject_2">Sovelluksen %s tietokannan varmuuskopio</string>
   <string name="backup_email_message_2">Liitetiedostona on sovelluksen %s tietokanta, joka sisältää kirjanmerkit, muistiinpanot, lukusuunnitelmat ja työtilat.</string>
   <string name="restore_unsuccessfull">Tietokannan palauttaminen varmuuskopiosta epäonnistui. Annoit ehkä virheellisen tietokantatiedoston.</string>
@@ -508,8 +551,8 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="install_zip_canceled">Moduulin asennus peruuntui</string>
   <!--About-->
   <string name="module_about_copyright">Kopiointioikeudet: %s</string>
-  <string name="module_about_installed_version">Asennettu versio: %s (%s)</string>
-  <string name="module_about_latest_version">Viimeisin versio: %s (%s)</string>
+  <string name="module_about_installed_version">Asennettu versio: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Viimeisin versio: %1$s (%2$s)</string>
   <string name="module_about_versification">Jaejärjestelmä: %s</string>
   <string name="module_about_repository">Jakelupalvelin: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -517,7 +560,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="send_bug_report_title1">Bugiraportti</string>
   <string name="send_feedback_title">Palaute</string>
   <string name="send_bug_report_title">Palaute / bugiraportti</string>
-  <string name="report_bug_email_subject_3">[%s] Bugiraportti sovellukselle %s %s</string>
+  <string name="report_bug_email_subject_3">[%1$s] Bugiraportti sovellukselle %2$s %3$s </string>
   <string name="report_bug_big_heading">KIRJOITA PALAUTE TAI BUGIRAPORTTI TÄMÄN RIVIN YLÄPUOLELLE</string>
   <string name="report_bug_heading1">Ohjeet:</string>
   <string name="report_bug_line_1">Kerro lyhyesti mitä teit / mitä tapahtui kun ongelma ilmeni.</string>
@@ -567,6 +610,8 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="error_key_not_in_document2">%s ei löytynyt teoksesta %s.</string>
   <string name="empty_list">Ei näytettävää</string>
   <string name="error_skip">Ohita</string>
+  <string name="bug_report_email_title">Lähetä bugiraportti sähköpostilla</string>
+  <string name="bug_report_email_text">Valitse seuraavaksi haluamasi sähköpostisovellus (GMail esimerkiksi) lähettääksi raportin kehittäjätiimille.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teksti puheeksi</string>
   <string name="notification_channel_progress_status">Taustaprosessien tilan ilmoitukset dokumenttien latauksille jne.</string>
@@ -605,9 +650,9 @@ Beta-käyttäjiä rohkaistaan raportoimaan bugeja joko Google Playn tai (mieluum
   <string name="beta_notice_dismiss_until_update">Piilota seuraavaan päivitykseen asti</string>
   <string name="stable_notice_title">Sovellus on päivitetty!</string>
   <string name="upgrade_video_message">Katso video jolla esitellään tämän julkaisun uudet ominaisuudet (%s).</string>
-  <string name="stable_notice_par1">Uusi versio %s sovelluksesta %s on asennettu onnistuneesti!</string>
+  <string name="stable_notice_par1">Uusi versio %1$s sovelluksesta %2$s on asennettu onnistuneesti!</string>
   <!--History-->
-  <string name="history_for">Historia (%s: Ikkuna %d)</string>
+  <string name="history_for">Historia (%1$s: Ikkuna %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigointi</string>
   <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pyyhkäisemällä näyttöä sormella. Raamattunäkymän kaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä. Jaetut raamattunäkymissä (joita kutsutaan myös ikkunoiksi) on oikeassa yläkulmassa valikkopainike, josta pääset käsiksi useisiin ikkunaan liittyviin toimintoihin ja mukauttamaan niiden käyttäytymistä ja ulkonäköä.</string>
@@ -635,10 +680,20 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <!--Welcome text-->
   <string name="redownload_documents">Nopea uudelleenlataus</string>
   <string name="welcome_message">Kiitos kun latasit sovelluksen %s. Tällä hetkellä yhtään Raamattua tai muuta dokumenttia ei ole asennettu. Jatkaaksesi asenna vähintään yksi dokumentti joko lataamalla internetistä tai lataamalla zip-tiedostostossa olevasta varmuuskopiosta.     </string>
+  <!--Supported file formats for documents-->
+  <string name="supported_formats_title">Tuetut tiedostoformaatit</string>
+  <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">Sinun pitää valita tiedosto jonka haluat ladata %sen.</string>
+  <string name="supported_formats">Voit ladata tiedostosta näitä tiedostoformaatteja: %s</string>
+  <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">Zip tiedosto joka sisältää Sword-moduulin / moduuleja tai dokumenttien varmuuskopioiitiedosto (*.abmd), joka on tehty %slla.</string>
+  <string name="format_mysword">MySword-dokumentti (*.mybible)</string>
+  <string name="format_mybible">MyBible-dokumentti (*.SQLite3)</string>
+  <string name="format_epub">EPUB-dokumentit (*.epub)</string>
   <string name="redownload_message">Lista aiemmin asennetuista dokumenteista löytyi. Napsauta alta asentaaksesi ne uudelleen helposti. </string>
   <!--Uncategorized-->
   <string name="close">Sulje</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Ymmärrän</string>
   <string name="first_time_help_show_next_time">Näytä seuraavalla kerralla uudestaan</string>
   <string name="strongs_mode_title">Valitse Strongs tila</string>
@@ -680,23 +735,32 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="share_verse_menu_title">Jaa / kopioi…</string>
   <string name="show_versenumbers">Näytä jaenumerot</string>
   <string name="show_full_verses">Näytä kokonaiset jakeet</string>
+  <string name="show_selection_only">Näytä vain valittu teksti</string>
   <string name="advertise_app">Mainosta sovellusta</string>
   <string name="verse_share_advertise">Jaettu käyttäen sovellusta %s.</string>
+  <string name="show_reference">Näytä viittaus</string>
+  <string name="show_reference_at_front">Näytä jakeen edellä</string>
   <string name="abbreviate_reference">Lyhennä viittaukset</string>
   <string name="version_name">Käännöksen nimi</string>
+  <!--meaning, bible version name-->
+  <string name="show_version_name">Sisällytä raamatunkäännöksen nimi</string>
+  <string name="show_ellipsis">Näytä kolme pistettä (…)</string>
+  <string name="show_quotes">Näytä lainausmerkit</string>
   <string name="backup_button">Varmuuskopioi</string>
   <string name="back_button">Takaisin</string>
   <string name="upgrading_database">Päivitetään tietokantaa. Odota hetki…</string>
   <string name="initializing_app">Käynnistetään sovellusta…</string>
   <string name="show_notes">Näytä merkinnät</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Androidin WebView-paketti on liian vanha (%s). Sinun pitää päivittää Android Webview-paketti vähintään versioon %s käyttääksesi sovellusta %s. Useimmilla laitteilla tämä tapahtuu %sn kautta.</string>
+  <string name="old_webview">Androidin WebView-paketti on liian vanha (%1$s). Sinun pitää päivittää Android WebView-paketti vähintään versioon %2$s käyttääksesi sovellusta %3$s. Useimpiin laitteisiin sen voi tehdä: %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Jatka joka tapauksessa</string>
+  <string name="proceed">Jatka</string>
   <string name="rate_title">Sovelluksen arviointi</string>
+  <string name="rate_message5">Positiiviset ja yksityiskohtaiset arviot auttavat AndBible avoimen lähdekoodin projektia paljon. Kiitos!</string>
   <string name="rate_message6">Ennen kuin annat negatiivisen arvion, huomioithan seuraavat:</string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">Jos sinulla on ongelmia sovelluksen kanssa, %s tai %s sen sijaan.</string>
+  <string name="rate_message1">Jos sinulla on ongelma sovelluksen kanssa, %1$s tai %2$s ennemmin.</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">Jos joissain teksteissä tai raamatunkäännöksissä on ongelmia, %s.</string>
   <!--param is "please read what you can do"-->
@@ -723,6 +787,8 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="recent_labels">Viimeaikaiset kirjanmerkkiryhmät</string>
   <string name="other_labels">Muut kirjanmerkkiryhmät</string>
   <string name="book_menu_sort_row_opt">Järjestä kirjat vaakatasoon</string>
+  <string name="book_menu_group_by_category">Ryhmittele kirjat kategorian mukaan</string>
+  <string name="book_menu_show_long_book_name">Näytä kirjan pitkä nimi</string>
   <string name="reset_workspace_labels">Haluatko alustaa työtilaan liittyvät kirjanmerkkiryhmien asetukset? Tämä koskee suosikkikirjamerkkiryhmiä ja automaattisesti uusiin kirjanmerkkehin lisättäviä kirjanmerkkiryhmiä. </string>
   <string name="reset_hide_labels">Haluatko tyhjätä tiettyjen kirjanmerkkiryhmien piilotuksen asetuksen?</string>
   <string name="reorder">Järjestä uudelleen</string>
@@ -756,7 +822,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="chooser_select">Valitse %s</string>
   <string name="chooser_pref_reset">Älä tyhjennä luvun/jakeen valitsinta 1:n kirjaa/lukua valittaessa</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Olemme pahoillamme, mutta käyttöliittymä on käännetty vain osittain kielellä %s. Tämä johtuu siitä että %s on kehitetty täysin vapaaehtoisten voimin. Jos voit auttaa kääntämisessä, katso %s.</string>
+  <string name="incomplete_translation">Olemme pahoillamme, mutta käyttöliittymä on käännetty vain osittain kielellä %1$s. Tämä johtuu siitä että %2$s on kehitetty täysin vapaaehtoisten voimin. Jos voit auttaa kääntämisessä, katso %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">ohjeet kääntäjille</string>
   <string name="questions_title">Kysymyksiä?</string>
@@ -769,12 +835,122 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="verse_tip">Valitaksesi osittaisia tai useita jakeita, napauta pitkään Raamatun tekstiä</string>
   <string name="permission_required">Lupa tarvitaan</string>
   <string name="labels_search_hint">Etsi</string>
+  <string name="progress_status_permission">Jotta järjestelmän huomioita (notifications) voidaan näyttää (latauksen, prosessoinnin, tai puheen tila), tarvitsemme siihen sinulta luvan.</string>
   <!--Discrete mode settings-->
+  <string name="app_name_calculator">Laskin</string>
+  <string name="prefs_persecution_cat">Asetuksia vainotuille</string>
+  <string name="prefs_discrete_mode">Piilota uskonnolliset symbolit</string>
+  <string name="prefs_discrete_mode_desc">Nimeä sovellus \'Laskimeksi\' ja näytä eri kuvake sovellusten käynnistysruudussa.</string>
+  <string name="prefs_show_calculator">Laskin</string>
+  <string name="prefs_calculator_pin">Laskimen PIN</string>
+  <string name="prefs_calculator_pin_desc">PIN numero joka tarvitaan jotta päästään sovellukseen laskimesta.</string>
+  <string name="calc_division_by_zero">Nollalla jakaminen ei ole sallittu</string>
+  <!--Context: calculator. Wrong number format etc.-->
+  <string name="calc_wrong_format">Väärä muotoilu</string>
+  <string name="calc_wrong_format_operand">Väärä muotoilu. Operandi ilman numeroa?</string>
+  <string name="prefs_persecuted_help">Lue tämä ensin!</string>
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Ohjeita asetusten tekemiseen ja tietoa erillisestä vainotuille tarkoitetusta versiosta.</string>
+  <string name="calculator_par1">Ennen kuin etenet sovellukseen, laskin näytetään.</string>
+  <string name="calculator_par2">Voit tehdä siinä tavallisia laskutoimituksia ja kun haluat edetä sovellukseen, näppäile PIN numero (oletus 1234) ja paina \"=\"-nappia.</string>
+  <string name="calculator_par3">Voit asettaa oman PIN-numeron \"Laskimen PIN\"-asetuksesta.</string>
+  <string name="discrete_mode_info_par1">Käytät tavallista sovellusversiota, joka tarkoittaa sitä että on edelleen mahdollista nähdä sovelluksen oikea nimi ja kuvake sovelluksen tiedoista.</string>
+  <string name="discrete_mode_info_par2">Turvallisempaa vainojen alaisessa ympäristössä on käyttää erillistä sovellusversioita joka näyttää aina laskimen, vaikka sovelluksen tiedot poistettaisiin. </string>
+  <string name="discrete_mode_link">Voit ladata uusimman version vainotuille tarkoitetusta versiosta %s.</string>
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Synkronointiryhmä</string>
+  <string name="sync_group_n">Ryhmä %d</string>
+  <string name="disable_sync">Kytke pois synkronointi</string>
+  <string name="open_in_window">Avaa tulokset ikkunassa</string>
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">Omat dokumenttirepositoriot</string>
+  <string name="custom_repositories_empty_list_message">Omia dokumenttirepositorioita ei ole määritetty</string>
+  <string name="custom_repositories_create_button_label">Lisää oma dokumenttirepositorio</string>
   <string name="custom_repositories_info_button_label">Tietoja</string>
+  <string name="name_for_repository">Nimi repositoriolle</string>
+  <string name="repository_specification">Repositorion URL</string>
+  <string name="delete_custom_repository">Haluatko poistaa oman dokumenttirepositorion %s?</string>
+  <string name="invalid_repository_not_saved">Repositorion määritykset olivat virheelliset ja niitä ei voitu tallentaa.</string>
+  <string name="custom_repositories_help1">Lisätäksesi uuden dokumenttirepositorion, näppäile tai kopioi &amp; liitä oman dokumenttirepositorion URL tähän.</string>
+  <string name="custom_repositories_help2">Voit lukea lisää tietoja omista dokumenttirepositorioista: %s.</string>
+  <string name="wiki_page">WIKI-sivu</string>
+  <string name="custom_repositories_help0">Voit asentaa dokumentteja ulkoisesta omasta dokumenttirepositoriosta asentamalla omia dokumenttirepositorioita.</string>
+  <string name="duplicate_custom_repository">Repositori nimeltä %s löytyy ennestään, ei voida lisätä uudestaan.</string>
+  <string name="packages_dir">Pakettien hakemisto (Zip-tiedostot)</string>
+  <string name="warn_bad_document">Varoitus: Tämä dokumentti voi olla (ainakin osittain) huono tekniseltä laadultaan.</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Avaa Raamatun linkkejä AndBiblella.</string>
+  <string name="open_bible_links_summary">Kun klikkaat linkkejä jotka viittaavat AndBiblen tukemaan Raamattu-URL:n, avaa nämä AndBiblella.</string>
+  <string name="copyReference">Kopioi linkki leikepöydälle</string>
+  <string name="reference_copied_to_clipboard">Viite kopioitu leikepöydälle</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">Valitse mitä pilvipalvelua haluat käyttää synkronoidaksesi useita laitteita.</string>
+  <string name="prefs_sync_introduction_summary2">Käyttäessäsi Google Driveä, %s:lle annetaan pääsy vain sovelluksen omiin tiedostoihin, ei mihinkään henkilökohtaisiin tiedostoihisi.</string>
+  <string name="restore_backup_sections">Mitä osioita haluat palauttaa varmuuskopiosta?</string>
+  <string name="db_repositories">Dokumenttirepositoriot ja liitännäiset asetukset</string>
+  <string name="db_bookmarks">Kirjanmerkit, omat merkinnät, kirjanmerkkiryhmät ja opintoalustat</string>
+  <string name="synchronizing">Synkronoidaan…</string>
+  <string name="overrideBackup">Aikaisempi tietokanta johon tätä laitetta ei ole synkronoitu löytyi pilvipalvelusta. Tietokanta sisältää: %s. Mitä haluat tehdä?</string>
+  <string name="reading_plans_content">Lukusuunnitelmat ja niiden tila</string>
+  <string name="bookmarks_contents">Kirjanmerkit, kirjanmerkkiryhmät ja opintoalustat</string>
+  <string name="workspaces_contents">Työtilat ja ikkunat</string>
+  <string name="cloud_fetch_and_restore_initial">Kopioi pilvestä tähän laitteeseen</string>
+  <string name="cloud_create_new">Kopioi tästä laitteesta pilveen</string>
+  <string name="cloud_disable_sync">Peruuta &amp; kytke synkronointi pois</string>
+  <string name="cloud_sync_title">Laitteiden synkronointi</string>
+  <string name="reset_sync">Kirjaudu ulos</string>
+  <string name="prefs_reset_sync_summary">Kytke synkronointi pois ja alusta siihen liittyvät asetukset.</string>
+  <string name="sync_confirmation">Oletko varma että haluat kirjautua ulos ja alustaa synkronoinnin asetukset?</string>
+  <string name="cloud_info">Pilven tietoja</string>
+  <string name="cloud_info_summary">Tilankäyttö pilvipalvelussa: %s Mb</string>
+  <string name="sync_adapter">Synkronoinnin taustapalvelu</string>
+  <string name="sync_adapter_summary">Nykyinen: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">Kirjautumistiedot palveluun %s</string>
+  <string name="auth_username">Käyttäjätunnus</string>
+  <string name="auth_password">Salasana</string>
+  <string name="auth_access_token">Pääsytokeni (access token)</string>
+  <string name="synchronization_categories">Synkronoinnin kategoriat</string>
+  <string name="sync_general_settings">Tietoa &amp; yleisiä asetuksia</string>
+  <string name="sync_introduction">Johdanto</string>
+  <string name="are_you_sure">Oletko varma?</string>
+  <string name="are_you_sure_reset_local">Tämä alustaa laitteellasi olevan tietokannan näille: %s sillä sisällöllä joka on nyt talletettuna pilvipalveluun.</string>
+  <string name="are_you_sure_reset_cloud">Tämä alustaa pilvipalvelussa olevan tietokannan näille: %s sillä sisällöllä joka on nyt tässä laitteessa.</string>
+  <string name="sync_cant_fetch">Pilvipalvelussa olevan tietokannan tai patch-tiedoston versio on uudempi kuin se mitä tämä sovellus tukee.</string>
+  <string name="sync_disabling">Kytketään synkronointi pois %s toistaiseksi.</string>
+  <string name="sync_update_app">Päivitä sovellus jatkaaksesi synkronointia.</string>
+  <string name="sign_in_failed">Kirjatuminen synkronoinnin taustapalveluun epäonnistui.</string>
+  <!--... after restoring from backup file-->
+  <string name="disabling_sync">Kytketään pois synkronointi. Sinun pitää laittaa se itse päälle varmuuskopion palautuksen jälkeen.</string>
+  <string name="report">Raportoi</string>
+  <string name="sync_error">Virhe tapahtui synkronoidessa pilvipalveluun</string>
+  <string name="error_notification_channel_name">Virheiden notifikaatiot</string>
+  <string name="restore_from_cloud_description">Jos sinulla on laitteiden synkronointi pällä toisessa laitteessa, voit aloittaa palauttamalla tietokannan pilvipalvelusta.</string>
+  <string name="enable_sync">Kytke synkronointi päälle</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Ei voitu lukea tiedostoa</string>
+  <string name="sqlite_invalid_file">Tiedostonimi tai tiedosto viallinen: %s</string>
+  <string name="sqlite_cant_write">Ei voitu (yli)kirjoittaa tiedostoa</string>
+  <string name="install_failed_reason">Moduulin asentaminen epäonnistui seuraavasta syystä: %s.</string>
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Sovellus avattu muualla</string>
+  <string name="open_here">Avaa täällä</string>
+  <string name="external_link">Ulkoinen linkki</string>
+  <string name="external_link_question">Tämä avaa ulkoisen linkin %s selainsovelluksessa. Haluatko jatkaa?</string>
+  <string name="nameless">Otsikkoa ei määritelty</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Yhden napsautuksen toiminnot (Raamatut)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Yhden napsautuksen toiminnot (Muut)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Kun napsautat tekstiä, yhden napsautuksen toimintojen ikkuna näytetään. Mitä toimintapainikkeita haluat näytettävän?</string>
+  <string name="processing_epub">Prosessoidaan EPUB-tiedostoa: %s</string>
+  <string name="buy_development">Osta kehitystyötä</string>
+  <string name="buy_development2">Tue projektia</string>
+  <string name="new_version_warning">Uusi versio julkaistaan pian. Julkaisun odotettu ajankohta on %1$s. Katso 
+        %2$s nähdäksesi mitä uusia ominaisuuksia ja parannuksia on odotettavissa.</string>
+  <string name="new_version_trailer">trailerivideo</string>
+  <string name="new_version_warning2">Julkaisun jälkeen tätä versiota ei enää ylläpidetä.</string>
+  <string name="new_version_warning3">Siihen ei tule enää bugikorjauksia tai päivityksiä.</string>
+  <string name="new_version_warning4">Jos et halua päivittää, kytke pois automaattiset päivitykset sovelluskaupastasi (Google Play / F-Droid tms.).</string>
+  <string name="dont_show">Älä näytä tää viestiä uudelleen</string>
 </resources>

@@ -2,7 +2,7 @@ Un potente strumento di studio della Bibbia
 
 "AndBible: Studi Biblici" è un'applicazione potente, ma facile da usare, per lo studio offline della Bibbia su Android. L'app non si limita alle funzionalità di lettura, ma è progettata per essere uno strumento avanzato per lo studio approfondito personale della Bibbia.
 
-Questa applicazione è sviluppata da lettori della Bibbia, per i lettori della Bibbia. Vuole essere d'aiuto per facilitarti lo studio e l'approfondimento della Bibbia. La parte migliore di questo progetto non-profit è che è open source, completamente gratuito, e non contiene pubblicità. Interamente progettato per Android, è un programma piccolo da scaricare, e quindi molto efficiente e veloce.
+Questa applicazione è sviluppata da lettori della Bibbia, per i lettori della Bibbia. Vuole essere d'aiuto per facilitarti lo studio e l'approfondimento della Bibbia. La parte migliore di questo progetto non-profit è che è open source, completamente gratuito, e non contiene pubblicità.
 
 Alcune note versioni della Bibbia (tra le tante disponibili) sono KJV, NASB, NET, e anche commentari popolari come quelli di Matthew Henry e di John Gill.
 
@@ -20,19 +20,24 @@ L'applicazione ha molte caratteristiche intuitive e originali, che rendono una c
  * Appunti di studio per aggiungere annotazioni e riferimenti biblici durante l'ascolto dei sermoni.
  * Piani di lettura: fissa degli obiettivi di lettura della Bibbia
  * Vasta biblioteca di documenti: traduzioni della Bibbia, commentari teologici, dizionari, mappe e libri cristiani, per un totale di oltre 1500 documenti in oltre 700 lingue, distribuiti legalmente da Crosswire e altri repository SWORD.
- * Offline: l'unica volta che hai bisogno di internet è per scaricare i documenti.
+ * La compatibilità nativa con i file MyBible, MySword ed EPUB consente di ampliare ulteriormente la propria libreria.
 
 Creiamo insieme la migliore app della Bibbia!
 
 AndBible è un progetto della community open-source. In pratica, ciò significa che chiunque abbia le competenze adeguate può contribuire al progetto ed è incoraggiato a farlo:
 
  * sviluppando nuove funzionalità,
- * : https://andbible.org/buy
  * testando le nuove caratteristiche,
  * mantenendo aggiornate le traduzioni dell'interfaccia utente, e
  * aiutando ad estendere la libreria dei moduli ottenendo i permessi dai detentori del copyright, o convertendo i documenti in formato SWORD.
 
 Se sei uno sviluppatore software o un tester, per favore considera di contribuire al progetto. Per maggiori informazioni su come contribuire, vedi https://git.io/JUnaj.
+
+Sostieni acquistando tempo di programmazione!
+
+Se non hai tempo o capacità per contribuire al progetto, puoi anche sostenere il progetto acquistando il tempo di lavoro di un programmatore professionista.
+
+Vedi le opzioni: https://andbible.org/buy
 
 Collegamenti
 

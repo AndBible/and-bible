@@ -37,6 +37,7 @@
   <string name="search_in">Hledat v %s</string>
   <string name="do_in_background">Pokračovat na pozadí</string>
   <string name="rebuild_index_button">Znovu vytvořit</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">Průběh</string>
   <string name="task_kill_warning">Tyto dlouho běžící úlohy mohou být zrušeny pokud před jejich dokončením přepnete na jinou aplikaci.</string>
@@ -54,6 +55,8 @@
   <string name="search_old_testament">Starý zákon</string>
   <string name="search_current_book">Současná kniha</string>
   <string name="error_executing_search">Neplatný dotaz</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitoly a čísla veršů</string>
   <string name="prefs_show_verseno_summary">Zobrazit kapitoly a čísla veršů</string>
@@ -120,7 +123,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Přepnout automaticky do celoobrazovkového režimu při posunu textu. Tip: celoobrazovkový režim je možné zapnout dvojklikem</string>
   <string name="prefs_margin_size_title">Změnit velikost okraje</string>
-  <string name="prefs_margin_size_mm_title">Velikost okraje (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Rozšířená nastavení</string>
   <string name="prefs_display_customization_cat">Vzhled aplikace</string>
   <string name="prefs_behavior_customization_cat">Nastavení aplikace</string>
@@ -190,10 +192,8 @@
   <string name="windowMinimise">Minimalizovat</string>
   <string name="windowSynchronise">Synchronizovat</string>
   <string name="move_window">Přesunout do</string>
-  <string name="move_window_to_position2">Pozice %d (%s:%s)</string>
   <string name="copy_settings">Kopírovat nastavení do</string>
   <string name="copy_settings_to_workspace">Pracovní plocha</string>
-  <string name="copy_settings_to_window">Okno %d (%s: %s)</string>
   <string name="change_to_normal">Přepnout na normální okno</string>
   <string name="window_pin_mode">Připnout</string>
   <!--Notes screen-->
@@ -215,7 +215,6 @@
   <string name="download_document_confirm_prefix">Stáhnout </string>
   <string name="download_refresh_book_list_menu_item">Obnovit</string>
   <string name="error_downloading">Chyba při stahování dokumentu. Prosím zkontrolujte připojení k Internetu.</string>
-  <string name="error_downloading_status">Server zpřístupňující %s odpověděl chybou %s (%d).</string>
   <string name="storage_space_warning">Nedostatek místa k uložení dat.</string>
   <string name="too_many_jobs">Spuštěno příliš mnoho úloh. Prosím vyčkejte na dokončení některé úlohy a zkuste to znovu.</string>
   <string name="document_not_installed">Prosím stáhněte \'%s\'</string>
@@ -325,6 +324,8 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="migrated_my_notes">Poznámky přesunuty</string>
   <string name="bookmarks">Záložky</string>
   <string name="bookmark_added">Záložka přidána</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Štítky</string>
   <string name="manage_labels">Spravovat záložky</string>
   <string name="assign_labels">Přiřadit popisky</string>
   <string name="new_item">Nový</string>
@@ -437,7 +438,6 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="window_text_options_help2">Ikona %s značí, že nastavení pro toto okno bylo změněno.</string>
   <string name="window_text_options_help3">Nastavení pracovní plochy neovlivní toto okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Pomocí tlačítka %s vrátíte nastavení zpět na %s.</string>
   <string name="reset_defaults">výchozí hodnoty</string>
   <string name="reset_workspace_defaults">výchozí hodnoty pracovní plochy</string>
   <string name="speak_bookmark_help">Nápověda k záložkám předčítání</string>
@@ -511,7 +511,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="backup_success2">Poznámky, záložky, studijní složky, plány čtení a pracovní plochy úspěšně zálohovány.</string>
   <string name="backup_modules_success">Vybrané moduly úspěšně zálohovány.</string>
   <string name="backup_modules_email_subject_2">záloha modulů %s </string>
-  <string name="backup_modules_email_message_2">Přiložena záloha modulů %s, obsahující tyto moduly: %s</string>
   <string name="backup_email_subject_2">záloha databáze %s</string>
   <string name="backup_email_message_2">Vaše databáze %s obsahující záložky, poznámky, plány čtení a pracovní plochy přiložena</string>
   <string name="restore_unsuccessfull">Obnova databáze se nezdařila. Možná jste zadali nesprávný soubor s databází.</string>
@@ -521,8 +520,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="install_zip_canceled">Instalace modulu zrušena</string>
   <!--About-->
   <string name="module_about_copyright">Autorská práva: %s</string>
-  <string name="module_about_installed_version">Instalovaná verze: %s (%s)</string>
-  <string name="module_about_latest_version">Poslední verze: %s (%s)</string>
   <string name="module_about_versification">Veršování: %s</string>
   <string name="module_about_repository">Zdrojový server: %s</string>
   <string name="module_about_osisId">Zkratka OSIS: %s</string>
@@ -530,7 +527,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="send_bug_report_title1">Nahlášení chyby</string>
   <string name="send_feedback_title">Zpětná vazba</string>
   <string name="send_bug_report_title">Zpětná vazba / hlášení chyb</string>
-  <string name="report_bug_email_subject_3">[%s] Nahlášení chyby u %s %s</string>
   <string name="report_bug_big_heading">CHYBOVÉ HLÁŠENÍ / ZPĚTNOU VAZBU PROSÍM PIŠTE NAD TOUTO LINKOU</string>
   <string name="report_bug_heading1">Instrukce:</string>
   <string name="report_bug_line_1">Stručně napište co jste dělal / co se stalo, když došlo k chybě.</string>
@@ -622,9 +618,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="beta_notice_dismiss_until_update">Odmítnout do příští aktualizace</string>
   <string name="stable_notice_title">Aplikace byla upgradována!</string>
   <string name="upgrade_video_message">Podívejte se na video o novinkách této verze (%s).</string>
-  <string name="stable_notice_par1">Nová verze %s %s úspěšně nainstalována!</string>
   <!--History-->
-  <string name="history_for">Historie (%s: Okno %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigace</string>
   <string name="help_nav_text">Na další či předchozí kapitolu se přesunete tažením prstu přes obrazovku.
@@ -684,12 +678,14 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="redownload_documents">Rychle stáhnout</string>
   <string name="welcome_message">Děkujeme, že jste si stáhli náš produkt %s. Aktuálně nemáte nainstalovanou žádnou Bibli či jiný dokument. Pokračujte instalací alespoň jednoho dokumentu z Internetu nebo instalací zálohy ZIP souboru.
     </string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">
        Nalezen seznam předchozích knih/dokumentů. Pro snadné znovustažení klikněte níže.
 </string>
   <!--Uncategorized-->
   <string name="close">Zavřít</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
   <string name="first_time_help_do_not_show_again">Rozumím</string>
   <string name="first_time_help_show_next_time">Zobrazit při příštím spuštění</string>
   <string name="strongs_mode_title">Vybrat typ Strongových čísel</string>
@@ -735,13 +731,13 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="verse_share_advertise">Sdíleno pomocí: %s.</string>
   <string name="abbreviate_reference">Zkrácený název</string>
   <string name="version_name">Název verze</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">Záloha</string>
   <string name="back_button">Zpět</string>
   <string name="upgrading_database">Upgraduji databázi. Vyčkejte…</string>
   <string name="initializing_app">Příprava spuštění…</string>
   <string name="show_notes">Zobrazit poznámky</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Používáte starou verzi balíčku Android WebView (%s). Musíte aktualizovat Android WebView minimálně na verzi %s, kterou vyžaduje %s. Na většině zařízení je to možné provést pomocí %s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Přesto pokračovat</string>
   <string name="rate_title">Ohodnotit aplikaci</string>
@@ -749,9 +745,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
         Pokud chcete dát negativní hodnocení, prosíme zvažte následující:
     </string>
   <!--parameters are actions (file a bug, send email)-->
-  <string name="rate_message1">
-        Pokud máte s aplikací určitý problém, prosím, namísto toho %s nebo %s.
-</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Jestliže je problém v textu nebo překladu, %s.
@@ -827,7 +820,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="chooser_select">Vybrat %s</string>
   <string name="chooser_pref_reset">Nepřecházet na 1. kapitolu/verš při výběru knihy/kapitoly</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Omlouváme se, uživatelské rozhraní je pouze částečně přeloženo v jazyce %s. Je tomu tak, protože %s je vytvářena dobrovolníky. S překladem aplikace můžete pomoci, vizte %s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instrukce pro překladatele</string>
   <string name="questions_title">Otázky?</string>
@@ -840,11 +832,15 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="verse_tip">Pasáž textu označíte přidržením textu na delší dobu.</string>
   <string name="labels_search_hint">Hledat</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Informace</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

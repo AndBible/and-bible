@@ -20,19 +20,24 @@ Aplikace obsahuje mnohé podnětné, originální funkce, které složitý a hlu
  * Studijní složky pro psaní poznámek a biblických odkazů při poslechu kázání.
  * Plány čtení: stanovte si pro četbu Bible cíle
  * Obsáhlá knihovna dokumentů: biblické překlady, teologické komentáře, slovníky, mapy, křesťanská literatura čítající přes 1500 dokumentů ve více než 700 jazycích, poskytovaných legálně Crosswire a dalšími repozitáři SWORD.
- * Offline: internet potřebujete pouze ke stažení dokumentů.
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
 
 <b>Pojďme tvořit nejlepší aplikaci Bible společně!</b>
 
 Projekt And Bible je komunitní otevřený software. V praxi to znamená, že může přispívat kdokoli s vhodnými znalostmi:
 
  * vývojem nových funkcí,
- * : https://andbible.org/buy
  * testováním nezveřejněných funkcí,
  * aktualizací překladu uživatelského rozhraní a
  * rozšiřováním modulové knihovny získáváním svolení od vlastníků autorských práv nebo převodem dokumentů do formátu SWORD.
 
 Pokud jste profesionální vývojář softwaru nebo tester, zvažte prosím, zda můžete k projektu přispět. Více informací najdete na https://git.io/JUnaj.
+
+<b>Support by buying development time!</b>
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://andbible.org/buy
 
 <b>Odkazy</b>
 

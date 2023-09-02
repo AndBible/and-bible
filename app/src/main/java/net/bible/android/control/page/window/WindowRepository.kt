@@ -42,9 +42,6 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.min
 
-class IncrementBusyCount
-class DecrementBusyCount
-
 open class WindowRepository(val scope: CoroutineScope) {
     @Inject lateinit var currentPageManagerProvider: Provider<CurrentPageManager>
     @Inject lateinit var historyManagerProvider: Provider<HistoryManager>

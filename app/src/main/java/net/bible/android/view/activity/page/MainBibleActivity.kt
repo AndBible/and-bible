@@ -133,6 +133,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
@@ -1081,7 +1082,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val match = urlRegex.find(uri.path.toString()) ?: return
                 val keyStr = match.groups[1]?.value ?: return
 
-                val key = PassageKeyFactory.instance().getKey(v11n, keyStr)
+                var key: Key = PassageKeyFactory.instance().getKey(v11n, keyStr)
+
+                val ordinalStr = uri.getQueryParameter("ordinal")
+                if(ordinalStr != null) {
+                    val ord = ordinalStr.toInt()
+                    key = BookAndKey(key, doc, ordinal = OrdinalRange(ord))
+                }
+                
                 windowControl.showLink(doc, key)
             }
             "stepbible.org" -> {

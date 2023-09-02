@@ -53,7 +53,7 @@ import {inject, nextTick, onMounted, onUnmounted, ref, watch} from "vue";
 import {useCommon} from "@/composables";
 import {draggableElement, setupDocumentEventListener, setupWindowEventListener,} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {appSettingsKey, modalKey} from "@/types/constants";
+import {modalKey} from "@/types/constants";
 
 const emit = defineEmits(["close"]);
 const props = withDefaults(

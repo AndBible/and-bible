@@ -34,6 +34,7 @@ import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -68,6 +69,7 @@ import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
+import org.crosswire.jsword.versification.system.Versifications
 import java.io.File
 import java.lang.ClassCastException
 
@@ -363,6 +365,13 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            bibleView.copySelectionToClipboard(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
     fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
         bibleView.makeBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
     }
@@ -394,10 +403,14 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun speak(bookInitials: String, ordinal: Int, endOrdinal: Int) {
+    fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials) as SwordBook
-            val verse = Verse(book.versification, ordinal)
+            val v11n = Versifications.instance().getVersification(v11nName)
+            val verse = Verse(v11n, ordinal).toV11n(book.versification)
+            if(mainBibleActivity.speakControl.isSpeaking) {
+                mainBibleActivity.speakControl.pause(willContinueAfterThis = true, toast = false)
+            }
             mainBibleActivity.speakControl.speakBible(book, verse, force = true)
         }
     }
@@ -581,6 +594,7 @@ class BibleJavascriptInterface(
                 }
                 "AltKeyO" -> mainBibleActivity.showOptionsMenu()
                 "AltKeyG" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
+                "CtrlKeyC" -> bibleView.copySelectionToClipboard()
             }
         }
     }

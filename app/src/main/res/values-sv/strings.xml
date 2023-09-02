@@ -37,6 +37,7 @@
   <string name="search_in">Hitta i %s</string>
   <string name="do_in_background">Fortsätt i bakgrunden</string>
   <string name="rebuild_index_button">Återuppbygg</string>
+  <!--X results in module Y-->
   <!--Tasks-->
   <string name="progress_status">Framsteg</string>
   <string name="task_kill_warning">Dessa aktiviteter kan avbrytas om du växlar till en annan app innan de är klara.</string>
@@ -54,6 +55,8 @@
   <string name="search_old_testament">Gamla Testamentet</string>
   <string name="search_current_book">Aktuell bok</string>
   <string name="error_executing_search">Ogiltig sökterm</string>
+  <!--Open (bible reference X)-->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel &amp; vers nummer</string>
   <string name="prefs_show_verseno_summary">Visa kapitel &amp; vers nummer</string>
@@ -119,7 +122,6 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Byt automatiskt till fullskärm vid skrollning av text. Tips: man kan alltid byta till fullskärm genom att dubbeltrycka på skärmen.</string>
   <string name="prefs_margin_size_title">Ändra maginal storlek</string>
-  <string name="prefs_margin_size_mm_title">Marginal storlek (%d/%d/%d mm)</string>
   <string name="prefs_advanced_settings_cat">Avancerade inställningar</string>
   <string name="prefs_display_customization_cat">Utseende &amp;amp känsla</string>
   <string name="prefs_behavior_customization_cat">Appbeteende</string>
@@ -190,10 +192,8 @@
   <string name="windowMinimise">Minimera</string>
   <string name="windowSynchronise">Synkronisera</string>
   <string name="move_window">Flytta till</string>
-  <string name="move_window_to_position2">Position %d (%s:%s)</string>
   <string name="copy_settings">Kopiera inställningarna till</string>
   <string name="copy_settings_to_workspace">Arbetsyta</string>
-  <string name="copy_settings_to_window">Fönster %d (%s: %s)</string>
   <string name="change_to_normal">Ändra till normalt fönster</string>
   <string name="window_pin_mode">Nåla fast</string>
   <!--Notes screen-->
@@ -215,7 +215,6 @@
   <string name="download_document_confirm_prefix">Ladda ner</string>
   <string name="download_refresh_book_list_menu_item">Uppdatera</string>
   <string name="error_downloading">Ett fel uppstod vid nerladdningen. Vänligen kontrollera internetuppkopplingen.</string>
-  <string name="error_downloading_status">Servern som innehar %s gav fel på grund av %s (%d).</string>
   <string name="storage_space_warning">Minnet på enheten är för litet.</string>
   <string name="too_many_jobs">För många aktiviteter körs. Vänligen vänta tills några är klara och försök igen.</string>
   <string name="document_not_installed">Vänligen ladda ner \'%s\'</string>
@@ -405,8 +404,6 @@ i GT och NT varje dag.
   <string name="install_zip_canceled">Modulinstallation avbruten</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
-  <string name="module_about_installed_version">Installerad version: %s (%s)</string>
-  <string name="module_about_latest_version">Senaste versionen: %s (%s)</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title1">Bugg rapportering</string>
   <string name="report_bug_heading1">Instruktioner</string>
@@ -483,9 +480,7 @@ i GT och NT varje dag.
   <string name="beta_notice_dismiss_until_update">Avböj till nästa uppdatering</string>
   <string name="stable_notice_title">Appen har blivit uppgraderad!</string>
   <string name="upgrade_video_message">Var god kolla på videon om de nya funktionerna i detta släpp (%s)</string>
-  <string name="stable_notice_par1">Ny version %s of %s har blivit installerad korrekt!</string>
   <!--History-->
-  <string name="history_for">Historik (%s: Fönster %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigering</string>
   <string name="help_search_title">Sök</string>
@@ -494,6 +489,9 @@ i GT och NT varje dag.
   <string name="help_window_pinning_title">Nåla fast fönster</string>
   <!--Welcome text-->
   <string name="redownload_documents">Snabb Åternerladdning</string>
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
   <!--Uncategorized-->
   <string name="close">Stäng</string>
   <string name="first_time_help_do_not_show_again">Jag förstår</string>
@@ -528,6 +526,7 @@ i GT och NT varje dag.
   <string name="advertise_app">Annonsera app</string>
   <string name="verse_share_advertise">Dela genom %s</string>
   <string name="version_name">Versions namn</string>
+  <!--meaning, bible version name-->
   <string name="backup_button">Säkerhetskopia</string>
   <string name="back_button">Bak</string>
   <string name="upgrading_database">Upgraderar databas. Var god vänta...</string>
@@ -590,11 +589,15 @@ vänligen rapportera problemen till text ansvariga
   <string name="permission_required">Rättigheter behövs</string>
   <string name="labels_search_hint">Sök</string>
   <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Information</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>
