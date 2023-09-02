@@ -916,6 +916,7 @@
     <string name="tell_friend_message4">Read more &amp; more install options: %s</string>
     <string name="share_verse_ok">Share / Copy</string>
     <string name="verse_action_copy">Copy</string>
+    <string name="generic_share">Share</string>
     <string name="share_verse_menu_title">Share / copy…</string>
     <string name="show_versenumbers">Show verse numbers</string>
     <string name="show_full_verses">Show full verses</string>
