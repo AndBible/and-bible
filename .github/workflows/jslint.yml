@@ -35,7 +35,7 @@ jobs:
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Upgrade npm
         working-directory: app/bibleview-js
@@ -59,7 +59,7 @@ jobs:
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Upgrade npm
         working-directory: app/bibleview-js
@@ -91,7 +91,7 @@ jobs:
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Upgrade npm
         working-directory: app/bibleview-js
