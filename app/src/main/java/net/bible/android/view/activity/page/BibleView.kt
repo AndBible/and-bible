@@ -539,7 +539,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         .setIntent(createProcessTextIntentForResolveInfo(resolveInfo))
                         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
                 }
-                menu.findItem(R.id.system_items).isVisible = false
+                if(isBible) {
+                    menu.findItem(R.id.system_items).isVisible = false
+                }
             }
 
             menuPrepared = false
@@ -628,9 +630,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             if(modalOpen || showSystem) {
-                showSystem = false
+                val rv = callback.onActionItemClicked(mode, item)
                 mode.finish()
-                return callback.onActionItemClicked(mode, item)
+                return rv
             }
             val handled = onActionMenuItemClicked(mode, item)
             if(handled) stopSelection(true)
@@ -638,6 +640,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
+            showSystem = false
             executeJavascriptOnUiThread("bibleView.emit('set_action_mode', false);")
             return callback.onDestroyActionMode(mode)
         }
