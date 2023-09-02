@@ -130,31 +130,32 @@ object SwordContentFacade {
     @Throws(OsisError::class)
     fun readOsisFragment(book: Book?, key: Key?): Element {
         val cacheKey = "${book?.initials}-${key?.osisRef}"
-        return osisFragmentCache.get(cacheKey)?: let {
-            Log.e(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
 
-            when {
-                book == null || key == null -> {
-                    Log.e(TAG, "Key or book was null")
-                    throw OsisError(application.getString(R.string.error_no_content))
-                }
+        if(book == null || key == null) {
+            Log.e(TAG, "Key or book was null")
+            throw OsisError(application.getString(R.string.error_no_content))
+        }
 
-                Books.installed().getBook(book.initials) == null -> {
-                    Log.w(TAG, "Book may have been uninstalled:$book")
-                    val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
-                    val errorXml = application.getString(R.string.document_not_installed, link)
-                    val errorMsg = application.getString(R.string.document_not_installed, book.initials)
-                    throw DocumentNotFound(errorXml, errorMsg)
-                }
+        when {
+            Books.installed().getBook(book.initials) == null -> {
+                Log.w(TAG, "Book may have been uninstalled:$book")
+                val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
+                val errorXml = application.getString(R.string.document_not_installed, link)
+                val errorMsg = application.getString(R.string.document_not_installed, book.initials)
+                throw DocumentNotFound(errorXml, errorMsg)
+            }
+            !bookContainsAnyOf(book, key) -> {
+                Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
+                throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
+            }
+        }
 
-                !bookContainsAnyOf(book, key) -> {
-                    Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
-                    throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
-                }
+        osisFragmentCache.get(cacheKey)?.let { return it }
 
-                else -> {
-                    readXmlTextStandardJSwordMethod(book, key)
-                }
+        return synchronized(book) {
+            osisFragmentCache.get(cacheKey) ?: let {
+                Log.e(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
+                readXmlTextStandardJSwordMethod(book, key)
             }.also {
                 osisFragmentCache.put(cacheKey, it)
                 Log.i(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
