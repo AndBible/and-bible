@@ -1440,19 +1440,29 @@ object CommonUtils : CommonUtilsBase() {
         )
 
         val activeName = allNames[if(discrete) 1 else 0]
-
+        var settingsChanged = false
         Log.d(TAG, "Changing app icon / name to $activeName")
         for (name in allNames) {
             val value = name == activeName
             Log.d(TAG, "changing $name to $value")
-            application.packageManager.setComponentEnabledSetting(
-                ComponentName(packageName, name),
+            val component = ComponentName(packageName, name)
+            val currentSettings = application.packageManager.getComponentEnabledSetting(component)
+            val newSetting =
                 if(value) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP
-            )
+                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+
+            if(currentSettings != newSetting) {
+                application.packageManager.setComponentEnabledSetting(
+                    component,
+                    newSetting,
+                    PackageManager.DONT_KILL_APP
+                )
+                settingsChanged = true
+            }
         }
-        forceStopApp()
+        if(settingsChanged) {
+            forceStopApp()
+        }
     }
 
     fun createDiscreteNotificationChannel() {
