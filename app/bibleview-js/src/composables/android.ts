@@ -31,7 +31,7 @@ import {
     StudyPadItem,
     StudyPadTextItem
 } from "@/types/client-objects";
-import {AnyDocument, BibleDocumentType} from "@/types/documents";
+import {AnyDocument} from "@/types/documents";
 import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
 
 export type BibleJavascriptInterface = {
