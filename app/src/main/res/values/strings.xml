@@ -459,7 +459,8 @@
     <string name="sort_by_date">Date order</string>
     <string name="sort_by_bible_book">Biblical order</string>
     <string name="sort_by_alphabetical">Alphabetical order</string>
-    
+    <string name="filter_by_notes">Filter by notes</string>
+
     <!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
     <string name="search_dictionary_hint">Search dictionary</string>
