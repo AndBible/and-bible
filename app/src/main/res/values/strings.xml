@@ -460,7 +460,7 @@
     <string name="sort_by_bible_book">Biblical order</string>
     <string name="sort_by_alphabetical">Alphabetical order</string>
     <!-- notes = user notes ("My Notes") that are attached to bookmark -->
-    <string name="filter_by_notes">Filter by notes</string>
+    <string name="filter_by_notes">Search notes</string>
 
     <!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
