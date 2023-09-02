@@ -141,7 +141,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             AlertDialog.Builder(context).apply {
                 val layout = ShareWidget(context, null, selection)
                 setView(layout)
-                setPositiveButton(R.string.backup_button) { _, _ ->
+                setPositiveButton(R.string.share_verse) { _, _ ->
 
                     val emailIntent = Intent(Intent.ACTION_SEND).apply {
                         putExtra(Intent.EXTRA_TEXT, layout.bindings.preview.text)
