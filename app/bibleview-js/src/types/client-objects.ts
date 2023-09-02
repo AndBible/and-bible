@@ -16,6 +16,7 @@
  */
 
 import {Nullable} from "@/types/common";
+import {isGenericBookmark} from "@/composables/bookmarks";
 
 export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK"
 export type V11N = string
@@ -158,3 +159,13 @@ export type Label = Readonly<{
 }>
 
 export type LabelAndStyle = Label & BookmarkStyle
+
+export type BookmarkOrdinalKey = string
+
+export function getBookmarkOrdinalKey(b: BaseBookmark, ordinal: number): BookmarkOrdinalKey {
+    if(isGenericBookmark(b)) {
+        return `${b.key}-${ordinal}`
+    } else {
+        return `BIBLE-${ordinal}`
+    }
+}

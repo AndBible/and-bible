@@ -244,9 +244,10 @@ function* ordinalRange(): Generator<number> {
 const selectedBookmarks = computed<BaseBookmark[]>(() => {
     const clickedIds = new Set(clickedBookmarks.value.map(b => b.id));
     const result: IdType[] = [];
+    const keyBase = ordinalInfo.value?.osisRef ?? "BIBLE";
     for (const o of ordinalRange()) {
         result.push(
-            ...Array.from(bookmarkIdsByOrdinal.get(o) || [])
+            ...Array.from(bookmarkIdsByOrdinal.get(`${keyBase}-${o}`) || [])
                 .filter(bId => !clickedIds.has(bId) && !result.includes(bId)))
     }
     return result.map(bId => bookmarkMap.get(bId)).filter(b => b) as BaseBookmark[];

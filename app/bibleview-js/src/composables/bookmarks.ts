@@ -33,10 +33,14 @@ import {AppSettings, Config, testMode} from "@/composables/config";
 import {
     BaseBookmark,
     BibleBookmark,
+    BookmarkOrdinalKey,
     CombinedRange,
     GenericBookmark,
+    getBookmarkOrdinalKey,
     Label,
-    LabelAndStyle, OffsetRange, OrdinalAndOffsetRange,
+    LabelAndStyle,
+    OffsetRange,
+    OrdinalAndOffsetRange,
     OrdinalOffset,
     OrdinalRange,
 } from "@/types/client-objects";
@@ -154,14 +158,15 @@ export function verseHighlighting(
 export function useGlobalBookmarks(config: Config) {
     const bookmarkLabels = reactive<Map<IdType, LabelAndStyle>>(new Map());
     const bookmarks = reactive<Map<IdType, BaseBookmark>>(new Map());
-    const bookmarkIdsByOrdinal: Map<number, Set<IdType>> = reactive(new Map());
+    const bookmarkIdsByOrdinal: Map<BookmarkOrdinalKey, Set<IdType>> = reactive(new Map());
 
     function addBookmarkToOrdinalMap(b: BaseBookmark) {
         for (let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
-            let bSet: Set<IdType> | undefined = bookmarkIdsByOrdinal.get(o);
+            const key = getBookmarkOrdinalKey(b, o);
+            let bSet: Set<IdType> | undefined = bookmarkIdsByOrdinal.get(key);
             if (!bSet) {
                 bSet = reactive<Set<IdType>>(new Set());
-                bookmarkIdsByOrdinal.set(o, bSet);
+                bookmarkIdsByOrdinal.set(key, bSet);
             }
             bSet.add(b.id);
         }
@@ -169,7 +174,7 @@ export function useGlobalBookmarks(config: Config) {
 
     function removeBookmarkFromOrdinalMap(b: BaseBookmark) {
         for (let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
-            const bSet = bookmarkIdsByOrdinal.get(o)
+            const bSet = bookmarkIdsByOrdinal.get(getBookmarkOrdinalKey(b, o))
             if (bSet) {
                 bSet.delete(b.id);
             }

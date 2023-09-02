@@ -61,7 +61,7 @@ globalBookmarks.updateBookmarks(genericBookmarks);
 const {config, appSettings, ...common} = useCommon();
 
 useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, annotateRef, false, ref(true), common, config, appSettings);
-provide(osisDocumentInfoKey, {bookInitials, highlightedOrdinalRange, osisRef})
+provide(osisDocumentInfoKey, {bookInitials, highlightedOrdinalRange, osisRef: annotateRef})
 
 registerBook(`epub/${bookInitials}/${osisRef}`)
 
