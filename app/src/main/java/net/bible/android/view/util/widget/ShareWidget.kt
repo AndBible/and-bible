@@ -129,7 +129,8 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     private fun updateText() {
         // get currently selected text with markup, based on widget options
         val text = CommonUtils.getShareableDocumentText(selection)
-        val isRtl = TextUtils.getLayoutDirectionFromLocale(Locale(selection.book!!.language.code)) == LayoutDirection.RTL
+        val locale = selection.book?.language?.code ?.let { Locale(it) } ?: Locale.getDefault()
+        val isRtl = TextUtils.getLayoutDirectionFromLocale(locale) == LayoutDirection.RTL
 
         // set widget text based on the new text
         bindings.preview.textDirection = if (isRtl) View.TEXT_DIRECTION_RTL else View.TEXT_DIRECTION_LTR
