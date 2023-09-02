@@ -63,7 +63,7 @@ fun getGitDescribe(): String  = ByteArrayOutputStream().use { stdout ->
     return stdout.toString().trim()
 }
 
-val npmVersion = "9.1.2"
+val npmVersion = "10"
 
 val npmUpgrade by tasks.registering(Exec::class) {
     inputs.file("$jsDir/package.json")
