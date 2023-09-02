@@ -10,11 +10,15 @@ on:
       - '**/*.vue'
       - '**/*.js'
       - '**/*.ts'
+      - 'app/bibleview-js/package.json'
+      - 'app/bibleview-js/package-lock.json'
   pull_request:
     paths:
     - '**/*.vue'
     - '**/*.js'
     - '**/*.ts'
+    - 'app/bibleview-js/package.json'
+    - 'app/bibleview-js/package-lock.json'
   workflow_dispatch:
 
 permissions:
