@@ -93,8 +93,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private var listActionModeHelper: ListActionModeHelper? = null
     override val integrateWithHistoryManager: Boolean = true
 
-    private var searchText: String
-        get() = binding.editSearchText.text.toString()
+    private var searchText: String?
+        get() = binding.editSearchText.text.toString().let { it.ifEmpty { null } }
         set(value) {
             binding.editSearchText.setText(value)
         }
