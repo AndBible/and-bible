@@ -756,6 +756,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="tell_friend_message4">Lire davantage &amp; plus d\'options d\'installation: %s</string>
   <string name="share_verse_ok">Partager / copier</string>
   <string name="verse_action_copy">Copier</string>
+  <string name="generic_share">Partager</string>
   <string name="share_verse_menu_title">Partager / copier...</string>
   <string name="show_versenumbers">Afficher les numéros de verset</string>
   <string name="show_full_verses">Afficher tous les versets</string>

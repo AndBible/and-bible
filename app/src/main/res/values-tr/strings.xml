@@ -615,6 +615,7 @@ bu birkaç pencereye özgü işlevleri kullanmanıza ve pencere görünümünü 
   <string name="tell_friend_message4">Devamını oku &amp; daha fazla yükleme seçenekleri: %s </string>
   <string name="share_verse_ok">Paylaş / Kopyala</string>
   <string name="verse_action_copy">Kopyala</string>
+  <string name="generic_share">Paylaş</string>
   <string name="share_verse_menu_title">Paylaş / kopyala...</string>
   <string name="show_versenumbers">Ayet numarıları göster</string>
   <string name="show_full_verses">Ayetlerin tamamını göster</string>

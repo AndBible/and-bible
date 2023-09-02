@@ -693,6 +693,7 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="tell_friend_message4">Leia mais; e mais opções de instalação: %s</string>
   <string name="share_verse_ok">Partilhar / Copiar</string>
   <string name="verse_action_copy">Copiar</string>
+  <string name="generic_share">Partilhar</string>
   <string name="share_verse_menu_title">Partilhar / copiar...</string>
   <string name="show_versenumbers">Mostrar números dos versículos</string>
   <string name="show_full_verses">Mostrar versículos completos</string>

@@ -730,6 +730,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="tell_friend_message4">और पढ़ें &amp; अधिक स्थापना विकल्प: %s</string>
   <string name="share_verse_ok">शेयर / कॉपी</string>
   <string name="verse_action_copy"> कॉपी</string>
+  <string name="generic_share">शेयर</string>
   <string name="share_verse_menu_title">शेयर / कॉपी...</string>
   <string name="show_versenumbers">छंद के संख्या दिखाएं</string>
   <string name="show_full_verses">पूर्ण छंद दिखाएं</string>

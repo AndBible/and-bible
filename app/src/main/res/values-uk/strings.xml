@@ -760,6 +760,7 @@
   <string name="tell_friend_message4">Детальніше та більше варіантів встановлення: %s</string>
   <string name="share_verse_ok">Поділитися / скопіювати</string>
   <string name="verse_action_copy">Скопіювати</string>
+  <string name="generic_share">Поділитись</string>
   <string name="share_verse_menu_title">Поділитися / скопіювати...</string>
   <string name="show_versenumbers">Показати номери віршів</string>
   <string name="show_full_verses">Показати повні вірші</string>

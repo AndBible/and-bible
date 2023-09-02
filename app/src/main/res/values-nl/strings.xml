@@ -713,6 +713,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="tell_friend_message4">Lees meer &amp; meer installatieopties: %s</string>
   <string name="share_verse_ok">Deel / Kopieer</string>
   <string name="verse_action_copy">Kopiëren</string>
+  <string name="generic_share">Delen</string>
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
   <string name="show_versenumbers">Versnummering laten zien</string>
   <string name="show_full_verses">Volledige verzen laten zien</string>

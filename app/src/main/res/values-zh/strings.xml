@@ -711,6 +711,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="tell_friend_message4">閱讀更多及更多安裝選項：%s</string>
   <string name="share_verse_ok">分享 / 複製</string>
   <string name="verse_action_copy">複製</string>
+  <string name="generic_share">分享</string>
   <string name="share_verse_menu_title">分享 / 複製...</string>
   <string name="show_versenumbers">顯示節數</string>
   <string name="show_full_verses">顯原完整經文</string>

@@ -670,6 +670,7 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="tell_friend_message4">Pliaj informoj (en la angla) troviĝas ĉe: %s</string>
   <string name="share_verse_ok">Kunhavigi / kopii</string>
   <string name="verse_action_copy">Kopii</string>
+  <string name="generic_share">Kunhavigi</string>
   <string name="share_verse_menu_title">Kunhavigi / kopii…</string>
   <string name="show_versenumbers">Montri numerojn de versoj</string>
   <string name="show_full_verses">Montri plenajn versojn</string>

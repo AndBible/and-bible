@@ -575,6 +575,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="tell_friend_title">Anbefal til en venn</string>
   <string name="share_verse_ok">Del / Kopier</string>
   <string name="verse_action_copy">Kopier</string>
+  <string name="generic_share">Del</string>
   <string name="share_verse_menu_title">Del / kopier...</string>
   <string name="show_versenumbers">Vis versnummer</string>
   <string name="show_full_verses">Vis komplette vers</string>

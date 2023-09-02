@@ -797,6 +797,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="tell_friend_message4">Viac informácii a možností inštalácie na %s</string>
   <string name="share_verse_ok">Zdielať / kopírovať</string>
   <string name="verse_action_copy">Kopírovať</string>
+  <string name="generic_share">Zdielať</string>
   <string name="share_verse_menu_title">Zdielať / kopírovať…</string>
   <string name="show_versenumbers">Zobraziť čísla veršov</string>
   <string name="show_full_verses">Zobraziť celé verše</string>

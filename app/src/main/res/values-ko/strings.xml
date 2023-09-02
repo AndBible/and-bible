@@ -633,6 +633,7 @@
   <string name="tell_friend_message4">더 많은 정보와 설치 옵션은 여기를 참고하세요. %s</string>
   <string name="share_verse_ok">공유 / 복사</string>
   <string name="verse_action_copy">복사</string>
+  <string name="generic_share">공유</string>
   <string name="share_verse_menu_title">공유/복사하기</string>
   <string name="show_versenumbers">구절 번호 보기</string>
   <string name="verse_share_advertise">%s(으)로 공유했습니다.</string>

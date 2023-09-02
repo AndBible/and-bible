@@ -738,6 +738,7 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="tell_friend_message4">Leer más y otras opciones de instalación: %s</string>
   <string name="share_verse_ok">Compartir / Copia</string>
   <string name="verse_action_copy">Copiar</string>
+  <string name="generic_share">Compartir</string>
   <string name="share_verse_menu_title">Compartir / copia…</string>
   <string name="show_versenumbers">Mostrar números de verso</string>
   <string name="show_full_verses">Mostrar los versículos completos</string>

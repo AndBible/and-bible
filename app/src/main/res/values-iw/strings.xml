@@ -684,6 +684,7 @@
   <string name="tell_friend_message4">לקריאה נוספת ואפשרויות התקנה נוספות: %s</string>
   <string name="share_verse_ok">שיתוף / העתקה</string>
   <string name="verse_action_copy">העתק</string>
+  <string name="generic_share">שתף</string>
   <string name="share_verse_menu_title">שיתוף / העתקה ...</string>
   <string name="show_versenumbers">הצג מספרי פסוקים</string>
   <string name="show_full_verses">הצג פסוקים מלאים</string>

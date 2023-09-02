@@ -374,7 +374,7 @@ Jos dokumentin rakenne on muuttunut, dokumentin päivittäminen voi saada aikaan
   <string name="sort_by_bible_book">Kirjajärjestys</string>
   <string name="sort_by_alphabetical">Aakkosjärjestys</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
-  <string name="filter_by_notes">Suodata merkintöjen perusteella</string>
+  <string name="filter_by_notes">Etsi merkintöjä</string>
   <!--Dictionary-->
   <string name="dictionary">Sanakirja</string>
   <string name="search_dictionary_hint">Etsi sanakirjasta</string>
@@ -734,6 +734,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="tell_friend_message4">Lue lisää &amp; lisää asennusvaihtoehtoja: %s</string>
   <string name="share_verse_ok">Jaa / Kopioi</string>
   <string name="verse_action_copy">Kopioi</string>
+  <string name="generic_share">Jaa</string>
   <string name="share_verse_menu_title">Jaa / kopioi…</string>
   <string name="show_versenumbers">Näytä jaenumerot</string>
   <string name="show_full_verses">Näytä kokonaiset jakeet</string>

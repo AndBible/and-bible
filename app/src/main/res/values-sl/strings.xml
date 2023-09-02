@@ -761,6 +761,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="tell_friend_message4">Preberite več in več možnosti namestitve: %s</string>
   <string name="share_verse_ok">Skupna raba / kopiranje</string>
   <string name="verse_action_copy">Kopiraj</string>
+  <string name="generic_share">Deli</string>
   <string name="share_verse_menu_title">Skupna raba / kopiranje…</string>
   <string name="show_versenumbers">Pokaži številke verzov</string>
   <string name="show_full_verses">Pokaži celotne vrstice</string>

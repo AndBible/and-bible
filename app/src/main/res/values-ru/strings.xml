@@ -734,6 +734,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="tell_friend_message4">Подробнее и дополнительные варианты установки: %s</string>
   <string name="share_verse_ok">Поделиться / Копировать</string>
   <string name="verse_action_copy">Копировать</string>
+  <string name="generic_share">Поделиться</string>
   <string name="share_verse_menu_title">Поделиться / копировать…</string>
   <string name="show_versenumbers">Показать номера стихов</string>
   <string name="show_full_verses">Показать полные стихи</string>

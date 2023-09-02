@@ -777,6 +777,7 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="tell_friend_message4">Lees meer &amp; meer installeer opsies: %s</string>
   <string name="share_verse_ok">Deel / Kopieer</string>
   <string name="verse_action_copy">Kopieër</string>
+  <string name="generic_share">Deel</string>
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
   <string name="show_versenumbers">Wys vers nommers</string>
   <string name="show_full_verses">Wys volledige verse</string>

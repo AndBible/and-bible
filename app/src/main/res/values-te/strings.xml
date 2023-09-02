@@ -709,6 +709,7 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="tell_friend_message4">%s మరింత చదవండి &amp; మరిన్ని ఇన్‌స్టాల్ ఎంపికలు:</string>
   <string name="share_verse_ok">భాగస్వామ్యం / కాపీ</string>
   <string name="verse_action_copy">కాపి</string>
+  <string name="generic_share">షేర్ చేయండి</string>
   <string name="share_verse_menu_title">భాగస్వామ్యం / కాపీ...</string>
   <string name="show_versenumbers">వచనాల సంఖ్యను చూపాలి</string>
   <string name="show_full_verses">పూర్తి వచనాలు చూపించు</string>

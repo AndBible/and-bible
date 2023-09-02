@@ -745,6 +745,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="tell_friend_message4">Толығырақ оқу және қосымшаның тағы параметрлері: %s</string>
   <string name="share_verse_ok">Бөлісу / Көшіру</string>
   <string name="verse_action_copy">Көшіріңіз</string>
+  <string name="generic_share">Бөлісу</string>
   <string name="share_verse_menu_title">Бөлісу / Көшіру</string>
   <string name="show_versenumbers">Аят санын көрсету</string>
   <string name="show_full_verses">Аяттарды толық көрсету</string>

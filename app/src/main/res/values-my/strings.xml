@@ -668,6 +668,7 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="tell_friend_message4">အခြား &amp; များကိုလည်းဖတ်ပါ; အခြား ထည့်သွင်းရသည့် ရွေးချယ်စရာများ: %s</string>
   <string name="share_verse_ok">ဝေမျှပါ / ကော်ပီကူးပါ</string>
   <string name="verse_action_copy">ကော်ပီကူးပါ</string>
+  <string name="generic_share">မျှဝေပါ</string>
   <string name="share_verse_menu_title">ဝေမျှပါ / ကော်ပီကူးပါ ... </string>
   <string name="show_versenumbers">အခန်းငယ် နံပါတ်များကိုပြပါ</string>
   <string name="show_full_verses">အခန်းငယ်များကို အပြည့်ပြပါ / အခန်းငယ်အားလုံးကို ပြပါ။ </string>

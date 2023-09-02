@@ -564,6 +564,7 @@
   <string name="tell_friend_title">أوصي به لصديق</string>
   <string name="share_verse_ok">مشاركة / نسخ</string>
   <string name="verse_action_copy">نسخ</string>
+  <string name="generic_share">مشاركة</string>
   <string name="share_verse_menu_title">مشاركة / نسخ...</string>
   <string name="show_versenumbers">أظهر رقم الآية</string>
   <string name="show_full_verses">عرض آيات كاملة</string>

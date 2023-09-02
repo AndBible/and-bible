@@ -709,6 +709,7 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="tell_friend_message4">阅读更多及更多安装选项：%s</string>
   <string name="share_verse_ok">分享 / 复制</string>
   <string name="verse_action_copy">复制</string>
+  <string name="generic_share">分享</string>
   <string name="share_verse_menu_title">分享 / 复制...</string>
   <string name="show_versenumbers">显示节数</string>
   <string name="show_full_verses">显原完整经文</string>

@@ -725,6 +725,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="tell_friend_message4">Více informací a možností instalace na %s</string>
   <string name="share_verse_ok">Sdílet / kopírovat</string>
   <string name="verse_action_copy">Kopírovat</string>
+  <string name="generic_share">Sdílet</string>
   <string name="share_verse_menu_title">Sdílet / kopírovat…</string>
   <string name="show_versenumbers">Ukázat čísla veršů</string>
   <string name="show_full_verses">Zobrazit celé verše</string>

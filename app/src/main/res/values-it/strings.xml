@@ -740,6 +740,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="tell_friend_message4">Altre informazioni e opzioni di installazione: %s</string>
   <string name="share_verse_ok">Condividi / Copia</string>
   <string name="verse_action_copy">Copia</string>
+  <string name="generic_share">Condivida</string>
   <string name="share_verse_menu_title">Condividi / copia...</string>
   <string name="show_versenumbers">Mostra i numeri dei versetti</string>
   <string name="show_full_verses">Mostra i versetti completi</string>

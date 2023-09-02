@@ -802,6 +802,7 @@
   <string name="tell_friend_message4">Alte informații și opțiuni de instalare: %s</string>
   <string name="share_verse_ok">Trimite/Copiază</string>
   <string name="verse_action_copy">Copiază</string>
+  <string name="generic_share">Trimite</string>
   <string name="share_verse_menu_title">Trimite/Copiază…</string>
   <string name="show_versenumbers">Arată numerele versetelor</string>
   <string name="show_full_verses">Arată versete întregi</string>

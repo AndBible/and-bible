@@ -728,6 +728,7 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="tell_friend_message4">További infók és telepítési lehetőségek: %s</string>
   <string name="share_verse_ok">Megosztás / másolás</string>
   <string name="verse_action_copy">Másolás</string>
+  <string name="generic_share">Megosztás</string>
   <string name="share_verse_menu_title">Megosztás / másolás…</string>
   <string name="show_versenumbers">Versszámozás megjelenítése</string>
   <string name="show_full_verses">Teljes versek mutatása</string>
