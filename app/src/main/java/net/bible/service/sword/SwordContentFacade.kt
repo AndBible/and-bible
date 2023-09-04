@@ -28,6 +28,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.Logger
 import net.bible.service.common.htmlToSpan
+import net.bible.service.common.useSaxBuilder
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.device.speak.TextCommand
@@ -70,7 +71,7 @@ import kotlin.math.min
 
 open class OsisError(xmlMessage: String, val stringMsg: String) : Exception(xmlMessage) {
     constructor(msg: String): this(msg, msg)
-    val xml: Element = SAXBuilder().build(StringReader("<div>$xmlMessage</div>")).rootElement
+    val xml: Element = useSaxBuilder { it.build(StringReader("<div>$xmlMessage</div>")).rootElement }
 }
 
 class DocumentNotFound(xmlMessage: String, stringMsg: String) : OsisError(xmlMessage, stringMsg) {
