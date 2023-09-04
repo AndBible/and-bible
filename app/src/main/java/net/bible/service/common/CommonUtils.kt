@@ -1656,7 +1656,9 @@ suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -
 private val builders = ArrayBlockingQueue<SAXBuilder>(32)
 
 fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
-    val builder = builders.poll()?: SAXBuilder()
+    val builder = builders.poll()?: SAXBuilder().also {
+        it.setFeature("http://xml.org/sax/features/external-general-entities", false)
+    }
     val rv = block(builder)
     builders.offer(builder)
     return rv
