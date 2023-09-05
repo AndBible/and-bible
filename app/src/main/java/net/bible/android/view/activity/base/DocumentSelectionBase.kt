@@ -427,11 +427,20 @@ abstract class DocumentSelectionBase(
                         val searchString = "${binding.freeTextSearch.text}*"
                         val osisIds = if(searchString.length < 3) null else dao.search(searchString).toSet()
 
+                        val test = { it: Book ->
+                            // matches from list of osisIds, if any
+                            (osisIds?.contains(it.osisID) ?: (searchString.length < 3)) ||
+                            // partial name match
+                            it.name.contains(binding.freeTextSearch.text,true)
+                            // partial abbreviation  match
+                            it.abbreviation.contains(binding.freeTextSearch.text, true)
+                        }
+
                         for (doc in allDocuments) {
                             val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
                             if (filter.test(doc) &&
                                 (lang == null || doc.language == lang || doc.bookCategory == BookCategory.AND_BIBLE) &&
-                                (osisIds == null || osisIds.contains(doc.osisID)) &&
+                                test(doc) &&
                                 !doc.isBadDocument(badDocuments.value, BadDocumentAction.HIDE)
                             ) {
                                 displayedDocuments.add(doc)
