@@ -126,6 +126,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.SwordDocumentFacade
@@ -1593,7 +1594,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         null -> {}
                         ChooseDocument::class.java.name -> {
                             val bookStr = extras.getString("book")
-                            val book = Books.installed().getBook(bookStr)
+                            val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
                             documentControl.changeDocument(book)
                             updateActions()
                             return
