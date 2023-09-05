@@ -112,10 +112,6 @@ const val TEMPORARY_DATABASE_VERSION = 1
 @TypeConverters(Converters::class)
 abstract class TemporaryDatabase: RoomDatabase() {
     abstract fun documentSearchDao(): DocumentSearchDao
-
-    companion object {
-        const val dbFileName = "temporary.sqlite3"
-    }
 }
 
 const val REPO_DATABASE_VERSION = 1

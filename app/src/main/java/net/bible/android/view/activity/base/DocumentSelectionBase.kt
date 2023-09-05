@@ -47,10 +47,12 @@ import net.bible.android.control.download.repo
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.DocumentSearch
+import net.bible.android.database.DocumentSearchDao
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.BadDocumentAction
 import net.bible.android.view.activity.download.isBadDocument
 import net.bible.android.view.activity.download.isRecommended
+import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Ref
@@ -127,7 +129,8 @@ abstract class DocumentSelectionBase(
     private lateinit var langArrayAdapter: ArrayAdapter<Language>
 
     private var isPopulated = false
-    private val dao get() = DatabaseContainer.instance.temporaryDb.documentSearchDao()
+
+    abstract val dao: DocumentSearchDao
 
     val pseudoBooks = Ref<List<PseudoBook>>()
     val defaultDocuments = Ref<DocumentConfiguration>()
@@ -384,7 +387,7 @@ abstract class DocumentSelectionBase(
                     allDocuments.clear()
                     allDocuments.addAll(newDocs)
                 }
-                if(refresh) {
+                if(refresh || this@DocumentSelectionBase is ChooseDocument) {
                     dao.clear()
                     dao.insertDocuments(allDocuments.map {
                         DocumentSearch(it.osisID, it.abbreviation, if (it.isPseudoBook) "" else it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)

@@ -62,6 +62,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.serializer
 import net.bible.android.control.document.canDelete
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.database.DocumentSearchDao
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.installedDocument
@@ -354,6 +355,8 @@ open class DownloadActivity : DocumentSelectionBase(
 
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
+
+    override val dao: DocumentSearchDao get() = DatabaseContainer.instance.downloadDocumentsDb.documentSearchDao()
 
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         downloadManager.refreshInstallManager()

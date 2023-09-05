@@ -43,6 +43,9 @@ interface DocumentSearchDao {
     @Insert
     fun insertDocuments(documentSearches: List<DocumentSearch>)
 
+    @Query("""SELECT count(*) from Document""")
+    fun count(): Long
+
     @Query("""SELECT osisId from Document WHERE Document MATCH :search""")
     fun search(search: String): List<String>
 
