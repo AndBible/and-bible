@@ -59,7 +59,7 @@ const val contributeLink = "https://github.com/AndBible/and-bible/wiki/How-to-co
 const val needHelpLink = "https://github.com/AndBible/and-bible/wiki/Support"
 const val howToAdd = "https://github.com/AndBible/and-bible/wiki/FAQ#please-add-module-x-to-and-bible"
 const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-text-issue-in-one-of-the-bible--commentary-etc-modules-in-and-bible"
-const val buyDevelopmentLink = "https://github.com/AndBible/and-bible/wiki/Buy-development-work"
+const val buyDevelopmentLink = "https://andbible.org/buy"
 
 /** Handle requests from the main menu
  *
