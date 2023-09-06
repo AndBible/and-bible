@@ -422,6 +422,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             .putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
             .setClassName(info.activityInfo.packageName, info.activityInfo.name)
 
+    private val isBible get() = firstDocument is BibleDocument
+
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         Log.i(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
         if(modalOpen) return false
@@ -463,6 +465,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         .setIntent(createProcessTextIntentForResolveInfo(resolveInfo))
                         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
                 }
+            }
+            if(isBible) {
                 menu.findItem(R.id.system_items).isVisible = false
             }
 
@@ -476,8 +480,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 step2 = false
                 return true
             }
-            if (showSystem || firstDocument !is BibleDocument || editingTextInJs) {
-                showSystem = false
+            if (showSystem || editingTextInJs) {
                 return true
             } else {
                 menu.clear()
@@ -523,8 +526,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            if(modalOpen) {
-                return callback.onActionItemClicked(mode, item)
+            if(modalOpen || showSystem) {
+                val rv = callback.onActionItemClicked(mode, item)
+                mode.finish()
+                return rv
             }
             val handled = onActionMenuItemClicked(mode, item)
             if(handled) stopSelection(true)
@@ -532,6 +537,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
+            showSystem = false
             executeJavascriptOnUiThread("bibleView.emit('set_action_mode', false);")
             return callback.onDestroyActionMode(mode)
         }
