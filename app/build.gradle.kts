@@ -151,6 +151,18 @@ android {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            val propsFile = rootProject.file("local.properties")
+            if (propsFile.exists()) {
+                val props = Properties()
+                FileInputStream(propsFile).use { props.load(it) }
+
+                val appSuffix: String? = props["PROD_APP_SUFFIX"] as String?
+                println("Prod app suffix: $appSuffix")
+
+                if (appSuffix != null) {
+                    applicationIdSuffix = appSuffix
+                }
+            }
         }
         debug {
             val propsFile = rootProject.file("local.properties")
