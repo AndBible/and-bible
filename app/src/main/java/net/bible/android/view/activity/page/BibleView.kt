@@ -476,6 +476,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             .putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
             .setClassName(info.activityInfo.packageName, info.activityInfo.name)
 
+    private val isBible get() = firstDocument is BibleDocument
+
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         Log.i(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
         if(modalOpen) return false
