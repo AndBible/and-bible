@@ -124,6 +124,7 @@ import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.EpubBackend
+import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -133,6 +134,7 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -847,7 +849,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val bookInitials = epubMatch.groupValues[1]
                 val keyStr = epubMatch.groupValues[2]
                 val book = Books.installed().getBook(bookInitials)?: return notFound
-                val key = book.getKey(keyStr)
+                if (!book.isEpub) return notFound
+                val key = try { book.getKey(keyStr) } catch (e: NoSuchKeyException) {return notFound}
 
                 val styleSheets =
                     (if(book is SwordGenBook) {
