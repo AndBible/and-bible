@@ -526,7 +526,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            if(modalOpen || showSystem) {
+            if(modalOpen || editingTextInJs || showSystem) {
                 val rv = callback.onActionItemClicked(mode, item)
                 mode.finish()
                 return rv
