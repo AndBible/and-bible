@@ -522,9 +522,15 @@ class InstallZip : ActivityBase() {
         }
         dir.mkdirs()
         unzipInputStream(contentResolver.openInputStream(uri)!!, dir)
-        addManuallyInstalledEpubBooks()
+        val installOk = addManuallyInstalledEpubBooks()
         withContext(Dispatchers.Main) {
-            ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
+            if(installOk) {
+                ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
+            } else {
+                Dialogs.showMsg2(this@InstallZip,
+                    application.getString(R.string.sqlite_invalid_file, displayName)
+                )
+            }
             binding.loadingIndicator.visibility = View.GONE
             finish()
         }

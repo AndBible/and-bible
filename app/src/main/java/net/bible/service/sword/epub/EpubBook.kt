@@ -22,8 +22,11 @@ import androidx.room.RoomDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
+import net.bible.android.activity.R
 import net.bible.android.database.EpubDatabase
 import net.bible.android.database.epubMigrations
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.Dialogs
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -38,6 +41,7 @@ import org.crosswire.jsword.index.IndexManagerFactory
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
+import org.jdom2.input.JDOMParseException
 import java.io.File
 
 fun getConfig(
@@ -157,14 +161,21 @@ fun addEpubBook(epubDir: File) {
     Books.installed().addBook(book)
 }
 
-fun addManuallyInstalledEpubBooks() {
+fun addManuallyInstalledEpubBooks(): Boolean {
     val dir = File(SharedConstants.modulesDir, "epub")
     dir.mkdirs()
-    if(!(dir.isDirectory && dir.canRead())) return
+    if(!(dir.isDirectory && dir.canRead())) return false
+    var ok = true
 
     for(f in dir.listFiles()!!) {
-        addEpubBook(f)
+        try {
+            addEpubBook(f)
+        } catch (e: JDOMParseException) {
+            f.deleteRecursively()
+            ok = false
+        }
     }
+    return ok
 }
 
 val Book.isManuallyInstalledEpub get() = bookMetaData.getProperty("AndBibleEpubModule") != null
