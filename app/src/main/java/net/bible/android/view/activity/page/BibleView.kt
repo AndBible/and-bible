@@ -480,7 +480,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         Log.i(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
-        if(modalOpen) return false
 
         if(menuPrepared) {
             mode.menu.clear()
@@ -631,7 +630,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            if(modalOpen || showSystem) {
+            if(showSystem || editingTextInJs) {
                 val rv = callback.onActionItemClicked(mode, item)
                 mode.finish()
                 return rv
