@@ -31,6 +31,7 @@ import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.myGetLastVerse
 
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -93,7 +94,7 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
 
     private fun getBibleVersesButtonInfo(book: BibleBook, chapterNo: Int): List<ButtonInfo> {
         val verses = try {
-            navigationControl.versification.getLastVerse(book, chapterNo)
+            navigationControl.versification.myGetLastVerse(navigationControl.currentPassageDocument, book, chapterNo)
         } catch (nsve: Exception) {
             Log.e(TAG, "Error getting number of verses", nsve)
             -1

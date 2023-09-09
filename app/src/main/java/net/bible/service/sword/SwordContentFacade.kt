@@ -38,6 +38,7 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandle
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.epub.xhtmlNamespace
+import net.bible.service.sword.mybible.isMyBible
 import org.crosswire.common.xml.JDOMSAXEventProvider
 import org.crosswire.common.xml.SAXEventProvider
 import org.crosswire.jsword.book.Book
@@ -329,7 +330,7 @@ object SwordContentFacade {
         log.debug("Using standard JSword to fetch document data")
         return try {
             val data = BookData(book, key)
-            val frag = data.osisFragment
+            val frag = data.getOsisContent(true, book.isMyBible)
 
             if (book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
                 val verse = frag.getChild("verse")

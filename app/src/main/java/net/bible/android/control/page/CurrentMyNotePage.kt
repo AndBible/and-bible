@@ -32,7 +32,7 @@ class CurrentMyNotePage internal constructor(
 ) : CurrentCommentaryPage(currentVerse, bibleTraverser, pageManager), CurrentPage
 {
     override val currentPageContent: Document get() {
-        val verseRange = CommonUtils.getWholeChapter(currentBibleVerse.verse, false)
+        val verseRange = CommonUtils.getWholeChapter(currentDocument, currentBibleVerse.verse, false)
         val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
         return MyNotesDocument(bookmarksForChapter, verseRange.toV11n(KJVA))
     }

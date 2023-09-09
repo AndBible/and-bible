@@ -129,7 +129,7 @@ class NavigationControl @Inject constructor(
     /**
      * When navigating books and chapters there should always be a current Passage based book
      */
-    private val currentPassageDocument: AbstractPassageBook
+    val currentPassageDocument: AbstractPassageBook
         get() = pageControl.currentPageManager.currentPassageDocument
 
     companion object {

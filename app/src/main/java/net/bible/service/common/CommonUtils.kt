@@ -125,6 +125,7 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mybible.MyBibleSqliteBackend
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import org.apache.commons.lang3.StringUtils
@@ -727,7 +728,7 @@ object CommonUtils : CommonUtilsBase() {
         return name
     }
 
-    fun getWholeChapter(currentVerse: Verse, showIntros: Boolean = true): VerseRange {
+    fun getWholeChapter(doc: Book?, currentVerse: Verse, showIntros: Boolean = true): VerseRange {
         Log.i(TAG, "getWholeChapter (Key) ${currentVerse.osisID}")
         val versification = currentVerse.versification
         val book = currentVerse.book
@@ -737,15 +738,15 @@ object CommonUtils : CommonUtilsBase() {
         val endChapter = if(showIntros && chapter == 0) 1 else chapter
 
         val targetChapterFirstVerse = Verse(versification, book, startChapter, 0)
-        val targetChapterLastVerse = Verse(versification, book, endChapter, versification.getLastVerse(book, endChapter))
+        val targetChapterLastVerse = Verse(versification, book, endChapter, versification.myGetLastVerse(doc, book, endChapter))
 
         // convert to full chapter before returning because bible view is for a full chapter
         return VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse)
     }
 
-    fun getWholeChapters(v11n: Versification, book: BibleBook, chapter1: Int, chapter2: Int): VerseRange {
+    fun getWholeChapters(doc: Book?, v11n: Versification, book: BibleBook, chapter1: Int, chapter2: Int): VerseRange {
         val targetChapterFirstVerse = Verse(v11n, book, chapter1, 0)
-        val targetChapterLastVerse = Verse(v11n, book, chapter2, v11n.getLastVerse(book, chapter2))
+        val targetChapterLastVerse = Verse(v11n, book, chapter2, v11n.myGetLastVerse(doc, book, chapter2))
 
         return VerseRange(v11n, targetChapterFirstVerse, targetChapterLastVerse)
     }
@@ -1786,3 +1787,8 @@ val Key.shortName: String get() =
             return text
         }
     else name
+
+fun Versification.myGetLastVerse(doc: Book?, book: BibleBook, chapter: Int): Int {
+    val backend = (doc as? SwordBook)?.backend as? MyBibleSqliteBackend
+    return backend?.getLastVerse(book, chapter) ?: getLastVerse(book, chapter)
+}

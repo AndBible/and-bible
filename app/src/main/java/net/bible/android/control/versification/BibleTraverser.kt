@@ -18,6 +18,7 @@ package net.bible.android.control.versification
 
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
+import net.bible.service.common.myGetLastVerse
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -41,7 +42,7 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
         val chapter = verse.chapter
         val verseNo = verse.verse
         // if past last chapter of book then go to next book - algorithm not foolproof but we only move one chapter at a time like this
-        return if (verseNo < v11n.getLastVerse(book, chapter)) {
+        return if (verseNo < v11n.myGetLastVerse(document, book, chapter)) {
             Verse(v11n, book, chapter, verseNo + 1)
         } else {
             getNextChapter(document, verse)
@@ -62,7 +63,7 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
             if (!v11n.isSameChapter(verse, prevChap)) {
                 book = prevChap.book
                 chapter = prevChap.chapter
-                verseNo = v11n.getLastVerse(book, chapter)
+                verseNo = v11n.myGetLastVerse(document, book, chapter)
             }
         }
         return Verse(v11n, book, chapter, verseNo)
@@ -180,7 +181,7 @@ open class BibleTraverser @Inject constructor(private val documentBibleBooksFact
         val v11n = verse.versification
         val bibleBook = verse.book
         val lastChapterNumber = v11n.getLastChapter(bibleBook)
-        val lastVerseNumber = v11n.getLastVerse(bibleBook, lastChapterNumber)
+        val lastVerseNumber = v11n.myGetLastVerse(null, bibleBook, lastChapterNumber)
         val lastVerse = Verse(v11n, bibleBook, lastChapterNumber, lastVerseNumber)
         val firstVerse = Verse(v11n, bibleBook, 1, 1)
         return ((verse.ordinal - firstVerse.ordinal).toDouble() / (lastVerse.ordinal - firstVerse.ordinal) * 100.0).toInt()

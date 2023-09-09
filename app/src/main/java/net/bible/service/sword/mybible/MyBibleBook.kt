@@ -26,7 +26,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.KeyType
-import org.crosswire.jsword.book.basic.AbstractBook
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.Backend
 import org.crosswire.jsword.book.sword.BookType
@@ -39,6 +38,7 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.versification.BibleBook
 import java.io.File
 import java.io.IOException
 
@@ -185,7 +185,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
     }
 }
 
-class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<SqliteVerseBackendState>(metadata) {
+class MyBibleSqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<SqliteVerseBackendState>(metadata) {
     override fun initState(): SqliteVerseBackendState {
         Log.i(TAG, "initState")
         state.sqlDb
@@ -309,6 +309,16 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         -1
     }
 
+    fun getLastVerse(book: BibleBook, chapter: Int): Int {
+        val bookNum = bibleBookToMyBibleInt[book]
+        return state.sqlDb.rawQuery(
+            "select verse from verses WHERE book_number = ? AND chapter = ? ORDER BY verse DESC LIMIT 1",
+            arrayOf("$bookNum", "$chapter")
+        ).use {
+            it.moveToNext() || throw IOException("Can't read")
+            it.getInt(0)
+        }
+    }
     private fun readBible(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
         var text = state.sqlDb.rawQuery(
@@ -419,7 +429,7 @@ val myBibleBible = object: BookType("MyBibleBible", BookCategory.BIBLE, KeyType.
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
         val file = File(File(sbmd.location), "module.SQLite3")
         val state = SqliteVerseBackendState(file, sbmd)
-        return SqliteBackend(state, sbmd)
+        return MyBibleSqliteBackend(state, sbmd)
     }
 }
 
@@ -431,7 +441,7 @@ val myBibleCommentary = object: BookType("MyBibleCommentary", BookCategory.COMME
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
         val file = File(File(sbmd.location), "module.SQLite3")
         val state = SqliteVerseBackendState(file, sbmd)
-        return SqliteBackend(state, sbmd)
+        return MyBibleSqliteBackend(state, sbmd)
     }
 }
 
@@ -443,7 +453,7 @@ val myBibleDictionary = object: BookType("MyBibleDictionary", BookCategory.DICTI
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
         val file = File(File(sbmd.location), "module.SQLite3")
         val state = SqliteVerseBackendState(file, sbmd)
-        return SqliteBackend(state, sbmd)
+        return MyBibleSqliteBackend(state, sbmd)
     }
 }
 
@@ -455,7 +465,7 @@ fun addMyBibleBook(file: File) {
         return
     }
     if(Books.installed().getBook(metadata.initials) != null) return
-    val backend = SqliteBackend(state, metadata)
+    val backend = MyBibleSqliteBackend(state, metadata)
     val book =
         if (metadata.bookCategory == BookCategory.DICTIONARY)
             SwordDictionary(metadata, backend)
@@ -482,5 +492,7 @@ fun addManuallyInstalledMyBibleBooks() {
     }
 }
 
+private val myBibleBookTypes = listOf(myBibleBible, myBibleCommentary, myBibleDictionary)
+val Book.isMyBible get() = isManuallyInstalledMyBibleBook || myBibleBookTypes.contains ((bookMetaData as? SwordBookMetaData)?.bookType)
 val Book.isManuallyInstalledMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null
 val Book.myBibleDownloadUrl: String get() = bookMetaData.getProperty("AndBibleDownloadUrl")

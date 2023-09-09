@@ -145,7 +145,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    fun setRepeatPassage() {
+    private fun setRepeatPassage() {
         val s = SpeakSettings.load()
         if(s.playbackSettings.verseRange != null) {
             s.playbackSettings.verseRange = null

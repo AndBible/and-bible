@@ -18,9 +18,7 @@ package net.bible.android.view.activity.navigation.genbookmap
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import net.bible.android.control.page.CurrentGeneralBookPage
-import net.bible.android.view.activity.navigation.GridChoosePassageVerse
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub

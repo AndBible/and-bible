@@ -888,7 +888,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 key = pageControl.currentBibleVerse
             }
             return if(key is Verse && key.verse == 0) {
-                CommonUtils.getWholeChapter(key, false).name
+                CommonUtils.getWholeChapter(doc, key, false).name
             } else key?.name ?: throw KeyIsNull()
         }
 

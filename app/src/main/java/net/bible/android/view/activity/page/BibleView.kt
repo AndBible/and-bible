@@ -1806,7 +1806,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     val verseRangeLoaded: VerseRange? get() {
         val key = (firstKey as? Verse)?: return null
-        return CommonUtils.getWholeChapters(key.versification, key.book, minChapter, maxChapter)
+        return CommonUtils.getWholeChapters((firstDocument as? BibleDocument)?.book, key.versification, key.book, minChapter, maxChapter)
     }
 
     fun requestMoreToBeginning(callId: Long) = synchronized(this) {

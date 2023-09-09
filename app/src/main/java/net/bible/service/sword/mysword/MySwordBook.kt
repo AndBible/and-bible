@@ -26,7 +26,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.KeyType
-import org.crosswire.jsword.book.basic.AbstractBook
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.Backend
 import org.crosswire.jsword.book.sword.BookType
@@ -186,7 +185,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
     }
 }
 
-class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<SqliteVerseBackendState>(metadata) {
+class MySwordSqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaData): AbstractKeyBackend<SqliteVerseBackendState>(metadata) {
     override fun initState(): SqliteVerseBackendState {
         Log.i(TAG, "initState")
         state.sqlDb
@@ -392,7 +391,7 @@ val mySwordBible = object: BookType("MySwordBible", BookCategory.BIBLE, KeyType.
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
         val file = File(File(sbmd.location), "module.mybible")
         val state = SqliteVerseBackendState(file, sbmd)
-        return SqliteBackend(state, sbmd)
+        return MySwordSqliteBackend(state, sbmd)
     }
 }
 
@@ -404,7 +403,7 @@ val mySwordCommentary = object: BookType("MySwordCommentary", BookCategory.COMME
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
         val file = File(File(sbmd.location), "module.mybible")
         val state = SqliteVerseBackendState(file, sbmd)
-        return SqliteBackend(state, sbmd)
+        return MySwordSqliteBackend(state, sbmd)
     }
 }
 
@@ -416,7 +415,7 @@ val mySwordDictionary = object: BookType("MySwordDictionary", BookCategory.DICTI
     override fun getBackend(sbmd: SwordBookMetaData): Backend<*> {
         val file = File(File(sbmd.location), "module.mybible")
         val state = SqliteVerseBackendState(file, sbmd)
-        return SqliteBackend(state, sbmd)
+        return MySwordSqliteBackend(state, sbmd)
     }
 }
 
@@ -428,7 +427,7 @@ fun addMySwordBook(file: File) {
         return
     }
     if(Books.installed().getBook(metadata.initials) != null) return
-    val backend = SqliteBackend(state, metadata)
+    val backend = MySwordSqliteBackend(state, metadata)
     val book =
         if (metadata.bookCategory == BookCategory.DICTIONARY)
             SwordDictionary(metadata, backend)

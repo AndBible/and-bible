@@ -50,7 +50,9 @@ class CurrentBiblePage(
     override val documentCategory = DocumentCategory.BIBLE
 
     override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(
-        Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
+        Intent(context, GridChoosePassageBook::class.java).apply {
+            putExtra("isScripture", true)
+        }, STD_REQUEST_CODE)
 
     override fun next() {
         Log.i(TAG, "Next")
@@ -64,7 +66,7 @@ class CurrentBiblePage(
 
     fun getDocumentForChapter(chapter: Int): Document {
         val verseForFragment = Verse(versification, verseSelected.book, chapter, 1)
-        val wholeChapter = getWholeChapter(verseForFragment, showIntros)
+        val wholeChapter = getWholeChapter(currentDocument, verseForFragment, showIntros)
         return getPageContent(wholeChapter)
     }
 
@@ -119,7 +121,7 @@ class CurrentBiblePage(
     override fun getPagePlus(num: Int): Key {
         val targetChapterVerse1 = getKeyPlus(num)
         // convert to full chapter before returning because bible view is for a full chapter
-        return getWholeChapter(targetChapterVerse1, showIntros)
+        return getWholeChapter(currentDocument, targetChapterVerse1, showIntros)
     }
 
 
@@ -150,7 +152,7 @@ class CurrentBiblePage(
         val key: Key = if (!requireSingleKey) {
             // display whole page of bible so return whole chapter key - not just the single verse even if a single verse was set in verseKey
             // if verseNo is required too then use getVerseRange()
-            getWholeChapter(verse, showIntros)
+            getWholeChapter(currentDocument, verse, showIntros)
         } else {
             verse
         }
