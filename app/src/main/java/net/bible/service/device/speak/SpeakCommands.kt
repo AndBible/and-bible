@@ -96,7 +96,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
     }
     private val endsWithSentenceBreak = Regex(""".*[.?!]+[\p{Pf}"']*\W*""", RegexOption.DOT_MATCHES_ALL)
     private val splitIntoTwoSentences = Regex("""(.*)([.?!]+[\p{Pf}"']*)(\W*.+)""", RegexOption.DOT_MATCHES_ALL)
-    private val startsWithDelimeter = Regex("""([,.?!"':;()]+|'s)(\p{Zs}.*|)""", RegexOption.DOT_MATCHES_ALL)
+    private val startsWithDelimiter = Regex("""([,.?!"':;()]+|'s)(\p{Zs}.*|)""", RegexOption.DOT_MATCHES_ALL)
 
     fun copy(): SpeakCommandArray {
         val cmds = SpeakCommandArray()
@@ -108,7 +108,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
         get() {
             val lastCommand = this.lastOrNull()
             if (lastCommand is TextCommand) {
-                return lastCommand.text.matches(endsWithSentenceBreak)
+                return lastCommand.text.matches(endsWithSentenceBreak) || lastCommand.text.length > 250
             }
             return true
         }
@@ -148,7 +148,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
             if(element.text.isEmpty())
                 return false
             return if(lastCommand is TextCommand) {
-                val newText = if(startsWithDelimeter.matches(element.text))
+                val newText = if(startsWithDelimiter.matches(element.text))
                     "${lastCommand.text}${element.text}"
                 else
                     "${lastCommand.text} ${element.text}"
