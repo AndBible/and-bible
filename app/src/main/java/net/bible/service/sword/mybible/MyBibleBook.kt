@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mybible
 
+import android.database.CursorIndexOutOfBoundsException
 import android.database.sqlite.SQLiteException
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
@@ -110,7 +111,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
 
     var hasStories: Boolean = false
 
-    var metadata: SwordBookMetaData? = null
+    private var metadata: SwordBookMetaData? = null
 
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
@@ -119,19 +120,19 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
             val abbreviation = File(db.path).nameWithoutExtension.split(".", limit = 2)[0]
             val description = db.rawQuery("select value from info where name = ?", arrayOf("description")).use {
                 it.moveToFirst()
-                it.getString(0)
+                try {it.getString(0) } catch (e: CursorIndexOutOfBoundsException){""}
             }
             val language = db.rawQuery("select value from info where name = ?", arrayOf("language")).use {
                 it.moveToFirst()
-                it.getString(0)
+                try {it.getString(0) } catch (e: CursorIndexOutOfBoundsException){"en"}
             }
             val hasStrongsDef = db.rawQuery("select value from info where name = ?", arrayOf("is_strong")).use {
                 it.moveToFirst() || return@use false
-                it.getString(0) == "true"
+                try {it.getString(0) } catch (e: CursorIndexOutOfBoundsException){""} == "true"
             }
             val hasStrongs = db.rawQuery("select value from info where name = ?", arrayOf("strong_numbers")).use {
                 it.moveToFirst() || return@use false
-                it.getString(0) == "true"
+                try {it.getString(0) } catch (e: CursorIndexOutOfBoundsException){""} == "true"
             }
 
             val tables =
