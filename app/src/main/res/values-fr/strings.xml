@@ -383,6 +383,7 @@ l’emplacement de ces signets/notes se déplace à l\'intérieur du document ou
   <string name="sort_by_bible_book">Ordre biblique</string>
   <string name="sort_by_alphabetical">Ordre alphabétique</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Notes de recherche</string>
   <!--Dictionary-->
   <string name="dictionary">Dictionnaire</string>
   <string name="search_dictionary_hint">Recherche dans le dictionnaire</string>
@@ -469,6 +470,7 @@ l’emplacement de ces signets/notes se déplace à l\'intérieur du document ou
   <string name="window_text_options_help2">l\'icône%s  indique que ce paramètre a été modifié pour cette fenêtre spécifique.</string>
   <string name="window_text_options_help3">Le paramètre de l\'espace de travail n\'affectera pas cette fenêtre.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Utilisez le bouton %1$s  pour réinitialiser tous ces paramètres dans %2$s.</string>
   <string name="reset_defaults">Valeurs par défaut</string>
   <string name="reset_workspace_defaults">Valeur par défaut des espaces</string>
   <string name="speak_bookmark_help">Aide des signets audio</string>
@@ -521,6 +523,7 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
   <string name="backup_modules2">Sauvegarde les documents vers...</string>
   <string name="backup_app_database2">Sauvegarde la base de données de l’app dans…</string>
+  <string name="backup_app2">Sauvergader l’app (fichier .apk) dans …</string>
   <string name="backup_application">Application</string>
   <string name="backup_database">Base de données</string>
   <string name="backup_documents">Documents</string>
@@ -535,12 +538,14 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="restore_app_database">Restaurer la base de données de l\'application depuis…</string>
   <string name="restore_database">Restaurer le fichier de base de données</string>
   <string name="restore_confirmation">Écraser mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ?</string>
+  <string name="restore_success2">Les sections sélectionnées de la base de données ont été restaurées avec succès</string>
   <string name="restore_success">Mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ont été restaurés avec succès.</string>
   <string name="downloading_backup">Téléchargement du fichier de backup…</string>
   <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
   <string name="backup_success2">Mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ont été sauvegardés avec succès.</string>
   <string name="backup_modules_success">Les modules sélectionnés ont été sauvegardés avec succès.</string>
   <string name="backup_modules_email_subject_2">%s sauvegarde de modules</string>
+  <string name="backup_modules_email_message_2">Vous trouverez ci-joint votre sauvegarde %1$s des modules, qui contient les modules suivants : %2$s</string>
   <string name="backup_email_subject_2">%s sauvegarde de la base de données</string>
   <string name="backup_email_message_2">Votre base de données %s contenant des signets, des notes, des plans de lecture et des espaces de travail est jointe</string>
   <string name="restore_unsuccessfull">La restauration de la base de données a échoué.
@@ -551,6 +556,7 @@ Le fichier est peut-être invalide.</string>
   <string name="install_zip_canceled">Installation du module annulée</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
+  <string name="module_about_installed_version">Version installée : %1$s (%2$s)</string>
   <string name="module_about_latest_version">Dernière version : %1$s (%2$s) </string>
   <string name="module_about_versification">Versification : %s</string>
   <string name="module_about_repository">Serveur de distribution : %s</string>
@@ -610,6 +616,7 @@ Le fichier est peut-être invalide.</string>
   <string name="empty_list">Aucun élément à afficher</string>
   <string name="error_skip">Sauter</string>
   <string name="bug_report_email_title">Envoyer un rapport de bogue par courriel</string>
+  <string name="bug_report_email_text">Ensuite, veuillez sélectionner votre application de messagerie préférée (Gmail par exemple) pour envoyer le rapport à l’équipe de développeurs.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Lecture de texte</string>
   <string name="notification_channel_progress_status">État d\'avancement de la notification de téléchargement des documents etc.</string>
@@ -648,6 +655,7 @@ Les bêta-testeurs sont invités à rapporter les bogues via Google Play ou via 
   <string name="beta_notice_dismiss_until_update">Ignorer jusqu\'à la prochaine mise à jour</string>
   <string name="stable_notice_title">L\'application a été mise à jour !</string>
   <string name="upgrade_video_message">Veuillez voir la vidéo présentant les nouvelles fonctionnalités de cette version (%s).</string>
+  <string name="stable_notice_par1">La nouvelle version %1$s de %2$s a été installée avec succès !</string>
   <!--History-->
   <string name="history_for">Historique (%1$s: Fenêtre %2$d)</string>
   <!--Help-->
@@ -708,7 +716,10 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <!--Supported file formats for documents-->
   <string name="supported_formats_title">Formats supportés</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">Vous devez choisir le fichier que vous voulez charger dans %s.</string>
+  <string name="supported_formats">Formats pris en charge pour le chargement de documents à partir d’un fichier : %s</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">Fichier Zip contenant le(s) module(s) Sword, ou fichier de sauvegarde des documents (*.abmd) créé par %s</string>
   <string name="format_mysword">Documents MySword (*.mybible)</string>
   <string name="format_mybible">Documents MyBible (*.SQLite3)</string>
   <string name="format_epub">Documents EPUB (*.epub)</string>
@@ -764,6 +775,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="advertise_app">Promouvoir l\'app</string>
   <string name="verse_share_advertise">Partagé en utilisant %s.</string>
   <string name="show_reference">Montrer les références</string>
+  <string name="show_reference_at_front">Afficher au début du verset</string>
   <string name="abbreviate_reference">Référence abrégée</string>
   <string name="version_name">Nom de version</string>
   <!--meaning, bible version name-->
@@ -775,6 +787,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="initializing_app">Initialisation de l\'application…</string>
   <string name="show_notes">Montrer les notes</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Le paquet Android WebView est trop ancien (%1$s). Vous devez mettre à jour votre paquet Android WebView vers la version minimale %2$s pour utiliser %3$s. Pour la plupart des appareils, cela peut être fait via %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Accéder malgré tout</string>
   <string name="proceed">Poursuivre</string>
@@ -785,6 +798,9 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
      Avant d\'examiner un avis négatif, veuillez prendre en compte les éléments suivants :
     </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+         Si vous avez un problème avec l\'application, s\'il vous plaît %1$s ou %2$sà la place.
+    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Si un texte / une traduction de la Bible présente un problème, %s.
@@ -861,6 +877,7 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="chooser_select">Sélectionner %s</string>
   <string name="chooser_pref_reset">Ne pas remettre le chapitre/verset à 1 lorsque le livre/chapitre est sélectionné.</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Nous sommes désolés, mais nous n\'avons qu\'une traduction partielle de l\'interface utilisateur en langue %1$s. C\'est parce que %2$s est entièrement développé par des volontaires. Si vous pouvez aider à la traduction, veuillez voir %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instructions pour les traducteurs</string>
   <string name="questions_title">Questions ?</string>
@@ -872,16 +889,42 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="verse_tip">Pour sélectionner un ou plusieurs versets, vous pouvez appuyer longuement sur le texte biblique.</string>
   <string name="permission_required">Permission nécessaire</string>
   <string name="labels_search_hint">Rechercher</string>
+  <string name="progress_status_permission">Pour afficher des notifications (état du téléchargement, traitement, état de la parole), nous avons besoin de votre autorisation.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Simple calculatrice</string>
   <string name="prefs_persecution_cat">Paramètres pour les persécutés</string>
   <string name="prefs_discrete_mode">Cache les symboles religieux</string>
+  <string name="prefs_discrete_mode_desc">Renommez l’application en « Calculatrice » et affichez une icône différente dans le lanceur.</string>
   <string name="prefs_show_calculator">Calculatrice</string>
   <string name="prefs_calculator_pin">PIN du calculatrice</string>
+  <string name="prefs_calculator_pin_desc">Code PIN pour entrer dans l’application lorsque la calculatrice est affichée.</string>
+  <string name="calc_division_by_zero">La division par zéro n\'est pas autorisée</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Mauvais format</string>
+  <string name="calc_wrong_format_operand">Format incorrect. Opérande Sans chiffres ?</string>
   <string name="prefs_persecuted_help">Lisez cela en premier !</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Instructions pour les réglages et informations sur la construction discrète spécifique.</string>
+  <string name="calculator_par1">
+Avant d\'entrer dans l’application, l’écran de la calculatrice s\'affiche.
+</string>
+  <string name="calculator_par2">
+Vous pouvez y faire du calcul standard, et lorsque vous voulez entrer dans l\'application, il vous suffit de
+ taper votre code PIN (par défaut 1234) et d\'appuyer sur le bouton \"=\".
+</string>
+  <string name="calculator_par3">
+    Vous pouvez définir un code PIN personnalisé par le biais du paramètre « PIN de la Calculatrice ».</string>
+  <string name="discrete_mode_info_par1">
+       Vous utilisez une version standard de l’application, ce qui signifie qu’il est encore possible de voir
+ le vrai nom et l\'icône de l’application dans les infos de l’application.
+</string>
+  <string name="discrete_mode_info_par2">
+       Pour une meilleure sécurité dans un environnement de persécution, nous recommandons vivement d\'utiliser
+       la version discrète de l’app, qui affiche toujours la calculatrice, même si les données de l\'application sont supprimées.
+</string>
+  <string name="discrete_mode_link">
+Vous pouvez télécharger la dernière version de la version discrète à l’adresse suivante%s
+</string>
   <!--Window synchronize groups-->
   <string name="sync_group_n">Groupe %d</string>
   <string name="disable_sync">Désactiver la synchronisation</string>
@@ -897,6 +940,7 @@ Si un texte particulier n\'est pas disponible dans l\'application, %s.
   <string name="packages_dir">dossier de paquets (fichiers Zip)</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Ouvrir les liens bibliques dans Andbible</string>
+  <string name="open_bible_links_summary">Lorsque vous cliquez sur des liens qui font référence à l\'URL de la Bible prise en charge par AndBible, ouvrez-les dans AndBible.</string>
   <string name="copyReference">Copier dans le presse-papier</string>
   <string name="reference_copied_to_clipboard">La référence a été copiée dans le presse-papier</string>
   <!--Device cloud synchronization-->

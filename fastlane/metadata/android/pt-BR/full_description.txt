@@ -1,0 +1,48 @@
+<b>Poderosa ferramenta de estudo bíblico</b>
+
+"AndBible: Estudos bíblicos" é um ´poderoso aplicativo de estudo da Bíblia offline, porém fácil de usar, para Android. O aplicativo não pretende ser simplesmente um leitor da Bíblia,  foca--se em ser uma ferramenta avançada para fazer um profundo estudo bíblico pessoal.
+
+Este aplicativo é desenvolvido por leitores da Bíblia, para leitores da Bíblia. Seu objetivo é ajudá-lo a tornar seu estudo bíblico conveniente, profundo e divertido. A melhor parte desse projeto comunitário sem fins lucrativos é que ele é de código aberto, totalmente gratuito e não contém anúncios.
+
+Algumas versões populares da Bíblia (das muitas disponíveis) são KJV, NASB, NET e também comentários populares como Matthew Henry e John Gill.
+
+<b>Poderosos recursos para estudos bíblicos</b>
+
+O aplicativo tem muitos recursos criteriosos e originais, que tornam uma experiência de estudo bíblica complexa e profunda mais suave do que nunca. Os recursos mais notáveis ​​são os seguintes:
+
+ * Visualização do texto em várias janelas que permitem comparar traduções e consultar comentários
+ * As Áreas de trabalho permitem várias configurações para o estudo bíblico com as suas próprias configurações
+ * A integração de Strong permite a análise de palavras em grego e hebraico
+ * Referências cruzadas, notas de rodapé e documentos; vá diretamente para as referências cruzadas e notas de rodapé simplesmente tocando num link; faça um estudo aprofundado das Escrituras usando comentários com hiperlinks (Gill, Matthew Henry etc.), coleções de referência cruzada (Tesouro do Conhecimento das Escrituras, TSKe) e outros recursos.
+ * Texto avançado para fala com marcadores de fala, permitindo uma experiência de audição suave da Bíblia
+ * Pesquisa flexível
+ * Recursos avançados de marcadores e destaque com notas de estudo pessoais
+ * Blocos de estudo para adicionar notas e referências bíblicas enquanto escuta homilias.
+ * Planos de leitura: estabeleça metas para a leitura da Bíblia
+ * Vasta biblioteca de documentos: traduções da Bíblia, comentários teológicos, dicionários, mapas e livros cristãos, totalizando mais de 1500 documentos em mais de 700 idiomas, legalmente distribuídos pela Crosswire e outros repositórios SWORD.
+ * Suporte nativo para arquivos MyBible, MySword e EPUB permitem estender sua biblioteca sempre mais.
+
+<b>Vamos fazer o melhor aplicativo de Bíblia juntos!</b>
+
+AndBible é um projeto comunitário de código aberto. Na prática, isso significa que qualquer pessoa com habilidades adequadas pode, e é incentivada a, contribuir para o projeto:
+
+ * desenvolvendo novos recursos,
+ * testando recursos ainda não lançados,
+ * mantendo as traduções do aplicativo atualizadas e
+ * ajudando a estender a biblioteca de módulos, obtendo permissões dos detentores de direitos autorais ou convertendo documentos e módulos para o formato SWORD.
+
+Se você é um engenheiro de software ou testador profissional, considere contribuir para o projeto. Para obter mais informações sobre como contribuir, consulte https://git.io/JUnaj.
+
+<b>Suporte através da compra de tempo de desenvolvimento</b>
+
+Se não tiver tempo ou habilidades para contribuir com o projeto é possível também suportar o projeto comprando tempo de trabalho de um desenvolvedor profissional.
+
+Ver opções: https://andbible.org/buy
+
+<b>Atalhos</b>
+
+ * Página inicial: https://andbible.org
+ * Curta o AndBible no Facebook: https://www.facebook.com/AndBible/
+ * Nosso Canal no Youtube: https://www.youtube.com/c/AndBible
+ * Perguntas Frequentes: https://git.io/JJm8E
+ * Página do projeto no Github: https://github.com/AndBible/and-bible

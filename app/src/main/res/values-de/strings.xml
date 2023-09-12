@@ -376,6 +376,7 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="sort_by_bible_book">Sortieren nach Buch</string>
   <string name="sort_by_alphabetical">Alphabetisch sortieren</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Search notes</string>
   <!--Dictionary-->
   <string name="dictionary">Wörterbuch</string>
   <string name="search_dictionary_hint">Durchsuche Wörterbuch</string>
@@ -770,6 +771,8 @@ Positive und ausführliche Bewertungen helfen dem AndBible Open Source Projekt s
   <string name="rate_message6">
 Vor dem Posten einer negativen Bewertung beachte bitte Folgendes:</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+Wenn du ein Problem mit dem Programm hast, dann kannst du stattdessen %1$soder %2$s.</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 Wenn ein Text oder eine Bibelübersetzung ein Problem hat, %s
@@ -951,12 +954,15 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="are_you_sure_reset_cloud">Das wird deine Datenbank in der Cloud für %s mit den Inhalten ersetzen, die auf deinem lokalen Gerät gespeichert sind.</string>
   <string name="sync_cant_fetch">Die in der Cloud gespeicherte Datenbankversion ist höher, als die Anwendung auf dem lokalen Gerät unterstützt.</string>
   <string name="sync_disabling">Deaktiviere die Synchronisation für %svorerst.</string>
+  <string name="sync_update_app">Bitte führe ein Update deiner Anwendung durch und aktiviere die Synchronisation danach erneut.</string>
   <string name="sign_in_failed">Die Anmeldung zum Internetservice der Synchronisation ist fehlgeschlagen.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Deaktiviere die Synchronisation mit der Cloud. Du musst sie nach der Wiederherstellung händisch reaktivieren.</string>
   <string name="report">Bericht</string>
   <string name="sync_error">Fehler bei der Synchronisation mit der Cloud</string>
   <string name="error_notification_channel_name">Fehlermeldungen</string>
+  <string name="restore_from_cloud_description">Wenn du die Synchronisation auf einem anderen Gerät aktiviert hast, kannst du damit beginnen, die Datenbank aus der Cloud auf dein Gerät herunterzuladen.</string>
+  <string name="enable_sync">Synchronisation einschalten</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Datei kann nicht gelesen werden</string>
   <string name="sqlite_invalid_file">Ungültige Moduldatei oder Dateiname: %s</string>
@@ -967,4 +973,22 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="open_here">Hier öffnen</string>
   <string name="external_link">Externe Verknüpfung</string>
   <string name="external_link_question">Das wird die externe Verknüpfung %s in einem Browserfenster öffnen, möchtest du fortfahren?</string>
+  <string name="nameless">Title not defined</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Aktionen durch Antippen (Bibelmodule)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Aktionen durch Antippen (andere Module)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Wenn ein Text angetippt wird, wird eine Antipp-Aktion angezeigt. Welche Schalter sollen angezeigt werden?</string>
+  <string name="processing_epub">Processing EPUB: %s</string>
+  <string name="buy_development">Entwicklungsarbeit finanzieren</string>
+  <string name="buy_development2">Projekt unterstützen</string>
+  <string name="new_version_warning">
+Eine neue Version wird demnächst erscheinen. Der voraussichtliche Termin ist %1$s.  Schau auf %2$s vorbei um neue Features und Verbesserungen zu entdecken.</string>
+  <string name="new_version_trailer">Trailervideo</string>
+  <string name="new_version_warning2">
+Nach der Neuveröffentlichung wird diese Version nicht länger unterstützt.</string>
+  <string name="new_version_warning3">
+Es wird keine Fehlerbehebungen oder Updates mehr erhalten.</string>
+  <string name="new_version_warning4">
+Wenn du nicht updaten möchtest, deaktiviere bitte die automatische Aktualisierung in deinem App-Store (Google Play, F-Droid etc.).</string>
+  <string name="dont_show">
+Diese Nachricht nicht mehr anzeigen</string>
 </resources>

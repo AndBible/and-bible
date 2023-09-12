@@ -6,7 +6,7 @@ file_filter            = app/src/main/res/values-<lang>/strings.xml
 source_file            = app/src/main/res/values/strings.xml
 source_lang            = en
 minimum_perc           = 60
-lang_map               = en_GB: en, id: in, az@latin: az, zh_TW: zh, zh_CN: zh-rCN, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, he: iw
+lang_map               = en_GB: en, id: in, az@latin: az, zh_TW: zh, zh_CN: zh-rCN, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, he: iw, pt_BR: pt-BR
 replace_edited_strings = false
 keep_translations      = false
 
@@ -15,7 +15,7 @@ file_filter            = app/bibleview-js/src/lang/<lang>.yaml
 source_file            = app/bibleview-js/src/lang/default.yaml
 source_lang            = en
 minimum_perc           = 60
-lang_map               = az@latin: az, zh_TW: zh, zh_CN: zh-rCN, en_GB: en, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, id: in
+lang_map               = az@latin: az, zh_TW: zh, zh_CN: zh-rCN, en_GB: en, sr: b+sr, sr_RS: b+sr+RS, sr@latin: b+sr+Latn, id: in, pt_BR: pt-BR
 replace_edited_strings = false
 keep_translations      = false
 
@@ -24,7 +24,7 @@ file_filter            = play/description-translations/<lang>.yml
 source_file            = play/playstore-description.yml
 source_lang            = en
 minimum_perc           = 100
-lang_map               = es: es-ES, fi: fi-FI, ru: ru-RU, zh_TW: zh-TW, he: iw-IL, ko: ko-KR, bn: bn-BD, az@latin: az-AZ, tr: tr-TR, en_GB: en-US, pl: pl-PL, zh_CN: zh-CN, hi: hi-IN, my: my-MM, it: it-IT, cs: cs-CZ, nl: nl-NL, fr: fr-FR, nb: no-NO, hu: hu-HU, sr_RS: sr, te: te-IN, pt: pt-PT, de: de-DE
+lang_map               = es: es-ES, fi: fi-FI, ru: ru-RU, zh_TW: zh-TW, he: iw-IL, ko: ko-KR, bn: bn-BD, az@latin: az-AZ, tr: tr-TR, en_GB: en-US, pl: pl-PL, zh_CN: zh-CN, hi: hi-IN, my: my-MM, it: it-IT, cs: cs-CZ, nl: nl-NL, fr: fr-FR, nb: no-NO, hu: hu-HU, sr_RS: sr, te: te-IN, pt: pt-PT, de: de-DE, pt_BR: pt-BR
 replace_edited_strings = false
 keep_translations      = false
 

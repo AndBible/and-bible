@@ -8,7 +8,7 @@ subtitle_1: Ein mächtiges Werkzeug für das Bibelstudium
 paragraph_1_1: >
   "{{ title }}" ist ein umfangreiches und trotzdem einfach zu bedienendes  Programm für das Bibelstudium - auch ohne Internet. Diese App ist nicht nur ein einfaches Bibelleseprogramm, sondern will ein Werkzeug für fortgeschrittenes, in die Tiefe gehendes Bibelstudium sein.
 paragraph_1_2: >
-  Dieses Programm wird von Bibellesern für Bibelleser entwickelt. Es zielt darauf ab, dein Bibelstudium einfach, bedeutsam und unterhaltsam zu machen. Das Beste an diesem Non-Profit Projekt ist, dass es Open Source ist - völlig kostenlos und ohne Werbung. Dadurch, dass es von Anfang an für Android entwickelt wurde, ist es platzsparend, effizient und schnell.
+  Dieses Programm wird von Bibellesern für Bibelleser entwickelt. Es zielt darauf ab, dein Bibelstudium einfach, bedeutsam und unterhaltsam zu machen. Das Beste an diesem Non-Profit Projekt ist, dass es Open Source ist - völlig kostenlos und ohne Werbung.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Einige der erhältlichen beliebten Bibelversionen sind Schlachter 1955, NeUE, Luther 1912, sowie englische Kommentare wie Matthew Henry und John Gill.
@@ -34,14 +34,14 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Große Sammlung von Dokumenten: Bibelübersetzungen, theologische Kommentare, Wörterbücher, Landkarten und christliche Bücher, insgesamt über  {{total_documents}} Dokumente in über {{total_languages}} Sprachen, gesetzeskonform zur Verfügung gestellt von Crosswire und anderen SWORD Quellen. 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  Die Herkunft aller Dokumente wird überprüft um sicherzustellen, dass sie gesetzeskonform verbreitet werden können bzw. dass die Erlaubnis dazu vom Rechteinhaber erteilt worden ist. Das ist auch der Grund warum Dokumente wie {{unavailable_documents}} nicht enthalten sind.
+feature_10_1: >
+  Dank der nativen Unterstützung für MyBible-, MySword- und EPUB-Dateien kannst du deine Bibliothek noch weiter erweitern.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "ESV, NIV, NKJV, LUT84, NGÜ etc."
 feature_12: >
   Offline: das Internet wird nur für das Herunterladen der gewünschten Dokumente benötigt.
+# UNUSED
 feature_13: >
   Studienmappen für Notizen und Querverweise während Predigten.
 subtitle_3: Lasst uns gemeinsam die beste Bibelleseapp entwickeln!
@@ -67,3 +67,9 @@ link_4: >
   Häufig gestellte Fragen: {{faq_url}}
 link_5: >
   Projektseite auf Github: {{github_url}}
+buy_title: >
+  Unterstütze uns, indem du Entwicklungszeit kaufst!
+buy_1: >
+  Wenn Du keine Zeit oder Fähigkeiten für Projektbeiträge hast, kannst du das Projekt auch durch den Kauf von professioneller Entwicklerarbeitszeit unterstützen.
+buy_2: >
+  Optionen anzeigen

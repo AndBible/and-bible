@@ -395,6 +395,7 @@
   <string name="sort_by_bible_book">În ordine biblică</string>
   <string name="sort_by_alphabetical">În ordine alfabetică</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Caută notițe</string>
   <!--Dictionary-->
   <string name="dictionary">Dicționar</string>
   <string name="search_dictionary_hint">Caută în dicționar</string>
@@ -771,7 +772,7 @@
   <string name="select_multiple">Alege mai multe</string>
   <string name="journal_description">Notițe de studiu modificabile cu text și semne de carte</string>
   <string name="my_notes_description">Notițe modificabile atașate semnelor de carte</string>
-  <string name="my_notes_abbreviation">Notița mea</string>
+  <string name="my_notes_abbreviation">Notițele mele</string>
   <string name="studypads">Notițe de studiu</string>
   <string name="multi_description">Trimiteri multiple</string>
   <string name="multi_abbreviation">Multiple</string>

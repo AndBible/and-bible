@@ -298,14 +298,14 @@
   <string name="plan_duplicate_user_plan">
         Na sdcard existuje používateľov plán čítania 
         jsword/readingplan s rovnakým názvom ako je interný plán. Tu to nemôže byť uvedené.
-        Premenujte súbor na niečo iné a ponechajte príponu súboru ako .properties 
+        Pomenujte súbor inak a ponechajte príponu súboru ako .properties 
     </string>
   <string name="plan_name_y1ntpspr">NZ, Žalmy a Príslovia za jeden rok</string>
   <string name="plan_description_y1ntpspr">
         S láskavým súhlasom HEARTLIGHT Internet Magazine,
         http://www.heartlight.org, povolenie udelené
     </string>
-  <string name="plan_name_y1ot1nt1_chronological">Billa za 1 rok chronologicky</string>
+  <string name="plan_name_y1ot1nt1_chronological">Biblia za 1 rok chronologicky</string>
   <string name="plan_description_y1ot1nt1_chronological">
         Plán založený na chronologických udalostiach v Biblii.
         Chronologická časová os je približná. 
@@ -320,12 +320,12 @@
         Prečítanie Biblie za 1 rok, začínajúc v Genesis
         a končiac v Zjavení. Najprv SZ, potom NZ.
     </string>
-  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1-rok4-kapitoly/deň</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1-rok 4-kapitoly/deň</string>
   <string name="plan_description_y1ot1nt2_mcheyne">
         Tento plán je založený na systéme čítania M’Cheyne,
-        obsahuje štyri rôzne čítania na použitie pri rodinnej aj osobnom stíšení. Každý deň má
-        dve pasáže zo Starého zákona, jedna z Nového zákona a jedna buď zo žalmov alebo z evanjelií. V jednom roku,
-        si prečítate Starý zákon raz a Nový zákon a žalmy dvakrát.
+        obsahuje štyri rôzne čítania na použitie pri rodinnom alebo osobnom stíšení. Každý deň má
+        dve pasáže zo Starého zákona, jednu z Nového zákona a jednu buď zo Žalmov alebo z evanjelií. V jednom roku,
+        si prečítate Starý zákon raz a Nový zákon a Žalmy dvakrát.
     </string>
   <string name="plan_name_y1ot6nt4_profHorner">Plán čítania Prof. Hornera 10-kapitol/deň</string>
   <string name="plan_description_y1ot6nt4_profHorner">S láskavým súhlasom  Prof. Hornera, povolenie udelené</string>
@@ -395,6 +395,7 @@
   <string name="sort_by_bible_book">Zoradiť podľa kníh Biblie</string>
   <string name="sort_by_alphabetical">Zoradiť abecedne</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Hľadať v poznámkach</string>
   <!--Dictionary-->
   <string name="dictionary">Slovník</string>
   <string name="search_dictionary_hint">Hľadať v slovníku</string>
@@ -642,7 +643,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="notification_channel_progress_status">Informácia o stave sťahovania dokumentov atď.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nový</string>
-  <string name="switch_to_workspace">Pracovnej plochy</string>
+  <string name="switch_to_workspace">Pracovné plochy</string>
   <string name="delete_workspace">Odstrániť</string>
   <string name="new_copied_workspace">Skopírovať ako nové</string>
   <string name="workspace_number">Pracovná plocha %d</string>
@@ -663,13 +664,13 @@ Režim opakovania bol vypnutý, pretože
   <!--Beta notice-->
   <string name="beta_notice_title">Toto je beta verzia</string>
   <string name="beta_notice_content_1">
-        V beta verzii sú k dispozícii nové funkcie, ktoré ešte nie sú poriadne otestované,
-        a používanie beta teda môže spôsobiť neočakávané správanie, t.j. chyby.
+        V beta verzii sú k dispozícii nové funkcie, ktoré ešte nemusia byť dobre otestované,
+        a preto jej používanie môže viesť neočakávaným chybám.
         Bežným čitateľom Biblie sa odporúča používať stabilnú verziu.
-    </string>
+   </string>
   <string name="beta_notice_content_2">
-        Používateľom verzie beta sa odporúča nahlásiť chyby prostredníctvom služby Google Play alebo
-        (najlepšie) prostredníctvom %s.
+        Používateľom beta verzie sa odporúča nahlásiť chyby prostredníctvom služby Google Play alebo
+        (prednostne) cez%s.
     </string>
   <string name="beta_notice_content_3">Ak ste programátor, zvážte zaslanie opravy
         k chybe prostredníctvom %s . :-)</string>
