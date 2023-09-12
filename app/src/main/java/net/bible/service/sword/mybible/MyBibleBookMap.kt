@@ -31,14 +31,13 @@ val myBibleIntToBibleBook = mapOf(
     100 to BibleBook.SAM2,
     110 to BibleBook.KGS1,
     120 to BibleBook.KGS2,
-    //180 to
     130 to BibleBook.CHR1,
     140 to BibleBook.CHR2,
-    //145 to
     150 to BibleBook.EZRA,
     160 to BibleBook.NEH,
-    //165 to
+    165 to BibleBook.ES1, // 2nd Esra
     170 to BibleBook.TOB,
+    180 to BibleBook.JTH,    
     190 to BibleBook.ESTH,
     192 to BibleBook.ADD_ESTH,
     220 to BibleBook.JOB,
@@ -47,6 +46,7 @@ val myBibleIntToBibleBook = mapOf(
     250 to BibleBook.ECCL,
     260 to BibleBook.SONG,
     270 to BibleBook.WIS,
+    272 to BibleBook.PSO, // Solomon's Wisdom
     280 to BibleBook.SIR,
     290 to BibleBook.ISA,
     300 to BibleBook.JER,
@@ -81,13 +81,7 @@ val myBibleIntToBibleBook = mapOf(
     490 to BibleBook.LUKE,
     500 to BibleBook.JOHN,
     510 to BibleBook.ACTS,
-    660 to BibleBook.JAS,
-    670 to BibleBook.PET1,
-    680 to BibleBook.PET2,
-    690 to BibleBook.JOHN1,
-    700 to BibleBook.JOHN2,
-    710 to BibleBook.JOHN3,
-    720 to BibleBook.JUDE,
+    511 to BibleBook.DID, // Didache
     520 to BibleBook.ROM,
     530 to BibleBook.COR1,
     540 to BibleBook.COR2,
@@ -102,9 +96,17 @@ val myBibleIntToBibleBook = mapOf(
     630 to BibleBook.TITUS,
     640 to BibleBook.PHLM,
     650 to BibleBook.HEB,
+    660 to BibleBook.JAS,
+    670 to BibleBook.PET1,
+    680 to BibleBook.PET2,
+    690 to BibleBook.JOHN1,
+    700 to BibleBook.JOHN2,
+    710 to BibleBook.JOHN3,
+    720 to BibleBook.JUDE,
     730 to BibleBook.REV,
     780 to BibleBook.EP_LAO,
-    811 to BibleBook.EN1,
+    800 to BibleBook.ODES,
+    811 to BibleBook.EN1, // Ephiopian Enoch
 )
 
 val bibleBookToMyBibleInt = myBibleIntToBibleBook.toList().associate { (k, v) -> v to k }
