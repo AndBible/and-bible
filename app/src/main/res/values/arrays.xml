@@ -112,6 +112,7 @@
 		<item>@string/lang_dutch</item>
 		<item>@string/lang_polish</item>
 		<item>@string/lang_portuguese</item>
+		<item>@string/lang_portuguese_brazil</item>
 		<item>@string/lang_romanian</item>
 		<item>@string/lang_russian</item>
 		<item>@string/lang_slovak</item>
@@ -155,6 +156,7 @@
 		<item>nl</item>
 		<item>pl</item>
 		<item>pt</item>
+		<item>pt-BR</item>
 		<item>ro</item>
 		<item>ru</item>
 		<item>sk</item>
