@@ -23,8 +23,14 @@
   <div v-else>
     <h2>{{ document.verseRange }}</h2>
   </div>
-  <div class="note-container verse" v-for="b in notes" :key="b.id" :id="`o-${b.ordinalRange[0]}`">
-    <MyNoteRow :bookmark="b"/>
+  <div
+      class="note-container ordinal"
+      v-for="b in notes"
+      :key="b.id"
+      :id="`o-${b.ordinalRange[0]}`"
+      :data-ordinal="b.ordinalRange[0]"
+  >
+      <MyNoteRow :bookmark="b"/>
   </div>
 </template>
 

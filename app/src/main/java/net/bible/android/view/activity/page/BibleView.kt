@@ -1321,7 +1321,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun replaceDocument() {
         Log.i(TAG, "replaceDocument")
         val documentStr = latestDocumentStr
-        val verse = if(isBible) initialKey as? Verse else null
+        val verse = if(isBible || isMyNotes) initialKey as? Verse else null
         synchronized(this) {
             needsDocument = false
             contentVisible = true
@@ -1803,6 +1803,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private val isBible get() = firstDocument is BibleDocument
+    private val isCommentary get() = (firstDocument as? OsisDocument)?.book?.bookCategory == BookCategory.COMMENTARY
+    private val isMyNotes get() = firstDocument is MyNotesDocument
 
     val verseRangeLoaded: VerseRange? get() {
         val key = (firstKey as? Verse)?: return null
