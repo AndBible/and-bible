@@ -55,7 +55,7 @@ const notes = computed<BibleBookmark[]>(() => {
     const hideLabels = new Set(config.bookmarksHideLabels);
     let bs = bs1.filter(v =>
         isBibleBookmark(v) &&
-        rangesOverlap(v.ordinalRange, ordinalRange, {addRange: true}) &&
+        rangesOverlap(v.ordinalRange, ordinalRange, {addRange: true, inclusive: true}) &&
         intersection(new Set(v.labels), hideLabels).size === 0
     ) as BibleBookmark[]
 
