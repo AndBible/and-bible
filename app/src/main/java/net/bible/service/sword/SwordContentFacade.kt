@@ -137,6 +137,8 @@ object SwordContentFacade {
             throw OsisError(application.getString(R.string.error_no_content))
         }
 
+        osisFragmentCache.get(cacheKey)?.let { return it }
+
         when {
             Books.installed().getBook(book.initials) == null -> {
                 Log.w(TAG, "Book may have been uninstalled:$book")
@@ -150,8 +152,6 @@ object SwordContentFacade {
                 throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
             }
         }
-
-        osisFragmentCache.get(cacheKey)?.let { return it }
 
         return synchronized(book) {
             osisFragmentCache.get(cacheKey) ?: let {
@@ -377,7 +377,12 @@ object SwordContentFacade {
     private fun cachedText(book: Book, key: Key): Map<Int, String> = synchronized(this) {
         val cacheKey = "${book.initials}-${key.osisRef}"
         plainTextCache.get(cacheKey) ?: run {
-            val frag = readOsisFragment(book, key)
+            val frag = try {
+                readOsisFragment(book, key)
+            } catch (e: OsisError) {
+                Log.e(TAG, "Could not read fragment", e)
+                return@run emptyMap()
+            }
             val texts = bvaQuery.evaluate(frag).associate { it.getAttribute("ordinal").value.toInt() to getTextRecursively(it) }
             plainTextCache.put(cacheKey, texts)
             texts

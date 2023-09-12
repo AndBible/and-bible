@@ -115,11 +115,11 @@ export function useInfiniteScroll(
         scrollPosition = () => window.pageYOffset,
         setScrollPosition = (offset: number) => window.scrollTo(0, offset),
         addMoreAtEnd = () => {
-            if (!isEnabled.value) return;
+            if (!isEnabled.value || isProcessing) return;
             return loadTextAtEnd();
         },
         addMoreAtTop = () => {
-            if (!isEnabled.value) return;
+            if (!isEnabled.value || isProcessing) return;
             if (touchDown) {
                 // adding at top is tricky and if the user is still holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;
