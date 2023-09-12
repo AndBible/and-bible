@@ -119,6 +119,7 @@ open class BibleApplication : Application() {
             BugReport.saveScreenshot()
             Log.e(TAG, "App crashed due to exception", e)
             BugReport.saveLogcat()
+            BugReport.saveStackTrace(e)
             CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
             defaultExceptionHandler.uncaughtException(t, e)
         }
