@@ -90,7 +90,7 @@ import {
     setupDocumentEventListener,
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton.vue";
-import {emit} from "@/eventbus";
+import {emit, setupEventBusListener} from "@/eventbus";
 import AmbiguousActionButtons from "@/components/AmbiguousActionButtons.vue";
 import {sortBy} from "lodash";
 import {
@@ -134,6 +134,11 @@ provide(locateTopKey, locateTop);
 
 const verseInfo: Ref<Nullable<EventVerseInfo>> = ref(null);
 const ordinalInfo: Ref<Nullable<EventOrdinalInfo>> = ref(null);
+
+setupEventBusListener("clear_document", () => {
+   verseInfo.value = null;
+   ordinalInfo.value = null;
+});
 
 const selectionInfo = computed<Nullable<SelectionInfo>>(() => {
     if (!verseInfo.value && !ordinalInfo.value) return null;
