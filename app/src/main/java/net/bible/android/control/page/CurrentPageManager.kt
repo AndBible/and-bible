@@ -179,7 +179,7 @@ open class CurrentPageManager @Inject constructor(
 
                 // page will change due to above
                 // if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
-                if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || nextDocument.contains(nextPage.key))) {
+                if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || (nextDocument.bookCategory != BookCategory.GENERAL_BOOK && nextDocument.contains(nextPage.key)))) {
                     PassageChangeMediator.onCurrentPageChanged(window)
                 } else {
                     // pop up a key selection screen
