@@ -1833,6 +1833,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return@synchronized
             }
             val prevKey = currentPage.getKeyPlus(firstKey, -1)
+            if(prevKey == firstKey) {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
+            }
+
             firstKey = prevKey
 
             scope.launch(Dispatchers.IO) {
@@ -1866,6 +1871,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return@synchronized
             }
             val nextKey = currentPage.getKeyPlus(lastKey, 1)
+            if(nextKey == lastKey) {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
+            }
             lastKey = nextKey
             scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(nextKey)
