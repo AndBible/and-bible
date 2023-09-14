@@ -139,7 +139,8 @@
             android:name="net.bible.android.view.activity.bookmark.ManageLabels"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/manage_labels"
-            android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />
+            android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks"
+            />
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -236,7 +237,8 @@
             android:name="net.bible.android.view.activity.download.DownloadActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/download"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+            android:parentActivityName=".StartupActivity"
+            />
         <activity
             android:name="net.bible.android.view.activity.download.ProgressStatus"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

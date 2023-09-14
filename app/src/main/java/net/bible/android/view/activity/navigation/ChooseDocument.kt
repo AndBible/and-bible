@@ -145,11 +145,11 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                 try {
                     if (downloadControl.checkDownloadOkay()) {
                         val handlerIntent = Intent(this, DownloadActivity::class.java)
-                        val requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
-                        startActivityForResult(handlerIntent, requestCode)
-
-                        // do not return here after download
-                        finish()
+                        lifecycleScope.launch {
+                            awaitIntent(handlerIntent)
+                            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                            reloadDocuments()
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error sorting bookmarks", e)
@@ -166,6 +166,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                 lifecycleScope.launch {
                     awaitIntent(intent)
                     ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                    reloadDocuments()
                 }
             }
         }
