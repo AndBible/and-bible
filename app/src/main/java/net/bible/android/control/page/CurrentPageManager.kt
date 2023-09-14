@@ -90,7 +90,7 @@ open class CurrentPageManager @Inject constructor(
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
 
     val titleText: String get() =
-        if(isBibleShown || isCommentaryShown) {
+        if(isBibleShown || isCommentaryShown || isMyNotesShown) {
             currentBibleVerse.verse.tinyName
         } else {
             ""
