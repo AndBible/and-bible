@@ -77,6 +77,7 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.firstBibleDoc
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.isStudyPad
 import net.bible.service.sword.StudyPadKey
@@ -544,7 +545,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         }
         buttonsVisible = show
     }
-    var firstTime = true
+    private var firstTime = true
     private fun updateRestoreButtons() {
         val animate = !firstTime
         if(firstTime) {
@@ -604,7 +605,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         val isSettingDisabled = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false)
         if (isSettingDisabled) return
 
-        val show = mainBibleActivity.fullScreen && _show
+        val show = mainBibleActivity.fullScreen && windowControl.activeWindow.pageManager.isBibleShown && _show
         if(show) {
             bibleReferenceOverlay.visibility = View.VISIBLE
             bibleReferenceOverlay.animate().alpha(1.0f)
