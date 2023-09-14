@@ -153,7 +153,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_backup_restore_24dp"
                 app:tint="?attr/toolbarTextColor"
-                android:visibility="invisible"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

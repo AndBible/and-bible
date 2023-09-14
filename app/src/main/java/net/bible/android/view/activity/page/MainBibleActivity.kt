@@ -1232,6 +1232,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 binding.run {
                     homeButton.setBackgroundColor(toolbarColor)
                     pageTitle.setBackgroundColor(toolbarColor)
+                    syncIcon.setBackgroundColor(toolbarColor)
                     documentTitle.setBackgroundColor(toolbarColor)
                     toolbarButtonLayout.setBackgroundColor(toolbarColor)
                 }
