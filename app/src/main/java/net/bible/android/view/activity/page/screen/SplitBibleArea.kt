@@ -699,7 +699,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         val syncGroupSubMenu = menu.findItem(R.id.syncGroupSubMenu).subMenu!!
         syncGroupSubMenu.removeItem(R.id.syncGroupItem)
 
-        for(i in 0..3) {
+        for(i in 0..5) {
             if(window.isSynchronised && i == window.syncGroup) continue
             val syncGroupTitle = app.getString(R.string.sync_group_n, i + 1)
             syncGroupSubMenu.add(Menu.NONE, R.id.syncGroupItem, i, syncGroupTitle)
