@@ -142,6 +142,7 @@ function speak() {
 @import "~@/common.scss";
 
 .large-action {
+  cursor: pointer;
   min-width: 40px; // Ensures dynamic plus icon has sufficient space to be appended
   display: flex;
   flex-direction: row;
