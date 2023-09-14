@@ -297,7 +297,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         setOnLongClickListener(BibleViewLongClickListener())
     }
 
-    private var showSystem = false
     private var step2 = false
 
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
@@ -371,12 +370,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 mainBibleActivity.startActivity(intent)
 
                 return true
-            }
-            R.id.system_items -> {
-                showSystem = true
-                mode.menu.clear()
-                mode.invalidate()
-                return false
             }
             else -> false
         }
@@ -546,7 +539,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 }
 
                 menu.findItem(R.id.copy).isVisible = true
-                menu.findItem(R.id.system_items).isVisible = false
             }
 
             menuPrepared = false
@@ -559,15 +551,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 step2 = false
                 return true
             }
-            if (showSystem || editingTextInJs) {
+            if (editingTextInJs) {
                 return true
             } else {
                 menu.clear()
                 scope.launch {
                     if (setCurrentSelection())
                         menuPrepared = true
-                    else
-                        showSystem = true
 
                     withContext(Dispatchers.Main) {
                         mode.invalidate()
@@ -634,7 +624,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            if(showSystem || editingTextInJs) {
+            if(editingTextInJs) {
                 val rv = callback.onActionItemClicked(mode, item)
                 mode.finish()
                 return rv
@@ -645,7 +635,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
-            showSystem = false
             executeJavascriptOnUiThread("bibleView.emit('set_action_mode', false);")
             return callback.onDestroyActionMode(mode)
         }
