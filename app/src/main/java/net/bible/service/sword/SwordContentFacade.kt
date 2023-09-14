@@ -87,9 +87,14 @@ class JSwordError(message: String) : OsisError(message, message)
 object SwordContentFacade {
     private const val docCacheSize = 100
     private val osisFragmentCache = LruCache<String, Element>(docCacheSize)
+    private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
 
     /** top level method to fetch html from the raw document data
      */
+    fun clearCaches() {
+        osisFragmentCache.evictAll()
+        plainTextCache.evictAll()
+    }
 
     private val dashesRe = Regex("""\p{Pd}""")
     fun resolveRef(searchRef_: String, lang: String, v11n: Versification): Key? {
@@ -380,7 +385,6 @@ object SwordContentFacade {
 
     private val bvaQuery = XPathFactory.instance().compile(".//ns:BVA", Filters.element(), null, xhtmlNamespace)
 
-    private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
     private fun cachedText(book: Book, key: Key): Map<Int, String> = synchronized(this) {
         val cacheKey = "${book.initials}-${key.osisRef}"
         plainTextCache.get(cacheKey) ?: run {
@@ -742,5 +746,4 @@ object SwordContentFacade {
     fun setAndroid(isAndroid: Boolean) {
         this.isAndroid = isAndroid
     }
-
 }
