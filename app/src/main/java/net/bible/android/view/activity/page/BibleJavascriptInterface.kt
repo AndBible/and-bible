@@ -423,6 +423,9 @@ class BibleJavascriptInterface(
             val singleKey = try {KeyUtil.getVerse(key)} catch (e: ClassCastException) {key}
             val ordinalRange = OrdinalRange(ordinal, positiveOrNull(endOrdinal))
             val bookAndKey = BookAndKey(singleKey, book, ordinalRange)
+            if(mainBibleActivity.speakControl.isSpeaking) {
+                mainBibleActivity.speakControl.pause(willContinueAfterThis = true, toast = false)
+            }
             mainBibleActivity.speakControl.speakGeneric(bookAndKey)
         }
     }
