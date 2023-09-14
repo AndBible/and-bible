@@ -1577,7 +1577,7 @@ object CommonUtils : CommonUtilsBase() {
         v11n: String? = null,
         ordinal: Int? = null
     ): String {
-        var url = "https://andbible.org/bible/$keyStr"
+        var url = "https://read.andbible.org/$keyStr"
         val queryParameters = mutableListOf<String>()
         if(docInitials != null) {
             queryParameters.add("document=$docInitials")

@@ -58,7 +58,6 @@ import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.page.OpenLink
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
@@ -401,11 +400,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
         handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         if(intent?.action == Intent.ACTION_VIEW) {
-            if(MainBibleActivity.initialized) {
-                intent.dataString?.let { ABEventBus.post(OpenLink(it)) }
-            } else {
-                handlerIntent.putExtra("openLink", intent.dataString)
-            }
+            handlerIntent.putExtra("openLink", intent.dataString)
         }
         lifecycleScope.launch(Dispatchers.Main) {
             if(SwordDocumentFacade.bibles.none { !it.isLocked }) {

@@ -157,7 +157,6 @@ const val DEFAULT_SYNC_INTERVAL = 5*60L // 5 minutes
 
 private val syncScope = CoroutineScope(Dispatchers.IO)
 
-class OpenLink(val url: String)
 class SpeakTransportVisibilityChanged(val value: Boolean)
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
@@ -1065,14 +1064,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         updateTitle()
     }
 
-    fun onEventMainThread(event: OpenLink) {
-        openLink(Uri.parse(event.url))
-    }
-
     private fun openLink(uri: Uri) {
         when (uri.host) {
-            "andbible.org" -> {
-                val urlRegex = Regex("""/bible/(.*)""")
+            "read.andbible.org" -> {
+                val urlRegex = Regex("""/(.*)""")
                 val docStr = uri.getQueryParameter("document")
                 val doc = if (docStr != null) Books.installed().getBook(docStr) else null
 

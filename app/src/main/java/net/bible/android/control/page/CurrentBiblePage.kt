@@ -213,6 +213,8 @@ class CurrentBiblePage(
             true
         }
 
+    override var anchorOrdinal: OrdinalRange? = null
+
     companion object {
         private const val TAG = "CurrentBiblePage"
     }

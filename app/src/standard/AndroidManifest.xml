@@ -41,8 +41,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="https"
-                    android:host="andbible.org"
-                    android:pathPrefix="/bible/"
+                    android:host="read.andbible.org"
+                    android:pathPrefix="/"
                     />
                 <data
                     android:scheme="https"
