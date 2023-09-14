@@ -100,7 +100,14 @@ object SwordContentFacade {
             val k =
                 try { PassageKeyFactory.instance().getKey(v11n, searchRef) }
                 catch (e: Exception) { null }
-            if(k != null && k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter == 0)  {
+            if(k != null &&
+                try {
+                    k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter
+                } catch (e: Exception) {
+                    Log.e(TAG, "k.getRangeAt exception", e)
+                    null
+                } == 0
+            )  {
                 return null
             }
             return k
