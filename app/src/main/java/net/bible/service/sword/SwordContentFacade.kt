@@ -219,7 +219,7 @@ object SwordContentFacade {
         // group 1: before marker
         """((\d{2,}|\D)""" +
         // marker itself
-        """(([.,;:!?]["'\p{Pf}]?\p{Z}+)|(\p{Z}*\p{Pd}\p{Z}*)))"""+
+        """(([.,;:!?。，；]["'\p{Pf}]?\p{Z}+)|(\p{Z}*\p{Pd}\p{Z}*)))"""+
         // group 6: after marker
         """(["'¡¿\p{Pi}]?\p{L})"""
     )
