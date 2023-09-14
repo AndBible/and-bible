@@ -260,7 +260,7 @@ class BibleJavascriptInterface(
                 }
             }
             else -> {
-                CommonUtils.openLink(link)
+                CommonUtils.openLink(link, forceAsk=true)
             }
         }
     }

@@ -1015,9 +1015,9 @@ object CommonUtils : CommonUtilsBase() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    fun openLink(link: String) {
+    fun openLink(link: String, forceAsk: Boolean = false) {
         val activity = CurrentActivityHolder.currentActivity!!
-        if (isDiscrete) {
+        if (isDiscrete || forceAsk) {
             activity.lifecycleScope.launch(Dispatchers.Main) {
                 if(Dialogs.simpleQuestion(activity,
                         message = net.bible.android.view.activity.page.application.getString(R.string.external_link_question, link),
