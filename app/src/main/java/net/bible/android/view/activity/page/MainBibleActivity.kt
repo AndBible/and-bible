@@ -320,7 +320,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
         ABEventBus.post(ConfigurationChanged(resources.configuration))
-
+        binding.syncIcon.visibility = View.INVISIBLE
         updateToolbar()
         updateBottomBars()
         if (!CommonUtils.isCloudSyncAvailable) {
