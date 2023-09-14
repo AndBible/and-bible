@@ -499,6 +499,10 @@ interface BookmarkDao {
 
     @Update fun updateStudyPadTextEntries(studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>)
 
+    @Query("SELECT count(*) FROM GenericBookmarkWithNotes WHERE bookInitials=:document")
+    fun genericBookmarkCountFor(document: String): Int
+    fun genericBookmarkCountFor(document: Book): Int = genericBookmarkCountFor(document.initials)
+
     @Query("SELECT * FROM GenericBookmarkWithNotes WHERE bookInitials=:document AND `key`=:key")
     fun genericBookmarksFor(document: String, key: String): List<GenericBookmarkWithNotes>
     fun genericBookmarksFor(document: Book, key: Key): List<GenericBookmarkWithNotes> =

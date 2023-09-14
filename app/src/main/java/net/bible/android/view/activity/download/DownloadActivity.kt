@@ -400,16 +400,32 @@ open class DownloadActivity : DocumentSelectionBase(
         Dialogs.showErrorMsg(R.string.too_many_jobs)
     }
 
+    private val bookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+
     private fun manageDownload(documentToDownload: Book?) {
         if (documentToDownload != null
             && downloadControl.getDocumentStatus(documentToDownload).documentInstallStatus  != DocumentStatus.DocumentInstallStatus.BEING_INSTALLED
             && !documentToDownload.isPseudoBook
         ) {
-            AlertDialog.Builder(this)
-                .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)
-                .setCancelable(false)
-                .setPositiveButton(R.string.okay) { dialog, id -> doDownload(documentToDownload) }
-                .setNegativeButton(R.string.cancel) { dialog, id -> }.create().show()
+            if (documentToDownload.isInstalled && DatabaseContainer.ready && bookmarksDao.genericBookmarkCountFor(documentToDownload) > 0) {
+                val warningTitle = getString(R.string.bookmark_warning)
+                val warningMessage = getString(R.string.bookmark_warning2)
+                val warningRecommendation = getString(R.string.bookmark_warning4)
+                val warningQuestion = getString(R.string.bookmark_warning3)
+                val warningMsg = "$warningMessage\n\n$warningRecommendation\n\n$warningQuestion"
+                AlertDialog.Builder(this)
+                    .setTitle(warningTitle)
+                    .setMessage(warningMsg)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.yes) { dialog, id -> doDownload(documentToDownload) }
+                    .setNegativeButton(R.string.cancel) { dialog, id -> }.create().show()
+            } else {
+                AlertDialog.Builder(this)
+                    .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.okay) { dialog, id -> doDownload(documentToDownload) }
+                    .setNegativeButton(R.string.cancel) { dialog, id -> }.create().show()
+            }
         }
     }
 
