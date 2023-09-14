@@ -11,8 +11,8 @@
   <string name="menu">Menu</string>
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Passagem</string>
-  <string name="search">Encontrar</string>
-  <string name="search_in_andbible">Encontrar na Bíblia</string>
+  <string name="search">Pesquisar</string>
+  <string name="search_in_andbible">Pesquisar na Bíblia</string>
   <string name="settings">Preferências do aplicativo</string>
   <string name="history">Histórico</string>
   <string name="speak">Falar</string>
@@ -22,13 +22,13 @@
   <string name="contact">Contato</string>
   <string name="help_and_tips">Ajuda &amp; Dicas</string>
   <string name="administration">Administração</string>
-  <string name="rate_application">Classificação e Revisão</string>
-  <string name="chooce_document">Escolher Documento</string>
+  <string name="rate_application">Notas e avaliações</string>
+  <string name="chooce_document">Escolher documento</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Escolher Livro</string>
   <string name="choosePassageChapterName">Escolher Capítulo</string>
   <string name="choosePassageVerseName">Escolher Versículo</string>
-  <string name="bible">Biblía</string>
+  <string name="bible">Bíblia</string>
   <string name="deuterocanonical">Deuterocanônico</string>
   <!--Search-->
   <string name="search_index">Índice de pesquisa</string>
@@ -38,7 +38,7 @@
   <string name="indexing_wait_msg">Quando a indexação for concluída, você será levado para a página de busca.</string>
   <string name="index_create">Criar</string>
   <string name="rebuild_index">Reconstruir índice</string>
-  <string name="search_in">Encontrar em %s</string>
+  <string name="search_in">Pesquisar em %s</string>
   <string name="do_in_background">Continuar em segundo plano</string>
   <string name="rebuild_index_button">Reconstruir</string>
   <!--X results in module Y-->
@@ -94,12 +94,12 @@
   <string name="prefs_show_footnotes_summary">Mostrar resumo das notas de rodapé</string>
   <string name="prefs_show_xrefs_summary">Mostrar resumo de refexs</string>
   <string name="prefs_show_notes_title">Mostrar título das notas</string>
-  <string name="prefs_show_strongs_title">Mostrar título dos pontos fortes</string>
+  <string name="prefs_show_strongs_title">Números de Strong</string>
   <string name="prefs_show_morphology_title">Mostrar título da morfologia</string>
   <string name="prefs_section_title_title">Título do título da seção</string>
   <string name="prefs_red_letter_title">Título em letras vermelhas</string>
-  <string name="prefs_tilt_to_scroll_title">Título de incline para rolar</string>
-  <string name="prefs_toolbar_button_action_title">Título da ação do botão da barra de ferramentas</string>
+  <string name="prefs_tilt_to_scroll_title">Inclinar para deslizar página</string>
+  <string name="prefs_toolbar_button_action_title">Ação do botão da barra de ferramentas</string>
   <string name="prefs_toolbar_button_action_summary">Ação a ser executada ao pressionar / pressionar longamente os botões da barra de ferramentas Bíblia ou Comentário</string>
   <string name="prefs_toolbar_button_action_default">Pressione para abrir o menu, pressione e mantenha para a tela de documentos (padrão)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Pressione para abrir o próximo documento, pressione e mantenha para abrir o menu</string>
@@ -113,7 +113,7 @@
   <string name="prefs_navigate_to_verse_title">Navegar para o versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escolher o versículo (e capítulo) quando selecionar uma passagem</string>
   <string name="prefs_open_links_in_special_window_title">Janela de atalhos</string>
-  <string name="prefs_open_links_in_special_window_summary">Abrir links no resumo da janela especial</string>
+  <string name="prefs_open_links_in_special_window_summary">Abrir links numa janela especial para exibir rapidamente referências cruzadas e Strongs</string>
   <string name="prefs_text_size_sample_text">Texto de exemplo do tamanho do texto</string>
   <string name="prefs_screen_keep_on_title">Manter a tela ligada</string>
   <string name="prefs_screen_keep_on_summary">Impedir que a tela se desligue enquanto usa este aplicativo</string>
@@ -161,7 +161,7 @@
   <string name="line_spacing_summary">Definir o espaçamento entre linhas</string>
   <string name="select_none">Selecione nenhum</string>
   <string name="reset_are_you_sure">Tem certeza de que deseja redefinir?</string>
-  <string name="window_pinning_menutitle">Janela fixada</string>
+  <string name="window_pinning_menutitle">Fixar janela</string>
   <string name="hide_window_buttons_title">Ocultar botões da janela</string>
   <string name="hide_window_buttons_summary">Os botões da janela que são exibidos no lado direito das visualizações da Bíblia ficam ocultos. A barra de navegação da janela na parte inferior ainda é exibida e você pode abrir o menu pop-up da janela clicando-lhes longamente.</string>
   <string name="hide_bible_reference_overlay_title">Ocultar sobreposição de referência da Bíblia</string>
@@ -169,9 +169,9 @@
   <string name="full_screen_hide_buttons_pref_title">Ocultar botões em tela cheia</string>
   <string name="full_screen_hide_buttons_pref_summary">Ao alternar para o modo de tela cheia, ocultar automaticamente a barra de botões da janela na parte inferior da tela</string>
   <string name="prefs_dictionaries_cat">Dicionários</string>
-  <string name="choose_strongs_greek_dictionary_title">Dicionário grego Strongs</string>
-  <string name="choose_strongs_greek_dictionary_summary">Escolha o dicionário Strongs para definições de palavras gregas</string>
-  <string name="choose_strongs_hebrew_dictionary_title">Dicionário hebraico Strongs</string>
+  <string name="choose_strongs_greek_dictionary_title">Dicionário grego Strong</string>
+  <string name="choose_strongs_greek_dictionary_summary">Escolha o dicionário de Strong para definições de palavras gregas</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Dicionário hebraico de Strong</string>
   <string name="choose_strongs_hebrew_dictionary_summary">Escolha o dicionário Strongs para definições de palavras em hebraico</string>
   <string name="choose_strongs_greek_morphology_title">Morfologia grega de Robinson</string>
   <string name="choose_strongs_greek_morphology_summary">Escolha o dicionário para as definições de morfologia grega de Robinson</string>
@@ -221,12 +221,12 @@
   <string name="previous">Anterior</string>
   <string name="next">Próximo</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Por favor instale os dicionários Strong em Hebraico e Grego</string>
+  <string name="strongs_not_installed">Por favor instale os dicionários de Strong em Hebraico e Grego</string>
   <string name="no_indexed_bible_with_strongs_ref">Você deve fazer baixar uma bíblia contendo números do dicionário Strong e baixar o índice através da Pesquisa</string>
   <string name="morph_robinson_not_installed">Faça o download do dicionário \'Robinson\'s Morphological Analysis Codes\'</string>
   <string name="go_to_downloads">Ir para Baixar</string>
   <!--Module download-->
-  <string name="download">Baixar</string>
+  <string name="download">Baixar Documentos</string>
   <string name="redownload">Baixar novamente</string>
   <string name="download_confirmation">Deseja baixar uma Bíblia da internet?</string>
   <string name="download_source_last_updated">Última atualização da lista de Documentos  %s.</string>
@@ -266,7 +266,7 @@
   <string name="invalid_module">Este arquivo não contém um módulo SWORD válido</string>
   <string name="install_zip_title">Aguarde. Carregando módulos de um arquivo.</string>
   <string name="overwrite_files">Os seguintes arquivos já existem: %s
-Substituir?</string>
+Deseja substituir?</string>
   <string name="overwrite_files_title">Sobrescrever arquivos?</string>
   <string name="could_not_overwrite_files">Não foi possível sobrescrever os arquivos: %s.  Além disso, a instalação foi bem-sucedida.</string>
   <string name="install_do_you_want">Deseja instalar o módulo (%s)?</string>
@@ -294,9 +294,9 @@ Tem certeza de que deseja excluir %s junto com seu histórico de leitura?
 Dica: se você precisar atualizar o plano, basta importá-lo novamente com o mesmo nome de arquivo
  e o histórico será preservado.</string>
   <string name="plan_duplicate_user_plan">
-Existe um plano de leitura do utilizador no cartão SD
+Existe um plano de leitura do usuário no cartão SD
 jsword/readingplan com o mesmo nome que um plano interno. Não pode ser listado aqui.
-Mude o nome do ficheiro, deixando sua extensão como .properties</string>
+Mude o nome do arquivo, deixando sua extensão como .properties</string>
   <string name="plan_name_y1ntpspr">NT, Salmos e Provérbios num Ano</string>
   <string name="plan_description_y1ntpspr">
 Cortesia de HEARTLIGHT Internet Magazine,
@@ -529,7 +529,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <!--User Notes-->
   <string name="mynotes">Minhas notas</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Cópia de segurança e restauração</string>
+  <string name="backup_and_restore">Backup e restauração</string>
   <string name="backup_modules2">Fazer cópia de segurança dos documentos para...</string>
   <string name="backup_app_database2">Fazer cópia de segurança do banco de dados do aplicativo para ...</string>
   <string name="backup_app2">Cópia de segurança do aplicativo (arquivo .apk) para ...</string>
@@ -670,7 +670,7 @@ através de %s você mesmo. :-)</string>
   <string name="history_for">Histórico(%1$s:Janela%2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navegação</string>
-  <string name="help_nav_text">Vá para o capítulo seguinte ou anterior deslizando o dedo na tela.
+  <string name="help_nav_text">Vá para o capítulo seguinte ou o anterior deslizando o dedo na tela.
  Toque duas vezes no texto da Bíblia para alternar o modo de tela cheia.
  As telas divididas (também chamadas de janelas) têm um botão de menu no canto superior direito,
  o que permite que use várias funções específicas da janela e personalize a aparência e o comportamento da janela.</string>
@@ -797,9 +797,9 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Prossiga mesmo assim</string>
   <string name="proceed">Prosseguir</string>
-  <string name="rate_title">Classificação e revisão do aplicativo</string>
+  <string name="rate_title">Notas e avaliações do aplicativo</string>
   <string name="rate_message5">
-Avaliações positivas e detalhadas ajudam muito o Projeto de Open Source AndBible. Obrigado! </string>
+Avaliações positivas e detalhadas ajudam muito o Projeto Open Source AndBible. Obrigado! </string>
   <string name="rate_message6">
 Antes de dar uma avaliação negativa, por favor considere o seguinte:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -812,11 +812,11 @@ Se algum texto / tradução da Bíblia tem um problema, %s . </string>
   <string name="rate_message3">
 Se um texto em particular não está disponível no aplicativo, %s.</string>
   <string name="rate_message4">
-Os desenvolvedores deste aplicativo não são responsáveis pela manutençáo dos documentos. </string>
+Os desenvolvedores deste aplicativo não são responsáveis pela manutenção dos documentos. </string>
   <string name="bug_report">
 envie um relatório de erro (a partir do Menu Principal)</string>
   <string name="how_to_help">
-por favor leia o que pode fazer para ajudar</string>
+por favor leia o que se pode fazer para nos ajudar</string>
   <string name="send_email">
 enviar um e-mail para os desenvolvedores</string>
   <string name="proceed_google_play">
@@ -940,7 +940,7 @@ versão do aplicativo, que sempre exibe a calculadora, mesmo se os dados do apli
   <string name="packages_dir">Diretório de pacotes (arquivos ZIP)</string>
   <string name="warn_bad_document">Aviso: Este documento pode ser (ao menos parcialmente) de má qualidade técnica.</string>
   <!--Open links in AndBible (Deep linking)-->
-  <string name="open_bible_links_title">Abrir links bíblicos na AndBible</string>
+  <string name="open_bible_links_title">Abrir links bíblicos no AndBible</string>
   <string name="open_bible_links_summary">Quando clicar em atalhos suportados pelo URL bíblico e AndBible, abrí-los no AndBible</string>
   <string name="copyReference">Copiar atalho para área de transferência</string>
   <string name="reference_copied_to_clipboard">Referência copiada para a área de transferência</string>
