@@ -487,7 +487,7 @@ object BackupControl {
 
         val app: ApplicationInfo = callingActivity.applicationContext.applicationInfo
 
-        val tempFile = File(internalDbBackupDir, "and-bible.apk")
+        val tempFile = File(internalDbBackupDir, callingActivity.getString(R.string.apk_file))
         withContext(Dispatchers.IO) {
             tempFile.delete()
             File(app.sourceDir).copyTo(tempFile)
