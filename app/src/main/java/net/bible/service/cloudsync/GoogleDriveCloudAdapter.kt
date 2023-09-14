@@ -121,10 +121,10 @@ class GoogleDriveCloudAdapter: CloudAdapter {
         Log.i(TAG, "Starting")
         try {
             account = lastAccount ?: oneTapSignIn(activity).also {lastAccount = it }
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
             Log.e(TAG, "Error signing in", e)
             account = null
-            return@withContext false
+            throw e
         }
         val success = ensureDriveAccess(activity)
         if(!success) {
