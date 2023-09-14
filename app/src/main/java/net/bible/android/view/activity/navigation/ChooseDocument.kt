@@ -29,13 +29,16 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.document.canDelete
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.DocumentSearchDao
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.FakeBookFactory
@@ -156,6 +159,13 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
             R.id.backupButton -> {
                 lifecycleScope.launch {
                     BackupControl.backupModulesViaIntent(this@ChooseDocument)
+                }
+            }
+            R.id.installZip -> {
+                val intent = Intent(this, InstallZip::class.java)
+                lifecycleScope.launch {
+                    awaitIntent(intent)
+                    ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                 }
             }
         }
