@@ -537,8 +537,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         .setIntent(createProcessTextIntentForResolveInfo(resolveInfo))
                         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
                 }
-
-                menu.findItem(R.id.copy).isVisible = true
+                if(!isBible) {
+                    menu.findItem(R.id.copy).isVisible = true
+                }
             }
 
             menuPrepared = false
