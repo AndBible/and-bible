@@ -340,6 +340,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 if(ref != null) { linkControl.showLink(null,  ref) }
                 return true
             }
+            R.id.copy -> {
+                val clip = ClipData.newPlainText(application.getString(R.string.add_bookmark3), currentSelectionText)
+                CommonUtils.copyToClipboard(clip)
+                return true
+            }
             R.id.search -> {
                 val text = currentSelectionText
                 val sel = currentSelection
@@ -367,7 +372,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
                 return true
             }
-
             R.id.system_items -> {
                 showSystem = true
                 mode.menu.clear()
@@ -540,9 +544,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         .setIntent(createProcessTextIntentForResolveInfo(resolveInfo))
                         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
                 }
-                if(isBible) {
-                    menu.findItem(R.id.system_items).isVisible = false
-                }
+
+                menu.findItem(R.id.copy).isVisible = true
+                menu.findItem(R.id.system_items).isVisible = false
             }
 
             menuPrepared = false

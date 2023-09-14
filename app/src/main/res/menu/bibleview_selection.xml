@@ -47,6 +47,12 @@
 			android:orderInCategory="2"
 			app:showAsAction="always"
 			/>
+		<item android:id="@+id/copy"
+			android:title="@string/verse_action_copy"
+			android:orderInCategory="2"
+			android:visible="false"
+			app:showAsAction="always"
+			/>
 		<item android:id="@+id/search"
 			android:title="@string/search"
 			android:orderInCategory="2"
