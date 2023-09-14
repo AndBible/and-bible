@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
@@ -37,6 +38,8 @@ import net.bible.service.common.CommonUtils
 private const val SYNC_NOTIFICATION_ID=2
 const val SYNC_NOTIFICATION_CHANNEL="sync-notifications"
 private const val WAKELOCK_TAG = "andbible:sync-wakelock"
+
+class CloudSyncEvent(val running: Boolean = false)
 
 class SyncService: Service() {
     companion object {
@@ -92,12 +95,14 @@ class SyncService: Service() {
         wakeLock.acquire(5*60*1000) // 5 minutes
 
         scope.launch {
+            ABEventBus.post(CloudSyncEvent(true))
             CloudSync.synchronize()
             CloudSync.waitUntilFinished(true)
             Log.i(TAG, "Synchronize finished")
             if(wakeLock.isHeld) {
                 wakeLock.release()
             }
+            ABEventBus.post(CloudSyncEvent(false))
             stop()
         }
     }

@@ -144,6 +144,18 @@
                     />
 
             </LinearLayout>
+
+            <ImageView
+                android:id="@+id/syncIcon"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_backup_restore_24dp"
+                app:tint="?attr/toolbarTextColor"
+                android:visibility="invisible"
+                />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout

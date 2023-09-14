@@ -126,6 +126,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
@@ -1062,6 +1063,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
         updateTitle()
+    }
+
+    fun onEventMainThread(event: CloudSyncEvent) {
+        binding.syncIcon.visibility = if(event.running) View.VISIBLE else View.INVISIBLE
     }
 
     private fun openLink(uri: Uri) {
