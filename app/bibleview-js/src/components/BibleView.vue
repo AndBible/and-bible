@@ -164,7 +164,7 @@ function addDocuments(...docs: AnyDocument[]) {
         documents.push(...docs);
         await nextTick();
         await Promise.all(customCss.customCssPromises);
-        loadingCount.value--;
+        if(loadingCount.value > 0) loadingCount.value--;
     }
 
     documentPromise.value = doAddDocuments()
