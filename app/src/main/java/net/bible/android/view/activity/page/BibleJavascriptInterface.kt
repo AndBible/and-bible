@@ -53,6 +53,7 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.util.widget.ShareWidget
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
 import net.bible.service.common.displayName
@@ -259,7 +260,7 @@ class BibleJavascriptInterface(
                 }
             }
             else -> {
-                mainBibleActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+                CommonUtils.openLink(link)
             }
         }
     }
