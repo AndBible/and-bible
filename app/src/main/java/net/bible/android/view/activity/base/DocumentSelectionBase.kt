@@ -226,11 +226,15 @@ abstract class DocumentSelectionBase(
             })
             freeTextSearch.setOnClickListener {
                 languageSpinner.setText("")
+                documentTypeSpinner.setSelection(0)
+                filterDocuments()
             }
             freeTextSearch.setOnFocusChangeListener { i, hasFocus ->
                 if (hasFocus) {
                     languageSpinner.setText("")
                     freeTextSearch.setText("")
+                    documentTypeSpinner.setSelection(0)
+                    filterDocuments()
                 }
             }
             freeTextSearch.addTextChangedListener(object : TextWatcher {
@@ -269,6 +273,8 @@ abstract class DocumentSelectionBase(
 
             intent.getStringExtra("search")?.run {
                 freeTextSearch.setText(this)
+                documentTypeSpinner.setSelection(0)
+                filterDocuments()
             }
         }
         Log.i(TAG, "Initialize finished")
