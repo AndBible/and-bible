@@ -126,7 +126,10 @@ const bibleLink = {
             while (parsed === "" && text !== null) {
                 text = await inputText.value!.inputText(text, error);
                 if (text !== null) {
-                    parsed = parse(text)
+                    parsed = await android.parseRef(text)
+                    if(parsed === "") {
+                        parsed = parse(text)
+                    }
                     if (parsed === "") {
                         error = strings.invalidReference;
                     } else {

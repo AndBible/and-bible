@@ -41,6 +41,7 @@ export type BibleJavascriptInterface = {
     requestMoreToBeginning: AsyncFunc,
     requestMoreToEnd: AsyncFunc,
     refChooserDialog: AsyncFunc,
+    parseRef: (callId: number, s: String) => void,
     saveBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
     saveGenericBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
     removeBookmark: (bookmarkId: IdType) => void,
@@ -402,6 +403,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.openDownloads();
     }
 
+    async function parseRef(s: string): Promise<string> {
+        const result = await deferredCall((callId) => window.android.parseRef(callId, s))
+        return result ?? ""
+    }
+
     function updateOrderNumber(
         labelId: IdType,
         bookmarks: StudyPadBibleBookmarkItem[],
@@ -536,6 +542,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         speakGeneric,
         helpDialog,
         onKeyDown,
+        parseRef,
     }
 
     if (config.developmentMode) return {

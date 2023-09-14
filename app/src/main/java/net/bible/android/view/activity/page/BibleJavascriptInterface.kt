@@ -135,6 +135,12 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun parseRef(callId: Long, s: String) {
+        Log.i(TAG, "Request more text at end")
+        bibleView.parseRef(callId, s)
+    }
+
+    @JavascriptInterface
     fun refChooserDialog(callId: Long) {
         scope.launch {
             val intent = Intent(mainBibleActivity, GridChoosePassageBook::class.java).apply {

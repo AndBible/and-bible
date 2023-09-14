@@ -102,6 +102,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
+import net.bible.android.misc.wrapString
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
@@ -1923,6 +1924,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             windowRepository.activeWindow = window
         }
         super.onFocusChanged(focused, direction, previouslyFocusedRect)
+    }
+
+    fun parseRef(callId: Long, s: String) {
+        val ref = wrapString(linkControl.resolveRef(s, (firstDocument as? BibleDocument)?.swordBook)?.osisRef)
+        executeJavascriptOnUiThread("bibleView.response($callId, $ref);")
     }
 
     var onDestroy: (() -> Unit)? = null
