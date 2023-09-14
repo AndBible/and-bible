@@ -268,8 +268,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             val myBible = getString(R.string.format_mybible)
             val mySword = getString(R.string.format_mysword)
             val epub = getString(R.string.format_epub)
+            val fromFiles = getString(R.string.install_zip)
             val formats = getString(R.string.supported_formats, "$zip, $myBible, $mySword, $epub")
-            welcomeMessage.text = "$welcome \n\n$formats."
+            fromFilesMessage.text = htmlToSpan("<b>$fromFiles</b><br/><br/>$formats")
+            welcomeMessage.text = welcome
             versionText.text = versionMsg
             downloadButton.setOnClickListener { doGotoDownloadActivity() }
             importButton.setOnClickListener { onLoadFromZip() }

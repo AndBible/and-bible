@@ -97,14 +97,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/download" />
-
-			<Button
-				android:id="@+id/importButton"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:padding="15sp"
-				android:text="@string/install_zip" />
-
 			<TextView
 				android:id="@+id/redownloadMessage"
 				android:layout_width="match_parent"
@@ -130,7 +122,20 @@
 				android:padding="15sp"
 				android:text="@string/restore_database"
 				/>
-
+			<TextView
+				android:id="@+id/fromFilesMessage"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="5sp"
+				android:layout_marginTop="10sp"
+				android:textAppearance="@style/SplashTopFont"
+				/>
+			<Button
+				android:id="@+id/importButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="15sp"
+				android:text="@string/install_zip" />
 			<TextView
 				android:id="@+id/splash_url_text"
 				style="@style/SplashTopFont"
