@@ -58,14 +58,12 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleShowReference.isChecked = CommonUtils.settings.getBoolean("share_show_reference", true)
             toggleAbbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
             toggleShowVersion.isChecked = CommonUtils.settings.getBoolean("share_show_version", true)
-            toggleShowReferenceAtFront.isChecked =
-                CommonUtils.settings.getBoolean("share_show_reference_at_front", true)
             toggleNotes.visibility = if (selection.notes != null) View.VISIBLE else View.GONE
             toggleNotes.isChecked = CommonUtils.settings.getBoolean("show_notes", true)
             toggleShowSelectionOnly.isChecked = CommonUtils.settings.getBoolean("show_selection_only", true)
             toggleShowEllipsis.isChecked = CommonUtils.settings.getBoolean("show_ellipsis", true)
             toggleShowReferenceAtFront.isChecked =
-                CommonUtils.settings.getBoolean("share_show_ref_at_front_of_verse", false)
+                CommonUtils.settings.getBoolean("share_show_reference_at_front", true)
             toggleShowQuotes.isChecked = CommonUtils.settings.getBoolean("share_show_quotes", false)
 
             // update text when any toggle is clicked
@@ -112,7 +110,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             setBoolean("show_notes", bindings.toggleNotes.isChecked)
             setBoolean("show_selection_only", bindings.toggleShowSelectionOnly.isChecked)
             setBoolean("show_ellipsis", bindings.toggleShowEllipsis.isChecked)
-            setBoolean("share_show_ref_at_front_of_verse", bindings.toggleShowReferenceAtFront.isChecked)
+            setBoolean("share_show_reference_at_front", bindings.toggleShowReferenceAtFront.isChecked)
             setBoolean("share_show_quotes", bindings.toggleShowQuotes.isChecked)
         }
 
