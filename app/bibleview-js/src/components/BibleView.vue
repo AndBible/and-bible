@@ -177,6 +177,7 @@ setupEventBusListener("config_changed", async (deferred: Deferred) => {
 })
 
 setupEventBusListener("clear_document", function clearDocument() {
+    loadingCount.value = 0;
     footNoteCount = 0;
     documentsCleared();
     resetHighlights();
