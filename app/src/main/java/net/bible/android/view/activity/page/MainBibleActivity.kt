@@ -461,9 +461,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             val videoMessageLink = "<a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a>"
             val appName = getString(R.string.app_name_long)
             val par1 = getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
+            val buy = getString(R.string.buy_development)
             val support = getString(R.string.buy_development2)
             val heartIcon = ImageSpan(CommonUtils.getTintedDrawable(R.drawable.baseline_attach_money_24))
-            val buyMessage = "&nbsp;<a href=\"$buyDevelopmentLink\">$support</a>"
+            val buyMessage = "&nbsp;<a href=\"$buyDevelopmentLink\">$support</a> ($buy)"
             val htmlMessage = "$par1<br><br>$videoMessageLink<br><br>"
             val iconStr = SpannableString("*")
             iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
