@@ -28,7 +28,10 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.TextUtils
 import android.text.method.LinkMovementMethod
+import android.text.style.ImageSpan
 import android.util.Log
 import android.util.TypedValue
 import android.view.ContextMenu
@@ -78,7 +81,6 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
@@ -459,10 +461,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             val videoMessageLink = "<a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a>"
             val appName = getString(R.string.app_name_long)
             val par1 = getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
-
-            val htmlMessage = "$par1<br><br>$videoMessageLink"
-
-            val spanned = htmlToSpan(htmlMessage)
+            val support = getString(R.string.buy_development2)
+            val heartIcon = ImageSpan(CommonUtils.getTintedDrawable(R.drawable.baseline_attach_money_24))
+            val buyMessage = "&nbsp;<a href=\"$buyDevelopmentLink\">$support</a>"
+            val htmlMessage = "$par1<br><br>$videoMessageLink<br><br>"
+            val iconStr = SpannableString("*")
+            iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+            val spanned = TextUtils.concat(htmlToSpan(htmlMessage), iconStr, htmlToSpan(buyMessage))
 
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.stable_notice_title))
