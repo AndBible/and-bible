@@ -41,6 +41,7 @@
         >
           <div class="studypad-container" :style="indentStyle(j)" :id="`studypad-${j.type}-${j.id}`">
             <StudyPadRow
+                :key="`studypad-${j.type}-${j.id}`"
                 :ref="setStudyPadRowRef"
                 :journal-entry="j"
                 :label="document.label"
