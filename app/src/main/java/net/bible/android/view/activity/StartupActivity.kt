@@ -400,9 +400,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private fun gotoMainBibleActivity() {
         Log.i(TAG, "Going to MainBibleActivity")
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
-        handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         if(intent?.action == Intent.ACTION_VIEW) {
             handlerIntent.putExtra("openLink", intent.dataString)
+            handlerIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+        } else {
+            handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         lifecycleScope.launch(Dispatchers.Main) {
             if(SwordDocumentFacade.bibles.none { !it.isLocked }) {

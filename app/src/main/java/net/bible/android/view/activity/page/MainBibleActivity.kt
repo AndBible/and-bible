@@ -597,16 +597,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    override fun onPause() {
-        CommonUtils.windowControl.windowRepository.saveIntoDb(false)
-        fullScreen = false;
-        if(CommonUtils.showCalculator) {
-            (window.decorView as ViewGroup).removeView(binding.root)
-            super.setContentView(empty.root)
-        }
-        super.onPause()
-    }
-
     private var lastBackPressed: Long? = null
 
     override fun onBackPressed() {
@@ -1068,6 +1058,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
+        if(paused) return
         updateTitle()
     }
 
@@ -1382,6 +1373,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEvent(event: AppToBackgroundEvent) {
+        if(paused) return
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
             stopPeriodicSync()
@@ -1445,6 +1437,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEvent(event: ScreenSettings.NightModeChanged) {
+        if(paused) return
         if(CurrentActivityHolder.currentActivity == this) {
             refreshIfNightModeChange()
         }
@@ -1764,10 +1757,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
+        if(paused) return
         updateActions()
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
+        if(paused) return
         setSoftKeyboardMode()
     }
 
@@ -1783,19 +1778,61 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * called by PassageChangeMediator after a new passage has been changed and displayed
      */
     fun onEventMainThread(event: PassageChangedEvent) {
+        if(paused) return
         updateActions()
    }
 
+    private var paused = false
+    override fun onPause() {
+        windowControl.windowRepository.saveIntoDb(false)
+        paused = true
+        fullScreen = false
+        if(CommonUtils.showCalculator) {
+            (window.decorView as ViewGroup).removeView(binding.root)
+            super.setContentView(empty.root)
+        }
+        super.onPause()
+    }
+
     override fun onResume() {
-        windowControl.windowRepository = windowRepository
+        paused = false
+        var needRefresh = false
+        if(windowControl.windowRepository != windowRepository) {
+            windowControl.windowRepository = windowRepository
+            needRefresh = true
+        }
         super.onResume()
         if(CommonUtils.showCalculator && empty.root.parent != null) {
             (window.decorView as ViewGroup).removeView(empty.root)
             super.setContentView(binding.root)
         }
-
+        if(needRefresh) {
+            currentWorkspaceId = currentWorkspaceId // will reload workspace from db
+        }
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
+    }
+
+    private var frozen = false
+
+    override fun freeze() {
+        if(CurrentActivityHolder.mainBibleActivities < 2) return
+        if(!frozen) {
+            ABEventBus.unregister(this)
+            (window.decorView as ViewGroup).removeView(binding.root)
+            super.setContentView(frozenBinding.root)
+        }
+        frozen = true
+    }
+
+    override fun unFreeze() {
+        if(frozen) {
+            windowControl.windowRepository = windowRepository
+            ABEventBus.register(this)
+            (window.decorView as ViewGroup).removeView(frozenBinding.root)
+            super.setContentView(binding.root)
+        }
+        frozen = false
     }
 
     /**
@@ -1819,28 +1856,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val isSplitVertically: Boolean get() {
         val reverse = windowRepository.workspaceSettings.enableReverseSplitMode
         return if(reverse) !CommonUtils.isPortrait else CommonUtils.isPortrait
-    }
-
-    private var frozen = false
-
-    override fun freeze() {
-        if(CurrentActivityHolder.mainBibleActivities < 2) return
-        if(!frozen) {
-            ABEventBus.unregister(this)
-            (window.decorView as ViewGroup).removeView(binding.root)
-            super.setContentView(frozenBinding.root)
-        }
-        frozen = true
-    }
-
-    override fun unFreeze() {
-        if(frozen) {
-            windowControl.windowRepository = windowRepository
-            ABEventBus.register(this)
-            (window.decorView as ViewGroup).removeView(frozenBinding.root)
-            super.setContentView(binding.root)
-        }
-        frozen = false
     }
 
     fun activate(v: View) {
