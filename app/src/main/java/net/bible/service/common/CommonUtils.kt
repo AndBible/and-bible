@@ -53,6 +53,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
+import android.text.style.ImageSpan
 import android.text.style.URLSpan
 import android.util.LayoutDirection
 import android.util.Log
@@ -116,6 +117,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.Selection
+import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
@@ -988,7 +990,15 @@ object CommonUtils : CommonUtilsBase() {
             } else this
         }
 
-        var htmlMessage = ""
+        val buy = app.getString(R.string.buy_development)
+        val support = app.getString(R.string.buy_development2)
+        val heartIcon = ImageSpan(getTintedDrawable(R.drawable.baseline_attach_money_24))
+        val buyMessage = "<b>$support</b><br><br><a href=\"$buyDevelopmentLink\">$buy</a>"
+        val iconStr = SpannableString("* ")
+        iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val spannedBuy = TextUtils.concat(iconStr, htmlToSpan(buyMessage))
+
+        var htmlMessage = "<br><br>"
 
         for(helpItem in help) {
             val videoMessage =
@@ -1002,7 +1012,7 @@ object CommonUtils : CommonUtilsBase() {
         if(showVersion)
             htmlMessage += "<i>$versionMsg</i>"
 
-        val spanned = htmlToSpan(htmlMessage)
+        val spanned = TextUtils.concat(spannedBuy, htmlToSpan(htmlMessage))
 
         val d = AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
