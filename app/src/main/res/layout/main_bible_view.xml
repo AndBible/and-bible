@@ -82,6 +82,17 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/pageTitle" />
+
+                <ImageView
+                    android:id="@+id/syncIcon"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_backup_restore_24dp"
+                    app:tint="?attr/toolbarTextColor"
+                    />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
@@ -144,19 +155,6 @@
                     />
 
             </LinearLayout>
-
-            <ImageView
-                android:id="@+id/syncIcon"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:layout_marginTop="2dp"
-                android:layout_marginStart="2dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_backup_restore_24dp"
-                app:tint="?attr/toolbarTextColor"
-                />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
