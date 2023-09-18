@@ -993,12 +993,12 @@ object CommonUtils : CommonUtilsBase() {
         val buy = app.getString(R.string.buy_development)
         val support = app.getString(R.string.buy_development2)
         val heartIcon = ImageSpan(getTintedDrawable(R.drawable.baseline_attach_money_24))
-        val buyMessage = "<b>$support</b><br><br><a href=\"$buyDevelopmentLink\">$buy</a>"
+        val buyMessage = "<b>$support</b>: <a href=\"$buyDevelopmentLink\">$buy</a>"
         val iconStr = SpannableString("* ")
         iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
         val spannedBuy = TextUtils.concat(iconStr, htmlToSpan(buyMessage))
 
-        var htmlMessage = "<br><br>"
+        var htmlMessage = ""
 
         for(helpItem in help) {
             val videoMessage =
@@ -1009,10 +1009,8 @@ object CommonUtils : CommonUtilsBase() {
             val helpText = app.getString(helpItem.text).replace("\n", "<br>")
             htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$videoMessage$helpText<br><br>"
         }
-        if(showVersion)
-            htmlMessage += "<i>$versionMsg</i>"
 
-        val spanned = TextUtils.concat(spannedBuy, htmlToSpan(htmlMessage))
+        val spanned = TextUtils.concat(htmlToSpan(htmlMessage), spannedBuy, if(showVersion) htmlToSpan("<br><br><i>$versionMsg</i>") else "")
 
         val d = AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
