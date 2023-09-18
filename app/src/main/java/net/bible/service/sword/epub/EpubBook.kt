@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.epub
 
+import android.util.Log
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
@@ -171,6 +172,7 @@ fun addManuallyInstalledEpubBooks(): Boolean {
         try {
             addEpubBook(f)
         } catch (e: JDOMParseException) {
+            Log.e(TAG, "addEpubBook catched JDOMParseException", e)
             f.deleteRecursively()
             ok = false
         }

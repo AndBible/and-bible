@@ -120,11 +120,11 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     private fun getFragment(key: Key): EpubFragment? = dao.getFragment(key.osisRef.toLong())
 
-    fun fileForOriginalId(id: String) = File(rootFolder, idToFile[id]!!)
+    fun fileForOriginalId(id: String): File? = idToFile[id]?.let {File(rootFolder, it) }
 
     fun styleSheets(key: Key): List<File> {
         val frag = getFragment(key)?: return emptyList()
-        val file = fileForOriginalId(frag.originalId)
+        val file = fileForOriginalId(frag.originalId)?: return emptyList()
         val parentFolder = file.parentFile
         return dao.styleSheets(frag.originalId).map { File(parentFolder, it.styleSheetFile) }
     }

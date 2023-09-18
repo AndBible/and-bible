@@ -37,8 +37,8 @@ import java.net.URLDecoder
 import java.util.zip.GZIPOutputStream
 
 private val urlRe = Regex("""^https?://.*""")
-fun EpubBackendState.readOriginal(origId: String): Pair<Document, Int> {
-    val file = fileForOriginalId(origId)
+fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
+    val file = fileForOriginalId(origId)?: return Pair(null, 0)
     val parentFolder = file.parentFile!!
 
     fun epubSrc(src: String): String {
@@ -228,6 +228,7 @@ fun EpubBackendState.optimizeEpub() {
         Log.i(TAG, "${bookMetaData.name}: optimizing $k")
 
         val (origDocument, maxOrdinal) = readOriginal(k)
+        origDocument ?: continue
 
         val fragments = splitIntoFragments(k, origDocument, maxOrdinal)
         val ids = writeDao.insert(*fragments.toTypedArray())
@@ -252,7 +253,7 @@ fun EpubBackendState.optimizeEpub() {
             writeDao.insert(*epubHtmlToFrags)
             frag.element = null // clear up memory
         }
-        fileForOriginalId(k).delete()
+        fileForOriginalId(k)?.delete()
     }
     val total = (System.currentTimeMillis() - start) / 1000
     writeDb.close()
