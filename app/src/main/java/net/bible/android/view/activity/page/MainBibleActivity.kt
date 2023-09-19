@@ -1373,7 +1373,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEvent(event: AppToBackgroundEvent) {
-        if(paused) return
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
             stopPeriodicSync()
