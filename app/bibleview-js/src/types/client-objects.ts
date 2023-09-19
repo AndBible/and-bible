@@ -140,6 +140,10 @@ export type StudyPadGenericBookmarkItem = BaseStudyPadBookmarkItem & GenericBook
 
 export type StudyPadItem = BaseStudyPadBookmarkItem | StudyPadTextItem
 
+export function isStudyPadBookmark(item: StudyPadItem): item is BaseStudyPadBookmarkItem {
+    return item.type === "bookmark" || item.type === "generic-bookmark"
+}
+
 export type BookmarkStyle = Readonly<{
     color: number
     isSpeak: boolean

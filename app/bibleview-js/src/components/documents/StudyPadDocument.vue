@@ -52,7 +52,7 @@
       </template>
     </draggable>
     <div v-if="journalEntries.length > 0 && !exportMode">
-      <span v-if="lastEntry.type === 'bookmark' && !asBookmarkItem(lastEntry).hasNote" class="journal-button"
+      <span v-if="isStudyPadBookmark(lastEntry) && !lastEntry.hasNote" class="journal-button"
             @click="editLastNote">
         <FontAwesomeIcon icon="edit"/>
       </span>
@@ -76,9 +76,9 @@ import {useStudyPad} from "@/composables/journal";
 import {StudyPadDocument} from "@/types/documents";
 import {
     BaseBookmarkToLabel,
-    BaseStudyPadBookmarkItem,
     BibleBookmarkToLabel,
     GenericBookmarkToLabel,
+    isStudyPadBookmark,
     StudyPadBibleBookmarkItem,
     StudyPadGenericBookmarkItem,
     StudyPadItem,
@@ -104,10 +104,6 @@ const {scrollToId} = inject(scrollKey)!;
 const android = inject(androidKey)!;
 
 type StudyPadRowType = InstanceType<typeof StudyPadRow>
-
-function asBookmarkItem(item: StudyPadItem) {
-    return item as BaseStudyPadBookmarkItem
-}
 
 const studyPadRowRefs: StudyPadRowType[] = [];
 const exportMode = inject(exportModeKey, ref(false));
@@ -183,7 +179,7 @@ const journalEntries: Ref<StudyPadItem[]> = computed({
 });
 const adding = ref(false);
 
-const lastEntry = computed(() => journalEntries.value[journalEntries.value.length - 1]);
+const lastEntry = computed<StudyPadItem>(() => journalEntries.value[journalEntries.value.length - 1]);
 
 setupEventBusListener("add_or_update_study_pad", async (
     {
