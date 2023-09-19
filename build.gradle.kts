@@ -30,7 +30,7 @@ buildscript {
     val jvmToolChainVersion by extra(17)
     val coreKtxVersion by extra("1.10.0")
     val sqliteAndroidVersion by extra("3.42.0")
-    val jswordVersion by extra("2.3.97")
+    val jswordVersion by extra("2.3.98")
 
 
     repositories {

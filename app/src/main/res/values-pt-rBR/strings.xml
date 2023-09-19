@@ -20,7 +20,7 @@
   <string name="information">Informações</string>
   <string name="other">Outros</string>
   <string name="contact">Contato</string>
-  <string name="help_and_tips">Ajuda &amp; Dicas</string>
+  <string name="help_and_tips">Ajuda e dicas</string>
   <string name="administration">Administração</string>
   <string name="rate_application">Notas e avaliações</string>
   <string name="chooce_document">Escolher documento</string>
@@ -33,7 +33,7 @@
   <!--Search-->
   <string name="search_index">Índice de pesquisa</string>
   <string name="index_creation_required">Um índice é necessário para pesquisar</string>
-  <string name="create_index_for">É necessário um índice para pesquisar. \n\nCriar um índice para  %s?</string>
+  <string name="create_index_for">É necessário um índice para pesquisar. \n\nDeseja criar um índice para %s?</string>
   <string name="rebuild_index_for">Reconstruir índice para %s?</string>
   <string name="indexing_wait_msg">Quando a indexação for concluída, você será levado para a página de busca.</string>
   <string name="index_create">Criar</string>
@@ -82,7 +82,7 @@
   <string name="prefs_show_mynotes_summary">Mostrar o ícone nos versículos com Minhas notas</string>
   <string name="prefs_show_notes_summary">Mostrar notas de rodapé e referências cruzadas</string>
   <string name="prefs_show_strongs_summary">Atalhos para definições em grego &amp; hebraico</string>
-  <string name="prefs_show_morphology_summary">Mostrar morfologia grega do dicionário Robinson.</string>
+  <string name="prefs_show_morphology_summary">Mostrar morfologia grega de Robinson</string>
   <string name="prefs_section_title_summary">Mostrar títulos das seções não canônicas</string>
   <string name="prefs_red_letter_summary">Mostrar as palavras de Cristo em vermelho</string>
   <string name="prefs_text_size_title">Preferências da fonte</string>
@@ -96,8 +96,8 @@
   <string name="prefs_show_notes_title">Mostrar título das notas</string>
   <string name="prefs_show_strongs_title">Números de Strong</string>
   <string name="prefs_show_morphology_title">Mostrar título da morfologia</string>
-  <string name="prefs_section_title_title">Título do título da seção</string>
-  <string name="prefs_red_letter_title">Título em letras vermelhas</string>
+  <string name="prefs_section_title_title">Títulos da seção</string>
+  <string name="prefs_red_letter_title">Letras vermelhas</string>
   <string name="prefs_tilt_to_scroll_title">Inclinar para deslizar página</string>
   <string name="prefs_toolbar_button_action_title">Ação do botão da barra de ferramentas</string>
   <string name="prefs_toolbar_button_action_summary">Ação a ser executada ao pressionar / pressionar longamente os botões da barra de ferramentas Bíblia ou Comentário</string>
@@ -118,7 +118,7 @@
   <string name="prefs_screen_keep_on_title">Manter a tela ligada</string>
   <string name="prefs_screen_keep_on_summary">Impedir que a tela se desligue enquanto usa este aplicativo</string>
   <string name="prefs_interface_locale_title">Idioma do aplicativo</string>
-  <string name="prefs_interface_locale_summary">Selecione o idioma de preferência para a interface</string>
+  <string name="prefs_interface_locale_summary">Seleciona o idioma de preferência para a interface</string>
   <string name="reset_fontsize">Redefinir</string>
   <string name="prefs_request_sdcard_permission_title">Existem documentos instalados manualmente</string>
   <string name="prefs_request_sdcard_permission_summary">Permitir o uso de documentos instalados manualmente no armazenamento interno a partir da pasta jsword/sword</string>
@@ -139,7 +139,7 @@
   <string name="prefs_behavior_customization_cat">Comportamento da aplicação</string>
   <string name="prefs_margin_size_summary">Ajuste as margens esquerda e direita da janela de texto. Pode também ajustar
  a largura máxima do texto.</string>
-  <string name="prefs_text_colors_summary">Resumo das cores do texto</string>
+  <string name="prefs_text_colors_summary">Ajustar cores do texto, fundo e efeito ruído.</string>
   <string name="text_display_settings_activity_title">Configurações de exibição de texto</string>
   <string name="workspace_text_display_settings_title">Opções de texto - %s</string>
   <string name="window_text_display_settings_title">Opções de texto  - Janela %d</string>
@@ -151,7 +151,7 @@
   <string name="pref_right_margin_label_mm">Margem direita (%dmm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Largura máxima do texto (%dmm)</string>
   <string name="prefs_line_spacing_pt">Espaçamento entre linhas %1.1fx</string>
-  <string name="pref_font_family_label">Label da família de fontes</string>
+  <string name="pref_font_family_label">Família de fontes</string>
   <string name="prefs_top_margin_title">Margem superior</string>
   <string name="prefs_top_margin_summary">Adicione margem (com indicação visual) ao topo da janela que contém o documento da Bíblia. A Bíblia é rolada de forma que o versículo atual comece abaixo da margem.</string>
   <string name="prefs_hyphenation_title">Hifenização</string>
@@ -159,7 +159,7 @@
   <string name="prefs_line_spacing_pt_title">Espaço entre linhas (%1.1fx)</string>
   <string name="line_spacing_title">Espaçamento entre linhas</string>
   <string name="line_spacing_summary">Definir o espaçamento entre linhas</string>
-  <string name="select_none">Selecione nenhum</string>
+  <string name="select_none">Nenhum selecionado</string>
   <string name="reset_are_you_sure">Tem certeza de que deseja redefinir?</string>
   <string name="window_pinning_menutitle">Fixar janela</string>
   <string name="hide_window_buttons_title">Ocultar botões da janela</string>
@@ -169,18 +169,18 @@
   <string name="full_screen_hide_buttons_pref_title">Ocultar botões em tela cheia</string>
   <string name="full_screen_hide_buttons_pref_summary">Ao alternar para o modo de tela cheia, ocultar automaticamente a barra de botões da janela na parte inferior da tela</string>
   <string name="prefs_dictionaries_cat">Dicionários</string>
-  <string name="choose_strongs_greek_dictionary_title">Dicionário grego Strong</string>
+  <string name="choose_strongs_greek_dictionary_title">Dicionário grego de Strong</string>
   <string name="choose_strongs_greek_dictionary_summary">Escolha o dicionário de Strong para definições de palavras gregas</string>
   <string name="choose_strongs_hebrew_dictionary_title">Dicionário hebraico de Strong</string>
-  <string name="choose_strongs_hebrew_dictionary_summary">Escolha o dicionário Strongs para definições de palavras em hebraico</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Escolha o dicionário de Strong para definições de palavras em hebraico</string>
   <string name="choose_strongs_greek_morphology_title">Morfologia grega de Robinson</string>
   <string name="choose_strongs_greek_morphology_summary">Escolha o dicionário para as definições de morfologia grega de Robinson</string>
-  <string name="prefs_top_margin_title_mm">Margem superior ( %d mm)</string>
+  <string name="prefs_top_margin_title_mm">Margem superior (%d mm)</string>
   <string name="font_size_title">Tamanho da fonte</string>
   <string name="font_size_title_pt">Tamanho da fonte (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ajustar o tamanho de letra principal</string>
-  <string name="pref_font_family_label_name">Família do tipo de letra ( %s )</string>
-  <string name="prefs_font_family_summary">Altere a família do tipo de letra. Dica: mais tipos de letra podem ser instalados por meio da função Baixar de documentos / Complementos.</string>
+  <string name="pref_font_family_label_name">Família de fontes (%s)</string>
+  <string name="prefs_font_family_summary">Altere a família de fonte. Dica: mais tipos de fontes podem ser instaladas por meio da função Baixar de documentos / Complementos.</string>
   <string name="prefs_text_bookmarks_title">Definições de Marcadores e  Minhas notas</string>
   <string name="prefs_enable_bluetooth_title">Ativar botões de mídia via Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Manipule botões de mídia Bluetooth para iniciar/parar de falar</string>
@@ -190,14 +190,14 @@
   <string name="prefs_text_colors_menutitle">Configurações de cores</string>
   <string name="window_color_settings_title">Configurações de cores da janela</string>
   <string name="workspace_color_settings_title">Configurações de cores da área de trabalho padrão</string>
-  <string name="color_workspace">Espaço de trabalho de cores</string>
+  <string name="color_workspace">Cores da área de trabalho</string>
   <string name="color_text">Cor do texto</string>
   <string name="color_background">Cor de fundo</string>
   <string name="colors_day_mode_title">Modo diurno</string>
   <string name="colors_night_mode_title">Modo noturno</string>
-  <string name="prefs_noise_title">Som de fundo</string>
+  <string name="prefs_noise_title">Ruído de fundo</string>
   <string name="prefs_noise_summary">Adicionar algum ruído ao fundo pode torná-lo mais confortável aos olhos.</string>
-  <string name="cpv_default_title">Escolha uma cor</string>
+  <string name="cpv_default_title">Escolher uma cor</string>
   <string name="cpv_presets">Valores pré definidos</string>
   <string name="cpv_custom">Personalizar</string>
   <string name="cpv_select">Selecionar</string>
@@ -226,7 +226,7 @@
   <string name="morph_robinson_not_installed">Faça o download do dicionário \'Robinson\'s Morphological Analysis Codes\'</string>
   <string name="go_to_downloads">Ir para Baixar</string>
   <!--Module download-->
-  <string name="download">Baixar Documentos</string>
+  <string name="download">Baixar documentos</string>
   <string name="redownload">Baixar novamente</string>
   <string name="download_confirmation">Deseja baixar uma Bíblia da internet?</string>
   <string name="download_source_last_updated">Última atualização da lista de Documentos  %s.</string>
@@ -361,7 +361,7 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="add_bookmark_whole_verse1">Versículos</string>
   <string name="add_bookmark_whole_verse2">Versículo inteiro</string>
   <string name="remove_bookmark">Remover</string>
-  <string name="bookmark_settings_hide_labels_title">Esconder as etiquetas especificadas</string>
+  <string name="bookmark_settings_hide_labels_title">Ocultar as etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que são marcados com etiqueta (s) especificada</string>
   <string name="auto_assign_labels_title">Definições de etiquetas</string>
   <string name="auto_assign_labels">Auto-atribuir e Etiquetas favoritas</string>
@@ -467,7 +467,7 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
   <string name="workspace_text_options_help2">Pode substituí-los alterando as configurações individuais da janela.</string>
   <string name="window_text_options_help_title">Opções de texto para a janela</string>
   <!--Parameter is actual icon-->
-  <string name="window_text_options_help1">%s ícone indica que a configuração vem das configurações do espaço de trabalho.</string>
+  <string name="window_text_options_help1">%s ícone indica que a configuração vem das configurações da área de trabalho.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s ícone indica que esta configuração foi alterada para esta janela específica.</string>
   <string name="window_text_options_help3">A configuração da área de trabalho não afetará esta janela.</string>
@@ -587,7 +587,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="report_bug_heading_3">Anexos:</string>
   <string name="bug_report_logcat">Arquivo do histórico produzido por este aplicativo. Não contém informações sobre nenhum outro aplicativo.</string>
   <string name="bug_report_screenshot">Captura de tela do aplicativo quando ocorreu o erro ou quando o relatório de erro foi criado.</string>
-  <string name="bug_report_attachment_line_1">Ter estes arquivos anexados ajuda muito os programadores de aplicativos a corrigir o erro relatado.</string>
+  <string name="bug_report_attachment_line_1">Ter estes arquivos anexados ajuda muito os desenvolvedores de aplicativos a corrigir o erro relatado.</string>
   <string name="report_bug_heading_4">Informação sobre o aparelho:</string>
   <!--Document types-->
   <string name="doc_type_all">Todos os tipos</string>
@@ -670,17 +670,17 @@ através de %s você mesmo. :-)</string>
   <string name="history_for">Histórico(%1$s:Janela%2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navegação</string>
-  <string name="help_nav_text">Vá para o capítulo seguinte ou o anterior deslizando o dedo na tela.
+  <string name="help_nav_text">Vá para o capítulo seguinte ou retorne para o anterior deslizando o dedo na tela.
  Toque duas vezes no texto da Bíblia para alternar o modo de tela cheia.
  As telas divididas (também chamadas de janelas) têm um botão de menu no canto superior direito,
- o que permite que use várias funções específicas da janela e personalize a aparência e o comportamento da janela.</string>
+ o que permite usar várias funções específicas da janela e personalizar a aparência e o comportamento da janela.</string>
   <string name="help_contextmenus_title">Menus de contexto</string>
   <string name="help_contextmenus_text">
 Pressionar longamente abre o menu de contexto ou o modo de ação em várias visualizações.
-Pressione e segure a visão da Bíblia para abrir o modo de ação para ações que afetam o versículo atual.
-Pressione e segure um item de documento na exibição em lista de Escolha Documento ou Baixar para excluir o documento ou exibir informações.
-Pressione e segure um marcador na lista de marcadores para adicionar marcadores ou excluir marcadores.
-Mantenha pressionado os atalhos para escolher se deseja abri-los na janela atual, nova janela ou janela de atalhos especiais.</string>
+Pressionar e segurar o visualizar a Bíblia para abrir o modo de ação para ações que afetam o versículo atual.
+Pressionar e segurar um documento na exibição em lista de Escolha Documento ou Baixar Documentos para excluir o documento ou exibir informações.
+Pressionar e segurar um marcador na lista de marcadores para adicionar marcadores ou excluir marcadores.
+Mantenha pressionado os atalhos para escolher se deseja abri-los na janela atual, em nova janela ou em uma janela de atalhos especiais.</string>
   <string name="help_bookmarks_title">Marcadores e Minhas notas</string>
   <string name="help_bookmarks_text">Os marcadores podem ser criados selecionando algum texto e escolhendo \"Marcador\" no
  menu pop-up. Você pode adicionar as suas notas personalizadas ao novo marcador tocando no texto agora
@@ -736,7 +736,7 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Compreendo</string>
   <string name="first_time_help_show_next_time">Ajuda na primeira vez mostrar na próxima vez</string>
-  <string name="strongs_mode_title">Escolha o modo Strongs</string>
+  <string name="strongs_mode_title">Escolha o modo de Strong</string>
   <string name="download_dialog_message">Os seguintes livros não puderam ser baixados:</string>
   <string name="select_multiple">Selecione vários</string>
   <string name="journal_description">Estudos editáveis ​​pelo utilizador, com texto e marcadores personalizados</string>
@@ -765,7 +765,7 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="how_to_contribute">Como contribuir?</string>
   <string name="confirm_delete_bookmarks">Pretende remover os marcadores de %d e as suas notas?</string>
   <string name="module_size_megabytes">%.1f MB</string>
-  <string name="tell_friend_title">Recomende a um amigo</string>
+  <string name="tell_friend_title">Recomendar a um amigo</string>
   <string name="tell_friend_message1">Gostaria de recomendar para você %s</string>
   <string name="tell_friend_message2">É um aplicativo de estudo bíblico offline poderosa, mas fácil de usar, para Android.</string>
   <string name="tell_friend_message3">Instale a partir da Play Store: %s</string>
