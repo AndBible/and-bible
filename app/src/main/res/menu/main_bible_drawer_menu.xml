@@ -75,7 +75,7 @@
                 android:icon="@drawable/ic_help_white_24dp"
                 />
             <item android:id="@+id/buyDevelopment"
-                android:title="@string/buy_development2"
+                android:title="@string/buy_development"
                 android:icon="@drawable/baseline_attach_money_24"/>
             <item android:id="@+id/needHelp"
                 android:title="@string/questions_title"
