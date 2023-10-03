@@ -630,7 +630,14 @@ object SwordContentFacade {
         val book = key.document!!
         val actualKey = key.key
         val arr = SpeakCommandArray()
-        arr.addAll(getTextWithinOrdinalsAsString(book, actualKey, key.ordinal!!.start .. key.ordinal.start) .map { TextCommand(it) })
+        arr.addAll(
+            getTextWithinOrdinalsAsString(book,
+                actualKey,
+                key.ordinal!!.start .. key.ordinal.start
+            )
+                .map {
+                    TextCommand(it.replace("\n", " "))
+                })
         return arr
     }
 
