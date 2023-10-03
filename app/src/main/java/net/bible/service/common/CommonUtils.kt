@@ -1368,11 +1368,17 @@ object CommonUtils : CommonUtilsBase() {
 
         Log.i(TAG, "Language tag $languageTag, code $languageCode")
 
-        val goodLanguages = listOf(
-            "af", "cs", "de", "en", "eo", "es", "fi", "fr", "hi", "hu", "it", "kk", "lt", "my", "nl", "pl", "pt", "ro", "ru",
-            "sk", "sl", "te", "uk", "zh-Hans-CN", "zh-Hant-TW", "he", "iw"
-            // almost: "ko", "he", "ar" (hebrew, check...)
-        )
+        // Transifex as of 3.10.2023
+        val goodLanguages = "af,fi,fr,de,it,pt-BR,ro,sk,sl,kk".split(",")
+
+        // 4.0 list:
+
+        //    listOf(
+        //
+        //    "af", "cs", "de", "en", "eo", "es", "fi", "fr", "hi", "hu", "it", "kk", "lt", "my", "nl", "pl", "pt", "ro", "ru",
+        //    "sk", "sl", "te", "uk", "zh-Hans-CN", "zh-Hant-TW", "he", "iw"
+        //    // almost: "ko", "he", "ar" (hebrew, check...)
+        //)
 
         fun checkLanguage(lang: String): Boolean =
             if(lang.length == 2)
