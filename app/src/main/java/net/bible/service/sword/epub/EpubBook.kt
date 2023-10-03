@@ -64,6 +64,7 @@ Version=0.0
 Encoding=UTF-8
 SourceType=OSIS
 ModDrv=RawGenBook
+DistributionLicense=Unknown
 About=$about
 """
 
