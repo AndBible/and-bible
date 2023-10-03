@@ -190,6 +190,7 @@
   <string name="prefs_text_colors_menutitle">Kleurinstellingen</string>
   <string name="window_color_settings_title">Instellingen voor schermkleur.</string>
   <string name="workspace_color_settings_title">Standaard kleurinstellingen voor werkblad</string>
+  <string name="color_workspace">Werkblad kleur</string>
   <string name="color_text">Tekstkleur</string>
   <string name="color_background">Achtergrondkleur</string>
   <string name="colors_day_mode_title">Dagweergave</string>
@@ -208,8 +209,10 @@
   <string name="windowMinimise">Minimaliseren</string>
   <string name="windowSynchronise">Synchroniseren</string>
   <string name="move_window">Ga naar</string>
+  <string name="move_window_to_position2">Positie %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Kopieer instellingen naar</string>
   <string name="copy_settings_to_workspace">Werkblad</string>
+  <string name="copy_settings_to_window">Venster%1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Wisselen naar normaal venster</string>
   <string name="window_pin_mode">Zet vast</string>
   <!--Notes screen-->
@@ -232,6 +235,7 @@
   <string name="download_document_confirm_prefix">Downloaden</string>
   <string name="download_refresh_book_list_menu_item">Verversen</string>
   <string name="error_downloading">Fout tijdens downloaden. Controleer uw internet verbinding svp.</string>
+  <string name="error_downloading_status">De server die %1$s bevat, geeft een foutmelding vanwege%2$s (%3$d).</string>
   <string name="storage_space_warning">Onvoldoende lokale opslagruimte.</string>
   <string name="too_many_jobs">Er worden teveel taken uitgevoerd. Wacht tot sommige beëindigd zijn en probeer het opnieuw.</string>
   <string name="document_not_installed">Download \'%s\'</string>
@@ -250,14 +254,20 @@ Alle downloads van module servers zijn versleuteld (HTTPS).
   <string name="download_errors">Downloadfouten</string>
   <string name="failed_repositories_message">Verbinding met de volgende documentserver is mislukt: \n\n%s\n\n</string>
   <string name="failed_downloads_message">De volgende bestanden zijn niet gedownload:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Dit document kan niet verwijderd worden.</string>
   <!--Install zip file-->
+  <string name="install_zip">Document laden uit bestanden.</string>
   <string name="install_zip_module">Bijbelmodule installeren</string>
+  <string name="install_zip_module_discrete">Installeer Rekenmachine Module</string>
   <string name="install_zip_successfull">De module is geïnstalleerd</string>
   <string name="extracting_zip_file">Bezig met uitpakken van ZIP-bestand...</string>
   <string name="checking_zip_file">Bezig met controleren van opgegeven bestand...</string>
   <string name="invalid_module">Het bestand bevat geen geldige SWORD-module</string>
+  <string name="install_zip_title">Even geduld. Modules worden geladen uit het bestand.</string>
   <string name="overwrite_files">De volgende bestanden bestaan al: %s. Overschrijven?</string>
   <string name="overwrite_files_title">Bestanden overschrijven?</string>
+  <string name="could_not_overwrite_files">Kan niet bestanden overschrijven: %s. Naast dat, de installatie was succesvol.</string>
+  <string name="install_do_you_want">Wil je de module (%s) installeren?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leesplan</string>
   <string name="reading_plans_plural">Leesplannen</string>
@@ -361,6 +371,7 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="sort_by_bible_book">Bijbelse volgorde</string>
   <string name="sort_by_alphabetical">Alfabetische volgorde</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Zoek notities</string>
   <!--Dictionary-->
   <string name="dictionary">Woordenboek</string>
   <string name="search_dictionary_hint">Woordenboek doorzoeken</string>
@@ -508,6 +519,14 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="mynotes">Mijn notities</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Back-up en herstel</string>
+  <string name="backup_modules2">Back-up Documenten naar...</string>
+  <string name="backup_app_database2">Back-up app database naar...</string>
+  <string name="backup_application">Applicatie</string>
+  <string name="backup_database">Database</string>
+  <string name="backup_documents">Documenten</string>
+  <string name="backup_application_info">Applicatie bestand (.APK)</string>
+  <string name="backup_to">Back-up naar...</string>
+  <string name="backup_restore_from">Herstel van...</string>
   <string name="backup_restore">Herstellen</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Wat wilt u herstellen?</string>
@@ -515,6 +534,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="restore_database">Terugzetten Database bestand</string>
   <string name="restore_confirmation">Overschrijf Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen?</string>
   <string name="restore_success">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol teruggezet</string>
+  <string name="downloading_backup">Downloaden back-up bestand...</string>
   <string name="loading_backup">Database aan het laden vanuit backup...</string>
   <string name="backup_success2">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol geback-upt.</string>
   <string name="backup_modules_success">Geselecteerde modules succesvol geback-upt.</string>
@@ -528,6 +548,8 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="install_zip_canceled">Module installatie afgebroken</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
+  <string name="module_about_installed_version">Geïnstalleerde versie: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Laatste versie: %1$s (%2$s)</string>
   <string name="module_about_versification">Versificatie: %s</string>
   <string name="module_about_repository">Distributie server: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -622,6 +644,7 @@ Beta gebruikers worden aangemoedigd om foutrapportages te sturen via Google Play
   <string name="stable_notice_title">Applicatie is vernieuwd!</string>
   <string name="upgrade_video_message">Bekijk alstublieft de video waar de nieuwe functies van deze uitgave worden belicht (%s).</string>
   <!--History-->
+  <string name="history_for">Geschiedenis (%1$s: Venster %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigatie</string>
   <string name="help_nav_text">Ga naar het volgende of vorige hoofdstuk door met je vinger over het scherm te vegen. 
@@ -669,12 +692,17 @@ Je wilt misschien Bijbel documenten als vastgemaakt venster en commentaren en ma
   <string name="redownload_documents">Snel herdownloaden</string>
   <string name="welcome_message">Bedankt voor het downloaden van %s. Er zijn momenteel geen Bijbels of documenten geïnstalleerd. Om verder te gaan, installeer dan minstens 1 document van internet, of door het laden van een zip document backup bestand.</string>
   <!--Supported file formats for documents-->
+  <string name="supported_formats_title">Ondersteunende bestandsformaten</string>
   <!--argument is app_name_andbible (AndBible).-->
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_mysword">MySword documenten (*.mybible)</string>
+  <string name="format_mybible">MyBible documenten (*.SQLite3)</string>
+  <string name="format_epub">EPUB documenten (*.epub)</string>
   <string name="redownload_message">
 Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om ze makkelijk nogmaals te downloaden.</string>
   <!--Uncategorized-->
   <string name="close">Sluiten</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Ik begrijp het</string>
   <string name="first_time_help_show_next_time">Laat volgende keer weer zien</string>
   <string name="strongs_mode_title">Kies Strong\'s modus</string>
@@ -717,11 +745,15 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
   <string name="show_versenumbers">Versnummering laten zien</string>
   <string name="show_full_verses">Volledige verzen laten zien</string>
+  <string name="show_selection_only">Zie geselecteerde tekst alleen</string>
   <string name="advertise_app">App vermelden</string>
   <string name="verse_share_advertise">Gedeeld met %s.</string>
+  <string name="show_reference">Zie verwijzingen</string>
   <string name="abbreviate_reference">Verwijzing afkorten</string>
   <string name="version_name">Vertaling</string>
   <!--meaning, bible version name-->
+  <string name="show_version_name">Inclusief versienaam</string>
+  <string name="show_quotes">Zie quotes</string>
   <string name="backup_button">Back-up maken</string>
   <string name="back_button">Terug</string>
   <string name="upgrading_database">Upgrade van database. Even geduld alstublieft.</string>
@@ -730,6 +762,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Toch doorgaan</string>
+  <string name="proceed">Vervolg</string>
   <string name="rate_title">App beoordelen en reviewen</string>
   <string name="rate_message6">
         Voor u een negatieve review instuurt, overweeg alstublieft het volgende:
@@ -776,6 +809,8 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="recent_labels">Recente labels</string>
   <string name="other_labels">Overige labels</string>
   <string name="book_menu_sort_row_opt">Horizontaal rangschikken</string>
+  <string name="book_menu_group_by_category">Groepeer boeken bij categorie</string>
+  <string name="book_menu_show_long_book_name">Laat lange boeknaam zien</string>
   <string name="reset_workspace_labels">Wilt u auto-toewijzen en favouriet instelling resetten voor dit werkblad?</string>
   <string name="reset_hide_labels">Wilt u de instelling resetten voor het automatisch verbergen van genoemde label instellingen?</string>
   <string name="reorder">Herschikken</string>
@@ -822,15 +857,60 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="permission_required">Permissie nodig</string>
   <string name="labels_search_hint">Zoeken</string>
   <!--Discrete mode settings-->
+  <string name="app_name_calculator">Simpele Rekenmachine</string>
+  <string name="prefs_discrete_mode">Verberg religieuze symbolen</string>
+  <string name="prefs_show_calculator">Rekenmachine</string>
+  <string name="prefs_calculator_pin">Rekenmachine PIN</string>
   <!--Context: calculator. Wrong number format etc.-->
+  <string name="calc_wrong_format">Verkeerde Formaat</string>
+  <string name="prefs_persecuted_help">Lees dit eerst!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Synchroniseer groep</string>
+  <string name="sync_group_n">Groep %d</string>
+  <string name="disable_sync">Synchroniseer uitzetten</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">Aangepaste repositories</string>
+  <string name="custom_repositories_create_button_label">Voeg aangepaste repositories</string>
   <string name="custom_repositories_info_button_label">Informatie</string>
+  <string name="name_for_repository">Naam voor de repositorie</string>
+  <string name="repository_specification">Repositie URL</string>
+  <string name="wiki_page">WIKI pagina</string>
+  <string name="packages_dir">Pakketten map (Zip bestanden)</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="copyReference">Kopieer link naar knipbord</string>
   <!--Device cloud synchronization-->
+  <string name="synchronizing">Synchroniseren…</string>
+  <string name="workspaces_contents">Werkplek en Vensters</string>
+  <string name="cloud_sync_title">Apparaat synchronisatie</string>
+  <string name="reset_sync">Uitloggen</string>
+  <string name="cloud_info">Cloud informatie</string>
+  <string name="sync_adapter">Synchronization Backend</string>
+  <string name="sync_adapter_summary">Huidige: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
+  <string name="auth_title">Authenticatie naar %s</string>
+  <string name="auth_username">Gebruikersnaam</string>
+  <string name="auth_password">Wachtwoord</string>
+  <string name="auth_access_token">Toegangstoken</string>
+  <string name="synchronization_categories">Synchronisatie categorieën</string>
+  <string name="sync_introduction">Introductie</string>
+  <string name="are_you_sure">Weet je het zeker?</string>
   <!--... after restoring from backup file-->
+  <string name="report">Rapport</string>
+  <string name="error_notification_channel_name">Foute notificaties</string>
+  <string name="enable_sync">Aanzetten synchronisatie</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">App ergens anders geopend</string>
+  <string name="open_here">Hier openen</string>
+  <string name="external_link">Externe link</string>
+  <string name="nameless">Titel niet gedefinieerd</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acties met één klik (Bijbels)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Acties met één klik (Anders)</string>
+  <string name="processing_epub">Processing EPUB: %s</string>
+  <string name="buy_development">Koop ontwikkelingswerk</string>
+  <string name="buy_development2">Ondersteun project</string>
+  <string name="new_version_trailer">trailer video</string>
 </resources>

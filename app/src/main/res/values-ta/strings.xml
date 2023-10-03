@@ -1,0 +1,685 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name_andbible">ஆண்ட் பைபில்</string>
+  <string name="app_name_short">விவிலிய ஆய்வு</string>
+  <string name="app_name_medium">விவிலிய ஆய்வு (ஆண்ட் பைபில்)</string>
+  <string name="app_name_long">ஆண்ட் பைபில்: பைபில் ஸ்டடி</string>
+  <string name="project">ஆண்ட் பைபில் திறவூற்று திட்டம்</string>
+  <string name="version_text">பதிப்பு %s</string>
+  <string name="no_sdcard_error">SD கார்டை உள்ளிட்டு மீண்டும் தொடங்கவும்.</string>
+  <!--Main menu-->
+  <string name="menu">பட்டியல்</string>
+  <string name="chooseBook">கோப்பு</string>
+  <string name="selectPassage">பகுதி</string>
+  <string name="search">தேடல்</string>
+  <string name="search_in_andbible">விவிலியத்தில் தேடு</string>
+  <string name="settings">விருப்பத்தேர்வுகள்</string>
+  <string name="history">வரலாறு</string>
+  <string name="speak">பேசுக</string>
+  <string name="help">உதவி</string>
+  <string name="information">தகவல்</string>
+  <string name="other">பிற</string>
+  <string name="contact">தொடர்பு</string>
+  <string name="help_and_tips">உதவி &amp; உதவிக்குறிப்புகள்</string>
+  <string name="administration">நிர்வாகம்</string>
+  <string name="rate_application">மதிப்பீடு &amp; ஆய்வு</string>
+  <string name="chooce_document">கோப்பினைத் தேர்வு செய்க</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">நூலைத் தேர்வு செய்க</string>
+  <string name="choosePassageChapterName">அதிகாரத்தை தேர்வு செய்க</string>
+  <string name="choosePassageVerseName">வசனத்தை தேர்வு செய்க</string>
+  <string name="bible">திருவிவிலியம்</string>
+  <string name="deuterocanonical">இணைத்திருமுறை</string>
+  <!--Search-->
+  <string name="search_index">தேடல் அட்டவணை</string>
+  <string name="index_creation_required">தேடுவதற்கு அட்டவணை தேவை.</string>
+  <string name="create_index_for">தேடுவதற்கு அட்டவணை தேவை. \n\n %s-க்கு அட்டவணை உருவாக்கவா?</string>
+  <string name="rebuild_index_for">%s-க்கு அட்டவணையினை மீள் உருவாக்கவா?</string>
+  <string name="indexing_wait_msg">அட்டவணைப்படுத்தல் முடிந்ததும் நீங்கள் தேடல் திரைக்கு கொண்டு செல்லப்படுவீர்கள்.</string>
+  <string name="index_create">உருவாக்கு</string>
+  <string name="rebuild_index">அட்டவணையினை மீள் உருவாக்கவா?</string>
+  <string name="search_in">%sஇல் தேடு</string>
+  <string name="do_in_background">பின்னணியில் தொடர்க</string>
+  <string name="rebuild_index_button">அட்டவணைப்படுத்து</string>
+  <!--X results in module Y-->
+  <string name="search_with_results2">%2s இல் %1s முடிவுகள்</string>
+  <!--Tasks-->
+  <string name="progress_status">முன்னேற்றம்</string>
+  <string name="task_kill_warning">நெடுநேரம் இயங்கும் இந்தப் பணிகள் முடிவதற்குள் வேறொரு ஆப்புக்கு மாறினால் இவை நிறுத்தப்படலாம்.</string>
+  <string name="no_tasks_running">தற்போது எந்த பணிகளும் செயல்பாட்டில் இல்லை.</string>
+  <!--Search-->
+  <string name="search_words_group_prompt">வசனங்களைத் தேடு</string>
+  <string name="search_all_words">அனைத்து சொற்களும்</string>
+  <string name="search_any_word">எந்த சொல்லாயினும்</string>
+  <string name="search_phrase">சொற்றொடர்</string>
+  <string name="search_result_count">%d ஒத்துள்ளன</string>
+  <string name="search_showing_first">நிறைய பொருத்தங்கள் உள்ளன. முதல் %d காட்டப்படுகிறது.</string>
+  <string name="search_bible_section_group_prompt">எங்கே தேடுவது</string>
+  <string name="search_all_bible">முழு திருவிவிலியமும்</string>
+  <string name="search_new_testament">புதிய ஏற்பாடு</string>
+  <string name="search_old_testament">பழைய ஏற்பாடு</string>
+  <string name="search_current_book">நடப்பு நூலில்</string>
+  <string name="error_executing_search">தவறான தேடல் வினவல்</string>
+  <string name="type_text_or_bible_reference">சொற்களையோ அல்லது விவிலிய குறியீடுகளை இடுக</string>
+  <!--Open (bible reference X)-->
+  <string name="go_to_ref">%sஐ திற</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
+  <string name="search_what">%sஐ தேடுக</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">அதிகாரம் &amp; வசன எண்கள்</string>
+  <string name="prefs_show_verseno_summary">அதிகாரம் &amp; வசனம் எண்களைக் காட்டு</string>
+  <string name="prefs_e_ink_mode_title">கருப்பு &amp; வெள்ளை முறை</string>
+  <string name="prefs_eink_mode_summary">மோனோக்ரோம் பயன்முறையில் (வண்ணங்கள் இல்லாமல்), E-ink கருவிகளுக்கு மிகவும் பொருத்தமானதாக இருக்கும்.</string>
+  <string name="prefs_disable_animations_title">அனிமேஷன்களை முடக்கு</string>
+  <string name="prefs_disable_animations_summary">மென்மையான ஸ்க்ரோலிங் போன்ற பல்வேறு அனிமேஷன்களை முடக்கவும்.</string>
+  <string name="prefs_paragraph_spacing_title">பத்தி இடைவெளி (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">பத்திகளுக்கு இடையில் இடைவெளியை சரிசெய்யவும்.</string>
+  <string name="prefs_show_verseno_title1">வசன எண்கள்</string>
+  <string name="prefs_show_chapter_no_title">அதிகார எண்கள்</string>
+  <string name="prefs_show_chapter_no_summary">அதிகார எண்களை காட்டுக</string>
+  <string name="prefs_verse_per_line_summary">ஒவ்வொரு வசனத்தையும் வெவ்வேறு வரியில் காட்டு</string>
+  <string name="prefs_show_bookmarks_summary">எல்லா புக்மார்க்குகளையும் மறைக்கத் தேர்வை நீக்குக</string>
+  <string name="prefs_show_mynotes_summary">என் குறிப்புடன் வசனங்களில் ஐகானைக் காட்டு</string>
+  <string name="prefs_show_notes_summary">அடிக்குறிப்புகள் மற்றும் குறுக்கு குறிப்புகளைக் காட்டு</string>
+  <string name="prefs_show_strongs_summary">கிரேக்க மற்றும் பிரேய விளக்கங்களுக்கான இணைப்புகள்</string>
+  <string name="prefs_show_morphology_summary">ராபின்சன் கிரேக்க சொற்பகுப்பியலினைக் காட்டு</string>
+  <string name="prefs_section_title_summary">திருமுறையில் இல்லாத உட்பிரிவு தலைப்புகளைக் காட்டு</string>
+  <string name="prefs_red_letter_summary">கிறிஸ்துவின் சொற்களை சிவப்பு நிறத்தில் காட்டு</string>
+  <string name="prefs_text_size_title">எழுத்துரு விருப்பத்தேர்வுகள்</string>
+  <string name="prefs_verse_per_line_title">வரிக்கு ஒரு வசனம்</string>
+  <string name="prefs_show_bookmarks_title">புக்மார்க்குகளைக் காட்டு</string>
+  <string name="prefs_show_mynotes_title">என் குறிப்பு ஐகான்களைக் காட்டு</string>
+  <string name="prefs_show_footnotes_title">அடிக்குறிப்புகள்</string>
+  <string name="prefs_show_xrefs_title">குறுக்கு குறிப்புகள்</string>
+  <string name="prefs_show_footnotes_summary">அடிக்குறிப்புகள் ஆவணத்தில் இருந்தால் அவற்றைக் காட்டு</string>
+  <string name="prefs_show_xrefs_summary">குறுக்கு குறிப்புகள் ஆவணத்தில் இருந்தால் அவற்றைக் காட்டு</string>
+  <string name="prefs_show_notes_title">அடிக்குறிப்புகள் மற்றும் குறுக்கு குறிப்புகள்</string>
+  <string name="prefs_show_strongs_title">ஸ்டிராங் எண்கள்</string>
+  <string name="prefs_show_morphology_title">சொற்பகுப்பியல் குறியீடுகள்</string>
+  <string name="prefs_section_title_title">பகுதி தலைப்புகள்</string>
+  <string name="prefs_red_letter_title">சிகப்பு எழுத்து</string>
+  <string name="prefs_tilt_to_scroll_title">சாய்த்தால் உரை மெலேசெல்ல</string>
+  <string name="prefs_toolbar_button_action_title">கருவிப்பட்டி பொத்தானை அழுத்தினால் என்ன ஆகும்</string>
+  <string name="prefs_toolbar_button_action_summary">விவிலியம் அல்லது விளக்க உரை கருவிப்பட்டை பொத்தான்களை அழுத்தினாலோ நீண்ட நேரம் அழுத்தினாலோ செய்ய வேண்டியது</string>
+  <string name="prefs_toolbar_button_action_default">மெனுவை திறக்க இங்கே அழுத்தவும். நீண்ட நேரம் அழுத்தினால் கோப்புகள் திரை திறக்கும். (default)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">அடுத்த கோப்பை திறக்க அழுத்தவும், நீண்ட நேரம் அழுத்தினால் மெனு திறக்கும்</string>
+  <string name="prefs_toolbar_button_action_swap_activity">அடுத்த கோப்பை திறக்க அழுத்தவும், நீண்ட நேரம் அழுத்தினால் கோப்புகள் திரை திறக்கும்</string>
+  <string name="prefs_night_mode_title">இரவு பயன்முறைக்கு மாற</string>
+  <string name="prefs_night_mode_summary">தானாக இரவு பயன்முறைக்கு மாற வேண்டுமா (கருவியில் முடியுமானால்), கைமுறையாக அல்லது கணினி அமைப்பு வழியாக (Android 10+). முதன்மை திரையில் உள்ள 3-புள்ளி மெனுவிலிருந்து கைமுறையாகவும் மாற்றலாம்.</string>
+  <string name="prefs_night_mode_manual">கைமுறையாக</string>
+  <string name="prefs_night_mode_automatic">தானாக</string>
+  <string name="prefs_night_mode_system">சிஸ்டம்</string>
+  <string name="options_menu_night_mode">இரவு பயன்முறை</string>
+  <string name="prefs_navigate_to_verse_title">வசனத்திற்கு செல்</string>
+  <string name="prefs_navigate_to_verse_summary">ஒரு பகுதியை தேர்ந்தெடுக்கும்போது வசனத்தையும் (அதிகாரத்தோடு) தேர்ந்தெடுக்கவும்</string>
+  <string name="prefs_open_links_in_special_window_title">இணைப்புகள் சாளரம்</string>
+  <string name="prefs_open_links_in_special_window_summary">குறுக்கு குறிப்புகள் மற்றும் Strongs வரையரைகளை விரைவாகக் காண்பிக்க, சிறப்பு சாளரத்தில் இணைப்புகளைத் திறக்கவும்</string>
+  <string name="prefs_text_size_sample_text">மாதிரி உரை</string>
+  <string name="prefs_screen_keep_on_title">திரையை ஆனில் வைக்கவும்</string>
+  <string name="prefs_screen_keep_on_summary">பயன்படுத்தும் போது திரை தூங்குவதைத் தடுக்கவும்</string>
+  <string name="prefs_interface_locale_title">பயன்பாட்டு மொழி</string>
+  <string name="prefs_interface_locale_summary">பயனர் இடைமுக மொழியைத் தேர்ந்தெடுக்கவும்</string>
+  <string name="reset_fontsize">மீட்டமை</string>
+  <string name="prefs_request_sdcard_permission_title">கைமுறையாக நிறுவப்பட்ட ஆவணங்கள் உள்ளன</string>
+  <string name="prefs_request_sdcard_permission_summary">உள் சேமிப்பகத்தில் உள்ள jsword/sword கோப்பு முறையிலிருந்து கைமுறையாக நிறுவப்பட்ட ஆவணங்களைப் பயன்படுத்துக.</string>
+  <string name="prefs_expand_footnotes_title">வரிகளுக்குள்ளேயே குறுக்கு குறிப்புகள</string>
+  <string name="prefs_expand_footnotes_summary">பாப்-அப் திரைக்குப் பதிலாக, குறுக்குக் குறிப்புகளை வரிகளுக்கிடையே காட்டவும்</string>
+  <string name="all_text_options_window_menutitle">அனைத்து உரை விருப்பத்தேர்வுகள்</string>
+  <string name="text_options_window_menutitle">உரை விருப்பத்தேர்வுகள்</string>
+  <string name="auto_fullscreen">ஸ்க்ரோலிங் மூலம் முழுத்திரைக்கு செல்</string>
+  <string name="reversed_split_mode">தலைகீழ் திரைபிளவு</string>
+  <string name="add_ellipsis">%s…</string>
+  <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d mm</string>
+  <string name="auto_fullscreen_summary">உரையை உருட்டும் போது தானாக முழுத்திரைக்கு மாறவும். குறிப்பு: திரையை இருமுறை தட்டுவதன் மூலம் நீங்கள் எப்போதும் முழுத் திரைக்கு மாறலாம்.</string>
+  <string name="prefs_margin_size_title">விளிம்பு அளவை மாற்றவும்</string>
+  <string name="prefs_margin_size_mm_title">விளிம்பு அளவு (%1$d/%2$d/%3$d mm)</string>
+  <string name="prefs_advanced_settings_cat">மேலதிக அமைப்புகள்</string>
+  <string name="prefs_display_customization_cat">தோற்ற அமைப்பு</string>
+  <string name="prefs_behavior_customization_cat">செயலியின்  நடத்தை</string>
+  <string name="prefs_margin_size_summary">உரையின் இடது மற்றும் வலது விளிம்பை மாற்றலாம்.
+        உரையின் அதிகபட்ச அகலத்தையும் குறிக்க இயலும்.
+  </string>
+  <string name="prefs_text_colors_summary">உரை பின்னணி வண்ணங்கள் மற்றும் இரைச்சல் அளைவை மாற்ற</string>
+  <string name="text_display_settings_activity_title">உரை காட்சி அமைப்புகள்</string>
+  <string name="workspace_text_display_settings_title">உரை விருப்பத்தேர்வுகள் - %s</string>
+  <string name="window_text_display_settings_title">உரை விருப்பத்தேர்வுகள் -  சாளரம் %d</string>
+  <string name="prefs_text_display_settings_title">வடிவமைப்பு</string>
+  <string name="prefs_text_appearance_title">தோற்றம்</string>
+  <string name="prefs_justify_title">உரையை Justify செய்</string>
+  <string name="prefs_justify_summary">உரையை \'justify\' முறையில் அமைத்தால், அதன் இடது மற்றும் வலது ஓரங்கள் சீராக இருக்கும்</string>
+  <string name="pref_left_margin_label_mm">இடது விளிம்பு (%d mm)</string>
+  <string name="pref_right_margin_label_mm">வலது விளிம்பு (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">உரையின் அதிகபட்ச அகலம் (%d mm)</string>
+  <string name="prefs_line_spacing_pt">வரி இடைவெளி %1.1fx</string>
+  <string name="pref_font_family_label">எழுத்துரு குடும்பம்</string>
+  <string name="prefs_top_margin_title">மேல் விளிம்பு</string>
+  <string name="prefs_top_margin_summary">விவிலிய உரை உள்ள சாளரத்தின் மேல் விளிம்பைச் சேர்க்கவும் (காட்சிக் குறிப்புடன்). நடப்பு வசனம் குறித்துள்ள விளிம்புக்குக் கீழே தொடங்கும் வகையில் விவிலிய உரை இருக்கும்.</string>
+  <string name="prefs_hyphenation_title">ஹைபனேஷன்</string>
+  <string name="prefs_hyphenation_summary">மொழியில் இயலுமானால், தானாகவே சொற்களை ஹைபனேட் செய்யவும்</string>
+  <string name="prefs_line_spacing_pt_title">வரி இடைவெளி (%1.1fx)</string>
+  <string name="line_spacing_title">வரி இடைவெளி</string>
+  <string name="line_spacing_summary">வரிகளுக்கு இடையில் இடைவெளியை அமைக்கவும்</string>
+  <string name="select_none">எதையும் தேர்ந்தெடுக்க வேண்டாம்</string>
+  <string name="reset_are_you_sure">இவை அனைத்தையும் மீட்டமைக்க விரும்புகிறீர்களா?</string>
+  <string name="window_pinning_menutitle">சாரளத்தை பின் செய்வது</string>
+  <string name="hide_window_buttons_title">சாரள பொத்தான்களை மறை</string>
+  <string name="hide_bible_reference_overlay_title">விவிலிய குறிப்பு மேலடுக்கை மறை</string>
+  <string name="hide_bible_reference_overlay_summary">முழுத்திரை பயன்முறையில் இருக்கும்போது, அரை-வெளிப்படையான விவிலிய குறிப்பு மேலடுக்கைக் மறை</string>
+  <string name="full_screen_hide_buttons_pref_title">முழு திரை பயன் முறையில் சாரல பொத்தான் பட்டையை மறை</string>
+  <string name="full_screen_hide_buttons_pref_summary">முழு திரை நிலைக்கு செல்லும் பொழுது திரை அடியில் தெரியும் சாரல பொத்தானை தானாக மறை</string>
+  <string name="prefs_dictionaries_cat">அகராதிகள்</string>
+  <string name="choose_strongs_greek_dictionary_title">Strong கிரேக்க அகராதி</string>
+  <string name="choose_strongs_greek_dictionary_summary">கிரேக்க சொற்களின் விளக்கங்களுக்கு Strongs அகராதியை தேர்வு செய்யவும்</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strongs எபிரேய அகராதி</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">எதிரே பதங்களின் பொருள்களுக்கு Strongs அகராதியை தேர்வு செய்யவும்</string>
+  <string name="choose_strongs_greek_morphology_title">ராபின்சன் கிரேக்க சொற்பகுப்பியல்</string>
+  <string name="choose_strongs_greek_morphology_summary">ராபின்சன் கிரேக்க சொற்பகுப்பியல் வரையறைகளுக்கு அகராதியைத் தேர்ந்தெடுக்கவும்</string>
+  <string name="prefs_top_margin_title_mm">மேல் விளிம்பு (%d mm)</string>
+  <string name="font_size_title">எழுத்துரு அளவு</string>
+  <string name="font_size_title_pt">எழுத்துரு அளவு (%d pt)</string>
+  <string name="prefs_font_text_size_summary">முதன்மை உரையின் எழுத்துரு அளவை மாற்ற</string>
+  <string name="pref_font_family_label_name">எழுத்துரு குடும்பம் (%s)</string>
+  <string name="prefs_font_family_summary">எடுத்துறு குடும்பத்தை மாற்ற. குறிப்பு: மேலதிக எழுத்துருக்கள் தரவிறக்க பக்கத்தில் பெறலாம்</string>
+  <string name="prefs_text_bookmarks_title">புக்மார்க் &amp; என் குறிப்புகளின் அமைப்புகள்</string>
+  <string name="prefs_enable_bluetooth_title">புளூடூத் மீடியா பொத்தான்களை காட்டவும் </string>
+  <string name="prefs_enable_bluetooth_summary">பேசுவதைத் தொடங்க/நிறுத்த புளூடூத் மீடியா பொத்தான்களை பயன்படுத்தவும்.</string>
+  <string name="create_bookmark">புது புக் மார்க் உருவாக்கு</string>
+  <string name="create_bookmark_with_a_note">குறிப்போடு புது புக் மார்க் உருவாக்கு</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">நிற அமைப்புகள்</string>
+  <string name="window_color_settings_title">சாரல நிற அமைப்புகள்</string>
+  <string name="workspace_color_settings_title">இயல்பு நிலை பணியிட நிற அமைப்புகள்</string>
+  <string name="color_workspace">பணியிட நிறம்</string>
+  <string name="color_text">உரை நிறம்</string>
+  <string name="color_background">பின்னணி நிறம்</string>
+  <string name="colors_day_mode_title">பகல் பயன்முறை</string>
+  <string name="colors_night_mode_title">இரவு பயன்முறை</string>
+  <string name="prefs_noise_title">பின்னணி இரைச்சல்</string>
+  <string name="prefs_noise_summary">பின்னணியில் இறைச்சலை சேர்ப்பது படிப்பதை எளிமையாக்கும்</string>
+  <string name="cpv_default_title">நிறத்தை தேர்வு செய்க</string>
+  <string name="cpv_presets">முன்னமைவுகள்</string>
+  <string name="cpv_transparency">தெளிவு நிலை</string>
+  <!--Window-->
+  <string name="new_window">புது சாரளம்</string>
+  <string name="windowClose">மூடு</string>
+  <string name="windowMaximise">விரி</string>
+  <string name="windowMinimise">சுருக்கு</string>
+  <string name="move_window">நகர்த்துக</string>
+  <string name="copy_settings_to_workspace">பணியிடம்</string>
+  <string name="change_to_normal">சாதாரண சாரளமாக மாற்று</string>
+  <string name="window_pin_mode">கடவு எண்</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">இந்த அதிகாரத்தில் குறிப்புகள் ஏதுமில்லை</string>
+  <string name="no_verse_notes">இந்த வசனத்திற்கு குறிப்புகள் ஏதுமில்லை</string>
+  <string name="previous">முந்தையது</string>
+  <string name="next">அடுத்தது</string>
+  <!--Strongs-->
+  <string name="strongs_not_installed">Strong\'s எபிரேய மற்றும் கிரேக்க அகராதிகளை தரவிறக்கம் செய்யவும்</string>
+  <string name="no_indexed_bible_with_strongs_ref">முதலில் Strong\'s எண்களைக் கொண்ட விவிலியத்தை தரவிறக்கம் செய்து தேடல் மூலமாக அதனை அட்டவணை படுத்தவும்</string>
+  <string name="morph_robinson_not_installed">\'ராபின்சன் கிரேக்க சொற்பகுப்பியல்\' அகராதியைப் பதிவிறக்கவும்</string>
+  <string name="go_to_downloads">தரவிறக்கங்களுக்கு செல்க</string>
+  <!--Module download-->
+  <string name="download">கோப்புகளை தரவிறக்கு</string>
+  <string name="redownload">கோப்புகளை மீள் தரவிறக்கு</string>
+  <string name="download_confirmation">இணையத்திலிருந்து விவிலியத்தைப் பதிவிறக்கவா?</string>
+  <string name="download_source_last_updated">கோப்புப் பட்டியல் இறுதியாக புதுப்பிக்கப்பட்டது: %s.</string>
+  <string name="download_refreshing_book_list">ஆவண சேவையகங்களிலிருந்து ஆவணங்களின் பட்டியல் புதுப்பிக்கப்படுகின்றது...</string>
+  <string name="download_source_message1">ஆவணங்கள் பின்வரும் இடங்களில் இருந்து தரவிறக்கப்படுகின்றது:</string>
+  <string name="download_document_confirm_prefix">தரவிறக்கம்</string>
+  <string name="download_refresh_book_list_menu_item">புதுப்பிப்பு</string>
+  <string name="error_downloading">பதிவிறக்கும் போது பிழை ஏற்பட்டது. உங்கள் இணைய இணைப்பைச் சரிபார்க்கவும்.</string>
+  <string name="error_downloading_status">%1$s ஐ ஹோஸ்ட் செய்யும் சர்வர் %2$s ஆல் பிழை வழங்கியது (%3$d).</string>
+  <string name="storage_space_warning">தேவையான சேமிப்பு இடம் இல்லை</string>
+  <string name="too_many_jobs">பல பணிகள் இயங்குகின்றன. சில முடிவடையும் வரை காத்திருந்து மீண்டும் முயற்சிக்கவும்.</string>
+  <string name="document_not_installed">தயவுசெய்து \'%s\'ஐ தரவிறக்கவும்</string>
+  <string name="free_text_search_documents">தேடல்</string>
+  <string name="chooce_language_hint">மொழி</string>
+  <string name="one_more_back_press">பயன்பாட்டை மூட மீண்டும் back அழுத்தவும்</string>
+  <string name="document_filter_results">%d ஆவணங்கள்</string>
+  <string name="download_question_title">ஆவணங்களைப் பதிவிறக்கவா?</string>
+  <string name="download_question_message">நீங்கள் கிறிஸ்தவர்கள் துன்புறுத்தப்படும் நாட்டில் வாழ்ந்தால்,
+        இணையம் வழியாக கிறிஸ்தவ விஷயங்களைப் பதிவிறக்குவதில் கவனமாக இருக்க வேண்டும்.
+        இதற்கு பதிலாக, நீங்கள் module zip கோப்புகளை பாதுகாப்பாகப் பெற்று
+        \"ஜிப்பில் இருந்து ஆவணங்களை ஏற்று\" என்னும் வழியில் அவற்றை நிறுவலாம். பதிவிறக்கத்தை தொடர விரும்புகிறீர்களா?
+        Module சேவையகங்களிலிருந்து அனைத்து பதிவிறக்கங்களும் மறையாக்கம் (HTTPS) செய்யப்பட்டுள்ளன.
+    </string>
+  <string name="do_not_ask_again">ஆம், இனி கேட்க வேண்டாம்</string>
+  <string name="recommended_document">பரிந்துரைக்கப்பட்டது!</string>
+  <string name="about_version_history">பதிப்பு வரலாறு: %s</string>
+  <string name="download_errors">பதிவிறக்க பிழைகள்</string>
+  <string name="failed_repositories_message">பின்வரும் ஆவண சேவையகத்துடன் இணைக்க முடியவில்லை: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">பின்வரும் கோப்புகளை பதிவிறக்க முடியவில்லை:\n\n%s\n\n</string>
+  <string name="cant_delete_document">இந்த ஆவணத்தை நீக்க இயலாது.</string>
+  <!--Install zip file-->
+  <string name="install_zip">கோப்புகளிலிருந்து ஆவணங்களை ஏற்றவும்</string>
+  <string name="install_zip_module">விவிலிய Module நிறுவவும்</string>
+  <string name="install_zip_module_discrete">கால்குலேட்டர் தொகுதியை நிறுவவும்</string>
+  <string name="install_zip_successfull">தொகுதி சரியாக நிறுவப்பட்டது</string>
+  <string name="extracting_zip_file">Zip கோப்பை இப்போது பிரித்தெடுக்கிறது…</string>
+  <string name="checking_zip_file">கொடுக்கப்பட்ட கோப்பு சரிபார்க்கப்படுகின்றது…</string>
+  <string name="invalid_module">கோப்பில் சரியான SWORD தொகுதி இல்லை</string>
+  <string name="install_zip_title">தயவுசெய்து காத்திருக்கவும். கோப்பிலிருந்து தொகுதிகளை ஏற்றுகிறது.</string>
+  <string name="overwrite_files">பின்வரும் கோப்புகள் ஏற்கனவே உள்ளன: %s மேலெழுதவா?</string>
+  <string name="overwrite_files_title">கோப்புகளை மேலெழுதவா?</string>
+  <string name="could_not_overwrite_files">நிறுவல் வெற்றிகரமாக இருந்த கோப்புகளைத் தவிற பிற கோப்புகளின் மேலெழுத முடியவில்லை: %s</string>
+  <string name="install_do_you_want">(%s) தொகுதியை நிறுவ விரும்புகிறீர்களா?</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">வாசிப்பு திட்டம்</string>
+  <string name="reading_plans_plural">வாசிப்பு திட்டங்கள்</string>
+  <string name="rdg_plan_selector_title">ஒரு வாசிப்பு திட்டத்தை தேர்வு செய்யவும்</string>
+  <string name="rdg_plan_day">%s நாள்</string>
+  <string name="rdg_plan_set_start_date">தொடக்க தேதியை அமைக்கவும்…</string>
+  <string name="set_current_day">நடப்பு நாளாக அமைக்கவும்…</string>
+  <string name="msg_set_current_day_reading_plan">இந்தத் திட்டத்தில் இன்று நடப்பு நாளாக அமைக்கப்பட்டு முந்தைய நாட்களை படித்ததாகக் குறிக்கப்படும். தொடரவா?</string>
+  <string name="done">முடிந்தது</string>
+  <string name="reset_plan_question">இந்தத் திட்டத்தை மீளமைக்க விரும்புகிறீர்களா?</string>
+  <string name="import_reading_plan">வாசிப்பு திட்டத்தை உள்ளேற்று…</string>
+  <string name="import_reading_plan_error">உள்ளேற்றுவதில் செய்வதில் பிழை</string>
+  <string name="import_reading_plan_error_duplicate">பின்வரும் நாட்கள் முன்பே உள்ளன: %s</string>
+  <string name="import_reading_plan_error_days">பின்வரும் நாட்களில் பிழை உள்ளன: %s</string>
+  <string name="import_reading_plan_anyway">எப்படியும் உள்ளேற்று</string>
+  <string name="overwrite_reading_plan">%s மேல் எழுதவா?</string>
+  <string name="delete_reading_plan">இந்த திட்டத்தை நீக்குக</string>
+  <string name="reading_plan_deleted">வாசிப்புத் திட்டம் நீக்கப்பட்டது</string>
+  <string name="reading_plan_ships_with_ab"> %s ஓடு இந்த வாசிப்புத் திட்டம் வருகின்றது</string>
+  <string name="confirm_delete_reading_plan">
+        %s-ஐ அதன் வாசிப்பு வரலாற்றுடன் சேர்த்து நீக்க விரும்புகிறீர்களா?
+       குறிப்பு: நீங்கள் திட்டத்தை புதுப்பிக்க வேண்டும் என்றால், அதே கோப்பு பெயரில் மீண்டும் உள்ளேற்றலாம்
+        இவ்வாறு வாசிப்பு வரலாறு பாதுகாக்கப்படும்.
+    </string>
+  <string name="plan_duplicate_user_plan">
+        sdcard இல் பயனர் வாசிப்புத் திட்டம் உள்ளது
+        உள்ளே அதே பெயரில் jsword/readingplan உள்ளது. ஆகவே இதனை இங்கே பட்டியலிட முடியாது.
+        கோப்பு நீட்டிப்பை .properties என விட்டுவிட்டு, கோப்புக்கு வேறு பெயரிடவும்
+    </string>
+  <string name="plan_name_y1ntpspr">ஒரு ஆண்டில் புதிய ஏற்பாடு திருப்பாடல்கள் மற்றும் நீதிமொழிகள்</string>
+  <string name="plan_description_y1ntpspr">
+        உபயம்: HEARTLIGHT Internet Magazine,
+        http://www.heartlight.org, அனுமதி பெற்றது
+    </string>
+  <string name="plan_name_y1ot1nt1_chronological">காலவரிசை அடிப்படையில் 1-ஆண்டில் விவிலியம்</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+        விவிலிய நிகழ்வுகளின் காலவரிசை அடிப்படையில் அமைந்த திட்டம்.
+        காலவரிசை தோராயமானது.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1 ஆண்டில் பழைய ஏற்பாடும் புதிய ஏற்பாடும் ஒரே நேரத்தில்</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+        ஒவ்வொரு நாளும் புதிய மற்றும் பழைய ஏற்பாட்டு 
+         அதிகாரங்களோடு விவிலியத்தை 1 வருடத்தில் படிக்க.
+    </string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">விவிலியம் முழுவது 1 ஆண்டில்</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+        தொடக்க நூல் முதல் திருவெளிப்பாடு வரை 1 ஆண்டில்
+        விவிலியம் முழுதும் படிக்கலாம். முதலில் பழைய ஏற்பாடு, பின் புதிய ஏற்பாடு.
+    </string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1-ஆண்டு 4-அதிகாரங்கள்/நாள்</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+        இந்தத் திட்டம் M\'Cheyne வாசிப்பு முறையை அடிப்படையாகக் கொண்டது,
+        இதில் குடும்பமாகவோ அல்லது தனியாகவோ பயன்படுத்த நான்கு வெவ்வேறு வாசகங்கள் உள்ளன. ஒவ்வொரு நாளுக்கும்
+        பழைய ஏற்பாட்டில் இருந்து இரண்டு வாசகங்கள், புதிய ஏற்பாட்டில் இருந்து ஒரு வாசகமும், மற்றும் நற்செய்தி நூல்கள் அல்லது திருப்பாடல்களிலிருந்து ஓரு வாசகமும் உள்ளது. ஒரு ஆண்டில்,
+        பழைய ஏற்பாட்டை ஒரு முறையும், புதிய ஏற்பாடு மற்றும் திருப்பாடல்களை இரண்டு முறையும் படிப்பீர்கள்.
+    </string>
+  <string name="plan_name_y1ot6nt4_profHorner">பேராசிரியர் ஹார்னரின் 10அதிகாரங்கள்/நாள் வாசிப்புத் திட்டம்</string>
+  <string name="plan_description_y1ot6nt4_profHorner">உபயம் பேராசிரியர் ஹார்னர், அனுமதி பெற்றது</string>
+  <string name="plan_name_y2ot1ntps2">2-ஆண்டுகளில் விவிலியம், NT+PS இருமுறை</string>
+  <string name="plan_description_y2ot1ntps2">
+        2 ஆண்டுகளில் விவிலியம் முழுவதையும், புதிய ஏற்பாடு மற்றும் திருப்பாடல்களை இரண்டு முறையும் படிக்கலாம்.
+        உபயம்: Wholesome Words,  http://www.wholesomewords.org/, அனுமதி பெற்றது.</string>
+  <!--Document context menu-->
+  <string name="delete">நீக்குக</string>
+  <string name="delete_index">தேடல் அட்டவணையை நீக்கு</string>
+  <string name="delete_doc">%s நீக்கவா?</string>
+  <string name="delete_search_index_doc"> %sஇன் அட்டவணையை நீக்க வா?</string>
+  <!--Verse context menu-->
+  <string name="notes">அடிக்குறிப்புகள் மற்றும் பிற குறிப்புகள்</string>
+  <string name="share_verse">பகிர்…</string>
+  <string name="share_verse_widget_title">தேர்வைப் பகிரவும்</string>
+  <string name="share_verse_subject_2">%s பயன்படுத்தி உங்களுடன் ஒரு விவிலிய வசனம் பகிரப்பட்டது</string>
+  <string name="compare_translations">மொழிபெயர்ப்புகளை ஒப்பிடுக</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">இணைப்பை இங்கேயே திறக்கவும்</string>
+  <string name="open_link_in_new_window">இணைப்பை புதிய சாளரத்தில் திறக்கவும்</string>
+  <string name="open_link_in_special_window">சிறப்பு சாளரத்தில் இணைப்பைத் திறக்கவும்</string>
+  <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">புக்மார்க்குகள் &amp; என் குறிப்புகள்</string>
+  <string name="migrated_my_notes">என் குறிப்புகளை நகர்த்தியது</string>
+  <string name="bookmarks">புக்மார்க்குகள்</string>
+  <string name="bookmark_added">புக்மார்க் சேர்க்கப்பட்டது</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">லேபிள்கள்</string>
+  <string name="manage_labels">லேபிள்களை நிர்வகிக்க</string>
+  <string name="assign_labels">லேபிள்களை தேர்ந்தெடு</string>
+  <string name="new_item">புதிய</string>
+  <string name="new_label">புனித லேபிள்</string>
+  <string name="label_name_prompt">பெயர்</string>
+  <string name="label_unlabelled">லேபிள் இல்லாதது</string>
+  <string name="add_bookmark1">புக்மார்க்</string>
+  <string name="add_bookmark2">தேர்வினை புக்மார்க் செய்க</string>
+  <string name="add_bookmark3">தேர்வு</string>
+  <string name="add_bookmark_whole_verse">வசனத்தை புக்மார்க் செய்க</string>
+  <string name="add_bookmark_whole_verse1">வசனங்கள்</string>
+  <string name="add_bookmark_whole_verse2">முழு வசனங்கள்</string>
+  <string name="remove_bookmark">நீக்குக</string>
+  <string name="bookmark_settings_hide_labels_title">குறித்த லேபில்களை மறை</string>
+  <string name="bookmark_settings_hide_labels_summary">குறித்த லேபில்(கள்) உள்ள புக் மார்க்குகளை மறை</string>
+  <string name="auto_assign_labels_title">லேபிள் அமைப்புகள்</string>
+  <string name="auto_assign_labels">தானாக சேர் &amp; விருப்ப லேபில்கள்</string>
+  <string name="auto_assign_labels1">புதிய புக்மார்க்குகளுக்கு தானாக லேபிலை சேர்</string>
+  <string name="auto_assign_labels_primary">முதன்மையானதாக தானாக குறி</string>
+  <string name="label_color">லேபிள் நிறம்</string>
+  <!--can be removed-->
+  <string name="label_color_example">எடுத்துக்காட்டு</string>
+  <string name="marker_style">தேர்வு செய்யப்பட்ட புக் மார்க்குகளுக்கு மட்டும் குறியினை காட்டு</string>
+  <string name="marker_style_whole_verse">முழு வசனமும் புக் மார்க் செய்யப்பட்டவைக்கு மட்டும் குறியினை காட்டு</string>
+  <string name="hide_style">பகுதி வசன புக்மார்க்குகளுக்கு மறை</string>
+  <string name="hide_style_whole_verse">முழு வசன புக்மார்க்குகளுக்கு மறை</string>
+  <string name="bookmark_warning">இந்த ஆவணத்திற்கு புக் மார்க்குகள் அல்லது/மற்றும் குறிப்புகள் உள்ளன</string>
+  <string name="bookmark_warning3">இன்னமும் மாடியல்களை புதுப்பிக்கலாமா?</string>
+  <string name="bookmark_warning4">புதுப்பிப்பதற்கு முன்பு மாடியுல்களை பிரதி எடுக்க பரிந்துரைக்கப்படுகிறது.</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">நாள் வரிசை</string>
+  <string name="sort_by_bible_book">விவிலிய வரிசை</string>
+  <string name="sort_by_alphabetical">அகரவரிசை</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">குறிப்புகளில் தேடு</string>
+  <!--Dictionary-->
+  <string name="dictionary">அகராதி</string>
+  <string name="search_dictionary_hint">அகராதியில் தேடு</string>
+  <!--General Book-->
+  <string name="general_book">நூல்</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d அதிகாரம்</string>
+  <string name="some_chapters">%d அதிகாரங்கள்</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d வசனம்</string>
+  <string name="some_verses">%d வசனங்கள்</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d பக்கம்</string>
+  <string name="some_pages">%d பக்கங்கள்</string>
+  <!--Speak - Common-->
+  <string name="tts_lang_not_available">மொழி இல்லை.</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">பேசும் வேகம்</string>
+  <string name="speak_bookmarking_settings_title">புக்மார்க் அமைப்புகள்</string>
+  <string name="conf_change_chapter">அதிகார மாற்றங்கள்</string>
+  <string name="conf_change_title">தலைப்புகள்</string>
+  <string name="conf_speak_footnotes">அடிக்குறிப்புகள்</string>
+  <string name="speak_next">அடுத்தது</string>
+  <string name="speak_previous">முந்தையது</string>
+  <string name="auto_assing_labels_help1">நீங்கள் உருவாக்கும் புக் மார்க்குகளுக்கு எந்த லேபில்கள் தானாக கொடுக்கப்படும் என்பதை இங்கே நீங்கள் தெரிவு செய்யலாம்</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">இந்த அமைப்புகள் %s க்கானது</string>
+  <string name="setting_scope_window">இந்த சாரலம்</string>
+  <string name="setting_scope_workspace">இந்தப் பணியிடம்</string>
+  <string name="assing_labels_help1">ஒவ்வொரு புக்மார்க்குக்கும் பல லேபிள்களை இடலாம்</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2"> %sஐ பயன்படுத்தி எந்த லேபிளின் நிறம் காட்டப்படும் என்பதை தெரிவு செய்யலாம்</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">%s ஐகானை தட்டி அந்த லேபிலை தானாக புது புக்மார்க்குக்குகளுக்கு சேர்க்கலாம்</string>
+  <!--param is heart icon-->
+  <!--param is refresh icon-->
+  <string name="workspace_text_options_help_title">பணியிட உரை அமைப்புகள்</string>
+  <string name="workspace_text_options_help1">இந்த அமைப்புகள் அனைத்து பணியிட சாளரங்களுக்கும் இயல்புநிலையை தீர்மானிக்கிறது.</string>
+  <string name="window_text_options_help_title">சாரல உரை அமைப்புகள்</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s ஐகான், அமைப்புகள் அனைத்தும் பணி இடத்திலிருந்து எடுக்கப்படுகின்றது என்பதைகுறிக்கும்.</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help3">பணியிட அமைப்புகள் இந்த சாரலத்தை பாதிக்காது.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="reset_workspace_defaults">பணியிடத்தின் இயல்பு நிலை அமைப்புகள்</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>ஆண்டவர்</item>
+    <item>கடவுள்</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>யாவே</item>
+    <item>யாவே</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_chapter_changed">அதிகாரம்</string>
+  <string name="speak_first">முதல்</string>
+  <string name="speak_second">இரண்டாம்</string>
+  <string name="speak_third">மூன்றாம்</string>
+  <string name="speak_fourth">நான்காம்</string>
+  <string name="speak_fifth">ஐந்தாம்</string>
+  <!--User Notes-->
+  <string name="mynotes">என் குறிப்புகள்</string>
+  <!--Backup and restore-->
+  <string name="backup_modules2">...க்கு கோப்புகளை நகலெடு</string>
+  <string name="backup_app_database2">...க்கு செயலியின் தரவு தளத்தை நகலெடு</string>
+  <string name="backup_app2">...க்கு செயலியை (.apk கோப்பு) நகலீடு</string>
+  <string name="backup_application">செயலி</string>
+  <string name="backup_database">தரவு தளம்</string>
+  <string name="backup_documents">கோப்புகள்</string>
+  <string name="backup_application_info">செயலி கோப்பு (.APK)</string>
+  <string name="backup_database_info">புக்மார்க்குகள், லேபிள்கள், குறிப்புகள், ஸ்டடி பேட், வாசிப்புத் திட்டங்கள், பணியிடங்கள் போன்றவை.</string>
+  <string name="backup_document_info">விவிலியம், விளக்க உரைகள், அகராதிகள், வரைபடங்கள் மற்றும் பல.</string>
+  <string name="backup_to">...க்கு நகல் எடு</string>
+  <string name="backup_restore_from">.... இல் இருந்து மீட்டமை</string>
+  <string name="backup_restore">மீட்டமை</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">எதை மீட்டமைக்க வேண்டும்?</string>
+  <string name="restore_app_database">... இல் இருந்து செயலி தரவு தளத்தை மீட்டமை</string>
+  <string name="restore_database">தரவு தள கோப்பை மீட்டமை</string>
+  <string name="restore_confirmation">என் குறிப்புகள், புக்மார்க்குகள், ஸ்டடி பேடுகள், வாசிப்பு திட்டங்கள் மற்றும் பணியிடங்களை மேலெழுதவா?</string>
+  <string name="restore_success2">தேர்வு செய்யப்பட்ட தரவு தள பகுதிகள் சரியாக மீட்டமைக்கப்பட்டன</string>
+  <string name="restore_success">என் குறிப்புகள், புக்மார்க்குகள், ஸ்டடி பேடுகள், வாசிப்பு திட்டங்கள் மற்றும் பணியிடங்கள் மீட்டெடுக்கப்பட்டன.</string>
+  <string name="downloading_backup">கோப்பு நகல் தரவிறக்கப்படுகிறது...</string>
+  <string name="loading_backup">நகலிலிருந்து தரவு தளம் ஏற்றப்படுகிறது...</string>
+  <string name="backup_success2">என் குறிப்புகள், புக்மார்க்குகள், ஸ்டடி பேடுகள், வாசிப்பு திட்டங்கள் மற்றும் பணியிடங்கள் காப்புப் பிரதி எடுக்கப்பட்டன.</string>
+  <string name="backup_modules_success">தேர்வு செய்யப்பட்ட மாடியுல்கள் சரியாக நகலெடுக்கப்பட்டன.</string>
+  <string name="backup_modules_email_subject_2">%s மாடியுல்களின் நகல்</string>
+  <string name="backup_modules_email_message_2">இணைக்கப்பட்டிருப்பது பின்வரும் மாடியுல்களைக் கொண்ட உங்கள் %1$s மாடியல்களின் நகல்: %2$s</string>
+  <string name="backup_email_subject_2">%s தரவு தள நகல்</string>
+  <string name="backup_email_message_2">புக் மார்க்குகள், குறிப்புகள், வாசகத் திட்டங்கள் மற்றும் பணியிடங்கள் அடங்கிய உங்கள் %s தரவு தளம் இணைக்கப்பட்டுள்ளது</string>
+  <string name="restore_unsuccessfull">தரவு தளத்தை மீட்டமைப்பதில் சிக்கல். தவறான தரவு தளக் கோப்பை நீங்கள் தந்திருக்கலாம்.</string>
+  <string name="restore_modules">... இல் இருந்து கோப்புகளை மீட்டமைக்க</string>
+  <string name="send_backup_file">நகல் கோப்பை அனுப்பு</string>
+  <string name="backup_modules_title">நகல் எடுக்கவேண்டிய மாடியுல்களை தெரிவு செய்க</string>
+  <string name="install_zip_canceled">மாடியுல்களை நிறுவுவது ரத்து செய்யப்பட்டது</string>
+  <!--About-->
+  <string name="module_about_copyright">காப்புரிமை: %s</string>
+  <string name="module_about_installed_version">நிறுவப்பட்ட பதிப்பு: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">அண்மைய பதிப்பு: %1$s (%2$s)</string>
+  <string name="module_about_versification">வசனங்கள் பகுப்பு முறை: %s</string>
+  <string name="module_about_repository">பங்கிடு சேவையகம்: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title1">பிழை அறிக்கை</string>
+  <string name="send_feedback_title">கருத்துகள்</string>
+  <string name="send_bug_report_title">கருத்துகள் / பிழை அறிக்கைகள்</string>
+  <string name="report_bug_email_subject_3">[%1$s] Bug report for %2$s %3$s</string>
+  <string name="report_bug_big_heading">PLEASE WRITE YOUR FEEDBACK OR BUG REPORT ABOVE THIS LINE</string>
+  <!--Document types-->
+  <string name="doc_type_bible">திருவிவிலியம்</string>
+  <string name="doc_type_dictionary">அகராதி</string>
+  <string name="doc_type_book">நூல்</string>
+  <string name="doc_type_map">வரைபடம்</string>
+  <!--Languages-->
+  <!--General-->
+  <string name="okay">சரி</string>
+  <string name="cancel">ரத்து செய்</string>
+  <string name="yes">ஆம்</string>
+  <string name="error">பிழை</string>
+  <string name="delete_generic">நீக்குக</string>
+  <string name="reset_generic">மீட்டமை</string>
+  <string name="verse_not_found">வசனம் கிடைக்கவில்லை</string>
+  <!--Errors-->
+  <string name="error_occurred">பிழை ஏற்பட்டது</string>
+  <string name="error_occurred_with_link">பிழை ஏற்பட்டது. %s</string>
+  <string name="error_no_content">தேர்ந்தெடுக்கப்பட்ட வசனத்திற்கு உள்ளடக்கம் எதுவும் இல்லை</string>
+  <string name="error_page_too_large">ஏற்றுவதற்கு இந்த பக்கம் மிகவும் பெரியது</string>
+  <string name="error_key_not_in_document">கோப்பில் இல்லை</string>
+  <string name="empty_list">காட்டுவதற்கு எதுவும் இல்லை</string>
+  <string name="error_skip">தவிர்க்க</string>
+  <!--Notifications-->
+  <!--Workspaces-->
+  <string name="new_workspace">புதிய</string>
+  <string name="switch_to_workspace">பணியிடங்கள்</string>
+  <string name="delete_workspace">நீக்குக</string>
+  <string name="workspace_number">பணியிடம் %d</string>
+  <string name="workspace_selector_title">பணியிடங்களை தேர்வு செய்க</string>
+  <string name="workspace_settings">அமைப்புகள்...</string>
+  <string name="give_name_workspace">புதிய பணியிடத்திற்கு பெயரிடுக</string>
+  <string name="save_and_exit">சேமி</string>
+  <string name="workspace_save_changes">மாற்றங்களை பணியிடத்தில் புகுத்தவா?</string>
+  <string name="copy_of_workspace">%sஇன் நகல்</string>
+  <string name="copy_settings_title">எந்த அமைப்புகளை நகலெடுக்க?</string>
+  <string name="copy_settings_workspaces_title">எந்தப் பணியிடங்களுக்கு அமைப்புகளை நகலெடுக்க வேண்டும்?</string>
+  <string name="reset_settings">மீட்டமை</string>
+  <string name="workspace_listing_with_current">%s (தற்போதையது)</string>
+  <!--Beta notice-->
+  <string name="beta_notice_title">இது பீட்டா பதிப்பு!</string>
+  <!--History-->
+  <!--Help-->
+  <string name="help_bookmarks_title">புக்மார்க்குகள் &amp; என் குறிப்புகள்</string>
+  <string name="help_search_title">தேடல்</string>
+  <string name="help_workspaces_title">பணியிடங்கள்</string>
+  <string name="help_window_pinning_title">சாரளத்தை பின் செய்வது</string>
+  <!--Welcome text-->
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_mysword">MySword கோப்புகள் (*.mybible)</string>
+  <string name="format_mybible">MyBible கோப்புகள் (*.SQLite3)</string>
+  <!--Uncategorized-->
+  <string name="close">மூடு</string>
+  <string name="first_time_help_do_not_show_again">நான் ஏற்கிறேன்</string>
+  <string name="first_time_help_show_next_time">அடுத்த முறை மீண்டும் காட்டவும்</string>
+  <string name="download_dialog_message">பின்வரும் நூல்களை தரவிறக்க இயலவில்லை:</string>
+  <string name="my_notes_abbreviation">என் குறிப்புகள்</string>
+  <string name="compare_description">மொழிபெயர்ப்புகளை ஒப்பிடுக</string>
+  <string name="compare_abbreviation">ஒப்பிடுக</string>
+  <string name="compare">ஒப்பிடுக</string>
+  <string name="http_not_found">காணவில்லை</string>
+  <string name="http_unknown">மற்ற பிழை</string>
+  <string name="give_passphrase_for_module"> %s கோப்பு குறியாக்கத்தின் மூலம் பூட்டப்பட்டிருக்கிறது. இதை திறக்க கடவுச்சொல் தேவை.</string>
+  <string name="unlocking_failed">திறக்க இயலவில்லை, தவறான கடவுச்சொல்</string>
+  <string name="unlock_module">மாடியுலுக்கான கடவுச்சொல்லை உள்ளிடுக</string>
+  <string name="unlock_info">குறியாக்கப்பட்ட ஆடியோல்களைத் திறக்க உதவி குறிப்புகள்</string>
+  <string name="try_again_passphrase">கடவுச்சொல் வேலை செய்யவில்லை, மீண்டும் முயலவா?</string>
+  <string name="prefs_show_error_box_title">ஜாவாஸ்கிரிப்ட் பிழை பெட்டியைக் காட்டு</string>
+  <string name="prefs_show_error_box_summary">BibleView ஜாவாஸ்கிரிப்ட் பக்க பிழைகளை பிழைத்திருத்தம் செய்யும் போது நிரலாக்கர்களுக்கு பயனுள்ளதாக இருக்கும். இது செயலியை மெதுவாக்கும்.</string>
+  <string name="active_window_indicator_title">செயலில் உள்ள சாளர குறிகாட்டியைக் காட்டு</string>
+  <string name="active_window_indicator_summary">எந்த சாளரம் செயலில் உள்ளது என்பதை அறிய, சாளர மூலைகளை முன்னிலைப்படுத்தவும்</string>
+  <string name="app_licence_title">திறந்த மூல உரிமம் </string>
+  <string name="how_to_contribute">எப்படி பங்களிப்பது?</string>
+  <string name="confirm_delete_bookmarks">%d இன் புக்மார்க்குகளையும் குறிப்புகளையும் நீக்கவா?</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">நண்பர்களுக்கு பரிந்துரை</string>
+  <string name="tell_friend_message1">நான் உங்களுக்கு %s ஐ பரிந்துரைக்கிறேன்.</string>
+  <string name="tell_friend_message2">இது ஆண்ட்ராய்டுக்கான ஒரு சக்திவாய்ந்த, ஆனால் பயன்படுத்த எளிய, இணையம் தேவையில்லா விவிலிய ஆய்வுக் கருவியாகும். </string>
+  <string name="tell_friend_message3">இதனை ப்ளே ஸ்டோரில் இருந்து பெறலாம்: %s</string>
+  <string name="share_verse_ok">பகிர் / நகல் எடு</string>
+  <string name="verse_action_copy">நகலெடு </string>
+  <string name="generic_share">பகிர்</string>
+  <string name="share_verse_menu_title">பகிர் / நகல் எடு...</string>
+  <string name="show_versenumbers">வசன எண்களை காட்டு</string>
+  <string name="show_full_verses">முழு வசனத்தையும் காட்டு</string>
+  <string name="show_selection_only">தெரிவு செய்யப்பட்ட உரையை மட்டும் காட்டு</string>
+  <string name="advertise_app">செயலியை விளம்பரப்படுத்து</string>
+  <string name="verse_share_advertise"> %s வழியாக பகிரப்பட்டது.</string>
+  <string name="show_reference">வசன எண்களை காட்டு</string>
+  <string name="show_reference_at_front">வசனத்திற்கு முன் காட்டு</string>
+  <string name="abbreviate_reference">சுருக்கக் கூறிகளைப் பயன்படுத்து</string>
+  <string name="version_name">பதிப்பு பெயர்</string>
+  <!--meaning, bible version name-->
+  <string name="show_version_name">பதிப்பு பெயரையும் சேர்</string>
+  <string name="show_ellipsis">முப்புள்ளி காட்டு (…)</string>
+  <string name="show_quotes">இரட்டை மேற்கோள் கூறி காட்டு</string>
+  <string name="backup_button">காப்பு நகல் எடு</string>
+  <string name="upgrading_database">தரவு தளம் மேம்படுத்தப்படுகிறது. தயவு செய்து காத்திருக்கவும்…</string>
+  <string name="initializing_app">செயலி தொடங்குகிறது....</string>
+  <string name="show_notes">குறிப்புகளை காட்டு</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="play">கூகுள் ப்ளே</string>
+  <string name="rate_title">செயலியினை மதிப்பாய்வு செய்வது</string>
+  <string name="rate_message5">
+        நேர்மறை மற்றும் விரிவான மதிப்புரைகள் AndBible Open Source திட்டத்திற்கு பெரிதும் உதவும். நன்றி!
+    </string>
+  <string name="rate_message6">
+        மதிப்பாய்வு செய்யும் போது எதிர்மறை கருத்துகளை தருவதற்கு முன்பு, தயவு செய்து பின்வருவனவற்றை கருத்தில் கொள்ளவும்:
+    </string>
+  <!--parameters are actions (file a bug, send email)-->
+  <!--param is "please report maintainers"-->
+  <!--param is "please read what you can do"-->
+  <string name="proceed_google_play">
+        கூகுள் ப்ளேவுக்கு செல்
+    </string>
+  <string name="does_not_exist_abbreviation">இல்லை</string>
+  <string name="this_bookmark">இந்த புக் மார்க்</string>
+  <string name="this_workspace">இந்தப் பணியிடம்</string>
+  <string name="primary_label">முதன்மை லேபிள்</string>
+  <string name="highlight_entire_verse">முழு வசனத்தையும் ஹைலைட் செய்யவும்</string>
+  <string name="favourite_label">விருப்பமான லேபிள்</string>
+  <string name="edit_label">லேபிளை மாற்ற</string>
+  <string name="active_labels">தெரிவு செய்யப்பட்ட லேபில்கள்</string>
+  <string name="reset_workspace_labels">இந்தப் பணியிடத்திற்கான தானியங்கி மற்றும் பிடித்த அமைப்புகளை மீட்டமைக்க விரும்புகிறீர்களா?</string>
+  <string name="prefs_double_tap_to_fullscreen_title">இரு முறை தட்டினால் முழு திரை பயன்முறைக்கு செல்</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">சாரளத்தை இருமுறை தட்டினால் முழு திரை பயன்முறைக்கு செல்</string>
+  <string name="toggle_fullscreen">முழு திரை பயன்முறை</string>
+  <string name="exit_fullscreen">இரு முறை தட்டினாள் முழு திரை பயன்முறையிலிருந்து வெளியேறு</string>
+  <string name="label_red">சிவப்பு</string>
+  <string name="label_green">பச்சை</string>
+  <string name="label_blue">நீலம்</string>
+  <string name="label_salvation">மீட்பு</string>
+  <string name="label_underline">அடிக்கோடு</string>
+  <string name="import_menu">உள்ளேற்று &amp; வெளியேற்று</string>
+  <string name="export_fileformat">%sஆக வெளியேற்று</string>
+  <string name="import_items">%sஐ உள்ளேற்று</string>
+  <string name="import_from_db">ஆப் தரவுத்தள கோப்பிலிருந்து உள்ளேற்றவும்</string>
+  <string name="import_error">தரவுத்தளத்திலிருந்து உள்ளேற்ற இயலவில்லை. தரவுத்தளக் கோப்பு தவறான வடிவமைப்பாக இருக்கலாம் அல்லது %sஇன் பழைய பதிப்பைக் கொண்டு உருவாக்கப்பட்டிருக்கலாம்.</string>
+  <string name="chooser_OT_abbrev">பஏ</string>
+  <string name="chooser_NT_abbrev">புஏ</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
+  <string name="questions_title">கேள்விகள்?</string>
+  <string name="questions_title2">உதவி தேவையா?</string>
+  <string name="strongs_links">இணைப்புகள்</string>
+  <string name="verse_tip">வசனத்தின் பகுதியையோ அல்லது பல வசனங்களையோ தேர்ந்தெடுக்க, நீங்கள் உரையை நீண்ட நேரம் அழுத்தவும்</string>
+  <string name="permission_required">அனுமதி தேவை</string>
+  <string name="labels_search_hint">தேடல்</string>
+  <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories_info_button_label">தகவல்</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">விவிலிய இணைப்புகளை AndBibleல் திறக்கவும்</string>
+  <!--Device cloud synchronization-->
+  <string name="workspaces_contents">பணியிடங்கள் மற்றும் சாரளங்கள்</string>
+  <!--... after restoring from backup file-->
+  <string name="sync_error">கிளவுட் ஒத்திசைவில் பிழை ஏற்பட்டது</string>
+  <string name="error_notification_channel_name">பிழை அறிவிப்புகள்</string>
+  <!--MyBible/MySword module support-->
+  <string name="install_failed_reason">பின்வரும் காரணத்தால் மாடியுளை நிறுவ இயலவில்லை: %s.</string>
+  <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">செயலி வேறெங்கோ திறக்கப்பட்டிருக்கிறது</string>
+  <string name="open_here">இங்கேயே திற</string>
+  <string name="external_link">வெளி இணைப்பு</string>
+  <string name="external_link_question">இது வெளி இணைப்பு %s ஐ உலாவியில் திறக்கும். தொடர விரும்புகிறீர்களா?</string>
+  <string name="nameless">தலைப்பு வரையறுக்கப்படவில்லை</string>
+  <string name="dont_show">
+        இந்த குறிப்பை மீண்டும் காட்டாதே
+    </string>
+</resources>
