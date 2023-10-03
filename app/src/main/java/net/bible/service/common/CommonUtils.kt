@@ -1385,7 +1385,7 @@ object CommonUtils : CommonUtilsBase() {
 
         if(languageOK || (
                 settings.getString("poor-translations-dismissed", "") == languageTag
-                    && settings.getInt("poor-translations-dismissed", 0) == applicationVersionNumber))
+                    && settings.getString("poor-translations-dismissed-version", "") == mainVersion))
         {
             return true
         }
@@ -1401,7 +1401,7 @@ object CommonUtils : CommonUtilsBase() {
                 .setCancelable(false)
                 .setPositiveButton(R.string.proceed_anyway) { _, _ -> it.resume(true) }
                 .setNegativeButton(R.string.beta_notice_dismiss_until_update) { _, _ ->
-                    settings.setInt("poor-translations-dismissed", applicationVersionNumber)
+                    settings.setString("poor-translations-dismissed-version", mainVersion)
                     settings.setString("poor-translations-dismissed", languageTag)
                     it.resume(true)
                 }
