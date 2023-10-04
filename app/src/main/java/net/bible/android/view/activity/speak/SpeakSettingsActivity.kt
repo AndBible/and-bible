@@ -70,14 +70,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             synchronize.isChecked = AdvancedSpeakSettings.synchronize
             replaceDivineName.isChecked = AdvancedSpeakSettings.replaceDivineName
             restoreSettingsFromBookmarks.isChecked = AdvancedSpeakSettings.restoreSettingsFromBookmarks
-
             autoBookmark.isChecked = AdvancedSpeakSettings.autoBookmark
-            if (!autoBookmark.isChecked) {
-                restoreSettingsFromBookmarks.isChecked = false
-                restoreSettingsFromBookmarks.isEnabled = false
-            } else {
-                restoreSettingsFromBookmarks.isEnabled = true
-            }
         }
     }
 
