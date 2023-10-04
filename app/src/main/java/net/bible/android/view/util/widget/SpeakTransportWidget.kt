@@ -88,7 +88,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
             rewindButton.setOnClickListener { onButtonClick(it) }
             forwardButton.setOnClickListener { onButtonClick(it) }
             bookmarkButton.setOnClickListener { onBookmarkButtonClick() }
-            bookmarkButton.visibility = if (AdvancedSpeakSettings.autoBookmark) View.VISIBLE else View.GONE
+            bookmarkButton.visibility = if (speakBookmarks.isNotEmpty()) View.VISIBLE else View.GONE
             if (context.theme.obtainStyledAttributes(attributeSet, R.styleable.SpeakTransportWidget, 0, 0)
                     .getBoolean(R.styleable.SpeakTransportWidget_hideStatus, false)
             ) {
@@ -150,14 +150,18 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         }
     }
 
-    private fun onBookmarkButtonClick() {
-        val bookmarkTitles = ArrayList<String>()
-        val bookmarks = ArrayList<BookmarkEntities.BaseBookmarkWithNotes>()
+    private val speakBookmarks: List<BookmarkEntities.BaseBookmarkWithNotes> get() {
         val label = bookmarkControl.speakLabel
         val bibleBookmarks = bookmarkControl.getBibleBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
         val genBookmarks = bookmarkControl.getGenericBookmarksWithLabel(label)
+        return bibleBookmarks + genBookmarks
+    }
 
-        for (b in bibleBookmarks + genBookmarks) {
+    private fun onBookmarkButtonClick() {
+        val bookmarkTitles = ArrayList<String>()
+        val bookmarks = ArrayList<BookmarkEntities.BaseBookmarkWithNotes>()
+
+        for (b in speakBookmarks) {
             bookmarkTitles.add(
                 when(b) {
                     is BibleBookmarkWithNotes -> "${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})"
@@ -192,7 +196,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                     R.drawable.ic_play_arrow_black_24dp
         )
         if(speakSettings != null) {
-            binding.bookmarkButton.visibility = if (AdvancedSpeakSettings.autoBookmark) View.VISIBLE else View.GONE
+            binding.bookmarkButton.visibility = if (speakBookmarks.isNotEmpty()) View.VISIBLE else View.GONE
         }
     }
 

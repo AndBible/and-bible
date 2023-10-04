@@ -239,8 +239,8 @@ class GeneralSpeakTextProvider(
 
     private fun updateBookmark() {
         if(stopOrdinal != null) return
-        removeBookmark()
-        saveBookmark()
+        val wasRemoved = removeBookmark()
+        saveBookmark(wasRemoved)
     }
 
     override fun savePosition(fractionCompleted: Double) {}
@@ -262,7 +262,7 @@ class GeneralSpeakTextProvider(
     }
 
     private fun readBookmark() {
-        if(AdvancedSpeakSettings.autoBookmark && stopOrdinal == null) {
+        if(stopOrdinal == null) {
             val key = currentKey
 
             val bookmark: GenericBookmarkWithNotes = bookmarkControl.speakBookmarkForKey(key)?: return
@@ -285,12 +285,13 @@ class GeneralSpeakTextProvider(
         }
     }
 
-    private fun removeBookmark() {
-        var bookmark: GenericBookmarkWithNotes = this.bookmark ?: return
+    private fun removeBookmark(): Boolean {
+        var bookmark: GenericBookmarkWithNotes = this.bookmark ?: return false
 
         val labelList = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
         val speakLabel = bookmarkControl.speakLabel
         val ttsLabel = labelList.find { it.id == speakLabel.id }
+        var wasRemoved = false
 
         if(ttsLabel != null) {
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
@@ -304,13 +305,15 @@ class GeneralSpeakTextProvider(
                 bookmarkControl.deleteBookmark(bookmark)
                 Log.i("SpeakBookmark", "Removed bookmark from $bookmark")
             }
+            wasRemoved = true
             this.bookmark = null
         }
+        return wasRemoved
     }
 
-    private fun saveBookmark() {
+    private fun saveBookmark(wasRemoved: Boolean) {
         val labelList = mutableSetOf<Label>()
-        if(AdvancedSpeakSettings.autoBookmark) {
+        if(AdvancedSpeakSettings.autoBookmark || wasRemoved) {
             var bookmark: GenericBookmarkWithNotes? = bookmarkControl.firstGenericBookmarkStartingAtKey(startKey)?.run {
                 if(textRange != null) null else this
             }
