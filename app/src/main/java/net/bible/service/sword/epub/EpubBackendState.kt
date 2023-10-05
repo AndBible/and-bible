@@ -101,6 +101,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     internal val fileToTitle = toc?.run { useXPathInstance { xp ->
         xp.compile("//ns:navPoint/ns:content", Filters.element(), null, tocNamespace)
             .evaluate(this)
+            .reversed()
             .associate {
                 val textElem =
                     useXPathInstance { xp2 ->
