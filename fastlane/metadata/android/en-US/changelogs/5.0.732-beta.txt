@@ -14,4 +14,4 @@ Highlights:
 - Custom repositories
 - Deep links
 
-Support project financially: https://andbible.org/buy
+Support development financially: https://andbible.org/buy
