@@ -130,6 +130,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         bookmarkControl.speakLabel
         AdvancedSpeakSettings.reset()
         AdvancedSpeakSettings.autoBookmark = true
+        AdvancedSpeakSettings.synchronize = true
         AdvancedSpeakSettings.restoreSettingsFromBookmarks = true
         SpeakSettings().save()
 
