@@ -31,7 +31,7 @@ export function useOrdinalHighlight() {
         }
     }
 
-    function highlightVerse(ordinal: number) {
+    function highlightOrdinal(ordinal: number) {
         highlightedOrdinals.add(ordinal);
     }
 
@@ -39,5 +39,5 @@ export function useOrdinalHighlight() {
         undoCustomHighlights.push(func);
     }
 
-    return {highlightVerse, addCustom, highlightedOrdinals, resetHighlights, hasHighlights}
+    return {highlightOrdinal, addCustom, highlightedOrdinals, resetHighlights, hasHighlights}
 }

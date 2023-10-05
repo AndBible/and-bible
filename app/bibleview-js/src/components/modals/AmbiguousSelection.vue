@@ -125,7 +125,7 @@ const {strings} = useCommon();
 const android = inject(androidKey)!;
 const multiSelectionMode = ref(false);
 
-const {resetHighlights, highlightVerse, hasHighlights} = inject(ordinalHighlightKey)!;
+const {resetHighlights, highlightOrdinal, hasHighlights} = inject(ordinalHighlightKey)!;
 const {modalOpen, closeModals} = inject(modalKey)!;
 
 const showModal = ref(false);
@@ -201,7 +201,7 @@ function close() {
 function updateHighlight() {
     resetHighlights();
     for (let o of ordinalRange()) {
-        highlightVerse(o);
+        highlightOrdinal(o);
     }
     if (!verseInfo.value) return;
     if (endOrdinal.value == null || endOrdinal.value === startOrdinal.value) {

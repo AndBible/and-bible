@@ -29,7 +29,7 @@ export function useScroll(
     highlight: ReturnType<typeof useOrdinalHighlight>,
     documentPromise: Ref<Promise<void> | null>,
 ) {
-    const {highlightVerse, resetHighlights} = highlight;
+    const {highlightOrdinal, resetHighlights} = highlight;
     const currentScrollAnimation = ref<number | null>(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
@@ -144,7 +144,7 @@ export function useScroll(
                 ordinalEnd = ordinalStart;
             }
             for (let ordinal = ordinalStart; ordinal <= ordinalEnd; ordinal++) {
-                highlightVerse(ordinal);
+                highlightOrdinal(ordinal);
             }
         }
         let toElement = toId ? document.getElementById(toId) : null;
