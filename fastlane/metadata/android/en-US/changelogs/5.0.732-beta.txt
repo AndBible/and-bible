@@ -10,7 +10,8 @@ Highlights:
 - Chained links windows
 - Synchronize groups
 - Search / filter labels
-- Backup Database: choose what to restore
 - MyBible / MySword modules,  Installing, uninstalling, Backup & restore
 - Custom repositories
 - Deep links
+
+Support project financially: https://andbible.org/buy
