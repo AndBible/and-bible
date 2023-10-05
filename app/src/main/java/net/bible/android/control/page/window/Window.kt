@@ -264,10 +264,10 @@ class Window (
                 if (e.key !is BookAndKey) return
                 val curPage = pageManager.currentPage
                 val commentaryRange = (curPage as? CurrentCommentaryPage)?.annotateKey
-
+                val osisRef = (commentaryRange ?: speakKey).osisRef
                 bibleView?.highlightOrdinalRange(
                     bookInitials,
-                    (commentaryRange ?: speakKey).osisRef,
+                    osisRef,
                     e.key.ordinal!!.start..(e.key.ordinal.end ?: e.key.ordinal.start)
                 )
             }

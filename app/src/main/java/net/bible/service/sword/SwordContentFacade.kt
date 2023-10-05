@@ -52,6 +52,7 @@ import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
@@ -628,7 +629,10 @@ object SwordContentFacade {
 
     fun getGenBookSpeakCommands(key: BookAndKey): SpeakCommandArray {
         val book = key.document!!
-        val actualKey = key.key
+        var actualKey = key.key
+        if(actualKey is VerseRange) {
+            actualKey = actualKey.start
+        }
         val arr = SpeakCommandArray()
         arr.addAll(
             getTextWithinOrdinalsAsString(book,
