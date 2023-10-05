@@ -1,7 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBibeln</string>
   <string name="app_name_short">Bibelstudier</string>
-  <string name="app_name_long">AndBible: Bible Study</string>
+  <string name="app_name_medium">Bibelstudie (AndBibeln)</string>
+  <string name="app_name_long">AndBibeln: Bibelstudie</string>
+  <string name="project">AndBibeln Open Sourceprojekt</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Vänligen mata in ett SD-kort och starta om appen.</string>
   <!--Main menu-->
@@ -9,6 +12,7 @@
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Avsnitt</string>
   <string name="search">Sök</string>
+  <string name="search_in_andbible">Hitta i Bibeln</string>
   <string name="settings">Appinställningar</string>
   <string name="history">Historik</string>
   <string name="speak">Läs upp</string>
@@ -38,6 +42,7 @@
   <string name="do_in_background">Fortsätt i bakgrunden</string>
   <string name="rebuild_index_button">Återuppbygg</string>
   <!--X results in module Y-->
+  <string name="search_with_results2">%1s resultat i %2s</string>
   <!--Tasks-->
   <string name="progress_status">Framsteg</string>
   <string name="task_kill_warning">Dessa aktiviteter kan avbrytas om du växlar till en annan app innan de är klara.</string>
@@ -55,8 +60,11 @@
   <string name="search_old_testament">Gamla Testamentet</string>
   <string name="search_current_book">Aktuell bok</string>
   <string name="error_executing_search">Ogiltig sökterm</string>
+  <string name="type_text_or_bible_reference">Skriv text eller bibelreferens</string>
   <!--Open (bible reference X)-->
+  <string name="go_to_ref">Öppna %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
+  <string name="search_what">Hitta \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel &amp; vers nummer</string>
   <string name="prefs_show_verseno_summary">Visa kapitel &amp; vers nummer</string>
@@ -170,6 +178,7 @@
   <string name="prefs_font_text_size_summary">Ändra huvudtext fontens storlek</string>
   <string name="pref_font_family_label_name">Fontfamilj (%s)</string>
   <string name="prefs_font_family_summary">Ändra fontfamilj. Tips: Mer fontar kan installeras via Download Documents/Add-ons.</string>
+  <string name="create_bookmark">Skapa nytt bokmärke</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Färginställningar</string>
   <string name="window_color_settings_title">Fönsterfärg inställningar</string>
@@ -294,6 +303,7 @@ i GT och NT varje dag.
   <!--Bookmarks-->
   <string name="bookmarks">Bokmärken</string>
   <string name="bookmark_added">Bokmärket sparat</string>
+  <!--Bookmark / note labels-->
   <string name="assign_labels">Tilldela etiketter</string>
   <string name="new_item">Ny</string>
   <string name="new_label">Ny etikett</string>
@@ -310,6 +320,7 @@ i GT och NT varje dag.
   <string name="sort_by_date">Datumordning</string>
   <string name="sort_by_bible_book">Biblisk ordning</string>
   <string name="sort_by_alphabetical">Alfabetisk ordning</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <!--Dictionary-->
   <string name="dictionary">Lexikon</string>
   <string name="search_dictionary_hint">Sök i lexikon</string>
@@ -520,6 +531,7 @@ i GT och NT varje dag.
   <string name="tell_friend_message3">Installera den från Play Store %s, eller från F-Droid</string>
   <string name="share_verse_ok">Dela/ Kopiera</string>
   <string name="verse_action_copy">Kopiera</string>
+  <string name="generic_share">Dela</string>
   <string name="share_verse_menu_title">Dela/ kopiera...</string>
   <string name="show_versenumbers">Visa versnummer</string>
   <string name="show_full_verses">Visa fullständiga verser</string>
@@ -535,6 +547,8 @@ i GT och NT varje dag.
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Fortsätt ändå</string>
   <string name="rate_title">Betygsätta och recensera appen</string>
+  <string name="rate_message5">
+  Positiva och detaljerade recensioner hjälper open sourceprojektet AndBibeln mycket. Tack!</string>
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
@@ -596,6 +610,8 @@ vänligen rapportera problemen till text ansvariga
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Information</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Öppna bibellänkar i AndBibeln</string>
+  <string name="open_bible_links_summary">Vid klick på länkar som hänvisar till AndBibelstödda URL\'er, öppna dem i AndBibeln</string>
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->

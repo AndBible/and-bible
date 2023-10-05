@@ -133,6 +133,7 @@
   <string name="value_mm">%d мм</string>
   <string name="auto_fullscreen_summary">Під час прокрутки тексту автоматично перемикнути на весь екран. Порада: ви також завжди можете перейти в режим повного екрану, подвійним натисканням на екран.</string>
   <string name="prefs_margin_size_title">Зміна розміру поля</string>
+  <string name="prefs_margin_size_mm_title">Розмір поля (%1$d/%2$d/%3$d мм)</string>
   <string name="prefs_advanced_settings_cat">Розширені налаштування</string>
   <string name="prefs_display_customization_cat">Оформлення та зручність використання</string>
   <string name="prefs_behavior_customization_cat">Поведінка програми</string>
@@ -206,8 +207,10 @@
   <string name="windowMinimise">Згорнути</string>
   <string name="windowSynchronise">Синхронізувати</string>
   <string name="move_window">Перейти до</string>
+  <string name="move_window_to_position2">Розташування %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Скопіюйвати налаштування в</string>
   <string name="copy_settings_to_workspace">Робоча область</string>
+  <string name="copy_settings_to_window">Вікно %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Перейти до звичайного вікна</string>
   <string name="window_pin_mode">Прикріпити</string>
   <!--Notes screen-->
@@ -230,6 +233,7 @@
   <string name="download_document_confirm_prefix">Завантажити</string>
   <string name="download_refresh_book_list_menu_item">Оновити</string>
   <string name="error_downloading">Під час завантаження сталася помилка. Перевірте підключення до Інтернету.</string>
+  <string name="error_downloading_status">Сервер, на якому розміщено %1$s повернув помилку через %2$s (%3$d).</string>
   <string name="storage_space_warning">Недостатньо місця на пристрої.</string>
   <string name="too_many_jobs">Виконується забагато завдань. Зачекайте, поки деякі закінчаться, і спробуйте ще раз.</string>
   <string name="document_not_installed">Завантажте \'%s\'</string>
@@ -462,6 +466,7 @@
   <string name="window_text_options_help2">%s піктограма означає, що це налаштування було змінено для цього конкретного вікна.</string>
   <string name="window_text_options_help3">Налаштування робочої області не вплине на це вікно.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Використовуйте %1$s кнопку, щоб повернути всі ці налаштування назад до %2$s.</string>
   <string name="reset_defaults">значення за замовчуванням</string>
   <string name="reset_workspace_defaults">значення за замовчуванням робочої області</string>
   <string name="speak_bookmark_help">Довідка про закладки прослуховування</string>
@@ -543,6 +548,7 @@
   <string name="backup_success2">Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області, резервне копіювання яких успішно виконано.</string>
   <string name="backup_modules_success">Резервне копіювання вибраних модулів виконано успішно.</string>
   <string name="backup_modules_email_subject_2">%s резервне копіювання модулів</string>
+  <string name="backup_modules_email_message_2">Вкладено %1$s резервну копію ваших модулів, яка містить наступні модулі: %2$s</string>
   <string name="backup_email_subject_2">%s резервне копіювання бази даних</string>
   <string name="backup_email_message_2">Ваша %s база даних, що містить закладки, примітки, плани читання та робочі місця додана</string>
   <string name="restore_unsuccessfull">Відновити базу даних не вдалося. Можливо, ви дали недійсний файл бази даних.</string>
@@ -552,6 +558,8 @@
   <string name="install_zip_canceled">Встановлення модуля скасовано</string>
   <!--About-->
   <string name="module_about_copyright">Aвторські права: %s</string>
+  <string name="module_about_installed_version">Встановлена версія: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Остання версія: %1$s (%2$s)</string>
   <string name="module_about_versification">Версія: %s</string>
   <string name="module_about_repository">Сервер розповсюдження: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -559,6 +567,7 @@
   <string name="send_bug_report_title1">Повідомлення про помилку</string>
   <string name="send_feedback_title">Відгук</string>
   <string name="send_bug_report_title">Відгук / звіт про помилку</string>
+  <string name="report_bug_email_subject_3">[%1$s] Звіт про помилку для %2$s %3$s</string>
   <string name="report_bug_big_heading">БУДЬ ЛАСКА, НАПИШІТЬ ВІДГУК АБО ЗВІТ ПРО ПОМИЛКУ НАД ЦИМ РЯДКОМ</string>
   <string name="report_bug_heading1">Інструкція:</string>
   <string name="report_bug_line_1">Розкажіть коротко, що ви робили / що сталося, коли сталася проблема.</string>
@@ -653,7 +662,9 @@
   <string name="beta_notice_dismiss_until_update">Відхилити до наступного оновлення</string>
   <string name="stable_notice_title">Додаток оновлено!</string>
   <string name="upgrade_video_message">Будь ласка, перегляньте відео з новими функціями цього випуску (%s).</string>
+  <string name="stable_notice_par1">Нова версія %1$s \"%2$s\" програми успішно встановлена!</string>
   <!--History-->
+  <string name="history_for">Журнал (%1$s: Вікно %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Навігація</string>
   <string name="help_nav_text">Перейдіть до наступного або попереднього розділу, провівши пальцем по екрану.
@@ -722,6 +733,7 @@
     </string>
   <!--Uncategorized-->
   <string name="close">Закрити</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Зрозуміло</string>
   <string name="first_time_help_show_next_time">Показати знову наступного разу</string>
   <string name="strongs_mode_title">Виберіть режим Стронга</string>
@@ -780,6 +792,7 @@
   <string name="initializing_app">Ініціалізація програми...</string>
   <string name="show_notes">Показати нотатки</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Пакет Android WebView застарілий (%1$s). Вам потрібно оновити пакет Android WebView принаймні до версії %2$s, щоб використовувати %3$s. Для більшості пристроїв це можна зробити через %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Все одно продовжити</string>
   <string name="proceed">Продовжити</string>
@@ -791,6 +804,9 @@
         Перш ніж залишити негативний відгук, врахуйте наступне:
     </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        Якщо у вас проблема з додатком, будь ласка, %1$s або %2$s.
+    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Якщо якийсь текст / переклад Біблії має проблему чи помилку, %s.
@@ -868,6 +884,7 @@
   <string name="chooser_select">Вибрати %s</string>
   <string name="chooser_pref_reset">Не скидати розділ/вірш на 1, коли вибрано книгу/розділ</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">На жаль, у нас є лише частковий переклад інтерфейсу на %1$s мові. Це тому, що %2$s повністю розроблено волонтерами. Якщо ви можете допомогти у перекладі, будь ласка, див. %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">інструкція для перекладачів</string>
   <string name="questions_title">Маєте запитання?</string>

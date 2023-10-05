@@ -411,11 +411,25 @@
   <string name="forward">முன் செல்</string>
   <string name="tts_lang_not_available">மொழி இல்லை.</string>
   <string name="speak_queue">பட்டியல்</string>
+  <string name="speak_repeat">மீண்டும் மீண்டும்</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">பேசும் வேகம்</string>
+  <string name="speak_settings_title">பேச்சு பொது அமைப்புகள்</string>
   <string name="speak_bookmarking_settings_title">புக்மார்க் அமைப்புகள்</string>
+  <string name="speak_bookmarks_menu_title">புக்மாக்கில் இருந்து பேசு</string>
+  <string name="speak_advanced_settings">மேலதிக அமைப்புகள்</string>
   <string name="speak_sleep_timer_title">தூங்கு கடிகாரம்</string>
   <string name="speak_no_books_available">பேச நூல் ஏதுமில்லை</string>
+  <string name="speak_general_error">இந்த நூலுக்கு பேச்சை தொடங்க இயலவில்லை</string>
+  <string name="repeat_passage">மீண்டும் மீண்டும் படிக்கவும் </string>
+  <string name="set_repeat_passage_range">மீண்டும் மீண்டும் படிக்க பத்தி வரம்பை தேர்வு செய்யவும்</string>
+  <string name="speak_beginning_of_passage">பத்தியின் தொடக்கத்தைத் தேர்ந்தெடுக்கவும்</string>
+  <string name="speak_ending_of_passage">பத்தியின் முடிவைத் தேர்ந்தெடுக்கவும்</string>
+  <string name="speak_verse_range_to_repeat">மீண்டும் மீண்டும் படிக்க வசன வரம்பை தேர்வு செய்யவும்</string>
+  <string name="speak_ending_verse_must_be_later">இறுதி வசனம் தொடக்க வசனத்திற்கு பின் இருக்க வேண்டும்</string>
+  <string name="conf_speak_synchronize">உரை பேச்சை தொடர வேண்டும்</string>
+  <string name="conf_speak_auto_bookmark">தானியக்கமாக புக் மார்க் செய்வது</string>
+  <string name="conf_replace_divinename">கடவுளின் பெயரை யாவே என்று மாற்றவும்</string>
   <string name="conf_change_chapter">அதிகார மாற்றங்கள்</string>
   <string name="conf_change_title">தலைப்புகள்</string>
   <string name="conf_speak_footnotes">அடிக்குறிப்புகள்</string>
@@ -426,6 +440,8 @@
   <string name="sleep_timer_active_at">தூங்கு கடிகாரம்: இன்னும் %s நிமிடங்கள் உள்ளன.</string>
   <string name="speak_next">அடுத்தது</string>
   <string name="speak_previous">முந்தையது</string>
+  <string name="widget_toggle_sleep_timer">தூங்கு கடிகார நிலையை மாற்று</string>
+  <string name="speak_status_stopped">நிறுத்தப்பட்டது</string>
   <string name="speak_autobookmarking_disabled">தானாக புக் மார்க் செய்வது முடக்கப்பட்டது!</string>
   <string name="system_speak_settings">கருவியின் TTS அமைப்புகளைத் திற</string>
   <string name="auto_assing_labels_help1">நீங்கள் உருவாக்கும் புக் மார்க்குகளுக்கு எந்த லேபில்கள் தானாக கொடுக்கப்படும் என்பதை இங்கே நீங்கள் தெரிவு செய்யலாம்</string>
@@ -439,6 +455,7 @@
   <!--param is auto-assign label icon-->
   <string name="assing_labels_help3">%s ஐகானை தட்டி அந்த லேபிலை தானாக புது புக்மார்க்குக்குகளுக்கு சேர்க்கலாம்</string>
   <!--param is heart icon-->
+  <string name="assing_labels_help4">லேபிளை விரைவாக தேர்வு செய்ய அதனை விருப்ப பட்டியலில் %s ஐ தட்டி சேர்க்கலாம்.</string>
   <!--param is refresh icon-->
   <string name="workspace_text_options_help_title">பணியிட உரை அமைப்புகள்</string>
   <string name="workspace_text_options_help1">இந்த அமைப்புகள் அனைத்து பணியிட சாளரங்களுக்கும் இயல்புநிலையை தீர்மானிக்கிறது.</string>
@@ -449,6 +466,7 @@
   <string name="window_text_options_help3">பணியிட அமைப்புகள் இந்த சாரலத்தை பாதிக்காது.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_workspace_defaults">பணியிடத்தின் இயல்பு நிலை அமைப்புகள்</string>
+  <string name="speak_bookmark_help">புக் மார்க் பேச்சு உதவி</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -528,9 +546,11 @@
   <string name="send_bug_report_title">கருத்துகள் / பிழை அறிக்கைகள்</string>
   <string name="report_bug_email_subject_3">[%1$s] Bug report for %2$s %3$s</string>
   <string name="report_bug_big_heading">PLEASE WRITE YOUR FEEDBACK OR BUG REPORT ABOVE THIS LINE</string>
+  <string name="report_bug_heading1">வழிமுறைகள்:</string>
   <string name="report_bug_heading_3">இணைப்புகள்:</string>
   <!--Document types-->
   <string name="doc_type_bible">திருவிவிலியம்</string>
+  <string name="doc_type_commentary">விளக்க உரை</string>
   <string name="doc_type_dictionary">அகராதி</string>
   <string name="doc_type_book">நூல்</string>
   <string name="doc_type_map">வரைபடம்</string>

@@ -131,6 +131,7 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Teljesképernyős mód automatikus bekapcsolása lapozáskor. TIpp: a teljesképernyős mód bekpcsolható dupla koppintással a kepernyőre.</string>
   <string name="prefs_margin_size_title">Margó méret megváltoztatása</string>
+  <string name="prefs_margin_size_mm_title">Margó méret (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Haladó beállítások</string>
   <string name="prefs_display_customization_cat">Kinézet</string>
   <string name="prefs_behavior_customization_cat">Működési mód</string>
@@ -203,8 +204,10 @@
   <string name="windowMinimise">Minimalizálás</string>
   <string name="windowSynchronise">Együtt mozgat</string>
   <string name="move_window">Mozgatás</string>
+  <string name="move_window_to_position2">Pozició %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Beállítások másolása</string>
   <string name="copy_settings_to_workspace">Munkaterület</string>
+  <string name="copy_settings_to_window">Ablak %1$d (%2$s:%3$s)</string>
   <string name="change_to_normal">Váltás normál ablakba</string>
   <string name="window_pin_mode">PIN</string>
   <!--Notes screen-->
@@ -227,6 +230,7 @@
   <string name="download_document_confirm_prefix">Letöltés</string>
   <string name="download_refresh_book_list_menu_item">Frissítés</string>
   <string name="error_downloading">Hiba történt a letöltés közben. Ellenőrizze az internetkapcsolatot.</string>
+  <string name="error_downloading_status">A(z) %1$s dokumentumot kiszolgáló szerver hibaüzenettel tért vissza: %2$s (%3$d).</string>
   <string name="storage_space_warning">Nincs elég üres hely az eszközön.</string>
   <string name="too_many_jobs">Túl sok feladat fut. Várjon míg néhány befejeződik és próbálja újra.</string>
   <string name="document_not_installed">Kérlek töltsd le ezt: \'%s\'</string>
@@ -443,6 +447,7 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="window_text_options_help2">A %s ikon azt mutatja, hogy ez a beállítás ehhez az ablakhoz tartozik.</string>
   <string name="window_text_options_help3">A munkaterület beállításai nincsenek hatással erre az ablakra.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">A %1$s gomb segítségével az összes beállítás visszaállítható %2$s-re.</string>
   <string name="reset_defaults">alapértelmezett értékek</string>
   <string name="reset_workspace_defaults">munkaasztal alapértelmezett értékek</string>
   <string name="speak_bookmark_help">Segítség a felolvasási könyvjelzőkhöz</string>
@@ -522,6 +527,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="backup_success2">A jegyzetek, könyvjelzők, jegyzetlapok, olvasási tervek és munkaterületek biztonsági mentése sikerült.</string>
   <string name="backup_modules_success">A kiválasztott modulok biztonsági mentése sikerült.</string>
   <string name="backup_modules_email_subject_2">%s modul biztonsági mentés</string>
+  <string name="backup_modules_email_message_2">Felcsatolva a %1$s modul biztonsági mentés, amely a következő modulokat tartalmazza: %2$s</string>
   <string name="backup_email_subject_2">%s adatbázis biztonsági mentés</string>
   <string name="backup_email_message_2">%s adatbázis mentés csatolva, benne könyvjelzőkkel, jegyzetekkel, olvasási tervekkel és munkamenetekkel.</string>
   <string name="restore_unsuccessfull">Az adatbázis visszaállítás nem sikerült, lehet, hogy érvénytelen adatbázis fájlt adott meg.</string>
@@ -531,6 +537,8 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="install_zip_canceled">Modulok telepítése megszakadt</string>
   <!--About-->
   <string name="module_about_copyright">© %s</string>
+  <string name="module_about_installed_version">Telepített verzió: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Legújabb verzió: %1$s (%2$s)</string>
   <string name="module_about_versification">Versszámozás: %s</string>
   <string name="module_about_repository">Disztribúció kiszolgáló: %s</string>
   <string name="module_about_osisId">OSIS azonosító: %s</string>
@@ -538,6 +546,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="send_bug_report_title1">Hibabejelentés</string>
   <string name="send_feedback_title">Visszajelzés</string>
   <string name="send_bug_report_title">Visszajelzés / hibabejelentés</string>
+  <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s-hez hibabejelentés</string>
   <string name="report_bug_big_heading">LEGYEN SZÍVES A VISSZAJELZÉST VAGY HIBABEJELENTÉST E SOR FÖLÉ ÍRJA</string>
   <string name="report_bug_heading1">Hibabejelentés módja:</string>
   <string name="report_bug_line_1">Írja le röviden mit csinált / mi történt amikor a probléma jelentkezett.</string>
@@ -626,7 +635,9 @@ A béta felhasználókat kifejezetten kérjük a hibák bejelentésére Google P
   <string name="beta_notice_dismiss_until_update">Elvetés a következő frissítésig</string>
   <string name="stable_notice_title">Az alkalmazás frissült!</string>
   <string name="upgrade_video_message">Tekintse meg az új verzió funkcióit bemutató videót (%s)!</string>
+  <string name="stable_notice_par1">Új verzió %1$s, %2$s sikeresen települt!</string>
   <!--History-->
+  <string name="history_for">Előzmények (%1$s: Ablak %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigáció</string>
   <string name="help_nav_text">Lépjen a következő vagy az előző fejezetbe úgy, hogy ujjával elcsúsztatja a képernyőt.
@@ -690,6 +701,7 @@ majd azután nem rögzített ablakok. A Biblia dokumentumokat rögzített ablakk
 A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson az egyszerű újratelepítéshez.</string>
   <!--Uncategorized-->
   <string name="close">Bezárás</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Megértettem</string>
   <string name="first_time_help_show_next_time">Mutassa a következő alkalommal is</string>
   <string name="strongs_mode_title">Strongs mód kiválasztása</string>
@@ -747,6 +759,7 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="initializing_app">Alkalmazás inicializálása…</string>
   <string name="show_notes">Jegyzetek megjelenítése</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Az Androd WebView csomag túl régi (%1$s). Frissítse az Android WebView csomagot legalább a %2$s verzióra a %3$s használatához. A legtöbb eszközön ez a %4$s-en keresztül tehető meg. </string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Mégis telepítse az alkalmazást</string>
   <string name="proceed">Folytatás</string>
@@ -754,6 +767,8 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="rate_message6">
 Mielőtt negatív visszajelzést hagy, gondolja meg:</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+Ha problémát talált az alkalmazás használata közben: inkább %1$s vagy %2$s</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 Ha valamelyik modulban vagy bibliafordításban talál hibát, %s</string>
@@ -822,6 +837,7 @@ jelentse be az észlelt problémát</string>
   <string name="chooser_select">%s kiválasztása</string>
   <string name="chooser_pref_reset">A könyv / fejezet kiválasztásakor ne állítsa vissza az 1. fejezetet / verset</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Sajnos nem a teljes felhasználói felület érhető el %1$s nyelven. A %2$s-t önkéntesek fejlesztik, ha segíteni tud az alkalmazás fordításában, látogassa meg ezt az oldalt: %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">fordítási útmutató</string>
   <string name="questions_title">Támogatás</string>

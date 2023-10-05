@@ -123,6 +123,7 @@
   <string name="value_mm">1 %d mm</string>
   <string name="auto_fullscreen_summary">Maximizar ecran automátcamente quando arrastar texto para cima/baixo. Dica: pode sempre maximizar o ecran tocando duas vezes </string>
   <string name="prefs_margin_size_title">Alterar o tamanho das margens</string>
+  <string name="prefs_margin_size_mm_title">Tamanho das margens (%1$d/%2$d/%3$dmm)</string>
   <string name="prefs_advanced_settings_cat">Opções avançadas</string>
   <string name="prefs_display_customization_cat">Aparência</string>
   <string name="prefs_behavior_customization_cat">Comportamento da aplicação</string>
@@ -192,8 +193,10 @@
   <string name="windowMinimise">Minimizar</string>
   <string name="windowSynchronise">Sincronizar</string>
   <string name="move_window">Mover para</string>
+  <string name="move_window_to_position2">Posição %1$d(%2$s:%3$s)</string>
   <string name="copy_settings">Copiar definições para</string>
   <string name="copy_settings_to_workspace">Ambiente de trabalho</string>
+  <string name="copy_settings_to_window">Janela %1$d(%2$s:%3$s)</string>
   <string name="change_to_normal">Mudar para janela normal</string>
   <string name="window_pin_mode">Fixar</string>
   <!--Notes screen-->
@@ -215,6 +218,7 @@
   <string name="download_document_confirm_prefix">Download</string>
   <string name="download_refresh_book_list_menu_item">Atualizar</string>
   <string name="error_downloading">Ocorreu um erro durante o download. Por favor, verifique sua ligaçao à internet. </string>
+  <string name="error_downloading_status">O servidor que hospeda 1 %1$s devolveu um erro devido a %2$s (%3$d).</string>
   <string name="storage_space_warning">Espaço insuficiente de armazenamento local.</string>
   <string name="too_many_jobs">Muitas tarefas estão sendo executadas. Aguarde a conclusão de algumas e tente novamente.</string>
   <string name="document_not_installed">Por favor faça o download: \'%s\'</string>
@@ -434,6 +438,7 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="window_text_options_help2">%s ícone indica que esta configuração foi alterada para esta janela específica.</string>
   <string name="window_text_options_help3">A configuração do espaço de trabalho não afetará esta janela.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Use o botão %1$s para redefinir todas estas definições de volta para %2$s.</string>
   <string name="reset_defaults">Valores padrão</string>
   <string name="reset_workspace_defaults">Valores padrão para a área de trabalho</string>
   <string name="speak_bookmark_help">Ajuda para marcadores falados</string>
@@ -491,6 +496,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_success2">As Minhas Notas, Marcadores, Áreas de Estudo, Panos de Leitura e Áreas de Trabalho, tiveram backup com sucesso.</string>
   <string name="backup_modules_success">Os módulos selecionados tiveram backup com sucesso.</string>
   <string name="backup_modules_email_subject_2">%sbackup de módulos</string>
+  <string name="backup_modules_email_message_2">Em anexo estão %1$s dos módulos em backup, que contêm os seguintes módulos:%2$s</string>
   <string name="backup_email_subject_2">%sde backup da base de dados</string>
   <string name="backup_email_message_2">A sua %sbase de dados contém marcadores, anotações, planos de leitura e áreas de trabalho em anexo</string>
   <string name="restore_unsuccessfull">Não foi possível restaurar a base de dados. Talvez tenha fornecido um ficheiro de base de dados inválido.</string>
@@ -708,6 +714,7 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="initializing_app">Inicializando a aplicação...</string>
   <string name="show_notes">Mostrar notas</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">O pacote do Android WebView é muito antigo (%1$s). Precisa atualizar o seu pacote Android WebView para pelo menos a versão %2$s para usar %3$s. Para a maioria dos dispositivos, isso pode ser feito por meio de %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Continuar mesmo assim</string>
   <string name="rate_title">Classificação e revisão da aplicação</string>
@@ -781,6 +788,7 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="chooser_select">Seleccionar %s</string>
   <string name="chooser_pref_reset">Não redefina o capítulo / versículo para 1 quando o livro / capítulo é selecionado</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Lamentamos, mas temos apenas tradução parcial da interface do utilizador no idioma %1$s. Isto porque %2$s é inteiramente desenvolvido por voluntários. Se puder ajudar na tradução, consulte %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instruções para tradutores</string>
   <string name="questions_title">Preguntas?</string>
