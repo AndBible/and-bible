@@ -201,7 +201,11 @@ function close() {
 function updateHighlight() {
     resetHighlights();
     for (let o of ordinalRange()) {
-        highlightOrdinal(o);
+        if(ordinalInfo.value != null) {
+            highlightOrdinal(o, ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef);
+        } else {
+            highlightOrdinal(o);
+        }
     }
     if (!verseInfo.value) return;
     if (endOrdinal.value == null || endOrdinal.value === startOrdinal.value) {

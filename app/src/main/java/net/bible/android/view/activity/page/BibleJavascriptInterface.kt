@@ -418,7 +418,7 @@ class BibleJavascriptInterface(
             if(mainBibleActivity.speakControl.isSpeaking) {
                 mainBibleActivity.speakControl.pause(willContinueAfterThis = true, toast = false)
             }
-            mainBibleActivity.speakControl.speakBible(book, verse, force = true)
+            mainBibleActivity.speakControl.speakBible(book, verse)
         }
     }
 

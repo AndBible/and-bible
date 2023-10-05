@@ -18,7 +18,7 @@
 import {computed, reactive} from "vue";
 
 export function useOrdinalHighlight() {
-    const highlightedOrdinals: Set<number> = reactive(new Set());
+    const highlightedOrdinals: Set<string> = reactive(new Set());
     const undoCustomHighlights: (() => void)[] = reactive([]);
 
     const hasHighlights = computed(() => highlightedOrdinals.size > 0 || undoCustomHighlights.length > 0);
@@ -31,13 +31,17 @@ export function useOrdinalHighlight() {
         }
     }
 
-    function highlightOrdinal(ordinal: number) {
-        highlightedOrdinals.add(ordinal);
-    }
-
     function addCustom(func: () => void) {
         undoCustomHighlights.push(func);
     }
 
-    return {highlightOrdinal, addCustom, highlightedOrdinals, resetHighlights, hasHighlights}
+    function highlightOrdinal(ordinal: number, initials?: string, osisRef?: string) {
+        highlightedOrdinals.add(`${initials}-${osisRef}-${ordinal}`);
+    }
+
+    function isHighlighted(ordinal: number, initials?: string, osisRef?: string): boolean {
+        return highlightedOrdinals.has(`${initials}-${osisRef}-${ordinal}`);
+    }
+
+    return {highlightOrdinal, addCustom, resetHighlights, hasHighlights, isHighlighted}
 }

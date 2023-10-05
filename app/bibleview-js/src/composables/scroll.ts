@@ -125,7 +125,9 @@ export function useScroll(
             ordinalStart = null,
             ordinalEnd = null,
             force = false,
-            duration
+            duration,
+            bookInitials,
+            osisRef,
         }: Partial<{
             onlyIfInvisible: boolean,
             now: boolean,
@@ -134,6 +136,8 @@ export function useScroll(
             ordinalEnd: Nullable<number>,
             force: boolean,
             duration?: number,
+            bookInitials?: string,
+            osisRef?: string
         }> = {}) {
         console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
         stopScrolling();
@@ -144,7 +148,7 @@ export function useScroll(
                 ordinalEnd = ordinalStart;
             }
             for (let ordinal = ordinalStart; ordinal <= ordinalEnd; ordinal++) {
-                highlightOrdinal(ordinal);
+                highlightOrdinal(ordinal, bookInitials, osisRef);
             }
         }
         let toElement = toId ? document.getElementById(toId) : null;

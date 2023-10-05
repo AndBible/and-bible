@@ -44,7 +44,9 @@ import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
 class WindowChangedEvent(val window: Window)
@@ -254,16 +256,36 @@ class Window (
     fun onEvent(e: SpeakProgressEvent) {
         if(AdvancedSpeakSettings.synchronize || e.forceFollow) return // handled in SpeakControl
         val speakKey = (e.key as? BookAndKey)?.key?: e.key
-        val curPage = pageManager.currentPage
-        val currentWindowKey = curPage.key
+        val bookInitials = e.book.initials
+        if (displayedBook != e.book) return
 
-        val commentaryRange = (curPage as? CurrentCommentaryPage)?.annotateKey
-        val isContained = (commentaryRange?: bibleView?.verseRangeLoaded)?.contains(speakKey) ?: false
-        if(displayedBook == e.book && (speakKey == currentWindowKey || isContained)) {
-            if(e.key is BookAndKey) {
-                bibleView?.highlightOrdinalRange(e.key.ordinal!!.start .. (e.key.ordinal.end ?: e.key.ordinal.start))
-            } else if(e.key is VerseRange) {
-                bibleView?.highlightOrdinalRange(e.key.start.ordinal .. e.key.end.ordinal)
+        when(e.book.bookCategory) {
+            BookCategory.COMMENTARY -> {
+                if (e.key !is BookAndKey) return
+                val curPage = pageManager.currentPage
+                val commentaryRange = (curPage as? CurrentCommentaryPage)?.annotateKey
+
+                bibleView?.highlightOrdinalRange(
+                    bookInitials,
+                    (commentaryRange ?: speakKey).osisRef,
+                    e.key.ordinal!!.start..(e.key.ordinal.end ?: e.key.ordinal.start)
+                )
+            }
+            BookCategory.BIBLE -> {
+                val loadedRange = bibleView?.verseRangeLoaded?: return
+                if (!loadedRange.contains(speakKey)) return
+
+                val range = e.key as? VerseRange ?: return
+                bibleView?.highlightBibleOrdinalRange(range.start.ordinal .. range.end.ordinal)
+            }
+            else -> {
+                if(e.key is BookAndKey) {
+                    bibleView?.highlightOrdinalRange(
+                        bookInitials,
+                        e.key.key.osisRef,
+                        e.key.ordinal!!.start .. (e.key.ordinal.end ?: e.key.ordinal.start)
+                    )
+                }
             }
         }
     }

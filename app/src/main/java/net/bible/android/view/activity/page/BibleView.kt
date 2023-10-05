@@ -1743,7 +1743,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun highlightOrdinalRange(range: IntRange) {
+    fun highlightOrdinalRange(bookInitials: String, osisRef: String, range: IntRange) {
+        executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', null, {now: false, highlight: true, bookInitials: '$bookInitials', osisRef: '$osisRef', ordinalStart: ${range.first}, ordinalEnd: ${range.last}});")
+    }
+
+    fun highlightBibleOrdinalRange(range: IntRange) {
         executeJavascriptOnUiThread("bibleView.emit('scroll_to_verse', null, {now: false, highlight: true, ordinalStart: ${range.first}, ordinalEnd: ${range.last}});")
     }
     fun executeJavascriptOnUiThread(javascript: String): Boolean {
