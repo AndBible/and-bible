@@ -441,6 +441,7 @@
   <string name="speak_next">அடுத்தது</string>
   <string name="speak_previous">முந்தையது</string>
   <string name="widget_toggle_sleep_timer">தூங்கு கடிகார நிலையை மாற்று</string>
+  <string name="widget_bookmark_helptext">பேச்சு புக்மார்க்ஸ் ஷார்ட்கட் பட்டன்கள் இங்கே தோன்றும்.</string>
   <string name="speak_status_stopped">நிறுத்தப்பட்டது</string>
   <string name="speak_autobookmarking_disabled">தானாக புக் மார்க் செய்வது முடக்கப்பட்டது!</string>
   <string name="system_speak_settings">கருவியின் TTS அமைப்புகளைத் திற</string>
@@ -457,14 +458,19 @@
   <!--param is heart icon-->
   <string name="assing_labels_help4">லேபிளை விரைவாக தேர்வு செய்ய அதனை விருப்ப பட்டியலில் %s ஐ தட்டி சேர்க்கலாம்.</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">உங்கள் தேர்வுகளின் அடிப்படையில் பட்டியலை மறுவரிசைப்படுத்த %s தட்டவும்.</string>
   <string name="workspace_text_options_help_title">பணியிட உரை அமைப்புகள்</string>
   <string name="workspace_text_options_help1">இந்த அமைப்புகள் அனைத்து பணியிட சாளரங்களுக்கும் இயல்புநிலையை தீர்மானிக்கிறது.</string>
+  <string name="workspace_text_options_help2">தனிப்பட்ட சாளர அமைப்புகளை மாற்றுவதன் மூலம் இவற்றை மீறலாம்.</string>
   <string name="window_text_options_help_title">சாரல உரை அமைப்புகள்</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help1">%s ஐகான், அமைப்புகள் அனைத்தும் பணி இடத்திலிருந்து எடுக்கப்படுகின்றது என்பதைகுறிக்கும்.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">இந்த குறிப்பிட்ட சாளரத்திற்கு இந்த அமைப்பு மாற்றப்பட்டுள்ளது என்பதை %s ஐகான் குறிக்கிறது.</string>
   <string name="window_text_options_help3">பணியிட அமைப்புகள் இந்த சாரலத்தை பாதிக்காது.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">எல்லா அமைப்புகளையும் %2$sக்கு மீட்டமைக்க %1$sபொத்தானைப் பயன்படுத்தவும்</string>
+  <string name="reset_defaults">இயல்பு நிலை அமைப்புகள்</string>
   <string name="reset_workspace_defaults">பணியிடத்தின் இயல்பு நிலை அமைப்புகள்</string>
   <string name="speak_bookmark_help">புக் மார்க் பேச்சு உதவி</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
@@ -492,12 +498,17 @@
     <item></item>
     <item></item>
   </string-array>
+  <string name="speak_book_changed">நூல் மாற்றப்பட்டது.</string>
   <string name="speak_chapter_changed">அதிகாரம்</string>
   <string name="speak_first">முதல்</string>
   <string name="speak_second">இரண்டாம்</string>
   <string name="speak_third">மூன்றாம்</string>
   <string name="speak_fourth">நான்காம்</string>
   <string name="speak_fifth">ஐந்தாம்</string>
+  <string name="verse_range_mode_disabled">
+        வரையறுக்கப்பட்ட வரம்பை மீறி வசன பேச்சு தொடங்கப்பட்டதால்
+        பத்தியை மீண்டும் மீண்டும் படிப்பது தானாக முடக்கப்பட்டது.
+    </string>
   <!--User Notes-->
   <string name="mynotes">என் குறிப்புகள்</string>
   <!--Backup and restore-->
@@ -547,34 +558,59 @@
   <string name="report_bug_email_subject_3">[%1$s] Bug report for %2$s %3$s</string>
   <string name="report_bug_big_heading">PLEASE WRITE YOUR FEEDBACK OR BUG REPORT ABOVE THIS LINE</string>
   <string name="report_bug_heading1">வழிமுறைகள்:</string>
+  <string name="report_bug_line_1">நீங்கள் என்ன செய்தீர்கள் / சிக்கல் நடந்தபோது என்ன நடந்தது என்பதை சுருக்கமாக கூறுங்கள்.</string>
+  <string name="report_bug_heading2">எடுத்துக்காட்டு:</string>
+  <string name="report_bug_instructions1">1. செயலி திறக்கப்பட்டது</string>
+  <string name="report_bug_instructions2">2. சாலர பட்டியல் சொடுக்கப்பட்டது</string>
+  <string name="report_bug_instructions3">-&gt; செயலி முடங்கியது</string>
+  <string name="report_bug_line_2">சில நேரங்களில் கைமுறையாக எடுக்கப்பட்ட ஸ்கிரீன் ஷாட்களும் சிக்கல்களைத் தீர்ப்பதில் பயனுள்ளதாக இருக்கும்.</string>
+  <string name="report_bug_line_3">இந்தச் செயல்பாட்டைப் பயன்படுத்தி, சிக்கல் நடப்பதை நீங்கள் கவனித்தவுடன் புகாரளிக்கவும்.</string>
+  <string name="report_bug_line_4">செயலி எதிர்பாராத விதமாக முடங்கிய பிறகும் நீங்கள் மீண்டும் செயலியை தொடங்கி இந்த உரையை பயன்படுத்தலாம்.
+    </string>
   <string name="report_bug_heading_3">இணைப்புகள்:</string>
+  <string name="bug_report_logcat">இந்த செயலியால் உருவாக்கப்பட்ட பதிவு கோப்பு. வேறு எந்த செயலிகளைப் பற்றிய தகவல்களும் இதில் இல்லை.</string>
+  <string name="bug_report_screenshot">செயலி எதிர்பாராத விதமாக முடங்கிய போது அல்லது பிழை அறிக்கை உருவாக்கப்பட்ட போது எடுக்கப்பட்ட ஸ்கிரீன்ஷாட்.</string>
+  <string name="bug_report_attachment_line_1">இந்தக் கோப்புகளை இணைப்பது, புகாரளிக்கப்பட்ட பிழையைச் சரிசெய்வதில் செயலியை உருவாக்குபவர்களுக்கு பெரிதும் உதவும்.</string>
+  <string name="report_bug_heading_4">கருவி தகவல்:</string>
   <!--Document types-->
+  <string name="doc_type_all">எல்லா வகைகள்</string>
   <string name="doc_type_bible">திருவிவிலியம்</string>
   <string name="doc_type_commentary">விளக்க உரை</string>
   <string name="doc_type_dictionary">அகராதி</string>
   <string name="doc_type_book">நூல்</string>
   <string name="doc_type_map">வரைபடம்</string>
+  <string name="doc_type_addons">துணை நிரல்கள்</string>
   <!--Languages-->
+  <string name="lang_default">தானியல்பு</string>
   <!--General-->
   <string name="okay">சரி</string>
   <string name="cancel">ரத்து செய்</string>
   <string name="yes">ஆம்</string>
+  <string name="no">இல்லை</string>
   <string name="error">பிழை</string>
   <string name="delete_generic">நீக்குக</string>
   <string name="please_wait">தயவு கூர்ந்து காத்திருக்கவும்...</string>
+  <string name="all">அனைத்தும்</string>
   <string name="edit">தொகு</string>
   <string name="reset_generic">மீட்டமை</string>
   <string name="watch_tutorial_video">பயிற்சி காணொளியை காண்க (ஆங்கிலம்)</string>
   <string name="verse_not_found">வசனம் கிடைக்கவில்லை</string>
   <!--Errors-->
+  <string name="report_error">அறிக்கையை அனுப்புக</string>
   <string name="error_occurred">பிழை ஏற்பட்டது</string>
+  <string name="error_occurred_crash_last_time">அடந்தமுறை நீங்கள் செயலியைப் பயன்படுத்தியபோது, அது எதிர்பாரா விதமாக முடங்கியது. பஎங்களுக்கு பிழை அறிக்கையை அனுப்பினால், அதனை சரி செய்ய ஏதுவாக இருக்கும்.</string>
   <string name="error_occurred_with_link">பிழை ஏற்பட்டது. %s</string>
   <string name="error_no_content">தேர்ந்தெடுக்கப்பட்ட வசனத்திற்கு உள்ளடக்கம் எதுவும் இல்லை</string>
   <string name="error_page_too_large">ஏற்றுவதற்கு இந்த பக்கம் மிகவும் பெரியது</string>
   <string name="error_key_not_in_document">கோப்பில் இல்லை</string>
+  <string name="error_key_not_in_document2">%s, ஆவணம் %s இல் இல்லை.</string>
   <string name="empty_list">காட்டுவதற்கு எதுவும் இல்லை</string>
   <string name="error_skip">தவிர்க்க</string>
+  <string name="bug_report_email_title">பிழை அறிக்கையை மின்னஞ்சல் மூலம் அனுப்புக</string>
+  <string name="bug_report_email_text">அடுத்து, டெவலப்பர் குழுவிற்கு அறிக்கையை அனுப்ப, உங்களுக்கு விருப்பமான மின்னஞ்சல் பயன்பாட்டை (உதாரணமாக ஜிமெயில்) தேர்ந்தெடுக்கவும்.</string>
   <!--Notifications-->
+  <string name="notification_channel_tts_status">உரையிலிருந்து பேச்சுக்கு</string>
+  <string name="notification_channel_progress_status">ஆவணப் பதிவிறக்கங்கள் போன்றவற்றுக்கான முன்னேற்ற நிலை அறிவிப்பு முதலியன.</string>
   <!--Workspaces-->
   <string name="new_workspace">புதிய</string>
   <string name="switch_to_workspace">பணியிடங்கள்</string>
@@ -589,11 +625,37 @@
   <string name="copy_settings_title">எந்த அமைப்புகளை நகலெடுக்க?</string>
   <string name="copy_settings_workspaces_title">எந்தப் பணியிடங்களுக்கு அமைப்புகளை நகலெடுக்க வேண்டும்?</string>
   <string name="reset_settings">மீட்டமை</string>
+  <string name="workspace_dismiss">நிராகரி</string>
   <string name="workspace_listing_with_current">%s (தற்போதையது)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">இது பீட்டா பதிப்பு!</string>
+  <string name="beta_notice_content_1">
+         பீட்டா பதிப்புகளில் சரியாக சோதிக்கப்படாத புதிய அம்சங்கள் இருக்கலாம்
+        ஆகவே பீட்டா பதிப்புகளை பயன்படுத்துவது எதிர்பாராத விளைவுகளை ஏற்படுத்த கூடும், அதாவது பிழைகள்.
+        ஆகவே பொது விதியிலிய வாசகர்கள் நிலையான பதிப்பை பயன்படுத்த பரிந்துரைக்கப்படுகிறார்கள்.
+    </string>
+  <string name="beta_notice_content_2">
+        பீட்டா பயனர்கள் பிழைகளை Google Play அல்லது
+        (முன்னுரிமை) %s வழியாக அளிக்கவும்.
+    </string>
+  <string name="beta_notice_content_3">நீங்கள் நிரலராக இருந்தால், 
+        %s வழியாக பிழைகளை திருத்த உதவலாம். :-)</string>
+  <string name="beta_notice_github_issues">கிட்ஹப் சிக்கல்கள்</string>
+  <string name="beta_notice_github">கிட்ஹப்</string>
+  <string name="beta_notice_dismiss">நிராகரி</string>
+  <string name="beta_notice_dismiss_until_update">அடுத்த புதுப்பிப்பு வரை நிராகரிக்கவும்</string>
+  <string name="stable_notice_title">செயலி புதுப்பிக்கப்பட்டது!</string>
+  <string name="upgrade_video_message">இந்த பதிப்பில் உள்ள புதிய அம்சங்களை குறித்த தகவல்கள் அடங்கிய காணொளியை காணவும் (%s).</string>
+  <string name="stable_notice_par1">%2$sஇன் புதிய பதிப்பான %1$s வெற்றிகரமாக நிறுவப்பட்டது!</string>
   <!--History-->
+  <string name="history_for">வரலாறு (%1$s: சாளரம் %2$d)</string>
   <!--Help-->
+  <string name="help_nav_title">வழிசெலுத்தல்</string>
+  <string name="help_nav_text">முந்தைய அல்லது அடுத்த அதிகாரத்திற்கு செல்ல உங்கள் விரலால் திரையை வருடவும்.
+        முழு திரை (சாளரம் என்றே அழைக்கப்படுகின்றது) பயன்முறைக்கு செல்லவோ அல்லது அதிலிருந்து வெளியேறவும் விவிலிய உரையினை இரு முறை தட்டவும்.
+        பிளவுதிரை முறையில் வலது மேல் மூலையில் மெனு பொத்தான்கள் இருக்கும்,
+        இவை சாளரத்திற்கான தனிப் பயன்முறைகளையோ அல்லது சாளரத்தின் தோற்றத்தையும் நடத்தையையும் மாற்ற உதவும்.
+    </string>
   <string name="help_bookmarks_title">புக்மார்க்குகள் &amp; என் குறிப்புகள்</string>
   <string name="help_search_title">தேடல்</string>
   <string name="help_workspaces_title">பணியிடங்கள்</string>
@@ -610,6 +672,7 @@
   <string name="format_epub">EPUB ஆவணங்கள் (*.epub)</string>
   <!--Uncategorized-->
   <string name="close">மூடு</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">நான் ஏற்கிறேன்</string>
   <string name="first_time_help_show_next_time">அடுத்த முறை மீண்டும் காட்டவும்</string>
   <string name="download_dialog_message">பின்வரும் நூல்களை தரவிறக்க இயலவில்லை:</string>
@@ -636,6 +699,7 @@
   <string name="tell_friend_message1">நான் உங்களுக்கு %s ஐ பரிந்துரைக்கிறேன்.</string>
   <string name="tell_friend_message2">இது ஆண்ட்ராய்டுக்கான ஒரு சக்திவாய்ந்த, ஆனால் பயன்படுத்த எளிய, இணையம் தேவையில்லா விவிலிய ஆய்வுக் கருவியாகும். </string>
   <string name="tell_friend_message3">இதனை ப்ளே ஸ்டோரில் இருந்து பெறலாம்: %s</string>
+  <string name="tell_friend_message4">மேலும் அறிய &amp; பிற நிறுவல் முறைகள்: %s</string>
   <string name="share_verse_ok">பகிர் / நகல் எடு</string>
   <string name="verse_action_copy">நகலெடு </string>
   <string name="generic_share">பகிர்</string>
@@ -654,10 +718,12 @@
   <string name="show_ellipsis">முப்புள்ளி காட்டு (…)</string>
   <string name="show_quotes">இரட்டை மேற்கோள் கூறி காட்டு</string>
   <string name="backup_button">காப்பு நகல் எடு</string>
+  <string name="back_button">பின் செல்</string>
   <string name="upgrading_database">தரவு தளம் மேம்படுத்தப்படுகிறது. தயவு செய்து காத்திருக்கவும்…</string>
   <string name="initializing_app">செயலி தொடங்குகிறது....</string>
   <string name="show_notes">குறிப்புகளை காட்டு</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Android WebView தொகுப்பு மிகவும் பழையது (%1$s). %3$sஐ பயன்படுத்த குறைந்தது Android WebView பதிப்பு  %2$sக்காவது புதுப்பிக்க வேண்டும். பொதுவாக இதனை %4$sஇல் செய்யலாம்.</string>
   <string name="play">கூகுள் ப்ளே</string>
   <string name="rate_title">செயலியினை மதிப்பாய்வு செய்வது</string>
   <string name="rate_message5">
@@ -667,12 +733,37 @@
         மதிப்பாய்வு செய்யும் போது எதிர்மறை கருத்துகளை தருவதற்கு முன்பு, தயவு செய்து பின்வருவனவற்றை கருத்தில் கொள்ளவும்:
     </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        இச்செயலில் ஏதேனும் சிக்கல் இருப்பின், please %1$s அல்லது %2$s .
+    </string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        உரையிலோ அல்லது விவிலிய மொழி பெயர்ப்பிலோ சிக்கல் இருப்பின், %s.
+    </string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+        ஒரு குறிப்பிட்ட உரை இந்த செயலில் இல்லை என்றால், %s.
+    </string>
+  <string name="rate_message4">
+        ஆவணங்களை பராமரிக்கும் பொறுப்பு இச்செயலியை உருவாக்குபவர்களை சார்ந்தது அல்ல.
+    </string>
+  <string name="bug_report">
+        பிழை அறிக்கையை அனுப்புக (முதன்மை மெனுவிலிருந்து)
+    </string>
+  <string name="how_to_help">
+       நீங்கள் உதவ என்ன செய்யலாம் என்பதை குறித்து படிக்கவும் 
+    </string>
+  <string name="send_email">
+       டெவலப்பர்களுக்கு மின்னஞ்சல் செய்யவும்
+    </string>
   <string name="proceed_google_play">
         கூகுள் ப்ளேவுக்கு செல்
     </string>
+  <string name="text_maintainers">
+       உரை பராமரிப்பாளர்களிடம் சிக்கல்களை தெரிவிக்கவும்
+    </string>
   <string name="does_not_exist_abbreviation">இல்லை</string>
+  <string name="cant_change_wholeverse">இந்த புக்மார்க்கிற்கான முழு வசன மார்க்கை முடக்க முடியாது</string>
   <string name="whole_verse_turned_on">முழு வசனத்திற்குமான புக்மார்க்காக மாற்றப்பட்டது</string>
   <string name="this_bookmark">இந்த புக் மார்க்</string>
   <string name="this_workspace">இந்தப் பணியிடம்</string>
@@ -680,6 +771,9 @@
   <string name="highlight_entire_verse">முழு வசனத்தையும் ஹைலைட் செய்யவும்</string>
   <string name="favourite_label">விருப்பமான லேபிள்</string>
   <string name="edit_label">லேபிளை மாற்ற</string>
+  <string name="delete_label_confirmation">புக் மார்க் லேபிள் \"%s\"ஐ நீக்குவதில் நீங்கள் உறுதியாக இருக்கிறீர்களா? இதனோடு தொடர்புடைய அனைத்து ஸ்டடி பேட் குறிப்புகளும் நீக்கப்படும்.</string>
+  <string name="bookmark_underline_style_arbitrary">பகுதி புக் மார்க்குகளுக்கு அடிக்கோடு வடிவமைப்பு</string>
+  <string name="bookmark_underline_style_whole_verse">முழு வசன புக் மார்க்குகளுக்கு அடிக்கோடு வடிவமைப்பு</string>
   <string name="active_labels">தெரிவு செய்யப்பட்ட லேபில்கள்</string>
   <string name="recent_labels">அண்மைய லேபில்கள்</string>
   <string name="other_labels">பிற லேபில்கள்</string>
@@ -687,12 +781,16 @@
   <string name="book_menu_group_by_category">நூல்களை வகை அடிப்படையில் அடுக்கு</string>
   <string name="book_menu_show_long_book_name">நூலின் முழு பெயரையும் காட்டு</string>
   <string name="reset_workspace_labels">இந்தப் பணியிடத்திற்கான தானியங்கி மற்றும் பிடித்த அமைப்புகளை மீட்டமைக்க விரும்புகிறீர்களா?</string>
+  <string name="reset_hide_labels">குறிப்பிட்ட லேபிள் அமைப்புகளை மறைப்பதற்கான அமைப்பை மீட்டமைக்க விரும்புகிறீர்களா?</string>
+  <string name="reorder">மீல் வரிசைப்படுத்து</string>
   <string name="system_items1">மேலும்</string>
   <string name="text_copied_to_clicpboard">உரை கிளிப்போர்ட்டில் நகல் எடுக்கப்பட்டது</string>
+  <string name="prefs_disable_two_step_bookmarking_title">ஒரு நிலை புக்மார்க்குகள் </string>
   <string name="prefs_double_tap_to_fullscreen_title">இரு முறை தட்டினால் முழு திரை பயன்முறைக்கு செல்</string>
   <string name="prefs_double_tap_to_fullscreen_summary">சாரளத்தை இருமுறை தட்டினால் முழு திரை பயன்முறைக்கு செல்</string>
   <string name="toggle_fullscreen">முழு திரை பயன்முறை</string>
   <string name="exit_fullscreen">இரு முறை தட்டினாள் முழு திரை பயன்முறையிலிருந்து வெளியேறு</string>
+  <string name="reset_app_prefs">இந்தத் திரையில் காட்டப்படும் அனைத்து  பயன்பாட்டு விருப்பத்தேர்வுகளையும் அவற்றின் இயல்புநிலை மதிப்புகளுக்கு மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="label_red">சிவப்பு</string>
   <string name="label_green">பச்சை</string>
   <string name="label_blue">நீலம்</string>
@@ -703,15 +801,18 @@
   <string name="import_items">%sஐ உள்ளேற்று</string>
   <string name="import_from_db">ஆப் தரவுத்தள கோப்பிலிருந்து உள்ளேற்றவும்</string>
   <string name="import_error">தரவுத்தளத்திலிருந்து உள்ளேற்ற இயலவில்லை. தரவுத்தளக் கோப்பு தவறான வடிவமைப்பாக இருக்கலாம் அல்லது %sஇன் பழைய பதிப்பைக் கொண்டு உருவாக்கப்பட்டிருக்கலாம்.</string>
+  <string name="chooser_range">வரம்பு </string>
   <string name="chooser_OT_abbrev">பஏ</string>
   <string name="chooser_NT_abbrev">புஏ</string>
   <string name="chooser_style_lists">பட்டியல்</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">மன்னிக்கவும். %1$s மொழியில் இடைநிலை மொழிபெயர்ப்பு ஒரு பகுதி மட்டுமே உள்ளது. ஏனெனில்%2$s தன்னார்வலர்களால் உருவாக்கப்படுகிறது. நீங்கள் மொழிபெயர்ப்பதில் உதவ நினைத்தால் காண்க: %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">மொழிபெயர்ப்பாளர்களுக்கான வழிமுறைகள்</string>
   <string name="questions_title">கேள்விகள்?</string>
   <string name="questions_title2">உதவி தேவையா?</string>
   <string name="bookmark_style">புக் மார்க் வடிவமைத்து</string>
+  <string name="added_to_bookmark">இந்த புக்மார்க்கிற்கு ஒதுக்கப்பட்டது</string>
   <string name="strongs_links">இணைப்புகள்</string>
   <string name="strongs_text_and_links">உரை மற்றும் இணைப்புகள்</string>
   <string name="verse_tip">வசனத்தின் பகுதியையோ அல்லது பல வசனங்களையோ தேர்ந்தெடுக்க, நீங்கள் உரையை நீண்ட நேரம் அழுத்தவும்</string>
@@ -720,20 +821,36 @@
   <string name="progress_status_permission">அறிவிப்புகளைக் காட்ட (பதிவிறக்க நிலை, செயலாக்கம், பேச்சு நிலை) உங்கள் அனுமதி தேவை.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">எளிய கணிப்பான்</string>
+  <string name="prefs_persecution_cat">துன்புரும் கிறிஸ்தவர்களுக்கான அமைப்புகள்</string>
   <string name="prefs_discrete_mode">சமயக் குறியீடுகளை மறை</string>
+  <string name="prefs_discrete_mode_desc">இந்த செயலிக்கு கணிப்பான் என பெயர் மாற்றி துவக்கியில் வேறு ஐக்கானை காட்டவும்.</string>
   <string name="prefs_show_calculator">கணிப்பான்</string>
+  <string name="calc_division_by_zero">பூஜ்ஜியத்தால் வகுத்தல் அனுமதிக்கப்படாது</string>
   <!--Context: calculator. Wrong number format etc.-->
+  <string name="calc_wrong_format">தவறான வடிவம்</string>
+  <string name="prefs_persecuted_help">இதை முதலில் படிக்கவும்!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">தனிப்பயன் களஞ்சியங்கள்</string>
+  <string name="custom_repositories_empty_list_message">தனிப்பயன் களஞ்சியங்கள் ஏதும் வரையருக்கப்படவில்லை.</string>
+  <string name="custom_repositories_create_button_label">தனிப்பயன் களஞ்சியத்தை சேர்க்க</string>
   <string name="custom_repositories_info_button_label">தகவல்</string>
+  <string name="name_for_repository">களஞ்சிய பெயர்</string>
+  <string name="repository_specification">களஞ்சிய URL</string>
+  <string name="delete_custom_repository">தனிப்பயன் களஞ்சியம் %s ஐ நீக்கவா?</string>
+  <string name="custom_repositories_help2">தனிப்பயன் களஞ்சியங்கள் பற்றிய கூடுதல் தகவல்களை %sஇல் பெறலாம்.</string>
   <string name="wiki_page">விக்கி பக்கம்</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">விவிலிய இணைப்புகளை AndBibleல் திறக்கவும்</string>
   <string name="copyReference">இணைப்பை கிளிப்போடுக்கு நகலெடு</string>
   <!--Device cloud synchronization-->
+  <string name="db_repositories">களஞ்சியங்கள் மற்றும் தொடர்புடைய அமைப்புகள்</string>
+  <string name="db_bookmarks">புக்மார்க்குகள், என் குறிப்புகள், லேபிள்கள் மற்றும் ஸ்டடி பேட்கள்</string>
+  <string name="reading_plans_content">வாசிப்பு திட்டங்களும் அதன் நிலைகளும்</string>
   <string name="workspaces_contents">பணியிடங்கள் மற்றும் சாரளங்கள்</string>
+  <string name="reset_sync">வெளியேறு</string>
   <string name="auth_username">பயனர் பெயர்</string>
   <string name="auth_password">கடவுச்சொல்</string>
   <string name="sync_introduction">முன்னுரை</string>

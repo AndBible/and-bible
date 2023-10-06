@@ -20,11 +20,11 @@ Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és al
  * Jegyzetlapok jegyzetekkel és biblia hivatkozásokkal: igehirdetésre készülve vagy igehirdetés hallgatása közben.
  * Olvasási tervek: olvassa a bibliát előre összeállított tervek szerint, és állítson be olvasási célokat
  * Modulkönyvtár: bibliafordítások, teológiai kommentárok, szótárak, térképek és keresztény irodalom, összesen 1500 mű, 700 nyelven,  jogtisztán letölthetően a Crosswire és egyéb SWORD modulkönyvtárakból.
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
+ * A MyBible, MySword és EPUB fájltípusok natívan támogatottak, így még teljesebb lehet a könyvtárad.
 
 <b>Segítsen az alkalmazás jobbá tételében!</b>
 
-Az And Bible nyilt forráskódú közösségi projekt. Bárkit, aki megfelelő tudással rendelkezik, bátorítunk a közreműködésre:
+Az And Bible nyílt forráskódú közösségi projekt. Bárkit, aki megfelelő képességekkel rendelkezik, bátorítunk a közreműködésre:
 
  * új funkciók kifejlesztésével
  * újonnan fejlesztett funkciók tesztelésével
@@ -33,16 +33,16 @@ Az And Bible nyilt forráskódú közösségi projekt. Bárkit, aki megfelelő t
 
 Ha hivatásos szoftverfejlesztő vagy tesztelő, kérjük vegyen részt az alkalmazás feljlesztésében! Bővebb információ: https://git.io/JUnaj.
 
-<b>Support by buying development time!</b>
+<b>Támogasd as projektet fejlesztőidő vásárlásával!</b>
 
-If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+Ha nem rendelkezik megfelelő képességekkel, támogathatja a projektet fejlesztőidő vásárlásával.
 
-See options: https://andbible.org/buy
+Lehetőségek: https://andbible.org/buy
 
 <b>Hivatkozások</b>
 
  * Internetcím: https://andbible.org
- * Kövesse az And Bible projektet a Facebookon: https://www.facebook.com/AndBible/
+ * Kövesd az AndBible-t Facbookon: https://www.facebook.com/AndBible/
  * YouTube csatornánk: https://www.youtube.com/c/AndBible
  * Gyakori kérdések (FAQ): https://git.io/JJm8E
  * A projekt GitHub oldala: https://github.com/AndBible/and-bible

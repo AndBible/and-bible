@@ -181,6 +181,8 @@
   <string name="prefs_text_bookmarks_title">Könyvjelzők és Jegyzetek beállításai</string>
   <string name="prefs_enable_bluetooth_title">Engedélyezze a Bluetooth médiagombokat </string>
   <string name="prefs_enable_bluetooth_summary">A beszéd elindításához/leállításához használja a Bluetooth médiagombokat.</string>
+  <string name="create_bookmark">Új könyvjelző</string>
+  <string name="create_bookmark_with_a_note">Új könyvjelző jegyzettel</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Színbeállítások</string>
   <string name="window_color_settings_title">Ablak színeinek beállítása</string>
@@ -254,12 +256,16 @@ Minden letöltés titkosított kapcsolaton (HTTPS) keresztül történik.</strin
   <!--Install zip file-->
   <string name="install_zip">Dokumentumok betöltése fájlokból</string>
   <string name="install_zip_module">Biblia modul telepítése</string>
+  <string name="install_zip_module_discrete">Számológép modul telepítése</string>
   <string name="install_zip_successfull">A modul telepítése sikeres</string>
   <string name="extracting_zip_file">Zip fájl kitömörítése…</string>
   <string name="checking_zip_file">Fájl ellenőrzése…</string>
   <string name="invalid_module">A fájl nem tartalmaz érvényes SWORD modult</string>
+  <string name="install_zip_title">Várjon a modul betöltésére.</string>
   <string name="overwrite_files">Az alábbi fájlok már telepítve vannak: %s Felülírja?</string>
   <string name="overwrite_files_title">Felülírja a fájlokat?</string>
+  <string name="could_not_overwrite_files">A következő fájlok felülírása nem sikerült: %s. Különben a modul telepítése sikeres volt.</string>
+  <string name="install_do_you_want">Telepíti a modult (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Olvasási terv</string>
   <string name="reading_plans_plural">Olvasási tervek</string>
@@ -356,6 +362,10 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="label_color">Címke színe</string>
   <!--can be removed-->
   <string name="label_color_example">Előnézet</string>
+  <string name="marker_style">Csak a kiválasztott szöveget tartalmazó könyvjelzőknél jelenjen meg jelzés.</string>
+  <string name="marker_style_whole_verse">Csak a teljes verset tartalmazó könyvjelzőknél jelenjen meg jelzés.</string>
+  <string name="hide_style">Elrejtés kiválasztott szöveget tartalmazó könyvjelzőknél</string>
+  <string name="hide_style_whole_verse">Elrejtés teljes verset tartalmazó könyvjelzőknél</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Hozzáadás sorrendje</string>
   <string name="sort_by_bible_book">Bibliai sorrend</string>
@@ -797,7 +807,7 @@ jelentse be az észlelt problémát</string>
   <string name="favourite_label">Kedvenc címke</string>
   <string name="edit_label">Címke szerkesztás</string>
   <string name="delete_label_confirmation">Eltávolítja a \"%s\" könyvjelző címkét? A hozzátartozó jegyzetlap is törlésre kerül.</string>
-  <string name="bookmark_underline_style_arbitrary">Aláhúzás stílusa a kiválasztott könyvjelzőkhöz</string>
+  <string name="bookmark_underline_style_arbitrary">Aláhúzás stílusa a kiválasztott szöveget tartalmazó könyvjelzőkhöz</string>
   <string name="bookmark_underline_style_whole_verse">Aláhúzás stílusa teljes versre mutató könyvjelzőknél</string>
   <string name="active_labels">Kiválasztott címkék</string>
   <string name="recent_labels">Legutoljára használt címkék</string>
