@@ -495,7 +495,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             return@suspendCoroutine
         }
 
-        val announceVersion = 1
+        val announceVersion = 2
         val displayedVer = preferences.getInt("beta-notice-displayed2", 0)
 
         if(displayedVer < announceVersion) {
@@ -513,19 +513,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             )
             val extraMessage = """
-                |<b>SPECIAL NOTICE FROM DEVELOPER</b><br><br>
-                |This version includes two major new features: 
-                |bookmarking (highlighting) and notes for non-bible documents 
-                |(commentaries, dictionaries, general books) and
-                |epub support.
-                | Please test those features, but <b>do not use  bookmarking feature for 
-                | anything serious yet</b>.
-                | During beta period, we might need to introduce changes that 
-                | will mess up or remove  
-                | your bookmarks in non-bible documents.
-                | <br><br>
-                | Best regards, Tuomas<br>
-                | P.S. If you haven't tested already, Cloud Sync via Google Drive is also worth trying out.
+                |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (6th Oct 2023)</b><br><br>
+                |Stable release is approaching. If everything goes as planned 
+                |(especially if there are no important UI translations lacking)
+                |we will release 5.0 to stable channels around 2nd November, 2023. <br>
+                |<br>
+                |Please test new features and report any bugs (crashes or misbehaviors) you find
+                |using either Main Menu -> Report a bug or via <a href="https://https://github.com/AndBible/and-bible/issues/new/choose">Github</a>.
+                |<br>
+                |<br>
+                | Best regards, Tuomas<br><br>
+                | P.S. You can now support AndBible development financially by <a href="https://andbible.org/buy">buying development hours</a>. 
                 | <br><br>
                 | (Standard beta notice below)
                 | <br><br>
