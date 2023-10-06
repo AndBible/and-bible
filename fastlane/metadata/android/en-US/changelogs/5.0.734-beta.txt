@@ -10,7 +10,7 @@ Highlights:
 - Chained links windows
 - Synchronize groups
 - Search / filter labels
-- MyBible / MySword modules,  Installing, uninstalling, Backup & restore
+- MyBible / MySword modules
 - Custom repositories
 - Deep links
 
