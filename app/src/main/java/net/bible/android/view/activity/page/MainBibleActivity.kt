@@ -519,7 +519,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 |we will release 5.0 to stable channels around 2nd November, 2023. <br>
                 |<br>
                 |Please test new features and report any bugs (crashes or misbehaviors) you find
-                |using either Main Menu -> Report a bug or via <a href="https://https://github.com/AndBible/and-bible/issues/new/choose">Github</a>.
+                |using either Main Menu -> Report a bug or via <a href="https://github.com/AndBible/and-bible/issues/new/choose">Github</a>.
                 |<br>
                 |<br>
                 | Best regards, Tuomas<br><br>
