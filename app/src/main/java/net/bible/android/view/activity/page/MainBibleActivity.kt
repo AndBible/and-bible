@@ -523,7 +523,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 |<br>
                 |<br>
                 | Best regards, Tuomas<br><br>
-                | P.S. You can now support AndBible development financially by <a href="https://andbible.org/buy">buying development hours</a>. 
+                | P.S. You can now support AndBible development financially by <a href="$buyDevelopmentLink">buying development hours</a>. 
                 | <br><br>
                 | (Standard beta notice below)
                 | <br><br>
