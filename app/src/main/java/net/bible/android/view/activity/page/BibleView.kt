@@ -1161,6 +1161,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var firstDocument: Document? = null
 
+    private val documentLoadingLock = object {}
+
     suspend fun loadDocument(document: Document,
                              updateLocation: Boolean = false,
                              key: Key? = null,
@@ -1198,7 +1200,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         Log.i(TAG, "Show $initialKey, $initialAnchorOrdinal Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
         this.firstDocument = document
-        synchronized(this) {
+        synchronized(documentLoadingLock) {
             var docStr = document.asJson
             // Ps 119 in KJV is only 70k. Let's give gracefully max 4000k until we give "page too large" error.
             // Our BibleView.js will freeze and eventually OOM-crash with ridiculously large documents.
@@ -1310,7 +1312,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val nightMode get() = mainBibleActivity.currentNightMode
 
-    var labelsUploaded = false
+    private var labelsUploaded = false
 
     fun adjustLoadingCount(adj: Int): Boolean {
         return executeJavascriptOnUiThread("""bibleView.emit("adjust_loading_count", ${adj})""")
@@ -1320,7 +1322,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.i(TAG, "replaceDocument")
         val documentStr = latestDocumentStr
         val verse = if(isBible || isMyNotes) initialKey as? Verse else null
-        synchronized(this) {
+        synchronized(documentLoadingLock) {
             needsDocument = false
             contentVisible = true
             minChapter = verse?.chapter ?: -1
@@ -1761,7 +1763,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val taskQueue = LinkedList<() -> Unit>()
 
-    private fun runOnUiThread(runnable: () -> Unit) = synchronized(this) {
+    private val uiThreadLock = object {}
+    private fun runOnUiThread(runnable: () -> Unit) = synchronized(uiThreadLock) {
         // If there are any tasks, we must put them to queue, to make sure they are run in the correct order
         val wasEmpty = taskQueue.isEmpty()
         val isAttached = isAttachedToWindow
@@ -1779,7 +1782,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private fun flushTasks()  = synchronized(this) {
+    private fun flushTasks()  = synchronized(uiThreadLock) {
         Log.i(TAG, "TaskQueue flushTasks ${taskQueue.size}")
         while (taskQueue.size > 0) {
             taskQueue.pop().invoke()
@@ -1813,7 +1816,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return CommonUtils.getWholeChapters(key.versification, key.book, minChapter, maxChapter)
     }
 
-    fun requestMoreToBeginning(callId: Long) = synchronized(this) {
+    private val requestMoreLock = object {}
+
+    fun requestMoreToBeginning(callId: Long) = synchronized(requestMoreLock) {
         Log.i(TAG, "requestMoreTextAtTop")
         if (isBible) {
             val newChap = minChapter - 1
@@ -1849,7 +1854,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun requestMoreToEnd(callId: Long) = synchronized(this) {
+    fun requestMoreToEnd(callId: Long) = synchronized(requestMoreLock) {
         Log.i(TAG, "requestMoreTextAtEnd")
         if (isBible) {
             val currentPage = window.pageManager.currentBible
