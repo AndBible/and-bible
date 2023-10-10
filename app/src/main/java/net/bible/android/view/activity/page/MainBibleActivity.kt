@@ -556,8 +556,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
 
         val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+            override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
                 Log.i(TAG, "onFling")
+                e1 ?: return false
                 val vertical = Math.abs(e1.y - e2.y).toDouble()
                 val horizontal = Math.abs(e1.x - e2.x).toDouble()
 
@@ -1675,7 +1676,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         val isExternal = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            InputDevice.getDevice(event.deviceId).isExternal
+            InputDevice.getDevice(event.deviceId)?.isExternal ?: false
         } else {
             false
         }

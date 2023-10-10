@@ -41,7 +41,8 @@ import javax.inject.Inject
 class WindowButtonGestureListener(private val mainBibleActivity: MainBibleActivity): GestureDetector.SimpleOnGestureListener() {
     var gesturePerformed = BibleFrame.GestureType.UNSET
 
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+    override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        e1?: return false
         var minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
         val scaledMinimumDistance = CommonUtils.convertDipsToPx(40)
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()

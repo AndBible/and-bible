@@ -54,7 +54,8 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         ABEventBus.unregister(this)
     }
 
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+    override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        e1 ?: return false
         if (!::flingEv.isInitialized || e1.eventTime > flingEv.eventTime) {
             // New fling event
             flingEv = MotionEvent.obtain(e1)
@@ -103,7 +104,8 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
 		}
 	}
 
-    override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+    override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        e1 ?: return false
         if (!::scrollEv.isInitialized  || e1.eventTime > scrollEv.eventTime) {
             // New scroll event
             scrollEv = MotionEvent.obtain(e1)
