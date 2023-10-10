@@ -1501,13 +1501,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     class UpdateMainBibleActivityDocuments
 
-    fun onEventMainThread(e: UpdateMainBibleActivityDocuments) {
-        updateDocuments()
+    private var updateDocumentsPending = false
+
+    fun onEvent(e: UpdateMainBibleActivityDocuments) {
+        updateDocumentsPending = true
     }
 
     private fun updateDocuments() {
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
+        updateDocumentsPending = false
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -1805,6 +1808,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
         if(needRefresh) {
             currentWorkspaceId = currentWorkspaceId // will reload workspace from db
+        } else if(updateDocumentsPending) {
+            updateDocuments()
         }
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
