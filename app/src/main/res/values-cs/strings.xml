@@ -930,8 +930,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Chybný formát</string>
   <string name="calc_wrong_format_operand">Chybný formát. Operátor bez čísel?</string>
-  <string name="prefs_persecuted_help">Nejdříve čtěte toto!</string>
+  <string name="prefs_persecuted_help">Nejdříve čtěte následující!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Instrukce pro nastavení a používání diskrétní verze aplikace.</string>
   <string name="calculator_par1">
         Před vstupem do samotné aplikace se zobrazí kalkulačka.
     </string>
@@ -979,6 +980,12 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="copyReference">Zkopírovat odkaz do schránky</string>
   <string name="reference_copied_to_clipboard">Odkaz zkopírován do schránky</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+        Zvolte, jakou internetovou službu chcete pro synchronizaci více zařízení použít.
+    </string>
+  <string name="prefs_sync_introduction_summary2">
+        Při použití Google Drive, %s dostane oprávnění pouze k souborům aplikace, ne k jiným osobním souborům.
+    </string>
   <string name="restore_backup_sections">Které části zálohy chcete obnovit?</string>
   <string name="db_repositories">Repozitáře a související nastavení</string>
   <string name="db_bookmarks">Záložky, poznámky, štítky a studijní složky</string>
@@ -989,14 +996,14 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="cloud_fetch_and_restore_initial">Kopie z Cloudu do tohoto zařízení</string>
   <string name="cloud_create_new">Kopie z tohoto zařízení do Cloudu</string>
   <string name="cloud_disable_sync">Zrušit a zakázat synchronizaci</string>
-  <string name="cloud_sync_title">Synchronizace zařízení</string>
+  <string name="cloud_sync_title">Synchronizace</string>
   <string name="reset_sync">Odhlášení</string>
   <string name="prefs_reset_sync_summary">Zakázat synchronizaci a resetovat související nastavení.</string>
   <string name="sync_confirmation">Opravdu zakázat synchronizaci a resetovat související nastavení?</string>
   <string name="cloud_info">Informace o Cloudu</string>
   <string name="cloud_info_summary">Data v síťovém uložišti: %s Mb</string>
   <string name="sync_adapter">Synchronizační služba</string>
-  <string name="sync_adapter_summary">Nyní: %s</string>
+  <string name="sync_adapter_summary">Současná služba: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Přihlášení k %s</string>
@@ -1004,7 +1011,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="auth_password">Heslo</string>
   <string name="auth_access_token">Přístupový token</string>
   <string name="synchronization_categories">Kategorie synchronizace</string>
-  <string name="sync_general_settings">Info a obecná nastavení</string>
+  <string name="sync_general_settings">Informace a obecné nastavení</string>
   <string name="sync_introduction">Úvod</string>
   <string name="are_you_sure">Opravdu?</string>
   <string name="sync_update_app">K pokračování synchronizace si prosím aktualizujte aplikaci.</string>
@@ -1021,7 +1028,14 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="external_link">Externí odkaz</string>
   <string name="external_link_question">V prohlížeči bude otevřen externí odkaz %s, chcete pokračovat?</string>
   <string name="nameless">Titulek není definován</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akce na jedno kliknutí (Bible)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Akce na jedno kliknutí (Jinde)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Při ťuknutí na text se zobrazí okno s nabídkou akcí. Která tlačítka se mají zobrazit?</string>
   <string name="processing_epub">Zpracováví EPUB: %s</string>
   <string name="buy_development">Podpořit další vývoj</string>
   <string name="buy_development2">Podpora projektu</string>
+  <string name="new_version_warning">
+        Nová verze bude již brzy uvolněna. Předpokládané datum uvolnění je %1$s. Sledujte naši
+        %2$s pro zjištění více o novinkách a vylepšeních.
+    </string>
 </resources>

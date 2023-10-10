@@ -7,6 +7,7 @@
   <!--X results in module Y-->
   <!--Tasks-->
   <!--Search-->
+  <string name="type_text_or_bible_reference">Type text or Bible reference</string>
   <!--Open (bible reference X)-->
   <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->

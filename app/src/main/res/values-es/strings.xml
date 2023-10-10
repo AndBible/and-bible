@@ -42,6 +42,7 @@
   <string name="do_in_background">Continuar en el fondo</string>
   <string name="rebuild_index_button">Reconstruir</string>
   <!--X results in module Y-->
+  <string name="search_with_results2">%1s resultados en %2s</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Estas tareas de larga duración pueden interrumpirse si cambia a otra aplicación antes de que terminen.</string>
@@ -59,7 +60,9 @@
   <string name="search_old_testament">Antiguo testamento</string>
   <string name="search_current_book">Libro actual</string>
   <string name="error_executing_search">Criterio de búsqueda inválido</string>
+  <string name="type_text_or_bible_reference">Escriba texto o referencia Bíblica</string>
   <!--Open (bible reference X)-->
+  <string name="go_to_ref">Abrir %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Encontrar \"%s\"</string>
   <!--Preferences-->
@@ -119,6 +122,8 @@
   <string name="reset_fontsize">Resetea</string>
   <string name="prefs_request_sdcard_permission_title">Existen documentos instalados manualmente</string>
   <string name="prefs_request_sdcard_permission_summary">Habilitar el uso de documentos instalados manualmente desde la carpeta jsword/sword en la almacenaje interno</string>
+  <string name="prefs_expand_footnotes_title">Referencias cruzadas en línea</string>
+  <string name="prefs_expand_footnotes_summary">Mostrar contenido de referencia cruzada en línea dentro del texto, en lugar de un enlace que abre un cuadro de diálogo emergente</string>
   <string name="all_text_options_window_menutitle">Todas las opciones de texto</string>
   <string name="text_options_window_menutitle">Opciones de texto</string>
   <string name="auto_fullscreen">Pantalla completa desplazándose</string>
@@ -128,6 +133,7 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Cambia automáticamente a pantalla completa al desplazar texto. Consejo: siempre puede cambiar a pantalla completa tocando dos veces la pantalla.</string>
   <string name="prefs_margin_size_title">Cambiar el tamaño del margen</string>
+  <string name="prefs_margin_size_mm_title">Tamaño de margen (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Ajustes avanzados</string>
   <string name="prefs_display_customization_cat">Mira &amp; siente</string>
   <string name="prefs_behavior_customization_cat">Comportamiento de la aplicación</string>
@@ -179,10 +185,13 @@
   <string name="prefs_text_bookmarks_title">Ajustes de Marcadores &amp; Mis Notas</string>
   <string name="prefs_enable_bluetooth_title">Habilitar los botones multimedia de Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Manejar los botones multimedia de Bluetooth para comenzar/dejar de hablar.</string>
+  <string name="create_bookmark">Crear un nuevo Marcador</string>
+  <string name="create_bookmark_with_a_note">Crear un nuevo Marcador con una Nota</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Ajustes de color</string>
   <string name="window_color_settings_title">Ajustes de color de ventana</string>
   <string name="workspace_color_settings_title">Ajustes predeterminada del color del espacio</string>
+  <string name="color_workspace">Color del Espacio</string>
   <string name="color_text">Color de texto</string>
   <string name="color_background">Color de fondo</string>
   <string name="colors_day_mode_title">Modo día</string>
@@ -201,8 +210,10 @@
   <string name="windowMinimise">Minimizar</string>
   <string name="windowSynchronise">Sincronizar</string>
   <string name="move_window">Mover a</string>
+  <string name="move_window_to_position2">Posición %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Copia ajustes a</string>
   <string name="copy_settings_to_workspace">Espacio</string>
+  <string name="copy_settings_to_window">Ventana %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Cambiar a ventana normal</string>
   <string name="window_pin_mode">Fijar</string>
   <!--Notes screen-->
@@ -225,6 +236,7 @@
   <string name="download_document_confirm_prefix">Descarga</string>
   <string name="download_refresh_book_list_menu_item">Refresca</string>
   <string name="error_downloading">Ocurrió un error durante la descarga. Por favor compruebe la conexión a internet.</string>
+  <string name="error_downloading_status">El servidor que aloja %1$s devolvió un error debido a %2$s (%3$d).</string>
   <string name="storage_space_warning">No hay suficiente espacio local de almacenamiento.</string>
   <string name="too_many_jobs">Demasiadas tareas en ejecución.  Por favor espere que algunas terminen e intente nuevamente.</string>
   <string name="document_not_installed">Por favor descarga \'%s\'</string>
@@ -245,14 +257,20 @@
   <string name="download_errors">Descargar errores</string>
   <string name="failed_repositories_message">No se pudo conectar al siguiente servidor de documentos: \n\n%s\n\n</string>
   <string name="failed_downloads_message">No se pudieron descargar los siguientes archivos: \n\n%s\n\n</string>
+  <string name="cant_delete_document">Este documento no se puede eliminar.</string>
   <!--Install zip file-->
+  <string name="install_zip">Cargar Documentos Desde Archivos</string>
   <string name="install_zip_module">Instalar módulo de Biblia</string>
+  <string name="install_zip_module_discrete">Instalar Módulo de Calculadora</string>
   <string name="install_zip_successfull">El módulo se ha instalado correctamente</string>
   <string name="extracting_zip_file">Extrayendo Zip...</string>
   <string name="checking_zip_file">Comprobando el archivo...</string>
   <string name="invalid_module">El archivo no contiene un módulo SWORD válido</string>
+  <string name="install_zip_title">Por favor, espere. Cargando modulos desde un archivo.</string>
   <string name="overwrite_files">Los siguientes archivos ya existen: %s ¿Sobrescribir?</string>
   <string name="overwrite_files_title">¿Sobrescribir archivos?</string>
+  <string name="could_not_overwrite_files">No se pudieron sobrescribir archivos: %s. Aparte de eso, la instalación fue exitosa.</string>
+  <string name="install_do_you_want">¿Quieres instalar el módulo (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lectura</string>
   <string name="reading_plans_plural">Planes de lectura</string>
@@ -361,6 +379,10 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="label_color">Color de etiqueta</string>
   <!--can be removed-->
   <string name="label_color_example">Ejemplo</string>
+  <string name="marker_style">Mostrar solo marcador para marcadores de selección</string>
+  <string name="marker_style_whole_verse">Mostrar solo marcador para marcadores de versículos completos</string>
+  <string name="hide_style">Ocultar para marcadores de selección</string>
+  <string name="hide_style_whole_verse">Ocultar para marcadores de versículos completos</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Orden de fecha</string>
   <string name="sort_by_bible_book">Orden bíblico</string>
