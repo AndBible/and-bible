@@ -312,7 +312,6 @@ object CloudSync {
                     initialFile.createdTime.value
                 )
             )
-            ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
         }
     }
 
