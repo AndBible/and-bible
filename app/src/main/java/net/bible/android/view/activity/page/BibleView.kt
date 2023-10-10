@@ -1320,6 +1320,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun replaceDocument() {
         Log.i(TAG, "replaceDocument")
+        if(latestDocumentStr == null || !needsDocument) return
+
         val documentStr = latestDocumentStr
         val verse = if(isBible || isMyNotes) initialKey as? Verse else null
         synchronized(documentLoadingLock) {
@@ -1894,9 +1896,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun setClientReady() = runOnUiThread {
         htmlLoadingOngoing = false
-        if(latestDocumentStr != null && needsDocument) {
-            replaceDocument()
-        }
+        replaceDocument()
         updateActive()
     }
 
