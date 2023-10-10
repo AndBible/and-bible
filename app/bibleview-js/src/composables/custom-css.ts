@@ -36,8 +36,8 @@ export function useCustomCss() {
             link.type = "text/css";
             link.rel = "stylesheet";
             const cssReady = () => {
-                onLoadDefer.resolve();
                 customCssPromises.splice(customCssPromises.findIndex(v => v === promise), 1);
+                onLoadDefer.resolve();
             }
             link.onload = cssReady;
             link.onerror = cssReady;
