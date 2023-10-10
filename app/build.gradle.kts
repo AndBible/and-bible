@@ -342,18 +342,18 @@ dependencies {
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.media:media:1.6.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.preference:preference:1.2.0")
-    implementation("androidx.preference:preference-ktx:1.2.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("androidx.preference:preference:1.2.1")
+    implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.webkit:webkit:1.6.1")
+    implementation("androidx.webkit:webkit:1.8.0")
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
 
 
     // Google Drive API
-    implementation("com.google.android.gms:play-services-auth:20.5.0")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation ("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
         exclude("org.apache.httpcomponents")
         exclude("com.google.guava.guava")
@@ -368,7 +368,7 @@ dependencies {
     //implementation("com.jaredrummler:colorpicker:1.1.0")
     implementation("com.github.AndBible:ColorPicker:ab-fix-1")
 
-    implementation("com.google.android.material:material:1.8.0")
+    implementation("com.google.android.material:material:1.10.0")
 
     implementation("androidx.room:room-runtime:$roomVersion")
 
@@ -381,7 +381,7 @@ dependencies {
     //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
     //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    val daggerVersion = "2.45"
+    val daggerVersion = "2.48.1"
     implementation("com.google.dagger:dagger:$daggerVersion")
     annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
     kapt("com.google.dagger:dagger-compiler:$daggerVersion")
