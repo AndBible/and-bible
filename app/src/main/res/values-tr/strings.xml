@@ -1,7 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Kutsal Kitap Çalışması</string>
+  <string name="app_name_medium">İncil Çalışması (AndBible)</string>
   <string name="app_name_long">AndBible: İncil Çalışma </string>
+  <string name="project">AndBible Açık Kaynak Projesi</string>
   <string name="version_text">Sürüm %s</string>
   <string name="no_sdcard_error">Lütfen bir hafıza kartı takıp uygulamayı yeniden başlatın.</string>
   <!--Main menu-->
@@ -9,6 +12,7 @@
   <string name="chooseBook">Belge</string>
   <string name="selectPassage">Kısım</string>
   <string name="search">Ara</string>
+  <string name="search_in_andbible">Kutsal Kitap\'ta arama yap</string>
   <string name="settings">Uygulama tercihleri</string>
   <string name="history">Geçmiş</string>
   <string name="speak">Sesli Oku</string>
@@ -566,6 +570,12 @@ Tam ekran modunu değiştirmek için Kutsal Kitap metnine çift dokunun..
 Bölünmüş ekranların (pencereler olarak da bilinir) sağ üst köşesinde menü düğmesi bulunur,
 bu birkaç pencereye özgü işlevleri kullanmanıza ve pencere görünümünü ve davranışını özelleştirmenize olanak tanır.</string>
   <string name="help_contextmenus_title">Bağlam Menüleri</string>
+  <string name="help_contextmenus_text">
+        Uzun basıldığında çeşitli görünümlerde içerik menüsü veya eylem modu açılır.
+        Geçerli ayeti etkileyen eylemler için eylem modunu açmak üzere Kutsal Kitap görünümüne uzun basın.
+        Belgeyi silmek veya bilgileri görüntülemek için Belge Seç veya İndir liste görünümünde bir belge öğesine uzun basın.
+        Etiket eklemek veya yer imini silmek için yer imleri listesindeki bir yer imine uzun basın.
+        Bağlantıları geçerli pencerede mi, yeni pencerede mi yoksa özel bağlantılar penceresinde mi açmak istediğinizi seçmek için bağlantılara uzun basın.</string>
   <string name="help_bookmarks_title">Yer imleri &amp; Notlarım</string>
   <string name="help_search_title">Arama</string>
   <string name="help_workspaces_title">Çalışma Alanları</string>

@@ -1,0 +1,62 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "AndBible: İncil Çalışma "
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Kutsal Kitap okuyun, yorumları, sözlükleri ve kitaplar çevrimdışı inceleyin."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Güçlü İncil Çalışma aracı
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ title }}" Android için güçlü, ancak kullanımı kolay, çevrimdışı bir Kutsal Kitap çalışma uygulamasıdır. Uygulama sadece bir Kutsal Kitap okuyucusu olmayı hedeflemez, ancak derinlemesine kişisel Kutsal Kitap çalışması yapmak için gelişmiş bir araç olmaya odaklanır.
+paragraph_1_2: >
+  Bu uygulama Kutsal Kitap okuyucuları tarafından, Kutsal Kitap okuyucuları için geliştirilmiştir. Kutsal Kitap çalışmanızı rahat, derin ve eğlenceli hale getirmenize yardımcı olmayı amaçlamaktadır. Kâr amacı gütmeyen bu topluluk projesinin en iyi yanı, açık kaynaklı, tamamen ücretsiz olması ve reklam içermemesidir.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+subtitle_2: Güçlü İncil Çalışma özellikleri
+paragraph_2_1: >
+feature_01: ""
+feature_02: ""
+feature_03: ""
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: ""
+# Examples of cross-reference collections.
+cross_reference_examples: ""
+feature_05: ""
+feature_06: ""
+feature_07: ""
+feature_09: >
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+feature_10_1: >
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: ""
+feature_12: >
+  Çevrimdışı: İnternete ihtiyaç duyduğunuz tek zaman belgeleri indirmek içindir.
+# UNUSED
+feature_13: >
+subtitle_3: Birlikte en iyi Kutsal Kitap uygulamasını yapalım!
+paragraph_3_1: >
+  AndBible açık kaynaklı bir topluluk projesidir. Pratikte bu, uygun becerilere sahip herkesin projeye katkıda bulunabileceği ve katkıda bulunmaya teşvik edildiği anlamına gelir:
+contr_1: "yeni özellikler geliştirerek,"
+contr_2: "henüz yayımlanmamış özellikleri test ederek,"
+contr_3: "kullanıcı arayüzü çevirilerini güncel tutarak, ve"
+contr_4: telif hakkı sahiplerinden izinler alarak veya belgeleri SWORD formatına dönüştürerek modül kitaplığının genişletilmesine yardımcı olarak.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Profesyonel bir yazılım mühendisi ya da testçi iseniz lütfen projeye katkıda bulunmayı düşünün. Nasıl katkıda bulunacağınız hakkında daha fazla bilgi sahibi olmak için lütfen bakınız {{how_to_contribute_url}}."
+subtitle_4: Bağlantılar
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Ana Sayfa: {{homepage_url}}
+link_2: >
+link_3: >
+  Youtube Kanalımız: {{youtube_url}}
+link_4: >
+  Sıkça Sorulan Sorular: {{faq_url}}
+link_5: >
+  Github üzerindeki proje sayfası: {{github_url}}
+buy_title: >
+buy_1: >
+buy_2: >

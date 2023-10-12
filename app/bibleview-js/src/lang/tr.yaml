@@ -1,27 +1,26 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: Yer İmleri
+bookmarksAndNotes: ""
 openMyNotes: ""
 openStudyPad: ""
 noteText: ""
 noteTextWithoutType: Dipnotlar
-crossReferenceText: ""
+crossReferenceText: Göndermeler
 findAllOccurrences: Kelimenin tüm oluşlarını bul
 reportError: ""
 errorTitle: ""
 warningTitle: ""
 normalTitle: ""
-footnoteTypeUndefined: ""
 footnoteTypeStudy: ""
 footnoteTypeExplanation: ""
 footnoteTypeVariant: ""
 footnoteTypeAlternative: ""
 footnoteTypeTranslation: ""
 clearLog: ""
-editNote: Düzelt
-editNotePlaceholder: ""
 editTextPlaceholder: ""
 inputPlaceholder: ""
 inputReference: ""
 invalidReference: Ayet bulunamadı
-assignLabels: ""
 bookmarkAccurate: ""
 bookmarkInaccurate: ""
 defaultBook: ""
@@ -31,50 +30,34 @@ ambiguousSelection: ""
 cancel: İptal
 removeBookmarkConfirmationTitle: ""
 removeBookmarkConfirmation: ""
-closeModal: Kapat
 createdAt: ""
 lastUpdatedOn: ""
-strongsLink: ""
-morphLink: ""
 strongsAndMorph: ""
-studyPadLink: ""
 externalLink: ""
 referenceLink: ""
 openFootnote: ""
-openBookmark: ""
 noMyNotesTitle: ""
 noMyNotesDescription: >
 emptyStudyPad: >
-studyPadModalTitle: ""
 doYouWantToDeleteEntry: ""
 removeStudyPadConfirmationTitle: ""
 dragHelp: ""
-saved: ""
 openAll: ""
 editBookmarkPlaceholder: ""
 onlyLabel: ""
 wholeBookmark: ""
-otherNoteText: ""
-assignLabelsMenuEntry: Etiketle
 assignLabelsMenuEntry1: ""
-jumpToStudyPad: ""
-setAsPrimaryLabel: ""
-removeBookmarkLabel: ""
-addBookmarkLabel: ""
 favouriteLabels: ""
 recentLabels: ""
-frequentlyUsedLabels: ""
 bookmarkLabels: ""
 refParserHelp: ""
 openDownloads: ""
 verseShare: Paylaş
-verseCompare: ""
+verseSpeak: Sesli Oku
+verseCompare: Karşılaştır
 verseNote: ""
 verseMyNotes: Notlarım
-verseSpeak: Sesli Oku
 verseShareLong: ""
 verseCompareLong: ""
 verseNoteLong: ""
-verseSpeakLong: ""
-verseTip: ""
-addBookmark: ""
+addBookmark: Yer imi
