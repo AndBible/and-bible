@@ -17,7 +17,7 @@ paragraph_2_1: >
   Uygulama, karmaşık ve derin bir Kutsal Kitap çalışma deneyimini daha sorunsuz hale getiren birçok aydınlatıcı, orijinal özelliğe sahiptir. En dikkat çekici özellikler aşağıdaki gibidir:
 feature_01: Çevirileri karşılaştırmayı ve yorumlara başvurmayı sağlayan bölünmüş metin görünümleri
 feature_02: "Çalışma alanları, kendi ayarlarına sahip birden fazla Kutsal Kitap çalışma kurulumuna izin verir"
-feature_03: Strong's entegrasyon ile birlikte Grekçe ve İbranice kelime analizine olanak sağlar
+feature_03: Strong’s entegrasyon ile birlikte Grekçe ve İbranice kelime analizine olanak sağlar
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Bağlantılı referanslar, dipnotlar ve belgeler; sadece bir bağlantıya dokunarak referanslara ve dipnotlara atlayın; köprü bağlantılı tefsirleri ({{commentary_examples}}), referans koleksiyonlarını ({{cross_reference_examples}}) ve diğer kaynakları kullanarak Kutsal Yazılar üzerinde derinlemesine çalışma yapın.
@@ -30,7 +30,7 @@ feature_05: "Konuşma imleri ile gelişmiş metin okuma özelliği, sorunsuz bir
 feature_06: Esnek arama
 feature_07: Gelişmiş yer imi
 feature_09: >
-  Okuma planları: Kutsal Kitap'ı okumak için hedefler belirleyin 
+  Okuma planları: Kutsal Kitap’ı okumak için hedefler belirleyin 
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Geniş belge kütüphanesi: Crosswire ve diğer SWORD depoları tarafından yasal olarak dağıtılan
@@ -60,7 +60,7 @@ subtitle_4: Bağlantılar
 link_1: >
   Ana Sayfa: {{homepage_url}}
 link_2: >
-  AndBible'ı Facebook'ta Beğen: {{facebook_url}}
+  AndBible’ı Facebook’ta Beğen: {{facebook_url}}
 link_3: >
   Youtube Kanalımız: {{youtube_url}}
 link_4: >

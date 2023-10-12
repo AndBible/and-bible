@@ -12,7 +12,7 @@
   <string name="chooseBook">Belge</string>
   <string name="selectPassage">Kısım</string>
   <string name="search">Ara</string>
-  <string name="search_in_andbible">Kutsal Kitap\'ta arama yap</string>
+  <string name="search_in_andbible">Kutsal Kitap’ta arama yap</string>
   <string name="settings">Uygulama tercihleri</string>
   <string name="history">Geçmiş</string>
   <string name="speak">Sesli Oku</string>
@@ -55,7 +55,7 @@
   <string name="search_result_count">%d sonuç bulundu</string>
   <string name="search_showing_first">Çok fazla sonuç bulundu. İlk %d gösteriliyor</string>
   <string name="search_bible_section_group_prompt">Arama Alını</string>
-  <string name="search_all_bible">Kutsal Kitap\'ın Tümü</string>
+  <string name="search_all_bible">Kutsal Kitap’ın Tümü</string>
   <string name="search_new_testament">Yeni Antlaşma</string>
   <string name="search_old_testament">Eski Antlaşma</string>
   <string name="search_current_book">Seçili Kitapta</string>
@@ -82,9 +82,9 @@
   <string name="prefs_show_mynotes_summary">Hakkında not yazdığım ayetleri simge ile belirle</string>
   <string name="prefs_show_notes_summary">Dipnotlar ve göndermeler gösterilir</string>
   <string name="prefs_show_strongs_summary">Yunanca ve İbranice kelimelerin tanımlarına bağlantılar gösterilir</string>
-  <string name="prefs_show_morphology_summary">Robinson\'un Yunanca morfolojik kısaltmaları gösterilir</string>
+  <string name="prefs_show_morphology_summary">Robinson’un Yunanca morfolojik kısaltmaları gösterilir</string>
   <string name="prefs_section_title_summary">Kanonik olmayan bölüm başlıklarını göster</string>
-  <string name="prefs_red_letter_summary">Mesih\'in sözlerini kırmızı göster</string>
+  <string name="prefs_red_letter_summary">Mesih’in sözlerini kırmızı göster</string>
   <string name="prefs_text_size_title">Yazı türü tercihleri</string>
   <string name="prefs_verse_per_line_title">Satır başına tek ayet</string>
   <string name="prefs_show_bookmarks_title">Yer imleri göster</string>
@@ -113,7 +113,7 @@
   <string name="prefs_navigate_to_verse_title">Ayet seçimi</string>
   <string name="prefs_navigate_to_verse_summary">Kısım seçerken bölümden sonra ayet de seçilir</string>
   <string name="prefs_open_links_in_special_window_title">Bağlantılar penceresi</string>
-  <string name="prefs_open_links_in_special_window_summary">Göndermeleri ve Strong\'ları daha hızlı görüntülemek için bağlantıları özel pencerede açın</string>
+  <string name="prefs_open_links_in_special_window_summary">Göndermeleri ve Strong’ları daha hızlı görüntülemek için bağlantıları özel pencerede açın</string>
   <string name="prefs_text_size_sample_text">Metin örneği</string>
   <string name="prefs_screen_keep_on_title">Ekranı açık tut</string>
   <string name="prefs_screen_keep_on_summary">Bu uygulamayı kullanırken ekranın kapanmasını önleyin</string>
@@ -147,7 +147,7 @@
   <string name="prefs_text_display_settings_title">Biçimlendirme</string>
   <string name="prefs_text_appearance_title">Görünüm</string>
   <string name="prefs_justify_title">Metni iki yana yasla</string>
-  <string name="prefs_justify_summary">Metni \'yasla\' stilinde hizalayın, yani metnin sol ve sağ kenar boşlukları aynı hizada</string>
+  <string name="prefs_justify_summary">Metni ‘yasla’ stilinde hizalayın, yani metnin sol ve sağ kenar boşlukları aynı hizada</string>
   <string name="pref_left_margin_label_mm">Sol kenar boşluğu (%d mm)</string>
   <string name="pref_right_margin_label_mm">Sağ kenar boşluğu (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Maksimum metin genişliği (%d mm)</string>
@@ -165,17 +165,17 @@
   <string name="window_pinning_menutitle">Pencere iğneleme</string>
   <string name="hide_window_buttons_title">Pencere düğmelerini gizle</string>
   <string name="hide_window_buttons_summary">İncil görünümlerinin sağ tarafında görüntülenen pencere düğmeleri gizlenir. Aşağıdaki pencere gezinme çubuğu hala gösterilir ve pencerenin açılır menüsünü uzun tıklayarak açabilirsiniz.</string>
-  <string name="hide_bible_reference_overlay_title">İncil\'e gönderme yapan katmanı gizle</string>
-  <string name="hide_bible_reference_overlay_summary">Uygulama tam ekrandayken yarı-şeffaf İncil\'e gönderme yapan katmanı gösterme</string>
+  <string name="hide_bible_reference_overlay_title">İncil’e gönderme yapan katmanı gizle</string>
+  <string name="hide_bible_reference_overlay_summary">Uygulama tam ekrandayken yarı-şeffaf İncil’e gönderme yapan katmanı gösterme</string>
   <string name="full_screen_hide_buttons_pref_title">Tam ekranda pencere düğme çubuğunu gizle</string>
   <string name="full_screen_hide_buttons_pref_summary">Tam ekran moduna geçerken, ekranın altındaki pencere düğme çubuğunu otomatik olarak gizle</string>
   <string name="prefs_dictionaries_cat">Sözlükler</string>
-  <string name="choose_strongs_greek_dictionary_title">Strong\'un Yunanca sözlüğü</string>
-  <string name="choose_strongs_greek_dictionary_summary">Yunanca kelimelerin tanımları için Strong\'un sözlüğünü seçin</string>
-  <string name="choose_strongs_hebrew_dictionary_title">Strong\'un İbranice sözlüğü</string>
-  <string name="choose_strongs_hebrew_dictionary_summary">İbranice kelimelerin tanımları için Strong\'un sözlüğünü seçin</string>
-  <string name="choose_strongs_greek_morphology_title">Robinson\'un Yunanca morfolojisi</string>
-  <string name="choose_strongs_greek_morphology_summary">Robinson\'un Yunanca morfolojisinin tanımları için sözlük seçin</string>
+  <string name="choose_strongs_greek_dictionary_title">Strong’un Yunanca sözlüğü</string>
+  <string name="choose_strongs_greek_dictionary_summary">Yunanca kelimelerin tanımları için Strong’un sözlüğünü seçin</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strong’un İbranice sözlüğü</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">İbranice kelimelerin tanımları için Strong’un sözlüğünü seçin</string>
+  <string name="choose_strongs_greek_morphology_title">Robinson’un Yunanca morfolojisi</string>
+  <string name="choose_strongs_greek_morphology_summary">Robinson’un Yunanca morfolojisinin tanımları için sözlük seçin</string>
   <string name="prefs_top_margin_title_mm">Üst kenar boşluğu (%d mm)</string>
   <string name="font_size_title">Yazı tipi boyutu</string>
   <string name="font_size_title_pt">Yazı tipi boyutu (%d pt)</string>
@@ -222,9 +222,9 @@
   <string name="previous">Önceki</string>
   <string name="next">Sonraki</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Lütfen \iStrong\'s Grekçe ve İbranice sözlüklerini indiriniz</string>
-  <string name="no_indexed_bible_with_strongs_ref">Strong\'s numaralarını içeren bir İncil indirmeli ve Arama yoluyla dizinini oluşturmalısınız</string>
-  <string name="morph_robinson_not_installed">Lütfen \'Robinson\'s Morphological Analysis Codes\' sözlüğünü indirin.</string>
+  <string name="strongs_not_installed">Lütfen \iStrong’s Grekçe ve İbranice sözlüklerini indiriniz</string>
+  <string name="no_indexed_bible_with_strongs_ref">Strong’s numaralarını içeren bir İncil indirmeli ve Arama yoluyla dizinini oluşturmalısınız</string>
+  <string name="morph_robinson_not_installed">Lütfen “Robinson’s Morphological Analysis Codes” sözlüğünü indirin.</string>
   <string name="go_to_downloads">İndirmelere Git</string>
   <!--Module download-->
   <string name="download">Belge İndir</string>
@@ -236,10 +236,10 @@
   <string name="download_document_confirm_prefix">İndir</string>
   <string name="download_refresh_book_list_menu_item">Yenilen</string>
   <string name="error_downloading">İndirirken bir hata oldu.  Lütfen internet bağlantınızı kontrol edin.</string>
-  <string name="error_downloading_status">1$s\'yi barındıran sunucu %2$s (%3$d) nedeniyle bir hata döndürdü.</string>
+  <string name="error_downloading_status">1$s’yi barındıran sunucu %2$s (%3$d) nedeniyle bir hata döndürdü.</string>
   <string name="storage_space_warning">Yerel depo yetersiz</string>
   <string name="too_many_jobs">Çok fazla görev çalışıyor. Lütfen bazılarının bitmesini bekleyin ve tekrar deneyin.</string>
-  <string name="document_not_installed">Lütfen \'%s\' dosyasını indirin</string>
+  <string name="document_not_installed">Lütfen ‘%s’ dosyasını indirin</string>
   <string name="free_text_search_documents">Ara</string>
   <string name="chooce_language_hint">Dil</string>
   <string name="one_more_back_press">Uygulamayı kapatmak için tekrar geriye basın</string>
@@ -248,7 +248,7 @@
   <string name="download_question_message">Zulme uğradığınız bir ülkede yaşıyorsanız,
     Hristiyan materyallerini internet üzerinden indirirken dikkatli olmanız gerekebilir.
     Bunun yerine, modül zip dosyalarını daha güvenli bir şekilde ederek onları kurmak isteyebilirsiniz.
-    \"Belgeleri Zip\'ten Yükle\" aracılığıyla. İndirmeye devam etmek istediğinizden emin misiniz?
+    \"Belgeleri Zip’ten Yükle\" aracılığıyla. İndirmeye devam etmek istediğinizden emin misiniz?
     Modül sunucularından yapılan tüm indirmeler şifrelenir (HTTPS).
   </string>
   <string name="do_not_ask_again">Evet, tekrar sorma</string>
@@ -300,46 +300,46 @@
     dahili bir planla aynı ada sahip bir kullanıcı okuma planı var. Burada listelenemez.
     Lütfen dosyanın dosya uzantısını .properties olarak bırakarak dosyayı başka bir adla yeniden adlandırın
   </string>
-  <string name="plan_name_y1ntpspr">Bir yılda Yeni Antlaşma, Mezmurlar ve Süleyman\'ın Özdeyişleri</string>
+  <string name="plan_name_y1ntpspr">Bir yılda Yeni Antlaşma, Mezmurlar ve Süleyman’ın Özdeyişleri</string>
   <string name="plan_description_y1ntpspr">
-    HEARTLIGHT İnternet Dergisi\'nin nezaketiyle,
+    HEARTLIGHT İnternet Dergisi’nin nezaketiyle,
     http://www.heartlight.org, izin verildi
   </string>
   <string name="plan_name_y1ot1nt1_chronological">İncil ile Kronolojik 1-Yıl</string>
   <string name="plan_description_y1ot1nt1_chronological">
-    İncil\'deki kronolojik olaylara dayalı plan.
+    İncil’deki kronolojik olaylara dayalı plan.
     Kronolojik zaman çizelgesi yaklaşıktır.
   </string>
   <string name="plan_name_y1ot1nt1_OTandNT">1 Yıl EA+YA Eş Zamanlı</string>
   <string name="plan_description_y1ot1nt1_OTandNT">
-    Her gün EA+YA\'daki bölümlerle,
-    1 yılda Kutsal Kitap\'ı baştan sona okuyun.
+    Her gün EA+YA’daki bölümlerle,
+    1 yılda Kutsal Kitap’ı baştan sona okuyun.
   </string>
   <string name="plan_name_y1ot1nt1_OTthenNT">1 Yılda Kutsal Kitap</string>
   <string name="plan_description_y1ot1nt1_OTthenNT">
-    Yaratılış ile başlayıp Vahiy ile biten Kutsal Kitap\'ı 1 yılda baştan sona okuyun.
+    Yaratılış ile başlayıp Vahiy ile biten Kutsal Kitap’ı 1 yılda baştan sona okuyun.
     İlk olarak EA, sonra YA.
   </string>
-  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 Yıl 4 bölüm/gün</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M’Cheyne 1 Yıl 4 bölüm/gün</string>
   <string name="plan_description_y1ot1nt2_mcheyne">
-    Bu plan M\'Cheyne okuma sistemine dayanmaktadır ve hem aile hem de kişisel adanmışlıklarda
-    kullanılmak üzere dört farklı okuma içermektedir. Her gün Eski Antlaşma\'dan iki,
-    Yeni Antlaşma\'dan bir ve Mezmurlar ya da İncil\'den bir bölüm vardır.
-    Bir yıl içinde Eski Antlaşma\'yı bir kez, Yeni Antlaşma ve Mezmurlar\'ı ise iki kez okuyabilirsiniz.
+    Bu plan M’Cheyne okuma sistemine dayanmaktadır ve hem aile hem de kişisel adanmışlıklarda
+    kullanılmak üzere dört farklı okuma içermektedir. Her gün Eski Antlaşma’dan iki,
+    Yeni Antlaşma’dan bir ve Mezmurlar ya da İncil’den bir bölüm vardır.
+    Bir yıl içinde Eski Antlaşma’yı bir kez, Yeni Antlaşma ve Mezmurlar’ı ise iki kez okuyabilirsiniz.
   </string>
   <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10-bölüm/gün Okuma Planı</string>
-  <string name="plan_description_y1ot6nt4_profHorner">Prof. Horner\'in nezaketiyle, izin verildi</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Prof. Horner’in nezaketiyle, izin verildi</string>
   <string name="plan_name_y2ot1ntps2">2 Yıl Boyunca Kutsal Kitap, iki kez YA+MK</string>
   <string name="plan_description_y2ot1ntps2">
-    2 yılda Kutsal Kitap\'ı baştan sona okuyun, YA ve Mezmurlar\'ı iki kez okuyun.
-    Wholosome Words\'un nezaketiyle, http://www.wholesomewords.org/, izin verildi
+    2 yılda Kutsal Kitap’ı baştan sona okuyun, YA ve Mezmurlar’ı iki kez okuyun.
+    Wholosome Words’un nezaketiyle, http://www.wholesomewords.org/, izin verildi
   </string>
   <!--Document context menu-->
   <string name="delete">Sil</string>
   <string name="delete_index">Arama dizinini sil</string>
   <string name="about">Belge hakkında</string>
   <string name="delete_doc">%s silinsin mi?</string>
-  <string name="delete_search_index_doc">%s\'in dizini silinsin mi?</string>
+  <string name="delete_search_index_doc">%s’in dizini silinsin mi?</string>
   <!--Verse context menu-->
   <string name="notes">Dipnotlar ve iç göndermeler</string>
   <string name="share_verse">Paylaş</string>
@@ -500,8 +500,8 @@
     kaydedilen oynatma ayarları yer iminden yüklenir.
   </string>
   <string name="speak_help_playback_settings_example">
-    Örneğin, Yaratılış ve Romalılar kitaplarını dinliyorsanız ve Yaratılış\'ı bölüm değişikliği
-    bildirimleri olmadan hızlı bir şekilde, Romalılar\'ı ise bölüm değişikliklerinde duyulabilir
+    Örneğin, Yaratılış ve Romalılar kitaplarını dinliyorsanız ve Yaratılış’ı bölüm değişikliği
+    bildirimleri olmadan hızlı bir şekilde, Romalılar’ı ise bölüm değişikliklerinde duyulabilir
     kulaklık sesleriyle daha yavaş bir şekilde dinlemek istiyorsanız,
     bu ayarlar ilgili yer imlerine kaydedildiğinde bu kitaplar için farklı oynatma ayarlarına
     sahip olabilirsiniz.
@@ -684,7 +684,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="beta_notice_dismiss_until_update">Bir sonraki güncellemeye kadar yok say</string>
   <string name="stable_notice_title">Uygulama güncellendi!</string>
   <string name="upgrade_video_message">Lütfen bu sürümün yeni özelliklerini içeren videoyu izleyin (%s)</string>
-  <string name="stable_notice_par1">2$s\'nin yeni %1$s sürümü başarıyla yüklendi!</string>
+  <string name="stable_notice_par1">2$s’nin yeni %1$s sürümü başarıyla yüklendi!</string>
   <!--History-->
   <string name="history_for">Geçmişi (%1$s: Pencere %2$d)</string>
   <!--Help-->
@@ -745,14 +745,14 @@ katkıda bulunmayı düşünün. :-)</string>
   </string>
   <!--Welcome text-->
   <string name="redownload_documents">Hızlı Yeniden İndirme</string>
-  <string name="welcome_message">%s\'yi indirdiğiniz için teşekkür ederiz. Şu anda yüklü Kutsal Kitap
+  <string name="welcome_message">%s’yi indirdiğiniz için teşekkür ederiz. Şu anda yüklü Kutsal Kitap
     veya belge yok. Devam etmek için lütfen internetten indirerek veya bir zip dosyası belge
     yedeğinden yükleyerek en az 1 belge yükleyin.
   </string>
   <!--Supported file formats for documents-->
   <string name="supported_formats_title">Desteklenen formatlar</string>
   <!--argument is app_name_andbible (AndBible).-->
-  <string name="choose_file">%s\'ye yüklemek istediğiniz dosyayı seçmeniz gerekir. </string>
+  <string name="choose_file">%s’ye yüklemek istediğiniz dosyayı seçmeniz gerekir. </string>
   <string name="supported_formats">Bir dosyadan belge yüklemek için desteklenen biçimler: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Sword modül(ler)ini içeren zip dosyası veya %s tarafından oluşturulan belge yedekleme dosyası (*.abmd)</string>
@@ -797,9 +797,9 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="confirm_delete_bookmarks">%d yer imlerini ve notlarını kaldırmak istiyor musunuz?</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Bir arkadaşına öner</string>
-  <string name="tell_friend_message1">Size %s\'i önermek isterim.</string>
+  <string name="tell_friend_message1">Size %s’i önermek isterim.</string>
   <string name="tell_friend_message2">Android için güçlü, ayrıca kullanımı kolay, çevrimdışı İncil çalışma uygulamasıdır.</string>
-  <string name="tell_friend_message3">Play Store\'dan yükleyin: %s</string>
+  <string name="tell_friend_message3">Play Store’dan yükleyin: %s</string>
   <string name="tell_friend_message4">Devamını oku &amp; daha fazla yükleme seçenekleri: %s </string>
   <string name="share_verse_ok">Paylaş / Kopyala</string>
   <string name="verse_action_copy">Kopyala</string>
@@ -824,7 +824,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="initializing_app">Uygulama başlatılıyor...</string>
   <string name="show_notes">Notları görüntüle</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView paketi çok eski (%1$s). 3$s\'yi kullanmak için Android WebView paketinizi en az %2$s sürümüne yükseltmeniz gerekir. Çoğu cihaz için bu %4$s aracılığıyla yapılabilir.</string>
+  <string name="old_webview">Android WebView paketi çok eski (%1$s). 3$s’yi kullanmak için Android WebView paketinizi en az %2$s sürümüne yükseltmeniz gerekir. Çoğu cihaz için bu %4$s aracılığıyla yapılabilir.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Yine de devam et</string>
   <string name="proceed">Devam et</string>
@@ -860,7 +860,7 @@ katkıda bulunmayı düşünün. :-)</string>
     geliştiricilere e-posta gönderin
   </string>
   <string name="proceed_google_play">
-    Google Play\'e ilerleyin
+    Google Play’e ilerleyin
   </string>
   <string name="text_maintainers">
      lütfen sorunları metin sorumlularına bildirin
@@ -914,9 +914,9 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="chooser_style_grid">Izgara</string>
   <string name="chooser_style_lists">Listeler</string>
   <string name="chooser_select">Seç %s</string>
-  <string name="chooser_pref_reset">Kitap/bölüm seçildiğinde bölüm/ayet\'i 1\'e sıfırlamayın.</string>
+  <string name="chooser_pref_reset">Kitap/bölüm seçildiğinde bölüm/ayet’i 1’e sıfırlamayın.</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Üzgünüz, ancak %1$s dilinde yalnızca kısmi arayüzü çevirimiz var. Bunun nedeni %2$s\'nin tamamen gönüllüler tarafından geliştirilmiş olmasıdır. Çeviride yardımcı olabilirseniz, lütfen %3$s\'e bakın.</string>
+  <string name="incomplete_translation">Üzgünüz, ancak %1$s dilinde yalnızca kısmi arayüzü çevirimiz var. Bunun nedeni %2$s’nin tamamen gönüllüler tarafından geliştirilmiş olmasıdır. Çeviride yardımcı olabilirseniz, lütfen %3$s’e bakın.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">çevirmenler için talimatlar</string>
   <string name="questions_title">Sorularınız?</string>
@@ -934,9 +934,9 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="app_name_calculator">Basit Hesap Makinesi</string>
   <string name="prefs_persecution_cat">Zulme uğrayanlar için ayarlar</string>
   <string name="prefs_discrete_mode">Dini sembolleri gizleyin</string>
-  <string name="prefs_discrete_mode_desc">Uygulamayı \'Basit Hesap Makinesi\' olarak yeniden adlandırın ve başlatıcıda farklı bir simge gösterin.</string>
+  <string name="prefs_discrete_mode_desc">Uygulamayı ‘Basit Hesap Makinesi’ olarak yeniden adlandırın ve başlatıcıda farklı bir simge gösterin.</string>
   <string name="prefs_show_calculator">Hesap Makinesi</string>
-  <string name="prefs_calculator_pin">Hesap Makinesi PIN\'i</string>
+  <string name="prefs_calculator_pin">Hesap Makinesi PIN’i</string>
   <string name="prefs_calculator_pin_desc">Hesap makinesi gösterildiğinde uygulamaya girmek için PIN kodu. </string>
   <string name="calc_division_by_zero">Sıfıra bölmeye izin verilmez</string>
   <!--Context: calculator. Wrong number format etc.-->
@@ -950,7 +950,7 @@ katkıda bulunmayı düşünün. :-)</string>
   </string>
   <string name="calculator_par2">
     İçinde standart hesaplama yapabilirsiniz ve uygulamaya girmek istediğinizde PIN kodunuzu
-    (varsayılan 1234\'tür) yazmanız ve ardından \"=\" düğmesine basmanız yeterlidir.
+    (varsayılan 1234’tür) yazmanız ve ardından \"=\" düğmesine basmanız yeterlidir.
   </string>
   <string name="calculator_par3">
     \"Hesap Makinesi PIN\" ayarı ile özel bir PIN kodu oluşturabilirsiniz.
@@ -978,7 +978,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="custom_repositories_create_button_label">Özel Depo Ekleme</string>
   <string name="custom_repositories_info_button_label">Bilgi</string>
   <string name="name_for_repository">Depo için ad</string>
-  <string name="repository_specification">Depo URL\'si</string>
+  <string name="repository_specification">Depo URL’si</string>
   <string name="delete_custom_repository">Özel %s deposunu kaldırmak istiyor musunuz?</string>
   <string name="invalid_repository_not_saved">Depo belirtimi geçersizdi ve kaydedilmedi.</string>
   <string name="custom_repositories_help1">Yeni bir özel depo eklemek için şunları yazın veya kopyalayın</string>
@@ -989,8 +989,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="packages_dir">Paketler dizini (Zip dosyaları)</string>
   <string name="warn_bad_document">Uyarı: Bu belgenin teknik kalitesi (en azından kısmen) kötü olabilir.</string>
   <!--Open links in AndBible (Deep linking)-->
-  <string name="open_bible_links_title">AndBible\'da Kutsal Kitap bağlantılarını açın</string>
-  <string name="open_bible_links_summary">AndBible destekli Kutsal Kitap URL\'sine atıfta bulunan bağlantılara tıkladığınızda, bunları AndBible\'da açın</string>
+  <string name="open_bible_links_title">AndBible’da Kutsal Kitap bağlantılarını açın</string>
+  <string name="open_bible_links_summary">AndBible destekli Kutsal Kitap URL’sine atıfta bulunan bağlantılara tıkladığınızda, bunları AndBible’da açın</string>
   <string name="copyReference">Bağlantıyı panoya kopyala</string>
   <string name="reference_copied_to_clipboard">Referans panoya kopyalandı</string>
   <!--Device cloud synchronization-->
@@ -998,14 +998,14 @@ katkıda bulunmayı düşünün. :-)</string>
     Birden fazla cihazı senkronize etmek için hangi arka uç bulut hizmetini kullanmak istediğinizi seçin.
   </string>
   <string name="prefs_sync_introduction_summary2">
-    Google Drive kullanırken, %s\'ye kişisel dosyalara değil, yalnızca uygulama dosyalarına erişim izni verilir.
+    Google Drive kullanırken, %s’ye kişisel dosyalara değil, yalnızca uygulama dosyalarına erişim izni verilir.
   </string>
   <string name="restore_backup_sections">Hangi yedekleme bölümlerini geri yüklemek istiyorsunuz?</string>
   <string name="db_repositories">Depolar ve ilgili ayarlar</string>
   <string name="db_bookmarks">Yer İmleri, Notlarım, Etiketler ve Çalışma Pedleri</string>
   <string name="synchronizing">Senkronizasyon…</string>
   <string name="overrideBackup">
-    Bu cihazın senkronize edilmediği mevcut veritabanı Bulut\'ta bulunur.
+    Bu cihazın senkronize edilmediği mevcut veritabanı Bulut’ta bulunur.
     Veritabanı %s içeriyor. Ne yapmak istiyorsunuz?
   </string>
   <string name="reading_plans_content">Okuma planları ve durumları</string>
@@ -1024,7 +1024,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="sync_adapter_summary">Güncel: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">%s\'ye kimlik doğrulama</string>
+  <string name="auth_title">%s’ye kimlik doğrulama</string>
   <string name="auth_username">Kullanıcı adı</string>
   <string name="auth_password">Şifre</string>
   <string name="auth_access_token">Erişim belirteci</string>
@@ -1063,7 +1063,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="buy_development">Geliştirme işi satın alın</string>
   <string name="buy_development2">Projeyi destekle</string>
   <string name="new_version_warning">
-    Yakında yeni bir sürüm çıkacak. Beklenen yayın tarihi %1$s\'dir.
+    Yakında yeni bir sürüm çıkacak. Beklenen yayın tarihi %1$s’dir.
     Yeni özellikleri ve iyileştirmeleri keşfetmek için %2$s yayınımızı izleyin.
   </string>
   <string name="new_version_trailer">fragman videosu</string>
@@ -1074,7 +1074,7 @@ katkıda bulunmayı düşünün. :-)</string>
     Hata düzeltmeleri veya güncellemeler almayacaktır.
   </string>
   <string name="new_version_warning4">
-    Yükseltme yapmak istemiyorsanız, lütfen uygulama mağazanızdaki (Google Play / F-Droid vb.) \'Otomatik Güncellemeler\'i devre dışı bırakın.
+    Yükseltme yapmak istemiyorsanız, lütfen uygulama mağazanızdaki (Google Play / F-Droid vb.) ‘Otomatik Güncellemeler’i devre dışı bırakın.
   </string>
   <string name="dont_show">
     Bu mesajı bir daha gösterme
