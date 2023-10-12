@@ -49,7 +49,7 @@ export function useKeyboard(
         })
         onBeforeUnmount(() => {
             const idx = handlers.findIndex( v => v.handler === handler && v.priority === priority);
-            handlers.splice(idx);
+            handlers.splice(idx, 1);
         })
     }
 
@@ -68,6 +68,7 @@ export function useKeyboard(
             return;
         }
         if (keys.has(e.code) || (e.altKey && altKeys.has(e.code)) || (e.ctrlKey && ctrlKeys.has(e.code))) {
+            console.log("Base listener", e);
             let key = e.code;
             if (e.altKey) {
                 key = "Alt" + key;

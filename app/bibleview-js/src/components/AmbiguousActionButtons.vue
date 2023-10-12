@@ -140,16 +140,18 @@ function speak() {
 }
 
 setupKeyboardListener((e: KeyboardEvent) => {
+    console.log("AmbiguousActionButtons keyboard listener", e);
     if (e.key.toLowerCase() === "b") {
         addBookmark();
+        return true;
     } else if (e.key.toLowerCase() === "n") {
         addNote();
+        return true;
     } else if (e.code === "Space") {
         speak();
-    } else {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }, 5)
 </script>
 

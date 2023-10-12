@@ -356,6 +356,7 @@ function help() {
 
 setupKeyboardListener((e: KeyboardEvent) => {
     if (!showModal.value) return false;
+    console.log("AmbiguousSelection keyboard listener", e);
     if (e.key === "+") {
         multiSelectionButtonClicked();
         return true;
