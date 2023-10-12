@@ -57,6 +57,7 @@ import {useCommon} from "@/composables";
 import {androidKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
 import {BibleModalButtonId, GenericModalButtonId} from "@/composables/config";
+import {setupDocumentEventListener} from "@/utils";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo
@@ -136,6 +137,20 @@ function speak() {
     }
     closeModals()
 }
+
+setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
+    if (e.key.toLowerCase() === "b") {
+        addBookmark();
+    } else if (e.key.toLowerCase() === "n") {
+        addNote();
+    } else if (e.code === "Space") {
+        speak();
+    } else {
+        return;
+    }
+    e.preventDefault()
+    e.stopPropagation()
+})
 </script>
 
 <style scoped lang="scss">

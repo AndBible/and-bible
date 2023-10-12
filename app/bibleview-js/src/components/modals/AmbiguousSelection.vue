@@ -355,10 +355,12 @@ function help() {
 
 setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
     if (!showModal.value) return
-    if (e.key === "+") {
+    else if (e.key === "+") {
         multiSelectionButtonClicked()
+        e.preventDefault()
+        e.stopPropagation()
     }
-    if (e.ctrlKey && e.code === "KeyC") {
+    else if (e.ctrlKey && e.code === "KeyC") {
         if (selectionInfo.value?.verseInfo) {
             console.log("Ctrl + c pressed. Copying (book initial, start ordinal, end ordinal)", selectionInfo.value?.verseInfo.bookInitials, startOrdinal.value, endOrdinal.value)
             android.copyVerse(selectionInfo.value.verseInfo.bookInitials, startOrdinal.value!, endOrdinal.value!)
