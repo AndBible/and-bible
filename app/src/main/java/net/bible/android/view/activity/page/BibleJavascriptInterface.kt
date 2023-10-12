@@ -606,6 +606,11 @@ class BibleJavascriptInterface(
                 "AltKeyO" -> mainBibleActivity.showOptionsMenu()
                 "AltKeyG" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()
+                "Space" -> {
+                    if(!mainBibleActivity.speakControl.isStopped) {
+                        mainBibleActivity.speakControl.toggleSpeak(true)
+                    }
+                }
             }
         }
     }

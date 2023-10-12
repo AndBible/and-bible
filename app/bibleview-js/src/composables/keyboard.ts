@@ -22,7 +22,7 @@ import {computed, ComputedRef, ref, watch} from "vue";
 
 const altKeys: Set<string> = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyM", "KeyO", "KeyG"]);
 const ctrlKeys: Set<string> = new Set(["KeyC"]);
-const keys: Set<string> = new Set(["ArrowUp", "ArrowDown"]);
+const keys: Set<string> = new Set(["ArrowUp", "ArrowDown", "Space"]);
 const handleJsSide: Set<string> = new Set(["ArrowUp", "ArrowDown"]);
 
 export function useKeyboard(
@@ -54,6 +54,7 @@ export function useKeyboard(
                     doScrolling(window.scrollY - lineHeight.value, 50);
                 }
             } else {
+                if(key === "Space" && isEditing.value) return;
                 onKeyDown(key);
             }
             e.preventDefault();
