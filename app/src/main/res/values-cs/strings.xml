@@ -744,9 +744,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="supported_formats">Podporované formáty pro načtení dokumentu ze souboru: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Zip soubor obsahující Sword modul(y) nebo záložní soubor dokumentů (*.abmd) vytvořen %s</string>
-  <string name="format_mysword">MySword documenty (*.mybible)</string>
-  <string name="format_mybible">MyBible documenty (*.SQLite3)</string>
-  <string name="format_epub">EPUB documenty (*.epub)</string>
+  <string name="format_mysword">MySword dokumenty (*.mybible)</string>
+  <string name="format_mybible">MyBible dokumenty (*.SQLite3)</string>
+  <string name="format_epub">EPUB dokumenty (*.epub)</string>
   <string name="redownload_message">
        Nalezen seznam předchozích knih/dokumentů. Pro snadné znovustažení klikněte níže.
 </string>
@@ -922,7 +922,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="app_name_calculator">Jednoduchá kalkulačka</string>
   <string name="prefs_persecution_cat">Nastavení pro pronásledované</string>
   <string name="prefs_discrete_mode">Skrýt náboženské symboly</string>
-  <string name="prefs_discrete_mode_desc">Přejmenovat aplikaci jako \"Kalkulačka\" a zobrazit jinou ikonu v launcheru.</string>
+  <string name="prefs_discrete_mode_desc">Přejmenovat aplikaci jako \"Jednoduchá kalkulačka\" a zobrazit jinou ikonu v launcheru.</string>
   <string name="prefs_show_calculator">Kalkulačka</string>
   <string name="prefs_calculator_pin">PIN pro kalkulátor</string>
   <string name="prefs_calculator_pin_desc">PIN kód pro vstup do aplikace z režimu Kalkulačka.</string>
@@ -937,7 +937,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
         Před vstupem do samotné aplikace se zobrazí kalkulačka.
     </string>
   <string name="calculator_par2">
-        V ní je možné provádět běžné výpočty, ale pokud chcete pokračovat do aplikace,
+        V ní je možné provádět běžné výpočty a pokud chcete pokračovat do aplikace,
          zadejte Váš PIN kód (přednastaven je 1234) a stiskněte \"=\".
     </string>
   <string name="calculator_par3">
@@ -977,6 +977,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="packages_dir">Adresář balíků (Zip soubory)</string>
   <string name="warn_bad_document">Upozornění: Tento dokument může být ve špatné technické kvalitě (i jen částečně).</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Open Bible odkazy v AndBible</string>
+  <string name="open_bible_links_summary">Při kliknutí na odkaz/link, který je podporován aplikací, otevři jej v AndBible</string>
   <string name="copyReference">Zkopírovat odkaz do schránky</string>
   <string name="reference_copied_to_clipboard">Odkaz zkopírován do schránky</string>
   <!--Device cloud synchronization-->
@@ -990,6 +992,10 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="db_repositories">Repozitáře a související nastavení</string>
   <string name="db_bookmarks">Záložky, poznámky, štítky a studijní složky</string>
   <string name="synchronizing">Synchronizace...</string>
+  <string name="overrideBackup">
+        V síťovém uložišti existuje databáze, která dosud nebyla synchronizována na toto zařízení.
+        Databáze obsahuje %s. Co chcete udělat?
+    </string>
   <string name="reading_plans_content">Plána čtení a jejich stav</string>
   <string name="bookmarks_contents">Záložky, štítky a studijní složky</string>
   <string name="workspaces_contents">Pracovní prochy a okna</string>
@@ -1014,12 +1020,22 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="sync_general_settings">Informace a obecné nastavení</string>
   <string name="sync_introduction">Úvod</string>
   <string name="are_you_sure">Opravdu?</string>
+  <string name="are_you_sure_reset_local">Místní databáze bude resetována pro  %s obsahem ze síťové sluby.</string>
+  <string name="are_you_sure_reset_cloud">Toto přepíše vaši databázi v síťovém uložišti pro  %s obsahem, který máte v tomto zařízení.</string>
+  <string name="sync_cant_fetch">Verze databáze nebo souboru opravy uložená na síti je vyšší než verze podporovaná touto aplikací.</string>
+  <string name="sync_disabling">Prozatím vypínám synchronizaci pro %s .</string>
   <string name="sync_update_app">K pokračování synchronizace si prosím aktualizujte aplikaci.</string>
   <string name="sign_in_failed">Přihlášení k synchronizační službě selhalo.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">Vypínám synchronizaci se síťovým uložištěm. Je potřeba ji po obnově znovu zapnout manuálně.</string>
+  <string name="report">Hlášení</string>
+  <string name="sync_error">Nastala chyba při synchronizaci</string>
+  <string name="error_notification_channel_name">Upozornění na chybu</string>
+  <string name="restore_from_cloud_description">Jesliže máte zapnutou synchronizaci v jiném zařízení, můžete začít obnovou databáze ze sítě.</string>
   <string name="enable_sync">Povolit synchronizaci</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Soubor nelze číst</string>
+  <string name="sqlite_invalid_file">Neplatný modul nebo jméno souboru: %s</string>
   <string name="sqlite_cant_write">Soubor nelze zapsat (přepsat)</string>
   <string name="install_failed_reason">Instalace modulu selhala; důvod: %s.</string>
   <!--Other / uncategorized-->
@@ -1032,10 +1048,23 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Akce na jedno kliknutí (Jinde)</string>
   <string name="prefs_in_window_bookmark_modal_buttons_description">Při ťuknutí na text se zobrazí okno s nabídkou akcí. Která tlačítka se mají zobrazit?</string>
   <string name="processing_epub">Zpracováví EPUB: %s</string>
-  <string name="buy_development">Podpořit další vývoj</string>
+  <string name="buy_development">Koupit vývojové práce</string>
   <string name="buy_development2">Podpora projektu</string>
   <string name="new_version_warning">
         Nová verze bude již brzy uvolněna. Předpokládané datum uvolnění je %1$s. Sledujte naši
         %2$s pro zjištění více o novinkách a vylepšeních.
+    </string>
+  <string name="new_version_trailer">úvodní video</string>
+  <string name="new_version_warning2">
+        Tato verze není po uvolnění udržována
+    </string>
+  <string name="new_version_warning3">
+        Nebude dostávat opravy ani aktualizace.
+    </string>
+  <string name="new_version_warning4">
+        Jestliže nechcete dostávat nové verze, prosíme vypněte \'Automatické aktualizace\' ve Vašem obchodu s aplikacemi (Google Play / F-Droid etc).
+    </string>
+  <string name="dont_show">
+        Tuto zprávu již nezobrazovat
     </string>
 </resources>

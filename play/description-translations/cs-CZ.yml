@@ -8,7 +8,7 @@ subtitle_1: Rozsáhlý nástroj pro studium Bible
 paragraph_1_1: >
   "{{ title }}" je obsáhlá a přitom snadná aplikace na offline studium Bible pro Android. Aplikace nemá za cíl jen zprostředkovat četbu Bible, ale je pokročilým nástrojem pro hluboké osobní studium Bible.
 paragraph_1_2: >
-  Tuto aplikaci vyvíjí čtenáři Bible pro čtenáře Bible. Má za cíl vám studium Bible zjednodušit, prohloubit a zpříjemnit. Nejlepší na tomto neziskovém komunitním projektu je to, že jde o otevřený software zcela zdarma a neobsahuje žádné reklamy. Aplikace je postavena od základů pro Android, proto je malá, a tedy výkonná a překvapivě rychlá.
+  Tuto aplikaci vyvíjí čtenáři Bible pro čtenáře Bible. Má za cíl vám studium Bible zjednodušit, prohloubit a zpříjemnit. Nejlepší na tomto neziskovém komunitním projektu je to, že jde o otevřený software zcela zdarma a neobsahuje žádné reklamy
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Příklady rozšířených překladů Bible (z mnoha dostupných) jsou ekumenický překlad, studijní překlad, Bible Kralická, aplikace obsahuje i desítky dalších světových jazyků.
@@ -34,19 +34,19 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Obsáhlá knihovna dokumentů: biblické překlady, teologické komentáře, slovníky, mapy, křesťanská literatura čítající přes {{total_documents}} dokumentů ve více než {{total_languages}} jazycích, poskytovaných legálně Crosswire a dalšími repozitáři SWORD. 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  U všech dokumentů zkoumáme původ, abychom se ujistili, že mohou být legálně šířeny nebo že k němu vlastník autorského práva poskytl svolení. To také znamená, že tato aplikace neobsahuje dokumenty jako {{unavailable_documents}}.
+feature_10_1: >
+  Nativní podpora souborů MyBible, MySword a EPUB Vám umožní rozšířit Vaši knihovnu ještě více.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "anglické překlady ESV, NIV a NKJV"
 feature_12: >
   Offline: internet potřebujete pouze ke stažení dokumentů.
+# UNUSED
 feature_13: >
   Studijní složky pro psaní poznámek a biblických odkazů při poslechu kázání.
 subtitle_3: Pojďme tvořit nejlepší aplikaci Bible společně!
 paragraph_3_1: >
-  Projekt And Bible je komunitní otevřený software. V praxi to znamená, že může přispívat kdokoli s vhodnými znalostmi:
+  Projekt And Bible je komunitní otevřený software. V praxi to znamená, že kdokoli s potřebnými schopnostmi může, a k tomu povzbuzujeme, přispět  projektu:
 contr_1: "vývojem nových funkcí,"
 contr_2: "testováním nezveřejněných funkcí,"
 contr_3: aktualizací překladu uživatelského rozhraní a
@@ -58,10 +58,16 @@ subtitle_4: Odkazy
 link_1: >
   Domovská stránka: {{homepage_url}}
 link_2: >
-  Sledujte And Bible na Facebooku: {{facebook_url}}
+  Sledujte AndBible na Facebooku: {{facebook_url}}
 link_3: >
   Náš kanál Youtube: {{youtube_url}}
 link_4: >
   Často kladené otázky: {{faq_url}}
 link_5: >
   Stránka projektu na Githubu: {{github_url}}
+buy_title: >
+  Podpořte nákupem času pro vývoj!
+buy_1: >
+  Jestliže nemáte čas nebo dovednosti pro přispění do projektu, pak můžete také podpořit vývoj nákupem času profesionálního vývojáře.
+buy_2: >
+  Podívejte se na možnosti

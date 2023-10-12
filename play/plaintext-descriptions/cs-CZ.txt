@@ -2,7 +2,7 @@ Rozsáhlý nástroj pro studium Bible
 
 "AndBible: Studium Bible" je obsáhlá a přitom snadná aplikace na offline studium Bible pro Android. Aplikace nemá za cíl jen zprostředkovat četbu Bible, ale je pokročilým nástrojem pro hluboké osobní studium Bible.
 
-Tuto aplikaci vyvíjí čtenáři Bible pro čtenáře Bible. Má za cíl vám studium Bible zjednodušit, prohloubit a zpříjemnit. Nejlepší na tomto neziskovém komunitním projektu je to, že jde o otevřený software zcela zdarma a neobsahuje žádné reklamy. Aplikace je postavena od základů pro Android, proto je malá, a tedy výkonná a překvapivě rychlá.
+Tuto aplikaci vyvíjí čtenáři Bible pro čtenáře Bible. Má za cíl vám studium Bible zjednodušit, prohloubit a zpříjemnit. Nejlepší na tomto neziskovém komunitním projektu je to, že jde o otevřený software zcela zdarma a neobsahuje žádné reklamy
 
 Příklady rozšířených překladů Bible (z mnoha dostupných) jsou ekumenický překlad, studijní překlad, Bible Kralická, aplikace obsahuje i desítky dalších světových jazyků.
 
@@ -20,11 +20,11 @@ Aplikace obsahuje mnohé podnětné, originální funkce, které složitý a hlu
  * Studijní složky pro psaní poznámek a biblických odkazů při poslechu kázání.
  * Plány čtení: stanovte si pro četbu Bible cíle
  * Obsáhlá knihovna dokumentů: biblické překlady, teologické komentáře, slovníky, mapy, křesťanská literatura čítající přes 1500 dokumentů ve více než 700 jazycích, poskytovaných legálně Crosswire a dalšími repozitáři SWORD.
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
+ * Nativní podpora souborů MyBible, MySword a EPUB Vám umožní rozšířit Vaši knihovnu ještě více.
 
 Pojďme tvořit nejlepší aplikaci Bible společně!
 
-Projekt And Bible je komunitní otevřený software. V praxi to znamená, že může přispívat kdokoli s vhodnými znalostmi:
+Projekt And Bible je komunitní otevřený software. V praxi to znamená, že kdokoli s potřebnými schopnostmi může, a k tomu povzbuzujeme, přispět  projektu:
 
  * vývojem nových funkcí,
  * testováním nezveřejněných funkcí,
@@ -33,16 +33,16 @@ Projekt And Bible je komunitní otevřený software. V praxi to znamená, že m�
 
 Pokud jste profesionální vývojář softwaru nebo tester, zvažte prosím, zda můžete k projektu přispět. Více informací najdete na https://git.io/JUnaj.
 
-Support by buying development time!
+Podpořte nákupem času pro vývoj!
 
-If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+Jestliže nemáte čas nebo dovednosti pro přispění do projektu, pak můžete také podpořit vývoj nákupem času profesionálního vývojáře.
 
-See options: https://shop.andbible.org/
+Podívejte se na možnosti: https://shop.andbible.org/
 
 Odkazy
 
  * Domovská stránka: https://andbible.org
- * Sledujte And Bible na Facebooku: https://www.facebook.com/AndBible/
+ * Sledujte AndBible na Facebooku: https://www.facebook.com/AndBible/
  * Náš kanál Youtube: https://www.youtube.com/c/AndBible
  * Často kladené otázky: https://git.io/JJm8E
  * Stránka projektu na Githubu: https://github.com/AndBible/and-bible
