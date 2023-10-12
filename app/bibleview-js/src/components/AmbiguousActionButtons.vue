@@ -54,7 +54,7 @@
 import {computed, inject} from "vue";
 import {FontAwesomeIcon, FontAwesomeLayers} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
-import {androidKey, modalKey} from "@/types/constants";
+import {androidKey, keyboardKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
 import {BibleModalButtonId, GenericModalButtonId} from "@/composables/config";
 import {setupDocumentEventListener} from "@/utils";
@@ -70,6 +70,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits(["close"]);
 const {closeModals} = inject(modalKey)!
+const {setupKeyboardListener} = inject(keyboardKey)!
 const {strings, appSettings} = useCommon()
 
 const selectionInfo = computed(() => props.selectionInfo);
@@ -138,7 +139,7 @@ function speak() {
     closeModals()
 }
 
-setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
+setupKeyboardListener((e: KeyboardEvent) => {
     if (e.key.toLowerCase() === "b") {
         addBookmark();
     } else if (e.key.toLowerCase() === "n") {
@@ -146,11 +147,10 @@ setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
     } else if (e.code === "Space") {
         speak();
     } else {
-        return;
+        return false;
     }
-    e.preventDefault()
-    e.stopPropagation()
-})
+    return true;
+}, 5)
 </script>
 
 <style scoped lang="scss">

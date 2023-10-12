@@ -96,7 +96,7 @@ import {sortBy} from "lodash";
 import {
     androidKey,
     appSettingsKey,
-    globalBookmarksKey,
+    globalBookmarksKey, keyboardKey,
     locateTopKey,
     modalKey,
     ordinalHighlightKey
@@ -112,6 +112,7 @@ const props = withDefaults(
 const $emit = defineEmits(["back-clicked"])
 
 const appSettings = inject(appSettingsKey)!;
+const {setupKeyboardListener} = inject(keyboardKey)!;
 const limitAmbiguousModalSize = computed({
     get() {
         return appSettings.limitAmbiguousModalSize;
@@ -353,23 +354,21 @@ function help() {
     android.helpBookmarks()
 }
 
-setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
-    if (!showModal.value) return
-    else if (e.key === "+") {
-        multiSelectionButtonClicked()
-        e.preventDefault()
-        e.stopPropagation()
+setupKeyboardListener((e: KeyboardEvent) => {
+    if (!showModal.value) return false;
+    if (e.key === "+") {
+        multiSelectionButtonClicked();
+        return true;
     }
     else if (e.ctrlKey && e.code === "KeyC") {
         if (selectionInfo.value?.verseInfo) {
             console.log("Ctrl + c pressed. Copying (book initial, start ordinal, end ordinal)", selectionInfo.value?.verseInfo.bookInitials, startOrdinal.value, endOrdinal.value)
             android.copyVerse(selectionInfo.value.verseInfo.bookInitials, startOrdinal.value!, endOrdinal.value!)
-
-            e.preventDefault()
-            e.stopPropagation()
+            return true;
         }
     }
-})
+    return false;
+}, 4)
 
 const modal = ref<InstanceType<typeof ModalDialog> | null>(null);
 defineExpose({handle});

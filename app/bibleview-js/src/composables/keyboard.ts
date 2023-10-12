@@ -18,12 +18,15 @@
 import {setupDocumentEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
 import {useScroll} from "@/composables/scroll";
-import {computed, ComputedRef, ref, watch} from "vue";
+import {computed, ComputedRef, onBeforeUnmount, onMounted, ref, watch} from "vue";
+import {sortBy} from "lodash";
 
 const altKeys: Set<string> = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyM", "KeyO", "KeyG"]);
 const ctrlKeys: Set<string> = new Set(["KeyC", "KeyF", "KeyB"]);
 const keys: Set<string> = new Set(["ArrowUp", "ArrowDown", "Space"]);
 const handleJsSide: Set<string> = new Set(["ArrowUp", "ArrowDown"]);
+
+type KeyboardEventHandler = ((event: any) => boolean) | (() => boolean)
 
 export function useKeyboard(
     {onKeyDown, setEditing}: UseAndroid,
@@ -37,7 +40,33 @@ export function useKeyboard(
         setEditing(value);
     })
 
+    let handlers: {priority: number, handler: KeyboardEventHandler}[] = [];
+
+    function setupKeyboardListener(handler: KeyboardEventHandler, priority: number = 0) {
+        onMounted(() => {
+            handlers.push({handler, priority});
+            handlers = sortBy(handlers, [v => -v.priority]);
+        })
+        onBeforeUnmount(() => {
+            const idx = handlers.findIndex( v => v.handler === handler && v.priority === priority);
+            handlers.splice(idx);
+        })
+    }
+
+    function executeCustomHandlers(e: KeyboardEvent) {
+        for(const h of handlers) {
+            const result = h.handler(e);
+            if(result) return true;
+        }
+        return false;
+    }
+
     setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
+        if(executeCustomHandlers(e)) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
         if (keys.has(e.code) || (e.altKey && altKeys.has(e.code)) || (e.ctrlKey && ctrlKeys.has(e.code))) {
             let key = e.code;
             if (e.altKey) {
@@ -62,5 +91,5 @@ export function useKeyboard(
         }
     });
 
-    return {editorMode};
+    return {editorMode, setupKeyboardListener};
 }
