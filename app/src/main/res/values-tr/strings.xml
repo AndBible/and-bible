@@ -608,6 +608,7 @@
 
     <!--User Notes-->
     <string name="mynotes">Notlarım</string>
+
     <!--Backup and restore-->
     <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
     <string name="backup_modules2">Belgeler yedekleme hedefi...</string>
@@ -785,7 +786,6 @@ katkıda bulunmayı düşünün. :-)</string>
         Bağlantıları geçerli pencerede mi, yeni pencerede mi yoksa özel bağlantılar penceresinde mi açmak istediğinizi seçmek için bağlantılara uzun basın.
     </string>
     <string name="help_bookmarks_title">Yer imleri &amp; Notlarım</string>
-    <string name="help_search_title">Arama</string>
     <string name="help_bookmarks_text">Bookmarks can be created by selecting some text and choosing "Bookmark" from
         the popup menu. You can add your custom notes to the new bookmark by tapping the now
         highlighted text in Bible view. There is also a "My Notes" special document in commentaries that allows you
@@ -798,7 +798,7 @@ katkıda bulunmayı düşünün. :-)</string>
         In addition to bookmarks, there can be custom text entries in a study pad.
     </string>
 
-    <string name="help_search_title">Search</string>
+    <string name="help_search_title">Arama</string>
     <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
         (see "Apache Lucene - Query Parser Syntax" for more details)
     </string>
@@ -850,12 +850,16 @@ katkıda bulunmayı düşünün. :-)</string>
 
     <!--Uncategorized-->
     <string name="close">Kapat</string>
-    <string name="first_time_help_do_not_show_again">Anladım</string>
+    <string name="something_with_parenthesis">%1$s (%2$s)</string>
+    <string name="first_time_help_do_not_show_again">I understand</string>
     <string name="first_time_help_show_next_time">Bir daha sefere tekrar göster</string>
+
     <string name="strongs_mode_title">Strongs modunu seç</string>
+
     <string name="download_dialog_message">Aşağıdaki kitaplar indirilemedi:</string>
     <string name="select_multiple">Çoklu seçim</string>
     <string name="journal_description">Özel metin ve yer imleriyle kullanıcı tarafından düzenlenebilir çalışma defterleri</string>
+    <string name="my_notes_description">Yer imlerine eklenmiş kullanıcı tarafından düzenlenebilir notlar</string>
     <string name="my_notes_abbreviation">Notlarım</string>
     <string name="studypads">Çalışma Defterleri</string>
     <string name="multi_description">Çoklu referanslar</string>
@@ -872,11 +876,13 @@ katkıda bulunmayı düşünün. :-)</string>
     <string name="unlock_info">Şifrelenmiş modülün kilit açma bilgisi</string>
     <string name="try_again_passphrase">Parola çalışmadı, tekrar dener misiniz?</string>
     <string name="show_unlock_info">Modül &amp; kilit açma bilgisi</string>
+
     <string name="prefs_show_error_box_title">Javascript hata kutusunu göster</string>
     <string name="prefs_show_error_box_summary">BibleView javascript taraflı hataları ayıklarken geliştiriciler için kullanışlıdır. Bu, uygulamayı yavaşlatacaktır.</string>
     <string name="active_window_indicator_title">Etkin pencere göstergesini göster</string>
     <string name="active_window_indicator_summary">Hangi pencerenin etkin olduğunu tanımaya yardımcı olması için pencere köşelerini vurgula</string>
     <string name="app_licence_title">Açık Kaynak Lisansı</string>
+
     <string name="how_to_contribute">Nasıl katkıda bulunulur?</string>
     <string name="confirm_delete_bookmarks">%d yer imlerini ve notlarını kaldırmak istiyor musunuz?</string>
     <string name="module_size_megabytes">%.1f MB</string>
@@ -891,34 +897,69 @@ katkıda bulunmayı düşünün. :-)</string>
     <string name="share_verse_menu_title">Paylaş / kopyala...</string>
     <string name="show_versenumbers">Ayet numarıları göster</string>
     <string name="show_full_verses">Ayetlerin tamamını göster</string>
+    <string name="show_selection_only">Yalnızca seçili metni göster</string>
     <string name="advertise_app">Uygulamanın reklamını yap</string>
     <string name="verse_share_advertise">%s kullanılarak paylaşıldı.</string>
+    <string name="show_reference">Referans göster</string>
+    <string name="show_reference_at_front">Ayetin önünde göster</string>
     <string name="abbreviate_reference">Kısaltılmış referans</string>
     <string name="version_name">Versiyon adı</string>
     <!--meaning, bible version name-->
+    <string name="show_version_name">Sürüm adını dahil et</string>
+    <string name="show_ellipsis">Üç noktayı göster (…)</string>
+    <string name="show_quotes">Alıntıları göster</string>
+
     <string name="backup_button">Yedekle</string>
     <string name="back_button">Geri</string>
     <string name="upgrading_database">Veritabanı güncelleniyor. Lütfen bekleyin...</string>
     <string name="initializing_app">Uygulama başlatılıyor...</string>
     <string name="show_notes">Notları görüntüle</string>
     <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+    <string name="old_webview">Android WebView paketi çok eski (%1$s). 3$s'yi kullanmak için Android WebView paketinizi en az %2$s sürümüne yükseltmeniz gerekir. Çoğu cihaz için bu %4$s aracılığıyla yapılabilir.</string>
     <string name="play">Google Play</string>
     <string name="proceed_anyway">Yine de devam et</string>
+    <string name="proceed">Devam et</string>
     <string name="rate_title">Uygulamayı derecelendir ve incele</string>
+    <string name="rate_message5">
+        Olumlu ve ayrıntılı incelemeler AndBible Açık Kaynak Projesine çok yardımcı oluyor. Teşekkür ederim!
+    </string>
     <string name="rate_message6">
-Olumsuz inceleme getirmeden önce lütfen aşağıdakileri göz önünde bulundurun:</string>
+        Olumsuz inceleme getirmeden önce lütfen aşağıdakileri göz önünde bulundurun:
+    </string>
+
     <!--parameters are actions (file a bug, send email)-->
+    <string name="rate_message1">
+        Uygulama ile ilgili bir sorununuz varsa, lütfen bunun yerine %1$s veya %2$s.
+    </string>
     <!--param is "please report maintainers"-->
     <string name="rate_message2">
-Bazı metinler / İncil çevirisi bir sorun içeriyorsa, %s</string>
+        Bazı metinler / İncil çevirisi bir sorun içeriyorsa, %s
+    </string>
     <!--param is "please read what you can do"-->
     <string name="rate_message3">
-Belirli bir metin uygulamada mevcut değilse, %s</string>
+        Belirli bir metin uygulamada mevcut değilse, %s
+    </string>
+    <string name="rate_message4">
+        Bu uygulamanın geliştiricileri belgelerin korunmasından sorumlu değildir.
+    </string>
     <string name="bug_report">
-bir bug raporu gönder (Ana Menüden)</string>
-    <string name="how_to_help">lütfen yardımcı olmak için neler yapabileceğinizi okuyun</string>
+        bir bug raporu gönder (Ana Menüden)
+    </string>
+    <string name="how_to_help">
+        lütfen yardımcı olmak için neler yapabileceğinizi okuyun
+    </string>
     <string name="send_email">
-geliştiricilere e-posta gönderin</string>
+        geliştiricilere e-posta gönderin
+    </string>
+    <string name="proceed_google_play">
+        Google Play'e ilerleyin
+    </string>
+    <string name="text_maintainers">
+       lütfen sorunları metin sorumlularına bildirin
+    </string>
+    <string name="does_not_exist_abbreviation">Mevcut Değil</string>
+    <string name="cant_change_wholeverse">Bu yer imi için tüm ayet işaretlemesi kapatılamıyor</string>
+    <string name="whole_verse_turned_on">Yer imi şimdi tüm ayet için işaretlendi</string>
     <string name="this_bookmark">Bu yer imi</string>
     <string name="this_workspace">Bu çalışma alanı</string>
     <string name="primary_label">Birincil etiket</string>
@@ -926,23 +967,36 @@ geliştiricilere e-posta gönderin</string>
     <string name="favourite_label">Favori etiket</string>
     <string name="edit_label">Etiketi düzenle</string>
     <string name="delete_label_confirmation">\"%s\" yer imi etiketini kaldırmak istiyor musunuz? Ayrıca ilgili tüm Çalışma Defteri notları kaldırılacaktır. </string>
+    <string name="bookmark_underline_style_arbitrary">Seçim yer imleri için altı çizili stil</string>
+    <string name="bookmark_underline_style_whole_verse">Tüm ayet yer imleri için altı çizili stil</string>
     <string name="active_labels">Seçili etiketler</string>
     <string name="recent_labels">Son etiketler</string>
     <string name="other_labels">Diğer etiketler</string>
     <string name="book_menu_sort_row_opt">Kitaplar yatay olarak sunulsun</string>
+    <string name="book_menu_group_by_category">Kitapları kategoriye göre gruplayın</string>
+    <string name="book_menu_show_long_book_name">Uzun kitap adını göster</string>
+    <string name="reset_workspace_labels">Bu çalışma alanı için otomatik atama ve sık kullanılan ayarlarını sıfırlamak istiyor musunuz?</string>
+    <string name="reset_hide_labels">Belirtilen etiketlerin gizlenmesi ayarlarını sıfırlamak istiyor musunuz?</string>
+    <string name="reorder">Yeniden sırala</string>
     <string name="system_items">Sistem eylemleri</string>
     <string name="system_items1">Daha Fazla</string>
     <string name="system_action2">Android eylemleri</string>
     <string name="text_copied_to_clicpboard">Metin panoya kopyalandı</string>
+    <string name="prefs_disable_two_step_bookmarking_title">Tek adımda yer imi</string>
+    <string name="prefs_disable_two_step_bookmarking_summary">Doğrudan Kutsal Kitap görünümü Seçim menüsünde \"Seçim\" ve \"Ayetler\" öğelerini gösterin</string>
     <string name="prefs_double_tap_to_fullscreen_title">Tam ekran için iki kez dokun</string>
     <string name="prefs_double_tap_to_fullscreen_summary">Pencereye çift dokunarak tam ekran moduna girin</string>
     <string name="toggle_fullscreen">Tam ekran</string>
     <string name="exit_fullscreen">Tam ekrandan çıkmak için ekrana iki kez dokunun</string>
+    <string name="reset_app_prefs">Bu ekranda görüntülenen tüm genel uygulama tercihlerini varsayılan değerlerine sıfırlamak istiyor musunuz?</string>
     <string name="label_red">Kırmızı</string>
     <string name="label_green">Yeşil</string>
     <string name="label_blue">Mavi</string>
+    <string name="label_salvation">Kurtuluş</string>
+    <string name="label_underline">Altı çizili</string>
     <string name="import_menu">İçe aktar &amp; Dışa aktar</string>
     <string name="export_fileformat">%s olarak dışa aktar</string>
+    <string name="import_items">%s içe aktarın</string>
     <string name="import_from_db">Uygulama Veritabanı dosyasından içe aktar</string>
     <string name="import_error">Uygulama Veritabanından içe aktarma başarısız oldu. Veritabanı dosyası yanlış biçimde olabilir veya %suygulamasının çok eski sürümüyle yapılmış olabilir.</string>
     <string name="chooser_range">Menzil</string>
@@ -954,6 +1008,7 @@ geliştiricilere e-posta gönderin</string>
     <string name="chooser_select">Seç %s</string>
     <string name="chooser_pref_reset">Kitap/bölüm seçildiğinde bölüm/ayet\'i 1\'e sıfırlamayın.</string>
     <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+    <string name="incomplete_translation">Üzgünüz, ancak %1$s dilinde yalnızca kısmi arayüzü çevirimiz var. Bunun nedeni %2$s'nin tamamen gönüllüler tarafından geliştirilmiş olmasıdır. Çeviride yardımcı olabilirseniz, lütfen %3$s'e bakın.</string>
     <!--will be added to incomplete_translation as a link-->
     <string name="instructions_for_translators">çevirmenler için talimatlar</string>
     <string name="questions_title">Sorularınız?</string>
@@ -964,18 +1019,167 @@ geliştiricilere e-posta gönderin</string>
     <string name="strongs_links">Bağlantılar</string>
     <string name="strongs_text_and_links">Metin ve Bağlantılar</string>
     <string name="verse_tip">Kısmi veya çok sayıda ayet seçmek için İncil metnine uzun basabilirsiniz.</string>
+
     <string name="permission_required">İzin gerekli</string>
     <string name="labels_search_hint">Ara</string>
+    <string name="progress_status_permission">Bildirimleri (indirme durumu, işleme, konuşma durumu) göstermek için izninize ihtiyacımız var. </string>
+
     <!--Discrete mode settings-->
+    <string name="app_name_calculator">Basit Hesap Makinesi</string>
+    <string name="prefs_persecution_cat">Zulme uğrayanlar için ayarlar</string>
+    <string name="prefs_discrete_mode">Dini sembolleri gizleyin</string>
+    <string name="prefs_discrete_mode_desc">Uygulamayı \'Basit Hesap Makinesi\' olarak yeniden adlandırın ve başlatıcıda farklı bir simge gösterin.</string>
+    <string name="prefs_show_calculator">Hesap Makinesi</string>
+    <string name="prefs_calculator_pin">Hesap Makinesi PIN'i</string>
+    <string name="prefs_calculator_pin_desc">Hesap makinesi gösterildiğinde uygulamaya girmek için PIN kodu. </string>
+    <string name="calc_division_by_zero">Sıfıra bölmeye izin verilmez</string>
     <!--Context: calculator. Wrong number format etc.-->
+    <string name="calc_wrong_format">Yanlış Format</string>
+    <string name="calc_wrong_format_operand">Yanlış Biçim. Sayı içermeyen operand?</string>
+    <string name="prefs_persecuted_help">Önce bunu oku!</string>
     <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+    <string name="prefs_persecuted_summary">Ayarlar için talimatlar ve belirli ayrık yapı hakkında bilgiler.</string>
+
+    <string name="calculator_par1">
+        Uygulamaya girmeden önce hesap makinesi ekranı görüntülenir.
+    </string>
+    <string name="calculator_par2">
+        İçinde standart hesaplama yapabilirsiniz ve uygulamaya girmek istediğinizde PIN kodunuzu
+        (varsayılan 1234'tür) yazmanız ve ardından "=" düğmesine basmanız yeterlidir.
+    </string>
+    <string name="calculator_par3">
+        "Hesap Makinesi PIN" ayarı ile özel bir PIN kodu oluşturabilirsiniz.
+    </string>
+    <string name="discrete_mode_info_par1">
+        Standart uygulama sürümünü kullanıyorsunuz, bu da uygulamanın gerçek adını ve simgesini
+        uygulama bilgilerinde görmenin hala mümkün olduğu anlamına geliyor.
+    </string>
+    <string name="discrete_mode_info_par2">
+        Baskı altındaki ortamlarda daha iyi güvenlik için, uygulama verileri silinse bile her zaman
+        hesap makinesi görüntüleyen uygulamanın ayrı sürümünü kullanmanızı şiddetle tavsiye ederiz.
+    </string>
+    <string name="discrete_mode_link">
+        Ayrık sürümün en son sürümünü %s adresinden indirebilirsiniz.
+    </string>
+
     <!--Window synchronize groups-->
+    <string name="sync_group_submenu">Synchronize group</string>
+    <string name="sync_group_n">Grup %d</string>
+    <string name="disable_sync">Senkronizasyonu devre dışı bırak</string>
+    <string name="open_in_window">Sonuçları bir pencerede açın</string>
+
     <!--Custom repositories-->
     <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+    <string name="custom_repositories">Özel depolar</string>
+    <string name="custom_repositories_empty_list_message">Hiçbir özel depo tanımlanmamıştır</string>
+    <string name="custom_repositories_create_button_label">Özel Depo Ekleme</string>
     <string name="custom_repositories_info_button_label">Bilgi</string>
+    <string name="name_for_repository">Depo için ad</string>
+    <string name="repository_specification">Depo URL'si</string>
+    <string name="delete_custom_repository">Özel %s deposunu kaldırmak istiyor musunuz?</string>
+    <string name="invalid_repository_not_saved">Depo belirtimi geçersizdi ve kaydedilmedi.</string>
+    <string name="custom_repositories_help1">Yeni bir özel depo eklemek için şunları yazın veya kopyalayın</string>
+    <string name="custom_repositories_help2">Özel depolar hakkında daha fazla bilgiyi %s bölümünde okuyabilirsiniz.</string>
+    <string name="wiki_page">WIKI page</string>
+    <string name="custom_repositories_help0">You can install documents from external custom repositories by installing custom repositories.</string>
+    <string name="duplicate_custom_repository">İsmi %s olan depo zaten mevcut, başka bir tane eklenemiyor.</string>
+
+    <string name="packages_dir">Paketler dizini (Zip dosyaları)</string>
+    <string name="warn_bad_document">Uyarı: Bu belgenin teknik kalitesi (en azından kısmen) kötü olabilir.</string>
+
     <!--Open links in AndBible (Deep linking)-->
+    <string name="open_bible_links_title">AndBible'da Kutsal Kitap bağlantılarını açın</string>
+    <string name="open_bible_links_summary">AndBible destekli Kutsal Kitap URL'sine atıfta bulunan bağlantılara tıkladığınızda, bunları AndBible'da açın</string>
+    <string name="copyReference">Bağlantıyı panoya kopyala</string>
+    <string name="reference_copied_to_clipboard">Referans panoya kopyalandı</string>
+
     <!--Device cloud synchronization-->
-    <!--... after restoring from backup file-->
-    <!--MyBible/MySword module support-->
-    
+    <string name="prefs_sync_introduction_summary1">
+        Birden fazla cihazı senkronize etmek için hangi arka uç bulut hizmetini kullanmak istediğinizi seçin.
+    </string>
+    <string name="prefs_sync_introduction_summary2">
+        Google Drive kullanırken, %s'ye kişisel dosyalara değil, yalnızca uygulama dosyalarına erişim izni verilir.
+    </string>
+    <string name="restore_backup_sections">Hangi yedekleme bölümlerini geri yüklemek istiyorsunuz?</string>
+    <string name="db_repositories">Depolar ve ilgili ayarlar</string>
+    <string name="db_bookmarks">Yer İmleri, Notlarım, Etiketler ve Çalışma Pedleri</string>
+    <string name="synchronizing">Senkronizasyon…</string>
+    <string name="overrideBackup">
+        Bu cihazın senkronize edilmediği mevcut veritabanı Bulut'ta bulunur.
+        Veritabanı %s içeriyor. Ne yapmak istiyorsunuz?
+    </string>
+    <string name="reading_plans_content">Okuma planları ve durumları</string>
+    <string name="bookmarks_contents">Yer İmleri, Etiketler ve Çalışma Pedleri</string>
+    <string name="workspaces_contents">Çalışma Alanları ve Pencereler</string>
+
+    <string name="cloud_fetch_and_restore_initial">Buluttan bu cihaza kopyala</string>
+    <string name="cloud_create_new">Bu cihazdan Buluta kopyala</string>
+    <string name="cloud_disable_sync">İptal ve senkronizasyonu devre dışı bırak</string>
+    <string name="cloud_sync_title">Cihaz senkronizasyonu</string>
+    <string name="reset_sync">Çıkış Yapın</string>
+    <string name="prefs_reset_sync_summary">Senkronizasyonu devre dışı bırakın ve ilgili ayarları sıfırlayın.</string>
+    <string name="sync_confirmation">Oturumu kapatmak ve senkronizasyonu sıfırlamak istediğinizden emin misiniz?</string>
+    <string name="cloud_info">Bulut bilgileri</string>
+    <string name="cloud_info_summary">Bulut depolama alanındaki veri: %s Mb</string>
+    <string name="sync_adapter">Senkronizasyon Metodu</string>
+    <string name="sync_adapter_summary">Güncel: %s</string>
+    <string name="adapters_google_drive">Google Drive</string>
+    <string name="adapters_next_cloud">Next Cloud</string>
+    <string name="auth_title">%s'ye kimlik doğrulama</string>
+    <string name="auth_username">Kullanıcı adı</string>
+    <string name="auth_password">Şifre</string>
+    <string name="auth_access_token">Erişim belirteci</string>
+    <string name="synchronization_categories">Senkronizasyon kategorileri</string>
+    <string name="sync_general_settings">Bilgi ve genel ayarlar</string>
+    <string name="sync_introduction">Giriş</string>
+    <string name="are_you_sure">Emin misin?</string>
+    <string name="are_you_sure_reset_local">Bu, %s için yerel veritabanınızı şu anda bulut hizmetinde depolanan içerikle sıfırlayacaktır.</string>
+    <string name="are_you_sure_reset_cloud">Bu, %s için bulut veritabanınızı bu cihazda sahip olduğunuz içerikle sıfırlayacaktır.</string>
+    <string name="sync_cant_fetch">Bulutta depolanan veritabanı veya yama dosyasının sürümü, bu uygulama tarafından desteklenenden daha yüksektir. </string>
+    <string name="sync_disabling">Şimdilik %s için senkronizasyon devre dışı bırakılıyor.</string>
+    <string name="sync_update_app">Senkronizasyona devam etmek için lütfen uygulamayı güncelleyin.</string>
+    <string name="sign_in_failed">Senkronizasyon arka uç hizmetinde oturum açma başarısız oldu.</string>
+    <!--  ... after restoring from backup file -->
+    <string name="disabling_sync">Bulut senkronizasyonu devre dışı bırakılıyor. Geri yüklemeden sonra manuel olarak yeniden etkinleştirmeniz gerekir.</string>
+    <string name="report">Rapor</string>
+    <string name="sync_error">Bulut senkronizasyonunda hata oluştu</string>
+    <string name="error_notification_channel_name">Hata bildirimleri</string>
+    <string name="restore_from_cloud_description">Başka bir cihazda Cihaz Senkronizasyonunu etkinleştirdiyseniz, veritabanını Buluttan geri yükleyerek başlayabilirsiniz.</string>
+    <string name="enable_sync">Senkronizasyonu etkinleştir</string>
+
+    <!-- MyBible/MySword module support -->
+    <string name="sqlite_cant_read">Dosya okunamıyor</string>
+    <string name="sqlite_invalid_file">Geçersiz modül dosyası veya dosya adı: %s</string>
+    <string name="sqlite_cant_write">Dosya (üzerine) yazılamıyor</string>
+    <string name="install_failed_reason">Modülün yüklenmesi aşağıdaki nedenden dolayı başarısız oldu: %s.</string>
+
+    <!-- Other / uncategorized -->
+    <string name="app_opened_elsewhere">Uygulama başka bir yerde açıldı</string>
+    <string name="open_here">Burayı açın</string>
+    <string name="external_link">Dış bağlantı</string>
+    <string name="external_link_question">Bu, bir tarayıcı uygulamasında %s harici bağlantısını açacaktır, devam etmek istiyor musunuz?</string>
+    <string name="nameless">Başlık tanımlanmamış</string>
+    <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Tek dokunuşla eylemler (Kutsal Kitaplar)</string>
+    <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Tek dokunuş eylemleri (Diğer)</string>
+    <string name="prefs_in_window_bookmark_modal_buttons_description">Bir metne dokunulduğunda, tek dokunuşla eylem penceresi gösterilir. Hangi eylem düğmeleri gösterilmelidir?</string>
+    <string name="processing_epub">EPUB işleniyor: %s</string>
+    <string name="buy_development">Geliştirme işi satın alın</string>
+    <string name="buy_development2">Projeyi destekle</string>
+    <string name="new_version_warning">
+      Yakında yeni bir sürüm çıkacak. Beklenen yayın tarihi %1$s'dir.
+      Yeni özellikleri ve iyileştirmeleri keşfetmek için %2$s yayınımızı izleyin.
+    </string>
+    <string name="new_version_trailer">fragman videosu</string>
+    <string name="new_version_warning2">
+        Yayınlandıktan sonra bu sürümün bakımı yapılmaz.
+    </string>
+    <string name="new_version_warning3">
+        Hata düzeltmeleri veya güncellemeler almayacaktır.
+    </string>
+    <string name="new_version_warning4">
+        Yükseltme yapmak istemiyorsanız, lütfen uygulama mağazanızdaki (Google Play / F-Droid vb.) \'Otomatik Güncellemeler\'i devre dışı bırakın.
+    </string>
+    <string name="dont_show">
+        Bu mesajı bir daha gösterme
+    </string>
 </resources>
