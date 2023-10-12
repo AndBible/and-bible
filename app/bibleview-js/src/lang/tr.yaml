@@ -1,7 +1,7 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Yer İmleri
 bookmarksAndNotes: Yer İmleri ve Notlarım
-openMyNotes: "Notlarım'da Aç"
+openMyNotes: Notlarım'da Aç
 openStudyPad: Çalışma Defterinde Aç (%s)
 noteText: Dipnotlar (%s)
 noteTextWithoutType: Dipnotlar
@@ -22,14 +22,14 @@ inputPlaceholder: Buraya yazın
 inputReference: Kutsal Kitap referansını girin
 invalidReference: Ayet bulunamadı
 bookmarkAccurate: Yer imi %s içinde oluşturuldu
-bookmarkInaccurate: Yer imi kitap bilgileri içermiyormuş, içerik %s üzerinde gösterilecek.
+bookmarkInaccurate: "Yer imi kitap bilgileri içermiyormuş, içerik %s üzerinde gösterilecek."
 defaultBook: varsayılan Kutsal Kitap belgesi
 ok: Tamam
-yes: Evet
-ambiguousSelection: Hangi eylemi gerçekleştirmek istiyorsunuz?
+yes: "Evet"
+ambiguousSelection: "Hangi eylemi gerçekleştirmek istiyorsunuz?"
 cancel: İptal
-removeBookmarkConfirmationTitle: Yer imini kaldırsın mı?
-removeBookmarkConfirmation: Bu yer imini kaldırmak istediğinizden emin misiniz?
+removeBookmarkConfirmationTitle: "Yer imini kaldırsın mı?"
+removeBookmarkConfirmation: "Bu yer imini kaldırmak istediğinizden emin misiniz?"
 createdAt: "Oluşturma: %s"
 lastUpdatedOn: "Son güncelleme: %s"
 strongsAndMorph: Tanım ve Morfoloji
@@ -38,13 +38,11 @@ referenceLink: Referans bağlantısını aç
 openFootnote: Dipnot aç
 noMyNotesTitle: Bu bölüm için Notlarım yok.
 noMyNotesDescription: >
-  Bir Kutsal Kitap üzerinde yer imleri oluşturarak başlayın.
-  Yer imleri daha sonra burada görünecek ve bunlara kişisel notlarınızı ekleyebilirsiniz.
+  Bir Kutsal Kitap üzerinde yer imleri oluşturarak başlayın. Yer imleri daha sonra burada görünecek ve bunlara kişisel notlarınızı ekleyebilirsiniz.
 emptyStudyPad: >
-  Boş çalışma defteri. Burada metin girişleri oluşturarak veya bu çalışma defte
-  rine karşılık gelen bir yer imi etiketi ile yer imleri oluşturarak bu çalışma defterine ekleme yapmaya başlayın.
-doYouWantToDeleteEntry: Bu çalışma defteri sililsin mi?
-removeStudyPadConfirmationTitle: Çalışma pedi kaldıralsın mı?
+  Boş çalışma defteri. Burada metin girişleri oluşturarak veya bu çalışma defte rine karşılık gelen bir yer imi etiketi ile yer imleri oluşturarak bu çalışma defterine ekleme yapmaya başlayın.
+doYouWantToDeleteEntry: "Bu çalışma defteri sililsin mi?"
+removeStudyPadConfirmationTitle: "Çalışma pedi kaldıralsın mı?"
 dragHelp: Yeniden sıralamak için sürükleyin
 openAll: Tüm referansları açın
 editBookmarkPlaceholder: Bu yer iminin Notlarımı düzenlemek için dokunun

@@ -6,36 +6,27 @@ short_description: Kutsal Kitap okuyup yorumları ve sözlükleri çevrimdışı
 subtitle_1: Güçlü Kutsal Kitap çalışma aracı
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  "{{ title }}" Android için güçlü, ancak kullanımı kolay, çevrimdışı bir Kutsal Kitap çalışma uygulamasıdır.
-  Uygulama sadece bir Kutsal Kitap okuyucusu olmayı hedeflemez, ancak derinlemesine kişisel Kutsal Kitap
-  çalışması yapmak için gelişmiş bir araç olmaya odaklanır.
+  "{{ title }}" Android için güçlü, ancak kullanımı kolay, çevrimdışı bir Kutsal Kitap çalışma uygulamasıdır. Uygulama sadece bir Kutsal Kitap okuyucusu olmayı hedeflemez, ancak derinlemesine kişisel Kutsal Kitap çalışması yapmak için gelişmiş bir araç olmaya odaklanır.
 paragraph_1_2: >
-  Bu uygulama Kutsal Kitap okuyucuları tarafından, Kutsal Kitap okuyucuları için geliştirilmiştir.
-  Kutsal Kitap çalışmanızı rahat, derin ve eğlenceli hale getirmenize yardımcı olmayı amaçlamaktadır.
-  Kâr amacı gütmeyen bu topluluk projesinin en iyi yanı, açık kaynaklı, tamamen ücretsiz olması ve reklam içermemesidir.
+  Bu uygulama Kutsal Kitap okuyucuları tarafından, Kutsal Kitap okuyucuları için geliştirilmiştir. Kutsal Kitap çalışmanızı rahat, derin ve eğlenceli hale getirmenize yardımcı olmayı amaçlamaktadır. Kâr amacı gütmeyen bu topluluk projesinin en iyi yanı, açık kaynaklı, tamamen ücretsiz olması ve reklam içermemesidir.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
-  KJV, NASB, NET gibi birkaç popüler İncil versiyonu (mevcut birçok versiyon arasından)
-  ve ayrıca Matthew Henry ve John Gill gibi popüler yorumları.
+  KJV, NASB, NET gibi birkaç popüler İncil versiyonu (mevcut birçok versiyon arasından) ve ayrıca Matthew Henry ve John Gill gibi popüler yorumları.
 subtitle_2: Güçlü İncil Çalışma özellikleri
 paragraph_2_1: >
-  Uygulama, karmaşık ve derin bir Kutsal Kitap çalışma deneyimini daha sorunsuz hale getiren birçok
-  aydınlatıcı, orijinal özelliğe sahiptir. En dikkat çekici özellikler aşağıdaki gibidir:
+  Uygulama, karmaşık ve derin bir Kutsal Kitap çalışma deneyimini daha sorunsuz hale getiren birçok aydınlatıcı, orijinal özelliğe sahiptir. En dikkat çekici özellikler aşağıdaki gibidir:
 feature_01: Çevirileri karşılaştırmayı ve yorumlara başvurmayı sağlayan bölünmüş metin görünümleri
-feature_02: Çalışma alanları, kendi ayarlarına sahip birden fazla Kutsal Kitap çalışma kurulumuna izin verir
+feature_02: "Çalışma alanları, kendi ayarlarına sahip birden fazla Kutsal Kitap çalışma kurulumuna izin verir"
 feature_03: Strong's entegrasyon ile birlikte Grekçe ve İbranice kelime analizine olanak sağlar
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  Bağlantılı referanslar, dipnotlar ve belgeler; sadece bir bağlantıya dokunarak referanslara ve dipnotlara atlayın;
-  köprü bağlantılı tefsirleri ({{commentary_examples}}),
-  referans koleksiyonlarını ({{cross_reference_examples}})
-  ve diğer kaynakları kullanarak Kutsal Yazılar üzerinde derinlemesine çalışma yapın.
+  Bağlantılı referanslar, dipnotlar ve belgeler; sadece bir bağlantıya dokunarak referanslara ve dipnotlara atlayın; köprü bağlantılı tefsirleri ({{commentary_examples}}), referans koleksiyonlarını ({{cross_reference_examples}}) ve diğer kaynakları kullanarak Kutsal Yazılar üzerinde derinlemesine çalışma yapın.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry vb. 
+commentary_examples: "Gill, Matthew Henry vb. "
 # Examples of cross-reference collections.
-cross_reference_examples: Kutsal Kitap Bilgisinin Hazinesi, TSKe
-feature_05: Konuşma imleri ile gelişmiş metin okuma özelliği, sorunsuz bir Kutsal Kitap dinleme deneyimi sağlar
+cross_reference_examples: "Kutsal Kitap Bilgisinin Hazinesi, TSKe"
+feature_05: "Konuşma imleri ile gelişmiş metin okuma özelliği, sorunsuz bir Kutsal Kitap dinleme deneyimi sağlar"
 feature_06: Esnek arama
 feature_07: Gelişmiş yer imi
 feature_09: >
@@ -46,9 +37,10 @@ feature_10: >
    {{total_languages}} üzerinde dilde {{total_documents}} belgeden oluşan Kutsal Kitap çevirileri,
   teolojik yorumlar, sözlükler, haritalar ve Hristiyan kitapları.
 feature_10_1: >
+  MyBible, MySword ve EPUB dosyaları için yerel destek, kitaplığınızı daha da genişletmenizi sağlar.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV ve NKJV
+unavailable_documents: "ESV, NIV ve NKJV"
 feature_12: >
   Çevrimdışı: İnternete ihtiyaç duyduğunuz tek zaman belgeleri indirmek içindir.
 # UNUSED
@@ -57,13 +49,12 @@ feature_13: >
 subtitle_3: Birlikte en iyi Kutsal Kitap uygulamasını yapalım!
 paragraph_3_1: >
   AndBible açık kaynaklı bir topluluk projesidir. Pratikte bu, uygun becerilere sahip herkesin
-projeye katkıda bulunabileceği ve katkıda bulunmaya teşvik edildiği anlamına gelir:
-contr_1: yeni özellikler geliştirerek,
-contr_2: henüz yayımlanmamış özellikleri test ederek,
-contr_3: kullanıcı arayüzü çevirilerini güncel tutarak, ve
+contr_1: "yeni özellikler geliştirerek,"
+contr_2: "henüz yayımlanmamış özellikleri test ederek,"
+contr_3: "kullanıcı arayüzü çevirilerini güncel tutarak, ve"
 contr_4: telif hakkı sahiplerinden izinler alarak veya belgeleri SWORD formatına dönüştürerek modül kitaplığının genişletilmesine yardımcı olarak.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: Profesyonel bir yazılım mühendisi ya da testçi iseniz lütfen projeye katkıda bulunmayı düşünün. Nasıl katkıda bulunacağınız hakkında daha fazla bilgi sahibi olmak için lütfen bakınız {{how_to_contribute_url}}.
+paragraph_4_1: "Profesyonel bir yazılım mühendisi ya da testçi iseniz lütfen projeye katkıda bulunmayı düşünün. Nasıl katkıda bulunacağınız hakkında daha fazla bilgi sahibi olmak için lütfen bakınız {{how_to_contribute_url}}."
 subtitle_4: Bağlantılar
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 link_1: >
@@ -79,7 +70,6 @@ link_5: >
 buy_title: >
   Geliştirme süresi satın alarak destek olun!
 buy_1: >
-  Projeye katkıda bulunmak için zamanınız veya beceriniz yoksa, profesyonel geliştirici
-  çalışma süresi satın alarak da projeyi destekleyebilirsiniz.
+  Projeye katkıda bulunmak için zamanınız veya beceriniz yoksa, profesyonel geliştirici çalışma süresi satın alarak da projeyi destekleyebilirsiniz.
 buy_2: >
   Seçenekleri görün

@@ -236,7 +236,7 @@
   <string name="download_document_confirm_prefix">İndir</string>
   <string name="download_refresh_book_list_menu_item">Yenilen</string>
   <string name="error_downloading">İndirirken bir hata oldu.  Lütfen internet bağlantınızı kontrol edin.</string>
-  <string name="error_downloading_status">1$s'yi barındıran sunucu %2$s (%3$d) nedeniyle bir hata döndürdü.</string>
+  <string name="error_downloading_status">1$s\'yi barındıran sunucu %2$s (%3$d) nedeniyle bir hata döndürdü.</string>
   <string name="storage_space_warning">Yerel depo yetersiz</string>
   <string name="too_many_jobs">Çok fazla görev çalışıyor. Lütfen bazılarının bitmesini bekleyin ve tekrar deneyin.</string>
   <string name="document_not_installed">Lütfen \'%s\' dosyasını indirin</string>
@@ -322,10 +322,10 @@
   </string>
   <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 Yıl 4 bölüm/gün</string>
   <string name="plan_description_y1ot1nt2_mcheyne">
-    Bu plan M'Cheyne okuma sistemine dayanmaktadır ve hem aile hem de kişisel adanmışlıklarda
-    kullanılmak üzere dört farklı okuma içermektedir. Her gün Eski Antlaşma'dan iki,
-    Yeni Antlaşma'dan bir ve Mezmurlar ya da İncil'den bir bölüm vardır.
-    Bir yıl içinde Eski Antlaşma'yı bir kez, Yeni Antlaşma ve Mezmurlar'ı ise iki kez okuyabilirsiniz.
+    Bu plan M\'Cheyne okuma sistemine dayanmaktadır ve hem aile hem de kişisel adanmışlıklarda
+    kullanılmak üzere dört farklı okuma içermektedir. Her gün Eski Antlaşma\'dan iki,
+    Yeni Antlaşma\'dan bir ve Mezmurlar ya da İncil\'den bir bölüm vardır.
+    Bir yıl içinde Eski Antlaşma\'yı bir kez, Yeni Antlaşma ve Mezmurlar\'ı ise iki kez okuyabilirsiniz.
   </string>
   <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10-bölüm/gün Okuma Planı</string>
   <string name="plan_description_y1ot6nt4_profHorner">Prof. Horner\'in nezaketiyle, izin verildi</string>
@@ -370,11 +370,14 @@
   <string name="add_bookmark_whole_verse1">Ayetler</string>
   <string name="add_bookmark_whole_verse2">Tam ayetler</string>
   <string name="remove_bookmark">Kaldır</string>
+  <string name="bookmark_settings_hide_labels_title">Belirtilen etiketleri gizle</string>
+  <string name="bookmark_settings_hide_labels_summary">Belirtilen etiket(ler)le işaretlenmiş yer imlerini gizle</string>
   <string name="auto_assign_labels_title">Etiket ayarları</string>
   <string name="auto_assign_labels">Oto-atamak &amp; Favori etiketler</string>
   <string name="auto_assign_labels1">Etiketi yeni yer imlerine otomatik atayın</string>
   <string name="auto_assign_labels_primary">Birincil olarak otomatik ata</string>
-  <string name="label_color">Etiket rengi</string> <!--can be removed-->
+  <string name="label_color">Etiket rengi</string>
+  <!--can be removed-->
   <string name="label_color_example">Örnek</string>
   <string name="marker_style">Seçim yer imleri için yalnızca işaretleyiciyi göster</string>
   <string name="marker_style_whole_verse">Tüm ayet yer imleri için yalnızca işaretleyiciyi göster</string>
@@ -497,34 +500,36 @@
     kaydedilen oynatma ayarları yer iminden yüklenir.
   </string>
   <string name="speak_help_playback_settings_example">
-    Örneğin, Yaratılış ve Romalılar kitaplarını dinliyorsanız ve Yaratılış'ı bölüm değişikliği
-    bildirimleri olmadan hızlı bir şekilde, Romalılar'ı ise bölüm değişikliklerinde duyulabilir
+    Örneğin, Yaratılış ve Romalılar kitaplarını dinliyorsanız ve Yaratılış\'ı bölüm değişikliği
+    bildirimleri olmadan hızlı bir şekilde, Romalılar\'ı ise bölüm değişikliklerinde duyulabilir
     kulaklık sesleriyle daha yavaş bir şekilde dinlemek istiyorsanız,
     bu ayarlar ilgili yer imlerine kaydedildiğinde bu kitaplar için farklı oynatma ayarlarına
     sahip olabilirsiniz.
   </string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
-     if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
-     Please note that this is not translation but you need to think about what words need to be replaced
-     in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-     in speak settings.-->
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <string-array name="speak_divinename_original">
     <item>Rab</item>
     <item>Tanrı</item>
-    <item/>
-    <item/>
-    <item/>
+    <item></item>
+    <item></item>
+    <item></item>
   </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
-     Please note that this is not translation but you need to think about what words need to be replaced
-     in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-     in speak settings.-->
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <string-array name="speak_divinename_replace">
     <item>Yahve</item>
     <item>Yahve</item>
-    <item/>
-    <item/>
-    <item/>
+    <item></item>
+    <item></item>
+    <item></item>
   </string-array>
   <string name="speak_book_changed">Kitap değişti.</string>
   <string name="speak_chapter_changed">Bölüm</string>
@@ -679,7 +684,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="beta_notice_dismiss_until_update">Bir sonraki güncellemeye kadar yok say</string>
   <string name="stable_notice_title">Uygulama güncellendi!</string>
   <string name="upgrade_video_message">Lütfen bu sürümün yeni özelliklerini içeren videoyu izleyin (%s)</string>
-  <string name="stable_notice_par1">2$s'nin yeni %1$s sürümü başarıyla yüklendi!</string>
+  <string name="stable_notice_par1">2$s\'nin yeni %1$s sürümü başarıyla yüklendi!</string>
   <!--History-->
   <string name="history_for">Geçmişi (%1$s: Pencere %2$d)</string>
   <!--Help-->
@@ -689,7 +694,7 @@ katkıda bulunmayı düşünün. :-)</string>
     Bölünmüş ekranların (pencereler olarak da bilinir) sağ üst köşesinde menü düğmesi bulunur,
     bu birkaç pencereye özgü işlevleri kullanmanıza ve pencere görünümünü ve davranışını özelleştirmenize olanak tanır.
   </string>
-      <string name="help_contextmenus_title">Bağlam Menüleri</string>
+  <string name="help_contextmenus_title">Bağlam Menüleri</string>
   <string name="help_contextmenus_text">
     Uzun basıldığında çeşitli görünümlerde içerik menüsü veya eylem modu açılır.
     Geçerli ayeti etkileyen eylemler için eylem modunu açmak üzere Kutsal Kitap görünümüne uzun basın.
@@ -698,9 +703,9 @@ katkıda bulunmayı düşünün. :-)</string>
     Bağlantıları geçerli pencerede mi, yeni pencerede mi yoksa özel bağlantılar penceresinde mi açmak istediğinizi seçmek için bağlantılara uzun basın.
   </string>
   <string name="help_bookmarks_title">Yer imleri &amp; Notlarım</string>
-  <string name="help_bookmarks_text">Bookmarks can be created by selecting some text and choosing "Bookmark" from
+  <string name="help_bookmarks_text">Bookmarks can be created by selecting some text and choosing \"Bookmark\" from
     the popup menu. You can add your custom notes to the new bookmark by tapping the now
-    highlighted text in Bible view. There is also a "My Notes" special document in commentaries that allows you
+    highlighted text in Bible view. There is also a \"My Notes\" special document in commentaries that allows you
     to view your notes in a separate window.
   </string>
   <string name="help_studypads_text">
@@ -711,7 +716,7 @@ katkıda bulunmayı düşünün. :-)</string>
   </string>
   <string name="help_search_title">Arama</string>
   <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
-    (see "Apache Lucene - Query Parser Syntax" for more details)
+    (see \"Apache Lucene - Query Parser Syntax\" for more details)
   </string>
   <string name="help_workspaces_title">Çalışma Alanları</string>
   <string name="help_workspaces_text">
@@ -740,14 +745,14 @@ katkıda bulunmayı düşünün. :-)</string>
   </string>
   <!--Welcome text-->
   <string name="redownload_documents">Hızlı Yeniden İndirme</string>
-  <string name="welcome_message">%s'yi indirdiğiniz için teşekkür ederiz. Şu anda yüklü Kutsal Kitap
+  <string name="welcome_message">%s\'yi indirdiğiniz için teşekkür ederiz. Şu anda yüklü Kutsal Kitap
     veya belge yok. Devam etmek için lütfen internetten indirerek veya bir zip dosyası belge
     yedeğinden yükleyerek en az 1 belge yükleyin.
   </string>
   <!--Supported file formats for documents-->
   <string name="supported_formats_title">Desteklenen formatlar</string>
   <!--argument is app_name_andbible (AndBible).-->
-  <string name="choose_file">%s'ye yüklemek istediğiniz dosyayı seçmeniz gerekir. </string>
+  <string name="choose_file">%s\'ye yüklemek istediğiniz dosyayı seçmeniz gerekir. </string>
   <string name="supported_formats">Bir dosyadan belge yüklemek için desteklenen biçimler: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Sword modül(ler)ini içeren zip dosyası veya %s tarafından oluşturulan belge yedekleme dosyası (*.abmd)</string>
@@ -819,7 +824,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="initializing_app">Uygulama başlatılıyor...</string>
   <string name="show_notes">Notları görüntüle</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView paketi çok eski (%1$s). 3$s'yi kullanmak için Android WebView paketinizi en az %2$s sürümüne yükseltmeniz gerekir. Çoğu cihaz için bu %4$s aracılığıyla yapılabilir.</string>
+  <string name="old_webview">Android WebView paketi çok eski (%1$s). 3$s\'yi kullanmak için Android WebView paketinizi en az %2$s sürümüne yükseltmeniz gerekir. Çoğu cihaz için bu %4$s aracılığıyla yapılabilir.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Yine de devam et</string>
   <string name="proceed">Devam et</string>
@@ -855,7 +860,7 @@ katkıda bulunmayı düşünün. :-)</string>
     geliştiricilere e-posta gönderin
   </string>
   <string name="proceed_google_play">
-    Google Play'e ilerleyin
+    Google Play\'e ilerleyin
   </string>
   <string name="text_maintainers">
      lütfen sorunları metin sorumlularına bildirin
@@ -911,7 +916,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="chooser_select">Seç %s</string>
   <string name="chooser_pref_reset">Kitap/bölüm seçildiğinde bölüm/ayet\'i 1\'e sıfırlamayın.</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Üzgünüz, ancak %1$s dilinde yalnızca kısmi arayüzü çevirimiz var. Bunun nedeni %2$s'nin tamamen gönüllüler tarafından geliştirilmiş olmasıdır. Çeviride yardımcı olabilirseniz, lütfen %3$s'e bakın.</string>
+  <string name="incomplete_translation">Üzgünüz, ancak %1$s dilinde yalnızca kısmi arayüzü çevirimiz var. Bunun nedeni %2$s\'nin tamamen gönüllüler tarafından geliştirilmiş olmasıdır. Çeviride yardımcı olabilirseniz, lütfen %3$s\'e bakın.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">çevirmenler için talimatlar</string>
   <string name="questions_title">Sorularınız?</string>
@@ -931,7 +936,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="prefs_discrete_mode">Dini sembolleri gizleyin</string>
   <string name="prefs_discrete_mode_desc">Uygulamayı \'Basit Hesap Makinesi\' olarak yeniden adlandırın ve başlatıcıda farklı bir simge gösterin.</string>
   <string name="prefs_show_calculator">Hesap Makinesi</string>
-  <string name="prefs_calculator_pin">Hesap Makinesi PIN'i</string>
+  <string name="prefs_calculator_pin">Hesap Makinesi PIN\'i</string>
   <string name="prefs_calculator_pin_desc">Hesap makinesi gösterildiğinde uygulamaya girmek için PIN kodu. </string>
   <string name="calc_division_by_zero">Sıfıra bölmeye izin verilmez</string>
   <!--Context: calculator. Wrong number format etc.-->
@@ -945,10 +950,10 @@ katkıda bulunmayı düşünün. :-)</string>
   </string>
   <string name="calculator_par2">
     İçinde standart hesaplama yapabilirsiniz ve uygulamaya girmek istediğinizde PIN kodunuzu
-    (varsayılan 1234'tür) yazmanız ve ardından "=" düğmesine basmanız yeterlidir.
+    (varsayılan 1234\'tür) yazmanız ve ardından \"=\" düğmesine basmanız yeterlidir.
   </string>
   <string name="calculator_par3">
-    "Hesap Makinesi PIN" ayarı ile özel bir PIN kodu oluşturabilirsiniz.
+    \"Hesap Makinesi PIN\" ayarı ile özel bir PIN kodu oluşturabilirsiniz.
   </string>
   <string name="discrete_mode_info_par1">
     Standart uygulama sürümünü kullanıyorsunuz, bu da uygulamanın gerçek adını ve simgesini
@@ -973,7 +978,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="custom_repositories_create_button_label">Özel Depo Ekleme</string>
   <string name="custom_repositories_info_button_label">Bilgi</string>
   <string name="name_for_repository">Depo için ad</string>
-  <string name="repository_specification">Depo URL'si</string>
+  <string name="repository_specification">Depo URL\'si</string>
   <string name="delete_custom_repository">Özel %s deposunu kaldırmak istiyor musunuz?</string>
   <string name="invalid_repository_not_saved">Depo belirtimi geçersizdi ve kaydedilmedi.</string>
   <string name="custom_repositories_help1">Yeni bir özel depo eklemek için şunları yazın veya kopyalayın</string>
@@ -984,8 +989,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="packages_dir">Paketler dizini (Zip dosyaları)</string>
   <string name="warn_bad_document">Uyarı: Bu belgenin teknik kalitesi (en azından kısmen) kötü olabilir.</string>
   <!--Open links in AndBible (Deep linking)-->
-  <string name="open_bible_links_title">AndBible'da Kutsal Kitap bağlantılarını açın</string>
-  <string name="open_bible_links_summary">AndBible destekli Kutsal Kitap URL'sine atıfta bulunan bağlantılara tıkladığınızda, bunları AndBible'da açın</string>
+  <string name="open_bible_links_title">AndBible\'da Kutsal Kitap bağlantılarını açın</string>
+  <string name="open_bible_links_summary">AndBible destekli Kutsal Kitap URL\'sine atıfta bulunan bağlantılara tıkladığınızda, bunları AndBible\'da açın</string>
   <string name="copyReference">Bağlantıyı panoya kopyala</string>
   <string name="reference_copied_to_clipboard">Referans panoya kopyalandı</string>
   <!--Device cloud synchronization-->
@@ -993,14 +998,14 @@ katkıda bulunmayı düşünün. :-)</string>
     Birden fazla cihazı senkronize etmek için hangi arka uç bulut hizmetini kullanmak istediğinizi seçin.
   </string>
   <string name="prefs_sync_introduction_summary2">
-    Google Drive kullanırken, %s'ye kişisel dosyalara değil, yalnızca uygulama dosyalarına erişim izni verilir.
+    Google Drive kullanırken, %s\'ye kişisel dosyalara değil, yalnızca uygulama dosyalarına erişim izni verilir.
   </string>
   <string name="restore_backup_sections">Hangi yedekleme bölümlerini geri yüklemek istiyorsunuz?</string>
   <string name="db_repositories">Depolar ve ilgili ayarlar</string>
   <string name="db_bookmarks">Yer İmleri, Notlarım, Etiketler ve Çalışma Pedleri</string>
   <string name="synchronizing">Senkronizasyon…</string>
   <string name="overrideBackup">
-    Bu cihazın senkronize edilmediği mevcut veritabanı Bulut'ta bulunur.
+    Bu cihazın senkronize edilmediği mevcut veritabanı Bulut\'ta bulunur.
     Veritabanı %s içeriyor. Ne yapmak istiyorsunuz?
   </string>
   <string name="reading_plans_content">Okuma planları ve durumları</string>
@@ -1019,7 +1024,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="sync_adapter_summary">Güncel: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">%s'ye kimlik doğrulama</string>
+  <string name="auth_title">%s\'ye kimlik doğrulama</string>
   <string name="auth_username">Kullanıcı adı</string>
   <string name="auth_password">Şifre</string>
   <string name="auth_access_token">Erişim belirteci</string>
@@ -1033,19 +1038,19 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="sync_disabling">Şimdilik %s için senkronizasyon devre dışı bırakılıyor.</string>
   <string name="sync_update_app">Senkronizasyona devam etmek için lütfen uygulamayı güncelleyin.</string>
   <string name="sign_in_failed">Senkronizasyon arka uç hizmetinde oturum açma başarısız oldu.</string>
-  <!--  ... after restoring from backup file -->
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">Bulut senkronizasyonu devre dışı bırakılıyor. Geri yüklemeden sonra manuel olarak yeniden etkinleştirmeniz gerekir.</string>
   <string name="report">Rapor</string>
   <string name="sync_error">Bulut senkronizasyonunda hata oluştu</string>
   <string name="error_notification_channel_name">Hata bildirimleri</string>
   <string name="restore_from_cloud_description">Başka bir cihazda Cihaz Senkronizasyonunu etkinleştirdiyseniz, veritabanını Buluttan geri yükleyerek başlayabilirsiniz.</string>
   <string name="enable_sync">Senkronizasyonu etkinleştir</string>
-  <!-- MyBible/MySword module support -->
+  <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Dosya okunamıyor</string>
   <string name="sqlite_invalid_file">Geçersiz modül dosyası veya dosya adı: %s</string>
   <string name="sqlite_cant_write">Dosya (üzerine) yazılamıyor</string>
   <string name="install_failed_reason">Modülün yüklenmesi aşağıdaki nedenden dolayı başarısız oldu: %s.</string>
-  <!-- Other / uncategorized -->
+  <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Uygulama başka bir yerde açıldı</string>
   <string name="open_here">Burayı açın</string>
   <string name="external_link">Dış bağlantı</string>
@@ -1058,7 +1063,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="buy_development">Geliştirme işi satın alın</string>
   <string name="buy_development2">Projeyi destekle</string>
   <string name="new_version_warning">
-    Yakında yeni bir sürüm çıkacak. Beklenen yayın tarihi %1$s'dir.
+    Yakında yeni bir sürüm çıkacak. Beklenen yayın tarihi %1$s\'dir.
     Yeni özellikleri ve iyileştirmeleri keşfetmek için %2$s yayınımızı izleyin.
   </string>
   <string name="new_version_trailer">fragman videosu</string>
