@@ -222,8 +222,8 @@
   <string name="previous">Önceki</string>
   <string name="next">Sonraki</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Lütfen \iStrong’s Grekçe ve İbranice sözlüklerini indiriniz</string>
-  <string name="no_indexed_bible_with_strongs_ref">Strong’s numaralarını içeren bir İncil indirmeli ve Arama yoluyla dizinini oluşturmalısınız</string>
+  <string name="strongs_not_installed">Lütfen \iStrong’un Grekçe ve İbranice sözlüklerini indiriniz</string>
+  <string name="no_indexed_bible_with_strongs_ref">Strong’un numaralarını içeren bir İncil indirmeli ve Arama yoluyla dizinini oluşturmalısınız</string>
   <string name="morph_robinson_not_installed">Lütfen “Robinson’s Morphological Analysis Codes” sözlüğünü indirin.</string>
   <string name="go_to_downloads">İndirmelere Git</string>
   <!--Module download-->
