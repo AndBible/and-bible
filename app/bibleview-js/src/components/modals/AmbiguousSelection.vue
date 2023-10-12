@@ -355,6 +355,10 @@ function help() {
 
 setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
     if (!showModal.value) return
+    console.log(e)
+    if (e.shiftKey && e.code === "Equal") { // plus key
+        multiSelectionButtonClicked()
+    }
     if (e.ctrlKey && e.code === "KeyC") {
         if (selectionInfo.value?.verseInfo) {
             console.log("Ctrl + c pressed. Copying (book initial, start ordinal, end ordinal)", selectionInfo.value?.verseInfo.bookInitials, startOrdinal.value, endOrdinal.value)
