@@ -150,22 +150,28 @@
     <string name="text_options_window_menutitle">Metin seçenekleri</string>
     <string name="auto_fullscreen">Kaydırarak tam ekran modusu</string>
     <string name="reversed_split_mode">Ters bölünmüş mod</string>
+
     <string name="add_ellipsis">%s…</string>
 
     <string name="font_size_pt">%d pt</string>
     <string name="value_mm">%d mm</string>
     <string name="auto_fullscreen_summary">Metni kaydırırken otomatik olarak tam ekrana geçin. İpucu: Ayrıca ekrana çift dokunarak her zaman tam ekrana geçebilirsiniz.</string>
     <string name="prefs_margin_size_title">Kenar boşluğunu değiştir</string>
+    <string name="prefs_margin_size_mm_title">Kenar boşluğu (%1$d/%2$d/%3$d mm)</string>
     <string name="prefs_advanced_settings_cat">Gelişmiş ayarlar</string>
-    <string name="prefs_display_customization_cat">Görünüm &amp; his</string>
+    <string name="prefs_display_customization_cat">Görünüm ve his</string>
     <string name="prefs_behavior_customization_cat">Uygulama davranışı</string>
-    <string name="prefs_margin_size_summary">Metin görünümünün sol ve sağ kenar boşluklarını ayarlayın. Ayrıca metnin maksimum genişliğini de ayarlayabilirsiniz.</string>
+
+    <string name="prefs_margin_size_summary">Metin görünümünün sol ve sağ kenar boşluklarını ayarlayın.
+        Ayrıca metnin maksimum genişliğini de ayarlayabilirsiniz.
+    </string>
     <string name="prefs_text_colors_summary">Metin ve arka plan renklerini ve parazit efektini ayarlayın.</string>
     <string name="text_display_settings_activity_title">Metin görüntüleme ayarları</string>
     <string name="workspace_text_display_settings_title">Metin ayarları - %s</string>
     <string name="window_text_display_settings_title">Metin ayarları - Pencere %d</string>
     <string name="prefs_text_display_settings_title">Biçimlendirme</string>
     <string name="prefs_text_appearance_title">Görünüm</string>
+
     <string name="prefs_justify_title">Metni iki yana yasla</string>
     <string name="prefs_justify_summary">Metni \'yasla\' stilinde hizalayın, yani metnin sol ve sağ kenar boşlukları aynı hizada</string>
     <string name="pref_left_margin_label_mm">Sol kenar boşluğu (%d mm)</string>
@@ -187,8 +193,10 @@
     <string name="hide_window_buttons_summary">İncil görünümlerinin sağ tarafında görüntülenen pencere düğmeleri gizlenir. Aşağıdaki pencere gezinme çubuğu hala gösterilir ve pencerenin açılır menüsünü uzun tıklayarak açabilirsiniz.</string>
     <string name="hide_bible_reference_overlay_title">İncil\'e gönderme yapan katmanı gizle</string>
     <string name="hide_bible_reference_overlay_summary">Uygulama tam ekrandayken yarı-şeffaf İncil\'e gönderme yapan katmanı gösterme</string>
+
     <string name="full_screen_hide_buttons_pref_title">Tam ekranda pencere düğme çubuğunu gizle</string>
     <string name="full_screen_hide_buttons_pref_summary">Tam ekran moduna geçerken, ekranın altındaki pencere düğme çubuğunu otomatik olarak gizle</string>
+
     <string name="prefs_dictionaries_cat">Sözlükler</string>
     <string name="choose_strongs_greek_dictionary_title">Strong\'un Yunanca sözlüğü</string>
     <string name="choose_strongs_greek_dictionary_summary">Yunanca kelimelerin tanımları için Strong\'un sözlüğünü seçin</string>
@@ -196,28 +204,41 @@
     <string name="choose_strongs_hebrew_dictionary_summary">İbranice kelimelerin tanımları için Strong\'un sözlüğünü seçin</string>
     <string name="choose_strongs_greek_morphology_title">Robinson\'un Yunanca morfolojisi</string>
     <string name="choose_strongs_greek_morphology_summary">Robinson\'un Yunanca morfolojisinin tanımları için sözlük seçin</string>
+
     <string name="prefs_top_margin_title_mm">Üst kenar boşluğu (%d mm)</string>
     <string name="font_size_title">Yazı tipi boyutu</string>
     <string name="font_size_title_pt">Yazı tipi boyutu (%d pt)</string>
     <string name="prefs_font_text_size_summary">Ana metin için yazı tipi boyutunu ayarlayın</string>
+
     <string name="pref_font_family_label_name">Yazı tipi ailesi (%s)</string>
     <string name="prefs_font_family_summary">Yazı tipi ailesini değiştirin. İpucu: Belge İndir / Eklentiler aracılığıyla daha fazla yazı tipi yüklenebilir.</string>
+
     <string name="prefs_text_bookmarks_title">Yer imi &amp; Notlarım ayarları</string>
+
+    <string name="prefs_enable_bluetooth_title">Bluetooth medya düğmelerini etkinleştirin</string>
+    <string name="prefs_enable_bluetooth_summary">Konuşmayı başlatmak/durdurmak için Bluetooth medya düğmelerini kullanın.</string>
+    <string name="create_bookmark">Yeni bir Yer İmi Oluşturun</string>
+    <string name="create_bookmark_with_a_note">Not içeren yeni bir Yer İmi oluşturun</string>
+
     <!--Colors preferences-->
     <string name="prefs_text_colors_menutitle">Renk ayarları</string>
     <string name="window_color_settings_title">Pencere rengi ayarları</string>
     <string name="workspace_color_settings_title">Çalışma alanının renk ayarı varsayılanları</string>
+
+    <string name="color_workspace">Çalışma alanı rengi</string>
     <string name="color_text">Metin rengi</string>
     <string name="color_background">Arka plan rengi</string>
     <string name="colors_day_mode_title">Gündüz modu</string>
     <string name="colors_night_mode_title">Gece modu</string>
     <string name="prefs_noise_title">Arka plan paraziti</string>
     <string name="prefs_noise_summary">Arka plana biraz parazit eklemek gözleri daha rahat hale getirebilir.</string>
+
     <string name="cpv_default_title">Bir Renk Seçin</string>
     <string name="cpv_presets">Ön ayarlar</string>
     <string name="cpv_custom">Özel</string>
     <string name="cpv_select">Seç</string>
     <string name="cpv_transparency">Saydamlık</string>
+
     <!--Window-->
     <string name="new_window">Yeni pencere</string>
     <string name="windowClose">Kapat</string>
@@ -225,19 +246,25 @@
     <string name="windowMinimise">Küçült</string>
     <string name="windowSynchronise">Senkronize et</string>
     <string name="move_window">Taşı</string>
+    <string name="move_window_to_position2">Pozisyon %1$d (%2$s:%3$s)</string>
     <string name="copy_settings">Ayarları kaydet...</string>
     <string name="copy_settings_to_workspace">Çalışma Alanı</string>
+    <string name="copy_settings_to_window">Pencere %1$d (%2$s: %3$s)</string>
     <string name="change_to_normal">Normal pencereye geç</string>
     <string name="window_pin_mode">İğnele</string>
+
     <!--Notes screen-->
     <string name="no_chapter_notes">Bu bölüme ait not bulunmadı</string>
     <string name="no_verse_notes">Bu ayete ait not bulunmadı</string>
     <string name="previous">Önceki</string>
     <string name="next">Sonraki</string>
+
     <!--Strongs-->
     <string name="strongs_not_installed">Lütfen \iStrong\'s Grekçe ve İbranice sözlüklerini indiriniz</string>
+    <string name="no_indexed_bible_with_strongs_ref">Strong\'s numaralarını içeren bir İncil indirmeli ve Arama yoluyla dizinini oluşturmalısınız</string>
     <string name="morph_robinson_not_installed">Lütfen \'Robinson\'s Morphological Analysis Codes\' sözlüğünü indirin.</string>
     <string name="go_to_downloads">İndirmelere Git</string>
+
     <!--Module download-->
     <string name="download">Belge İndir</string>
     <string name="redownload">Belgeleri yeniden indir</string>
@@ -248,6 +275,7 @@
     <string name="download_document_confirm_prefix">İndir</string>
     <string name="download_refresh_book_list_menu_item">Yenilen</string>
     <string name="error_downloading">İndirirken bir hata oldu.  Lütfen internet bağlantınızı kontrol edin.</string>
+    <string name="error_downloading_status">1$s'yi barındıran sunucu %2$s (%3$d) nedeniyle bir hata döndürdü.</string>
     <string name="storage_space_warning">Yerel depo yetersiz</string>
     <string name="too_many_jobs">Çok fazla görev çalışıyor. Lütfen bazılarının bitmesini bekleyin ve tekrar deneyin.</string>
     <string name="document_not_installed">Lütfen \'%s\' dosyasını indirin</string>
@@ -257,24 +285,33 @@
     <string name="document_filter_results">%d belge</string>
     <string name="download_question_title">Belgeleri indirmeye devam etmek istiyor musunuz?</string>
     <string name="download_question_message">Zulme uğradığınız bir ülkede yaşıyorsanız,
-Hristiyan materyallerini internet üzerinden indirirken dikkatli olmanız gerekebilir.
-Bunun yerine, modül zip dosyalarını daha güvenli bir şekilde ederek onları kurmak isteyebilirsiniz.
-\"Belgeleri Zip\'ten Yükle\" aracılığıyla. İndirmeye devam etmek istediğinizden emin misiniz?
-Modül sunucularından yapılan tüm indirmeler şifrelenir (HTTPS).</string>
+        Hristiyan materyallerini internet üzerinden indirirken dikkatli olmanız gerekebilir.
+        Bunun yerine, modül zip dosyalarını daha güvenli bir şekilde ederek onları kurmak isteyebilirsiniz.
+        \"Belgeleri Zip\'ten Yükle\" aracılığıyla. İndirmeye devam etmek istediğinizden emin misiniz?
+        Modül sunucularından yapılan tüm indirmeler şifrelenir (HTTPS).
+    </string>
     <string name="do_not_ask_again">Evet, tekrar sorma</string>
     <string name="recommended_document">Tavsiye edilir!</string>
     <string name="about_version_history">Sürüm geçmişi: %s</string>
     <string name="download_errors">İndirme hataları</string>
     <string name="failed_repositories_message">Aşağıdaki belge sunucusuna bağlanılamadı: \n\n%s\n\n</string>
     <string name="failed_downloads_message">Aşağıdaki dosyalar indirilemedi: \n\n%s\n\n</string>
+    <string name="cant_delete_document">Bu belge silinemez.</string>
+
     <!--Install zip file-->
+    <string name="install_zip">Dosyalardan Belge Yükleme</string>
     <string name="install_zip_module">İncil Modülü Yükle</string>
+    <string name="install_zip_module_discrete">Hesap Makinesi Modülünü Kurun</string>
     <string name="install_zip_successfull">Modül başarıyla yüklenmiştir</string>
     <string name="extracting_zip_file">Zip dosyası ayıklanıyor...</string>
     <string name="checking_zip_file">Verilen dosya denetleniyor...</string>
     <string name="invalid_module">Dosya geçerli SWORD modülü içermiyor</string>
-    <string name="overwrite_files">Aşağıdaki dosyalar zaten mevcut: %s Üzerine yazılsın mı? </string>
+    <string name="install_zip_title">Lütfen bekleyin. Bir dosyadan modüller yükleniyor.</string>
+    <string name="overwrite_files">Aşağıdaki dosyalar zaten mevcut: %s üzerine yazılsın mı?</string>
     <string name="overwrite_files_title">Dosyaların üzerine yazılsın mı?</string>
+    <string name="could_not_overwrite_files">Dosyaların üzerine yazılamadı: %s. Bunun dışında yükleme başarılı oldu.</string>
+    <string name="install_do_you_want">Modül (%s) yüklemek istiyor musunuz?</string>
+
     <!--Daily Reading Plan-->
     <string name="rdg_plan_title">Okuma Planı</string>
     <string name="reading_plans_plural">Okuma Planları</string>
@@ -295,25 +332,35 @@ Modül sunucularından yapılan tüm indirmeler şifrelenir (HTTPS).</string>
     <string name="reading_plan_deleted">Okuma planı silindi.</string>
     <string name="reading_plan_ships_with_ab">Bu okuma planı %s ile birlikte gönderilir.</string>
     <string name="confirm_delete_reading_plan">
-%s okuma planını okuma geçmişiyle birlikte silmek istediğinizden emin misiniz?
-İpucu: Planı güncellemeniz gerekiyorsa, aynı dosya adıyla tekrar içe aktarabilirsiniz
-ve geçmiş korunacaktır.</string>
+        %s okuma planını okuma geçmişiyle birlikte silmek istediğinizden emin misiniz?
+        İpucu: Planı güncellemeniz gerekiyorsa, aynı dosya adıyla tekrar içe aktarabilirsiniz
+        ve geçmiş korunacaktır.
+    </string>
+    <string name="plan_duplicate_user_plan">
+      Hafız kartta jsword/readingplan içinde
+      dahili bir planla aynı ada sahip bir kullanıcı okuma planı var. Burada listelenemez.
+      Lütfen dosyanın dosya uzantısını .properties olarak bırakarak dosyayı başka bir adla yeniden adlandırın
+    </string>
     <string name="plan_name_y1ntpspr">Bir yılda Yeni Antlaşma, Mezmurlar ve Süleyman\'ın Özdeyişleri</string>
     <string name="plan_description_y1ntpspr">
-HEARTLIGHT İnternet Dergisi\'nin nezaketiyle,
-http://www.heartlight.org, izin verildi</string>
+        HEARTLIGHT İnternet Dergisi\'nin nezaketiyle,
+        http://www.heartlight.org, izin verildi
+    </string>
     <string name="plan_name_y1ot1nt1_chronological">İncil ile Kronolojik 1-Yıl</string>
     <string name="plan_description_y1ot1nt1_chronological">
-İncil\'deki kronolojik olaylara dayalı plan.
-Kronolojik zaman çizelgesi yaklaşıktır.</string>
+        İncil\'deki kronolojik olaylara dayalı plan.
+        Kronolojik zaman çizelgesi yaklaşıktır.
+    </string>
     <string name="plan_name_y1ot1nt1_OTandNT">1 Yıl EA+YA Eş Zamanlı</string>
     <string name="plan_description_y1ot1nt1_OTandNT">
-Her gün EA+YA\'daki bölümlerle,
-1 yılda Kutsal Kitap\'ı baştan sona okuyun.</string>
+        Her gün EA+YA\'daki bölümlerle,
+        1 yılda Kutsal Kitap\'ı baştan sona okuyun.
+    </string>
     <string name="plan_name_y1ot1nt1_OTthenNT">1 Yılda Kutsal Kitap</string>
     <string name="plan_description_y1ot1nt1_OTthenNT">
-Yaratılış ile başlayıp Vahiy ile biten Kutsal Kitap\'ı 1 yılda baştan sona okuyun.
-İlk olarak EA, sonra YA.</string>
+        Yaratılış ile başlayıp Vahiy ile biten Kutsal Kitap\'ı 1 yılda baştan sona okuyun.
+        İlk olarak EA, sonra YA.
+    </string>
     <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 Yıl 4 bölüm/gün</string>
     <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10-bölüm/gün Okuma Planı</string>
     <string name="plan_description_y1ot6nt4_profHorner">Prof. Horner\'in nezaketiyle, izin verildi</string>
