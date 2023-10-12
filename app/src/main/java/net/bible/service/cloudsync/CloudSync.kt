@@ -183,6 +183,7 @@ object CloudSync {
                                 .setNeutralButton(R.string.cloud_disable_sync) { _, _ ->
                                     it.resume(null)
                                 }
+                                .setCancelable(false)
                                 .create()
                                 .show()
                         }
