@@ -542,8 +542,8 @@
   <!--Backup and restore-->
   <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
   <string name="backup_modules2">Belgeler yedekleme hedefi...</string>
-  <string name="backup_to">Yedekleme hedefi...</string>
-  <string name="backup_restore">Yedekten geri yükle</string>
+  <string name="backup_app_database2">Uygulama veritabanını şuraya yedekleyin…</string>
+  <string name="backup_app2">Yedekleme uygulaması (.apk file) to …</string>
   <string name="backup_application">Uygulama</string>
   <string name="backup_database">Veritabanı</string>
   <string name="backup_documents">Belgeler</string>
@@ -552,7 +552,7 @@
   <string name="backup_document_info">Kutsal Kitaplar, yorum kitaplar, sözlükler, haritalar vb.</string>
   <string name="backup_to">Yedekleme hedefi…</string>
   <string name="backup_restore_from">Geri yükle kaynağı…</string>
-  <string name="backup_restore">Geri Yükleme</string>
+  <string name="backup_restore">Yedekten geri yükle</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Neyi geri yüklemek istiyorsunuz?</string>
   <string name="restore_app_database">Uygulama veritabanını şuradan geri yükle...</string>
