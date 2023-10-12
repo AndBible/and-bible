@@ -355,7 +355,6 @@ function help() {
 
 setupDocumentEventListener("keydown", (e: KeyboardEvent) => {
     if (!showModal.value) return
-    console.log(e)
     if (e.shiftKey && e.code === "Equal") { // plus key
         multiSelectionButtonClicked()
     }

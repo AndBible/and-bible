@@ -21,7 +21,7 @@ import {useScroll} from "@/composables/scroll";
 import {computed, ComputedRef, ref, watch} from "vue";
 
 const altKeys: Set<string> = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyM", "KeyO", "KeyG"]);
-const ctrlKeys: Set<string> = new Set(["KeyC"]);
+const ctrlKeys: Set<string> = new Set(["KeyC", "KeyF", "KeyB"]);
 const keys: Set<string> = new Set(["ArrowUp", "ArrowDown", "Space"]);
 const handleJsSide: Set<string> = new Set(["ArrowUp", "ArrowDown"]);
 

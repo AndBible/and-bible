@@ -49,6 +49,7 @@ import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -604,8 +605,12 @@ class BibleJavascriptInterface(
                     mainBibleActivity.binding.drawerLayout.requestFocus()
                 }
                 "AltKeyO" -> mainBibleActivity.showOptionsMenu()
-                "AltKeyG" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
+                "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()
+                "CtrlKeyF" -> {
+                    val intent = mainBibleActivity.searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, mainBibleActivity)
+                    mainBibleActivity.startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                }
                 "Space" -> {
                     if(!mainBibleActivity.speakControl.isStopped) {
                         mainBibleActivity.speakControl.toggleSpeak(true)
