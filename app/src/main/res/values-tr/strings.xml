@@ -3,7 +3,7 @@
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Kutsal Kitap Çalışması</string>
   <string name="app_name_medium">İncil Çalışması (AndBible)</string>
-  <string name="app_name_long">AndBible: İncil Çalışma </string>
+  <string name="app_name_long">AndBible: İncil Çalışması</string>
   <string name="project">AndBible Açık Kaynak Projesi</string>
   <string name="version_text">Sürüm %s</string>
   <string name="no_sdcard_error">Lütfen bir hafıza kartı takıp uygulamayı yeniden başlatın.</string>
@@ -20,16 +20,16 @@
   <string name="information">Bilgi</string>
   <string name="other">Diğer</string>
   <string name="contact">İletişim</string>
-  <string name="help_and_tips">Yardım &amp; ipuçları</string>
+  <string name="help_and_tips">Yardım ve ipuçları</string>
   <string name="administration">Yönetici</string>
-  <string name="rate_application">Oyla &amp; Değerlendir</string>
+  <string name="rate_application">Oyla ve Değerlendir</string>
   <string name="chooce_document">Belge Seç</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitabı Seç</string>
   <string name="choosePassageChapterName">Bölümü Seç</string>
   <string name="choosePassageVerseName">Ayeti Seç</string>
   <string name="bible">Kutsal Kitap</string>
-  <string name="deuterocanonical">Dekanonik</string>
+  <string name="deuterocanonical">Deuterokanonik</string>
   <!--Search-->
   <string name="search_index">Arama Dizini</string>
   <string name="index_creation_required">Arama yapmak için dizin gerekir.</string>
@@ -40,7 +40,7 @@
   <string name="rebuild_index">Dizini yeniden oluştur</string>
   <string name="search_in">%s içinde bul</string>
   <string name="do_in_background">Arka planda devam et</string>
-  <string name="rebuild_index_button">Yeniden oluşur</string>
+  <string name="rebuild_index_button">Yeniden oluştur</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%2s içinde %2s sonuç</string>
   <!--Tasks-->
@@ -77,24 +77,24 @@
   <string name="prefs_show_verseno_title1">Ayet rakamları</string>
   <string name="prefs_show_chapter_no_title">Bölüm rakamları</string>
   <string name="prefs_show_chapter_no_summary">Bölüm rakamlarını göster</string>
-  <string name="prefs_verse_per_line_summary">Her ayet yeni bir satırda gösterilir</string>
+  <string name="prefs_verse_per_line_summary">Her ayet yeni bir satırda göster</string>
   <string name="prefs_show_bookmarks_summary">Yer imleri gösterilsin mi?</string>
   <string name="prefs_show_mynotes_summary">Hakkında not yazdığım ayetleri simge ile belirle</string>
-  <string name="prefs_show_notes_summary">Dipnotlar ve göndermeler gösterilir</string>
-  <string name="prefs_show_strongs_summary">Yunanca ve İbranice kelimelerin tanımlarına bağlantılar gösterilir</string>
-  <string name="prefs_show_morphology_summary">Robinson’un Yunanca morfolojik kısaltmaları gösterilir</string>
+  <string name="prefs_show_notes_summary">Dipnotlar ve referasları gösterilir</string>
+  <string name="prefs_show_strongs_summary">Grekçe ve İbranice kelimelerin tanımları</string>
+  <string name="prefs_show_morphology_summary">Robinson’un Grekçe morfolojik kısaltmaları</string>
   <string name="prefs_section_title_summary">Kanonik olmayan bölüm başlıklarını göster</string>
   <string name="prefs_red_letter_summary">Mesih’in sözlerini kırmızı göster</string>
-  <string name="prefs_text_size_title">Yazı türü tercihleri</string>
+  <string name="prefs_text_size_title">Yazı tipi tercihleri</string>
   <string name="prefs_verse_per_line_title">Satır başına tek ayet</string>
   <string name="prefs_show_bookmarks_title">Yer imleri göster</string>
   <string name="prefs_show_mynotes_title">Notlarım simgelerini göster</string>
   <string name="prefs_show_footnotes_title">Dipnotlar</string>
   <string name="prefs_show_xrefs_title">Göndermeler</string>
-  <string name="prefs_show_footnotes_summary">Belgede varsa dipnotları göster</string>
+  <string name="prefs_show_footnotes_summary">Belgede mevcut ise dipnotları göster</string>
   <string name="prefs_show_xrefs_summary">Belgede varsa göndermeleri göster</string>
   <string name="prefs_show_notes_title">Dipnotlar</string>
-  <string name="prefs_show_strongs_title">Strong Referansları</string>
+  <string name="prefs_show_strongs_title">Strong’un numaraları</string>
   <string name="prefs_show_morphology_title">Morfolojik kodlar</string>
   <string name="prefs_section_title_title">Kısım Başlıkları</string>
   <string name="prefs_red_letter_title">Kırmızı Harflar</string>
@@ -105,7 +105,7 @@
   <string name="prefs_toolbar_button_action_swap_menu">Bir sonraki belgeyi açmak için basın, menüyü açmak için uzun basın</string>
   <string name="prefs_toolbar_button_action_swap_activity">Bir sonraki belgeyi açmak için basın, belgeler ekranı için uzun basın</string>
   <string name="prefs_night_mode_title">Gece modu değiştirici</string>
-  <string name="prefs_night_mode_summary">Otomatik olarak (cihaz destekliyorsa), elle veya sistem ayarıyla (Android 10+) gece moduna geçiş. Ana ekrandaki 3-noktalı seçenekler menüsünden elle geçiş yapılabilir.</string>
+  <string name="prefs_night_mode_summary">Otomatik olarak (cihaz destekliyorsa), elle veya sistem ayarıyla (Android 10+) gece moduna geçiş. Ana ekrandaki 3-noktalı ayarlar menüsünden elle geçiş yapılabilir.</string>
   <string name="prefs_night_mode_manual">Kullanım Kılavuzu</string>
   <string name="prefs_night_mode_automatic">Otomatik</string>
   <string name="prefs_night_mode_system">Sistem</string>
@@ -113,7 +113,7 @@
   <string name="prefs_navigate_to_verse_title">Ayet seçimi</string>
   <string name="prefs_navigate_to_verse_summary">Kısım seçerken bölümden sonra ayet de seçilir</string>
   <string name="prefs_open_links_in_special_window_title">Bağlantılar penceresi</string>
-  <string name="prefs_open_links_in_special_window_summary">Göndermeleri ve Strong’ları daha hızlı görüntülemek için bağlantıları özel pencerede açın</string>
+  <string name="prefs_open_links_in_special_window_summary">Referansları ve Strong’un numaraları daha hızlı görüntülemek için bağlantıları özel pencerede açın</string>
   <string name="prefs_text_size_sample_text">Metin örneği</string>
   <string name="prefs_screen_keep_on_title">Ekranı açık tut</string>
   <string name="prefs_screen_keep_on_summary">Bu uygulamayı kullanırken ekranın kapanmasını önleyin</string>
@@ -170,12 +170,12 @@
   <string name="full_screen_hide_buttons_pref_title">Tam ekranda pencere düğme çubuğunu gizle</string>
   <string name="full_screen_hide_buttons_pref_summary">Tam ekran moduna geçerken, ekranın altındaki pencere düğme çubuğunu otomatik olarak gizle</string>
   <string name="prefs_dictionaries_cat">Sözlükler</string>
-  <string name="choose_strongs_greek_dictionary_title">Strong’un Yunanca sözlüğü</string>
-  <string name="choose_strongs_greek_dictionary_summary">Yunanca kelimelerin tanımları için Strong’un sözlüğünü seçin</string>
+  <string name="choose_strongs_greek_dictionary_title">Strong’un Grekçe sözlüğü</string>
+  <string name="choose_strongs_greek_dictionary_summary">Grekçe kelimelerin tanımları için Strong’un sözlüğünü seçin</string>
   <string name="choose_strongs_hebrew_dictionary_title">Strong’un İbranice sözlüğü</string>
   <string name="choose_strongs_hebrew_dictionary_summary">İbranice kelimelerin tanımları için Strong’un sözlüğünü seçin</string>
-  <string name="choose_strongs_greek_morphology_title">Robinson’un Yunanca morfolojisi</string>
-  <string name="choose_strongs_greek_morphology_summary">Robinson’un Yunanca morfolojisinin tanımları için sözlük seçin</string>
+  <string name="choose_strongs_greek_morphology_title">Robinson’un Grekçe morfolojisi</string>
+  <string name="choose_strongs_greek_morphology_summary">Robinson’un Grekçe morfolojisinin tanımları için sözlük seçin</string>
   <string name="prefs_top_margin_title_mm">Üst kenar boşluğu (%d mm)</string>
   <string name="font_size_title">Yazı tipi boyutu</string>
   <string name="font_size_title_pt">Yazı tipi boyutu (%d pt)</string>
@@ -222,7 +222,7 @@
   <string name="previous">Önceki</string>
   <string name="next">Sonraki</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Lütfen \iStrong’un Grekçe ve İbranice sözlüklerini indiriniz</string>
+  <string name="strongs_not_installed">Lütfen Strong’un Grekçe ve İbranice sözlüklerini indiriniz</string>
   <string name="no_indexed_bible_with_strongs_ref">Strong’un numaralarını içeren bir İncil indirmeli ve Arama yoluyla dizinini oluşturmalısınız</string>
   <string name="morph_robinson_not_installed">Lütfen “Robinson’s Morphological Analysis Codes” sözlüğünü indirin.</string>
   <string name="go_to_downloads">İndirmelere Git</string>
@@ -472,10 +472,10 @@
   <string name="assing_labels_help4">Hızlı erişim amacıyla favori listenize etiket eklemek için %s simgesine dokunun.</string>
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Seçimlerinize göre listeyi yeniden sıralamak için %s simgesine dokunun.</string>
-  <string name="workspace_text_options_help_title">Çalışma alanı metin seçenekleri</string>
+  <string name="workspace_text_options_help_title">Çalışma alanı metni ayarları</string>
   <string name="workspace_text_options_help1">Bu ayarlar, tüm çalışma alanı pencereleri için varsayılanı belirler.</string>
   <string name="workspace_text_options_help2">Kişisel pencere ayarlarını değiştirerek bunları geçersiz kılabilirsiniz.</string>
-  <string name="window_text_options_help_title">Pencere metni seçenekleri</string>
+  <string name="window_text_options_help_title">Pencere metni ayarları</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help1">%s simgesi, ayarın çalışma ayarlarından geldiğini gösterir.</string>
   <!--Parameter is actual icon-->
@@ -767,7 +767,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">I understand</string>
   <string name="first_time_help_show_next_time">Bir daha sefere tekrar göster</string>
-  <string name="strongs_mode_title">Strongs modunu seç</string>
+  <string name="strongs_mode_title">Strong’un numaraları modunu seç</string>
   <string name="download_dialog_message">Aşağıdaki kitaplar indirilemedi:</string>
   <string name="select_multiple">Çoklu seçim</string>
   <string name="journal_description">Özel metin ve yer imleriyle kullanıcı tarafından düzenlenebilir çalışma defterleri</string>
@@ -800,7 +800,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="tell_friend_message1">Size %s’i önermek isterim.</string>
   <string name="tell_friend_message2">Android için güçlü, ayrıca kullanımı kolay, çevrimdışı İncil çalışma uygulamasıdır.</string>
   <string name="tell_friend_message3">Play Store’dan yükleyin: %s</string>
-  <string name="tell_friend_message4">Devamını oku &amp; daha fazla yükleme seçenekleri: %s </string>
+  <string name="tell_friend_message4">Devamını oku ve daha fazla yükleme seçenekleri: %s </string>
   <string name="share_verse_ok">Paylaş / Kopyala</string>
   <string name="verse_action_copy">Kopyala</string>
   <string name="generic_share">Paylaş</string>
@@ -822,7 +822,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="back_button">Geri</string>
   <string name="upgrading_database">Veritabanı güncelleniyor. Lütfen bekleyin...</string>
   <string name="initializing_app">Uygulama başlatılıyor...</string>
-  <string name="show_notes">Notları görüntüle</string>
+  <string name="show_notes">Notları göster</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Android WebView paketi çok eski (%1$s). 3$s’yi kullanmak için Android WebView paketinizi en az %2$s sürümüne yükseltmeniz gerekir. Çoğu cihaz için bu %4$s aracılığıyla yapılabilir.</string>
   <string name="play">Google Play</string>
