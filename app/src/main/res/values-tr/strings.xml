@@ -211,7 +211,7 @@
   <string name="windowSynchronise">Senkronize et</string>
   <string name="move_window">Taşı</string>
   <string name="move_window_to_position2">Pozisyon %1$d (%2$s:%3$s)</string>
-  <string name="copy_settings">Ayarları kaydet...</string>
+  <string name="copy_settings">Ayarları kaydet…</string>
   <string name="copy_settings_to_workspace">Çalışma Alanı</string>
   <string name="copy_settings_to_window">Pencere %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Normal pencereye geç</string>
@@ -263,8 +263,8 @@
   <string name="install_zip_module">İncil Modülü Yükle</string>
   <string name="install_zip_module_discrete">Hesap Makinesi Modülünü Kurun</string>
   <string name="install_zip_successfull">Modül başarıyla yüklenmiştir</string>
-  <string name="extracting_zip_file">Zip dosyası ayıklanıyor...</string>
-  <string name="checking_zip_file">Verilen dosya denetleniyor...</string>
+  <string name="extracting_zip_file">Zip dosyası ayıklanıyor…</string>
+  <string name="checking_zip_file">Verilen dosya denetleniyor…</string>
   <string name="invalid_module">Dosya geçerli SWORD modülü içermiyor</string>
   <string name="install_zip_title">Lütfen bekleyin. Bir dosyadan modüller yükleniyor.</string>
   <string name="overwrite_files">Aşağıdaki dosyalar zaten mevcut: %s üzerine yazılsın mı?</string>
@@ -276,12 +276,12 @@
   <string name="reading_plans_plural">Okuma Planları</string>
   <string name="rdg_plan_selector_title">Okuma Planını Seçin</string>
   <string name="rdg_plan_day">%s. Gün</string>
-  <string name="rdg_plan_set_start_date">Başlama Tarihini Seçin...</string>
-  <string name="set_current_day">Bugünü seç...</string>
+  <string name="rdg_plan_set_start_date">Başlama Tarihini Seçin…</string>
+  <string name="set_current_day">Bugünü seç…</string>
   <string name="msg_set_current_day_reading_plan">Bu, bugünü bu plandaki geçerli gün olarak ayarlayacak ve önceki tüm günleri okundu olarak işaretleyecektir. Devam edilsin mi?</string>
   <string name="done">Bitti</string>
   <string name="reset_plan_question">Bu planı sıfırlamak istediğinizden emin misiniz?</string>
-  <string name="import_reading_plan">Okuma planını içe aktar...</string>
+  <string name="import_reading_plan">Okuma planını içe aktar…</string>
   <string name="import_reading_plan_error">İçe aktarma hatası</string>
   <string name="import_reading_plan_error_duplicate">Aşağıdaki günler yinelendi: %s</string>
   <string name="import_reading_plan_error_days">Aşağıdaki günler hatalar içeriyordu: %s</string>
@@ -546,7 +546,7 @@
   <string name="mynotes">Notlarım</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
-  <string name="backup_modules2">Belgeler yedekleme hedefi...</string>
+  <string name="backup_modules2">Belgeler yedekleme hedefi…</string>
   <string name="backup_app_database2">Uygulama veritabanını şuraya yedekleyin…</string>
   <string name="backup_app2">Yedekleme uygulaması (.apk file) to …</string>
   <string name="backup_application">Uygulama</string>
@@ -560,13 +560,13 @@
   <string name="backup_restore">Yedekten geri yükle</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Neyi geri yüklemek istiyorsunuz?</string>
-  <string name="restore_app_database">Uygulama veritabanını şuradan geri yükle...</string>
+  <string name="restore_app_database">Uygulama veritabanını şuradan geri yükle…</string>
   <string name="restore_database">Veritabanı Dosyasını Geri Yükle</string>
   <string name="restore_confirmation">Notlarımın, Yer İmlerimin, Çalışma Defterlerimin, Okuma Planlarımın ve Çalışma Alanlarımın üzerine yazılsın mı?</string>
   <string name="restore_success2">Seçilen veritabanı bölümleri başarıyla geri yüklendi</string>
   <string name="restore_success">Notlarım, Yer İmleri, Çalışma Defterleri, Okuma Planları ve Çalışma Alanları başarıyla geri yüklendi</string>
   <string name="downloading_backup">Downloading backup file…</string>
-  <string name="loading_backup">Veritabanı yedeklemeden yükleniyor...</string>
+  <string name="loading_backup">Veritabanı yedeklemeden yükleniyor…</string>
   <string name="backup_success2">Notlarım, Yer İmleri, Çalışma Defterleri, Okuma Planları ve Çalışma Alanları başarıyla yedeklendi.</string>
   <string name="backup_modules_success">Seçilen modüller başarıyla yedeklendi.</string>
   <string name="backup_modules_email_subject_2">%s modüllerini yedeklemek</string>
@@ -574,7 +574,7 @@
   <string name="backup_email_subject_2">%s veritabanını yedeklemek</string>
   <string name="backup_email_message_2">Yer imlerinizi, notlarınızı, okuma planlarınızı ve çalışma alanlarınızı içeren %s veritabanınız ektedir</string>
   <string name="restore_unsuccessfull">Veritabanı geri yüklenemedi. Belki de geçersiz veritabanı dosyası verdiniz.</string>
-  <string name="restore_modules">Belgeleri Geri Yükle...</string>
+  <string name="restore_modules">Belgeleri Geri Yükle…</string>
   <string name="send_backup_file">Yedekleme dosyasını gönder</string>
   <string name="backup_modules_title">Hangi modüllerin yedekleneceğini seçin</string>
   <string name="install_zip_canceled">Modül yüklemesi iptal edildi</string>
@@ -653,12 +653,12 @@
   <string name="workspace_number">Çalışma Alanı %d</string>
   <string name="rename_workspace">Yeniden Adlandır</string>
   <string name="workspace_selector_title">Çalışma Alanı Seç</string>
-  <string name="workspace_settings">Ayarlar...</string>
+  <string name="workspace_settings">Ayarlar…</string>
   <string name="give_name_workspace">Yeni çalışma alanı için isim ver</string>
   <string name="save_and_exit">Kaydet</string>
   <string name="workspace_save_changes">Çalışma alanlarına değişiklikler uygulansın mı?</string>
   <string name="copy_of_workspace">%s kopyası</string>
-  <string name="copy_workspace_settings">Ayarları kopyala...</string>
+  <string name="copy_workspace_settings">Ayarları kopyala…</string>
   <string name="copy_settings_title">Hangi ayarları kopyalansın?</string>
   <string name="select_all">Hepsi seç</string>
   <string name="copy_settings_workspaces_title">Ayarlar hagni çalışma alanıya kopyalansın?</string>
@@ -804,7 +804,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="share_verse_ok">Paylaş / Kopyala</string>
   <string name="verse_action_copy">Kopyala</string>
   <string name="generic_share">Paylaş</string>
-  <string name="share_verse_menu_title">Paylaş / kopyala...</string>
+  <string name="share_verse_menu_title">Paylaş / kopyala…</string>
   <string name="show_versenumbers">Ayet numarıları göster</string>
   <string name="show_full_verses">Ayetlerin tamamını göster</string>
   <string name="show_selection_only">Yalnızca seçili metni göster</string>
@@ -820,8 +820,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="show_quotes">Alıntıları göster</string>
   <string name="backup_button">Yedekle</string>
   <string name="back_button">Geri</string>
-  <string name="upgrading_database">Veritabanı güncelleniyor. Lütfen bekleyin...</string>
-  <string name="initializing_app">Uygulama başlatılıyor...</string>
+  <string name="upgrading_database">Veritabanı güncelleniyor. Lütfen bekleyin…</string>
+  <string name="initializing_app">Uygulama başlatılıyor…</string>
   <string name="show_notes">Notları göster</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Android WebView paketi çok eski (%1$s). 3$s’yi kullanmak için Android WebView paketinizi en az %2$s sürümüne yükseltmeniz gerekir. Çoğu cihaz için bu %4$s aracılığıyla yapılabilir.</string>
