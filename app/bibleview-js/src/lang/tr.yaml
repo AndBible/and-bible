@@ -1,63 +1,65 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Yer İmleri
-bookmarksAndNotes: ""
-openMyNotes: ""
-openStudyPad: ""
-noteText: ""
+bookmarksAndNotes: Yer İmleri ve Notlarım
+openMyNotes: Notlarım’da Aç
+openStudyPad: Çalışma Defterinde Aç (%s)
+noteText: Dipnotlar (%s)
 noteTextWithoutType: Dipnotlar
 crossReferenceText: Göndermeler
 findAllOccurrences: Kelimenin tüm oluşlarını bul
-reportError: ""
-errorTitle: ""
-warningTitle: ""
-normalTitle: ""
-footnoteTypeStudy: ""
-footnoteTypeExplanation: ""
-footnoteTypeVariant: ""
-footnoteTypeAlternative: ""
-footnoteTypeTranslation: ""
-clearLog: ""
-editTextPlaceholder: ""
-inputPlaceholder: ""
-inputReference: ""
+reportError: Hata bildir
+errorTitle: Hata oluştu
+warningTitle: Uyarı
+normalTitle: Lütfen dikkat
+footnoteTypeStudy: Çalışma
+footnoteTypeExplanation: Açıklama
+footnoteTypeVariant: Varyant
+footnoteTypeAlternative: Alternatif
+footnoteTypeTranslation: Çeviri
+clearLog: Hata günlüğünü temizle
+editTextPlaceholder: Metni düzenlemek için dokunun
+inputPlaceholder: Buraya yazın
+inputReference: Kutsal Kitap referansını girin
 invalidReference: Ayet bulunamadı
-bookmarkAccurate: ""
-bookmarkInaccurate: ""
-defaultBook: ""
+bookmarkAccurate: Yer imi %s içinde oluşturuldu
+bookmarkInaccurate: "Yer imi kitap bilgileri içermiyormuş, içerik %s üzerinde gösterilecek."
+defaultBook: varsayılan Kutsal Kitap belgesi
 ok: Tamam
 yes: "Evet"
-ambiguousSelection: ""
+ambiguousSelection: "Hangi eylemi gerçekleştirmek istiyorsunuz?"
 cancel: İptal
-removeBookmarkConfirmationTitle: ""
-removeBookmarkConfirmation: ""
-createdAt: ""
-lastUpdatedOn: ""
-strongsAndMorph: ""
-externalLink: ""
-referenceLink: ""
-openFootnote: ""
-noMyNotesTitle: ""
+removeBookmarkConfirmationTitle: "Yer imini kaldırsın mı?"
+removeBookmarkConfirmation: "Bu yer imini kaldırmak istediğinizden emin misiniz?"
+createdAt: "Oluşturma: %s"
+lastUpdatedOn: "Son güncelleme: %s"
+strongsAndMorph: Tanım ve Morfoloji
+externalLink: Harici bağlantıyı aç
+referenceLink: Referans bağlantısını aç
+openFootnote: Dipnot aç
+noMyNotesTitle: Bu bölüm için Notlarım yok.
 noMyNotesDescription: >
+  Bir Kutsal Kitap üzerinde yer imleri oluşturarak başlayın. Yer imleri daha sonra burada görünecek ve bunlara kişisel notlarınızı ekleyebilirsiniz.
 emptyStudyPad: >
-doYouWantToDeleteEntry: ""
-removeStudyPadConfirmationTitle: ""
-dragHelp: ""
-openAll: ""
-editBookmarkPlaceholder: ""
-onlyLabel: ""
-wholeBookmark: ""
-assignLabelsMenuEntry1: ""
-favouriteLabels: ""
-recentLabels: ""
-bookmarkLabels: ""
-refParserHelp: ""
-openDownloads: ""
+  Boş çalışma defteri. Burada metin girişleri oluşturarak veya bu çalışma defterine karşılık gelen bir yer imi etiketi ile yer imleri oluşturarak bu çalışma defterine ekleme yapmaya başlayın.
+doYouWantToDeleteEntry: "Bu çalışma defteri sililsin mi?"
+removeStudyPadConfirmationTitle: "Çalışma pedi kaldıralsın mı?"
+dragHelp: Yeniden sıralamak için sürükleyin
+openAll: Tüm referansları açın
+editBookmarkPlaceholder: Bu yer iminin Notlarımı düzenlemek için dokunun
+onlyLabel: Sadece etiket
+wholeBookmark: Tüm yer imi
+assignLabelsMenuEntry1: Etiketleri seçin veya düzenleyin…
+favouriteLabels: Favori Etiketler
+recentLabels: Güncel Etiketler
+bookmarkLabels: Yer imi etiketleri
+refParserHelp: İngilizce dışında dillerde referansları kullanmak için lütfen %s modülünü yükleyin.
+openDownloads: Eklenti indirmelerine git
 verseShare: Paylaş
 verseSpeak: Sesli Oku
 verseCompare: Karşılaştır
-verseNote: ""
+verseNote: Not
 verseMyNotes: Notlarım
-verseShareLong: ""
-verseCompareLong: ""
-verseNoteLong: ""
+verseShareLong: Bu ayeti paylaş
+verseCompareLong: Ayet karşılaştırması
+verseNoteLong: Bir not yazın
 addBookmark: Yer imi
