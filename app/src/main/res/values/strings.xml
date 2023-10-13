@@ -153,7 +153,7 @@
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
     <string name="prefs_open_links_in_special_window_title">Links window</string>
-    <string name="prefs_open_links_in_special_window_summary">Open links in special window, for quicker display of cross-references and Strongs</string>
+    <string name="prefs_open_links_in_special_window_summary">Open links in special window, for quicker display of cross-references and Strong\'s</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
     <string name="prefs_screen_keep_on_title">Keep screen on</string>
     <string name="prefs_screen_keep_on_summary">Prevent screen sleeping while using this app</string>
@@ -219,10 +219,10 @@
     <string name="full_screen_hide_buttons_pref_summary">When switching to fullscreen mode, hide automatically window button bar that is on the bottom of the screen</string>
 
     <string name="prefs_dictionaries_cat">Dictionaries</string>
-    <string name="choose_strongs_greek_dictionary_title">Strongs Greek dictionary</string>
-    <string name="choose_strongs_greek_dictionary_summary">Choose Strongs dictionary for Greek word definitions</string>
-    <string name="choose_strongs_hebrew_dictionary_title">Strongs Hebrew dictionary</string>
-    <string name="choose_strongs_hebrew_dictionary_summary">Choose Strongs dictionary for Hebrew word definitions</string>
+    <string name="choose_strongs_greek_dictionary_title">Strong\'s Greek dictionary</string>
+    <string name="choose_strongs_greek_dictionary_summary">Choose Strong\'s dictionary for Greek word definitions</string>
+    <string name="choose_strongs_hebrew_dictionary_title">Strong\'s Hebrew dictionary</string>
+    <string name="choose_strongs_hebrew_dictionary_summary">Choose Strong\'s dictionary for Hebrew word definitions</string>
     <string name="choose_strongs_greek_morphology_title">Robinson Greek morphology</string>
     <string name="choose_strongs_greek_morphology_summary">Choose dictionary for Robinson Greek morphology definitions</string>
 
@@ -280,7 +280,7 @@
     <string name="previous">Previous</string>
     <string name="next">Next</string>
 
-    <!--  Strongs -->
+    <!--  Strong's -->
     <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
     <string name="no_indexed_bible_with_strongs_ref">You must download a Bible containing Strong\'s numbers and build its index via Search</string>
     <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
@@ -875,7 +875,7 @@
     <string name="first_time_help_do_not_show_again">I understand</string>
     <string name="first_time_help_show_next_time">Show again next time</string>
 
-    <string name="strongs_mode_title">Choose strongs mode</string>
+    <string name="strongs_mode_title">Choose Strong's mode</string>
 
     <string name="download_dialog_message">The following books could not be downloaded:</string>
     <string name="select_multiple">Select multiple</string>
