@@ -68,10 +68,10 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Bölüm ve ayet rakamları</string>
   <string name="prefs_show_verseno_summary">Bölüm ve ayet rakamlarını göster</string>
-  <string name="prefs_e_ink_mode_title">Siyah beyaz kipi</string>
+  <string name="prefs_e_ink_mode_title">Siyah beyaz modu</string>
   <string name="prefs_eink_mode_summary">Uygulamayı tek renk kipinde (renksiz) kullan, bu seçenek e-mürekkep cihazlar için daha uygundur.</string>
   <string name="prefs_disable_animations_title">Animasyonları kapat</string>
-  <string name="prefs_disable_animations_summary">Yumuşak kaydırma vs. animasyonları kapat.</string>
+  <string name="prefs_disable_animations_summary">Pürüzsüz kaydırma vs. animasyonları kapat.</string>
   <string name="prefs_paragraph_spacing_title">Paragraf boşluğu (%s mm)</string>
   <string name="prefs_paragraph_spacing_summary">Paragraflar arasındaki boşluğu ayarla.</string>
   <string name="prefs_show_verseno_title1">Ayet rakamları</string>
@@ -101,7 +101,7 @@
   <string name="prefs_tilt_to_scroll_title">Eğdirip kaydır</string>
   <string name="prefs_toolbar_button_action_title">Araç çubuğu düğmesine basma eylemi</string>
   <string name="prefs_toolbar_button_action_summary">İncil ya da Yorum Kitabı araç çubuğu düğmelerine basıldığında/uzun-basıldığında yapılacak eylem</string>
-  <string name="prefs_toolbar_button_action_default">Menüyü açmak için basın, belgeler ekranı için uzun basın(varsayılan)</string>
+  <string name="prefs_toolbar_button_action_default">Menüyü açmak için basın, belgeler ekranı için uzun basın (varsayılan)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Bir sonraki belgeyi açmak için basın, menüyü açmak için uzun basın</string>
   <string name="prefs_toolbar_button_action_swap_activity">Bir sonraki belgeyi açmak için basın, belgeler ekranı için uzun basın</string>
   <string name="prefs_night_mode_title">Gece modu değiştirici</string>
@@ -120,7 +120,7 @@
   <string name="prefs_interface_locale_title">Arayüz dili</string>
   <string name="prefs_interface_locale_summary">Farklı bir arayüz dilini seç</string>
   <string name="reset_fontsize">Sıfırla</string>
-  <string name="prefs_request_sdcard_permission_title">Elle yüklenen belgeler mevcut</string>
+  <string name="prefs_request_sdcard_permission_title">Elle yüklenen belgeler mevcuttur</string>
   <string name="prefs_request_sdcard_permission_summary">Dahili depolamadaki jsword/sword klasöründen elle yüklenen belgelerin kullanımını etkinleştirin</string>
   <string name="prefs_expand_footnotes_title">Satır içi ayet referanslar</string>
   <string name="prefs_expand_footnotes_summary">Açılır iletişim kutusu açan bir bağlantı yerine ayet referans içeriğini metin içinde satır içinde gösterin</string>

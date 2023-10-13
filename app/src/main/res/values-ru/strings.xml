@@ -122,6 +122,8 @@
   <string name="reset_fontsize">Сбросить</string>
   <string name="prefs_request_sdcard_permission_title">Ресурсы, установленные вручную, существуют</string>
   <string name="prefs_request_sdcard_permission_summary">Включить использование установленных вручную документов из папки jsword / sword на внутреннем хранилище</string>
+  <string name="prefs_expand_footnotes_title">Встроенные перекрестные ссылки</string>
+  <string name="prefs_expand_footnotes_summary">Показывать содержимое перекрестной ссылки в тексте вместо ссылки, открывающей всплывающее диалоговое окно.</string>
   <string name="all_text_options_window_menutitle">Все параметры текста</string>
   <string name="text_options_window_menutitle">Параметры текста</string>
   <string name="auto_fullscreen">Полный экран с помощью прокрутки</string>
@@ -131,6 +133,7 @@
   <string name="value_mm">%d мм</string>
   <string name="auto_fullscreen_summary">Автоматически переключаться в полноэкранный режим при прокрутке текста. Совет: вы также всегда можете переключиться в полноэкранный режим, дважды нажав экран.</string>
   <string name="prefs_margin_size_title">Изменить размер поля</string>
+  <string name="prefs_margin_size_mm_title">Размер поля (%1$d/%2$d/%3$d мм)</string>
   <string name="prefs_advanced_settings_cat">Расширенные настройки</string>
   <string name="prefs_display_customization_cat">Оформление и удобство</string>
   <string name="prefs_behavior_customization_cat">Поведение приложения</string>
@@ -181,6 +184,8 @@
   <string name="prefs_text_bookmarks_title">Настройки закладок и заметок</string>
   <string name="prefs_enable_bluetooth_title">Активировать медиа кнопки Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Управление медиа кнопками Bluetooth для начала/завершения голосовой функции.</string>
+  <string name="create_bookmark">Создать новую закладку</string>
+  <string name="create_bookmark_with_a_note">Создать новую закладку с заметкой</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Настройки цвета</string>
   <string name="window_color_settings_title">Настройки цвета окна</string>
@@ -204,8 +209,10 @@
   <string name="windowMinimise">Свернуть</string>
   <string name="windowSynchronise">Синхронизировать</string>
   <string name="move_window">Переместить в</string>
+  <string name="move_window_to_position2">Положение %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Копировать настройки в</string>
   <string name="copy_settings_to_workspace">Рабочая область</string>
+  <string name="copy_settings_to_window">Окно %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Изменить на нормальное окно</string>
   <string name="window_pin_mode">Прикрепить</string>
   <!--Notes screen-->
@@ -228,6 +235,7 @@
   <string name="download_document_confirm_prefix">Скачать</string>
   <string name="download_refresh_book_list_menu_item">Обновить</string>
   <string name="error_downloading">Произошла ошибка при загрузке. Пожалуйста, проверьте подключение к интернету.</string>
+  <string name="error_downloading_status">Сервер, на котором размещен %1$s возвратил ошибку из-за %2$s (%3$d).</string>
   <string name="storage_space_warning">Недостаточно места на устройсве.</string>
   <string name="too_many_jobs">Выполняется слишком много задач. Подождите, пока некоторые из них закончат, и попробуйте еще раз.</string>
   <string name="document_not_installed">Пожалуйста скачайте \'%s\'</string>
@@ -247,7 +255,9 @@
   <string name="download_errors">Ошибки при загрузке</string>
   <string name="failed_repositories_message">Не удалось подключиться к следующему серверу ресурсов: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Следующие файлы не могут быть загружены:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Этот ресурс невозможно удалить.</string>
   <!--Install zip file-->
+  <string name="install_zip">Загрузка ресурсов из файлов</string>
   <string name="install_zip_module">Установить библейский модуль</string>
   <string name="install_zip_module_discrete">Установить модуль калькулятора</string>
   <string name="install_zip_successfull">Модуль установлен успешно</string>
@@ -257,6 +267,8 @@
   <string name="install_zip_title">Пожалуйста, подождите. Загрузка модулей из файла.</string>
   <string name="overwrite_files">Следующие файлы уже существуют: %s Перезаписать?</string>
   <string name="overwrite_files_title">Перезаписать файлы?</string>
+  <string name="could_not_overwrite_files">Не удалось перезаписать файлы: %s. В остальном установка прошла успешно.</string>
+  <string name="install_do_you_want">Хотите установить (%s) модуль?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План чтения</string>
   <string name="reading_plans_plural">Планы чтения</string>
@@ -364,11 +376,19 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="label_color">Цвет ярлыка</string>
   <!--can be removed-->
   <string name="label_color_example">Пример</string>
+  <string name="marker_style">Показывать только маркер для выделенных закладок</string>
+  <string name="marker_style_whole_verse">Показывать только маркер для закладок всего стиха</string>
+  <string name="hide_style">Скрыть для закладок выделения</string>
+  <string name="hide_style_whole_verse">Скрыть для закладок всего стиха</string>
+  <string name="bookmark_warning">В этом ресурсе есть закладки и/или примечания.</string>
+  <string name="bookmark_warning3">Вы все еще хотите обновить модуль?</string>
+  <string name="bookmark_warning4">Перед обновлением рекомендуется сделать резервную копию модуля.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">По датам</string>
   <string name="sort_by_bible_book">Библейский порядок</string>
   <string name="sort_by_alphabetical">Сортировка по алфавиту</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Поиск заметок</string>
   <!--Dictionary-->
   <string name="dictionary">Словарь</string>
   <string name="search_dictionary_hint">Найти словарь</string>
@@ -455,6 +475,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="window_text_options_help2">%s значок указывает, что этот параметр был изменен для этого конкретного окна.</string>
   <string name="window_text_options_help3">Настройка рабочей области не повлияет на это окно.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Используйте %1$s кнопку, чтобы сбросить все эти настройки обратно на %2$s.</string>
   <string name="reset_defaults">значения по умолчанию</string>
   <string name="reset_workspace_defaults">значения по умолчанию для рабочей области</string>
   <string name="speak_bookmark_help">Помощь по закладкам прослушивания</string>
@@ -518,17 +539,30 @@ http://www.heartlight.org, разрешение предоставлено
   <!--Backup and restore-->
   <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
   <string name="backup_modules2">Резервное копирование документов на...</string>
+  <string name="backup_app_database2">Резервное копирование базы данных приложения в…</string>
+  <string name="backup_app2">Создать резервную копию приложения (файл .apk) в…</string>
+  <string name="backup_application">Приложение</string>
+  <string name="backup_database">База данных</string>
+  <string name="backup_documents">Ресурсы</string>
+  <string name="backup_application_info">Файл приложения (.APK)</string>
+  <string name="backup_database_info">Закладки, метки, заметки, блокноты, планы чтения, рабочие области и т. д.</string>
+  <string name="backup_document_info">Библии, комментарии, словари, карты и т. д.</string>
+  <string name="backup_to">Резервное копирование в…</string>
+  <string name="backup_restore_from">Восстановить из…</string>
   <string name="backup_restore">Восстановить</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Что вы хотите восстановить?</string>
   <string name="restore_app_database">Восстановить базу данных приложения из…</string>
   <string name="restore_database">Восстановить файл базы данных</string>
   <string name="restore_confirmation">Перезаписать Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области?</string>
+  <string name="restore_success2">Выбранные разделы базы данных успешно восстановлены</string>
   <string name="restore_success">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно восстановлены.</string>
+  <string name="downloading_backup">Загрузка файла резервной копии…</string>
   <string name="loading_backup">Загрузка базы данных из резервной копии...</string>
   <string name="backup_success2">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно скопированы.</string>
   <string name="backup_modules_success">Резервное копирование выбранных модулей успешно выполнено.</string>
   <string name="backup_modules_email_subject_2">%s резервное копирование модулей</string>
+  <string name="backup_modules_email_message_2">Прикреплена %1$s резервная копия ваших модулей, которая содержит следующие модули:%2$s</string>
   <string name="backup_email_subject_2">%s резервное копирование базы данных</string>
   <string name="backup_email_message_2">Ваша %s база данных, содержащая закладки, заметки, планы чтения и рабочие области, прилагается</string>
   <string name="restore_unsuccessfull">Восстановление базы данных не удалось. Возможно, вы указали неверный файл базы данных.</string>
@@ -538,6 +572,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="install_zip_canceled">Установка модуля отменена</string>
   <!--About-->
   <string name="module_about_copyright">Авторское право: %s</string>
+  <string name="module_about_installed_version">Установленная версия: %1$s(%2$s)</string>
+  <string name="module_about_latest_version">Последняя версия: %1$s (%2$s)</string>
   <string name="module_about_versification">Версия: %s</string>
   <string name="module_about_repository">Сервер распространения : %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -545,6 +581,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="send_bug_report_title1">Отчет об ошибке</string>
   <string name="send_feedback_title">Отзыв</string>
   <string name="send_bug_report_title">Отзыв / отчет об ошибке</string>
+  <string name="report_bug_email_subject_3">[%1$s] Отчет об ошибке для %2$s %3$s</string>
   <string name="report_bug_big_heading">ПОЖАЛУЙСТА, НАПИШИТЕ ОТЗЫВЫ ИЛИ ОТЧЕТ ОБ ОШИБКЕ ВЫШЕ ЭТОЙ СТРОКИ</string>
   <string name="report_bug_heading1">Инструкция:</string>
   <string name="report_bug_line_1">Расскажите нам вкратце, что вы делали / что произошло, когда возникла проблема.</string>
@@ -594,6 +631,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="error_key_not_in_document2">%s не найдено в ресурсе %s.</string>
   <string name="empty_list">Для отображения ничего нет</string>
   <string name="error_skip">Пропустить</string>
+  <string name="bug_report_email_title">Отправить отчет об ошибке по электронной почте</string>
+  <string name="bug_report_email_text">Затем выберите предпочитаемое почтовое приложение (например, Gmail), чтобы отправить отчет команде разработчиков.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Текст в речь</string>
   <string name="notification_channel_progress_status">Уведомление о статусе выполнения загрузки модулей и т. п.</string>
@@ -636,7 +675,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="beta_notice_dismiss_until_update">Отклонить до следующего обновления</string>
   <string name="stable_notice_title">Приложение обновлено!</string>
   <string name="upgrade_video_message">См. видео, в котором представлены новые функции этого выпуска. (%s).</string>
+  <string name="stable_notice_par1">Новая версия %1$s \"%2$s\" успешно установлена!</string>
   <!--History-->
+  <string name="history_for">История (%1$s: Окно %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Навигация</string>
   <string name="help_nav_text">Чтобы перейти к следующей или предыдущей главе, проведите пальцем по экрану.
@@ -689,13 +730,21 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="redownload_documents">Быстрая повторная загрузка</string>
   <string name="welcome_message">Спасибо за скачивание проложения %s. В настоящее время Библии, ресурсы не установлены. Чтобы продолжить, установите хотя бы 1 ресурс, загрузив его из Интернета или загрузив из резервной копии документа в zip-архиве.</string>
   <!--Supported file formats for documents-->
+  <string name="supported_formats_title">Поддерживаемые форматы</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">Вам нужно выбрать файл, который вы хотите загрузить в %s.</string>
+  <string name="supported_formats">Поддерживаемые форматы загрузки документов из файла: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">ZIP-файл, содержащий модуль(и) Sword, или файл резервной копии ресурсов (*.abmd), созданный %s</string>
+  <string name="format_mysword">MySword ресурсы (*.mybible)</string>
+  <string name="format_mybible">MyBible ресурсы (*.SQLite3)</string>
+  <string name="format_epub">EPUB ресурсы (*.epub)</string>
   <string name="redownload_message">
         Был найден список предыдущих книг / ресурсов. Нажмите ниже, чтобы легко загрузить их снова.
     </string>
   <!--Uncategorized-->
   <string name="close">Закрыть</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Понятно</string>
   <string name="first_time_help_show_next_time">Показать снова в следующий раз</string>
   <string name="strongs_mode_title">Выберите режим Стронга</string>
@@ -738,24 +787,38 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="share_verse_menu_title">Поделиться / копировать…</string>
   <string name="show_versenumbers">Показать номера стихов</string>
   <string name="show_full_verses">Показать полные стихи</string>
+  <string name="show_selection_only">Показать только выделенный текст</string>
   <string name="advertise_app">Рекламировать приложение</string>
   <string name="verse_share_advertise">Отправлено используя %s.</string>
+  <string name="show_reference">Показать ссылку</string>
+  <string name="show_reference_at_front">Показывать перед стихом</string>
   <string name="abbreviate_reference">Сокращенная ссылка</string>
   <string name="version_name">Название перевода</string>
   <!--meaning, bible version name-->
+  <string name="show_version_name">Включить название версии</string>
+  <string name="show_ellipsis">Показать многоточие (…)</string>
+  <string name="show_quotes">Показать цитаты</string>
   <string name="backup_button">Резервное копирование</string>
   <string name="back_button">Назад</string>
   <string name="upgrading_database">Обновление базы данных. Пожалуйста, подождите…</string>
   <string name="initializing_app">Инициализация приложения…</string>
   <string name="show_notes">Показать заметки</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Пакет Android WebView слишком старый (%1$s). Вам необходимо обновить пакет Android WebView как минимум до версии %2$s чтобы использовать %3$s. Для большинства устройств это можно сделать через %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Все равно продолжить</string>
+  <string name="proceed">Продолжить</string>
   <string name="rate_title">Оценка и обзор приложения</string>
+  <string name="rate_message5">
+        Положительные и подробные отзывы очень помогают And Bible проекту с открытым исходным кодом. Спасибо!
+    </string>
   <string name="rate_message6">
         Прежде чем оставить отрицательный отзыв, обратите внимание на следующее:
     </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        Если у вас проблемы с приложением, пожалуйста %1$s или %2$s.
+    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Если с некоторым текстом / переводом Библии есть проблемы, %s.
@@ -798,6 +861,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="recent_labels">Недавние ярлыки</string>
   <string name="other_labels">Другие ярлыки</string>
   <string name="book_menu_sort_row_opt">Упорядочить книги по горизонтали</string>
+  <string name="book_menu_group_by_category">Группировать книги по категориям</string>
+  <string name="book_menu_show_long_book_name">Показать длинное название книги</string>
   <string name="reset_workspace_labels">Вы хотите сбросить настройки автоматического назначения и любимых ярлыков для этой рабочей области?</string>
   <string name="reset_hide_labels">Сбросить настройку скрытия настроек ярлыков?</string>
   <string name="reorder">Изменение порядка</string>
@@ -831,6 +896,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="chooser_select">Выбрать %s</string>
   <string name="chooser_pref_reset">Не сбрасывать главу/стих на 1, когда выбрана книга/глава</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Мы сожалеем, но у нас есть только частичный перевод пользовательского интерфейса на %1$s языке. Это потому, что %2$s полностью разработана волонтерами. Если вы можете помочь с переводом, смотрите %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">инструкции для переводчиков</string>
   <string name="questions_title">Вопросы?</string>
@@ -844,15 +910,100 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="permission_required">Отказано в доступе</string>
   <string name="labels_search_hint">Поиск</string>
   <!--Discrete mode settings-->
+  <string name="app_name_calculator">Простой калькулятор</string>
+  <string name="prefs_persecution_cat">Настройки для преследуемых</string>
+  <string name="prefs_discrete_mode">Скрыть религиозные символы</string>
+  <string name="prefs_discrete_mode_desc">Переименуйте приложение в «Калькулятор» и покажите другой значок в панели запуска.</string>
+  <string name="prefs_show_calculator">Калькулятор</string>
+  <string name="prefs_calculator_pin">PIN-код калькулятора</string>
+  <string name="prefs_calculator_pin_desc">PIN-код для входа в приложение, когда отображается калькулятор.</string>
+  <string name="calc_division_by_zero">Деление на ноль не допускается.</string>
   <!--Context: calculator. Wrong number format etc.-->
+  <string name="calc_wrong_format">Неверный формат</string>
+  <string name="calc_wrong_format_operand">Неверный формат. Операнд без каких-либо чисел?</string>
+  <string name="prefs_persecuted_help">Прочтите это первым!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Инструкция по настройке и информация о дискретной версии приложения для приследуемых христиан.</string>
+  <string name="calculator_par1">
+        Перед входом в приложение отображается экран калькулятора.
+    </string>
+  <string name="calculator_par3">
+        Вы можете настроить собственный PIN-код с помощью настройки «PIN-код калькулятора».
+    </string>
+  <string name="discrete_mode_link">
+        Вы можете скачать последнюю версию дискретной версии с сайта %s.
+    </string>
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Синхронизировать группу</string>
+  <string name="sync_group_n">Группа %d</string>
+  <string name="disable_sync">Отключить синхронизацию</string>
+  <string name="open_in_window">Открыть результаты в окне</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">Личные репозитории</string>
+  <string name="custom_repositories_empty_list_message">Личные репозитории не определены</string>
+  <string name="custom_repositories_create_button_label">Добавить личный репозиторий</string>
   <string name="custom_repositories_info_button_label">Информация</string>
+  <string name="name_for_repository">Имя репозитория</string>
+  <string name="repository_specification">URL-адрес репозитория</string>
+  <string name="delete_custom_repository">Вы хотите удалить личный репозиторий %s?</string>
+  <string name="invalid_repository_not_saved">Спецификация репозитория недействительна и не сохранена.</string>
+  <string name="custom_repositories_help2">Дополнительную информацию о личных репозиториях можно прочитать в разделе %s.</string>
+  <string name="wiki_page">ВИКИ-страница</string>
+  <string name="packages_dir">Каталог пакетов (Zip-файлы)</string>
+  <string name="warn_bad_document">Внимание: Этот документ может быть (по крайней мере частично) плохого технического качества.</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Открыть ссылки на библию в AndBible</string>
+  <string name="open_bible_links_summary">При нажатии на ссылки, которые ссылаются на URL-адрес библии, поддерживаемы AndBible, открыть их в AndBible.</string>
+  <string name="copyReference">Скопировать ссылку в буфер обмена</string>
+  <string name="reference_copied_to_clipboard">Ссылка скопирована в буфер обмена.</string>
   <!--Device cloud synchronization-->
+  <string name="restore_backup_sections">Какие разделы резервной копии вы хотите восстановить?</string>
+  <string name="db_repositories">Репозитории и связанные с ними настройки</string>
+  <string name="db_bookmarks">Закладки, заметки, ярлыки и блокноты</string>
+  <string name="synchronizing">Синхронизация…</string>
+  <string name="reading_plans_content">Планы чтения и их статусы</string>
+  <string name="bookmarks_contents">Закладки, ярлыки и блокноты</string>
+  <string name="workspaces_contents">Рабочие области и окна</string>
+  <string name="cloud_fetch_and_restore_initial">Скопировать из облака на это устройство</string>
+  <string name="cloud_create_new">Скопировать с этого устройства в облако</string>
+  <string name="cloud_disable_sync">Отменить и отключить синхронизацию</string>
+  <string name="cloud_sync_title">Синхронизация устройства</string>
+  <string name="reset_sync">Выход</string>
+  <string name="prefs_reset_sync_summary">Отключить синхронизацию и сбросить соответствующие настройки.</string>
+  <string name="cloud_info">Информация об облаке</string>
+  <string name="cloud_info_summary">Данные в облачном хранилище: %sМб</string>
+  <string name="sync_adapter">Серверная часть синхронизации</string>
+  <string name="sync_adapter_summary">Текущее: %s</string>
+  <string name="adapters_google_drive">Гугл Диск</string>
+  <string name="adapters_next_cloud">Следующее облако</string>
+  <string name="auth_title">Аутентификация для %s</string>
+  <string name="auth_username">Имя пользователя</string>
+  <string name="auth_password">Пароль</string>
+  <string name="auth_access_token">Токен доступа</string>
+  <string name="synchronization_categories">Категории синхронизации</string>
+  <string name="sync_general_settings">Информация и общие настройки</string>
+  <string name="sync_introduction">Введение</string>
+  <string name="are_you_sure">Вы уверены?</string>
+  <string name="sync_disabling">Отключение синхронизации для %s на данный момент.</string>
+  <string name="sync_update_app">Пожалуйста, обновите приложение, чтобы продолжить синхронизацию.</string>
+  <string name="sign_in_failed">Не удалось войти в серверную службу синхронизации.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">Отключение синхронизации с облаком. После восстановления необходимо повторно включить вручную.</string>
+  <string name="report">Отчет</string>
+  <string name="sync_error">Произошла ошибка при синхронизации с облаком.</string>
+  <string name="error_notification_channel_name">Уведомления об ошибках</string>
+  <string name="restore_from_cloud_description">Если на другом устройстве включена синхронизация устройств, вы можете начать с восстановления базы данных из облака.</string>
+  <string name="enable_sync">Включить синхронизацию</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Невозможно прочитать файл</string>
+  <string name="sqlite_invalid_file">Неверный файл модуля или имя файла: %s</string>
+  <string name="sqlite_cant_write">Невозможно (пере)записать файл</string>
+  <string name="install_failed_reason">Установка модуля не удалась по следующей причине: %s.</string>
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Приложение открыто в другом месте</string>
+  <string name="open_here">Открыть здесь</string>
+  <string name="external_link">Внешняя ссылка</string>
+  <string name="external_link_question">Откроется внешняя ссылка %s в приложении браузера. Продолжить?</string>
+  <string name="nameless">Название не определено</string>
 </resources>

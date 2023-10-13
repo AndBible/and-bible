@@ -1,4 +1,4 @@
-<b>Güçlü Kutsal Kitap çalışma aracı</b>
+Güçlü Kutsal Kitap çalışma aracı
 
 "AndBible: İncil Çalışması" Android için güçlü, ancak kullanımı kolay, çevrimdışı bir Kutsal Kitap çalışma uygulamasıdır. Uygulama sadece bir Kutsal Kitap okuyucusu olmayı hedeflemez, ancak derinlemesine kişisel Kutsal Kitap çalışması yapmak için gelişmiş bir araç olmaya odaklanır.
 
@@ -6,7 +6,7 @@ Bu uygulama Kutsal Kitap okuyucuları tarafından, Kutsal Kitap okuyucuları iç
 
 KJV, NASB, NET gibi birkaç popüler İncil versiyonu (mevcut birçok versiyon arasından) ve ayrıca Matthew Henry ve John Gill gibi popüler yorumları.
 
-<b>Güçlü İncil Çalışma özellikleri</b>
+Güçlü İncil Çalışma özellikleri
 
 Uygulama, karmaşık ve derin bir Kutsal Kitap çalışma deneyimini daha sorunsuz hale getiren birçok aydınlatıcı, orijinal özelliğe sahiptir. En dikkat çekici özellikler aşağıdaki gibidir:
 
@@ -24,7 +24,7 @@ Uygulama, karmaşık ve derin bir Kutsal Kitap çalışma deneyimini daha soruns
 teolojik yorumlar, sözlükler, haritalar ve Hristiyan kitapları.
  * MyBible, MySword ve EPUB dosyaları için yerel destek, kitaplığınızı daha da genişletmenizi sağlar.
 
-<b>Birlikte en iyi Kutsal Kitap uygulamasını yapalım!</b>
+Birlikte en iyi Kutsal Kitap uygulamasını yapalım!
 
 AndBible açık kaynaklı bir topluluk projesidir. Pratikte bu, uygun becerilere sahip herkesin
 
@@ -35,13 +35,13 @@ AndBible açık kaynaklı bir topluluk projesidir. Pratikte bu, uygun becerilere
 
 Profesyonel bir yazılım mühendisi ya da testçi iseniz lütfen projeye katkıda bulunmayı düşünün. Nasıl katkıda bulunacağınız hakkında daha fazla bilgi sahibi olmak için lütfen bakınız https://git.io/JUnaj.
 
-<b>Geliştirme süresi satın alarak destek olun!</b>
+Geliştirme süresi satın alarak destek olun!
 
 Projeye katkıda bulunmak için zamanınız veya beceriniz yoksa, profesyonel geliştirici çalışma süresi satın alarak da projeyi destekleyebilirsiniz.
 
 Seçenekleri görün: https://shop.andbible.org/
 
-<b>Bağlantılar</b>
+Bağlantılar
 
  * Ana Sayfa: https://andbible.org
  * AndBible’ı Facebook’ta Beğen: https://www.facebook.com/AndBible/

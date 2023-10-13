@@ -184,6 +184,8 @@
   <string name="prefs_text_bookmarks_title">Налаштування Закладок і Моїх приміток</string>
   <string name="prefs_enable_bluetooth_title">Увімкнути мультимедійні кнопки Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Використовуйте мультимедійні кнопки Bluetooth, щоб розпочати/припинити говорити.</string>
+  <string name="create_bookmark">Створити нову закладку</string>
+  <string name="create_bookmark_with_a_note">Створити нову закладку з приміткою</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Налаштування кольору</string>
   <string name="window_color_settings_title">Налаштування кольору вікон</string>
@@ -266,6 +268,7 @@
   <string name="overwrite_files">Наступні файли вже існують: %s Перезаписати?</string>
   <string name="overwrite_files_title">Перезаписати файли?</string>
   <string name="could_not_overwrite_files">Не вдалося перезаписати файли: %s. Крім того, встановлення пройшло успішно.</string>
+  <string name="install_do_you_want">Ви хочете встановити (%s) модуль?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План читання</string>
   <string name="reading_plans_plural">Плани читання</string>
@@ -373,13 +376,23 @@
   <string name="label_color">Колір мітки</string>
   <!--can be removed-->
   <string name="label_color_example">Приклад</string>
-  <string name="marker_style">Показувати лише позначку для закладок вибору</string>
+  <string name="marker_style">Показувати лише позначку для виділеного тексту</string>
   <string name="marker_style_whole_verse">Показувати лише позначку для закладок цілих віршів</string>
+  <string name="hide_style">Приховати закладки виділеного тексту</string>
+  <string name="hide_style_whole_verse">Сховати для закладок цілих віршів</string>
+  <string name="bookmark_warning">В цьому ресурсі є закладки та/або примітки.</string>
+  <string name="bookmark_warning2">
+        Якщо структура документа змінилася, оновлення цього ресурсу може спричинити
+        розташування цих закладок/нотаток переміститися всередину документа або повністю зникнути.
+    </string>
+  <string name="bookmark_warning3">Ви все ще хочете оновити модуль?</string>
+  <string name="bookmark_warning4">Перед оновленням рекомендується зробити резервну копію модуля.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Сортувати за датою</string>
   <string name="sort_by_bible_book">Сортувати у біблійному порядку</string>
   <string name="sort_by_alphabetical">Сортувати за алфавітом</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Пошук нотаток</string>
   <!--Dictionary-->
   <string name="dictionary">Словник</string>
   <string name="search_dictionary_hint">Пошук в словнику</string>
@@ -678,7 +691,7 @@
 Довго натискайте на елемент документа у списку \"Вибрати ресурс\" або \"Завантажити\", щоб видалити ресурс або переглянути інформацію.
 Довго натискайте закладку в списку закладок, щоб додати мітки або видалити закладку.
 Довго натискайте посилання, щоб вибрати, чи відкрити їх у поточному вікні, новому вікні чи у вікні спеціальних посилань.</string>
-  <string name="help_bookmarks_title">Закладки та Мої примітки</string>
+  <string name="help_bookmarks_title">Закладки і Мої Примітки</string>
   <string name="help_bookmarks_text">Закладки можна створити, вибравши певний текст і натиснувши \"Закладка\"
 у контекстному меню. Ви можете додати власні нотатки до нової закладки, натиснувши 
 виділений текст у перегляді Біблії. У коментарях також є спеціальний ресурс \"Мої примітки\", який дозволяє вам
@@ -785,6 +798,7 @@
   <string name="version_name">Назва перекладу</string>
   <!--meaning, bible version name-->
   <string name="show_version_name">Вмістити назву версії</string>
+  <string name="show_ellipsis">Показати три крапки (…)</string>
   <string name="show_quotes">Показати цитати</string>
   <string name="backup_button">Резервне копіювання</string>
   <string name="back_button">Назад</string>
@@ -1001,12 +1015,15 @@
   <string name="are_you_sure_reset_cloud">Це скине вашу хмарну базу даних для %s, і замінить контентом який ви маєте на цьому пристрої.</string>
   <string name="sync_cant_fetch">Версія бази даних або файлу виправлення, що зберігається в хмарі, є вищою за ту, що підтримується цією програмою.</string>
   <string name="sync_disabling">Наразі синхронізація відключається для %s.</string>
+  <string name="sync_update_app">Оновіть додаток, щоб продовжити синхронізацію.</string>
   <string name="sign_in_failed">Сталася помилка під час входу в серверну службу синхронізації.</string>
   <!--... after restoring from backup file-->
   <string name="disabling_sync">Вимкнення хмарної синхронізації. Ви повинні повторно ввімкнути синхронізацію вручну після відновлення.</string>
   <string name="report">Звіт</string>
   <string name="sync_error">Сталася помилка синхронізації з хмарою</string>
   <string name="error_notification_channel_name">Повідомлення помилок</string>
+  <string name="restore_from_cloud_description">Якщо на іншому пристрої ввімкнуто синхронізацію пристрою, ви можете почати з відновлення бази даних із хмари.</string>
+  <string name="enable_sync">Увімкнути синхронізацію</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Неможливо прочитати файл</string>
   <string name="sqlite_invalid_file">Недійсний файл модуля або назва файлу: %s</string>
@@ -1017,4 +1034,28 @@
   <string name="open_here">Відкрити тут</string>
   <string name="external_link">Зовнішнє посилання</string>
   <string name="external_link_question">Зовнішнє посилання %s відкриється в браузері. Відкрити?</string>
+  <string name="nameless">Назва не визначена</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Дії одним дотиком (Біблії)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Дії одним дотиком (інші)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Коли ви торкаєтеся тексту, відображається вікно дій одним дотиком. Які кнопки дій мають бути показані?</string>
+  <string name="processing_epub">Обробка EPUB: %s</string>
+  <string name="buy_development">Купити розробки</string>
+  <string name="buy_development2">Підтримка проекту</string>
+  <string name="new_version_warning">
+        Скоро вийде новий випуск. Очікувана дата випуску %1$s. Дивіться наш
+        %2$s щоб ознайомития з новими функціями та вдосконаленням.
+    </string>
+  <string name="new_version_trailer">трейлер відео</string>
+  <string name="new_version_warning2">
+        Після випуску ця версія не підтримується.
+    </string>
+  <string name="new_version_warning3">
+        Не отримуватиме виправлення помилок або оновлення.
+    </string>
+  <string name="new_version_warning4">
+       Якщо ви не хочете оновлювання, вимкніть «Автоматичне оновлення» у своєму магазині додаток (Google Play / F-Droid тощо).
+    </string>
+  <string name="dont_show">
+        Більше не показувати це повідомлення
+    </string>
 </resources>

@@ -371,6 +371,7 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="sort_by_bible_book">Bibliai sorrend</string>
   <string name="sort_by_alphabetical">Ábécérend</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Keresés a jegyzetek között&lt;br&gt;</string>
   <!--Dictionary-->
   <string name="dictionary">Szótár</string>
   <string name="search_dictionary_hint">Keresés a szótárban</string>
@@ -606,6 +607,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="error_key_not_in_document2">%s nem található %s dokumentumban.</string>
   <string name="empty_list">Nincs megtekinthető elem</string>
   <string name="error_skip">Kihagyás</string>
+  <string name="bug_report_email_title">Hibajelentés küldése emailben</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Felolvasás</string>
   <string name="notification_channel_progress_status">Értesítés dokumentum letöltésekről stb.</string>
@@ -814,6 +816,7 @@ jelentse be az észlelt problémát</string>
   <string name="other_labels">Egyéb címkék</string>
   <string name="book_menu_sort_row_opt">Könyvek rendezése víszintesen</string>
   <string name="book_menu_group_by_category">Könyvek kategória szerint való csoportosítása</string>
+  <string name="book_menu_show_long_book_name">Hosszú könyvnév mutatása</string>
   <string name="reset_workspace_labels">Vissza szeretné állítani az automatikus hozzárendelés és a kedvencek beállításait ehhez munkaterülethez?</string>
   <string name="reset_hide_labels">Vissza szeretné állítani a beállítást a megadott címkék beállításainak elrejtéséhez?</string>
   <string name="reorder">Átrendezés</string>
@@ -862,6 +865,7 @@ jelentse be az észlelt problémát</string>
   <string name="labels_search_hint">Keresés</string>
   <!--Discrete mode settings-->
   <string name="prefs_discrete_mode">Vallási szimbólumok elrejtése</string>
+  <string name="calc_division_by_zero">Nullával nem lehet osztani</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Rossz formátum</string>
   <string name="prefs_persecuted_help">Először olvassa el ezt!</string>
