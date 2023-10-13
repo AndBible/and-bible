@@ -30,7 +30,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
-        node-version: '18'
+        node-version: '20'
 
     - name: Cache gradle dependencies
       uses: actions/cache@v3
