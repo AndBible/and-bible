@@ -11,11 +11,16 @@
   <!--Open (bible reference X)-->
   <!--Finx "(keywords x)", keywords based on text selection-->
   <!--Preferences-->
+  <string name="prefs_open_links_in_special_window_summary">Open links in special window, for quicker display of cross-references and Strong\'s</string>
   <string name="auto_fullscreen_summary">Switch automatically to full screen when scrolling text. Tip: you can always also switch to full screen by double tapping screen.</string>
   <string name="prefs_margin_size_summary">Adjust left and right margin of the text view. You can also
         adjust the maximum width of the text.
     </string>
   <string name="full_screen_hide_buttons_pref_summary">When switching to fullscreen mode, hide window button bar that is on the bottom of the screen automatically</string>
+  <string name="choose_strongs_greek_dictionary_title">Strong\'s Greek dictionary</string>
+  <string name="choose_strongs_greek_dictionary_summary">Choose Strong\'s dictionary for Greek word definitions</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Strong\'s Hebrew dictionary</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Choose Strong\'s dictionary for Hebrew word definitions</string>
   <!--Colors preferences-->
   <!--Window-->
   <!--Notes screen-->
@@ -150,6 +155,7 @@ Workspaces allow having multiple working environments. Workspace functions can b
   <!--argument is app_name_andbible (AndBible).-->
   <!--argument is app_name_andbible (AndBible).-->
   <!--Uncategorized-->
+  <string name="strongs_mode_title">Choose Strong\'s mode</string>
   <!--meaning, bible version name-->
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
