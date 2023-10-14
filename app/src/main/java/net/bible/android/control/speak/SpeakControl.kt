@@ -302,7 +302,7 @@ class SpeakControl @Inject constructor(
     private fun speakAny(bookRef: String, osisRef: String) {
         val book = Books.installed().getBook(bookRef)
         try {
-            if(book is SwordBook) {
+            if((book as? SwordBook)?.bookCategory == BookCategory.BIBLE) {
                 val verse = (book.getKey(osisRef) as RangedPassage).getVerseAt(0)
                 speakBible(book, verse)
             } else {
@@ -406,7 +406,11 @@ class SpeakControl @Inject constructor(
         if (!automated) {
             prepareForSpeaking()
         }
-        ttsServiceManager.continueAfterPause()
+        if(!ttsServiceManager.initialized) {
+            continueLastPosition()
+        } else {
+            ttsServiceManager.continueAfterPause()
+        }
     }
 
     fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {

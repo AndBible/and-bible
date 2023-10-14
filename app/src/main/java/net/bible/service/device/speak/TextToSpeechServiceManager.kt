@@ -458,6 +458,8 @@ class TextToSpeechServiceManager @Inject constructor(
         }
     }
 
+    var initialized = false
+
     @Synchronized
     fun continueAfterPause() {
         try {
@@ -505,6 +507,7 @@ class TextToSpeechServiceManager @Inject constructor(
     val am = application.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     private fun startSpeaking() {
+        initialized = true
         Log.i(TAG, "about to send some text to TTS")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(audioFocusRequest == null) {
