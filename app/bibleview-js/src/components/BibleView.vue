@@ -155,6 +155,7 @@ const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {
     async function doAddDocuments() {
+        console.log("doAddDocuments, start")
         loadingCount.value++;
         await document.fonts.ready;
         await nextTick();
@@ -168,6 +169,7 @@ function addDocuments(...docs: AnyDocument[]) {
         if(loadingCount.value < 0) {
             loadingCount.value = 0;
         }
+        console.log(`doAddDocuments, finish, loadingCount: ${loadingCount.value}`)
     }
 
     documentPromise.value = doAddDocuments()
