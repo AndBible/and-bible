@@ -146,10 +146,10 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     @Test
     fun testSleeptimer() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")).firstOrNull(), nullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
         setSleepTimer(5)
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")).firstOrNull(), notNullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(true))
         setSleepTimer(0)
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
@@ -172,25 +172,25 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.2
         speakControl.pause()
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")), nullValue())
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")).firstOrNull(), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")).firstOrNull(), notNullValue())
 
         speakControl.continueAfterPause()
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.3
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")), notNullValue())
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.3")), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")).firstOrNull(), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.3")).firstOrNull(), nullValue())
 
         // Check that altering playback settigns are saved also to bookmark (bookmark is also moved when saving)
         changeSpeed(201)
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")).firstOrNull(), nullValue())
         var b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.3")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(201))
 
         // Test that bookmark is moved properly when paused / stopped
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.4
         speakControl.pause()
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.3")), nullValue())
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.3")).firstOrNull(), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")).firstOrNull(), notNullValue())
 
         // Check that altering playback settigns are saved to bookmark when paused
         changeSpeed(202)
@@ -210,8 +210,8 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         speakControl.continueAfterPause()
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.5
         speakControl.stop()
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")), nullValue())
-        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.5")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")).firstOrNull(), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.5")).firstOrNull(), notNullValue())
 
         // Check that altering playback settigns are saved to bookmark when stopped
         changeSpeed(203)
