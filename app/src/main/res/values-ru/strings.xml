@@ -381,6 +381,10 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="hide_style">Скрыть для закладок выделения</string>
   <string name="hide_style_whole_verse">Скрыть для закладок всего стиха</string>
   <string name="bookmark_warning">В этом ресурсе есть закладки и/или примечания.</string>
+  <string name="bookmark_warning2">
+        Если структура ресурса изменилась, обновление этого ресурса может привести к
+        расположению этих закладок/заметок переместиться внутрь ресурса или полностью исчезнуть.
+    </string>
   <string name="bookmark_warning3">Вы все еще хотите обновить модуль?</string>
   <string name="bookmark_warning4">Перед обновлением рекомендуется сделать резервную копию модуля.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -909,6 +913,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="verse_tip">Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии.</string>
   <string name="permission_required">Отказано в доступе</string>
   <string name="labels_search_hint">Поиск</string>
+  <string name="progress_status_permission">Чтобы показывать уведомления (статус загрузки, обработка, голосовой статус), нам необходимо ваше разрешение.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Простой калькулятор</string>
   <string name="prefs_persecution_cat">Настройки для преследуемых</string>
@@ -927,8 +932,20 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="calculator_par1">
         Перед входом в приложение отображается экран калькулятора.
     </string>
+  <string name="calculator_par2">
+        В нем вы можете делать стандартные вычисления, а когда захотите войти в приложение, вы
+        просто введите свой PIN-код (по умолчанию 1234), а затем нажмите кнопку \"=\"
+    </string>
   <string name="calculator_par3">
         Вы можете настроить собственный PIN-код с помощью настройки «PIN-код калькулятора».
+    </string>
+  <string name="discrete_mode_info_par1">
+        Вы используете стандартную версию приложения, а это значит, что все еще можно видеть
+        настоящее имя и значок приложения в информации о приложении.
+    </string>
+  <string name="discrete_mode_info_par2">
+        Для повышения безопасности в преследуемой среде мы настоятельно рекомендуем использовать дискретную
+        версию приложения, в которой всегда отображается калькулятор, даже если данные приложения удалены.
     </string>
   <string name="discrete_mode_link">
         Вы можете скачать последнюю версию дискретной версии с сайта %s.
@@ -948,8 +965,11 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="repository_specification">URL-адрес репозитория</string>
   <string name="delete_custom_repository">Вы хотите удалить личный репозиторий %s?</string>
   <string name="invalid_repository_not_saved">Спецификация репозитория недействительна и не сохранена.</string>
+  <string name="custom_repositories_help1">Чтобы добавить новый личный репозиторий, введите или скопируйте и вставьте здесь URL-адрес личного репозитория.</string>
   <string name="custom_repositories_help2">Дополнительную информацию о личных репозиториях можно прочитать в разделе %s.</string>
   <string name="wiki_page">ВИКИ-страница</string>
+  <string name="custom_repositories_help0">Вы можете установить ресурсы из внешних репозиториев, установив личные репозитории.</string>
+  <string name="duplicate_custom_repository">Репозиторий с именем %s уже существует, добавить другой невозможно.</string>
   <string name="packages_dir">Каталог пакетов (Zip-файлы)</string>
   <string name="warn_bad_document">Внимание: Этот документ может быть (по крайней мере частично) плохого технического качества.</string>
   <!--Open links in AndBible (Deep linking)-->
@@ -958,10 +978,20 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="copyReference">Скопировать ссылку в буфер обмена</string>
   <string name="reference_copied_to_clipboard">Ссылка скопирована в буфер обмена.</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+        Выберите, какую серверную облачную службу вы хотите использовать для синхронизации нескольких устройств.
+    </string>
+  <string name="prefs_sync_introduction_summary2">
+        При использовании Google Диска, %s предоставляется доступ только к файлам приложений, а не к личным файлам.
+    </string>
   <string name="restore_backup_sections">Какие разделы резервной копии вы хотите восстановить?</string>
   <string name="db_repositories">Репозитории и связанные с ними настройки</string>
   <string name="db_bookmarks">Закладки, заметки, ярлыки и блокноты</string>
   <string name="synchronizing">Синхронизация…</string>
+  <string name="overrideBackup">
+        Существующая база данных, с которой это устройство не синхронизировано, находится в облаке.
+        База данных содержит%s. Что ты хочешь делать?
+    </string>
   <string name="reading_plans_content">Планы чтения и их статусы</string>
   <string name="bookmarks_contents">Закладки, ярлыки и блокноты</string>
   <string name="workspaces_contents">Рабочие области и окна</string>
@@ -971,6 +1001,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="cloud_sync_title">Синхронизация устройства</string>
   <string name="reset_sync">Выход</string>
   <string name="prefs_reset_sync_summary">Отключить синхронизацию и сбросить соответствующие настройки.</string>
+  <string name="sync_confirmation">Вы уверены, что хотите выйти и сбросить синхронизацию?</string>
   <string name="cloud_info">Информация об облаке</string>
   <string name="cloud_info_summary">Данные в облачном хранилище: %sМб</string>
   <string name="sync_adapter">Серверная часть синхронизации</string>
@@ -985,6 +1016,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="sync_general_settings">Информация и общие настройки</string>
   <string name="sync_introduction">Введение</string>
   <string name="are_you_sure">Вы уверены?</string>
+  <string name="are_you_sure_reset_local">Это приведет к сбросу вашей локальной базы данных для %s с содержанием, которое в настоящее время хранится в облаке.</string>
+  <string name="are_you_sure_reset_cloud">Это приведет к сбросу вашей облачной базы данных для %s с содержанием, которое есть на этом устройстве.</string>
+  <string name="sync_cant_fetch">Версия базы данных или файла исправления, хранящегося в облаке, выше, чем версия, поддерживаемая этим приложением.</string>
   <string name="sync_disabling">Отключение синхронизации для %s на данный момент.</string>
   <string name="sync_update_app">Пожалуйста, обновите приложение, чтобы продолжить синхронизацию.</string>
   <string name="sign_in_failed">Не удалось войти в серверную службу синхронизации.</string>
@@ -1006,4 +1040,27 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="external_link">Внешняя ссылка</string>
   <string name="external_link_question">Откроется внешняя ссылка %s в приложении браузера. Продолжить?</string>
   <string name="nameless">Название не определено</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Действия одним касанием (Библии)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Действия одним касанием (Другии)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">При нажатии на текст отображается окно действия одним касанием. Какие кнопки действий следует отображать?</string>
+  <string name="processing_epub">Обработка EPUB: %s</string>
+  <string name="buy_development">Купить работу по разработке </string>
+  <string name="buy_development2">Поддержать проект</string>
+  <string name="new_version_warning">
+        Скоро выйдет новый выпуск. Предполагаемая дата выпуска %1$s. Смотрите наш
+%2$s, чтобы открыть для себя новые функции и улучшения.
+    </string>
+  <string name="new_version_trailer">трейлер видео</string>
+  <string name="new_version_warning2">
+        После выпуска эта версия не поддерживается.
+    </string>
+  <string name="new_version_warning3">
+        Оно не будет получать исправления ошибок или обновления.
+    </string>
+  <string name="new_version_warning4">
+       Если вы не хотите обновления, отключите «Автоматическое обновление» в своем магазине приложений (Google Play / F-Droid и т. д.).
+    </string>
+  <string name="dont_show">
+        Больше не показывать это сообщение
+    </string>
 </resources>

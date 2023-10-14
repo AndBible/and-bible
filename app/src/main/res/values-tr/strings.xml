@@ -132,22 +132,22 @@
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Metni kaydırırken otomatik olarak tam ekrana geçin. İpucu: Ayrıca ekrana çift dokunarak her zaman tam ekrana geçebilirsiniz.</string>
-  <string name="prefs_margin_size_title">Kenar boşluğunu değiştir</string>
-  <string name="prefs_margin_size_mm_title">Kenar boşluğu (%1$d/%2$d/%3$d mm)</string>
+  <string name="prefs_margin_size_title">Kenar boşluklarını değiştir</string>
+  <string name="prefs_margin_size_mm_title">Kenar boşlukları (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Gelişmiş ayarlar</string>
   <string name="prefs_display_customization_cat">Görünüm ve his</string>
   <string name="prefs_behavior_customization_cat">Uygulama davranışı</string>
   <string name="prefs_margin_size_summary">Metin görünümünün sol ve sağ kenar boşluklarını ayarlayın.
     Ayrıca metnin maksimum genişliğini de ayarlayabilirsiniz.
   </string>
-  <string name="prefs_text_colors_summary">Metin ve arka plan renklerini ve parazit efektini ayarlayın.</string>
+  <string name="prefs_text_colors_summary">Metin ve arka plan renklerini ve parazit efektini ayarla</string>
   <string name="text_display_settings_activity_title">Metin görüntüleme ayarları</string>
   <string name="workspace_text_display_settings_title">Metin ayarları - %s</string>
   <string name="window_text_display_settings_title">Metin ayarları - Pencere %d</string>
   <string name="prefs_text_display_settings_title">Biçimlendirme</string>
   <string name="prefs_text_appearance_title">Görünüm</string>
   <string name="prefs_justify_title">Metni iki yana yasla</string>
-  <string name="prefs_justify_summary">Metni ‘yasla’ stilinde hizalayın, yani metnin sol ve sağ kenar boşlukları aynı hizada</string>
+  <string name="prefs_justify_summary">Metni ‘iki yana yasla’ stilinde hizalayın, yani metnin sol ve sağ satır uçları boşluklarıyla aynı hizada</string>
   <string name="pref_left_margin_label_mm">Sol kenar boşluğu (%d mm)</string>
   <string name="pref_right_margin_label_mm">Sağ kenar boşluğu (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Maksimum metin genişliği (%d mm)</string>
@@ -232,7 +232,7 @@
   <string name="download_confirmation">İnternet üzerinden Kutsal Kitap indirilsin mi?</string>
   <string name="download_source_last_updated">Belgelerin listesinin en son güncellenme tarihi: %s.</string>
   <string name="download_refreshing_book_list">Belge sunucularındaki erişilebilir belgelerin listesi yenileniyor.</string>
-  <string name="download_source_message1">Belgeler aşağıdaki kaynaklardan indirildi:</string>
+  <string name="download_source_message1">Belgeler aşağıdaki kaynaklardan indirilir:</string>
   <string name="download_document_confirm_prefix">İndir</string>
   <string name="download_refresh_book_list_menu_item">Yenilen</string>
   <string name="error_downloading">İndirirken bir hata oldu.  Lütfen internet bağlantınızı kontrol edin.</string>
@@ -246,9 +246,9 @@
   <string name="document_filter_results">%d belge</string>
   <string name="download_question_title">Belgeleri indirmeye devam etmek istiyor musunuz?</string>
   <string name="download_question_message">Zulme uğradığınız bir ülkede yaşıyorsanız,
-    Hristiyan materyallerini internet üzerinden indirirken dikkatli olmanız gerekebilir.
+    Hristiyan materyallerini İnternet üzerinden indirirken dikkatli olmanız gerekebilir.
     Bunun yerine, modül zip dosyalarını daha güvenli bir şekilde ederek onları kurmak isteyebilirsiniz.
-    \"Belgeleri Zip’ten Yükle\" aracılığıyla. İndirmeye devam etmek istediğinizden emin misiniz?
+    “Dosyalardan Belge Yükle” aracılığıyla. İndirmeye devam etmek istediğinizden emin misiniz?
     Modül sunucularından yapılan tüm indirmeler şifrelenir (HTTPS).
   </string>
   <string name="do_not_ask_again">Evet, tekrar sorma</string>
@@ -259,7 +259,7 @@
   <string name="failed_downloads_message">Aşağıdaki dosyalar indirilemedi: \n\n%s\n\n</string>
   <string name="cant_delete_document">Bu belge silinemez.</string>
   <!--Install zip file-->
-  <string name="install_zip">Dosyalardan Belge Yükleme</string>
+  <string name="install_zip">Dosyalardan Belge Yükle</string>
   <string name="install_zip_module">İncil Modülü Yükle</string>
   <string name="install_zip_module_discrete">Hesap Makinesi Modülünü Kurun</string>
   <string name="install_zip_successfull">Modül başarıyla yüklenmiştir</string>
@@ -574,7 +574,7 @@
   <string name="backup_email_subject_2">%s veritabanını yedeklemek</string>
   <string name="backup_email_message_2">Yer imlerinizi, notlarınızı, okuma planlarınızı ve çalışma alanlarınızı içeren %s veritabanınız ektedir</string>
   <string name="restore_unsuccessfull">Veritabanı geri yüklenemedi. Belki de geçersiz veritabanı dosyası verdiniz.</string>
-  <string name="restore_modules">Belgeleri Geri Yükle…</string>
+  <string name="restore_modules">Belgeleri Geri Yükleme kaynağı…</string>
   <string name="send_backup_file">Yedekleme dosyasını gönder</string>
   <string name="backup_modules_title">Hangi modüllerin yedekleneceğini seçin</string>
   <string name="install_zip_canceled">Modül yüklemesi iptal edildi</string>
@@ -660,8 +660,8 @@
   <string name="copy_of_workspace">%s kopyası</string>
   <string name="copy_workspace_settings">Ayarları kopyala…</string>
   <string name="copy_settings_title">Hangi ayarları kopyalansın?</string>
-  <string name="select_all">Hepsi seç</string>
-  <string name="copy_settings_workspaces_title">Ayarlar hagni çalışma alanıya kopyalansın?</string>
+  <string name="select_all">Hepsini seç</string>
+  <string name="copy_settings_workspaces_title">Ayarlar hangi çalışma alanıya kopyalansın?</string>
   <string name="reset_settings">Sıfırla</string>
   <string name="workspace_dismiss">Yok say</string>
   <string name="workspace_listing_with_current">%s (aktif)</string>
@@ -702,7 +702,7 @@ katkıda bulunmayı düşünün. :-)</string>
     Etiket eklemek veya yer imini silmek için yer imleri listesindeki bir yer imine uzun basın.
     Bağlantıları geçerli pencerede mi, yeni pencerede mi yoksa özel bağlantılar penceresinde mi açmak istediğinizi seçmek için bağlantılara uzun basın.
   </string>
-  <string name="help_bookmarks_title">Yer imleri &amp; Notlarım</string>
+  <string name="help_bookmarks_title">Yer imleri ve Notlarım</string>
   <string name="help_bookmarks_text">Bookmarks can be created by selecting some text and choosing \"Bookmark\" from
     the popup menu. You can add your custom notes to the new bookmark by tapping the now
     highlighted text in Bible view. There is also a \"My Notes\" special document in commentaries that allows you
@@ -779,7 +779,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="compare_description">Çevirileri karşılaştır</string>
   <string name="compare_abbreviation">Karşılaştır</string>
   <string name="compare">Karşılaştır</string>
-  <string name="http_forbidden">Yasak</string>
+  <string name="http_forbidden">Yasaklanmıştır</string>
   <string name="http_not_found">Bulunamadı</string>
   <string name="http_unknown">Diğer hata</string>
   <string name="give_passphrase_for_module">%s belgesi şifreli ve kilidinin açılması için parola gerekiyor</string>
@@ -812,8 +812,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="verse_share_advertise">%s kullanılarak paylaşıldı.</string>
   <string name="show_reference">Referans göster</string>
   <string name="show_reference_at_front">Ayetin önünde göster</string>
-  <string name="abbreviate_reference">Kısaltılmış referans</string>
-  <string name="version_name">Versiyon adı</string>
+  <string name="abbreviate_reference">Referans kısaltılsın</string>
+  <string name="version_name">Çeviri adı</string>
   <!--meaning, bible version name-->
   <string name="show_version_name">Sürüm adını dahil et</string>
   <string name="show_ellipsis">Üç noktayı göster (…)</string>
@@ -880,19 +880,19 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="active_labels">Seçili etiketler</string>
   <string name="recent_labels">Son etiketler</string>
   <string name="other_labels">Diğer etiketler</string>
-  <string name="book_menu_sort_row_opt">Kitaplar yatay olarak sunulsun</string>
+  <string name="book_menu_sort_row_opt">Kitaplar yatay olarak dizlensin</string>
   <string name="book_menu_group_by_category">Kitapları kategoriye göre gruplayın</string>
   <string name="book_menu_show_long_book_name">Uzun kitap adını göster</string>
   <string name="reset_workspace_labels">Bu çalışma alanı için otomatik atama ve sık kullanılan ayarlarını sıfırlamak istiyor musunuz?</string>
   <string name="reset_hide_labels">Belirtilen etiketlerin gizlenmesi ayarlarını sıfırlamak istiyor musunuz?</string>
   <string name="reorder">Yeniden sırala</string>
   <string name="system_items">Sistem eylemleri</string>
-  <string name="system_items1">Daha Fazla</string>
+  <string name="system_items1">Daha fazla</string>
   <string name="system_action2">Android eylemleri</string>
   <string name="text_copied_to_clicpboard">Metin panoya kopyalandı</string>
   <string name="prefs_disable_two_step_bookmarking_title">Tek adımda yer imi</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Doğrudan Kutsal Kitap görünümü Seçim menüsünde \"Seçim\" ve \"Ayetler\" öğelerini gösterin</string>
-  <string name="prefs_double_tap_to_fullscreen_title">Tam ekran için iki kez dokun</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Tam ekran için çift dokun</string>
   <string name="prefs_double_tap_to_fullscreen_summary">Pencereye çift dokunarak tam ekran moduna girin</string>
   <string name="toggle_fullscreen">Tam ekran</string>
   <string name="exit_fullscreen">Tam ekrandan çıkmak için ekrana iki kez dokunun</string>
@@ -913,7 +913,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="chooser_NT_abbrev">YA</string>
   <string name="chooser_style_grid">Izgara</string>
   <string name="chooser_style_lists">Listeler</string>
-  <string name="chooser_select">Seç %s</string>
+  <string name="chooser_select">%s ayet(ler)i seç</string>
   <string name="chooser_pref_reset">Kitap/bölüm seçildiğinde bölüm/ayet’i 1’e sıfırlamayın.</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Üzgünüz, ancak %1$s dilinde yalnızca kısmi arayüzü çevirimiz var. Bunun nedeni %2$s’nin tamamen gönüllüler tarafından geliştirilmiş olmasıdır. Çeviride yardımcı olabilirseniz, lütfen %3$s’e bakın.</string>

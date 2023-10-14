@@ -173,6 +173,7 @@ The developers of this app are not responsible for maintaining documents (Bibles
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <string name="adapters_next_cloud">NextCloud</string>
   <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->

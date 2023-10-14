@@ -918,20 +918,115 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="calc_wrong_format_operand">格式错误。 只有符号而没有数字？</string>
   <string name="prefs_persecuted_help">先读这个！</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
-  <string name="prefs_persecuted_summary">当前版本如何进行设置的相关信息</string>
+  <string name="prefs_persecuted_summary">如何对特殊版本进行设置以及相关信息。</string>
   <string name="calculator_par1">
-在进入主应用程序之前，会显示「计算器」界面。</string>
-  <string name="calculator_par2">在这个界面，你可以进行常规计算，如果你想启动主应用程序，只需输入你的密码（默认值1234）然后按“=”键</string>
-  <string name="calculator_par3">你可以通过「计算器 PIN」选项，来设置自己的密码</string>
-  <string name="discrete_mode_info_par1">你正在使用标准版本程序，因此在程序信息中，显示的还是正式的程序名和程序图标。</string>
+在进入主程序之前，会显示「计算器」界面。</string>
+  <string name="calculator_par2">
+在这个界面，你可以进行常规计算，如果你想启动主程序，只需输入你的密码（默认值1234）然后按“=”键。</string>
+  <string name="calculator_par3">
+你可以通过「计算器 PIN」选项，来设置自己的密码。</string>
+  <string name="discrete_mode_info_par1">
+你正在使用常规版本程序，因此在程序信息中，显示的还是常规的程序名和程序图标。</string>
+  <string name="discrete_mode_info_par2">
+考虑到高压环境下使用的安全性，我们强烈建议使用软件的特殊版本，这个版本会一直显示为计算器程序，即使是在主程序数据被删除之后。</string>
+  <string name="discrete_mode_link">
+你可以在%s下载到最新的特殊版本程序。</string>
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">小组同步</string>
+  <string name="sync_group_n">小组%d</string>
+  <string name="disable_sync">取消同步</string>
+  <string name="open_in_window">在窗口打开结果</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
-  <string name="custom_repositories_info_button_label">资讯</string>
+  <string name="custom_repositories">自定义存储库</string>
+  <string name="custom_repositories_empty_list_message">尚未自定义存储库</string>
+  <string name="custom_repositories_create_button_label">新增自定义存储库</string>
+  <string name="custom_repositories_info_button_label">信息</string>
+  <string name="name_for_repository">存储库名称</string>
+  <string name="repository_specification">存储库URL</string>
+  <string name="delete_custom_repository">你是否希望删除自定义存储库%s？</string>
+  <string name="invalid_repository_not_saved">存储库specification不正确，未能保存。</string>
+  <string name="custom_repositories_help1">新建自定义存储库，请在此输入或粘贴自定义存储库URL。</string>
+  <string name="custom_repositories_help2">在%s可以找到更多关于自定义存储库的信息。</string>
+  <string name="wiki_page">维基网页</string>
+  <string name="custom_repositories_help0">你可以安装外部存储库，来安装外部存储库里的文件。</string>
+  <string name="duplicate_custom_repository">存储库%s已存在，无法重复新建。</string>
+  <string name="packages_dir">压缩包（Zip）目录</string>
+  <string name="warn_bad_document">警告，我们无法确保这个文档（部分）的水平和质量。</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">在AndBible中打开圣经链接</string>
+  <string name="open_bible_links_summary">当你点击AndBible支持的圣经URL时，使用AndBible来打开该链接</string>
+  <string name="copyReference">复制链接至粘贴板</string>
+  <string name="reference_copied_to_clipboard">引用已复制到粘贴板</string>
   <!--Device cloud synchronization-->
-  <string name="restore_backup_sections">你想恢复哪些部分？</string>
+  <string name="prefs_sync_introduction_summary1">
+请选择同步多台设备时所使用的后端云服务。</string>
+  <string name="prefs_sync_introduction_summary2">
+当使用Google Drive时，仅授权%s访问应用程序，不包括个人文件。</string>
+  <string name="restore_backup_sections">你想重置备份中的哪些部分？</string>
+  <string name="db_repositories">存储库与相关设置</string>
+  <string name="synchronizing">同步中...</string>
+  <string name="overrideBackup">
+在云端发现当前设备尚未同步的数据库。
+数据库包含%s，请问你希望如何操作？</string>
+  <string name="reading_plans_content">读经计划和相应状态</string>
+  <string name="cloud_fetch_and_restore_initial">从云端复制至此设备</string>
+  <string name="cloud_create_new">从这台设备复制至云端</string>
+  <string name="cloud_disable_sync">取消&amp; 关闭同步功能</string>
+  <string name="cloud_sync_title">设备同步</string>
+  <string name="reset_sync">注销登陆</string>
+  <string name="prefs_reset_sync_summary">关闭同步功能，并重置相关设置。</string>
+  <string name="sync_confirmation">请确认你要注销登陆，并重置同步功能？</string>
+  <string name="cloud_info">云端信息</string>
+  <string name="cloud_info_summary">云端已存储数据：%sMb</string>
+  <string name="sync_adapter">同步功能后端</string>
+  <string name="sync_adapter_summary">当前：%s</string>
+  <string name="adapters_google_drive">Google网盘</string>
+  <string name="adapters_next_cloud">下一个数据云</string>
+  <string name="auth_title">发送认证至：%s</string>
+  <string name="auth_username">用户名</string>
+  <string name="auth_password">密码</string>
+  <string name="auth_access_token">访问令牌</string>
+  <string name="synchronization_categories">同步类别</string>
+  <string name="sync_general_settings">信息 &amp; 常规设置</string>
+  <string name="sync_introduction">介绍</string>
+  <string name="are_you_sure">你确定吗？</string>
+  <string name="are_you_sure_reset_local">这将使用当前存储在云端的%s相关内容，来重置你的本地数据库。</string>
+  <string name="are_you_sure_reset_cloud">这将使用你在这台设备存储的%s相关内容，来重置你的云端数据库相关内容。</string>
+  <string name="sync_cant_fetch">云端的数据库或补丁文件版本，高于软件支持的版本。</string>
+  <string name="sync_disabling">暂时关闭与%s的同步。</string>
+  <string name="sync_update_app">继续同步前，请先更新软件。</string>
+  <string name="sign_in_failed">无法登陆同步功能所使用的后端服务。</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">正在关闭云同步功能。重置完成后需要重新手动开启云同步功能。</string>
+  <string name="report">报告</string>
+  <string name="sync_error">云同步发生报错</string>
+  <string name="error_notification_channel_name">报错通知</string>
+  <string name="restore_from_cloud_description">如果你的另一台设备已开启设备同步，你可以直接从云端恢复数据库。</string>
+  <string name="enable_sync">开启同步功能</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">无法读取文件</string>
+  <string name="sqlite_invalid_file">模块名称或文件名无效：%s</string>
+  <string name="sqlite_cant_write">无法写入（覆盖）该文件</string>
+  <string name="install_failed_reason">无法安装模块，因为%s。</string>
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">软件已在别处打开</string>
+  <string name="open_here">在这里打开</string>
+  <string name="external_link">外部链接</string>
+  <string name="external_link_question">将在浏览器打开外部链接%s，你希望继续吗？</string>
+  <string name="nameless">尚未定义标题</string>
+  <string name="processing_epub">正在处理EPUB文件：%s</string>
+  <string name="buy_development2">支持项目</string>
+  <string name="new_version_warning">
+新版本即将发布。预计发布日期为%1$s。
+请观看%2$s来了解新的功能和改进。</string>
+  <string name="new_version_trailer">预告视频</string>
+  <string name="new_version_warning2">
+在新版本发布后，当前版本将不再进行维护。</string>
+  <string name="new_version_warning3">
+旧版本将不再会有补丁或更新。</string>
+  <string name="new_version_warning4">
+如果你不想升级至新版本，请在你的应用程序商店（Google Play / F-Droid等）关闭“自动升级”。</string>
+  <string name="dont_show">
+不再显示这条信息</string>
 </resources>
