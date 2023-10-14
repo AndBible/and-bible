@@ -196,9 +196,7 @@ open class BookmarkControl @Inject constructor(
 
     fun hasBookmarksForVerse(verse: Verse): Boolean = dao.hasBookmarksForVerse(verse)
 
-    fun firstBibleBookmarkStartingAtVerse(key: Verse): BibleBookmarkWithNotes? = dao.bookmarksStartingAtVerse(key).firstOrNull()
-
-    fun firstGenericBookmarkStartingAtKey(key: BookAndKey): GenericBookmarkWithNotes? = dao.bookmarksForOrdinalStart(key.document!!.initials, key.key.osisRef, key.ordinal!!.start).firstOrNull()
+    fun bibleBookmarkStartingAtVerse(key: Verse): List<BibleBookmarkWithNotes> = dao.bookmarksStartingAtVerse(key)
 
     fun deleteBookmark(bookmark: BaseBookmarkWithNotes) {
         dao.delete(bookmark)

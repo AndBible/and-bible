@@ -314,25 +314,13 @@ class GeneralSpeakTextProvider(
     private fun saveBookmark(wasRemoved: Boolean) {
         val labelList = mutableSetOf<Label>()
         if(AdvancedSpeakSettings.autoBookmark || wasRemoved) {
-            var bookmark: GenericBookmarkWithNotes? = bookmarkControl.firstGenericBookmarkStartingAtKey(startKey)?.run {
-                if(textRange != null) null else this
-            }
-
             val playbackSettings = settings.playbackSettings.copy()
             playbackSettings.bookId = book.initials
 
-            if(bookmark == null) {
-                playbackSettings.bookmarkWasCreated = true
-                bookmark = GenericBookmarkWithNotes(startKey.key, book, null, startKey.ordinal!!.start)
-                bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
-            }
-            else {
-                playbackSettings.bookmarkWasCreated = bookmark.playbackSettings?.bookmarkWasCreated ?: false
-                labelList.addAll(bookmarkControl.labelsForBookmark(bookmark))
-                bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
-            }
+            playbackSettings.bookmarkWasCreated = true
+            var bookmark = GenericBookmarkWithNotes(startKey.key, book, null, startKey.ordinal!!.start)
+            bookmark.playbackSettings = playbackSettings
+            bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
 
             labelList.add(bookmarkControl.speakLabel)
 

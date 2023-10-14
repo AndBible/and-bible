@@ -146,10 +146,10 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     @Test
     fun testSleeptimer() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.1")), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")), nullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
         setSleepTimer(5)
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.1")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")), notNullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(true))
         setSleepTimer(0)
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
@@ -172,29 +172,29 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.2
         speakControl.pause()
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.1")), nullValue())
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.2")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")), notNullValue())
 
         speakControl.continueAfterPause()
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.3
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.2")), notNullValue())
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.3")), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.3")), nullValue())
 
         // Check that altering playback settigns are saved also to bookmark (bookmark is also moved when saving)
         changeSpeed(201)
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.2")), nullValue())
-        var b = bookmarkControl.firstBibleBookmarkStartingAtVerse((getVerse("Rom.1.3")))
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")), nullValue())
+        var b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.3")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(201))
 
         // Test that bookmark is moved properly when paused / stopped
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.4
         speakControl.pause()
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.3")), nullValue())
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.4")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.3")), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")), notNullValue())
 
         // Check that altering playback settigns are saved to bookmark when paused
         changeSpeed(202)
-        b = bookmarkControl.firstBibleBookmarkStartingAtVerse((getVerse("Rom.1.4")))
+        b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.4")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(202))
 
 
@@ -202,7 +202,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         windowControl.windowRepository.firstVisibleWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(206)
-        b = bookmarkControl.firstBibleBookmarkStartingAtVerse((getVerse("Rom.1.4")))
+        b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.4")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(206))
 
 
@@ -210,19 +210,19 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         speakControl.continueAfterPause()
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.5
         speakControl.stop()
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.4")), nullValue())
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Rom.1.5")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.5")), notNullValue())
 
         // Check that altering playback settigns are saved to bookmark when stopped
         changeSpeed(203)
-        b = bookmarkControl.firstBibleBookmarkStartingAtVerse((getVerse("Rom.1.5")))
+        b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.5")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(203))
 
         // Check that altering playback settigns are not saved to bookmark when stopped and we have moved away
         windowControl.windowRepository.firstVisibleWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(204)
-        b = bookmarkControl.firstBibleBookmarkStartingAtVerse((getVerse("Rom.1.5")))
+        b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.5")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(203))
     }
 }
@@ -560,19 +560,10 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
-        provider.pause()
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
-        provider.prepareForStartSpeaking()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        provider.stop()
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
+        provider.pause()
+        assertThat(bookmarkControl.bibleBookmarkById(dto.id), nullValue())
     }
 
     @Test
@@ -582,32 +573,19 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         var dto = BibleBookmarkWithNotes(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBibleBookmark(dto)
 
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!, notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0], notNullValue())
         provider.setupReading(book, verse)
         text = nextText()
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(0))
         provider.pause();
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
         provider.prepareForStartSpeaking()
         provider.pause()
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
+        assertThat(bookmarkControl.bibleBookmarkById(dto.id), nullValue())
         provider.pause() // does not remove bookmark as it was already there
         provider.prepareForStartSpeaking()
-
-
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
-        provider.prepareForStartSpeaking()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        provider.stop() // does not remove bookmark as it was already there
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(0))
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!, notNullValue())
     }
 
 
@@ -618,25 +596,25 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         var dto = BibleBookmarkWithNotes(verseRange, null, true, null)
         dto = bookmarkControl.addOrUpdateBibleBookmark(dto)
 
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse), notNullValue())
 
         provider.setupReading(book, verse)
         text = nextText()
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse), notNullValue())
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(0))
         provider.pause();
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(dto, notNullValue())
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
 
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
@@ -651,9 +629,9 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         provider.pause()
         assertThat(range(), equalTo("Ps.14.2"))
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse), notNullValue())
-        assertThat(bookmarkControl.labelsForBookmark( bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!).size, equalTo(0))
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Ps.14.2")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse), notNullValue())
+        assertThat(bookmarkControl.labelsForBookmark( bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]).size, equalTo(0))
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Ps.14.2")), notNullValue())
     }
 
 
@@ -669,14 +647,14 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         var verse = getVerse("Ps.14.1")
 
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse).size, equalTo(0))
 
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
 
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!, notNullValue())
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0], notNullValue())
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
         verse = getVerse("Ps.14.2")
@@ -688,8 +666,8 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         // now we save speak bookmark above speak bookmark
         provider.pause()
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!, notNullValue())
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1], notNullValue())
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(dto.playbackSettings!!.bookmarkWasCreated, equalTo(true))
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
@@ -701,36 +679,36 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.pause()
 
         verse = getVerse("Ps.14.3")
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!, notNullValue())
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0], notNullValue())
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
-        // now there should not be any more original speak bookmark
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Ps.14.2")), nullValue())
+        // As we are not merging speak bookmarks any more, there should be 1 speak bookmark still in this verse
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Ps.14.2")).size, equalTo(1))
     }
 
 
     @Test
     fun autoBookmarkWhenThereIsNoBookmark() {
         val verse = getVerse("Ps.14.1")
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse).size, equalTo(0))
 
         provider.setupReading(book, verse)
         text = nextText()
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse).size, equalTo(0))
         provider.pause();
-        var dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        var dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(dto, notNullValue())
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
 
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
@@ -745,8 +723,8 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         provider.pause()
         assertThat(range(), equalTo("Ps.14.2"))
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(verse), nullValue())
-        assertThat(bookmarkControl.firstBibleBookmarkStartingAtVerse(getVerse("Ps.14.2")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse).size, equalTo(0))
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Ps.14.2")), notNullValue())
     }
 
     @Test
@@ -765,11 +743,11 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(dto.playbackSettings, notNullValue())
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
+        assertThat(bookmarkControl.bibleBookmarkById(dto.id), nullValue())
         provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
@@ -778,7 +756,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         provider.stop()
-        dto = bookmarkControl.firstBibleBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(dto.playbackSettings, nullValue())
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
     }

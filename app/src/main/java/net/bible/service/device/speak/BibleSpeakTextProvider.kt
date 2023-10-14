@@ -374,26 +374,13 @@ class BibleSpeakTextProvider(
     private fun saveBookmark(wasRemoved: Boolean) {
         val labelList = mutableSetOf<Label>()
         if(AdvancedSpeakSettings.autoBookmark || wasRemoved) {
-            var bookmark = bookmarkControl.firstBibleBookmarkStartingAtVerse(startVerse)?.run {
-                if(textRange != null) null else this
-            }
-
             val playbackSettings = settings.playbackSettings.copy()
             playbackSettings.bookId = book.initials
+            playbackSettings.bookmarkWasCreated = true
 
-            if(bookmark == null) {
-                playbackSettings.bookmarkWasCreated = true
-                bookmark = BibleBookmarkWithNotes(VerseRange(startVerse.versification, startVerse), null, true, null)
-                bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
-            }
-            else {
-                playbackSettings.bookmarkWasCreated = bookmark.playbackSettings?.bookmarkWasCreated ?: false
-                labelList.addAll(bookmarkControl.labelsForBookmark(bookmark))
-                bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
-            }
-
+            var bookmark = BibleBookmarkWithNotes(VerseRange(startVerse.versification, startVerse), null, true, null)
+            bookmark.playbackSettings = playbackSettings
+            bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
             labelList.add(bookmarkControl.speakLabel)
 
             bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList())
