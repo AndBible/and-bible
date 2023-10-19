@@ -88,8 +88,6 @@
 		<item>@string/lang_default</item>
 		<item>@string/lang_afrikaans</item>
 		<item>@string/lang_arabic</item>
-		<item>@string/lang_azerbaijani</item>
-		<item>@string/lang_bengali</item>
 		<item>@string/lang_bulgarian</item>
 		<item>@string/lang_burmese</item>
 		<item>@string/lang_czech</item>
@@ -132,8 +130,6 @@
 		<item></item>
 		<item>af</item>
 		<item>ar</item>
-		<item>az</item>
-		<item>bn</item>
 		<item>bg</item>
 		<item>my</item>
 		<item>cs</item>
