@@ -207,6 +207,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
                 TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
                 TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.string.prefs_show_bookmarks_title
+                TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
             }
             return application.getString(id)
         }
@@ -215,6 +216,7 @@ open class Preference(val settings: SettingsBundle,
         get() = when(type) {
             TextDisplaySettings.Types.STRONGS -> if(documentControl.isNewTestament) R.drawable.ic_strongs_greek else R.drawable.ic_strongs_hebrew
             TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.drawable.ic_bookmarks_show_24dp
+            TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.drawable.ic_labels_hide_24dp
             TextDisplaySettings.Types.MORPH -> R.drawable.ic_morphology_24dp
             TextDisplaySettings.Types.FOOTNOTES -> R.drawable.ic_footnotes_24dp
             TextDisplaySettings.Types.EXPAND_XREFS -> R.drawable.ic_xrefs_24dp
@@ -403,6 +405,34 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
         val intent = Intent(activity, ColorSettingsActivity::class.java)
         intent.putExtra("settingsBundle", settings.toJson())
         activity.startActivityForResult(intent, COLORS_CHANGED)
+        return true
+    }
+}
+
+class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types): Preference(settings, type) {
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        val intent = Intent(activity, ManageLabels::class.java)
+        val originalValues = value as List<IdType>
+
+        intent.putExtra("data", ManageLabels.ManageLabelsData(
+            mode = ManageLabels.Mode.HIDELABELS,
+            selectedLabels = originalValues.toMutableSet(),
+            isWindow = settings.windowId != null
+        ).applyFrom(windowRepository.workspaceSettings).toJSON())
+        activity.lifecycleScope.launch (Dispatchers.Main) {
+            val result = activity.awaitIntent(intent)
+            if(result.resultCode == Activity.RESULT_OK) {
+                val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+                if(resultData.reset) {
+                    setNonSpecific()
+                    onReset?.invoke()
+                } else {
+                    value = resultData.selectedLabels.toList()
+                    windowRepository.workspaceSettings.updateFrom(resultData)
+                    onChanged?.invoke(value)
+                }
+            }
+        }
         return true
     }
 }

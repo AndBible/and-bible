@@ -137,5 +137,10 @@
             android:title="@string/prefs_show_mynotes_title"
             android:summary="@string/prefs_show_mynotes_summary"
             />
+        <Preference
+            android:key="BOOKMARKS_HIDELABELS"
+            android:title="@string/bookmark_settings_hide_labels_title"
+            android:summary="@string/bookmark_settings_hide_labels_summary"
+            />
     </PreferenceCategory>
 </PreferenceScreen>

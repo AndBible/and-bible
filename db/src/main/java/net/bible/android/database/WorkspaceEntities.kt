@@ -163,7 +163,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
-        @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<IdType>? = null, // TODO: remove (obsolete)
+        @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<IdType>? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -184,6 +184,7 @@ class WorkspaceEntities {
             VERSENUMBERS,
             VERSEPERLINE,
             BOOKMARKS_SHOW,
+            BOOKMARKS_HIDELABELS,
             MYNOTES,
         }
 
@@ -207,6 +208,7 @@ class WorkspaceEntities {
             Types.FONTSIZE -> fontSize
             Types.FONTFAMILY -> fontFamily
             Types.BOOKMARKS_SHOW -> showBookmarks
+            Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -230,6 +232,7 @@ class WorkspaceEntities {
                 Types.FONTFAMILY -> fontFamily = value as String?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
+                Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<IdType>?
             }
         }
 

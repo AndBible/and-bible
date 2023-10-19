@@ -115,7 +115,7 @@ class ManageLabels : ListActivityBase() {
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var windowControl: WindowControl
 
-    enum class Mode {STUDYPAD, WORKSPACE, ASSIGN}
+    enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS}
 
     lateinit var data: ManageLabelsData
 
@@ -200,13 +200,13 @@ class ManageLabels : ListActivityBase() {
 
         var reset: Boolean = false,
     ) {
-        val showUnassigned: Boolean get() = setOf(Mode.WORKSPACE).contains(mode)
-        val showCheckboxes: Boolean get() = setOf(Mode.ASSIGN).contains(mode)
-        val hasResetButton: Boolean get() = setOf(Mode.WORKSPACE).contains(mode)
-        val hasReOrderButton: Boolean get() = setOf(Mode.ASSIGN, Mode.WORKSPACE).contains(mode)
+        val showUnassigned: Boolean get() = setOf(Mode.HIDELABELS, Mode.WORKSPACE).contains(mode)
+        val showCheckboxes: Boolean get() = setOf(Mode.HIDELABELS, Mode.ASSIGN).contains(mode)
+        val hasResetButton: Boolean get() = setOf(Mode.WORKSPACE, Mode.HIDELABELS).contains(mode)
+        val hasReOrderButton: Boolean get() = setOf(Mode.HIDELABELS, Mode.ASSIGN, Mode.WORKSPACE).contains(mode)
         val workspaceEdits: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
         val primaryShown: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
-        val showActiveCategory: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
+        val showActiveCategory: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN, Mode.HIDELABELS).contains(mode)
         val hideCategories: Boolean get() = setOf(Mode.STUDYPAD).contains(mode)
 
         val contextSelectedItems: MutableSet<IdType> get() =
@@ -233,6 +233,7 @@ class ManageLabels : ListActivityBase() {
                 Mode.ASSIGN -> R.string.assign_labels
                 Mode.STUDYPAD -> R.string.studypads
                 Mode.WORKSPACE -> R.string.labels
+                Mode.HIDELABELS -> R.string.bookmark_settings_hide_labels_title
             }
         }
 
@@ -342,10 +343,11 @@ class ManageLabels : ListActivityBase() {
             Mode.STUDYPAD -> CommonUtils.showHelp(this, listOf(R.string.studypads))
             Mode.ASSIGN -> help(HelpMode.ASSIGN)
             Mode.WORKSPACE -> help(HelpMode.WORKSPACE)
+            Mode.HIDELABELS -> help(HelpMode.HIDE)
         }
     }
 
-    enum class HelpMode {WORKSPACE, ASSIGN}
+    enum class HelpMode {WORKSPACE, ASSIGN, HIDE}
 
     private fun getIconString(id: Int, iconId: Int): SpannableString {
         val s = getString(id,"__ICON__")
@@ -366,6 +368,7 @@ class ManageLabels : ListActivityBase() {
         val h1 = when(helpMode) {
             HelpMode.WORKSPACE -> getString(R.string.auto_assing_labels_help1)
             HelpMode.ASSIGN -> getString(R.string.assing_labels_help1)
+            HelpMode.HIDE -> getString(R.string.bookmark_settings_hide_labels_summary)
         }
 
         val h11 =  "\n\n" + getString(R.string.setting_scope, getString(
@@ -390,16 +393,15 @@ class ManageLabels : ListActivityBase() {
         val span = concat(
             v,
             h1,
-            if(listOf(HelpMode.WORKSPACE).contains(helpMode)) h11 else "",
-            h2,
-            h3,
-            h4,
+            if(listOf(HelpMode.HIDE, HelpMode.WORKSPACE).contains(helpMode)) h11 else "",
+            *if(helpMode != HelpMode.HIDE) arrayOf(h2, h3, h4) else arrayOf(""),
             h5,
         )
 
         val title = getString(when(helpMode) {
             HelpMode.ASSIGN -> R.string.assign_labels
             HelpMode.WORKSPACE -> R.string.labels
+            HelpMode.HIDE -> R.string.bookmark_settings_hide_labels_title
         })
 
         val d = AlertDialog.Builder(this)
@@ -620,6 +622,7 @@ class ManageLabels : ListActivityBase() {
         lifecycleScope.launch(Dispatchers.Main) {
             val msgId = when(data.mode) {
                 Mode.WORKSPACE -> R.string.reset_workspace_labels
+                Mode.HIDELABELS -> R.string.reset_hide_labels
                 else -> throw RuntimeException("Illegal value")
             }
             if(askConfirmation(getString(msgId))) {

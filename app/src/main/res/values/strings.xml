@@ -436,6 +436,8 @@
     <string name="add_bookmark_whole_verse1">Verses</string>
     <string name="add_bookmark_whole_verse2">Full verses</string>
     <string name="remove_bookmark">Remove</string>
+    <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
+    <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
     <string name="auto_assign_labels_title">Label settings</string>
     <string name="auto_assign_labels">Auto-assign &amp; Favourite labels</string>
     <string name="auto_assign_labels1">Auto-assign label to new bookmarks</string>
