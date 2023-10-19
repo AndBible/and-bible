@@ -913,7 +913,7 @@ jelentse be az észlelt problémát</string>
         diszktét módban használni, ilyenkor az alkalmazás egy számológépként jelenik meg az indítóban, még akkor is, ha az alkalmazás beállításait törli.
     </string>
   <string name="discrete_mode_link">
-        A diszkrét verzió legfrissebb verziója innen tölthető le %s.
+        A diszkrét verzió legfrissebb változata innen tölthető le %s.
     </string>
   <!--Window synchronize groups-->
   <string name="sync_group_submenu">Csoport összehangolása</string>

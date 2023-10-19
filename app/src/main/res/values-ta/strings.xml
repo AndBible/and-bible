@@ -831,6 +831,7 @@
   <string name="prefs_persecuted_help">இதை முதலில் படிக்கவும்!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
+  <string name="open_in_window">முடிவுகளை சாளரத்தில் திற</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">தனிப்பயன் களஞ்சியங்கள்</string>
@@ -848,16 +849,30 @@
   <!--Device cloud synchronization-->
   <string name="db_repositories">களஞ்சியங்கள் மற்றும் தொடர்புடைய அமைப்புகள்</string>
   <string name="db_bookmarks">புக்மார்க்குகள், என் குறிப்புகள், லேபிள்கள் மற்றும் ஸ்டடி பேட்கள்</string>
+  <string name="synchronizing">ஒத்திசெய்கிறது…</string>
   <string name="reading_plans_content">வாசிப்பு திட்டங்களும் அதன் நிலைகளும்</string>
+  <string name="bookmarks_contents">புக்மார்க்குகள், லேபிள்கள் மற்றும் ஸ்டடி பேடுகள்.</string>
   <string name="workspaces_contents">பணியிடங்கள் மற்றும் சாரளங்கள்</string>
+  <string name="cloud_fetch_and_restore_initial">Cloudஇல் இருந்து இந்தக் கருவிக்கு நகலெடுக்கவும்</string>
+  <string name="cloud_create_new">இந்தக் கருவியிலிருந்து Cloudக்கு நகலெடுக்கவும்</string>
+  <string name="cloud_disable_sync">ரத்து செய்  &amp; ஒத்திசைவை முடக்கு</string>
+  <string name="cloud_sync_title">கருவி ஒத்திசைவு</string>
   <string name="reset_sync">வெளியேறு</string>
+  <string name="prefs_reset_sync_summary">ஒத்திசைவை முடக்கி, தொடர்புடைய அமைப்புகளை மீட்டமைக்கவும்.</string>
+  <string name="cloud_info_summary">மேக சேமிப்பகத்தில்: %s Mb</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_username">பயனர் பெயர்</string>
   <string name="auth_password">கடவுச்சொல்</string>
   <string name="sync_introduction">முன்னுரை</string>
   <!--... after restoring from backup file-->
+  <string name="report">புகார் அளி</string>
   <string name="sync_error">கிளவுட் ஒத்திசைவில் பிழை ஏற்பட்டது</string>
   <string name="error_notification_channel_name">பிழை அறிவிப்புகள்</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">கோப்பினை படிக்க இயலவில்லை</string>
+  <string name="sqlite_invalid_file">தவறான தொகுதி கோப்பு அல்லது கோப்புப் பெயர்: %s</string>
+  <string name="sqlite_cant_write">கோபினை (மேல்)எழுத இயலவில்லை</string>
   <string name="install_failed_reason">பின்வரும் காரணத்தால் மாடியுளை நிறுவ இயலவில்லை: %s.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">செயலி வேறெங்கோ திறக்கப்பட்டிருக்கிறது</string>
@@ -865,6 +880,15 @@
   <string name="external_link">வெளி இணைப்பு</string>
   <string name="external_link_question">இது வெளி இணைப்பு %s ஐ உலாவியில் திறக்கும். தொடர விரும்புகிறீர்களா?</string>
   <string name="nameless">தலைப்பு வரையறுக்கப்படவில்லை</string>
+  <string name="processing_epub">EPUBஐ அலசுகிறது: %s</string>
+  <string name="buy_development2">இத்திட்டத்திற்கு உதவ</string>
+  <string name="new_version_warning2">வெளியான பிறகு, இந்த பதிப்பு பராமரிக்கப்படவில்லை.</string>
+  <string name="new_version_warning3">
+        பிழை திருத்தங்களையோ அல்லது புதுப்பிப்புகளையோ பெறாது.
+    </string>
+  <string name="new_version_warning4">
+        இந்த செயலி புதுப்பிக்கப்படுவதை நீங்கள் விரும்பவில்லை என்றால், உங்கள் ஆப் ஸ்டோரில் (Google Play / F-Droid போன்றவை) \'தானியங்கு புதுப்பிப்புகளை\' முடக்கவும்.
+    </string>
   <string name="dont_show">
         இந்த குறிப்பை மீண்டும் காட்டாதே
     </string>
