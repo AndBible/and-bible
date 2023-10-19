@@ -1061,7 +1061,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Tek dokunuş eylemleri (Diğer)</string>
   <string name="prefs_in_window_bookmark_modal_buttons_description">Bir metne dokunulduğunda, tek dokunuşla eylem penceresi gösterilir. Hangi eylem düğmeleri gösterilmelidir?</string>
   <string name="processing_epub">EPUB işleniyor: %s</string>
-  <string name="buy_development">Geliştirme işi satın alın</string>
+  <string name="buy_development">Geliştirme işine sponsor ol</string>
   <string name="buy_development2">Projeyi destekle</string>
   <string name="new_version_warning">
     Yakında yeni bir sürüm çıkacak. Beklenen yayın tarihi %1$s’dir.
