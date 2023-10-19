@@ -310,7 +310,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
     internal val hideWindowButtons get() =
         CommonUtils.settings.getBoolean("hide_window_buttons", false)
-    private var buttonsWillAnimate = false;
+    private var buttonsWillAnimate = false
     private val autoHideWindowButtonBarInFullScreen get() =
         CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
 
@@ -381,7 +381,12 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             spaceAdded = false
         }
 
-        val hideArrow = if(windowControl.isSingleWindow) View.GONE else View.VISIBLE
+        val hideArrow =
+            if(windowControl.isSingleWindow) {
+                restoreButtonsVisible = true
+                updateRestoreButtons()
+                View.GONE
+            } else View.VISIBLE
 
         binding.hideRestoreButton.visibility = hideArrow
         binding.hideRestoreButtonExtension.visibility = hideArrow
