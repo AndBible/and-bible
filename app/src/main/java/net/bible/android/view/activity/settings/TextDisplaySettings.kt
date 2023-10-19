@@ -261,11 +261,10 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
         val text = if(isWindow) {
             val w1 = getString(R.string.window_text_options_help1, "__ICON1__")
-            val w3 = getString(R.string.window_text_options_help3)
             val w4 = getString(R.string.text_options_reset_help, "__ICON3__", getString(R.string.reset_workspace_defaults))
             val icon1 = ImageSpan(getTintedDrawable(R.drawable.ic_workspace_overlay_24dp))
 
-            val text = "$w1 $w3\n\n$w4"
+            val text = "$w1\n\n$w4"
             val start1 = text.indexOf("__ICON1__")
             val start3 = text.indexOf("__ICON3__")
             val span = SpannableString(text)
