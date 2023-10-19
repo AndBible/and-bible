@@ -86,7 +86,7 @@ class JSwordError(message: String) : OsisError(message, message)
  */
 
 object SwordContentFacade {
-    private const val docCacheSize = 100
+    private const val docCacheSize = 25
     private val osisFragmentCache = LruCache<String, Element>(docCacheSize)
     private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
 
