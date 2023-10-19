@@ -703,20 +703,21 @@ katkıda bulunmayı düşünün. :-)</string>
     Bağlantıları geçerli pencerede mi, yeni pencerede mi yoksa özel bağlantılar penceresinde mi açmak istediğinizi seçmek için bağlantılara uzun basın.
   </string>
   <string name="help_bookmarks_title">Yer imleri ve Notlarım</string>
-  <string name="help_bookmarks_text">Bookmarks can be created by selecting some text and choosing \"Bookmark\" from
-    the popup menu. You can add your custom notes to the new bookmark by tapping the now
-    highlighted text in Bible view. There is also a \"My Notes\" special document in commentaries that allows you
-    to view your notes in a separate window.
+  <string name="help_bookmarks_text">
+    Yer imleri, bir metin seçtikten sonra menüden \"Yer imi\" seçilerek oluşturulabilir.
+    Kutsal Kitap görünümünde şimdi vurgulanan metne dokunarak yeni yer imine özel notlarınızı ekleyebilirsiniz.
+    Yorumlarda ayrıca notlarınızı ayrı bir pencerede görüntülemenizi sağlayan \"Notlarım\" özel belgesi de bulunmaktadır.
   </string>
   <string name="help_studypads_text">
-    Study pads are designed to make it easy to write sermon notes, prepare sermons or just
-    write down personal Bible study notes that have multiple Bible references. Each study pad is associated with one bookmark label.
-    All Bookmarks that have been created with that respective label appear automatically in the study pad document.
-    In addition to bookmarks, there can be custom text entries in a study pad.
+    Çalışma pedleri vaaz notları yazmayı, vaaz hazırlamayı veya birden fazla Kutsal Kitap referansı içeren kişisel Kutsal Kitap çalışma notlarını yazmayı kolaylaştırmak için tasarlanmıştır.
+    Her çalışma pedi bir yer imi etiketi ile ilişkilendirilir.
+    İlgili etiketle oluşturulmuş olan tüm Yer İmleri çalışma defteri belgesinde otomatik olarak görünür.
+    Yer imlerine ek olarak, bir çalışma defterinde özel metin girişleri de olabilir.
   </string>
   <string name="help_search_title">Arama</string>
-  <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
-    (see \"Apache Lucene - Query Parser Syntax\" for more details)
+  <string name="help_search_text">
+    Arama metni *, ?, AND, OR, NOT gibi özel karakterler içerebilir
+    (Daha fazla bilgi için \"Apache Lucene - Sorgu Ayrıştırıcı Sözdizimi\" bölümüne bakın)
   </string>
   <string name="help_workspaces_title">Çalışma Alanları</string>
   <string name="help_workspaces_text">
@@ -1060,7 +1061,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Tek dokunuş eylemleri (Diğer)</string>
   <string name="prefs_in_window_bookmark_modal_buttons_description">Bir metne dokunulduğunda, tek dokunuşla eylem penceresi gösterilir. Hangi eylem düğmeleri gösterilmelidir?</string>
   <string name="processing_epub">EPUB işleniyor: %s</string>
-  <string name="buy_development">Geliştirme işi satın alın</string>
+  <string name="buy_development">Geliştirme işine sponsor ol</string>
   <string name="buy_development2">Projeyi destekle</string>
   <string name="new_version_warning">
     Yakında yeni bir sürüm çıkacak. Beklenen yayın tarihi %1$s’dir.

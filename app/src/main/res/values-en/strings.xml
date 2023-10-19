@@ -183,4 +183,5 @@ The developers of this app are not responsible for maintaining documents (Bibles
   <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
+  <string name="buy_development">Sponsor developer time</string>
 </resources>
