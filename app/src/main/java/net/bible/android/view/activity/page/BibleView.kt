@@ -1320,15 +1320,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun replaceDocument() {
         Log.i(TAG, "replaceDocument")
-        if(latestDocumentStr == null || !needsDocument) return
 
-        val documentStr = latestDocumentStr
         val verse = if(isBible || isMyNotes) initialKey as? Verse else null
-        synchronized(documentLoadingLock) {
+        val documentStr = synchronized(documentLoadingLock) {
+            if(latestDocumentStr == null || !needsDocument) return
             needsDocument = false
             contentVisible = true
             minChapter = verse?.chapter ?: -1
             maxChapter = verse?.chapter ?: -1
+            latestDocumentStr
         }
 
         if(!labelsUploaded) {
