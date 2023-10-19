@@ -529,7 +529,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
     }
 
     companion object {
-        const val WORKSPACE_SETTINGS_CHANGED = 1
+        const val WORKSPACE_SETTINGS_CHANGED = 999
     }
 
 }
