@@ -150,7 +150,7 @@
                     style="@style/MyActionButton"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:contentDescription="@string/workspace_selector_title"
+                    android:contentDescription="@string/help_workspaces_title"
                     app:srcCompat="@drawable/ic_workspace_solid_24dp"
                     />
                 <ImageButton
