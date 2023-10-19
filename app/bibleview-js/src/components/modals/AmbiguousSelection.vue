@@ -288,6 +288,15 @@ function multiSelectionButtonClicked() {
     updateHighlight();
 }
 
+function minusKeyPressed() {
+    if(!endOrdinal.value || !startOrdinal.value) {
+        return
+    }
+    if(endOrdinal.value > startOrdinal.value) {
+        endOrdinal.value = endOrdinal.value! - 1;
+    }
+    updateHighlight();
+}
 async function handle(event: MouseEvent) {
     console.log("AmbiguousSelection handling", event);
     const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
@@ -359,6 +368,10 @@ setupKeyboardListener((e: KeyboardEvent) => {
     console.log("AmbiguousSelection keyboard listener", e);
     if (e.key === "+") {
         multiSelectionButtonClicked();
+        return true;
+    }
+    if (e.key === "-") {
+        minusKeyPressed();
         return true;
     }
     else if (e.ctrlKey && e.code === "KeyC") {
