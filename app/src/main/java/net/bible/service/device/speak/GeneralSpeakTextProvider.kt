@@ -43,6 +43,7 @@ import net.bible.service.common.prev
 import net.bible.service.common.shortName
 import net.bible.service.common.tinyName
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeySerialized
 import org.crosswire.jsword.book.Book
 import kotlin.collections.HashMap
 
@@ -469,7 +470,7 @@ class GeneralSpeakTextProvider(
     override fun persistState() {
         CommonUtils.settings.apply {
             setString(PERSIST_BOOK, book.abbreviation)
-            setString(PERSIST_KEY, startKey.key.osisID)
+            setString(PERSIST_KEY, startKey.serialized)
         }
     }
 
@@ -484,7 +485,10 @@ class GeneralSpeakTextProvider(
         }
         if(sharedPreferences.getString(PERSIST_KEY) != null) {
             val keyStr = sharedPreferences.getString(PERSIST_KEY, "")!!
-            startKey = book.getBookAndKey(keyStr)?: return false
+            startKey = try { BookAndKeySerialized.fromJSON(keyStr).bookAndKey } catch (e: Exception) {
+                Log.e(TAG, "Can't restore state", e)
+                return false
+            }
             endKey = startKey
             currentKey = startKey
             return true

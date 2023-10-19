@@ -368,8 +368,8 @@ class SpeakControl @Inject constructor(
             if (!willContinueAfterThis && toast) {
                 ABEventBus.post(ToastEvent(pauseToastText))
             }
+            saveCurrentPosition()
         }
-        saveCurrentPosition()
     }
 
     private fun saveCurrentPosition() {
