@@ -1,7 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bíblia</string>
+  <string name="app_name_medium">Bíblia (AndBible)</string>
   <string name="app_name_long">AndBible: Estudo Biblico</string>
+  <string name="project">AndBible: Projeto de Código Aberto</string>
   <string name="version_text">Versão %s</string>
   <string name="no_sdcard_error">Insira um cartão SD e reinicie a aplicação.</string>
   <!--Main menu-->
@@ -9,6 +12,7 @@
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Passagem</string>
   <string name="search">Pesquisa</string>
+  <string name="search_in_andbible">Pesquisar na Bíblia</string>
   <string name="settings">Preferências</string>
   <string name="history">Histórico</string>
   <string name="speak">Fale</string>
@@ -38,6 +42,7 @@
   <string name="do_in_background">Continuar em segundo plano</string>
   <string name="rebuild_index_button">Reconstruir</string>
   <!--X results in module Y-->
+  <string name="search_with_results2">%1s resultados em %2s</string>
   <!--Tasks-->
   <string name="progress_status">Progresso</string>
   <string name="task_kill_warning">Estas tarefas de longa duração podem ser finalizadas se você for para outra aplicação antes que elas terminem.</string>
@@ -55,8 +60,11 @@
   <string name="search_old_testament">Antigo Testamento</string>
   <string name="search_current_book">Livro atual</string>
   <string name="error_executing_search">Pesquisa inválida</string>
+  <string name="type_text_or_bible_reference">Introduza o texto ou uma referência bíblica</string>
   <!--Open (bible reference X)-->
+  <string name="go_to_ref">Abrir %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
+  <string name="search_what">Pesquisar %s</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Números de capítulo e versículos</string>
   <string name="prefs_show_verseno_summary">Mostrar números de capítulo e versículo</string>
@@ -114,6 +122,8 @@
   <string name="reset_fontsize">Reíniciar</string>
   <string name="prefs_request_sdcard_permission_title">Existem documentos instalados manualmente</string>
   <string name="prefs_request_sdcard_permission_summary">Permitir o uso de documentos instalados manualmente no armazenamento interno a partir da pasta jsword/sword</string>
+  <string name="prefs_expand_footnotes_title">Referências cruzadas</string>
+  <string name="prefs_expand_footnotes_summary">Mostrar as referências cruzadas junto do texto, em vez de uma ligação que abra uma caixa de diálogo</string>
   <string name="all_text_options_window_menutitle">Todas as opções de texto</string>
   <string name="text_options_window_menutitle">Opções de texto</string>
   <string name="auto_fullscreen">Maximizar ecran arrastando para cima/baixo</string>
@@ -171,10 +181,13 @@
   <string name="pref_font_family_label_name">Família do tipo de letra ( %s )</string>
   <string name="prefs_font_family_summary">Altere a família do tipo de letra. Dica: mais tipos de letra podem ser instalados por meio da função Download de documentos / Complementos.</string>
   <string name="prefs_text_bookmarks_title">Definições de Marcadores e As Minhas Notas</string>
+  <string name="create_bookmark">Criar um novo Marcador</string>
+  <string name="create_bookmark_with_a_note">Criar um novo Marcador com uma nota</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Configurações de cores</string>
   <string name="window_color_settings_title">Configurações de cores das janelas</string>
   <string name="workspace_color_settings_title">Configuração padrão das cores da área de trabalho</string>
+  <string name="color_workspace">Cor da área de trabalho</string>
   <string name="color_text">Cor do texto</string>
   <string name="color_background">Cor de fundo</string>
   <string name="colors_day_mode_title">Modo diurno</string>
@@ -238,15 +251,20 @@
   <string name="download_errors">Erros no download</string>
   <string name="failed_repositories_message">Não foi possível conectar ao seguinte servidor de documentos: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Não foi possível fazer o download dos seguintes ficheiros:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Este documento não pode ser apagado.</string>
   <!--Install zip file-->
+  <string name="install_zip">Carregar Documentos a partir de Arquivos</string>
   <string name="install_zip_module">Instalar o módulo de Bíblia</string>
+  <string name="install_zip_module_discrete">Instalar o Módulo da Calculadora</string>
   <string name="install_zip_successfull">Módulo instalado com sucesso</string>
   <string name="extracting_zip_file">Extraindo o Documento de Arquivo ZIP</string>
   <string name="checking_zip_file">Verificando o arquivo fornecido ...</string>
   <string name="invalid_module">Este arquivo não contém um módulo SWORD válido</string>
+  <string name="install_zip_title">Por favor aguarde. A carregar módulos a partir de um arquivo.</string>
   <string name="overwrite_files">Os seguintes ficheiros já existem: %s
 Substituir?</string>
   <string name="overwrite_files_title">Substituir ficheiros?</string>
+  <string name="install_do_you_want">Deseja instalar o módulo (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plano de leitura</string>
   <string name="reading_plans_plural">Planos de Leitura</string>
@@ -347,11 +365,14 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="label_color">Cor da etiqueta</string>
   <!--can be removed-->
   <string name="label_color_example">Exemplo</string>
+  <string name="bookmark_warning3">Ainda deseja atualizar o módulo?</string>
+  <string name="bookmark_warning4">É recomendado que faça uma cópia de segurança do módulo antes de atualizar.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordem de data</string>
   <string name="sort_by_bible_book">Ordem bíblica</string>
   <string name="sort_by_alphabetical">Ordem alfabética</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Pesquisar notas</string>
   <!--Dictionary-->
   <string name="dictionary">Dicionário</string>
   <string name="search_dictionary_hint">Procurar dicionário</string>
@@ -485,6 +506,15 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Backup e Restauro</string>
   <string name="backup_modules2">Fazer Backup dos Documentos para...</string>
+  <string name="backup_app_database2">Fazer uma cópia de segurança da base de dados da aplicação para...</string>
+  <string name="backup_app2">Fazer uma cópia de segurança da aplicação (ficheiro .apk) para...</string>
+  <string name="backup_application">Aplicação</string>
+  <string name="backup_database">Base de Dados</string>
+  <string name="backup_documents">Documentos</string>
+  <string name="backup_application_info">Ficheiro da Aplicação (.APK)</string>
+  <string name="backup_document_info">Bíblias, comentários, dicionários, mapas, etc.</string>
+  <string name="backup_to">Fazer uma cópia de segurança para...</string>
+  <string name="backup_restore_from">Restaurar uma cópia de segurança a partir de...</string>
   <string name="backup_restore">Restaurar</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">O que deseja restaurar?</string>
@@ -492,6 +522,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="restore_database">Restaurar o Ficheiro da Base de Dados</string>
   <string name="restore_confirmation">Substituir As Minhas Notas, Áre de Estudo, Plano de Leitura e Área de Trabalho?</string>
   <string name="restore_success">As Minhas Notas, Marcadores, Áreas de Estudo, Planos de Leitura, e Áreas de Trabalho, foram restauradas com sucesso</string>
+  <string name="downloading_backup">A descarregar o ficheiro da cópia de segurança...</string>
   <string name="loading_backup">Carregando a base de dados a partir do backup...</string>
   <string name="backup_success2">As Minhas Notas, Marcadores, Áreas de Estudo, Panos de Leitura e Áreas de Trabalho, tiveram backup com sucesso.</string>
   <string name="backup_modules_success">Os módulos selecionados tiveram backup com sucesso.</string>
@@ -506,6 +537,8 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="install_zip_canceled">Instalação de módulos cancelada</string>
   <!--About-->
   <string name="module_about_copyright">Direitos de Autor:%s</string>
+  <string name="module_about_installed_version">Versão instalada: %1$s(%2$s)</string>
+  <string name="module_about_latest_version">Última versão:%1$s(%2$s)</string>
   <string name="module_about_versification">Versificação:%s</string>
   <string name="module_about_repository">Servidor de distribuição: %s</string>
   <string name="module_about_osisId">OSIS ID:%s</string>
@@ -513,6 +546,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="send_bug_report_title1">Relatório de erro</string>
   <string name="send_feedback_title">Comentários</string>
   <string name="send_bug_report_title">Comentários / Relatório de erro</string>
+  <string name="report_bug_email_subject_3">[%1$s] Relatório de erro para %2$s %3$s</string>
   <string name="report_bug_big_heading">ESCREVA O SEU COMENTÁRIO OU RELATÓRIO DE ERRO ACIMA DESTA LINHA</string>
   <string name="report_bug_heading1">Instruções:</string>
   <string name="report_bug_line_1">Conte-nos resumidamente o que fez / o que aconteceu quando ocorreu o problema.</string>
@@ -562,6 +596,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="error_key_not_in_document2">%s não foi encontrado no documento %s</string>
   <string name="empty_list">Sem itens para exibir</string>
   <string name="error_skip">Passar à frente</string>
+  <string name="bug_report_email_title">Enviar relatório de erro por e-mail</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Texto para fala</string>
   <string name="notification_channel_progress_status">Notificação de status de progresso para downloads de documentos etc.</string>
@@ -603,6 +638,7 @@ através de %s si mesmo. :-)</string>
   <string name="stable_notice_title">A aplicação foi atualizada!</string>
   <string name="upgrade_video_message">Por favor veja o vídeo com as novas funções desta versão (%s).</string>
   <!--History-->
+  <string name="history_for">Histórico (%1$s: Janela %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navegação</string>
   <string name="help_nav_text">Vá para o capítulo seguinte ou anterior deslizando o dedo no ecan.
@@ -655,6 +691,7 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="redownload_documents">Voltar a fazer download rápidamente</string>
   <string name="welcome_message">Obrigado por baixar %s. Atualmente não há Bíblias ou documentos instalados. Para continuar, instale pelo menos 1 documento baixando da Internet ou carregando a partir de um ficheiro em formato zip de um backup de documento </string>
   <!--Supported file formats for documents-->
+  <string name="supported_formats_title">Formatos suportados</string>
   <!--argument is app_name_andbible (AndBible).-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="redownload_message">
@@ -703,11 +740,14 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="share_verse_menu_title">Partilhar / copiar...</string>
   <string name="show_versenumbers">Mostrar números dos versículos</string>
   <string name="show_full_verses">Mostrar versículos completos</string>
+  <string name="show_selection_only">Mostrar apenas o texto selecionado</string>
   <string name="advertise_app">Publicitar a aplicação</string>
   <string name="verse_share_advertise">Partilhado usando %s .</string>
+  <string name="show_reference">Mostrar a referência</string>
   <string name="abbreviate_reference">Referência abreviada</string>
   <string name="version_name">Noma da versão</string>
   <!--meaning, bible version name-->
+  <string name="show_version_name">Incluir o nome da versão</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Para trás</string>
   <string name="upgrading_database">Atualizando a base de dados. Por favor espere...</string>
@@ -717,6 +757,7 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="old_webview">O pacote do Android WebView é muito antigo (%1$s). Precisa atualizar o seu pacote Android WebView para pelo menos a versão %2$s para usar %3$s. Para a maioria dos dispositivos, isso pode ser feito por meio de %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Continuar mesmo assim</string>
+  <string name="proceed">Continuar</string>
   <string name="rate_title">Classificação e revisão da aplicação</string>
   <string name="rate_message6">
 Antes de dar uma avaliação negativa, por favor considere o seguinte:</string>
@@ -796,18 +837,46 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="bookmark_style">Tipo de maracador</string>
   <string name="added_to_bookmark">Atribuído a este marcador</string>
   <string name="strongs_links">Atalhos</string>
+  <string name="strongs_text_and_links">Textos e Ligações</string>
   <string name="verse_tip">Para selecionar parte ou vários versículos, mantenha premido o texto da Bíblia</string>
+  <string name="permission_required">Permissões necessárias</string>
   <string name="labels_search_hint">Procurar</string>
+  <string name="progress_status_permission">Para mostrar notificações (estado do download, processos, estado da fala), precisamos da sua permissão.</string>
   <!--Discrete mode settings-->
+  <string name="app_name_calculator">Calculadora simples</string>
+  <string name="prefs_show_calculator">Calculadora</string>
+  <string name="prefs_calculator_pin">PIN da Calculadora</string>
   <!--Context: calculator. Wrong number format etc.-->
+  <string name="calc_wrong_format">Formato errado</string>
+  <string name="prefs_persecuted_help">Leia primeiro!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
+  <string name="sync_group_n">Grupo %d</string>
+  <string name="disable_sync">Desativar a sincronização</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Informação</string>
+  <string name="repository_specification">URL do Repositório</string>
+  <string name="wiki_page">Página Wiki</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Abrir ligações da Bíblia no AndBible</string>
+  <string name="copyReference">Copiar a ligação para a área de transferência</string>
+  <string name="reference_copied_to_clipboard">Referência copiada para a área de transferência</string>
   <!--Device cloud synchronization-->
+  <string name="synchronizing">A sincronizar...</string>
+  <string name="reset_sync">Sair</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
+  <string name="auth_username">Nome de utilizador</string>
+  <string name="auth_password">Palavra-passe</string>
+  <string name="sync_introduction">Introdução</string>
+  <string name="are_you_sure">Tem certeza?</string>
   <!--... after restoring from backup file-->
+  <string name="error_notification_channel_name">Notificações de erro</string>
+  <string name="enable_sync">Ativar a sincronização</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Não é possível ler o arquivo</string>
   <!--Other / uncategorized-->
+  <string name="open_here">Abrir aqui</string>
+  <string name="external_link">Ligação externa</string>
+  <string name="buy_development2">Suportar o projeto</string>
 </resources>

@@ -383,11 +383,18 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="marker_style_whole_verse">Mostrar solo marcador para marcadores de versículos completos</string>
   <string name="hide_style">Ocultar para marcadores de selección</string>
   <string name="hide_style_whole_verse">Ocultar para marcadores de versículos completos</string>
+  <string name="bookmark_warning">Hay marcadores y/o notas para este documento.</string>
+  <string name="bookmark_warning2">
+       Si la estructura del documento ha cambiado, actualizar este documento podría hacer
+       las ubicaciones de estos marcadores/notas se mueven dentro del documento o desaparecen por completo.</string>
+  <string name="bookmark_warning3">¿Aún quieres actualizar el módulo?</string>
+  <string name="bookmark_warning4">Se recomienda hacer una copia de seguridad del módulo antes de actualizar.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Orden de fecha</string>
   <string name="sort_by_bible_book">Orden bíblico</string>
   <string name="sort_by_alphabetical">Orden alfabético</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Busca las notas</string>
   <!--Dictionary-->
   <string name="dictionary">Diccionario</string>
   <string name="search_dictionary_hint">Buscar diccionario</string>
@@ -474,6 +481,7 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="window_text_options_help2">El icono %s indica que esta configuración ha sido cambiada para esta ventana particular.</string>
   <string name="window_text_options_help3">Esta configuración de espacio no afectará a esta ventana.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Use el botón %1$s para restablecer todas estas configuraciones a los %2$s.</string>
   <string name="reset_defaults">valores por defecto</string>
   <string name="reset_workspace_defaults">valores por defecto del espacio</string>
   <string name="speak_bookmark_help">Ayuda de marcadores de voz</string>
@@ -534,6 +542,13 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Copia de seguridad y restauración</string>
   <string name="backup_modules2">Guardar copia de seguridad de documentos en...</string>
+  <string name="backup_app_database2">Guardar copia de seguridad de la base de datos de la aplicación en...</string>
+  <string name="backup_app2">Guardar copia de seguridad de aplicación (archivo .apk) en...</string>
+  <string name="backup_application">Aplicación</string>
+  <string name="backup_database">Base de datos</string>
+  <string name="backup_documents">Documentos</string>
+  <string name="backup_application_info">Archivo de aplicación (.APK)</string>
+  <string name="backup_database_info">Marcadores, etiquetas, notas, pizarras de estudio, planes de lectura, espacios, etc.</string>
   <string name="backup_to">Guardar copia de seguridad en...</string>
   <string name="backup_restore_from">Restaurar copia de seguridad desde...</string>
   <string name="backup_restore">Resturar</string>

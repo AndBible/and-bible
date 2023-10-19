@@ -122,6 +122,8 @@
   <string name="reset_fontsize">Alapállapotba visszaállítás</string>
   <string name="prefs_request_sdcard_permission_title">Kézzel telepített dokumentumok találhatóak</string>
   <string name="prefs_request_sdcard_permission_summary">Kézzel telepített dokumentumok hasznälatának engedélyezése a belső tároló jsword/sword könyvtárából</string>
+  <string name="prefs_expand_footnotes_title">Beillesztett kereszthivatkozások</string>
+  <string name="prefs_expand_footnotes_summary">A kereszthivatkozásokat a szöveggel együtt jelennek meg, nem felugró ablakban</string>
   <string name="all_text_options_window_menutitle">Minden szövegbeállítás</string>
   <string name="text_options_window_menutitle">Szövegbeállítások</string>
   <string name="auto_fullscreen">Teljes képernyő lapozáskor</string>
@@ -366,6 +368,11 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="marker_style_whole_verse">Csak a teljes verset tartalmazó könyvjelzőknél jelenjen meg jelzés.</string>
   <string name="hide_style">Elrejtés kiválasztott szöveget tartalmazó könyvjelzőknél</string>
   <string name="hide_style_whole_verse">Elrejtés teljes verset tartalmazó könyvjelzőknél</string>
+  <string name="bookmark_warning">Ehhez a dokumentumhoz könyvjelzők és/vagy jegyzetek tartoznak.</string>
+  <string name="bookmark_warning2">
+Ha a dokumentum struktúrája változik, akkor az ilyen könyvjelzők/jegyzetek a dokumentum frissítése után rossz helyre mutathatnak vagy akár teljesen eltűnhetnek.</string>
+  <string name="bookmark_warning3">Biztos, hogy frissíti a modult?</string>
+  <string name="bookmark_warning4">Frissítés előtt javasolt a modul biztonsági mentése.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Hozzáadás sorrendje</string>
   <string name="sort_by_bible_book">Bibliai sorrend</string>
@@ -522,6 +529,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="backup_database">Adatbázis</string>
   <string name="backup_documents">Dokumentumok</string>
   <string name="backup_application_info">Alkalmazás fájl (.APK)</string>
+  <string name="backup_database_info">Könyvjelzők, címkék, jegyzetek, jegyzetlapok, olvasási tervek, stb.</string>
   <string name="backup_document_info">Bibliák, kommentárok, szótárok, térképek, stb.</string>
   <string name="backup_to">Biztonsági mentés ide...</string>
   <string name="backup_restore_from">Visszaállítás innen...</string>
@@ -608,6 +616,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="empty_list">Nincs megtekinthető elem</string>
   <string name="error_skip">Kihagyás</string>
   <string name="bug_report_email_title">Hibajelentés küldése emailben</string>
+  <string name="bug_report_email_text">A következőkben válassza ki az email alkalmazást (például Gmail), amivel el szeretné küldeni a jelentést a fejlesztőknek.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Felolvasás</string>
   <string name="notification_channel_progress_status">Értesítés dokumentum letöltésekről stb.</string>
@@ -704,8 +713,10 @@ majd azután nem rögzített ablakok. A Biblia dokumentumokat rögzített ablakk
   <!--Supported file formats for documents-->
   <string name="supported_formats_title">Támogatott formátumok</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">Ki kell választania a fájlt, amelyet be szeretne tölteni a %s-be.</string>
   <string name="supported_formats">Támogatott formátumok dokumentumok betöltésére fájlból: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">Sword modul(oka)t tartalmazó zip fájl, vagy %s biztonsági mentés (*.abmd)</string>
   <string name="format_mysword">MySword dokumentumok (*.mybible)</string>
   <string name="format_mybible">MyBible dokumentumok (*.SQLite3)</string>
   <string name="format_epub">EPUB dokumentumok (*.epub)</string>
@@ -760,10 +771,12 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="advertise_app">Alkalmazás hirdetése</string>
   <string name="verse_share_advertise">Megosztva %s segítségével.</string>
   <string name="show_reference">Hivatkozás mutatása</string>
+  <string name="show_reference_at_front">Vers elején jelenjen meg</string>
   <string name="abbreviate_reference">Hivatkozás rövidítése</string>
   <string name="version_name">Verziónév</string>
   <!--meaning, bible version name-->
   <string name="show_version_name">Verziónév tartalmazása</string>
+  <string name="show_ellipsis">Hármaspont (…) megjelenítése</string>
   <string name="show_quotes">Idézések mutatása</string>
   <string name="backup_button">Biztonsági mentés</string>
   <string name="back_button">Vissza</string>
@@ -776,6 +789,8 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="proceed_anyway">Mégis telepítse az alkalmazást</string>
   <string name="proceed">Folytatás</string>
   <string name="rate_title">Értékelés és vélemény</string>
+  <string name="rate_message5">
+        Pozitív és részletes értékelések sokat segítenek az AndBible Nyílt Forráskódú Projektet. Köszönjük!</string>
   <string name="rate_message6">
 Mielőtt negatív visszajelzést hagy, gondolja meg:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -863,13 +878,43 @@ jelentse be az észlelt problémát</string>
   <string name="verse_tip">Versrészlet vagy több vers kiválasztásához hosszan nyomjon a Biblia szövegre</string>
   <string name="permission_required">Engedély szükséges </string>
   <string name="labels_search_hint">Keresés</string>
+  <string name="progress_status_permission">Az értesítések megjelenítéséhez (letöltési státusz, feldolgozás, beszélgetési státusz) engedélyezni kell az alkalmazásértesítéseket.</string>
   <!--Discrete mode settings-->
+  <string name="app_name_calculator">Egyszerű számológép</string>
+  <string name="prefs_persecution_cat">Beállítások tiltott helyeken való használathoz</string>
   <string name="prefs_discrete_mode">Vallási szimbólumok elrejtése</string>
+  <string name="prefs_discrete_mode_desc">Nevezze át az alkalmazást \"Számológép\"-re, és jelenítsen meg egy másik ikont.</string>
+  <string name="prefs_show_calculator">Számológép</string>
+  <string name="prefs_calculator_pin">Számológép PIN kód</string>
+  <string name="prefs_calculator_pin_desc">Begépelendő PIN kód a beépített számológépbe az alkalmazás indításakor</string>
   <string name="calc_division_by_zero">Nullával nem lehet osztani</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Rossz formátum</string>
+  <string name="calc_wrong_format_operand">Hibás formátum. Művelet számok nélkül nem elég.</string>
   <string name="prefs_persecuted_help">Először olvassa el ezt!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Beállítási útmutató a diszkrét verzió használatához.</string>
+  <string name="calculator_par1">
+        Az alkalmazásba belépés előtt egy számológép jelenik meg.
+    </string>
+  <string name="calculator_par2">
+        Ilyenkor az alkalmazás úgy indul mint egy teljesen normális számológép, a bibliaolvasó
+        megnyitásához gépelje be a PIN kódját (alapértelmezetten 1234) és nyomja meg az \"=\" gombot .
+    </string>
+  <string name="calculator_par3">
+        A PIN kód a \"Számológép PIN kód\" beállításban konfigurálható.
+    </string>
+  <string name="discrete_mode_info_par1">
+        Az alapértelmezett alkalmazásindító van beállítva, ez azt jelenti, hogy az indítóban az alkalmazás
+         valódi neve és ikonja látszik.
+    </string>
+  <string name="discrete_mode_info_par2">
+        A biztonsága érdekében, olyan területen, ahol a Biblia olvasása tiltott, ajánlott az alkalmazást
+        diszktét módban használni, ilyenkor az alkalmazás egy számológépként jelenik meg az indítóban, még akkor is, ha az alkalmazás beállításait törli.
+    </string>
+  <string name="discrete_mode_link">
+        A diszkrét verzió legfrissebb verziója innen tölthető le %s.
+    </string>
   <!--Window synchronize groups-->
   <string name="sync_group_submenu">Csoport összehangolása</string>
   <string name="sync_group_n">%d csoport</string>
@@ -877,12 +922,29 @@ jelentse be az észlelt problémát</string>
   <string name="open_in_window">Eredmény megnyitása ablakban</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">Egyéni tárolók</string>
+  <string name="custom_repositories_empty_list_message">Nincsenek egyéni tárolók felvéve</string>
+  <string name="custom_repositories_create_button_label">Egyéni tároló hozzáadása</string>
   <string name="custom_repositories_info_button_label">Információ</string>
+  <string name="name_for_repository">Tároló neve</string>
+  <string name="repository_specification">Tároló URL</string>
+  <string name="delete_custom_repository">Törli a(z) %s egyéni tárolót?</string>
+  <string name="invalid_repository_not_saved">A tároló adatai nem jók, a tároló felvétele nem sikerült.</string>
+  <string name="custom_repositories_help1">Új egyéni tároló hozzáadásához írja be vagy másolja be az egyéni tároló URL-jét ide.</string>
+  <string name="custom_repositories_help2">Az egyéni tárolókról további információk a %s oldalon találhatóak.</string>
+  <string name="wiki_page">Wiki oldal</string>
+  <string name="custom_repositories_help0">A dokumentumokat külső egyéni tárolókból telepítheti az egyéni tárolók telepítésével.</string>
+  <string name="duplicate_custom_repository">%s névvel már van egy másik tároló, nem lehet felvenni még egyet ugyanezzel a névvel.</string>
+  <string name="packages_dir">Csomag könyvtár (zip fájlok)</string>
+  <string name="warn_bad_document">Figyelmeztetés: Ez a dokumentum (legalábbis részben) technikai hibákat tartalmazhat.</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Biblia hivatkozások megyitása AndBible-ban</string>
   <string name="copyReference">Hivatkozás másolása a vágólapra</string>
+  <string name="reference_copied_to_clipboard">A hivatkozás a vágólapra került</string>
   <!--Device cloud synchronization-->
+  <string name="db_bookmarks">Könyvjelzők, Jegyzeteim, Címkék és Jegyzetlapok</string>
   <string name="synchronizing">Összehangolás...</string>
+  <string name="bookmarks_contents">Könyvjelzők, Címkék és Jegyzetlapok</string>
   <string name="cloud_sync_title">Eszköz összehangolás</string>
   <string name="reset_sync">Kijelentkezés</string>
   <string name="prefs_reset_sync_summary">Összehangolás kikapcsolása és hasonló beállítások visszaállítása</string>
@@ -890,14 +952,25 @@ jelentse be az észlelt problémát</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_username">Felhasználónév</string>
   <string name="auth_password">Jelszó</string>
+  <string name="auth_access_token">Hozzáférési kulcs</string>
   <string name="synchronization_categories">Összehangolási kategóriák</string>
+  <string name="sync_general_settings">Információ és általános beállítások</string>
+  <string name="sync_introduction">Bevezetés</string>
   <string name="are_you_sure">Biztosan?</string>
   <!--... after restoring from backup file-->
   <string name="report">Visszajelzés</string>
   <string name="sync_error">Hiba történt a felhővel való összehangolás közben</string>
   <string name="error_notification_channel_name">Hiba értesítés</string>
+  <string name="enable_sync">A szinkronizáció engedélyezése</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">A fájl nem olvasható</string>
+  <string name="sqlite_invalid_file">Érvénytelen modul fájl vagy fájlnév: %s</string>
+  <string name="sqlite_cant_write">A fájl (felül)írása nem sikerült</string>
+  <string name="install_failed_reason">A modul telepítése nem sikerült: %s</string>
   <!--Other / uncategorized-->
   <string name="open_here">Megnyitás itt</string>
   <string name="external_link">Külső hivatkozás</string>
+  <string name="dont_show">
+        Ne jelenítse meg ezt az üzenetet többet
+    </string>
 </resources>
