@@ -1039,6 +1039,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 p.second()
             }
 
+            workspaceButton.visibility = if (visibleButtonCount < maxButtons)
+            {
+                workspaceButton.setOnClickListener {
+                    val intent = Intent(this@MainBibleActivity, WorkspaceSelectorActivity::class.java)
+                    startActivityForResult(intent, WORKSPACE_CHANGED)
+                }
+                visibleButtonCount += 1
+                View.VISIBLE
+            } else View.GONE
+
             if(!showSpeak && transportBarVisible && speakControl.isStopped) {
                 transportBarVisible = false
                 updateBottomBars()
