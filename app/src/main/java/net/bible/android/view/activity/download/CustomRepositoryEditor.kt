@@ -102,6 +102,12 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
                     oldText = s.toString()
                 }
             })
+            submitButton.setOnClickListener {
+                saveAndExit()
+            }
+            if(data.repository != null) {
+                submitButton.text = getString(R.string.save_and_exit)
+            }
         }
     }
 
@@ -109,7 +115,8 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
 
     var valid: Boolean = false
         set(value) {
-            binding.okCheck.drawable.mutate().setTint(CommonUtils.getResourceColor(if (value) R.color.green else (R.color.grey_500)))
+            binding.okCheck.visibility = if(value) View.VISIBLE else View.INVISIBLE
+            binding.submitButton.isEnabled = value
             field = value
         }
 
@@ -199,9 +206,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         }
         valid = ok
         binding.loadingIndicator.visibility = View.GONE
-        if(valid) {
-            updateUI()
-        }
+        updateUI()
     }
 
     private fun readManifest(conn: HttpsURLConnection): Boolean {
@@ -297,13 +302,18 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
     }
 
     private fun updateUI() = binding.run {
-        val repo = data.repository?: return
-        infoText.text = TextUtils.concat(
-            repo.name,
-            "\n\n",
-            repo.description,
-        )
-        packageDir.setText(repo.packageDirectory)
+        val repo = data.repository
+        if(repo == null || !valid) {
+            infoText.text = ""
+            packageDir.setText("")
+        } else {
+            infoText.text = TextUtils.concat(
+                repo.name,
+                "\n\n",
+                repo.description,
+            )
+            packageDir.setText(repo.packageDirectory)
+        }
     }
 
     private fun delete() = lifecycleScope.launch(Dispatchers.Main) {
