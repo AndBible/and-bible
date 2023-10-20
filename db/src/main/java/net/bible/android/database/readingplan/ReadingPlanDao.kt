@@ -47,11 +47,10 @@ interface ReadingPlanDao {
 
     @Query("""
         INSERT INTO ReadingPlanStatus VALUES (:planCode, :planDay, :readingStatus, :id)
-        ON CONFLICT DO UPDATE SET
+        ON CONFLICT(planCode,planDay) DO UPDATE SET
         planCode=:planCode, 
         planDay=:planDay, 
-        readingStatus=:readingStatus 
-        WHERE id=:id
+        readingStatus=:readingStatus
     """)
     suspend fun addPlanStatus(
         planCode: String,
