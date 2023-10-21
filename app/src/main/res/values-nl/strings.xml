@@ -366,6 +366,9 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="label_color">Labelkleur</string>
   <!--can be removed-->
   <string name="label_color_example">Voorbeeld</string>
+  <string name="hide_style">Verberg voor geselecteerde bladwijzers</string>
+  <string name="hide_style_whole_verse">Verberg voor hele vers bladwijzers</string>
+  <string name="bookmark_warning3">Wil je nog steeds de module updaten?</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datumvolgorde</string>
   <string name="sort_by_bible_book">Bijbelse volgorde</string>
@@ -522,10 +525,12 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="backup_and_restore">Back-up en herstel</string>
   <string name="backup_modules2">Back-up Documenten naar...</string>
   <string name="backup_app_database2">Back-up app database naar...</string>
+  <string name="backup_app2">Back-up app (.apk file) naar ...</string>
   <string name="backup_application">Applicatie</string>
   <string name="backup_database">Database</string>
   <string name="backup_documents">Documenten</string>
   <string name="backup_application_info">Applicatie bestand (.APK)</string>
+  <string name="backup_document_info">Bijbels, commentaren, woordenboeken, kaarten etc.</string>
   <string name="backup_to">Back-up naar...</string>
   <string name="backup_restore_from">Herstel van...</string>
   <string name="backup_restore">Herstellen</string>
@@ -534,6 +539,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="restore_app_database">Terugzetten app database vanuit...</string>
   <string name="restore_database">Terugzetten Database bestand</string>
   <string name="restore_confirmation">Overschrijf Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen?</string>
+  <string name="restore_success2">Geselecteerde database secties succesvol hersteld</string>
   <string name="restore_success">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol teruggezet</string>
   <string name="downloading_backup">Downloaden back-up bestand...</string>
   <string name="loading_backup">Database aan het laden vanuit backup...</string>
@@ -609,6 +615,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="error_key_not_in_document2">%s is niet gevonden in document %s.</string>
   <string name="empty_list">Geen te tonen items</string>
   <string name="error_skip">Overslaan</string>
+  <string name="bug_report_email_title">Stuur bug rapport via email</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst-naar-spraak</string>
   <string name="notification_channel_progress_status">Voortgangsmeldingen voor documentdownloads, etc.</string>
@@ -753,10 +760,12 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="advertise_app">App vermelden</string>
   <string name="verse_share_advertise">Gedeeld met %s.</string>
   <string name="show_reference">Zie verwijzingen</string>
+  <string name="show_reference_at_front">Toon vooraan in de vers</string>
   <string name="abbreviate_reference">Verwijzing afkorten</string>
   <string name="version_name">Vertaling</string>
   <!--meaning, bible version name-->
   <string name="show_version_name">Inclusief versienaam</string>
+  <string name="show_ellipsis">Beletselteken weergeven (...)</string>
   <string name="show_quotes">Zie quotes</string>
   <string name="backup_button">Back-up maken</string>
   <string name="back_button">Terug</string>
@@ -878,9 +887,11 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="sync_group_submenu">Synchroniseer groep</string>
   <string name="sync_group_n">Groep %d</string>
   <string name="disable_sync">Synchroniseer uitzetten</string>
+  <string name="open_in_window">Open resultaten in een venster</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Aangepaste repositories</string>
+  <string name="custom_repositories_empty_list_message">Geen aangepaste reposities gedefinieerd</string>
   <string name="custom_repositories_create_button_label">Voeg aangepaste repositories</string>
   <string name="custom_repositories_info_button_label">Informatie</string>
   <string name="name_for_repository">Naam voor de repositorie</string>
@@ -888,13 +899,21 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="wiki_page">WIKI pagina</string>
   <string name="packages_dir">Pakketten map (Zip bestanden)</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Open Bijbel links in And Bible</string>
   <string name="copyReference">Kopieer link naar knipbord</string>
   <!--Device cloud synchronization-->
+  <string name="db_bookmarks">Bladwijzers, Mijn notities, Labels en Studiepaden</string>
   <string name="synchronizing">Synchroniseren…</string>
+  <string name="reading_plans_content">Leesplannen en hun statussen</string>
+  <string name="bookmarks_contents">Bladwijzers, Labels en Studiepaden</string>
   <string name="workspaces_contents">Werkplek en Vensters</string>
+  <string name="cloud_fetch_and_restore_initial">Kopieer van Cloud naar dit toestel</string>
+  <string name="cloud_create_new">Kopieer van dit toestel naar de Cloud</string>
+  <string name="cloud_disable_sync">Annuleren &amp; synchronisatie uitschakelen</string>
   <string name="cloud_sync_title">Apparaat synchronisatie</string>
   <string name="reset_sync">Uitloggen</string>
   <string name="cloud_info">Cloud informatie</string>
+  <string name="cloud_info_summary">Data in cloud opslag: %s Mb</string>
   <string name="sync_adapter">Synchronization Backend</string>
   <string name="sync_adapter_summary">Huidige: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
@@ -904,22 +923,50 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="auth_password">Wachtwoord</string>
   <string name="auth_access_token">Toegangstoken</string>
   <string name="synchronization_categories">Synchronisatie categorieën</string>
+  <string name="sync_general_settings">Info &amp; algemene instellingen</string>
   <string name="sync_introduction">Introductie</string>
   <string name="are_you_sure">Weet je het zeker?</string>
+  <string name="sync_disabling">Uitzetten synchronisatie voor %s voorlopig.</string>
+  <string name="sync_update_app">Graag de app updaten om synchronisatie door te zetten. </string>
+  <string name="sign_in_failed">Inloggen om synchronisatie achtergrond service gefaald.</string>
   <!--... after restoring from backup file-->
   <string name="report">Rapport</string>
+  <string name="sync_error">Er is een fout opgetreden bij de cloudsynchronisatie</string>
   <string name="error_notification_channel_name">Foute notificaties</string>
+  <string name="restore_from_cloud_description">Als je een apparaat synchronisatie aan hebt staan in deen ander apparaat, dan kun je starten met het herstellen van de database vanuit de Cloud.</string>
   <string name="enable_sync">Aanzetten synchronisatie</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Kan het bestand niet lezen</string>
+  <string name="sqlite_invalid_file">Niet geldige module bestand of bestandsnaam: %s</string>
+  <string name="sqlite_cant_write">Kan het bestand nier (over)schrijven</string>
+  <string name="install_failed_reason">Installeren van module is gefaald voor de volgende reden: %s.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">App ergens anders geopend</string>
   <string name="open_here">Hier openen</string>
   <string name="external_link">Externe link</string>
+  <string name="external_link_question">Dit wil een externe link openen %s in een browser, wil je verder gaan?</string>
   <string name="nameless">Titel niet gedefinieerd</string>
   <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acties met één klik (Bijbels)</string>
   <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Acties met één klik (Anders)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Wanneer op een tekst wordt getikt, wordt een actievenster met één tik weergegeven. Welke actieknoppen moeten worden weergegeven?</string>
   <string name="processing_epub">Processing EPUB: %s</string>
   <string name="buy_development">Koop ontwikkelingswerk</string>
   <string name="buy_development2">Ondersteun project</string>
+  <string name="new_version_warning">
+        Een nieuwe release komt er snel aan. The voorlopige release datum is %1$s. Bekijk onze 
+        %2$s om te ontdekken welke nieuwe features en verbeteringen er inzitten.
+    </string>
   <string name="new_version_trailer">trailer video</string>
+  <string name="new_version_warning2">
+        Na deze uitgave, wordt deze versie niet onderhouden.
+    </string>
+  <string name="new_version_warning3">
+        Je krijgt geen bug fixes of updates.
+    </string>
+  <string name="new_version_warning4">
+        Als je niet upgrade, wil je dan de \'Automatisch Updates\' uitzetten in jouw appstore (Google Play / F-Droid etc).
+    </string>
+  <string name="dont_show">
+        Laat dit bericht niet meer zien
+    </string>
 </resources>

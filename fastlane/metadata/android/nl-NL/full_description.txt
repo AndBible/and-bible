@@ -2,7 +2,7 @@
 
 "AndBible: Bijbelstudie" is een krachtige, maar toch eenvoudig te gebruiken Android app voor offline bijbelstudie. De app is niet gemaakt als een eenvoudig bijbel-leesprogramma, maar biedt vergaande mogelijkheden om de diepte in te gaan tijdens de persoonlijke bijbelstudie.
 
-Deze applicatie is ontwikkeld door bijbellezers voor bijbellezers. Hij is bedoeld om je bijbelstudie makkelijk, grondig en plezierig te laten zijn. Het mooiste van dit gemeenschappelijke non-profit project is dat het open-source is, gratis, en zonder advertenties. Omdat het van het begin af voor Android is ontwikkeld, is het een kleine download, erg efficient en opmerkelijk snel.
+Deze applicatie is ontwikkeld door bijbellezers voor bijbellezers. Hij is bedoeld om je bijbelstudie makkelijk, grondig en plezierig te laten zijn. Het mooiste van dit gemeenschappelijke non-profit project is dat het open-source is, gratis, en zonder advertenties.
 
 Enkele populaire bijbel versies (van de vele beschikbare) zijn de KJV, NASB, NET. Bovendien zijn er commentaren van bijvoorbeeld Matthew Henry en John Gill
 
@@ -20,7 +20,7 @@ De applicatie heeft veel handige, originele functies die complexe en grondige bi
  * Studiemappen om aantekeningen en bijbelverwijzingen te organiseren tijdens het luisteren van preken.
  * Bijbelleesplannen: stel je doelen voor het bijbellezen
  * Uitgebreide bibliotheek: Bijbelvertalingen, theologische commentaren, woordenboeken, landkaarten en christelijke literatuur, samen meer dan 1500 documenten in meer dan 700 talen, legaal verspreid door Crosswire en andere SWORD repositories.
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
+ * Native ondersteuning voor MyBible, MySword en EPUB-bestanden waarmee je bibliotheek verder vergroot.
 
 <b>Help mee dit de beste bijbelapp te maken!</b>
 
@@ -33,11 +33,11 @@ And Bible is een open-source project. Dat betekent in de praktijk dat iedereen m
 
 Als je een professionele software-ontwikkelaar bent, of -tester, overweeg dan aan het project bij te dragen. Zie https://git.io/JUnaj voor meer informatie.
 
-<b>Support by buying development time!</b>
+<b>Ondersteuning met het kopen van ontwikkelingstijd!</b>
 
-If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+Als je niet de tijd of de vaardigheden hebt voor dit project, kun je ook ondersteuning geven door tijd te kopen voor de ontwikkeling.
 
-See options: https://shop.andbible.org/
+Zie de opties: https://shop.andbible.org/
 
 <b>Links</b>
 

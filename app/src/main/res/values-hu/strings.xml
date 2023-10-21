@@ -939,6 +939,7 @@ jelentse be az észlelt problémát</string>
   <string name="warn_bad_document">Figyelmeztetés: Ez a dokumentum (legalábbis részben) technikai hibákat tartalmazhat.</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Biblia hivatkozások megyitása AndBible-ban</string>
+  <string name="open_bible_links_summary">AndBible megnyitása AndBible által támogatott biblia URL-ekre kattintáskor </string>
   <string name="copyReference">Hivatkozás másolása a vágólapra</string>
   <string name="reference_copied_to_clipboard">A hivatkozás a vágólapra került</string>
   <!--Device cloud synchronization-->

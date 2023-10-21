@@ -206,8 +206,10 @@
   <string name="windowClose">மூடு</string>
   <string name="windowMaximise">விரி</string>
   <string name="windowMinimise">சுருக்கு</string>
+  <string name="windowSynchronise">ஒத்திசைவு</string>
   <string name="move_window">நகர்த்துக</string>
   <string name="move_window_to_position2">நிலை %1$d (%2$s:%3$s)</string>
+  <string name="copy_settings">அமைப்புகளை நகலெடு</string>
   <string name="copy_settings_to_workspace">பணியிடம்</string>
   <string name="copy_settings_to_window">சாளரம் %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">சாதாரண சாரளமாக மாற்று</string>
@@ -414,6 +416,7 @@
   <string name="speak_repeat">மீண்டும் மீண்டும்</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">பேசும் வேகம்</string>
+  <string name="playback_settings_title">வாசிப்பு அமைப்புகள்</string>
   <string name="speak_settings_title">பேச்சு பொது அமைப்புகள்</string>
   <string name="speak_bookmarking_settings_title">புக்மார்க் அமைப்புகள்</string>
   <string name="speak_bookmarks_menu_title">புக்மாக்கில் இருந்து பேசு</string>
@@ -429,6 +432,7 @@
   <string name="speak_ending_verse_must_be_later">இறுதி வசனம் தொடக்க வசனத்திற்கு பின் இருக்க வேண்டும்</string>
   <string name="conf_speak_synchronize">உரை பேச்சை தொடர வேண்டும்</string>
   <string name="conf_speak_auto_bookmark">தானியக்கமாக புக் மார்க் செய்வது</string>
+  <string name="conf_save_playback_settings_to_bookmarks">வாசிப்பு அமைப்புகளை புக் மார்க்கில் சேமி</string>
   <string name="conf_replace_divinename">கடவுளின் பெயரை யாவே என்று மாற்றவும்</string>
   <string name="conf_change_chapter">அதிகார மாற்றங்கள்</string>
   <string name="conf_change_title">தலைப்புகள்</string>
@@ -473,6 +477,19 @@
   <string name="reset_defaults">இயல்பு நிலை அமைப்புகள்</string>
   <string name="reset_workspace_defaults">பணியிடத்தின் இயல்பு நிலை அமைப்புகள்</string>
   <string name="speak_bookmark_help">புக் மார்க் பேச்சு உதவி</string>
+  <string name="speak_help_playback_settings">
+        இதனை தேர்வு செய்தால், சிறப்பு வாசிப்பு அமைப்புகள் (\"வாசிப்பு அமைப்புகள்\" அடியில் பேசு திரையில்)
+        வாசிப்பு புக் மார்க்குகளில் சேமிக்கப்படும்.
+        நீங்கள் வாசிப்பை வாசிப்பு புக் மார்க்குக்களில் இருந்து தொடரும்போது
+        அதன் அமைப்புகள் புக்மாக்கிலிருந்து எடுக்கப்படும்.
+    </string>
+  <string name="speak_help_playback_settings_example">
+        எடுத்துக்காட்டாக நீங்கள் தொடக்க நூல் மற்றும் உரோமையர் ஆகியவற்றை வாசிக்க கேட்கும் போது
+        தொடக்க நூலினை விரைவாக அதிகார மாற்ற அறிவிப்புகள் இல்லாமலும்,
+        உரோமையரை அதிகாரமாற்ற அறிவிப்புகளோடும் கேட்க விரும்பினால்
+        இந்த நூல்களுக்கு வெவ்வேறு வாசிப்பு அமைப்புகளை நீங்கள் தேர்வு செய்யலாம்.
+        இந்த அமைப்புகள் சேமிக்கப்படும்போது அவற்றிற்குரிய புக் மார்க்குகளில் அவை சேமிக்கப்படும்.
+    </string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -615,6 +632,7 @@
   <string name="new_workspace">புதிய</string>
   <string name="switch_to_workspace">பணியிடங்கள்</string>
   <string name="delete_workspace">நீக்குக</string>
+  <string name="new_copied_workspace">புதியதாக நகலெடு</string>
   <string name="workspace_number">பணியிடம் %d</string>
   <string name="workspace_selector_title">பணியிடங்களை தேர்வு செய்க</string>
   <string name="workspace_settings">அமைப்புகள்...</string>
@@ -659,9 +677,16 @@
   <string name="help_bookmarks_title">புக்மார்க்குகள் &amp; என் குறிப்புகள்</string>
   <string name="help_search_title">தேடல்</string>
   <string name="help_workspaces_title">பணியிடங்கள்</string>
+  <string name="help_hidden_features_title">மறைக்கப்பட்ட குறுக்கு வழிகள்</string>
   <string name="help_window_pinning_title">சாரளத்தை பின் செய்வது</string>
   <!--Welcome text-->
+  <string name="redownload_documents">விரைவு மீள் தரவிறக்கம்</string>
+  <string name="welcome_message">%sஐ தரவிறக்கம் செய்வதற்கு நன்றி. தற்போது எந்த விவிலியமோ அல்லது ஆவணங்களோ நிறுவப்படவில்லை. ஆகவே 
+        1 ஆவணத்தையாவது இணையத்தில் இருந்தோ அல்லது zip வடிவ காப்பு நகலில் இருந்தோ நிறுவவும்
+        நிறுவவும்
+    </string>
   <!--Supported file formats for documents-->
+  <string name="supported_formats_title">ஏற்கும் வடிவமைப்புகள்</string>
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%sக்கு ஏற்ற விரும்பும் கோப்பை நீங்கள் தெரிவு செய்ய வேண்டும்.</string>
   <string name="supported_formats">கோப்பில் இருந்து ஆவணங்களை ஏற்றத் தகுந்த வடிவமைப்புகள்: %s</string>
@@ -670,16 +695,22 @@
   <string name="format_mysword">MySword கோப்புகள் (*.mybible)</string>
   <string name="format_mybible">MyBible கோப்புகள் (*.SQLite3)</string>
   <string name="format_epub">EPUB ஆவணங்கள் (*.epub)</string>
+  <string name="redownload_message">
+        முந்தைய புத்தகங்கள்/ஆவணங்களின் பட்டியல் கண்டறியப்பட்டது. அவற்றை மீண்டும் எளிதாக பதிவிறக்கம் செய்ய கீழே கிளிக் செய்யவும்.
+    </string>
   <!--Uncategorized-->
   <string name="close">மூடு</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">நான் ஏற்கிறேன்</string>
   <string name="first_time_help_show_next_time">அடுத்த முறை மீண்டும் காட்டவும்</string>
+  <string name="strongs_mode_title">Strongs முறையினை தேர்வு செய்க</string>
   <string name="download_dialog_message">பின்வரும் நூல்களை தரவிறக்க இயலவில்லை:</string>
   <string name="my_notes_abbreviation">என் குறிப்புகள்</string>
+  <string name="studypads">ஸ்டடி பேடுகள்</string>
   <string name="compare_description">மொழிபெயர்ப்புகளை ஒப்பிடுக</string>
   <string name="compare_abbreviation">ஒப்பிடுக</string>
   <string name="compare">ஒப்பிடுக</string>
+  <string name="http_forbidden">தடை செய்யப்பட்டது</string>
   <string name="http_not_found">காணவில்லை</string>
   <string name="http_unknown">மற்ற பிழை</string>
   <string name="give_passphrase_for_module"> %s கோப்பு குறியாக்கத்தின் மூலம் பூட்டப்பட்டிருக்கிறது. இதை திறக்க கடவுச்சொல் தேவை.</string>
@@ -786,6 +817,7 @@
   <string name="system_items1">மேலும்</string>
   <string name="text_copied_to_clicpboard">உரை கிளிப்போர்ட்டில் நகல் எடுக்கப்பட்டது</string>
   <string name="prefs_disable_two_step_bookmarking_title">ஒரு நிலை புக்மார்க்குகள் </string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Show \"Selection\" and \"Verses\" items directly in Bible view Selection menu</string>
   <string name="prefs_double_tap_to_fullscreen_title">இரு முறை தட்டினால் முழு திரை பயன்முறைக்கு செல்</string>
   <string name="prefs_double_tap_to_fullscreen_summary">சாரளத்தை இருமுறை தட்டினால் முழு திரை பயன்முறைக்கு செல்</string>
   <string name="toggle_fullscreen">முழு திரை பயன்முறை</string>
@@ -802,9 +834,12 @@
   <string name="import_from_db">ஆப் தரவுத்தள கோப்பிலிருந்து உள்ளேற்றவும்</string>
   <string name="import_error">தரவுத்தளத்திலிருந்து உள்ளேற்ற இயலவில்லை. தரவுத்தளக் கோப்பு தவறான வடிவமைப்பாக இருக்கலாம் அல்லது %sஇன் பழைய பதிப்பைக் கொண்டு உருவாக்கப்பட்டிருக்கலாம்.</string>
   <string name="chooser_range">வரம்பு </string>
+  <string name="chooser_jump">தாவு</string>
   <string name="chooser_OT_abbrev">பஏ</string>
   <string name="chooser_NT_abbrev">புஏ</string>
   <string name="chooser_style_lists">பட்டியல்</string>
+  <string name="chooser_select">%sஐ தேர்ந்தெடு</string>
+  <string name="chooser_pref_reset">நூல்/அதிகாரத்தினை தேர்வு செய்யும் போது அதிகார வசனத்தை 1க்கு மாற்றாதே.</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">மன்னிக்கவும். %1$s மொழியில் இடைநிலை மொழிபெயர்ப்பு ஒரு பகுதி மட்டுமே உள்ளது. ஏனெனில்%2$s தன்னார்வலர்களால் உருவாக்கப்படுகிறது. நீங்கள் மொழிபெயர்ப்பதில் உதவ நினைத்தால் காண்க: %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
@@ -825,12 +860,28 @@
   <string name="prefs_discrete_mode">சமயக் குறியீடுகளை மறை</string>
   <string name="prefs_discrete_mode_desc">இந்த செயலிக்கு கணிப்பான் என பெயர் மாற்றி துவக்கியில் வேறு ஐக்கானை காட்டவும்.</string>
   <string name="prefs_show_calculator">கணிப்பான்</string>
+  <string name="prefs_calculator_pin">கணிப்பான் கடவு எண்</string>
+  <string name="prefs_calculator_pin_desc">கணிப்பான் கிரியிலிருந்து செயலிக்கு உள் செல்ல கடவு எண்</string>
   <string name="calc_division_by_zero">பூஜ்ஜியத்தால் வகுத்தல் அனுமதிக்கப்படாது</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">தவறான வடிவம்</string>
   <string name="prefs_persecuted_help">இதை முதலில் படிக்கவும்!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="calculator_par1">
+        செயலியின் உள் செல்வதற்கு முன் கணிப்பான் திரை காட்டப்படும்.
+    </string>
+  <string name="calculator_par3">
+        \"கணிப்பான் கடவு எண்\" அமைப்பில் நீங்கள் விரும்பும் கடவு எண்ணை அமைக்கலாம்.
+    </string>
+  <string name="discrete_mode_info_par2">
+        துன்புறுத்தப்படும் சூழலில் வாழ்பவர்கள், பாதுகாப்பிற்காக இந்த செயலியின் மறைந்த பதிப்பை
+        பயன்படுத்தலாம். இந்த செயலியின் தரவுகள் முற்றிலுமாக நீக்கப்பட்டாலும் இது கணிப்பானயே காட்டும்.
+    </string>
+  <string name="discrete_mode_link">
+        %sஇல் மறைந்த பதிப்பின் அண்மைய பதிப்பை நீங்கள் தரவிறக்கம் செய்யலாம்.
+    </string>
   <!--Window synchronize groups-->
+  <string name="disable_sync">ஒத்திசைவை முடக்கு</string>
   <string name="open_in_window">முடிவுகளை சாளரத்தில் திற</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
@@ -843,32 +894,54 @@
   <string name="delete_custom_repository">தனிப்பயன் களஞ்சியம் %s ஐ நீக்கவா?</string>
   <string name="custom_repositories_help2">தனிப்பயன் களஞ்சியங்கள் பற்றிய கூடுதல் தகவல்களை %sஇல் பெறலாம்.</string>
   <string name="wiki_page">விக்கி பக்கம்</string>
+  <string name="packages_dir">தொகுப்பு அடைவு (Zip கோப்புகள்)</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">விவிலிய இணைப்புகளை AndBibleல் திறக்கவும்</string>
   <string name="copyReference">இணைப்பை கிளிப்போடுக்கு நகலெடு</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+        பல கருவிகளை ஒத்திசைக்க எந்த மேக சேமிப்பக சேவையைப் பயன்படுத்த விரும்புகிறீர்கள் என்பதைத் தேர்வுசெய்யவும்.
+    </string>
+  <string name="restore_backup_sections">காப்பகத்தின் எந்த பகுதிகளை மீட்டமைக்க வேண்டும்?</string>
   <string name="db_repositories">களஞ்சியங்கள் மற்றும் தொடர்புடைய அமைப்புகள்</string>
   <string name="db_bookmarks">புக்மார்க்குகள், என் குறிப்புகள், லேபிள்கள் மற்றும் ஸ்டடி பேட்கள்</string>
   <string name="synchronizing">ஒத்திசெய்கிறது…</string>
+  <string name="overrideBackup">
+        இந்த கருவியிலிருந்து ஒத்திசைக்கப்படாத தரவு தளம் மேக சேமிப்பகத்தில் உள்ளது.
+        தரவு தளத்தில் %s உள்ளது. என்ன செய்ய விரும்புகிறீர்கள்?
+    </string>
   <string name="reading_plans_content">வாசிப்பு திட்டங்களும் அதன் நிலைகளும்</string>
   <string name="bookmarks_contents">புக்மார்க்குகள், லேபிள்கள் மற்றும் ஸ்டடி பேடுகள்.</string>
   <string name="workspaces_contents">பணியிடங்கள் மற்றும் சாரளங்கள்</string>
-  <string name="cloud_fetch_and_restore_initial">Cloudஇல் இருந்து இந்தக் கருவிக்கு நகலெடுக்கவும்</string>
-  <string name="cloud_create_new">இந்தக் கருவியிலிருந்து Cloudக்கு நகலெடுக்கவும்</string>
+  <string name="cloud_fetch_and_restore_initial">மேக சேமிப்பகத்திலிருந்து இந்தக் கருவிக்கு நகலெடுக்கவும்</string>
+  <string name="cloud_create_new">இந்தக் கருவியிலிருந்து மேக சேமிப்பகத்துக்கு நகலெடுக்கவும்</string>
   <string name="cloud_disable_sync">ரத்து செய்  &amp; ஒத்திசைவை முடக்கு</string>
   <string name="cloud_sync_title">கருவி ஒத்திசைவு</string>
   <string name="reset_sync">வெளியேறு</string>
   <string name="prefs_reset_sync_summary">ஒத்திசைவை முடக்கி, தொடர்புடைய அமைப்புகளை மீட்டமைக்கவும்.</string>
+  <string name="sync_confirmation">வெளியேறி விட்டு ஒத்திசைவை மீட்டமைக்க விரும்புகிறீர்களா?</string>
+  <string name="cloud_info">மேக சேமிப்பக தகவல்</string>
   <string name="cloud_info_summary">மேக சேமிப்பகத்தில்: %s Mb</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_username">பயனர் பெயர்</string>
   <string name="auth_password">கடவுச்சொல்</string>
+  <string name="sync_general_settings">தகவல் &amp; பொது அமைப்புகள்</string>
   <string name="sync_introduction">முன்னுரை</string>
+  <string name="are_you_sure">உறுதியாகவா?</string>
+  <string name="are_you_sure_reset_local">இது உங்கள் கருவில் உள்ள %sக்கான தரவு தளத்தை மேக சேமிப்பகத்தில் உள்ளவற்றால் மாற்றும்.</string>
+  <string name="are_you_sure_reset_cloud">இது உங்கள் மேக சேமிப்பகத்தில் உள்ள %s ஆன தரவு தளத்தை இந்த கருவியில் உள்ள உள்ளவற்றால் மாற்றும்.</string>
+  <string name="sync_cant_fetch">மேக சேமிப்பகத்தில் உள்ள தரவு தளம் அல்லது ஒட்டு கோப்பு இந்த செயலியால் பயன்படுத்தக்கூடிய பதிப்பினை விட முந்தியது ஆகும்.</string>
+  <string name="sync_disabling">இப்போதைக்கு %sஇன் ஒத்திசைவை முடக்கு.</string>
+  <string name="sync_update_app">ஒத்திசைவை தொடர செயலியை புதுப்பிக்கவும்.</string>
+  <string name="sign_in_failed">ஒத்திசைவு பின்தள சேவையில் உள்நுழைவது தோல்வியடைந்தது.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">மேக சேமிப்பக ஒத்திசைவு முடக்கப்படுகிறது. மீட்டமைத்த பிறகு இதை நீங்கள் கைமுறையாக இயக்க வேண்டும்.</string>
   <string name="report">புகார் அளி</string>
-  <string name="sync_error">கிளவுட் ஒத்திசைவில் பிழை ஏற்பட்டது</string>
+  <string name="sync_error">மேக சேமிப்பகத்துடன் ஒத்திசைவில் பிழை ஏற்பட்டது</string>
   <string name="error_notification_channel_name">பிழை அறிவிப்புகள்</string>
+  <string name="restore_from_cloud_description">வேறு ஒரு கருவியில் ஒத்திசைவினை இயக்கி இருந்தால், மேக சேமிப்பகத்திலிருந்து தரவு தளத்தை மீட்டமைக்கலாம்.</string>
+  <string name="enable_sync">ஒத்திசைவை இயக்கு</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">கோப்பினை படிக்க இயலவில்லை</string>
   <string name="sqlite_invalid_file">தவறான தொகுதி கோப்பு அல்லது கோப்புப் பெயர்: %s</string>
@@ -882,6 +955,7 @@
   <string name="nameless">தலைப்பு வரையறுக்கப்படவில்லை</string>
   <string name="processing_epub">EPUBஐ அலசுகிறது: %s</string>
   <string name="buy_development2">இத்திட்டத்திற்கு உதவ</string>
+  <string name="new_version_trailer">முன்னோட்ட காணொளி</string>
   <string name="new_version_warning2">வெளியான பிறகு, இந்த பதிப்பு பராமரிக்கப்படவில்லை.</string>
   <string name="new_version_warning3">
         பிழை திருத்தங்களையோ அல்லது புதுப்பிப்புகளையோ பெறாது.
