@@ -8,7 +8,7 @@ subtitle_1: Puissant outil d’étude biblique
 paragraph_1_1: >
   "{{ title }}" est une puissante application d'étude biblique hors ligne pour Android, facile à utiliser. L'application ne vise pas à être un simple lecteur de la Bible, mais se concentre sur un outil avancé pour faire une étude personnelle approfondie de la Bible.
 paragraph_1_2: >
-  Cette application a été développée par des lecteurs de la Bible, pour des lecteurs de la Bible. Elle a pour but de vous aider à rendre votre étude de la Bible pratique, approfondie et amusante. La meilleure partie de ce projet communautaire à but non lucratif est qu'il est à code source ouvert, entièrement gratuit et ne contient aucune publicité. Construite de A à Z pour Android, sa taille de téléchargement est faible et est donc très efficace et remarquablement rapide.
+  Cette application a été développée par des lecteurs de la Bible, pour des lecteurs de la Bible. Elle a pour but de vous aider à rendre votre étude de la Bible pratique, approfondie et amusante. La meilleure partie de ce projet communautaire à but non lucratif est qu'il est à code source ouvert, entièrement gratuit et ne contient aucune publicité. 
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Quelques versions populaires de la Bible (parmi les nombreuses disponibles) sont les KJV, NASB, NET, et aussi des commentaires populaires comme Matthew Henry et John Gill.
@@ -34,14 +34,14 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Vaste bibliothèque de documents : Traductions de la Bible, commentaires théologiques, dictionnaires, cartes et livres chrétiens, totalisant plus de {{total_documents}} documents dans plus de {{total_languages}} langues, distribués légalement par Crosswire et d'autres dépôts SWORD. 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  La provenance de tous les documents fait l'objet de recherches afin de s'assurer que tous les documents peuvent être distribués légalement ou que la permission a été accordée par le détenteur du droit d'auteur. C'est également la raison pour laquelle cette application n'inclut pas les documents comme {{unavailable_documents}}.
+feature_10_1: >
+  La prise en charge native de MyBible, MySword et des fichiers EPUB vous permet d'élargir encore davantage votre bibliothèque.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "ESV, NIV et NKJV"
 feature_12: >
   Hors ligne  : vous n'avez besoin de l'internet que pour télécharger des documents.
+# UNUSED
 feature_13: >
   Des bloc-notes pour ajouter des notes et des références bibliques tout en écoutant les sermons.
 subtitle_3: Créons ensemble la meilleure application biblique !
@@ -65,3 +65,9 @@ link_4: >
   Questions fréquemment posées : {{faq_url}}
 link_5: >
   Page du projet sur Github : {{github_url}}
+buy_title: >
+  Soutenez-le projet en achetant du temps de développement !
+buy_1: >
+  Si vous n’avez pas le temps ou les compétences nécessaires pour contribuer au projet, vous pouvez également soutenir le projet en achetant du temps de travail à des développeurs professionnels.
+buy_2: >
+  Voir les options

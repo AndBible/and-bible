@@ -1,0 +1,65 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: புக்மார்க்குகள்
+bookmarksAndNotes: புக்மார்க்குகள் & என் குறிப்புகள்
+openMyNotes: என் குறிப்புகளில் திற
+openStudyPad: (%s) ஸ்டடி பேடில் திற
+noteText: அடிக்குறிப்புகள் (%s)
+noteTextWithoutType: அடிக்குறிப்புகள்
+crossReferenceText: குறுக்கு குறிப்புகள்
+findAllOccurrences: அனைத்து பதிவுகளையும் கண்டறி
+reportError: பிழையைப் புகாரளிக்கவும்
+errorTitle: பிழை ஏற்பட்டது
+warningTitle: எச்சரிக்கை
+normalTitle: குறிப்பு
+footnoteTypeStudy: ஆய்வு
+footnoteTypeExplanation: விளக்கம்
+footnoteTypeVariant: மாறுபாடு
+footnoteTypeAlternative: மாற்று
+footnoteTypeTranslation: மொழிபெயர்ப்பு
+clearLog: பிழை பதிவை அழிக்கவும்
+editTextPlaceholder: உரையைத் திருத்த தட்டவும்
+inputPlaceholder: இங்கே எழுதவும்
+inputReference: " விவிலிய குறிப்பு எண்களை உள்ளிடவும்"
+invalidReference: வசனம் கிடைக்கவில்லை
+bookmarkAccurate: புக்மார்க் %s இல் உருவாக்கப்பட்டது
+bookmarkInaccurate: "புக்மார்க் புத்தகத் தகவல் சேமிக்கப்படவில்லை, உள்ளடக்கம் %s இல் காட்டப்படும்."
+defaultBook: இயல்பிருப்பு விவிலியக் கோப்பு
+ok: சரி
+yes: "ஆம்"
+ambiguousSelection: "நீங்கள் எந்த நடவடிக்கை எடுக்க விரும்புகிறீர்கள்?"
+cancel: ரத்து செய்
+removeBookmarkConfirmationTitle: " புக்மார்க்கை நீக்கவா?"
+removeBookmarkConfirmation: "இந்தப் புக்மார்க்கை உருதியாக நீக்க வேண்டுமா?"
+createdAt: "உருவாக்கியது: %s"
+lastUpdatedOn: "கடைசியாக புதுப்பிக்கப்பட்டது: %s"
+strongsAndMorph: சொற்பொருள் & சொற்பகுப்பியல்
+externalLink: வெளி இணைப்பைத் திற
+referenceLink: குறிப்பு இணைப்பைத் திற
+openFootnote: அடிக்குறிப்பைத் திற
+noMyNotesTitle: இந்த அதிகாரத்திற்கு என் குறிப்புகள் ஏதும் இல்லை.
+noMyNotesDescription: >
+  விவிலியக் கோப்பில் புக்மார்க்குகளை உருவாக்கவும். அதன் பின் புக்மார்க்குகள் இங்கே தோன்றும், அவற்றில் உங்கள் தனிப்பட்ட குறிப்புகளைச் சேர்க்கலாம்.
+emptyStudyPad: >
+  காலியான ஸ்டடி பேட். இங்கே உரை உள்ளீடுகளை உருவாக்குவதன் மூலம் அல்லது இந்த ஸ்டடி பேடுடன் தொடர்புடைய புக்மார்க் லேபிளுடன் புக்மார்க்குகளை உருவாக்குவதன் மூலம் இந்த ஸ்டடி பேடில் சேர்க்கத் தொடங்குங்கள்.
+doYouWantToDeleteEntry: "இந்த ஸ்டடி பேட் உள்ளீட்டை நீக்கவா?"
+removeStudyPadConfirmationTitle: "ஸ்டடி பேட் உள்ளீட்டை அகற்றவா?"
+dragHelp: மறுவரிசைப்படுத்த இழுக்கவும்
+openAll: அனைத்து குறிப்புகளையும் திறக்கவும்
+editBookmarkPlaceholder: இந்தப் புக்மார்க்கிற்கான என் குறிப்புகளைத் திருத்த தட்டவும்.
+onlyLabel: லேபிள் மட்டும்
+wholeBookmark: முழு புக்மார்க்
+assignLabelsMenuEntry1: லேபிள்களைத் தேர்ந்தெடுக்க அல்லது திருத்த...
+favouriteLabels: விருப்பமான லேபிள்கள்
+recentLabels: அண்மைய லேபிள்கள்
+bookmarkLabels: புக்மார்க் லேபிள்கள்
+refParserHelp: ஆங்கிலம் தவிர மற்ற மொழிகளில் குறிப்புகளைப் பயன்படுத்த %s தொகுதியை நிறுவவும்.
+openDownloads:  Add-on பதிவிறக்கங்களுக்குச் செல்லவும்
+verseShare: பகிர்
+verseSpeak: பேசுக
+verseCompare: ஒப்பிடுக
+verseNote: குறிப்பு
+verseMyNotes: என் குறிப்புகள்
+verseShareLong: இந்த வசனத்தை பகிர
+verseCompareLong: வசனத்தை ஒப்பிட
+verseNoteLong: குறிப்பு எழுதுக
+addBookmark: புக்மார்க்

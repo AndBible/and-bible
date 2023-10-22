@@ -27,12 +27,12 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
-import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
-import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkToLabel
-import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
-import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkToLabel
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntry
 import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntryText
@@ -55,10 +55,8 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import java.lang.IndexOutOfBoundsException
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 import kotlin.math.min
 
 abstract class BookmarkEvent
@@ -198,9 +196,7 @@ open class BookmarkControl @Inject constructor(
 
     fun hasBookmarksForVerse(verse: Verse): Boolean = dao.hasBookmarksForVerse(verse)
 
-    fun firstBibleBookmarkStartingAtVerse(key: Verse): BibleBookmarkWithNotes? = dao.bookmarksStartingAtVerse(key).firstOrNull()
-
-    fun firstGenericBookmarkStartingAtKey(key: BookAndKey): GenericBookmarkWithNotes? = dao.bookmarksForOrdinalStart(key.document!!.initials, key.key.osisRef, key.ordinal!!.start).firstOrNull()
+    fun bibleBookmarkStartingAtVerse(key: Verse): List<BibleBookmarkWithNotes> = dao.bookmarksStartingAtVerse(key)
 
     fun deleteBookmark(bookmark: BaseBookmarkWithNotes) {
         dao.delete(bookmark)
@@ -224,11 +220,17 @@ open class BookmarkControl @Inject constructor(
 
     fun deleteGenericBookmarksById(bookmarkIds: List<IdType>) = deleteBookmarks(dao.genericBookmarksByIds(bookmarkIds))
 
-    fun getBibleBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false): List<BibleBookmarkWithNotes> {
+    fun getBibleBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false, search:String? = null): List<BibleBookmarkWithNotes> {
         val bookmarks = when {
-            labelAll == label -> dao.allBookmarks(orderBy)
-            labelUnlabelled == label -> dao.unlabelledBookmarks(orderBy)
-            else -> dao.bookmarksWithLabel(label, orderBy)
+            labelAll == label ->
+                if (search == null) dao.allBookmarks(orderBy)
+                else dao.searchAllBookmarks(orderBy, search)
+            labelUnlabelled == label ->
+                if (search == null) dao.unlabelledBookmarks(orderBy)
+                else dao.searchUnlabelledBookmarks(orderBy, search)
+            else ->
+                if (search == null) dao.bookmarksWithLabel(label, orderBy)
+                else dao.searchBookmarksWithLabel(label, orderBy, search)
         }
         if(addData) for (it in bookmarks) {
             addText(it)
@@ -237,11 +239,17 @@ open class BookmarkControl @Inject constructor(
         return bookmarks
     }
 
-    fun getGenericBookmarksWithLabel(label: Label, addData: Boolean = false): List<GenericBookmarkWithNotes> {
+    fun getGenericBookmarksWithLabel(label: Label, addData: Boolean = false, search:String? = null): List<GenericBookmarkWithNotes> {
         val bookmarks = when {
-            labelAll == label -> dao.allGenericBookmarks()
-            labelUnlabelled == label -> dao.unlabelledGenericBookmarks()
-            else -> dao.genericBookmarksWithLabel(label)
+            labelAll == label ->
+                if (search == null) dao.allGenericBookmarks()
+                else dao.searchAllGenericBookmarks(search)
+            labelUnlabelled == label ->
+                if (search == null) dao.unlabelledGenericBookmarks()
+                else dao.searchUnlabelledGenericBookmarks(search)
+            else ->
+                if (search == null) dao.genericBookmarksWithLabel(label)
+                else dao.searchGenericBookmarksWithLabel(label, search)
         }
         if(addData) for (it in bookmarks) {
             addText(it)

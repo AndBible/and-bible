@@ -8,7 +8,7 @@ subtitle_1: "Účinný nástroj na štúdium Biblie "
 paragraph_1_1: >
   "{{ title }}" je výkonná, ale ľahko použiteľná offline aplikácia na štúdium Biblie pre Android. Aplikácia si nekladie za cieľ byť len čítačkou Biblie, ale zameriava sa na to, aby bola pokročilým nástrojom na hĺbkové osobné štúdium Biblie.
 paragraph_1_2: >
-  Táto aplikácia je vyvinutá čitateľmi Biblie pre čitateľov Biblie. Cieľom je pomôcť vám urobiť štúdium Biblie pohodlným, hlbokým a zábavným. Najlepšie na tomto neziskovom komunitnom projekte je, že je s otvoreným kódom, úplne zadarmo a neobsahuje žiadne reklamy. Keďže bol vyvinutý od základu pre Android, je malá na sťahnutie, a preto aj veľmi efektívna a pozoruhodne rýchla.
+  Táto aplikácia je vyvinutá čitateľmi Biblie pre čitateľov Biblie. Jeho cieľom je pomôcť vám, aby bolo vaše štúdium Biblie pohodlné, hlboké a zábavné. Najlepšie na tomto neziskovom komunitnom projekte je, že je open source, úplne zadarmo a neobsahuje žiadne reklamy.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Niekoľko populárnych verzií Biblie (z mnohých dostupných) je KJV, NASB, NET a tiež obľúbené komentáre ako Matthew Henry a John Gill.
@@ -34,14 +34,14 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Rozsiahla knižnica dokumentov: preklady Biblie, teologické komentáre, slovníky, mapy a kresťanské knihy v celkovom počte viac ako {{total_documents}} dokumentov vo viac ako {{total_languages}} jazykoch, legálne distribuované spoločnosťou Crosswire a inými archívmi SWORD. 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  Pôvod všetkých dokumentov sa skúma, aby sa zabezpečilo, že všetky dokumenty môžu byť legálne distribuované alebo že držiteľ autorských práv udelil povolenie. To je tiež dôvod, prečo táto aplikácia neobsahuje dokumenty ako {{unavailable_documents}}.
+feature_10_1: >
+  Natívna podpora súborov MyBible, MySword a EPUB vám umožní rozšíriť vašu knižnicu ešte viac.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "ESV, NIV a NKJV"
 feature_12: >
   Offline: internet potrebujete iba na stiahnutie dokumentov.
+# UNUSED
 feature_13: >
   Študijné zložky pre pridávanie poznámok a referencií na Bibliu pri počúvaní kázní.
 subtitle_3: Urobme spolu najlepšiu aplikáciu pre Bibliu!
@@ -65,3 +65,9 @@ link_4: >
   Často kladené otázky: {{faq_url}}
 link_5: >
   Projekt na Githube: {{github_url}}
+buy_title: >-
+  Podporte aplikáciu nákupom času vývoja!
+buy_1: >
+  Ak nemáte čas alebo zručnosti na prispievanie do projektu, môžete projekt podporiť aj zakúpením pracovného času profesionálneho vývojára.
+buy_2: >
+  Pozrite si možnosti

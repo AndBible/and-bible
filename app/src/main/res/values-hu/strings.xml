@@ -13,7 +13,6 @@
   <string name="selectPassage">Igehely</string>
   <string name="search">Keresés</string>
   <string name="search_in_andbible">Keresés a Bibliában</string>
-  <string name="search_with_results2">%1s találat a %2s-ból</string>
   <string name="settings">Beálítások</string>
   <string name="history">Előzmények</string>
   <string name="speak">Felolvasás</string>
@@ -42,6 +41,8 @@
   <string name="search_in">Keresés %s-ben</string>
   <string name="do_in_background">Folytassa a háttérben</string>
   <string name="rebuild_index_button">Adatbázis újraépítése</string>
+  <!--X results in module Y-->
+  <string name="search_with_results2">%1s találat a %2s-ból</string>
   <!--Tasks-->
   <string name="progress_status">Folyamatjelző</string>
   <string name="task_kill_warning">Ez az időigényes feladat megszakadhat, ha a befejezés előtt másik alkalmazásra váltasz.</string>
@@ -60,7 +61,9 @@
   <string name="search_current_book">Jelenlegi könyv</string>
   <string name="error_executing_search">Érvénytelen keresési feltétel</string>
   <string name="type_text_or_bible_reference">Szöveg vagy bibliahivatkozás beírása</string>
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">%s megnyitása</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">\"%s\" keresése</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Fejezet- és versszámok</string>
@@ -119,6 +122,8 @@
   <string name="reset_fontsize">Alapállapotba visszaállítás</string>
   <string name="prefs_request_sdcard_permission_title">Kézzel telepített dokumentumok találhatóak</string>
   <string name="prefs_request_sdcard_permission_summary">Kézzel telepített dokumentumok hasznälatának engedélyezése a belső tároló jsword/sword könyvtárából</string>
+  <string name="prefs_expand_footnotes_title">Beillesztett kereszthivatkozások</string>
+  <string name="prefs_expand_footnotes_summary">A kereszthivatkozásokat a szöveggel együtt jelennek meg, nem felugró ablakban</string>
   <string name="all_text_options_window_menutitle">Minden szövegbeállítás</string>
   <string name="text_options_window_menutitle">Szövegbeállítások</string>
   <string name="auto_fullscreen">Teljes képernyő lapozáskor</string>
@@ -128,7 +133,7 @@
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Teljesképernyős mód automatikus bekapcsolása lapozáskor. TIpp: a teljesképernyős mód bekpcsolható dupla koppintással a kepernyőre.</string>
   <string name="prefs_margin_size_title">Margó méret megváltoztatása</string>
-  <string name="prefs_margin_size_mm_title">Margó méret (%d/%d/%d mm)</string>
+  <string name="prefs_margin_size_mm_title">Margó méret (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Haladó beállítások</string>
   <string name="prefs_display_customization_cat">Kinézet</string>
   <string name="prefs_behavior_customization_cat">Működési mód</string>
@@ -178,6 +183,8 @@
   <string name="prefs_text_bookmarks_title">Könyvjelzők és Jegyzetek beállításai</string>
   <string name="prefs_enable_bluetooth_title">Engedélyezze a Bluetooth médiagombokat </string>
   <string name="prefs_enable_bluetooth_summary">A beszéd elindításához/leállításához használja a Bluetooth médiagombokat.</string>
+  <string name="create_bookmark">Új könyvjelző</string>
+  <string name="create_bookmark_with_a_note">Új könyvjelző jegyzettel</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Színbeállítások</string>
   <string name="window_color_settings_title">Ablak színeinek beállítása</string>
@@ -201,10 +208,10 @@
   <string name="windowMinimise">Minimalizálás</string>
   <string name="windowSynchronise">Együtt mozgat</string>
   <string name="move_window">Mozgatás</string>
-  <string name="move_window_to_position2">Pozició %d (%s:%s)</string>
+  <string name="move_window_to_position2">Pozició %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Beállítások másolása</string>
   <string name="copy_settings_to_workspace">Munkaterület</string>
-  <string name="copy_settings_to_window">Ablak %d (%s:%s)</string>
+  <string name="copy_settings_to_window">Ablak %1$d (%2$s:%3$s)</string>
   <string name="change_to_normal">Váltás normál ablakba</string>
   <string name="window_pin_mode">PIN</string>
   <!--Notes screen-->
@@ -227,7 +234,7 @@
   <string name="download_document_confirm_prefix">Letöltés</string>
   <string name="download_refresh_book_list_menu_item">Frissítés</string>
   <string name="error_downloading">Hiba történt a letöltés közben. Ellenőrizze az internetkapcsolatot.</string>
-  <string name="error_downloading_status">A(z) %s dokumentumot kiszolgáló szerver hibaüzenettel tért vissza: %s (%d).</string>
+  <string name="error_downloading_status">A(z) %1$s dokumentumot kiszolgáló szerver hibaüzenettel tért vissza: %2$s (%3$d).</string>
   <string name="storage_space_warning">Nincs elég üres hely az eszközön.</string>
   <string name="too_many_jobs">Túl sok feladat fut. Várjon míg néhány befejeződik és próbálja újra.</string>
   <string name="document_not_installed">Kérlek töltsd le ezt: \'%s\'</string>
@@ -251,12 +258,16 @@ Minden letöltés titkosított kapcsolaton (HTTPS) keresztül történik.</strin
   <!--Install zip file-->
   <string name="install_zip">Dokumentumok betöltése fájlokból</string>
   <string name="install_zip_module">Biblia modul telepítése</string>
+  <string name="install_zip_module_discrete">Számológép modul telepítése</string>
   <string name="install_zip_successfull">A modul telepítése sikeres</string>
   <string name="extracting_zip_file">Zip fájl kitömörítése…</string>
   <string name="checking_zip_file">Fájl ellenőrzése…</string>
   <string name="invalid_module">A fájl nem tartalmaz érvényes SWORD modult</string>
+  <string name="install_zip_title">Várjon a modul betöltésére.</string>
   <string name="overwrite_files">Az alábbi fájlok már telepítve vannak: %s Felülírja?</string>
   <string name="overwrite_files_title">Felülírja a fájlokat?</string>
+  <string name="could_not_overwrite_files">A következő fájlok felülírása nem sikerült: %s. Különben a modul telepítése sikeres volt.</string>
+  <string name="install_do_you_want">Telepíti a modult (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Olvasási terv</string>
   <string name="reading_plans_plural">Olvasási tervek</string>
@@ -329,6 +340,8 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="migrated_my_notes">Előző verzióból származó jegyzetek</string>
   <string name="bookmarks">Könyvjelzők</string>
   <string name="bookmark_added">Könyvjelző hozzáadva</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Címkék</string>
   <string name="manage_labels">Címkék</string>
   <string name="assign_labels">Címke hozzárendelése</string>
   <string name="new_item">Új</string>
@@ -351,10 +364,21 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="label_color">Címke színe</string>
   <!--can be removed-->
   <string name="label_color_example">Előnézet</string>
+  <string name="marker_style">Csak a kiválasztott szöveget tartalmazó könyvjelzőknél jelenjen meg jelzés.</string>
+  <string name="marker_style_whole_verse">Csak a teljes verset tartalmazó könyvjelzőknél jelenjen meg jelzés.</string>
+  <string name="hide_style">Elrejtés kiválasztott szöveget tartalmazó könyvjelzőknél</string>
+  <string name="hide_style_whole_verse">Elrejtés teljes verset tartalmazó könyvjelzőknél</string>
+  <string name="bookmark_warning">Ehhez a dokumentumhoz könyvjelzők és/vagy jegyzetek tartoznak.</string>
+  <string name="bookmark_warning2">
+Ha a dokumentum struktúrája változik, akkor az ilyen könyvjelzők/jegyzetek a dokumentum frissítése után rossz helyre mutathatnak vagy akár teljesen eltűnhetnek.</string>
+  <string name="bookmark_warning3">Biztos, hogy frissíti a modult?</string>
+  <string name="bookmark_warning4">Frissítés előtt javasolt a modul biztonsági mentése.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Hozzáadás sorrendje</string>
   <string name="sort_by_bible_book">Bibliai sorrend</string>
   <string name="sort_by_alphabetical">Ábécérend</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Keresés a jegyzetek között&lt;br&gt;</string>
   <!--Dictionary-->
   <string name="dictionary">Szótár</string>
   <string name="search_dictionary_hint">Keresés a szótárban</string>
@@ -441,7 +465,7 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="window_text_options_help2">A %s ikon azt mutatja, hogy ez a beállítás ehhez az ablakhoz tartozik.</string>
   <string name="window_text_options_help3">A munkaterület beállításai nincsenek hatással erre az ablakra.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">A %s gomb segítségével az összes beállítás visszaállítható %s-re.</string>
+  <string name="text_options_reset_help">A %1$s gomb segítségével az összes beállítás visszaállítható %2$s-re.</string>
   <string name="reset_defaults">alapértelmezett értékek</string>
   <string name="reset_workspace_defaults">munkaasztal alapértelmezett értékek</string>
   <string name="speak_bookmark_help">Segítség a felolvasási könyvjelzőkhöz</string>
@@ -505,6 +529,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="backup_database">Adatbázis</string>
   <string name="backup_documents">Dokumentumok</string>
   <string name="backup_application_info">Alkalmazás fájl (.APK)</string>
+  <string name="backup_database_info">Könyvjelzők, címkék, jegyzetek, jegyzetlapok, olvasási tervek, stb.</string>
   <string name="backup_document_info">Bibliák, kommentárok, szótárok, térképek, stb.</string>
   <string name="backup_to">Biztonsági mentés ide...</string>
   <string name="backup_restore_from">Visszaállítás innen...</string>
@@ -521,7 +546,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="backup_success2">A jegyzetek, könyvjelzők, jegyzetlapok, olvasási tervek és munkaterületek biztonsági mentése sikerült.</string>
   <string name="backup_modules_success">A kiválasztott modulok biztonsági mentése sikerült.</string>
   <string name="backup_modules_email_subject_2">%s modul biztonsági mentés</string>
-  <string name="backup_modules_email_message_2">Felcsatolva a %s modul biztonsági mentés, amely a következő modulokat tartalmazza: %s</string>
+  <string name="backup_modules_email_message_2">Felcsatolva a %1$s modul biztonsági mentés, amely a következő modulokat tartalmazza: %2$s</string>
   <string name="backup_email_subject_2">%s adatbázis biztonsági mentés</string>
   <string name="backup_email_message_2">%s adatbázis mentés csatolva, benne könyvjelzőkkel, jegyzetekkel, olvasási tervekkel és munkamenetekkel.</string>
   <string name="restore_unsuccessfull">Az adatbázis visszaállítás nem sikerült, lehet, hogy érvénytelen adatbázis fájlt adott meg.</string>
@@ -531,8 +556,8 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="install_zip_canceled">Modulok telepítése megszakadt</string>
   <!--About-->
   <string name="module_about_copyright">© %s</string>
-  <string name="module_about_installed_version">Telepített verzió: %s (%s)</string>
-  <string name="module_about_latest_version">Legújabb verzió: %s (%s)</string>
+  <string name="module_about_installed_version">Telepített verzió: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Legújabb verzió: %1$s (%2$s)</string>
   <string name="module_about_versification">Versszámozás: %s</string>
   <string name="module_about_repository">Disztribúció kiszolgáló: %s</string>
   <string name="module_about_osisId">OSIS azonosító: %s</string>
@@ -540,7 +565,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="send_bug_report_title1">Hibabejelentés</string>
   <string name="send_feedback_title">Visszajelzés</string>
   <string name="send_bug_report_title">Visszajelzés / hibabejelentés</string>
-  <string name="report_bug_email_subject_3">[%s] %s %s-hez hibabejelentés</string>
+  <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s-hez hibabejelentés</string>
   <string name="report_bug_big_heading">LEGYEN SZÍVES A VISSZAJELZÉST VAGY HIBABEJELENTÉST E SOR FÖLÉ ÍRJA</string>
   <string name="report_bug_heading1">Hibabejelentés módja:</string>
   <string name="report_bug_line_1">Írja le röviden mit csinált / mi történt amikor a probléma jelentkezett.</string>
@@ -590,6 +615,8 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="error_key_not_in_document2">%s nem található %s dokumentumban.</string>
   <string name="empty_list">Nincs megtekinthető elem</string>
   <string name="error_skip">Kihagyás</string>
+  <string name="bug_report_email_title">Hibajelentés küldése emailben</string>
+  <string name="bug_report_email_text">A következőkben válassza ki az email alkalmazást (például Gmail), amivel el szeretné küldeni a jelentést a fejlesztőknek.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Felolvasás</string>
   <string name="notification_channel_progress_status">Értesítés dokumentum letöltésekről stb.</string>
@@ -629,9 +656,9 @@ A béta felhasználókat kifejezetten kérjük a hibák bejelentésére Google P
   <string name="beta_notice_dismiss_until_update">Elvetés a következő frissítésig</string>
   <string name="stable_notice_title">Az alkalmazás frissült!</string>
   <string name="upgrade_video_message">Tekintse meg az új verzió funkcióit bemutató videót (%s)!</string>
-  <string name="stable_notice_par1">Új verzió %s, %s sikeresen települt!</string>
+  <string name="stable_notice_par1">Új verzió %1$s, %2$s sikeresen települt!</string>
   <!--History-->
-  <string name="history_for">Előzmények (%s: Ablak %d)</string>
+  <string name="history_for">Előzmények (%1$s: Ablak %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigáció</string>
   <string name="help_nav_text">Lépjen a következő vagy az előző fejezetbe úgy, hogy ujjával elcsúsztatja a képernyőt.
@@ -683,8 +710,13 @@ majd azután nem rögzített ablakok. A Biblia dokumentumokat rögzített ablakk
   <!--Welcome text-->
   <string name="redownload_documents">Gyors újraletöltés</string>
   <string name="welcome_message">Köszönjük hogy letöltötte a %s alkalmazást. Jelenleg egyetlen Bibiia vagy más dokumentum sincs telepítve. A folytatáshoz telepítsen legalább egy dokumentumot az internetről vagy zip fájlból.</string>
+  <!--Supported file formats for documents-->
   <string name="supported_formats_title">Támogatott formátumok</string>
+  <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">Ki kell választania a fájlt, amelyet be szeretne tölteni a %s-be.</string>
   <string name="supported_formats">Támogatott formátumok dokumentumok betöltésére fájlból: %s</string>
+  <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">Sword modul(oka)t tartalmazó zip fájl, vagy %s biztonsági mentés (*.abmd)</string>
   <string name="format_mysword">MySword dokumentumok (*.mybible)</string>
   <string name="format_mybible">MyBible dokumentumok (*.SQLite3)</string>
   <string name="format_epub">EPUB dokumentumok (*.epub)</string>
@@ -692,7 +724,7 @@ majd azután nem rögzített ablakok. A Biblia dokumentumokat rögzített ablakk
 A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson az egyszerű újratelepítéshez.</string>
   <!--Uncategorized-->
   <string name="close">Bezárás</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Megértettem</string>
   <string name="first_time_help_show_next_time">Mutassa a következő alkalommal is</string>
   <string name="strongs_mode_title">Strongs mód kiválasztása</string>
@@ -731,6 +763,7 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="tell_friend_message4">További infók és telepítési lehetőségek: %s</string>
   <string name="share_verse_ok">Megosztás / másolás</string>
   <string name="verse_action_copy">Másolás</string>
+  <string name="generic_share">Megosztás</string>
   <string name="share_verse_menu_title">Megosztás / másolás…</string>
   <string name="show_versenumbers">Versszámozás megjelenítése</string>
   <string name="show_full_verses">Teljes versek mutatása</string>
@@ -738,9 +771,12 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="advertise_app">Alkalmazás hirdetése</string>
   <string name="verse_share_advertise">Megosztva %s segítségével.</string>
   <string name="show_reference">Hivatkozás mutatása</string>
+  <string name="show_reference_at_front">Vers elején jelenjen meg</string>
   <string name="abbreviate_reference">Hivatkozás rövidítése</string>
   <string name="version_name">Verziónév</string>
+  <!--meaning, bible version name-->
   <string name="show_version_name">Verziónév tartalmazása</string>
+  <string name="show_ellipsis">Hármaspont (…) megjelenítése</string>
   <string name="show_quotes">Idézések mutatása</string>
   <string name="backup_button">Biztonsági mentés</string>
   <string name="back_button">Vissza</string>
@@ -748,16 +784,18 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="initializing_app">Alkalmazás inicializálása…</string>
   <string name="show_notes">Jegyzetek megjelenítése</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Az Androd WebView csomag túl régi (%s). Frissítse az Android WebView csomagot legalább a %s verzióra a %s használatához. A legtöbb eszközön ez a %s-en keresztül tehető meg. </string>
+  <string name="old_webview">Az Androd WebView csomag túl régi (%1$s). Frissítse az Android WebView csomagot legalább a %2$s verzióra a %3$s használatához. A legtöbb eszközön ez a %4$s-en keresztül tehető meg. </string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Mégis telepítse az alkalmazást</string>
   <string name="proceed">Folytatás</string>
   <string name="rate_title">Értékelés és vélemény</string>
+  <string name="rate_message5">
+        Pozitív és részletes értékelések sokat segítenek az AndBible Nyílt Forráskódú Projektet. Köszönjük!</string>
   <string name="rate_message6">
 Mielőtt negatív visszajelzést hagy, gondolja meg:</string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
-Ha problémát talált az alkalmazás használata közben: inkább %s vagy %s</string>
+Ha problémát talált az alkalmazás használata közben: inkább %1$s vagy %2$s</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 Ha valamelyik modulban vagy bibliafordításban talál hibát, %s</string>
@@ -786,13 +824,14 @@ jelentse be az észlelt problémát</string>
   <string name="favourite_label">Kedvenc címke</string>
   <string name="edit_label">Címke szerkesztás</string>
   <string name="delete_label_confirmation">Eltávolítja a \"%s\" könyvjelző címkét? A hozzátartozó jegyzetlap is törlésre kerül.</string>
-  <string name="bookmark_underline_style_arbitrary">Aláhúzás stílusa a kiválasztott könyvjelzőkhöz</string>
+  <string name="bookmark_underline_style_arbitrary">Aláhúzás stílusa a kiválasztott szöveget tartalmazó könyvjelzőkhöz</string>
   <string name="bookmark_underline_style_whole_verse">Aláhúzás stílusa teljes versre mutató könyvjelzőknél</string>
   <string name="active_labels">Kiválasztott címkék</string>
   <string name="recent_labels">Legutoljára használt címkék</string>
   <string name="other_labels">Egyéb címkék</string>
   <string name="book_menu_sort_row_opt">Könyvek rendezése víszintesen</string>
   <string name="book_menu_group_by_category">Könyvek kategória szerint való csoportosítása</string>
+  <string name="book_menu_show_long_book_name">Hosszú könyvnév mutatása</string>
   <string name="reset_workspace_labels">Vissza szeretné állítani az automatikus hozzárendelés és a kedvencek beállításait ehhez munkaterülethez?</string>
   <string name="reset_hide_labels">Vissza szeretné állítani a beállítást a megadott címkék beállításainak elrejtéséhez?</string>
   <string name="reorder">Átrendezés</string>
@@ -826,7 +865,7 @@ jelentse be az észlelt problémát</string>
   <string name="chooser_select">%s kiválasztása</string>
   <string name="chooser_pref_reset">A könyv / fejezet kiválasztásakor ne állítsa vissza az 1. fejezetet / verset</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Sajnos nem a teljes felhasználói felület érhető el %s nyelven. A %s-t önkéntesek fejlesztik, ha segíteni tud az alkalmazás fordításában, látogassa meg ezt az oldalt: %s.</string>
+  <string name="incomplete_translation">Sajnos nem a teljes felhasználói felület érhető el %1$s nyelven. A %2$s-t önkéntesek fejlesztik, ha segíteni tud az alkalmazás fordításában, látogassa meg ezt az oldalt: %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">fordítási útmutató</string>
   <string name="questions_title">Támogatás</string>
@@ -839,22 +878,74 @@ jelentse be az észlelt problémát</string>
   <string name="verse_tip">Versrészlet vagy több vers kiválasztásához hosszan nyomjon a Biblia szövegre</string>
   <string name="permission_required">Engedély szükséges </string>
   <string name="labels_search_hint">Keresés</string>
+  <string name="progress_status_permission">Az értesítések megjelenítéséhez (letöltési státusz, feldolgozás, beszélgetési státusz) engedélyezni kell az alkalmazásértesítéseket.</string>
   <!--Discrete mode settings-->
+  <string name="app_name_calculator">Egyszerű számológép</string>
+  <string name="prefs_persecution_cat">Beállítások tiltott helyeken való használathoz</string>
   <string name="prefs_discrete_mode">Vallási szimbólumok elrejtése</string>
+  <string name="prefs_discrete_mode_desc">Nevezze át az alkalmazást \"Számológép\"-re, és jelenítsen meg egy másik ikont.</string>
+  <string name="prefs_show_calculator">Számológép</string>
+  <string name="prefs_calculator_pin">Számológép PIN kód</string>
+  <string name="prefs_calculator_pin_desc">Begépelendő PIN kód a beépített számológépbe az alkalmazás indításakor</string>
+  <string name="calc_division_by_zero">Nullával nem lehet osztani</string>
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Rossz formátum</string>
+  <string name="calc_wrong_format_operand">Hibás formátum. Művelet számok nélkül nem elég.</string>
   <string name="prefs_persecuted_help">Először olvassa el ezt!</string>
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Beállítási útmutató a diszkrét verzió használatához.</string>
+  <string name="calculator_par1">
+        Az alkalmazásba belépés előtt egy számológép jelenik meg.
+    </string>
+  <string name="calculator_par2">
+        Ilyenkor az alkalmazás úgy indul mint egy teljesen normális számológép, a bibliaolvasó
+        megnyitásához gépelje be a PIN kódját (alapértelmezetten 1234) és nyomja meg az \"=\" gombot .
+    </string>
+  <string name="calculator_par3">
+        A PIN kód a \"Számológép PIN kód\" beállításban konfigurálható.
+    </string>
+  <string name="discrete_mode_info_par1">
+        Az alapértelmezett alkalmazásindító van beállítva, ez azt jelenti, hogy az indítóban az alkalmazás
+         valódi neve és ikonja látszik.
+    </string>
+  <string name="discrete_mode_info_par2">
+        A biztonsága érdekében, olyan területen, ahol a Biblia olvasása tiltott, ajánlott az alkalmazást
+        diszktét módban használni, ilyenkor az alkalmazás egy számológépként jelenik meg az indítóban, még akkor is, ha az alkalmazás beállításait törli.
+    </string>
+  <string name="discrete_mode_link">
+        A diszkrét verzió legfrissebb változata innen tölthető le %s.
+    </string>
   <!--Window synchronize groups-->
   <string name="sync_group_submenu">Csoport összehangolása</string>
   <string name="sync_group_n">%d csoport</string>
   <string name="disable_sync">Összehangolás kikapcsolása</string>
   <string name="open_in_window">Eredmény megnyitása ablakban</string>
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">Egyéni tárolók</string>
+  <string name="custom_repositories_empty_list_message">Nincsenek egyéni tárolók felvéve</string>
+  <string name="custom_repositories_create_button_label">Egyéni tároló hozzáadása</string>
   <string name="custom_repositories_info_button_label">Információ</string>
+  <string name="name_for_repository">Tároló neve</string>
+  <string name="repository_specification">Tároló URL</string>
+  <string name="delete_custom_repository">Törli a(z) %s egyéni tárolót?</string>
+  <string name="invalid_repository_not_saved">A tároló adatai nem jók, a tároló felvétele nem sikerült.</string>
+  <string name="custom_repositories_help1">Új egyéni tároló hozzáadásához írja be vagy másolja be az egyéni tároló URL-jét ide.</string>
+  <string name="custom_repositories_help2">Az egyéni tárolókról további információk a %s oldalon találhatóak.</string>
+  <string name="wiki_page">Wiki oldal</string>
+  <string name="custom_repositories_help0">A dokumentumokat külső egyéni tárolókból telepítheti az egyéni tárolók telepítésével.</string>
+  <string name="duplicate_custom_repository">%s névvel már van egy másik tároló, nem lehet felvenni még egyet ugyanezzel a névvel.</string>
+  <string name="packages_dir">Csomag könyvtár (zip fájlok)</string>
+  <string name="warn_bad_document">Figyelmeztetés: Ez a dokumentum (legalábbis részben) technikai hibákat tartalmazhat.</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Biblia hivatkozások megyitása AndBible-ban</string>
+  <string name="open_bible_links_summary">AndBible megnyitása AndBible által támogatott biblia URL-ekre kattintáskor </string>
   <string name="copyReference">Hivatkozás másolása a vágólapra</string>
+  <string name="reference_copied_to_clipboard">A hivatkozás a vágólapra került</string>
   <!--Device cloud synchronization-->
+  <string name="db_bookmarks">Könyvjelzők, Jegyzeteim, Címkék és Jegyzetlapok</string>
   <string name="synchronizing">Összehangolás...</string>
+  <string name="bookmarks_contents">Könyvjelzők, Címkék és Jegyzetlapok</string>
   <string name="cloud_sync_title">Eszköz összehangolás</string>
   <string name="reset_sync">Kijelentkezés</string>
   <string name="prefs_reset_sync_summary">Összehangolás kikapcsolása és hasonló beállítások visszaállítása</string>
@@ -862,13 +953,25 @@ jelentse be az észlelt problémát</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_username">Felhasználónév</string>
   <string name="auth_password">Jelszó</string>
+  <string name="auth_access_token">Hozzáférési kulcs</string>
   <string name="synchronization_categories">Összehangolási kategóriák</string>
+  <string name="sync_general_settings">Információ és általános beállítások</string>
+  <string name="sync_introduction">Bevezetés</string>
   <string name="are_you_sure">Biztosan?</string>
+  <!--... after restoring from backup file-->
   <string name="report">Visszajelzés</string>
   <string name="sync_error">Hiba történt a felhővel való összehangolás közben</string>
   <string name="error_notification_channel_name">Hiba értesítés</string>
+  <string name="enable_sync">A szinkronizáció engedélyezése</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">A fájl nem olvasható</string>
+  <string name="sqlite_invalid_file">Érvénytelen modul fájl vagy fájlnév: %s</string>
+  <string name="sqlite_cant_write">A fájl (felül)írása nem sikerült</string>
+  <string name="install_failed_reason">A modul telepítése nem sikerült: %s</string>
   <!--Other / uncategorized-->
   <string name="open_here">Megnyitás itt</string>
   <string name="external_link">Külső hivatkozás</string>
+  <string name="dont_show">
+        Ne jelenítse meg ezt az üzenetet többet
+    </string>
 </resources>

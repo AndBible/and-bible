@@ -28,6 +28,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.Logger
 import net.bible.service.common.htmlToSpan
+import net.bible.service.common.useSaxBuilder
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.device.speak.TextCommand
@@ -51,6 +52,7 @@ import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
@@ -70,7 +72,7 @@ import kotlin.math.min
 
 open class OsisError(xmlMessage: String, val stringMsg: String) : Exception(xmlMessage) {
     constructor(msg: String): this(msg, msg)
-    val xml: Element = SAXBuilder().build(StringReader("<div>$xmlMessage</div>")).rootElement
+    val xml: Element = useSaxBuilder { it.build(StringReader("<div>$xmlMessage</div>")).rootElement }
 }
 
 class DocumentNotFound(xmlMessage: String, stringMsg: String) : OsisError(xmlMessage, stringMsg) {
@@ -84,11 +86,16 @@ class JSwordError(message: String) : OsisError(message, message)
  */
 
 object SwordContentFacade {
-    private const val docCacheSize = 100
+    private const val docCacheSize = 25
     private val osisFragmentCache = LruCache<String, Element>(docCacheSize)
+    private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
 
     /** top level method to fetch html from the raw document data
      */
+    fun clearCaches() {
+        osisFragmentCache.evictAll()
+        plainTextCache.evictAll()
+    }
 
     private val dashesRe = Regex("""\p{Pd}""")
     fun resolveRef(searchRef_: String, lang: String, v11n: Versification): Key? {
@@ -98,8 +105,15 @@ object SwordContentFacade {
         fun getKey(): Key? {
             val k =
                 try { PassageKeyFactory.instance().getKey(v11n, searchRef) }
-                catch (e: NoSuchKeyException) { null }
-            if(k != null && k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter == 0)  {
+                catch (e: Exception) { null }
+            if(k != null &&
+                try {
+                    k.getRangeAt(0, RestrictionType.NONE)?.start?.chapter
+                } catch (e: Exception) {
+                    Log.e(TAG, "k.getRangeAt exception", e)
+                    null
+                } == 0
+            )  {
                 return null
             }
             return k
@@ -130,31 +144,32 @@ object SwordContentFacade {
     @Throws(OsisError::class)
     fun readOsisFragment(book: Book?, key: Key?): Element {
         val cacheKey = "${book?.initials}-${key?.osisRef}"
-        return osisFragmentCache.get(cacheKey)?: let {
-            Log.e(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
 
-            when {
-                book == null || key == null -> {
-                    Log.e(TAG, "Key or book was null")
-                    throw OsisError(application.getString(R.string.error_no_content))
-                }
+        if(book == null || key == null) {
+            Log.e(TAG, "Key or book was null")
+            throw OsisError(application.getString(R.string.error_no_content))
+        }
 
-                Books.installed().getBook(book.initials) == null -> {
-                    Log.w(TAG, "Book may have been uninstalled:$book")
-                    val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
-                    val errorXml = application.getString(R.string.document_not_installed, link)
-                    val errorMsg = application.getString(R.string.document_not_installed, book.initials)
-                    throw DocumentNotFound(errorXml, errorMsg)
-                }
+        osisFragmentCache.get(cacheKey)?.let { return it }
 
-                !bookContainsAnyOf(book, key) -> {
-                    Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
-                    throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
-                }
+        when {
+            Books.installed().getBook(book.initials) == null -> {
+                Log.w(TAG, "Book may have been uninstalled:$book")
+                val link = "<AndBibleLink href='download://?initials=${book.initials}'>${book.initials}</AndBibleLink>"
+                val errorXml = application.getString(R.string.document_not_installed, link)
+                val errorMsg = application.getString(R.string.document_not_installed, book.initials)
+                throw DocumentNotFound(errorXml, errorMsg)
+            }
+            !bookContainsAnyOf(book, key) -> {
+                Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
+                throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
+            }
+        }
 
-                else -> {
-                    readXmlTextStandardJSwordMethod(book, key)
-                }
+        return synchronized(book) {
+            osisFragmentCache.get(cacheKey) ?: let {
+                Log.e(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
+                readXmlTextStandardJSwordMethod(book, key)
             }.also {
                 osisFragmentCache.put(cacheKey, it)
                 Log.i(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
@@ -210,7 +225,7 @@ object SwordContentFacade {
         // group 1: before marker
         """((\d{2,}|\D)""" +
         // marker itself
-        """(([.,;:!?]["'\p{Pf}]?\p{Z}+)|(\p{Z}*\p{Pd}\p{Z}*)))"""+
+        """(([.,;:!?。，；]["'\p{Pf}]?\p{Z}+)|(\p{Z}*\p{Pd}\p{Z}*)))"""+
         // group 6: after marker
         """(["'¡¿\p{Pi}]?\p{L})"""
     )
@@ -371,11 +386,15 @@ object SwordContentFacade {
 
     private val bvaQuery = XPathFactory.instance().compile(".//ns:BVA", Filters.element(), null, xhtmlNamespace)
 
-    private val plainTextCache = LruCache<String, Map<Int, String>>(docCacheSize)
     private fun cachedText(book: Book, key: Key): Map<Int, String> = synchronized(this) {
         val cacheKey = "${book.initials}-${key.osisRef}"
         plainTextCache.get(cacheKey) ?: run {
-            val frag = readOsisFragment(book, key)
+            val frag = try {
+                readOsisFragment(book, key)
+            } catch (e: OsisError) {
+                Log.e(TAG, "Could not read fragment", e)
+                return@run emptyMap()
+            }
             val texts = bvaQuery.evaluate(frag).associate { it.getAttribute("ordinal").value.toInt() to getTextRecursively(it) }
             plainTextCache.put(cacheKey, texts)
             texts
@@ -610,9 +629,19 @@ object SwordContentFacade {
 
     fun getGenBookSpeakCommands(key: BookAndKey): SpeakCommandArray {
         val book = key.document!!
-        val actualKey = key.key
+        var actualKey = key.key
+        if(actualKey is VerseRange) {
+            actualKey = actualKey.start
+        }
         val arr = SpeakCommandArray()
-        arr.addAll(getTextWithinOrdinalsAsString(book, actualKey, key.ordinal!!.start .. key.ordinal.start) .map { TextCommand(it) })
+        arr.addAll(
+            getTextWithinOrdinalsAsString(book,
+                actualKey,
+                key.ordinal!!.start .. key.ordinal.start
+            )
+                .map {
+                    TextCommand(it.replace("\n", " "))
+                })
         return arr
     }
 
@@ -728,5 +757,4 @@ object SwordContentFacade {
     fun setAndroid(isAndroid: Boolean) {
         this.isAndroid = isAndroid
     }
-
 }

@@ -38,21 +38,23 @@ const props = defineProps<{ ordinal: string }>();
 const ordinal = computed(() => parseInt(props.ordinal));
 
 const {querySelection} = inject(androidKey)!
-const {highlightedOrdinals, highlightVerse} = inject(ordinalHighlightKey)!;
+const {highlightOrdinal, isHighlighted} = inject(ordinalHighlightKey)!;
 
-const highlighted = computed(() => highlightedOrdinals.has(ordinal.value))
+const osisDocumentInfo = inject(osisDocumentInfoKey);
 
-const osisDocumentInfo = inject(osisDocumentInfoKey)!;
+const highlighted = computed(
+    () => isHighlighted(ordinal.value, osisDocumentInfo?.bookInitials, osisDocumentInfo?.osisRef)
+);
 
 if (
     osisDocumentInfo?.highlightedOrdinalRange &&
     ordinal.value <= osisDocumentInfo.highlightedOrdinalRange[1] &&
     ordinal.value >= osisDocumentInfo.highlightedOrdinalRange[0]
 ) {
-    highlightVerse(ordinal.value)
+    highlightOrdinal(ordinal.value, osisDocumentInfo?.bookInitials, osisDocumentInfo?.osisRef)
 }
 function ordinalClicked(event: Event) {
-    if(querySelection() != null) return;
+    if(querySelection() != null || !osisDocumentInfo) return;
 
     addEventOrdinalInfo(event, {
         ordinal: ordinal.value,

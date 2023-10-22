@@ -196,12 +196,14 @@ class SpeakWidgetManager {
         }
 
         val label = bookmarkControl.speakLabel
-        if(!AdvancedSpeakSettings.autoBookmark) {
-            addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
-        }
+
         val bibleBookmarks = bookmarkControl.getBibleBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
         val genBookmarks = bookmarkControl.getGenericBookmarksWithLabel(label)
-        for (b in bibleBookmarks + genBookmarks){
+        val speakBookmarks = bibleBookmarks + genBookmarks
+        if(!AdvancedSpeakSettings.autoBookmark && speakBookmarks.isEmpty()) {
+            addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
+        }
+        for (b in speakBookmarks){
             val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
             addButton(when(b) {
                 is BookmarkEntities.BibleBookmarkWithNotes -> "${b.verseRange.start.name} (${b.playbackSettings?.bookId ?: "?"}) $repeatSymbol"

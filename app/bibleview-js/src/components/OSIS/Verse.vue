@@ -44,7 +44,7 @@ const props = defineProps<{ osisID: string, verseOrdinal: string }>();
 const shown = ref(true);
 const bibleDocumentInfo = inject(bibleDocumentInfoKey);
 const {querySelection} = inject(androidKey)!
-const {highlightedOrdinals, highlightVerse} = inject(ordinalHighlightKey)!;
+const {highlightOrdinal, isHighlighted} = inject(ordinalHighlightKey)!;
 
 const verseInfo: VerseInfo = {...getVerseInfo(props), v11n: bibleDocumentInfo?.v11n, showStack: reactive([shown])};
 provide(verseInfoKey, verseInfo);
@@ -59,12 +59,12 @@ const verse = computed(() => {
 
 const fromBibleDocument = computed(() => !!bibleDocumentInfo?.ordinalRange);
 
-const highlighted = computed(() => highlightedOrdinals.has(ordinal.value))
+const highlighted = computed(() => isHighlighted(ordinal.value));
 
 if (bibleDocumentInfo?.originalOrdinalRange &&
     ordinal.value <= bibleDocumentInfo.originalOrdinalRange[1] &&
     ordinal.value >= bibleDocumentInfo.originalOrdinalRange[0]) {
-    highlightVerse(ordinal.value)
+    highlightOrdinal(ordinal.value)
 }
 
 function verseClicked(event: Event) {

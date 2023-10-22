@@ -40,7 +40,7 @@
           <FontAwesomeIcon icon="indent"/>
         </div>
 
-        <div v-if="journalEntry.type==='bookmark'" class="journal-button"
+        <div v-if="isBookmark(journalEntry)" class="journal-button"
              @click="changeExpanded(!bookmarkEntry.expandContent)">
           <FontAwesomeIcon :icon="bookmarkEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
         </div>
@@ -48,7 +48,7 @@
         <div class="journal-button" @click="deleteEntry">
           <FontAwesomeIcon icon="trash"/>
         </div>
-        <div v-if="journalEntry.type==='bookmark'" class="journal-button" @click.stop="editBookmark">
+        <div v-if="isBookmark(journalEntry)" class="journal-button" @click.stop="editBookmark">
           <FontAwesomeIcon icon="info-circle"/>
         </div>
       </ButtonRow>
@@ -125,8 +125,12 @@ const editMode = computed<boolean>({
     }
 });
 
+function isBookmark(item: StudyPadItem): item is BaseStudyPadBookmarkItem {
+    return ["bookmark", "generic-bookmark"].includes(item.type)
+}
+
 function journalTextChanged(newText: string) {
-    if (props.journalEntry.type === "bookmark" || props.journalEntry.type === "generic-bookmark") {
+    if (isBookmark(props.journalEntry)) {
         android.saveBookmarkNote(props.journalEntry, newText);
     } else if (props.journalEntry.type === "journal") {
         android.updateStudyPadEntry(props.journalEntry, {text: newText});
@@ -134,7 +138,7 @@ function journalTextChanged(newText: string) {
 }
 
 const journalText = computed(() => {
-    if (props.journalEntry.type === "bookmark" || props.journalEntry.type === "generic-bookmark")
+    if (isBookmark(props.journalEntry))
         return (props.journalEntry as BaseStudyPadBookmarkItem).notes;
     else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
     return null;
@@ -153,8 +157,8 @@ async function deleteEntry() {
     if (props.journalEntry.type === "journal") {
         const answer = await areYouSureDelete.value!.areYouSure();
         if (answer) android.deleteStudyPadEntry((props.journalEntry as StudyPadTextItem).id);
-    } else if (props.journalEntry.type === "bookmark" || props.journalEntry.type === "generic-bookmark") {
-        const bookmarkItem = props.journalEntry as BaseStudyPadBookmarkItem
+    } else if (isBookmark(props.journalEntry)) {
+        const bookmarkItem = props.journalEntry
         let answer: "bookmark" | "only_label" | undefined;
         if (bookmarkItem.labels.length > 1) {
             const buttons: AreYouSureButton[] = [{

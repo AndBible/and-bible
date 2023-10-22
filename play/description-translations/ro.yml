@@ -8,7 +8,7 @@ subtitle_1: O unealtă pentru studiul Bibliei
 paragraph_1_1: >
   "{{ title }}" este o aplicație complexă de studiu biblic, dar ușor de utilizat, pentru Android. Aplicația nu își propune să fie doar pentru citit Biblia, ci se concentrează pe a fi un instrument pentru a face un studiu aprofundat al Bibliei.
 paragraph_1_2: >
-  Această aplicație este realizată de cititori ai Bibliei, pentru cititorii Bibliei. Scopul ei este de a vă ajuta să vă faceți studiul biblic convenabil, profund și distractiv. Cea mai bună parte a acestui proiect comunitar non-profit este că are sursă publică, este complet gratuit și nu conține reclame. Fiind construită de la zero pentru Android, este mică și, prin urmare, foarte eficientă și remarcabil de rapidă.
+  Această aplicație este realizată de cititori ai Bibliei, pentru cititorii Bibliei. Scopul ei este de a vă ajuta să vă faceți studiul biblic convenabil, profund și distractiv. Cea mai bună parte a acestui proiect comunitar non-profit este că are sursă publică, este complet gratuit și nu conține reclame.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Cîteva versiuni populare ale Bibliei (din cele multe disponibile) sînt Cornilescu, KJV, NASB, Diodati, precum și comentarii populare precum Matthew Henry și John Gill.
@@ -34,14 +34,14 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   O vastă bibliotecă de documente: Traduceri ale Bibliei, comentarii teologice, dicționare, hărți și cărți creștine, totalizînd peste {{total_documents}} documente în peste {{total_languages}} limbi, distribuite legal de Crosswire și alte depozite SWORD.  
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  Proveniența tuturor documentelor este cercetată pentru a ne asigura că toate documentele pot fi distribuite în mod legal sau că deținătorul drepturilor de autor a acordat permisiunea. Acesta este și motivul pentru care această aplicație nu include documente precum {{unavailable_documents}}.
+feature_10_1: >
+  Compatibilitatea nativă cu fișierele MyBible, MySword și EPUB permite o extindere și mai mare a bibliotecii tale.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "ESV, NIV și NKJV"
 feature_12: >
   Offline: singurul moment în care aveți nevoie de internet este pentru a descărca documente.
+# UNUSED
 feature_13: >
   Notițe de studiu pentru a adăuga comentarii și trimiteri biblice în timp ce asculți predicile.
 subtitle_3: Haideți să facem împreună cea mai bună aplicație biblică!
@@ -65,3 +65,9 @@ link_4: >
   Întrebări frecvente: {{faq_url}}
 link_5: >
   Pagina Github a proiectului: {{github_url}}
+buy_title: >
+  Sprijină prin cumpărarea de timp de programare!
+buy_1: >
+  Dacă nu ai timp sau abilități pentru a contribui la proiect, poți susține proiectul prin cumpărarea de timp de lucru pentru un programator profesionist.
+buy_2: >
+  Vezi opțiunile

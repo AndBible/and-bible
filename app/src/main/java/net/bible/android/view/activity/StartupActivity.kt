@@ -58,7 +58,6 @@ import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.page.OpenLink
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
@@ -269,8 +268,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             val myBible = getString(R.string.format_mybible)
             val mySword = getString(R.string.format_mysword)
             val epub = getString(R.string.format_epub)
+            val fromFiles = getString(R.string.install_zip)
             val formats = getString(R.string.supported_formats, "$zip, $myBible, $mySword, $epub")
-            welcomeMessage.text = "$welcome \n\n$formats."
+            fromFilesMessage.text = htmlToSpan("<b>$fromFiles</b><br/><br/>$formats")
+            welcomeMessage.text = welcome
             versionText.text = versionMsg
             downloadButton.setOnClickListener { doGotoDownloadActivity() }
             importButton.setOnClickListener { onLoadFromZip() }
@@ -399,13 +400,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private fun gotoMainBibleActivity() {
         Log.i(TAG, "Going to MainBibleActivity")
         val handlerIntent = Intent(this, MainBibleActivity::class.java)
-        handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         if(intent?.action == Intent.ACTION_VIEW) {
-            if(MainBibleActivity.initialized) {
-                intent.dataString?.let { ABEventBus.post(OpenLink(it)) }
-            } else {
-                handlerIntent.putExtra("openLink", intent.dataString)
-            }
+            handlerIntent.putExtra("openLink", intent.dataString)
+            handlerIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+        } else {
+            handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         lifecycleScope.launch(Dispatchers.Main) {
             if(SwordDocumentFacade.bibles.none { !it.isLocked }) {

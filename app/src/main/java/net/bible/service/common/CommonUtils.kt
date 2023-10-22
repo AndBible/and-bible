@@ -26,6 +26,8 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -51,6 +53,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
+import android.text.style.ImageSpan
 import android.text.style.URLSpan
 import android.util.LayoutDirection
 import android.util.Log
@@ -94,6 +97,8 @@ import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -111,6 +116,8 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.page.Selection
+import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
@@ -261,7 +268,7 @@ object AdvancedSpeakSettings {
         }
 
     var synchronize: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_synchronize", true)
+        get() = CommonUtils.settings.getBoolean("speak_synchronize", false)
         set(value) {
             CommonUtils.settings.setBoolean("speak_synchronize", value)
         }
@@ -280,7 +287,7 @@ object AdvancedSpeakSettings {
 
     fun reset() {
         autoBookmark = false
-        synchronize = true
+        synchronize = false
         replaceDivineName = false
         restoreSettingsFromBookmarks = false
     }
@@ -464,6 +471,22 @@ object CommonUtils : CommonUtilsBase() {
         return DaggerActivityComponent.builder()
                 .applicationComponent(application.applicationComponent)
                 .build()
+    }
+
+    fun getShareableDocumentText(selection: Selection): String {
+        return SwordContentFacade.getSelectionText(
+            selection,
+            showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
+            advertiseApp = settings.getBoolean("share_show_add", true),
+            abbreviateReference = settings.getBoolean("share_abbreviate_reference", true),
+            showNotes = settings.getBoolean("show_notes", true),
+            showVersion = settings.getBoolean("share_show_version", true),
+            showReference = settings.getBoolean("share_show_reference", true),
+            showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
+            showSelectionOnly = settings.getBoolean("show_selection_only", true),
+            showEllipsis = settings.getBoolean("show_ellipsis", true),
+            showQuotes = settings.getBoolean("share_show_quotes", false)
+        )
     }
 
     fun getFreeSpace(path: String): Long {
@@ -967,6 +990,14 @@ object CommonUtils : CommonUtilsBase() {
             } else this
         }
 
+        val buy = app.getString(R.string.buy_development)
+        val support = app.getString(R.string.buy_development2)
+        val heartIcon = ImageSpan(getTintedDrawable(R.drawable.baseline_attach_money_24))
+        val buyMessage = "<b>$support</b>: <a href=\"$buyDevelopmentLink\">$buy</a>"
+        val iconStr = SpannableString("* ")
+        iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val spannedBuy = TextUtils.concat(iconStr, htmlToSpan(buyMessage))
+
         var htmlMessage = ""
 
         for(helpItem in help) {
@@ -978,10 +1009,8 @@ object CommonUtils : CommonUtilsBase() {
             val helpText = app.getString(helpItem.text).replace("\n", "<br>")
             htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$videoMessage$helpText<br><br>"
         }
-        if(showVersion)
-            htmlMessage += "<i>$versionMsg</i>"
 
-        val spanned = htmlToSpan(htmlMessage)
+        val spanned = TextUtils.concat(htmlToSpan(htmlMessage), spannedBuy, if(showVersion) htmlToSpan("<br><br><i>$versionMsg</i>") else "")
 
         val d = AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
@@ -994,9 +1023,9 @@ object CommonUtils : CommonUtilsBase() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    fun openLink(link: String) {
+    fun openLink(link: String, forceAsk: Boolean = false) {
         val activity = CurrentActivityHolder.currentActivity!!
-        if (isDiscrete) {
+        if (isDiscrete || forceAsk) {
             activity.lifecycleScope.launch(Dispatchers.Main) {
                 if(Dialogs.simpleQuestion(activity,
                         message = net.bible.android.view.activity.page.application.getString(R.string.external_link_question, link),
@@ -1157,7 +1186,11 @@ object CommonUtils : CommonUtilsBase() {
 
     val defaultBible get() = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }[0] as SwordBook
     val defaultVerse: VerseRange get() {
-        val (otVerse, ntVerse, psVerse) = listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3").map { VerseRangeFactory.fromString(KJVA, it).toV11n(defaultBible.versification) }
+        val (otVerse, ntVerse, psVerse) =
+            listOf("Gen.1.1-Gen.1.3", "Joh.3.16-Joh.3.18", "Ps.1.1-Ps.1.3")
+                .map {
+                    VerseRangeFactory.fromString(KJVA, it).toV11n(defaultBible.versification)
+                }
         return when {
             defaultBible.contains(ntVerse.start) -> ntVerse
             defaultBible.contains(otVerse.start) -> otVerse
@@ -1335,11 +1368,17 @@ object CommonUtils : CommonUtilsBase() {
 
         Log.i(TAG, "Language tag $languageTag, code $languageCode")
 
-        val goodLanguages = listOf(
-            "af", "cs", "de", "en", "eo", "es", "fi", "fr", "hi", "hu", "it", "kk", "lt", "my", "nl", "pl", "pt", "ro", "ru",
-            "sk", "sl", "te", "uk", "zh-Hans-CN", "zh-Hant-TW", "he", "iw"
-            // almost: "ko", "he", "ar" (hebrew, check...)
-        )
+        // Transifex as of 19.10.2023
+        val goodLanguages = "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt".split(",")
+
+        // 4.0 list:
+
+        //    listOf(
+        //
+        //    "af", "cs", "de", "en", "eo", "es", "fi", "fr", "hi", "hu", "it", "kk", "lt", "my", "nl", "pl", "pt", "ro", "ru",
+        //    "sk", "sl", "te", "uk", "zh-Hans-CN", "zh-Hant-TW", "he", "iw"
+        //    // almost: "ko", "he", "ar" (hebrew, check...)
+        //)
 
         fun checkLanguage(lang: String): Boolean =
             if(lang.length == 2)
@@ -1352,7 +1391,7 @@ object CommonUtils : CommonUtilsBase() {
 
         if(languageOK || (
                 settings.getString("poor-translations-dismissed", "") == languageTag
-                    && settings.getInt("poor-translations-dismissed", 0) == applicationVersionNumber))
+                    && settings.getString("poor-translations-dismissed-version", "") == mainVersion))
         {
             return true
         }
@@ -1368,7 +1407,7 @@ object CommonUtils : CommonUtilsBase() {
                 .setCancelable(false)
                 .setPositiveButton(R.string.proceed_anyway) { _, _ -> it.resume(true) }
                 .setNegativeButton(R.string.beta_notice_dismiss_until_update) { _, _ ->
-                    settings.setInt("poor-translations-dismissed", applicationVersionNumber)
+                    settings.setString("poor-translations-dismissed-version", mainVersion)
                     settings.setString("poor-translations-dismissed", languageTag)
                     it.resume(true)
                 }
@@ -1419,19 +1458,29 @@ object CommonUtils : CommonUtilsBase() {
         )
 
         val activeName = allNames[if(discrete) 1 else 0]
-
+        var settingsChanged = false
         Log.d(TAG, "Changing app icon / name to $activeName")
         for (name in allNames) {
             val value = name == activeName
             Log.d(TAG, "changing $name to $value")
-            application.packageManager.setComponentEnabledSetting(
-                ComponentName(packageName, name),
+            val component = ComponentName(packageName, name)
+            val currentSettings = application.packageManager.getComponentEnabledSetting(component)
+            val newSetting =
                 if(value) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP
-            )
+                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+
+            if(currentSettings != newSetting) {
+                application.packageManager.setComponentEnabledSetting(
+                    component,
+                    newSetting,
+                    PackageManager.DONT_KILL_APP
+                )
+                settingsChanged = true
+            }
         }
-        forceStopApp()
+        if(settingsChanged) {
+            forceStopApp()
+        }
     }
 
     fun createDiscreteNotificationChannel() {
@@ -1536,6 +1585,34 @@ object CommonUtils : CommonUtilsBase() {
             BackupControl.AbDbFileType.UNKNOWN
     }
 
+    fun makeAndBibleUrl(
+        keyStr: String,
+        docInitials: String? = null,
+        v11n: String? = null,
+        ordinal: Int? = null
+    ): String {
+        var url = "https://read.andbible.org/$keyStr"
+        val queryParameters = mutableListOf<String>()
+        if(docInitials != null) {
+            queryParameters.add("document=$docInitials")
+        }
+        if(v11n != null) {
+            queryParameters.add("v11n=$v11n")
+        }
+        if(ordinal != null) {
+            queryParameters.add("ordinal=${ordinal}")
+        }
+        if(queryParameters.isNotEmpty()) {
+            url += "?${queryParameters.joinToString("&")}"
+        }
+        return url
+    }
+
+    fun copyToClipboard(clip: ClipData, toastMessage: Int = R.string.text_copied_to_clicpboard) {
+        val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(clip)
+        ABEventBus.post(ToastEvent(application.getString(toastMessage)))
+    }
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
@@ -1593,7 +1670,9 @@ suspend fun <T, V> Collection<T>.asyncMap(maxThreads: Int, action: suspend (T) -
 private val builders = ArrayBlockingQueue<SAXBuilder>(32)
 
 fun <R> useSaxBuilder(block: (it: SAXBuilder) -> R): R {
-    val builder = builders.poll()?: SAXBuilder()
+    val builder = builders.poll()?: SAXBuilder().also {
+        it.setFeature("http://xml.org/sax/features/external-general-entities", false)
+    }
     val rv = block(builder)
     builders.offer(builder)
     return rv

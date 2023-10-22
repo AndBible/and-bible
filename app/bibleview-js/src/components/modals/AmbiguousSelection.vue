@@ -87,15 +87,16 @@ import {
     getEventVerseInfo,
     getHighestPriorityEventFunctions,
     isBottomHalfClicked,
+    setupDocumentEventListener,
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton.vue";
-import {emit} from "@/eventbus";
+import {emit, setupEventBusListener} from "@/eventbus";
 import AmbiguousActionButtons from "@/components/AmbiguousActionButtons.vue";
 import {sortBy} from "lodash";
 import {
     androidKey,
     appSettingsKey,
-    globalBookmarksKey,
+    globalBookmarksKey, keyboardKey,
     locateTopKey,
     modalKey,
     ordinalHighlightKey
@@ -111,6 +112,7 @@ const props = withDefaults(
 const $emit = defineEmits(["back-clicked"])
 
 const appSettings = inject(appSettingsKey)!;
+const {setupKeyboardListener} = inject(keyboardKey)!;
 const limitAmbiguousModalSize = computed({
     get() {
         return appSettings.limitAmbiguousModalSize;
@@ -124,7 +126,7 @@ const {strings} = useCommon();
 const android = inject(androidKey)!;
 const multiSelectionMode = ref(false);
 
-const {resetHighlights, highlightVerse, hasHighlights} = inject(ordinalHighlightKey)!;
+const {resetHighlights, highlightOrdinal, hasHighlights} = inject(ordinalHighlightKey)!;
 const {modalOpen, closeModals} = inject(modalKey)!;
 
 const showModal = ref(false);
@@ -133,6 +135,11 @@ provide(locateTopKey, locateTop);
 
 const verseInfo: Ref<Nullable<EventVerseInfo>> = ref(null);
 const ordinalInfo: Ref<Nullable<EventOrdinalInfo>> = ref(null);
+
+setupEventBusListener("clear_document", () => {
+   verseInfo.value = null;
+   ordinalInfo.value = null;
+});
 
 const selectionInfo = computed<Nullable<SelectionInfo>>(() => {
     if (!verseInfo.value && !ordinalInfo.value) return null;
@@ -195,7 +202,11 @@ function close() {
 function updateHighlight() {
     resetHighlights();
     for (let o of ordinalRange()) {
-        highlightVerse(o);
+        if(ordinalInfo.value != null) {
+            highlightOrdinal(o, ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef);
+        } else {
+            highlightOrdinal(o);
+        }
     }
     if (!verseInfo.value) return;
     if (endOrdinal.value == null || endOrdinal.value === startOrdinal.value) {
@@ -243,9 +254,10 @@ function* ordinalRange(): Generator<number> {
 const selectedBookmarks = computed<BaseBookmark[]>(() => {
     const clickedIds = new Set(clickedBookmarks.value.map(b => b.id));
     const result: IdType[] = [];
+    const keyBase = ordinalInfo.value?.osisRef ?? "BIBLE";
     for (const o of ordinalRange()) {
         result.push(
-            ...Array.from(bookmarkIdsByOrdinal.get(o) || [])
+            ...Array.from(bookmarkIdsByOrdinal.get(`${keyBase}-${o}`) || [])
                 .filter(bId => !clickedIds.has(bId) && !result.includes(bId)))
     }
     return result.map(bId => bookmarkMap.get(bId)).filter(b => b) as BaseBookmark[];
@@ -276,6 +288,15 @@ function multiSelectionButtonClicked() {
     updateHighlight();
 }
 
+function minusKeyPressed() {
+    if(!endOrdinal.value || !startOrdinal.value) {
+        return
+    }
+    if(endOrdinal.value > startOrdinal.value) {
+        endOrdinal.value = endOrdinal.value! - 1;
+    }
+    updateHighlight();
+}
 async function handle(event: MouseEvent) {
     console.log("AmbiguousSelection handling", event);
     const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
@@ -341,6 +362,27 @@ const noActions = computed(() => selectedActions.value.length === 0);
 function help() {
     android.helpBookmarks()
 }
+
+setupKeyboardListener((e: KeyboardEvent) => {
+    if (!showModal.value) return false;
+    console.log("AmbiguousSelection keyboard listener", e);
+    if (e.key === "+") {
+        multiSelectionButtonClicked();
+        return true;
+    }
+    if (e.key === "-") {
+        minusKeyPressed();
+        return true;
+    }
+    else if (e.ctrlKey && e.code === "KeyC") {
+        if (selectionInfo.value?.verseInfo) {
+            console.log("Ctrl + c pressed. Copying (book initial, start ordinal, end ordinal)", selectionInfo.value?.verseInfo.bookInitials, startOrdinal.value, endOrdinal.value)
+            android.copyVerse(selectionInfo.value.verseInfo.bookInitials, startOrdinal.value!, endOrdinal.value!)
+            return true;
+        }
+    }
+    return false;
+}, 4)
 
 const modal = ref<InstanceType<typeof ModalDialog> | null>(null);
 defineExpose({handle});

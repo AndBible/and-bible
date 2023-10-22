@@ -9,7 +9,7 @@ paragraph_1_1: >+
   "{{ title }}" tai galinga, bet tuo pačiu metu lengva naudoti „Android“ Biblijos studijų programėlė, kuri nereikalauja interneto. Ši programėlė nesiekia būti paprasta Biblijos skaitytuve, bet verčiau yra sutelkta į tai, kad būtų išplėstiniu įrankiu, kuris yra skirtas išsamiai asmeniškai nagrinėti Bibliją.
 
 paragraph_1_2: >
-  Šią programėlę Biblijos skaitytojams sukūrė Biblijos skaitytojai. Jos tikslas - padėti jums patogiai, išsamiai ir linksmai nagrinėti Bibliją. Geriausia, kas yra šiame nekomerciniame bendruomenės projekte yra tai, jog jis yra atvirojo kodo, visiškai nemokamas ir be jokių reklamų. Kadangi ši programėlė nuo pat pradžių buvo kuriama „Android“ sistemai, ji yra mažo dydžio ir todėl, labai efektyvi bei išskirtinai greita.
+  Šią programėlę Biblijos skaitytojams sukūrė Biblijos skaitytojai. Jos tikslas – padėti jums patogiai, išsamiai ir linksmai nagrinėti Bibliją. Geriausia, kas yra šiame nekomerciniame bendruomenės projekte yra tai, jog jis yra atvirojo kodo, visiškai nemokamas ir be jokių reklamų.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Kelios populiarios Biblijos versijos (iš daugelio prieinamų) yra NRSV, KJV, NASB, NET bei taip pat populiarūs Biblijos komentarai, tokie kaip Matthew Henry ir John Gill.
@@ -35,19 +35,19 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Didelė dokumentų biblioteka: Biblijos vertimai, teologiniai komentarai, žodynai, žemėlapiai bei krikščioniškos knygos, iš viso virš {{total_documents}} dokumentų, daugiau nei {{total_languages}} kalbų, kuriuos teisėtai platina Crosswire ir kitos SWORD saugyklos. 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  Visų dokumentų kilmė yra nagrinėjama, kad būtų užtikrinta, jog visi dokumentai gali būti teisėtai platinami, arba, jog yra suteiktas autorių teisių turėtojo leidimas. Tai taip pat yra viena iš priežasčių, kodėl šioje programėlėje nėra tokių dokumentų kaip {{unavailable_documents}}.
+feature_10_1: >-
+  Savas MyBible, MySword ir EPUB failų palaikymas dar labiau įgalina jus išplėsti savo biblioteką.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "ESV, NIV ir NKJV"
 feature_12: >
   Nereikalauja interneto: interneto reikia tik vienintelį kartą, atsisiunčiant dokumentus.
+# UNUSED
 feature_13: >
   Bloknotai, skirti, klausantis pamokslo, pridėti pastabas ir Biblijos nuorodas.
 subtitle_3: Sukurkime geriausią Biblijos programėlę kartu!
 paragraph_3_1: >
-  And Bible yra atvirojo kodo bendruomenės projektas. Praktiškai, tai reiškia, kad kiekvienas žmogus su tinkamais įgūdžiai gali, ir yra skatinamas, talkinti projektui:
+  AndBible yra atvirojo kodo bendruomenės projektas. Praktiškai, tai reiškia, kad kiekvienas žmogus su tinkamais įgūdžiai gali, ir yra skatinamas, talkinti projektui:
 contr_1: "plėtojant naujas ypatybes,"
 contr_2: "išbandant kol kas neišleistas ypatybes,"
 contr_3: "palaikant naudotojo sąsają išverstą į savo kalbą bei "
@@ -59,10 +59,16 @@ subtitle_4: Nuorodos
 link_1: >
   Pagrindinis puslapis: {{homepage_url}}
 link_2: >
-  Spauskite „Patinka“ And Bible „Facebook“ puslapyje: {{facebook_url}}
+  Spauskite „Patinka“ AndBible „Facebook“ puslapyje: {{facebook_url}}
 link_3: >
   Mūsų „Youtube“ kanalas: {{youtube_url}}
 link_4: >
   Dažnai užduodami klausimai: {{faq_url}}
 link_5: >
   Projekto puslapis „Github“ svetainėje: {{github_url}}
+buy_title: >
+  Palaikykite apmokėdami plėtotojų laiką!
+buy_1: >
+  Jei neturite įgūdžių ar laiko talkinti projektui, galite palaikyti projektą apmokėdami profesionalaus plėtotojo darbo valandas.
+buy_2: >
+  Žiūrėkite variantus

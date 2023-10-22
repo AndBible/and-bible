@@ -661,3 +661,7 @@ export function formatExportLink({ref, v11n, doc}: {ref: string, v11n: string, d
     // this is parsed in MainBibleActivity::openLink(uri: Uri) function for intent parsing
     return `https://stepbible.org/?q=reference=${ref}${docStr}&v11n=${v11n}`
 }
+
+export function filterNotNull<T>(args: (T|null)[]): T[] {
+    return args.filter(v => v !== null) as T[];
+}

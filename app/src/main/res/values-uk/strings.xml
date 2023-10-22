@@ -13,7 +13,6 @@
   <string name="selectPassage">Уривок</string>
   <string name="search">Знайти</string>
   <string name="search_in_andbible">Знайти в Біблії</string>
-  <string name="search_with_results2">%1s результати у %2s</string>
   <string name="settings">Параметри програми</string>
   <string name="history">Журнал</string>
   <string name="speak">Озвучити</string>
@@ -42,6 +41,8 @@
   <string name="search_in">Знайти в %s</string>
   <string name="do_in_background">Продовжити у фоновому режимі</string>
   <string name="rebuild_index_button">Відновити</string>
+  <!--X results in module Y-->
+  <string name="search_with_results2">%1s результати у %2s</string>
   <!--Tasks-->
   <string name="progress_status">Перебіг виконання</string>
   <string name="task_kill_warning">Ці тривалі завдання можуть припинитися, якщо ви перейдете до іншого застосунку/програми, перш ніж вони закінчаться.</string>
@@ -60,7 +61,9 @@
   <string name="search_current_book">Поточна книга</string>
   <string name="error_executing_search">Неприпустимий запит пошуку</string>
   <string name="type_text_or_bible_reference">Введіть текст або біблійне посилання</string>
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">Відкрити %s</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Знайти \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Номери розділів та віршів</string>
@@ -130,7 +133,7 @@
   <string name="value_mm">%d мм</string>
   <string name="auto_fullscreen_summary">Під час прокрутки тексту автоматично перемикнути на весь екран. Порада: ви також завжди можете перейти в режим повного екрану, подвійним натисканням на екран.</string>
   <string name="prefs_margin_size_title">Зміна розміру поля</string>
-  <string name="prefs_margin_size_mm_title">Розмір поля (%d/%d/%d мм)</string>
+  <string name="prefs_margin_size_mm_title">Розмір поля (%1$d/%2$d/%3$d мм)</string>
   <string name="prefs_advanced_settings_cat">Розширені налаштування</string>
   <string name="prefs_display_customization_cat">Оформлення та зручність використання</string>
   <string name="prefs_behavior_customization_cat">Поведінка програми</string>
@@ -181,6 +184,8 @@
   <string name="prefs_text_bookmarks_title">Налаштування Закладок і Моїх приміток</string>
   <string name="prefs_enable_bluetooth_title">Увімкнути мультимедійні кнопки Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Використовуйте мультимедійні кнопки Bluetooth, щоб розпочати/припинити говорити.</string>
+  <string name="create_bookmark">Створити нову закладку</string>
+  <string name="create_bookmark_with_a_note">Створити нову закладку з приміткою</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Налаштування кольору</string>
   <string name="window_color_settings_title">Налаштування кольору вікон</string>
@@ -204,10 +209,10 @@
   <string name="windowMinimise">Згорнути</string>
   <string name="windowSynchronise">Синхронізувати</string>
   <string name="move_window">Перейти до</string>
-  <string name="move_window_to_position2">Розташування %d (%s:%s)</string>
+  <string name="move_window_to_position2">Розташування %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Скопіюйвати налаштування в</string>
   <string name="copy_settings_to_workspace">Робоча область</string>
-  <string name="copy_settings_to_window">Вікно %d (%s: %s)</string>
+  <string name="copy_settings_to_window">Вікно %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Перейти до звичайного вікна</string>
   <string name="window_pin_mode">Прикріпити</string>
   <!--Notes screen-->
@@ -230,7 +235,7 @@
   <string name="download_document_confirm_prefix">Завантажити</string>
   <string name="download_refresh_book_list_menu_item">Оновити</string>
   <string name="error_downloading">Під час завантаження сталася помилка. Перевірте підключення до Інтернету.</string>
-  <string name="error_downloading_status">Сервер, на якому розміщено %s повернув помилку через %s (%d).</string>
+  <string name="error_downloading_status">Сервер, на якому розміщено %1$s повернув помилку через %2$s (%3$d).</string>
   <string name="storage_space_warning">Недостатньо місця на пристрої.</string>
   <string name="too_many_jobs">Виконується забагато завдань. Зачекайте, поки деякі закінчаться, і спробуйте ще раз.</string>
   <string name="document_not_installed">Завантажте \'%s\'</string>
@@ -263,6 +268,7 @@
   <string name="overwrite_files">Наступні файли вже існують: %s Перезаписати?</string>
   <string name="overwrite_files_title">Перезаписати файли?</string>
   <string name="could_not_overwrite_files">Не вдалося перезаписати файли: %s. Крім того, встановлення пройшло успішно.</string>
+  <string name="install_do_you_want">Ви хочете встановити (%s) модуль?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План читання</string>
   <string name="reading_plans_plural">Плани читання</string>
@@ -346,6 +352,8 @@
   <string name="migrated_my_notes">Перенесено Мої примітки</string>
   <string name="bookmarks">Закладки</string>
   <string name="bookmark_added">Закладка добавлена</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Мітки</string>
   <string name="manage_labels">Налаштування міток</string>
   <string name="assign_labels">Призначення етикетки</string>
   <string name="new_item">Нова</string>
@@ -368,12 +376,23 @@
   <string name="label_color">Колір мітки</string>
   <!--can be removed-->
   <string name="label_color_example">Приклад</string>
-  <string name="marker_style">Показувати лише позначку для закладок вибору</string>
+  <string name="marker_style">Показувати лише позначку для виділеного тексту</string>
   <string name="marker_style_whole_verse">Показувати лише позначку для закладок цілих віршів</string>
+  <string name="hide_style">Приховати закладки виділеного тексту</string>
+  <string name="hide_style_whole_verse">Сховати для закладок цілих віршів</string>
+  <string name="bookmark_warning">В цьому ресурсі є закладки та/або примітки.</string>
+  <string name="bookmark_warning2">
+        Якщо структура документа змінилася, оновлення цього ресурсу може спричинити
+        розташування цих закладок/нотаток переміститися всередину документа або повністю зникнути.
+    </string>
+  <string name="bookmark_warning3">Ви все ще хочете оновити модуль?</string>
+  <string name="bookmark_warning4">Перед оновленням рекомендується зробити резервну копію модуля.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Сортувати за датою</string>
   <string name="sort_by_bible_book">Сортувати у біблійному порядку</string>
   <string name="sort_by_alphabetical">Сортувати за алфавітом</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Пошук нотаток</string>
   <!--Dictionary-->
   <string name="dictionary">Словник</string>
   <string name="search_dictionary_hint">Пошук в словнику</string>
@@ -460,7 +479,7 @@
   <string name="window_text_options_help2">%s піктограма означає, що це налаштування було змінено для цього конкретного вікна.</string>
   <string name="window_text_options_help3">Налаштування робочої області не вплине на це вікно.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Використовуйте %s кнопку, щоб повернути всі ці налаштування назад до %s.</string>
+  <string name="text_options_reset_help">Використовуйте %1$s кнопку, щоб повернути всі ці налаштування назад до %2$s.</string>
   <string name="reset_defaults">значення за замовчуванням</string>
   <string name="reset_workspace_defaults">значення за замовчуванням робочої області</string>
   <string name="speak_bookmark_help">Довідка про закладки прослуховування</string>
@@ -542,7 +561,7 @@
   <string name="backup_success2">Мої примітки, Закладки, Блокноти, Плани Читання та Робочі Області, резервне копіювання яких успішно виконано.</string>
   <string name="backup_modules_success">Резервне копіювання вибраних модулів виконано успішно.</string>
   <string name="backup_modules_email_subject_2">%s резервне копіювання модулів</string>
-  <string name="backup_modules_email_message_2">Вкладено %s резервну копію ваших модулів, яка містить наступні модулі: %s</string>
+  <string name="backup_modules_email_message_2">Вкладено %1$s резервну копію ваших модулів, яка містить наступні модулі: %2$s</string>
   <string name="backup_email_subject_2">%s резервне копіювання бази даних</string>
   <string name="backup_email_message_2">Ваша %s база даних, що містить закладки, примітки, плани читання та робочі місця додана</string>
   <string name="restore_unsuccessfull">Відновити базу даних не вдалося. Можливо, ви дали недійсний файл бази даних.</string>
@@ -552,8 +571,8 @@
   <string name="install_zip_canceled">Встановлення модуля скасовано</string>
   <!--About-->
   <string name="module_about_copyright">Aвторські права: %s</string>
-  <string name="module_about_installed_version">Встановлена версія: %s (%s)</string>
-  <string name="module_about_latest_version">Остання версія: %s (%s)</string>
+  <string name="module_about_installed_version">Встановлена версія: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Остання версія: %1$s (%2$s)</string>
   <string name="module_about_versification">Версія: %s</string>
   <string name="module_about_repository">Сервер розповсюдження: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
@@ -561,7 +580,7 @@
   <string name="send_bug_report_title1">Повідомлення про помилку</string>
   <string name="send_feedback_title">Відгук</string>
   <string name="send_bug_report_title">Відгук / звіт про помилку</string>
-  <string name="report_bug_email_subject_3">[%s] Звіт про помилку для %s %s</string>
+  <string name="report_bug_email_subject_3">[%1$s] Звіт про помилку для %2$s %3$s</string>
   <string name="report_bug_big_heading">БУДЬ ЛАСКА, НАПИШІТЬ ВІДГУК АБО ЗВІТ ПРО ПОМИЛКУ НАД ЦИМ РЯДКОМ</string>
   <string name="report_bug_heading1">Інструкція:</string>
   <string name="report_bug_line_1">Розкажіть коротко, що ви робили / що сталося, коли сталася проблема.</string>
@@ -656,9 +675,9 @@
   <string name="beta_notice_dismiss_until_update">Відхилити до наступного оновлення</string>
   <string name="stable_notice_title">Додаток оновлено!</string>
   <string name="upgrade_video_message">Будь ласка, перегляньте відео з новими функціями цього випуску (%s).</string>
-  <string name="stable_notice_par1">Нова версія %s\" %s\" програми успішно встановлена!</string>
+  <string name="stable_notice_par1">Нова версія %1$s \"%2$s\" програми успішно встановлена!</string>
   <!--History-->
-  <string name="history_for">Журнал (%s: Вікно %d)</string>
+  <string name="history_for">Журнал (%1$s: Вікно %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Навігація</string>
   <string name="help_nav_text">Перейдіть до наступного або попереднього розділу, провівши пальцем по екрану.
@@ -672,7 +691,7 @@
 Довго натискайте на елемент документа у списку \"Вибрати ресурс\" або \"Завантажити\", щоб видалити ресурс або переглянути інформацію.
 Довго натискайте закладку в списку закладок, щоб додати мітки або видалити закладку.
 Довго натискайте посилання, щоб вибрати, чи відкрити їх у поточному вікні, новому вікні чи у вікні спеціальних посилань.</string>
-  <string name="help_bookmarks_title">Закладки та Мої примітки</string>
+  <string name="help_bookmarks_title">Закладки і Мої Примітки</string>
   <string name="help_bookmarks_text">Закладки можна створити, вибравши певний текст і натиснувши \"Закладка\"
 у контекстному меню. Ви можете додати власні нотатки до нової закладки, натиснувши 
 виділений текст у перегляді Біблії. У коментарях також є спеціальний ресурс \"Мої примітки\", який дозволяє вам
@@ -712,9 +731,12 @@
   <string name="welcome_message">Дякуємо за завантаження %s. На даний момент біблії та інші ресурси не встановлені. Щоб продовжити, будь ласка, встановіть
 принаймні 1 ресурс, завантаживши з Інтернету, або завантаживши із zip-файлу
 резервного копіювання.</string>
+  <!--Supported file formats for documents-->
   <string name="supported_formats_title">Підтримувані формати</string>
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Ви повинні вибрати файл, який ви хочете завантажити в %s.</string>
   <string name="supported_formats">Підтримувані формати для завантаження документів з файлу: %s</string>
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Zip-файл, що містить модуль(лі) Sword, або файл резервної копії ресурсів (*.abmd), створений %s</string>
   <string name="format_mysword">MySword ресурси (*.mybible)</string>
   <string name="format_mybible">MyBible ресурси (*.SQLite3)</string>
@@ -724,7 +746,7 @@
     </string>
   <!--Uncategorized-->
   <string name="close">Закрити</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Зрозуміло</string>
   <string name="first_time_help_show_next_time">Показати знову наступного разу</string>
   <string name="strongs_mode_title">Виберіть режим Стронга</string>
@@ -763,6 +785,7 @@
   <string name="tell_friend_message4">Детальніше та більше варіантів встановлення: %s</string>
   <string name="share_verse_ok">Поділитися / скопіювати</string>
   <string name="verse_action_copy">Скопіювати</string>
+  <string name="generic_share">Поділитись</string>
   <string name="share_verse_menu_title">Поділитися / скопіювати...</string>
   <string name="show_versenumbers">Показати номери віршів</string>
   <string name="show_full_verses">Показати повні вірші</string>
@@ -773,8 +796,9 @@
   <string name="show_reference_at_front">Покажіть перед віршем</string>
   <string name="abbreviate_reference">Скоротити посилання</string>
   <string name="version_name">Назва перекладу</string>
+  <!--meaning, bible version name-->
   <string name="show_version_name">Вмістити назву версії</string>
-  <string name="show_ellipsis">Показати три крапки (...)</string>
+  <string name="show_ellipsis">Показати три крапки (…)</string>
   <string name="show_quotes">Показати цитати</string>
   <string name="backup_button">Резервне копіювання</string>
   <string name="back_button">Назад</string>
@@ -782,7 +806,7 @@
   <string name="initializing_app">Ініціалізація програми...</string>
   <string name="show_notes">Показати нотатки</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Пакет Android WebView застарілий (%s). Вам потрібно оновити пакет Android WebView принаймні до версії %s, щоб використовувати %s. Для більшості пристроїв це можна зробити через %s.</string>
+  <string name="old_webview">Пакет Android WebView застарілий (%1$s). Вам потрібно оновити пакет Android WebView принаймні до версії %2$s, щоб використовувати %3$s. Для більшості пристроїв це можна зробити через %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Все одно продовжити</string>
   <string name="proceed">Продовжити</string>
@@ -795,7 +819,7 @@
     </string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
-        Якщо у вас проблема з додатком, будь ласка, %s або %s.
+        Якщо у вас проблема з додатком, будь ласка, %1$s або %2$s.
     </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
@@ -874,7 +898,7 @@
   <string name="chooser_select">Вибрати %s</string>
   <string name="chooser_pref_reset">Не скидати розділ/вірш на 1, коли вибрано книгу/розділ</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">На жаль, у нас є лише частковий переклад інтерфейсу на %s мові. Це тому, що %s повністю розроблено волонтерами. Якщо ви можете допомогти у перекладі, будь ласка, див. %s.</string>
+  <string name="incomplete_translation">На жаль, у нас є лише частковий переклад інтерфейсу на %1$s мові. Це тому, що %2$s повністю розроблено волонтерами. Якщо ви можете допомогти у перекладі, будь ласка, див. %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">інструкція для перекладачів</string>
   <string name="questions_title">Маєте запитання?</string>
@@ -897,9 +921,11 @@
   <string name="prefs_calculator_pin">PIN-код калькулятора</string>
   <string name="prefs_calculator_pin_desc">PIN-код для входу в програму, коли відображається калькулятор.</string>
   <string name="calc_division_by_zero">Ділення на нуль не допускається</string>
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Неправильний формат</string>
   <string name="calc_wrong_format_operand">Неправильний формат. Операнд без чисел?</string>
   <string name="prefs_persecuted_help">Прочитайте спочатку це!</string>
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Інструкція з налаштування та інформація про конкретну дискретну збірку .</string>
   <string name="calculator_par1">
         Перед входом у програму відображається екран калькулятора.
@@ -926,6 +952,7 @@
   <string name="disable_sync">Вимкнути синхронізацію</string>
   <string name="open_in_window">Відкрийте результати у вікні</string>
   <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Індивідуальні сховища</string>
   <string name="custom_repositories_empty_list_message">Індивідуальні сховища не визначені</string>
   <string name="custom_repositories_create_button_label">Добавити індивідуальне сховище</string>
@@ -988,11 +1015,15 @@
   <string name="are_you_sure_reset_cloud">Це скине вашу хмарну базу даних для %s, і замінить контентом який ви маєте на цьому пристрої.</string>
   <string name="sync_cant_fetch">Версія бази даних або файлу виправлення, що зберігається в хмарі, є вищою за ту, що підтримується цією програмою.</string>
   <string name="sync_disabling">Наразі синхронізація відключається для %s.</string>
+  <string name="sync_update_app">Оновіть додаток, щоб продовжити синхронізацію.</string>
   <string name="sign_in_failed">Сталася помилка під час входу в серверну службу синхронізації.</string>
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">Вимкнення хмарної синхронізації. Ви повинні повторно ввімкнути синхронізацію вручну після відновлення.</string>
   <string name="report">Звіт</string>
   <string name="sync_error">Сталася помилка синхронізації з хмарою</string>
   <string name="error_notification_channel_name">Повідомлення помилок</string>
+  <string name="restore_from_cloud_description">Якщо на іншому пристрої ввімкнуто синхронізацію пристрою, ви можете почати з відновлення бази даних із хмари.</string>
+  <string name="enable_sync">Увімкнути синхронізацію</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Неможливо прочитати файл</string>
   <string name="sqlite_invalid_file">Недійсний файл модуля або назва файлу: %s</string>
@@ -1003,4 +1034,28 @@
   <string name="open_here">Відкрити тут</string>
   <string name="external_link">Зовнішнє посилання</string>
   <string name="external_link_question">Зовнішнє посилання %s відкриється в браузері. Відкрити?</string>
+  <string name="nameless">Назва не визначена</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Дії одним дотиком (Біблії)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Дії одним дотиком (інші)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Коли ви торкаєтеся тексту, відображається вікно дій одним дотиком. Які кнопки дій мають бути показані?</string>
+  <string name="processing_epub">Обробка EPUB: %s</string>
+  <string name="buy_development">Купити розробки</string>
+  <string name="buy_development2">Підтримка проекту</string>
+  <string name="new_version_warning">
+        Скоро вийде новий випуск. Очікувана дата випуску %1$s. Дивіться наш
+        %2$s щоб ознайомития з новими функціями та вдосконаленням.
+    </string>
+  <string name="new_version_trailer">трейлер відео</string>
+  <string name="new_version_warning2">
+        Після випуску ця версія не підтримується.
+    </string>
+  <string name="new_version_warning3">
+        Не отримуватиме виправлення помилок або оновлення.
+    </string>
+  <string name="new_version_warning4">
+       Якщо ви не хочете оновлювання, вимкніть «Автоматичне оновлення» у своєму магазині додаток (Google Play / F-Droid тощо).
+    </string>
+  <string name="dont_show">
+        Більше не показувати це повідомлення
+    </string>
 </resources>

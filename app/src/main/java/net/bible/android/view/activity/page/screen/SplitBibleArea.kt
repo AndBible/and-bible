@@ -19,7 +19,6 @@ package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
 import android.content.ClipData
-import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -78,12 +77,10 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.firstBibleDoc
 import net.bible.service.device.ScreenSettings
-import net.bible.service.download.isPseudoBook
 import net.bible.service.download.isStudyPad
 import net.bible.service.sword.StudyPadKey
-import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BookName
 import java.lang.IndexOutOfBoundsException
 import java.util.*
@@ -313,7 +310,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
     internal val hideWindowButtons get() =
         CommonUtils.settings.getBoolean("hide_window_buttons", false)
-    private var buttonsWillAnimate = false;
+    private var buttonsWillAnimate = false
     private val autoHideWindowButtonBarInFullScreen get() =
         CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
 
@@ -384,7 +381,12 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             spaceAdded = false
         }
 
-        val hideArrow = if(windowControl.isSingleWindow) View.GONE else View.VISIBLE
+        val hideArrow =
+            if(windowControl.isSingleWindow) {
+                restoreButtonsVisible = true
+                updateRestoreButtons()
+                View.GONE
+            } else View.VISIBLE
 
         binding.hideRestoreButton.visibility = hideArrow
         binding.hideRestoreButtonExtension.visibility = hideArrow
@@ -548,7 +550,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         }
         buttonsVisible = show
     }
-    var firstTime = true
+    private var firstTime = true
     private fun updateRestoreButtons() {
         val animate = !firstTime
         if(firstTime) {
@@ -608,7 +610,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         val isSettingDisabled = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false)
         if (isSettingDisabled) return
 
-        val show = mainBibleActivity.fullScreen && _show
+        val show = mainBibleActivity.fullScreen && windowControl.activeWindow.pageManager.isBibleShown && _show
         if(show) {
             bibleReferenceOverlay.visibility = View.VISIBLE
             bibleReferenceOverlay.animate().alpha(1.0f)
@@ -703,7 +705,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         val syncGroupSubMenu = menu.findItem(R.id.syncGroupSubMenu).subMenu!!
         syncGroupSubMenu.removeItem(R.id.syncGroupItem)
 
-        for(i in 0..3) {
+        for(i in 0..5) {
             if(window.isSynchronised && i == window.syncGroup) continue
             val syncGroupTitle = app.getString(R.string.sync_group_n, i + 1)
             syncGroupSubMenu.add(Menu.NONE, R.id.syncGroupItem, i, syncGroupTitle)
@@ -851,24 +853,19 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.copyReference -> CommandPreference(
                 launch = { _, _, _ ->
-                    val doc = window.pageManager.currentPage.currentDocument
-                    val key = window.pageManager.currentPage.key?: return@CommandPreference
-                    var url = "https://andbible.org/bible/${key.osisRef}"
-                    val queryParameters = mutableListOf<String>()
-                    if(doc != null) {
-                        queryParameters.add("document=${doc.initials}")
-                        if(doc is SwordBook) {
-                            queryParameters.add("v11n=${doc.versification.name}")
-                        }
-                    }
-                    if(queryParameters.isNotEmpty()) {
-                        url += "?${queryParameters.joinToString("&")}"
-                    }
-                    // Copy url to clipboard
-                    val clipboard = mainBibleActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText(key.name, url)
-                    clipboard.setPrimaryClip(clip)
-                    ABEventBus.post(ToastEvent(mainBibleActivity.getString(R.string.reference_copied_to_clipboard)))
+                    val doc = window.pageManager.currentPage.currentDocument?: return@CommandPreference
+                    val key = window.pageManager.currentPage.singleKey?: return@CommandPreference
+                    val ordinal = window.pageManager.currentPage.anchorOrdinal?.start
+
+                    val url = CommonUtils.makeAndBibleUrl(
+                        keyStr = key.osisRef,
+                        docInitials = doc.initials,
+                        ordinal = ordinal
+                    )
+                    CommonUtils.copyToClipboard(
+                        ClipData.newPlainText(key.name, url),
+                        R.string.reference_copied_to_clipboard
+                    )
                 },
             )
             R.id.windowMinimise -> CommandPreference(

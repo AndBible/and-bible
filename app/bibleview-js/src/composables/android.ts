@@ -31,7 +31,7 @@ import {
     StudyPadItem,
     StudyPadTextItem
 } from "@/types/client-objects";
-import {BibleDocumentType} from "@/types/documents";
+import {AnyDocument} from "@/types/documents";
 import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
 
 export type BibleJavascriptInterface = {
@@ -41,6 +41,7 @@ export type BibleJavascriptInterface = {
     requestMoreToBeginning: AsyncFunc,
     requestMoreToEnd: AsyncFunc,
     refChooserDialog: AsyncFunc,
+    parseRef: (callId: number, s: String) => void,
     saveBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
     saveGenericBookmarkNote: (bookmarkId: IdType, note: Nullable<string>) => void,
     removeBookmark: (bookmarkId: IdType) => void,
@@ -67,12 +68,13 @@ export type BibleJavascriptInterface = {
     updateGenericBookmarkToLabel: (data: JSONString) => void
     shareBookmarkVerse: (bookmarkId: IdType) => void,
     shareVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    copyVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
-    speak: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    speak: (bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) => void,
     speakGeneric: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
     setAsPrimaryLabel: (bookmarkId: IdType, labelId: IdType) => void,
     setAsPrimaryLabelGeneric: (bookmarkId: IdType, labelId: IdType) => void,
@@ -261,11 +263,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         return returnValue
     }
 
-    async function requestPreviousChapter(): Promise<BibleDocumentType> {
+    async function requestPreviousChapter(): Promise<Nullable<AnyDocument>> {
         return deferredCall((callId) => window.android.requestMoreToBeginning(callId));
     }
 
-    async function requestNextChapter(): Promise<BibleDocumentType> {
+    async function requestNextChapter(): Promise<Nullable<AnyDocument>> {
         return deferredCall((callId) => window.android.requestMoreToEnd(callId));
     }
 
@@ -362,6 +364,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.shareVerse(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    function copyVerse(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.copyVerse(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
     function addBookmark(bookInitials: string, startOrdinal: number, endOrdinal?: number, addNote: boolean = false) {
         window.android.addBookmark(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1, addNote);
     }
@@ -385,8 +391,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.openMyNotes(v11n, ordinal);
     }
 
-    function speak(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
-        window.android.speak(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    function speak(bookInitials: string, v11n: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.speak(bookInitials, v11n, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
     function speakGeneric(bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal?: number) {
@@ -395,6 +401,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
 
     function openDownloads() {
         window.android.openDownloads();
+    }
+
+    async function parseRef(s: string): Promise<string> {
+        const result = await deferredCall((callId) => window.android.parseRef(callId, s))
+        return result ?? ""
     }
 
     function updateOrderNumber(
@@ -523,6 +534,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         openDownloads,
         refChooserDialog,
         shareVerse,
+        copyVerse,
         addBookmark,
         addGenericBookmark,
         compare,
@@ -530,6 +542,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         speakGeneric,
         helpDialog,
         onKeyDown,
+        parseRef,
     }
 
     if (config.developmentMode) return {

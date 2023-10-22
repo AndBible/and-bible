@@ -150,11 +150,12 @@ const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, andro
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
 
-useInfiniteScroll(android, documents);
+const {documentsCleared} = useInfiniteScroll(android, documents);
 const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {
     async function doAddDocuments() {
+        console.log("doAddDocuments, start")
         loadingCount.value++;
         await document.fonts.ready;
         await nextTick();
@@ -165,6 +166,10 @@ function addDocuments(...docs: AnyDocument[]) {
         await nextTick();
         await Promise.all(customCss.customCssPromises);
         loadingCount.value--;
+        if(loadingCount.value < 0) {
+            loadingCount.value = 0;
+        }
+        console.log(`doAddDocuments, finish, loadingCount: ${loadingCount.value}`)
     }
 
     documentPromise.value = doAddDocuments()
@@ -177,7 +182,9 @@ setupEventBusListener("config_changed", async (deferred: Deferred) => {
 })
 
 setupEventBusListener("clear_document", function clearDocument() {
+    loadingCount.value = 0;
     footNoteCount = 0;
+    documentsCleared();
     resetHighlights();
     closeModals();
     clearLog();

@@ -10,11 +10,15 @@ on:
       - '**/*.vue'
       - '**/*.js'
       - '**/*.ts'
+      - 'app/bibleview-js/package.json'
+      - 'app/bibleview-js/package-lock.json'
   pull_request:
     paths:
     - '**/*.vue'
     - '**/*.js'
     - '**/*.ts'
+    - 'app/bibleview-js/package.json'
+    - 'app/bibleview-js/package-lock.json'
   workflow_dispatch:
 
 permissions:
@@ -31,7 +35,7 @@ jobs:
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '20'
 
       - name: Upgrade npm
         working-directory: app/bibleview-js
@@ -55,7 +59,7 @@ jobs:
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '20'
 
       - name: Upgrade npm
         working-directory: app/bibleview-js
@@ -87,7 +91,7 @@ jobs:
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '20'
 
       - name: Upgrade npm
         working-directory: app/bibleview-js

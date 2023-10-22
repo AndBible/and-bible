@@ -20,7 +20,6 @@ package net.bible.android.view.activity.page
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.net.Uri
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
@@ -34,6 +33,7 @@ import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -45,13 +45,16 @@ import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
+import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.util.widget.ShareWidget
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
 import net.bible.service.common.displayName
@@ -65,9 +68,11 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
+import org.crosswire.jsword.versification.system.Versifications
 import java.io.File
 import java.lang.ClassCastException
 
@@ -129,6 +134,12 @@ class BibleJavascriptInterface(
     fun requestMoreToEnd(callId: Long) {
         Log.i(TAG, "Request more text at end")
         bibleView.requestMoreToEnd(callId)
+    }
+
+    @JavascriptInterface
+    fun parseRef(callId: Long, s: String) {
+        Log.i(TAG, "Request more text at end")
+        bibleView.parseRef(callId, s)
     }
 
     @JavascriptInterface
@@ -257,7 +268,7 @@ class BibleJavascriptInterface(
                 }
             }
             else -> {
-                mainBibleActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+                CommonUtils.openLink(link, forceAsk=true)
             }
         }
     }
@@ -363,6 +374,13 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            bibleView.copySelectionToClipboard(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
     fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
         bibleView.makeBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
     }
@@ -394,11 +412,15 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun speak(bookInitials: String, ordinal: Int, endOrdinal: Int) {
+    fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials) as SwordBook
-            val verse = Verse(book.versification, ordinal)
-            mainBibleActivity.speakControl.speakBible(book, verse, force = true)
+            val v11n = Versifications.instance().getVersification(v11nName)
+            val verse = Verse(v11n, ordinal).toV11n(book.versification)
+            if(mainBibleActivity.speakControl.isSpeaking) {
+                mainBibleActivity.speakControl.pause(willContinueAfterThis = true, toast = false)
+            }
+            mainBibleActivity.speakControl.speakBible(book, verse)
         }
     }
 
@@ -406,10 +428,13 @@ class BibleJavascriptInterface(
     fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials)
-            val key = book.getKey(osisRef)
-            val singleKey = try {KeyUtil.getVerse(key)} catch (e: ClassCastException) {key}
+            val origKey = book.getKey(osisRef)
+            val key = (origKey as? RangedPassage)?.toVerseRange ?:  try {KeyUtil.getVerse(origKey)} catch (e: ClassCastException) {origKey}
             val ordinalRange = OrdinalRange(ordinal, positiveOrNull(endOrdinal))
-            val bookAndKey = BookAndKey(singleKey, book, ordinalRange)
+            val bookAndKey = BookAndKey(key, book, ordinalRange)
+            if(mainBibleActivity.speakControl.isSpeaking) {
+                mainBibleActivity.speakControl.pause(willContinueAfterThis = true, toast = false)
+            }
             mainBibleActivity.speakControl.speakGeneric(bookAndKey)
         }
     }
@@ -580,7 +605,17 @@ class BibleJavascriptInterface(
                     mainBibleActivity.binding.drawerLayout.requestFocus()
                 }
                 "AltKeyO" -> mainBibleActivity.showOptionsMenu()
-                "AltKeyG" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
+                "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
+                "CtrlKeyC" -> bibleView.copySelectionToClipboard()
+                "CtrlKeyF" -> {
+                    val intent = mainBibleActivity.searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, mainBibleActivity)
+                    mainBibleActivity.startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                }
+                "Space" -> {
+                    if(!mainBibleActivity.speakControl.isStopped) {
+                        mainBibleActivity.speakControl.toggleSpeak(true)
+                    }
+                }
             }
         }
     }

@@ -43,6 +43,7 @@ import net.bible.service.common.prev
 import net.bible.service.common.shortName
 import net.bible.service.common.tinyName
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeySerialized
 import org.crosswire.jsword.book.Book
 import kotlin.collections.HashMap
 
@@ -239,8 +240,8 @@ class GeneralSpeakTextProvider(
 
     private fun updateBookmark() {
         if(stopOrdinal != null) return
-        removeBookmark()
-        saveBookmark()
+        val wasRemoved = removeBookmark()
+        saveBookmark(wasRemoved)
     }
 
     override fun savePosition(fractionCompleted: Double) {}
@@ -262,7 +263,7 @@ class GeneralSpeakTextProvider(
     }
 
     private fun readBookmark() {
-        if(AdvancedSpeakSettings.autoBookmark && stopOrdinal == null) {
+        if(stopOrdinal == null) {
             val key = currentKey
 
             val bookmark: GenericBookmarkWithNotes = bookmarkControl.speakBookmarkForKey(key)?: return
@@ -285,12 +286,13 @@ class GeneralSpeakTextProvider(
         }
     }
 
-    private fun removeBookmark() {
-        var bookmark: GenericBookmarkWithNotes = this.bookmark ?: return
+    private fun removeBookmark(): Boolean {
+        var bookmark: GenericBookmarkWithNotes = this.bookmark ?: return false
 
         val labelList = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
         val speakLabel = bookmarkControl.speakLabel
         val ttsLabel = labelList.find { it.id == speakLabel.id }
+        var wasRemoved = false
 
         if(ttsLabel != null) {
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
@@ -304,32 +306,22 @@ class GeneralSpeakTextProvider(
                 bookmarkControl.deleteBookmark(bookmark)
                 Log.i("SpeakBookmark", "Removed bookmark from $bookmark")
             }
+            wasRemoved = true
             this.bookmark = null
         }
+        return wasRemoved
     }
 
-    private fun saveBookmark() {
+    private fun saveBookmark(wasRemoved: Boolean) {
         val labelList = mutableSetOf<Label>()
-        if(AdvancedSpeakSettings.autoBookmark) {
-            var bookmark: GenericBookmarkWithNotes? = bookmarkControl.firstGenericBookmarkStartingAtKey(startKey)?.run {
-                if(textRange != null) null else this
-            }
-
+        if(AdvancedSpeakSettings.autoBookmark || wasRemoved) {
             val playbackSettings = settings.playbackSettings.copy()
             playbackSettings.bookId = book.initials
 
-            if(bookmark == null) {
-                playbackSettings.bookmarkWasCreated = true
-                bookmark = GenericBookmarkWithNotes(startKey.key, book, null, startKey.ordinal!!.start)
-                bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
-            }
-            else {
-                playbackSettings.bookmarkWasCreated = bookmark.playbackSettings?.bookmarkWasCreated ?: false
-                labelList.addAll(bookmarkControl.labelsForBookmark(bookmark))
-                bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
-            }
+            playbackSettings.bookmarkWasCreated = true
+            var bookmark = GenericBookmarkWithNotes(startKey.key, book, null, startKey.ordinal!!.start)
+            bookmark.playbackSettings = playbackSettings
+            bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
 
             labelList.add(bookmarkControl.speakLabel)
 
@@ -478,7 +470,7 @@ class GeneralSpeakTextProvider(
     override fun persistState() {
         CommonUtils.settings.apply {
             setString(PERSIST_BOOK, book.abbreviation)
-            setString(PERSIST_KEY, startKey.key.osisID)
+            setString(PERSIST_KEY, startKey.serialized)
         }
     }
 
@@ -493,7 +485,10 @@ class GeneralSpeakTextProvider(
         }
         if(sharedPreferences.getString(PERSIST_KEY) != null) {
             val keyStr = sharedPreferences.getString(PERSIST_KEY, "")!!
-            startKey = book.getBookAndKey(keyStr)?: return false
+            startKey = try { BookAndKeySerialized.fromJSON(keyStr).bookAndKey } catch (e: Exception) {
+                Log.e(TAG, "Can't restore state", e)
+                return false
+            }
             endKey = startKey
             currentKey = startKey
             return true

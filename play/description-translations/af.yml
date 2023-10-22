@@ -8,7 +8,7 @@ subtitle_1: Kragtige Bybelstudie instrument
 paragraph_1_1: >
   "{{ title }}" is 'n kragtige, maar tog maklik om te gebruik, vanlyn Bybelstudie applikasie vir Android. Die toep beoog nie om bloot 'n Bybelleser te wees nie, maar fokus daarop om 'n gevorderde hulpmiddel te wees om diepgaande persoonlike Bybelstudie te doen.
 paragraph_1_2: >
-  Hierdie toepassing word ontwikkel deur Bybellesers, vir Bybellesers. Dit is daarop gemik om jou te help om jou Bybelstudie gerieflik, diep en pret te maak. Die beste deel van hierdie nie-winsgewende gemeenskapsprojek is dat dit oop bron, heeltemal gratis is en geen advertensies bevat nie. Nadat dit van die grond af gebou is vir Android, is dit 'n klein aflaai, en dus baie doeltreffend en merkwaardig vinnig 
+  Hierdie toepassing is ontwikkel deur Bybellesers, vir Bybellesers. Dit het ten doel om jou te help om jou Bybelstudie gerieflik, diep en prettig te maak. Die beste deel van hierdie nie-winsgewende gemeenskapsprojek is dat dit open source is, heeltemal gratis is en geen advertensies bevat nie.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   'n Paar gewilde Bybelweergawes (van die vele beskikbaar) is KJV, NASB, NET, en ook gewilde kommentare soos Matthew Henry en John Gill.
@@ -34,19 +34,19 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Groot biblioteek van dokumente: Bybelvertalings, teologiese kommentare, woordeboeke, kaarte en christelike boeke, wat meer as {{total_documents}} dokumente in meer as {{total_languages}} tale beloop, wettig versprei deur Crosswire en ander SWAARDbewaarplekke. 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  Die bewys van alle dokumente word nagevors om te verseker dat alle dokumente wettiglik versprei kan word of dat toestemming deur die kopiereghouer verleen is. Dit is ook die rede waarom hierdie program nie dokumente soos {{unavailable_documents}}.
+feature_10_1: >
+  Inheemse ondersteuning vir MyBible, MySword en EPUB-lêers stel jou in staat om jou biblioteek selfs meer uit te brei.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "ESV, NIV en NKJV"
 feature_12: >
   Vanlyn: die enigste keer wat jy internet nodig het, is vir die aflaai van documents.
+# UNUSED
 feature_13: >
   Bestudeer blokke vir die toevoeging van notas en Bybel verwysings terwyl jy na preke luister.
 subtitle_3: Kom ons maak die beste Bybel toep saam!
 paragraph_3_1: >
-  And Bible is 'n oop brone gemeenskapsprojek. In die praktyk beteken dit dat enigiemand met geskikte vaardighede kan, en word aangemoedig om, by te dra tot die projek deur: 
+  AndBible is 'n oopbron gemeenskapsprojek. In die praktyk beteken dit dat enigiemand met geskikte vaardighede kan, en aangemoedig word om, by te dra tot die projek deur:
 contr_1: "ontwikkeling van nuwe kenmerke, "
 contr_2: "toets nog nie vrygestelde kenmerke nie,"
 contr_3: "hou gebruiker skoppelvlak vertalings op datum, en"
@@ -58,10 +58,16 @@ subtitle_4: Skakels
 link_1: >
   Tuisblad: {{homepage_url}}
 link_2: >
-  Hou van Abd Bible Facebook: {{facebook_url}}
-link_3: >-
+  Hou van AndBible op Facebook: {{facebook_url}}
+link_3: >
   Ons Youtube kanaal: {{youtube_url}}
 link_4: >
   Algemene vrae: {{faq_url}}
 link_5: >
   Projekbladsy op Github: {{github_url}}
+buy_title: >
+  Ondersteuning deur ontwikkelings tyd te koop!
+buy_1: >
+  As jy nie tyd of vaardighede vir projekbydraes het nie, kan jy ook projek ondersteun deur professionele ontwikkelaar se werk tyd te koop.
+buy_2: >
+  Sien opsies

@@ -1,0 +1,65 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: Marcadores
+bookmarksAndNotes: Marcadores e Minhas notas
+openMyNotes: Abrir em Minhas notas
+openStudyPad: Abrir em Estudos (%s)
+noteText: Notas de rodapé (%s)
+noteTextWithoutType: Notas de rodapé
+crossReferenceText: Referências cruzadas
+findAllOccurrences: Encontrar todas as ocorrências
+reportError: Reportar um erro
+errorTitle: Aconteceu um erro
+warningTitle: Atenção
+normalTitle: Por favor anote
+footnoteTypeStudy: Estudo
+footnoteTypeExplanation: Explicação
+footnoteTypeVariant: Variante
+footnoteTypeAlternative: Alternativa
+footnoteTypeTranslation: Tradução
+clearLog: Limpar registro de erros
+editTextPlaceholder: Toque para editar o texto
+inputPlaceholder: Escreva aqui
+inputReference: Entre com a referência bíblica
+invalidReference: Versículo não encontrado
+bookmarkAccurate: Marcador foi criado em %s
+bookmarkInaccurate: "Informação do marcador não armazenado, o conteúdo é exibido em %s."
+defaultBook: Documento bíblico padrão
+ok: OK
+yes: "Sim"
+ambiguousSelection: "Qual ação você deseja realizar?"
+cancel: Cancelar
+removeBookmarkConfirmationTitle: "Deseja remover o marcador?"
+removeBookmarkConfirmation: "Você realmente deseja remover este marcador?"
+createdAt: "Criado: %s"
+lastUpdatedOn: "Última atualização: %s"
+strongsAndMorph: Definição e morfologia
+externalLink: Abrir link externo
+referenceLink: Abrir link de referência
+openFootnote: Abrir nota de rodapé
+noMyNotesTitle: Não exibir Minhas notas neste capítulo
+noMyNotesDescription: >
+  Inicie criando marcadores em um documento bíblico. Os marcadores então irão aparecer aqui e você poderá adicionar suas notas pessoais nele. 
+emptyStudyPad: >
+  Bloco de estudos vazio. Comece adicionando a este bloco de estudo através da criação de entradas de textos aqui ou criando marcadores com uma etiqueta de marcador que corresponda a este bloco de estudos.
+doYouWantToDeleteEntry: "Excluir esta estrada do bloco de estudos?"
+removeStudyPadConfirmationTitle: "Remover entrada do bloco de estudos?"
+dragHelp: Arraste para reorganizar
+openAll: Abrir todas as referências
+editBookmarkPlaceholder: Toque para editar Minhas notas para este marcador
+onlyLabel: Somente etiqueta
+wholeBookmark: Todos os marcadores
+assignLabelsMenuEntry1: Selecione ou edite as etiquetas...
+favouriteLabels: Etiquetas favoritas
+recentLabels: Etiquetas recentes
+bookmarkLabels: Etiquetas dos marcadores
+refParserHelp: Instale os módulos %s  para usar as referências em outros idiomas além do inglês.
+openDownloads: ir para Baixar Módulos
+verseShare: Compartilhar
+verseSpeak: Falar
+verseCompare: Comparar
+verseNote: Nota
+verseMyNotes: Minhas notas
+verseShareLong: Compartilhar este versículo
+verseCompareLong: Comparar versículo
+verseNoteLong: Escrever uma nota
+addBookmark: Marcador

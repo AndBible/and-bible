@@ -65,8 +65,50 @@ CASE
     WHEN :orderBy = 'ORDER_NUMBER' THEN BibleBookmarkToLabel.orderNumber
 END"""
 
+const val search = """
+notes LIKE :search
+"""
+
+const val bookmarksWithLabelQuery = """
+SELECT BibleBookmarkWithNotes.* FROM BibleBookmarkWithNotes 
+    JOIN BibleBookmarkToLabel ON BibleBookmarkWithNotes.id = BibleBookmarkToLabel.bookmarkId 
+    JOIN Label ON BibleBookmarkToLabel.labelId = Label.id
+    WHERE Label.id = :labelId
+"""
+
+const val unlabeledBookmarksQuery = """
+SELECT * FROM BibleBookmarkWithNotes WHERE NOT EXISTS 
+    (SELECT * FROM BibleBookmarkToLabel WHERE BibleBookmarkWithNotes.id = BibleBookmarkToLabel.bookmarkId)
+"""
+
+const val unlabelledGenericBookmarksQuery = """
+SELECT * FROM GenericBookmarkWithNotes WHERE NOT EXISTS
+   (SELECT * FROM GenericBookmarkToLabel WHERE GenericBookmarkWithNotes.id = GenericBookmarkToLabel.bookmarkId)
+"""
+
+const val genericBookmarksWithLabelQuery = """
+SELECT GenericBookmarkWithNotes.* FROM GenericBookmarkWithNotes 
+    JOIN GenericBookmarkToLabel ON GenericBookmarkWithNotes.id = GenericBookmarkToLabel.bookmarkId 
+    JOIN Label ON GenericBookmarkToLabel.labelId = Label.id
+    WHERE Label.id = :labelId
+"""
+
 @Dao
 interface BookmarkDao {
+    @Query("SELECT * from BibleBookmarkWithNotes WHERE $search ORDER BY $orderBy")
+    fun searchAllBookmarksImpl(orderBy: String, search:String): List<BibleBookmarkWithNotes>
+
+    fun searchAllBookmarks(orderBy: String, search:String): List<BibleBookmarkWithNotes> =
+        searchAllBookmarksImpl(orderBy, "%$search%")
+
+    @Query("SELECT * from GenericBookmarkWithNotes WHERE $search ORDER BY $genericOrderBy")
+    fun searchAllGenericBookmarksImpl(search:String): List<GenericBookmarkWithNotes>
+    fun searchAllGenericBookmarks(search:String): List<GenericBookmarkWithNotes>
+        = searchAllGenericBookmarksImpl("%$search%")
+
+    fun searchAllBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, search:String): List<BibleBookmarkWithNotes> =
+        searchAllBookmarks(orderBy.name, search)
+
     @Query("SELECT * from BibleBookmarkWithNotes ORDER BY $orderBy")
     fun allBookmarks(orderBy: String): List<BibleBookmarkWithNotes>
 
@@ -124,14 +166,7 @@ interface BookmarkDao {
     fun hasBookmarksForVerse(verseOrdinal: Int): Boolean
     fun hasBookmarksForVerse(verse: Verse): Boolean = hasBookmarksForVerse(verse.toV11n(KJVA).ordinal)
 
-    @Query(
-        """
-        SELECT BibleBookmarkWithNotes.* FROM BibleBookmarkWithNotes 
-            JOIN BibleBookmarkToLabel ON BibleBookmarkWithNotes.id = BibleBookmarkToLabel.bookmarkId 
-            JOIN Label ON BibleBookmarkToLabel.labelId = Label.id
-            WHERE Label.id = :labelId AND BibleBookmarkWithNotes.kjvOrdinalStart = :startOrdinal
-        """
-    )
+    @Query("$bookmarksWithLabelQuery AND BibleBookmarkWithNotes.kjvOrdinalStart = :startOrdinal")
     fun bookmarksForVerseStartWithLabel(labelId: IdType, startOrdinal: Int): List<BibleBookmarkWithNotes>
     fun bookmarksForVerseStartWithLabel(verse: Verse, label: Label): List<BibleBookmarkWithNotes> =
         bookmarksForVerseStartWithLabel(label.id, verse.toV11n(KJVA).ordinal)
@@ -222,36 +257,38 @@ interface BookmarkDao {
     @Query("DELETE FROM GenericBookmark WHERE id IN (:bs)")
     fun deleteGenericBookmarksById(bs: List<IdType>)
 
-    @Query(
-        """
-        SELECT * FROM BibleBookmarkWithNotes WHERE NOT EXISTS 
-            (SELECT * FROM BibleBookmarkToLabel WHERE BibleBookmarkWithNotes.id = BibleBookmarkToLabel.bookmarkId)
-            ORDER BY $orderBy
-        """
-    )
+    @Query("$unlabeledBookmarksQuery AND $search ORDER BY $orderBy")
+    fun searchUnlabelledBookmarksImpl(orderBy: String, search:String): List<BibleBookmarkWithNotes>
+    fun searchUnlabelledBookmarks(orderBy: String, search:String): List<BibleBookmarkWithNotes> =
+        searchUnlabelledBookmarksImpl(orderBy, "%$search%")
+
+    @Query("$unlabelledGenericBookmarksQuery AND $search ORDER BY $genericOrderBy")
+    fun searchUnlabelledGenericBookmarksImpl(search:String): List<GenericBookmarkWithNotes>
+    fun searchUnlabelledGenericBookmarks(search:String): List<GenericBookmarkWithNotes>
+        = searchUnlabelledGenericBookmarksImpl("%$search%")
+
+    fun searchUnlabelledBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, search:String): List<BibleBookmarkWithNotes> =
+        searchUnlabelledBookmarks(orderBy.name, search)
+
+    @Query("$unlabeledBookmarksQuery ORDER BY $orderBy")
     fun unlabelledBookmarks(orderBy: String): List<BibleBookmarkWithNotes>
 
-    @Query(
-        """
-        SELECT * FROM GenericBookmarkWithNotes WHERE NOT EXISTS 
-            (SELECT * FROM GenericBookmarkToLabel WHERE GenericBookmarkWithNotes.id = GenericBookmarkToLabel.bookmarkId)
-            ORDER BY $genericOrderBy
-        """
-    )
+    @Query("$unlabelledGenericBookmarksQuery ORDER BY $genericOrderBy")
     fun unlabelledGenericBookmarks(): List<GenericBookmarkWithNotes>
 
     fun unlabelledBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<BibleBookmarkWithNotes> =
         unlabelledBookmarks(orderBy.name)
 
+    @Query("$bookmarksWithLabelQuery AND $search ORDER BY $orderBy2")
+    fun searchBookmarksWithLabelImpl(labelId: IdType, orderBy: String, search:String): List<BibleBookmarkWithNotes>
+    fun searchBookmarksWithLabel(labelId: IdType, orderBy: String, search:String): List<BibleBookmarkWithNotes> =
+        searchBookmarksWithLabelImpl(labelId, orderBy, "%$search%")
+    fun searchBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, search:String): List<BibleBookmarkWithNotes>
+        = searchBookmarksWithLabel(label.id, orderBy.name, search)
+    fun searchBookmarksWithLabel(labelId: IdType, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, search:String): List<BibleBookmarkWithNotes>
+        = searchBookmarksWithLabel(labelId, orderBy.name, search)
 
-    @Query(
-        """
-        SELECT BibleBookmarkWithNotes.* FROM BibleBookmarkWithNotes 
-            JOIN BibleBookmarkToLabel ON BibleBookmarkWithNotes.id = BibleBookmarkToLabel.bookmarkId 
-            JOIN Label ON BibleBookmarkToLabel.labelId = Label.id
-            WHERE Label.id = :labelId ORDER BY $orderBy2
-        """
-    )
+    @Query("$bookmarksWithLabelQuery ORDER BY $orderBy2")
     fun bookmarksWithLabel(labelId: IdType, orderBy: String): List<BibleBookmarkWithNotes>
 
     fun bookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<BibleBookmarkWithNotes>
@@ -259,14 +296,15 @@ interface BookmarkDao {
     fun bookmarksWithLabel(labelId: IdType, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<BibleBookmarkWithNotes>
         = bookmarksWithLabel(labelId, orderBy.name)
 
-    @Query(
-        """
-        SELECT GenericBookmarkWithNotes.* FROM GenericBookmarkWithNotes 
-            JOIN GenericBookmarkToLabel ON GenericBookmarkWithNotes.id = GenericBookmarkToLabel.bookmarkId 
-            JOIN Label ON GenericBookmarkToLabel.labelId = Label.id
-            WHERE Label.id = :labelId ORDER BY $genericOrderBy
-        """
-    )
+    @Query("$genericBookmarksWithLabelQuery AND $search ORDER BY $genericOrderBy")
+    fun searchGenericBookmarksWithLabelImpl(labelId: IdType, search:String): List<GenericBookmarkWithNotes>
+
+    fun searchGenericBookmarksWithLabel(labelId: IdType, search:String): List<GenericBookmarkWithNotes>
+        = searchGenericBookmarksWithLabelImpl(labelId, "%$search%")
+    fun searchGenericBookmarksWithLabel(label: Label, search:String): List<GenericBookmarkWithNotes>
+        = searchGenericBookmarksWithLabel(label.id, search)
+
+    @Query("$genericBookmarksWithLabelQuery ORDER BY $genericOrderBy")
     fun genericBookmarksWithLabel(labelId: IdType): List<GenericBookmarkWithNotes>
     fun genericBookmarksWithLabel(label: Label): List<GenericBookmarkWithNotes>
         = genericBookmarksWithLabel(label.id)
@@ -460,6 +498,10 @@ interface BookmarkDao {
     @Update fun updateGenericBookmarkToLabels(bookmarkToLabels: List<GenericBookmarkToLabel>)
 
     @Update fun updateStudyPadTextEntries(studyPadTextEntries: List<BookmarkEntities.StudyPadTextEntry>)
+
+    @Query("SELECT count(*) FROM GenericBookmarkWithNotes WHERE bookInitials=:document")
+    fun genericBookmarkCountFor(document: String): Int
+    fun genericBookmarkCountFor(document: Book): Int = genericBookmarkCountFor(document.initials)
 
     @Query("SELECT * FROM GenericBookmarkWithNotes WHERE bookInitials=:document AND `key`=:key")
     fun genericBookmarksFor(document: String, key: String): List<GenericBookmarkWithNotes>

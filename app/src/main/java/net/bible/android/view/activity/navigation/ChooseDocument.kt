@@ -29,13 +29,18 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.document.canDelete
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.database.DocumentSearchDao
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.util.Language
@@ -72,6 +77,8 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     override fun setDefaultLanguage() {
         selectedLanguageNo = -1
     }
+
+    override val dao: DocumentSearchDao get() = DatabaseContainer.instance.chooseDocumentsDb.documentSearchDao()
 
     /** load list of docs to display
      *
@@ -138,11 +145,11 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                 try {
                     if (downloadControl.checkDownloadOkay()) {
                         val handlerIntent = Intent(this, DownloadActivity::class.java)
-                        val requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
-                        startActivityForResult(handlerIntent, requestCode)
-
-                        // do not return here after download
-                        finish()
+                        lifecycleScope.launch {
+                            awaitIntent(handlerIntent)
+                            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                            reloadDocuments()
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error sorting bookmarks", e)
@@ -152,6 +159,14 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
             R.id.backupButton -> {
                 lifecycleScope.launch {
                     BackupControl.backupModulesViaIntent(this@ChooseDocument)
+                }
+            }
+            R.id.installZip -> {
+                val intent = Intent(this, InstallZip::class.java)
+                lifecycleScope.launch {
+                    awaitIntent(intent)
+                    ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                    reloadDocuments()
                 }
             }
         }

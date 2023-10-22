@@ -39,6 +39,7 @@ val myBibleIntToBibleBook = mapOf(
     160 to BibleBook.NEH,
     //165 to
     170 to BibleBook.TOB,
+    180 to BibleBook.JDT,
     190 to BibleBook.ESTH,
     192 to BibleBook.ADD_ESTH,
     220 to BibleBook.JOB,

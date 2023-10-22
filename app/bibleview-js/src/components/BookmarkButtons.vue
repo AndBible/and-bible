@@ -183,6 +183,7 @@ const {strings} = useCommon();
 }
 
 .bookmark-button {
+  cursor: pointer;
   font-size: 25px;
   color: $button-grey;
   padding: 5px;

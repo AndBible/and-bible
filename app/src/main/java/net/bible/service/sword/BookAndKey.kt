@@ -20,6 +20,7 @@ package net.bible.service.sword
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.control.page.OrdinalRange
+import net.bible.android.control.versification.toVerseRange
 import net.bible.android.view.activity.bookmark.LabelEditActivity
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.ordinalRangeFor
@@ -29,6 +30,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.RestrictionType
 import java.lang.UnsupportedOperationException
 val BookAndKey.ordinalRange: IntRange? get() = document?.ordinalRangeFor(key)
@@ -42,7 +44,10 @@ class BookAndKeySerialized(
 ) {
     val bookAndKey: BookAndKey get () {
         val book = Books.installed().getBook(document)
-        val key = book.getKey(key)
+        var key = book.getKey(key)
+        if(key is RangedPassage) {
+           key = key.toVerseRange
+        }
         return BookAndKey(key, book, ordinalRange, htmlId)
     }
 

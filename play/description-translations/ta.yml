@@ -1,0 +1,75 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "ஆண்ட் பைபில்: பைபில் ஸ்டடி"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "திருவிவிலியம், விளக்க உரைகள், அகராதிகள் & நூல்களை இணையம் இல்லாமலேயே வாசிக்க"
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: சக்திவாய்ந்த விவிலிய ஆய்வு கருவி
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >+
+  "{{ title }}"  என்பது ஆண்ட்ராய்டுக்கான ஒரு சக்திவாய்ந்த, ஆனால் பயன்படுத்த எளிய இணையம் தேவையில்லா விவிலிய ஆய்வுக் கருவியாகும். இது வெறுமனே ஒரு விவிலியம் வாசிக்கும் மென்பொருளாக இல்லாமல்,  ஆழ்ந்த தனிப்பட்ட விவிலிய ஆய்வினை செய்வதற்கான மேம்பட்ட கருவியாகும்.
+
+
+paragraph_1_2: >
+  இது விவிலிய வாசகர்களால், விவிலிய வாசகர்களுக்காக உருவாக்கப்பட்டது. உங்கள் விவிலிய வாசிப்பை வசதியாகவும், ஆழமாகவும், எளிமையாகவும் செய்ய உதவும். இந்த இலாப நோக்கற்ற திட்டத்தின் சிறப்பு என்னவென்றால், இது விளம்பரங்கள் காட்டாத கட்டற்ற திறவூற்று மென்பொருள்.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  (இதில் கிடைக்கக்கூடிய பலவற்றில்) புகழ் பெற்ற விவிலிய பதிப்புகளான KJV, NASB, NET, அதோடு மேத்யூ ஹென்றி, ஜான் கில் போன்றவர்களின் விளக்க உரைகள்.
+subtitle_2: விவிலிய ஆய்வுக்காக சக்தி வாய்ந்த அம்சங்கள்
+paragraph_2_1: >
+  இதில் உள்ள பல ஆழ்ந்த மற்றும் தனித்துவமான அம்சங்கள், ஆழமான விவிலிய ஆய்வு அனுபவத்தை முன்னெப்போதையும் விட எளிமையாக்குகிறது. குறிப்பிடத்தக்க அம்சங்கள் பின்வருமாறு:
+feature_01: மொழிபெயர்ப்புகளை ஒப்பிடவும் விளக்க உறைகளை காண உதவு திரையினை பிரிக்கும் Split text views
+feature_02: "பல விவிலிய ஆய்வுகளை நடத்த ஏதுவாக தனி அமைப்புகளுடன் Workspaces "
+feature_03: Strong's ஒருங்கிணைப்பு கிரேக்க மற்றும் எபிரேய பதங்களின் பகுப்பாய்வை எளிமையாக்குகின்றது
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  இணைக்கப்பட்ட விவிலிய குறுக்கு குறிப்புகள், அடிக்குறிப்புகள் மற்றும் ஆவணங்கள்; இணைப்பைத் தட்டுவதன் மூலம் குறுக்கு குறிப்புகள் மற்றும் அடிக்குறிப்புகளுக்குச் செல்லலாம்; இணைப்புகள் செய்யப்பட்ட விளக்க உரைகள் ({{commentary_examples}}), குறுக்கு-குறிப்பு களஞ்சியங்கள் ({{cross_reference_examles}}) மற்றும் பிறவற்றை பயன்படுத்தி விவிலியத்தை ஆழமாகப் படிக்கலாம்.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry etc. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: " விவிலியத்தை கேட்கும் அனுபவத்தை மென்மையாக்க ஸ்பீக் புக்மார்க்குகளுடன் கூடிய மேம்பட்ட பேச்சுமுறை உடையது"
+feature_06: நெகிழ்வான தேடல்
+feature_07: தனிப்பட்ட ஆய்வுக் குறிப்புகளுடன் மேம்பட்ட புக்மார்க்கிங் மற்றும் அடிக்கோடிடும் சிறப்பம்சங்கள்
+feature_09: >
+  வாசிப்புத் திட்டங்கள்: விவிலிய வாசிப்புக்கான இலக்குகளை நிர்ணயிக்க
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  பலவகை கோப்புகள்: விவிலிய மொழிபெயர்ப்புகள், இறையியல் விளக்கங்கள், அகராதிகள், வரைபடங்கள் மற்றும் கிறிஸ்தவ புத்தகங்கள், மொத்தம் {{total_documents}} க்கும் மேற்பட்ட {{total_languages}} மொழிகளில் உள்ள ஆவணங்கள், Crosswire மற்றும் பிற SWORD களஞ்சியங்களால் விநியோகிக்கப்படுகின்றன.
+feature_10_1: >
+  MyBible, MySword மற்றும் EPUB கோப்புகளுக்கான வசதி உங்கள் நூலகத்தை இன்னும் பெருக்க உதவுகிறது.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV மற்றும் NKJV"
+feature_12: >
+  ஆஃப்லைன்: ஆவணங்களைப் பதிவிறக்குவதற்கு மட்டுமே இணையம் தேவைப்படும்.
+# UNUSED
+feature_13: >
+  மறைஉரைகளைக் கேட்கும்போதே குறிப்புகள் எடுக்க ஸ்டடி பேட்கள்.
+subtitle_3: சிறந்த விவிலிய மென்பொருளினை இணைந்து உருவாக்குவோம்!
+paragraph_3_1: >
+  ஆண்ட் பைபில் ஒரு திறவூற்று திட்டமாகும். ஆகவே தகுந்த திறனுடைய எவரும் இத்திட்டத்திற்கு பின்வரும் வழிகளில் பங்களிக்கலாம்:
+contr_1: "புதிய அம்சங்களை உருவாக்குதல்,"
+contr_2: "இன்னும் வெளியிடப்படாத அம்சங்களை சோதனை செய்தல்,"
+contr_3: "இடைமுக மொழிபெயர்ப்புகளை புதுப்பித்த நிலையில் வைத்திருத்தல், மற்றும்"
+contr_4: பதிப்புரிமையாளர்களிடமிருந்து அனுமதிகளைப் பெறுவதன் மூலம் அல்லது ஆவணங்களை SWORD வடிவத்திற்கு மாற்றுவதன் மூலம் தொகுதி நூலகத்தை நீட்டிக்க உதவுவது.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "நீங்கள் ஒரு மென்பொருள் பொறியாளரோ அல்லது சோதனையாளராகவோ இருந்தால், திட்டத்தில் பங்களிக்களாம். எவ்வாறு பங்களிப்பது என அறிய காண்க:  {{how_to_contribute_url}}."
+subtitle_4: இணைப்புகள்
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  முகப்பு பக்கம்: {{homepage_url}}
+link_2: >
+  Facebook இல் ஆண்ட் பைபிலை லைக் செய்யவும்: {{facebook_url}}
+link_3: >
+  எங்கள் யூடியூப் சேனல்: {{youtube_url}}
+link_4: >
+  அடிக்கடி கேட்கப்படும் கேள்விகள்: {{faq_url}}
+link_5: >
+  கிட்ஹப்பில் திட்ட பக்கம்: {{github_url}}
+buy_title: >
+  நிரலாக்க வேலை நேரத்தை வாங்கி இத்திட்டத்தில் பங்களிக்கவும்.
+buy_1: >
+  இத்திட்டத்தில் பங்களிக்க நேரமோ திறமையோ உங்களிடம் இல்லையென்றாலும், தொழில்முறை நிரலாக்க வேலை நேரத்தை வாங்குவதன் மூலமும் நீங்கள் திட்டத்தில் பங்களிக்கலாம்.
+buy_2: >
+  விருப்பத் தெரிவுகளை காண்க

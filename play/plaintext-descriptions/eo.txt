@@ -20,19 +20,24 @@ La aplikaĵo distingiĝas per pluraj sagaj, originalaj ebloj, kiuj plifaciligas 
  * “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
  * planoj de legado: difinu viajn celojn por legi Biblion
  * granda biblioteko de dokumentoj: tradukoj, teologiaj komentaroj, vortaroj, mapoj, kristanismaj libroj, pli ol 1500 dokumentoj en 700 lingvoj, laŭleĝe distribuataj de per CrossWire kaj per aliaj SWORD-deponejoj
- * funkcias malkonekte: interreta konekto estas bezonata nur por elŝuti dokumentojn
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
 
 Ni kune faru la plej bonan apon por legi Biblion!
 
 And Biblio estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:
 
  * programi novajn eblojn;
- * : https://andbible.org/buy
  * testi beta-eblojn;
  * traduki la programon;
  * helpi plivastigi la bibliotekon de moduloj per ricevi permesojn de kopirajt‑posedantoj aŭ konverti dokumentojn al la formo SWORD.
 
 Se vi estas profesia programisto aŭ testanto, bonvolu konsideri kontribui al la projekto. Pliaj informoj pri kiel kontribui troviĝas ĉe https://git.io/JUnaj
+
+Support by buying development time!
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://shop.andbible.org/
 
 Ligiloj
 

@@ -8,7 +8,7 @@ subtitle_1: "Krachtig Bijbelstudie-hulpmiddel "
 paragraph_1_1: >
   "{{ title }}" is een krachtige, maar toch eenvoudig te gebruiken Android app voor offline bijbelstudie. De app is niet gemaakt als een eenvoudig bijbel-leesprogramma, maar biedt vergaande mogelijkheden om de diepte in te gaan tijdens de persoonlijke bijbelstudie.
 paragraph_1_2: >
-  Deze applicatie is ontwikkeld door bijbellezers voor bijbellezers. Hij is bedoeld om je bijbelstudie makkelijk, grondig en plezierig te laten zijn. Het mooiste van dit gemeenschappelijke non-profit project is dat het open-source is, gratis, en zonder advertenties. Omdat het van het begin af voor Android is ontwikkeld, is het een kleine download, erg efficient en opmerkelijk snel.
+  Deze applicatie is ontwikkeld door bijbellezers voor bijbellezers. Hij is bedoeld om je bijbelstudie makkelijk, grondig en plezierig te laten zijn. Het mooiste van dit gemeenschappelijke non-profit project is dat het open-source is, gratis, en zonder advertenties. 
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Enkele populaire bijbel versies (van de vele beschikbare) zijn de KJV, NASB, NET. Bovendien zijn er commentaren van bijvoorbeeld Matthew Henry en John Gill
@@ -34,14 +34,14 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Uitgebreide bibliotheek: Bijbelvertalingen, theologische commentaren, woordenboeken, landkaarten en christelijke literatuur, samen meer dan {{total_documents}} documenten in meer dan {{total_languages}} talen, legaal verspreid door Crosswire en andere SWORD repositories. 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  De herkomst van elk document wordt onderzocht om er zeker van te zijn dat elk document legaal verspreid kan worden, en dat waar nodig toesteming is verkregen van de eigenaar van het copyright. Dat is ook de reden dat documenten als {{unavailable_documents}} niet beschikbaar zijn in deze app.
+feature_10_1: >-
+  Native ondersteuning voor MyBible, MySword en EPUB-bestanden waarmee je bibliotheek verder vergroot. 
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "ESV, NIV en NKJV"
 feature_12: >
   Offline: Internet is enkel nodig om de documenten te downloaden.
+# UNUSED
 feature_13: >
   Studiemappen om aantekeningen en bijbelverwijzingen te organiseren tijdens het luisteren van preken.
 subtitle_3: Help mee dit de beste bijbelapp te maken!
@@ -65,3 +65,9 @@ link_4: >
   Meest gestelde vragen: {{faq_url}}
 link_5: >
   Project pagina op Github: {{github_url}}
+buy_title: >-
+  Ondersteuning met het kopen van ontwikkelingstijd!
+buy_1: >-
+  Als je niet de tijd of de vaardigheden hebt voor dit project, kun je ook ondersteuning geven door tijd te kopen voor de ontwikkeling.
+buy_2: >
+  Zie de opties

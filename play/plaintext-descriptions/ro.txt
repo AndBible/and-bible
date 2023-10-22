@@ -2,7 +2,7 @@ O unealtă pentru studiul Bibliei
 
 "AndBible: Biblia" este o aplicație complexă de studiu biblic, dar ușor de utilizat, pentru Android. Aplicația nu își propune să fie doar pentru citit Biblia, ci se concentrează pe a fi un instrument pentru a face un studiu aprofundat al Bibliei.
 
-Această aplicație este realizată de cititori ai Bibliei, pentru cititorii Bibliei. Scopul ei este de a vă ajuta să vă faceți studiul biblic convenabil, profund și distractiv. Cea mai bună parte a acestui proiect comunitar non-profit este că are sursă publică, este complet gratuit și nu conține reclame. Fiind construită de la zero pentru Android, este mică și, prin urmare, foarte eficientă și remarcabil de rapidă.
+Această aplicație este realizată de cititori ai Bibliei, pentru cititorii Bibliei. Scopul ei este de a vă ajuta să vă faceți studiul biblic convenabil, profund și distractiv. Cea mai bună parte a acestui proiect comunitar non-profit este că are sursă publică, este complet gratuit și nu conține reclame.
 
 Cîteva versiuni populare ale Bibliei (din cele multe disponibile) sînt Cornilescu, KJV, NASB, Diodati, precum și comentarii populare precum Matthew Henry și John Gill.
 
@@ -20,19 +20,24 @@ Aplicația are multe caracteristici originale și interesante, care fac ca exper
  * Notițe de studiu pentru a adăuga comentarii și trimiteri biblice în timp ce asculți predicile.
  * Planuri de citire: stabilește obiective pentru citirea Bibliei
  * O vastă bibliotecă de documente: Traduceri ale Bibliei, comentarii teologice, dicționare, hărți și cărți creștine, totalizînd peste 1500 documente în peste 700 limbi, distribuite legal de Crosswire și alte depozite SWORD.
- * Offline: singurul moment în care aveți nevoie de internet este pentru a descărca documente.
+ * Compatibilitatea nativă cu fișierele MyBible, MySword și EPUB permite o extindere și mai mare a bibliotecii tale.
 
 Haideți să facem împreună cea mai bună aplicație biblică!
 
 AndBible este un proiect comunitar care are codul sursă public. În practică, aceasta înseamnă că orice persoană cu competențe adecvate poate și este încurajată să contribuie la proiect prin:
 
  * realizarea de noi caracteristici,
- * : https://andbible.org/buy
  * testarea caracteristicilor care nu au fost încă lansate,
  * menținerea la zi a traducerilor interfeței cu utilizatorul și
  * contribuind la extinderea bibliotecii de documente prin obținerea de permisiuni de la deținătorii drepturilor de autor sau prin convertirea documentelor în format SWORD.
 
 Dacă ești programator sau ai experiență la încercarea aplicațiilor, te rugăm să contribui la acest proiect. Pentru mai multe informații despre cum să contribuiți, vă rugăm să consultați https://git.io/JUnaj.
+
+Sprijină prin cumpărarea de timp de programare!
+
+Dacă nu ai timp sau abilități pentru a contribui la proiect, poți susține proiectul prin cumpărarea de timp de lucru pentru un programator profesionist.
+
+Vezi opțiunile: https://shop.andbible.org/
 
 Legături
 

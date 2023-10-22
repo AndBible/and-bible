@@ -46,7 +46,8 @@
 		android:layout_height="wrap_content"
 		app:layout_constraintBottom_toBottomOf="@+id/pasteButton"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:tint="@color/grey_500"
+		app:tint="@color/green"
+		android:visibility="invisible"
 		app:layout_constraintTop_toTopOf="@+id/pasteButton"
 		app:srcCompat="@drawable/baseline_check_24" />
 	<EditText
@@ -58,12 +59,21 @@
 		app:layout_constraintTop_toBottomOf="@id/manifestUrl"
 		android:visibility="gone"
 		/>
+	<Button
+		android:id="@+id/submitButton"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/custom_repositories_create_button_label"
+		android:layout_marginTop="15pt"
+		android:enabled="false"
+		app:layout_constraintTop_toBottomOf="@+id/manifestUrl"
+		/>
 	<TextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:padding="12dp"
 		android:id="@+id/infoText"
-		app:layout_constraintTop_toBottomOf="@id/packageDir"
+		app:layout_constraintTop_toBottomOf="@id/submitButton"
 		/>
 	<ProgressBar
 		android:id="@+id/loadingIndicator"

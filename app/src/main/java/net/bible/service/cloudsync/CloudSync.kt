@@ -108,12 +108,18 @@ object CloudSync {
             Log.i(TAG, "Already signing in!")
             return
         }
+        var errorMessage: String? = null
         val success = signInMutex.withLock {
             _adapter = CloudAdapters.current.newAdapter
-            adapter.signIn(activity)
+            try {
+                adapter.signIn(activity)
+            } catch (e: Exception){
+                errorMessage = e.message
+                false
+            }
         }
         if(!success) {
-            Dialogs.showMsg2(activity, R.string.sign_in_failed)
+            Dialogs.showMsg2(activity, activity.getString(R.string.sign_in_failed) + " " + (errorMessage?:""))
         }
     }
     suspend fun signOut() {
@@ -177,6 +183,7 @@ object CloudSync {
                                 .setNeutralButton(R.string.cloud_disable_sync) { _, _ ->
                                     it.resume(null)
                                 }
+                                .setCancelable(false)
                                 .create()
                                 .show()
                         }
@@ -306,7 +313,6 @@ object CloudSync {
                     initialFile.createdTime.value
                 )
             )
-            ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
         }
     }
 

@@ -41,5 +41,4 @@
 	<item android:id="@+id/delete_index" 
 		  android:title="@string/delete_index"
 		  appcompat:showAsAction="never"/>
-
 </menu>

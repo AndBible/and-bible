@@ -458,6 +458,8 @@ class TextToSpeechServiceManager @Inject constructor(
         }
     }
 
+    var initialized = false
+
     @Synchronized
     fun continueAfterPause() {
         try {
@@ -505,6 +507,7 @@ class TextToSpeechServiceManager @Inject constructor(
     val am = application.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     private fun startSpeaking() {
+        initialized = true
         Log.i(TAG, "about to send some text to TTS")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(audioFocusRequest == null) {
@@ -672,7 +675,7 @@ class TextToSpeechServiceManager @Inject constructor(
             Log.i(TAG, "Now pause state is $isPaused")
 
             // restore locale information so tts knows which voice to load when it initialises
-            currentLocale = Locale(CommonUtils.settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString()))
+            currentLocale = Locale(CommonUtils.settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString())!!)
             localePreferenceList = ArrayList()
             localePreferenceList.add(currentLocale)
         }

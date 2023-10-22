@@ -301,8 +301,8 @@ class BibleSpeakTextProvider(
     }
 
     private fun updateBookmark() {
-        removeBookmark()
-        saveBookmark()
+        val wasRemoved = removeBookmark()
+        saveBookmark(wasRemoved)
     }
 
     override fun savePosition(fractionCompleted: Double) {}
@@ -324,35 +324,34 @@ class BibleSpeakTextProvider(
     }
 
     private fun readBookmark() {
-        if(AdvancedSpeakSettings.autoBookmark) {
-            val verse = currentVerse
+        val verse = currentVerse
 
-            val bookmark = bookmarkControl.speakBookmarkForVerse(verse)?: return
-            val labelList = bookmarkControl.labelsForBookmark(bookmark)
-            val speakLabel = bookmarkControl.speakLabel
-            val ttsLabel = labelList.find { it.id == speakLabel.id }
+        val bookmark = bookmarkControl.speakBookmarkForVerse(verse)?: return
+        val labelList = bookmarkControl.labelsForBookmark(bookmark)
+        val speakLabel = bookmarkControl.speakLabel
+        val ttsLabel = labelList.find { it.id == speakLabel.id }
 
-            if(ttsLabel != null) {
-                Log.i(TAG, "Bookmark book ${bookmark.book}")
-                val playbackSettings = bookmark.playbackSettings?.copy()
-                if(playbackSettings != null && AdvancedSpeakSettings.restoreSettingsFromBookmarks) {
-                    playbackSettings.bookmarkWasCreated = null
-                    playbackSettings.bookId = null
-                    settings.playbackSettings = playbackSettings
-                    settings.save()
-                    Log.i("SpeakBookmark", "Loaded bookmark from $bookmark ${settings.playbackSettings.speed}")
-                }
-                this.bookmark = bookmark
+        if(ttsLabel != null) {
+            Log.i(TAG, "Bookmark book ${bookmark.book}")
+            val playbackSettings = bookmark.playbackSettings?.copy()
+            if(playbackSettings != null && AdvancedSpeakSettings.restoreSettingsFromBookmarks) {
+                playbackSettings.bookmarkWasCreated = null
+                playbackSettings.bookId = null
+                settings.playbackSettings = playbackSettings
+                settings.save()
+                Log.i("SpeakBookmark", "Loaded bookmark from $bookmark ${settings.playbackSettings.speed}")
             }
+            this.bookmark = bookmark
         }
     }
 
-    private fun removeBookmark() {
-        var bookmark: BibleBookmarkWithNotes = this.bookmark ?: return
+    private fun removeBookmark(): Boolean {
+        var bookmark: BibleBookmarkWithNotes = this.bookmark ?: return false
 
         val labelList = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
         val speakLabel = bookmarkControl.speakLabel
         val ttsLabel = labelList.find { it.id == speakLabel.id }
+        var wasRemoved = false
 
         if(ttsLabel != null) {
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
@@ -366,33 +365,22 @@ class BibleSpeakTextProvider(
                 bookmarkControl.deleteBookmark(bookmark)
                 Log.i("SpeakBookmark", "Removed bookmark from $bookmark")
             }
+            wasRemoved = true
             this.bookmark = null
         }
+        return wasRemoved
     }
 
-    private fun saveBookmark() {
+    private fun saveBookmark(wasRemoved: Boolean) {
         val labelList = mutableSetOf<Label>()
-        if(AdvancedSpeakSettings.autoBookmark) {
-            var bookmark = bookmarkControl.firstBibleBookmarkStartingAtVerse(startVerse)?.run {
-                if(textRange != null) null else this
-            }
-
+        if(AdvancedSpeakSettings.autoBookmark || wasRemoved) {
             val playbackSettings = settings.playbackSettings.copy()
             playbackSettings.bookId = book.initials
+            playbackSettings.bookmarkWasCreated = true
 
-            if(bookmark == null) {
-                playbackSettings.bookmarkWasCreated = true
-                bookmark = BibleBookmarkWithNotes(VerseRange(startVerse.versification, startVerse), null, true, null)
-                bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
-            }
-            else {
-                playbackSettings.bookmarkWasCreated = bookmark.playbackSettings?.bookmarkWasCreated ?: false
-                labelList.addAll(bookmarkControl.labelsForBookmark(bookmark))
-                bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
-            }
-
+            var bookmark = BibleBookmarkWithNotes(VerseRange(startVerse.versification, startVerse), null, true, null)
+            bookmark.playbackSettings = playbackSettings
+            bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
             labelList.add(bookmarkControl.speakLabel)
 
             bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList())

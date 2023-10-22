@@ -91,6 +91,9 @@ class DatabaseContainer {
     private fun migrateOldDatabaseIfNeeded() {
         val oldDbFile = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
         if(oldDbFile.exists()) {
+            for (name in application.databaseList().filterNot { it == OLD_MONOLITHIC_DATABASE_NAME }) {
+                application.deleteDatabase(name)
+            }
             getOldDatabase().openHelper.writableDatabase.use {
                 val migrations = DatabaseSplitMigrations(it, application)
                 migrations.migrateAll()
@@ -158,9 +161,19 @@ class DatabaseContainer {
         }
     }
 
-    val temporaryDb: TemporaryDatabase =
+    val downloadDocumentsDb: TemporaryDatabase =
         Room.databaseBuilder(
-            application, TemporaryDatabase::class.java, TemporaryDatabase.dbFileName
+            application, TemporaryDatabase::class.java, "temporary.sqlite3"
+        )
+            .allowMainThreadQueries()
+            .addMigrations(*temporaryMigrations)
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
+    val chooseDocumentsDb: TemporaryDatabase =
+        Room.databaseBuilder(
+            application, TemporaryDatabase::class.java, "choose-document.sqlite3"
         )
             .allowMainThreadQueries()
             .addMigrations(*temporaryMigrations)
@@ -238,7 +251,7 @@ class DatabaseContainer {
     }
 
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
-    private val allDatabases = arrayOf(*backedUpDatabases, temporaryDb)
+    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb)
 
     internal fun sync() = allDatabases.forEach {
         it.openHelper.writableDatabase

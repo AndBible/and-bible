@@ -21,7 +21,6 @@ import {isInViewport} from "@/utils";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {Nullable} from "@/types/common";
-import {useCustomCss} from "@/composables/custom-css";
 
 export function useScroll(
     config: Config,
@@ -30,7 +29,7 @@ export function useScroll(
     highlight: ReturnType<typeof useOrdinalHighlight>,
     documentPromise: Ref<Promise<void> | null>,
 ) {
-    const {highlightVerse, resetHighlights} = highlight;
+    const {highlightOrdinal, resetHighlights} = highlight;
     const currentScrollAnimation = ref<number | null>(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
@@ -126,7 +125,9 @@ export function useScroll(
             ordinalStart = null,
             ordinalEnd = null,
             force = false,
-            duration
+            duration,
+            bookInitials,
+            osisRef,
         }: Partial<{
             onlyIfInvisible: boolean,
             now: boolean,
@@ -135,6 +136,8 @@ export function useScroll(
             ordinalEnd: Nullable<number>,
             force: boolean,
             duration?: number,
+            bookInitials?: string,
+            osisRef?: string
         }> = {}) {
         console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
         stopScrolling();
@@ -145,7 +148,7 @@ export function useScroll(
                 ordinalEnd = ordinalStart;
             }
             for (let ordinal = ordinalStart; ordinal <= ordinalEnd; ordinal++) {
-                highlightVerse(ordinal);
+                highlightOrdinal(ordinal, bookInitials, osisRef);
             }
         }
         let toElement = toId ? document.getElementById(toId) : null;

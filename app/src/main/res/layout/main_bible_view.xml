@@ -82,6 +82,17 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/pageTitle" />
+
+                <ImageView
+                    android:id="@+id/syncIcon"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_backup_restore_24dp"
+                    app:tint="?attr/toolbarTextColor"
+                    />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
@@ -133,6 +144,14 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/doc_type_commentary"
                     app:srcCompat="@drawable/ic_commentary"
+                    />
+                <ImageButton
+                    android:id="@+id/workspaceButton"
+                    style="@style/MyActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/help_workspaces_title"
+                    app:srcCompat="@drawable/ic_workspace_solid_24dp"
                     />
                 <ImageButton
                     android:id="@+id/optionsMenu"

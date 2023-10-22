@@ -1,4 +1,4 @@
-<img align="right" width="150" height="150" src="https://user-images.githubusercontent.com/5811789/135705995-ddd550f6-efce-47ef-a3d8-d1ec7ae648fe.png">
+<img align="right" width="250" height="250" src="https://raw.githubusercontent.com/AndBible/and-bible/develop/svg/logo.svg?sanitized=true">
 
 [![Android CI](https://github.com/AndBible/and-bible/workflows/Run%20tests/badge.svg?branch=develop)](https://github.com/AndBible/and-bible/actions/workflows/run-tests.yml)
 [![Licence](https://img.shields.io/badge/licence-GPL-blue.svg)](https://github.com/tuomas2/automate/blob/master/LICENSE.txt)
@@ -37,6 +37,12 @@ to get started.
 
 ## All Contributors
 There are so many ways to contribute to AndBible! See our [contributor guide](https://github.com/AndBible/and-bible/wiki/How-to-contribute).
+
+## Buy development work for AndBible
+
+You can support AndBible project in terms of money by buying professional software development working time.
+
+For more information, see [WIKI page](https://github.com/AndBible/and-bible/wiki/Buy-development-work).
 
 ## Development team
 

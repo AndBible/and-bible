@@ -105,5 +105,6 @@
 		android:icon="@drawable/ic_content_copy_black_24dp"/>
 	<item android:id="@+id/windowClose"
 		android:title="@string/windowClose"
+		android:orderInCategory="1001"
 		android:icon="@drawable/ic_close_white_24dp"/>
 </menu>

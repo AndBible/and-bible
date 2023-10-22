@@ -22,7 +22,9 @@ import {setupEventBusListener} from "@/eventbus";
 export function useCustomCss() {
     const cssNodes = new Map();
     const count = new Map();
-    const customCssPromises: Promise<undefined>[] = [];
+    const customCssPromises: {bookInitials: string, promise: Promise<undefined>}[] = [];
+
+    window.bibleViewDebug.customCssPromises = customCssPromises;
 
     function addCss(bookInitials: string) {
         console.log(`Adding style for ${bookInitials}`);
@@ -31,13 +33,16 @@ export function useCustomCss() {
             const link = document.createElement("link");
             const onLoadDefer = new Deferred();
             const promise = onLoadDefer.wait();
-            customCssPromises.push(promise);
+            customCssPromises.push({bookInitials, promise});
             link.href = `/module-style/${bookInitials}/style.css`;
             link.type = "text/css";
             link.rel = "stylesheet";
             const cssReady = () => {
+                const idx = customCssPromises.findIndex(v => v.promise === promise);
+                if (idx != -1) {
+                    customCssPromises.splice(idx, 1);
+                }
                 onLoadDefer.resolve();
-                customCssPromises.splice(customCssPromises.findIndex(v => v === promise), 1);
             }
             link.onload = cssReady;
             link.onerror = cssReady;
@@ -53,6 +58,10 @@ export function useCustomCss() {
         if (c > 1) {
             count.set(bookInitials, c - 1);
         } else if (c === 1) {
+            const idx = customCssPromises.findIndex(v => v.bookInitials === bookInitials);
+            if(idx != -1) {
+                customCssPromises.splice(idx, 1);
+            }
             count.delete(bookInitials);
             cssNodes.get(bookInitials).remove();
             cssNodes.delete(bookInitials);

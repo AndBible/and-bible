@@ -62,6 +62,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.serializer
 import net.bible.android.control.document.canDelete
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.database.DocumentSearchDao
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.installedDocument
@@ -101,13 +102,11 @@ open class DownloadActivity : DocumentSelectionBase(
     private val genericFileDownloader = GenericFileDownloader(this) {
         invalidateOptionsMenu()
     }
-    private val downloadManager = DownloadManager {
-        invalidateOptionsMenu()
-    }
+    private lateinit var downloadManager: DownloadManager
 
     private val hasErrors get() = genericFileDownloader.errors.isNotEmpty() || downloadManager.failedRepos.isNotEmpty()
 
-    private val repoFactory = RepoFactory(downloadManager)
+    private lateinit var repoFactory: RepoFactory
     private val booksNotFound = ArrayList<String>()
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
@@ -185,6 +184,10 @@ open class DownloadActivity : DocumentSelectionBase(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
+        downloadManager = DownloadManager {
+            invalidateOptionsMenu()
+        }
+        repoFactory = RepoFactory(downloadManager)
 
         // reconfigure the layout:
         //  * ensure the ProgressBar for the ChooseDocument activity is hidden
@@ -353,6 +356,8 @@ open class DownloadActivity : DocumentSelectionBase(
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
+    override val dao: DocumentSearchDao get() = DatabaseContainer.instance.downloadDocumentsDb.documentSearchDao()
+
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         downloadManager.refreshInstallManager()
         val docs = downloadControl.getDownloadableDocuments(repoFactory, refresh)
@@ -395,16 +400,32 @@ open class DownloadActivity : DocumentSelectionBase(
         Dialogs.showErrorMsg(R.string.too_many_jobs)
     }
 
+    private val bookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+
     private fun manageDownload(documentToDownload: Book?) {
         if (documentToDownload != null
             && downloadControl.getDocumentStatus(documentToDownload).documentInstallStatus  != DocumentStatus.DocumentInstallStatus.BEING_INSTALLED
             && !documentToDownload.isPseudoBook
         ) {
-            AlertDialog.Builder(this)
-                .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)
-                .setCancelable(false)
-                .setPositiveButton(R.string.okay) { dialog, id -> doDownload(documentToDownload) }
-                .setNegativeButton(R.string.cancel) { dialog, id -> }.create().show()
+            if (documentToDownload.isInstalled && DatabaseContainer.ready && bookmarksDao.genericBookmarkCountFor(documentToDownload) > 0) {
+                val warningTitle = getString(R.string.bookmark_warning)
+                val warningMessage = getString(R.string.bookmark_warning2)
+                val warningRecommendation = getString(R.string.bookmark_warning4)
+                val warningQuestion = getString(R.string.bookmark_warning3)
+                val warningMsg = "$warningMessage\n\n$warningRecommendation\n\n$warningQuestion"
+                AlertDialog.Builder(this)
+                    .setTitle(warningTitle)
+                    .setMessage(warningMsg)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.yes) { dialog, id -> doDownload(documentToDownload) }
+                    .setNegativeButton(R.string.cancel) { dialog, id -> }.create().show()
+            } else {
+                AlertDialog.Builder(this)
+                    .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.okay) { dialog, id -> doDownload(documentToDownload) }
+                    .setNegativeButton(R.string.cancel) { dialog, id -> }.create().show()
+            }
         }
     }
 

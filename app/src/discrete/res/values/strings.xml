@@ -21,4 +21,5 @@
     <string name="app_name_medium">@string/app_name_short</string>
     <string name="app_name_long">@string/app_name_short</string>
     <string name="project">Open Source Project</string>
+    <string name="apk_file">calculator.apk</string>
 </resources>

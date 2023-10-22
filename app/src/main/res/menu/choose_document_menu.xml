@@ -27,11 +27,15 @@
 		android:title="@string/backup_modules2"
 		appcompat:iconTint="@color/white"
 		android:icon="@drawable/ic_backup_black_24dp"
-		appcompat:showAsAction="ifRoom"/>
+		appcompat:showAsAction="never"/>
 
     <item android:id="@+id/downloadButton"
 		  android:title="@string/download"
 		  appcompat:iconTint="@color/white"
 		  android:icon="@drawable/ic_file_download_24dp"
-		  appcompat:showAsAction="always"/>
+		  appcompat:showAsAction="never"/>
+	<item android:id="@+id/installZip"
+		android:title="@string/install_zip"
+		android:icon="@drawable/ic_unarchive_white_24dp"
+		appcompat:showAsAction="never"/>
 </menu>

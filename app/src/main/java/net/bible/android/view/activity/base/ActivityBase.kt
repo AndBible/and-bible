@@ -128,6 +128,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         } else {
             AppCompatDelegate.MODE_NIGHT_NO
         }
+        Log.i(TAG, "applyTheme: nightMode = ${ScreenSettings.nightMode}")
         AppCompatDelegate.setDefaultNightMode(newNightMode)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {

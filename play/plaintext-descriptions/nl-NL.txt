@@ -2,7 +2,7 @@ Krachtig Bijbelstudie-hulpmiddel
 
 "AndBible: Bijbelstudie" is een krachtige, maar toch eenvoudig te gebruiken Android app voor offline bijbelstudie. De app is niet gemaakt als een eenvoudig bijbel-leesprogramma, maar biedt vergaande mogelijkheden om de diepte in te gaan tijdens de persoonlijke bijbelstudie.
 
-Deze applicatie is ontwikkeld door bijbellezers voor bijbellezers. Hij is bedoeld om je bijbelstudie makkelijk, grondig en plezierig te laten zijn. Het mooiste van dit gemeenschappelijke non-profit project is dat het open-source is, gratis, en zonder advertenties. Omdat het van het begin af voor Android is ontwikkeld, is het een kleine download, erg efficient en opmerkelijk snel.
+Deze applicatie is ontwikkeld door bijbellezers voor bijbellezers. Hij is bedoeld om je bijbelstudie makkelijk, grondig en plezierig te laten zijn. Het mooiste van dit gemeenschappelijke non-profit project is dat het open-source is, gratis, en zonder advertenties.
 
 Enkele populaire bijbel versies (van de vele beschikbare) zijn de KJV, NASB, NET. Bovendien zijn er commentaren van bijvoorbeeld Matthew Henry en John Gill
 
@@ -20,19 +20,24 @@ De applicatie heeft veel handige, originele functies die complexe en grondige bi
  * Studiemappen om aantekeningen en bijbelverwijzingen te organiseren tijdens het luisteren van preken.
  * Bijbelleesplannen: stel je doelen voor het bijbellezen
  * Uitgebreide bibliotheek: Bijbelvertalingen, theologische commentaren, woordenboeken, landkaarten en christelijke literatuur, samen meer dan 1500 documenten in meer dan 700 talen, legaal verspreid door Crosswire en andere SWORD repositories.
- * Offline: Internet is enkel nodig om de documenten te downloaden.
+ * Native ondersteuning voor MyBible, MySword en EPUB-bestanden waarmee je bibliotheek verder vergroot.
 
 Help mee dit de beste bijbelapp te maken!
 
 And Bible is een open-source project. Dat betekent in de praktijk dat iedereen met passende vaardigheden kan en mag bijdragen (graag zelfs!) aan het project door:
 
  * nieuwe functionaliteit te ontwikkelen,
- * : https://andbible.org/buy
  * nog uit-te-komen functionaliteit te testen,
  * de vertalingen up-to-date te houden voor de user interface, en
  * te helpen de bibliotheek uit te breiden door toestemming te vragen aan eigenaren van copyright, of door documenten te converteren naar het SWORD formaat.
 
 Als je een professionele software-ontwikkelaar bent, of -tester, overweeg dan aan het project bij te dragen. Zie https://git.io/JUnaj voor meer informatie.
+
+Ondersteuning met het kopen van ontwikkelingstijd!
+
+Als je niet de tijd of de vaardigheden hebt voor dit project, kun je ook ondersteuning geven door tijd te kopen voor de ontwikkeling.
+
+Zie de opties: https://shop.andbible.org/
 
 Links
 

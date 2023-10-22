@@ -22,29 +22,87 @@
  */
 
 import {computed, nextTick, onMounted, watch} from "vue";
-import {setupWindowEventListener} from "@/utils";
+import {filterNotNull, setupWindowEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
-import {AnyDocument, BibleViewDocumentType, isOsisDocument} from "@/types/documents";
+import {AnyDocument, isOsisDocument} from "@/types/documents";
 import {Nullable} from "@/types/common";
 import {BookCategory} from "@/types/client-objects";
 
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
-    documents: AnyDocument[]
+    bibleViewDocuments: AnyDocument[]
 ) {
     const enabledCategories: Set<BookCategory> = new Set(["BIBLE", "GENERAL_BOOK"]);
-    let
-        currentPos: number,
-        lastAddMoreTime = 0,
-        addMoreAtTopOnTouchUp = false,
-        bottomElem: HTMLElement,
-        touchDown = false,
-        textToBeInsertedAtTop: Nullable<AnyDocument> = null;
+    let currentPos: number;
+    let addMoreAtTopOnTouchUp = false;
+    let bottomElem: HTMLElement;
+    let touchDown = false;
+    let textToBeInsertedAtTop: Nullable<AnyDocument[]> = null;
+    let isProcessing = false;
+    const addChaptersToTop: Promise<Nullable<AnyDocument>>[] = [];
+    const addChaptersToEnd: Promise<Nullable<AnyDocument>>[] = [];
+
+    console.log("inf: Queues", {addChaptersToTop, addChaptersToEnd});
+
+    let clearDocumentCount = 0;
+
+    function documentsCleared() {
+        addChaptersToTop.splice(0);
+        addChaptersToEnd.splice(0);
+        clearDocumentCount ++;
+    }
+
+    async function processQueues() {
+        if(isProcessing) return;
+        console.log("inf: processQueues")
+        isProcessing = true;
+        // noinspection UnnecessaryLocalVariableJS
+        const clearCountStart = clearDocumentCount;
+        try {
+            do {
+                const endPromises =addChaptersToEnd.splice(0);
+                const topPromises = addChaptersToTop.splice(0);
+                console.log("inf: Waiting for chapters", {endPromises, topPromises});
+                const [endChaps, topChaps] = await Promise.all([
+                    Promise.all(endPromises),
+                    Promise.all(topPromises)
+                ]);
+                console.log("inf: Received chapters")
+                if(clearCountStart > clearDocumentCount) {
+                    console.log("inf: Document cleared in between, stopping")
+                    return;
+                }
+                if(endChaps.length > 0) {
+                    console.log("inf: Displaying received chapters at end")
+                    insertThisTextAtEnd(...filterNotNull(endChaps));
+                    await nextTick();
+                }
+                if(topChaps.length > 0) {
+                    console.log("inf: Displaying received chapters at top")
+                    await insertThisTextAtTop(filterNotNull(topChaps));
+                    await nextTick();
+                }
+            } while ((addChaptersToEnd.length > 0 || addChaptersToTop.length > 0))
+        } finally {
+            isProcessing = false;
+            console.log("inf: finally isProcessing = false")
+        }
+    }
+
+    function loadTextAtTop() {
+        addChaptersToTop.push(requestPreviousChapter())
+        processQueues();
+    }
+
+    function loadTextAtEnd() {
+        addChaptersToEnd.push(requestNextChapter())
+        processQueues();
+    }
 
     const
         isEnabled = computed(() => {
-           if(documents.length === 0) return false;
-           const doc = documents[0];
+           if(bibleViewDocuments.length === 0) return false;
+           const doc = bibleViewDocuments[0];
            if(isOsisDocument(doc)) {
                 return enabledCategories.has(doc.bookCategory)
            } else {
@@ -56,16 +114,14 @@ export function useInfiniteScroll(
         bodyHeight = () => document.body.scrollHeight,
         scrollPosition = () => window.pageYOffset,
         setScrollPosition = (offset: number) => window.scrollTo(0, offset),
-        loadTextAtTop = async () => insertThisTextAtTop(await requestPreviousChapter()),
-        loadTextAtEnd = async () => insertThisTextAtEnd(await requestNextChapter()),
         addMoreAtEnd = () => {
-            if (!isEnabled.value) return;
+            if (!isEnabled.value || isProcessing) return;
             return loadTextAtEnd();
         },
         addMoreAtTop = () => {
-            if (!isEnabled.value) return;
+            if (!isEnabled.value || isProcessing) return;
             if (touchDown) {
-                // adding at top is tricky and if the user is stil holding there seems no way to set the scroll position after insert
+                // adding at top is tricky and if the user is still holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;
             } else {
                 loadTextAtTop();
@@ -78,6 +134,7 @@ export function useInfiniteScroll(
         touchDown = false;
         if (textToBeInsertedAtTop) {
             insertThisTextAtTop(textToBeInsertedAtTop);
+            textToBeInsertedAtTop = null;
         }
         if (addMoreAtTopOnTouchUp) {
             addMoreAtTopOnTouchUp = false;
@@ -85,14 +142,17 @@ export function useInfiniteScroll(
         }
     }
 
-    async function insertThisTextAtTop(document: AnyDocument) {
+    async function insertThisTextAtTop(docs: AnyDocument[]) {
         if (touchDown) {
-            textToBeInsertedAtTop = document;
+            textToBeInsertedAtTop = docs;
         } else {
             const priorHeight = bodyHeight();
             const origPosition = scrollPosition();
 
-            if (document) documents.unshift({...document});
+            if (docs) {
+                docs.reverse();
+                bibleViewDocuments.unshift(...docs);
+            }
             await nextTick();
 
             // do no try to get scrollPosition here because it has not settled
@@ -101,8 +161,8 @@ export function useInfiniteScroll(
         }
     }
 
-    function insertThisTextAtEnd(document: AnyDocument) {
-        if (document) documents.push({...document});
+    function insertThisTextAtEnd(...docs: AnyDocument[]) {
+        if (docs) bibleViewDocuments.push(...docs);
     }
 
     function scrollHandler() {
@@ -110,13 +170,9 @@ export function useInfiniteScroll(
         currentPos = scrollPosition();
         const scrollingUp = currentPos < previousPos;
         const scrollingDown = currentPos > previousPos;
-        if (scrollingDown
-            && currentPos >= (bottomElem.offsetTop - window.innerHeight) - DOWN_MARGIN
-            && Date.now() > lastAddMoreTime + 1000) {
-            lastAddMoreTime = Date.now();
+        if (scrollingDown && currentPos >= (bottomElem.offsetTop - window.innerHeight) - DOWN_MARGIN) {
             addMoreAtEnd();
-        } else if (scrollingUp && currentPos < UP_MARGIN && Date.now() > lastAddMoreTime + 1000) {
-            lastAddMoreTime = Date.now();
+        } else if (scrollingUp && currentPos < UP_MARGIN) {
             addMoreAtTop();
         }
         currentPos = scrollPosition();
@@ -134,4 +190,6 @@ export function useInfiniteScroll(
         currentPos = scrollPosition();
         bottomElem = document.getElementById("bottom")!;
     });
+
+    return {documentsCleared};
 }

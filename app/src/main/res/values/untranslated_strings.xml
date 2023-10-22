@@ -63,6 +63,7 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="lang_norwegian_nynorsk">nn: Norsk nynorsk</string>
     <string name="lang_polish">pl: Polski</string>
 	<string name="lang_portuguese">pt: Português</string>
+	<string name="lang_portuguese_brazil">pt-BR: Português (Brazilian)</string>
 	<string name="lang_russian">ru: Русский</string>
 	<string name="lang_romanian">ro: Română</string>
 	<string name="lang_slovak">sk: Slovenčina</string>
@@ -106,4 +107,5 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	</string>
 	<string name="crash_app">Crash app!</string>
 	<string name="crash_app_summary">Crash app after 10 seconds. Debugging feature, visible only in debug builds.</string>
+	<string name="apk_file">andbible.apk</string>
 </resources>

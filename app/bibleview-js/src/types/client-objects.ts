@@ -16,6 +16,7 @@
  */
 
 import {Nullable} from "@/types/common";
+import {isGenericBookmark} from "@/composables/bookmarks";
 
 export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK"
 export type V11N = string
@@ -139,6 +140,10 @@ export type StudyPadGenericBookmarkItem = BaseStudyPadBookmarkItem & GenericBook
 
 export type StudyPadItem = BaseStudyPadBookmarkItem | StudyPadTextItem
 
+export function isStudyPadBookmark(item: StudyPadItem): item is BaseStudyPadBookmarkItem {
+    return item.type === "bookmark" || item.type === "generic-bookmark"
+}
+
 export type BookmarkStyle = Readonly<{
     color: number
     isSpeak: boolean
@@ -158,3 +163,13 @@ export type Label = Readonly<{
 }>
 
 export type LabelAndStyle = Label & BookmarkStyle
+
+export type BookmarkOrdinalKey = string
+
+export function getBookmarkOrdinalKey(b: BaseBookmark, ordinal: number): BookmarkOrdinalKey {
+    if(isGenericBookmark(b)) {
+        return `${b.key}-${ordinal}`
+    } else {
+        return `BIBLE-${ordinal}`
+    }
+}

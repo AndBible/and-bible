@@ -47,12 +47,10 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.applicationVersionName
 import net.bible.service.common.CommonUtils.megabytesFree
 import java.io.BufferedOutputStream
-import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.zip.GZIPOutputStream
@@ -123,7 +121,7 @@ object ErrorReportControl {
 const val SCREENSHOT_FILE = "screenshot.webp"
 
 object BugReport {
-    private fun createErrorText(exception: Throwable? = null) = try {
+    private fun createErrorText(exception: Throwable? = null, stackTrace: String? = null) = try {
         StringBuilder().run {
             append("Version: ").append(applicationVersionName).append("\n")
             append("Android version: ").append(Build.VERSION.RELEASE).append("\n")
@@ -142,6 +140,9 @@ object BugReport {
                 val errors = StringWriter()
                 exception.printStackTrace(PrintWriter(errors))
                 append("Exception:\n").append(errors.toString())
+            }
+            if (stackTrace != null) {
+                append("Exception:\n").append(stackTrace)
             }
             toString()
         }
@@ -200,6 +201,18 @@ object BugReport {
         } catch (_: Throwable) {}
     }
 
+    fun saveStackTrace(e: Throwable) {
+        logDir.mkdirs()
+        val sw = StringWriter()
+        val pw = PrintWriter(sw)
+        e.printStackTrace(pw)
+        val s = sw.toString()
+        val f = File(logDir, "stacktrace.txt")
+        f.delete()
+        f.outputStream().use {
+            it.write(s.toByteArray())
+        }
+    }
     fun saveScreenshot() {
         Log.i(TAG, "Trying to save screenshot")
         val activity = CurrentActivityHolder.currentActivity?: return
@@ -219,7 +232,7 @@ object BugReport {
         }
     }
 
-    private fun getBugReportMessage(context: Context, exception: Throwable?): String = context.run {
+    private fun getBugReportMessage(context: Context, exception: Throwable?, stackTrace: String? = null): String = context.run {
         val bigHeading = getString(R.string.report_bug_big_heading)
         val heading1 = getString(R.string.report_bug_heading1)
         val heading2 = getString(R.string.report_bug_heading2)
@@ -259,13 +272,15 @@ object BugReport {
             $heading4
             
             """.trimIndent() +
-            createErrorText(exception)
+            createErrorText(exception, stackTrace)
     }
 
     suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false, source: String) {
         val activity = context_ ?: CurrentActivityHolder.currentActivity!!
         val screenshotFile = File(logDir, SCREENSHOT_FILE)
         val logcatFile = File(logDir, "logcat.txt.gz")
+        val stackTraceFile = File(logDir, "stacktrace.txt")
+        val stackTrace = if(stackTraceFile.canRead()) String(stackTraceFile.readBytes()) else null
 
         val hourglass = Hourglass(activity)
         hourglass.show()
@@ -291,7 +306,7 @@ object BugReport {
                 CommonUtils.applicationNameMedium, getSubject(exception
                 )
             )
-            val message = getBugReportMessage(activity, exception)
+            val message = getBugReportMessage(activity, exception, stackTrace)
 
             val uris = ArrayList(listOf(logcatFile, screenshotFile).filter { it.canRead() }.map {
                 FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", it)
@@ -350,7 +365,6 @@ object BugReport {
             }
         }
     }
-
 }
 
 const val TAG = "ErrorReportControl"

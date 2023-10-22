@@ -21,6 +21,7 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
+import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.BooksEvent
@@ -40,11 +41,13 @@ object BookInstallWatcher {
                 initialiseRequiredMapping(book)
                 addBookToDb(book)
                 AndBibleAddons.clearCaches()
+                SwordContentFacade.clearCaches()
             }
 
             override fun bookRemoved(ev: BooksEvent) {
                 AndBibleAddons.clearCaches()
                 removeBookFromDb(ev.book)
+                SwordContentFacade.clearCaches()
             }
         })
     }

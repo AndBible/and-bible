@@ -19,18 +19,18 @@
 
 buildscript {
     val kotlinVersion by extra("1.8.20")
-    val coroutinesVersion by extra("1.6.4")
-    val roomVersion by extra("2.5.1")
-    val jswordVersion by extra("2.3.81")
-    val jdomVersion by extra("2.0.6") // make sure this is same version as in jsword!
+    val coroutinesVersion by extra("1.7.3")
+    val roomVersion by extra("2.5.2")
+    val jdomVersion by extra("2.0.6.1") // make sure this is same version as in jsword!
     val commonsTextVersion by extra("1.9") // 1.10.0 crashes on Android 5.1
-    val kotlinxSerializationVersion by extra("1.5.0")
+    val kotlinxSerializationVersion by extra("1.6.0")
     val sourceCompatibilityVersion by extra(JavaVersion.VERSION_17)
     val targetCompatibilityVersion by extra(JavaVersion.VERSION_17)
     val jvmTargetVersion by extra("17")
     val jvmToolChainVersion by extra(17)
-    val coreKtxVersion by extra("1.10.0")
+    val coreKtxVersion by extra("1.12.0")
     val sqliteAndroidVersion by extra("3.42.0")
+    val jswordVersion by extra("2.4.02")
 
 
     repositories {
@@ -38,7 +38,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.1.1")
+        classpath("com.android.tools.build:gradle:8.1.2")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
 

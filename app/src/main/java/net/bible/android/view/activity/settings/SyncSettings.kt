@@ -26,8 +26,10 @@ import androidx.preference.SwitchPreferenceCompat
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.cloudsync.CloudAdapters
@@ -68,6 +70,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                         CloudSync.waitUntilFinished()
                         CloudSync.start()
                         CloudSync.waitUntilFinished()
+                        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
                     }
                     hourglass.dismiss()
                     activity?.recreate()

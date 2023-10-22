@@ -28,7 +28,10 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.TextUtils
 import android.text.method.LinkMovementMethod
+import android.text.style.ImageSpan
 import android.util.Log
 import android.util.TypedValue
 import android.view.ContextMenu
@@ -78,7 +81,6 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
@@ -126,6 +128,8 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.CloudSyncEvent
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.SwordDocumentFacade
@@ -133,6 +137,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
@@ -155,7 +160,6 @@ const val DEFAULT_SYNC_INTERVAL = 5*60L // 5 minutes
 
 private val syncScope = CoroutineScope(Dispatchers.IO)
 
-class OpenLink(val url: String)
 class SpeakTransportVisibilityChanged(val value: Boolean)
 
 class MainBibleActivity : CustomTitlebarActivityBase() {
@@ -318,7 +322,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
         ABEventBus.post(ConfigurationChanged(resources.configuration))
-
+        binding.syncIcon.visibility = View.INVISIBLE
         updateToolbar()
         updateBottomBars()
         if (!CommonUtils.isCloudSyncAvailable) {
@@ -457,10 +461,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             val videoMessageLink = "<a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a>"
             val appName = getString(R.string.app_name_long)
             val par1 = getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
-
-            val htmlMessage = "$par1<br><br>$videoMessageLink"
-
-            val spanned = htmlToSpan(htmlMessage)
+            val buy = getString(R.string.buy_development)
+            val support = getString(R.string.buy_development2)
+            val heartIcon = ImageSpan(CommonUtils.getTintedDrawable(R.drawable.baseline_attach_money_24))
+            val buyMessage = "&nbsp;<a href=\"$buyDevelopmentLink\">$support</a> ($buy)"
+            val htmlMessage = "$par1<br><br>$videoMessageLink<br><br>"
+            val iconStr = SpannableString("*")
+            iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+            val spanned = TextUtils.concat(htmlToSpan(htmlMessage), iconStr, htmlToSpan(buyMessage))
 
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.stable_notice_title))
@@ -487,7 +495,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             return@suspendCoroutine
         }
 
-        val announceVersion = 1
+        val announceVersion = 2
         val displayedVer = preferences.getInt("beta-notice-displayed2", 0)
 
         if(displayedVer < announceVersion) {
@@ -505,19 +513,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             )
             val extraMessage = """
-                |<b>SPECIAL NOTICE FROM DEVELOPER</b><br><br>
-                |This version includes two major new features: 
-                |bookmarking (highlighting) and notes for non-bible documents 
-                |(commentaries, dictionaries, general books) and
-                |epub support.
-                | Please test those features, but <b>do not use  bookmarking feature for 
-                | anything serious yet</b>.
-                | During beta period, we might need to introduce changes that 
-                | will mess up or remove  
-                | your bookmarks in non-bible documents.
-                | <br><br>
-                | Best regards, Tuomas<br>
-                | P.S. If you haven't tested already, Cloud Sync via Google Drive is also worth trying out.
+                |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (6th Oct 2023)</b><br><br>
+                |Stable release is approaching. If everything goes as planned 
+                |(especially if there are no important UI translations lacking)
+                |we will release 5.0 to stable channels around 2nd November, 2023. <br>
+                |<br>
+                |Please test new features and report any bugs (crashes or misbehaviors) you find
+                |using either Main Menu -> Report a bug or via <a href="https://github.com/AndBible/and-bible/issues/new/choose">Github</a>.
+                |<br>
+                |<br>
+                | Best regards, Tuomas<br><br>
+                | P.S. You can now support AndBible development financially by <a href="$buyDevelopmentLink">buying development hours</a>. 
                 | <br><br>
                 | (Standard beta notice below)
                 | <br><br>
@@ -550,8 +556,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
 
         val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+            override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
                 Log.i(TAG, "onFling")
+                e1 ?: return false
                 val vertical = Math.abs(e1.y - e2.y).toDouble()
                 val horizontal = Math.abs(e1.x - e2.x).toDouble()
 
@@ -587,16 +594,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             gestureDetector.onTouchEvent(event)
             true
         }
-    }
-
-    override fun onPause() {
-        CommonUtils.windowControl.windowRepository.saveIntoDb(false)
-        fullScreen = false;
-        if(CommonUtils.showCalculator) {
-            (window.decorView as ViewGroup).removeView(binding.root)
-            super.setContentView(empty.root)
-        }
-        super.onPause()
     }
 
     private var lastBackPressed: Long? = null
@@ -974,7 +971,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if (toolbarButtonSetting?.startsWith("swap-") == true)
                 setCurrentDocument(documentControl.suggestedCommentary);
             else
-                menuForDocs(view, commentariesForVerse)
+                menuForDocs(view, commentariesForVerse + SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK))
         }
 
         fun bibleLongPress(view: View) {
@@ -1042,6 +1039,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 p.second()
             }
 
+            workspaceButton.visibility = if (visibleButtonCount < maxButtons)
+            {
+                workspaceButton.setOnClickListener {
+                    val intent = Intent(this@MainBibleActivity, WorkspaceSelectorActivity::class.java)
+                    startActivityForResult(intent, WORKSPACE_CHANGED)
+                }
+                visibleButtonCount += 1
+                View.VISIBLE
+            } else View.GONE
+
             if(!showSpeak && transportBarVisible && speakControl.isStopped) {
                 transportBarVisible = false
                 updateBottomBars()
@@ -1060,17 +1067,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
+        if(paused) return
         updateTitle()
     }
 
-    fun onEventMainThread(event: OpenLink) {
-        openLink(Uri.parse(event.url))
+    fun onEventMainThread(event: CloudSyncEvent) {
+        binding.syncIcon.visibility = if(event.running) View.VISIBLE else View.INVISIBLE
     }
 
     private fun openLink(uri: Uri) {
         when (uri.host) {
-            "andbible.org" -> {
-                val urlRegex = Regex("""/bible/(.*)""")
+            "read.andbible.org" -> {
+                val urlRegex = Regex("""/(.*)""")
                 val docStr = uri.getQueryParameter("document")
                 val doc = if (docStr != null) Books.installed().getBook(docStr) else null
 
@@ -1081,7 +1089,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val match = urlRegex.find(uri.path.toString()) ?: return
                 val keyStr = match.groups[1]?.value ?: return
 
-                val key = PassageKeyFactory.instance().getKey(v11n, keyStr)
+                var key: Key = PassageKeyFactory.instance().getKey(v11n, keyStr)
+
+                val ordinalStr = uri.getQueryParameter("ordinal")
+                if(ordinalStr != null) {
+                    val ord = ordinalStr.toInt()
+                    key = BookAndKey(key, doc, ordinal = OrdinalRange(ord))
+                }
+                
                 windowControl.showLink(doc, key)
             }
             "stepbible.org" -> {
@@ -1223,6 +1238,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 binding.run {
                     homeButton.setBackgroundColor(toolbarColor)
                     pageTitle.setBackgroundColor(toolbarColor)
+                    syncIcon.setBackgroundColor(toolbarColor)
                     documentTitle.setBackgroundColor(toolbarColor)
                     toolbarButtonLayout.setBackgroundColor(toolbarColor)
                 }
@@ -1429,6 +1445,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEvent(event: ScreenSettings.NightModeChanged) {
+        if(paused) return
         if(CurrentActivityHolder.currentActivity == this) {
             refreshIfNightModeChange()
         }
@@ -1495,13 +1512,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     class UpdateMainBibleActivityDocuments
 
-    fun onEventMainThread(e: UpdateMainBibleActivityDocuments) {
-        updateDocuments()
+    private var updateDocumentsPending = false
+
+    fun onEvent(e: UpdateMainBibleActivityDocuments) {
+        updateDocumentsPending = true
     }
 
     private fun updateDocuments() {
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
+        updateDocumentsPending = false
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -1585,7 +1605,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         null -> {}
                         ChooseDocument::class.java.name -> {
                             val bookStr = extras.getString("book")
-                            val book = Books.installed().getBook(bookStr)
+                            val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
                             documentControl.changeDocument(book)
                             updateActions()
                             return
@@ -1666,7 +1686,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         val isExternal = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            InputDevice.getDevice(event.deviceId).isExternal
+            InputDevice.getDevice(event.deviceId)?.isExternal ?: false
         } else {
             false
         }
@@ -1748,10 +1768,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
+        if(paused) return
         updateActions()
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
+        if(paused) return
         setSoftKeyboardMode()
     }
 
@@ -1767,19 +1789,63 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * called by PassageChangeMediator after a new passage has been changed and displayed
      */
     fun onEventMainThread(event: PassageChangedEvent) {
+        if(paused) return
         updateActions()
    }
 
+    private var paused = false
+    override fun onPause() {
+        windowControl.windowRepository.saveIntoDb(false)
+        paused = true
+        fullScreen = false
+        if(CommonUtils.showCalculator) {
+            (window.decorView as ViewGroup).removeView(binding.root)
+            super.setContentView(empty.root)
+        }
+        super.onPause()
+    }
+
     override fun onResume() {
-        windowControl.windowRepository = windowRepository
+        paused = false
+        var needRefresh = false
+        if(windowControl.windowRepository != windowRepository) {
+            windowControl.windowRepository = windowRepository
+            needRefresh = true
+        }
         super.onResume()
         if(CommonUtils.showCalculator && empty.root.parent != null) {
             (window.decorView as ViewGroup).removeView(empty.root)
             super.setContentView(binding.root)
         }
-
+        if(needRefresh) {
+            currentWorkspaceId = currentWorkspaceId // will reload workspace from db
+        } else if(updateDocumentsPending) {
+            updateDocuments()
+        }
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
+    }
+
+    private var frozen = false
+
+    override fun freeze() {
+        if(CurrentActivityHolder.mainBibleActivities < 2) return
+        if(!frozen) {
+            ABEventBus.unregister(this)
+            (window.decorView as ViewGroup).removeView(binding.root)
+            super.setContentView(frozenBinding.root)
+        }
+        frozen = true
+    }
+
+    override fun unFreeze() {
+        if(frozen) {
+            windowControl.windowRepository = windowRepository
+            ABEventBus.register(this)
+            (window.decorView as ViewGroup).removeView(frozenBinding.root)
+            super.setContentView(binding.root)
+        }
+        frozen = false
     }
 
     /**
@@ -1803,28 +1869,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val isSplitVertically: Boolean get() {
         val reverse = windowRepository.workspaceSettings.enableReverseSplitMode
         return if(reverse) !CommonUtils.isPortrait else CommonUtils.isPortrait
-    }
-
-    private var frozen = false
-
-    override fun freeze() {
-        if(CurrentActivityHolder.mainBibleActivities < 2) return
-        if(!frozen) {
-            ABEventBus.unregister(this)
-            (window.decorView as ViewGroup).removeView(binding.root)
-            super.setContentView(frozenBinding.root)
-        }
-        frozen = true
-    }
-
-    override fun unFreeze() {
-        if(frozen) {
-            windowControl.windowRepository = windowRepository
-            ABEventBus.register(this)
-            (window.decorView as ViewGroup).removeView(frozenBinding.root)
-            super.setContentView(binding.root)
-        }
-        frozen = false
     }
 
     fun activate(v: View) {

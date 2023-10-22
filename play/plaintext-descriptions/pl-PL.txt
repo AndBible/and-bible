@@ -20,19 +20,24 @@ Aplikacja wyróżnia się wieloma zmyślnymi, oryginalnymi cechami, które to u�
  * „bloczki notatek” umożliwiające dodawanie notatek i odnośników do Biblii podczas słuchania kazań
  * plany czytania: zdefiniuj własne cele czytania
  * obszerna biblioteka dokumentów: tłumaczenia, komentarze teologiczne, słowniki, mapy, książki chrześcijańskie, w sumie ponad 1500 dokumentów w 700 językach legalnie rozpowszechnianych przez CrossWire i inne repozytoria SWORD
- * działa w pełni offline: połączenie internetowe jest potrzebne tylko do pobrania dokumentów
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
 
 Razem stwórzmy najlepszą apkę do czytania Biblii!
 
 And Bible jest otwartoźródłowym projektem społecznościowym. Oznacza to, że każdy posiadający odpowiednie umiejętności może – i jest zachęcany – do uczestnictwa w rozwoju projektu poprzez:
 
  * programowanie nowych funkcji;
- * : https://andbible.org/buy
  * testowanie funkcji próbnych;
  * tłumaczenie interfejsu programu;
  * oraz rozszerzanie biblioteki modułów poprzez otrzymanie pozwoleń od właścicieli praw autorskich lub konwertując dokumenty do formatu SWORD.
 
 Jeżeli jesteś zawodowym programistą lub testerem, prosimy rozważyć włączenie się w rozwój aplikacji. Więcej informacji znajduje się na stronie https://git.io/JUnaj
+
+Support by buying development time!
+
+If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+
+See options: https://shop.andbible.org/
 
 Odnośniki
 
