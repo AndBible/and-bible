@@ -741,6 +741,9 @@ respaldo.
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_mysword">Documentos MySword (*.mybible)</string>
+  <string name="format_mybible">Documentos MyBible (.SQLite3)</string>
+  <string name="format_epub">Documentos EPUB (*.epub)</string>
   <string name="redownload_message">
 Se encontró una lista de libros / documentos anteriores. Haga clic a continuación para volver a descargarlos fácilmente.
 </string>
@@ -789,8 +792,11 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="share_verse_menu_title">Compartir / copia…</string>
   <string name="show_versenumbers">Mostrar números de verso</string>
   <string name="show_full_verses">Mostrar los versículos completos</string>
+  <string name="show_selection_only">Mostrar solo el texto seleccionado</string>
   <string name="advertise_app">Anunciar la aplicación</string>
   <string name="verse_share_advertise">Compartido con %s.</string>
+  <string name="show_reference">Mostrar referencia</string>
+  <string name="show_reference_at_front">Mostrar al frente del verso</string>
   <string name="abbreviate_reference">Abreviar referencia</string>
   <string name="version_name">Nombre de la versión</string>
   <!--meaning, bible version name-->

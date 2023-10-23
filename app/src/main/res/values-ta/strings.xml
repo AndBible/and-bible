@@ -200,6 +200,8 @@
   <string name="prefs_noise_summary">பின்னணியில் இறைச்சலை சேர்ப்பது படிப்பதை எளிமையாக்கும்</string>
   <string name="cpv_default_title">நிறத்தை தேர்வு செய்க</string>
   <string name="cpv_presets">முன்னமைவுகள்</string>
+  <string name="cpv_custom">தனிப்பயன்</string>
+  <string name="cpv_select">தேர்ந்தெடு</string>
   <string name="cpv_transparency">தெளிவு நிலை</string>
   <!--Window-->
   <string name="new_window">புது சாரளம்</string>
@@ -380,6 +382,9 @@
   <string name="hide_style">பகுதி வசன புக்மார்க்குகளுக்கு மறை</string>
   <string name="hide_style_whole_verse">முழு வசன புக்மார்க்குகளுக்கு மறை</string>
   <string name="bookmark_warning">இந்த ஆவணத்திற்கு புக் மார்க்குகள் அல்லது/மற்றும் குறிப்புகள் உள்ளன</string>
+  <string name="bookmark_warning2">
+        ஆவண அமைப்பு மாறியிருந்தால், இதனைப் புதுப்பிப்பது 
+        இந்த புக்மார்க்குகள்/குறிப்புகளை ஆவணத்தின் உள்ளேயே இடம் மாற்றலாம் அல்லது முற்றிலும் தொலைந்து போகலாம்.</string>
   <string name="bookmark_warning3">இன்னமும் மாடியல்களை புதுப்பிக்கலாமா?</string>
   <string name="bookmark_warning4">புதுப்பிப்பதற்கு முன்பு மாடியுல்களை பிரதி எடுக்க பரிந்துரைக்கப்படுகிறது.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -416,6 +421,7 @@
   <string name="speak_repeat">மீண்டும் மீண்டும்</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">பேசும் வேகம்</string>
+  <string name="speak_and_play_earcons_title">பேச்சு மற்றும் இயர்கான் ஒலிகள் </string>
   <string name="playback_settings_title">வாசிப்பு அமைப்புகள்</string>
   <string name="speak_settings_title">பேச்சு பொது அமைப்புகள்</string>
   <string name="speak_bookmarking_settings_title">புக்மார்க் அமைப்புகள்</string>
@@ -477,6 +483,13 @@
   <string name="reset_defaults">இயல்பு நிலை அமைப்புகள்</string>
   <string name="reset_workspace_defaults">பணியிடத்தின் இயல்பு நிலை அமைப்புகள்</string>
   <string name="speak_bookmark_help">புக் மார்க் பேச்சு உதவி</string>
+  <string name="speak_help_auto_bookmark">
+        பேச்சு இடைநிறுத்தப்படும்போதோ அல்லது நிறுத்தப்படும்போதோ பேச்சு புக்மார்க் தானாக சேர்க்கப்படும்.
+        இவ்வாறு தானாக சேர்க்கப்படும் புக்மார்க்குகளுக்கு சிறப்பு ஸ்பீக் லேபிளிடப்படும்.
+        நீங்கள் பேச்சுப் புக்மார்க்கில் தொடங்கினால், அடுத்த முறை நீங்கள் இடைநிறுத்தும் அல்லது நிறுத்தும்  வசனத்திற்கு
+        புக்மார்க் நகர்த்தப்படும். இது பேச்சு லேபிள்களுக்கு மட்டுமே பொருந்தும்
+        பிற லெவல்கள் அப்படியே இருக்கும்.
+    </string>
   <string name="speak_help_playback_settings">
         இதனை தேர்வு செய்தால், சிறப்பு வாசிப்பு அமைப்புகள் (\"வாசிப்பு அமைப்புகள்\" அடியில் பேசு திரையில்)
         வாசிப்பு புக் மார்க்குகளில் சேமிக்கப்படும்.
@@ -529,6 +542,7 @@
   <!--User Notes-->
   <string name="mynotes">என் குறிப்புகள்</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">காப்பு நகல் &amp; மீட்டமைத்தல்</string>
   <string name="backup_modules2">...க்கு கோப்புகளை நகலெடு</string>
   <string name="backup_app_database2">...க்கு செயலியின் தரவு தளத்தை நகலெடு</string>
   <string name="backup_app2">...க்கு செயலியை (.apk கோப்பு) நகலீடு</string>
@@ -634,13 +648,16 @@
   <string name="delete_workspace">நீக்குக</string>
   <string name="new_copied_workspace">புதியதாக நகலெடு</string>
   <string name="workspace_number">பணியிடம் %d</string>
+  <string name="rename_workspace">மறுபெயரிடு</string>
   <string name="workspace_selector_title">பணியிடங்களை தேர்வு செய்க</string>
   <string name="workspace_settings">அமைப்புகள்...</string>
   <string name="give_name_workspace">புதிய பணியிடத்திற்கு பெயரிடுக</string>
   <string name="save_and_exit">சேமி</string>
   <string name="workspace_save_changes">மாற்றங்களை பணியிடத்தில் புகுத்தவா?</string>
   <string name="copy_of_workspace">%sஇன் நகல்</string>
+  <string name="copy_workspace_settings">அமைப்புகளை நகலெடுக்க....</string>
   <string name="copy_settings_title">எந்த அமைப்புகளை நகலெடுக்க?</string>
+  <string name="select_all">அனைத்தையும் தெரிவுசெய்</string>
   <string name="copy_settings_workspaces_title">எந்தப் பணியிடங்களுக்கு அமைப்புகளை நகலெடுக்க வேண்டும்?</string>
   <string name="reset_settings">மீட்டமை</string>
   <string name="workspace_dismiss">நிராகரி</string>
@@ -674,11 +691,53 @@
         பிளவுதிரை முறையில் வலது மேல் மூலையில் மெனு பொத்தான்கள் இருக்கும்,
         இவை சாளரத்திற்கான தனிப் பயன்முறைகளையோ அல்லது சாளரத்தின் தோற்றத்தையும் நடத்தையையும் மாற்ற உதவும்.
     </string>
+  <string name="help_contextmenus_title">சூழல் மெனுக்கள்</string>
+  <string name="help_contextmenus_text">
+        நீண்ட நேரம் அழுத்தினால் சூழல் மெனு அல்லது செயல் முறை பல காட்சிகளில் திறக்கும்..
+        தற்போதைய வசனத்தைப் பாதிக்கும் செயல்களுக்கான செயல் பயன்முறையைத் திறக்க பைபிள் காட்சியில் நீண்ட நேரம் அழுத்தவும்..
+        ஆவணத்தைத் தேர்ந்தெடு அல்லது பதிவிறக்கம் என்பதன் பட்டியல் பார்வையில் உள்ள ஆவண உருப்படியை நீண்ட நேரம் அழுத்தி ஆவணத்தை நீக்கலாம் அல்லது தகவலைப் பார்க்கவும்.
+        லேபிள்களைச் சேர்க்க அல்லது புக்மார்க்கை நீக்க புக்மார்க்குகள் பட்டியலில் புக்மார்க்கை நீண்ட நேரம் அழுத்தவும்.
+        நடப்பு சாளரம், புதிய சாளரம் அல்லது சிறப்பு இணைப்புகள் சாளரத்தில் இணைப்புகளைத் திறக்க விரும்பினால், இணைப்புகளை நீண்ட நேரம் அழுத்தவும்.
+    </string>
   <string name="help_bookmarks_title">புக்மார்க்குகள் &amp; என் குறிப்புகள்</string>
+  <string name="help_bookmarks_text">உரையைத் தேர்ந்தெடுத்து, பாப்அப் மெனுவிலிருந்து \"புக்மார்க்\" என்பதைத் தேர்ந்தெடுப்பதன் மூலம் புக்மார்க்குகளை உருவாக்கலாம்.
+        விவிலியம் பார்வையில் இப்போது தனிப்படுத்தப்பட்ட உரையைத் தட்டுவதன் மூலம் உங்கள் தனிப்பயன் குறிப்புகளை புதிய புக்மார்க்கில் சேர்க்கலாம்.
+        விளக்க உரைகள் \"என் குறிப்புகள்\" என்ற சிறப்பு ஆவணமும் உள்ளது, இதன் மூலம் உங்கள் குறிப்புகளை தனி சாளரத்தில் பார்க்க இயலும்.
+    </string>
+  <string name="help_studypads_text">
+        மறைஉரைக் குறிப்புகளை எழுதுவது, மறைஉரையினை தயாரிப்பது அல்லது பல விவிலியக் மேற்கோள்களைக் கொண்ட விவிலிய படிப்புக் குறிப்புகளை எழுதுவது போன்றவற்றை எளிதாக்கும் வகையில் ஸ்டடி பேட்கள் வடிவமைக்கப்பட்டுள்ளன.
+        ஒவ்வொரு ஸ்டடி பேடும் ஒரு புக்மார்க் லேபிளுடன் இணைக்கப்பட்டுள்ளது.
+        அந்தந்த லேபிளுடன் உருவாக்கப்பட்ட அனைத்து புக்மார்க்குகளும் ஸ்டடி பேட் ஆவணத்தில் தானாகவே தோன்றும்.
+        புக்மார்க்குகளுக்கு கூடுதலாக, ஸ்டடி பேடில் தனிப்பயன் உரை உள்ளீடுகளும் இருக்கலாம்.
+    </string>
   <string name="help_search_title">தேடல்</string>
+  <string name="help_search_text">தேடும்போது *, ?, AND, OR, NOT போன்ற சிறப்பு எழுத்துகளைப் பயன்படுத்தலாம்.
+        (மேலதிக தகவல்களுக்கு \"Apache Lucene - Query Parser Syntax\" ஐ காண்க)</string>
   <string name="help_workspaces_title">பணியிடங்கள்</string>
+  <string name="help_workspaces_text">
+        பணியிடங்கள் பல சூழல் சார்ந்த பணிக்குழுக்களைக் கொண்டிருக்க அனுமதிக்கின்றன.
+        விருப்பங்கள் மெனுவில் (மேல்-வலது மூலையில்) பணியிடங்கள் உருப்படி வழியாக பணியிட செயல்பாடுகளை அணுகலாம். 
+        கருவி பட்டியில்லிருந்து ஸ்வைப்-டவுன் சைகை பணியிடங்களை அணுகுவதற்கான விரைவான வழி.
+        முந்தைய / அடுத்த பணியிடத்திற்கு மாற, கருவிப்பட்டியில் இடது மற்றும் வலது ஸ்வைப் சைகைகளை பயன்படுத்தலாம்..
+    </string>
   <string name="help_hidden_features_title">மறைக்கப்பட்ட குறுக்கு வழிகள்</string>
+  <string name="help_hidden_features_text">
+        பணியிடத்தினை தேர்வு செய்ய கருவிப்பட்டியில் இருந்து கீழே ஸ்வைப் செய்யவும்..
+        சாளரத்தைக் குறைக்க சாளர பொத்தானை நீண்ட நேரம் அழுத்தவும்.
+        பேச்சு அமைப்புகளுக்கு விரைவாகச் செல்ல, பேச்சு கருவிப்பட்டி பொத்தானை நீண்ட நேரம் அழுத்தவும்..
+        ஆவணத் தேர்விக்குச் செல்ல கருவிப்பட்டியில் வசன இருப்பிடத் தலைப்பை நீண்ட நேரம் அழுத்தவும்..
+        வரலாறு பட்டியலை அணுக பின் பொத்தானை நீண்ட நேரம் அழுத்தவும்.
+    </string>
   <string name="help_window_pinning_title">சாரளத்தை பின் செய்வது</string>
+  <string name="help_window_pinning_text">
+        விருப்பங்கள் மெனுவிலிருந்து சாளர பின்னிங்கை இயக்கலாம் (வலது மேல் மூலையில் உள்ள மூன்று புள்ளிகள்).
+        சாளர பின்னிங் இயக்கப்பட்டிருந்தால், விவிலியப் பார்வையில் பல பின் செய்யப்பட்ட சாளரங்களைக் காட்டலாம், ஆயினும்  
+        பின் செய்யப்படாத ஒரே ஒரு சாளரம் மட்டுமே காட்ட இயலும். பின் செய்யப்பட்ட சாளரங்கள் முதலில் காட்டப்படும், பின்னர் 
+        பின் செய்யப்படாத சாளரங்கள் காட்டப்படும். நீங்கள் விவிலியத்தை பின் செய்யப்பட்ட சாளரங்களிலும்,
+        விளக்க உரைகள் மற்றும் வரைபடங்கள் போன்றவற்றை பின் செய்யாத சாளரங்களில் திறக்கலாம். இதன் மூலம் நீங்கள் விவிலியத்தை 
+        எப்பொழுதும் திறந்து வைத்திருக்கலாம், அதேசமயம் விவிலியத்தைப் படிக்கும்போது விளக்க உரைகள் 
+        போன்றவற்றை விரைவாக மாற்றலாம்.
+    </string>
   <!--Welcome text-->
   <string name="redownload_documents">விரைவு மீள் தரவிறக்கம்</string>
   <string name="welcome_message">%sஐ தரவிறக்கம் செய்வதற்கு நன்றி. தற்போது எந்த விவிலியமோ அல்லது ஆவணங்களோ நிறுவப்படவில்லை. ஆகவே 
@@ -691,7 +750,7 @@
   <string name="choose_file">%sக்கு ஏற்ற விரும்பும் கோப்பை நீங்கள் தெரிவு செய்ய வேண்டும்.</string>
   <string name="supported_formats">கோப்பில் இருந்து ஆவணங்களை ஏற்றத் தகுந்த வடிவமைப்புகள்: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
-  <string name="format_zip">Sword மாடியுல்கள் அடங்கிய zip கோப்பு அல்லது ஆவண பாதுகாப்பு நகல் (*.abmd) %s ஆல் உருவாக்கப்பட்டது.</string>
+  <string name="format_zip">Sword மாடியுல்(கள்) அடங்கிய zip கோப்பு அல்லது ஆவண பாதுகாப்பு நகல் (*.abmd) %s ஆல் உருவாக்கப்பட்டது.</string>
   <string name="format_mysword">MySword கோப்புகள் (*.mybible)</string>
   <string name="format_mybible">MyBible கோப்புகள் (*.SQLite3)</string>
   <string name="format_epub">EPUB ஆவணங்கள் (*.epub)</string>
@@ -705,8 +764,13 @@
   <string name="first_time_help_show_next_time">அடுத்த முறை மீண்டும் காட்டவும்</string>
   <string name="strongs_mode_title">Strongs முறையினை தேர்வு செய்க</string>
   <string name="download_dialog_message">பின்வரும் நூல்களை தரவிறக்க இயலவில்லை:</string>
+  <string name="select_multiple">பல தேர்ந்தெடு</string>
+  <string name="journal_description">உரை மற்றும் புக்மார்க்குகளுடன் பயனர் திருத்தக்கூடிய ஸ்டடி பேடுகள்</string>
+  <string name="my_notes_description">புக்மார்க்குகளுடன் இணைக்கப்பட்ட பயனர் திருத்தக்கூடிய குறிப்புகள்</string>
   <string name="my_notes_abbreviation">என் குறிப்புகள்</string>
   <string name="studypads">ஸ்டடி பேடுகள்</string>
+  <string name="multi_description">Multiple references</string>
+  <string name="multi_abbreviation">Multiple</string>
   <string name="compare_description">மொழிபெயர்ப்புகளை ஒப்பிடுக</string>
   <string name="compare_abbreviation">ஒப்பிடுக</string>
   <string name="compare">ஒப்பிடுக</string>
@@ -718,6 +782,7 @@
   <string name="unlock_module">மாடியுலுக்கான கடவுச்சொல்லை உள்ளிடுக</string>
   <string name="unlock_info">குறியாக்கப்பட்ட ஆடியோல்களைத் திறக்க உதவி குறிப்புகள்</string>
   <string name="try_again_passphrase">கடவுச்சொல் வேலை செய்யவில்லை, மீண்டும் முயலவா?</string>
+  <string name="show_unlock_info">தொகுதியை திறக்கும் தகவல்</string>
   <string name="prefs_show_error_box_title">ஜாவாஸ்கிரிப்ட் பிழை பெட்டியைக் காட்டு</string>
   <string name="prefs_show_error_box_summary">BibleView ஜாவாஸ்கிரிப்ட் பக்க பிழைகளை பிழைத்திருத்தம் செய்யும் போது நிரலாக்கர்களுக்கு பயனுள்ளதாக இருக்கும். இது செயலியை மெதுவாக்கும்.</string>
   <string name="active_window_indicator_title">செயலில் உள்ள சாளர குறிகாட்டியைக் காட்டு</string>
@@ -756,6 +821,8 @@
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Android WebView தொகுப்பு மிகவும் பழையது (%1$s). %3$sஐ பயன்படுத்த குறைந்தது Android WebView பதிப்பு  %2$sக்காவது புதுப்பிக்க வேண்டும். பொதுவாக இதனை %4$sஇல் செய்யலாம்.</string>
   <string name="play">கூகுள் ப்ளே</string>
+  <string name="proceed_anyway">Proceed anyway</string>
+  <string name="proceed">Proceed</string>
   <string name="rate_title">செயலியினை மதிப்பாய்வு செய்வது</string>
   <string name="rate_message5">
         நேர்மறை மற்றும் விரிவான மதிப்புரைகள் AndBible Open Source திட்டத்திற்கு பெரிதும் உதவும். நன்றி!
@@ -814,7 +881,9 @@
   <string name="reset_workspace_labels">இந்தப் பணியிடத்திற்கான தானியங்கி மற்றும் பிடித்த அமைப்புகளை மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="reset_hide_labels">குறிப்பிட்ட லேபிள் அமைப்புகளை மறைப்பதற்கான அமைப்பை மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="reorder">மீல் வரிசைப்படுத்து</string>
+  <string name="system_items">சிஸ்டம் செயல்கள்</string>
   <string name="system_items1">மேலும்</string>
+  <string name="system_action2">ஆண்ட்ராய்டு செயல்கள்</string>
   <string name="text_copied_to_clicpboard">உரை கிளிப்போர்ட்டில் நகல் எடுக்கப்பட்டது</string>
   <string name="prefs_disable_two_step_bookmarking_title">ஒரு நிலை புக்மார்க்குகள் </string>
   <string name="prefs_disable_two_step_bookmarking_summary">Show \"Selection\" and \"Verses\" items directly in Bible view Selection menu</string>
@@ -837,6 +906,7 @@
   <string name="chooser_jump">தாவு</string>
   <string name="chooser_OT_abbrev">பஏ</string>
   <string name="chooser_NT_abbrev">புஏ</string>
+  <string name="chooser_style_grid">கட்டகம்</string>
   <string name="chooser_style_lists">பட்டியல்</string>
   <string name="chooser_select">%sஐ தேர்ந்தெடு</string>
   <string name="chooser_pref_reset">நூல்/அதிகாரத்தினை தேர்வு செய்யும் போது அதிகார வசனத்தை 1க்கு மாற்றாதே.</string>
@@ -848,6 +918,7 @@
   <string name="questions_title2">உதவி தேவையா?</string>
   <string name="bookmark_style">புக் மார்க் வடிவமைத்து</string>
   <string name="added_to_bookmark">இந்த புக்மார்க்கிற்கு ஒதுக்கப்பட்டது</string>
+  <string name="strongs_off">முடக்கு</string>
   <string name="strongs_links">இணைப்புகள்</string>
   <string name="strongs_text_and_links">உரை மற்றும் இணைப்புகள்</string>
   <string name="verse_tip">வசனத்தின் பகுதியையோ அல்லது பல வசனங்களையோ தேர்ந்தெடுக்க, நீங்கள் உரையை நீண்ட நேரம் அழுத்தவும்</string>
@@ -865,13 +936,23 @@
   <string name="calc_division_by_zero">பூஜ்ஜியத்தால் வகுத்தல் அனுமதிக்கப்படாது</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">தவறான வடிவம்</string>
+  <string name="calc_wrong_format_operand">தவறான வடிவம். எந்த எண்களும் இல்லாமல் செயல்படுமா?</string>
   <string name="prefs_persecuted_help">இதை முதலில் படிக்கவும்!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">குறிப்பிட்ட சிறப்பு பதிப்பு பற்றிய அமைப்புகளுக்கான வழிமுறைகள் மற்றும் தகவல்.</string>
   <string name="calculator_par1">
         செயலியின் உள் செல்வதற்கு முன் கணிப்பான் திரை காட்டப்படும்.
     </string>
+  <string name="calculator_par2">
+        இதில் நீங்கள் வழமையான எண் கணித செய்முறைகளை செய்யலாம். செயலிக்குள் நீங்கள் நுழைய என்னும்போது
+        உங்கள் கடவு எண்ணை உள்ளிட்டு (இயல்பு நிலையில் இது 1234 என இருக்கும்) பிறகு \"=\" பொத்தானை கிளிக் செய்ய வேண்டும்.
+    </string>
   <string name="calculator_par3">
         \"கணிப்பான் கடவு எண்\" அமைப்பில் நீங்கள் விரும்பும் கடவு எண்ணை அமைக்கலாம்.
+    </string>
+  <string name="discrete_mode_info_par1">
+        நீங்கள் இந்த செயலியின் நிலையான பதிப்பை பயன்படுத்துகிறீர்கள். இதனால் இந்த செயலியின்
+         பெயர் மற்றும் ஐகானை app infoவில் பார்க்க இயலும்.
     </string>
   <string name="discrete_mode_info_par2">
         துன்புறுத்தப்படும் சூழலில் வாழ்பவர்கள், பாதுகாப்பிற்காக இந்த செயலியின் மறைந்த பதிப்பை
@@ -881,6 +962,8 @@
         %sஇல் மறைந்த பதிப்பின் அண்மைய பதிப்பை நீங்கள் தரவிறக்கம் செய்யலாம்.
     </string>
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">குழுவை ஒத்திசைக்கவும்</string>
+  <string name="sync_group_n">குழு %d</string>
   <string name="disable_sync">ஒத்திசைவை முடக்கு</string>
   <string name="open_in_window">முடிவுகளை சாளரத்தில் திற</string>
   <!--Custom repositories-->
@@ -892,15 +975,25 @@
   <string name="name_for_repository">களஞ்சிய பெயர்</string>
   <string name="repository_specification">களஞ்சிய URL</string>
   <string name="delete_custom_repository">தனிப்பயன் களஞ்சியம் %s ஐ நீக்கவா?</string>
+  <string name="invalid_repository_not_saved">களஞ்சிய விவரக்குறிப்பு தவறானது ஆகவே அது சேமிக்கப்படவில்லை.</string>
+  <string name="custom_repositories_help1">புதிய தனிப்பயன் களஞ்சியத்தைச் சேர்க்க, இங்கே தட்டச்சு செய்யலாம் அல்லது களஞ்சிய URL ஐ இங்கே நகலெடுத்து ஒட்டலாம்.</string>
   <string name="custom_repositories_help2">தனிப்பயன் களஞ்சியங்கள் பற்றிய கூடுதல் தகவல்களை %sஇல் பெறலாம்.</string>
   <string name="wiki_page">விக்கி பக்கம்</string>
+  <string name="custom_repositories_help0">தனிப்பயன் களஞ்சியங்களை நிறுவுவதன் மூலம் வெளிப்புற தனிப்பயன் களஞ்சியங்களிலிருந்து ஆவணங்களை நிறுவலாம்.</string>
+  <string name="duplicate_custom_repository">%s எனும் பெயருடைய களஞ்சியம் ஏற்கனவே உள்ளது, ஆகவே மற்றொன்றை சேர்க்க இயலாது.</string>
   <string name="packages_dir">தொகுப்பு அடைவு (Zip கோப்புகள்)</string>
+  <string name="warn_bad_document">எச்சரிக்கை: இந்த ஆவணம் (முழுவதுமோ அல்லது அதன் ஒரு பகுதியோ) மோசமான தொழில்நுட்பத் தரத்தால் ஆனதாக இருக்கலாம்.</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">விவிலிய இணைப்புகளை AndBibleல் திறக்கவும்</string>
+  <string name="open_bible_links_summary">AndBible ஆதரிக்கும் பைபிள் URL ஐக் குறிக்கும் இணைப்புகளைக் கிளிக் செய்யும் போது, அவற்றை AndBible இல் திறக்கவும்</string>
   <string name="copyReference">இணைப்பை கிளிப்போடுக்கு நகலெடு</string>
+  <string name="reference_copied_to_clipboard">மேற்கோள் குறிப்பு கிளிப்போர்டுக்கு நகலெடுக்கப்பட்டது</string>
   <!--Device cloud synchronization-->
   <string name="prefs_sync_introduction_summary1">
         பல கருவிகளை ஒத்திசைக்க எந்த மேக சேமிப்பக சேவையைப் பயன்படுத்த விரும்புகிறீர்கள் என்பதைத் தேர்வுசெய்யவும்.
+    </string>
+  <string name="prefs_sync_introduction_summary2">
+        Google Drive பயன்படுத்தும் போது, பயன்பாட்டுக் கோப்புகளுக்கு மட்டுமே %sக்கு அணுகல் வழங்கப்படும், தனிப்பட்ட கோப்புகள் அல்ல.
     </string>
   <string name="restore_backup_sections">காப்பகத்தின் எந்த பகுதிகளை மீட்டமைக்க வேண்டும்?</string>
   <string name="db_repositories">களஞ்சியங்கள் மற்றும் தொடர்புடைய அமைப்புகள்</string>
@@ -922,10 +1015,15 @@
   <string name="sync_confirmation">வெளியேறி விட்டு ஒத்திசைவை மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="cloud_info">மேக சேமிப்பக தகவல்</string>
   <string name="cloud_info_summary">மேக சேமிப்பகத்தில்: %s Mb</string>
+  <string name="sync_adapter">ஒத்திசைவு பின்தளம்</string>
+  <string name="sync_adapter_summary">தற்போதையது: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">%sக்கான அணுக்கள்.</string>
   <string name="auth_username">பயனர் பெயர்</string>
   <string name="auth_password">கடவுச்சொல்</string>
+  <string name="auth_access_token">அணுகல் டோக்கன்</string>
+  <string name="synchronization_categories">ஒத்திசைவு வகைகள்</string>
   <string name="sync_general_settings">தகவல் &amp; பொது அமைப்புகள்</string>
   <string name="sync_introduction">முன்னுரை</string>
   <string name="are_you_sure">உறுதியாகவா?</string>
@@ -953,10 +1051,20 @@
   <string name="external_link">வெளி இணைப்பு</string>
   <string name="external_link_question">இது வெளி இணைப்பு %s ஐ உலாவியில் திறக்கும். தொடர விரும்புகிறீர்களா?</string>
   <string name="nameless">தலைப்பு வரையறுக்கப்படவில்லை</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">ஒரு-தட்டல் செயல்கள் (விவிலியங்கள்)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">ஒரு-தட்டல் செயல்கள் (பிற)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">உரையைத் தட்டினால், ஒரு-தட்டல் செயல் சாளரம் காட்டப்படும். எந்த செயல் பொத்தான்கள் காட்டப்பட வேண்டும்?</string>
   <string name="processing_epub">EPUBஐ அலசுகிறது: %s</string>
+  <string name="buy_development">நிரலாக்கர்களின் வேலை நேரம் வாங்க</string>
   <string name="buy_development2">இத்திட்டத்திற்கு உதவ</string>
+  <string name="new_version_warning">
+        ஒரு புதிய பதிப்பு விரைவில் வெளிவர இருக்கிறது. %1$s அன்று வெளியிடப்படலாம். 
+        %2$sஐ கண்டு இதிலுள்ள புதிய மேம்படுத்தல்களை அறிந்து கொள்ளவும்.
+    </string>
   <string name="new_version_trailer">முன்னோட்ட காணொளி</string>
-  <string name="new_version_warning2">வெளியான பிறகு, இந்த பதிப்பு பராமரிக்கப்படவில்லை.</string>
+  <string name="new_version_warning2">
+        வெளியான பிறகு, இந்த பதிப்பு பராமரிக்கப்படவில்லை.
+    </string>
   <string name="new_version_warning3">
         பிழை திருத்தங்களையோ அல்லது புதுப்பிப்புகளையோ பெறாது.
     </string>
