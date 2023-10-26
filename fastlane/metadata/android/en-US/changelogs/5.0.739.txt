@@ -1,5 +1,5 @@
 5.0 (beta)
-Please see "what's new" video: https://youtu.be/FIX_THIS
+Please see "what's new" video: https://www.youtube.com/watch?v=LopRne2mIFs
 
 Highlights:
 - Support for EPUB electronic book format
