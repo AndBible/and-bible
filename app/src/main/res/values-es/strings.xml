@@ -800,6 +800,9 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="abbreviate_reference">Abreviar referencia</string>
   <string name="version_name">Nombre de la versión</string>
   <!--meaning, bible version name-->
+  <string name="show_version_name">Incluir el nombre de la versión</string>
+  <string name="show_ellipsis">Mostrar puntos suspensivos (…)</string>
+  <string name="show_quotes">Mostrar comillas</string>
   <string name="backup_button">Copia de seguridad</string>
   <string name="back_button">Atrás</string>
   <string name="upgrading_database">Actualizando la base de datos. Por favor espere…</string>
@@ -809,7 +812,11 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="old_webview">El paquete WebView de Android es demasiado antiguo (%1$s). Necesita actualizar su paquete WebView de Android al menos a la versión %2$s para usar %3$s. Para la mayoría de los dispositivos, esto se puede hacer a través de %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Proceda seguro</string>
+  <string name="proceed">Proceder</string>
   <string name="rate_title">Calificar y revisar la aplicación</string>
+  <string name="rate_message5">
+Las reseñas positivas y detalladas ayudan mucho a Proyecto de Código Abierto AndBible. ¡Gracias!
+</string>
   <string name="rate_message6">
 Antes de revisar la reseña negativa, considere lo siguiente:
 </string>
@@ -859,6 +866,8 @@ informe los problemas a los mantenedores de texto
   <string name="recent_labels">Etiquetas recientes</string>
   <string name="other_labels">Otras etiquetas</string>
   <string name="book_menu_sort_row_opt">Pedir libros horizontal</string>
+  <string name="book_menu_group_by_category">Agrupar libros por categoría</string>
+  <string name="book_menu_show_long_book_name">Mostrar nombre de libro largo</string>
   <string name="reset_workspace_labels">¿Desea restablecer la configuración de asignación automática y favorita para este espacio?</string>
   <string name="reset_hide_labels">¿Desea restablecer la configuración para ocultar la configuración de etiquetas especificadas?</string>
   <string name="reorder">Reordenar</string>
@@ -905,8 +914,20 @@ informe los problemas a los mantenedores de texto
   <string name="verse_tip">Para hace una selección parcial o de muchos versículos puede mantener presionado el texto de la Biblia</string>
   <string name="permission_required">Se necesita permiso</string>
   <string name="labels_search_hint">Búsqueda</string>
+  <string name="progress_status_permission">Para mostrar notificaciones (estado de descarga, procesamiento, estado de voz), necesitamos su permiso.</string>
   <!--Discrete mode settings-->
+  <string name="app_name_calculator">Calculadora Sencilla</string>
+  <string name="prefs_persecution_cat">Ambientes para los perseguidos</string>
+  <string name="prefs_discrete_mode">Ocultar símbolos religiosos</string>
+  <string name="prefs_discrete_mode_desc">Cambie el nombre de la aplicación a \'Calculadora\' y muestre un ícono diferente en el iniciador.</string>
+  <string name="prefs_show_calculator">Calculadora</string>
+  <string name="prefs_calculator_pin">PIN de la Calculadora</string>
+  <string name="prefs_calculator_pin_desc">Código PIN para ingresar a la aplicación cuando se muestra la calculadora.</string>
+  <string name="calc_division_by_zero">No se permite la división por cero</string>
   <!--Context: calculator. Wrong number format etc.-->
+  <string name="calc_wrong_format">Formato erróneo</string>
+  <string name="calc_wrong_format_operand">Formato erróneo. ¿Operando sin números?</string>
+  <string name="prefs_persecuted_help">¡Leé esto primero!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <!--Custom repositories-->
