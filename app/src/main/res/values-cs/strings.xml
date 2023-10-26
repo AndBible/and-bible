@@ -2,9 +2,9 @@
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bible</string>
-  <string name="app_name_medium">Studium Bible (AndBible)</string>
-  <string name="app_name_long">AndBible: Studium Bible</string>
-  <string name="project">AndBible Open Source Projekt</string>
+  <string name="app_name_medium">Studijní Bible (AndBible)</string>
+  <string name="app_name_long">AndBible: Studijní Bible</string>
+  <string name="project">Projekt AndBible s otevřeným kódem</string>
   <string name="version_text">Verze %s</string>
   <string name="no_sdcard_error">Prosím zasuňte SD kartu a restartujte aplikaci.</string>
   <!--Main menu-->
@@ -73,7 +73,7 @@
   <string name="prefs_disable_animations_title">Vypnout animace</string>
   <string name="prefs_disable_animations_summary">Vypnout různé animace, jako např. jemné posouvání.</string>
   <string name="prefs_paragraph_spacing_title">Odsazení odstavců (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Upravit odsazení kapitol</string>
+  <string name="prefs_paragraph_spacing_summary">Upravit mezery mezi odstavci.</string>
   <string name="prefs_show_verseno_title1">Čísla veršů</string>
   <string name="prefs_show_chapter_no_title">Čísla kapitol</string>
   <string name="prefs_show_chapter_no_summary">Zobrazit čísla kapitol</string>
@@ -90,7 +90,7 @@
   <string name="prefs_show_bookmarks_title">Zobrazit záložky</string>
   <string name="prefs_show_mynotes_title">Zobrazit ikony poznámek</string>
   <string name="prefs_show_footnotes_title">Poznámky pod čarou</string>
-  <string name="prefs_show_xrefs_title">Křížová reference</string>
+  <string name="prefs_show_xrefs_title">Křížové odkazy</string>
   <string name="prefs_show_footnotes_summary">Zobrazit poznámky pod čarou, pokud jsou dostupné</string>
   <string name="prefs_show_xrefs_summary">Zobrazit křížové odkazy, pokud jsou dostupné</string>
   <string name="prefs_show_notes_title">Poznámky a odkazy</string>
@@ -122,7 +122,7 @@
   <string name="reset_fontsize">Resetovat</string>
   <string name="prefs_request_sdcard_permission_title">Dostupné ručně instalované dokumenty</string>
   <string name="prefs_request_sdcard_permission_summary">Povolit používání ručně instalovaných dokumentů ze složky jsword na interním úložišti</string>
-  <string name="prefs_expand_footnotes_title"> Vložené křížové reference</string>
+  <string name="prefs_expand_footnotes_title"> Vložené křížové odkazy</string>
   <string name="prefs_expand_footnotes_summary">Zobrazit křížové odkazy přímo v textu a ne ve zvláštním okně</string>
   <string name="all_text_options_window_menutitle">Všechna nastavení textu</string>
   <string name="text_options_window_menutitle">Nastavení textu</string>
