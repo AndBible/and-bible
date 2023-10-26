@@ -235,7 +235,7 @@ const val studyPadsVideo = notesAndStudyPadsPlayList
 const val workspacesVideo = windowsAndWorkspacesPlaylist
 
 const val betaIntroVideo = "https://youtu.be/XdKmoe95KhI" //promoAndNewFeaturesPlaylistAutostart
-const val newFeaturesIntroVideo = "https://www.youtube.com/watch?v=LopRne2mIFs" // promoAndNewFeaturesPlaylistAutostart
+const val newFeaturesIntroVideo = "https://youtu.be/LopRne2mIFs" // promoAndNewFeaturesPlaylistAutostart
 
 const val speakHelpVideo = speakPlayList
 const val automaticSpeakBookmarkingVideo = speakPlayList
