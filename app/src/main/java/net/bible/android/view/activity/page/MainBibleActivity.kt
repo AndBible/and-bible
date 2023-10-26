@@ -512,22 +512,23 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     + "${getString(R.string.beta_notice_github)}</a>"
 
             )
-            val extraMessage = """
-                |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (6th Oct 2023)</b><br><br>
-                |Stable release is approaching. If everything goes as planned 
-                |(especially if there are no important UI translations lacking)
-                |we will release 5.0 to stable channels around 2nd November, 2023. <br>
-                |<br>
-                |Please test new features and report any bugs (crashes or misbehaviors) you find
-                |using either Main Menu -> Report a bug or via <a href="https://github.com/AndBible/and-bible/issues/new/choose">Github</a>.
-                |<br>
-                |<br>
-                | Best regards, Tuomas<br><br>
-                | P.S. You can now support AndBible development financially by <a href="$buyDevelopmentLink">buying development hours</a>. 
-                | <br><br>
-                | (Standard beta notice below)
-                | <br><br>
-            """.trimMargin()
+            val extraMessage = ""
+            //""""
+            //    |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (6th Oct 2023)</b><br><br>
+            //    |Stable release is approaching. If everything goes as planned
+            //    |(especially if there are no important UI translations lacking)
+            //    |we will release 5.0 to stable channels around 2nd November, 2023. <br>
+            //    |<br>
+            //    |Please test new features and report any bugs (crashes or misbehaviors) you find
+            //    |using either Main Menu -> Report a bug or via <a href="https://github.com/AndBible/and-bible/issues/new/choose">Github</a>.
+            //    |<br>
+            //    |<br>
+            //    | Best regards, Tuomas<br><br>
+            //    | P.S. You can now support AndBible development financially by <a href="$buyDevelopmentLink">buying development hours</a>.
+            //    | <br><br>
+            //    | (Standard beta notice below)
+            //    | <br><br>
+            //""".trimMargin()
             val htmlMessage = "$extraMessage$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
 
             val spanned = htmlToSpan(htmlMessage)
