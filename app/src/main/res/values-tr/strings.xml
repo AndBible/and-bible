@@ -42,7 +42,7 @@
   <string name="do_in_background">Arka planda devam et</string>
   <string name="rebuild_index_button">Yeniden oluştur</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%2s içinde %2s sonuç</string>
+  <string name="search_with_results2">%1s içinde %2s sonuç</string>
   <!--Tasks-->
   <string name="progress_status">İlerleme</string>
   <string name="task_kill_warning">Bu işlem zaman alacaktır. Eğer uygulamadan çıkarsanız, işlem bitmeden sonlandırılabilir.</string>
@@ -236,7 +236,7 @@
   <string name="download_document_confirm_prefix">İndir</string>
   <string name="download_refresh_book_list_menu_item">Yenilen</string>
   <string name="error_downloading">İndirirken bir hata oldu.  Lütfen internet bağlantınızı kontrol edin.</string>
-  <string name="error_downloading_status">1$s’yi barındıran sunucu %2$s (%3$d) nedeniyle bir hata döndürdü.</string>
+  <string name="error_downloading_status">%1$s’yi barındıran sunucu %2$s (%3$d) nedeniyle bir hata döndürdü.</string>
   <string name="storage_space_warning">Yerel depo yetersiz</string>
   <string name="too_many_jobs">Çok fazla görev çalışıyor. Lütfen bazılarının bitmesini bekleyin ve tekrar deneyin.</string>
   <string name="document_not_installed">Lütfen ‘%s’ dosyasını indirin</string>
@@ -589,7 +589,7 @@
   <string name="send_bug_report_title1">Hata raporu</string>
   <string name="send_feedback_title">Geri bildirim</string>
   <string name="send_bug_report_title">Geri bildirim / hata raporu</string>
-  <string name="report_bug_email_subject_3">[%1$s] 2$s %3$s için hata raporu</string>
+  <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s için hata raporu</string>
   <string name="report_bug_big_heading">LÜTFEN BU SATIRIN ÜZERİNE GERİ BİLDİRİMİNİZİ VEYA HATA RAPORUNU YAZINIZ</string>
   <string name="report_bug_heading1">Yönergeler:</string>
   <string name="report_bug_line_1">Bize kısaca ne yaptığınızı / sorun oluştuğunda ne olduğunu söyleyin.</string>
@@ -684,7 +684,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="beta_notice_dismiss_until_update">Bir sonraki güncellemeye kadar yok say</string>
   <string name="stable_notice_title">Uygulama güncellendi!</string>
   <string name="upgrade_video_message">Lütfen bu sürümün yeni özelliklerini içeren videoyu izleyin (%s)</string>
-  <string name="stable_notice_par1">2$s’nin yeni %1$s sürümü başarıyla yüklendi!</string>
+  <string name="stable_notice_par1">%2$s’nin yeni %1$s sürümü başarıyla yüklendi!</string>
   <!--History-->
   <string name="history_for">Geçmişi (%1$s: Pencere %2$d)</string>
   <!--Help-->
@@ -825,7 +825,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="initializing_app">Uygulama başlatılıyor…</string>
   <string name="show_notes">Notları göster</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView paketi çok eski (%1$s). 3$s’yi kullanmak için Android WebView paketinizi en az %2$s sürümüne yükseltmeniz gerekir. Çoğu cihaz için bu %4$s aracılığıyla yapılabilir.</string>
+  <string name="old_webview">Android WebView paketi çok eski (%1$s). %3$s’yi kullanmak için Android WebView paketinizi en az %2$s sürümüne yükseltmeniz gerekir. Çoğu cihaz için bu %4$s aracılığıyla yapılabilir.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Yine de devam et</string>
   <string name="proceed">Devam et</string>
