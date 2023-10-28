@@ -29,7 +29,7 @@
 		<ListPreference
 			android:key="sync_adapter"
 			android:title="@string/sync_adapter"
-			android:icon="@drawable/ic_backup_restore_24dp"
+			android:icon="@drawable/ic_syncdb_24dp"
 			/>
 		<Preference
 			android:key="gdrive_reset_sync"

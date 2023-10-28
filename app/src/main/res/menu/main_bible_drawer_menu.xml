@@ -55,11 +55,11 @@
 
             <item android:id="@+id/backupMainMenu"
                 android:title="@string/backup_and_restore"
-                android:icon="@drawable/ic_settings_backup_restore_black_24dp"/>
+                android:icon="@drawable/ic_settings_backup_restore_db_24dp"/>
 
             <item
                 android:id="@+id/googleDriveSync"
-                android:icon="@drawable/ic_backup_restore_24dp"
+                android:icon="@drawable/ic_syncdb_24dp"
                 android:title="@string/cloud_sync_title" />
 
             <item android:id="@+id/settingsButton"
