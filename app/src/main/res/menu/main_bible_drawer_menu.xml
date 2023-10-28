@@ -43,7 +43,7 @@
                 android:icon="@drawable/ic_reading_plan_solid_24dp"/>
             <item 	android:id="@+id/historyButton"
                 android:title="@string/history"
-                android:icon="@drawable/ic_history_book_24dp"/>
+                android:icon="@drawable/ic_history_clock_24dp"/>
         </menu>
     </item>
     <item
