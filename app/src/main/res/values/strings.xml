@@ -808,7 +808,7 @@
     </string>
     <string name="help_bookmarks_title">Bookmarks &amp; My Notes</string>
     <string name="help_bookmarks_text">Bookmarks can be created by either:\n
-        1. Long pressing to selecting some text and choosing "Bookmark" from the popup menu.\n
+        1. Long press to select some text and choosing "Bookmark" from the popup menu.\n
         2. Tap once and choose the Bookmark button.\n
         You can add custom notes to the new bookmark by tapping the pencil icon for the bookmark.
         There is also a "My Notes" special document in commentaries that allows you
