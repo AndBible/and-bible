@@ -85,7 +85,7 @@ class SyncService: Service() {
         if(CommonUtils.isDiscrete) {
             builder.setSmallIcon(R.drawable.ic_calc_24)
         } else {
-            builder.setSmallIcon(R.drawable.ic_backup_restore_24dp)
+            builder.setSmallIcon(R.drawable.ic_syncdb_24dp)
         }
 
         val notification = builder.build()
