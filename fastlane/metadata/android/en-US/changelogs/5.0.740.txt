@@ -1,5 +1,5 @@
 5.0 (release candidate)
-Please see "what's new" video: https://youtu.be/LopRne2mIFs
+Please see "what's new" video: https://youtu.be/qHH3wasmEZY
 
 Highlights:
 - Support for EPUB electronic book format
