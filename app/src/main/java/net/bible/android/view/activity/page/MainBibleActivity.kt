@@ -28,9 +28,11 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.Layout
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
+import android.text.style.AlignmentSpan
 import android.text.style.ImageSpan
 import android.util.Log
 import android.util.TypedValue
@@ -452,23 +454,34 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         val ver = CommonUtils.mainVersion
-
         val displayedVer = preferences.getString("stable-notice-displayed", "")
         Log.i(TAG, "showStableNotice: $displayedVer $ver")
 
         if(displayedVer != ver) {
             val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-            val videoMessageLink = "<a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a>"
             val appName = getString(R.string.app_name_long)
             val par1 = getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
             val buy = getString(R.string.buy_development)
             val support = getString(R.string.buy_development2)
             val heartIcon = ImageSpan(CommonUtils.getTintedDrawable(R.drawable.baseline_attach_money_24))
-            val buyMessage = "&nbsp;<a href=\"$buyDevelopmentLink\">$support</a> ($buy)"
-            val htmlMessage = "$par1<br><br>$videoMessageLink<br><br>"
+            val biggerLogoDrawable = CommonUtils.getResourceDrawable(R.drawable.ic_logo, this)!!
+            biggerLogoDrawable.setBounds(0, 0, biggerLogoDrawable.intrinsicWidth*2, biggerLogoDrawable.intrinsicHeight*2)
+            val logoSpan = ImageSpan(biggerLogoDrawable)
+            val centerSpan = AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER)
+            val imageStr = SpannableString("*")
             val iconStr = SpannableString("*")
             iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            val spanned = TextUtils.concat(htmlToSpan(htmlMessage), iconStr, htmlToSpan(buyMessage))
+            imageStr.setSpan(logoSpan, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+            imageStr.setSpan(centerSpan, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+            val spanned = TextUtils.concat(
+                htmlToSpan("$par1<br><br>"),
+                imageStr,
+                htmlToSpan("<br><br><big><a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a></big>"),
+                htmlToSpan("<br><br>"),
+                iconStr,
+                htmlToSpan("&nbsp;<small><a href=\\\"$buyDevelopmentLink\\\">$support ($buy)</a></small>")
+            )
 
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.stable_notice_title))

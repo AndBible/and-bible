@@ -608,7 +608,7 @@ object CommonUtils : CommonUtilsBase() {
             resources.getColor(resourceId)
         }
 
-    private fun getResourceDrawable(resourceId: Int, context: Context? = null): Drawable? {
+    fun getResourceDrawable(resourceId: Int, context: Context? = null): Drawable? {
         val theme = CurrentActivityHolder.currentActivity?.theme?: resources.newTheme().apply {
             applyStyle(R.style.AppTheme, true)
         }
