@@ -1,13 +1,13 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: 書籤
 bookmarksAndNotes: 書籤及我的筆記
-openMyNotes: 在我的筆記開啟
-openStudyPad: 在 (%s) 開啟研習筆記
+openMyNotes: 喺我的筆記開啟
+openStudyPad: 喺 (%s) 開啟研習筆記
 noteText: 註腳 (%s)
 noteTextWithoutType: 註腳
 crossReferenceText: 交叉對照
 findAllOccurrences: 查找所有
-reportError: 回報錯誤
+reportError: 報告錯誤
 errorTitle: 發生錯誤
 warningTitle: 警告
 normalTitle: 請注意
@@ -17,49 +17,49 @@ footnoteTypeVariant: 變化型
 footnoteTypeAlternative: 替代
 footnoteTypeTranslation: 翻譯
 clearLog: 清除錯誤記錄
-editTextPlaceholder: 按一下編輯文字
-inputPlaceholder: 在此輸入
+editTextPlaceholder: 撳一下編輯文字
+inputPlaceholder: 呢度輸入
 inputReference: 輸入聖經參考
-invalidReference: 找不到節
+invalidReference: 搵唔到呢節
 bookmarkAccurate: 書籤已在 %s 建立
 bookmarkInaccurate: 書籤並未儲存；內容正在 %s 顯示。
 defaultBook: 預設聖經文件
-ok: 確定
-yes: "是"
-ambiguousSelection: 你希望進行什麼動作？
+ok: 好
+yes: "係"
+ambiguousSelection: 你想做咩？
 cancel: 取消
 removeBookmarkConfirmationTitle: 移除書籤？
-removeBookmarkConfirmation: 你確定要移除此書籤？
+removeBookmarkConfirmation: 你要移除呢個書籤？
 createdAt: "已建立：%s"
 lastUpdatedOn: "最後更新：%s"
 strongsAndMorph: 定義及詞法
-externalLink: 開啟外部連結
-referenceLink: 開啟參考連結
-openFootnote: 開啟註腳
-noMyNotesTitle: 此章沒有我的筆記
+externalLink: 打開外部連結
+referenceLink: 打開參考連結
+openFootnote: 打開註腳
+noMyNotesTitle: 呢章冇我的筆記
 noMyNotesDescription: >
-  請先在聖經文件新增書籤。書籤將會在這裡顯示，而你可以增加你的個人筆記。
+  請先喺聖經文件新增書籤。書籤將會喺呢度顯示，跟住你可以增加你嘅個人筆記。
 emptyStudyPad: >
-  空白研習筆記。你可以在此研習筆記增加文字，或增加此研習筆記對應的書籤標籤。
-doYouWantToDeleteEntry: 刪除此研習筆記？
-removeStudyPadConfirmationTitle: 移除所有研習筆記？
+  空白研習筆記。你可以喺呢個研習筆記增加文字，或增加呢個研習筆記對應嘅書籤標籤。
+doYouWantToDeleteEntry: 刪除呢條研習筆記？
+removeStudyPadConfirmationTitle: 清晒所有研習筆記？
 dragHelp: 拖動以重新排序
-openAll: 開啟所有參考
-editBookmarkPlaceholder: 點選編輯此書籤的筆記
+openAll: 打開所有參考
+editBookmarkPlaceholder: 撳一下編輯呢個書籤嘅筆記
 onlyLabel: 只顯示標籤
 wholeBookmark: 完整書籤
-assignLabelsMenuEntry1: 選取或編輯標籤...
+assignLabelsMenuEntry1: 選取或者編輯標籤...
 favouriteLabels: 最愛標籤
 recentLabels: 最近標籤
 bookmarkLabels: 書籤標籤
-refParserHelp: 請安裝 %s 模組以使用英文以外的參考。
-openDownloads: 移至附加下載
+refParserHelp: 差咗 %s 模組先睇到英文以外嘅參考。
+openDownloads: 去附加下載
 verseShare: 分享
 verseSpeak: 朗讀
 verseCompare: 比較
 verseNote: 筆記
 verseMyNotes: 筆記列表
-verseShareLong: 分享此節
+verseShareLong: 分享呢節
 verseCompareLong: 比較經文
 verseNoteLong: 增加筆記
 addBookmark: 書籤

@@ -634,6 +634,8 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="error_key_not_in_document2">%s no se encontró en el documento %s.</string>
   <string name="empty_list">No hay ítems para mostrar</string>
   <string name="error_skip">Saltar</string>
+  <string name="bug_report_email_title">Enviar informe de fallo por correo electrónico</string>
+  <string name="bug_report_email_text">A continuación, por favor seleccione su aplicación de correo preferida (por ejemplo Gmail) para enviar el informe al equipo de desarrollo.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Texto a voz</string>
   <string name="notification_channel_progress_status">Notificación de estado de progreso para descarga de documentos etc.</string>
@@ -739,8 +741,12 @@ al menos 1 documento descargándolo de Internet o cargándolo desde un documento
 respaldo.
 </string>
   <!--Supported file formats for documents-->
+  <string name="supported_formats_title">Formatos soportados</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">Tiene que seleccionar el archivo que quiere cargar en %s. </string>
+  <string name="supported_formats">Formatos soportados para cargar documentos desde un archivo: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">Archivo zip que contiene módulo(s) de Sword, o archivo de copia de seguridad de documentos (*.abmd) creado por %s</string>
   <string name="format_mysword">Documentos MySword (*.mybible)</string>
   <string name="format_mybible">Documentos MyBible (.SQLite3)</string>
   <string name="format_epub">Documentos EPUB (*.epub)</string>
@@ -929,15 +935,121 @@ informe los problemas a los mantenedores de texto
   <string name="calc_wrong_format_operand">Formato erróneo. ¿Operando sin números?</string>
   <string name="prefs_persecuted_help">¡Leé esto primero!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Instrucciones para los ajustes e información sobre una compilación específica.</string>
+  <string name="calculator_par1">
+        Antes de entrar a la aplicación, se muestra la pantalla de calculadora.
+    </string>
+  <string name="calculator_par2">
+        En ella, puede realizar cálculos estándar, y cuando desee entrar a la aplicación
+        simplemente escriba su código PIN (el predeterminado es 1234) y pulse el botón \"=\".
+    </string>
+  <string name="calculator_par3">
+        Puede establecer un código PIN personalizado mediante el ajuste \"PIN de calculadora\".
+    </string>
+  <string name="discrete_mode_info_par1">
+        Está usando la versión estándar de la aplicación, lo que significa que aún es posible ver
+        el nombre real y el icono en la información de la aplicación.
+    </string>
+  <string name="discrete_mode_info_par2">
+        Para una seguridad mejorada en un entorno de persecución, recomendamos encarecidamente usar la versión
+        discreta de la aplicación, que siempre muestra una calculadora, incluso si se borran los datos de la aplicación.
+    </string>
+  <string name="discrete_mode_link">
+        Puede descargar la última versión de la versión discreta desde %s.
+    </string>
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Sincronizar grupo</string>
+  <string name="sync_group_n">Grupo %d</string>
+  <string name="disable_sync">Deshabilitar sincronizar</string>
+  <string name="open_in_window">Abrir resultados en una ventana</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">Repositorios personalizados</string>
+  <string name="custom_repositories_empty_list_message">No se han definido repositorios personalizados</string>
+  <string name="custom_repositories_create_button_label">Agregar repositorio personalizado</string>
   <string name="custom_repositories_info_button_label">Información</string>
+  <string name="name_for_repository">Nombre del repositorio</string>
+  <string name="repository_specification">URL del repositorio</string>
+  <string name="delete_custom_repository">¿Desea eliminar el repositorio personalizado %s?</string>
+  <string name="invalid_repository_not_saved">La especificación del repositorio no era válida y no se ha guardado.</string>
+  <string name="custom_repositories_help1">Para agregar un nuevo repositorio personalizado, teclee o copie y pegue la URL del repositorio aquí.</string>
+  <string name="custom_repositories_help2">Puede leer más información sobre repositorios personalizados en %s.</string>
+  <string name="wiki_page">Página wiki</string>
+  <string name="custom_repositories_help0">Puede instalar documentos de repositorios personalizados externos al instalar repositorios personalizados.</string>
+  <string name="duplicate_custom_repository">El repositorio con nombre %s ya existe, no se puede agregar de nuevo.</string>
+  <string name="packages_dir">Directorio de paquetes (archivos zip)</string>
+  <string name="warn_bad_document">Aviso: este documento puede tener mala calidad técnica (al menos parcialmente).</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Abrir archivos de Biblia en AndBible</string>
+  <string name="open_bible_links_summary">Cuando se pulsa en enlaces que se refieren a una URL de una Biblia soportada por AndBible, abrirlos en AndBible.</string>
+  <string name="copyReference">Copiar enlace al portapapeles</string>
+  <string name="reference_copied_to_clipboard">Referencia copiada al portapapeles</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+        Elija qué servicio de nube quiere usar para sincronizar múltiples dispositivos.
+    </string>
+  <string name="prefs_sync_introduction_summary2">
+        Cuando se usa Google Drive, %s tiene concedido acceso solamente a archivos de la aplicación, no a otros archivos personales.
+    </string>
+  <string name="restore_backup_sections">¿Qué secciones de la copia de seguridad desea restaurar?</string>
+  <string name="db_repositories">Repositorios y ajustes relacionados</string>
+  <string name="db_bookmarks">Marcadores, Mis Notas, Etiquetas y Pizarras de Estudio</string>
+  <string name="synchronizing">Sincronizando...</string>
+  <string name="overrideBackup">
+        Se ha encontrado en la nube una base de datos existente para la cual este dispositivo no está sincronizado.
+        La base de datos contiene %s. ¿Qué desea hacer?
+    </string>
+  <string name="reading_plans_content">Planes de lectura y sus estados</string>
+  <string name="bookmarks_contents">Marcadores, Etiquetas y Pizarras de Estudio</string>
+  <string name="workspaces_contents">Espacios de trabajo y Ventanas</string>
+  <string name="cloud_fetch_and_restore_initial">Copiar de la nube a este dispositivo</string>
+  <string name="cloud_create_new">Copiar de este dispositivo a la nube</string>
+  <string name="cloud_disable_sync">Cancelar y deshabilitar sincronización.</string>
+  <string name="cloud_sync_title">Sincronización de dispositivo</string>
+  <string name="reset_sync">Cerrar sesión</string>
+  <string name="prefs_reset_sync_summary">Deshabilitar sincronización y restablecer los ajustes relacionados.</string>
+  <string name="sync_confirmation">¿Está seguro/a de que desea cerrar sesión y restablecer la sincronización?</string>
+  <string name="cloud_info">Información de la nube</string>
+  <string name="cloud_info_summary">Datos en almacenamiento de la nube: %s Mb</string>
+  <string name="sync_adapter">Servicio de sincronización</string>
+  <string name="sync_adapter_summary">Actual: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">Autenticación en %s</string>
+  <string name="auth_username">Nombre de usuario</string>
+  <string name="auth_password">Contraseña</string>
+  <string name="auth_access_token">Token de acceso</string>
+  <string name="synchronization_categories">Categorías de sincronización</string>
+  <string name="sync_general_settings">Info y ajustes generales</string>
+  <string name="sync_introduction">Introducción</string>
+  <string name="are_you_sure">¿Está seguro/a?</string>
+  <string name="are_you_sure_reset_local">Esto restablecerá su base de datos local para %s con el contenido que está actualmente almacenado en el servicio de nube.</string>
+  <string name="are_you_sure_reset_cloud">Esto restablecerá su base de datos en la nube para %s con el contenido que hay en este dispositivo.</string>
+  <string name="sync_cant_fetch">La versión de base de datos o archivo almacenado en la nube es más alta que la que soporta esta aplicación.</string>
+  <string name="sync_disabling">Deshabilitando la sincronización para %s por ahora.</string>
+  <string name="sync_update_app">Por favor actualice la aplicación para continuar con la sincronización.</string>
+  <string name="sign_in_failed">El inicio de sesión para la sincronización con el servicio de nube ha fallado.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">Deshabilitando la sincronización con la nube. Debe habilitarla de nuevo manualmente tras restaurar.</string>
+  <string name="report">Informe</string>
+  <string name="sync_error">Error ocurrido en la sincronización con la nube</string>
+  <string name="error_notification_channel_name">Notificaciones de error</string>
+  <string name="restore_from_cloud_description">Si tiene habilitada la sincronización de dispositivo en otro dispositivo, puede empezar con la restauración de la base de datos desde la nube.</string>
+  <string name="enable_sync">Habilitar sincronización</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">No se puede leer el archivo</string>
+  <string name="sqlite_invalid_file">Nombre de archivo o de módulo no válido: %s</string>
+  <string name="sqlite_cant_write">No se puede (sobr)escribir el archivo</string>
+  <string name="install_failed_reason">La instalación del módulo ha fallado por la siguiente razón: %s.</string>
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">La aplicación se ha abierto en otro lugar</string>
+  <string name="open_here">Abrir aquí</string>
+  <string name="external_link">Enlace externo</string>
+  <string name="external_link_question">Esto abrirá el enlace externo %s en una aplicación de navegador, ¿desea continuar?</string>
+  <string name="nameless">Título no definido</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acciones de un toque (Biblias)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Acciones de un toque (Otros)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Cuando se toca un texto, la ventana de acción de un toque se muestra. ¿Qué botones de acción deberían mostrarse?</string>
   <string name="processing_epub">Procesando EPUB: %s</string>
   <string name="buy_development">Patrocinar trabajo de desarrollo</string>
   <string name="buy_development2">Apoya este proyecto</string>
@@ -946,4 +1058,16 @@ Próximamente habrá un nuevo lanzamiento. La fecha de lanzamiento prevista es %
 %2$s para descubrir nuevas funciones y mejoras.
 </string>
   <string name="new_version_trailer">vídeo del avance</string>
+  <string name="new_version_warning2">
+        Tras la publicación, esta versión ya no se mantiene.
+    </string>
+  <string name="new_version_warning3">
+        No recibirá correcciones de fallos ni actualizaciones.
+    </string>
+  <string name="new_version_warning4">
+        Si no desea actualizar, por favor deshabilite las actualizaciones automáticas en su tienda de aplicaciones (Google Play / F-Droid etc).
+    </string>
+  <string name="dont_show">
+        No volver a mostrar este mensaje
+    </string>
 </resources>

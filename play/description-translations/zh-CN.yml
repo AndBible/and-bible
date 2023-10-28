@@ -8,7 +8,7 @@ subtitle_1: 功能强大的的研经工具
 paragraph_1_1: >
   "{{ title }}" 经工具是一款多功能、易用的离线Android程式。此程式不单是一个纯粹的圣经阅读器，也专注于成功个人全方位的研经工具。
 paragraph_1_2: >
-  此程式是由圣经读者开发，也是为圣经读者开发。目的是提供便利、有深度且有趣的查经体验。此程式是非营利、也是开源，更重要是完全没有广告滋扰。它是一个原创的Android程式，占用空间亦是细小，因此它是一个十分快速且高效能的程式。
+  这款应用是由圣经读者开发，并旨在服务于圣经读者。希望能帮您建立一个方便、深度且有趣的研经体验。这个非营利社区项目的最大的优点就是来源、完全免费，并且没有任何广告。
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   热门的圣经译本如和合本、新译本、KJV、NASB，以及常见的注解如Matthew Henry及John Gill等。文件之多，未能尽录。
@@ -34,19 +34,19 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   庞大的文件库：{{total_languages}}种语言、超过{{total_documents}}份圣经译本、神学注释、字典、地点及基督教书籍。全部均由Crosswire及其他SWORD资料库授权分发。
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  所有文件的来源均已被考究，以确定它们都是已获授权分发。这也代表了此程式未有附载未权授权的文件如{{unavailable_documents}}。
+feature_10_1: >-
+  支持MyBible,、MySword 与EPUB源文件格式，让您可以收藏更多的文献。
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: ESV、NIV 及 NKJV
 feature_12: >
   离线可用：只有下载文件时需要上网。
+# UNUSED
 feature_13: >
   个人笔记可以让你在聆听讲道时新增笔记及参考。
 subtitle_3: 我们需要大家一起造出最好的圣经工具！
 paragraph_3_1: >
-  And Bible是一个开源计划。这代表了我们需要所有有能之士，为此计划一同用以下方式贡献：
+  AndBible是一个来源社区项目，欢迎大家贡献自己的才干来为项目做贡献，诸如：
 contr_1: 开发新功能，
 contr_2: 测验未开放的新功能，
 contr_3: 保持介面翻译更新，及
@@ -58,10 +58,16 @@ subtitle_4: 连结
 link_1: >
   主页：{{homepage_url}}
 link_2: >
-  在 Facebook 上赞好 And Bible：{{facebook_url}}
+  在脸书为AndBible点赞：: {{facebook_url}}
 link_3: >
   我们的 Youtube 频道：{{youtube_url}}
 link_4: >
   常见问题：{{faq_url}}
 link_5: >
   Github Project 页面：{{github_url}}
+buy_title: >
+  支持购买开发工时
+buy_1: >
+  如果您没有时间和技能来支持项目，您也可以为项目购买专业开发人员的工时。
+buy_2: >
+  请参见选项

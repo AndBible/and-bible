@@ -62,6 +62,7 @@
   <string name="search_old_testament">התנ\"ך בלבד</string>
   <string name="search_current_book">הספר הנוכחי</string>
   <string name="error_executing_search">שגיאה בשאילתת החיפוש</string>
+  <string name="type_text_or_bible_reference">הקלד טקסט או מראה מקום</string>
   <!--Open (bible reference X)-->
   <string name="go_to_ref">פתיחת %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
@@ -123,6 +124,7 @@
   <string name="reset_fontsize">איפוס</string>
   <string name="prefs_request_sdcard_permission_title">קיימים מסמכים שהותקנו ידנית</string>
   <string name="prefs_request_sdcard_permission_summary">אפשר שימוש במסמכים שהותקנו ידנית בתיקיית  jsword/sword בזכרון המכשיר</string>
+  <string name="prefs_expand_footnotes_title">מראה מקום בתוך הטקסט</string>
   <string name="all_text_options_window_menutitle">כל אפשרויות הטקסט</string>
   <string name="text_options_window_menutitle">אפשרויות טקסט</string>
   <string name="auto_fullscreen">מסך מלא ע\"י גלילה</string>
@@ -132,6 +134,7 @@
   <string name="value_mm">%d מ\"מ</string>
   <string name="auto_fullscreen_summary">מעבר אוטומטי למסך מלא בעת גלילת הטקסט. טיפ: אפשר לעבור למסך מלא בהקשה כפולה על המסך.</string>
   <string name="prefs_margin_size_title">שינוי שוליים</string>
+  <string name="prefs_margin_size_mm_title">מידת שוליים (%1$d/%2$d/%3$d מ\"מ)</string>
   <string name="prefs_advanced_settings_cat">הגדרות מתקדמות</string>
   <string name="prefs_display_customization_cat">מראה והתנהגות</string>
   <string name="prefs_behavior_customization_cat">התנהגות היישום</string>
@@ -184,6 +187,7 @@
   <string name="prefs_enable_bluetooth_title">אפשר כפתורי מדיה בבלוטות\'</string>
   <string name="prefs_enable_bluetooth_summary">אפשר להשתמש בכפתורי מדיה בלוטות\' כדי להתחיל או להפסיק הקראה.</string>
   <string name="create_bookmark">סימניה חדשה</string>
+  <string name="create_bookmark_with_a_note">יצירת סימניה חדשה עם הערה</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">הגדרות צבע</string>
   <string name="window_color_settings_title">הגדרות צבע חלון</string>
@@ -250,11 +254,14 @@
   <string name="failed_downloads_message">לא ניתן להוריד את הקבצים:\n\n%s\n\n</string>
   <string name="cant_delete_document">לא ניתן למחוק את המסמך הזה</string>
   <!--Install zip file-->
+  <string name="install_zip">טעינת מסמכים מתוך קבצים</string>
   <string name="install_zip_module">התקנת מודולים של טקסטים מקראיים</string>
+  <string name="install_zip_module_discrete">התקנת מודול מחשבון</string>
   <string name="install_zip_successfull">המודול הותקן בהצלחה</string>
   <string name="extracting_zip_file">פורש קובץ ZIP כעת....</string>
   <string name="checking_zip_file">בדיקת הקובץ מתבצעת....</string>
   <string name="invalid_module">הקובץ אינו מכיל מודול SWORD תקין</string>
+  <string name="install_zip_title">אנא המתן. טוען מודולים מהקובץ</string>
   <string name="overwrite_files">הקבצים הבאים כבר קיימים: %s האם לדרוס?</string>
   <string name="overwrite_files_title">האם לדרוס את הקבצים?</string>
   <!--Daily Reading Plan-->
@@ -500,6 +507,7 @@
   <!--Backup and restore-->
   <string name="backup_and_restore">גיבוי ושחזור</string>
   <string name="backup_modules2">גיבוי מסמכים ל....</string>
+  <string name="backup_app_database2">גיבוי מסד הנתונים של האפליקציה אל...</string>
   <string name="backup_application">יישום</string>
   <string name="backup_database">מסד נתונים</string>
   <string name="backup_documents">מסמכים</string>
@@ -586,6 +594,7 @@
   <string name="error_key_not_in_document2">%s לא נמצא במסמך %s.</string>
   <string name="empty_list">אין פריטים</string>
   <string name="error_skip">דלג</string>
+  <string name="bug_report_email_title">שלח דווח תקלה בדואל</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">הקראת טקסט</string>
   <string name="notification_channel_progress_status">להציג התראות עבור תהליכים רצים, למשל הורדות</string>
@@ -669,6 +678,7 @@
   <string name="choose_file">אתה צריך לבחור את הקובץ כדי לטעון אותו אל %s. </string>
   <!--argument is app_name_andbible (AndBible).-->
   <string name="format_mysword">מסמכים של MySword (*.mybible)</string>
+  <string name="format_mybible">MyBible מסמכי (*.SQLite3)</string>
   <string name="format_epub">מסמכי EPUB (*.epub)</string>
   <string name="redownload_message">נמצאה רשימה קודמת של ספרים/מסמכים. נא ללחוץ למטה כדי לטעון אותם מחדש בקלות.</string>
   <!--Uncategorized-->
@@ -720,6 +730,7 @@
   <string name="advertise_app">פרסם את האפליקציה</string>
   <string name="verse_share_advertise">שותף עם %s.</string>
   <string name="show_reference">הצג מראה מקום</string>
+  <string name="show_reference_at_front">הצג בקדמת הפסוק</string>
   <string name="abbreviate_reference">לקצר מראה מקום</string>
   <string name="version_name">שם הגרסה</string>
   <!--meaning, bible version name-->
@@ -819,11 +830,15 @@
   <string name="labels_search_hint">חיפוש</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">מחשבון פשוט</string>
+  <string name="prefs_discrete_mode">הסתר סמלים דתיים</string>
   <string name="prefs_discrete_mode_desc">שנה את שם האפליקציה ל \'מחשבון\' והצג עבורה אייקון אחר בתפריט היישומים.</string>
   <string name="prefs_show_calculator">מחשבון</string>
   <string name="prefs_calculator_pin">קוד המחשבון</string>
+  <string name="prefs_calculator_pin_desc">קוד PIN כדי להכנס ליישום כשהמחשבון מוצג</string>
+  <string name="calc_division_by_zero">חלוקה באפס אינה אפשרית</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">פורמט לא תקין</string>
+  <string name="prefs_persecuted_help">קרא זאת לפני השימוש</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
   <string name="sync_group_submenu">סנכרן קבוצה</string>
@@ -847,6 +862,10 @@
   <!--Device cloud synchronization-->
   <string name="db_repositories">הגדרות לגבי מאגרים</string>
   <string name="synchronizing">מסנכרן...</string>
+  <string name="workspaces_contents">סביבות עבודה וחלונות</string>
+  <string name="cloud_fetch_and_restore_initial">העתקה מהענן אל המכשיר</string>
+  <string name="cloud_create_new">העתקה מהמכשיר אל הענן</string>
+  <string name="cloud_disable_sync">בטל ומנע סנכרון</string>
   <string name="cloud_sync_title">סנכרון מכשיר</string>
   <string name="reset_sync">התנתקות</string>
   <string name="cloud_info">מידע מהענן</string>
@@ -857,6 +876,7 @@
   <string name="auth_username">שם משתמש</string>
   <string name="auth_password">סיסמה</string>
   <string name="auth_access_token">טוקן</string>
+  <string name="synchronization_categories">קטגוריות לסנכרון</string>
   <string name="sync_general_settings">מידע והגדרות כלליות</string>
   <string name="sync_introduction">הקדמה</string>
   <string name="are_you_sure">האם אתה בטוח?</string>
@@ -867,6 +887,7 @@
   <string name="enable_sync">אפשר סנכרון</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">לא ניתן לקרוא את הקובץ</string>
+  <string name="sqlite_cant_write">לא ניתן לשמור את הקובץ</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">היישום נפתח במקום אחר</string>
   <string name="open_here">פתח כאן</string>

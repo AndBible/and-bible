@@ -943,14 +943,37 @@ jelentse be az észlelt problémát</string>
   <string name="copyReference">Hivatkozás másolása a vágólapra</string>
   <string name="reference_copied_to_clipboard">A hivatkozás a vágólapra került</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+        Válassza ki, hogy melyik tárhely-szolgáltatást szeretné használni több eszköz szinkronizálásához..
+    </string>
+  <string name="prefs_sync_introduction_summary2">
+        Google Drive használatakor az %s csak az alkalmazás adataihoz fér hozzá, a saját fájljaihoz nem.
+    </string>
+  <string name="restore_backup_sections">Mit szeretne visszaállítani a biztonsági mentésből?</string>
+  <string name="db_repositories">Tárolók és a tárolókkal kapcsolatos beállítások</string>
   <string name="db_bookmarks">Könyvjelzők, Jegyzeteim, Címkék és Jegyzetlapok</string>
   <string name="synchronizing">Összehangolás...</string>
+  <string name="overrideBackup">
+         A tárhelyen olyan adatbázis található, ami erre az eszközre nincs szinkronizálva.
+        Az adatbázis tartalma:%s. Mit szeretne tenni?
+    </string>
+  <string name="reading_plans_content">Olvasási tervek és állapotuk</string>
   <string name="bookmarks_contents">Könyvjelzők, Címkék és Jegyzetlapok</string>
+  <string name="workspaces_contents">Munkaterületek és ablakok</string>
+  <string name="cloud_fetch_and_restore_initial">Másolás a tárhelyről erre az eszközre</string>
+  <string name="cloud_create_new">Másolás erről az eszközről a tárhelyre</string>
+  <string name="cloud_disable_sync">A szinkronizáció befejezése és kikapcsolása</string>
   <string name="cloud_sync_title">Eszköz összehangolás</string>
   <string name="reset_sync">Kijelentkezés</string>
   <string name="prefs_reset_sync_summary">Összehangolás kikapcsolása és hasonló beállítások visszaállítása</string>
+  <string name="sync_confirmation">Biztos ki akar jelentkezni és  törölni a szinkronizációs beállításokat?</string>
+  <string name="cloud_info">Tárhely információ</string>
+  <string name="cloud_info_summary">A tárhelyen tárolt adatmennyiség: %s MB</string>
+  <string name="sync_adapter">Szinkronizációs tárhely</string>
+  <string name="sync_adapter_summary">%s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">Bejelentkezés: %s</string>
   <string name="auth_username">Felhasználónév</string>
   <string name="auth_password">Jelszó</string>
   <string name="auth_access_token">Hozzáférési kulcs</string>
@@ -958,10 +981,18 @@ jelentse be az észlelt problémát</string>
   <string name="sync_general_settings">Információ és általános beállítások</string>
   <string name="sync_introduction">Bevezetés</string>
   <string name="are_you_sure">Biztosan?</string>
+  <string name="are_you_sure_reset_local">Az %s helyi adatbázisát felülírja a tárhelyen található változattal.</string>
+  <string name="are_you_sure_reset_cloud">Az %s  tárhelyen található adatbázisát felülírja az ezen az eszközön tatalálható változattal.</string>
+  <string name="sync_cant_fetch">A tárhelyen található adatbázis vagy frissítés verziója magasabb mint az alkalmazásé.</string>
+  <string name="sync_disabling">%s szinkronizációja kikapcsolva</string>
+  <string name="sync_update_app">Frissítse az alkalmazást a szinkronizáció folytatásához.</string>
+  <string name="sign_in_failed">Nem sikerült belépni a tárhely-szolgáltatásba.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">Szinkronizáció kikapcsolása. Engedélyezze újra a visszaállítás után.</string>
   <string name="report">Visszajelzés</string>
   <string name="sync_error">Hiba történt a felhővel való összehangolás közben</string>
   <string name="error_notification_channel_name">Hiba értesítés</string>
+  <string name="restore_from_cloud_description">Ha egy másik eszközön engedélyezve van a szinkronizálás, akkor visszaállíthatja az adatbázist a konfigurált tárhelyről.</string>
   <string name="enable_sync">A szinkronizáció engedélyezése</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">A fájl nem olvasható</string>
@@ -969,8 +1000,30 @@ jelentse be az észlelt problémát</string>
   <string name="sqlite_cant_write">A fájl (felül)írása nem sikerült</string>
   <string name="install_failed_reason">A modul telepítése nem sikerült: %s</string>
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Az alkalmazás meg van nyitva máshol.</string>
   <string name="open_here">Megnyitás itt</string>
   <string name="external_link">Külső hivatkozás</string>
+  <string name="external_link_question">Megnyitja a %s linket az alapértelmezett böngészőben?</string>
+  <string name="nameless">A cím nincs megadva</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Bibliákhoz kapcsolódó egy-koppintásos műveletek</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Egyéb egy-koppintásos műveletek</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Amikor a szövegre koppint, megjelenik az egy-koppintásos művelek listája. Melyik műveletek szerepeljenek a listán?</string>
+  <string name="processing_epub">EPUB feldolgozás: %s</string>
+  <string name="buy_development">Fejlesztői munka vásárlása</string>
+  <string name="buy_development2">A projekt támogatása</string>
+  <string name="new_version_warning">
+        Hamarosan új kiadás érkezik. A várható megjelenési dátum %1$s. Tekintse meg %2$s, amely bemutatja az új funkciókat és fejlesztéseket.
+    </string>
+  <string name="new_version_trailer">videónkat</string>
+  <string name="new_version_warning2">
+       A kiadás után ez a verzió nem kerül karbantartásra.
+    </string>
+  <string name="new_version_warning3">
+        Sem hibajavítások, sem frissítések sem lesznek elérhetőek hozzá.
+    </string>
+  <string name="new_version_warning4">
+        Ha nem akar frissíteni, akkor kapcsolja ki az \'Automatikus frissítések telepítése\' opciót az alkalmazásboltban (Google Play / F-Droid etc).
+    </string>
   <string name="dont_show">
         Ne jelenítse meg ezt az üzenetet többet
     </string>

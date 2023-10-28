@@ -863,8 +863,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="favourite_label">Oblíbený štítek</string>
   <string name="edit_label">Upravit štítek</string>
   <string name="delete_label_confirmation">Opravdu smazat štítek \"%s\"? Přidružené studijní složky budou také odstraněny.</string>
-  <string name="bookmark_underline_style_arbitrary">Styl podtržení záložek výběru</string>
-  <string name="bookmark_underline_style_whole_verse">Styl podtržení záložek pro celý verš</string>
+  <string name="bookmark_underline_style_arbitrary">Podtrhnout vybraný text</string>
+  <string name="bookmark_underline_style_whole_verse">Podtrhnout celý verš</string>
   <string name="active_labels">Vybrané štítky</string>
   <string name="recent_labels">Poslední štíky</string>
   <string name="other_labels">Ostatní štítky</string>

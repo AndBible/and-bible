@@ -1,5 +1,5 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
-title: "AndBible: Biblia Estudio"
+title: "AndBible: Estudio de la Biblia"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Lea la Biblia, estudie comentarios o diccionarios, o lea libros sin conexión."
 # Main (first) subtitle of the Play Store main (long) description text.
@@ -8,7 +8,7 @@ subtitle_1: Poderoso Instrumento para Estudiar la Biblia
 paragraph_1_1: >
   {{ title }} es una aplicación de estudio bíblico fuera de línea, poderosa, pero fácil de usar, para Android. La aplicación no pretende ser simplemente un lector de la Biblia, sino que se centra en ser una herramienta avanzada para realizar un estudio bíblico personal en profundidad.
 paragraph_1_2: >
-  Esta aplicación está desarrollada por lectores de la Biblia, para lectores de la Biblia. Su objetivo es ayudarlo a que su estudio Bíblico sea conveniente, profundo y divertido. La mejor parte de este proyecto comunitario sin fines de lucro es que es de código abierto, completamente gratuito y no contiene anuncios. Habiendo sido construido desde cero para Android, es una descarga pequeña y, por lo tanto, muy eficiente y notablemente rápida.
+  Esta aplicación está desarrollada por personas lectoras de la Biblia, para personas lectoras de la Biblia. Pretende ayudarle a hacer su estudio de la Biblia adecuado, profundo y divertido. La mejor parte de este proyecto comunitario sin ánimo de lucro es que es software libre, completamente gratuito y no contiene anuncios.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Algunas traducciones populares de la Biblia disponibles son RV1909, NBLA, LBLA.
@@ -34,14 +34,14 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Amplia biblioteca de documentos: traducciones de la Biblia, comentarios teológicos, diccionarios, mapas y libros cristianos, con un total de más de {{total_documents}} documentos en más de {{total_languages}} idiomas, distribuidos legalmente por Crosswire y otros repositorios de SWORD.
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  Se investiga la procedencia de todos los documentos para garantizar que todos los documentos puedan distribuirse legalmente o que el titular de los derechos de autor haya otorgado el permiso. Esa es también la razón por la que esta aplicación no incluye documentos como {{unavailable_documents}}.
+feature_10_1: >
+  Soporte nativo para archivos de MyBible, MySword y EPUB posibilita extender la biblioteca aún más.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "RVR60, NVI, ESV"
 feature_12: >
   Fuera de línea: la única vez que necesita Internet es para descargar documentos.
+# UNUSED
 feature_13: >
   Pizarras de estudio para agregar notas y referencias Bíblicas mientras escucha sermones.
 subtitle_3: ¡Hagamos juntos la mejor aplicación de la Biblia!
@@ -65,3 +65,9 @@ link_4: >
   Preguntas frecuentes: {{faq_url}}
 link_5: >
   Página del proyecto en Github: {{github_url}}
+buy_title: >
+  ¡Apoye comprando tiempo de desarrollo!
+buy_1: >
+  Si no tiene tiempo o habilidades para hacer contribuciones al proyecto, también puede apoyarlo comprando tiempo de trabajo de desarrollo profesional.
+buy_2: >
+  Vea las opciones

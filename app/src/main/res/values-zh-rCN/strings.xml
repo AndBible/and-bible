@@ -965,11 +965,14 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
 当使用Google Drive时，仅授权%s访问应用程序，不包括个人文件。</string>
   <string name="restore_backup_sections">你想重置备份中的哪些部分？</string>
   <string name="db_repositories">存储库与相关设置</string>
+  <string name="db_bookmarks">书签、我的笔记、标签、研经笔记</string>
   <string name="synchronizing">同步中...</string>
   <string name="overrideBackup">
 在云端发现当前设备尚未同步的数据库。
 数据库包含%s，请问你希望如何操作？</string>
   <string name="reading_plans_content">读经计划和相应状态</string>
+  <string name="bookmarks_contents">书签、标签、研经笔记</string>
+  <string name="workspaces_contents">工作空间与窗口</string>
   <string name="cloud_fetch_and_restore_initial">从云端复制至此设备</string>
   <string name="cloud_create_new">从这台设备复制至云端</string>
   <string name="cloud_disable_sync">取消&amp; 关闭同步功能</string>
@@ -1015,7 +1018,11 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="external_link">外部链接</string>
   <string name="external_link_question">将在浏览器打开外部链接%s，你希望继续吗？</string>
   <string name="nameless">尚未定义标题</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">一键功能（圣经）</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">一键功能（其他）</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">点击文本后，将出现一个一键功能窗口，请定义出现的功能按键</string>
   <string name="processing_epub">正在处理EPUB文件：%s</string>
+  <string name="buy_development">购买开发人工</string>
   <string name="buy_development2">支持项目</string>
   <string name="new_version_warning">
 新版本即将发布。预计发布日期为%1$s。

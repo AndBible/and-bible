@@ -1,8 +1,8 @@
 Poderoso Instrumento para Estudiar la Biblia
 
-AndBible: Biblia Estudio es una aplicación de estudio bíblico fuera de línea, poderosa, pero fácil de usar, para Android. La aplicación no pretende ser simplemente un lector de la Biblia, sino que se centra en ser una herramienta avanzada para realizar un estudio bíblico personal en profundidad.
+AndBible: Estudio de la Biblia es una aplicación de estudio bíblico fuera de línea, poderosa, pero fácil de usar, para Android. La aplicación no pretende ser simplemente un lector de la Biblia, sino que se centra en ser una herramienta avanzada para realizar un estudio bíblico personal en profundidad.
 
-Esta aplicación está desarrollada por lectores de la Biblia, para lectores de la Biblia. Su objetivo es ayudarlo a que su estudio Bíblico sea conveniente, profundo y divertido. La mejor parte de este proyecto comunitario sin fines de lucro es que es de código abierto, completamente gratuito y no contiene anuncios. Habiendo sido construido desde cero para Android, es una descarga pequeña y, por lo tanto, muy eficiente y notablemente rápida.
+Esta aplicación está desarrollada por personas lectoras de la Biblia, para personas lectoras de la Biblia. Pretende ayudarle a hacer su estudio de la Biblia adecuado, profundo y divertido. La mejor parte de este proyecto comunitario sin ánimo de lucro es que es software libre, completamente gratuito y no contiene anuncios.
 
 Algunas traducciones populares de la Biblia disponibles son RV1909, NBLA, LBLA.
 
@@ -20,7 +20,7 @@ La aplicación tiene muchas características interesantes y originales que hacen
  * Pizarras de estudio para agregar notas y referencias Bíblicas mientras escucha sermones.
  * Planes de lectura: establezca metas para leer la Biblia
  * Amplia biblioteca de documentos: traducciones de la Biblia, comentarios teológicos, diccionarios, mapas y libros cristianos, con un total de más de 1500 documentos en más de 700 idiomas, distribuidos legalmente por Crosswire y otros repositorios de SWORD.
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
+ * Soporte nativo para archivos de MyBible, MySword y EPUB posibilita extender la biblioteca aún más.
 
 ¡Hagamos juntos la mejor aplicación de la Biblia!
 
@@ -33,11 +33,11 @@ AndBible es un proyecto comunitario de código abierto. En la práctica, esto si
 
 Si es un probador o ingeniero de software profesional, considere contribuir al proyecto. Para obtener más información sobre cómo contribuir, consulte https://git.io/JUnaj.
 
-Support by buying development time!
+¡Apoye comprando tiempo de desarrollo!
 
-If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+Si no tiene tiempo o habilidades para hacer contribuciones al proyecto, también puede apoyarlo comprando tiempo de trabajo de desarrollo profesional.
 
-See options: https://shop.andbible.org/
+Vea las opciones: https://shop.andbible.org/
 
 Enlaces
 

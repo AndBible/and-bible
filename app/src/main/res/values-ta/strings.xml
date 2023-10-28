@@ -890,7 +890,7 @@
   <string name="prefs_double_tap_to_fullscreen_title">இரு முறை தட்டினால் முழு திரை பயன்முறைக்கு செல்</string>
   <string name="prefs_double_tap_to_fullscreen_summary">சாரளத்தை இருமுறை தட்டினால் முழு திரை பயன்முறைக்கு செல்</string>
   <string name="toggle_fullscreen">முழு திரை பயன்முறை</string>
-  <string name="exit_fullscreen">இரு முறை தட்டினாள் முழு திரை பயன்முறையிலிருந்து வெளியேறு</string>
+  <string name="exit_fullscreen">இரு முறை தட்டினால் முழு திரை பயன்முறையிலிருந்து வெளியேறலாம்</string>
   <string name="reset_app_prefs">இந்தத் திரையில் காட்டப்படும் அனைத்து  பயன்பாட்டு விருப்பத்தேர்வுகளையும் அவற்றின் இயல்புநிலை மதிப்புகளுக்கு மீட்டமைக்க விரும்புகிறீர்களா?</string>
   <string name="label_red">சிவப்பு</string>
   <string name="label_green">பச்சை</string>
@@ -962,8 +962,8 @@
         %sஇல் மறைந்த பதிப்பின் அண்மைய பதிப்பை நீங்கள் தரவிறக்கம் செய்யலாம்.
     </string>
   <!--Window synchronize groups-->
-  <string name="sync_group_submenu">குழுவை ஒத்திசைக்கவும்</string>
-  <string name="sync_group_n">குழு %d</string>
+  <string name="sync_group_submenu">தொகுதியை ஒத்திசையவும்</string>
+  <string name="sync_group_n">தோகுதி %d</string>
   <string name="disable_sync">ஒத்திசைவை முடக்கு</string>
   <string name="open_in_window">முடிவுகளை சாளரத்தில் திற</string>
   <!--Custom repositories-->
