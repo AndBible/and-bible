@@ -73,6 +73,7 @@ const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 const val TAG = "DeviceSync"
 
 class CancelStartedSync: Exception()
+class WorkspaceRefreshRequired {}
 
 enum class CloudAdapters {
     GOOGLE_DRIVE;
@@ -313,6 +314,7 @@ object CloudSync {
                     initialFile.createdTime.value
                 )
             )
+            ABEventBus.post(WorkspaceRefreshRequired())
         }
     }
 

@@ -131,6 +131,7 @@ import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncEvent
+import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
@@ -1430,6 +1431,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(windowsChanged || workspaceChanged) {
             currentWorkspaceId = currentWorkspaceId
         }
+    }
+
+    fun onEventMainThread(event: WorkspaceRefreshRequired) {
+        currentWorkspaceId = workspaces.first().id
     }
 
     override fun onScreenTurnedOff() {
