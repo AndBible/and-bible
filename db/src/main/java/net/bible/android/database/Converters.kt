@@ -19,7 +19,9 @@ package net.bible.android.database
 
 
 import android.util.Base64
+import android.util.Log
 import androidx.room.TypeConverter
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.BookmarkType
@@ -156,7 +158,10 @@ class Converters {
     @TypeConverter
     fun strToList4(s: String?): List<IdType>? {
         if(s == null) return null
-        return json.decodeFromString(serializer(), s)
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing $s", e)
+            null
+        }
     }
 
     @TypeConverter
@@ -169,7 +174,10 @@ class Converters {
     @TypeConverter
     fun strToList1(s: String?): List<Long>? {
         if(s == null) return null
-        return json.decodeFromString(serializer(), s)
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing $s", e)
+            null
+        }
     }
 
     @TypeConverter
@@ -181,7 +189,10 @@ class Converters {
     @TypeConverter
     fun strToList3(s: String?): List<String>? {
         if(s == null) return null
-        return json.decodeFromString(serializer(), s)
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing $s", e)
+            null
+        }
     }
 
     @TypeConverter
@@ -193,7 +204,10 @@ class Converters {
     @TypeConverter
     fun strToList2(s: String?): MutableList<WorkspaceEntities.RecentLabel> {
         if(s == null) return mutableListOf()
-        return json.decodeFromString(serializer(), s)
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing $s", e)
+            mutableListOf()
+        }
     }
 
     @TypeConverter
@@ -205,7 +219,10 @@ class Converters {
     @TypeConverter
     fun strToSet3(s: String?): MutableSet<IdType> {
         if(s == null) return mutableSetOf()
-        return json.decodeFromString(serializer(), s)
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing $s", e)
+            mutableSetOf()
+        }
     }
 
     @TypeConverter
@@ -217,7 +234,10 @@ class Converters {
     @TypeConverter
     fun strToSet1(s: String?): MutableSet<Long> {
         if(s == null) return mutableSetOf()
-        return json.decodeFromString(serializer(), s)
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing $s", e)
+            mutableSetOf()
+        }
     }
 
     @TypeConverter
@@ -229,7 +249,10 @@ class Converters {
     @TypeConverter
     fun strToSet2(s: String?): MutableSet<String> {
         if(s == null) return mutableSetOf()
-        return json.decodeFromString(serializer(), s)
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing $s", e)
+            mutableSetOf()
+        }
     }
 
     @TypeConverter
