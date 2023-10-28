@@ -219,7 +219,7 @@ open class Preference(val settings: SettingsBundle,
             TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.drawable.ic_labels_hide_24dp
             TextDisplaySettings.Types.MORPH -> R.drawable.ic_morphology_24dp
             TextDisplaySettings.Types.FOOTNOTES -> R.drawable.ic_footnotes_24dp
-            TextDisplaySettings.Types.EXPAND_XREFS -> R.drawable.ic_xrefs_24dp
+            TextDisplaySettings.Types.EXPAND_XREFS -> R.drawable.ic_xrefs_inline_24dp
             TextDisplaySettings.Types.XREFS -> R.drawable.ic_xrefs_24dp
             TextDisplaySettings.Types.SECTIONTITLES -> R.drawable.ic_section_titles_24dp
             TextDisplaySettings.Types.VERSENUMBERS -> R.drawable.ic_chapter_verse_numbers_24dp
