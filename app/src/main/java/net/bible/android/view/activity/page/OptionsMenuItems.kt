@@ -299,6 +299,10 @@ class RedLettersPreference (settings: SettingsBundle) : Preference(settings, Tex
     override val enabled: Boolean get() = pageManager.isBibleShown && pageManager.currentPage.currentDocument?.hasFeature(FeatureType.WORDS_OF_CHRIST) == true
 }
 
+class ExpandXrefsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.EXPAND_XREFS) {
+    override val enabled: Boolean get() = Preference(settings, TextDisplaySettings.Types.XREFS).value == true
+}
+
 class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.STRONGS) {
     override val enabled: Boolean get() = pageManager.hasStrongs
     override var value get() = if (enabled) super.value else 0
