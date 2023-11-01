@@ -17,7 +17,6 @@
 
 package net.bible.service.cloudsync
 
-import com.google.api.client.util.DateTime
 import net.bible.android.view.activity.base.ActivityBase
 import java.io.File
 import java.io.OutputStream
@@ -26,7 +25,7 @@ data class CloudFile(
     val id: String,
     val name: String,
     val size: Long,
-    val createdTime: DateTime,
+    val createdTime: Long,
     val parentId: String
 )
 
@@ -39,7 +38,7 @@ interface CloudAdapter {
         parentsIds: List<String>? = null,
         name: String? = null,
         mimeType: String? = null,
-        createdTimeAtLeast: DateTime? = null
+        createdTimeAtLeast: Long? = null
     ): List<CloudFile>
     fun getFolders(parentId: String): List<CloudFile>
     fun download(id: String, outputStream: OutputStream)

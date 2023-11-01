@@ -21,12 +21,9 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import com.google.android.gms.tasks.Task
-import com.google.api.client.util.DateTime
 import io.requery.android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -37,33 +34,19 @@ import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.application
+//import net.bible.service.cloudsync.googledrive.GoogleDriveCloudAdapter
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.net.SocketTimeoutException
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
 const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
 const val GZIP_MIMETYPE = "application/gzip"
-
-suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
-    addOnSuccessListener { result ->
-        continuation.resume(result, null)
-    }
-    addOnFailureListener { exception ->
-        continuation.resumeWithException(exception)
-    }
-    addOnCanceledListener {
-        continuation.cancel()
-    }
-}
 
 const val SYNC_FOLDER_FILE_ID_KEY = "syncId"
 const val SYNC_DEVICE_FOLDER_FILE_ID_KEY = "deviceFolderId"
@@ -82,7 +65,7 @@ enum class CloudAdapters {
         GOOGLE_DRIVE -> R.string.adapters_google_drive
     }
     val newAdapter: CloudAdapter get() = when(this) {
-        GOOGLE_DRIVE -> GoogleDriveCloudAdapter()
+        GOOGLE_DRIVE -> throw Error() //GoogleDriveCloudAdapter()
     }
 
     companion object {
@@ -271,7 +254,7 @@ object CloudSync {
             file = gzippedTmpFile,
             parentId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         )
-        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, 0, result.size, result.createdTime.value))
+        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, 0, result.size, result.createdTime))
         gzippedTmpFile.delete()
     }
 
@@ -311,7 +294,7 @@ object CloudSync {
                     CommonUtils.deviceIdentifier,
                     0,
                     initialFile.size,
-                    initialFile.createdTime.value
+                    initialFile.createdTime
                 )
             )
             ABEventBus.post(WorkspaceRefreshRequired())
@@ -428,11 +411,10 @@ object CloudSync {
     class IncompatiblePatchVersion: Exception()
     private suspend fun downloadAndApplyNewPatches(dbDef: SyncableDatabaseAccessor<*>) = withContext(Dispatchers.IO) {
         val lastSynchronized = dbDef.dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
-        val lastSynchronizedDateTime = DateTime(lastSynchronized)
         val syncFolder = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         val deviceSyncFolder = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
-        Log.i(TAG, "Downloading new patches ${dbDef.categoryName}, last Synced: $lastSynchronizedDateTime. ")
+        Log.i(TAG, "Downloading new patches ${dbDef.categoryName}, last Synced: $lastSynchronized. ")
         Log.i(TAG, "This device ${CommonUtils.deviceIdentifier} (id: ${deviceSyncFolder})")
 
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, System.currentTimeMillis())
@@ -447,8 +429,8 @@ object CloudSync {
 
         val patchResults = adapter.listFiles(
             parentsIds = folderResult.map { it.id },
-            createdTimeAtLeast = lastSynchronizedDateTime
-        ).sortedBy { it.createdTime.value }
+            createdTimeAtLeast = lastSynchronized
+        ).sortedBy { it.createdTime }
 
         Log.i(TAG, "Number of patch files in result set: ${patchResults.size}")
 
@@ -472,7 +454,7 @@ object CloudSync {
             if (existing == null && num > folderWithMeta.loadedCount) {
                 DriveFileWithMeta(it, folderWithMeta.folder.name)
             } else null
-        }.sortedBy { it.file.createdTime.value }
+        }.sortedBy { it.file.createdTime }
 
         if(patches.isEmpty()) {
             Log.i(TAG, "No patches, returning")
@@ -500,7 +482,7 @@ object CloudSync {
         }
 
         val syncStatuses = patches.map {
-            SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.size, it.file.createdTime.value)
+            SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.size, it.file.createdTime)
         }
 
         applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
@@ -523,9 +505,9 @@ object CloudSync {
             file.delete()
             throw e
         }
-        Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.length()} bytes, ${result.createdTime.toStringRfc3339()}")
+        Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.length()} bytes, ${result.createdTime}")
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, lastWritten)
-        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, count, file.length(), result.createdTime.value))
+        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, count, file.length(), result.createdTime))
         file.delete()
     }
 

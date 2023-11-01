@@ -351,16 +351,17 @@ dependencies {
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
 
-
-    // Google Drive API
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
-    implementation ("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
-        exclude("org.apache.httpcomponents")
-        exclude("com.google.guava.guava")
-    }
-    implementation("com.google.guava:guava:32.0.1-android")
-    implementation("com.google.api-client:google-api-client-android:2.2.0") {
-        exclude("org.apache.httpcomponents")
+    //// Google Drive API
+    for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei").map { "${it}Implementation" }) {
+        variantImplementation("com.google.android.gms:play-services-auth:20.7.0")
+        variantImplementation("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
+            exclude("org.apache.httpcomponents")
+            exclude("com.google.guava.guava")
+        }
+        variantImplementation("com.google.guava:guava:32.0.1-android")
+        variantImplementation("com.google.api-client:google-api-client-android:2.2.0") {
+            exclude("org.apache.httpcomponents")
+        }
     }
 
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
