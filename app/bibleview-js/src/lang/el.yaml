@@ -1,0 +1,65 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: Σελιδοδείκτες
+bookmarksAndNotes: Σελιδοδείκτες & Οι Σημειώσεις μου
+openMyNotes: Άνοιγμα στις Σημειώσεις μου
+openStudyPad: Άνοιγμα σε Χώρο Μελέτης (%s)
+noteText: Υποσημειώσεις (%s)
+noteTextWithoutType: Υποσημειώσεις
+crossReferenceText: Παραπομπές
+findAllOccurrences: Αναζήτηση περιστατικών
+reportError: Αναφορά Σφάλματος
+errorTitle: Παρουσιάστηκε σφάλμα
+warningTitle: Προειδοποίηση
+normalTitle: Παρακαλώ σημειώστε
+footnoteTypeStudy: Μελέτη
+footnoteTypeExplanation: Επεξήγηση
+footnoteTypeVariant: Παράμετρος
+footnoteTypeAlternative: Εναλλακτικό
+footnoteTypeTranslation: Μετάφραση
+clearLog: Εκκαθάριση καταγραφής σφαλμάτων
+editTextPlaceholder: Πατήστε για επεξεργασία του κειμένου
+inputPlaceholder: Γράψτε εδώ
+inputReference: Εισάγετε βιβλική παραπομπή
+invalidReference: Δεν βρέθηκε ο στίχος
+bookmarkAccurate: Σελιδοδείκτης δημιουργήθηκε στο %s
+bookmarkInaccurate: "Πληροφορίες για το βιβλίο σελιδοδείκτη δεν αποθηκεύτηκαν, το περιεχόμενο εμφανίζεται στο %s."
+defaultBook: "Προεπιλεγμένο Βιβλικό έγγραφο "
+ok: OK
+yes: "Ναί"
+ambiguousSelection: "Τι θέλετε να κάνετε?"
+cancel: Ακύρωση
+removeBookmarkConfirmationTitle: "Διαγραφή σελιδοδείκτη?"
+removeBookmarkConfirmation: "Είστε σίγουρος ότι θέλετε να διαγράψετε αυτό τον σελιδοδείκτη?"
+createdAt: "Δημιουργήθηκε: %s"
+lastUpdatedOn: "Τελευταία ανανέωση: %s"
+strongsAndMorph: Προσδιορισμός και Μορφολογία
+externalLink: Άνοιγμα εξωτερικού συνδέσμου
+referenceLink: Άνοιγμα συνδέσμου παραπομπής
+openFootnote: Άνοιγμα υποσημείωσης
+noMyNotesTitle: Καμμία Σημείωσή Μου γι'αυτό το κεφάλαιο
+noMyNotesDescription: >
+  Ξεκινήστε με τη δημιουργία σελιδοδεικτών σε ένα Βιβλικό έγγραφο. Οι σελιδοδείκτες θα εμφανίζονται εδώ, και θα μπορείτε να προσθέσετε τις προσωπικές σας σημειώσεις σε αυτούς.
+emptyStudyPad: >
+  Άδειο σημειωματάριο μελέτης. Ξεκινήστε τις προσθήκες σε αυτό το σημειωματάριο εισάγοντας κείμενο εδώ ή δημιουργήστε σελιδοδείκτες με ετικέτες που ανταποκρίνονται στο περιεχόμενο αυτού του σημειωματάριου μελέτης.
+doYouWantToDeleteEntry: "Διαγραφή αυτού του σημειωματαρίου μελέτης?"
+removeStudyPadConfirmationTitle: "Διαγραφή αυτού του σημειωματαρίου μελέτης?"
+dragHelp: Σύρετε για ανακατάταξη
+openAll: "Άνοιξτε όλες τις παραπομπές "
+editBookmarkPlaceholder: Πατήστε για επεξεργασία των Σημειώσεων Μου γι' αυτόν τον σελιδοδείκτη
+onlyLabel: Μόνο ετικέτα
+wholeBookmark: Ολόκληρος σελιδοδείκτης
+assignLabelsMenuEntry1: Επιλογή ή επεξεργασία ετικετών
+favouriteLabels: Αγαπημένες ετικέτες
+recentLabels: Πρόσφατες ετικέτες
+bookmarkLabels: Ετικέτες σελιδοδεικτών
+refParserHelp: Παρακαλώ εγκαταστήστε το πρόσθετο %s για να χρησιμοποιήσετε παραπομπές σε άλλες γλώσσες εκτός των Αγγλικών.
+openDownloads: Πήγαινε στις επιπρόσθετες λήψεις
+verseShare: Διαμοιρασμός
+verseSpeak: Μιλήστε
+verseCompare: Σύγκριση
+verseNote: Σημείωση
+verseMyNotes: Οι Σημειώσεις Μου
+verseShareLong: Μοιράσου αυτό το στίχο
+verseCompareLong: Σύγκριση στίχου
+verseNoteLong: Γράψε μία σημείωση
+addBookmark: Σελιδοδείκτης

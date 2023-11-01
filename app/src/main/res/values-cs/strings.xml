@@ -996,7 +996,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
         V síťovém uložišti existuje databáze, která dosud nebyla synchronizována na toto zařízení.
         Databáze obsahuje %s. Co chcete udělat?
     </string>
-  <string name="reading_plans_content">Plána čtení a jejich stav</string>
+  <string name="reading_plans_content">Plány čtení a jejich stav</string>
   <string name="bookmarks_contents">Záložky, štítky a studijní složky</string>
   <string name="workspaces_contents">Pracovní prochy a okna</string>
   <string name="cloud_fetch_and_restore_initial">Kopie z Cloudu do tohoto zařízení</string>
