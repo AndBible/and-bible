@@ -78,9 +78,11 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("com.github.AndBible:jsword:$jswordVersion") {
+
+    implementation(project(":jsword")) {
         exclude("org.apache.httpcomponents")
     }
+
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
     implementation("androidx.core:core-ktx:$coreKtxVersion")
