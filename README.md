@@ -38,9 +38,9 @@ to get started.
 ## All Contributors
 There are so many ways to contribute to AndBible! See our [contributor guide](https://github.com/AndBible/and-bible/wiki/How-to-contribute).
 
-## Buy development work for AndBible
+## Sponsor AndBible development
 
-You can support AndBible project in terms of money by buying professional software development working time.
+You can support AndBible project in terms of money by sponsoring professional software development working time.
 
 For more information, see [WIKI page](https://github.com/AndBible/and-bible/wiki/Buy-development-work).
 
