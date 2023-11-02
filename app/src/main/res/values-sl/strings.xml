@@ -678,7 +678,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="beta_notice_dismiss_until_update">Prekliči do naslednjega popravka</string>
   <string name="stable_notice_title">Aplikacija je bila nadgrajena!</string>
   <string name="upgrade_video_message">Oglejte si video z novimi funkcijami te različice (%s).</string>
-  <string name="stable_notice_par1">Nova verzija%1$s%2$s, je bila uspešno nameščena! </string>
+  <string name="stable_notice_par1">Nova verzija %1$s %2$s, je bila uspešno nameščena! </string>
   <!--History-->
   <string name="history_for">Zgodovina (%1$s: Okno %2$d)</string>
   <!--Help-->
