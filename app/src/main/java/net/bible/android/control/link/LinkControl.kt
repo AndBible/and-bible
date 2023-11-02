@@ -303,7 +303,7 @@ class LinkControl @Inject constructor(
     private fun getRobinsonMorphologyKey(key: String): BookAndKeyList {
         val robinsonBooks = SwordDocumentFacade.defaultRobinsonGreekMorphology
         return bookAndKeyListOf(robinsonBooks.mapNotNull {
-            val k = it.getKey(key)
+            val k = try { it.getKey(key) } catch (e: NoSuchKeyException) { null }
             if(k != null) BookAndKey(k, it) else null
         })
     }
