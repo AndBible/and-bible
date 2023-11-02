@@ -68,7 +68,6 @@ dependencies {
     val coroutinesVersion: String by rootProject.extra
     val commonsTextVersion: String by rootProject.extra
     val jdomVersion: String by rootProject.extra
-    val jswordVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
     val roomVersion: String by rootProject.extra
     val coreKtxVersion: String by rootProject.extra
@@ -78,9 +77,11 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("com.github.AndBible:jsword:$jswordVersion") {
+
+    implementation(project(":jsword")) {
         exclude("org.apache.httpcomponents")
     }
+
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
     implementation("androidx.core:core-ktx:$coreKtxVersion")
