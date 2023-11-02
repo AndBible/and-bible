@@ -305,7 +305,7 @@ if(gradle.startParameter.taskNames.any { it.contains("Fdroid") }) {
     println("Fdroid build: excluding Google Drive stuff")
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         println("Excluding ${name}")
-        exclude("**/GoogleDriveCloudAdapter.kt")
+        exclude("**/googledrive/*")
     }
 }
 
