@@ -46,6 +46,7 @@ import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
+import net.bible.android.view.activity.page.ExpandXrefsPreference
 import net.bible.android.view.activity.page.FontFamilyPreference
 import net.bible.android.view.activity.page.FontSizePreference
 import net.bible.android.view.activity.page.HideLabelsPreference
@@ -111,7 +112,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.VERSENUMBERS -> ItemPreference(settings, Types.VERSENUMBERS)
         Types.VERSEPERLINE -> ItemPreference(settings, Types.VERSEPERLINE)
         Types.FOOTNOTES -> ItemPreference(settings, Types.FOOTNOTES)
-        Types.EXPAND_XREFS -> ItemPreference(settings, Types.EXPAND_XREFS)
+        Types.EXPAND_XREFS -> ExpandXrefsPreference(settings)
         Types.XREFS -> ItemPreference(settings, Types.XREFS)
         Types.MYNOTES -> MyNotesPreference(settings)
         Types.STRONGS -> StrongsPreference(settings)
