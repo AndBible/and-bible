@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.cloudsync
+package net.bible.service.cloudsync.googledrive
 
 import android.accounts.Account
 import android.app.Activity
@@ -26,6 +26,7 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.identity.SignInCredential
+import com.google.android.gms.tasks.Task
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
@@ -37,21 +38,30 @@ import com.google.api.services.drive.model.File as DriveFile
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.cloudsync.CloudAdapter
+import net.bible.service.cloudsync.CloudFile
+import net.bible.service.cloudsync.GZIP_MIMETYPE
+import net.bible.service.cloudsync.TAG
 import net.bible.service.common.CommonUtils
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
 import java.util.Collections
+import kotlin.coroutines.resumeWithException
+
+const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
+const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
 
 fun DriveFile.toSyncFile() = CloudFile(
     id = id,
     name = name,
     size = getSize()?: 0,
-    createdTime = createdTime,
+    createdTime = createdTime.value,
     parentId = parents.first()
 )
 
@@ -64,6 +74,18 @@ fun Drive.Files.List.collectAll(): List<DriveFile> {
         pageToken = lst.nextPageToken
     } while(pageToken != null)
     return result
+}
+
+suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
+    addOnSuccessListener { result ->
+        continuation.resume(result, null)
+    }
+    addOnFailureListener { exception ->
+        continuation.resumeWithException(exception)
+    }
+    addOnCanceledListener {
+        continuation.cancel()
+    }
 }
 
 private const val FIELDS = "id, name, size, createdTime, parents"
@@ -189,8 +211,9 @@ class GoogleDriveCloudAdapter: CloudAdapter {
         parentsIds: List<String>?,
         name: String?,
         mimeType: String?,
-        createdTimeAtLeast: DateTime?
+        createdTimeAtLeast: Long?
     ): List<CloudFile> {
+        val createdTimeAtLeastDateTime = createdTimeAtLeast?.let { DateTime(it) }
         val q = mutableListOf<String>()
         if (parentsIds != null) {
             q.add(
@@ -201,9 +224,9 @@ class GoogleDriveCloudAdapter: CloudAdapter {
                ) { "'$it' in parents" }
             )
         }
-        if(createdTimeAtLeast != null) {
+        if(createdTimeAtLeastDateTime != null) {
             q.add(
-               "createdTime > '${createdTimeAtLeast.toStringRfc3339()}'"
+               "createdTime > '${createdTimeAtLeastDateTime.toStringRfc3339()}'"
             )
         }
         if(name != null) {

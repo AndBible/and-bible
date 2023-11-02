@@ -1495,7 +1495,11 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    val isCloudSyncAvailable get() = !(BuildVariant.Appearance.isDiscrete || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1)
+    val isCloudSyncAvailable get() = !(
+        BuildVariant.Appearance.isDiscrete
+            || BuildVariant.DistributionChannel.isFdroid
+            || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1
+        )
 
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
