@@ -16,7 +16,7 @@
   -->
 <template>
   <template v-if="isCrossReference && config.showXrefs && config.expandXrefs">
-    &nbsp;<slot/>&nbsp;
+    <slot/>
   </template>
   <template v-else>
     <AmbiguousSelection do-not-close-modals ref="ambiguousSelection"/>
