@@ -481,7 +481,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 htmlToSpan("<br><br><big><a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a></big>"),
                 htmlToSpan("<br><br>"),
                 iconStr,
-                htmlToSpan("&nbsp;<small><a href=\\\"$buyDevelopmentLink\\\">$support ($buy)</a></small>")
+                htmlToSpan("&nbsp;<small><a href=\"$buyDevelopmentLink\">$support ($buy)</a></small>")
             )
 
             val d = AlertDialog.Builder(this)
