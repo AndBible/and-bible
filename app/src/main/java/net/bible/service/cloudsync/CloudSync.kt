@@ -35,7 +35,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.application
-//import net.bible.service.cloudsync.googledrive.GoogleDriveCloudAdapter
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
@@ -65,7 +64,11 @@ enum class CloudAdapters {
         GOOGLE_DRIVE -> R.string.adapters_google_drive
     }
     val newAdapter: CloudAdapter get() = when(this) {
-        GOOGLE_DRIVE -> throw Error() //GoogleDriveCloudAdapter()
+        GOOGLE_DRIVE -> {
+            val adapter = Class.forName("net.bible.service.cloudsync.googledrive.GoogleDriveCloudAdapter")
+            val constructor = adapter.getDeclaredConstructor()
+            constructor.newInstance() as CloudAdapter
+        }
     }
 
     companion object {

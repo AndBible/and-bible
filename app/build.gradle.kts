@@ -301,6 +301,14 @@ kotlin {
     jvmToolchain(jvmToolChainVersion)
 }
 
+if(gradle.startParameter.taskNames.any { it.contains("Fdroid") }) {
+    println("Fdroid build: excluding Google Drive stuff")
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        println("Excluding ${name}")
+        exclude("**/GoogleDriveCloudAdapter.kt")
+    }
+}
+
 androidComponents {
     val discreteSelector = selector().withFlavor(dimAppearanceName to discreteFlavorName )
     // Set the applicationId to a more discrete alternative.
