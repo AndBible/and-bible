@@ -68,7 +68,6 @@ dependencies {
     val coroutinesVersion: String by rootProject.extra
     val commonsTextVersion: String by rootProject.extra
     val jdomVersion: String by rootProject.extra
-    val jswordVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
     val roomVersion: String by rootProject.extra
     val coreKtxVersion: String by rootProject.extra
