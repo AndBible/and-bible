@@ -15,4 +15,4 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-include(":app", ":db", ":jsword")
+include(":app", ":db")
