@@ -17,6 +17,8 @@ tx-pull:
 fastlane-supply:
 	# Remove languages unsupported by Google Play
 	mv fastlane/metadata/android/eo $(TMP)/
+	mv fastlane/metadata/android/yue $(TMP)/
+	mv fastlane/metadata/android/my-MM $(TMP)/
 	#mv fastlane/metadata/android/uz $(TMP)/
 	fastlane supply || true
 	mv $(TMP)/* fastlane/metadata/android/
