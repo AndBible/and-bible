@@ -327,6 +327,7 @@ androidComponents {
 dependencies {
     val commonsTextVersion: String by rootProject.extra
     val jdomVersion: String by rootProject.extra
+    val jswordVersion: String by rootProject.extra
     val kotlinVersion: String by rootProject.extra
     val coroutinesVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
