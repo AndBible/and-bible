@@ -43,8 +43,6 @@ import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
-const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
 const val GZIP_MIMETYPE = "application/gzip"
 
 const val SYNC_FOLDER_FILE_ID_KEY = "syncId"

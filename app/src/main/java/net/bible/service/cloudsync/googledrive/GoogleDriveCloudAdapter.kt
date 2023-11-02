@@ -44,10 +44,8 @@ import net.bible.android.BibleApplication
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
-import net.bible.service.cloudsync.FOLDER_MIMETYPE
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.TAG
-import net.bible.service.cloudsync.webClientId
 import net.bible.service.common.CommonUtils
 import java.io.File
 import java.io.FileNotFoundException
@@ -55,6 +53,9 @@ import java.io.IOException
 import java.io.OutputStream
 import java.util.Collections
 import kotlin.coroutines.resumeWithException
+
+const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
+const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
 
 fun DriveFile.toSyncFile() = CloudFile(
     id = id,
