@@ -1150,8 +1150,7 @@ object CommonUtils : CommonUtilsBase() {
         if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
             if(!application.isRunningTests) {
                 for (it in docDao.getUnlocked()) {
-                    val book = Books.installed().getBook(it.initials)
-                    book.unlock(it.cipherKey)
+                    Books.installed().getBook(it.initials)?.unlock(it.cipherKey)
                 }
             }
             booksInitialized = true
