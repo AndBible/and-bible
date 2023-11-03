@@ -254,7 +254,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     }
 
     fun getKey(originalKey: String, htmlId: String): Key {
-        val frag = dao.getFragment("$originalKey#$htmlId")
+        val frag = dao.getFragment(if(htmlId.isNotEmpty()) "$originalKey#$htmlId" else originalKey)
         return getKey(frag)
     }
 
