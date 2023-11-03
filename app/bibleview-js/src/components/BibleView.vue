@@ -165,6 +165,7 @@ function addDocuments(...docs: AnyDocument[]) {
         documents.push(...docs);
         await nextTick();
         await Promise.all(customCss.customCssPromises);
+        await waitNextAnimationFrame();
         loadingCount.value--;
         if(loadingCount.value < 0) {
             loadingCount.value = 0;
