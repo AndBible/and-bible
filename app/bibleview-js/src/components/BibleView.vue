@@ -483,7 +483,7 @@ a {
 }
 
 #bottom {
-  padding-bottom: 100vh;
+  padding-bottom: 200vh;
 }
 
 .modal-action-button {
