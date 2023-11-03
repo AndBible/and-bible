@@ -637,6 +637,7 @@ através de %s si mesmo. :-)</string>
   <string name="beta_notice_dismiss_until_update">Descartar até à próxima atualização</string>
   <string name="stable_notice_title">A aplicação foi atualizada!</string>
   <string name="upgrade_video_message">Por favor veja o vídeo com as novas funções desta versão (%s).</string>
+  <string name="stable_notice_par1">Uma nova versão %1$s de %2$s foi instalada com sucesso!</string>
   <!--History-->
   <string name="history_for">Histórico (%1$s: Janela %2$d)</string>
   <!--Help-->
@@ -693,11 +694,16 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <!--Supported file formats for documents-->
   <string name="supported_formats_title">Formatos suportados</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">Selecione um ficheiro para carregar em %s.</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_mysword">Ficheiros MySword (*. mybible)</string>
+  <string name="format_mybible">Ficheiros MyBible (*.SQLite3)</string>
+  <string name="format_epub">Ficheiros EPUB (*.epub)</string>
   <string name="redownload_message">
 Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
   <!--Uncategorized-->
   <string name="close">Fechar</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Compreendo</string>
   <string name="first_time_help_show_next_time">Mostrar de novo na próxima vez</string>
   <string name="strongs_mode_title">Escolha o modo Strongs</string>
@@ -762,6 +768,9 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="rate_message6">
 Antes de dar uma avaliação negativa, por favor considere o seguinte:</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        Se tiver algum problema com a aplicação, por favor use %1$s ou %2$s.
+    </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 Se algum texto / tradução da Bíblia tem um problema, %s . </string>
@@ -844,6 +853,7 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="progress_status_permission">Para mostrar notificações (estado do download, processos, estado da fala), precisamos da sua permissão.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Calculadora simples</string>
+  <string name="prefs_discrete_mode">Ocultar símbolos religiosos</string>
   <string name="prefs_show_calculator">Calculadora</string>
   <string name="prefs_calculator_pin">PIN da Calculadora</string>
   <!--Context: calculator. Wrong number format etc.-->
