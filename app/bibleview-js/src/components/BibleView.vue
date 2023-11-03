@@ -165,6 +165,7 @@ function addDocuments(...docs: AnyDocument[]) {
         documents.push(...docs);
         await nextTick();
         await Promise.all(customCss.customCssPromises);
+        await waitNextAnimationFrame();
         loadingCount.value--;
         if(loadingCount.value < 0) {
             loadingCount.value = 0;
@@ -482,7 +483,7 @@ a {
 }
 
 #bottom {
-  padding-bottom: 100vh;
+  padding-bottom: 200vh;
 }
 
 .modal-action-button {

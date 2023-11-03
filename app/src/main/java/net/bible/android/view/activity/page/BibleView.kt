@@ -1350,7 +1350,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${verse?.ordinal}, 
                 jumpToAnchor: ${initialAnchorOrdinal?.start},
-                jumpToId: "$jumpToId",
+                jumpToId: ${wrapString(jumpToId)},
                 topOffset: $topOffset,
                 bottomOffset: $bottomOffset,
             });            
