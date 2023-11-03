@@ -1,0 +1,758 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name_andbible">AndBible</string>
+  <string name="app_name_short">Βιβλική Μελέτη</string>
+  <string name="app_name_medium">Βιβλική Μελέτη (AndBible)</string>
+  <string name="app_name_long">AndBible: Bible Study</string>
+  <string name="project">And Bible Εφαρμογή Ανοιχτού Κώδικα</string>
+  <string name="version_text">Έκδοση %s</string>
+  <string name="no_sdcard_error">Εισάγετε κάρτα μνήμης και επαννεκινήστε την εφαρμογή</string>
+  <!--Main menu-->
+  <string name="menu">Μενού</string>
+  <string name="chooseBook">Εγγραφο</string>
+  <string name="selectPassage">Εδάφιο</string>
+  <string name="search">Αναζήτηση</string>
+  <string name="search_in_andbible">Αναζήτηση στη Βίβλο</string>
+  <string name="settings">Ρυθμίσεις εφαρμογής</string>
+  <string name="history">Ιστορικό</string>
+  <string name="speak">Μιλήστε</string>
+  <string name="help">Βοήθεια</string>
+  <string name="information">Πληροφορίες</string>
+  <string name="other">Άλλα</string>
+  <string name="contact">Επικοινωνία</string>
+  <string name="help_and_tips">Βοήθεια &amp; Συμβουλές</string>
+  <string name="administration">Διαχείριση</string>
+  <string name="rate_application">Αξιολόγηση &amp; Επισκόπηση</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">Επιλογη βιβλίου</string>
+  <string name="choosePassageChapterName">Επιλογη κεφαλαίου</string>
+  <string name="choosePassageVerseName">Επιλογή στίχου</string>
+  <string name="bible">Αγία Γραφή</string>
+  <string name="deuterocanonical">Δευτεροκανονικά</string>
+  <!--Search-->
+  <string name="search_index">Ευρετήριο αναζήτησης</string>
+  <string name="index_creation_required">Ένα ευρετήριο είναι απαραίτητο για την αναζήτηση</string>
+  <string name="create_index_for">Ένα ευρετήριο είναι απαραίτητο για την αναζήτηση. \n\nΔημιουργία ευρετηρίου για %s?</string>
+  <string name="rebuild_index_for">Αναδόμηση ευρετηρίου για %s?</string>
+  <string name="indexing_wait_msg">Όταν η δημιουργία ευρετηρίων έχει ολοκληρωθεί, θα πρέπει να ληφθούν για την οθόνη αναζήτησης.</string>
+  <string name="index_create">Δημιουργία</string>
+  <string name="rebuild_index">Αναδόμηση ευρετηρίου</string>
+  <string name="search_in">Αναζήτηση σε %s</string>
+  <string name="do_in_background">Συνέχεια στο παρασκήνιο</string>
+  <string name="rebuild_index_button">Αναδόμηση</string>
+  <!--X results in module Y-->
+  <string name="search_with_results2">%1s αποτελέσματα σε %2s</string>
+  <!--Tasks-->
+  <string name="progress_status">Πρόοδος</string>
+  <string name="task_kill_warning">Αυτές οι μακροχρόνιες εργασίες λειτουργίας μπορεί να τερματίστουν αν μεταβείτε σε μια άλλη εφαρμογή πριν τελειώσουν.</string>
+  <string name="no_tasks_running">Δεν υπάρχουν εργασίες υπό εκτέλεση.</string>
+  <!--Search-->
+  <string name="search_words_group_prompt">Εύρεση στίχων</string>
+  <string name="search_all_words">Όλες οι λέξεις</string>
+  <string name="search_any_word">Κάθε λέξη</string>
+  <string name="search_phrase">Φράση</string>
+  <string name="search_result_count">%d αποτελέσματα βρέθηκαν </string>
+  <string name="search_showing_first">Πάρα πολλα αποτελέσματα. Εμφάνιση του πρώτου %d</string>
+  <string name="search_bible_section_group_prompt">Αναζήτηση που</string>
+  <string name="search_all_bible">Ολόκληρη η Αγία Γραφή</string>
+  <string name="search_new_testament">Καινή Διαθήκη</string>
+  <string name="search_old_testament">Παλαιά Διαθήκη</string>
+  <string name="search_current_book">Επιλεγμένο βιβλίο</string>
+  <string name="error_executing_search">Μη έγκυρο ερώτημα αναζήτησης</string>
+  <string name="type_text_or_bible_reference">Γράψτε κείμενο ή βιβλική παραπομπή</string>
+  <!--Open (bible reference X)-->
+  <string name="go_to_ref">Άνοιξε %s</string>
+  <!--Finx "(keywords x)", keywords based on text selection-->
+  <string name="search_what">Αναζήτηση \"%s\"</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">Αριθμοί κεφαλαίων &amp; εδαφίων</string>
+  <string name="prefs_show_verseno_summary">Εμφάνιση αριθμών κεφαλαίου και εδαφίων</string>
+  <string name="prefs_e_ink_mode_title">Ασπρόμαυρη εμφάνιση</string>
+  <string name="prefs_eink_mode_summary">Χρήση μονόχρωμου στυλ (χωρίς χρώματα), κατάλληλο για συσκευές E-ink.</string>
+  <string name="prefs_disable_animations_title">Απενεργοποίηση κινούμενων σχεδίων</string>
+  <string name="prefs_disable_animations_summary">Απενεργοποίηση διάφορων animation όπως smooth scrolling</string>
+  <string name="prefs_paragraph_spacing_title">Εσοχή παραγράφου (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Ρύθμιση διαστήματος μεταξύ παραγράφων</string>
+  <string name="prefs_show_verseno_title1">Αριθμοί στίχου</string>
+  <string name="prefs_show_chapter_no_title">Αριθμοί κεφαλαίων</string>
+  <string name="prefs_show_chapter_no_summary">Εμφάνιση αριθμών κεφαλαίου</string>
+  <string name="prefs_verse_per_line_summary">Εμφάνιση κάθε στίχου σε μια διαφορετική γραμμή</string>
+  <string name="prefs_show_bookmarks_summary">Αποεπίλεξέ το για απόκρυψη σελιδοδεικτών</string>
+  <string name="prefs_show_mynotes_summary">Εμφάνιση εικονιδίου στίχων με τη σημείωση μου</string>
+  <string name="prefs_show_notes_summary">Εμφάνιση υποσημειώσεων και παραπομπών</string>
+  <string name="prefs_show_strongs_summary">Σύνδεσμοι προς Ελληνικους&amp; Εβραϊκους ορισμούς</string>
+  <string name="prefs_show_morphology_summary">Εμφάνιση ελληνικής μορφολογίας του Ρόμπινσον</string>
+  <string name="prefs_section_title_summary">Εμφάνιση μη κανονικων τίτλων τμήματος</string>
+  <string name="prefs_red_letter_summary">Εμφάνισε τα λόγια του Χριστού με κόκκινο χρώμα</string>
+  <string name="prefs_text_size_title">Επιλογές γραμματοσειράς</string>
+  <string name="prefs_verse_per_line_title">Ένας στίχος ανά γραμμή</string>
+  <string name="prefs_show_bookmarks_title">Σελιδοδείκτες</string>
+  <string name="prefs_show_mynotes_title">Εμφάνιση εικονιδίων των σημείωσεων μου</string>
+  <string name="prefs_show_footnotes_title">Υποσημειώσεις</string>
+  <string name="prefs_show_xrefs_title">Παραπομπές</string>
+  <string name="prefs_show_footnotes_summary">Δείξε υποσημειώσεις,αν είναι διαθέσιμες σ\'αυτό το έγγραφο</string>
+  <string name="prefs_show_xrefs_summary">Δείξε παραπομπές, αν είναι διαθέσιμες σ\' αυτό το έγγραφο</string>
+  <string name="prefs_show_notes_title">Υποσημειώσεις και x-διαιτητές</string>
+  <string name="prefs_show_morphology_title">Μορφολογική κώδικες</string>
+  <string name="prefs_section_title_title">Τμήμα τίτλων</string>
+  <string name="prefs_red_letter_title">Κόκκινο Γράμμα</string>
+  <string name="prefs_tilt_to_scroll_title">Κλίση για κύλιση</string>
+  <string name="prefs_toolbar_button_action_title">Ενέργειες κουμπιού εργαλειοθήκης</string>
+  <string name="prefs_toolbar_button_action_summary">Ενέργεια πατήματος/παρατεταμένου πατήματος κουμπιού εργαλειοθηκών Βίβλου ή σχολίων</string>
+  <string name="prefs_toolbar_button_action_default">Πατήστε για άνοιγμα μενού, παρατεταμένο πάτημα για οθόνη εγγράφων (προεπιλογή)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Πατήστε για άνοιγμα επόμενου εγγράφου, παρατεταμένο πάτημα για άνοιγμα μενού</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Πατήστε για άνοιγμα επόμενου εγγράφου, παρατεταμένο πάτημα για άνοιγμα οθόνης εγγράφων</string>
+  <string name="prefs_night_mode_title">Ενναλαγή λειτουργίας νυκτός</string>
+  <string name="prefs_night_mode_summary">Αυτόματη εναλλαγή σε λειτουργία νυκτός (αν το υποστηρίζει η συσκευή), χειροκίνητα ή μέσω ρύθμισης συστήματος (Android 10+). Χειροκίνητη εναλλαγή μπορεί να γίνει από το μενού με τις 3 τελείες στην αρχική οθόνη.</string>
+  <string name="prefs_night_mode_manual">Χειροκίνητα</string>
+  <string name="prefs_night_mode_automatic">Αυτόματα</string>
+  <string name="prefs_night_mode_system">Σύστημα</string>
+  <string name="options_menu_night_mode">Λειτουργία νυκτός</string>
+  <string name="prefs_navigate_to_verse_title">Πλοήγηση στον στίχο</string>
+  <string name="prefs_navigate_to_verse_summary">Επιλογή στίχου (και κεφαλαίου) κατά την επιλογή ενός περάσματος</string>
+  <string name="prefs_open_links_in_special_window_title">Παράθυρο συνδέσμων</string>
+  <string name="prefs_open_links_in_special_window_summary">Άνοιξε τους συνδέσμους σε ξεχωριστό παράθυρο, για γρήγορη θέαση των παραπομπών και των Strongs</string>
+  <string name="prefs_text_size_sample_text">Δείγμα κειμένου</string>
+  <string name="prefs_screen_keep_on_title">Διατήρηση ανοιχτής οθόνης</string>
+  <string name="prefs_screen_keep_on_summary">Διατήρηση ανοιχτής οθόνης κατά την χρήση της εφαρμογής</string>
+  <string name="prefs_interface_locale_title">Γλώσσα εφαρμογής</string>
+  <string name="prefs_interface_locale_summary">Επιλογή προσαρμοσμένης γλώσσας διεπαφής χρήστη</string>
+  <string name="reset_fontsize">Επαναφορά</string>
+  <string name="prefs_request_sdcard_permission_title">Υπάρχουν χειροκίνητα εγκατεστημένα έγγραφα</string>
+  <string name="prefs_request_sdcard_permission_summary">Επέτρεψε τη χρήση χειροκίνητα εγκατεστημένων εγγράφων από τον φακέλο jsword/sword στην εσωτερική μνήμη</string>
+  <string name="prefs_expand_footnotes_title">Ενσωματωμένες παραπομπές</string>
+  <string name="prefs_expand_footnotes_summary">Εμφάνισε τις παραπομπές ενσωματωμένες στο κείμενο, αντί για ένα σύνδεσμο που ανοίγει αναδυόμενο παράθυρο διαλόγου</string>
+  <string name="all_text_options_window_menutitle">Όλες οι επιλογές κειμένου</string>
+  <string name="text_options_window_menutitle">Επιλογές κειμένου</string>
+  <string name="auto_fullscreen">Πλήρης οθόνη μέσω κύλισης</string>
+  <string name="reversed_split_mode">Αντιστροφή διαχωρισμού παραθύρων</string>
+  <string name="add_ellipsis">%s...</string>
+  <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d mm</string>
+  <string name="auto_fullscreen_summary">Εναλλαγή σε πλήρη οθόνη κατά την κύλιση στο κείμενο. Συμβουλη: μπορείς να κάνεις πάντα εναλλαγή σε πλήρη οθόνη,με διπλό πάτημα στην οθόνη</string>
+  <string name="prefs_margin_size_title">Αλλαγή μεγέθους περιθωρίου</string>
+  <string name="prefs_margin_size_mm_title">Μέγεθος περιθωρίου (%1$d/%2$d/%3$d mm)</string>
+  <string name="prefs_advanced_settings_cat">Προχωρημένες ρυθμίσεις</string>
+  <string name="prefs_display_customization_cat">Εμφάνιση &amp; αίσθηση</string>
+  <string name="prefs_behavior_customization_cat">Συμπεριφορά εφαρμογής</string>
+  <string name="prefs_margin_size_summary">Ρύθμιση αριστερού και δεξιού περιθωρίου της προβολής κειμένου. Επίσης μπορείτε να ρυθμίσετε το μέγιστο πλάτος κειμένου</string>
+  <string name="prefs_text_colors_summary">Ρύθμιση κειμένου και χρωμάτων παρασκηνίου και εφέ θορύβου</string>
+  <string name="text_display_settings_activity_title">Ρυθμίσεις εμφάνισης κειμένου</string>
+  <string name="workspace_text_display_settings_title">Ρυθμίσεις κειμένου - %s</string>
+  <string name="window_text_display_settings_title">Ρυθμίσεις κειμένου - Παράθυρο %d</string>
+  <string name="prefs_text_display_settings_title">Μορφοποίηση</string>
+  <string name="prefs_text_appearance_title">Εμφάνιση</string>
+  <string name="prefs_justify_title">Πλήρης στοίχιση κειμένου</string>
+  <string name="prefs_justify_summary">Στοίχιση κειμένου σε στυλ \"πλήρης στοίχιση\",δηλαδή σύμφωνα με το δεξί και το αριστερό περιθώριο</string>
+  <string name="pref_left_margin_label_mm">Αριστερό περιθώριο (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Δεξί περιθώριο (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Μέγιστο πλάτος κειμένου (%d mm)</string>
+  <string name="prefs_line_spacing_pt">Απόσταση γραμμών %1.1fx</string>
+  <string name="pref_font_family_label">Γραμματοσειρά</string>
+  <string name="prefs_top_margin_title">Επάνω περιθώριο</string>
+  <string name="prefs_top_margin_summary">Πρόσθεση περιθωρίου (με οπτική  υπόδειξη) στην κορυφή του παραθύρου που περιέχει Βιβλικό κείμενο. Η κύλιση της Βίβλου θα γίνεται ώστε ο τρέχον στίχος να ξεκινά κάτω από το περιθώριο.</string>
+  <string name="prefs_hyphenation_title">Συλλαβισμός</string>
+  <string name="prefs_hyphenation_summary">Αυτόματος συλλαβισμός λέξεων, αν υποστηρίζεται από την γλώσσα</string>
+  <string name="prefs_line_spacing_pt_title">Απόσταση γραμμών (%1.1fx)</string>
+  <string name="line_spacing_title">Απόσταση γραμμών</string>
+  <string name="line_spacing_summary">Ρύθμιση απόστασης μεταξύ των γραμμών</string>
+  <string name="select_none">Αποεπιλογή</string>
+  <string name="reset_are_you_sure">Σίγουρα θέλετε να επαναφέρετε αυτές τις τιμές?</string>
+  <string name="window_pinning_menutitle">Καρφίτσωμα παραθύρου</string>
+  <string name="hide_window_buttons_title">Απόκρυψη κουμπιών παραθύρου</string>
+  <!--Colors preferences-->
+  <string name="colors_night_mode_title">Λειτουργία νυκτός</string>
+  <!--Window-->
+  <string name="windowClose">Κλείσιμο</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">Δεν υπάρχουν σημειώσεις σε αυτό το κεφάλαιο</string>
+  <string name="no_verse_notes">Δεν υπάρχουν σημειώσεις σε αυτόν τον στίχο</string>
+  <string name="previous">Προηγούμενος</string>
+  <string name="next">Επόμενος</string>
+  <!--Strongs-->
+  <string name="strongs_not_installed">Παρακαλώ κατεβάστε τα Εβραϊκά και τα Ελληνικά Ισχυρές λεξικά</string>
+  <string name="morph_robinson_not_installed">Παρακαλώ κατεβάστε το λεξικό «Μορφολογική Κώδικες Ανάλυσης του Ρόμπινσον»</string>
+  <!--Module download-->
+  <string name="download">Λήψη εγγράφων</string>
+  <string name="download_document_confirm_prefix">Λήψη</string>
+  <string name="download_refresh_book_list_menu_item">Ανανεωση</string>
+  <string name="storage_space_warning">Ανεπαρκής τοπικός χώρος αποθήκευσης.</string>
+  <string name="document_not_installed">Παρακαλώ κατεβάστε το \'%s\'</string>
+  <string name="free_text_search_documents">Αναζήτηση</string>
+  <!--Install zip file-->
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">Σχέδιο ανάγνωσης</string>
+  <string name="rdg_plan_selector_title">Επιλέξτε ένα σχέδιο ανάγνωσης</string>
+  <string name="rdg_plan_day">Ημέρα %s</string>
+  <string name="done">Τελος</string>
+  <!--Document context menu-->
+  <string name="delete">Διαγραφή</string>
+  <string name="delete_index">Διαγραφή ευρετήριου αναζήτησης</string>
+  <string name="about">Σχετικά με</string>
+  <string name="delete_doc">Διαγραφή του %s?</string>
+  <string name="delete_search_index_doc">Διαγραφή ευρετήριου του %s?</string>
+  <!--Verse context menu-->
+  <string name="notes">Υποσημειώσεις και παραπομπές</string>
+  <string name="compare_translations">Σύγκριση μεταφράσεων</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Άνοιξε τον σύνδεσμο εδώ</string>
+  <string name="open_link_in_new_window">Άνοιξε τον σύνδεσμο σε νέο παράθυρο</string>
+  <string name="open_link_in_special_window">Άνοιξε τον σύνδεσμο σε ξεχωριστό παράθυρο</string>
+  <!--Bookmarks-->
+  <string name="bookmarks_and_mynotes_title">Σελιδοδείκτες &amp; Οι Σημειώσεις μου</string>
+  <string name="migrated_my_notes">Συχνωνευμένες Σημειώσεις Μου</string>
+  <string name="bookmarks">Σελιδοδείκτες</string>
+  <string name="bookmark_added">Ο σελιδοδείκτης προστέθηκε</string>
+  <!--Bookmark / note labels-->
+  <string name="labels">Ετικέτες</string>
+  <string name="manage_labels">Διαχείρηση ετικετών</string>
+  <string name="assign_labels">Εκχώρηση ετικετών</string>
+  <string name="new_item">Νέος</string>
+  <string name="new_label">Νέα ετικέτα</string>
+  <string name="label_name_prompt">Ονομα</string>
+  <string name="label_unlabelled">Μη σημασμένο</string>
+  <string name="add_bookmark1">Σελιδοδείκτης</string>
+  <string name="add_bookmark2">Επιλογή σελιδοδείκτη</string>
+  <string name="add_bookmark3">Επιλογή</string>
+  <string name="add_bookmark_whole_verse">Στίχος ως σελιδοδείκτης</string>
+  <string name="add_bookmark_whole_verse1">Στίχοι</string>
+  <string name="add_bookmark_whole_verse2">Ολόκληροι στίχοι</string>
+  <string name="remove_bookmark">Διαγραφή</string>
+  <string name="bookmark_settings_hide_labels_title">Απόκρυψη επιλεγμένων ετικετών</string>
+  <string name="bookmark_settings_hide_labels_summary">Απόκρυψη σελιδοδεικτών με επιλεγμένη(ες) ετικέτες</string>
+  <string name="auto_assign_labels_title">Ρυθμίσεις ετικετών</string>
+  <string name="auto_assign_labels">Αυτόματη εκχώρηση &amp; Αγαπημένων ετικετών</string>
+  <string name="auto_assign_labels1">Αυτόματη εκχώρηση ετικετών σε νέους σελιδοδείκτες</string>
+  <string name="auto_assign_labels_primary">Αυτόματη εκχώρηση ως κύριας</string>
+  <string name="label_color">Χρώμα ετικέτας</string>
+  <!--can be removed-->
+  <string name="label_color_example">Παράδειγμα</string>
+  <string name="marker_style">Δείξε μόνο επιλογέα για σελιδοδείκτες επιλογής</string>
+  <string name="marker_style_whole_verse">Δείξε μόνο επιλογέα για σελιδοδείκτες ολόκληρων στίχων</string>
+  <string name="hide_style">Απόκρυψη για σελιδοδείκτες επιλογής</string>
+  <string name="hide_style_whole_verse">Απόκρυψη για σελιδοδείκτες ολόκληρων στίχων</string>
+  <string name="bookmark_warning">Υπάρχουν σελιδοδείκτες ή/και σημειώσεις για το έγγραφο αυτό</string>
+  <string name="bookmark_warning3">Θέλετε ακόμα να ενημερώσετε το πρόσθετο?</string>
+  <string name="bookmark_warning4">Προτείνετε να κρατήσετε backup του προσθέτου πρίν το ενημερώσετε</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Κατά ημερομηνία</string>
+  <string name="sort_by_bible_book">Κατά βιβλίο</string>
+  <string name="sort_by_alphabetical">Αλφαβητική σειρά</string>
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Αναζήτηση σημειώσεων</string>
+  <!--Dictionary-->
+  <string name="dictionary">Λεξικό</string>
+  <string name="search_dictionary_hint">Αναζήτηση λεξικού</string>
+  <!--General Book-->
+  <string name="general_book">Βιβλίο</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d κεφάλαιο</string>
+  <string name="some_chapters">%d κεφάλαια</string>
+  <string name="rest_of_book">Στο τέλος του βιβλίου</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d στίχος</string>
+  <string name="some_verses">%d στίχοι</string>
+  <string name="rest_of_chapter">Στο τέλος του κεφαλαίου</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d σελίδα</string>
+  <string name="some_pages">%d σελίδες</string>
+  <!--Speak - Common-->
+  <string name="stop">Διακοπή</string>
+  <string name="pause">Παύση</string>
+  <string name="rewind">Επαναφορά</string>
+  <string name="forward">Προώθηση</string>
+  <string name="tts_lang_not_available">Η γλώσσα δεν είναι διαθέσιμη.</string>
+  <string name="speak_queue">Σειρά αναμονής</string>
+  <string name="speak_repeat">Επανάληψη</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">Ταχύτητα ανάγνωσης</string>
+  <string name="speak_and_play_earcons_title">Ήχοι ομιλίας και αναπαραγωγής για</string>
+  <string name="playback_settings_title">Ρυθμίσεις αναπαραγωγής</string>
+  <string name="speak_settings_title">Γενικές ρυθμίσεις ομιλίας</string>
+  <string name="speak_bookmarking_settings_title">Ρυθμίσεις σελιδοδεικτών</string>
+  <string name="speak_bookmarks_menu_title">Ανάγνωση από σελιδοδείκτη</string>
+  <string name="speak_advanced_settings">Προχωρημένες ρυθμίσεις</string>
+  <string name="speak_sleep_timer_title">Χρονοδιακόπτης ύπνου</string>
+  <string name="speak_no_books_available">Κανένα βιβλίο διαθέσιμο για ανάγνωση</string>
+  <string name="speak_general_error">Η ανάγνωση δεν μπορούσε να ξεκινήσει για αυτό το βιβλίο</string>
+  <string name="repeat_passage">Επανάληψη αποσπάσματος</string>
+  <string name="set_repeat_passage_range">Ρύθμιση εύρους επανάληψης αποσπάσματος</string>
+  <string name="speak_beginning_of_passage">Διαλέξτε το ξεκίνημα του αποσπάσματος</string>
+  <string name="speak_ending_of_passage">Διαλέξτε το τέλος του αποσπάσματος</string>
+  <string name="speak_verse_range_to_repeat">Διαλέξτε εύρος στίχων για επανάληψη</string>
+  <string name="speak_ending_verse_must_be_later">Ο τελευταίος στίχος πρέπει να έπεται του πρώτου στίχου</string>
+  <string name="conf_speak_synchronize">Το κείμενο να ακολουθεί την ομιλία</string>
+  <string name="conf_speak_auto_bookmark">Αυτόματοι σελιδοδείκτες</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Αποθήκευση ρυθμίσεων αναπαραγωγής στους σελιδοδείκτες</string>
+  <string name="conf_replace_divinename">Αντικατάσταση ονόματος Θεού με Γιαχβέ</string>
+  <string name="conf_change_chapter">Αλλαγές κεφαλαίων</string>
+  <string name="conf_change_title">Τίτλοι</string>
+  <string name="conf_speak_footnotes">Υποσημειώσεις</string>
+  <string name="conf_speak_sleep_timer">Ρύθμιση χρονοδιακόπτη ύπνου</string>
+  <string name="sleep_timer_title">Ώρα ύπνου σε λεπτά</string>
+  <string name="sleep_timer_set">Ρύθμιση χρονοδιακόπτη ύπνου. Ρυθμίστηκε σε: %d λεπτά</string>
+  <string name="sleep_timer_started">Διακόπτης ύπνου ξεκίνησε, %d λεπτά</string>
+  <string name="sleep_timer_active_at">Διακόπτης ύπνου: Απομένουν %s λεπτά</string>
+  <string name="speak_next">Επόμενος</string>
+  <string name="speak_previous">Προηγούμενος</string>
+  <string name="widget_toggle_sleep_timer">Εναλλαγή χρονοδιακόπτη ύπνου</string>
+  <string name="widget_bookmark_helptext">Συντομεύσεις σελιδοδεικτων ανάγνωσης θα εμφανίζονται εδω</string>
+  <string name="speak_status_stopped">Διακοπή</string>
+  <string name="speak_autobookmarking_disabled">Αυτόματοι σελιδοδείκτες απενεργοποιήθηκαν!</string>
+  <string name="system_speak_settings">Άνοιγμα ρυθμίσεων TTS συστήματος</string>
+  <string name="auto_assing_labels_help1">Εδώ μπορείτε να ρυθμίσετε ποιές ετικέτες εκχωρούνται αυτόματα στους σελιδοδείκτες που δημιουργείτε</string>
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">Ρυθμίστηκε %s</string>
+  <string name="setting_scope_window">αυτό το παράθυρο</string>
+  <string name="setting_scope_workspace">αυτός ο χώρος εργασίας</string>
+  <string name="assing_labels_help1">Κάθε σελιδοδείκτης μπορεί να εκχωρηθεί με πολλαπλές ετικέτες</string>
+  <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Χρησιμοποίησε %sγια προσδορισμό εμφανιζόμενου χρώματος ετικέτας</string>
+  <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Πάτα το εικονίδιο %s για αυτόματη εκχώρηση αυτής της ετικέτας στους νέους σελιδοδείκτες</string>
+  <!--param is heart icon-->
+  <string name="assing_labels_help4">Πάτα %sγια προσθήκη ετικέτας στα αγαπημένα σου για γρήγορη πρόσβαση</string>
+  <!--param is refresh icon-->
+  <string name="assing_labels_help5">Πάτα %sγια αναδιάταξη της λίστας βάση των επιλογών σου</string>
+  <string name="workspace_text_options_help_title">Επιλογές κειμένου χώρου εργασίας</string>
+  <string name="workspace_text_options_help1">Αυτές οι ρυθμίσεις ορίζουν τα προκαθορισμένα για όλα τα παράθυρα των χώρων εργασίας</string>
+  <string name="workspace_text_options_help2">Μπορείτε να τις προσπεράσετε αλλάζοντας τις ρυθμίσεις των επιμέρους παραθύρων</string>
+  <string name="window_text_options_help_title">Επιλογές κειμένου παραθύρου</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">Το εικονίδιο %s υποδεικνύει ότι η ρύθμιση έχει ανατεθεί από τις ρυθμίσεις χώρου εργασίας</string>
+  <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">Το εικονίδιο %s υποδεικνύει ότι η ρύθμιση έχει αλλάξει για το συγκεκριμένο παράθυρο</string>
+  <string name="window_text_options_help3">Η ρύθμιση χώρου εργασίας δεν θα επηρεάσει αυτό το παράθυρο.</string>
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Το κουμπί %1$s επαναφέρει όλες αυτές τις ρυθμίσεις στις %2$s</string>
+  <string name="reset_defaults">προκαθορισμένες τιμές</string>
+  <string name="reset_workspace_defaults">προκαθορισμένες τιμές χώρου εργασίας</string>
+  <string name="speak_bookmark_help">Βοήθεια σελιδοδείκτη ανάγνωσης</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string name="speak_book_changed">Το βιβλίο άλλαξε</string>
+  <string name="speak_chapter_changed">Κεφάλαιο</string>
+  <string name="speak_first">Πρώτο</string>
+  <string name="speak_second">Δεύτερο</string>
+  <string name="speak_third">Τρίτο</string>
+  <string name="speak_fourth">Τέταρτο</string>
+  <string name="speak_fifth">Πέμπτο</string>
+  <string name="verse_range_mode_disabled">
+Η λειτουργία επανάληψης αποσπάσματος διακόπηκε αυτόματα διότι η ανάγνωση ξεκίνησε εκτός του διορισμένου εύρους στίχων</string>
+  <!--User Notes-->
+  <string name="mynotes">Οι σημειώσεις μου</string>
+  <!--Backup and restore-->
+  <string name="backup_and_restore">Αντίγραφο ασφαλείας &amp; επαναφορά</string>
+  <string name="backup_modules2">Αντίγραφο ασφαλείας εγγράφων στο...</string>
+  <string name="backup_app_database2">Αντίγραφο ασφαλείας βάσης στο...</string>
+  <string name="backup_app2">Αντίγραφο εφαρμογής (αρχείο .apk) στο ....</string>
+  <string name="backup_application">Εφαρμογή</string>
+  <string name="backup_database">Βάση δεδομένων</string>
+  <string name="backup_documents">Έγγραφα</string>
+  <string name="backup_application_info">Αρχείο εφαρμογής (.APK)</string>
+  <string name="backup_database_info">Σελιδοδείκτες, ετικέτες, σημειώσεις, σημειωματάρια, πλάνα ανάγνωσης, χώροι εργασίας κ.λ.π.</string>
+  <string name="backup_document_info">Άγιες Γραφές, σχoλιασμοί, λεξικά, χάρτες κλπ.</string>
+  <string name="backup_to">Αντίγραφο σε...</string>
+  <string name="backup_restore_from">Επαναφορά από...</string>
+  <string name="backup_restore">Επαναφορά</string>
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="restore_what">Τι θέλετε να επαναφέρετε?</string>
+  <string name="restore_app_database">Επαναφορά βάσης δεδομένων εφαρμογής από...</string>
+  <string name="restore_database">Επαναφορά αρχείου βάσης δεδομένων</string>
+  <string name="restore_confirmation">Αντικατάσταση Σημειώσεων Μου, σελιδοδεικτών, σημειωματάριων, πλάνων ανάγνωσης και χώρων εργασίας?</string>
+  <string name="restore_success2">Επιλεγμένα τμήματα βάσης δεδομένων επαναφέρθηκαν επιτυχώς</string>
+  <string name="restore_success">Οι Σημειώσεις Μου, σελιδοδεικτες, σημειωματάρια, πλάνα ανάγνωσης και χώροι εργασίας επαναφέρθηκαν επιτυχώς</string>
+  <string name="downloading_backup">Κατέβασμα αντιγράφου ασφαλείας...</string>
+  <string name="loading_backup">Επαναφορά βάσης δεδομένων από αντίγραφο...</string>
+  <string name="backup_success2">Οι Σημειώσεις Μου, σελιδοδείκτες, σημειωματάρια, πλάνα ανάγνωσης και χώροι εργασίας αποθηκεύτηκαν επιτυχώς</string>
+  <string name="backup_modules_success">Τα επιλεγμένα πρόσθετα ή έγγραφα αποθηκεύτηκαν επιτυχώς.</string>
+  <string name="backup_modules_email_subject_2">Αντίγραφα προσθέτων %s</string>
+  <string name="backup_modules_email_message_2">Τα αντίγραφο σας των προσθέτων %1$s επισυνάπτονται, που περιέχει τα ακόλουθα πρόσθετα: %2$s</string>
+  <string name="backup_email_subject_2">Αντίγραφο βάσης δεδομένων %s</string>
+  <string name="backup_email_message_2">Η βάση δεδομένων %s επισυνάπτεται και περιέχει σελιδοδείκτες, σημειώσεις, πλάνα ανάγνωσης και χώρους εργασίας</string>
+  <string name="restore_unsuccessfull">Η επαναφορά της βάσης απέτυχε. Πιθανόν δώσατε άκυρο αρχείο βάσης δεδομένων.</string>
+  <string name="restore_modules">Επαναφορά εγγράφων από...</string>
+  <string name="send_backup_file">Αποστολή αντιγράφου ασφαλείας</string>
+  <string name="backup_modules_title">Επιλέξτε ποιά πρόσθετα θα αντιγράψετε</string>
+  <string name="install_zip_canceled">Ακυρώθηκε η εγκατάσταση προσθέτου</string>
+  <!--About-->
+  <string name="module_about_copyright">Copyright: %s</string>
+  <string name="module_about_installed_version">Εγκατεστημένη έκδοση: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Τελευταία έκδοση: %1$s (%2$s)</string>
+  <string name="module_about_versification">Στιχουργία: %s</string>
+  <string name="module_about_repository">Διακομιστής διαμοιρασμού: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title1">Αναφορά σφάλματος</string>
+  <string name="send_feedback_title">Ανατροφοδότηση</string>
+  <string name="send_bug_report_title">Ανατροφοδότηση / Αναφορά σφάλματος</string>
+  <string name="report_bug_email_subject_3">[%1$s] Αναφορά σφάλματος για %2$s %3$s </string>
+  <string name="report_bug_big_heading">ΠΑΡΑΚΑΛΩ ΓΡΑΨΤΕ ΤΑ ΣΧΟΛΙΑ ΣΑΣ Ή ΑΝΑΦΕΡΕΤΕ ΣΦΑΛΜΑΤΑ ΚΑΤΩ ΑΠΟ ΑΥΤΗ ΤΗ ΓΡΑΜΜΗ</string>
+  <string name="report_bug_heading1">Οδηγίες:</string>
+  <string name="report_bug_line_1">Πείτε μας εν συντομία τι κάνατε / τι συνέβη όταν το σφάλμα εμφανίστηκε.</string>
+  <string name="report_bug_heading2">Για παράδειγμα:</string>
+  <string name="report_bug_instructions1">1. Άνοιξα την εφαρμογή</string>
+  <string name="report_bug_instructions2">2. Πάτησα στο μενού του παράθυρου</string>
+  <string name="report_bug_instructions3">-&gt; Κατάρρευση</string>
+  <string name="report_bug_line_2">Κάποιες φορές τα στιγμιότυπα οθόνης είναι επίσης χρήσιμα στην διάγνωση προβλημάτων</string>
+  <string name="report_bug_line_3">Παρακαλώ χρησιμοποιήστε αυτή τη λειτουργία για αναφορά, αμέσως μόλις αντιληφθείτε τη δυσλειτουργία.</string>
+  <string name="report_bug_line_4">Μπορείτε επίσης να χρησιμοποιήσετε την λειτουργία αυτή, κατά την εκκίνηση της εφαρμογής, μετά την κατάρρευσή της.</string>
+  <string name="report_bug_heading_3">Συννημένα:</string>
+  <string name="bug_report_logcat">Αρχείο αναφοράς που δημιουργεί αυτή η εφαρμογή. Δεν περιέχει πληροφορίες για άλλες εφαρμογές.</string>
+  <string name="bug_report_screenshot">Στιγμιότυπο οθόνης κατά την κατάρρευση της εφαρμογής, ή κατά τη δημιουργία αναφοράς σφάλματος.</string>
+  <string name="bug_report_attachment_line_1">Επισυνάπτοντας τα αρχεία αυτά, βοηθάτε πολύ τους προγραμματιστές να διορθώσουν τα αναφερόμενα σφάλματα</string>
+  <string name="report_bug_heading_4">Πληροφορίες συσκευής:</string>
+  <!--Document types-->
+  <string name="doc_type_all">Όλοι οι τύποι</string>
+  <string name="doc_type_bible">Αγία Γραφή</string>
+  <string name="doc_type_commentary">Σχόλια</string>
+  <string name="doc_type_dictionary">Λεξικό</string>
+  <string name="doc_type_book">Βιβλίο</string>
+  <string name="doc_type_map">Χάρτης</string>
+  <string name="doc_type_addons">Πρόσθετα</string>
+  <!--Languages-->
+  <string name="lang_default">Προεπιλογή</string>
+  <!--General-->
+  <string name="okay">OK</string>
+  <string name="cancel">Ακύρωση</string>
+  <string name="yes">Ναί</string>
+  <string name="no">Οχι</string>
+  <string name="error">Σφάλμα</string>
+  <string name="delete_generic">Διαγραφή</string>
+  <string name="please_wait">Παρακαλώ περιμένετε...</string>
+  <string name="all">Ολα</string>
+  <string name="edit">Επεξεργασία</string>
+  <string name="reset_generic">Επαναφορά</string>
+  <string name="watch_tutorial_video">Δείτε βίντεο καθοδήγησης (Αγγλικά)</string>
+  <string name="verse_not_found">Δεν βρέθηκε ο στίχος</string>
+  <!--Errors-->
+  <string name="report_error">Αποστολή αναφοράς</string>
+  <string name="error_occurred">Παρουσιάστηκε ένα σφάλμα</string>
+  <string name="error_occurred_crash_last_time">Η εφαρμογή κατέρρευσε κατά την τελευταία χρήση της. Θα εκτιμούσαμε τη βοήθειά σας στην επίλυση του σφάλματος, αν μας στείλετε μια σχετική αναφορά.</string>
+  <string name="error_occurred_with_link">Παρουσιάστηκε ένα σφάλμα. %s</string>
+  <string name="error_no_content">Δεν υπάρχει περιεχόμενο για τον επιλεγμένο στίχο</string>
+  <string name="error_page_too_large">Η σελίδα είναι πολύ μεγάλη για να φορτωθεί</string>
+  <string name="error_key_not_in_document">Δεν βρέθηκε στο έγγραφο</string>
+  <string name="error_key_not_in_document2">%s δεν βρέθηκε στο έγγραφο %s.</string>
+  <string name="empty_list">Δεν υπάρχουν στοιχεία για εμφάνιση</string>
+  <string name="error_skip">Παράβλεψη</string>
+  <string name="bug_report_email_title">Αποστολή αναφοράς σφάλματος μέσω email</string>
+  <string name="bug_report_email_text">Ακολούθως, παρακαλώ επιλέξτε την προτιμώμενη εφαρμογή email (π.χ. Gmail) για να αποστείλετε την αναφορά στην ομάδα ανάπτυξης</string>
+  <!--Notifications-->
+  <string name="notification_channel_tts_status">Κείμενο σε ομιλία</string>
+  <string name="notification_channel_progress_status">Ενημέρωση κατάστασης προόδου κατεβάσματος εγγράφων κλπ.</string>
+  <!--Workspaces-->
+  <string name="new_workspace">Νέος</string>
+  <string name="switch_to_workspace">Χώροι εργασίας</string>
+  <string name="delete_workspace">Διαγραφή</string>
+  <string name="new_copied_workspace">Αντιγραφή ως νέος</string>
+  <string name="workspace_number">Χώρος εργασίας %d</string>
+  <string name="rename_workspace">Μετονομασία</string>
+  <string name="workspace_selector_title">Επιλογή χώρου εργασίας</string>
+  <string name="workspace_settings">Ρυθμίσεις...</string>
+  <string name="give_name_workspace">Δώσε όνομα νέου χώρου εργασίας</string>
+  <string name="save_and_exit">Αποθήκευση</string>
+  <string name="workspace_save_changes">Αποθήκεση αλλαγών στους χώρους εργασίας?</string>
+  <string name="copy_of_workspace">Αντίγραφο του %s</string>
+  <string name="copy_workspace_settings">Αντιγραφή ρυθμίσεων...</string>
+  <string name="copy_settings_title">Ποιές ρυθμίσεις θέλετε να αντιγράψετε?</string>
+  <string name="select_all">Επιλογή όλων</string>
+  <string name="copy_settings_workspaces_title">Σε ποιούς χώρους να αντιγραφούν οι ρυθμίσεις?</string>
+  <string name="reset_settings">Επαναφορά</string>
+  <string name="workspace_dismiss">Απόρριψη</string>
+  <string name="workspace_listing_with_current">%s (τρέχων)</string>
+  <!--Beta notice-->
+  <string name="beta_notice_title">Αυτή είναι μία δοκιμαστική έκδοση!</string>
+  <string name="beta_notice_github_issues">Προβλήματα του Github</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Απόρριψη</string>
+  <string name="beta_notice_dismiss_until_update">Απόρριψη ως την επόμενη ενημέρωση</string>
+  <string name="stable_notice_title">H εφαρμογή αναβαθμίστηκε!</string>
+  <string name="upgrade_video_message">Παρακαλώ δείτε βίντεο παρουσίασης των νέων λειτουργιών αυτής της έκδοσης (%s).</string>
+  <string name="stable_notice_par1">Η νέα έκδοση %1$s του %2$s εγκαταστάθηκε επιτυχώς!</string>
+  <!--History-->
+  <string name="history_for">Ιστορικό (%1$s: Παράθυρο %2$d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Πλοήγηση</string>
+  <string name="help_contextmenus_title">Μενού περιβάλλοντος</string>
+  <string name="help_bookmarks_title">Σελιδοδείκτες &amp; Οι Σημειώσεις μου</string>
+  <string name="help_search_title">Αναζήτηση</string>
+  <string name="help_search_text">Το κείμενο αναζήτησης μπορεί να περιέχει ειδικούς χαρακτήρες όπως *, ?, AND, OR, NOT
+(δες \"Apache Lucene - Query Parser Syntax\" για περισσότερα)</string>
+  <string name="help_workspaces_title">Χώροι εργασίας</string>
+  <string name="help_hidden_features_title">Κρυφές συντομεύσεις</string>
+  <string name="help_window_pinning_title">Καρφίτσωμα παραθύρων</string>
+  <!--Welcome text-->
+  <string name="redownload_documents">Γρήγορη επανάληψη μεταφόρτωσης</string>
+  <!--Supported file formats for documents-->
+  <string name="supported_formats_title">Υποστηριζόμενες μορφοποιήσεις</string>
+  <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">Πρέπει να επιλέξεις το αρχείο που θέλεις να φορτώσεις στο %s.</string>
+  <string name="supported_formats">Υποστηριζόμενες μορφές για φόρτωση εγγράφων από αρχείο: %s</string>
+  <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">Αρχεία zip που περιέχουν πρόσθετo(α) Sword, ή αντίγραφα ασφαλείας εγγράφων (*.abmd), δημιουργημένα από %s</string>
+  <string name="format_mysword">Έγγραφα MySword (*.mybible)</string>
+  <string name="format_mybible">Έγγραφα MyBible (*.SQLite3)</string>
+  <string name="format_epub">Έγγραφα EPUB (*.epub)</string>
+  <string name="redownload_message">
+Βρέθηκε μία λίστα προηγουμένων βιβλίων/εγγράφων. Πατήστε εδώ για να μεταφορτωθούν εύκολα πάλι.</string>
+  <!--Uncategorized-->
+  <string name="close">Κλείσιμο</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
+  <string name="first_time_help_do_not_show_again">Κατάλαβα</string>
+  <string name="first_time_help_show_next_time">Δείξε το πάλι την επόμενη φορά</string>
+  <string name="strongs_mode_title">Διάλεξε επιλογή strongs</string>
+  <string name="download_dialog_message">Τα ακόλουθα βιβλία δεν ήταν δυνατό να μεταφορτωθούν:</string>
+  <string name="select_multiple">Πολλαπλή επιλογή</string>
+  <string name="journal_description">Σημειωματάρια μελέτης του χρήστη με ιδιόχειρες σημειώσεις και σελιδοδείκτες</string>
+  <string name="my_notes_description">Σημειώσεις του χρήστη επισυναπτόμενες στους σελιδοδείκτες</string>
+  <string name="my_notes_abbreviation">Οι σημειώσεις μου</string>
+  <string name="studypads">Σημειωματάρια Μελέτης</string>
+  <string name="multi_description">Πολλαπλές παραπομπές</string>
+  <string name="multi_abbreviation">Πολλαπλές</string>
+  <string name="compare_description">Σύγκριση μεταφράσεων</string>
+  <string name="compare_abbreviation">Σύγκριση</string>
+  <string name="compare">Σύγκριση</string>
+  <string name="http_forbidden">Απαγορευμένη πρόσβαση</string>
+  <string name="http_not_found">Δεν βρέθηκε</string>
+  <string name="http_unknown">Άγνωστο σφάλμα</string>
+  <string name="give_passphrase_for_module">Το έγγραφο %s είναι κρυπτογραφημένο και χρειάζεται φραση πρόσβασης για να ξεκλειδωθεί</string>
+  <string name="unlocking_failed">Ξεκλείδωμα απέτυχε, λάθος φραση πρόσβασης</string>
+  <string name="unlock_module">Όρισμός φράσης πρόσβασης προσθέτου</string>
+  <string name="unlock_info">Πληροφορίες ξεκλειδώματος κρυπτογραφημένου προσθέτου</string>
+  <string name="try_again_passphrase">Η φράση πρόσβασης δεν έγινε δεκτή, άλλη μια προσπάθεια?</string>
+  <string name="show_unlock_info">Πληροφορίες ξεκλειδώματος προσθέτου &amp;</string>
+  <string name="prefs_show_error_box_title">Δείξε το παράθυρο σφάλματος javascript</string>
+  <string name="prefs_show_error_box_summary">Χρήσιμο για προγραμματιστές όταν αποσφαλματώνουν τα σφάλματα javascript στην προβολή Βίβλου. Αυτό θα επιβραδύνει την εφαρμογή</string>
+  <string name="active_window_indicator_title">Δείξε ένδειξη ενεργού παραθύρου</string>
+  <string name="active_window_indicator_summary">Υπερτονισμός γωνιών παραθύρου, για αναγνώριση ενεργού παραθύρου</string>
+  <string name="app_licence_title">Άδεια Ανοιχτού Κώδικα</string>
+  <string name="how_to_contribute">Πως μπορώ να συνεισφέρω?</string>
+  <string name="confirm_delete_bookmarks">Θέλετε να απομακρύνετε %dσελιδοδείκτες και τις σημειώσεις τους?</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Προτείνετε σε έναν φίλο</string>
+  <string name="tell_friend_message1">Θα ήθελα να σας προτείνω το %s.</string>
+  <string name="tell_friend_message2">Είναι μία ισχυρή,εύκολη στη χρήση, εφαρμογή μελέτης της Βίβλου εκτός σύνδεσης για Android.</string>
+  <string name="tell_friend_message3">Εγκαταστήστε τη από το Play Store: %s</string>
+  <string name="tell_friend_message4">Διαβάστε περισσότερα &amp; περισσότερες επιλογές εγκατάστασης: %s</string>
+  <string name="share_verse_ok">Διαμοιρασμός / Αντιγραφή</string>
+  <string name="verse_action_copy">Αντιγραφή</string>
+  <string name="generic_share">Διαμοιρασμός</string>
+  <string name="share_verse_menu_title">Διαμοιρασμός / αντιγραφή...</string>
+  <string name="show_versenumbers">Εμφάνιση αριθμών στίχου</string>
+  <string name="show_full_verses">Εμφάνιση ολόκληρων στίχων</string>
+  <string name="show_selection_only">Εμφάνιση επιλεγμένου κειμένου μόνο</string>
+  <string name="advertise_app">Διαφημίστε την εφαρμογή</string>
+  <string name="verse_share_advertise">Διανεμήθηκε μέσω %s.</string>
+  <string name="show_reference">Εμφάνιση παραπομπής</string>
+  <string name="show_reference_at_front">Εμφανιση στην αρχή του στίχου</string>
+  <string name="abbreviate_reference">Συντομογραφία παραπομπής</string>
+  <string name="version_name">Όνομα έκδοσης</string>
+  <!--meaning, bible version name-->
+  <string name="show_version_name">Εμφάνιση ονόματος έκδοσης</string>
+  <string name="show_ellipsis">Εμφάνιση έλλειψης (...)</string>
+  <string name="show_quotes">Εμφάνιση παραθέσεων</string>
+  <string name="backup_button">Δημιουργία αντιγράφων ασφαλείας</string>
+  <string name="back_button">Πίσω</string>
+  <string name="upgrading_database">Αναβάθμιση βάσης δεδομένων. Περιμένετε...</string>
+  <string name="initializing_app">Προετοιμασία εφαρμογής....</string>
+  <string name="show_notes">Εμφάνιση σημειώσεων</string>
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">Το πακέτο Android Webview είναι παρωχημένο (%1$s). Χρειάζεται η αναβάθμισή του τουλάχιστον στην έκδοση %2$s για να χρησιμοποιηθεί το %3$s. Στις περισσότερες συσκευές γίνεται μέσω %4$s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Προχώρα παρ\'όλα αυτά</string>
+  <string name="proceed">Προχώρα</string>
+  <string name="rate_title">Βαθμολόγηση και αξιολόγηση εφαρμογής</string>
+  <string name="rate_message5">
+Θετικές και λεπτομερείς αξιολογήσεις βοηθούν πολύ την Εφαρμογή Ανοιχτού Κώδικα AndBible. Ευχαριστούμε!</string>
+  <string name="rate_message6">
+Πριν υποβάλλετε αρνητική αξιολόγηση, λάβετε υπόψη τα ακόλουθα:</string>
+  <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+Αν έχετε πρόβλημα με την εφαρμογή, παρακαλώ %1$s ή αλλιως %2$s</string>
+  <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+αν κάποιο κείμενο / Βιβλική μετάφραση έχουν πρόβλημα, %s.</string>
+  <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+Αν συγκεκριμένο κείμενο δεν είναι διαθέσιμο στην εφαρμογή, %s.</string>
+  <string name="rate_message4">
+Η ομάδα ανάπτυξης της εφαρμογής δεν ευθύνονται για την συντήρηση εγγράφων</string>
+  <string name="bug_report">
+στείλτε αναφορά σφάλματος (από Κύριο Μενού)</string>
+  <string name="how_to_help">
+παρακαλώ διαβάστε πως μπορείτε να βοηθήσετε</string>
+  <string name="send_email">
+στείλτε email στους προγραμματιστές</string>
+  <string name="proceed_google_play">
+προχωρήστε στο Google Play</string>
+  <string name="text_maintainers">
+παρακαλώ αναφέρετε προβλήματα στους συντηρητές κειμένων</string>
+  <string name="does_not_exist_abbreviation">Δεν υπάρχει</string>
+  <string name="cant_change_wholeverse">Αδύνατη απενεργοποίηση σήμανσης ολόκληρου στίχου για αυτόν τον σελιδοδείκτη</string>
+  <string name="whole_verse_turned_on">Σελιδοδείκτης επισημάνθηκε πλέον για όλο το στίχο</string>
+  <string name="this_bookmark">Αυτός ο σελιδοδείκτης</string>
+  <string name="this_workspace">Αυτός ο χώρος εργασίας</string>
+  <string name="primary_label">Κύρια ετικέτα</string>
+  <string name="highlight_entire_verse">Επισήμανση ολόκληρου στίχου</string>
+  <string name="favourite_label">Αγαπημένη ετικέτα</string>
+  <string name="edit_label">Επεξεργασία ετικέτας</string>
+  <string name="delete_label_confirmation">Απομάκρυνση ετικέτας σελιδοδείκτη \"%s\"? Οι σχετικές σημειώσεις Σημειωματάριου θα αφαιρεθούν επίσης.</string>
+  <string name="bookmark_underline_style_arbitrary">Στυλ υπογράμμισης για σελιδοδείκτες επιλογής</string>
+  <string name="bookmark_underline_style_whole_verse">Στυλ υπογράμμισης για σελιδοδείκτες ολόκληρου στίχου</string>
+  <string name="active_labels">Επιλεγμένες ετικέτες</string>
+  <string name="recent_labels">Πρόσφατες ετικέτες</string>
+  <string name="other_labels">Άλλες ετικέτες</string>
+  <string name="book_menu_sort_row_opt">Οριζόντια διάταξη βιβλίων</string>
+  <string name="book_menu_group_by_category">Διάταξη βιβλίων ανα κατηγορία</string>
+  <string name="book_menu_show_long_book_name">Εμφάνιση ολόκληρου ονόματος βιβλίου</string>
+  <string name="reorder">Αναδιάταξη</string>
+  <string name="system_items">Ενέργειες συστήματος</string>
+  <string name="system_items1">Περισσότερα</string>
+  <string name="system_action2">Ενέργειες Android</string>
+  <string name="text_copied_to_clicpboard">Κείμενο αντιγράφτηκε στο πρόχειρο</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Σελιδοδείκτης σε ένα βήμα</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Διπλό πάτημα για πλήρη οθόνη</string>
+  <string name="toggle_fullscreen">Πλήρης οθόνη</string>
+  <string name="exit_fullscreen">Διπλό πάτημα για έξοδο από πλήρη οθόνη</string>
+  <string name="label_red">Κόκκινο</string>
+  <string name="label_green">Πράσινο</string>
+  <string name="label_blue">Μπλε</string>
+  <string name="label_salvation">Σωτηρία</string>
+  <string name="label_underline">Υπογραμμισμένα</string>
+  <string name="import_menu">Εισαγωγή &amp; εξαγωγή</string>
+  <string name="export_fileformat">Εξαγωγή ως %s</string>
+  <string name="import_items">Εισαγωγή %s</string>
+  <string name="import_from_db">Εισαγωγή από αρχείο βάσης δεδομένων</string>
+  <string name="import_error">Εισαγωγή από αρχείο βάσης δεδομένων απέτυχε. Λάθος μορφή βάσης ή δομημένη με πολύ παλιά έκδοση του %s</string>
+  <string name="chooser_range">Εύρος</string>
+  <string name="chooser_jump">Μετάβαση</string>
+  <string name="chooser_OT_abbrev">ΠΔ</string>
+  <string name="chooser_NT_abbrev">ΚΔ</string>
+  <string name="chooser_style_grid">Πλέγμα</string>
+  <string name="chooser_style_lists">Λίστες</string>
+  <string name="chooser_select">Επιλογή %s</string>
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <!--will be added to incomplete_translation as a link-->
+  <string name="instructions_for_translators">Οδηγίες για μεταφραστές</string>
+  <string name="questions_title">Ερωτήσεις?</string>
+  <string name="questions_title2">Θέλετε βοήθεια?</string>
+  <string name="bookmark_style">Στυλ σελιδοδείκτη</string>
+  <string name="strongs_off">Απενεργοποίηση</string>
+  <string name="strongs_links">Σύνδεσμοι</string>
+  <string name="strongs_text_and_links">Κείμενο και σύνδεσμοι</string>
+  <string name="permission_required">Απαιτείται άδεια</string>
+  <string name="labels_search_hint">Αναζήτηση</string>
+  <!--Discrete mode settings-->
+  <!--Context: calculator. Wrong number format etc.-->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <!--Window synchronize groups-->
+  <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories_info_button_label">Πληροφορίες</string>
+  <string name="name_for_repository">Όνομα για το αποθετήριο</string>
+  <string name="repository_specification">Τοποθεσία αποθετηρίου</string>
+  <string name="delete_custom_repository">Θέλετε να διαγράψετε το αποθετήριο χρήστη %s?</string>
+  <string name="invalid_repository_not_saved">Προσδιορίστηκε άκυρο αποθετήριο και δεν αποθηκεύτηκε</string>
+  <string name="custom_repositories_help1">Για να προσθέσετε ενα νέο προσαρμοσμένο αποθετήριο, γράψτε ή αντιγράψτε &amp; επικολλήστε το URL του αποθετηρίου εδώ.</string>
+  <string name="custom_repositories_help2">Μπορείτε να διαβάσετε περισσότερες πληροφορίες για τα προσαρμοσμένα αποθετήρια στο %s</string>
+  <string name="wiki_page">Σελίδα WIKI</string>
+  <string name="custom_repositories_help0">Μπορείτε να εγκαταστήσετε έγγραφα από εξωτερικά προσαρμοσμένα αποθετήρια εγκαθιστώντας προσσαρμοσμένα αποθετήρια</string>
+  <string name="duplicate_custom_repository">Αποθετήριο με όνομα %s υπάρχει ήδη, δεν μπορεί να προστεθεί άλλο.</string>
+  <string name="packages_dir">Κατάλογος πακέτων (αρχεία Zip)</string>
+  <string name="warn_bad_document">Ειδοποίηση: Αυτό το έγγραφο μπορεί να είναι (τουλάχιστον εν μέρει) κακής τεχνικής ποιότητας.</string>
+  <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Άνοιξε συνδέσμους Βίβλων στο AndBible</string>
+  <string name="open_bible_links_summary">Πατώντας συνδέσμους με υποστηριζόμενα URL Βίβλων από το AndBible, άνοιγμα με AndBible</string>
+  <string name="copyReference">Αντιγραφή συνδέσμου στο πρόχειρο</string>
+  <string name="reference_copied_to_clipboard">Παραπομπή αντιγράφτηκε στο πρόχειρο</string>
+  <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+Επιλέξτε ποιά υπηρεσία cloud θα χρησιμοποιηθεί για τον συγχρονισμό πολλών συσκευών</string>
+  <string name="prefs_sync_introduction_summary2">
+Με τη χρήση Google Drive, δίνεται πρόσβαση στο %s μόνο σε αρχεία εφαρμογής, οχι σε προσωπικά αρχεία.
+ </string>
+  <string name="restore_backup_sections">Ποιά τμήματα αντιγράφων θέλετε να επανακτήσετε?</string>
+  <string name="db_repositories">Αποθετήρια και σχετικές ρυθμίσεις</string>
+  <string name="db_bookmarks">Σελιδοδείκτες, Σημειώσεις Μου, Ετικέτες και Σημειωματάρια</string>
+  <string name="synchronizing">Συγχρονισμός...</string>
+  <string name="overrideBackup">
+Βρέθηκε στο Cloud, βάση δεδομένων που δεν είναι συγχρονισμένη σε αυτή τη συσκευή.
+Η βάση περιέχει %s. Τι θέλετε να κάνετε?</string>
+  <string name="reading_plans_content">Πλάνα ανάγνωσης και η κατάσταση τους</string>
+  <string name="bookmarks_contents">Σελιδοδείκτες, Ετικέτες και Σημειωματάρια</string>
+  <string name="workspaces_contents">Χώροι εργασίας και Παράθυρα</string>
+  <string name="cloud_fetch_and_restore_initial">Αντιγραφή από το cloud στη συσκευή</string>
+  <string name="cloud_create_new">Αντιγραφή από τη συσκευή στο Cloud</string>
+  <string name="cloud_disable_sync">Ακύρωση &amp; απενεργοποίηση συγχρονισμού</string>
+  <string name="cloud_sync_title">Συγχρονισμός συσκευής</string>
+  <string name="reset_sync">Αποσύνδεση</string>
+  <string name="prefs_reset_sync_summary">Απενεργοποίηση συγχρονισμού και επαναφορά σχετικών ρυθμίσεων.</string>
+  <string name="sync_confirmation">Θέλετε σίγουρα αποσύνδεση και επαναφορά συγχρονισμού?</string>
+  <string name="cloud_info">Πληροφορίες υπηρεσίας cloud</string>
+  <string name="cloud_info_summary">Δεδομένα αποθήκης cloud: %s Mb</string>
+  <string name="sync_adapter">Συγχρονισμός παρασκηνίου</string>
+  <string name="sync_adapter_summary">Τρέχον : %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">Επαλήθευση στο %s</string>
+  <string name="auth_username">Όνομα χρήστη</string>
+  <string name="auth_password">Κωδικός</string>
+  <string name="auth_access_token">Κλειδί πρόσβασης</string>
+  <string name="synchronization_categories">Κατηγορίες συγχρονισμού</string>
+  <string name="sync_general_settings">Πληροφορίες &amp; γενικές ρυθμίσεις</string>
+  <string name="sync_introduction">Εισαγωγή</string>
+  <string name="are_you_sure">Είστε σίγουρος?</string>
+  <string name="are_you_sure_reset_local">Αυτό θα επαναφέρει στην τοπική βάση για το %s το περιεχομενο που είναι τώρα αποθηκευμένο στην υπηρεσία cloud </string>
+  <string name="are_you_sure_reset_cloud">Αυτό θα επαναφέρει στην υπηρεσία cloud για το %s το περιεχομενο που  έχετε σε αυτή τη συσκευή.</string>
+  <string name="sync_cant_fetch">Η έκδοση της βάσης ή του αρχείου επιδιόρθωσης που βρίσκεται στο cloud είναι υψηλότερη της υποστηριζόμενης από αυτή την εφαρμογή</string>
+  <string name="sync_disabling">Απενεργοποίηση συγχρονισμου για %s προσωρινά</string>
+  <string name="sync_update_app">Παρακαλώ αναβαθμίστε την εφαρμογή για συνέχιση συγχρονισμού.</string>
+  <string name="sign_in_failed">Η είσοδος στο παρασκήνιο υπηρεσίας συγχρονισμού απέτυχε</string>
+  <!--... after restoring from backup file-->
+  <string name="disabling_sync">Απενεργοποίηση συγχρονισμού cloud. Ενεργοποιήστε το χειροκίνητα μετά την επαναφορά.</string>
+  <string name="report">Αναφορά</string>
+  <string name="sync_error">Σφάλμα κατα τον συγχρονισμο cloud</string>
+  <string name="error_notification_channel_name">Ειδοποιήσεις σφαλμάτων</string>
+  <string name="restore_from_cloud_description">Αν έχετε ενεργό τον συγχρονισμό συσκευών σε αλλη συσκευή, μπορείτε να ξεκινήσετε επαναφέροντας τη βάση από το cloud.</string>
+  <string name="enable_sync">Ενεργοποίηση συγχρονισμού</string>
+  <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Αδυναμία ανάγνωσης αρχείου</string>
+  <string name="sqlite_invalid_file">Άκυρο αρχείο προσθέτου ή όνομα αρχείου: %s</string>
+  <string name="sqlite_cant_write">Αδυναμία (επαν)εγγραφής αρχείου</string>
+  <string name="install_failed_reason">Εγκατάσταση προσθέτου απέτυχε για τον ακόλουθο λόγο: %s.</string>
+  <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Εφαρμογή ήδη ανοιχτή</string>
+  <string name="open_here">Άνοιγμα εδώ</string>
+  <string name="external_link">Εξωτερικός σύνδεσμος</string>
+  <string name="external_link_question">Αυτό θα ανοίξει εξωτερικό σύνδεσμο %s σε εφαρμογή περιηγητή, επιθυμείτε να συνεχίσετε?</string>
+  <string name="nameless">Τίτλος δεν προσδιορίστηκε</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Ενέργειες ενός πατήματος (Άγιες Γραφές)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Ενέργειες ενός πατήματος (άλλο)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Όταν ένα κείμενο επιλέγεται, το παράθυρο ενεργειών ενός πατήματος εμφανίζεται. Ποιά κουμπιά ενεργειών θα εμφανίζονται?</string>
+  <string name="processing_epub">Πρόοδος EBUP: %s</string>
+  <string name="buy_development">Αγορά έργου ανάπτυξης</string>
+  <string name="buy_development2">Υποστήριξε αυτό το έργο</string>
+  <string name="new_version_warning">
+Μιά νέα έκδοση έρχεται σύντομα. Η κυκλοφορία αναμένεται στις %1$s. Παρακολουθείστε το %2$sγια να ανακαλύψετε νέες λειτουργίες και βελτιώσεις.</string>
+  <string name="new_version_trailer">Βίντεο προεπισκόπησης</string>
+  <string name="new_version_warning2">
+Μετά την κυκλοφορία, αυτή η έκδοση δεν συντηρείται</string>
+  <string name="new_version_warning3">
+Δεν θα ληφθούν διορθώσεις ή ενημερώσεις.</string>
+  <string name="new_version_warning4">
+Αν δεν θέλετε να αναβαθμίσετε,παρακαλώ απενεργοποιήστε τις ¨Αυτόματες ενημερώσεις\" στο app store σας (Google Play / F-Droid κλπ)</string>
+  <string name="dont_show">
+Μην δείξεις το μήνυμα αυτό ξανά</string>
+</resources>
