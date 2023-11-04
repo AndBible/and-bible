@@ -232,7 +232,9 @@ fun EpubBackendState.optimizeEpub() {
         val (origDocument, maxOrdinal) = readOriginal(k)
         origDocument ?: continue
 
-        val fragments = splitIntoFragments(k, origDocument, maxOrdinal)
+        val fragments = splitIntoFragments(k, origDocument, maxOrdinal).let {
+            it.ifEmpty{ listOf(EpubFragment(k, 0, 0).apply { element = origDocument.rootElement }) }
+        }
         val ids = writeDao.insert(*fragments.toTypedArray())
         for((id, frag) in ids.zip(fragments)) {
             frag.id = id
