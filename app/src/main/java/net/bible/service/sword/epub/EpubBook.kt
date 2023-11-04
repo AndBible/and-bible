@@ -50,6 +50,7 @@ fun getConfig(
     abbreviation: String,
     description: String,
     language: String,
+    version: Long,
     about: String,
     path: String,
 ): String = """
@@ -60,7 +61,7 @@ Category=${BookCategory.GENERAL_BOOK.name}
 AndBibleEpubModule=1
 AndBibleEpubDir=$path
 Lang=$language
-Version=0.0
+Version=$version
 Encoding=UTF-8
 SourceType=OSIS
 ModDrv=RawGenBook

@@ -187,7 +187,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     val keys: List<Key> get() = dao.fragments().map { getKey(it) }
 
     internal val fragDir get() = File(epubDir,  "optimized")
-
+    internal val versionFile = File(fragDir, "version.txt")
     internal val optimizeLockFile = File(epubDir, "optimize.lock")
 
     private val epubDbFilename = "optimized.sqlite3.gz"
@@ -223,12 +223,14 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             val description = queryMetadata("description")?: epubDir.name //TODO: should de-encode html stuff
             val abbreviation = title //.slice(0 .. min(5, title.length - 1))
             val language = queryMetadata("language") ?: "en"
+            val optimizerVersion = try { String(versionFile.readBytes()).toLong() } catch (e: Exception) {1}
             val conf = getConfig(
                 initials = initials,
                 abbreviation = abbreviation,
                 description = title,
                 about = description,
                 language = language,
+                version = optimizerVersion,
                 path = epubDir.toRelativeString(SharedConstants.modulesDir)
             )
             Log.i(TAG, "Creating EpubBook metadata $initials, $description $language")
