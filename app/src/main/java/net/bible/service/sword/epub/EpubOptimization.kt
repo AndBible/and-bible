@@ -262,7 +262,6 @@ fun EpubBackendState.optimizeEpub() {
         }
         fileForOriginalId(k)?.delete()
     }
-    val versionFile = File(fragDir, "version.txt")
     versionFile.outputStream().use {
         it.write("$EPUB_OPTIMIZER_VERSION".toByteArray())
     }
