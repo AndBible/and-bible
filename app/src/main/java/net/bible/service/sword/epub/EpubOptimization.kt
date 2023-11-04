@@ -168,22 +168,23 @@ fun EpubBackendState.optimizeEpub() {
         return docs
     }
 
-    fun getOrdinalRange(doc: Document): IntRange {
+    fun getOrdinalRange(doc: Document): IntRange? {
         val bvas = useXPathInstance { xp ->
             xp.compile(
                 "//ns:BVA",
                 Filters.element(), null, xhtmlNamespace
             ).evaluate(doc)
         }
-        if(bvas.size == 0) return 0..0
+        if(bvas.size == 0) return null
         return bvas.first().getAttribute("ordinal").intValue ..
             bvas.last().getAttribute("ordinal").intValue
     }
 
     fun splitIntoFragments(originalId: String, origDocument: Document, maxOrdinal: Int): List<EpubFragment> {
-        return splitIntoN(origDocument, 0..maxOrdinal, maxOrdinal/ORDINALS_PER_FRAGMENT).map {
+        return splitIntoN(origDocument, 0..maxOrdinal, maxOrdinal/ORDINALS_PER_FRAGMENT).mapNotNull {
             val ordinalRange = getOrdinalRange(it)
-            EpubFragment(originalId = originalId, ordinalRange.first, ordinalRange.last).apply {
+            if (ordinalRange == null) null
+            else EpubFragment(originalId = originalId, ordinalRange.first, ordinalRange.last).apply {
                 element=it.rootElement
             }
         }
