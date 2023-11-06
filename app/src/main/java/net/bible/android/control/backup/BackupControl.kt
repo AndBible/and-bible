@@ -557,7 +557,10 @@ object BackupControl {
     }
 
     suspend fun startBackupAppDatabase(callingActivity: ActivityBase) = withContext(Dispatchers.IO) {
-        val backupZipFile = makeDatabaseBackupFile()!!
+        val backupZipFile = makeDatabaseBackupFile()?: run {
+            Dialogs.showMsg2(callingActivity, R.string.error_occurred)
+            return@withContext
+        }
         saveDbBackupFileViaIntent(callingActivity, backupZipFile)
         backupZipFile.delete()
     }
