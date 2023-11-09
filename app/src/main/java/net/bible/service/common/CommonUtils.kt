@@ -268,7 +268,7 @@ object AdvancedSpeakSettings {
         }
 
     var synchronize: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_synchronize", false)
+        get() = CommonUtils.settings.getBoolean("speak_synchronize", true)
         set(value) {
             CommonUtils.settings.setBoolean("speak_synchronize", value)
         }
@@ -287,7 +287,7 @@ object AdvancedSpeakSettings {
 
     fun reset() {
         autoBookmark = false
-        synchronize = false
+        synchronize = true
         replaceDivineName = false
         restoreSettingsFromBookmarks = false
     }
