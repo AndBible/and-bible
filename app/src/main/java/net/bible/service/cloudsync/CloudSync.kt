@@ -40,6 +40,7 @@ import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
 import java.io.FileNotFoundException
 import java.io.IOException
+import kotlin.IllegalStateException
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -315,7 +316,14 @@ object CloudSync {
         intent.action = SyncService.START_SERVICE
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            application.startForegroundService(intent)
+            try {
+                application.startForegroundService(intent)
+            } catch (e: IllegalStateException) {
+                Log.e(TAG, "Could not start sync due to ", e)
+                syncStarted.complete(false)
+                this.syncStarted = null
+                return@synchronized syncStarted
+            }
             Log.i(TAG, "Foreground service started")
         } else {
             application.startService(intent)
