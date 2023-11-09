@@ -103,6 +103,9 @@
 	<item android:id="@+id/copyReference"
 		android:title="@string/copyReference"
 		android:icon="@drawable/ic_content_copy_black_24dp"/>
+	<item android:id="@+id/goToReference"
+		android:title=""
+		android:icon="@drawable/baseline_content_paste_24"/>
 	<item android:id="@+id/windowClose"
 		android:title="@string/windowClose"
 		android:orderInCategory="1001"

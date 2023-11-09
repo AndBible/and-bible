@@ -72,14 +72,18 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.Preference
 import net.bible.android.view.activity.page.SubMenuPreference
+import net.bible.android.view.activity.page.application
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.firstBibleDoc
+import net.bible.service.common.shortName
+import net.bible.service.common.tinyName
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.isStudyPad
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
 import org.crosswire.jsword.versification.BookName
 import java.lang.IndexOutOfBoundsException
@@ -104,6 +108,8 @@ class LockableHorizontalScrollView(context: Context, attributeSet: AttributeSet)
 }
 
 class RestoreButtonsVisibilityChanged
+
+var clipboardKey: BookAndKey? = null
 
 @SuppressLint("ViewConstructor")
 class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLayout(mainBibleActivity) {
@@ -851,11 +857,22 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 launch = { _, _, _ ->  windowControl.closeWindow(window)},
                 visible = windowControl.isWindowRemovable(window) && !isMaximised
             )
+            R.id.goToReference -> CommandPreference(
+                title = application.getString(R.string.go_to_ref, clipboardKey?.shortName),
+                launch = { _, _, _ ->
+                    clipboardKey?.let {
+                        window.pageManager.setCurrentDocumentAndKey(it.document, it)
+                    }
+                },
+                visible = clipboardKey != null
+            )
             R.id.copyReference -> CommandPreference(
                 launch = { _, _, _ ->
                     val doc = window.pageManager.currentPage.currentDocument?: return@CommandPreference
                     val key = window.pageManager.currentPage.singleKey?: return@CommandPreference
-                    val ordinal = window.pageManager.currentPage.anchorOrdinal?.start
+                    val ordinalRange = window.pageManager.currentPage.anchorOrdinal
+                    val ordinal = ordinalRange?.start
+                    clipboardKey = BookAndKey(key, doc, ordinalRange)
 
                     val url = CommonUtils.makeAndBibleUrl(
                         keyStr = key.osisRef,
