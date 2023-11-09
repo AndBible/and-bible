@@ -477,7 +477,6 @@
   <string name="window_text_options_help1">%s ஐகான், அமைப்புகள் அனைத்தும் பணி இடத்திலிருந்து எடுக்கப்படுகின்றது என்பதைகுறிக்கும்.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">இந்த குறிப்பிட்ட சாளரத்திற்கு இந்த அமைப்பு மாற்றப்பட்டுள்ளது என்பதை %s ஐகான் குறிக்கிறது.</string>
-  <string name="window_text_options_help3">பணியிட அமைப்புகள் இந்த சாரலத்தை பாதிக்காது.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">எல்லா அமைப்புகளையும் %2$sக்கு மீட்டமைக்க %1$sபொத்தானைப் பயன்படுத்தவும்</string>
   <string name="reset_defaults">இயல்பு நிலை அமைப்புகள்</string>
@@ -1040,6 +1039,7 @@
   <string name="error_notification_channel_name">பிழை அறிவிப்புகள்</string>
   <string name="restore_from_cloud_description">வேறு ஒரு கருவியில் ஒத்திசைவினை இயக்கி இருந்தால், மேக சேமிப்பகத்திலிருந்து தரவு தளத்தை மீட்டமைக்கலாம்.</string>
   <string name="enable_sync">ஒத்திசைவை இயக்கு</string>
+  <string name="last_updated">கடைசியாக புதுப்பிக்கப்பட்டது: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">கோப்பினை படிக்க இயலவில்லை</string>
   <string name="sqlite_invalid_file">தவறான தொகுதி கோப்பு அல்லது கோப்புப் பெயர்: %s</string>

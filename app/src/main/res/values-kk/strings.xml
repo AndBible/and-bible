@@ -464,7 +464,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="window_text_options_help1">%sбелгі параметр жұмысорнының параметрлерінен алынғанын көрсетеді.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s белгішесі бұл баптаудың осы арнайы нақты терезе үшін өзгертілгенің көрсетеді.</string>
-  <string name="window_text_options_help3">Жұмыс кеңістігінің баптауы бұл терезеге әсер етпейді.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">%1$sқолданыңыз,  барлық осы параметрлерді қалпына келтіру үшін түймесін басыңыз %2$s.</string>
   <string name="reset_defaults">әдепкі мәндер</string>
@@ -968,6 +967,7 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="error_notification_channel_name">Қате туралы хабарландырулар</string>
   <string name="restore_from_cloud_description">Басқа құрылғыда құрылғыны синхрондау қосылған болса, дерекқорды бұлттан қалпына келтіру арқылы бастауға болады.</string>
   <string name="enable_sync">Синхрондауды қосыңыз</string>
+  <string name="last_updated">Соңғы жаңартылу: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Файлды оқу мүмкін емес</string>
   <string name="sqlite_invalid_file">Жарамсыз модуль файлы немесе файл атауы: %s</string>

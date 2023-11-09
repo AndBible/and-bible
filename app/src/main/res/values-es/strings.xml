@@ -479,7 +479,6 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="window_text_options_help1">El icono %s indica que la configuración proviene de las configuraciones de espacio.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">El icono %s indica que esta configuración ha sido cambiada para esta ventana particular.</string>
-  <string name="window_text_options_help3">Esta configuración de espacio no afectará a esta ventana.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Use el botón %1$s para restablecer todas estas configuraciones a los %2$s.</string>
   <string name="reset_defaults">valores por defecto</string>
@@ -1036,6 +1035,7 @@ informe los problemas a los mantenedores de texto
   <string name="error_notification_channel_name">Notificaciones de error</string>
   <string name="restore_from_cloud_description">Si tiene habilitada la sincronización de dispositivo en otro dispositivo, puede empezar con la restauración de la base de datos desde la nube.</string>
   <string name="enable_sync">Habilitar sincronización</string>
+  <string name="last_updated">Última actualización: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">No se puede leer el archivo</string>
   <string name="sqlite_invalid_file">Nombre de archivo o de módulo no válido: %s</string>

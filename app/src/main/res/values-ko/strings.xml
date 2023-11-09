@@ -439,7 +439,6 @@
   <string name="window_text_options_help1">%s 아이콘은 이 설정이 워크스페이스 설정에서 온 것을 나타냅니다.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s 아이콘은 이 설정이 이 윈도우에 대해 변경되었음을 나타냅니다.</string>
-  <string name="window_text_options_help3">워크스페이스 설정은 이 윈도우에 영향을 미치지 않습니다.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">기본 값</string>
   <string name="reset_workspace_defaults">워크플레이스 기본 값</string>
@@ -693,6 +692,7 @@
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">최근 업데이트: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

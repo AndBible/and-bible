@@ -457,7 +457,6 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="window_text_options_help1">%s ícone indica que a configuração vem das configurações do espaço de trabalho.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s ícone indica que esta configuração foi alterada para esta janela específica.</string>
-  <string name="window_text_options_help3">A configuração do espaço de trabalho não afetará esta janela.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Use o botão %1$s para redefinir todas estas definições de volta para %2$s.</string>
   <string name="reset_defaults">Valores padrão</string>
@@ -883,6 +882,7 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <!--... after restoring from backup file-->
   <string name="error_notification_channel_name">Notificações de erro</string>
   <string name="enable_sync">Ativar a sincronização</string>
+  <string name="last_updated">Última atualização %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Não é possível ler o arquivo</string>
   <!--Other / uncategorized-->

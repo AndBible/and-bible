@@ -476,7 +476,6 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
   <string name="window_text_options_help1">%s ikoon dui aan dat die instelling van die werkruimte-instellings kom.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%sikoon dui aan dat hierdie instelling vir hierdie spesifieke venster verander is.</string>
-  <string name="window_text_options_help3">Die werkruimte instelling sal nie hierdie venster beïnvloed nie.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Gebruik %1$s knoppie om al hierdie instellings terug te stel na %2$s.</string>
   <string name="reset_defaults">Staande waardes</string>
@@ -1000,6 +999,7 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="error_notification_channel_name">Fout kennisgewings </string>
   <string name="restore_from_cloud_description">As u Toestel sinchronisasie op \'n ander toestel geaktiveer het, kan u begin deur die databasis vanaf Cloud te herstel.</string>
   <string name="enable_sync">Aktiveer sinchronisasie </string>
+  <string name="last_updated">Laas opgedateer: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Kan nie die lêer lees nie </string>
   <string name="sqlite_invalid_file">Ongeldige modulelêer of lêernaam: %s</string>

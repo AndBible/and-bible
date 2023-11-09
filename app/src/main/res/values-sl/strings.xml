@@ -479,7 +479,6 @@ povzroči, da se lokacije teh zaznamkov/opomb premaknejo znotraj dokumenta ali p
   <string name="window_text_options_help1">%s ikona pomeni, da nastavitev izvira iz nastavitev delovnega prostora.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s ikona pomeni, da je bila ta nastavitev spremenjena za to okno.</string>
-  <string name="window_text_options_help3">Nastavitev delovnega prostora ne bo vplivala na to okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Z gumbom %1$s ponastavite vse te nastavitve nazaj na %2$s.</string>
   <string name="reset_defaults">privzete vrednosti</string>
@@ -1024,6 +1023,7 @@ lahko.
   <string name="error_notification_channel_name">Obvestila o napakah</string>
   <string name="restore_from_cloud_description">Če imate v drugi napravi omogočeno sinhronizacijo naprav, lahko začnete z obnavljanjem zbirke podatkov iz oblaka.</string>
   <string name="enable_sync">Omogoči sinhronizacijo</string>
+  <string name="last_updated">Nazadnje posodobljeno: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Datoteke ni mogoče prebrati</string>
   <string name="sqlite_invalid_file">Nepravilna datoteka ali ime modula:%s</string>

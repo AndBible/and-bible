@@ -429,7 +429,6 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="window_text_options_help1">ဆက်တင်များသည် အလုပ်ခွင်ရှိဆက်တင်များမှ လာသည်ဟု %s တင်္ကေတမှ ဖော်ပြသည်။</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">ဤဆက်တင်သည် သီးသန့်ဝင်းဒိုးတစ်ခုအတွက် ပြောင်းလဲထားပြီဟု %s တင်္ကေတမှ ဖော်ပြသည်။</string>
-  <string name="window_text_options_help3">အလုပ်ခွင်ဆက်တင်သည် ဤဝင်းဒိုးအပေါ်အကျိုးသက်ရောက်စေမည် မဟုတ်ပါ။ </string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">ပုံသေ တန်ဖိုးများ</string>
   <string name="reset_workspace_defaults">အလုပ်ခွင် ပုံသေ တန်ဖိုးများ</string>
@@ -784,6 +783,7 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">နောက်ဆုံး အဆင်မြှင့်တင်ပြီး: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

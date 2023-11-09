@@ -479,7 +479,6 @@ http://www.heartlight.org 准予使用
   <string name="window_text_options_help1">%s 图示标示此设定是来自工作检视设定</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s 图示标示此设定已被更改至此视窗</string>
-  <string name="window_text_options_help3">工作检视设定不会影响此视窗</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">使用 %1$s 按钮来重置所有这些设置到 %2$s。</string>
   <string name="reset_defaults">预设数值</string>
@@ -1007,6 +1006,7 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="error_notification_channel_name">报错通知</string>
   <string name="restore_from_cloud_description">如果你的另一台设备已开启设备同步，你可以直接从云端恢复数据库。</string>
   <string name="enable_sync">开启同步功能</string>
+  <string name="last_updated">最后更新：%s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">无法读取文件</string>
   <string name="sqlite_invalid_file">模块名称或文件名无效：%s</string>

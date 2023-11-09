@@ -455,7 +455,6 @@
   <string name="window_text_options_help1">האייקון \"%s\" מציין שהבחירה מגיעה מהגדרות מסך העבודה.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">האייקון  \"%s\" מציין שההגדרה שונתה עבור חלון מסויים זה.</string>
-  <string name="window_text_options_help3">ההגדרה במסך העבודה לא תשפיע על חלון זה.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">ערכי ברירת מחדל</string>
   <string name="reset_workspace_defaults">ערכי ברירת מחדל של סביבת העבודה</string>
@@ -885,6 +884,7 @@
   <string name="sync_error">שגיאה בסנכרון לענן</string>
   <string name="error_notification_channel_name">הודעות שגיאה</string>
   <string name="enable_sync">אפשר סנכרון</string>
+  <string name="last_updated">עודכן לאחרונה: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">לא ניתן לקרוא את הקובץ</string>
   <string name="sqlite_cant_write">לא ניתן לשמור את הקובץ</string>

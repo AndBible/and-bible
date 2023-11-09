@@ -459,7 +459,6 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="window_text_options_help1">%s geeft aan dat de instellingen vanuit de werkbladinstellingen overgenomen is.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s geeft aan dat deze instelling is aangepast voor dit specifieke venster.</string>
-  <string name="window_text_options_help3">De werkblad-instellingen hebben geen effect op dit venster.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Gebruik de knop %1$s om de instellingen terug te zetten naar %2$s.</string>
   <string name="reset_defaults">standaardwaarden</string>
@@ -935,6 +934,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="error_notification_channel_name">Foute notificaties</string>
   <string name="restore_from_cloud_description">Als je een apparaat synchronisatie aan hebt staan in deen ander apparaat, dan kun je starten met het herstellen van de database vanuit de Cloud.</string>
   <string name="enable_sync">Aanzetten synchronisatie</string>
+  <string name="last_updated">Laatst bijgewerkt: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Kan het bestand niet lezen</string>
   <string name="sqlite_invalid_file">Niet geldige module bestand of bestandsnaam: %s</string>

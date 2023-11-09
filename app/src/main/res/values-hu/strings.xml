@@ -463,7 +463,6 @@ Ha a dokumentum struktúrája változik, akkor az ilyen könyvjelzők/jegyzetek 
   <string name="window_text_options_help1">A %s ikon azt mutatja, hogy az adott beállítás a munkaterület beállításokból származik.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">A %s ikon azt mutatja, hogy ez a beállítás ehhez az ablakhoz tartozik.</string>
-  <string name="window_text_options_help3">A munkaterület beállításai nincsenek hatással erre az ablakra.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">A %1$s gomb segítségével az összes beállítás visszaállítható %2$s-re.</string>
   <string name="reset_defaults">alapértelmezett értékek</string>
@@ -994,6 +993,7 @@ jelentse be az észlelt problémát</string>
   <string name="error_notification_channel_name">Hiba értesítés</string>
   <string name="restore_from_cloud_description">Ha egy másik eszközön engedélyezve van a szinkronizálás, akkor visszaállíthatja az adatbázist a konfigurált tárhelyről.</string>
   <string name="enable_sync">A szinkronizáció engedélyezése</string>
+  <string name="last_updated">Útóljára módosítva: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">A fájl nem olvasható</string>
   <string name="sqlite_invalid_file">Érvénytelen modul fájl vagy fájlnév: %s</string>
