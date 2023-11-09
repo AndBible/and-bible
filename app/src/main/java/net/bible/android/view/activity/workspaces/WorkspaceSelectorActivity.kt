@@ -341,6 +341,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 AlertDialog.Builder(this@WorkspaceSelectorActivity)
                     .setPositiveButton(R.string.okay) { d, _ ->
                         workspace.name = name.text.toString()
+                        changedWorkspaces.add(workspace.id)
                         workspaceAdapter.notifyItemChanged(position)
                     }
                     .setView(name)
