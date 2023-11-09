@@ -67,9 +67,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     open val doNotInitializeApp = false
 
-    var doNotMarkPaused = false
-    var wasPaused = false
-    var returningFromCalculator = false
+    private var doNotMarkPaused = false
+    private var wasPaused = false
+    private var returningFromCalculator = false
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
