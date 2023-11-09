@@ -324,7 +324,6 @@
   <string name="window_text_options_help1">Το εικονίδιο %s υποδεικνύει ότι η ρύθμιση έχει ανατεθεί από τις ρυθμίσεις χώρου εργασίας</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">Το εικονίδιο %s υποδεικνύει ότι η ρύθμιση έχει αλλάξει για το συγκεκριμένο παράθυρο</string>
-  <string name="window_text_options_help3">Η ρύθμιση χώρου εργασίας δεν θα επηρεάσει αυτό το παράθυρο.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Το κουμπί %1$s επαναφέρει όλες αυτές τις ρυθμίσεις στις %2$s</string>
   <string name="reset_defaults">προκαθορισμένες τιμές</string>
@@ -727,6 +726,7 @@
   <string name="error_notification_channel_name">Ειδοποιήσεις σφαλμάτων</string>
   <string name="restore_from_cloud_description">Αν έχετε ενεργό τον συγχρονισμό συσκευών σε αλλη συσκευή, μπορείτε να ξεκινήσετε επαναφέροντας τη βάση από το cloud.</string>
   <string name="enable_sync">Ενεργοποίηση συγχρονισμού</string>
+  <string name="last_updated">Τελευταία ανανέωση: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Αδυναμία ανάγνωσης αρχείου</string>
   <string name="sqlite_invalid_file">Άκυρο αρχείο προσθέτου ή όνομα αρχείου: %s</string>

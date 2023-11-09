@@ -477,7 +477,6 @@
   <string name="window_text_options_help1">%s піктограма вказує на те, що налаштування походять із налаштувань робочої області.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s піктограма означає, що це налаштування було змінено для цього конкретного вікна.</string>
-  <string name="window_text_options_help3">Налаштування робочої області не вплине на це вікно.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Використовуйте %1$s кнопку, щоб повернути всі ці налаштування назад до %2$s.</string>
   <string name="reset_defaults">значення за замовчуванням</string>
@@ -1024,6 +1023,7 @@
   <string name="error_notification_channel_name">Повідомлення помилок</string>
   <string name="restore_from_cloud_description">Якщо на іншому пристрої ввімкнуто синхронізацію пристрою, ви можете почати з відновлення бази даних із хмари.</string>
   <string name="enable_sync">Увімкнути синхронізацію</string>
+  <string name="last_updated">Останнє оновлення: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Неможливо прочитати файл</string>
   <string name="sqlite_invalid_file">Недійсний файл модуля або назва файлу: %s</string>

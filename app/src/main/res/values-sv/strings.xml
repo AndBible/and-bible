@@ -614,6 +614,7 @@ vänligen rapportera problemen till text ansvariga
   <string name="open_bible_links_summary">Vid klick på länkar som hänvisar till AndBibelstödda URL\'er, öppna dem i AndBibeln</string>
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">Senast uppdaterad: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

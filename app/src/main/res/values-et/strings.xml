@@ -385,7 +385,6 @@ Kas jätkame?</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help1">%s näitab, et seaded tulevad tööala seadetest.</string>
   <!--Parameter is actual icon-->
-  <string name="window_text_options_help3">Tööala seaded ei mõjuta seda akent</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">vaikimisi väärtused</string>
   <string name="reset_workspace_defaults">tööala vaikimisi väärtused</string>
@@ -680,6 +679,7 @@ Kas jätkame?</string>
   <string name="workspaces_contents">Tööalad ja Aknad</string>
   <string name="cloud_sync_title">Andmete sünkroniseerimine</string>
   <!--... after restoring from backup file-->
+  <string name="last_updated">Viimati uuendatud: %s</string>
   <!--MyBible/MySword module support-->
   <string name="install_failed_reason">Mooduli paigaldus ebaõnnestus: %s.</string>
   <!--Other / uncategorized-->

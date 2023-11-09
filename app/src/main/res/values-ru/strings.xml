@@ -477,7 +477,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="window_text_options_help1">%s значок указывает, что параметр взят из настроек рабочей области.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s значок указывает, что этот параметр был изменен для этого конкретного окна.</string>
-  <string name="window_text_options_help3">Настройка рабочей области не повлияет на это окно.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Используйте %1$s кнопку, чтобы сбросить все эти настройки обратно на %2$s.</string>
   <string name="reset_defaults">значения по умолчанию</string>
@@ -1029,6 +1028,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="error_notification_channel_name">Уведомления об ошибках</string>
   <string name="restore_from_cloud_description">Если на другом устройстве включена синхронизация устройств, вы можете начать с восстановления базы данных из облака.</string>
   <string name="enable_sync">Включить синхронизацию</string>
+  <string name="last_updated">Последнее обновление: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Невозможно прочитать файл</string>
   <string name="sqlite_invalid_file">Неверный файл модуля или имя файла: %s</string>

@@ -26,6 +26,7 @@ import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.getFirst
+import net.bible.service.db.DatabaseContainer
 import java.io.File
 import java.lang.Exception
 
@@ -66,6 +67,9 @@ enum class SyncableDatabaseDefinition {
     var enabled
         get() = CommonUtils.settings.getBoolean("gdrive_"+ name.lowercase(), false)
         set(value) = CommonUtils.settings.setBoolean("gdrive_"+name.lowercase(), value)
+
+    private val accessor get() = DatabaseContainer.databaseAccessorsByCategory[this]!!
+    val lastSynchronized get() = if(!enabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
 
     companion object {
         val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS)

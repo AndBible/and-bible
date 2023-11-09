@@ -440,7 +440,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="window_text_options_help1">%s आइकन इंगित करता है कि सेटिंग, कार्यक्षेत्र की सेटिंग्स से आती है।</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s आइकन इंगित करता है कि यह सेटिंग इस विशिष्ट विंडो के लिए बदल दी गई है।</string>
-  <string name="window_text_options_help3">कार्यक्षेत्र की सेटिंग इस विंडो को प्रभावित नहीं करेगी।</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">डिफॉल्ट मूल्य</string>
   <string name="reset_workspace_defaults">कार्यक्षेत्र डिफ़ॉल्ट मूल्य</string>
@@ -846,6 +845,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">पिछली बार अपडेट किया गया: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

@@ -468,7 +468,6 @@ l’emplacement de ces signets/notes se déplace à l’intérieur du document o
   <string name="window_text_options_help1">L’icône %s indique que ce paramètre provient des paramètres de l’espace.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">l’icône %s indique que ce paramètre a été modifié pour cette fenêtre spécifique.</string>
-  <string name="window_text_options_help3">Le paramètre de l’espace n’affectera pas cette fenêtre.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Utilisez le bouton %1$s  pour réinitialiser tous ces paramètres dans %2$s.</string>
   <string name="reset_defaults">Valeurs par défaut</string>
@@ -1006,6 +1005,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="error_notification_channel_name">Erreur de notifications</string>
   <string name="restore_from_cloud_description">Si la synchronisation des appareils est activée sur un autre appareil, vous pouvez commencer par restaurer la base de données à partir du Cloud.</string>
   <string name="enable_sync">Activer la synchronisation</string>
+  <string name="last_updated">Dernière mise à jour : %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Ne peut pas lire ce fichier</string>
   <string name="sqlite_invalid_file">Fichier de module ou nom de fichier invalide : %s</string>

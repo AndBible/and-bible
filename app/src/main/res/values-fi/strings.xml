@@ -459,7 +459,6 @@ Jos dokumentin rakenne on muuttunut, dokumentin päivittäminen voi saada aikaan
   <string name="window_text_options_help1">%s kertoo että asetus tulee työtilan asetuksista.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s kertoo että asetusta on muutettu tälle ikkunalle.</string>
-  <string name="window_text_options_help3">Työtilan asetukset eivät vaikuta tähän ikkunaan.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Käytä %1$s alustaaksesi kaikki nämä asetukset takaisin %2$s.</string>
   <string name="reset_defaults">oletusarvoihinsa</string>
@@ -932,6 +931,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="error_notification_channel_name">Virheiden notifikaatiot</string>
   <string name="restore_from_cloud_description">Jos sinulla on laitteiden synkronointi pällä toisessa laitteessa, voit aloittaa palauttamalla tietokannan pilvipalvelusta.</string>
   <string name="enable_sync">Kytke synkronointi päälle</string>
+  <string name="last_updated">Viimeksi päivitetty: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Ei voitu lukea tiedostoa</string>
   <string name="sqlite_invalid_file">Tiedostonimi tai tiedosto viallinen: %s</string>

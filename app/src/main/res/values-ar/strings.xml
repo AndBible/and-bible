@@ -642,6 +642,7 @@
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">آخر تحديث: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

@@ -373,7 +373,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="window_text_options_help1">%s ikon viser at innstillingen kommer fra arbeidsområde-innstillingene.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s ikon viser at denne innstillingen har blitt endret for dette vinduet.</string>
-  <string name="window_text_options_help3">Arbeidsområdeinnstillingene påvirker ikke dette vinduet.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">standardverdiene</string>
   <string name="reset_workspace_defaults">standardverdiene for arbeidsområder</string>
@@ -666,6 +665,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">Sist endret: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

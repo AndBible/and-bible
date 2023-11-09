@@ -435,7 +435,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="window_text_options_help1">%s చిహ్నం సెట్టింగ్ వర్క్‌స్పేస్ సెట్టింగ్‌ల నుండి వస్తుందని సూచిస్తుంది.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s చిహ్నం ఈ నిర్దిష్ట విండో కోసం ఈ సెట్టింగ్ మార్చబడిందని సూచిస్తుంది.</string>
-  <string name="window_text_options_help3">కార్యస్థల సెట్టింగ్ ఈ విండోను ప్రభావితం చేయదు.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">సాధారణ విలువలు</string>
   <string name="reset_workspace_defaults">కార్యస్థల డిఫాల్ట్ విలువలు</string>
@@ -819,6 +818,7 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">చివరిగా నవీకరించబడింది: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

@@ -461,7 +461,6 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="window_text_options_help1">%s zeigt an, dass die Einstellungen von den Arbeitsbereichseinstellungen stammen.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s zeigt an, dass diese Einstellungen für dieses spezielle Fenster angepasst wurden.</string>
-  <string name="window_text_options_help3">Die Arbeitsbereichseinstellungen beinflussen dieses Fenster nicht.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Verwende %1$s, um sämtliche Einstellungen auf %2$s zurückzusetzen.</string>
   <string name="reset_defaults">Standardwerte</string>
@@ -963,6 +962,7 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="error_notification_channel_name">Fehlermeldungen</string>
   <string name="restore_from_cloud_description">Wenn du die Synchronisation auf einem anderen Gerät aktiviert hast, kannst du damit beginnen, die Datenbank aus der Cloud auf dein Gerät herunterzuladen.</string>
   <string name="enable_sync">Synchronisation einschalten</string>
+  <string name="last_updated">Zuletzt aktualisiert: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Datei kann nicht gelesen werden</string>
   <string name="sqlite_invalid_file">Ungültige Moduldatei oder Dateiname: %s</string>

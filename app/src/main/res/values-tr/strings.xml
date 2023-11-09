@@ -480,7 +480,6 @@
   <string name="window_text_options_help1">%s simgesi, ayarın çalışma ayarlarından geldiğini gösterir.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s simgesi, bu belirli pencere için bu ayarın değiştiğini gösterir.</string>
-  <string name="window_text_options_help3">Çalışma alanı ayarı bu pencereyi etkilemeyecektir.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Tüm bu ayarları %2$s değerine sıfırlamak için %1$s düğmesini kullanın.</string>
   <string name="reset_defaults">varsayılan değerler</string>
@@ -1046,6 +1045,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="error_notification_channel_name">Hata bildirimleri</string>
   <string name="restore_from_cloud_description">Başka bir cihazda Cihaz Senkronizasyonunu etkinleştirdiyseniz, veritabanını Buluttan geri yükleyerek başlayabilirsiniz.</string>
   <string name="enable_sync">Senkronizasyonu etkinleştir</string>
+  <string name="last_updated">Son güncelleme: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Dosya okunamıyor</string>
   <string name="sqlite_invalid_file">Geçersiz modül dosyası veya dosya adı: %s</string>

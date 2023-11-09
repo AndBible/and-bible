@@ -456,7 +456,6 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="window_text_options_help1">L\'icona %s indica che l\'impostazione deriva da quelle dello spazio di lavoro.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">L\'icona %s indica che questa impostazione è stata cambiata per questa specifica finestra.</string>
-  <string name="window_text_options_help3">Le impostazioni dello spazio di lavoro non influiranno su questa finestra.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Usa %1$s per reimpostare tutte queste impostazioni ai %2$s.</string>
   <string name="reset_defaults">valori predefiniti</string>
@@ -983,6 +982,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="error_notification_channel_name">Notifiche di errore</string>
   <string name="restore_from_cloud_description">Se la sincronizzazione del dispositivo è attivata in un altro dispositivo, è possibile iniziare a ripristinare la base di dati dal Cloud.</string>
   <string name="enable_sync">Attiva sincronizzazione</string>
+  <string name="last_updated">Ultimo aggiornamento: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Impossibile leggere il file</string>
   <string name="sqlite_invalid_file">File o nome modulo non valido: %s</string>

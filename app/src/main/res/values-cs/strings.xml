@@ -475,7 +475,6 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="window_text_options_help1">Ikona %s značí, že se nastavení přebírá z pracovní plochy.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">Ikona %s značí, že nastavení pro toto okno bylo změněno.</string>
-  <string name="window_text_options_help3">Nastavení pracovní plochy neovlivní toto okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Pomocí tlačítka %1$s vrátíte nastavení zpět na %2$s.</string>
   <string name="reset_defaults">výchozí hodnoty</string>
@@ -1033,6 +1032,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="error_notification_channel_name">Upozornění na chybu</string>
   <string name="restore_from_cloud_description">Jesliže máte zapnutou synchronizaci v jiném zařízení, můžete začít obnovou databáze ze sítě.</string>
   <string name="enable_sync">Povolit synchronizaci</string>
+  <string name="last_updated">Aktualizováno: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Soubor nelze číst</string>
   <string name="sqlite_invalid_file">Neplatný modul nebo jméno souboru: %s</string>

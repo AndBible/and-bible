@@ -436,7 +436,6 @@ laŭ ilia permeso.</string>
   <string name="window_text_options_help1">La emblemo %s signifas, ke la agordo estas heredata post agordoj de la laborspaco.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">La emblemo %s signifas, ke la agordo estas ŝanĝita por tiu ĉi fenestro.</string>
-  <string name="window_text_options_help3">La agordo de laborspaco ne aplikiĝos al tiu ĉi fenestro.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">implicitaj valoroj</string>
   <string name="reset_workspace_defaults">implicitaj valoroj de la laborspaco</string>
@@ -791,6 +790,7 @@ raportu ĝin al prizorganto de modulo</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">Ĝisdatigita: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

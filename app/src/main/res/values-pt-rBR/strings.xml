@@ -470,7 +470,6 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
   <string name="window_text_options_help1">%s ícone indica que a configuração vem das configurações da área de trabalho.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s ícone indica que esta configuração foi alterada para esta janela específica.</string>
-  <string name="window_text_options_help3">A configuração da área de trabalho não afetará esta janela.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Use o botão %1$s para redefinir todas estas definições de volta para %2$s.</string>
   <string name="reset_defaults">valores padrão</string>
@@ -996,6 +995,7 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="error_notification_channel_name">Notificação de erro</string>
   <string name="restore_from_cloud_description">Se você tiver a Sincronização de Dispositivos habilitada em outro dispositivo, poderá começar restaurando o banco de dados da Nuvem.</string>
   <string name="enable_sync">Ativar sincronização</string>
+  <string name="last_updated">Última atualização: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Não foi possível ler o arquivo</string>
   <string name="sqlite_invalid_file">Arquivo inválido ou nome de arquivo: %s</string>

@@ -418,7 +418,6 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="window_text_options_help1">Ikona %s oznacza, że wybrane ustawienie jest dziedziczone po ustawieniu obszaru roboczego.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">Ikona %s oznacza, że wybrane ustawienie zostało zmienione dla tego okna.</string>
-  <string name="window_text_options_help3">Ustawienie obszaru roboczego nie ma wpływu na to okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">wartości domyślnych</string>
   <string name="reset_workspace_defaults">wartości domyślnych tego obszaru roboczego</string>
@@ -770,6 +769,7 @@ zgłoś go do opiekuna tego modułu</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">Zmodyfikowano: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
 </resources>

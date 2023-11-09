@@ -35,6 +35,9 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.CloudSync
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class SyncSettingsActivity: ActivityBase() {
     private lateinit var binding: SettingsDialogBinding
@@ -78,6 +81,12 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             }
             true
         }
+        val lastSyncStr = category.lastSynchronized?.let {
+            val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+            val date = Date(it)
+            ".\n\n" + getString(R.string.last_updated, sdf.format(date))
+        }?: ""
+        pref.summary = "${getString(category.contentDescription)}$lastSyncStr"
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

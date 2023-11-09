@@ -477,7 +477,6 @@
   <string name="window_text_options_help1">%s piktograma nurodo, kad nustatymas yra perimamas iš darbo srities nustatymų.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s piktograma nurodo, kad šis nustatymas buvo pakeistas šiam konkrečiam langui.</string>
-  <string name="window_text_options_help3">Darbo srities nustatymas nepaveiks šio lango.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Naudokite mygtuką %1$s norėdami atstatyti visus šiuos nustatymus į %2$s.</string>
   <string name="reset_defaults">numatytąsias reikšmes</string>
@@ -1030,6 +1029,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="error_notification_channel_name">Pranešimai apie klaidas</string>
   <string name="restore_from_cloud_description">Jei kitame įrenginyje esate įjungę įrenginio sinchronizavimą, galite pradėti atkurdami iš debesijos duomenų bazę.</string>
   <string name="enable_sync">Įjungti sinchronizavimą</string>
+  <string name="last_updated">Paskiausiai atnaujinta: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Nepavyksta perskaityti failo</string>
   <string name="sqlite_invalid_file">Neteisingas modulio failas ar failo pavadinimas: %s</string>
