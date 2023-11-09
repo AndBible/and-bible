@@ -258,7 +258,8 @@ class CommandPreference(
     override var value: Any = Object(),
     override val visible: Boolean = true,
     override val inherited: Boolean = false,
-    override val opensDialog: Boolean = false
+    override val opensDialog: Boolean = false,
+    override val title: String? = null,
 ) : OptionsMenuItemInterface {
     override fun handle() {
         handle?.invoke()
@@ -268,7 +269,6 @@ class CommandPreference(
         return true
     }
 
-    override val title: String? = null
     override val icon: Int? = null
     override val isBoolean get() = handle != null && value is Boolean
 }
