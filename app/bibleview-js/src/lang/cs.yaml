@@ -41,7 +41,7 @@ noMyNotesDescription: >
   Nejprve si v biblickém dokumentu vytvořte záložku. Ty budou následně dostupné zde a můžete si k nim přidávat své poznámky.
 emptyStudyPad: >
   Prázdná studijní složka. Sem můžete přidávat textové poznámky nebo tvořit záložky se štítkem odkazujícím k této studijní složce.
-doYouWantToDeleteEntry: "Smazat obsah studijní složky?"
+doYouWantToDeleteEntry: "Smazat tento obsah ze složky?"
 removeStudyPadConfirmationTitle: "Odstranit studijní složku?"
 dragHelp: Přetažením setřídit
 openAll: Otevřít všechny odkazy
