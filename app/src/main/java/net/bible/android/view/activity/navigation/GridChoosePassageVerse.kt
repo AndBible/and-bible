@@ -100,7 +100,7 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
         }
 
         val bookColorAndGroup = GridChoosePassageBook.getBookColorAndGroup(book.ordinal)
-        val currentVerse = windowControl.activeWindowPageManager.currentPage.singleKey as Verse
+        val currentVerse = windowControl.activeWindowPageManager.currentVersePage.singleKey as Verse
 
         val keys = ArrayList<ButtonInfo>()
         for (i in 1..verses) {
