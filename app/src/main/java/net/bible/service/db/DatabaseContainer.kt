@@ -308,6 +308,8 @@ class DatabaseContainer {
 
         val databaseAccessorFactories get() = getDatabaseAccessorFactories(instance)
         val databaseAccessors get() = databaseAccessorFactories.map { it.invoke() }
+
+        val databaseAccessorsByCategory get() = databaseAccessors.associateBy { it.category }
         fun getDatabaseAccessorFactories(container: DatabaseContainer): List<() -> SyncableDatabaseAccessor<*>> = container.run {
             listOf(
                 { SyncableDatabaseAccessor(
