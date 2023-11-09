@@ -477,7 +477,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             val spanned = TextUtils.concat(
                 htmlToSpan("$par1<br><br>"),
-                imageStr,
+                if(BuildVariant.Appearance.isDiscrete) "" else imageStr,
                 htmlToSpan("<br><br><big><a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a></big>"),
                 htmlToSpan("<br><br>"),
                 iconStr,
