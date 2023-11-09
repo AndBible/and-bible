@@ -318,12 +318,12 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             query("SELECT id,$workspaceSettings,`text_display_settings_bookmarksHideLabels` FROM new.Workspace").use { cur ->
                 while (cur.moveToNext()) {
                     val id = cur.getBlob(0)
-                    val recentLabels: List<OldRecentLabel> = json.decodeFromString(serializer(), cur.getString(1))
-                    val favouriteLabels: List<Long> = json.decodeFromString(serializer(), cur.getString(2))
-                    val autoAssignLabels: List<Long> = json.decodeFromString(serializer(), cur.getString(3))
-                    val newRecentLabels: String = json.encodeToString(serializer(), recentLabels.mapNotNull { OldRecentLabel ->
-                        val labelId = labelMap[OldRecentLabel.labelId] ?: return@mapNotNull null
-                        NewRecentLabel(IdType.fromByteArray(labelId).toString(), OldRecentLabel.lastAccess)
+                    val recentLabels: List<OldRecentLabel> = cur.getStringOrNull(1)?.let {json.decodeFromString(serializer(), it) } ?: emptyList()
+                    val favouriteLabels: List<Long> = cur.getStringOrNull(2)?.let { json.decodeFromString(serializer(), it)} ?: emptyList()
+                    val autoAssignLabels: List<Long> = cur.getStringOrNull(3)?.let {json.decodeFromString(serializer(), it)} ?: emptyList()
+                    val newRecentLabels: String = json.encodeToString(serializer(), recentLabels.mapNotNull { oldRecentLabel ->
+                        val labelId = labelMap[oldRecentLabel.labelId] ?: return@mapNotNull null
+                        NewRecentLabel(IdType.fromByteArray(labelId).toString(), oldRecentLabel.lastAccess)
                     })
                     val newFavouriteLabels: String = json.encodeToString(serializer(), favouriteLabels.mapNotNull {
                         val v = labelMap[it] ?: return@mapNotNull null
@@ -355,10 +355,9 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             query("SELECT windowId,text_display_settings_bookmarksHideLabels FROM new.PageManager WHERE text_display_settings_bookmarksHideLabels IS NOT NULL").use { cur ->
                 while (cur.moveToNext()) {
                     val id = cur.getBlob(0)
-                    val bookmarksHideLabelsStr = cur.getString(1)
                     val newBookmarksHideLabels: String = run {
                         val bookmarksHideLabels: List<Long> =
-                            json.decodeFromString(serializer(), bookmarksHideLabelsStr)
+                            cur.getStringOrNull(1)?.let {json.decodeFromString(serializer(), it) } ?: emptyList()
                         json.encodeToString(serializer(), bookmarksHideLabels.mapNotNull { labelMap[it] })
                     }
                     update("new.PageManager", CONFLICT_ABORT, ContentValues().apply {
