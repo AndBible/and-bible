@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Studi Biblion</string>
+  <string name="app_name_medium">Studi Biblion (AndBible)</string>
   <string name="app_name_long">AndBible: Studi Biblion</string>
+  <string name="project">Malfermkoda projekto AndBible</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Enmetu SD‑karton kaj restartigu la aplikaĵon.</string>
   <!--Main menu-->
@@ -9,6 +11,7 @@
   <string name="chooseBook">Dokumento</string>
   <string name="selectPassage">Alineo</string>
   <string name="search">Serĉi</string>
+  <string name="search_in_andbible">Serĉi en Biblio</string>
   <string name="settings">Aplikaĵaj agordoj</string>
   <string name="history">Historio</string>
   <string name="speak">Paroli</string>
@@ -38,6 +41,7 @@
   <string name="do_in_background">Pluigi fone</string>
   <string name="rebuild_index_button">Rekrei</string>
   <!--X results in module Y-->
+  <string name="search_with_results2">%1s rezultoj en %2s</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Tiuj ĉi tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
@@ -55,8 +59,11 @@
   <string name="search_old_testament">Malnova Testamento</string>
   <string name="search_current_book">la nuna libro</string>
   <string name="error_executing_search">Erara serĉmendo</string>
+  <string name="type_text_or_bible_reference">Enigi tekston aŭ biblian referencon</string>
   <!--Open (bible reference X)-->
+  <string name="go_to_ref">Malfermi %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
+  <string name="search_what">Serĉi “%s”</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numeroj de versoj k ĉapitroj</string>
   <string name="prefs_show_verseno_summary">Montri numerojn de versoj kaj ĉapitroj</string>
@@ -114,6 +121,8 @@
   <string name="reset_fontsize">Reagordi</string>
   <string name="prefs_request_sdcard_permission_title">Uzi permane kopiitajn dokumentojn</string>
   <string name="prefs_request_sdcard_permission_summary">Ebligi uzi permane instalitajn dokumentojn el la dosierujo jsword/sword en la interna konservejo</string>
+  <string name="prefs_expand_footnotes_title">Entekstaj internaj referencoj</string>
+  <string name="prefs_expand_footnotes_summary">Montri enhavon de interna referenco kun la teksto anstataŭ montri ligilon, kiu malfermas ŝprucfenestron</string>
   <string name="all_text_options_window_menutitle">Ĉiuj tekstaj agordoj</string>
   <string name="text_options_window_menutitle">Tekstaj agordoj</string>
   <string name="auto_fullscreen">Plenekranigi per rulumi</string>
@@ -122,7 +131,8 @@
   <string name="font_size_pt">%d p.</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Aŭtomate baskuli al plenekrano dum rulumi tekston. Konsilo: vi ĉiam povas baskuli al plenekrano per dufoje frapeti la ekranon.</string>
-  <string name="prefs_margin_size_title">Ŝanĝi grandojn de marĝenoj</string>
+  <string name="prefs_margin_size_title">Ŝanĝi larĝojn de marĝenoj</string>
+  <string name="prefs_margin_size_mm_title">Larĝoj de marĝenoj (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Spertulaj agordoj</string>
   <string name="prefs_display_customization_cat">Aspekto</string>
   <string name="prefs_behavior_customization_cat">Sinteno</string>
@@ -170,6 +180,7 @@
   <string name="pref_font_family_label_name">Familio de tiparo (%s)</string>
   <string name="prefs_font_family_summary">Elekti specon de tiparo. Konsilo: vi povas instali pliajn tiparojn per la menuo “elŝuti dokumentojn” → “aldonaĵo”.</string>
   <string name="prefs_text_bookmarks_title">Legosignoj kaj notoj</string>
+  <string name="prefs_enable_bluetooth_title">Aktivigi Bludentajn butonojn</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Agordoj pri koloroj</string>
   <string name="window_color_settings_title">Koloro de fenestroj</string>
