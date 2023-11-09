@@ -45,6 +45,7 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import java.util.*
 
 /**
@@ -103,6 +104,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     }
 
     override fun handleDocumentSelection(selectedDocument: Book) {
+        if(selectedDocument.bookCategory == BookCategory.AND_BIBLE) return
         lifecycleScope.launch(Dispatchers.Main) {
             if(selectedDocument.isLocked && !CommonUtils.unlockDocument(this@ChooseDocument, selectedDocument)) {
                 reloadDocuments()
