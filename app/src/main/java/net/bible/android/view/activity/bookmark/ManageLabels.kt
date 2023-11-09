@@ -305,6 +305,7 @@ class ManageLabels : ListActivityBase() {
                 setSearchInsideTextButtonBackground()
                 updateLabelList(rePopulate = true)
             }
+            editSearchText.requestFocus()
         }
         ABEventBus.register(this)
         reBuildQuickSearchButtonList()
