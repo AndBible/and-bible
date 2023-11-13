@@ -39,6 +39,7 @@ val discreteFlavorName = "discrete"
 // This value must remain the same as it has been since the original
 // release in 2010 for continuity of updates for existing users.
 val applicationIdStandard = "net.bible.android.activity"
+//val applicationIdStandard = "net.bible.android.activity.next"
 // An alternative applicationId, to be used for the "discrete" flavor.
 val applicationIdDiscrete = "com.app.calculator"
 
@@ -142,7 +143,7 @@ android {
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId = applicationIdStandard
-        minSdk = 23
+        minSdk = 26
         targetSdk = 34
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
