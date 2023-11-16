@@ -23,6 +23,8 @@ import {sortBy} from "lodash";
 
 const altKeys: Set<string> = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyM", "KeyO", "KeyG"]);
 const ctrlKeys: Set<string> = new Set(["KeyC", "KeyF", "KeyB"]);
+const editorCtrlKeys: Set<string> = new Set(["KeyB"]);
+
 const keys: Set<string> = new Set(["ArrowUp", "ArrowDown", "Space"]);
 const handleJsSide: Set<string> = new Set(["ArrowUp", "ArrowDown"]);
 
@@ -70,12 +72,17 @@ export function useKeyboard(
         if (keys.has(e.code) || (e.altKey && altKeys.has(e.code)) || (e.ctrlKey && ctrlKeys.has(e.code))) {
             console.log("Base listener", e);
             let key = e.code;
+            if (e.ctrlKey && editorCtrlKeys.has(e.code) && isEditing.value) {
+                // Ctrl+B should not open Book selector in text editor mode
+                return
+            }
             if (e.altKey) {
                 key = "Alt" + key;
             }
             if (e.ctrlKey) {
                 key = "Ctrl" + key;
             }
+
             if(handleJsSide.has(key)) {
                 if(isEditing.value) return
                 else if(key === "ArrowDown") {
