@@ -28,6 +28,7 @@ import android.widget.Toast
 import net.bible.android.activity.databinding.CalculatorLayoutBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.removeLeadingZeroes
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.lang.Exception
 import java.lang.NumberFormatException
@@ -256,7 +257,8 @@ class CalculatorActivity : ActivityBase() {
     }
 
     private fun calculate(input: String) = calculatorBinding.run {
-        val pin = CommonUtils.realSharedPreferences.getString("calculator_pin", "1234")
+        val pin = removeLeadingZeroes(CommonUtils.realSharedPreferences.getString("calculator_pin", "1234")!!)
+
         if(input == pin || pin == "") {
             Log.i(TAG, "Calculator: PIN OK!")
             setResult(RESULT_OK)
