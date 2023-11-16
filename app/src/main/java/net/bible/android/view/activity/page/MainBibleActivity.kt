@@ -1645,7 +1645,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                 if (isFromBookmark && !pageManager.isBibleShown) {
                                     pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
                                 } else
-                                    pageManager.currentPage.setKey(verse)
+                                    pageManager.currentPage.setKey(verse, !isFromBookmark)
                             } else if (keyStr != null && bookStr != null){
                                 val book = Books.installed().getBook(bookStr)
                                 val key = book.getKey(keyStr)
