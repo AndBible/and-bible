@@ -74,7 +74,7 @@ interface CurrentPage {
     val displayKey: Key?
 
 	/** set key and update screens  */
-	fun setKey(key: Key)
+	fun setKey(key: Key, addHistoryItem: Boolean = true)
 
     /** get key for 1 verse instead of whole chapter if bible
      */

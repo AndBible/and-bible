@@ -91,7 +91,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     // the document list
     private val bookmarkList: MutableList<BaseBookmarkWithNotes> = ArrayList()
     private var listActionModeHelper: ListActionModeHelper? = null
-    override val integrateWithHistoryManager: Boolean = true
 
     private var searchText: String?
         get() = binding.editSearchText.text.toString().let { it.ifEmpty { null } }
@@ -178,21 +177,12 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         try {
             // check to see if Action Mode is in operation
             if (!listActionModeHelper!!.isInActionMode) {
-                intent.putExtra("listPosition", position)
-                bookmarkSelected(bookmarkList[position])
+                bookmarkSelected(position, bookmarkList[position])
             }
         } catch (e: Exception) {
             Log.e(TAG, "document selection error", e)
             Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
-    }
-
-    override val intentForHistoryList: Intent get()
-    {
-        Log.i(TAG, "Saving label no in History Intent")
-        val intent = intent
-        intent.putExtra(BookmarkControl.LABEL_NO_EXTRA, selectedLabelNo)
-        return intent
     }
 
     private fun assignLabels(bookmarks: List<BaseBookmarkWithNotes>) = lifecycleScope.launch(Dispatchers.IO) {
@@ -278,7 +268,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    private fun bookmarkSelected(bookmark: BaseBookmarkWithNotes) {
+    private fun bookmarkSelected(position: Int, bookmark: BaseBookmarkWithNotes) {
         Log.i(TAG, "Bookmark selected:$bookmark")
         try {
             if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && bookmarkControl.isSpeakBookmark(bookmark)) {
@@ -295,6 +285,11 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                     resultIntent.putExtra("ordinal", bookmark.ordinalStart)
                 }
             }
+            resultIntent.putExtra("description", title)
+            resultIntent.putExtra(BookmarkControl.LABEL_NO_EXTRA, selectedLabelNo)
+            resultIntent.putExtra("listPosition", position)
+
+            historyTraversal.historyManager.addHistoryItem(null, resultIntent)
             setResult(Activity.RESULT_OK, resultIntent)
             finish()
         } catch (e: Exception) {

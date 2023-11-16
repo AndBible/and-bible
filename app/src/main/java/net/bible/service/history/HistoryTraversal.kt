@@ -20,7 +20,6 @@ package net.bible.service.history
 import android.util.Log
 
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 
 
 /**
@@ -33,7 +32,7 @@ class HistoryTraversal(val historyManager: HistoryManager, var isIntegrateWithHi
      */
     fun beforeStartActivity() {
         if (isIntegrateWithHistoryManager) {
-            ABEventBus.post(BeforeCurrentPageChangeEvent())
+            ABEventBus.post(AddHistoryItem())
         }
     }
 
