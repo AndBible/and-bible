@@ -22,7 +22,7 @@ import {computed, ComputedRef, onBeforeUnmount, onMounted, ref, watch} from "vue
 import {sortBy} from "lodash";
 
 const altKeys: Set<string> = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyM", "KeyO", "KeyG"]);
-const ctrlKeys: Set<string> = new Set(["KeyC", "KeyF", "KeyB"]);
+const ctrlKeys: Set<string> = new Set(["KeyC", "KeyF", "KeyB", "KeyW"]);
 const editorCtrlKeys: Set<string> = new Set(["KeyB"]);
 
 const keys: Set<string> = new Set(["ArrowUp", "ArrowDown", "Space"]);

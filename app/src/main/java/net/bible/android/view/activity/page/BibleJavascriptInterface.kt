@@ -53,6 +53,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
@@ -606,6 +607,10 @@ class BibleJavascriptInterface(
                 }
                 "AltKeyO" -> mainBibleActivity.showOptionsMenu()
                 "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
+                "CtrlKeyW" -> {
+                    val intent = Intent(mainBibleActivity, WorkspaceSelectorActivity::class.java)
+                    mainBibleActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
+                }
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()
                 "CtrlKeyF" -> {
                     val intent = mainBibleActivity.searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, mainBibleActivity)
