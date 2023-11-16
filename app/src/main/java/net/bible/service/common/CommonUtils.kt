@@ -1765,10 +1765,10 @@ val BookAndKey.next: BookAndKey get() {
                 }
 
                 is GenBookBackend -> {
-                    val keyList = backend.readIndex()
+                    val keyList = backend.readIndex().flatten().toList()
                     val idx = keyList.indexOf(this.key)
                     try {
-                        keyList.get(idx + 1)
+                        keyList[idx + 1]
                     } catch (e: IndexOutOfBoundsException) {
                         keyList.first()
                     }
