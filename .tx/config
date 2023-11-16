@@ -24,7 +24,7 @@ file_filter            = play/description-translations/<lang>.yml
 source_file            = play/playstore-description.yml
 source_lang            = en
 minimum_perc           = 100
-lang_map               = es: es-ES, fi: fi-FI, ru: ru-RU, zh_TW: zh-TW, he: iw-IL, ko: ko-KR, bn: bn-BD, az@latin: az-AZ, tr: tr-TR, en_GB: en-US, pl: pl-PL, zh_CN: zh-CN, hi: hi-IN, my: my-MM, it: it-IT, cs: cs-CZ, nl: nl-NL, fr: fr-FR, nb: no-NO, hu: hu-HU, sr_RS: sr, te: te-IN, pt: pt-PT, de: de-DE, pt_BR: pt-BR, ta: ta-IN
+lang_map               = es: es-ES, fi: fi-FI, ru: ru-RU, zh_TW: zh-TW, he: iw-IL, ko: ko-KR, bn: bn-BD, az@latin: az-AZ, tr: tr-TR, en_GB: en-US, pl: pl-PL, zh_CN: zh-CN, hi: hi-IN, my: my-MM, it: it-IT, cs: cs-CZ, nl: nl-NL, fr: fr-FR, nb: no-NO, hu: hu-HU, sr_RS: sr, te: te-IN, pt: pt-PT, de: de-DE, pt_BR: pt-BR, ta: ta-IN, el: el-GR
 replace_edited_strings = false
 keep_translations      = false
 

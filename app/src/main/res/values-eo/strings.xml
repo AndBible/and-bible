@@ -845,9 +845,34 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="verse_tip">Por elekti parton aŭ plurajn versojn, frapetadu la tekston de Biblio</string>
   <string name="permission_required">Permeso postulata</string>
   <string name="labels_search_hint">Serĉi</string>
+  <string name="progress_status_permission">Por montri sciigojn (stato de elŝuto, prilaborado, stato de aŭskultado) la aplikaĵo bezonas vian rajtigon.</string>
   <!--Discrete mode settings-->
+  <string name="app_name_calculator">Simpla Kalkulilo</string>
+  <string name="prefs_persecution_cat">Agordoj por persekutataj</string>
+  <string name="prefs_discrete_mode">Kaŝi religiajn simbolojn</string>
+  <string name="prefs_discrete_mode_desc">Renomi la aplikaĵon al “Simpla Kalkulilo” kaj montri alian bildsimbolon en la lanĉilo.</string>
+  <string name="prefs_show_calculator">Kalkulilo</string>
+  <string name="prefs_calculator_pin">PIN-kodo por kalkulilo</string>
+  <string name="prefs_calculator_pin_desc">PIN-kodo por malfermi la aplikaĵon kiam kalkulilo montriĝas.</string>
+  <string name="calc_division_by_zero">Divido per nulo malpermesata</string>
   <!--Context: calculator. Wrong number format etc.-->
+  <string name="calc_wrong_format">Malĝusta enigo</string>
+  <string name="calc_wrong_format_operand">Malĝusta enigo. Eble operaciato sen nombro?</string>
+  <string name="prefs_persecuted_help">Legu tion ĉi!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Instrukcioj pri agordoj kaj informoj pri specifa diskreta kompilaĵo.</string>
+  <string name="calculator_par1">
+Antaŭ starto de la aplikaĵo, malfermiĝas ekrano de kalkulilo.</string>
+  <string name="calculator_par2">
+Tie vi povas fari kutimajn kalkulojn kaj kiam vi volas malfermi la aplikaĵon, enigu la PIN-kodon (implicite 1234) kaj sekve la butonon “=”.</string>
+  <string name="calculator_par3">
+Vi povas agordi alian kodon per la agordo “PIN-kodo por kalkulilo”.</string>
+  <string name="discrete_mode_info_par1">
+Vi nun uzas norman version de la aplikaĵo, do plue eblas rigardi la veran nomon kaj bildsimbolon de ĝi en “Informoj pri aplikaĵo” de Android.</string>
+  <string name="discrete_mode_info_par2">
+Por pliigi sekurecon en persekutanta ĉirkaŭaĵo, estas konsilinde uzi la diskretan version de la aplikaĵo, kiu ĉiam vidiĝas kiel kalkulilo, eĉ kiam ĝiaj datumoj estos forigitaj.</string>
+  <string name="discrete_mode_link">
+Vi povas elŝuti la plej aktualan diskretan version el %s.</string>
   <!--Window synchronize groups-->
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
