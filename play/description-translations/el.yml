@@ -1,0 +1,73 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "AndBible: Bible Study"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Διαβάστε την Βίβλο, σχόλια μελέτης ή λεξικά, ή διαβάστε βιβλία εκτός σύνδεσης"
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Ισχυρό εργαλείο μελέτης της Βίβλου
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ title }}" είναι μία ισχυρή, εύκολη στη χρήση εφαρμογή Βιβλικής μελέτης για το Android. Η εφαρμογή δεν στοχεύει στο να είναι απλά μια εφαρμογή ανάγνωσης της Βίβλου, αλλά επικεντρώνεται στο να γίνει ένα προχωρημένο εργαλείο προσωπικής εις βάθος μελέτης της Βίβλου
+paragraph_1_2: >
+  Η εφαρμογή αναπτύσσεται από μελετητές της Βίβλου, για μελετητές της Βίβλου. Έχει στόχο να βοηθήσει ώστε η μελέτη της Βιβλου να γίνει άνετη, εις βάθος και διασκεδαστική. Το καλύτερο μέρος αυτής της μη κερδοσκοπικής και υποστηριζόμενης από την κοινότητα εφαρμογής; είναι ανοιχτού κώδικα, εντελώς δωρεάν, και δεν περιέχει διαφημίσεις.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Μερικές από τις πιό διαδομένες (από τις πολλές διαθέσιμες) μεταφράσεις είναι του Νεοφύτου Βάμβα - GreVamvas - , το βυζαντινό κείμενο, η μετάφραση των Εβδομήκοντα - LXX -  καθώς και Ελληνο-Εβραϊκό Λεξικό και σχόλια.
+subtitle_2: Χρήσιμα εργαλεία μελέτης της Βίβλου
+paragraph_2_1: >
+  Η εφαρμογή περιέχει πολλά διορατικά, πρότυπα στοιχεία, που κάνουν την βαθιά και σύνθετη μελέτη της Βίβλου πιό εύκολη από ποτέ. Ακολουθούν μερικά από τα πιό αξιοσημείωτα στοιχεία: 
+feature_01: Διαχωρισμός προβολών κειμένου που επιτρέπουν τη σύγκριση μεταφράσεων και συμβουλευτικά σχόλια
+feature_02: Χώροι εργασίας που επιτρέπουν δημιουργία πολλαπλών Βιβλικών μελετών με τις δικές τους ειδικές ρυθμίσεις
+feature_03: Η ενσωμάτωση των Strong επιτρέπει ανάλυση Ελληνικών και Εβραϊκών λέξεων
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  Συνδεδεμένες παραπομπές, υποσημειώσεις και έγγραφα - μεταφορά σε παραπομπές και υποσημειώσεις με ένα απλό πάτημα συνδέσμου - πραγματοποίηση εις βάθος μελέτης των Γραφών με τη χρήση υπερσυνδέσμων με σχόλια ({{commentary_examples}}), συλλογές παραπομπών ({{cross_reference_examples}}) και άλλων πηγών
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry κλπ"
+# Examples of cross-reference collections.
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Προχωρημένη λειτουργία κειμένου σε ομιλία, με ακρόαση σελιδοδεικτών, προσφέροντας μια ευχάριστη εμπειρία ακρόασης"
+feature_06: Ευέλικτη αναζήτηση
+feature_07: Προχωρημένα εργαλεία σελιδοδεικτών & υπογράμμισης με προσωπικές σημειώσεις μελέτης
+feature_09: >
+  Πλάνα ανάγνωσης: Ορίστε στόχους ανάγνωσης της Βίβλου 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Αχανής βιβλιοθήκη εγγράφων: Βιβλικές μεταφράσεις, Θεολογικά σχόλια, λεξικά, χάρτες, και χριστιανικά βιβλία, συνολικά πάνω από {{total_documents}} σε πάνω από {{total_languages}}, νόμιμα διανεμημένα από το Crosswire και άλλα αποθετήρια του SWORD. 
+feature_10_1: >
+  Ενσωματωμένη υποστήριξη για αρχεία MyBible, MySword και EPUB, επιτρέπουν την επέκταση της βιβλιοθήκης σας ακόμα περισσότερο.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV και NKJV"
+feature_12: >
+  Εκτός σύνδεσης: η μόνη στιγμή που χρειάζεστε ίντερνετ είναι για την λήψη εγγράφων.
+# UNUSED
+feature_13: >
+  Σημειωματάρια μελέτης για προσθήκη σημειώσεων και Βιβλικών παραπομπών κατά την ακρόαση κηρυγμάτων.
+subtitle_3: Ας φτιάξουμε μαζί την καλύτερη εφαρμογή της Βίβλου!
+paragraph_3_1: >
+  Το AndBible είναι ένα κοινοτικό έργο ανοιχτού κώδικα. Στην πράξη αυτό σημαίνει ότι ο καθένας με τα κατάλληλα προσόντα μπορεί, και ενθαρρύνεται να, συνεισφέρει στο έργο μέσω:
+contr_1: "ανάπτυξης νέων χαρακτηριστικών,"
+contr_2: "δοκιμάζοντας χαρακτηριστικά που δεν έχουν ακόμα εκδοθεί,"
+contr_3: "κρατώντας ενημερωμένες τις μεταφράσεις του περιβάλλοντος χρήστη, και"
+contr_4: "βοηθώντας στην επέκταση της βιβλιοθήκης προσθέτων, λαμβάνοντας άδειες από τους κατόχους πνευματικών δικαιωμάτων ή μετατρέποντας έγγραφα σε μορφή SWORD."
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Αν είστε επαγγελματίας μηχανικός λογισμικού ή δοκιμαστής, παρακαλούμε συνεισφέρετε στο έργο αυτό. Για περισσότερες πληροφορίας σχετικά με τους τρόπους συνεισφοράς παρακαλώ δείτε {{how_to_contribute_url}}."
+subtitle_4: Σύνδεσμοι
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Ιστοσελίδα: {{homepage_url}}
+link_2: >
+  Κάνετε Like στο Facebook του AndBible: {{facebook_url}}
+link_3: >
+  Το κανάλι μας στο Youtube: {{youtube_url}}
+link_4: >
+  Συχνές ερωτήσεις: {{faq_url}}
+link_5: >
+  Σελίδα έργου στο Github: {{github_url}}
+buy_title: >
+  Υποστήριξη μέσω αγοράς χρόνου ανάπτυξης!
+buy_1: >-
+  Αν δεν έχετε χρόνο ή ικανότητες για συνεισφορά στο έργο, μπορείτε επίσης να υποστηρίξετε το έργο αγοράζοντας χρόνο εργασίας για επαγγελματία developer.
+buy_2: >
+  Δείτε επιλογές
