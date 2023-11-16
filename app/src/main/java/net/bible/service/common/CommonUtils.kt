@@ -1626,6 +1626,24 @@ object CommonUtils : CommonUtilsBase() {
         }
         return s
     }
+
+    suspend fun documentUpgradeConfirmation(context: Activity): Boolean = context.run {
+        val warningTitle = getString(R.string.bookmark_warning)
+        val warningMessage = getString(R.string.bookmark_warning2)
+        val warningRecommendation = getString(R.string.bookmark_warning4)
+        val warningQuestion = getString(R.string.bookmark_warning3)
+        val warningMsg = "$warningMessage\n\n$warningRecommendation\n\n$warningQuestion"
+        withContext(Dispatchers.Main) {
+            suspendCoroutine {
+                AlertDialog.Builder(this@run)
+                    .setTitle(warningTitle)
+                    .setMessage(warningMsg)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
+                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }.create().show()
+            }
+        }
+    }
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"

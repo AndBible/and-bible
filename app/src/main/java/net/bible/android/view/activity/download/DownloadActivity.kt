@@ -71,6 +71,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.download.urlPrefix
 import java.net.URL
 import java.text.Collator
+import kotlin.coroutines.coroutineContext
 
 /**
  * Choose Document (Book) to download
@@ -408,17 +409,11 @@ open class DownloadActivity : DocumentSelectionBase(
             && !documentToDownload.isPseudoBook
         ) {
             if (documentToDownload.isInstalled && DatabaseContainer.ready && bookmarksDao.genericBookmarkCountFor(documentToDownload) > 0) {
-                val warningTitle = getString(R.string.bookmark_warning)
-                val warningMessage = getString(R.string.bookmark_warning2)
-                val warningRecommendation = getString(R.string.bookmark_warning4)
-                val warningQuestion = getString(R.string.bookmark_warning3)
-                val warningMsg = "$warningMessage\n\n$warningRecommendation\n\n$warningQuestion"
-                AlertDialog.Builder(this)
-                    .setTitle(warningTitle)
-                    .setMessage(warningMsg)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.yes) { dialog, id -> doDownload(documentToDownload) }
-                    .setNegativeButton(R.string.cancel) { dialog, id -> }.create().show()
+                lifecycleScope.launch {
+                    if(CommonUtils.documentUpgradeConfirmation(this@DownloadActivity)) {
+                        doDownload(documentToDownload)
+                    }
+                }
             } else {
                 AlertDialog.Builder(this)
                     .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)

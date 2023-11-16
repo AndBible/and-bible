@@ -53,13 +53,21 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.common.CommonUtils.unzipInputStream
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.epub.EPUB_OPTIMIZER_VERSION
+import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
+import net.bible.service.sword.epub.epubInitials
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.addMySwordBook
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.GenBookBackend
+import org.crosswire.jsword.book.sword.SwordGenBook
 import java.io.BufferedInputStream
 import java.io.InputStream
 import java.util.UUID
@@ -511,6 +519,8 @@ class InstallZip : ActivityBase() {
         binding.statusText.text = e.message
     }
 
+    private val bookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+
     private suspend fun installEpub(uri: Uri): Boolean = withContext(Dispatchers.IO) {
         withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
@@ -518,7 +528,19 @@ class InstallZip : ActivityBase() {
         val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
         val dir = File(SharedConstants.modulesDir, "epub/$displayName")
         if (dir.exists()) {
-            dir.deleteRecursively()
+            val initials = epubInitials(displayName)
+            val book = Books.installed().getBook(initials)
+            val optimizerVersion = ((book as? SwordGenBook)?.backend as? EpubBackend)?.state?.optimizerVersion ?: 1
+            if(DatabaseContainer.ready && bookmarksDao.genericBookmarkCountFor(initials) > 0 && optimizerVersion < EPUB_OPTIMIZER_VERSION) {
+                if(CommonUtils.documentUpgradeConfirmation(this@InstallZip)) {
+                    dir.deleteRecursively()
+                } else {
+                    finish()
+                    return@withContext false
+                }
+            } else {
+                dir.deleteRecursively()
+            }
         }
         dir.mkdirs()
         unzipInputStream(contentResolver.openInputStream(uri)!!, dir)

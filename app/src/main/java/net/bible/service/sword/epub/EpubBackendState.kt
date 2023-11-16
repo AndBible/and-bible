@@ -41,6 +41,8 @@ import java.util.zip.GZIPInputStream
 private val re = Regex("[^a-zA-z0-9]")
 private fun sanitizeModuleName(name: String): String = name.replace(re, "_")
 
+fun epubInitials(dirName: String): String = "Epub-" + sanitizeModuleName(dirName)
+
 private val hrefRe = Regex("""^([^#]+)?#?(.*)$""")
 internal fun getFileAndId(href: String): Pair<String, String>? {
     val m = hrefRe.matchEntire(href)?: return null
@@ -189,6 +191,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     internal val fragDir get() = File(epubDir,  "optimized")
     internal val versionFile = File(fragDir, "version.txt")
     internal val optimizeLockFile = File(epubDir, "optimize.lock")
+    val optimizerVersion get() = try { String(versionFile.readBytes()).toLong() } catch (e: Exception) {1}
 
     private val epubDbFilename = "optimized.sqlite3.gz"
     internal val appDbFilename = "epub-${bookMetaData.initials}.sqlite3"
@@ -218,12 +221,11 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     override fun getBookMetaData(): SwordBookMetaData {
         return _metadata?: synchronized(this) {
-            val initials = "Epub-" + sanitizeModuleName(File(epubDir.path).name)
+            val initials = epubInitials(File(epubDir.path).name)
             val title = queryMetadata("title") ?: epubDir.name
             val description = queryMetadata("description")?: epubDir.name //TODO: should de-encode html stuff
             val abbreviation = title //.slice(0 .. min(5, title.length - 1))
             val language = queryMetadata("language") ?: "en"
-            val optimizerVersion = try { String(versionFile.readBytes()).toLong() } catch (e: Exception) {1}
             val conf = getConfig(
                 initials = initials,
                 abbreviation = abbreviation,
