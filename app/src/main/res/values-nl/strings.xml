@@ -366,9 +366,15 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="label_color">Labelkleur</string>
   <!--can be removed-->
   <string name="label_color_example">Voorbeeld</string>
-  <string name="hide_style">Verberg voor geselecteerde bladwijzers</string>
+  <string name="marker_style">Gebruik een bladwijzericoon voor selectie-bladwijzers</string>
+  <string name="marker_style_whole_verse">Gebruik een bladwijzericoon voor de hele-vers bladwijzers</string>
+  <string name="hide_style">Verberg selectie-bladwijzers</string>
   <string name="hide_style_whole_verse">Verberg voor hele vers bladwijzers</string>
+  <string name="bookmark_warning">Er zijn bladwijzers en/of notities voor dit document</string>
+  <string name="bookmark_warning2">
+Als de indeling van het document is veranderd, kan het bijwerken van het document de bladwijzers/notities van plek laten veranderen of zelfs compleet laten verdwijnen uit het document </string>
   <string name="bookmark_warning3">Wil je nog steeds de module updaten?</string>
+  <string name="bookmark_warning4">Het wordt aanbevolen om een reservekopie te maken van de module voordat je hem bijwerkt.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datumvolgorde</string>
   <string name="sort_by_bible_book">Bijbelse volgorde</string>
@@ -529,6 +535,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="backup_database">Database</string>
   <string name="backup_documents">Documenten</string>
   <string name="backup_application_info">Applicatie bestand (.APK)</string>
+  <string name="backup_database_info">Bladwijzers, labels, notities, studiemappen, leesplannen, werkplannen enz. </string>
   <string name="backup_document_info">Bijbels, commentaren, woordenboeken, kaarten etc.</string>
   <string name="backup_to">Back-up naar...</string>
   <string name="backup_restore_from">Herstel van...</string>
@@ -615,6 +622,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="empty_list">Geen te tonen items</string>
   <string name="error_skip">Overslaan</string>
   <string name="bug_report_email_title">Stuur bug rapport via email</string>
+  <string name="bug_report_email_text">Selecteer uw email programma (bijvoorbeeld Gmail) om het rapport aan het team van ontwikkelaars te sturen.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst-naar-spraak</string>
   <string name="notification_channel_progress_status">Voortgangsmeldingen voor documentdownloads, etc.</string>
@@ -629,7 +637,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="workspace_settings">Instellingen...</string>
   <string name="give_name_workspace">Geef naam voor nieuw werkblad</string>
   <string name="save_and_exit">Opslaan</string>
-  <string name="workspace_save_changes">Wijzigingen aan werkbladen doorwerken?</string>
+  <string name="workspace_save_changes">Wijzigingen toepassen op werkbladen?</string>
   <string name="copy_of_workspace">Kopie van %s</string>
   <string name="copy_workspace_settings">Kopieer instellingen...</string>
   <string name="copy_settings_title">Welke instellingen wilt u kopiëren?</string>
@@ -704,7 +712,10 @@ Je wilt misschien Bijbel documenten als vastgemaakt venster en commentaren en ma
   <!--Supported file formats for documents-->
   <string name="supported_formats_title">Ondersteunende bestandsformaten</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">Selecteer het bestand dat u wilt uploaden naar %s</string>
+  <string name="supported_formats">Ondersteunde bestandsformaten om documenten te laden: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">Zip file met Sword module(s), of reservekopieën (*.abmd) gemaakt door %s</string>
   <string name="format_mysword">MySword documenten (*.mybible)</string>
   <string name="format_mybible">MyBible documenten (*.SQLite3)</string>
   <string name="format_epub">EPUB documenten (*.epub)</string>
@@ -777,6 +788,8 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="proceed_anyway">Toch doorgaan</string>
   <string name="proceed">Vervolg</string>
   <string name="rate_title">App beoordelen en reviewen</string>
+  <string name="rate_message5">
+  Positieve en gedetailleerde recensies helpen het AndBible Open Source Project enorm. Hartelijk bedankt!</string>
   <string name="rate_message6">
         Voor u een negatieve review instuurt, overweeg alstublieft het volgende:
     </string>
@@ -844,7 +857,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="label_red">Rood</string>
   <string name="label_green">Groen</string>
   <string name="label_blue">Blauw</string>
-  <string name="label_salvation">Zaligheid</string>
+  <string name="label_salvation">Redding</string>
   <string name="label_underline">Onderstreping</string>
   <string name="import_menu">Importeren &amp; Exporteren</string>
   <string name="export_fileformat">Exporteer als %s</string>
@@ -873,15 +886,37 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="verse_tip">Om gedeeltes of meerdere versen te selecteerd, kunt u lang drukken op Bijbel tekst</string>
   <string name="permission_required">Permissie nodig</string>
   <string name="labels_search_hint">Zoeken</string>
+  <string name="progress_status_permission">We hebben uw toestemming nodig om meldingen (voortgang van de download, verwerking, status van het voorlezen) te laten zien.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Simpele Rekenmachine</string>
+  <string name="prefs_persecution_cat">Instellingen voor vervolgden</string>
   <string name="prefs_discrete_mode">Verberg religieuze symbolen</string>
+  <string name="prefs_discrete_mode_desc">Gebruik \'Calculator\' als naam voor de app en laat een ander icoon in de launcher zien.</string>
   <string name="prefs_show_calculator">Rekenmachine</string>
   <string name="prefs_calculator_pin">Rekenmachine PIN</string>
+  <string name="prefs_calculator_pin_desc">PIN code om de app in te komen als de calculator op het scherm is.</string>
+  <string name="calc_division_by_zero">Delen door nul kan niet</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Verkeerde Formaat</string>
+  <string name="calc_wrong_format_operand">Verkeerde invoer. Operator zonder getallen?</string>
   <string name="prefs_persecuted_help">Lees dit eerst!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Aanwijzingen voor de instellingen en informatie over de discrete versie van de app .</string>
+  <string name="calculator_par1">
+        Een calculator wordt getoond voordat je de app in komt.</string>
+  <string name="calculator_par2">
+        Daarin kan je het gebruikelijke rekenwerk doen, en wanneer je de app in wilt,
+        type je de PIN code (standaard is 1234) in en druk je op de \"=\" knop.</string>
+  <string name="calculator_par3">
+        Gebruik de \"Calculator PIN\" instelling om uw eigen PIN code in te stellen.</string>
+  <string name="discrete_mode_info_par1">
+        U gebruikt de standaard versie van de applicatie , wat betekent dat de echte naam en het echte
+       icoon van de app nog steeds zichtbaar kan zijn in de app info.</string>
+  <string name="discrete_mode_info_par2">
+        Voor betere veiligheid in plaatsen met vervolging bevelen we aan om de discrete
+       versie van de app te gebruiken, die altijd een calculator laat zien, zelfs wanneer de app gewist is.</string>
+  <string name="discrete_mode_link">
+        De laatste versie van de discrete app kan worden gedownload van %s.</string>
   <!--Window synchronize groups-->
   <string name="sync_group_submenu">Synchroniseer groep</string>
   <string name="sync_group_n">Groep %d</string>
@@ -895,14 +930,32 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="custom_repositories_info_button_label">Informatie</string>
   <string name="name_for_repository">Naam voor de repositorie</string>
   <string name="repository_specification">Repositie URL</string>
+  <string name="delete_custom_repository">Wilt u de aangepaste repositorie %s verwijderen?</string>
+  <string name="invalid_repository_not_saved">De repository specificatie was ongeldig en is niet opgeslagen.</string>
+  <string name="custom_repositories_help1">Type of plak de aangepaste repository URL hier om hem toe te voegen.</string>
+  <string name="custom_repositories_help2">U kunt meer informatie vinden over aangepaste repositories in %s.</string>
   <string name="wiki_page">WIKI pagina</string>
+  <string name="custom_repositories_help0">U kunt documenten van repositories van derden installeren door die aangepaste repositories te installeren.</string>
+  <string name="duplicate_custom_repository">De repository %sbestaat al onder die naam, en kan niet nog een keer worden toegevoegd.</string>
   <string name="packages_dir">Pakketten map (Zip bestanden)</string>
+  <string name="warn_bad_document">Waarchuwing: Dit document kan (tenminste deels) van slechte technische kwaliteit zijn.</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Open Bijbel links in And Bible</string>
+  <string name="open_bible_links_summary">Open AndBible ondersteunde Bible URLs in AndBible</string>
   <string name="copyReference">Kopieer link naar knipbord</string>
+  <string name="reference_copied_to_clipboard">Verwijzing gekopieerd naar het klembord</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+        Kies welke backend cloud service u wilt gebruiken om meerdere apparaten te synchroniseren.</string>
+  <string name="prefs_sync_introduction_summary2">
+        Bij gebruik van Google drive krijgt %s alleen toegang tot applicatiebestanden, en niet tot persoonlijke bestanden.</string>
+  <string name="restore_backup_sections">Welke reservekopie secties wilt u terugzetten?</string>
+  <string name="db_repositories">Repositories en bijbehorende instellingen</string>
   <string name="db_bookmarks">Bladwijzers, Mijn notities, Labels en Studiepaden</string>
   <string name="synchronizing">Synchroniseren…</string>
+  <string name="overrideBackup">
+        Er is een bestaande database in Cloud waarmee dit apparaat niet is gesynchroniseerd.
+        De database bevat %s. Wat wilt u doen? </string>
   <string name="reading_plans_content">Leesplannen en hun statussen</string>
   <string name="bookmarks_contents">Bladwijzers, Labels en Studiepaden</string>
   <string name="workspaces_contents">Werkplek en Vensters</string>
@@ -911,6 +964,8 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="cloud_disable_sync">Annuleren &amp; synchronisatie uitschakelen</string>
   <string name="cloud_sync_title">Apparaat synchronisatie</string>
   <string name="reset_sync">Uitloggen</string>
+  <string name="prefs_reset_sync_summary">Schakel synchronisatie uit en reset de bijbehorende instellingen.</string>
+  <string name="sync_confirmation">Weet u zeker dat u uit wilt loggen en de synchronisatie resetten?</string>
   <string name="cloud_info">Cloud informatie</string>
   <string name="cloud_info_summary">Data in cloud opslag: %s Mb</string>
   <string name="sync_adapter">Synchronization Backend</string>
@@ -925,10 +980,14 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="sync_general_settings">Info &amp; algemene instellingen</string>
   <string name="sync_introduction">Introductie</string>
   <string name="are_you_sure">Weet je het zeker?</string>
+  <string name="are_you_sure_reset_local">Dit zal uw plaatselijke database voor %s resetten met de inhoud die nu in de cloud service opgeslagen is.</string>
+  <string name="are_you_sure_reset_cloud">Dit zal uw cloud database voor %s resetten met de inhoud die nu op dit apparaat staat.</string>
+  <string name="sync_cant_fetch">De versie van de database of het patch bestand in de cloud is hoger dan deze app ondersteund.</string>
   <string name="sync_disabling">Uitzetten synchronisatie voor %s voorlopig.</string>
   <string name="sync_update_app">Graag de app updaten om synchronisatie door te zetten. </string>
   <string name="sign_in_failed">Inloggen om synchronisatie achtergrond service gefaald.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">Cloud synchronisatie wordt uitgeschakeld. Schakel dit handmatig in na het terugzetten.</string>
   <string name="report">Rapport</string>
   <string name="sync_error">Er is een fout opgetreden bij de cloudsynchronisatie</string>
   <string name="error_notification_channel_name">Foute notificaties</string>

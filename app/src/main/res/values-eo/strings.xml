@@ -180,11 +180,15 @@
   <string name="pref_font_family_label_name">Familio de tiparo (%s)</string>
   <string name="prefs_font_family_summary">Elekti specon de tiparo. Konsilo: vi povas instali pliajn tiparojn per la menuo “elŝuti dokumentojn” → “aldonaĵo”.</string>
   <string name="prefs_text_bookmarks_title">Legosignoj kaj notoj</string>
-  <string name="prefs_enable_bluetooth_title">Aktivigi Bludentajn butonojn</string>
+  <string name="prefs_enable_bluetooth_title">Aktivigi bludentajn butonojn</string>
+  <string name="prefs_enable_bluetooth_summary">Uzi bludentajn aŭdvidajn butonojn por komenci/haltigi aŭskultadon.</string>
+  <string name="create_bookmark">Krei novan legosignon</string>
+  <string name="create_bookmark_with_a_note">Krei novan legosignon kun noto</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Agordoj pri koloroj</string>
   <string name="window_color_settings_title">Koloro de fenestroj</string>
   <string name="workspace_color_settings_title">Implicitaj koloroj de laborspaco</string>
+  <string name="color_workspace">Koloro de laborspaco</string>
   <string name="color_text">Koloro de teksto</string>
   <string name="color_background">Koloro de fono</string>
   <string name="colors_day_mode_title">Taga reĝimo</string>
@@ -203,8 +207,10 @@
   <string name="windowMinimise">Kaŝi</string>
   <string name="windowSynchronise">Samtempigi</string>
   <string name="move_window">Movi al</string>
+  <string name="move_window_to_position2">Pozicio %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Kopii agordojn al</string>
   <string name="copy_settings_to_workspace">laborspaco</string>
+  <string name="copy_settings_to_window">Fenestro %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Ŝanĝi al norma fenestro</string>
   <string name="window_pin_mode">Alpingli</string>
   <!--Notes screen-->
@@ -213,8 +219,9 @@
   <string name="previous">Antaŭa</string>
   <string name="next">Sekva</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Bonvolu elŝuti grekan kaj hebrean vortarojn de Strong</string>
-  <string name="morph_robinson_not_installed">Bonvolu elŝuti la vortaron “Morfologiaj analizaj kodoj de Robinson”</string>
+  <string name="strongs_not_installed">Elŝutu grekan kaj hebrean vortarojn de Strong</string>
+  <string name="no_indexed_bible_with_strongs_ref">Vi devas elŝuti Biblion, kiu enhavas numerojn de Strong kaj krei indekson per “Serĉi”</string>
+  <string name="morph_robinson_not_installed">Elŝutu la vortaron “Morfologiaj analizaj kodoj de Robinson”</string>
   <string name="go_to_downloads">Malfermi elŝutojn</string>
   <!--Module download-->
   <string name="download">Elŝuti dokumentojn</string>
@@ -226,6 +233,7 @@
   <string name="download_document_confirm_prefix">Elŝuti</string>
   <string name="download_refresh_book_list_menu_item">Aktualigi</string>
   <string name="error_downloading">Eraro okazis dum elŝutado. Bonvolu kontroli vian retkonekton.</string>
+  <string name="error_downloading_status">La servilo enhavanta la dosieron %1$s liveris eraron: %2$s (%3$d).</string>
   <string name="storage_space_warning">Nesufiĉa spaco en loka konservejo.</string>
   <string name="too_many_jobs">Tro multe de taskoj estas lanĉataj. Atendu ĝis iujn finiĝos kaj reprovu.</string>
   <string name="document_not_installed">Bonvolu elŝuti “%s”</string>
@@ -234,21 +242,27 @@
   <string name="one_more_back_press">Frapetu denove la REEN-butonon por fermi la aplikaĵon</string>
   <string name="document_filter_results">%d dokumentoj</string>
   <string name="download_question_title">Ĉu vi vere volas elŝuti dokumentojn?</string>
-  <string name="download_question_message">Se vi loĝas en persekutanta lando, vi estu singarda pri elŝuti kristanajn materialojn per la interreto. Anstataŭ tio, vi povas akiri la zip-mudulon en pli sekura maniero kaj sekve instali ĝin uzante “ŝargi dokumenton el zip-dosiero”. Ĉu vi certe volas elŝuti dokumentojn? Ĉiuj elŝutoj el deponejoj de moduloj estas ĉifrataj (HTTPS).</string>
+  <string name="download_question_message">Se vi loĝas en persekutanta lando, vi estu singarda pri elŝuti kristanajn materialojn per la interreto. Anstataŭ tio, vi povas akiri la zip-modulon en pli sekura maniero kaj sekve instali ĝin uzante “ŝargi dokumenton el zip-dosiero”. Ĉu vi certe volas elŝuti dokumentojn? Ĉiuj elŝutoj el deponejoj de moduloj estas ĉifrataj (HTTPS).</string>
   <string name="do_not_ask_again">Jes, ne demandi denove</string>
   <string name="recommended_document">Konsilinda!</string>
   <string name="about_version_history">Historio de versio: %s</string>
   <string name="download_errors">Eraroj dum elŝuti</string>
   <string name="failed_repositories_message">Ne povis konekti al la jenaj deponejoj de dokumentoj:\n\n%s\n\n</string>
   <string name="failed_downloads_message">Ne povis elŝuti la jenajn dosierojn:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Tiu ĉi dokumento ne povas esti forigita.</string>
   <!--Install zip file-->
+  <string name="install_zip">Enlegi dokumentojn el dosieroj</string>
   <string name="install_zip_module">Instali modulon de Biblio</string>
+  <string name="install_zip_module_discrete">Instali modulon de kalkulilo</string>
   <string name="install_zip_successfull">Modulo instalita sukcese</string>
   <string name="extracting_zip_file">Eltirado de zip-dosiero…</string>
   <string name="checking_zip_file">Kontrolado de dosiero…</string>
   <string name="invalid_module">Dosiero ne enhavas ĝustan SWORD-modulon</string>
+  <string name="install_zip_title">Bonvolu atendi. Daŭras enlegado de moduloj el dosiero.</string>
   <string name="overwrite_files">La jenaj dosieroj jam ekzistas: %s Ĉu anstataŭigi ilin?</string>
   <string name="overwrite_files_title">Ĉu anstataŭigi dosierojn?</string>
+  <string name="could_not_overwrite_files">Ne povas superskribi dosierojn: %s. Malgraŭ tio, la instalado sukcesis.</string>
+  <string name="install_do_you_want">Ĉu instali la modulon %s?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Legplano</string>
   <string name="reading_plans_plural">Legplanoj</string>
@@ -347,11 +361,20 @@ laŭ ilia permeso.</string>
   <string name="label_color">Koloro de etikedo</string>
   <!--can be removed-->
   <string name="label_color_example">Antaŭvido</string>
+  <string name="marker_style">Montri nur markilon por legosignoj de speco “fragmento”</string>
+  <string name="marker_style_whole_verse">Montri nur markilon por legosignoj de speco “tutaj versoj”</string>
+  <string name="hide_style">Kaŝi legosignojn de speco “fragmento”</string>
+  <string name="hide_style_whole_verse">Kaŝi legosignojn de speco “tutaj versoj”</string>
+  <string name="bookmark_warning">Estas legosignoj aŭ notoj por tiu ĉi dokumento.</string>
+  <string name="bookmark_warning2">Se strukturo de dokumento ŝanĝiĝos, ĝisdatigo de la dokumento povos movi legosignojn/notojn ene la dokumento aŭ eĉ tute malaperigi ilin.</string>
+  <string name="bookmark_warning3">Ĉu vi certe volas ĝisdatigi la modulon?</string>
+  <string name="bookmark_warning4">Estas konsilinde fari sekurkopion de modulo antaŭ ĝisdatigi ĝin.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Laŭ tempa ordo</string>
   <string name="sort_by_bible_book">Laŭ biblia ordo</string>
   <string name="sort_by_alphabetical">Laŭ alfabeta ordo</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">Serĉi en notoj</string>
   <!--Dictionary-->
   <string name="dictionary">Vortaro</string>
   <string name="search_dictionary_hint">Serĉi en vortaro</string>
@@ -437,6 +460,7 @@ laŭ ilia permeso.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">La emblemo %s signifas, ke la agordo estas ŝanĝita por tiu ĉi fenestro.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">Uzu la butonon %1$s por reagordi ĉiujn tiujn agordojn al %2$s.</string>
   <string name="reset_defaults">implicitaj valoroj</string>
   <string name="reset_workspace_defaults">implicitaj valoroj de la laborspaco</string>
   <string name="speak_bookmark_help">Helpo pri parola legosigno</string>
@@ -485,6 +509,14 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <!--Backup and restore-->
   <string name="backup_and_restore">Sekurkopio</string>
   <string name="backup_modules2">Sekurkopii dokumentojn al…</string>
+  <string name="backup_app_database2">Sekurkopii aplikaĵan datumbazon al…</string>
+  <string name="backup_app2">Sekurkopii aplikaĵon (dosieron .apk) al…</string>
+  <string name="backup_application">aplikaĵon</string>
+  <string name="backup_database">datumbazon</string>
+  <string name="backup_documents">dokumentojn</string>
+  <string name="backup_application_info">Dosiero de la aplikaĵo (.apk).</string>
+  <string name="backup_database_info">Legosignoj, etikedoj, notoj, notblokoj, legplanoj, laborspacoj, ktp.</string>
+  <string name="backup_document_info">Biblioj, komentaroj, vortaroj, mapoj, ktp.</string>
   <string name="backup_to">Sekurkopii al…</string>
   <string name="backup_restore_from">Restarigi el…</string>
   <string name="backup_restore">Restarigi</string>
@@ -493,11 +525,14 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="restore_app_database">Restarigi datumbazon el…</string>
   <string name="restore_database">Dosiero de datumbazo</string>
   <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn?</string>
+  <string name="restore_success2">Sukcese restarigis partojn de la datumbazo</string>
   <string name="restore_success">Sukcese restarigis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn</string>
-  <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
+  <string name="downloading_backup">Elŝutado de dosiero de sekurkopio…</string>
+  <string name="loading_backup">Enlegado de datumbazo el sekurkopio…</string>
   <string name="backup_success2">Sukcese sekurkopiis miajn notojn, legosignojn, notblokojn, legplanojn kaj laborspacojn.</string>
   <string name="backup_modules_success">Sukcese sekurkopiis la elektitajn modulojn.</string>
   <string name="backup_modules_email_subject_2">%s: sekurkopio de moduloj</string>
+  <string name="backup_modules_email_message_2">Sekurkopio de la jenaj moduloj de aplikaĵo %1$s: %2$s troviĝas en la kunsendaĵo. </string>
   <string name="backup_email_subject_2">%s: sekurkopio de datumbazo</string>
   <string name="backup_email_message_2">Datumbazo enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn de la programo %s troviĝas en la kunsendaĵo</string>
   <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
@@ -507,6 +542,8 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="install_zip_canceled">Rezignis instali modulon</string>
   <!--About-->
   <string name="module_about_copyright">Aŭtorrajto: %s</string>
+  <string name="module_about_installed_version">Instalita versio: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Plej nova versio: %1$s (%2$s)</string>
   <string name="module_about_versification">Versarto: %s</string>
   <string name="module_about_repository">Deponejo: %s</string>
   <string name="module_about_osisId">OSIS-identigilo: %s</string>
@@ -514,6 +551,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="send_bug_report_title1">Erar-raporto</string>
   <string name="send_feedback_title">Opinio</string>
   <string name="send_bug_report_title">Raporti eraron / sendi opinion</string>
+  <string name="report_bug_email_subject_3">[%1$s] Erar-raporto pri %2$s %3$s</string>
   <string name="report_bug_big_heading">SKRIBU VIAN OPINION AŬ ERAR‑RAPORTON SUPER TIU ĈI LINIO</string>
   <string name="report_bug_heading1">Instrukcioj:</string>
   <string name="report_bug_line_1">Koncize priskribu kion vi faris aŭ io okazis, kiam la problemo okazis.</string>
@@ -563,6 +601,8 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="error_key_not_in_document2">Ne trovis “%s” en %s.</string>
   <string name="empty_list">Neniu elemento por montri</string>
   <string name="error_skip">Preterlasi</string>
+  <string name="bug_report_email_title">Sendi erar-raporton per retpoŝto</string>
+  <string name="bug_report_email_text">Sekve elektu vian preferatan retpoŝtilon (ekzemple Gmail) por sendi raporton al la programistoj.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
@@ -599,7 +639,9 @@ Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</stri
   <string name="beta_notice_dismiss_until_update">Ignori ĝis la sekva ĝisdatigo</string>
   <string name="stable_notice_title">Aplikaĵo estis ĝisdatigita!</string>
   <string name="upgrade_video_message">Bonvolu spekti filmeton prezentantan novajn trajtojn de tiu ĉi versio (%s).</string>
+  <string name="stable_notice_par1">Sukcese instalis la novan version (%1$s) de la aplikaĵo %2$s!</string>
   <!--History-->
+  <string name="history_for">Historio (%1$s: fenestro %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigi</string>
   <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, fingrumu la ekranon (mal)dekstren.
@@ -636,12 +678,20 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punkto
   <string name="redownload_documents">Rapide reelŝuti</string>
   <string name="welcome_message">Dankon pro elŝuti la aplikaĵon %s. Nuntempe neniu Biblio aŭ dokumento estas instalita. Por pluigi, instalu almenaŭ 1 dokumenton per elŝuti ĝin el la interreto aŭ per ŝargi ĝin el la ZIP‑dosiero.</string>
   <!--Supported file formats for documents-->
+  <string name="supported_formats_title">Subtenataj dosiertipoj</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">Elektu dosieron por aldoni al %s.</string>
+  <string name="supported_formats">Subtenataj dosiertipoj estas: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">zip-dosieroj enhavantaj modulojn Sword aŭ sekurkopiajn dosierojn de dokumentoj (*.abmd) kreitajn per %s</string>
+  <string name="format_mysword">dokumentojn MySword (*.mybible)</string>
+  <string name="format_mybible">dokumentoj MyBible (*.SQLite3)</string>
+  <string name="format_epub">dokumentoj EPUB (*.epub)</string>
   <string name="redownload_message">
 Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝuti ilin.</string>
   <!--Uncategorized-->
   <string name="close">Fermi</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Kompreneble</string>
   <string name="first_time_help_show_next_time">Montri denove poste</string>
   <string name="strongs_mode_title">Reĝimo de Strong-numerado</string>
@@ -684,23 +734,35 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="share_verse_menu_title">Kunhavigi / kopii…</string>
   <string name="show_versenumbers">Montri numerojn de versoj</string>
   <string name="show_full_verses">Montri plenajn versojn</string>
+  <string name="show_selection_only">Montri nur markitan tekston</string>
   <string name="advertise_app">Reklami la apon</string>
   <string name="verse_share_advertise">Kunhavigita per la aplikaĵo %s.</string>
+  <string name="show_reference">Montri referencon</string>
+  <string name="show_reference_at_front">Montri antaŭ verso</string>
   <string name="abbreviate_reference">Mallongigi referencon</string>
   <string name="version_name">Nomo de eldonaĵo</string>
   <!--meaning, bible version name-->
+  <string name="show_version_name">Ampleksi titolon de traduko</string>
+  <string name="show_ellipsis">Montri tripunkton (…)</string>
+  <string name="show_quotes">Montri citilojn</string>
   <string name="backup_button">Konservi</string>
   <string name="back_button">Reen</string>
   <string name="upgrading_database">Ĝisdatigado de datumbazo. Bonvolu atendi…</string>
   <string name="initializing_app">Ekigado de aplikaĵo…</string>
   <string name="show_notes">Montri notojn</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+  <string name="old_webview">La pakaĵo Android WebView estas tro malnova (%1$s). Necesas ĝisdatigi la pakaĵon almenaŭ al la versio %2$s por uzi %3$s. Por plejparto da aparatoj tio eblas per la vendejo %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Pluigi malgraŭe</string>
+  <string name="proceed">Sekva</string>
   <string name="rate_title">Taksi kaj recenzi la aplikaĵon</string>
+  <string name="rate_message5">
+Detalaj favoraj recenzoj multe helpas al la malfermkoda projekto AndBible. Dankon!</string>
   <string name="rate_message6">
 Antaŭ skribi malfavoran recenzon, bonvolu konsideri:</string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+• se vi spertas problemon pri la aplikaĵo, %1$s aŭ %2$s;</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 • se iu biblia teksto aŭ traduko enhavas eraron, %s;</string>
@@ -735,6 +797,8 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="recent_labels">Antaŭaj etikedoj</string>
   <string name="other_labels">Aliaj etikedoj</string>
   <string name="book_menu_sort_row_opt">Ordigi librojn horizontale</string>
+  <string name="book_menu_group_by_category">Grupigi laŭ kategorioj</string>
+  <string name="book_menu_show_long_book_name">Montri longajn nomojn</string>
   <string name="reset_workspace_labels">Ĉu vi volas nuligi agordojn pri aŭtomata atribuo kaj ŝatataj etikedoj por tiu ĉi laborspaco?</string>
   <string name="reset_hide_labels">Ĉu vi volas nuligi agordojn pri kaŝi specifajn etikedojn?</string>
   <string name="reorder">Reordigi</string>
@@ -768,6 +832,7 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="chooser_select">Elekti %s</string>
   <string name="chooser_pref_reset">Ne agordi ĉapitron/verson al 1 dum elekti libron/ĉapitron</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+  <string name="incomplete_translation">Bedaŭrinde la fasado de la aplikaĵo estas nur parte tradukita al %1$s. La aplikaĵo %2$s estas evoluigata nur de volontuloj. Se vi volus helpi traduki ĝin, ekkonu kun %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instrukcioj por tradukantoj</string>
   <string name="questions_title">Demandoj?</string>

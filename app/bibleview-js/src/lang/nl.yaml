@@ -6,11 +6,11 @@ openStudyPad: In de studiemap (%s) openen
 noteText: Voetnoten (%s)
 noteTextWithoutType: Voetnoten
 crossReferenceText: Verwijzingen
-findAllOccurrences: Alle gebeurtenissen zoeken
+findAllOccurrences: Zoek alle vindplaatsen
 reportError: Rapporteer een fout
 errorTitle: Er is een fout opgetreden
 warningTitle: Waarschuwing
-normalTitle: Schrijf op
+normalTitle: Opmerking
 footnoteTypeStudy: Studie
 footnoteTypeExplanation: Uitleg
 footnoteTypeVariant: Variant
