@@ -1616,6 +1616,16 @@ object CommonUtils : CommonUtilsBase() {
         clipboard.setPrimaryClip(clip)
         ABEventBus.post(ToastEvent(application.getString(toastMessage)))
     }
+
+    private val calcPinRegex = Regex("""^(0+)(\d+)$""")
+
+    fun removeLeadingZeroes(s: String): String {
+        val match = calcPinRegex.matchEntire(s)
+        if(match != null) {
+            return match.groupValues[2]
+        }
+        return s
+    }
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
