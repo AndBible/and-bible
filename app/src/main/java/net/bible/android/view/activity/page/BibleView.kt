@@ -836,6 +836,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     class ModuleStylesAssetHandler: PathHandler {
         private val epubRe = Regex("""^epub/([^/]+)/([^/]+)/style.css$""")
+        private val epubRelatedResourcesRe = Regex("""^epub/([^/]+)/(.*)$""")
         private val colorRe = Regex("""\b(background-color|background|background-image|color):[^;]+;""")
         private val bodyRe = Regex("""\bbody\s*\{[^}]*\}""")
         override fun handle(path: String): WebResourceResponse {
@@ -860,7 +861,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     .replace(bodyRe, "")
                 return WebResourceResponse(URLConnection.guessContentTypeFromName(path), null, content.byteInputStream())
             }
-
+            val resourceMatch = epubRelatedResourcesRe.matchEntire(path)
+            if(resourceMatch != null) {
+                val bookInitials = resourceMatch.groupValues[1]
+                val relativePath = resourceMatch.groupValues[2]
+                val book = Books.installed().getBook(bookInitials)?: return notFound
+                if (!book.isEpub) return notFound
+                val file: File = ((book as? SwordGenBook)?.backend as? EpubBackend)?.getResource(relativePath) ?: return notFound
+                if(!file.canRead()) return notFound
+                return WebResourceResponse(URLConnection.guessContentTypeFromName(file.name), null, file.inputStream())
+            }
             val parts = path.split("/", limit = 2);
             if(parts.size != 2) return notFound
             val (bookName, resourcePath) = parts
