@@ -986,7 +986,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val backend = book.backend as EpubBackend
             val key = backend.getKey(keyStr, idStr)
 
-            linkControl.showLink(book, BookAndKey(key, book, htmlId = idStr))
+            key?.let {linkControl.showLink(book, BookAndKey(it, book, htmlId = idStr)) }
             true
         }
         UriConstants.MULTI_REFERENCE -> {

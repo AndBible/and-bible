@@ -66,15 +66,11 @@ abstract class ChooseKeyBase : ListActivityBase() {
      * Creates and returns a list adapter for the current list activity
      * @return
      */
-    protected fun prepareList() {
+    private fun prepareList() {
         Log.i(TAG, "Getting book keys")
         mKeyList.clear()
-        try {
-            for (key in keyList ?: emptyList()) {
-                mKeyList.add(key)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting key")
+        for (key in keyList ?: emptyList()) {
+            mKeyList.add(key)
         }
     }
 

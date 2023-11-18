@@ -69,13 +69,16 @@ interface EpubDao {
         "JOIN EpubHtmlToFrag e2f ON e2f.fragId = f.id " +
         "WHERE e2f.htmlId=:htmlId"
     )
-    fun getFragment(htmlId: String): EpubFragment
+    fun getFragment(htmlId: String): EpubFragment?
 
     @Query("SELECT * from EpubFragment WHERE id=:id")
     fun getFragment(id: Long): EpubFragment?
 
     @Query("SELECT f.* FROM EpubFragment f")
     fun fragments(): List<EpubFragment>
+
+    @Query("SELECT f.* FROM EpubHtmlToFrag f")
+    fun epubHtmlToFrags(): List<EpubHtmlToFrag>
 
     @Query("SELECT * FROM StyleSheet WHERE origId=:origId")
     fun styleSheets(origId: String): List<StyleSheet>

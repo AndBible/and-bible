@@ -116,7 +116,7 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
         state.keys
             .toMutableList()
             .iterator()
-    fun getKey(originalKey: String, htmlId: String): Key = state.getKey(originalKey, htmlId)
+    fun getKey(originalKey: String, htmlId: String): Key? = state.getKey(originalKey, htmlId)
     override fun get(index: Int): Key = state.get(index)
     override fun indexOf(that: Key): Int = state.indexOf(that)
 
