@@ -144,7 +144,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
                 .evaluate(toc)
         }
         val book = Books.installed().getBook(bookMetaData.initials)
-        return content.map { c ->
+        return content.mapNotNull { c ->
             val label =
                 useXPathInstance { xp2 ->
                     xp2.compile("../ns:navLabel/ns:text", Filters.element(), null, tocNamespace)
@@ -160,8 +160,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
                 "$id#$htmlId"
             }
             val frag = dao.getFragment(keyStr)
-            val key = getKey(frag, label = label)
-            BookAndKey(key, book, htmlId = htmlId)
+            frag?.let { BookAndKey(getKey(it, label = label), book, htmlId = htmlId) }
         }
     }
 
@@ -257,9 +256,9 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         BibleApplication.application.deleteDatabase(appDbFilename)
     }
 
-    fun getKey(originalKey: String, htmlId: String): Key {
+    fun getKey(originalKey: String, htmlId: String): Key? {
         val frag = dao.getFragment(if(htmlId.isNotEmpty()) "$originalKey#$htmlId" else originalKey)
-        return getKey(frag)
+        return frag?.let {getKey(it)}
     }
 
     fun getOrdinalRange(key: Key): IntRange {

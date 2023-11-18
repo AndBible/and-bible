@@ -221,7 +221,7 @@ class BibleJavascriptInterface(
     fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) {
         val book = Books.installed().getBook(bookInitials) as SwordGenBook
         val backend = book.backend as EpubBackend
-        val key = backend.getKey(toKeyStr, toId)
+        val key = backend.getKey(toKeyStr, toId) ?: return
         scope.launch(Dispatchers.Main) {
             bibleView.linkControl.showLink(book, BookAndKey(key, book, htmlId = toId))
         }
