@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Studi Biblion</string>
   <string name="app_name_medium">Studi Biblion (AndBible)</string>
   <string name="app_name_long">AndBible: Studi Biblion</string>
@@ -97,7 +98,7 @@
   <string name="prefs_show_morphology_title">Morfologiaj kodoj</string>
   <string name="prefs_section_title_title">Titoloj de sekcioj</string>
   <string name="prefs_red_letter_title">Vortoj de Kristo ruĝe</string>
-  <string name="prefs_tilt_to_scroll_title">Skui por rulumi</string>
+  <string name="prefs_tilt_to_scroll_title">Klini por rulumi</string>
   <string name="prefs_toolbar_button_action_title">Agoj de butono sur ilarstrio</string>
   <string name="prefs_toolbar_button_action_summary">Agoj okazontaj post frapet(ad)i la butonon montrantan titolon de libro sur la ilarstrio</string>
   <string name="prefs_toolbar_button_action_default">Frapeti por malfermi menuon, frapetadi por montri ekranon de dokumentoj (implicite)</string>
@@ -874,13 +875,108 @@ Por pliigi sekurecon en persekutanta ĉirkaŭaĵo, estas konsilinde uzi la diskr
   <string name="discrete_mode_link">
 Vi povas elŝuti la plej aktualan diskretan version el %s.</string>
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Samtempigi grupon</string>
+  <string name="sync_group_n">Grupo %d</string>
+  <string name="disable_sync">Malaktivigi samtempigon</string>
+  <string name="open_in_window">Malfermi rezultojn en fenestro</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">Propraj deponejoj</string>
+  <string name="custom_repositories_empty_list_message">Neniu propra deponejo estas agordita</string>
+  <string name="custom_repositories_create_button_label">Aldoni propran deponejon</string>
   <string name="custom_repositories_info_button_label">Informoj</string>
+  <string name="name_for_repository">Nomo de deponejo</string>
+  <string name="repository_specification">Ligilo de deponejo</string>
+  <string name="delete_custom_repository">Ĉu forigi la propran deponejon %s?</string>
+  <string name="invalid_repository_not_saved">Parametro de deponejo estis eraraj kaj deponejo ne estis konservita.</string>
+  <string name="custom_repositories_help1">Por aldoni novan deponejon, enigu aŭ kopiu-kaj-algluu ligilon de propra deponejo tie ĉi.</string>
+  <string name="custom_repositories_help2">Pliaj informoj pri propraj deponejoj troviĝas sur la %s.</string>
+  <string name="wiki_page">viki-paĝo</string>
+  <string name="custom_repositories_help0">Vi povas instali dokumentojn el eksteraj deponejoj per instali proprajn deponejojn.</string>
+  <string name="duplicate_custom_repository">Deponejo kun la nomo %s jam ekzistas, ne povas aldoni kun la sama.</string>
+  <string name="packages_dir">Dosierujo de pakaĵoj (zip-dosieroj)</string>
+  <string name="warn_bad_document">Averto: la dokumento povas esti (almenaŭ parte) teĥnike en malbona kvalito.</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Malfermi bibliajn ligilojn en AndBible</string>
+  <string name="open_bible_links_summary">Post alklaki ligilon subtenatan per AndBible, malfermi ĝin en la aplikaĵo</string>
+  <string name="copyReference">Kopii ligilon al tondujo</string>
+  <string name="reference_copied_to_clipboard">Kopiis referencon al tondujo</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+Elektu nuban servon uzotan por samtempigi inter pluraj aparatoj.</string>
+  <string name="prefs_sync_introduction_summary2">
+Dum uzi Google Drive, %s akiros aliron nur al aplikaĵaj datumoj, al neniu privata dosiero.</string>
+  <string name="restore_backup_sections">Kiujn partojn de la sekurkopio vi volas restarigi?</string>
+  <string name="db_repositories">Deponejoj kaj rilataj agordoj</string>
+  <string name="db_bookmarks">Legosignoj, miaj notoj, etikedoj kaj notblokoj</string>
+  <string name="synchronizing">Samtempigado…</string>
+  <string name="overrideBackup">
+Ekzistas datumbazo en la nubo, al kiu tiu ĉi aparato ne estas samtempigita.
+En la datumbazo troviĝas %s. Kion vi volas fari?</string>
+  <string name="reading_plans_content">legplanoj kun iliaj progresoj</string>
+  <string name="bookmarks_contents">legosignoj, etikedoj, notblokoj</string>
+  <string name="workspaces_contents">laborspacoj kaj fenestroj</string>
+  <string name="cloud_fetch_and_restore_initial">Kopii el nubo al tiu ĉi aparato</string>
+  <string name="cloud_create_new">Kopii el tiu ĉi aparato al nubo</string>
+  <string name="cloud_disable_sync">Nuligi kaj malaktivigi samtempigon</string>
+  <string name="cloud_sync_title">Samtempigo</string>
+  <string name="reset_sync">Elsaluti</string>
+  <string name="prefs_reset_sync_summary">Malaktivigi samtempigon kaj nuligi rilatajn agordojn</string>
+  <string name="sync_confirmation">Ĉu vi certe volas elsaluti kaj rezigni samtempigon?</string>
+  <string name="cloud_info">Informoj pri nubo</string>
+  <string name="cloud_info_summary">Datumoj konservitaj en nubo: %s MB</string>
+  <string name="sync_adapter">Servo de samtempigo</string>
+  <string name="sync_adapter_summary">Nuna: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
+  <string name="auth_title">Aŭtentigado al %s</string>
+  <string name="auth_username">Uzantnomo</string>
+  <string name="auth_password">Pasvorto</string>
+  <string name="auth_access_token">Alira ĵetono</string>
+  <string name="synchronization_categories">Kategorioj de samtempigo</string>
+  <string name="sync_general_settings">Informoj kaj agordoj</string>
+  <string name="sync_introduction">Enkonduko</string>
+  <string name="are_you_sure">Ĉu vi certas?</string>
+  <string name="are_you_sure_reset_local">Tio ĉi anstataŭigos vian lokan datumbazon de %s per enhavo, kiu nune troviĝas en la nuba servo.</string>
+  <string name="are_you_sure_reset_cloud">Tio ĉi anstataŭigos vian nuban datumbazon de %s per enhavo, kiu nune troviĝas en tiu ĉi aparato.</string>
+  <string name="sync_cant_fetch">La versio de datumbazo aŭ dosiero konservita en la nubo estas pli alta ol versio subtenata per tiu ĉi aplikaĵo.</string>
+  <string name="sync_disabling">Malaktivigos samtempigon de %s provizore.</string>
+  <string name="sync_update_app">Ĝisdatigu la aplikaĵon por pluigi samtempigon.</string>
+  <string name="sign_in_failed">Ensaluto al samtempiga servo malsukcesis.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">Malaktivigas nuban samtempigon. Vi devas permane reaktivigi ĝin post restarigo.</string>
+  <string name="report">Raporti</string>
+  <string name="sync_error">Eraro okazis dum samtempigi kun nubo</string>
+  <string name="error_notification_channel_name">Eraroj</string>
+  <string name="restore_from_cloud_description">Se vi havas aktivan samtempigon ĉe alia aparato, vi povas restarigi datumbazon el la nubo.</string>
+  <string name="enable_sync">Aktivigi samtempigon</string>
   <string name="last_updated">Ĝisdatigita: %s</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Ne povas enlegi la dosieron</string>
+  <string name="sqlite_invalid_file">Malĝusta dosiero de modulo aŭ dosiernomo: %s</string>
+  <string name="sqlite_cant_write">Ne povas (super)skribi la dosieron</string>
+  <string name="install_failed_reason">Instalado de modulo malsukcesis pro la jena kialo: %s.</string>
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Aplikaĵo malfermita ie alie</string>
+  <string name="open_here">Malfermi tie ĉi</string>
+  <string name="external_link">Ekstera ligilo</string>
+  <string name="external_link_question">Tio ĉi malfermos la eksteran ligilon %s per aplikaĵo de retfoliumilo, ĉu pluigi?</string>
+  <string name="nameless">Neniu titolo</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Agoj je unufoja frapeto (Biblioj)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Agoj je unufoja frapeto (aliaj)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Kiam vi tuŝetas la tekston, la fenestro kun kelkaj agoj montriĝas. Butonoj de kiuj agoj estu montrataj?</string>
+  <string name="processing_epub">Prilaborado de EPUB: %s</string>
+  <string name="buy_development">Subteni programiston</string>
+  <string name="buy_development2">Financi projekton</string>
+  <string name="new_version_warning">
+Nova versio de la aplikaĵo baldaŭ aperos. La esperata eldon-dato estas %1$s. Spektu nian %2$s por ekkoni novajn eblojn kaj plibonigojn.</string>
+  <string name="new_version_trailer">varbfilmeton</string>
+  <string name="new_version_warning2">
+Post eldoni la sekvan version, tiu ĉi versio ne estos prizorgata.</string>
+  <string name="new_version_warning3">
+Ĝi ne ricevos erar-riparojn kaj plibonigojn.</string>
+  <string name="new_version_warning4">
+Se vi ne volas promocii, malaktivigu “aŭtomatajn ĝisdatigojn” en via aplikaĵa vendejo (Google Play, F-Droid, ktp.)</string>
+  <string name="dont_show">
+Ne montri tion ĉi denove</string>
 </resources>
