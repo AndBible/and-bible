@@ -53,7 +53,7 @@
   <string name="search_any_word">任何一词</string>
   <string name="search_phrase">完整句子</string>
   <string name="search_result_count">匹配到 %d 条结果</string>
-  <string name="search_showing_first">符合条件的结果太多。仅显示前面的 %d 条</string>
+  <string name="search_showing_first">符合条件的结果过多。仅显示前面的 %d 条</string>
   <string name="search_bible_section_group_prompt">搜寻范围</string>
   <string name="search_all_bible">圣经全文</string>
   <string name="search_new_testament">新约</string>
@@ -71,7 +71,7 @@
   <string name="prefs_e_ink_mode_title">黑白模式</string>
   <string name="prefs_eink_mode_summary">在单色环境（没有颜色）下使用应用，对墨水屏更友好。</string>
   <string name="prefs_disable_animations_title">禁用动画</string>
-  <string name="prefs_disable_animations_summary">禁用动画，如平滑滚动。</string>
+  <string name="prefs_disable_animations_summary">禁用动画，例如平滑滚动。</string>
   <string name="prefs_paragraph_spacing_title">段落间距（%s mm）</string>
   <string name="prefs_paragraph_spacing_summary">调整段落的间距。</string>
   <string name="prefs_show_verseno_title1">节数</string>
@@ -165,10 +165,10 @@
   <string name="window_pinning_menutitle">固定窗口</string>
   <string name="hide_window_buttons_title">隐藏窗口按钮</string>
   <string name="hide_window_buttons_summary">隐藏在圣经窗口右边的视窗按钮。底部的窗口导航栏仍会显示，你可以长按以开启窗口弹出菜单。</string>
-  <string name="hide_bible_reference_overlay_title">隐藏圣经参考浮动视窗</string>
-  <string name="hide_bible_reference_overlay_summary">在全屏幕模式下，不显示半透明的圣经参考浮动视窗</string>
-  <string name="full_screen_hide_buttons_pref_title">在全屏幕中隐藏视窗按键</string>
-  <string name="full_screen_hide_buttons_pref_summary">当切换至全屏幕模式时，自动隐藏下方的视窗按键列</string>
+  <string name="hide_bible_reference_overlay_title">隐藏圣经参考浮动窗口</string>
+  <string name="hide_bible_reference_overlay_summary">在全屏幕模式下，不显示半透明的圣经参考浮动窗口</string>
+  <string name="full_screen_hide_buttons_pref_title">在全屏幕中隐藏窗口按键</string>
+  <string name="full_screen_hide_buttons_pref_summary">当切换至全屏幕模式时，自动隐藏下方的窗口按键栏</string>
   <string name="prefs_dictionaries_cat">字典</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs 希腊文字典</string>
   <string name="choose_strongs_greek_dictionary_summary">选择 Strongs 希腊文字典以查找定义</string>
@@ -229,7 +229,7 @@
   <!--Module download-->
   <string name="download">下载文件</string>
   <string name="redownload">重新下载文件</string>
-  <string name="download_confirmation">从互联网上下载圣经吗？</string>
+  <string name="download_confirmation">要联网下载圣经吗？</string>
   <string name="download_source_last_updated">文件列表最后更新：%s</string>
   <string name="download_refreshing_book_list">正在更新文件列表...</string>
   <string name="download_source_message1">文件来自以下来源：</string>
