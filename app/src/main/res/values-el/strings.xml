@@ -182,7 +182,7 @@
   <string name="prefs_font_family_summary">Αλλαγή οικογένειας γραμματοσειρών. Συμβ: περισσότερες γραμματοσειρές μπορούν να εγκατασταθούν μέσα από την Λήψη Εγγράφων / Πρόσθετα.</string>
   <string name="prefs_text_bookmarks_title">Ρυθμίσεις Σελιδοδεικτών &amp; Σημειώσεων μου</string>
   <string name="prefs_enable_bluetooth_title">Ενεργοποίηση πλήκτρων πολυμέσων Bluetooth</string>
-  <string name="prefs_enable_bluetooth_summary">Χειρισμός πλήκτρων πολυμέσων Bluetooth για έναρξη/διακοπή ανάγνωσης.</string>
+  <string name="prefs_enable_bluetooth_summary">Χειρισμός πλήκτρων πολυμέσων Bluetooth για έναρξη/διακοπή ακρόασης.</string>
   <string name="create_bookmark">Δημιουργία νέου Σελιδοδείκτη</string>
   <string name="create_bookmark_with_a_note">Δημιουργία νέου Σελιδοδείκτη με σημείωση</string>
   <!--Colors preferences-->
@@ -285,7 +285,7 @@
   <string name="import_reading_plan_anyway">Εισαγωγή όπως και να έχει</string>
   <string name="overwrite_reading_plan">Θέλετε να αντικαταστήσετε %s?</string>
   <string name="delete_reading_plan">Διαγραφή του σχεδίου</string>
-  <string name="reading_plan_deleted">Το σχέδιο ανάγνωσης διεγράφη</string>
+  <string name="reading_plan_deleted">Το σχέδιο ανάγνωσης διαγράφτηκε</string>
   <string name="reading_plan_ships_with_ab">Αυτό το σχέδιο ανάγνωσης περιέχει επίσης %s</string>
   <string name="confirm_delete_reading_plan">
 Σίγουρα θέλετε να διαγράψετε %s μαζί με το ιστορικό ανάγνωσης?
@@ -410,16 +410,16 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="speak_queue">Σειρά αναμονής</string>
   <string name="speak_repeat">Επανάληψη</string>
   <!--Speak - Bible-->
-  <string name="speak_speed_title">Ταχύτητα ανάγνωσης</string>
+  <string name="speak_speed_title">Ταχύτητα ακρόασης</string>
   <string name="speak_and_play_earcons_title">Ήχοι ομιλίας και αναπαραγωγής για</string>
   <string name="playback_settings_title">Ρυθμίσεις αναπαραγωγής</string>
   <string name="speak_settings_title">Γενικές ρυθμίσεις ομιλίας</string>
   <string name="speak_bookmarking_settings_title">Ρυθμίσεις σελιδοδεικτών</string>
-  <string name="speak_bookmarks_menu_title">Ανάγνωση από σελιδοδείκτη</string>
+  <string name="speak_bookmarks_menu_title">Ακρόαση από σελιδοδείκτη</string>
   <string name="speak_advanced_settings">Προχωρημένες ρυθμίσεις</string>
   <string name="speak_sleep_timer_title">Χρονοδιακόπτης ύπνου</string>
-  <string name="speak_no_books_available">Κανένα βιβλίο διαθέσιμο για ανάγνωση</string>
-  <string name="speak_general_error">Η ανάγνωση δεν μπορούσε να ξεκινήσει για αυτό το βιβλίο</string>
+  <string name="speak_no_books_available">Κανένα βιβλίο διαθέσιμο για ακρόαση</string>
+  <string name="speak_general_error">Η ακρόαση δεν μπορούσε να ξεκινήσει για αυτό το βιβλίο</string>
   <string name="repeat_passage">Επανάληψη αποσπάσματος</string>
   <string name="set_repeat_passage_range">Ρύθμιση εύρους επανάληψης αποσπάσματος</string>
   <string name="speak_beginning_of_passage">Διαλέξτε το ξεκίνημα του αποσπάσματος</string>
@@ -441,7 +441,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="speak_next">Επόμενος</string>
   <string name="speak_previous">Προηγούμενος</string>
   <string name="widget_toggle_sleep_timer">Εναλλαγή χρονοδιακόπτη ύπνου</string>
-  <string name="widget_bookmark_helptext">Συντομεύσεις σελιδοδεικτων ανάγνωσης θα εμφανίζονται εδω</string>
+  <string name="widget_bookmark_helptext">Συντομεύσεις σελιδοδεικτων ακρόασης θα εμφανίζονται εδω</string>
   <string name="speak_status_stopped">Διακοπή</string>
   <string name="speak_autobookmarking_disabled">Αυτόματοι σελιδοδείκτες απενεργοποιήθηκαν!</string>
   <string name="system_speak_settings">Άνοιγμα ρυθμίσεων TTS συστήματος</string>
@@ -471,7 +471,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="text_options_reset_help">Το κουμπί %1$s επαναφέρει όλες αυτές τις ρυθμίσεις στις %2$s</string>
   <string name="reset_defaults">προκαθορισμένες τιμές</string>
   <string name="reset_workspace_defaults">προκαθορισμένες τιμές χώρου εργασίας</string>
-  <string name="speak_bookmark_help">Βοήθεια σελιδοδείκτη ανάγνωσης</string>
+  <string name="speak_bookmark_help">Βοήθεια σελιδοδείκτη ακρόασης</string>
   <string name="speak_help_auto_bookmark">
 Ένας σελιδοδείκτης Ακρόασης θα προστεθεί αυτόματα όταν η Ακρόαση παυθεί ή σταματήσει.
 Αυτόματα δημιουργημένοι σελιδοδείκτες θα σημανθούν με την ειδική ετικέτα Ακρόασης.
@@ -482,7 +482,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 αποθηκεύονται στους σελιδοδείκτες Ακρόασης όταν επιλεχθεί αυτή η ρύθμιση.
 Με την επανεκκίνηση ακρόασης από έναν σελιδοδείκτη Ακρόασης, οι αποθηκευμένες ρυθμίσεις αναπαραγωγής φορτώνονται από τον σελιδοδείκτη.</string>
   <string name="speak_help_playback_settings_example">
-Για παράδειγμα αν ακούτε την Γένεση και του Ρωμαίους και θέλετε να ακούσετε σε γρήγορη ακρόαση την Γένεση χωρίς ειδοποιήσεις αλλαγής κεφαλαίου
+Για παράδειγμα αν ακούτε την Γένεση και τους Ρωμαίους και θέλετε να ακούσετε σε γρήγορη ακρόαση την Γένεση χωρίς ειδοποιήσεις αλλαγής κεφαλαίου
 αλλά τους Ρωμαίους πιό αργά με ηχητικές σημάνσεις στις αλλαγές κεφαλαίων, τότε
 μπορείτε να έχετε διαφορετικές επιλογές αναπαραγωγής γι\'αυτά τα βιβλία,
 οπότε αυτές οι ρυθμίσεις αποθηκεύονται στους αντίστοιχους σελιδοδείκτες.</string>
@@ -513,7 +513,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="speak_fourth">Τέταρτο</string>
   <string name="speak_fifth">Πέμπτο</string>
   <string name="verse_range_mode_disabled">
-Η λειτουργία επανάληψης αποσπάσματος διακόπηκε αυτόματα διότι η ανάγνωση ξεκίνησε εκτός του διορισμένου εύρους στίχων</string>
+Η λειτουργία επανάληψης αποσπάσματος διακόπηκε αυτόματα διότι η ακρόαση ξεκίνησε εκτός του διορισμένου εύρους στίχων</string>
   <!--User Notes-->
   <string name="mynotes">Οι σημειώσεις μου</string>
   <!--Backup and restore-->
@@ -663,13 +663,13 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="help_contextmenus_title">Μενού περιβάλλοντος</string>
   <string name="help_contextmenus_text">
 Παρατεταμένο πάτημα ανοίγει το συναφές μενού ή επιλογή ενέργειας στις διάφορες θεάσεις.
-Παρατεταμένο πάτημα σε οθόνη Βίβλου, ανοίγει μενού ενεργειών για ενέργειες σχετικές με τον στίχο.
+Παρατεταμένο πάτημα σε προβολή Βίβλου, ανοίγει μενού ενεργειών για ενέργειες σχετικές με τον στίχο.
 Παρατεταμένο πάτημα σε έγγραφο σε λίστα του Επιλογή εγγράφου ή Λήψη, επιτρέπει διαγραφή εγγράφου ή εμφάνιση πληροφοριών.
 Παρατεταμένο πάτημα ενός σελιδοδείκτη στην λίστα σελιδοδεικτών επιτρέπει προσθήκη ετικετών ή διαγραφή σελιδοδείκτη.
 Παρατεταμένο πάτημα συνδέσμων επιτρέπει επιλογή ανοίγματός τους στο τρέχον παράθυρο, σε νέο παράθυρο, ή σε ειδικό παράθυρο συνδέσμων.</string>
   <string name="help_bookmarks_title">Σελιδοδείκτες &amp; Οι Σημειώσεις μου</string>
   <string name="help_bookmarks_text">Σελιδοδείκτες μπορούν να δημιουργηθούν επιλέγοντας κάποιο κείμενο και διαλέγοντας \"Σελιδοδείκτης\" από
-το αναδυόμενο μενού. Μπορείτε να προσθέσετε τις δικές σας σημειώσεις στον νέο σελιδοδείκτη πατώντας το πλέον επισημασμένο κείμενο στην θέαση Βίβλου. Υπάρχει επίσης ένα ειδικό έγγραφο \"Οι Σημειώσεις μου\" στα Σχόλια που σας επιτρέπει
+το αναδυόμενο μενού. Μπορείτε να προσθέσετε τις δικές σας σημειώσεις στον νέο σελιδοδείκτη πατώντας το πλέον επισημασμένο κείμενο στην προβολή Βίβλου. Υπάρχει επίσης ένα ειδικό έγγραφο \"Οι Σημειώσεις μου\" στα Σχόλια που σας επιτρέπει
 να δείτε τις σημειώσεις σας σε ένα ξεχωριστό παράθυρο.</string>
   <string name="help_studypads_text">
 Τα Σημειωματάρια Μελέτης έχουν σχεδιαστεί να διευκολύνουν την συγγραφή σημειώσεων κηρύγματος,ετοιμασία κηρύγματος ή απλά
@@ -692,8 +692,19 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 Παρατεταμένο πάτημα τίτλου στίχου στην μπάρα εργαλείων οδηγεί στον επιλογέα εγγράφου.
 Παρατεταμένο πάτημα του πλήκτρου \"Πίσω\" δίνει πρόσβαση στην λίστα Ιστορικού.</string>
   <string name="help_window_pinning_title">Καρφίτσωμα παραθύρων</string>
+  <string name="help_window_pinning_text">
+Μπορείτε να ενεργοποιήσετε το καρφίτσωμα παραθύρου από το μενού επιλογών (τρεις τελείες πάνω δεξιά γωνία).
+Όταν το καρφίτσωμα παραθύρου είναι ενεργοποιημένο μπορείτε να εμφανίσετε πολλά καρφιτσωμένο παράθυρα στην προβολή Βίβλου,
+αλλά μόνο ένα μη καρφιτσωμένο παράθυρο. Πρώτα εμφανίζονται τα καρφιτσωμένα παράθυρα και μετά
+ τα μη καρφιτσωμένα παράθυρα. Μπορείτε να ανοίξετε Βιβλικά έγγραφα σαν καρφιτσωμένα παράθυρα, και 
+σχόλια και χάρτες κλπ ως μη καρφιτσωμένα παράθυρα. Ετσι μπορείτε εύκολα 
+να έχετε βιβλικά έγγραφα πάντοτε ανοιχτά και να μετακινήστε γρήγορα μεταξύ των σχολίων και του 
+υπολοίπου επιπλέον υλικού όταν μελετάτε τη Βίβλο.</string>
   <!--Welcome text-->
   <string name="redownload_documents">Γρήγορη επανάληψη μεταφόρτωσης</string>
+  <string name="welcome_message">Ευχαριστούμε που κατεβάσατε το %s. Δεν υπάρχουν αυτή τη στιγμή εγκατεστημένα Βιβλικά κείμενα ή έγγραφα. Για να συνεχίσετε, παρακαλούμε εγκαταστήστε
+τουλάχιστον 1 έγγραφο κατεβάζοντάς το από το ίντερνετ, ή φορτώνοντάς το από ένα συμπιεσμένο αρχείο zip αντιγράφου
+ ασφαλείας</string>
   <!--Supported file formats for documents-->
   <string name="supported_formats_title">Υποστηριζόμενες μορφοποιήσεις</string>
   <!--argument is app_name_andbible (AndBible).-->
@@ -816,13 +827,17 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="book_menu_sort_row_opt">Οριζόντια διάταξη βιβλίων</string>
   <string name="book_menu_group_by_category">Διάταξη βιβλίων ανα κατηγορία</string>
   <string name="book_menu_show_long_book_name">Εμφάνιση ολόκληρου ονόματος βιβλίου</string>
+  <string name="reset_workspace_labels">Θέλετε να επαναφέρτε τις προκαθορισμένες και προτιμώμενες ρυθμίσεις γι\'αυτόν τον Χώρο Εργασίας?</string>
+  <string name="reset_hide_labels">Θέλετε να επαναφέρετε την ρύθμιση για την απόκρυψη ρυθμίσεων των συγκεκριμένων ετικετών?</string>
   <string name="reorder">Αναδιάταξη</string>
   <string name="system_items">Ενέργειες συστήματος</string>
   <string name="system_items1">Περισσότερα</string>
   <string name="system_action2">Ενέργειες Android</string>
   <string name="text_copied_to_clicpboard">Κείμενο αντιγράφτηκε στο πρόχειρο</string>
   <string name="prefs_disable_two_step_bookmarking_title">Σελιδοδείκτης σε ένα βήμα</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Εμφανίστε τα στοιχεία \"Επιλογή\" και \"Στίχοι\" απευθείας στο μενού επιλογής της προβολής Βίβλου</string>
   <string name="prefs_double_tap_to_fullscreen_title">Διπλό πάτημα για πλήρη οθόνη</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Μπείτε σε λειτουργία πλήρους οθόνης με διπλό πάτημα στο παράθυρο</string>
   <string name="toggle_fullscreen">Πλήρης οθόνη</string>
   <string name="exit_fullscreen">Διπλό πάτημα για έξοδο από πλήρη οθόνη</string>
   <string name="reset_app_prefs">Θέλετε να επαναφέρετε όλες τις γενικές ρυθμίσεις της εφαρμογής που εμφανίζονται σε αυτή τις οθόνη στις προεπιλεγμένες τους τιμές?</string>
@@ -843,6 +858,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="chooser_style_grid">Πλέγμα</string>
   <string name="chooser_style_lists">Λίστες</string>
   <string name="chooser_select">Επιλογή %s</string>
+  <string name="chooser_pref_reset">Μην επαναφέρεις το κεφάλαιο/στίχο στο 1 όταν ένα επιλεχθεί ένα βιβλίο/κεφάλαιο</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Συγγνώμη, αλλά έχουμε μόνο μερική μετάφραση τoυ περιβάλλοντος χρήστη στην γλώσσα %1$s. Αυτό διότι το %2$s αναπτύσσεται εξ\'ολοκλήρου από  εθελοντές. Αν θέλετε να βοηθήσετε στην μετάφραση, παρακαλώ δείτε %3$s.</string>
   <!--will be added to incomplete_translation as a link-->
@@ -854,18 +870,37 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="strongs_off">Απενεργοποίηση</string>
   <string name="strongs_links">Σύνδεσμοι</string>
   <string name="strongs_text_and_links">Κείμενο και σύνδεσμοι</string>
+  <string name="verse_tip">Για να επιλέξετε πολλούς στίχους ή μέρος τους, μπορείτε να πατήσετε παρατεταμένα στο Βιβλικό κείμενο</string>
   <string name="permission_required">Απαιτείται άδεια</string>
   <string name="labels_search_hint">Αναζήτηση</string>
+  <string name="progress_status_permission">Χρειάζεται η άδειά σας, για την εμφάνιση ειδοποιήσεων (κατάσταση μεταφόρτωσης, πρόοδος, κατάσταση ακρόασης)</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Απλή Αριθμομηχανή</string>
   <string name="prefs_persecution_cat">Ρυθμίσεις για τους διωκόμενους</string>
   <string name="prefs_discrete_mode">Απόκρυψη θρησκευτικών συμβόλων</string>
+  <string name="prefs_discrete_mode_desc">Μετονομασία εφαρμογής σε \"Αριθμομηχανή\" και εμφάνιση διαφορετικού εικονιδίου στις συντομεύσεις.</string>
   <string name="prefs_show_calculator">Αριθμομηχανή</string>
   <string name="prefs_calculator_pin">PIN Αριθμομηχανής</string>
+  <string name="prefs_calculator_pin_desc">Κωδικός PIN για να εισέλθετε στην εφαρμογή όταν εμφανίζετε η Αριθμομηχανή.</string>
+  <string name="calc_division_by_zero">Διαίρεση με μηδέν δεν επιτρέπεται</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Λάθος μορφή</string>
+  <string name="calc_wrong_format_operand">Λάθος μορφή. Πράξη χωρίς καθόλου νούμερα?</string>
   <string name="prefs_persecuted_help">Διαβάστε αυτό πρώτα!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Οδηγίες για τις ρυθμίσεις και πληροφορίες για την συγκεκριμένη ξεχωριστή έκδοση</string>
+  <string name="calculator_par1">
+Πριν την είσοδο στην εφαρμογή, προβάλλεται η Αριθμομηχανή.</string>
+  <string name="calculator_par2">
+Σ\' αυτή, μπορείτε να κάνετε απλούς υπολογισμούς, και αν θέλετε να μπείτε στην εφαρμογή, 
+απλά πατήστε τον κωδικό σας PIN (προκαθορισμένος είναι το 1234) και στη συνέχεια πατήστε το πλήκτρο \"=\".</string>
+  <string name="calculator_par3">
+Μπορείτε να ορίσετε ένα δικό σας κωδικό PIN μέσω της ρύθμισης \"PIN Αριθμομηχανής\".</string>
+  <string name="discrete_mode_info_par1">
+Χρησιμοποιείτε την κανονική έκδοση της εφαρμογής, που σημαίνει ότι είναι ακόμα δυνατόν να δείτε
+το πραγματικό όνομα και εικονίδιο της εφαρμογής στις πληροφορίες της.</string>
+  <string name="discrete_mode_info_par2">
+Για βέλτιστη ασφάλεια σε διωκόμενο περιβάλλον, συστήνουμε ισχυρά την χρήση της ξεχωριστής έκδοσης της εφαρμογής, που εμφανίζει πάντα την Αριθμομηχανή, ακόμα κι αν σβηστούν τα δεδομένα της εφαρμογής.</string>
   <string name="discrete_mode_link">
 Μπορείτε να κατεβάσετε την τελευταία έκδοση της ξεχωριστής έκδοσης από %s.</string>
   <!--Window synchronize groups-->
