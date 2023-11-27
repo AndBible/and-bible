@@ -24,4 +24,4 @@ jobs:
       - name: Add Comment to New Issue
         run: |
           gh auth login --with-token ${{ secrets.GITHUB_TOKEN }}
-          gh issue comment ${{ github.repository }} ${{ github.event.issue.number }} --body "This is a test comment."
+          gh issue comment ${{ github.event.issue.number }} --body "This is a test comment."
