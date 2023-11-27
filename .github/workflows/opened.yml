@@ -21,7 +21,8 @@ jobs:
   add-comment:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Add Comment to New Issue
         run: |
           gh auth login --with-token ${{ secrets.GITHUB_TOKEN }}
-          gh issue comment ${{ github.event.issue.number }} --body "This is a test comment."
+          gh issue comment ${{ github.event.issue.number }} -b "This is a test comment."
