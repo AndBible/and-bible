@@ -18,13 +18,13 @@ jobs:
           project-url: https://github.com/orgs/AndBible/projects/5
           github-token: ${{ secrets.PROJECT_ACCESS_TOKEN }}
 
-  add-comment:
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v3
-      - name: Add Comment to New Issue
-        run: |
-          gh issue comment ${{ github.event.issue.number }} -b "This is a test comment."
-        env:
-          GH_TOKEN: ${{ github.token }}
+#  add-comment:
+#    runs-on: ubuntu-latest
+#    permissions: write-all
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Add Comment to New Issue
+#        run: |
+#          gh issue comment ${{ github.event.issue.number }} -b "This is a test comment."
+#        env:
+#          GH_TOKEN: ${{ github.token }}
