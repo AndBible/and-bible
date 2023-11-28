@@ -1,0 +1,65 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: Obeleživači
+bookmarksAndNotes: Obeleživači i Moje Beleške
+openMyNotes: Otvori u Mojim Beleškama
+openStudyPad: Otvori u Radnoj Svesci (%s)
+noteText: Fusnote (%s)
+noteTextWithoutType: Fusnote
+crossReferenceText: Ukakrsne reference
+findAllOccurrences: Pronađi sva pojavljivanja
+reportError: Prijavi grešku
+errorTitle: Dogodila se greška
+warningTitle: Upozorenje
+normalTitle: Molimo Vas obratite pažnju
+footnoteTypeStudy: Učenje
+footnoteTypeExplanation: Objašnjenje
+footnoteTypeVariant: Inačica
+footnoteTypeAlternative: Alternativa
+footnoteTypeTranslation: Prevod
+clearLog: Očisti dnevnik grešaka
+editTextPlaceholder: Dodirni za uređivanje teksta
+inputPlaceholder: Napišite ovde
+inputReference: Unesite biblijsku referencu
+invalidReference: Stih nije pronađen
+bookmarkAccurate: Obeleživač je napravljen u %s
+bookmarkInaccurate: "Obeleživač detalja o knjizi nije ukladišten, sadržaj je prikazan u %s."
+defaultBook: Osnovni biblijski dokument
+ok: OK
+yes: "Da"
+ambiguousSelection: "Koju radnju želite da preduzmete?"
+cancel: Otkaži
+removeBookmarkConfirmationTitle: "Ukloni obeleživač?"
+removeBookmarkConfirmation: "Da li ste sigurni da želite da uklonite ovaj obeleživač?"
+createdAt: "Napravljeno: %s"
+lastUpdatedOn: "Poslednji put ažurirano: %s"
+strongsAndMorph: Definicija i morfologija
+externalLink: Otvori spoljašnji link
+referenceLink: Otvori link za referencu
+openFootnote: Otovri fusnotu
+noMyNotesTitle: Bez Moje Beleške za ovu glavu.
+noMyNotesDescription: >
+  Počnite kreiranjem obeleživača u biblijskom dokumentu. Obeleživači će zatim biti prikazani ovde i možete im dodati vaše lične beleške.
+emptyStudyPad: >
+  Radna Sveska je prazna. Krenite sa njenim popunjavanjem tako što ćete uneti ovde tekst ili kreiranjem obeleživača sa oznakom obeleživača koja odgovara ovoj radnoj svesci.
+doYouWantToDeleteEntry: "Izbrisati unos ove radne sveske?"
+removeStudyPadConfirmationTitle: "Ukloniti unos radne sveske?"
+dragHelp: Zadržite i povucite radi menjanja redosleda
+openAll: Otvori sve reference
+editBookmarkPlaceholder: Dodirnite radi uređivanja Moje Beleške za ovaj obeleživač
+onlyLabel: Jedina oznaka
+wholeBookmark: Čitav obeleživač
+assignLabelsMenuEntry1: Izaberite ili uredite oznake...
+favouriteLabels: Omiljene Oznake
+recentLabels: Nedavne Oznake
+bookmarkLabels: Oznake obeleživača
+refParserHelp: Molimo instalirajte %s modul kako biste koristili reference u drugim jezicima mimo Engleskog.
+openDownloads: Idite na Preuzimanje dodataka
+verseShare: Deli
+verseSpeak: Izgovori
+verseCompare: Uporedite
+verseNote: Beleška
+verseMyNotes: Moje beleške
+verseShareLong: Podeli ovaj stih
+verseCompareLong: Uporedi stih
+verseNoteLong: Napiši belešku
+addBookmark: Obeleživač
