@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "net.bible.android.activity",
+  "variantName": "standardAmazonRelease",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 771,
+      "versionName": "5.0.771",
+      "outputFile": "app-standard-amazon-release.apk"
+    }
+  ],
+  "elementType": "File"
+}

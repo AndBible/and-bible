@@ -642,7 +642,7 @@
   <string name="bug_report_email_title">Trimite un raport de eroare prin e-mail</string>
   <string name="bug_report_email_text">Apoi, alege aplicația de e-mail preferată (Gmail, de exemplu) pentru a trimite raportul către echipa de programatori.</string>
   <!--Notifications-->
-  <string name="notification_channel_tts_status">Pronunțare a textului</string>
+  <string name="notification_channel_tts_status">Vorbitor</string>
   <string name="notification_channel_progress_status">Notificare a stării de progres pentru descărcarea documentelor etc.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nou</string>
