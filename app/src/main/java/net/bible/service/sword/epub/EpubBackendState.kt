@@ -21,6 +21,7 @@ import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.database.EpubFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
@@ -34,6 +35,7 @@ import org.crosswire.jsword.passage.Key
 import org.jdom2.Namespace
 import org.jdom2.filter.Filters
 import java.io.File
+import java.io.StringReader
 import java.net.URLDecoder
 import java.util.zip.GZIPInputStream
 
@@ -52,6 +54,9 @@ internal fun getFileAndId(href: String): Pair<String, String>? {
 val xhtmlNamespace: Namespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
 val svgNamespace: Namespace = Namespace.getNamespace("svg", "http://www.w3.org/2000/svg")
 val xlinkNamespace: Namespace = Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink");
+
+class KeyAndText(val key: BookAndKey, text: String)
+
 class EpubBackendState(private val epubDir: File): OpenFileState {
     constructor(epubDir: File, metadata: SwordBookMetaData): this(epubDir) {
         this._metadata = metadata
@@ -213,7 +218,34 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         }
     }
     private val readDb = getEpubDatabase(appDbFilename)
+    private val search = EpubSearch(readDb.openHelper.writableDatabase)
+
     private val dao = readDb.epubDao()
+
+    val isIndexed get() = search.isIndexed
+    fun buildSearchIndex() {
+        if (search.isIndexed) return
+        search.createTable()
+        for(frag in dao.fragments()) {
+            val key = getKey(frag)
+            val reader = StringReader(read(key))
+            val doc = useSaxBuilder { it.build(reader) }
+            for(bva in useXPathInstance { xp -> xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(doc) }) {
+                val ordinal = bva.getAttribute("ordinal").value.toInt()
+                search.addContent(bva.text, frag.id, ordinal)
+            }
+        }
+    }
+
+    fun search(search: String): List<KeyAndText> {
+        val book = Books.installed().getBook(bookMetaData.initials)
+        return this.search.search(search).mapNotNull {
+            val frag = dao.getFragment(it.fragId)?: return@mapNotNull null
+            val key = BookAndKey(getKey(frag), book, OrdinalRange(it.ordinal))
+            val text = it.text
+            KeyAndText(key, text)
+        }
+    }
 
     fun getResource(resourcePath: String) =
         File(rootFolder, resourcePath)
