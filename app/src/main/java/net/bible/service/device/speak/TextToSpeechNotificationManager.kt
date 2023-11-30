@@ -94,12 +94,8 @@ class TextToSpeechNotificationManager {
 
         @SuppressLint("WakelockTimeout")
         private fun start() {
-            if(foreground) {
-                return
-            }
             Log.i(TAG, "START_SERVICE")
             startForeground(TTS_NOTIFICATION_ID, foregroundNotification!!)
-            foreground = true
             wakeLock.acquire()
         }
 
@@ -347,6 +343,11 @@ class TextToSpeechNotificationManager {
 
     private fun startForeground()
     {
+        if (foreground) {
+            Log.i(TAG, "Already foreground")
+            return
+        }
+        foreground = true
         val intent = Intent(app, ForegroundService::class.java)
         intent.action = ForegroundService.START_SERVICE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
