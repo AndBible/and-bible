@@ -82,6 +82,7 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
         .let {
             val processed = fixReferences(it.rootElement)
             val body = useXPathInstance { xp -> xp.compile("//ns:body", Filters.element(), null, xhtmlNamespace).evaluateFirst(processed) }
+                ?: return Pair(null, 0)
             val maxOrdinal = SwordContentFacade.addAnchors(body, bookMetaData.language.code, true)
             Pair(it, maxOrdinal)
         }
