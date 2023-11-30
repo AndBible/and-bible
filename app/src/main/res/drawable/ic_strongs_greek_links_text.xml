@@ -1,0 +1,23 @@
+<!--
+  ~ Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<vector android:height="24dp" android:tint="@color/grey_500"
+    android:viewportWidth="1000" android:viewportHeight="1000"
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#000000"
+        android:pathData="M 905 971 H 794 v -35 l 110 -93 h 53 v 95 h 27 v 33 h -27 v 29 h -53 z m 0 -33 v -48 l -58 48 z M 597 890 L 539 883 q 7 -19 27 -30 q 20 -10 58 -10 q 43 0 62 11 q 19 11 19 28 q 0 10 -8 18 q -8 8 -23 14 q 13 2 19 5 q 11 5 17 12 q 6 8 6 18 q 0 13 -10 26 q -10 12 -29 19 q -19 7 -49 7 q -30 0 -47 -5 q -17 -5 -28 -14 q -11 -10 -17 -24 l 61 -6 q 4 13 11 18 q 8 5 19 5 q 12 0 20 -6 q 8 -6 8 -17 q 0 -11 -8 -17 q -8 -6 -21 -6 q -7 0 -20 3 l 3 -31 q 5 1 8 1 q 12 0 20 -5 q 8 -5 8 -13 q 0 -7 -6 -11 q -6 -4 -16 -4 q -11 0 -17 5 q -7 5 -9 16 z M 452 1000 H 271 q 3 -19 19 -36 q 16 -17 59 -40 q 27 -14 34 -21 q 7 -7 7 -14 q 0 -7 -7 -12 q -7 -5 -18 -5 q -12 0 -19 5 q -7 5 -10 18 L 275 892 q 4 -18 13 -28 q 10 -10 27 -16 q 17 -5 48 -5 q 32 0 50 5 q 18 5 28 16 q 10 11 10 24 q 0 14 -12 27 q -12 13 -42 28 q -18 9 -25 12 q -6 4 -14 9 H 452 Z M 150 843 v 156 H 88 v -103 q -15 8 -29 13 q -14 5 -35 9 v -35 q 31 -7 48 -17 q 17 -10 27 -24 z M 16 795 C -9 772 4 739 90 617 C 149 535 196 449 196 426 C 195 363 154 324 87 324 c -46 0 -59 -11 -59 -49 c 0 -41 14 -50 84 -55 c 77 -6 88 1 131 77 L 290 380 L 365 301 c 71 -75 82 -79 214 -80 c 116 -1 141 5 152 37 c 17 48 49 48 84 -2 c 33 -47 143 -52 165 -8 c 25 50 18 472 -9 526 c -27 54 -45 60 -102 32 c -31 -15 -32 -31 -4 -102 c 18 -47 40 -155 47 -242 c 13 -141 10 -155 -26 -132 c -22 14 -72 83 -112 153 c -50 90 -83 125 -112 121 c -42 -7 -42 -13 -11 -199 c 14 -84 11 -95 -25 -84 c -25 7 -51 -1 -65 -19 c -18 -25 -44 -9 -132 84 c -97 103 -108 124 -97 200 c 16 109 75 159 147 125 c 70 -33 77 -31 77 25 c 0 33 -20 57 -63 71 c -90 31 -180 -18 -227 -125 l -38 -84 l -74 113 C 77 833 65 840 16 795 Z M 800 189 c -8 -15 -1 -64 15 -108 c 24 -67 39 -80 92 -80 c 80 0 80 21 -3 129 c -73 95 -83 100 -103 59 z" android:strokeWidth="0.60710084"/>
+</vector>

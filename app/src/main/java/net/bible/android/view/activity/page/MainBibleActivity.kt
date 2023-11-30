@@ -933,9 +933,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateStrongsButton() {
         if(documentControl.isNewTestament) {
-            binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek)
+            when (dummyStrongsPrefOption.value) {
+                0 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek)
+                1 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek_links)
+                2 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek_links_text)
+            }
         } else {
-            binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
+            when (dummyStrongsPrefOption.value) {
+                0 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
+                1 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew_links)
+                2 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew_links_text)
+            }
         }
         if(dummyStrongsPrefOption.value == 0) {
             binding.strongsButton.alpha = 0.7F
