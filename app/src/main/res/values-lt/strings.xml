@@ -42,7 +42,7 @@
   <string name="do_in_background">Tęsti fone</string>
   <string name="rebuild_index_button">Perkurti</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">Rezultatų (%2s): %1s</string>
+  <string name="search_with_results2">Rezultatų (%1s): %2s</string>
   <!--Tasks-->
   <string name="progress_status">Pažanga</string>
   <string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
