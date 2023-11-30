@@ -55,12 +55,12 @@ class SearchIndexProgressStatus : ProgressActivityBase() {
     override fun jobFinished(jobJustFinished: Progress) {
         // give the document up to 12 secs to reload - the Progress declares itself finished before the index status has been changed
         var attempts = 0
-        while ((documentBeingIndexed == null || IndexStatus.DONE != documentBeingIndexed!!.indexStatus) && attempts++ < 6) {
+        while ((documentBeingIndexed == null || IndexStatus.DONE != documentBeingIndexed?.indexStatus) && attempts++ < 6) {
             pause(2)
         }
 
         // if index is fine then goto search
-        if (IndexStatus.DONE == documentBeingIndexed!!.indexStatus) {
+        if (IndexStatus.DONE == documentBeingIndexed?.indexStatus) {
             Log.i(TAG, "Index created")
             val intent: Intent
             if (StringUtils.isNotEmpty(getIntent().getStringExtra(SearchControl.SEARCH_TEXT))) {
