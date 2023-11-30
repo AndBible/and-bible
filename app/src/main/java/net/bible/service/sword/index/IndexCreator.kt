@@ -16,7 +16,10 @@
  */
 package net.bible.service.sword.index
 
+import net.bible.service.sword.epub.epubBackend
+import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.index.IndexManagerFactory
 
 /** Optimise Lucene index creation
@@ -31,11 +34,15 @@ class IndexCreator {
      * org.crosswire.jsword.index.search.AbstractIndex#generateSearchIndex(org
      * .crosswire.common.progress.Job)
      */
-    fun scheduleIndexCreation(book: Book?) {
+    fun scheduleIndexCreation(book: Book) {
         val work = Thread {
-            val indexManager = IndexManagerFactory.getIndexManager()
-            indexManager.indexPolicy = AndroidIndexPolicy()
-            indexManager.scheduleIndexCreation(book)
+            if(book.isEpub) {
+                book.epubBackend!!.state.buildSearchIndex()
+            } else {
+                val indexManager = IndexManagerFactory.getIndexManager()
+                indexManager.indexPolicy = AndroidIndexPolicy()
+                indexManager.scheduleIndexCreation(book)
+            }
         }
         work.start()
     }

@@ -23,11 +23,13 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
+import net.bible.android.view.activity.search.EpubSearch
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResultsDto
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.epub.isEpub
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
@@ -61,6 +63,10 @@ class SearchControl @Inject constructor(
      * @return required Intent
      */
     fun getSearchIntent(document: Book?, activity: Activity): Intent {
+        if(document?.isEpub == true) {
+            return Intent(activity, EpubSearch::class.java)
+        }
+
         val indexStatus = document?.indexStatus
         Log.i(TAG, "Index status:$indexStatus")
         return if (indexStatus == IndexStatus.DONE) {

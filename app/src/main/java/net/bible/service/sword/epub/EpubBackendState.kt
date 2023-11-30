@@ -55,7 +55,7 @@ val xhtmlNamespace: Namespace = Namespace.getNamespace("ns", "http://www.w3.org/
 val svgNamespace: Namespace = Namespace.getNamespace("svg", "http://www.w3.org/2000/svg")
 val xlinkNamespace: Namespace = Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink");
 
-class KeyAndText(val key: BookAndKey, text: String)
+class KeyAndText(val key: BookAndKey, val text: String)
 
 class EpubBackendState(private val epubDir: File): OpenFileState {
     constructor(epubDir: File, metadata: SwordBookMetaData): this(epubDir) {
@@ -223,6 +223,10 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     private val dao = readDb.epubDao()
 
     val isIndexed get() = search.isIndexed
+
+    fun deleteSearchIndex() {
+        search.deleteIndex()
+    }
     fun buildSearchIndex() {
         if (search.isIndexed) return
         search.createTable()

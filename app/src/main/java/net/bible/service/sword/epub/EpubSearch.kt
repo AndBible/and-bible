@@ -22,7 +22,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
 
 
-data class SearchResult(val fragId: Long, val ordinal: Int, val text: String)
+data class EpubSearchResult(val fragId: Long, val ordinal: Int, val text: String)
 
 class EpubSearch(val db: SupportSQLiteDatabase) {
     val isIndexed: Boolean get() = db.run {
@@ -47,16 +47,16 @@ class EpubSearch(val db: SupportSQLiteDatabase) {
         })
     }
 
-    fun search(text: String): List<SearchResult> = db.run {
-        query("SELECT frag_id, ordinal, contentText FROM SearchIndex WHERE contentText MATCH ?", bindArgs = arrayOf(text)).let { c ->
+    fun search(text: String): List<EpubSearchResult> = db.run {
+        query("SELECT frag_id, ordinal, highlight(SearchIndex, 0, '<b>', '</b>') FROM SearchIndex WHERE contentText MATCH ?", bindArgs = arrayOf(text)).let { c ->
             c.moveToFirst()
-            val list = mutableListOf<SearchResult>()
+            val list = mutableListOf<EpubSearchResult>()
             while (!c.isAfterLast){
                 val fragId = c.getString(0).toLong()
                 val ordinal = c.getString(1).toInt()
                 val txt = c.getString(2)
                 c.moveToNext()
-                list.add(SearchResult(fragId, ordinal, txt))
+                list.add(EpubSearchResult(fragId, ordinal, txt))
             }
             list
         }

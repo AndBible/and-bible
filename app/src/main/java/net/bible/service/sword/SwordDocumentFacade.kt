@@ -24,6 +24,8 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
+import net.bible.service.sword.epub.epubBackend
+import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.index.IndexCreator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -147,6 +149,10 @@ object SwordDocumentFacade {
     @Throws(BookException::class)
     fun deleteDocumentIndex(document: Book?) { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document?.initials)
+        if(realDocument?.isEpub == true) {
+            realDocument.epubBackend?.state?.deleteSearchIndex()
+            return
+        }
         val indexManager = IndexManagerFactory.getIndexManager()
         if (indexManager.isIndexed(realDocument)) {
             indexManager.deleteIndex(realDocument)
@@ -156,6 +162,9 @@ object SwordDocumentFacade {
     @Throws(BookException::class)
     fun hasIndex(document: Book?): Boolean { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document?.initials)
+        if(realDocument?.isEpub == true) {
+            return realDocument.epubBackend?.state?.isIndexed == true
+        }
         val indexManager = IndexManagerFactory.getIndexManager()
         if (indexManager.isIndexed(realDocument)) {
             return true
@@ -176,28 +185,6 @@ object SwordDocumentFacade {
         }
     }
 
-    // SwordBookPath.setAugmentPath(new File[] {new
-	// File("/data/bible")});
-    private val paths: String?
-        get() {
-            var text = "Paths:"
-            try {
-				// SwordBookPath.setAugmentPath(new File[] {new
-				// File("/data/bible")});
-                val swordBookPaths = SwordBookPath.getSwordPath()
-                for (file in swordBookPaths) {
-                    text += file.absolutePath
-                }
-                text += "Augmented paths:"
-                val augBookPaths = SwordBookPath.getAugmentPath()
-                for (file in augBookPaths) {
-                    text += file.absolutePath
-                }
-            } catch (e: Exception) {
-                text += e.message
-            }
-            return text
-        }
     private val SUPPORTED_DOCUMENT_TYPES: BookFilter = AcceptableBookTypeFilter()
     private val TAG = "DocFacade"
 }
