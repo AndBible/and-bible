@@ -322,12 +322,10 @@ async function handle(event: MouseEvent) {
     if (eventFunctions.length > 0 || _verseInfo != null || _ordinalInfo != null) {
         const firstFunc = eventFunctions[0];
         if (
-            !firstFunc.options.hiddenStrongs && (
-              (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs)
-              || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs)
-            )
+              (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs && !firstFunc.options.hiddenStrongs)
+              || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs && !firstFunc.options.hiddenStrongs)
         ) {
-            if (eventFunctions[0].options.bookmarkId) {
+            if (eventFunctions[0].options.bookmarkId || firstFunc.options.hiddenStrongs) {
                 emit("bookmark_clicked", eventFunctions[0].options.bookmarkId, {locateTop: isBottomHalfClicked(event)});
             } else {
                 const cb = eventFunctions[0].callback;
