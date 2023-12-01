@@ -101,7 +101,7 @@ function goToLink(event: MouseEvent, url: string) {
         resetHighlights();
         isHighlighted.value = true;
         addCustom(() => isHighlighted.value = false);
-    }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
+    }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value, hiddenStrongs:showStrongsHidden.value});
 }
 
 const exportMode = inject(exportModeKey, ref(false));
