@@ -124,7 +124,9 @@ class TextToSpeechNotificationManager {
 
         private fun stop(removeNotification: Boolean = false) {
             Log.i(TAG, "STOP_SERVICE")
-            wakeLock.release()
+            if(wakeLock.isHeld) {
+                wakeLock.release()
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 stopForeground(if(removeNotification) STOP_FOREGROUND_REMOVE else STOP_FOREGROUND_DETACH)
             } else {
