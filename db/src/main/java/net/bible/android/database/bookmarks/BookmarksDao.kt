@@ -47,6 +47,8 @@ import java.util.*
 const val orderBy = """
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.kjvOrdinalStart END,
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.startOffset END,
+CASE WHEN :orderBy = 'BIBLE_ORDER_DESC' THEN -BibleBookmarkWithNotes.kjvOrdinalStart END,
+CASE WHEN :orderBy = 'BIBLE_ORDER_DESC' THEN -BibleBookmarkWithNotes.startOffset END,
 CASE WHEN :orderBy = 'CREATED_AT_DESC' THEN -BibleBookmarkWithNotes.createdAt END,
 CASE
     WHEN :orderBy = 'CREATED_AT' THEN BibleBookmarkWithNotes.createdAt
@@ -58,6 +60,8 @@ const val genericOrderBy = """bookInitials, `key`"""
 const val orderBy2 = """
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.kjvOrdinalStart END,
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.startOffset END,
+CASE WHEN :orderBy = 'BIBLE_ORDER_DESC' THEN -BibleBookmarkWithNotes.kjvOrdinalStart END,
+CASE WHEN :orderBy = 'BIBLE_ORDER_DESC' THEN -BibleBookmarkWithNotes.startOffset END,
 CASE
     WHEN :orderBy = 'CREATED_AT' THEN BibleBookmarkWithNotes.createdAt
     WHEN :orderBy = 'CREATED_AT_DESC' THEN -BibleBookmarkWithNotes.createdAt
