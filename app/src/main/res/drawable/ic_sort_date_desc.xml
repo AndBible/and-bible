@@ -1,0 +1,22 @@
+<!--
+  ~ Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<vector android:height="24dp"
+    android:viewportHeight="1000" android:viewportWidth="1000 "
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+  <path android:fillColor="@android:color/darker_gray" android:pathData="M 766 374 C 736 374 712 398 712 428 V 817 L 623 728 C 613 718 599 712 585 712 C 571 712 557 718 547 728 C 526 749 526 783 547 804 L 728 985 C 749 1006 783 1006 804 985 L 985 804 C 1006 783 1006 749 985 728 C 964 707 930 707 909 728 L 820 817 V 428 C 820 398 796 374 766 374 Z M 443 162 H 481 C 492 162 501 153 501 141 V 21 C 501 9 492 0 481 0 H 443 C 432 0 423 9 423 21 V 141 C 423 153 432 162 443 162 Z M 113 162 H 151 C 162 162 171 153 171 141 V 21 C 171 9 162 0 151 0 H 113 C 102 0 92 9 92 21 V 141 C 92 153 102 162 113 162 Z M 542 68 V 141 C 542 175 515 201 482 201 H 444 C 410 201 383 175 383 141 V 67 H 212 V 141 C 212 175 184 201 151 201 H 113 C 80 201 53 175 53 141 V 68 C 24 69 0 93 0 122 V 554 C 0 584 24 608 55 608 H 540 C 570 608 595 584 595 554 V 122 C 595 93 571 69 542 68 Z M 524 527 C 524 540 514 550 501 550 H 93 C 80 550 70 540 70 527 V 304 C 70 291 80 280 93 280 H 501 C 514 280 524 291 524 304 Z M 456 456 C 456 448 450 442 442 442 H 394 C 386 442 380 448 380 456 V 504 C 380 512 386 518 394 518 H 442 C 450 518 456 512 456 504 Z M 335 456 C 335 448 329 442 322 442 H 273 C 266 442 260 448 260 456 V 504 C 260 512 266 518 273 518 H 322 C 329 518 335 512 335 504 Z M 215 456 C 215 448 209 442 201 442 H 153 C 145 442 139 448 139 456 V 504 C 139 512 145 518 153 518 H 201 C 209 518 215 512 215 504 Z M 456 336 C 456 328 450 322 442 322 H 394 C 386 322 380 328 380 336 V 384 C 380 391 386 398 394 398 H 442 C 450 398 456 391 456 384 Z M 335 336 C 335 328 329 322 322 322 H 273 C 266 322 260 328 260 336 V 384 C 260 391 266 398 273 398 H 322 C 329 398 335 391 335 384 Z M 215 336 C 215 328 209 322 201 322 H 153 C 145 322 139 328 139 336 V 384 C 139 391 145 398 153 398 H 201 C 209 398 215 391 215 384 Z"/>
+</vector>
