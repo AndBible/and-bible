@@ -41,6 +41,7 @@ import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
@@ -176,7 +177,7 @@ class CurrentGeneralBookPage internal constructor(
 
 	/** can we enable the main menu search button
      */
-    override val isSearchable: Boolean = false
+    override val isSearchable: Boolean get() = currentDocument?.isEpub == true
 
     override val isSyncable: Boolean = false
 
