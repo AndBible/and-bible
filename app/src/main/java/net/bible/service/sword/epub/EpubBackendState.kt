@@ -19,6 +19,7 @@ package net.bible.service.sword.epub
 
 import android.util.Log
 import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.page.OrdinalRange
@@ -238,7 +239,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun buildSearchIndex() {
         if (search.isIndexed) return
         bookMetaData.indexStatus = IndexStatus.CREATING
-        val jobName = "Index creation for ${bookMetaData.name}"
+        val jobName = application.getString(R.string.creating_index_for, bookMetaData.name)
         val job = JobManager.createJob("index-creation-${epubDir.path}", jobName, null)
         job.isNotifyUser = true
         job.beginJob(jobName)

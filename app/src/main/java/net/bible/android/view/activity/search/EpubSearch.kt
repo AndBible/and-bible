@@ -22,6 +22,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
+import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 
@@ -88,6 +89,12 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             }
             false
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val rv = super.onCreateOptionsMenu(menu)
+        menu.findItem(R.id.help).isVisible = false
+        return rv
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
