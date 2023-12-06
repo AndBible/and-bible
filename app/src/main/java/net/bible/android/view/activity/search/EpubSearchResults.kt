@@ -87,7 +87,7 @@ class EpubSearchResults : ListActivityBase(R.menu.empty_menu) {
             binding.loadingIndicator.visibility = View.VISIBLE
             binding.empty.visibility = View.GONE
         }
-        if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
+        if (fetchSearchResults()) {
             withContext(Dispatchers.Main) {
                 resultAdapter = EpubSearchItemAdapter(this@EpubSearchResults, LIST_ITEM_TYPE, searchResults)
                 listAdapter = resultAdapter
@@ -102,9 +102,7 @@ class EpubSearchResults : ListActivityBase(R.menu.empty_menu) {
             }
         }
     }
-    /** do the search query and prepare results in lists ready for display
-     *
-     */
+
     private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) Main@ {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
