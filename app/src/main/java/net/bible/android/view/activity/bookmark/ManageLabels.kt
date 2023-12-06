@@ -408,6 +408,7 @@ class ManageLabels : ListActivityBase() {
         val d = AlertDialog.Builder(this)
             .setPositiveButton(R.string.okay, null)
             .setTitle(title)
+            .setIcon(R.drawable.ic_logo)
             .setMessage(span)
             .create()
 

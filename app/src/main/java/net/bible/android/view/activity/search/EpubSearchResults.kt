@@ -113,7 +113,7 @@ class EpubSearchResults : ListActivityBase(R.menu.empty_menu) {
         var isOk: Boolean
         try {
             val searchText = intent.getStringExtra("searchText") ?: ""
-            val searchType = SearchType.valueOf(intent.getStringExtra("searchType") ?: "ALL")
+            val searchType = intent.getStringExtra("searchType")?.let { SearchType.valueOf(it) }
             val searchDocument = (intent.getStringExtra("searchDocument")?: "").run {
                 if (StringUtils.isEmpty(this))
                     windowControl.activeWindowPageManager.currentBible.currentDocument!!.initials
@@ -156,10 +156,11 @@ class EpubSearchResults : ListActivityBase(R.menu.empty_menu) {
         return@Main isOk
     }
 
-    private fun adjustSearchText(searchType: SearchType, searchText: String): String = when(searchType) {
+    private fun adjustSearchText(searchType: SearchType?, searchText: String): String = when(searchType) {
         SearchType.PHRASE -> "\"$searchText\""
         SearchType.ALL_WORDS -> searchText.split(' ').joinToString(" AND ")
-        SearchType.ANY_WORDS -> searchText.split(' ').joinToString(" + ")
+        SearchType.ANY_WORDS -> searchText.split(' ').joinToString(" OR ")
+        null -> searchText
         else -> searchText
     }
 

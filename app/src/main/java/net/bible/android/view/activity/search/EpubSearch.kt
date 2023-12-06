@@ -18,19 +18,28 @@
 package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.TextUtils
+import android.text.method.LinkMovementMethod
+import android.text.style.ImageSpan
 import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EpubSearchBinding
 import net.bible.android.control.page.PageControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
+import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.htmlToSpan
+import net.bible.service.common.labelsAndBookmarksPlaylist
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -48,19 +57,37 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private val documentToSearch: Book
         get() = pageControl.currentPageManager.currentPage.currentDocument!!
 
-    private val searchType: SearchType
+    private val searchType: SearchType?
         get() {
             return when (binding.wordsGroup.checkedRadioButtonId) {
                 R.id.allWords -> SearchType.ALL_WORDS
                 R.id.anyWord -> SearchType.ANY_WORDS
                 R.id.phrase -> SearchType.PHRASE
+                R.id.ftsQuery -> null
                 else -> {
                     Log.e(TAG, "Unexpected radio selection")
-                    SearchType.ANY_WORDS
+                    null
                 }
             }
         }
 
+    private fun help() {
+        val ftsLink = "https://www.sqlite.org/fts5.html#full_text_query_syntax"
+        val link = """<a href="$ftsLink">${getString(R.string.help_fts5)}</a>"""
+        val span = htmlToSpan("""
+            ${getString(R.string.help_search_text2)}<br><br>
+            ${getString(R.string.help_search_details, link)}
+        """.trimIndent())
+        val d = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay, null)
+            .setTitle(title)
+            .setIcon(R.drawable.ic_logo)
+            .setMessage(span)
+            .create()
+
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,12 +118,6 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val rv = super.onCreateOptionsMenu(menu)
-        menu.findItem(R.id.help).isVisible = false
-        return rv
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.rebuildIndex -> {
@@ -104,7 +125,7 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 return true
             }
             R.id.help -> {
-                CommonUtils.showHelp(this, listOf(R.string.help_search_title))
+                help()
                 return true
             }
         }
@@ -121,7 +142,7 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         if (!StringUtils.isEmpty(text)) {
             val intent = Intent(this, EpubSearchResults::class.java)
             intent.putExtra("searchText", text)
-            intent.putExtra("searchType", searchType.name)
+            intent.putExtra("searchType", searchType?.name)
             intent.putExtra("searchDocument", documentToSearch.initials)
             startActivity(intent)
             finish()
