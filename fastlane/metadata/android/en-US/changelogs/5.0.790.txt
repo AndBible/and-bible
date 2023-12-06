@@ -1,5 +1,7 @@
 - Bugfixes
+- Icon improvements
 - New feature: searching in epub files
+- New feature: "Hidden style" for strongs
 
 5.0
 Please see "what's new" video: https://youtu.be/bf33j4tLbxQ
