@@ -54,7 +54,7 @@ class EpubSearchResults : ListActivityBase(R.menu.empty_menu) {
     private lateinit var resultAdapter: EpubSearchItemAdapter
     private var searchResults: List<KeyAndText> = emptyList()
     override val integrateWithHistoryManager: Boolean = true
-    var searchDocument: Book? = null
+    private var searchDocument: Book? = null
 
     @Inject lateinit var linkControl: LinkControl
     @Inject lateinit var windowControl: WindowControl
@@ -81,18 +81,8 @@ class EpubSearchResults : ListActivityBase(R.menu.empty_menu) {
                 onBackPressed()
                 true
             }
-            R.id.openResultsInWindow -> {
-                openResultsInAWindow()
-                true
-            }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    private fun openResultsInAWindow() {
-        throw NotImplementedError("Not yet implemented")
-        //linkControl.showLink(FakeBookFactory.multiDocument, lst)
-        //finish()
     }
 
     private suspend fun prepareResults() {
