@@ -58,7 +58,8 @@
 					android:layout_width="wrap_content"
 					android:text="@string/search_all_words"
 					android:layout_height="wrap_content"
-					android:checked="true"/>
+					android:checked="true"
+					/>
 				<RadioButton android:id="@+id/anyWord"
 					android:layout_width="wrap_content"
 					android:text="@string/search_any_word"

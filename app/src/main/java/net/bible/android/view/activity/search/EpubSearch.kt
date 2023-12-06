@@ -57,9 +57,9 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private val documentToSearch: Book
         get() = pageControl.currentPageManager.currentPage.currentDocument!!
 
-    private val searchType: SearchType?
+    private var searchType: SearchType?
         get() {
-            return when (binding.wordsGroup.checkedRadioButtonId) {
+            val value = when (binding.wordsGroup.checkedRadioButtonId) {
                 R.id.allWords -> SearchType.ALL_WORDS
                 R.id.anyWord -> SearchType.ANY_WORDS
                 R.id.phrase -> SearchType.PHRASE
@@ -69,6 +69,19 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                     null
                 }
             }
+            CommonUtils.settings.setString("epubSearch-SearchType", value?.name)
+            return value
+        }
+        set(value) {
+            binding.wordsGroup.check(
+                when(value) {
+                    SearchType.PHRASE -> binding.phrase.id
+                    SearchType.ALL_WORDS -> binding.allWords.id
+                    SearchType.ANY_WORDS -> binding.anyWord.id
+                    null -> binding.ftsQuery.id
+                    else -> binding.ftsQuery.id
+                }
+            )
         }
 
     private fun help() {
@@ -97,6 +110,7 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         setContentView(binding.root)
         CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
         buildActivityComponent().inject(this)
+        searchType = CommonUtils.settings.getString("epubSearch-SearchType")?.let { SearchType.valueOf(it)}
 
         title = getString(R.string.search_in, documentToSearch.abbreviation)
         binding.searchText.setOnEditorActionListener {v, actionId, event ->
@@ -107,7 +121,7 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 }
                 else -> false
         }}
-
+        binding.wordsGroup.setOnCheckedChangeListener { _, _ -> searchType } // saving
         binding.submit.setOnClickListener { onSearch() }
         binding.searchText.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
