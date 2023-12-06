@@ -27,9 +27,11 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
 import net.bible.service.sword.BookAndKey
+import org.crosswire.common.progress.JobManager
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.state.OpenFileState
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.jdom2.Namespace
@@ -221,6 +223,9 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     }
     private val readDb = getEpubDatabase(appDbFilename)
     private val search = EpubSearch(searchDbFile)
+    init {
+        bookMetaData.indexStatus = if(search.isIndexed) IndexStatus.DONE else IndexStatus.UNDONE
+    }
 
     private val dao = readDb.epubDao()
 
@@ -229,10 +234,20 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun deleteSearchIndex() {
         search.deleteIndex()
     }
+
     fun buildSearchIndex() {
         if (search.isIndexed) return
+        bookMetaData.indexStatus = IndexStatus.CREATING
+        val jobName = "Index creation for ${bookMetaData.name}"
+        val job = JobManager.createJob("index-creation-${epubDir.path}", jobName, null)
+        job.isNotifyUser = true
+        job.beginJob(jobName)
         search.createTable()
-        for(frag in dao.fragments()) {
+        val frags = dao.fragments()
+        job.totalWork = frags.size
+        for(i in frags.indices) {
+            val frag = frags[i]
+            job.work = i
             val key = getKey(frag)
             val reader = StringReader(read(key))
             val doc = useSaxBuilder { it.build(reader) }
@@ -241,6 +256,8 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
                 search.addContent(bva.text, frag.id, ordinal)
             }
         }
+        bookMetaData.indexStatus = IndexStatus.DONE
+        job.done()
     }
 
     fun search(search: String): List<KeyAndText> {
