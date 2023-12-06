@@ -29,7 +29,8 @@
     <template v-else><slot/></template>
   </template>
   <template v-else>
-    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)" :class="{isHighlighted}"  class="highlight-transition link-style" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span>
+    <span v-if="(showStrongsHidden && lemma) || (showStrongsHidden && config.showMorphology && morph)" :class="{isHighlighted}"  class="highlight-transition" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span>
+    <span v-else-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)" :class="{isHighlighted}"  class="highlight-transition link-style" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span>
     <span v-else><slot/></span>
   </template>
 </template>
@@ -100,11 +101,12 @@ function goToLink(event: MouseEvent, url: string) {
         resetHighlights();
         isHighlighted.value = true;
         addCustom(() => isHighlighted.value = false);
-    }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
+    }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value, hiddenStrongs:showStrongsHidden.value});
 }
 
 const exportMode = inject(exportModeKey, ref(false));
 const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
+const showStrongsHidden = computed(() => !exportMode.value && config.strongsMode == strongsModes.hidden);
 const showStrongsSeparately = computed(() => !exportMode.value && config.strongsMode === strongsModes.links);
 
 </script>

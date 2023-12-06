@@ -22,8 +22,8 @@ import {isEqual} from "lodash";
 import {Deferred} from "@/utils";
 import {BibleViewDocumentType} from "@/types/documents";
 
-export type StrongsMode = 0 | 1 | 2
-export const strongsModes: Record<string, StrongsMode> = {off: 0, inline: 1, links: 2}
+export type StrongsMode = 0 | 1 | 2 | 3
+export const strongsModes: Record<string, StrongsMode> = {off: 0, inline: 1, links: 2, hidden: 3}
 
 export let errorBox = false;
 const white = -1;
