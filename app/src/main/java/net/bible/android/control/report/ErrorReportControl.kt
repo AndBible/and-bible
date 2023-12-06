@@ -280,6 +280,9 @@ object BugReport {
         val screenshotFile = File(logDir, SCREENSHOT_FILE)
         val logcatFile = File(logDir, "logcat.txt.gz")
         val stackTraceFile = File(logDir, "stacktrace.txt")
+        if(source != "after crash") {
+            stackTraceFile.delete()
+        }
         val stackTrace = if(stackTraceFile.canRead()) String(stackTraceFile.readBytes()) else null
 
         val hourglass = Hourglass(activity)
