@@ -54,10 +54,6 @@
 				android:layout_width="0dip"
 				android:layout_weight="1"
 				android:padding="5dip">
-				<TextView
-					android:text="@string/search_words_group_prompt"
-					android:layout_height="wrap_content"
-					android:layout_width="wrap_content"/>
 				<RadioButton android:id="@+id/allWords"
 					android:layout_width="wrap_content"
 					android:text="@string/search_all_words"
