@@ -18,13 +18,15 @@
 package net.bible.service.sword.epub
 
 import android.content.ContentValues
-import androidx.sqlite.db.SupportSQLiteDatabase
+import io.requery.android.database.sqlite.SQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
+import java.io.File
 
 
 data class EpubSearchResult(val fragId: Long, val ordinal: Int, val text: String)
 
-class EpubSearch(val db: SupportSQLiteDatabase) {
+class EpubSearch(val file: File) {
+    private val db = SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY)
     val isIndexed: Boolean get() = db.run {
         !query("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf("SearchIndex")).isAfterLast
     }

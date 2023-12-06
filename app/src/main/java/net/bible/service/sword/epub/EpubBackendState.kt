@@ -199,6 +199,8 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     private val epubDbFilename = "optimized.sqlite3.gz"
     internal val appDbFilename = "epub-${bookMetaData.initials}.sqlite3"
+    private val searchDbFilename = "epub-${bookMetaData.initials}-search.sqlite3"
+    private val searchDbFile = File(epubDir, searchDbFilename)
     private val alternativeEpubDbFilename = "${appDbFilename}.gz"
 
     init {
@@ -218,7 +220,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         }
     }
     private val readDb = getEpubDatabase(appDbFilename)
-    private val search = EpubSearch(readDb.openHelper.writableDatabase)
+    private val search = EpubSearch(searchDbFile)
 
     private val dao = readDb.epubDao()
 
