@@ -69,7 +69,7 @@ class TextToSpeechNotificationManager {
         private var foregroundNotification: Notification? = null
 
         private var instance: TextToSpeechNotificationManager? = null
-        private var foreground = false
+        private var serviceRunning = false
     }
 
     class ForegroundService: Service() {
@@ -118,25 +118,20 @@ class TextToSpeechNotificationManager {
 
         override fun onTaskRemoved(rootIntent: Intent?) {
             Log.i(TAG, "Task removed")
-            if(!foreground) {
-                stopSelf()
-            }
+            stopSelf()
             super.onTaskRemoved(rootIntent)
         }
 
         private fun stop(removeNotification: Boolean = false) {
-            if(!foreground) {
-                return
-            }
-
             Log.i(TAG, "STOP_SERVICE")
-            wakeLock.release()
+            if(wakeLock.isHeld) {
+                wakeLock.release()
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 stopForeground(if(removeNotification) STOP_FOREGROUND_REMOVE else STOP_FOREGROUND_DETACH)
             } else {
                 stopForeground(removeNotification)
             }
-            foreground = false
         }
 
         override fun onBind(intent: Intent?): IBinder? {
@@ -221,7 +216,7 @@ class TextToSpeechNotificationManager {
         currentText = ""
 
         // In case service was no longer foreground, we need do this here.
-        if(foreground) {
+        if(serviceRunning) {
             stopForeground(true)
         }
         else {
@@ -343,11 +338,11 @@ class TextToSpeechNotificationManager {
 
     private fun startForeground()
     {
-        if (foreground) {
+        if (serviceRunning) {
             Log.i(TAG, "Already foreground")
             return
         }
-        foreground = true
+        serviceRunning = true
         val intent = Intent(app, ForegroundService::class.java)
         intent.action = ForegroundService.START_SERVICE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -361,6 +356,8 @@ class TextToSpeechNotificationManager {
 
     private fun stopForeground(removeNotification: Boolean = false)
     {
+       if(!serviceRunning) return
+       serviceRunning = false
        val intent = Intent(app, ForegroundService::class.java)
        intent.action = if(removeNotification) ForegroundService.STOP_FOREGROUND_REMOVE_NOTIFICATION
                        else ForegroundService.STOP_FOREGROUND
