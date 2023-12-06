@@ -105,7 +105,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
 
     /** virtual method called on ui thread to update progress.  Can be overridden for subclass specific ui updates br make sure this method is called to update progres controls
      */
-    protected fun updateProgress(prog: Progress) {
+    private fun updateProgress(prog: Progress) {
         // if this is called then ensure the no tasks msg is not also displayed
         showNoTaskMsg(false)
         val done = prog.work
@@ -145,7 +145,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
      * @param prog
      * @return
      */
-    protected fun getStatusDesc(prog: Progress): String {
+    private fun getStatusDesc(prog: Progress): String {
         // compose a descriptive string showing job name and current section if relevant
         var status = prog.jobName + SharedConstants.LINE_SEPARATOR
         if (!StringUtils.isEmpty(prog.sectionName) && !prog.sectionName.equals(prog.jobName, ignoreCase = true)) {
@@ -176,7 +176,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
      * @param prog
      * @return
      */
-    protected fun findOrCreateUIControl(prog: Progress): ProgressUIControl {
+    private fun findOrCreateUIControl(prog: Progress): ProgressUIControl {
         var uiControl = progressMap[prog]
         if (uiControl == null) {
             uiControl = ProgressUIControl()
@@ -201,7 +201,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
     inner class ProgressUIControl {
         var parent = LinearLayout(this@ProgressActivityBase)
         var status = TextView(this@ProgressActivityBase)
-        var progressBar = ProgressBar(this@ProgressActivityBase, null, android.R.attr.progressBarStyleHorizontal)
+        private var progressBar = ProgressBar(this@ProgressActivityBase, null, android.R.attr.progressBarStyleHorizontal)
         var isFinishNotified = false
         fun showMsg(msg: String?) {
             status.text = msg

@@ -19,21 +19,26 @@ package net.bible.service.sword.epub
 
 import android.util.Log
 import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.database.EpubFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
 import net.bible.service.sword.BookAndKey
+import org.crosswire.common.progress.JobManager
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.state.OpenFileState
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.jdom2.Namespace
 import org.jdom2.filter.Filters
 import java.io.File
+import java.io.StringReader
 import java.net.URLDecoder
 import java.util.zip.GZIPInputStream
 
@@ -52,6 +57,9 @@ internal fun getFileAndId(href: String): Pair<String, String>? {
 val xhtmlNamespace: Namespace = Namespace.getNamespace("ns", "http://www.w3.org/1999/xhtml")
 val svgNamespace: Namespace = Namespace.getNamespace("svg", "http://www.w3.org/2000/svg")
 val xlinkNamespace: Namespace = Namespace.getNamespace("xlink", "http://www.w3.org/1999/xlink");
+
+class KeyAndText(val key: BookAndKey, val text: String)
+
 class EpubBackendState(private val epubDir: File): OpenFileState {
     constructor(epubDir: File, metadata: SwordBookMetaData): this(epubDir) {
         this._metadata = metadata
@@ -194,6 +202,8 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     private val epubDbFilename = "optimized.sqlite3.gz"
     internal val appDbFilename = "epub-${bookMetaData.initials}.sqlite3"
+    private val searchDbFilename = "epub-${bookMetaData.initials}-search.sqlite3"
+    private val searchDbFile = File(epubDir, searchDbFilename)
     private val alternativeEpubDbFilename = "${appDbFilename}.gz"
 
     init {
@@ -213,7 +223,53 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         }
     }
     private val readDb = getEpubDatabase(appDbFilename)
+    private val search = EpubSearch(searchDbFile)
+    init {
+        bookMetaData.indexStatus = if(search.isIndexed) IndexStatus.DONE else IndexStatus.UNDONE
+    }
+
     private val dao = readDb.epubDao()
+
+    val isIndexed get() = search.isIndexed
+
+    fun deleteSearchIndex() {
+        search.deleteIndex()
+    }
+
+    fun buildSearchIndex() {
+        if (search.isIndexed) return
+        bookMetaData.indexStatus = IndexStatus.CREATING
+        val jobName = application.getString(R.string.creating_index_for, bookMetaData.name)
+        val job = JobManager.createJob("index-creation-${epubDir.path}", jobName, null)
+        job.isNotifyUser = true
+        job.beginJob(jobName)
+        search.createTable()
+        val frags = dao.fragments()
+        job.totalWork = frags.size
+        for(i in frags.indices) {
+            val frag = frags[i]
+            job.work = i
+            val key = getKey(frag)
+            val reader = StringReader(read(key))
+            val doc = useSaxBuilder { it.build(reader) }
+            for(bva in useXPathInstance { xp -> xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(doc) }) {
+                val ordinal = bva.getAttribute("ordinal").value.toInt()
+                search.addContent(bva.text, frag.id, ordinal)
+            }
+        }
+        bookMetaData.indexStatus = IndexStatus.DONE
+        job.done()
+    }
+
+    fun search(search: String): List<KeyAndText> {
+        val book = Books.installed().getBook(bookMetaData.initials)
+        return this.search.search(search).mapNotNull {
+            val frag = dao.getFragment(it.fragId)?: return@mapNotNull null
+            val key = BookAndKey(getKey(frag), book, OrdinalRange(it.ordinal))
+            val text = it.text
+            KeyAndText(key, text)
+        }
+    }
 
     fun getResource(resourcePath: String) =
         File(rootFolder, resourcePath)
