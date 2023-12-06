@@ -52,7 +52,6 @@ class EpubSearchItemAdapter(
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)
 
-        // Pick up the TwoLineListItem defined in the xml file
         val view: TwoLineListItem = if (convertView == null) {
             val inflater =
                 context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -61,13 +60,10 @@ class EpubSearchItemAdapter(
             convertView as TwoLineListItem
         }
 
-        // Set value for the first text field
         if (view.text1 != null) {
-            val key = item!!.key.name
-            view.text1.text = key
+            view.text1.text = item!!.key.name
         }
 
-        // set value for the second text field
         if (view.text2 != null) {
             view.text2.text = htmlToSpan(item!!.text)
         }
