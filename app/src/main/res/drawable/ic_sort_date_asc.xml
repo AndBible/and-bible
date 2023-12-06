@@ -1,0 +1,22 @@
+<!--
+  ~ Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<vector android:height="24dp"
+    android:viewportHeight="1000" android:viewportWidth="1000 "
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+  <path android:fillColor="@android:color/darker_gray" android:pathData="M 235 727 C 264 727 289 703 289 673 V 184 L 377 273 C 388 283 401 289 416 289 C 430 289 444 283 454 273 C 475 252 475 218 454 197 L 273 16 C 252 -5 218 -5 197 16 L 16 197 C -5 218 -5 252 16 273 C 37 294 71 294 92 273 L 181 184 V 673 C 181 703 205 727 235 727 Z M 849 555 H 886 C 898 555 907 546 907 534 V 413 C 907 402 898 393 886 393 H 849 C 837 393 828 402 828 413 V 534 C 828 546 837 555 849 555 Z M 518 555 H 556 C 567 555 577 546 577 534 V 413 C 577 402 567 393 556 393 H 518 C 507 393 498 402 498 413 V 534 C 498 546 507 555 518 555 Z M 947 461 V 534 C 947 567 920 594 887 594 H 849 C 816 594 789 567 789 534 V 460 H 617 V 534 C 617 567 590 594 557 594 H 519 C 485 594 458 567 458 534 V 461 C 429 461 405 486 405 515 V 946 C 405 977 430 1001 460 1001 H 946 C 976 1001 1000 976 1000 946 V 515 C 1000 486 976 461 947 461 Z M 930 920 C 930 933 919 943 906 943 H 499 C 486 943 475 933 475 920 V 697 C 475 684 486 673 499 673 H 906 C 919 673 930 684 930 697 Z M 861 849 C 861 841 855 835 847 835 H 799 C 792 835 785 841 785 849 V 897 C 785 905 792 911 799 911 H 847 C 855 911 861 905 861 897 Z M 741 849 C 741 841 735 835 727 835 H 679 C 671 835 665 841 665 849 V 897 C 665 905 671 911 679 911 H 727 C 735 911 741 905 741 897 Z M 620 849 C 620 841 614 835 607 835 H 558 C 551 835 545 841 545 849 V 897 C 545 905 551 911 558 911 H 607 C 614 911 620 905 620 897 Z M 861 728 C 861 721 855 715 847 715 H 799 C 792 715 785 721 785 728 V 777 C 785 784 792 790 799 790 H 847 C 855 790 861 784 861 777 Z M 741 728 C 741 721 735 715 727 715 H 679 C 671 715 665 721 665 728 V 777 C 665 784 671 790 679 790 H 727 C 735 790 741 784 741 777 Z M 620 728 C 620 721 614 715 607 715 H 558 C 551 715 545 721 545 728 V 777 C 545 784 551 790 558 790 H 607 C 614 790 620 784 620 777 Z"/>
+</vector>
