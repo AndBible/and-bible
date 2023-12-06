@@ -32,7 +32,7 @@ class EpubSearch(val file: File) {
     }
 
     fun deleteIndex() = db.run {
-        execSQL("""DROP TABLE SearchIndex""")
+        execSQL("""DROP TABLE IF EXISTS SearchIndex""")
     }
 
     fun createTable() = db.run {
