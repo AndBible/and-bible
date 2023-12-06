@@ -26,17 +26,15 @@ import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
-import net.bible.service.sword.index.IndexCreator
+import net.bible.service.sword.index.AndroidIndexPolicy
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.Defaults
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.install.InstallException
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.index.IndexManagerFactory
 import org.crosswire.jsword.index.IndexStatus
 
@@ -180,9 +178,21 @@ object SwordDocumentFacade {
         Log.d(TAG, "ensureIndexCreation")
         // ensure this isn't just the user re-clicking the Index button
         if (book.indexStatus != IndexStatus.CREATING && book.indexStatus != IndexStatus.SCHEDULED) {
-            val ic = IndexCreator()
-            ic.scheduleIndexCreation(book)
+            scheduleIndexCreation(book)
         }
+    }
+
+    private fun scheduleIndexCreation(book: Book) {
+        val work = Thread {
+            if(book.isEpub) {
+                book.epubBackend!!.state.buildSearchIndex()
+            } else {
+                val indexManager = IndexManagerFactory.getIndexManager()
+                indexManager.indexPolicy = AndroidIndexPolicy()
+                indexManager.scheduleIndexCreation(book)
+            }
+        }
+        work.start()
     }
 
     private val SUPPORTED_DOCUMENT_TYPES: BookFilter = AcceptableBookTypeFilter()
