@@ -81,7 +81,7 @@ val BookmarkSortOrder.description get() =
 class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     private lateinit var binding: BookmarksBinding
-    private lateinit var sortButton: MenuItem
+    private var sortButton: MenuItem? = null
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var windowControl: WindowControl
@@ -242,12 +242,14 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             binding.loadingIndicator.visibility = View.VISIBLE
         }
         try {
-            when (bookmarkSortOrder) {
-                BookmarkSortOrder.BIBLE_ORDER -> sortButton.setIcon(R.drawable.ic_sort_bible_asc)
-                BookmarkSortOrder.CREATED_AT_DESC -> sortButton.setIcon(R.drawable.ic_sort_date_desc)
-                else -> sortButton.setIcon(R.drawable.ic_sort_date_asc)
+            withContext(Dispatchers.Main) {
+                when (bookmarkSortOrder) {
+                    BookmarkSortOrder.BIBLE_ORDER -> sortButton?.setIcon(R.drawable.ic_sort_bible_asc)
+                    BookmarkSortOrder.CREATED_AT_DESC -> sortButton?.setIcon(R.drawable.ic_sort_date_desc)
+                    else -> sortButton?.setIcon(R.drawable.ic_sort_date_asc)
+                }
+                sortButton?.icon?.setTint(CommonUtils.getResourceColor(R.color.white))
             }
-            sortButton.icon?.setTint(CommonUtils.getResourceColor(R.color.white))
             if (selectedLabelNo > -1 && selectedLabelNo < labelList.size) {
                 Log.i(TAG, "filtering bookmarks")
                 val selectedLabel = labelList[selectedLabelNo]

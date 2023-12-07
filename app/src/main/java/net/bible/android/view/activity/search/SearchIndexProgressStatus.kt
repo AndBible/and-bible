@@ -29,6 +29,7 @@ import android.util.Log
 import android.view.View
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.epub.isEpub
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 
@@ -65,11 +66,18 @@ class SearchIndexProgressStatus : ProgressActivityBase() {
             val intent: Intent
             if (StringUtils.isNotEmpty(getIntent().getStringExtra(SearchControl.SEARCH_TEXT))) {
                 // the search string was passed in so execute it directly
-                intent = Intent(this, SearchResults::class.java)
+                intent = if (documentBeingIndexed?.isEpub == true)
+                    Intent(this, EpubSearchResults::class.java)
+                else
+                    Intent(this, SearchResults::class.java)
+
                 intent.putExtras(getIntent().extras!!)
             } else {
                 // just go to the normal Search screen
-                intent = Intent(this, Search::class.java)
+                intent = if(documentBeingIndexed?.isEpub == true)
+                    Intent(this, EpubSearch::class.java)
+                else
+                    Intent(this, Search::class.java)
             }
             startActivity(intent)
             finish()

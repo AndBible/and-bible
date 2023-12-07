@@ -66,6 +66,7 @@
     <string name="search_in">Find in %s</string>
     <string name="do_in_background">Continue in background</string>
     <string name="rebuild_index_button">Rebuild</string>
+    <string name="creating_index_for">Creating index for %s…</string>
     <!-- X results in module Y -->
     <string name="search_with_results2">%1s results in %2s</string>
 
@@ -79,6 +80,7 @@
     <string name="search_all_words">All words</string>
     <string name="search_any_word">Any word</string>
     <string name="search_phrase">Phrase</string>
+    <string name="search_fts_query">Raw query syntax</string>
     <string name="search_result_count">%d matches found</string>
     <string name="search_showing_first">Too many matches.  Showing first %d</string>
     <string name="search_bible_section_group_prompt">Search Where</string>
@@ -821,9 +823,14 @@
     </string>
 
     <string name="help_search_title">Search</string>
+    <!-- TODO: to be removed -->
     <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
         (see "Apache Lucene - Query Parser Syntax" for more details)
     </string>
+    <string name="help_search_text2">Search text can include special characters like *, ?, AND, OR, NOT</string>
+    <string name="help_search_details">Please see %s for more details.</string>
+    <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
+    <string name="help_fts5">FTS5 Full-text Query Syntax</string>
     <string name="help_workspaces_title">Workspaces</string>
     <string name="help_workspaces_text">
         Workspaces allow having multiple context-dependent working environments. Workspace functions
@@ -1040,6 +1047,7 @@
     <string name="strongs_off">Off</string>
     <string name="strongs_links">Links</string>
     <string name="strongs_text_and_links">Text and Links</string>
+    <string name="strongs_hidden_links">Hidden Links</string>
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
 
     <string name="permission_required">Permission needed</string>

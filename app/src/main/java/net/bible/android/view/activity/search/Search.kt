@@ -18,8 +18,10 @@
 package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MenuItem
@@ -27,6 +29,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.TextView
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SearchBinding
@@ -36,6 +39,7 @@ import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.htmlToSpan
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.sword.SwordBook
@@ -180,13 +184,29 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 return true
             }
             R.id.help -> {
-                CommonUtils.showHelp(this, listOf(R.string.help_search_title))
+                help()
                 return true
             }
         }
         return false
     }
+    private fun help() {
+        val ftsLink = "https://lucene.apache.org/core/2_9_4/queryparsersyntax.html"
+        val link = """<a href="$ftsLink">${getString(R.string.help_apache_lucene)}</a>"""
+        val span = htmlToSpan("""
+            ${getString(R.string.help_search_text2)}<br><br>
+            ${getString(R.string.help_search_details, link)}
+        """.trimIndent())
+        val d = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay, null)
+            .setTitle(title)
+            .setIcon(R.drawable.ic_logo)
+            .setMessage(span)
+            .create()
 
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
     override fun onResume() {
         super.onResume()
         binding.searchText.requestFocus()

@@ -19,8 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="781"
-    android:versionName="5.0.781">
+    android:versionCode="790"
+    android:versionName="5.0.790">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -118,7 +118,18 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             android:windowSoftInputMode="adjustResize"/>
         <activity
+            android:name="net.bible.android.view.activity.search.EpubSearch"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
             android:name="net.bible.android.view.activity.search.SearchResults"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.search.EpubSearchResults"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
             />

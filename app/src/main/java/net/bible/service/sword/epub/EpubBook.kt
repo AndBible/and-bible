@@ -184,4 +184,5 @@ fun addManuallyInstalledEpubBooks(): Boolean {
 
 val Book.isManuallyInstalledEpub get() = bookMetaData.getProperty("AndBibleEpubModule") != null
 val Book.isEpub get() = isManuallyInstalledEpub || ((bookMetaData as? SwordBookMetaData)?.bookType == epubBookType)
+val Book.epubBackend get() = (this as? SwordGenBook)?.backend as? EpubBackend
 val Book.epubDir get() = bookMetaData.getProperty("AndBibleEpubDir")

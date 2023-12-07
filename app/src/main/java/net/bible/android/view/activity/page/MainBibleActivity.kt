@@ -670,7 +670,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             strongsButton.setOnClickListener {
                 val prefOptions = dummyStrongsPrefOption
-                prefOptions.value = (prefOptions.value as Int + 1) % 3
+                prefOptions.value = (prefOptions.value as Int + 1) % 4
                 prefOptions.handle()
                 updateStrongsButton()
             }
@@ -937,16 +937,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 0 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek)
                 1 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek_links)
                 2 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek_links_text)
+                3 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek)
             }
         } else {
             when (dummyStrongsPrefOption.value) {
                 0 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
                 1 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew_links)
                 2 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew_links_text)
+                3 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
             }
         }
         if(dummyStrongsPrefOption.value == 0) {
-            binding.strongsButton.alpha = 0.7F
+            binding.strongsButton.alpha = 0.5F
         } else
             binding.strongsButton.alpha = 1.0F
     }
