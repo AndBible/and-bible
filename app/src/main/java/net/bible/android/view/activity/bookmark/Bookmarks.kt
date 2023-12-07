@@ -245,6 +245,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             withContext(Dispatchers.Main) {
                 when (bookmarkSortOrder) {
                     BookmarkSortOrder.BIBLE_ORDER -> sortButton?.setIcon(R.drawable.ic_sort_bible_asc)
+                    BookmarkSortOrder.BIBLE_ORDER_DESC -> sortButton?.setIcon(R.drawable.ic_sort_bible_desc)
                     BookmarkSortOrder.CREATED_AT_DESC -> sortButton?.setIcon(R.drawable.ic_sort_date_desc)
                     else -> sortButton?.setIcon(R.drawable.ic_sort_date_asc)
                 }
@@ -317,7 +318,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     private fun changeBookmarkSortOrder() {
         bookmarkSortOrder = when (bookmarkSortOrder) {
-            BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.CREATED_AT_DESC
+            BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.BIBLE_ORDER_DESC
             BookmarkSortOrder.BIBLE_ORDER_DESC -> BookmarkSortOrder.CREATED_AT_DESC
             BookmarkSortOrder.CREATED_AT_DESC -> BookmarkSortOrder.CREATED_AT
             BookmarkSortOrder.CREATED_AT -> BookmarkSortOrder.BIBLE_ORDER
