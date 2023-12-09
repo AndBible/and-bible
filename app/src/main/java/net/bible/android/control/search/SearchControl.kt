@@ -63,15 +63,14 @@ class SearchControl @Inject constructor(
      * @return required Intent
      */
     fun getSearchIntent(document: Book?, activity: Activity): Intent {
-        if(document?.isEpub == true) {
-            return Intent(activity, EpubSearch::class.java)
-        }
-
         val indexStatus = document?.indexStatus
         Log.i(TAG, "Index status:$indexStatus")
         return if (indexStatus == IndexStatus.DONE) {
             Log.i(TAG, "Index status is DONE")
-            Intent(activity, Search::class.java)
+            if(document.isEpub) {
+                Intent(activity, EpubSearch::class.java)
+            } else
+                Intent(activity, Search::class.java)
         } else {
             Log.i(TAG, "Index status is NOT DONE")
             Intent(activity, SearchIndex::class.java)
