@@ -84,7 +84,7 @@ class SpeakControl @Inject constructor(
     }
     
 
-    private val speakPageManager: CurrentPageManager
+    val speakPageManager: CurrentPageManager
         get() {
             var pageManager = _speakPageManager
             if(pageManager == null) {

@@ -19,6 +19,7 @@ package net.bible.android.control.page
 import kotlinx.serialization.Serializable
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.sword.BookAndKey
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
@@ -46,6 +47,7 @@ interface CurrentPage {
 
     val documentCategory: DocumentCategory
     val pageManager: CurrentPageManager
+    val bookAndKey: BookAndKey? get() = singleKey?.let {BookAndKey(it, currentDocument, anchorOrdinal, htmlId)}
 
     fun startKeyChooser(context: ActivityBase)
 

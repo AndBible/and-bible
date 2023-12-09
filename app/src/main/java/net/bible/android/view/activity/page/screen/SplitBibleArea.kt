@@ -19,7 +19,6 @@ package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
 import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -55,7 +54,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SplitBibleAreaBinding
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.MultiFragmentDocument
@@ -63,6 +61,7 @@ import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
@@ -78,18 +77,14 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.firstBibleDoc
 import net.bible.service.common.shortName
-import net.bible.service.common.tinyName
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.isStudyPad
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.versification.BookName
-import java.lang.IndexOutOfBoundsException
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -116,6 +111,7 @@ var clipboardKey: BookAndKey? = null
 class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLayout(mainBibleActivity) {
     private val isSplitVertically get() = mainBibleActivity.isSplitVertically
     private val windowControl: WindowControl get() = mainBibleActivity.windowControl
+    private val speakControl: SpeakControl get() = mainBibleActivity.speakControl
     private val bibleViewFactory: BibleViewFactory get() = mainBibleActivity.bibleViewFactory
 
     private val res = BibleApplication.application.resources
@@ -857,6 +853,25 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             R.id.windowClose -> CommandPreference(
                 launch = { _, _, _ ->  windowControl.closeWindow(window)},
                 visible = windowControl.isWindowRemovable(window) && !isMaximised
+            )
+            R.id.goToSpeak -> CommandPreference(
+                title = application.getString(R.string.go_to_ref, speakControl.speakPageManager.currentPage.bookAndKey?.let {
+                    if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
+                        it.key.shortName
+                    } else {
+                        it.shortName
+                    }
+                }),
+                launch = { _, _, _ ->
+                    speakControl.speakPageManager.currentPage.bookAndKey?.let {
+                        if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
+                            window.pageManager.setCurrentDocumentAndKey(null, it.key)
+                        } else {
+                            window.pageManager.setCurrentDocumentAndKey(it.document, it)
+                        }
+                    }
+                },
+                visible = !speakControl.isStopped
             )
             R.id.goToReference -> CommandPreference(
                 title = application.getString(R.string.go_to_ref, clipboardKey?.let {

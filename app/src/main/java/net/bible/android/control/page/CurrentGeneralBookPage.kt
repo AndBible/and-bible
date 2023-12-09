@@ -100,8 +100,7 @@ class CurrentGeneralBookPage internal constructor(
 
     override val currentPageContent: Document
         get() {
-            val key = key
-            return when(key) {
+            return when(val key = key) {
                 is StudyPadKey -> {
                     val bookmarks = pageManager.bookmarkControl.getBibleBookmarksWithLabel(key.label, addData = true)
                     val genericBookmarks = pageManager.bookmarkControl.getGenericBookmarksWithLabel(key.label, addData = true)
