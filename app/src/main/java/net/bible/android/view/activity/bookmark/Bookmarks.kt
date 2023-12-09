@@ -63,6 +63,7 @@ import javax.inject.Inject
 val BookmarkSortOrder.description get() =
     when(this) {
         BookmarkSortOrder.BIBLE_ORDER  -> CommonUtils.getResourceString(R.string.sort_by_bible_book)
+        BookmarkSortOrder.BIBLE_ORDER_DESC  -> CommonUtils.getResourceString(R.string.sort_by_bible_book)
         BookmarkSortOrder.LAST_UPDATED -> CommonUtils.getResourceString(R.string.sort_by_date)
         BookmarkSortOrder.CREATED_AT -> CommonUtils.getResourceString(R.string.sort_by_date)
         BookmarkSortOrder.CREATED_AT_DESC -> CommonUtils.getResourceString(R.string.sort_by_date)
@@ -244,6 +245,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             withContext(Dispatchers.Main) {
                 when (bookmarkSortOrder) {
                     BookmarkSortOrder.BIBLE_ORDER -> sortButton?.setIcon(R.drawable.ic_sort_bible_asc)
+                    BookmarkSortOrder.BIBLE_ORDER_DESC -> sortButton?.setIcon(R.drawable.ic_sort_bible_desc)
                     BookmarkSortOrder.CREATED_AT_DESC -> sortButton?.setIcon(R.drawable.ic_sort_date_desc)
                     else -> sortButton?.setIcon(R.drawable.ic_sort_date_asc)
                 }
@@ -316,8 +318,9 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     private fun changeBookmarkSortOrder() {
         bookmarkSortOrder = when (bookmarkSortOrder) {
-            BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.CREATED_AT_DESC
-            BookmarkSortOrder.CREATED_AT_DESC -> BookmarkSortOrder.CREATED_AT            
+            BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.BIBLE_ORDER_DESC
+            BookmarkSortOrder.BIBLE_ORDER_DESC -> BookmarkSortOrder.CREATED_AT_DESC
+            BookmarkSortOrder.CREATED_AT_DESC -> BookmarkSortOrder.CREATED_AT
             BookmarkSortOrder.CREATED_AT -> BookmarkSortOrder.BIBLE_ORDER
             else -> BookmarkSortOrder.CREATED_AT_DESC
         }
