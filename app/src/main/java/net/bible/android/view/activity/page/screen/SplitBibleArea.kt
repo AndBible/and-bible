@@ -85,6 +85,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.download.isStudyPad
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.versification.BookName
 import java.lang.IndexOutOfBoundsException
 import java.util.*
@@ -858,10 +859,20 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 visible = windowControl.isWindowRemovable(window) && !isMaximised
             )
             R.id.goToReference -> CommandPreference(
-                title = application.getString(R.string.go_to_ref, clipboardKey?.shortName),
+                title = application.getString(R.string.go_to_ref, clipboardKey?.let {
+                    if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
+                        it.key.shortName
+                    } else {
+                        it.shortName
+                    }
+                }),
                 launch = { _, _, _ ->
                     clipboardKey?.let {
-                        window.pageManager.setCurrentDocumentAndKey(it.document, it)
+                        if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
+                            window.pageManager.setCurrentDocumentAndKey(null, it.key)
+                        } else {
+                            window.pageManager.setCurrentDocumentAndKey(it.document, it)
+                        }
                     }
                 },
                 visible = clipboardKey != null
