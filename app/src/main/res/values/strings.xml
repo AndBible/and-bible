@@ -827,7 +827,7 @@
     <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
         (see "Apache Lucene - Query Parser Syntax" for more details)
     </string>
-    <string name="help_search_text2">Search text can include special characters like *, ?, AND, OR, NOT</string>
+    <string name="help_search_text2">Search text can include special characters like *, AND, OR, NOT</string>
     <string name="help_search_details">Please see %s for more details.</string>
     <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
     <string name="help_fts5">FTS5 Full-text Query Syntax</string>
