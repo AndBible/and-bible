@@ -925,6 +925,7 @@
   <string name="strongs_off">Oprit</string>
   <string name="strongs_links">Legături</string>
   <string name="strongs_text_and_links">Text și legături</string>
+  <string name="strongs_hidden_links">Legături ascunse</string>
   <string name="verse_tip">Pentru a alege un text din Biblie, ține degetul apăsat pe el</string>
   <string name="permission_required">Permisiune necesară</string>
   <string name="labels_search_hint">Caută</string>

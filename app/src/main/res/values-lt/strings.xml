@@ -909,6 +909,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="strongs_off">Išjungta</string>
   <string name="strongs_links">Nuorodos</string>
   <string name="strongs_text_and_links">Tekstas ir nuorodos</string>
+  <string name="strongs_hidden_links">Paslėptos nuorodos</string>
   <string name="verse_tip">Norėdami žymėti kelias eilutes ar eilutės dalį, paspauskite ir palaikykite ant Biblijos teksto</string>
   <string name="permission_required">Reikalingas leidimas</string>
   <string name="labels_search_hint">Ieškoti</string>

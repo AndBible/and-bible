@@ -843,6 +843,7 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="strongs_off">Ne montri</string>
   <string name="strongs_links">Ligiloj</string>
   <string name="strongs_text_and_links">Tekstoj kaj ligiloj</string>
+  <string name="strongs_hidden_links">Kaŝitaj ligiloj</string>
   <string name="verse_tip">Por elekti parton aŭ plurajn versojn, frapetadu la tekston de Biblio</string>
   <string name="permission_required">Permeso postulata</string>
   <string name="labels_search_hint">Serĉi</string>
