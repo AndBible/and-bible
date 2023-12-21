@@ -33,6 +33,7 @@ import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
+import java.lang.Exception
 
 
 import java.util.ArrayList
@@ -103,6 +104,9 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 val k = doc.getKey(entity.key)
                 if(k is RangedPassage) k[0] else k
             } catch (e: NoSuchKeyException) {
+                Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
+                continue
+            } catch (e: Exception) {
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
             }
