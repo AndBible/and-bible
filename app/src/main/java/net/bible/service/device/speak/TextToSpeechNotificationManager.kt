@@ -64,7 +64,7 @@ class TextToSpeechNotificationManager {
 
         private const val WAKELOCK_TAG = "andbible:speak-wakelock"
         private const val TAG = "Speak/TTSService"
-        private lateinit var wakeLock: PowerManager.WakeLock
+        private var wakeLock: PowerManager.WakeLock? = null
 
         private var foregroundNotification: Notification? = null
 
@@ -96,7 +96,7 @@ class TextToSpeechNotificationManager {
         private fun start() {
             Log.i(TAG, "START_SERVICE")
             startForeground(TTS_NOTIFICATION_ID, foregroundNotification!!)
-            wakeLock.acquire()
+            wakeLock?.acquire()
         }
 
         override fun onDestroy() {
@@ -124,8 +124,8 @@ class TextToSpeechNotificationManager {
 
         private fun stop(removeNotification: Boolean = false) {
             Log.i(TAG, "STOP_SERVICE")
-            if(wakeLock.isHeld) {
-                wakeLock.release()
+            if(wakeLock?.isHeld == true) {
+                wakeLock?.release()
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 stopForeground(if(removeNotification) STOP_FOREGROUND_REMOVE else STOP_FOREGROUND_DETACH)
