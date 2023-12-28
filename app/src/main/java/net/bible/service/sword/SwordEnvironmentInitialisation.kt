@@ -18,6 +18,7 @@ package net.bible.service.sword
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.core.content.ContextCompat
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
@@ -89,6 +90,7 @@ object SwordEnvironmentInitialisation {
 
     @Throws(BookException::class)
     fun enableDefaultAndManualInstallFolder() {
+        Log.i("SwordInit", "enableDefaultAndManualInstallFolder: manual folders enabled!")
         CWProject.setHome("jsword.home", SharedConstants.modulesDir.absolutePath, SharedConstants.manualInstallDir.absolutePath)
         // the following causes Sword to initialise itself and can take quite a few seconds
 		// add manual install dir to this list

@@ -262,6 +262,7 @@ object BackupControl {
                 CommonUtils.fixAlertDialogButtons(dialog)
             }
         }
+        Log.i(TAG, "Selected modules to be backed up: ${result?.joinToString(",") { it.initials }}")
         return result
     }
 
