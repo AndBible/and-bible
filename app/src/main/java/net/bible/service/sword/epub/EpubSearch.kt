@@ -18,6 +18,8 @@
 package net.bible.service.sword.epub
 
 import android.content.ContentValues
+import android.database.sqlite.SQLiteCantOpenDatabaseException
+import android.util.Log
 import io.requery.android.database.sqlite.SQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
 import java.io.File
@@ -26,22 +28,27 @@ import java.io.File
 data class EpubSearchResult(val fragId: Long, val ordinal: Int, val text: String)
 
 class EpubSearch(val file: File) {
-    private val db = SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY)
-    val isIndexed: Boolean get() = db.run {
-        !query("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf("SearchIndex")).isAfterLast
+    private val db = try {
+        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY)
+    } catch (e: SQLiteCantOpenDatabaseException) {
+        Log.e("EpubSearch", "Could not open database ${file.path}")
+        null
     }
+    val isIndexed: Boolean get() = db?.run {
+        !query("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf("SearchIndex")).isAfterLast
+    }?: false
 
-    fun deleteIndex() = db.run {
+    fun deleteIndex() = db?.run {
         execSQL("""DROP TABLE IF EXISTS SearchIndex""")
     }
 
-    fun createTable() = db.run {
+    fun createTable() = db?.run {
         execSQL("""
             CREATE VIRTUAL TABLE SearchIndex USING FTS5(contentText, frag_id UNINDEXED, ordinal UNINDEXED);
         """.trimIndent())
     }
 
-    fun addContent(content: String, fragId:Long, ordinal: Int) = db.run {
+    fun addContent(content: String, fragId:Long, ordinal: Int) = db?.run {
         insert("SearchIndex", CONFLICT_IGNORE, ContentValues().apply {
             put("contentText", content)
             put("frag_id", fragId)
@@ -49,7 +56,7 @@ class EpubSearch(val file: File) {
         })
     }
 
-    fun search(text: String): List<EpubSearchResult> = db.run {
+    fun search(text: String): List<EpubSearchResult> = db?.run {
         query("SELECT frag_id, ordinal, highlight(SearchIndex, 0, '<b>', '</b>') FROM SearchIndex WHERE contentText MATCH ?", bindArgs = arrayOf(text)).let { c ->
             c.moveToFirst()
             val list = mutableListOf<EpubSearchResult>()
@@ -62,5 +69,5 @@ class EpubSearch(val file: File) {
             }
             list
         }
-    }
+    }?: emptyList()
 }
