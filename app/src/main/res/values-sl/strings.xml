@@ -703,6 +703,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
         Vsi zaznamki, ki so bili ustvarjeni s to oznako, se samodejno prikažejo v dokumentu študijske beležke.
         Poleg zaznamkov so beležke primerne tudi za vnose besedila po meri.</string>
   <string name="help_search_title">Iskanje</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">
 Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
         (za več podrobnosti si poglejte \"Apache Lucene - Query Parser Syntax\").

@@ -41,6 +41,7 @@
   <string name="search_in">Caută în %s</string>
   <string name="do_in_background">Continuă în ascuns</string>
   <string name="rebuild_index_button">Refă</string>
+  <string name="creating_index_for">Se creează indexul pentru %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s rezultate în %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Toate cuvintele</string>
   <string name="search_any_word">Fiecare cuvînt</string>
   <string name="search_phrase">Frază</string>
+  <string name="search_fts_query">Sintaxa brută a căutărilor</string>
   <string name="search_result_count">%drezultate găsite </string>
   <string name="search_showing_first">Prea multe rezultate. Afișez primele %d</string>
   <string name="search_bible_section_group_prompt">Unde să caut</string>
@@ -714,9 +716,14 @@
         Pe lîngă semnele de carte, în notițele de studiu pot fi introduse texte personalizate.
     </string>
   <string name="help_search_title">Caută</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Textul de căutare poate include caractere speciale, cum ar fi *, ?, AND, OR, NOT
         (vezi „Apache Lucene - Query Parser Syntax” pentru detalii)
     </string>
+  <string name="help_search_text2">Căutarea textului poate include caractere speciale precum *, AND, OR, NOT</string>
+  <string name="help_search_details">A se vedea %s pentru mai multe detalii.</string>
+  <string name="help_apache_lucene">Apache Lucene - Sintaxa analizorului de căutare</string>
+  <string name="help_fts5">FTS5 Sintaxa căutării în tot textul</string>
   <string name="help_workspaces_title">Spații de studiu</string>
   <string name="help_workspaces_text">
         Spațiile de studiu permit existența mai multor medii de studiu în funcție de context.

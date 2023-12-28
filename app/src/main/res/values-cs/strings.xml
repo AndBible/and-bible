@@ -704,6 +704,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
        Kromě záložek je možné do studijní složky zapisovat vlastní text.
 </string>
   <string name="help_search_title">Hledat</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
         (pro více informací viz \"Apache Lucene - Query Parser Syntax\")
 </string>

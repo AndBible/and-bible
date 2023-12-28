@@ -682,6 +682,7 @@ vagy bármilyen jegyzet készítését, amely több bibliai verse hivatkozik. Mi
 Az adott címkével létrehozott összes könyvjelző automatikusan megjelenik a jegyzetlapon.
 A könyvjelzők mellett egyéni szövegbejegyzések is hozzáadhatók a jegyzetlapokhoz.</string>
   <string name="help_search_title">Keresés</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">A keresési kifejezés spciális karaktereket és kifejezéseket is tartalmazhat, például: \", ?, AND, OR, NOT
 (további információkért keresse az \"Apache Lucence - Query Parser\" szintaxisát)</string>
   <string name="help_workspaces_title">Munkamenetek</string>

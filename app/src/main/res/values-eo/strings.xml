@@ -41,6 +41,7 @@
   <string name="search_in">Serĉi en %s</string>
   <string name="do_in_background">Pluigi fone</string>
   <string name="rebuild_index_button">Rekrei</string>
+  <string name="creating_index_for">Kreado de indekso por %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s rezultoj en %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">ĉiujn vortojn</string>
   <string name="search_any_word">iun vorton</string>
   <string name="search_phrase">la tutan frazon</string>
+  <string name="search_fts_query">krud-sintaksan rezulton</string>
   <string name="search_result_count">%d rezultoj trovitaj</string>
   <string name="search_showing_first">Tro multe da rezultoj. Montrante %d komencajn</string>
   <string name="search_bible_section_group_prompt">Serĉi en:</string>
@@ -660,8 +662,13 @@ Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna
   <string name="help_studypads_text">
 Notblokoj estas destinitaj por fari notojn pri predikoj, prepari predikojn aŭ por skribi personajn notojn ligitajn al pluraj fragmentoj de la Biblio. Ĉiu notbloko estas ligita al unu legosigna etikedo. Ĉiu kreita legosigno aŭtomate montriĝas en la dokumento notbloko kune kun ligita legosigna etikedo. Aldone al legosignoj, eblas aldoni propran tekston al notbloko.</string>
   <string name="help_search_title">Serĉi</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Serĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT
  (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj)</string>
+  <string name="help_search_text2">La serĉata teksto povas enhavi specialajn operatorojn kiel: *, AND, OR, NOT.</string>
+  <string name="help_search_details">Legu la %s por pli da detaloj.</string>
+  <string name="help_apache_lucene">serĉan sintakson de Apache Lucene</string>
+  <string name="help_fts5">plentekstan serĉan sintakson de FTS5</string>
   <string name="help_workspaces_title">Laborspacoj</string>
   <string name="help_workspaces_text">
 Laborspacoj ebligas havi plurajn sendependajn mediojn por labori. Funkcioj de laborspacoj estas disponeblaj per la menuo de agordoj (ĉe supra dekstra angulo). Fingrumu suben el la ilarstrio por rapide aliri labortablojn. Fingrumu maldekstren/dekstren sur la ilarstrio por baskuli inter antaŭa/sekva laborspacoj.</string>
@@ -685,7 +692,7 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punkto
   <string name="supported_formats">Subtenataj dosiertipoj estas: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">zip-dosieroj enhavantaj modulojn Sword aŭ sekurkopiajn dosierojn de dokumentoj (*.abmd) kreitajn per %s</string>
-  <string name="format_mysword">dokumentojn MySword (*.mybible)</string>
+  <string name="format_mysword">dokumentoj MySword (*.mybible)</string>
   <string name="format_mybible">dokumentoj MyBible (*.SQLite3)</string>
   <string name="format_epub">dokumentoj EPUB (*.epub)</string>
   <string name="redownload_message">

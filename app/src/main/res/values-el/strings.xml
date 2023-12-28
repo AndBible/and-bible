@@ -41,6 +41,7 @@
   <string name="search_in">Αναζήτηση σε %s</string>
   <string name="do_in_background">Συνέχεια στο παρασκήνιο</string>
   <string name="rebuild_index_button">Αναδόμηση</string>
+  <string name="creating_index_for">Δημιουργία ευρετηρίου για %s...</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s αποτελέσματα σε %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Όλες οι λέξεις</string>
   <string name="search_any_word">Κάθε λέξη</string>
   <string name="search_phrase">Φράση</string>
+  <string name="search_fts_query">Σύνταξη ακατέργαστου ερωτήματος</string>
   <string name="search_result_count">%d αποτελέσματα βρέθηκαν </string>
   <string name="search_showing_first">Πάρα πολλα αποτελέσματα. Εμφάνιση του πρώτου %d</string>
   <string name="search_bible_section_group_prompt">Αναζήτηση που</string>
@@ -677,8 +679,13 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 Όλοι οι Σελιδοδείκτες που έχουν δημιουργηθεί με αυτή την αντίστοιχη ετικέτα εμφανίζονται στο έγγραφο του Σημειωματάριου Μελέτης.
 Επιπρόσθετα με τους Σελιδοδείκτες, μπορούν να υπάρχουν ιδιόχειρες εισαγωγές κειμένου στο Σημειωματάριο.</string>
   <string name="help_search_title">Αναζήτηση</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Το κείμενο αναζήτησης μπορεί να περιέχει ειδικούς χαρακτήρες όπως *, ?, AND, OR, NOT
 (δες \"Apache Lucene - Query Parser Syntax\" για περισσότερα)</string>
+  <string name="help_search_text2">Το κείμενο αναζήτησης μπορεί να περιλαμβάνει ειδικούς χαρακτήρες όπως *, AND, OR, NOT</string>
+  <string name="help_search_details">Παρακαλώ δείτε %s για περισσότερες λεπτομέρειες</string>
+  <string name="help_apache_lucene">Apache Lucene - Σύνταξη αναλυτή ερωτήματος</string>
+  <string name="help_fts5">FTS5 Σύνταξη ερωτήματος πλήρους κειμένου</string>
   <string name="help_workspaces_title">Χώροι εργασίας</string>
   <string name="help_workspaces_text">
 Οι Χώροι Εργασίας επιτρέπουν την ύπαρξη πέραν του ενός εργασιακού περιβάλλοντος. Οι λειτουργίες του χώρου 
@@ -870,6 +877,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="strongs_off">Απενεργοποίηση</string>
   <string name="strongs_links">Σύνδεσμοι</string>
   <string name="strongs_text_and_links">Κείμενο και σύνδεσμοι</string>
+  <string name="strongs_hidden_links">Κρυφοί σύνδεσμοι</string>
   <string name="verse_tip">Για να επιλέξετε πολλούς στίχους ή μέρος τους, μπορείτε να πατήσετε παρατεταμένα στο Βιβλικό κείμενο</string>
   <string name="permission_required">Απαιτείται άδεια</string>
   <string name="labels_search_hint">Αναζήτηση</string>

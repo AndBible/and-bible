@@ -707,6 +707,7 @@ Todos los marcadores que se han creado con esa etiqueta respectiva aparecen auto
 Además de los marcadores, puede haber entradas de texto personalizadas en un pizarra de estudio.
 </string>
   <string name="help_search_title">Búsqueda</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">La búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT
 (vea \"Apache Lucene - Query Parser Syntax\" para más detalles)</string>
   <string name="help_workspaces_title">Espacios</string>

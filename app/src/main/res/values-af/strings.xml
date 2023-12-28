@@ -693,6 +693,7 @@ persoonlike Bybelstudienotas neer te skry wat veelvuldige Bybelverwysings het. E
 Alle Boekmerke wat met daardie onderskeie etiket geskep is, verskyn outomaties in die studiepaddokument.
 Benewens boekmerke, kan daar persoonlike teksinskrywings in \'n studieblok wees.</string>
   <string name="help_search_title">Soek</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
 (sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
   <string name="help_workspaces_title">Werkruimtes</string>

@@ -714,6 +714,7 @@ katkıda bulunmayı düşünün. :-)</string>
     Yer imlerine ek olarak, bir çalışma defterinde özel metin girişleri de olabilir.
   </string>
   <string name="help_search_title">Arama</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">
     Arama metni *, ?, AND, OR, NOT gibi özel karakterler içerebilir
     (Daha fazla bilgi için \"Apache Lucene - Sorgu Ayrıştırıcı Sözdizimi\" bölümüne bakın)

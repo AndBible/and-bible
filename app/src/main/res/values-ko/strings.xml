@@ -593,6 +593,7 @@
   <!--Help-->
   <string name="help_bookmarks_title">북마크와 내 노트</string>
   <string name="help_search_title">검색</string>
+  <!--TODO: to be removed-->
   <string name="help_workspaces_title">워크스페이스</string>
   <string name="help_window_pinning_title">윈도우 고정</string>
   <!--Welcome text-->

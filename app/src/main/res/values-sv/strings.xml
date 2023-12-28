@@ -495,6 +495,7 @@ i GT och NT varje dag.
   <!--Help-->
   <string name="help_nav_title">Navigering</string>
   <string name="help_search_title">Sök</string>
+  <!--TODO: to be removed-->
   <string name="help_workspaces_title">Arbetsytor</string>
   <string name="help_hidden_features_title">Dolda genvägar</string>
   <string name="help_window_pinning_title">Nåla fast fönster</string>

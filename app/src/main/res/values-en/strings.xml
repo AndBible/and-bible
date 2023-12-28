@@ -134,6 +134,7 @@ provides easy access to manipulate and customize the window.</string>
         Long press a bookmark in bookmarks listing to add labels or delete bookmark.
         Long press links to choose if you want to open them in the current window, new window or special links window.
     </string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
         (see \"Apache Lucene - Query Parser Syntax\" for more details)
     </string>

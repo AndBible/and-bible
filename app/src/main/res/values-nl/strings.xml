@@ -685,6 +685,7 @@ Iedere studiemap is gekoppeld aan een bladwijzerlabel. Alle bladwijzers die met 
 Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te nemen. 
     </string>
   <string name="help_search_title">Zoeken</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">De zoekopdracht mag speciale tekens bevatten, zoals *, ?, AND, OR, NOT
         (lees \"Apache Lucene - Query Parser Syntax\" voor meer informatie hierover)
     </string>

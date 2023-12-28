@@ -667,6 +667,7 @@ Studienmappen sollen das Niederschreiben von Predigtnotizen, ganzen Predigten od
 Alle Lesezeichen, die zu dieser Kaegorie hinzugefügt worden sind, erscheinen automatisch in der Studienmappe.
 Neben Lesezeichen können auch andere Einträge händisch hinzugefügt werden.</string>
   <string name="help_search_title">Suche</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
   <string name="help_workspaces_title">Arbeitsbereich</string>
   <string name="help_workspaces_text">

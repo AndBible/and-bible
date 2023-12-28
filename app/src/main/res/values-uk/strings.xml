@@ -701,6 +701,7 @@
 Усі закладки, створені з відповідною міткою, автоматично відображаються в документі блокноту.
 Окрім закладок, у блокноті можуть бути власні текстові записи.</string>
   <string name="help_search_title">Пошук</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Текст пошуку може містити спеціальні символи, такі як *, ?, AND, OR, NOT
 (див. \"Apache Lucene - Query Parser Syntax\" для більш детальнішої інформації)</string>
   <string name="help_workspaces_title">Робочі області</string>

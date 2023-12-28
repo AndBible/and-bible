@@ -649,6 +649,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 बुकमार्क के अतिरिक्त, स्टडी पैड में कस्टम टेक्स्ट प्रविष्टियां हो सकती हैं।
  </string>
   <string name="help_search_title"> खोज</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text"> खोज पाठ में *,?,AND,OR,NOT जैसे विशेष वर्ण शामिल हो सकते हैं
 (अधिक विवरण के लिए \"Apache Lucene - Query Parser Syntax\"  देखें)
 </string>

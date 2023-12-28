@@ -681,6 +681,7 @@ d’afficher vos notes dans une fenêtre séparée.</string>
   Tous les signets qui ont été créés avec cette étiquette respective apparaissent automatiquement dans le document du bloc-note.
 En plus des signets, un bloc-note peut contenir des entrées de texte personnalisées.</string>
   <string name="help_search_title">Rechercher</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">La recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND, OR, NOT
  (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
   <string name="help_workspaces_title">Espaces</string>

@@ -710,6 +710,7 @@
         புக்மார்க்குகளுக்கு கூடுதலாக, ஸ்டடி பேடில் தனிப்பயன் உரை உள்ளீடுகளும் இருக்கலாம்.
     </string>
   <string name="help_search_title">தேடல்</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">தேடும்போது *, ?, AND, OR, NOT போன்ற சிறப்பு எழுத்துகளைப் பயன்படுத்தலாம்.
         (மேலதிக தகவல்களுக்கு \"Apache Lucene - Query Parser Syntax\" ஐ காண்க)</string>
   <string name="help_workspaces_title">பணியிடங்கள்</string>

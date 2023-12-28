@@ -707,6 +707,7 @@ da jednostavno zapišete lične beleške o izučavanju Biblije koje sadrže preg
 Svi Obeleživači koji su napravljeni sa korespondirajućim oznakama biće automatski prikazani u dokumentu Radne sveske.
 Pored obeleživača, moguće je i ubaciti tekst po volji u radnoj svesci.</string>
   <string name="help_search_title">Pretraga</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Tekst za pretragu može sadržati posebne znake kao *, ?, AND, OR, NOT
         (za više detalja pogledajte \"Apači Lucene - Query Parser sintaksa\")
     </string>

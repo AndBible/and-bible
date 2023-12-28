@@ -691,6 +691,7 @@ Os Estudos são projetados para tornar mais fácil escrever notas de sermões, p
  Todos os marcadores que foram criados com aquela respectiva etiqueta aparecem automaticamente no documento do Estudo.
  Além dos marcadores, pode haver entradas de texto personalizadas num Estudo</string>
   <string name="help_search_title">Pesquisar</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">O texto da pesquisa pode incluir caracteres especiais como *,?, AND, OR, NOT
 (consulte \"Apache Lucene - sintaxe do analisador de consultas\" para obter mais detalhes)</string>
   <string name="help_workspaces_title">Áreas de trabalho</string>

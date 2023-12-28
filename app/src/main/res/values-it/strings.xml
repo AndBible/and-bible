@@ -41,6 +41,7 @@
   <string name="search_in">Trova in %s</string>
   <string name="do_in_background">Continua in sottofondo</string>
   <string name="rebuild_index_button">Ricostruisci</string>
+  <string name="creating_index_for">Creazione indice per %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s risultati in %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Tutte le parole</string>
   <string name="search_any_word">Ogni parola</string>
   <string name="search_phrase">Frase</string>
+  <string name="search_fts_query">Sintassi della query</string>
   <string name="search_result_count">%d risultati trovati</string>
   <string name="search_showing_first">Troppi risultati. Mostro i primi %d</string>
   <string name="search_bible_section_group_prompt">Dove cercare</string>
@@ -660,9 +662,14 @@ Premi a lungo i collegamenti per scegliere se desideri aprirli nella finestra co
   <string name="help_studypads_text">
 Gli Appunti di studio sono progettati per facilitare la scrittura di appunti per la preparazione di sermoni, o semplicemente per annotare note personali di studio della Bibbia con riferimenti biblici multipli. Ogni Appunto di studio è associato a un\'etichetta di Segnalibro. Tutti i Segnalibri creati con una specifica etichetta appaiono automaticamente nel documento dell\'appunto di studio. Oltre ai Segnalibri, si possono inserire voci di testo personalizzate negli Appunti di studio.</string>
   <string name="help_search_title">Ricerca</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Il testo di ricerca può includere caratteri speciali come *,?, AND, OR, NOT
   (vedi \"Apache Lucene - Sintassi del parser di query\" per maggiori dettagli)
 </string>
+  <string name="help_search_text2">Il testo della ricerca può includere caratteri speciali come *, AND, OR, NOT</string>
+  <string name="help_search_details">Vedi %s per ulteriori dettagli.</string>
+  <string name="help_apache_lucene">Apache Lucene - Sintassi del parser di query</string>
+  <string name="help_fts5">FTS5 Sintassi delle query full-text</string>
   <string name="help_workspaces_title">Spazi di lavoro</string>
   <string name="help_workspaces_text">
 Gli spazi di lavoro consentono di avere più ambienti di lavoro dipendenti dal contesto. È possibile accedere alle funzioni dello spazio

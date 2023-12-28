@@ -533,6 +533,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
         I tillegg til bokmerker, kan man også ha bolker med tekst i et studiebrett.
 </string>
   <string name="help_search_title">Søk</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Tekstsøk kan inneholde spesialtegn som *, ?, AND, OR, NOT
         (se \"Apache Lucene - Query Parser Syntax\" for mer informasjon)
     </string>

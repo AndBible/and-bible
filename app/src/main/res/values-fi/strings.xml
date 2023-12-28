@@ -41,6 +41,7 @@
   <string name="search_in">Etsi dokumentissa %s</string>
   <string name="do_in_background">Jatka taustalla</string>
   <string name="rebuild_index_button">Luo indeksi</string>
+  <string name="creating_index_for">Luodaan indeksiä: %s...</string>
   <!--X results in module Y-->
   <string name="search_with_results2"> %2s:  %1s tulosta</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Kaikkia sanoja</string>
   <string name="search_any_word">Jotain sanoista</string>
   <string name="search_phrase">Lausetta</string>
+  <string name="search_fts_query">Raa\'an kyselyn syntaksi</string>
   <string name="search_result_count">%d jaetta löytyi</string>
   <string name="search_showing_first">Liian monta hakutulosta. Näytetään ensimmäiset %d</string>
   <string name="search_bible_section_group_prompt">Kohdista haku</string>
@@ -664,7 +666,12 @@ Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pi
   <string name="help_bookmarks_text">Voit luoda kirjanmerkkejä valitsemalla tekstiä ja valitsemalla \"Kirjanmerkki\" ponnahdusvalikosta. Voit lisätä omia huomioita uuteen kirjanmerkkiin painamalla korostettua tekstiä raamattunäkymässä. Voit myös käyttää \"Omat Merkinnät\" -erikoisdokumenttia, joka löytyy kommentaareista. Sen avulla voit tarkastella huomioitasi erillisessä ikkunassa.</string>
   <string name="help_studypads_text">Opintoalustat on suunniteltu siihen että voit helposti kirjoittaa muistiinpanoja saarnan aikana, valmistella saarnoja tai kirjoittaa raamattuviittauksia sisältäviä muistiinpanoja Raamattua tutkiessasi. Jokainen tutkimusalusta on liitetty yhteen kirjanmerkkiryhmään. Kaikki kirjanmerkit jotka luot kyseiseen kirjanmerkkiryhmään näkyvät automaattisesti opintoalustadokumentissa. Kirjanmerkkien lisäksi voit myös lisätä omia tekstikatkelmia opintoalustaan. </string>
   <string name="help_search_title">Etsi</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Tekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)</string>
+  <string name="help_search_text2">Etsittävä teksti voi sisältää erikoismerkkejä kuten *, AND, OR, NOT</string>
+  <string name="help_search_details">Katso lisätietoja: %s</string>
+  <string name="help_apache_lucene">Apache Lucene kyselysyntaksi</string>
+  <string name="help_fts5">FTS5 kyselykieli</string>
   <string name="help_workspaces_title">Työtilat</string>
   <string name="help_workspaces_text">
 Työtilat mahdollistaa usean eri työympäristön eri asiayhteyksiin. Työtilaan liittyvät toiminnot ovat käytettävissä oikealla yläkulmassa löytyvästä valikosta. Nopea tapa käsitellä työtiloja on pyyhkäistä alaspäin työkalupalkista. Voit myös pyykäistä vasemmalle ja oikealle työkalupalkista päästäksesi edelliseen / seuraavaan työtilaan. </string>

@@ -705,6 +705,7 @@ http://www.heartlight.org, разрешение предоставлено
 Все закладки, созданные с соответствующим ярлыком, автоматически появляются в блокноте.
 Помимо закладок, в блокноте могут быть пользовательские текстовые записи.</string>
   <string name="help_search_title">Поиск</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Текст поиска может содержать специальные символы, такие как *, ?, AND, OR, NOT
 (см. \"Apache Lucene - Query Parser Syntax\" для более подробной информации)</string>
   <string name="help_workspaces_title">Рабочие области</string>

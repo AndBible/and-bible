@@ -652,6 +652,7 @@
   <string name="help_studypads_text">
 פנקסי לימוד מתוכננים לאפשר בקלות הכנת דרשות או הערות אישיות הכוללות מספר מראי מקומות. כל פנקס לימוד מקושר לתווית אחת. כל הסימניות המקושרות לתווית זו יופיעו בפנקס הלימוד. ניתן להוסיף לפנקס לימוד גם טקסט חופשי.</string>
   <string name="help_search_title">חיפוש</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">חיפוש טקסט יכול לכלול סימנים מיוחדים כגון  *, ?, AND, OR, NOT
         (קרא את \"Apache Lucene - Query Parser Syntax\" למידע נוסף [באנגלית[))
     </string>

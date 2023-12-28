@@ -534,6 +534,7 @@
   <string name="help_contextmenus_title">قوائم السياق</string>
   <string name="help_bookmarks_title">الإشارات المرجعية وملاحظاتي</string>
   <string name="help_search_title">بحث</string>
+  <!--TODO: to be removed-->
   <string name="help_workspaces_title">مساحات العمل</string>
   <string name="help_hidden_features_title">الاختصارات المخفية</string>
   <string name="help_window_pinning_title">تثبيت النافذة</string>

@@ -668,6 +668,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 Бетбелгілерге қосымша оқу планшет тақтасында реттелетін мәтіндік жазбалары болуы мүмкін.
 </string>
   <string name="help_search_title">Іздеу</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Текст іздеу - осындай сияқты *, ?, ЖӘНЕ, НЕМЕСЕ, ЕМЕС арнайы таңбаларды қамтуы мүмкін
 (толығырақ мәліметтер үшін  \"Apache Lucene - Query Parser Syntax\" көріңіз)</string>
   <string name="help_workspaces_title">Жұмыс кеңістіктері</string>

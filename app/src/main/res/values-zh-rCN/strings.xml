@@ -697,6 +697,7 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
 个人笔记可方便使用者编写及准备讲道笔记、或者作个人的多经文研究。每一个个人笔记都有专属的书签。所有标记了该书签的经文，均会自动出现在对应的个人笔记中。除了书签以外，使用者亦可自行增添文字。
 </string>
   <string name="help_search_title">搜寻</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">搜寻字词可以加入特殊字符如 * , ?, AND, OR, NOT
 (有关详细信息请参「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_workspaces_title">工作检视</string>

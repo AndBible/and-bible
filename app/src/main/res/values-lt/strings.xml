@@ -41,6 +41,7 @@
   <string name="search_in">Ieškoti čia: %s</string>
   <string name="do_in_background">Tęsti fone</string>
   <string name="rebuild_index_button">Perkurti</string>
+  <string name="creating_index_for">Kuriamas %s indeksas…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">Rezultatų (%1s): %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Visi žodžiai</string>
   <string name="search_any_word">Bet kuris žodis</string>
   <string name="search_phrase">Frazė</string>
+  <string name="search_fts_query">Neapdorotų užklausų sintaksė</string>
   <string name="search_result_count">Surasta atitikčių: %d</string>
   <string name="search_showing_first">Per daug atitikčių. Rodomos pirmos %d</string>
   <string name="search_bible_section_group_prompt">Kur ieškoti</string>
@@ -703,8 +705,13 @@ Naujai žymei pridėti pastabas galite Biblijos rodinyje paspaudę ant paryškin
         Be žymių, bloknote dar gali būti įterpiami teksto įrašai.
     </string>
   <string name="help_search_title">Paieška</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Paieškos tekste gali būti specialūs simboliai, tokie kaip *, ?, AND, OR, NOT
 (Išsamios informacijos ieškokite „Apache Lucene - Query Parser Syntax“)</string>
+  <string name="help_search_text2">Ieškomame tekste gali būti ypatingi simboliai, pvz.: *, AND, OR, NOT</string>
+  <string name="help_search_details">Išsamesnei informacijai, žiūrėkite %s.</string>
+  <string name="help_apache_lucene">Apache Lucene - Užklausų analizatoriaus sintaksė</string>
+  <string name="help_fts5">FTS5 absoliučiųjų užklausų sintaksė</string>
   <string name="help_workspaces_title">Darbo sritys</string>
   <string name="help_workspaces_text">
         Darbo sritys leidžia turėti kelias darbines aplinkas. Darbo sričių funkcijas

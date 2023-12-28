@@ -41,6 +41,7 @@
   <string name="search_in">Encontrar em %s</string>
   <string name="do_in_background">Continuar em segundo plano</string>
   <string name="rebuild_index_button">Reconstruir</string>
+  <string name="creating_index_for">Criar índice para %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s resultados em %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Todas as palavras</string>
   <string name="search_any_word">Qualquer palavra</string>
   <string name="search_phrase">Frase</string>
+  <string name="search_fts_query">Sintaxe de consulta</string>
   <string name="search_result_count">%d resultado(s) encontrado(s)</string>
   <string name="search_showing_first">Foram encontrados resultados demais. Mostrando primeiros %d</string>
   <string name="search_bible_section_group_prompt">Onde procurar</string>
@@ -181,6 +183,8 @@
   <string name="pref_font_family_label_name">Família do tipo de letra ( %s )</string>
   <string name="prefs_font_family_summary">Altere a família do tipo de letra. Dica: mais tipos de letra podem ser instalados por meio da função Download de documentos / Complementos.</string>
   <string name="prefs_text_bookmarks_title">Definições de Marcadores e As Minhas Notas</string>
+  <string name="prefs_enable_bluetooth_title">Ativar botões de mídia via Bluetooth</string>
+  <string name="prefs_enable_bluetooth_summary">Manipule botões de mídia Bluetooth para iniciar/parar de falar</string>
   <string name="create_bookmark">Criar um novo Marcador</string>
   <string name="create_bookmark_with_a_note">Criar um novo Marcador com uma nota</string>
   <!--Colors preferences-->
@@ -219,6 +223,7 @@
   <string name="next">Próximo</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Por favor instale os dicionários Strong em Hebraico e Grego</string>
+  <string name="no_indexed_bible_with_strongs_ref">Você deve fazer baixar uma bíblia contendo números do dicionário Strong e baixar o índice através da Pesquisa</string>
   <string name="morph_robinson_not_installed">Faça o download do dicionário \'Robinson\'s Morphological Analysis Codes\' (em inglês)</string>
   <string name="go_to_downloads">Ir para Downloads</string>
   <!--Module download-->
@@ -264,6 +269,7 @@
   <string name="overwrite_files">Os seguintes ficheiros já existem: %s
 Substituir?</string>
   <string name="overwrite_files_title">Substituir ficheiros?</string>
+  <string name="could_not_overwrite_files">Não foi possível sobrescrever os arquivos: %s.  Além disso, a instalação foi bem-sucedida.</string>
   <string name="install_do_you_want">Deseja instalar o módulo (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plano de leitura</string>
@@ -365,6 +371,14 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="label_color">Cor da etiqueta</string>
   <!--can be removed-->
   <string name="label_color_example">Exemplo</string>
+  <string name="marker_style">Mostrar somente marcador para marcadores selecionados</string>
+  <string name="marker_style_whole_verse">Mostrar somente o marcador para versículos inteiros destacados</string>
+  <string name="hide_style">Ocultar para os marcadores selecionados</string>
+  <string name="hide_style_whole_verse">Ocultar para os versículos inteiros marcados</string>
+  <string name="bookmark_warning">Há marcadores e/ou notas para este documento</string>
+  <string name="bookmark_warning2">
+Se a estrutura do documento tiver sido alterada, a atualização deste documento poderá fazer com que
+os locais desses marcadores/notas se movam dentro do documento ou desapareçam completamente.</string>
   <string name="bookmark_warning3">Ainda deseja atualizar o módulo?</string>
   <string name="bookmark_warning4">É recomendado que faça uma cópia de segurança do módulo antes de atualizar.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -511,6 +525,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_database">Base de Dados</string>
   <string name="backup_documents">Documentos</string>
   <string name="backup_application_info">Ficheiro da Aplicação (.APK)</string>
+  <string name="backup_database_info">Marcadores, etiquetas, notas, estudos, planos de leitura, áreas de trabalho, etc</string>
   <string name="backup_document_info">Bíblias, comentários, dicionários, mapas, etc.</string>
   <string name="backup_to">Fazer uma cópia de segurança para...</string>
   <string name="backup_restore_from">Restaurar uma cópia de segurança a partir de...</string>
@@ -520,6 +535,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="restore_app_database">Restaurar base de dados da aplicação a partir de...</string>
   <string name="restore_database">Restaurar o Ficheiro da Base de Dados</string>
   <string name="restore_confirmation">Substituir As Minhas Notas, Áre de Estudo, Plano de Leitura e Área de Trabalho?</string>
+  <string name="restore_success2">Seções do banco de dados selecionadas restauradas com sucesso</string>
   <string name="restore_success">As Minhas Notas, Marcadores, Áreas de Estudo, Planos de Leitura, e Áreas de Trabalho, foram restauradas com sucesso</string>
   <string name="downloading_backup">A descarregar o ficheiro da cópia de segurança...</string>
   <string name="loading_backup">Carregando a base de dados a partir do backup...</string>
@@ -596,6 +612,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="empty_list">Sem itens para exibir</string>
   <string name="error_skip">Passar à frente</string>
   <string name="bug_report_email_title">Enviar relatório de erro por e-mail</string>
+  <string name="bug_report_email_text">Próximo, selecione seu aplicativo de e-mail preferencial (Gmail por exemplo) para enviar o relatório para a equipe de desenvolvimento.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Texto para fala</string>
   <string name="notification_channel_progress_status">Notificação de status de progresso para downloads de documentos etc.</string>
@@ -663,8 +680,13 @@ As Áreas de estudo são projetadas para tornar mais fácil escrever notas de se
  Todos os marcadores que foram criados com aquela respectiva etiqueta aparecem automaticamente no documento da Área de estudo.
  Além dos marcadores, pode haver entradas de texto personalizadas numa Área de estudo.</string>
   <string name="help_search_title">Procurar</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">O texto da pesquisa pode incluir caracteres especiais como *,?, AND, OR, NOT
 (consulte \"Apache Lucene - sintaxe do analisador de consultas\" para obter mais detalhes)</string>
+  <string name="help_search_text2">O texto de pesquisa pode incluir caracteres especiais como *, AND, OR, NOT</string>
+  <string name="help_search_details">Para mais pormenores, ver %s.</string>
+  <string name="help_apache_lucene">Apache Lucene - Sintaxe do analisador de consulta</string>
+  <string name="help_fts5">FTS5 Sintaxe de consulta de texto integral</string>
   <string name="help_workspaces_title">Ambientes de trabalho</string>
   <string name="help_workspaces_text">
 Os espaços de trabalho permitem ter vários ambientes de trabalho dependentes do contexto. Funções da área de trabalho
@@ -694,7 +716,9 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="supported_formats_title">Formatos suportados</string>
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Selecione um ficheiro para carregar em %s.</string>
+  <string name="supported_formats">Formatos suportados para carregar um documento de um arquivo: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">Arquivo ZIP contendo módulo(s) Sword, ou arquivo de cópia de segurança (*abmd) criado por %s</string>
   <string name="format_mysword">Ficheiros MySword (*. mybible)</string>
   <string name="format_mybible">Ficheiros MyBible (*.SQLite3)</string>
   <string name="format_epub">Ficheiros EPUB (*.epub)</string>
@@ -749,10 +773,13 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="advertise_app">Publicitar a aplicação</string>
   <string name="verse_share_advertise">Partilhado usando %s .</string>
   <string name="show_reference">Mostrar a referência</string>
+  <string name="show_reference_at_front">Mostrar referência na frente do versículo</string>
   <string name="abbreviate_reference">Referência abreviada</string>
   <string name="version_name">Noma da versão</string>
   <!--meaning, bible version name-->
   <string name="show_version_name">Incluir o nome da versão</string>
+  <string name="show_ellipsis">Mostrar reticências (...)</string>
+  <string name="show_quotes">Mostrar citações</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Para trás</string>
   <string name="upgrading_database">Atualizando a base de dados. Por favor espere...</string>
@@ -764,6 +791,8 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="proceed_anyway">Continuar mesmo assim</string>
   <string name="proceed">Continuar</string>
   <string name="rate_title">Classificação e revisão da aplicação</string>
+  <string name="rate_message5">
+Avaliações positivas e detalhadas ajudam muito o Projeto Open Source AndBible. Obrigado! </string>
   <string name="rate_message6">
 Antes de dar uma avaliação negativa, por favor considere o seguinte:</string>
   <!--parameters are actions (file a bug, send email)-->
@@ -804,6 +833,8 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="recent_labels">Etiquetas recentes</string>
   <string name="other_labels">Outras etiquetas</string>
   <string name="book_menu_sort_row_opt">Ordenar livros na horizontal</string>
+  <string name="book_menu_group_by_category">Agrupar livros por categoria</string>
+  <string name="book_menu_show_long_book_name">Mostrar nome longo do livro</string>
   <string name="reset_workspace_labels">Deseja redefinir a atribuição automática e as configurações de favoritos para este espaço de trabalho?</string>
   <string name="reset_hide_labels">Pretende redefinir a configuração para ocultar as configurações das etiquetas especificadas?</string>
   <string name="reorder">Reordenar</string>
@@ -844,49 +875,155 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="questions_title2">Precisa de ajuda?</string>
   <string name="bookmark_style">Tipo de maracador</string>
   <string name="added_to_bookmark">Atribuído a este marcador</string>
+  <string name="strongs_off">Desligado</string>
   <string name="strongs_links">Atalhos</string>
   <string name="strongs_text_and_links">Textos e Ligações</string>
+  <string name="strongs_hidden_links">Ligações ocultas</string>
   <string name="verse_tip">Para selecionar parte ou vários versículos, mantenha premido o texto da Bíblia</string>
   <string name="permission_required">Permissões necessárias</string>
   <string name="labels_search_hint">Procurar</string>
   <string name="progress_status_permission">Para mostrar notificações (estado do download, processos, estado da fala), precisamos da sua permissão.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Calculadora simples</string>
+  <string name="prefs_persecution_cat">Configurações para perseguidos</string>
   <string name="prefs_discrete_mode">Ocultar símbolos religiosos</string>
+  <string name="prefs_discrete_mode_desc">Renomear o aplicativo para \"Calculadora\" e mostrar um ícone diferente no lançador.</string>
   <string name="prefs_show_calculator">Calculadora</string>
   <string name="prefs_calculator_pin">PIN da Calculadora</string>
+  <string name="prefs_calculator_pin_desc">Código PIN para acessar o aplicativo quando a calculadora é exibida.</string>
+  <string name="calc_division_by_zero">Divisão por zero não é permitida</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Formato errado</string>
+  <string name="calc_wrong_format_operand">Formato errado. Operando sem nenhum número?</string>
   <string name="prefs_persecuted_help">Leia primeiro!</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+  <string name="prefs_persecuted_summary">Instruções para configurações e informações específicas sobre o modo discreto.</string>
+  <string name="calculator_par1">
+Antes de entrar no aplicativo, a tela da calculadora é exibida.</string>
+  <string name="calculator_par2">
+Nele, você pode fazer cálculo padrão, e quando quiser entrar no aplicativo, você
+basta digitar seu código PIN (o padrão é 1234) e pressionar o botão \"=\".</string>
+  <string name="calculator_par3">
+Você pode configurar um código PIN personalizado pela configuração \"PIN da calculadora\".</string>
+  <string name="discrete_mode_info_par1">
+Você está usando uma versão padrão do aplicativo, o que significa que é possível ver o nome real e o ícone do aplicativo nas informações do aplicativo.</string>
+  <string name="discrete_mode_info_par2">
+Para melhorar a segurança em ambientes perseguidos, recomendamos o uso da
+versão do aplicativo, que sempre exibe a calculadora, mesmo se os dados do aplicativo forem excluídos.</string>
+  <string name="discrete_mode_link">
+É possível baixar a última versão da versão discreta de %s.</string>
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Sincronizar grupo</string>
   <string name="sync_group_n">Grupo %d</string>
   <string name="disable_sync">Desativar a sincronização</string>
+  <string name="open_in_window">Abrir resultados em uma janela</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">Repositórios personalizados</string>
+  <string name="custom_repositories_empty_list_message">Nenhum repositório personalizado foi definido</string>
+  <string name="custom_repositories_create_button_label">Adicionar repositórios personalizados</string>
   <string name="custom_repositories_info_button_label">Informação</string>
+  <string name="name_for_repository">Nome do repositório</string>
   <string name="repository_specification">URL do Repositório</string>
+  <string name="delete_custom_repository">Deseja excluir repositório personalizado %s?</string>
+  <string name="invalid_repository_not_saved">Especificação de repositório inválida e não foi salva.</string>
+  <string name="custom_repositories_help1">Para adicionar um novo repositório personalizado, digite ou copie, e cole a URL do repositório aqui.</string>
+  <string name="custom_repositories_help2">Você pode obter mais informações sobre repositórios personalizados em %s.</string>
   <string name="wiki_page">Página Wiki</string>
+  <string name="custom_repositories_help0">É possível instalar documentos de repositórios personalizados externos instalando os respectivos repositórios.</string>
+  <string name="duplicate_custom_repository">Repositório com o nome %s já existe, não é possível adicionar outro.</string>
+  <string name="packages_dir">Diretório de pacotes (arquivos ZIP)</string>
+  <string name="warn_bad_document">Aviso: Este documento pode ser (ao menos parcialmente) de má qualidade técnica.</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Abrir ligações da Bíblia no AndBible</string>
+  <string name="open_bible_links_summary">Quando clicar em atalhos suportados pelo URL bíblico e AndBible, abrí-los no AndBible</string>
   <string name="copyReference">Copiar a ligação para a área de transferência</string>
   <string name="reference_copied_to_clipboard">Referência copiada para a área de transferência</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+        Escolha qual serviço de nuvem de back-end você deseja usar para sincronizar vários dispositivos.
+    </string>
+  <string name="prefs_sync_introduction_summary2">
+        Ao usar o Google Drive, %s recebe acesso apenas a arquivos de aplicativos, não a arquivos pessoais.
+    </string>
+  <string name="restore_backup_sections">Restaurar seções de backup</string>
+  <string name="db_repositories">Repositórios e configurações relacionadas</string>
+  <string name="db_bookmarks">Marcadores de banco de dados</string>
   <string name="synchronizing">A sincronizar...</string>
+  <string name="overrideBackup">
+        O banco de dados existente com o qual este dispositivo não está sincronizado é encontrado na Nuvem.
+O banco de dados contém %s. O que você quer fazer?
+    </string>
+  <string name="reading_plans_content">Planos de leitura e seus status</string>
+  <string name="bookmarks_contents">Conteúdo dos favoritos</string>
+  <string name="workspaces_contents">Áreas de trabalho e Janelas</string>
+  <string name="cloud_fetch_and_restore_initial">Copiar da Nuvem para este dispositivo</string>
+  <string name="cloud_create_new">Copiar deste dispositivo para a Nuvem</string>
+  <string name="cloud_disable_sync">Cancelar e desativar sincronização</string>
+  <string name="cloud_sync_title">Sincronização do dispositivo</string>
   <string name="reset_sync">Sair</string>
+  <string name="prefs_reset_sync_summary">Desabilitar sincronização e redefinir configurações</string>
+  <string name="sync_confirmation">Tem a certeza de que pretende terminar a sessão e repor a sincronização?</string>
+  <string name="cloud_info">Informações na Nuvem</string>
+  <string name="cloud_info_summary">Dados no armazenado da nuvem: %sMb</string>
+  <string name="sync_adapter">Backend de sincronização</string>
+  <string name="sync_adapter_summary">Atual: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Nextcloud</string>
+  <string name="auth_title">Autenticação para %s</string>
   <string name="auth_username">Nome de utilizador</string>
   <string name="auth_password">Palavra-passe</string>
+  <string name="auth_access_token">Token de acesso</string>
+  <string name="synchronization_categories">Categorias de sincronização</string>
+  <string name="sync_general_settings">Configurações gerais</string>
   <string name="sync_introduction">Introdução</string>
   <string name="are_you_sure">Tem certeza?</string>
+  <string name="are_you_sure_reset_local">Isto irá redefinir seu banco de dados local por %s com o conteúdo que está atualmente armazenado no serviço da nuvem.</string>
+  <string name="are_you_sure_reset_cloud">Isto irá redefinir seu banco de dados da nuvem por %s com o conteúdo que tem neste dispositivo.</string>
+  <string name="sync_cant_fetch">A versão da base de dados ou do ficheiro de correção armazenado na Nuvem é superior à suportada por esta aplicação.</string>
+  <string name="sync_disabling">Sincronização desabilitada para %s por hora.</string>
+  <string name="sync_update_app">Actualize a aplicação para continuar a sincronização.</string>
+  <string name="sign_in_failed">Falha ao entrar no serviço back-end de sincronização.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">Desativar a sincronização na nuvem. É necessário reativar manualmente após o restauro.</string>
+  <string name="report">Relatório</string>
+  <string name="sync_error">Ocorreu um erro de sincronização na Nuvem</string>
   <string name="error_notification_channel_name">Notificações de erro</string>
+  <string name="restore_from_cloud_description">Se tiver a Sincronização de dispositivos activada noutro dispositivo, pode começar por restaurar a base de dados a partir da Nuvem.</string>
   <string name="enable_sync">Ativar a sincronização</string>
   <string name="last_updated">Última atualização %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Não é possível ler o arquivo</string>
+  <string name="sqlite_invalid_file">Arquivo ou nome de arquivo de módulo inválido: %s</string>
+  <string name="sqlite_cant_write">Não foi possível escrever o arquivo</string>
+  <string name="install_failed_reason">A instalação do módulo falhou pelo seguinte motivo: %s.</string>
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Aplicativo aberto noutro local</string>
   <string name="open_here">Abrir aqui</string>
   <string name="external_link">Ligação externa</string>
+  <string name="external_link_question">Isso abrirá o link externo %s em um aplicativo de navegador, você deseja continuar?</string>
+  <string name="nameless">Título não definido</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Acções um-toque (Bíblias)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Acções um-toque (Outro)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Quando um texto é tocado, a janela de ação com um toque é exibida. Quais botões de ação devem ser mostrados?</string>
+  <string name="processing_epub">Processando EPUB: %s</string>
+  <string name="buy_development">Comprar desenvolvimento</string>
   <string name="buy_development2">Suportar o projeto</string>
+  <string name="new_version_warning">
+Um novo lançamento está chegando em breve. A data de lançamento prevista é %1$s. Assista ao nosso
+%2$s para descobrir novos recursos e melhorias.
+    </string>
+  <string name="new_version_trailer">Trailer</string>
+  <string name="new_version_warning2">
+        Após o lançamento, esta versão não será mantida.
+    </string>
+  <string name="new_version_warning3">
+        Ela não irá receber correção de erros ou atualizações.
+    </string>
+  <string name="new_version_warning4">
+        Se não deseja atualizar, desabilite \'Atualizações Automáticas\' em sua loja de aplicativos (Google Play / F-Droid etc).
+    </string>
+  <string name="dont_show">
+        Não mostrar essa mensagem novamente
+    </string>
 </resources>

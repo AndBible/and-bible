@@ -710,6 +710,7 @@ Režim opakovania bol vypnutý, pretože
         Okrem záložiek môžu byť v študijnom bloku aj vlastné textové položky.
     </string>
   <string name="help_search_title">Hľadať</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Vyhľadávaný text môže obsahovať aj špeciálne znaky ako *,?, AND, OR, NOT
 (viď \"Apache Lucene - Query Parser Syntax\" pre viac detailov)</string>
   <string name="help_workspaces_title">Pracovné plochy</string>
