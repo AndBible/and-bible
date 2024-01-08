@@ -125,11 +125,11 @@ class SearchControl @Inject constructor(
         // search the current book
         val book = SwordDocumentFacade.getDocumentByInitials(document)
         var result: Key? = null
-        //try {
+        try {
             result = search(book!!, searchText)
-        /*} catch (e: BookException) {
+        } catch (e: BookException) {
             Log.e(TAG, "Error in executing search: $searchText")
-        }*/
+        }
         if (result != null) {
             val resNum = result.cardinality
             Log.i(TAG, "Number of results:$resNum")

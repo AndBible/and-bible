@@ -55,12 +55,25 @@ val splitSearchTermsRegex = Regex("""\s+(?=(?:"(?:\\"|[^"])+"|[^"])+$)""")
 
 // Split the search terms on space characters that are not enclosed in double quotes
 // Eg: 'moses "burning bush"' -> "moses" and "burning bush"
-fun splitSearchTerms(searchTerms: String): List<String> = splitSearchTermsRegex.split(searchTerms)
+fun splitSearchTerms(searchTerms: String): List<String> {
+    if (isRegex(searchTerms)) {
+        return Arrays.asList(searchTerms)
+    }
+    return splitSearchTermsRegex.split(searchTerms)
+}
+
+fun isRegex(searchWord : String): Boolean {
+    return searchWord.startsWith('/') && searchWord.endsWith('/')
+}
 
 fun prepareSearchWord(searchWord_: String): String {
     // Need to clean up the search word itself before trying to find the searchWord in the text
     // Eg: '+"burning bush"' -> 'burning bush'
     var searchWord = searchWord_
+    if (isRegex(searchWord)) {
+        // It is a regex
+        return searchWord.substring(1, searchWord.length -1);
+    }
     searchWord =
         searchWord.replace("\"", "") // Remove quotes which indicate phrase searches
     searchWord = searchWord.replace("+", "") // Remove + which indicates AND searches
@@ -181,7 +194,9 @@ class SearchItemAdapter(
             val splitSearchTerms = splitSearchTerms(searchTerms)
             for (originalSearchWord in splitSearchTerms) {
                 var searchWord = prepareSearchWord(originalSearchWord)
-                searchWord = if (originalSearchWord.contains("*")) {
+                searchWord = if (isRegex(originalSearchWord)) {
+                    searchWord
+                } else if (originalSearchWord.contains("*")) {
                     "\\b$searchWord[\\w'\\-]*\\b" // Match whole words including with hyphons and apostrophes
                 } else {
                     "\\b$searchWord\\b"
