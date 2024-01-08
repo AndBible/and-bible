@@ -1,6 +1,6 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Bokmärken
-bookmarksAndNotes: ""
+bookmarksAndNotes: Bokmärken & anteckningar
 openMyNotes: Öppna mina anteckningar
 openStudyPad: Öppna i Study Pad (%s)
 noteText: Fotnoter (%s)
@@ -32,12 +32,13 @@ removeBookmarkConfirmationTitle: Radera bokmärke
 removeBookmarkConfirmation: "Är du säker på att du vill radera detta bokmärke?"
 createdAt: "Skapad: %s"
 lastUpdatedOn: "Senast uppdaterad: %s"
-strongsAndMorph: ""
+strongsAndMorph: Definition & Morfologi
 externalLink: Öppna extern länk
 referenceLink: Öppna referens länk
 openFootnote: Öppna fotnot
 noMyNotesTitle: Inga Mina Anteckningar för denna kapitel.
 noMyNotesDescription: >
+  Kom igång genom att skapa bokmärken i ett Bibeldokument. Bokmärkena kommer sedan att visas här och du kan lägga till dina personliga anteckningar till dem.
 emptyStudyPad: >
 doYouWantToDeleteEntry: ""
 removeStudyPadConfirmationTitle: ""
@@ -50,7 +51,7 @@ assignLabelsMenuEntry1: ""
 favouriteLabels: ""
 recentLabels: ""
 bookmarkLabels: ""
-refParserHelp: ""
+refParserHelp: Vänligen installera modulen %s för att använda referenser i andra språk än engelska.
 openDownloads: Gå till Tillägg nerladdningar
 verseShare: Dela
 verseSpeak: Läs upp

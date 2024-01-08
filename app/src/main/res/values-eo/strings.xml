@@ -894,7 +894,7 @@ Vi povas elŝuti la plej aktualan diskretan version el %s.</string>
   <string name="custom_repositories_create_button_label">Aldoni propran deponejon</string>
   <string name="custom_repositories_info_button_label">Informoj</string>
   <string name="name_for_repository">Nomo de deponejo</string>
-  <string name="repository_specification">Ligilo de deponejo</string>
+  <string name="repository_specification">Retadreso de deponejo</string>
   <string name="delete_custom_repository">Ĉu forigi la propran deponejon %s?</string>
   <string name="invalid_repository_not_saved">Parametro de deponejo estis eraraj kaj deponejo ne estis konservita.</string>
   <string name="custom_repositories_help1">Por aldoni novan deponejon, enigu aŭ kopiu-kaj-algluu ligilon de propra deponejo tie ĉi.</string>
@@ -914,7 +914,7 @@ Vi povas elŝuti la plej aktualan diskretan version el %s.</string>
 Elektu nuban servon uzotan por samtempigi inter pluraj aparatoj.</string>
   <string name="prefs_sync_introduction_summary2">
 Dum uzi Google Drive, %s akiros aliron nur al aplikaĵaj datumoj, al neniu privata dosiero.</string>
-  <string name="restore_backup_sections">Kiujn partojn de la sekurkopio vi volas restarigi?</string>
+  <string name="restore_backup_sections">Kion de via sekurkopio vi volas restarigi?</string>
   <string name="db_repositories">Deponejoj kaj rilataj agordoj</string>
   <string name="db_bookmarks">Legosignoj, miaj notoj, etikedoj kaj notblokoj</string>
   <string name="synchronizing">Samtempigado…</string>

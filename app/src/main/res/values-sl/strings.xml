@@ -41,6 +41,7 @@
   <string name="search_in">Išči v %s</string>
   <string name="do_in_background">Nadaljuj v ozadju</string>
   <string name="rebuild_index_button">Ponovno zgradi</string>
+  <string name="creating_index_for">Izdelujem kazalo za %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s rezultati v %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Vse besede</string>
   <string name="search_any_word">Katerakoli beseda</string>
   <string name="search_phrase">Fraza</string>
+  <string name="search_fts_query">Neobdelana sintaksa poizvedbe</string>
   <string name="search_result_count">%d najdenih rezultatov</string>
   <string name="search_showing_first">Preveč rezultatov.  Prikaz prvih %d</string>
   <string name="search_bible_section_group_prompt">Kje naj išče:</string>
@@ -708,6 +710,10 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
 Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
         (za več podrobnosti si poglejte \"Apache Lucene - Query Parser Syntax\").
     </string>
+  <string name="help_search_text2">Iskalno besedilo lahko vključuje posebne znake, kot so *, AND, OR, NOT</string>
+  <string name="help_search_details">Za več podrobnosti glejte  %s.</string>
+  <string name="help_apache_lucene">Apache Lucene - Sintaksa razčlenjevalnika poizvedb</string>
+  <string name="help_fts5">FTS5 Full-text Query Syntax</string>
   <string name="help_workspaces_title">Delovni prostori</string>
   <string name="help_workspaces_text">
         Delovni prostori omogočajo več delovnih okolij, ki so odvisna od vsebine. Do nastavitev delovnega prostora lahko dostopate prek elementa Delovni prostori v meniju z možnostmi (zgornji desni kot s tremi pikami). Hiter način dostopa do delovnih prostorov je poteg navzdol iz zgornjega desnega kota s tremi pikami. Na prejšnji ali naslednji delovni prostor lahko preklopite tudi s potezo vleke v levo ali v desno prek orodne vrstice.</string>
@@ -908,6 +914,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="strongs_off">Izklopi</string>
   <string name="strongs_links">Povezave</string>
   <string name="strongs_text_and_links">Besedilo in povezave</string>
+  <string name="strongs_hidden_links">Skrite povezave</string>
   <string name="verse_tip">Za delno izbiro vrstice ali izbiro več vrstic dolgo pritisnete na biblijsko besedilo</string>
   <string name="permission_required">Potrebno je dovoljenje</string>
   <string name="labels_search_hint">Iskanje</string>

@@ -62,7 +62,7 @@
   <string name="search_old_testament">Starym Testamencie</string>
   <string name="search_current_book">obecnej księdze</string>
   <string name="error_executing_search">Niepoprawne zapytanie</string>
-  <string name="type_text_or_bible_reference">Wprowadź tekst lub odnośnik biblijny</string>
+  <string name="type_text_or_bible_reference">Wprowadź tekst lub odsyłacz biblijny</string>
   <!--Open (bible reference X)-->
   <string name="go_to_ref">Otwórz %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
@@ -319,7 +319,7 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="delete_doc">Czy chcesz usunąć %s?</string>
   <string name="delete_search_index_doc">Czy usunąć indeks dla %s?</string>
   <!--Verse context menu-->
-  <string name="notes">Przypisy i odnośniki</string>
+  <string name="notes">Przypisy i odsyłacze</string>
   <string name="share_verse">Udostępnij…</string>
   <string name="share_verse_widget_title">Udostępnij fragment</string>
   <string name="share_verse_subject_2">Werset z Biblii przesłany z aplikacji %s.</string>
@@ -874,13 +874,107 @@ Dla zwiększenia bezpieczeństwa w prześladującym otoczeniu, rekomendujemy kor
   <string name="discrete_mode_link">
 Najnowszą dyskretną wersję aplikacji możesz pobrać ze strony %s.</string>
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Synchronizuj grupę</string>
+  <string name="sync_group_n">Grupa %d</string>
+  <string name="disable_sync">Wyłącz synchronizację</string>
+  <string name="open_in_window">Otwórz wyniki w oknie</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">Własne repozytoria</string>
+  <string name="custom_repositories_empty_list_message">Brak zdefiniowanych własnych repozytoriów</string>
+  <string name="custom_repositories_create_button_label">Dodaj własne repozytorium</string>
   <string name="custom_repositories_info_button_label">Informacje</string>
+  <string name="name_for_repository">Nazwa repozytorium</string>
+  <string name="repository_specification">Adres repozytorium</string>
+  <string name="delete_custom_repository">Czy usunąć własne repozytorium %s?</string>
+  <string name="invalid_repository_not_saved">Repozytorium nie zostało zapisane, ponieważ jego parametry są nieprawidłowe.</string>
+  <string name="custom_repositories_help1">Aby dodać nowe własne repozytorium, wpisz lub kopiuj i wklej tutaj jego adres.</string>
+  <string name="custom_repositories_help2">Więcej informacji o własnych repozytoriach znajduje się na %s.</string>
+  <string name="wiki_page">stronie wiki</string>
+  <string name="custom_repositories_help0">Możesz dodać dokumenty z zewnętrznych repozytorium poprzez instalację własnych repozytoriów.</string>
+  <string name="duplicate_custom_repository">Repozytorium o nazwie %s już istnieje, nie można dodać innego z tą samą nazwą.</string>
+  <string name="packages_dir">Katalog paczek (plików zip)</string>
+  <string name="warn_bad_document">Ostrzeżenie: ten dokument może być (co najmniej częściowo) niskiej jakości technicznej.</string>
   <!--Open links in AndBible (Deep linking)-->
+  <string name="open_bible_links_title">Otwieraj odnośniki biblijne w aplikacji AndBible</string>
+  <string name="open_bible_links_summary">Podczas klikania w odnośniki internetowe prowadzące do zasobów wspieranych przez aplikację AndBible, otwieraj je w aplikacji</string>
+  <string name="copyReference">Kopiuj odnośnik do schowka</string>
+  <string name="reference_copied_to_clipboard">Skopiowano odnośnik do schowka</string>
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+Wybierz usługę chmury, która zostanie użyta do synchronizacji pomiędzy wieloma urządzeniami.</string>
+  <string name="prefs_sync_introduction_summary2">
+Podczas korzystania z Dysku Google, aplikacja %s otrzymuje uprawnienie na dostęp tylko do danych aplikacji, nie do prywatnych plików.</string>
+  <string name="restore_backup_sections">Co chcesz przywrócić z kopi zapasowej?</string>
+  <string name="db_repositories">Repozytoria i powiązane ustawienia</string>
+  <string name="db_bookmarks">Zakładki, moje notatki, etykiety i bloczki notatek</string>
+  <string name="synchronizing">Synchronizacja…</string>
+  <string name="overrideBackup">
+W chmurze znajduje się baza danych, która nie jest zsynchronizowana z tym urządzeniem. Baza danych zawiera %s. Co chcesz zrobić?</string>
+  <string name="reading_plans_content">plany czytania wraz z postępami</string>
+  <string name="bookmarks_contents">zakładki, etykiety, bloczki notatek</string>
+  <string name="workspaces_contents">obszary robocze i okna</string>
+  <string name="cloud_fetch_and_restore_initial">Skopiuj z chmury na to urządzenie</string>
+  <string name="cloud_create_new">Skopiuj z tego urządzenia do chmury</string>
+  <string name="cloud_disable_sync">Anuluj i wyłącz synchronizację</string>
+  <string name="cloud_sync_title">Synchronizacja</string>
+  <string name="reset_sync">Wyloguj się</string>
+  <string name="prefs_reset_sync_summary">Wyłącz synchronizację i resetuj powiązane ustawienia</string>
+  <string name="sync_confirmation">Czy na pewno chcesz wylogować się i zrezygnować z synchronizacji?</string>
+  <string name="cloud_info">Informacje o chmurze</string>
+  <string name="cloud_info_summary">Zachowane dane: %s MB</string>
+  <string name="sync_adapter">Usługa synchronizacji</string>
+  <string name="sync_adapter_summary">Obecna: %s</string>
+  <string name="adapters_google_drive">Dysk Google</string>
+  <string name="adapters_next_cloud">Nextcloud</string>
+  <string name="auth_title">Autoryzacja do %s</string>
+  <string name="auth_username">Nazwa użytkownika</string>
+  <string name="auth_password">Hasło</string>
+  <string name="auth_access_token">Żeton dostępu</string>
+  <string name="synchronization_categories">Kategorie synchronizacji</string>
+  <string name="sync_general_settings">Informacje i ustawienia</string>
+  <string name="sync_introduction">Wprowadzenie</string>
+  <string name="are_you_sure">Czy na pewno?</string>
+  <string name="are_you_sure_reset_local">Lokalnie przechowywane %s zostaną zastąpione przez wersje, które obecnie są przechowywane w chmurze.</string>
+  <string name="are_you_sure_reset_cloud">Przechowywane w chmurze %s zostaną zastąpione przez wersje, które obecnie znajdują się na tym urządzeniu.</string>
+  <string name="sync_cant_fetch">Wersja bazy danych lub pliku przechowywana w chmurze jest wyższa niż wersja wspierana przez tą aplikację.</string>
+  <string name="sync_disabling">Tymczasowo wyłączono synchronizację dla: %s.</string>
+  <string name="sync_update_app">Zaktualizuj aplikację, aby móc dalej korzystać z synchronizacji.</string>
+  <string name="sign_in_failed">Nie udało się zalogować do usługi synchronizacji.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">Synchronizacja z chmurą zostanie wyłączona. Musisz włączyć ją ręcznie po przywróceniu.</string>
+  <string name="report">Zgłoś</string>
+  <string name="sync_error">Wystąpił błąd podczas synchronizacji z chmurą.</string>
+  <string name="error_notification_channel_name">Raporty błędów</string>
+  <string name="restore_from_cloud_description">Jeżeli masz włączoną synchronizację z chmurą na innym urządzeniu, możesz przywrócić bazę danych z chmury.</string>
+  <string name="enable_sync">Włącz synchronizację</string>
   <string name="last_updated">Zmodyfikowano: %s</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_cant_read">Nie można wczytać pliku</string>
+  <string name="sqlite_invalid_file">Nieprawidłowy plik modułu lub nazwa pliku: %s</string>
+  <string name="sqlite_cant_write">Nie można zapisać pliku</string>
+  <string name="install_failed_reason">Instalacja modułu nie powiodła się z następującego powodu: %s.</string>
   <!--Other / uncategorized-->
+  <string name="app_opened_elsewhere">Aplikacja jest otwarta gdzieś indziej</string>
+  <string name="open_here">Otwórz tutaj</string>
+  <string name="external_link">Odnośnik zewnętrzny</string>
+  <string name="external_link_question">Zostanie otwarty odnośnik zewnętrzny %s w przeglądarce, czy kontynuować?</string>
+  <string name="nameless">Brak tytułu</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Akcje pojedynczego stuknięcia (Biblie)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Akcje pojedynczego stuknięcia (inne)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Po stuknięciu w tekst wyświetla się okienko z akcjami pojedynczego stuknięcia. Które akcje mają się być widoczne?</string>
+  <string name="processing_epub">Przetwarzanie pliku EPUB: %s</string>
+  <string name="buy_development">Wesprzyj programistę</string>
+  <string name="buy_development2">Wspomóż projekt</string>
+  <string name="new_version_warning">
+Nadchodzi nowa wersja aplikacji. Przewidywana data wydania to %1$s. Obejrzyj %2$s, aby odkryć nowe funkcje i ulepszenia.</string>
+  <string name="new_version_trailer">zajawkę</string>
+  <string name="new_version_warning2">
+Po wydaniu nowej wersji, ta wersja nie będzie już wspierana.</string>
+  <string name="new_version_warning3">
+Nie zostaną wydane poprawki błędów i aktualizacje.</string>
+  <string name="new_version_warning4">
+Jeżeli nie chcesz przejść na nowszą wersję, wyłącz automatyczne aktualizacje w używanym sklepie z aplikacjami (Google Play, F-Droid,…).</string>
+  <string name="dont_show">
+Nie wyświetlaj tego ponownie</string>
 </resources>
