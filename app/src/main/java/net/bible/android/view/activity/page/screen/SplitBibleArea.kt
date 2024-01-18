@@ -863,7 +863,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                     }
                 }),
                 launch = { _, _, _ ->
-                    speakControl.speakPageManager.currentPage.bookAndKey?.let {
+                    speakControl.speakBookAndKey?.let {
                         if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
                             window.pageManager.setCurrentDocumentAndKey(null, it.key)
                         } else {

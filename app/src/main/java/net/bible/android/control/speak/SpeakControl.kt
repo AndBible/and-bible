@@ -147,7 +147,13 @@ class SpeakControl @Inject constructor(
         MediaButtonHandler.release()
     }
 
+    private var speakBook: Book? = null
+    private var speakKey: Key? = null
+    val speakBookAndKey: BookAndKey? get() = speakKey?.let {BookAndKey(it, speakBook) }
+
     fun onEventMainThread(event: SpeakProgressEvent) {
+        speakKey = event.key
+        speakBook = event.book
         if (AdvancedSpeakSettings.synchronize || event.forceFollow) {
             val book = speakPageManager.currentPage.currentDocument
             speakPageManager.setCurrentDocumentAndKey(book, event.key)
