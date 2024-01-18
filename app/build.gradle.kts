@@ -70,7 +70,7 @@ val npmUpgrade by tasks.registering(Exec::class) {
     outputs.file("$jsDir/node_modules/.bin/npm")
     workingDir = file(jsDir)
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
-    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+    if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
         commandLine("npx.cmd", "npm@${npmVersion}", "ci", "--save-dev", "npm@${npmVersion}")
     }
     else {
@@ -84,7 +84,7 @@ val npmInstall by tasks.registering(Exec::class) {
     outputs.dir("$jsDir/node_modules")
 
     workingDir = file(jsDir)
-    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+    if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
         commandLine("$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "ci")
     }
     else {
@@ -113,7 +113,7 @@ val jsBuild by tasks.registering(Exec::class) {
         "build-debug"
     }
     workingDir = file(jsDir)
-    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+    if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
         commandLine("$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "run", buildCmd)
     }
     else {
