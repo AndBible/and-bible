@@ -204,16 +204,6 @@ open class DownloadActivity : DocumentSelectionBase(
         lifecycleScope.launchWhenResumed {
             isLoading.collect { binding.swipeRefresh.isRefreshing = it }
         }
-        binding.swipeRefresh.setOnRefreshListener {
-            binding.freeTextSearch.setText("")
-            // prepare the document list view - done in another thread
-            lifecycleScope.launch {
-                downloadDocJson()
-                populateMasterDocumentList(true)
-                updateLastRepoRefreshDate()
-                notifyDataSetChanged()
-            }
-        }
 
         lifecycleScope.launch {
             if (!askIfWantToProceed()) {
@@ -274,6 +264,16 @@ open class DownloadActivity : DocumentSelectionBase(
                         }
                         filterDocuments()
                     }
+                }
+            }
+            binding.swipeRefresh.setOnRefreshListener {
+                binding.freeTextSearch.setText("")
+                // prepare the document list view - done in another thread
+                lifecycleScope.launch {
+                    downloadDocJson()
+                    populateMasterDocumentList(true)
+                    updateLastRepoRefreshDate()
+                    notifyDataSetChanged()
                 }
             }
         }
