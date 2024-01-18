@@ -38,6 +38,7 @@ function rawText() {
 
 const testConfig: UserConfig = {
   ...config,
+  // @ts-ignore
   test: {
     environment: "jsdom",
     css: {
