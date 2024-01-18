@@ -97,13 +97,27 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     internal val idToFile = fileToId.entries.associate { it.value to it.key }
 
     private val tocFile = useXPathInstance { xp ->
-        xp.compile(
-            "//ns:manifest/ns:item[@media-type='application/x-dtbncx+xml']",
-            Filters.element(),
-            null,
-            epubNamespace
-        )
-            .evaluateFirst(content)?.getAttribute("href")?.value?.run { File(rootFolder, this) }
+        val elem =
+            xp.compile(
+                "//ns:manifest/ns:item[@media-type='application/x-dtbncx+xml']",
+                Filters.element(),
+                null,
+                epubNamespace
+            ).evaluateFirst(content) ?:
+            xp.compile(
+                "//ns:manifest/ns:item[@id='toc']",
+                Filters.element(),
+                null,
+                epubNamespace
+            ).evaluateFirst(content) ?:
+            xp.compile(
+                "//ns:manifest/ns:item[@properties='nav']",
+                Filters.element(),
+                null,
+                epubNamespace
+            ).evaluateFirst(content)
+
+        elem?.getAttribute("href")?.value?.run { File(rootFolder, this) }
     }
 
     private val toc = tocFile?.run { useSaxBuilder { it.build(this) } }

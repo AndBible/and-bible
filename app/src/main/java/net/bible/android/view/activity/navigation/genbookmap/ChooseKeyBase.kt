@@ -42,7 +42,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
     @Inject lateinit var windowControl: WindowControl
     abstract val currentKey: Key?
     abstract val keyList: List<Key>?
-    abstract fun itemSelected(key: Key)
+    abstract fun itemSelected(key: Key?)
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +51,10 @@ abstract class ChooseKeyBase : ListActivityBase() {
         setContentView(R.layout.choose_general_book_key)
         buildActivityComponent().inject(this)
         prepareList()
+        if (keyList?.isEmpty() == true) {
+            itemSelected(null)
+            finish()
+        }
         mKeyArrayAdapter = KeyItemAdapter(this, LIST_ITEM_TYPE, mKeyList)
         listAdapter = mKeyArrayAdapter as ListAdapter
 

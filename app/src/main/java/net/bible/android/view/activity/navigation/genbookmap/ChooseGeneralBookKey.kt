@@ -46,12 +46,12 @@ class ChooseGeneralBookKey : ChooseKeyBase() {
         }
     }
 
-    override fun itemSelected(key: Key) {
+    override fun itemSelected(key: Key?) {
         val myIntent = Intent(this, ChooseGeneralBookKey::class.java)
         if(key is BookAndKey) {
             myIntent.putExtra("bookAndKey", key.serialized)
         } else {
-            myIntent.putExtra("key", key.osisRef)
+            myIntent.putExtra("key", key?.osisRef?: currentGeneralBookPage.currentDocument!!.globalKeyList.first().osisRef)
             myIntent.putExtra("book", currentGeneralBookPage.currentDocument?.initials)
         }
 
