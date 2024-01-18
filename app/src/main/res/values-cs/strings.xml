@@ -41,6 +41,7 @@
   <string name="search_in">Hledat v %s</string>
   <string name="do_in_background">Pokračovat na pozadí</string>
   <string name="rebuild_index_button">Znovu vytvořit</string>
+  <string name="creating_index_for">Vytváří se index pro %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">Výsledkem %1s je %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Všechna slova</string>
   <string name="search_any_word">Jakékoli slovo</string>
   <string name="search_phrase">Fráze</string>
+  <string name="search_fts_query">Surová syntaxe dotazu</string>
   <string name="search_result_count">Nalezeno %d záznamů</string>
   <string name="search_showing_first">Příliš mnoho záznamů. Zobrazuji prvných %d</string>
   <string name="search_bible_section_group_prompt">Hledat kde</string>
@@ -708,6 +710,10 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
         (pro více informací viz \"Apache Lucene - Query Parser Syntax\")
 </string>
+  <string name="help_search_text2">Vyhledávací dotaz může obsahovat speciální znaky a slova jako *, ?, ~, AND, OR, NOT</string>
+  <string name="help_search_details">Pro více detailů viz. %s .</string>
+  <string name="help_apache_lucene">Apache Lucene - formát vyhledávacího dotazu</string>
+  <string name="help_fts5">FTS5 Syntaxe fulltextového dotazu</string>
   <string name="help_workspaces_title">Pracovní plochy</string>
   <string name="help_workspaces_text">
        Pracovní plochy umožňují používat více pracovních prostředí podle kontextu. Do funkcí pracovní plochy
