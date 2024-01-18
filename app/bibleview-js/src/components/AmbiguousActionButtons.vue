@@ -57,7 +57,6 @@ import {useCommon} from "@/composables";
 import {androidKey, keyboardKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
 import {BibleModalButtonId, GenericModalButtonId} from "@/composables/config";
-import {setupDocumentEventListener} from "@/utils";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo

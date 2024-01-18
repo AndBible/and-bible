@@ -87,7 +87,6 @@ import {
     getEventVerseInfo,
     getHighestPriorityEventFunctions,
     isBottomHalfClicked,
-    setupDocumentEventListener,
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton.vue";
 import {emit, setupEventBusListener} from "@/eventbus";
