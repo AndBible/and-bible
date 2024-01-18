@@ -18,6 +18,7 @@
 package net.bible.android
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
 import android.app.Notification
 import android.app.NotificationChannel
@@ -41,7 +42,9 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.ErrorActivity
+import net.bible.android.view.activity.page.currentActivity
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
 import net.bible.service.common.BuildVariant
@@ -267,8 +270,10 @@ open class BibleApplication : Application() {
     fun onEventMainThread(ev: ToastEvent) {
         val duration = ev.duration ?: Toast.LENGTH_SHORT
         val message = if (ev.messageId != null) getString(ev.messageId) else ev.message
+        val context = ev.context ?: CurrentActivityHolder.currentActivity?: return
+        if ((context as? Activity)?.isFinishing == true) return
         try {
-            Toast.makeText(this, message, duration).show()
+            Toast.makeText(context, message, duration).show()
         } catch (e: Exception) {
             Log.e(TAG, "Error in showing toast $message", e)
         }
