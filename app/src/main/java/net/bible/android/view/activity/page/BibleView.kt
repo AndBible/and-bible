@@ -113,6 +113,7 @@ import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
+import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.util.UiUtils
@@ -121,6 +122,7 @@ import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
+import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.BookAndKey
@@ -1127,6 +1129,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     v11n,
                     ordinal
                 )
+                clipboardKey = parseAndBibleReference(abUrl)
                 CommonUtils.copyToClipboard(
                     ClipData.newPlainText(abUrl, abUrl),
                     R.string.reference_copied_to_clipboard

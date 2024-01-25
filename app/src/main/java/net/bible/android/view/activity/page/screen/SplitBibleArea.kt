@@ -885,6 +885,8 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                     clipboardKey?.let {
                         if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
                             window.pageManager.setCurrentDocumentAndKey(null, it.key)
+                        } else if (it.document == null)  {
+                            window.pageManager.setCurrentDocumentAndKey(null, it.key)
                         } else {
                             window.pageManager.setCurrentDocumentAndKey(it.document, it)
                         }

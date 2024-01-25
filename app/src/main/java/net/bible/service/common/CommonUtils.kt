@@ -145,6 +145,8 @@ import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.Passage
+import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseKey
 import org.crosswire.jsword.passage.VerseRange
@@ -152,6 +154,7 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.Versifications
 import org.jdom2.input.SAXBuilder
 import org.jdom2.xpath.XPathFactory
 import org.spongycastle.util.io.pem.PemReader
@@ -1644,6 +1647,31 @@ object CommonUtils : CommonUtilsBase() {
             }
         }
     }
+
+    fun parseAndBibleReference(uri: Uri): BookAndKey? {
+        val urlRegex = Regex("""/(.*)""")
+        val docStr = uri.getQueryParameter("document")
+        val doc = if (docStr != null) Books.installed().getBook(docStr) else null
+
+        val defV11n = if (doc is SwordBook) doc.versification else KJVA
+        val v11nStr = uri.getQueryParameter("v11n")
+        val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
+
+        val match = urlRegex.find(uri.path.toString()) ?: return null
+        val keyStr = match.groups[1]?.value ?: return null
+
+        val key: Passage = PassageKeyFactory.instance().getKey(v11n, keyStr)
+
+        val ordinalStr = uri.getQueryParameter("ordinal")
+        if(ordinalStr != null) {
+            val ord = ordinalStr.toInt()
+            return BookAndKey(key, doc, ordinal = OrdinalRange(ord))
+        }
+        return BookAndKey(key, doc)
+    }
+
+    fun parseAndBibleReference(uri: String): BookAndKey?
+        = parseAndBibleReference(Uri.parse(uri))
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"

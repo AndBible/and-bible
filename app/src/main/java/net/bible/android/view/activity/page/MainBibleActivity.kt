@@ -1103,26 +1103,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun openLink(uri: Uri) {
         when (uri.host) {
             "read.andbible.org" -> {
-                val urlRegex = Regex("""/(.*)""")
-                val docStr = uri.getQueryParameter("document")
-                val doc = if (docStr != null) Books.installed().getBook(docStr) else null
-
-                val defV11n = if (doc is SwordBook) doc.versification else KJVA
-                val v11nStr = uri.getQueryParameter("v11n")
-                val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
-
-                val match = urlRegex.find(uri.path.toString()) ?: return
-                val keyStr = match.groups[1]?.value ?: return
-
-                var key: Key = PassageKeyFactory.instance().getKey(v11n, keyStr)
-
-                val ordinalStr = uri.getQueryParameter("ordinal")
-                if(ordinalStr != null) {
-                    val ord = ordinalStr.toInt()
-                    key = BookAndKey(key, doc, ordinal = OrdinalRange(ord))
-                }
-                
-                windowControl.showLink(doc, key)
+                val key = CommonUtils.parseAndBibleReference(uri) ?: return
+                windowControl.showLink(key.document, key)
             }
             "stepbible.org" -> {
                 val qParam = uri.getQueryParameter("q") ?: return
