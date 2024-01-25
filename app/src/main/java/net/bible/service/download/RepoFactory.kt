@@ -58,6 +58,7 @@ class RepoFactory(private val downloadManager: DownloadManager) {
     private val eBibleRepo = Repository("eBible", AcceptableBookTypeFilter(), downloadManager)
     private val stepRepo = Repository("STEP Bible (Tyndale)", AcceptableBookTypeFilter(), downloadManager)
     private val ibtRepo = Repository("IBT", AcceptableBookTypeFilter(), downloadManager)
+    private val atticRepo = Repository("CrossWire Attic", AcceptableBookTypeFilter(), downloadManager)
 
 
     private val defaultRepo = andBibleRepo
@@ -65,7 +66,7 @@ class RepoFactory(private val downloadManager: DownloadManager) {
     // In priority order (if the same version of module is found in many, it will be picked up
     // from the earlier of the repository list).
     private val normalRepositories = listOf(
-        defaultRepo, crosswireRepo, eBibleRepo, lockmanRepo, wycliffeRepo, andBibleExtraRepo, ibtRepo, stepRepo
+        defaultRepo, crosswireRepo, eBibleRepo, lockmanRepo, wycliffeRepo, andBibleExtraRepo, ibtRepo, stepRepo, atticRepo
     )
 
     private val betaRepositories = listOf(crosswireBetaRepo, andBibleBetaRepo)
