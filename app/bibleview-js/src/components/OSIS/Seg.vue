@@ -16,17 +16,23 @@
   -->
 
 <template>
-  <slot/>
+  <span :class="{otPassage: isOtPassage}"><slot/></span>
 </template>
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {computed} from "vue";
 
 const props = defineProps<{type?: string}>();
-checkUnsupportedProps(props, "type", ["x-chronology", "font-size: -1;"]);
+checkUnsupportedProps(props, "type", ["otPassage", "x-chronology", "font-size: -1;"]);
+const isOtPassage = computed(() => props.type === "otPassage");
 useCommon();
 </script>
 
 <style scoped>
+
+.otPassage {
+    font-style: italic;
+}
 
 </style>
