@@ -69,6 +69,9 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import java.util.*
 
+
+var comingFromStartupActivity = false
+
 /** Called first to show download screen if no documents exist
  *
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -417,6 +420,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 }
             }
             CommonUtils.initializeAppCoroutine()
+            comingFromStartupActivity = true
             startActivity(handlerIntent)
             finish()
         }

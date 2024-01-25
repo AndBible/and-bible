@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.bible.android.view.activity.StartupActivity
+import net.bible.android.view.activity.comingFromStartupActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.locale.LocaleHelper
@@ -235,8 +236,11 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         CurrentActivityHolder.activate(this)
         super.onResume()
         Log.i(TAG, "onResume wasPaused:$wasPaused returningFromCalculator:$returningFromCalculator")
+        val fromStartupActivity = comingFromStartupActivity
+        comingFromStartupActivity = false
         if (
             this !is CalculatorActivity
+            && !fromStartupActivity
             && this !is StartupActivity
             && CommonUtils.showCalculator
             && wasPaused
