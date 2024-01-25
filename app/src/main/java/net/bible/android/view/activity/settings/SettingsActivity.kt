@@ -59,11 +59,16 @@ class PreferenceStore: PreferenceDataStore() {
 
     override fun getInt(key: String, defValue: Int): Int = prefs.getInt(key, defValue)
 
-    override fun getBoolean(key: String, defValue: Boolean): Boolean = prefs.getBoolean(key, defValue)
+    override fun getBoolean(key: String, defValue: Boolean): Boolean =
+        if (useRealShared(key)) CommonUtils.realSharedPreferences.getBoolean(key, defValue)
+        else prefs.getBoolean(key, defValue)
 
-    override fun putBoolean(key: String, value: Boolean) = prefs.setBoolean(key, value)
 
-    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key == "calculator_pin" || key.startsWith("night_mode")
+    override fun putBoolean(key: String, value: Boolean) =
+        if(useRealShared(key)) CommonUtils.realSharedPreferences.edit().putBoolean(key, value).apply()
+        else prefs.setBoolean(key, value)
+
+    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key == "calculator_pin" || key == "show_calculator" || key.startsWith("night_mode")
 
     override fun putString(key: String, value: String?) =
         if(useRealShared(key)) CommonUtils.realSharedPreferences.edit().putString(key, value).apply()
@@ -155,6 +160,7 @@ class SettingsActivity: ActivityBase() {
                 }
                 CommonUtils.realSharedPreferences.edit().remove("locale_pref").apply()
                 CommonUtils.realSharedPreferences.edit().remove("calculator_pin").apply()
+                CommonUtils.realSharedPreferences.edit().remove("show_calculator").apply()
                 recreate()
             }
             .setNegativeButton(R.string.cancel, null)

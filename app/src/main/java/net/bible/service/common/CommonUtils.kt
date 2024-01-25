@@ -1503,8 +1503,8 @@ object CommonUtils : CommonUtilsBase() {
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
         else SyncableDatabaseDefinition.ALL.any { it.enabled }
-    val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
-    val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
+    val isDiscrete get() = BuildVariant.Appearance.isDiscrete ||settings.getBoolean("discrete_mode", false)
+    val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 
     fun md5Hash(str: String): String {
         val md = MessageDigest.getInstance("MD5")
