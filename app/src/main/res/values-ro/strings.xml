@@ -944,7 +944,7 @@
   <string name="prefs_discrete_mode_desc">Schimbă numele aplicației în „Calculator” și arată un simbol diferit pe ecran.</string>
   <string name="prefs_show_calculator">Calculator</string>
   <string name="prefs_calculator_pin">PIN Calculator</string>
-  <string name="prefs_calculator_pin_desc">Cod PIN pentru a intra în aplicație când este afișat calculatorul.</string>
+  <string name="prefs_calculator_pin_desc">Codul PIN pentru a intra în aplicație cînd este afișat calculatorul.</string>
   <string name="calc_division_by_zero">Împărțirea la zero nu este permisă</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Format greșit</string>
@@ -956,8 +956,8 @@
         Înainte să apară aplicația, apare ecranul calculatorului.
     </string>
   <string name="calculator_par2">
-        În el, puteți face calcule standard, și dacă vrei să intri în aplicație,
-        trebuie să introduci codul PIN ( prestabilit este 1234) și apoi să apeși butonul „=”.
+        În el, se pot face calcule standard, și dacă vrei să intri în aplicație,
+        trebuie să introduci codul PIN (prestabilit este 1234) și apoi să apeși butonul „=”.
     </string>
   <string name="calculator_par3">
         Poți crea un cod PIN personalizat prin opțiunea „PIN Calculator”.
@@ -967,7 +967,7 @@
         numele real și simbolul aplicației în informațiile despre aplicație.
     </string>
   <string name="discrete_mode_info_par2">
-        Pentru îmbunătățirea siguranței în medii persecutate, recomandăm folosirea
+        Pentru îmbunătățirea siguranței celor prigoniți, recomandăm folosirea
         versiunii discrete a aplicației, care arată mereu calculatorul, chiar dacă datele aplicației sînt șterse.
     </string>
   <string name="discrete_mode_link">
@@ -975,7 +975,7 @@
     </string>
   <!--Window synchronize groups-->
   <string name="sync_group_submenu">Sincronizează grupul</string>
-  <string name="sync_group_n">Grup %d</string>
+  <string name="sync_group_n">Grupul %d</string>
   <string name="disable_sync">Dezactivează sincronizarea</string>
   <string name="open_in_window">Deschide rezultatele într-o fereastră</string>
   <!--Custom repositories-->
@@ -1041,7 +1041,7 @@
   <string name="are_you_sure">Ești sigur?</string>
   <string name="are_you_sure_reset_local">Acest lucru va înlocui baza de date locală pentru %s cu conținutul care este stocat în prezent în serviciul Cloud.</string>
   <string name="are_you_sure_reset_cloud">Acest lucru va înlocui baza de date din Cloud pentru %s cu conținutul din acest aparat.</string>
-  <string name="sync_cant_fetch">Versiunea bazei de date sau a fișierului stocat în Cloud este mai mare decât cea acceptată de această aplicație.</string>
+  <string name="sync_cant_fetch">Versiunea bazei de date sau a fișierului stocat în Cloud este mai mare decît cea acceptată de această aplicație.</string>
   <string name="sync_disabling">Dezactivarea sincronizării pentru %s deocamdată.</string>
   <string name="sync_update_app">Actualizează aplicația pentru a continua sincronizarea.</string>
   <string name="sign_in_failed">Conectarea la serviciul de sincronizare a eșuat.</string>
