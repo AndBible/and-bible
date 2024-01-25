@@ -614,7 +614,7 @@ class BibleJavascriptInterface(
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()
                 "CtrlKeyF" -> {
                     val intent = mainBibleActivity.searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, mainBibleActivity)
-                    mainBibleActivity.startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                    intent?.let {mainBibleActivity.startActivityForResult(it, ActivityBase.STD_REQUEST_CODE)}
                 }
                 "Space" -> {
                     if(!mainBibleActivity.speakControl.isStopped) {

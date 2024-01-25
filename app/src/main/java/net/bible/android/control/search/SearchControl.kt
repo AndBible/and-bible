@@ -32,6 +32,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
@@ -62,7 +63,7 @@ class SearchControl @Inject constructor(
      *
      * @return required Intent
      */
-    fun getSearchIntent(document: Book?, activity: Activity): Intent {
+    fun getSearchIntent(document: Book?, activity: Activity): Intent? {
         val indexStatus = document?.indexStatus
         Log.i(TAG, "Index status:$indexStatus")
         return if (indexStatus == IndexStatus.DONE) {
@@ -71,6 +72,8 @@ class SearchControl @Inject constructor(
                 Intent(activity, EpubSearch::class.java)
             } else
                 Intent(activity, Search::class.java)
+        } else if (document?.bookCategory == BookCategory.GENERAL_BOOK) {
+            return null
         } else {
             Log.i(TAG, "Index status is NOT DONE")
             Intent(activity, SearchIndex::class.java)
