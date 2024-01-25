@@ -1449,7 +1449,7 @@ object CommonUtils : CommonUtilsBase() {
         // There's issue on Android 5 that icon simply disappears and calculator does not appear.
         // See https://github.com/AndBible/and-bible/issues/2310
         if (BuildVariant.Appearance.isDiscrete || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) return
-        val discrete = settings.getBoolean("discrete_mode", false)
+        val discrete = realSharedPreferences.getBoolean("discrete_mode", false)
         val packageName = BuildConfig.APPLICATION_ID
         val allNames = listOf(
             "net.bible.android.activity.StartupActivity",
@@ -1503,7 +1503,7 @@ object CommonUtils : CommonUtilsBase() {
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
         else SyncableDatabaseDefinition.ALL.any { it.enabled }
-    val isDiscrete get() = BuildVariant.Appearance.isDiscrete ||settings.getBoolean("discrete_mode", false)
+    val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 
     fun md5Hash(str: String): String {

@@ -68,7 +68,7 @@ class PreferenceStore: PreferenceDataStore() {
         if(useRealShared(key)) CommonUtils.realSharedPreferences.edit().putBoolean(key, value).apply()
         else prefs.setBoolean(key, value)
 
-    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key == "calculator_pin" || key == "show_calculator" || key.startsWith("night_mode")
+    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key == "calculator_pin" || key == "show_calculator" || key == "discrete_mode" || key.startsWith("night_mode")
 
     override fun putString(key: String, value: String?) =
         if(useRealShared(key)) CommonUtils.realSharedPreferences.edit().putString(key, value).apply()
@@ -144,7 +144,6 @@ class SettingsActivity: ActivityBase() {
                     "night_mode_pref3",
                     "request_sdcard_permission_pref",
                     "show_errorbox",
-                    "discrete_mode",
                     "show_calculator",
                     "calculator_pin",
                     "google_drive_sync",
@@ -161,6 +160,7 @@ class SettingsActivity: ActivityBase() {
                 CommonUtils.realSharedPreferences.edit().remove("locale_pref").apply()
                 CommonUtils.realSharedPreferences.edit().remove("calculator_pin").apply()
                 CommonUtils.realSharedPreferences.edit().remove("show_calculator").apply()
+                CommonUtils.realSharedPreferences.edit().remove("discrete_mode").apply()
                 recreate()
             }
             .setNegativeButton(R.string.cancel, null)

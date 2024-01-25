@@ -189,6 +189,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         super.onCreate(savedInstanceState)
         ABEventBus.register(this)
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
+        if(CommonUtils.isDiscrete) {
+            spinnerBinding.imageView.setImageResource(R.drawable.ic_calculator_color)
+        }
         startupViewBinding = StartupViewBinding.inflate(layoutInflater)
         setContentView(spinnerBinding.root)
         buildActivityComponent().inject(this)
