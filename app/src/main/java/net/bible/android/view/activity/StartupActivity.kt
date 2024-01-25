@@ -190,7 +190,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         ABEventBus.register(this)
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
         if(CommonUtils.isDiscrete) {
-            spinnerBinding.imageView.setImageResource(R.drawable.ic_calculator_color)
+            spinnerBinding.imageView.setImageResource(
+                R.drawable.ic_calculator_color
+            )
+            spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
         }
         startupViewBinding = StartupViewBinding.inflate(layoutInflater)
         setContentView(spinnerBinding.root)
@@ -212,12 +215,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
             // switch back to ui thread to continue
             postBasicInitialisationControl()
-            if(CommonUtils.isDiscrete) {
-                spinnerBinding.imageView.setImageResource(
-                    R.drawable.ic_calculator_color
-                )
-                spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
-            }
         }
     }
 
