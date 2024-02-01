@@ -233,7 +233,7 @@ class LinkControl @Inject constructor(
 
     enum class StrongsKeyType {HEBREW, GREEK}
 
-    private fun getStrongsKey(book: Book, key: String): BookAndKey? {
+    fun getStrongsKey(book: Book, key: String): BookAndKey? {
         val match = Regex("^([GH])(0*)([0-9]+).*").find(key)
         val category = match?.groups?.get(1)?.value
             ?: if(book.isHebrewDef) "H"

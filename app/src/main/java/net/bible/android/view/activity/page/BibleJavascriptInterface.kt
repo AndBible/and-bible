@@ -69,6 +69,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
@@ -82,6 +83,7 @@ class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
+    val linkControl get() = bibleView.linkControl
     val bookmarkControl get() = bibleView.bookmarkControl
     val downloadControl get() = bibleView.downloadControl
 
@@ -223,7 +225,7 @@ class BibleJavascriptInterface(
         val backend = book.backend as EpubBackend
         val key = backend.getKey(toKeyStr, toId) ?: return
         scope.launch(Dispatchers.Main) {
-            bibleView.linkControl.showLink(book, BookAndKey(key, book, htmlId = toId))
+            linkControl.showLink(book, BookAndKey(key, book, htmlId = toId))
         }
     }
 
@@ -238,7 +240,7 @@ class BibleJavascriptInterface(
                 val lnk = "${bibleBook.osis} $rest"
                 val bibleLink = BibleView.BibleLink("content", target=lnk)
                 scope.launch(Dispatchers.Main) {
-                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                    linkControl.loadApplicationUrl(bibleLink)
                 }
             }
             link.startsWith("S:") -> {
@@ -246,7 +248,7 @@ class BibleJavascriptInterface(
                 val (prefix, rest) = link.split(":", limit=2)
                 val bibleLink = BibleView.BibleLink("strong", target=rest)
                 scope.launch(Dispatchers.Main) {
-                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                    linkControl.loadApplicationUrl(bibleLink)
                 }
             }
             link.startsWith("#b") -> {
@@ -257,7 +259,7 @@ class BibleJavascriptInterface(
                 val lnk = "${bibleBook.osis}.$chapInt.$verInt"
                 val bibleLink = BibleView.BibleLink("content", target=lnk)
                 scope.launch(Dispatchers.Main) {
-                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                    linkControl.loadApplicationUrl(bibleLink)
                 }
             }
             link.startsWith("#s") || link.startsWith("#d") -> {
@@ -265,7 +267,7 @@ class BibleJavascriptInterface(
                 val rest = link.substring(2)
                 val bibleLink = BibleView.BibleLink("strong", target=rest)
                 scope.launch(Dispatchers.Main) {
-                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                    linkControl.loadApplicationUrl(bibleLink)
                 }
             }
             else -> {
@@ -401,14 +403,14 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openStudyPad(labelId: String, bookmarkId: String) {
         scope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))
+            linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))
         }
     }
 
     @JavascriptInterface
     fun openMyNotes(v11n: String, ordinal: Int) {
         scope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openMyNotes(v11n, ordinal)
+            linkControl.openMyNotes(v11n, ordinal)
         }
     }
 
@@ -429,7 +431,12 @@ class BibleJavascriptInterface(
     fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials)
-            val origKey = book.getKey(osisRef)
+            val origKey = try {
+                book.getKey(osisRef)
+            } catch (e: NoSuchKeyException) {
+                val bookAndKey = linkControl.getStrongsKey(book, osisRef)
+                bookAndKey?.key ?: return@launch
+            }
             val key = (origKey as? RangedPassage)?.toVerseRange ?:  try {KeyUtil.getVerse(origKey)} catch (e: ClassCastException) {origKey}
             val ordinalRange = OrdinalRange(ordinal, positiveOrNull(endOrdinal))
             val bookAndKey = BookAndKey(key, book, ordinalRange)
