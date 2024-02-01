@@ -545,7 +545,7 @@ Kas jätkame?</string>
   <string name="beta_notice_dismiss_until_update">Unusta kuni uue versioonini</string>
   <string name="stable_notice_title">Rakendus on uuendatud!</string>
   <string name="upgrade_video_message">Vaata videot uutest võimalustest selles versioonis (%s).</string>
-  <string name="stable_notice_par1">%2$suus versioon %1$s on edukalt paigaldatud!</string>
+  <string name="stable_notice_par1">%2$s uus versioon %1$s on edukalt paigaldatud!</string>
   <!--History-->
   <string name="history_for">Ajalugu (%1$s: Aken %2$d)</string>
   <!--Help-->

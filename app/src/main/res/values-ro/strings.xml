@@ -717,7 +717,7 @@
     </string>
   <string name="help_search_title">Caută</string>
   <!--TODO: to be removed-->
-  <string name="help_search_text">Textul de căutare poate include caractere speciale, cum ar fi *, ?, AND, OR, NOT
+  <string name="help_search_text">Textul de căutat poate include caractere speciale, cum ar fi *, ?, AND, OR, NOT
         (vezi „Apache Lucene - Query Parser Syntax” pentru detalii)
     </string>
   <string name="help_search_text2">Căutarea textului poate include caractere speciale precum *, AND, OR, NOT</string>
@@ -728,7 +728,7 @@
   <string name="help_workspaces_text">
         Spațiile de studiu permit existența mai multor medii de studiu în funcție de context.
         Funcțiile spațiului de studiu pot fi accesate prin intermediul opțiunilor (colțul din dreapta sus).
-        Modalitatea rapidă de accesare a spațiilor de studiu este prin gestul de glisare în jos.
+        Modalitatea rapidă de accesare a spațiilor de studiu este prin gestul de tragere în jos.
         Poți trece de la un spațiu de studiu la altul folosind simbolurile din dreapta jos.
     </string>
   <string name="help_hidden_features_title">Scurtături ascunse</string>
