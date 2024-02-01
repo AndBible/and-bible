@@ -66,9 +66,9 @@ import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.addMySwordBook
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.GenBookBackend
 import org.crosswire.jsword.book.sword.SwordGenBook
 import java.io.BufferedInputStream
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.UUID
 import kotlin.coroutines.resume
@@ -287,10 +287,12 @@ class ZipHandler(
     enum class InstallResult {ERROR, INVALID_MODULE, CANCEL, OK, IGNORE}
 }
 
-open class SqliteInstallError: Error()
-class CantRead: SqliteInstallError()
-class InvalidFile(val filename: String): SqliteInstallError()
-class CantWrite: SqliteInstallError()
+open class InstallZipError: Error()
+
+class CantRead: InstallZipError()
+class FileNotFound: InstallZipError()
+class InvalidFile(val filename: String): InstallZipError()
+class CantWrite: InstallZipError()
 
 class InstallZip : ActivityBase() {
     private lateinit var binding: ActivityInstallZipBinding
@@ -368,10 +370,11 @@ class InstallZip : ActivityBase() {
         if (result.resultCode == Activity.RESULT_OK) {
             try {
                 installFromFile(result.data!!.data!!)
-            } catch (e: SqliteInstallError) {
+            } catch (e: InstallZipError) {
                 Log.e(TAG, "Error occurred in installing module", e)
                 val msg = when(e) {
                     is CantRead -> getString(R.string.sqlite_cant_read)
+                    is FileNotFound -> getString(R.string.sqlite_cant_read)
                     is InvalidFile -> getString(R.string.sqlite_invalid_file, e.filename)
                     is CantWrite -> getString(R.string.sqlite_cant_write)
                     else -> throw RuntimeException(e)
@@ -417,7 +420,11 @@ class InstallZip : ActivityBase() {
             return installEpub(uri)
         }
 
-        val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
+        val inputStream = try {
+            BufferedInputStream(contentResolver.openInputStream(uri))
+        } catch (e: FileNotFoundException) {
+            throw FileNotFound()
+        }
         val fileTypeFromContent = determineFileType(inputStream)
 
         if (fileTypeFromContent == BackupControl.AbDbFileType.ZIP)
