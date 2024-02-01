@@ -403,7 +403,6 @@ dependencies {
 
     implementation("com.github.AndBible:jsword:$jswordVersion") {
         exclude("org.apache.httpcomponents")
-        exclude("org.slf4j:slf4j-api")
     }
 
     implementation("de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5")
