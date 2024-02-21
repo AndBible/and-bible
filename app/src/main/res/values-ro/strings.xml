@@ -902,7 +902,7 @@
   <string name="prefs_double_tap_to_fullscreen_summary">Dă pe tot ecranul apăsînd de două ori pe el</string>
   <string name="toggle_fullscreen">Pe tot ecranul</string>
   <string name="exit_fullscreen">Apasă de două ori pentru a reduce</string>
-  <string name="reset_app_prefs">Vrei să restabilești toate preferințele aplicației care sînt afișate pe acest ecran la valorile lor prestabilite?</string>
+  <string name="reset_app_prefs">Vrei să restabilești toate preferințele aplicației, care sînt afișate pe acest ecran, la valorile lor prestabilite?</string>
   <string name="label_red">Roșu</string>
   <string name="label_green">Verde</string>
   <string name="label_blue">Albastru</string>
@@ -953,17 +953,17 @@
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Instrucțiuni și informații despre versiunile discrete ale aplicației.</string>
   <string name="calculator_par1">
-        Înainte să apară aplicația, apare ecranul calculatorului.
+        Înainte de a intra în aplicație, apare pe ecran calculatorul.
     </string>
   <string name="calculator_par2">
-        În el, se pot face calcule standard, și dacă vrei să intri în aplicație,
+        În el se pot face calcule standard, și dacă vrei să intri în aplicație,
         trebuie să introduci codul PIN (prestabilit este 1234) și apoi să apeși butonul „=”.
     </string>
   <string name="calculator_par3">
         Poți crea un cod PIN personalizat prin opțiunea „PIN Calculator”.
     </string>
   <string name="discrete_mode_info_par1">
-        Folosești versiunea standard a aplicației, ceea ce înseamnă că poți vedea în continuare
+        Folosești versiunea standard a aplicației. Asta înseamnă că poți vedea în continuare
         numele real și simbolul aplicației în informațiile despre aplicație.
     </string>
   <string name="discrete_mode_info_par2">

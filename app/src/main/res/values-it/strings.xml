@@ -894,8 +894,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
         Prima di accedere all\'app, viene mostrata la schermata della calcolatrice.
     </string>
   <string name="calculator_par2">
-        In questa, puoi eseguire normali calcoli, e quando vuoi accedere all\'app, ti basta
-        inserire il tuo codice PIN (il default is 1234) e poi premere il bottone \"=\".
+        In questa puoi eseguire normali calcoli, e quando vuoi accedere all\'app, ti basta
+        inserire il tuo codice PIN (predefinito è 1234) e poi premere il pulsante \"=\".
     </string>
   <string name="calculator_par3">
         Puoi impostare un tuo PIN personale dall\'impostazione \"PIN calcolatrice\".

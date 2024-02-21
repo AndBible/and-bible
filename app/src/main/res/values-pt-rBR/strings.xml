@@ -15,7 +15,7 @@
   <string name="search_in_andbible">Pesquisar na Bíblia</string>
   <string name="settings">Preferências do aplicativo</string>
   <string name="history">Histórico</string>
-  <string name="speak">Falar</string>
+  <string name="speak">Escutar</string>
   <string name="help">Ajuda</string>
   <string name="information">Informações</string>
   <string name="other">Outros</string>
@@ -41,6 +41,7 @@
   <string name="search_in">Pesquisar em %s</string>
   <string name="do_in_background">Continuar em segundo plano</string>
   <string name="rebuild_index_button">Reconstruir</string>
+  <string name="creating_index_for">Criar índice para %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s resulta em %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Todas as palavras</string>
   <string name="search_any_word">Qualquer palavra</string>
   <string name="search_phrase">Frase</string>
+  <string name="search_fts_query">Sintaxe de consulta</string>
   <string name="search_result_count">%d resultados encontrados</string>
   <string name="search_showing_first">Muitos resultados encontrados. Mostrar primeiro %d</string>
   <string name="search_bible_section_group_prompt">Onde pesquisar</string>
@@ -694,6 +696,10 @@ Os Estudos são projetados para tornar mais fácil escrever notas de sermões, p
   <!--TODO: to be removed-->
   <string name="help_search_text">O texto da pesquisa pode incluir caracteres especiais como *,?, AND, OR, NOT
 (consulte \"Apache Lucene - sintaxe do analisador de consultas\" para obter mais detalhes)</string>
+  <string name="help_search_text2">O texto de pesquisa pode incluir caracteres especiais como *, E, OU, NÃO</string>
+  <string name="help_search_details">Para mais detalhes, ver %s.</string>
+  <string name="help_apache_lucene">Sintaxe de consulta simples - Apache Lucene</string>
+  <string name="help_fts5">Sintaxe de consulta de texto completo FTS5</string>
   <string name="help_workspaces_title">Áreas de trabalho</string>
   <string name="help_workspaces_text">
 As áreas de trabalho permitem ter vários ambientes de trabalho dependentes do contexto. Funções da área de trabalho
@@ -884,6 +890,7 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="strongs_off">Desligado</string>
   <string name="strongs_links">Atalhos</string>
   <string name="strongs_text_and_links">Textos e atalhos</string>
+  <string name="strongs_hidden_links">Links ocultos</string>
   <string name="verse_tip">Para selecionar parte ou vários versículos, mantenha pressionado o texto da Bíblia</string>
   <string name="permission_required">Permissão necessária</string>
   <string name="labels_search_hint">Pesquisar</string>
