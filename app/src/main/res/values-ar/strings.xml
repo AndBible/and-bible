@@ -9,6 +9,7 @@
   <string name="chooseBook">المستند</string>
   <string name="selectPassage">مرور</string>
   <string name="search">ابحث</string>
+  <string name="search_in_andbible">ابحث في الكتاب المقدس </string>
   <string name="settings">تفضيلات التطبيق</string>
   <string name="history">تاريخ</string>
   <string name="speak">تكلم</string>
@@ -173,10 +174,12 @@
   <string name="prefs_text_bookmarks_title">إعدادات الإشارات المرجعية وملاحظاتي</string>
   <string name="prefs_enable_bluetooth_title">تمكين أزرار وسائط البلوتوث</string>
   <string name="prefs_enable_bluetooth_summary">تعامل مع أزرار وسائط البلوتوث لبدء / إيقاف التحدث.</string>
+  <string name="create_bookmark">أنشئ إشارة مرجعية جديدة</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">إعدادات الألوان</string>
   <string name="window_color_settings_title">إعدادات لون النافذة</string>
   <string name="workspace_color_settings_title">الإعدادات الافتراضية لإعدادات مساحة العمل</string>
+  <string name="color_workspace">لَون مساحة العمل</string>
   <string name="color_text">لون الخط</string>
   <string name="color_background">لون الخلفية</string>
   <string name="colors_day_mode_title">الوضع النهاري</string>
@@ -195,8 +198,10 @@
   <string name="windowMinimise">تصغير</string>
   <string name="windowSynchronise">مزامنة</string>
   <string name="move_window">الانتقال إلى</string>
+  <string name="move_window_to_position2">التموضع %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">نسخ الإعدادات إلى</string>
   <string name="copy_settings_to_workspace">مساحة العمل</string>
+  <string name="copy_settings_to_window">النافذة %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">التغيير إلى نافذة عادية</string>
   <string name="window_pin_mode">تثبيت</string>
   <!--Notes screen-->
@@ -219,6 +224,7 @@
   <string name="download_document_confirm_prefix">تحميل</string>
   <string name="download_refresh_book_list_menu_item">اعادة تحديث (refresh)</string>
   <string name="error_downloading">حدث خطأ أثناء التنزيل. الرجاء التحقق من اتصال الانترنت الخاص بك.</string>
+  <string name="error_downloading_status">الخادم الذي يستضيف %1$s أعاد خطأ بسبب %2$s (%3$d).</string>
   <string name="storage_space_warning">لا يوجد مساحة مناسبة على الجهاز</string>
   <string name="too_many_jobs">هناك عدد كبير جدًا من المهام قيد التشغيل. الرجاء الانتظار حتى ينتهي البعض وحاول مرة أخرى.</string>
   <string name="document_not_installed">برجاء تحميل \'%s\'</string>
@@ -238,14 +244,20 @@
   <string name="download_errors">أخطاء التنزيل</string>
   <string name="failed_repositories_message">تعذر الاتصال بخادم المستندات التالي: \n\n%s\n\n</string>
   <string name="failed_downloads_message">تعذر تحميل الملفات التالية:\n\n%s\n\n</string>
+  <string name="cant_delete_document">هذه الوثيقة لا يمكن حذفها</string>
   <!--Install zip file-->
+  <string name="install_zip">حمّل المستندات من الملفات</string>
   <string name="install_zip_module">تثبيت وحدة الكتاب المقدس</string>
+  <string name="install_zip_module_discrete">ثبّت وحدة الالة الحاسبة</string>
   <string name="install_zip_successfull">تم تثبيت الوحدة النمطية بنجاح</string>
   <string name="extracting_zip_file">جارٍ فك الضغط الآن...</string>
   <string name="checking_zip_file">جارٍ فحص الملف المحدد...</string>
   <string name="invalid_module">لا يحتوي الملف على وحدة SWORD نمطية صالحة</string>
+  <string name="install_zip_title">الرجاء الانتظار، يتم تحميل الوحدات من الملف</string>
   <string name="overwrite_files">الملفات التالية موجودة بالفعل: %s هل تريد الكتابة فوقها؟</string>
   <string name="overwrite_files_title">الكتابة فوق الملفات؟</string>
+  <string name="could_not_overwrite_files">لم نتمكن من استبدال الملفات: %s. عدا عن ذلك فقد كان التثبيت ناجحاً</string>
+  <string name="install_do_you_want">هل تريد تثبيت الوحدة (%s)؟ </string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">خطة القراءة</string>
   <string name="reading_plans_plural">خطط القراءة</string>
@@ -265,8 +277,34 @@
   <string name="delete_reading_plan">حذف هذه الخطة</string>
   <string name="reading_plan_deleted">تم حذف خطة القراءة</string>
   <string name="reading_plan_ships_with_ab">تأتي خطة القراءة هذه مع %s</string>
+  <string name="confirm_delete_reading_plan">
+        هل انت متأكد انك تريد حذف %s بالإضافة لسجل قراءتها ؟
+        تلميح: إن اردت تعديل الخطة فيمكنك إعادة استيرادها فحسب مع نفس اسم الملف
+        والسجل سيتم سيتم حفظه
+    </string>
+  <string name="plan_duplicate_user_plan">
+       يوجد خطة قراءة للمستخدم على كرت الذاكرة
+       jsword/readingplan مع نفس الاسم الخاص بالخطة المضمنة. لا يمكن اظهارها هنا.
+        رجاءً اعد تسمية الملف لشئ آخر، مع الحفاظ على لاحقة الملف كخصائص
+    </string>
+  <string name="plan_description_y1ot1nt1_chronological">
+        خطة مبنية على التسلسل الزمني للاحداث في الكتاب المقدس
+        التسلسل الزمني تقريبي
+    </string>
+  <string name="plan_name_y1ot1nt1_OTandNT">العهد القديم + العهد الجديد بنفس الوقت في 1-سنة</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+        اقرأ الكتاب المقدس خلال 1-سنة، مع إصحاحات
+        في العهد القديم و الجديد كل يوم
+    </string>
   <string name="plan_name_y1ot1nt1_OTthenNT">1 سنة خلال الكتاب المقدس</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+        إقرأ الكتاب المقدس في 1-سنة، بدءاً من سفر التكوين
+        و انتهاءاً بسفر الرؤيا. العهد القديم أولاً، ثم العهد الجديد.
+    </string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne سنة-1 4-إصحاح/باليوم </string>
+  <string name="plan_name_y1ot6nt4_profHorner">خطة البروفيسور هورنر لقراءة 10-إصحاح/باليوم</string>
   <string name="plan_description_y1ot6nt4_profHorner">بإذن من البروفيسور هورنر ، تم منح الإذن</string>
+  <string name="plan_name_y2ot1ntps2">2-سنة في الكتاب المقدس، العهد الجديد + المزامير مرتين</string>
   <!--Document context menu-->
   <string name="delete">الغاء (حذف)</string>
   <string name="delete_index">حذف  فهرس البحث.</string>
@@ -277,6 +315,7 @@
   <string name="notes">التذييل و المراجع</string>
   <string name="share_verse">مشاركة...</string>
   <string name="share_verse_widget_title">مشاركة التحديد</string>
+  <string name="share_verse_subject_2">تم مشاركتك بآية من الكتاب المقدس باستخدام %s.</string>
   <string name="compare_translations">مقارنة الترجمات</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">أفتح الرابط هنا</string>
@@ -305,15 +344,25 @@
   <string name="bookmark_settings_hide_labels_title">إخفاء ملصقات محددة</string>
   <string name="bookmark_settings_hide_labels_summary">إخفاء الإشارات المرجعية التي تم تمييزها بعلامة ملصق(ملصقات) محددة</string>
   <string name="auto_assign_labels_title">إعدادات الملصقات</string>
+  <string name="auto_assign_labels">التعيين التلقائي و الملصقات المفضلة</string>
+  <string name="auto_assign_labels1">عيّن ملصق تلقائياً لعلامة مرجعية جديدة</string>
   <string name="auto_assign_labels_primary">التعيين التلقائي كأساسي</string>
   <string name="label_color">لون الملصق</string>
   <!--can be removed-->
   <string name="label_color_example">مثال</string>
+  <string name="bookmark_warning">لا يوجد علامات مرجعية و/أو ملاحظات لهذا المستند</string>
+  <string name="bookmark_warning2">
+         اذا تغيرت بنية المستند، قد يؤدي تحديث هذا المستند الى
+        تغير موقع العلامات المرجعية/الملاحظات داخل المستند او اختفاءها كلياً.
+    </string>
+  <string name="bookmark_warning3">هل ما زلت تريد تحديث الوحدة؟</string>
+  <string name="bookmark_warning4">يُنصح بأخذ نسخة احتياطية من الوحدة قبل التحديث.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">ترتيب التاريخ</string>
   <string name="sort_by_bible_book">ترتيب الكتاب المقدس</string>
   <string name="sort_by_alphabetical">ترتيب ابجدي</string>
   <!--notes = user notes ("My Notes") that are attached to bookmark-->
+  <string name="filter_by_notes">ابحث في الملاحظات</string>
   <!--Dictionary-->
   <string name="dictionary">القاموس</string>
   <string name="search_dictionary_hint">إبحث في القاموس</string>
@@ -374,19 +423,32 @@
   <string name="widget_toggle_sleep_timer">تبديل مؤقت النوم</string>
   <string name="widget_bookmark_helptext">ستظهر أزرار اختصار الإشارات المرجعية هنا.</string>
   <string name="speak_status_stopped">متوقف</string>
+  <string name="speak_autobookmarking_disabled">تم تعطيل الإشارة المرجعية التلقائية!</string>
   <string name="system_speak_settings">فتح إعدادات نظام تحويل النص إلى كلام</string>
+  <string name="auto_assing_labels_help1">يمكنك هنا ان تضبط أي من الملصقات يتم تعيينها تلقائياً للعلامات المرجعية التي تُنشئها</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+  <string name="setting_scope">هذا الإعداد ينطبق على %s.</string>
   <string name="setting_scope_window">هذه النافذة</string>
   <string name="setting_scope_workspace">مساحة العمل هذه</string>
+  <string name="assing_labels_help1">كل علامة مرجعية يمكن ان تحدد بعدّة ملصقات.</string>
   <!--param is bookmark icon-->
+  <string name="assing_labels_help2">استخدم %s لتحديد أيّ لون للملصق سيتم إظهاره.</string>
   <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">انقر على رمز %s ليتم تعيين الملصق تلقائياً للعلامة المرجعية الجديدة.</string>
   <!--param is heart icon-->
+  <string name="assing_labels_help4">انقر على %s لإضافة الملصق إلى قائمة المفضلة للوصول السريع.</string>
   <!--param is refresh icon-->
+  <string name="assing_labels_help5">انقر على %s لتعيد ترتيب القائمة حسب اختيارك.</string>
   <string name="workspace_text_options_help_title">خيارات نص مساحة العمل</string>
+  <string name="workspace_text_options_help1">هذه الإعدادات تحدد اللاعداد الافتراضي لكل نوافذ مساحات العمل.</string>
+  <string name="workspace_text_options_help2">يمكنك تجاوزها عن طريق تغيير إعدادات النافذة على انفراد.</string>
   <string name="window_text_options_help_title">خيارات نص النافذة</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s رمز يشير إلى أن الإعداد آتٍ من إعدادات مساخة العمل.</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help2">%s رمز يشير إلى أن الإعداد قد تم تغييره من أجل هذه النافذة.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+  <string name="text_options_reset_help">استخدم زر %1$s لإعادة تعيين كل هذه الإعدادات مجدداً إلى %2$s.</string>
   <string name="reset_defaults">القيم الافتراضية</string>
   <string name="reset_workspace_defaults">القيم الافتراضية لمساحة العمل</string>
   <string name="speak_bookmark_help">نطق تعليمات الإشارة المرجعية</string>

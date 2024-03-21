@@ -11,7 +11,7 @@ paragraph_1_2: >
   To aplikacijo so razvili bralci Biblije za bralce Biblije. Njen namen je pomagati vam, da bo vaše preučevanje Biblije priročno, poglobljeno in zabavno. Najboljši del tega neprofitnega skupnostnega projekta je, da je odprtokoden, popolnoma brezplačen in ne vsebuje oglasov.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
-  Nekaj priljubljenih Biblij (od številnih, ki so na voljo) so KJV, NASB, NET in priljubljeni komentarji, kot sta Matthew Henry in John Gill. na voljo so tudi slovenski prevodi Biblij.
+  Nekaj priljubljenih Biblij (od številnih, ki so na voljo) so KJV, NASB, NET in priljubljeni komentarji, kot sta Matthew Henry in John Gill. Na voljo so tudi slovenski prevodi Biblij: SloKJV, SloChraska in SloStritar ter Henohova knjiga.
 subtitle_2: Zmogljive funkcije za proučevanje Biblije
 paragraph_2_1: >
   Aplikacija ima številne vpogledne, izvirne funkcije, zaradi česar je kompleksna in poglobljena izkušnja preučevanja Biblije bolj gladka kot kdaj koli prej. Najbolj opazne lastnosti so naslednje:
@@ -20,7 +20,7 @@ feature_02: Delovni prostori s svojimi nastavitvami omogočajo več nastavitev p
 feature_03: Strong-ova števila omogočajo grško in hebrejsko besedno analizo
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  Povezani sklici, opombe in dokumenti; skok na reference in opombe s preprostim dotikom povezave; izvedite poglobljeno preučevanje Svetega pisma z uporabo komentarjev ({{comment_examples}}), zbirk referenc ({{cross_reference_examples}}) in drugih virov.
+  Povezani sklici, opombe in dokumenti; skok na reference in opombe s preprostim dotikom povezave; izvedite poglobljeno preučevanje Svetega pisma z uporabo komentarjev  ({{commentary_examples}}), zbirk referenc ({{cross_reference_examples}}) in drugih virov.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
 commentary_examples: "Gill, Matthew Henry itd. "
@@ -35,7 +35,7 @@ feature_09: >
 feature_10: >
   Ogromna knjižnica dokumentov: prevodi Biblije, komentarji, slovarji, zemljevidi in krščanske knjige, skupaj več kot {{total_documents}} dokumentov v več {{total_languages}} jezikih, ki jih zakonito distribuira Crosswire in druge SWORD shrambe.
 feature_10_1: >
-  Vgrajena podpora datotekam MyBible, MySword in EPUB vam omogoča, da še bolj razširite svojo knjižnico.
+  Vgrajena podpora datotekam MyBible, MySword in ePUB vam omogoča, da še bolj razširite svojo knjižnico.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "ESV, NIV in NKJV"

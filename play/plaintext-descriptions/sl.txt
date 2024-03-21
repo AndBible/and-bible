@@ -4,7 +4,7 @@ Močno orodje za proučevanje Biblije
 
 To aplikacijo so razvili bralci Biblije za bralce Biblije. Njen namen je pomagati vam, da bo vaše preučevanje Biblije priročno, poglobljeno in zabavno. Najboljši del tega neprofitnega skupnostnega projekta je, da je odprtokoden, popolnoma brezplačen in ne vsebuje oglasov.
 
-Nekaj priljubljenih Biblij (od številnih, ki so na voljo) so KJV, NASB, NET in priljubljeni komentarji, kot sta Matthew Henry in John Gill. na voljo so tudi slovenski prevodi Biblij.
+Nekaj priljubljenih Biblij (od številnih, ki so na voljo) so KJV, NASB, NET in priljubljeni komentarji, kot sta Matthew Henry in John Gill. Na voljo so tudi slovenski prevodi Biblij: SloKJV, SloChraska in SloStritar ter Henohova knjiga.
 
 Zmogljive funkcije za proučevanje Biblije
 
@@ -13,14 +13,14 @@ Aplikacija ima številne vpogledne, izvirne funkcije, zaradi česar je kompleksn
  * Razdeljeni pogledi besedila omogočajo primerjavo prevodov in svetovanje komentarjev
  * Delovni prostori s svojimi nastavitvami omogočajo več nastavitev proučevanja Biblije
  * Strong-ova števila omogočajo grško in hebrejsko besedno analizo
- * Povezani sklici, opombe in dokumenti; skok na reference in opombe s preprostim dotikom povezave; izvedite poglobljeno preučevanje Svetega pisma z uporabo komentarjev (), zbirk referenc (Zakladnica znanja Božje besede - Treasure of Scripture Knowledge, TSK) in drugih virov.
+ * Povezani sklici, opombe in dokumenti; skok na reference in opombe s preprostim dotikom povezave; izvedite poglobljeno preučevanje Svetega pisma z uporabo komentarjev  (Gill, Matthew Henry itd.), zbirk referenc (Zakladnica znanja Božje besede - Treasure of Scripture Knowledge, TSK) in drugih virov.
  * Napredna pretvorba besedila v govor z zaznamki za govor, kar omogoča nemoteno izkušnjo poslušanja Biblije - ni še za slovenščino.
  * Prilagodljivo iskanje
  * Napredne funkcije zaznamkov in poudarjanja z osebnimi študijskimi opombami
  * Študijske beležnice za dodajanje opomb in biblijskih referenc med poslušanjem pridig.
  * Načrti branja: določite si cilje za branje Biblije
  * Ogromna knjižnica dokumentov: prevodi Biblije, komentarji, slovarji, zemljevidi in krščanske knjige, skupaj več kot 1500 dokumentov v več 700 jezikih, ki jih zakonito distribuira Crosswire in druge SWORD shrambe.
- * Vgrajena podpora datotekam MyBible, MySword in EPUB vam omogoča, da še bolj razširite svojo knjižnico.
+ * Vgrajena podpora datotekam MyBible, MySword in ePUB vam omogoča, da še bolj razširite svojo knjižnico.
 
 Skupaj naredimo najboljšo biblijsko aplikacijo!
 
