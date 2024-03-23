@@ -123,7 +123,8 @@ open class BibleApplication : Application() {
             Log.e(TAG, "App crashed due to exception", e)
             BugReport.saveLogcat()
             BugReport.saveStackTrace(e)
-            CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
+            val numCrashed = CommonUtils.realSharedPreferences.getInt("app-crashed2", 0)
+            CommonUtils.realSharedPreferences.edit().putInt("app-crashed2", numCrashed + 1).commit()
             defaultExceptionHandler.uncaughtException(t, e)
         }
         ABEventBus.register(this)
