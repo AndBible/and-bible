@@ -111,7 +111,7 @@ object ErrorReportControl {
     suspend fun checkCrash(activity: ActivityBase) {
         val crashed = CommonUtils.realSharedPreferences.getInt("app-crashed2", 0)
         if (crashed > 1) {
-            CommonUtils.realSharedPreferences.edit().putInt("app-crashed", 0).commit() // Yes, we want this to be flushed to file immediately
+            CommonUtils.realSharedPreferences.edit().putInt("app-crashed2", 0).commit() // Yes, we want this to be flushed to file immediately
             val msg = activity.getString(R.string.error_occurred_crash_last_time)
             showErrorDialog(activity, msg)
         }
