@@ -115,6 +115,8 @@
   <string name="reset_fontsize">اعادة تهيئة</string>
   <string name="prefs_request_sdcard_permission_title">المستندات المثبتة يدوياً</string>
   <string name="prefs_request_sdcard_permission_summary">تمكين استخدام المستندات المثبتة يدوياً من مجلد jsword/sword على وحدة التخزين الداخلية</string>
+  <string name="prefs_expand_footnotes_title">مرجع ترافقي مضمن</string>
+  <string name="prefs_expand_footnotes_summary">اظهار محتوى المرجع الترافقي ضمن النص، عوضاً عن رابط يفتح نافذة منبثقة </string>
   <string name="all_text_options_window_menutitle">خيارات كل النصوص</string>
   <string name="text_options_window_menutitle">خيارات النصوص</string>
   <string name="auto_fullscreen">ملء الشاشة عند التمرير</string>
@@ -124,6 +126,7 @@
   <string name="value_mm">%dمم</string>
   <string name="auto_fullscreen_summary">التبديل تلقائيًا إلى وضع ملء الشاشة عند تمرير النص. نصيحة: يمكنك دائمًا التبديل إلى ملء الشاشة عن طريق النقر المزدوج على الشاشة.</string>
   <string name="prefs_margin_size_title">تغيير حجم الهامش</string>
+  <string name="prefs_margin_size_mm_title">حجم الهامش (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">اعدادات متقدمة</string>
   <string name="prefs_display_customization_cat">المظهر و الاحساس</string>
   <string name="prefs_behavior_customization_cat">سلوك التطبيق</string>
@@ -244,7 +247,7 @@
   <string name="download_errors">أخطاء التنزيل</string>
   <string name="failed_repositories_message">تعذر الاتصال بخادم المستندات التالي: \n\n%s\n\n</string>
   <string name="failed_downloads_message">تعذر تحميل الملفات التالية:\n\n%s\n\n</string>
-  <string name="cant_delete_document">هذه الوثيقة لا يمكن حذفها</string>
+  <string name="cant_delete_document">هذا المستند لا يمكن حذفه.</string>
   <!--Install zip file-->
   <string name="install_zip">حمّل المستندات من الملفات</string>
   <string name="install_zip_module">تثبيت وحدة الكتاب المقدس</string>
