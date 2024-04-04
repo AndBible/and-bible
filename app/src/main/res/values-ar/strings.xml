@@ -20,7 +20,7 @@
   <string name="help_and_tips">مساعدة ونصائح</string>
   <string name="administration">ادارة</string>
   <string name="rate_application">تقييم ومراجعة</string>
-  <string name="chooce_document">اغلاق المستند</string>
+  <string name="chooce_document">إختر مستند</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">إختر سفر</string>
   <string name="choosePassageChapterName">إختر إصحاح</string>
@@ -38,7 +38,9 @@
   <string name="search_in">ابحث في %s</string>
   <string name="do_in_background">استكمال في الخلفية</string>
   <string name="rebuild_index_button">اعادة بناء</string>
+  <string name="creating_index_for">إنشاء فهرس لـ %s...</string>
   <!--X results in module Y-->
+  <string name="search_with_results2">%1s نتيجة في %2s</string>
   <!--Tasks-->
   <string name="progress_status">الحالة</string>
   <string name="task_kill_warning">قد ينقطع تنفيذ المهام إذا تحولت إلى برنامج آخر قبل أن تنتهي العملية.</string>
@@ -57,7 +59,9 @@
   <string name="search_current_book">السفر الحالي</string>
   <string name="error_executing_search">مدخلات البحث غير صحيحة</string>
   <!--Open (bible reference X)-->
+  <string name="go_to_ref">افتح %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
+  <string name="search_what">أوجد \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">الإصحاح وأعداد الآية</string>
   <string name="prefs_show_verseno_summary">عرض الإصحاح وأعداد الآية</string>
@@ -178,6 +182,7 @@
   <string name="prefs_enable_bluetooth_title">تمكين أزرار وسائط البلوتوث</string>
   <string name="prefs_enable_bluetooth_summary">تعامل مع أزرار وسائط البلوتوث لبدء / إيقاف التحدث.</string>
   <string name="create_bookmark">أنشئ إشارة مرجعية جديدة</string>
+  <string name="create_bookmark_with_a_note">أنشئ إشارة مرجعية جديدة مع ملاحظة </string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">إعدادات الألوان</string>
   <string name="window_color_settings_title">إعدادات لون النافذة</string>
@@ -241,7 +246,7 @@
 بدلاً من ذلك، قد ترغب في الحصول على ملفات مضغوطة للوحدة النمطية بشكل أكثر أمانًا وتثبيتها
 عن طريق \"تحميل المستندات من ملف Zip\". هل أنت متأكد أنك تريد متابعة التنزيل؟
 كافة التنزيلات من خوادم الوحدات النمطية مشفرة (HTTPS).</string>
-  <string name="do_not_ask_again">نعم، لا تطلب المزيد</string>
+  <string name="do_not_ask_again">نعم، لا تسأل مجدداً </string>
   <string name="recommended_document">مُستَحسَن!</string>
   <string name="about_version_history">تاريخ الإصدار: %s</string>
   <string name="download_errors">أخطاء التنزيل</string>
@@ -507,18 +512,36 @@
   <!--User Notes-->
   <string name="mynotes">ملاحظاتي</string>
   <!--Backup and restore-->
+  <string name="backup_application">تطبيق</string>
+  <string name="backup_database">قاعدة البيانات</string>
+  <string name="backup_documents">مستندات</string>
+  <string name="backup_application_info">ملف التطبيق (.APK)</string>
+  <string name="backup_database_info">العلامات المرجعية، الملصقات، الملاحظات، لوحات الدراسة، خطط القراءة، مساحات العمل إلخ.</string>
+  <string name="backup_document_info">الأناجيل، التعليقات، القواميس، الخرائط إلخ.</string>
+  <string name="backup_to">قم بنسخ احتياطي إلى...</string>
+  <string name="backup_restore_from">استعادة من...</string>
   <string name="backup_restore">إستعادة</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">ماذا تريد أن تستعيد؟</string>
   <string name="restore_app_database">استعادة قاعدة بيانات التطبيق من...</string>
   <string name="restore_database">استعادة ملف قاعدة البيانات</string>
   <string name="restore_confirmation">الكتابة فوق ملاحظاتي، والإشارات المرجعية، واللوحات الدراسية، وخطط القراءة ومساحات العمل؟</string>
+  <string name="restore_success2">أجزاء قواعد البيانات المحددة تم استعادتها بنجاح</string>
   <string name="restore_success">تمت استعادة ملاحظاتي والإشارات المرجعية واللوحات الدراسية وخطط القراءة ومساحات العمل الخاصة بي بنجاح</string>
+  <string name="downloading_backup">تحميل ملف النسخة الاحتياطية...</string>
   <string name="loading_backup">تحميل قاعدة البيانات من النسخة الاحتياطية...</string>
+  <string name="backup_success2">تم النسخ الاحتياطي للملاحظات، العلامات المرجعية، اللوحات الدراسية، خطط القراءة و مساحات العمل الخاصة بي بنجاح.</string>
+  <string name="backup_modules_success">تم النسخ الاحتياطي للوحدات المحددة بنجاح.</string>
+  <string name="backup_email_message_2">قاعدة بيانات %s خاصتك التي تحوي العلامات المرجعية، الملاحظات، خطط القراءة، ومساحات العمل قد تم إرفاقها</string>
+  <string name="restore_unsuccessfull">استعادة قاعدة البيانات فشل. ربما أدخلت ملف قاعدة بيانات غير صالح.</string>
   <string name="restore_modules">استعادة المستندات من...</string>
   <string name="send_backup_file">إرسال ملف النسخة الاحتياطية</string>
+  <string name="backup_modules_title">حدد الوحدات لنسخها احتياطياً.</string>
+  <string name="install_zip_canceled">تثبيت الوحدة تم إلغائه.</string>
   <!--About-->
   <string name="module_about_copyright">حقوق النشر: %s</string>
+  <string name="module_about_installed_version">النسخة المثبتة: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">أحدث نسخة: %1$s (%2$s)</string>
   <string name="module_about_versification">رقم المنظومة: %s</string>
   <string name="module_about_repository">خادم التوزيعة: %s</string>
   <!--Bug reporting-->
@@ -526,13 +549,18 @@
   <string name="send_feedback_title">تعليق</string>
   <string name="send_bug_report_title">تقرير التعليقات / الأخطاء</string>
   <string name="report_bug_heading1">تعليمات:</string>
+  <string name="report_bug_line_1">أخبرنا باختصار ماذا فعلت/حدث عندما حدثت المشكلة.</string>
   <string name="report_bug_heading2">على سبيل المثال:</string>
   <string name="report_bug_instructions1">1. فتح التطبيق</string>
   <string name="report_bug_instructions2">2. النقر فوق قائمة النافذة</string>
   <string name="report_bug_line_2">أحيانًا تكون لقطات الشاشة التي يتم التقاطها يدويًا مفيدة أيضًا في حل المشكلات.</string>
   <string name="report_bug_line_3">الرجاء استخدام هذه الوظيفة للإبلاغ بمجرد ملاحظة حدوث مشكلة.</string>
+  <string name="report_bug_line_4">يمكنك أيضاً استخدام هذه الخاصية بعد فتح التطبيق، بعد ان حدث العطل.
+    </string>
   <string name="report_bug_heading_3">المرفقات:</string>
+  <string name="bug_report_logcat">ملف السجل منتج من هذا التطبيق. لا يحتوي على معلومات من أيّ تطبيقات اخرى.</string>
   <string name="bug_report_screenshot">لقطة شاشة للتطبيق عند حدوث عطل أو عند إنشاء تقرير خطأ.</string>
+  <string name="bug_report_attachment_line_1">إرفاق هذه الملفات يساعد مطوري التطبيق كثيراً في إصلاح الخطأ المبلغ عنه.</string>
   <string name="report_bug_heading_4">بيانات الجهاز:</string>
   <!--Document types-->
   <string name="doc_type_all">كل الأنواع</string>
@@ -560,12 +588,16 @@
   <!--Errors-->
   <string name="report_error">إرسال تقرير</string>
   <string name="error_occurred">حدث خطأ ما</string>
+  <string name="error_occurred_crash_last_time">آخر مرة عندما استخدمت التطبيق، حدث خلل. لمساعدتنا في حل الخطأ، سنكون ممتنين إذا ارسلت لنا تقرير اخطاء.</string>
   <string name="error_occurred_with_link">حدث خطأ. %s</string>
   <string name="error_no_content">لا يوجد محتوى للآية المختارة</string>
   <string name="error_page_too_large">لا نستطيع تحميل الصفحة لأنها كبيرة جدا</string>
   <string name="error_key_not_in_document">لا يوجد مستند</string>
+  <string name="error_key_not_in_document2">%s غير موجود في المستند %s.</string>
   <string name="empty_list">لا يوجد مواد للعرض</string>
   <string name="error_skip">تخطي</string>
+  <string name="bug_report_email_title">أرسل تقرير اخطاء عبر البريد الإلكتروني.</string>
+  <string name="bug_report_email_text">تالياً، الرجاء تحديد تطبيق البريد الإلكتروني المفضل (Gmail مثلا) لإرسال التقرير لفريق التطوير.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">النص إلى الكلام</string>
   <string name="notification_channel_progress_status">إشعار حالة التقدم لتنزيل المستندات وما إلى ذلك.</string>
@@ -578,24 +610,45 @@
   <string name="rename_workspace">إعادة تسمية</string>
   <string name="workspace_selector_title">تحديد مساحة العمل</string>
   <string name="workspace_settings">الإعدادات...</string>
+  <string name="give_name_workspace">إمنح اسماً لمساحة عمل جديدة</string>
   <string name="save_and_exit">حفظ</string>
   <string name="workspace_save_changes">تطبيق التغييرات على مساحات العمل؟</string>
   <string name="copy_of_workspace">نسخة من %s</string>
   <string name="copy_workspace_settings">إعدادات النسخ...</string>
+  <string name="copy_settings_title">أيّ إعداد ترغب في نسخه؟</string>
   <string name="select_all">تحديد الكل</string>
+  <string name="copy_settings_workspaces_title">لأيّ مساحة عمل ترغب في نسخ الإعداد؟</string>
   <string name="reset_settings">اعادة تهيئة</string>
   <string name="workspace_dismiss">استبعاد</string>
+  <string name="workspace_listing_with_current">%s (الحالية)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">هذه نسخة تجريبية!</string>
+  <string name="beta_notice_content_1">
+        في النسخة التجريبية، يوجد ميّزات لم يتم اختبارها جيداً بعد.
+        و بالتالي استخدام النسخة التجريبية قد يقدم سلوك غير متوقع، كالاخطاء مثلاً.
+        من المستحسن أن يستخدم قراء الكتاب المقدس العاديون نسخة مستقرة بدلاً من ذلك
+    </string>
+  <string name="beta_notice_content_2">
+        نشجع مستخدمي النسخة التجريبية على التبليغ عن الأخطاء عبر Google Play أو (تفضيلاً) عبر %s.
+    </string>
+  <string name="beta_notice_content_3">إذا كنت مبرمجاّ، نرجوا ان تاخذ بعين الاعتبار المساهمة في اصلاح 
+        الخطأ عبر %s بنفسك :-)</string>
   <string name="beta_notice_github_issues">مشاكل Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">استبعاد</string>
   <string name="beta_notice_dismiss_until_update">استبعاد حتى التحديث القادم</string>
   <string name="stable_notice_title">لقد تم ترقية التطبيق!</string>
   <string name="upgrade_video_message">يرجى مشاهدة مقطع الفيديو الذي يعرض الميزات الجديدة لهذا الإصدار (%s).</string>
+  <string name="stable_notice_par1">النسخة الجديدة %1$s من %2$s تم تثبيتها بنجاح!</string>
   <!--History-->
+  <string name="history_for">تاريخ (%1$s: نافذة%2$d)</string>
   <!--Help-->
   <string name="help_nav_title">التنقل</string>
+  <string name="help_nav_text">اذهب إلى الإصحاح التالي أو السابق عن طريق تمرير إصبعك على الشاشة.
+        نقرة مزدوجة على نص الكتاب المقدس للتبديل لنمط ملء الشاشة.
+        الشاشات المقسّمة (تدعى أيضاً نوافذ) لديها زر قائمة في الزاوية اليسرى العلوية،
+        و التي تمكنك من استخدام عدّة وظائف خاصّة بالنافذة و تخصيص شكل و سلوك النافذة. 
+    </string>
   <string name="help_contextmenus_title">قوائم السياق</string>
   <string name="help_bookmarks_title">الإشارات المرجعية وملاحظاتي</string>
   <string name="help_search_title">بحث</string>
@@ -607,14 +660,28 @@
   <string name="redownload_documents">إعادة تنزيل سريعة</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="choose_file">عليك أن تختار الملف الذي تريد تحميله إلى %s. </string>
+  <string name="supported_formats">الأنواع المدعومة لتحميل المستندات من الملف: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">ملف zip يحوي وحدات Sword، أو ملف نسخة احتياطية للمستندات (*.abmd) تم إنشاؤه عن طريق %s</string>
+  <string name="format_mysword">مستندات MySword (*.mybible)</string>
+  <string name="format_mybible">مستندات MySword (*.SQLite3)</string>
+  <string name="format_epub">مستندات EPUB (.*epub)</string>
+  <string name="redownload_message">
+        قائمة بالكتب/المستندات السابقة قد تم إيجادها. اضغط بالأسفل لتحميلها مجدداً بسهولة.
+    </string>
   <!--Uncategorized-->
   <string name="close">إغلاق</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">مفهوم</string>
   <string name="first_time_help_show_next_time">عرض مرة أخرى في المرة القادمة</string>
   <string name="strongs_mode_title">اختر وضع strongs</string>
+  <string name="download_dialog_message">تعذر تحميل الملفات للتالية:</string>
   <string name="select_multiple">تحديد متعدد</string>
+  <string name="journal_description">لوحات دراسية قابلة للتعديل من قبل المستخدم مع نصوص مخصصة وعلامات مرجعية</string>
+  <string name="my_notes_description">ملاحظات قابلة للتحرير من قبل المستخدم مرفقة مع الإشارات المرجعية </string>
   <string name="my_notes_abbreviation">ملاحظاتي</string>
+  <string name="studypads">لوحات دراسية</string>
   <string name="multi_description">مراجع متعددة</string>
   <string name="multi_abbreviation">متعدد</string>
   <string name="compare_description">مقارنة الترجمات</string>
@@ -623,11 +690,20 @@
   <string name="http_forbidden">ممنوع</string>
   <string name="http_not_found">غير موجود</string>
   <string name="http_unknown">خطأ آخر</string>
+  <string name="give_passphrase_for_module">المستند %s مشفر و يحتاج لكلمة مرور ليتم فتحه</string>
   <string name="unlocking_failed">فشل إلغاء القفل ، عبارة مرور غير صالحة</string>
+  <string name="unlock_module">حدد كلمة مرور للوحدة</string>
+  <string name="unlock_info">معلومات فتح الوحدة المشفرة</string>
+  <string name="try_again_passphrase">كلمة المرور لم تعمل، جرب مجدداً؟</string>
+  <string name="show_unlock_info">الوحدة و معلومات الفتح</string>
   <string name="active_window_indicator_title">عرض مؤشر النافذة النشطة</string>
+  <string name="app_licence_title">رخصة مفتوحة المصدر</string>
   <string name="how_to_contribute">كيف تساهم؟</string>
   <string name="confirm_delete_bookmarks">هل تريد إزالة %d إشارات مرجعية وملاحظاتها؟</string>
   <string name="tell_friend_title">أوصي به لصديق</string>
+  <string name="tell_friend_message1">أرغب أن انصحك ب %s.</string>
+  <string name="tell_friend_message2">إنه تطبيق قوي و لكن سهل الاستخدام لدراسة الكتاب المقدس بدون اتصال بالإنترنت لنظام أندرويد </string>
+  <string name="tell_friend_message3">قم بتثبيته من متجر play: %s</string>
   <string name="share_verse_ok">مشاركة / نسخ</string>
   <string name="verse_action_copy">نسخ</string>
   <string name="generic_share">مشاركة</string>
