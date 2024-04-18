@@ -176,7 +176,7 @@ class BookmarkEntities {
         override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         override var wholeVerse: Boolean = false,
         var type: BookmarkType? = null,
-        override var new: Boolean = false,
+        @Ignore override var new: Boolean = false,
     ): VerseRangeUser, BaseBookmarkWithNotes {
         constructor(
             kjvOrdinalStart: Int = 0,
@@ -400,7 +400,7 @@ class BookmarkEntities {
         override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         override var wholeVerse: Boolean = false,
         override var playbackSettings: PlaybackSettings?,
-        override var new: Boolean = false,
+        @Ignore override var new: Boolean = false,
     ): BaseBookmarkWithNotes {
         constructor(
             id: IdType = IdType(),

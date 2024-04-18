@@ -17,6 +17,10 @@
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+plugins {
+    id("com.google.devtools.ksp") version "1.9.23-1.0.20" apply false
+}
+
 buildscript {
     val kotlinVersion by extra("1.9.23")
     val coroutinesVersion by extra("1.8.0")
