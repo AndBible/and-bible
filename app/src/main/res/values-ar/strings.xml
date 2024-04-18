@@ -512,6 +512,10 @@
   <!--User Notes-->
   <string name="mynotes">ملاحظاتي</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">النسخ الاحتياطي و الاستعادة</string>
+  <string name="backup_modules2">نسخ المستندات احتياطياً إلى...</string>
+  <string name="backup_app_database2">نسخ احتياطي لقاعدة بيانات التطبيق إلى...</string>
+  <string name="backup_app2">قم بنسخ احتياطي للتطبيق (ملف .apk) إلى...</string>
   <string name="backup_application">تطبيق</string>
   <string name="backup_database">قاعدة البيانات</string>
   <string name="backup_documents">مستندات</string>
@@ -532,6 +536,7 @@
   <string name="loading_backup">تحميل قاعدة البيانات من النسخة الاحتياطية...</string>
   <string name="backup_success2">تم النسخ الاحتياطي للملاحظات، العلامات المرجعية، اللوحات الدراسية، خطط القراءة و مساحات العمل الخاصة بي بنجاح.</string>
   <string name="backup_modules_success">تم النسخ الاحتياطي للوحدات المحددة بنجاح.</string>
+  <string name="backup_modules_email_message_2">المرفق هو وحدات %1$s المنسوخة احتياطياً، والتي تحوي الوحدات التالية: %2$s</string>
   <string name="backup_email_message_2">قاعدة بيانات %s خاصتك التي تحوي العلامات المرجعية، الملاحظات، خطط القراءة، ومساحات العمل قد تم إرفاقها</string>
   <string name="restore_unsuccessfull">استعادة قاعدة البيانات فشل. ربما أدخلت ملف قاعدة بيانات غير صالح.</string>
   <string name="restore_modules">استعادة المستندات من...</string>
@@ -653,6 +658,7 @@
   <string name="help_bookmarks_title">الإشارات المرجعية وملاحظاتي</string>
   <string name="help_search_title">بحث</string>
   <!--TODO: to be removed-->
+  <string name="help_search_details">الرجاء النظر إلى %s من أجل تفاصيل أكثر.</string>
   <string name="help_workspaces_title">مساحات العمل</string>
   <string name="help_hidden_features_title">الاختصارات المخفية</string>
   <string name="help_window_pinning_title">تثبيت النافذة</string>
@@ -710,9 +716,14 @@
   <string name="share_verse_menu_title">مشاركة / نسخ...</string>
   <string name="show_versenumbers">أظهر رقم الآية</string>
   <string name="show_full_verses">عرض آيات كاملة</string>
+  <string name="show_selection_only">أظهر النص المحدد فقط</string>
   <string name="advertise_app">الإعلان عن التطبيق</string>
+  <string name="verse_share_advertise">تم مشاركته باستخدام %s.</string>
+  <string name="abbreviate_reference">اختصار المرجع</string>
   <string name="version_name">اسم الإصدار</string>
   <!--meaning, bible version name-->
+  <string name="show_version_name">تضمين اسم النسخة</string>
+  <string name="show_ellipsis">اظهار علامة القطع (...)</string>
   <string name="backup_button">عمل نسخة احتياطية للرجوع</string>
   <string name="back_button">رجوع</string>
   <string name="upgrading_database">ترقية قاعدة البيانات. برجاء الانتظار…</string>
@@ -721,7 +732,11 @@
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="play">متجر جوجل</string>
   <string name="proceed_anyway">المتابعة على أية حال</string>
+  <string name="proceed">تابع</string>
   <string name="rate_title">تقييم ومراجعة التطبيق</string>
+  <string name="rate_message5">
+        المراجعات الإيجابية و المفصلة تساعد مشروع Andbible المفتوح المصدر كثيراً. شكراً لك!
+    </string>
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
