@@ -82,7 +82,6 @@
         <receiver
             android:name=".SpeakWidgetManager$SmallSpeakControlWidget"
             android:exported="true"
-            android:enabled="false"
             >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -95,7 +94,6 @@
 
         <receiver android:name=".SpeakWidgetManager$MiddleSpeakControlWidget"
             android:exported="true"
-            android:enabled="false"
             >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -108,7 +106,6 @@
 
         <receiver android:name=".SpeakWidgetManager$LargeSpeakControlWidget"
             android:exported="true"
-            android:enabled="false"
             >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
