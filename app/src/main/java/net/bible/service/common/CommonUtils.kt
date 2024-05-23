@@ -100,6 +100,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.OrdinalRange
+import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
@@ -1672,6 +1673,19 @@ object CommonUtils : CommonUtilsBase() {
 
     fun parseAndBibleReference(uri: String): BookAndKey?
         = parseAndBibleReference(Uri.parse(uri))
+
+    fun grantUriReadPermissions(chooserIntent: Intent, uri: Uri) {
+        val resInfoList = if (Build.VERSION.SDK_INT >= 33) {
+            BibleApplication.application.packageManager.queryIntentActivities(chooserIntent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
+        } else {
+            BibleApplication.application.packageManager.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
+        }
+        for (resolveInfo in resInfoList) {
+            val packageName = resolveInfo.activityInfo.packageName
+            BibleApplication.application.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+    }
+
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"

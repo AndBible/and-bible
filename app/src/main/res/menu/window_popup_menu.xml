@@ -67,6 +67,10 @@
 		android:title=""
 		android:icon="@drawable/file_export"
 		/>
+    <item android:id="@+id/exportStudypad"
+        android:title=""
+        android:icon="@drawable/file_export"
+        />
 	<item
 		android:id="@+id/textOptionsSubMenu"
 		android:icon="@drawable/ic_text_options_24dp"

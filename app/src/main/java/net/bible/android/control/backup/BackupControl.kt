@@ -68,6 +68,7 @@ import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils.determineFileType
+import net.bible.service.common.CommonUtils.grantUriReadPermissions
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.epub.epubDir
 import net.bible.service.sword.epub.isManuallyInstalledEpub
@@ -471,18 +472,6 @@ object BackupControl {
 
     }
 
-    private fun grantUriReadPermissions(chooserIntent: Intent, uri: Uri) {
-        val resInfoList = if (Build.VERSION.SDK_INT >= 33) {
-            BibleApplication.application.packageManager.queryIntentActivities(chooserIntent, ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
-        } else {
-            BibleApplication.application.packageManager.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
-        }
-        for (resolveInfo in resInfoList) {
-            val packageName = resolveInfo.activityInfo.packageName
-            BibleApplication.application.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-    }
-
     suspend fun backupApp(callingActivity: ActivityBase) {
         internalDbBackupDir.mkdirs()
 
@@ -740,7 +729,7 @@ object BackupControl {
 
     private var moduleDir: File = SharedConstants.modulesDir
     private lateinit var internalDbDir : File
-    private val internalDbBackupDir: File // copy of db is created in this dir when doing backups
+    val internalDbBackupDir: File // copy of db is created in this dir when doing backups
         get() {
             val file = File(SharedConstants.internalFilesDir, "/backup")
             file.mkdirs()

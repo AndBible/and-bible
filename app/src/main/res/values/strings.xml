@@ -666,6 +666,9 @@
 
     <string name="backup_email_subject_2">%s database backup</string>
     <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
+
+    <string name="exported_studypads_subject">Exported StudyPad(s)</string>
+    <string name="exported_studypads_message">Your %s database containing bookmarks, notes related to selected StudyPads is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <string name="restore_modules">Restore Documents from…</string>
     <string name="send_backup_file">Send a backup file</string>
@@ -890,6 +893,7 @@
     <string name="journal_description">User-editable study pads with custom text and bookmarks</string>
     <string name="my_notes_description">User-editable notes attached to bookmarks</string>
     <string name="my_notes_abbreviation">My Notes</string>
+    <string name="studypad">Study Pad</string>
     <string name="studypads">Study Pads</string>
     <string name="multi_description">Multiple references</string>
     <string name="multi_abbreviation">Multiple</string>

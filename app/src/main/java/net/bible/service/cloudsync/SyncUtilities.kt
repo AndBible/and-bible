@@ -34,7 +34,11 @@ const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
 
 enum class SyncableDatabaseDefinition {
     BOOKMARKS, WORKSPACES, READINGPLANS;
-    class Table(val tableName: String, val idField1: String = "id", val idField2: String? = null)
+    class Table(
+        val tableName: String,
+        val idField1: String = "id",
+        val idField2: String? = null,
+    )
     val contentDescription: Int get() = when(this) {
         READINGPLANS -> R.string.reading_plans_content
         BOOKMARKS -> R.string.bookmarks_contents
@@ -43,24 +47,49 @@ enum class SyncableDatabaseDefinition {
 
     val tables get() = when(this) {
         BOOKMARKS -> listOf(
-            Table("Label"),
-            Table("BibleBookmark"),
-            Table("BibleBookmarkNotes", "bookmarkId"),
-            Table("BibleBookmarkToLabel", "bookmarkId", "labelId"),
-            Table("GenericBookmark"),
-            Table("GenericBookmarkNotes", "bookmarkId"),
-            Table("GenericBookmarkToLabel", "bookmarkId", "labelId"),
-            Table("StudyPadTextEntry"),
-            Table("StudyPadTextEntryText", "studyPadTextEntryId"),
+            Table(
+                tableName = "Label"
+            ),
+            Table(
+                tableName = "BibleBookmark"
+            ),
+            Table(
+                tableName = "BibleBookmarkNotes",
+                idField1 = "bookmarkId"
+            ),
+            Table(
+                tableName = "BibleBookmarkToLabel",
+                idField1 = "bookmarkId",
+                idField2 = "labelId"
+            ),
+            Table(
+                tableName = "GenericBookmark"
+            ),
+            Table(
+                tableName = "GenericBookmarkNotes",
+                idField1 = "bookmarkId"
+            ),
+            Table(
+                tableName = "GenericBookmarkToLabel",
+                idField1 = "bookmarkId",
+                idField2 = "labelId"
+            ),
+            Table(
+                tableName = "StudyPadTextEntry"
+            ),
+            Table(
+                tableName = "StudyPadTextEntryText",
+                idField1 = "studyPadTextEntryId"
+            ),
         )
         WORKSPACES -> listOf(
-            Table("Workspace"),
-            Table("Window"),
-            Table("PageManager", "windowId"),
+            Table(tableName = "Workspace"),
+            Table(tableName = "Window"),
+            Table(tableName = "PageManager", idField1 = "windowId"),
         )
         READINGPLANS -> listOf(
-            Table("ReadingPlan"),
-            Table("ReadingPlanStatus"),
+            Table(tableName = "ReadingPlan"),
+            Table(tableName = "ReadingPlanStatus"),
         )
     }
 
