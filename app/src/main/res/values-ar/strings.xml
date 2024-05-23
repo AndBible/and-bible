@@ -58,6 +58,7 @@
   <string name="search_old_testament">العهد القديم</string>
   <string name="search_current_book">السفر الحالي</string>
   <string name="error_executing_search">مدخلات البحث غير صحيحة</string>
+  <string name="type_text_or_bible_reference">أدخل نصاً أو مرجعاً من الكتاب المقدس</string>
   <!--Open (bible reference X)-->
   <string name="go_to_ref">افتح %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
@@ -295,6 +296,7 @@
        jsword/readingplan مع نفس الاسم الخاص بالخطة المضمنة. لا يمكن اظهارها هنا.
         رجاءً اعد تسمية الملف لشئ آخر، مع الحفاظ على لاحقة الملف كخصائص
     </string>
+  <string name="plan_name_y1ntpspr">العهد الجديد، المزامير و الامثال في سنة.</string>
   <string name="plan_description_y1ot1nt1_chronological">
         خطة مبنية على التسلسل الزمني للاحداث في الكتاب المقدس
         التسلسل الزمني تقريبي
@@ -658,6 +660,10 @@
   <string name="help_bookmarks_title">الإشارات المرجعية وملاحظاتي</string>
   <string name="help_search_title">بحث</string>
   <!--TODO: to be removed-->
+  <string name="help_search_text">البحث النصي يمكن أن يتضمن محارف خاصة مثل *، ?, AND، OR، NOT
+        (انظر الى \"Apache Lucene - Query Parser Syntax\" لتفاصيل أكثر) 
+    </string>
+  <string name="help_search_text2">البحث النصي يمكن أن يتضمن محارف خاصة مثل *، ?, AND، OR، NOT</string>
   <string name="help_search_details">الرجاء النظر إلى %s من أجل تفاصيل أكثر.</string>
   <string name="help_workspaces_title">مساحات العمل</string>
   <string name="help_hidden_features_title">الاختصارات المخفية</string>
@@ -719,11 +725,14 @@
   <string name="show_selection_only">أظهر النص المحدد فقط</string>
   <string name="advertise_app">الإعلان عن التطبيق</string>
   <string name="verse_share_advertise">تم مشاركته باستخدام %s.</string>
+  <string name="show_reference">أظهر المرجع</string>
+  <string name="show_reference_at_front">أظهر في بداية الآية</string>
   <string name="abbreviate_reference">اختصار المرجع</string>
   <string name="version_name">اسم الإصدار</string>
   <!--meaning, bible version name-->
   <string name="show_version_name">تضمين اسم النسخة</string>
   <string name="show_ellipsis">اظهار علامة القطع (...)</string>
+  <string name="show_quotes">إظهار علامات الاقتباس</string>
   <string name="backup_button">عمل نسخة احتياطية للرجوع</string>
   <string name="back_button">رجوع</string>
   <string name="upgrading_database">ترقية قاعدة البيانات. برجاء الانتظار…</string>
@@ -737,13 +746,34 @@
   <string name="rate_message5">
         المراجعات الإيجابية و المفصلة تساعد مشروع Andbible المفتوح المصدر كثيراً. شكراً لك!
     </string>
+  <string name="rate_message6">
+        قبل تقديم مراجعة سلبية، يرجى مراعاة الآتي:
+    </string>
   <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+        إذا كان لديك مشكلة مع التطبيق، الرجاء %1$s أو %2$s عوضاً عن ذلك.
+    </string>
   <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+        إذا كان نص / ترجمة الكتاب المقدس به مشكلة، %s.
+    </string>
   <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+        إذا كان هناك نص معين غير موجود في التطبيق، %s.
+    </string>
+  <string name="rate_message4">
+        مطورو هذا التطبيق غير مسؤولين عن العناية بالمستندات.
+    </string>
+  <string name="bug_report">
+        أرسل تقرير اخطاء (من القائمة الرئيسية)
+    </string>
   <string name="how_to_help">
 الرجاء قراءة ما يمكنك فعله للمساعدة</string>
   <string name="send_email">
 إرسال بريد إلكتروني إلى المطورين</string>
+  <string name="proceed_google_play">
+        انتقل إلى جوجل بلاي
+    </string>
   <string name="text_maintainers">
 الرجاء الإبلاغ عن المشكلات إلى المشرفين على النص</string>
   <string name="does_not_exist_abbreviation">غير موجود</string>
@@ -793,12 +823,47 @@
   <!--Context: calculator. Wrong number format etc.-->
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">مجموعة المزامنة</string>
+  <string name="disable_sync">إيقاف المزامنة</string>
+  <string name="open_in_window">افتح النتائج في نافذة</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+  <string name="custom_repositories">مستودعات مخصصة</string>
+  <string name="custom_repositories_empty_list_message">لا يوجد مستودعات مخصصة معرفة</string>
+  <string name="custom_repositories_create_button_label">أضف مستودعات مخصصة</string>
   <string name="custom_repositories_info_button_label">معلومات</string>
+  <string name="name_for_repository">اسم للمستودع</string>
+  <string name="repository_specification">رابط URL للمستودع</string>
+  <string name="delete_custom_repository">هل تريد إزالة المستودع المخصص %s؟</string>
+  <string name="invalid_repository_not_saved">مواصفات المستودع غير صالحة ولم يتم حفظها.</string>
+  <string name="custom_repositories_help1">لإضافة مستودع مخصص جديد، اكتب أو انسخ و الصق رابط المستودع هنا.</string>
+  <string name="custom_repositories_help2">يمكنك قراءة المزيد من المعلومات عن المستودعات المخصصة في %s.</string>
+  <string name="custom_repositories_help0">يمكنك تثبيت المستندات من مستودعات مخصصة خارجية عن طريق تثبيت مستودعات مخصصة </string>
+  <string name="duplicate_custom_repository">مستودع بإسم %s موجود مسبقاً، لا يمكن إضافة آخر.</string>
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+        اختر مزوّد الخدمة السحابية الذي تريد استخدامه لمزامنة أجهزة عدة.
+    </string>
+  <string name="synchronizing">مزامنة...</string>
+  <string name="overrideBackup">
+        يوجد قاعدة بيانات لم تتم مزامنة هذا الجهاز معها في السحابة.
+        قاعدة البيانات تحوي %s. ماذا تريد ان تفعل؟
+    </string>
+  <string name="cloud_disable_sync">إلغاء و إيقاف المزامنة</string>
+  <string name="cloud_sync_title">مزامنة الأجهزة </string>
+  <string name="prefs_reset_sync_summary">إيقاف المزامنة و إعادة تعيين الإعدادات المتعلقة بها.</string>
+  <string name="sync_confirmation">هل أنت متأكد أنك تريد تسجيل الخروج و إعادة تعيين المزامنة؟</string>
+  <string name="sync_adapter">مزوّد المزامنة</string>
+  <string name="synchronization_categories">فئات المزامنة</string>
+  <string name="sync_disabling">إيقاف مزامنة %s في الوقت الراهن.</string>
+  <string name="sync_update_app">الرجاء تحديث التطبيق لمتابعة المزامنة.</string>
+  <string name="sign_in_failed">تسجيل الدخول لمزوّد خدمة المزامنة قد فشل.</string>
   <!--... after restoring from backup file-->
+  <string name="disabling_sync">إيقاف تشغيل المزامنة السحابية. يجب عليك إعادة تشغيلها يدوياً بعد الاستعادة.</string>
+  <string name="sync_error">حدث خطأ في المزامنة السحابية</string>
+  <string name="restore_from_cloud_description">اذا كانت مزامنة الأجهزة لديك مفعلة على جهاز آخر، يمكنك البدء باستعادة قاعدة البيانات من السحابة.</string>
+  <string name="enable_sync">تفعيل المزامنة</string>
   <string name="last_updated">آخر تحديث: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
