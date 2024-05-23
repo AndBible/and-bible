@@ -64,8 +64,10 @@ import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.common.CommonUtils.grantUriReadPermissions
+import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.epub.epubDir
 import net.bible.service.sword.epub.isManuallyInstalledEpub
@@ -662,17 +664,28 @@ object BackupControl {
                 }
                 hourglass.show()
                 beforeRestore()
-                DatabaseContainer.reset()
                 for (fileName in selection) {
+                    val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
+                    val restore =
+                        if (category != null)
+                            askIfRestoreOrImport(category, activity)
+                        else true
+
                     val f = File(unzipFolder, "db/${fileName}")
-                    Log.i(TAG, "Restoring $fileName")
-                    val targetFilePath = activity.getDatabasePath(fileName).path
-                    val targetFile = File(targetFilePath)
-                    f.copyTo(targetFile, overwrite = true)
-                    File("$targetFilePath-journal").delete()
-                    File("$targetFilePath-shm").delete()
-                    File("$targetFilePath-wal").delete()
+                    if (restore) {
+                        Log.i(TAG, "Restoring $fileName")
+                        DatabaseContainer.instance.dbByFilename[fileName]?.close()
+                        val targetFilePath = activity.getDatabasePath(fileName).path
+                        val targetFile = File(targetFilePath)
+                        f.copyTo(targetFile, overwrite = true)
+                        File("$targetFilePath-journal").delete()
+                        File("$targetFilePath-shm").delete()
+                        File("$targetFilePath-wal").delete()
+                    } else {
+                        importDatabaseFile(category!!, f)
+                    }
                 }
+                DatabaseContainer.reset()
                 selection
             }
         if (DatabaseContainer.ready) {
@@ -684,6 +697,20 @@ object BackupControl {
         ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
         Dialogs.showMsg(R.string.restore_success2)
         true
+    }
+
+    private suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, context: ActivityBase): Boolean  = withContext(Dispatchers.Main) {
+        suspendCoroutine {
+            val message =
+                context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription))
+            AlertDialog.Builder(context)
+                .setTitle(R.string.backup_restore2)
+                .setMessage(message)
+                .setPositiveButton(R.string.restore) { _, _ -> it.resume(true) }
+                .setNegativeButton(R.string.import2) { _, _ -> it.resume(false) }
+                .setOnCancelListener { _ -> it.resume(false) }
+                .show()
+        }
     }
 
     private suspend fun restoreOldMonolithicDatabaseFromFileInputStreamWithUI(

@@ -646,7 +646,9 @@
     <string name="backup_document_info">Bibles, commentaries, dictionaries, maps etc.</string>
     <string name="backup_to">Backup to…</string>
     <string name="backup_restore_from">Restore from…</string>
+    <string name="backup_restore_from2">Restore or Import from…</string>
     <string name="backup_restore">Restore</string>
+    <string name="backup_restore2">Restore or Import</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
     <string name="restore_what">What do you want to restore?</string>
@@ -1217,4 +1219,7 @@
     <string name="dont_show">
         Don\'t show this message again
     </string>
+    <string name="ask_restore_or_import">Do you want to restore (remove existing and read selected database) or import (import selected database into existing database) %s?</string>
+    <string name="restore">Restore</string>
+    <string name="import2">Import</string>
 </resources>

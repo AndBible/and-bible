@@ -20,8 +20,11 @@ package net.bible.service.cloudsync
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.activity.R
+import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.LogEntry
+import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.SyncableRoomDatabase
+import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
@@ -45,6 +48,11 @@ enum class SyncableDatabaseDefinition {
         WORKSPACES -> R.string.workspaces_contents
     }
 
+    val filename get() = when(this) {
+        BOOKMARKS -> BookmarkDatabase.dbFileName
+        READINGPLANS ->ReadingPlanDatabase.dbFileName
+        WORKSPACES -> WorkspaceDatabase.dbFileName
+    }
     val tables get() = when(this) {
         BOOKMARKS -> listOf(
             Table(
@@ -97,12 +105,13 @@ enum class SyncableDatabaseDefinition {
         get() = CommonUtils.settings.getBoolean("gdrive_"+ name.lowercase(), false)
         set(value) = CommonUtils.settings.setBoolean("gdrive_"+name.lowercase(), value)
 
-    private val accessor get() = DatabaseContainer.databaseAccessorsByCategory[this]!!
+    val accessor get() = DatabaseContainer.databaseAccessorsByCategory[this]!!
     val lastSynchronized get() = if(!syncEnabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
 
     companion object {
         val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS)
         val nameToCategory = ALL.associateBy { it.name }
+        val filenameToCategory = ALL.associateBy { it.filename }
     }
 }
 

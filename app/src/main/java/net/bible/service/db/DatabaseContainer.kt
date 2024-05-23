@@ -253,6 +253,8 @@ class DatabaseContainer {
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
     private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb)
 
+    val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
+
     internal fun sync() = allDatabases.forEach {
         it.openHelper.writableDatabase
             // we are not using WAL mode any more, but it does not hurt either. Just in case we switch back to WAL.
