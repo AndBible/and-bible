@@ -1219,7 +1219,7 @@
     <string name="dont_show">
         Don\'t show this message again
     </string>
-    <string name="ask_restore_or_import">Do you want to restore (remove existing and read selected database) or import (import selected database into existing database) %s?</string>
+    <string name="ask_restore_or_import">Database for %s can be either restored (i.e. existing database is removed and selected database is loaded) or imported (selected database is imported into existing database). What do you want to do?</string>
     <string name="restore">Restore</string>
     <string name="import2">Import</string>
 </resources>

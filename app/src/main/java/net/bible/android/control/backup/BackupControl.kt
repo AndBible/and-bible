@@ -670,6 +670,7 @@ object BackupControl {
                         if (category != null)
                             askIfRestoreOrImport(category, activity)
                         else true
+                    if (restore == null) continue
 
                     val f = File(unzipFolder, "db/${fileName}")
                     if (restore) {
@@ -699,13 +700,14 @@ object BackupControl {
         true
     }
 
-    private suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, context: ActivityBase): Boolean  = withContext(Dispatchers.Main) {
+    private suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
         suspendCoroutine {
             val message =
                 context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription))
             AlertDialog.Builder(context)
-                .setTitle(R.string.backup_restore2)
+                .setTitle(category.contentDescription)
                 .setMessage(message)
+                .setNeutralButton(R.string.cancel) {_, _ -> it.resume(null) }
                 .setPositiveButton(R.string.restore) { _, _ -> it.resume(true) }
                 .setNegativeButton(R.string.import2) { _, _ -> it.resume(false) }
                 .setOnCancelListener { _ -> it.resume(false) }
