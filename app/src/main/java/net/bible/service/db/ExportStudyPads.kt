@@ -123,7 +123,7 @@ private fun copyStudyPad(
             """.trimIndent())
 }
 
-suspend fun exportStudyPads(labels: List<BookmarkEntities.Label>, activity: ActivityBase) = withContext(Dispatchers.IO) {
+suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntities.Label) = withContext(Dispatchers.IO) {
     val exportDbFile = CommonUtils.tmpFile
     val exportDb = DatabaseContainer.instance.getBookmarkDb(exportDbFile.absolutePath)
     exportDb.openHelper.writableDatabase.use {}

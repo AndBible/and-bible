@@ -966,7 +966,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.exportStudypad -> CommandPreference({ _, _, _ ->
                 mainBibleActivity.lifecycleScope.launch {
-                    exportStudyPads(listOf((firstDoc as StudyPadDocument).label), mainBibleActivity)
+                    exportStudyPads(mainBibleActivity, (firstDoc as StudyPadDocument).label)
                 }
             },
                 visible = window.isVisible && (firstDoc is StudyPadDocument)

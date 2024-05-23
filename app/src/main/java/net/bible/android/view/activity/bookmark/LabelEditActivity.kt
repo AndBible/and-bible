@@ -43,6 +43,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.displayName
+import net.bible.service.db.exportStudyPads
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -72,6 +73,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         Log.i(TAG, "onCreateOptionsMenu")
         menuInflater.inflate(R.menu.edit_label_options_menu, menu)
+        menu.findItem(R.id.share).title = getString(R.string.export_fileformat, getString(R.string.studypad))
         if(data.label.isSpecialLabel) {
             menu.findItem(R.id.removeLabel).isVisible = false
         }
@@ -83,6 +85,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         var isHandled = true
         when(item.itemId){
             R.id.removeLabel -> remove()
+            R.id.share -> lifecycleScope.launch { exportStudyPads(this@LabelEditActivity, data.label) }
             android.R.id.home -> saveAndExit()
             else -> isHandled = false
         }
