@@ -26,7 +26,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.backup.DATABASE_BACKUP_NAME
 import net.bible.android.control.backup.ZIP_MIMETYPE
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -46,11 +45,11 @@ import java.util.zip.ZipOutputStream
 private const val TAG = "ExportStudyPad"
 
 private fun copyStudyPad(
-    label: BookmarkEntities.Label,
     db: SupportSQLiteDatabase,
-    sourceSchema: String = "main",
-    targetSchema: String = "export"
+    label: BookmarkEntities.Label,
 ) = db.run {
+    val sourceSchema: String = "main"
+    val targetSchema: String = "export"
     val labelCols = getColumnNamesJoined(db, "Label", targetSchema)
     val bibleBookmarkCols = getColumnNamesJoined(db, "BibleBookmark", targetSchema)
     val bibleBookmarkToLabelCols = getColumnNamesJoined(db, "BibleBookmarkToLabel", targetSchema)
@@ -63,57 +62,64 @@ private fun copyStudyPad(
     val studyPadTextEntryCols = getColumnNamesJoined(db, "StudyPadTextEntry", targetSchema)
     val studyPadTextEntryTextCols = getColumnNamesJoined(db, "StudyPadTextEntryText", targetSchema)
 
-    val labelIdHex = label.id.toString().replace("-", "")
+    fun where(column: String): String {
+        return run {
+            val labelIdHex = label.id.toString().replace("-", "")
+            "WHERE $column = x'$labelIdHex'"
+        }
+    }
+
     execSQL("""
             INSERT OR IGNORE INTO $targetSchema.Label ($labelCols) 
-            SELECT $labelCols FROM $sourceSchema.Label WHERE id = x'$labelIdHex' 
+            SELECT $labelCols FROM $sourceSchema.Label 
+            ${where("id")}
             """.trimIndent())
     execSQL("""
             INSERT OR IGNORE INTO $targetSchema.BibleBookmark ($bibleBookmarkCols) 
             SELECT $bibleBookmarkCols FROM $sourceSchema.BibleBookmark bb 
             INNER JOIN $sourceSchema.BibleBookmarkToLabel bbl ON bb.id = bbl.bookmarkId 
-            WHERE bbl.labelId = x'$labelIdHex' 
+            ${where("bbl.labelId")}
             """.trimIndent())
     execSQL("""
             INSERT OR IGNORE INTO $targetSchema.BibleBookmarkNotes (${joinColumnNames(bibleBookmarkNotesCols)}) 
             SELECT ${joinColumnNames(bibleBookmarkNotesCols, "bb")} FROM $sourceSchema.BibleBookmarkNotes bb 
             INNER JOIN $sourceSchema.BibleBookmarkToLabel bbl ON bb.bookmarkId = bbl.bookmarkId 
-            WHERE bbl.labelId = x'$labelIdHex' 
+            ${where("bbl.labelId")}
             """.trimIndent())
     execSQL("""
             INSERT OR IGNORE INTO $targetSchema.BibleBookmarkToLabel ($bibleBookmarkToLabelCols) 
             SELECT $bibleBookmarkToLabelCols FROM $sourceSchema.BibleBookmarkToLabel 
-            WHERE labelId = x'$labelIdHex' 
+            ${where("labelId")}
             """.trimIndent())
 
     execSQL("""
             INSERT OR IGNORE INTO $targetSchema.GenericBookmark ($genericBookmarkCols) 
             SELECT $genericBookmarkCols FROM $sourceSchema.GenericBookmark bb 
             INNER JOIN $sourceSchema.GenericBookmarkToLabel bbl ON bb.id = bbl.bookmarkId 
-            WHERE bbl.labelId = x'$labelIdHex' 
+            ${where("bbl.labelId")}
             """.trimIndent())
     execSQL("""
             INSERT OR IGNORE INTO $targetSchema.GenericBookmarkNotes (${joinColumnNames(genericBookmarkNotesCols)}) 
             SELECT ${joinColumnNames(genericBookmarkNotesCols, "bb")} FROM $sourceSchema.GenericBookmarkNotes bb 
             INNER JOIN $sourceSchema.GenericBookmarkToLabel bbl ON bb.bookmarkId = bbl.bookmarkId 
-            WHERE bbl.labelId = x'$labelIdHex' 
+            ${where("bbl.labelId")}
             """.trimIndent())
     execSQL("""
             INSERT OR IGNORE INTO $targetSchema.GenericBookmarkToLabel ($genericBookmarkToLabelCols) 
             SELECT $genericBookmarkToLabelCols FROM $sourceSchema.GenericBookmarkToLabel 
-            WHERE labelId = x'$labelIdHex' 
+            ${where("labelId")}
             """.trimIndent())
 
     execSQL("""
             INSERT OR IGNORE INTO $targetSchema.StudyPadTextEntry ($studyPadTextEntryCols) 
             SELECT $studyPadTextEntryCols FROM $sourceSchema.StudyPadTextEntry te  
-            WHERE te.labelId = x'$labelIdHex' 
+            ${where("te.labelId")}
             """.trimIndent())
     execSQL("""
             INSERT OR IGNORE INTO $targetSchema.StudyPadTextEntryText ($studyPadTextEntryTextCols) 
             SELECT $studyPadTextEntryTextCols FROM $sourceSchema.StudyPadTextEntryText tet 
             INNER JOIN $sourceSchema.StudyPadTextEntry te ON tet.studyPadTextEntryId = te.id 
-            WHERE te.labelId = x'$labelIdHex' 
+            ${where("te.labelId")}
             """.trimIndent())
 }
 
@@ -125,7 +131,7 @@ suspend fun exportStudyPads(labels: List<BookmarkEntities.Label>, activity: Acti
         execSQL("ATTACH DATABASE '${exportDbFile.absolutePath}' AS export")
         beginTransaction()
         for (label in labels) {
-            copyStudyPad(label, this)
+            copyStudyPad(this, label)
         }
         setTransactionSuccessful()
         endTransaction()

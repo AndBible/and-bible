@@ -22,11 +22,8 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import android.content.pm.PackageManager.ResolveInfoFlags
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -602,7 +599,7 @@ object BackupControl {
     private suspend fun beforeRestore() {
         if(DatabaseContainer.ready && CloudSync.signedIn) {
             for (it in DatabaseContainer.databaseAccessors) {
-                it.category.enabled = false
+                it.category.syncEnabled = false
             }
             ABEventBus.post(ToastEvent(R.string.disabling_sync))
             CloudSync.waitUntilFinished()
@@ -612,7 +609,7 @@ object BackupControl {
 
     private suspend fun afterRestore(selection: List<String>? = null) {
         for (it in DatabaseContainer.databaseAccessors) {
-            it.category.enabled = false
+            it.category.syncEnabled = false
         }
         for(s in selection?: ALL_DB_FILENAMES.toList()) {
             val db: SyncableRoomDatabase? = when(s) {
