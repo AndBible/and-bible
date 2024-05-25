@@ -73,7 +73,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         Log.i(TAG, "onCreateOptionsMenu")
         menuInflater.inflate(R.menu.edit_label_options_menu, menu)
-        menu.findItem(R.id.share).title = getString(R.string.export_fileformat, getString(R.string.studypad))
         if(data.label.isSpecialLabel) {
             menu.findItem(R.id.removeLabel).isVisible = false
         }

@@ -75,6 +75,7 @@ import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.displayName
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
+import net.bible.service.db.importDatabaseFile
 import kotlin.collections.ArrayList
 import net.bible.service.device.ScreenSettings
 import java.util.regex.PatternSyntaxException
@@ -329,6 +330,7 @@ class ManageLabels : ListActivityBase() {
             R.id.help -> help()
             R.id.newLabel -> newLabel()
             R.id.resetButton -> reset()
+            R.id.import_studypads -> importDatabaseFile()
             R.id.reOrder -> updateLabelList(rePopulate = true, reOrder = true)
             android.R.id.home -> saveAndExit()
             else -> isHandled = false

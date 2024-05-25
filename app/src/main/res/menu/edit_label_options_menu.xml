@@ -24,7 +24,7 @@
         app:showAsAction="ifRoom"
         />
     <item android:id="@+id/share"
-        android:title=""
+        android:title="@string/export"
         android:icon="@drawable/ic_baseline_share_24"
         app:showAsAction="never"
         />
