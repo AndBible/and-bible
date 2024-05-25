@@ -18,8 +18,6 @@ package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
 import android.content.Context
-import android.os.Build
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.widget.TextView
@@ -29,6 +27,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -170,5 +169,26 @@ object Dialogs {
         val titleStr = if(title == null) null else context.getString(title)
         val messageStr = if(message == null) null else context.getString(message)
         simpleQuestion(context, message = messageStr, title = titleStr)
+    }
+    suspend fun simpleInfoMessage(context: Context, key: String, message: String? = context.getString(R.string.are_you_sure)) = withContext(Dispatchers.Main) {
+        suspendCoroutine {
+            if (CommonUtils.settings.getBoolean("skip_$key", false)) {
+                it.resume(true)
+                return@suspendCoroutine
+            }
+            AlertDialog.Builder(context)
+                .setMessage(message)
+                .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
+                .setNeutralButton(R.string.dont_show) { _, _ ->
+                    CommonUtils.settings.setBoolean("skip_$key", true)
+                    it.resume(true)
+                }
+                .show()
+        }
+    }
+
+    suspend fun simpleInfoMessage(context: Context, key: String, message: Int? = R.string.are_you_sure): Boolean {
+        val messageStr = if(message == null) null else context.getString(message)
+        return simpleInfoMessage(context, key, messageStr)
     }
 }

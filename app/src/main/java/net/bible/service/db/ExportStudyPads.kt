@@ -33,6 +33,7 @@ import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.android.database.migrations.joinColumnNames
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.grantUriReadPermissions
 import java.io.BufferedInputStream
@@ -124,6 +125,7 @@ private fun copyStudyPad(
 }
 
 suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntities.Label) = withContext(Dispatchers.IO) {
+    Dialogs.simpleInfoMessage(activity, "export_studypads_help", R.string.export_studypads_help)
     val exportDbFile = CommonUtils.tmpFile
     val exportDb = DatabaseContainer.instance.getBookmarkDb(exportDbFile.absolutePath)
     exportDb.openHelper.writableDatabase.use {}

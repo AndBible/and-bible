@@ -723,7 +723,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         exportHtml.title = app.getString(R.string.export_fileformat, "HTML")
 
         val exportStudypad = menu.findItem(R.id.exportStudypad)
-        exportStudypad.title = app.getString(R.string.export_fileformat, app.getString(R.string.studypad))
+        exportStudypad.title = app.getString(R.string.export_something, app.getString(R.string.studypad))
 
         synchronized(BookName::class.java) {
             val oldValue = BookName.isFullBookName()

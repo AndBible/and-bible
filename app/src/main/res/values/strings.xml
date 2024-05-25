@@ -1032,6 +1032,7 @@
     <string name="import_menu">Import &amp; Export</string>
     <string name="export">Export</string>
     <string name="export_fileformat">Export as %s</string>
+    <string name="export_something">Export %s</string>
     <string name="import_items">Import %s</string>
     <string name="import_from_db">Import from App Database file</string>
     <string name="import_error">Importing from App Database failed. Database file could be wrong format or made with too old version of %s.</string>
@@ -1223,4 +1224,5 @@
     <string name="ask_restore_or_import">Database for %s can be either restored (i.e. existing database is removed and selected database is loaded) or imported (selected database is imported into existing database). What do you want to do?</string>
     <string name="restore">Restore</string>
     <string name="import2">Import</string>
+    <string name="export_studypads_help">File containing exported StudyPads (i.e Labels and Bookmarks) can be imported via Main Menu -> Backup &amp; Restore.</string>
 </resources>
