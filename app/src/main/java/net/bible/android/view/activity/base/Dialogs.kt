@@ -28,9 +28,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
