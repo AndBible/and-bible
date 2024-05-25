@@ -634,6 +634,15 @@ object BackupControl {
 
                     val f = File(unzipFolder, "db/${fileName}")
                     if (restore) {
+                        val areYouSure = if (category != null) {
+                            Dialogs.simpleQuestion(
+                                activity,
+                                activity.getString(R.string.overwrite_something,
+                                    getString(category.contentDescription)
+                                )
+                            )
+                        } else true
+                        if (!areYouSure) continue
                         Log.i(TAG, "Restoring $fileName")
                         DatabaseContainer.instance.dbByFilename[fileName]?.close()
                         val targetFilePath = activity.getDatabasePath(fileName).path

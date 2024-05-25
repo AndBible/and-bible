@@ -158,20 +158,22 @@ object Dialogs {
         return result
     }
 
-    suspend fun simpleQuestion(context: Context, message: String? = null, title: String? = context.getString(R.string.are_you_sure)) = suspendCoroutine {
-        AlertDialog.Builder(context)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
-            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
-            .setOnCancelListener { _ -> it.resume(false) }
-            .show()
+    suspend fun simpleQuestion(context: Context, message: String? = null, title: String? = context.getString(R.string.are_you_sure)) = withContext(Dispatchers.Main) {
+        suspendCoroutine {
+            AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
+                .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
+                .setOnCancelListener { _ -> it.resume(false) }
+                .show()
+        }
     }
 
-    suspend fun simpleQuestion(context: Context, message: Int? = null, title: Int? = R.string.are_you_sure) {
+    suspend fun simpleQuestion(context: Context, message: Int? = null, title: Int? = R.string.are_you_sure): Boolean {
         val titleStr = if(title == null) null else context.getString(title)
         val messageStr = if(message == null) null else context.getString(message)
-        simpleQuestion(context, message = messageStr, title = titleStr)
+        return simpleQuestion(context, message = messageStr, title = titleStr)
     }
     suspend fun simpleInfoMessage(context: Context, key: String, message: String? = context.getString(R.string.are_you_sure)) = withContext(Dispatchers.Main) {
         suspendCoroutine {
