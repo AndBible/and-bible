@@ -180,6 +180,7 @@ object Dialogs {
                 return@suspendCoroutine
             }
             AlertDialog.Builder(context)
+                .setTitle(R.string.information)
                 .setMessage(message)
                 .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
                 .setNeutralButton(R.string.dont_show) { _, _ ->
