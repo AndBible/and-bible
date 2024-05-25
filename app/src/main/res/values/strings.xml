@@ -672,7 +672,6 @@
     <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
 
     <string name="exported_studypads_subject">Exported StudyPad(s)</string>
-    <!-- %s is description of db section, i.e. for example 'Bookmarks, Notes and StudyPads' -->
     <string name="exported_studypads_message">Your %s database containing Bookmarks and Notes related to selected StudyPads is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <string name="restore_modules">Restore Documents from…</string>
