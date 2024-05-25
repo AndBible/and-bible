@@ -64,11 +64,13 @@ import kotlin.random.Random.Default.nextInt
 import android.view.inputmethod.InputMethodManager
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.displayName
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
+import net.bible.service.db.exportStudyPads
 import kotlin.collections.ArrayList
 import java.util.regex.PatternSyntaxException
 
@@ -311,6 +313,8 @@ class ManageLabels : ListActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.manage_labels_options_menu, menu)
+        menu.findItem(R.id.export_studypads).title = getString(R.string.export_something, getString(R.string.studypads))
+        menu.findItem(R.id.import_studypads).title = getString(R.string.import_items, getString(R.string.studypads))
         menu.findItem(R.id.resetButton).isVisible = data.hasResetButton
         menu.findItem(R.id.reOrder).isVisible = data.hasReOrderButton
         return true
@@ -322,6 +326,24 @@ class ManageLabels : ListActivityBase() {
             R.id.help -> help()
             R.id.newLabel -> newLabel()
             R.id.resetButton -> reset()
+            R.id.export_studypads -> {
+                lifecycleScope.launch {
+                    val labels = Dialogs.multiselect(
+                        this@ManageLabels,
+                        getString(R.string.export_something, getString(R.string.studypads)),
+                        bookmarkControl.assignableLabels
+                    ) { it.displayName }
+                    if (labels.isNotEmpty()) {
+                        exportStudyPads(this@ManageLabels, *labels.toTypedArray())
+                    }
+                }
+            }
+            R.id.import_studypads -> {
+                lifecycleScope.launch {
+                    BackupControl.backupPopup(this@ManageLabels)
+                    updateLabelList(rePopulate = true, reOrder = true)
+                }
+            }
             R.id.reOrder -> updateLabelList(rePopulate = true, reOrder = true)
             android.R.id.home -> saveAndExit()
             else -> isHandled = false

@@ -36,6 +36,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.grantUriReadPermissions
+import net.bible.service.common.getFirst
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -124,6 +125,21 @@ private fun copyStudyPad(
             """.trimIndent())
 }
 
+private fun fixPrimaryLabels(db: SupportSQLiteDatabase) = db.run {
+    for (table in listOf("BibleBookmark", "GenericBookmark")) {
+        val fkid = query("SELECT id FROM pragma_foreign_key_list('$table') WHERE `from` = 'primaryLabelId'")
+            .getFirst { it.getLong(0) }
+        execSQL("""
+        UPDATE $table SET primaryLabelId = NULL
+        WHERE rowId in (
+            SELECT rowid FROM pragma_foreign_key_check('$table') 
+            WHERE parent = "Label" AND fkid = $fkid
+        ) 
+        """.trimIndent()
+        )
+    }
+}
+
 suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntities.Label) = withContext(Dispatchers.IO) {
     Dialogs.simpleInfoMessage(activity, "export_studypads_help", R.string.export_studypads_help)
     val exportDbFile = CommonUtils.tmpFile
@@ -131,12 +147,16 @@ suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntit
     exportDb.openHelper.writableDatabase.use {}
     DatabaseContainer.instance.bookmarkDb.openHelper.writableDatabase.run {
         execSQL("ATTACH DATABASE '${exportDbFile.absolutePath}' AS export")
+        execSQL("PRAGMA foreign_keys=OFF;")
         beginTransaction()
         for (label in labels) {
             copyStudyPad(this, label)
         }
+        // Primary label(s) of bookmarks might not be included, so let's fix them
+        fixPrimaryLabels(this)
         setTransactionSuccessful()
         endTransaction()
+        execSQL("PRAGMA foreign_keys=ON;")
         execSQL("DETACH DATABASE export")
     }
 

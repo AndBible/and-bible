@@ -20,6 +20,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +28,9 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -191,4 +194,46 @@ object Dialogs {
         val messageStr = if(message == null) null else context.getString(message)
         return simpleInfoMessage(context, key, messageStr)
     }
+
+    suspend fun <T> multiselect(context: Context, title: String, items: List<T>, itemToString: ((arg: T) -> String)? = null): List<T> = suspendCoroutine {
+        val itemNames = items.map { itemToString?.let { it1 -> it1(it) }?: it.toString() }.toTypedArray()
+        val checkedItems = itemNames.map { false }.toBooleanArray()
+        val dialog = AlertDialog.Builder(context)
+            .setPositiveButton(R.string.okay) { d, _ ->
+                val selectedItems = items.filterIndexed { index, book -> checkedItems[index] }
+                if (selectedItems.isEmpty()) {
+                    it.resume(emptyList())
+                } else {
+                    it.resume(selectedItems)
+                }
+            }
+            .setMultiChoiceItems(itemNames, checkedItems) { _, pos, value ->
+                checkedItems[pos] = value
+            }
+            .setNeutralButton(R.string.select_all) { _, _ -> it.resume(emptyList()) }
+            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(emptyList()) }
+            .setOnCancelListener { _ -> it.resume(emptyList()) }
+            .setTitle(title)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val allSelected = checkedItems.find { !it } == null
+                val newValue = !allSelected
+                val v = dialog.listView
+                for (i in 0 until v.count) {
+                    v.setItemChecked(i, newValue)
+                    checkedItems[i] = newValue
+                }
+                (it as Button).text =
+                    context.getString(if (allSelected) R.string.select_all else R.string.select_none)
+            }
+        }
+        dialog.show()
+        CommonUtils.fixAlertDialogButtons(dialog)
+    }
+
+    suspend fun <T> multiselect(context: Context, title: Int, items: List<T>, itemToString: ((arg: T) -> String)? = null): List<T> =
+        multiselect(context, context.getString(title), items, itemToString)
+
 }

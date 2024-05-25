@@ -218,54 +218,6 @@ object BackupControl {
         return BibleApplication.application.getString(id)
     }
 
-    private suspend fun selectModules(context: Context): List<Book>? {
-        var result: List<Book>? = null
-        withContext(Dispatchers.Main) {
-            result = suspendCoroutine {
-                val books = Books.installed().books.filter { !it.isPseudoBook }.sortedBy { it.language }
-                val bookNames = books.map {
-                    context.getString(R.string.something_with_parenthesis, it.name, "${it.initials}, ${it.language.code}")
-                }.toTypedArray()
-
-                val checkedItems = bookNames.map { false }.toBooleanArray()
-                val dialog = AlertDialog.Builder(context)
-                    .setPositiveButton(R.string.okay) { d, _ ->
-                        val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }
-                        if(selectedBooks.isEmpty()) {
-                            it.resume(null)
-                        } else {
-                            it.resume(selectedBooks)
-                        }
-                    }
-                    .setMultiChoiceItems(bookNames, checkedItems) { _, pos, value ->
-                        checkedItems[pos] = value
-                    }
-                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(null) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
-                    .setOnCancelListener { _ -> it.resume(null)}
-                    .setTitle(getString(R.string.backup_modules_title))
-                    .create()
-
-                dialog.setOnShowListener {
-                    dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                        val allSelected = checkedItems.find { !it } == null
-                        val newValue = !allSelected
-                        val v = dialog.listView
-                        for (i in 0 until v.count) {
-                            v.setItemChecked(i, newValue)
-                            checkedItems[i] = newValue
-                        }
-                        (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
-                    }
-                }
-                dialog.show()
-                CommonUtils.fixAlertDialogButtons(dialog)
-            }
-        }
-        Log.i(TAG, "Selected modules to be backed up: ${result?.joinToString(",") { it.initials }}")
-        return result
-    }
-
     private suspend fun selectDatabaseSections(context: Context, available: List<String>): List<String> {
         var result: List<String>
         withContext(Dispatchers.Main) {
@@ -425,7 +377,15 @@ object BackupControl {
         val fileName = MODULE_BACKUP_NAME
         internalDbBackupDir.mkdirs()
         val zipFile = File(internalDbBackupDir, fileName)
-        val books = selectModules(callingActivity) ?: return@withContext
+        val books = Dialogs.multiselect(
+            callingActivity,
+            R.string.backup_modules_title,
+            Books.installed().books.filter { !it.isPseudoBook }.sortedBy { it.language }
+        ) {
+            callingActivity.getString(R.string.something_with_parenthesis, it.name, "${it.initials}, ${it.language.code}")
+        }
+
+        if (books.isEmpty()) return@withContext
 
         val hourglass = Hourglass(callingActivity)
         hourglass.show()
