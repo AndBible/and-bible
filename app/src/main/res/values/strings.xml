@@ -646,9 +646,11 @@
     <string name="backup_document_info">Bibles, commentaries, dictionaries, maps etc.</string>
     <string name="backup_to">Backup to…</string>
     <string name="backup_restore_from">Restore from…</string>
+    <!-- Restore = overwrite existing. Import = merge into existing -->
     <string name="backup_restore_from2">Restore or Import from…</string>
     <string name="backup_restore">Restore</string>
     <string name="backup_restore2">Restore or Import</string>
+    <string name="overwrite_something">Overwrite %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
     <string name="restore_what">What do you want to restore?</string>
@@ -656,7 +658,6 @@
     <string name="restore_app_database">Restore app database from…</string>
     <string name="restore_database">Restore Database File</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces?</string>
-    <string name="overwrite_something">Overwrite %s?</string>
     <string name="restore_success2">Selected database sections restored successfully</string>
     <string name="restore_success">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces restored successfully</string>
     <string name="downloading_backup">Downloading backup file…</string>
@@ -671,12 +672,17 @@
     <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
 
     <string name="exported_studypads_subject">Exported StudyPad(s)</string>
+    <!-- %s is description of db section, i.e. for example 'Bookmarks, Notes and StudyPads' -->
     <string name="exported_studypads_message">Your %s database containing Bookmarks and Notes related to selected StudyPads is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <string name="restore_modules">Restore Documents from…</string>
     <string name="send_backup_file">Send a backup file</string>
     <string name="backup_modules_title">Select which modules to backup</string>
     <string name="install_zip_canceled">Module install cancelled</string>
+    <string name="ask_restore_or_import">Database for %s can be either restored (i.e. existing database is removed and selected database is loaded) or imported (selected database is imported into existing database). What do you want to do?</string>
+    <string name="restore">Restore</string>
+    <string name="import2">Import</string>
+    <string name="export_studypads_help">File containing exported StudyPads (i.e Labels and Bookmarks) can be imported via Main Menu -> Backup &amp; Restore.</string>
 
     <!-- About -->
     <string name="module_about_copyright">Copyright: %s</string>
@@ -1222,8 +1228,4 @@
     <string name="dont_show">
         Don\'t show this message again
     </string>
-    <string name="ask_restore_or_import">Database for %s can be either restored (i.e. existing database is removed and selected database is loaded) or imported (selected database is imported into existing database). What do you want to do?</string>
-    <string name="restore">Restore</string>
-    <string name="import2">Import</string>
-    <string name="export_studypads_help">File containing exported StudyPads (i.e Labels and Bookmarks) can be imported via Main Menu -> Backup &amp; Restore.</string>
 </resources>
