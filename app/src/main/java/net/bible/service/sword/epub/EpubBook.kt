@@ -44,6 +44,7 @@ import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.jdom2.input.JDOMParseException
 import java.io.File
+import java.io.IOException
 
 fun getConfig(
     initials: String,
@@ -175,6 +176,10 @@ fun addManuallyInstalledEpubBooks(): Boolean {
             addEpubBook(f)
         } catch (e: JDOMParseException) {
             Log.e(TAG, "addEpubBook catched JDOMParseException", e)
+            f.deleteRecursively()
+            ok = false
+        } catch (e: IOException) {
+            Log.e(TAG, "addEpubBook catched IOException", e)
             f.deleteRecursively()
             ok = false
         }

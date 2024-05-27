@@ -59,6 +59,7 @@ import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+const val ONE_HOUR = 1000L * 60L * 60L
 
 object ErrorReportControl {
     fun sendErrorReportEmail(e: Throwable? = null, source: String) {
@@ -107,11 +108,23 @@ object ErrorReportControl {
         }
     }
 
-    @SuppressLint("ApplySharedPref")
+    @SuppressLint("ApplySharedPref") // Yes, we want this to be flushed to file immediately
+    private fun resetCrashCounts() {
+        CommonUtils.realSharedPreferences.edit().putLong("app-crashed-time", 0L).commit()
+        CommonUtils.realSharedPreferences.edit().putInt("app-crashed-count", 0).commit()
+    }
+
     suspend fun checkCrash(activity: ActivityBase) {
-        val crashed = CommonUtils.realSharedPreferences.getBoolean("app-crashed", false)
-        if (crashed) {
-            CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", false).commit() // Yes, we want this to be flushed to file immediately
+        val crashedCount = CommonUtils.realSharedPreferences.getInt("app-crashed-count", 0)
+        val crashedTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
+
+        // If crash happened more than one hour ago, forget about it
+        if (crashedTime != 0L && System.currentTimeMillis() - crashedTime > ONE_HOUR) {
+            resetCrashCounts()
+        }
+        // If more than 1 crash happened within 1 hour, then let user report it (and do db backup)
+        else if (crashedCount > 1 && crashedTime != 0L && System.currentTimeMillis() - crashedTime < ONE_HOUR) {
+            resetCrashCounts()
             val msg = activity.getString(R.string.error_occurred_crash_last_time)
             showErrorDialog(activity, msg)
         }

@@ -18,9 +18,9 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id("kotlin-kapt")
     id("kotlinx-serialization")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -73,6 +73,8 @@ dependencies {
     val coreKtxVersion: String by rootProject.extra
     val sqliteAndroidVersion: String by rootProject.extra
 
+    ksp("androidx.room:room-compiler:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
@@ -88,8 +90,6 @@ dependencies {
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
     testImplementation("junit:junit:4.12")
     testImplementation("org.hamcrest:hamcrest-library:2.2")
-
-    kapt("androidx.room:room-compiler:$roomVersion")
 }
 
 repositories {

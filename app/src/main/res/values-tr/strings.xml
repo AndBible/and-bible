@@ -2,8 +2,8 @@
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Kutsal Kitap Çalışması</string>
-  <string name="app_name_medium">İncil Çalışması (AndBible)</string>
-  <string name="app_name_long">AndBible: İncil Çalışması</string>
+  <string name="app_name_medium">Kutsal Kitap Çalışması (AndBible)</string>
+  <string name="app_name_long">&amp;Bible: Kutsal Kitap Çalışması</string>
   <string name="project">AndBible Açık Kaynak Projesi</string>
   <string name="version_text">Sürüm %s</string>
   <string name="no_sdcard_error">Lütfen bir hafıza kartı takıp uygulamayı yeniden başlatın.</string>
@@ -12,7 +12,7 @@
   <string name="chooseBook">Belge</string>
   <string name="selectPassage">Kısım</string>
   <string name="search">Ara</string>
-  <string name="search_in_andbible">Kutsal Kitap’ta arama yap</string>
+  <string name="search_in_andbible">Kutsal Kitap’ta bul</string>
   <string name="settings">Uygulama tercihleri</string>
   <string name="history">Geçmiş</string>
   <string name="speak">Sesli Oku</string>
