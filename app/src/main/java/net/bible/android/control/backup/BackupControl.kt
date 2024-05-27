@@ -666,7 +666,6 @@ object BackupControl {
         hourglass.dismiss()
         Log.i(TAG, "Restored database successfully")
         ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
-        Dialogs.showMsg(R.string.restore_success2)
         true
     }
 
