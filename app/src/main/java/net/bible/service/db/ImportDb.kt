@@ -25,6 +25,7 @@ import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.android.view.activity.page.application
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.getFirst
+import net.bible.service.common.getFirstOrNull
 import java.io.File
 import java.lang.Exception
 
@@ -35,7 +36,7 @@ suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: File)
     val importDbFile = dbDef.dbFactory(dbFile.absolutePath)
     importDbFile.openHelper.writableDatabase.use {
         it.run {
-            val firstLabel = query("""SELECT name from Label LIMIT 1""").getFirst { it.getString(0) }
+            val firstLabel = query("""SELECT name from Label WHERE name NOT LIKE '\_\_%' ESCAPE '\'""").getFirstOrNull { it.getString(0) } ?: '-'
             val labels = query("""SELECT count(*) from Label""").getFirst { it.getLong(0) }
             val bookmarks =
                 query("""SELECT count(*) from BibleBookmark""").getFirst { it.getLong(0) } +
