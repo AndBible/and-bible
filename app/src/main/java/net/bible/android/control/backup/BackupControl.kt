@@ -67,6 +67,7 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.common.CommonUtils.grantUriReadPermissions
+import net.bible.service.db.bookmarksDbStats
 import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.epub.epubDir
@@ -626,13 +627,13 @@ object BackupControl {
                 beforeRestore()
                 for (fileName in selection) {
                     val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
+                    val f = File(unzipFolder, "db/${fileName}")
                     val restore =
                         if (category != null)
-                            askIfRestoreOrImport(category, activity)
+                            askIfRestoreOrImport(category, f, activity)
                         else true
                     if (restore == null) continue
 
-                    val f = File(unzipFolder, "db/${fileName}")
                     if (restore) {
                         val areYouSure = if (category != null) {
                             Dialogs.simpleQuestion(
@@ -669,10 +670,13 @@ object BackupControl {
         true
     }
 
-    private suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
+    private suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
+        val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS) {
+            " (${bookmarksDbStats(category, backupFile)})"
+        } else ""
         suspendCoroutine {
             val message =
-                context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription))
+                context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription) + contents)
             AlertDialog.Builder(context)
                 .setTitle(category.contentDescription)
                 .setMessage(message)

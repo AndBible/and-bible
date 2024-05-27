@@ -53,6 +53,7 @@ enum class SyncableDatabaseDefinition {
         READINGPLANS ->ReadingPlanDatabase.dbFileName
         WORKSPACES -> WorkspaceDatabase.dbFileName
     }
+
     val tables get() = when(this) {
         BOOKMARKS -> listOf(
             Table(

@@ -683,6 +683,9 @@
     <string name="import2">Import</string>
     <string name="export_studypads_help">File containing exported StudyPads (i.e Labels and Bookmarks) can be imported via Main Menu -> Backup &amp; Restore.</string>
 
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+    <string name="bookmarks_db_stats">\"%1$s\" and %2$s other Label(s) / StudyPad/(s) and %3$s Bookmarks</string>
+
     <!-- About -->
     <string name="module_about_copyright">Copyright: %s</string>
     <string name="module_about_installed_version">Installed version: %1$s (%2$s)</string>
