@@ -618,7 +618,11 @@ object BackupControl {
                     Dialogs.showMsg(R.string.restore_unsuccessfull)
                     return@withContext false
                 }
-                val selection = selectDatabaseSections(activity, containedBackups)
+                val selection =
+                    if (containedBackups.size > 1)
+                        selectDatabaseSections(activity, containedBackups)
+                    else
+                        containedBackups
 
                 if (selection.isEmpty()) {
                     return@withContext false
