@@ -1,5 +1,4 @@
-- Translation updates
-- Bugfixes
+- Maintaining software library dependencies
 
 5.0
 "What's new" video: https://youtu.be/bf33j4tLbxQ
