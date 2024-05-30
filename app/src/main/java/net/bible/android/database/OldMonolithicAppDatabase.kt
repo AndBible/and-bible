@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2018-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -14,5 +14,15 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
+package net.bible.android.database
 
-include(":app")
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.RoomDatabase
+
+const val OLD_DATABASE_VERSION = 69
+@Entity class Dummy(@PrimaryKey(autoGenerate = true) var id: Long = 0)
+
+@Database(version = OLD_DATABASE_VERSION, entities = [Dummy::class])
+abstract class OldMonolithicAppDatabase: RoomDatabase()

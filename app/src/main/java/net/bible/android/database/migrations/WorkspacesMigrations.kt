@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -15,4 +15,19 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-include(":app")
+package net.bible.android.database.migrations
+
+private val resetMaximizedWindowId = makeMigration(1..2) { _db ->
+    _db.execSQL("UPDATE Workspace SET maximizedWindowId=NULL")
+}
+
+private val removeFavouriteLabels = makeMigration(2..3) { _db ->
+    _db.execSQL("ALTER TABLE Workspace DROP COLUMN workspace_settings_favouriteLabels")
+}
+
+val workspacesMigrations: Array<Migration> = arrayOf(
+    resetMaximizedWindowId,
+    removeFavouriteLabels,
+)
+
+const val WORKSPACE_DATABASE_VERSION = 3

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -15,4 +15,12 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-include(":app")
+package net.bible.android.database.migrations
+
+// private val rpTriggers_1_2 = makeMigration(1..2) {_db -> }
+
+val readingPlanMigrations: Array<Migration> = arrayOf(
+
+)
+
+const val READING_PLAN_DATABASE_VERSION = 1
