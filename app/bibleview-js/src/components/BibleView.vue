@@ -47,7 +47,7 @@
 </template>
 <script lang="ts" setup>
 import DocumentBroker from "@/components/documents/DocumentBroker.vue";
-import {computed, nextTick, onMounted, onUnmounted, provide, reactive, ref, Ref, watch} from "vue";
+import {computed, nextTick, onMounted, onUnmounted, provide, reactive, ref, Ref, shallowRef, watch} from "vue";
 import {testBookmarkLabels, testData} from "@/testdata";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
@@ -108,7 +108,7 @@ const lineHeight = computed(() => {
 
 const strings = useStrings();
 window.bibleViewDebug.documents = documents;
-const topElement = ref<HTMLElement | null>(null);
+const topElement = shallowRef<HTMLElement | null>(null);
 const documentPromise: Ref<Promise<void> | null> = ref(null);
 const verseHighlight = useOrdinalHighlight();
 provide(ordinalHighlightKey, verseHighlight);
