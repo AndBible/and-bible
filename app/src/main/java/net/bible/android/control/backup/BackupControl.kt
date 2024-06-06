@@ -22,11 +22,8 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import android.content.pm.PackageManager.ResolveInfoFlags
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -67,7 +64,11 @@ import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.CommonUtils.determineFileType
+import net.bible.service.common.CommonUtils.grantUriReadPermissions
+import net.bible.service.db.bookmarksDbStats
+import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.epub.epubDir
 import net.bible.service.sword.epub.isManuallyInstalledEpub
@@ -190,7 +191,9 @@ object BackupControl {
                     }
                     if(version <= OLD_DATABASE_VERSION) {
                         Log.i(TAG, "Loading from backup database with version $version")
-                        beforeRestore()
+                        beforeRestore(SyncableDatabaseDefinition.BOOKMARKS)
+                        beforeRestore(SyncableDatabaseDefinition.WORKSPACES)
+                        beforeRestore(SyncableDatabaseDefinition.READINGPLANS)
                         DatabaseContainer.reset()
                         // When restoring old style db, we need to remove all databases first
                         deleteAllDatabases()
@@ -216,54 +219,6 @@ object BackupControl {
 
     private fun getString(id: Int): String {
         return BibleApplication.application.getString(id)
-    }
-
-    private suspend fun selectModules(context: Context): List<Book>? {
-        var result: List<Book>? = null
-        withContext(Dispatchers.Main) {
-            result = suspendCoroutine {
-                val books = Books.installed().books.filter { !it.isPseudoBook }.sortedBy { it.language }
-                val bookNames = books.map {
-                    context.getString(R.string.something_with_parenthesis, it.name, "${it.initials}, ${it.language.code}")
-                }.toTypedArray()
-
-                val checkedItems = bookNames.map { false }.toBooleanArray()
-                val dialog = AlertDialog.Builder(context)
-                    .setPositiveButton(R.string.okay) { d, _ ->
-                        val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }
-                        if(selectedBooks.isEmpty()) {
-                            it.resume(null)
-                        } else {
-                            it.resume(selectedBooks)
-                        }
-                    }
-                    .setMultiChoiceItems(bookNames, checkedItems) { _, pos, value ->
-                        checkedItems[pos] = value
-                    }
-                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(null) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
-                    .setOnCancelListener { _ -> it.resume(null)}
-                    .setTitle(getString(R.string.backup_modules_title))
-                    .create()
-
-                dialog.setOnShowListener {
-                    dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                        val allSelected = checkedItems.find { !it } == null
-                        val newValue = !allSelected
-                        val v = dialog.listView
-                        for (i in 0 until v.count) {
-                            v.setItemChecked(i, newValue)
-                            checkedItems[i] = newValue
-                        }
-                        (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
-                    }
-                }
-                dialog.show()
-                CommonUtils.fixAlertDialogButtons(dialog)
-            }
-        }
-        Log.i(TAG, "Selected modules to be backed up: ${result?.joinToString(",") { it.initials }}")
-        return result
     }
 
     private suspend fun selectDatabaseSections(context: Context, available: List<String>): List<String> {
@@ -425,7 +380,15 @@ object BackupControl {
         val fileName = MODULE_BACKUP_NAME
         internalDbBackupDir.mkdirs()
         val zipFile = File(internalDbBackupDir, fileName)
-        val books = selectModules(callingActivity) ?: return@withContext
+        val books = Dialogs.multiselect(
+            callingActivity,
+            R.string.backup_modules_title,
+            Books.installed().books.filter { !it.isPseudoBook }.sortedBy { it.language }
+        ) {
+            callingActivity.getString(R.string.something_with_parenthesis, it.name, "${it.initials}, ${it.language.code}")
+        }
+
+        if (books.isEmpty()) return@withContext
 
         val hourglass = Hourglass(callingActivity)
         hourglass.show()
@@ -469,18 +432,6 @@ object BackupControl {
             Dialogs.showErrorMsg(R.string.error_occurred)
         }
 
-    }
-
-    private fun grantUriReadPermissions(chooserIntent: Intent, uri: Uri) {
-        val resInfoList = if (Build.VERSION.SDK_INT >= 33) {
-            BibleApplication.application.packageManager.queryIntentActivities(chooserIntent, ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
-        } else {
-            BibleApplication.application.packageManager.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
-        }
-        for (resolveInfo in resInfoList) {
-            val packageName = resolveInfo.activityInfo.packageName
-            BibleApplication.application.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
     }
 
     suspend fun backupApp(callingActivity: ActivityBase) {
@@ -610,26 +561,22 @@ object BackupControl {
         return version <= maxDatabaseVersion(file.name)
     }
 
-    private suspend fun beforeRestore() {
+    private suspend fun beforeRestore(category: SyncableDatabaseDefinition) {
         if(DatabaseContainer.ready && CloudSync.signedIn) {
-            for (it in DatabaseContainer.databaseAccessors) {
-                it.category.enabled = false
-            }
+            category.syncEnabled = false
             ABEventBus.post(ToastEvent(R.string.disabling_sync))
             CloudSync.waitUntilFinished()
-            CloudSync.signOut()
         }
     }
 
-    private suspend fun afterRestore(selection: List<String>? = null) {
-        for (it in DatabaseContainer.databaseAccessors) {
-            it.category.enabled = false
-        }
-        for(s in selection?: ALL_DB_FILENAMES.toList()) {
+    private suspend fun afterRestore(restoredSelection: List<SyncableDatabaseDefinition>? = null) {
+        val selection: List<SyncableDatabaseDefinition> = restoredSelection?: SyncableDatabaseDefinition.ALL.toList()
+        for(s in selection) {
+            s.syncEnabled = false
             val db: SyncableRoomDatabase? = when(s) {
-                BookmarkDatabase.dbFileName -> DatabaseContainer.instance.bookmarkDb
-                ReadingPlanDatabase.dbFileName -> DatabaseContainer.instance.readingPlanDb
-                WorkspaceDatabase.dbFileName -> DatabaseContainer.instance.workspaceDb
+                SyncableDatabaseDefinition.BOOKMARKS -> DatabaseContainer.instance.bookmarkDb
+                SyncableDatabaseDefinition.READINGPLANS -> DatabaseContainer.instance.readingPlanDb
+                SyncableDatabaseDefinition.WORKSPACES -> DatabaseContainer.instance.workspaceDb
                 else -> null
             }
             if(db != null) {
@@ -655,7 +602,7 @@ object BackupControl {
         tmpFile.outputStream().use {inputStream.copyTo(it) }
         CommonUtils.unzipFile(tmpFile, unzipFolder)
 
-        val selection =
+        val restoredSelection =
             Closeable {
                 tmpFile.delete()
                 unzipFolder.deleteRecursively()
@@ -669,35 +616,81 @@ object BackupControl {
                     Dialogs.showMsg(R.string.restore_unsuccessfull)
                     return@withContext false
                 }
-                val selection = selectDatabaseSections(activity, containedBackups)
-
+                val selection =
+                    if (containedBackups.size > 1)
+                        selectDatabaseSections(activity, containedBackups)
+                    else
+                        containedBackups
+                val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
                 if (selection.isEmpty()) {
                     return@withContext false
                 }
                 hourglass.show()
-                beforeRestore()
-                DatabaseContainer.reset()
                 for (fileName in selection) {
+                    val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
                     val f = File(unzipFolder, "db/${fileName}")
-                    Log.i(TAG, "Restoring $fileName")
-                    val targetFilePath = activity.getDatabasePath(fileName).path
-                    val targetFile = File(targetFilePath)
-                    f.copyTo(targetFile, overwrite = true)
-                    File("$targetFilePath-journal").delete()
-                    File("$targetFilePath-shm").delete()
-                    File("$targetFilePath-wal").delete()
+                    val restore =
+                        if (category != null)
+                            askIfRestoreOrImport(category, f, activity)
+                        else true
+                    if (restore == null) continue
+
+                    if (restore) {
+                        if(category != null) {
+                            restoredSelection.add(category)
+                            beforeRestore(category)
+                        }
+
+                        val areYouSure = if (category != null) {
+                            Dialogs.simpleQuestion(
+                                activity,
+                                activity.getString(R.string.overwrite_something,
+                                    getString(category.contentDescription)
+                                )
+                            )
+                        } else true
+                        if (!areYouSure) continue
+                        Log.i(TAG, "Restoring $fileName")
+                        DatabaseContainer.instance.dbByFilename[fileName]?.close()
+                        val targetFilePath = activity.getDatabasePath(fileName).path
+                        val targetFile = File(targetFilePath)
+                        f.copyTo(targetFile, overwrite = true)
+                        File("$targetFilePath-journal").delete()
+                        File("$targetFilePath-shm").delete()
+                        File("$targetFilePath-wal").delete()
+                    } else {
+                        importDatabaseFile(category!!, f)
+                    }
                 }
-                selection
+                DatabaseContainer.reset()
+                restoredSelection
             }
         if (DatabaseContainer.ready) {
             DatabaseContainer.instance
-            afterRestore(selection)
+            afterRestore(restoredSelection)
         }
         hourglass.dismiss()
         Log.i(TAG, "Restored database successfully")
         ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
-        Dialogs.showMsg(R.string.restore_success2)
         true
+    }
+
+    private suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
+        val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS) {
+            " (${bookmarksDbStats(category, backupFile)})"
+        } else ""
+        suspendCoroutine {
+            val message =
+                context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription) + contents)
+            AlertDialog.Builder(context)
+                .setTitle(category.contentDescription)
+                .setMessage(message)
+                .setNeutralButton(R.string.cancel) {_, _ -> it.resume(null) }
+                .setPositiveButton(R.string.restore) { _, _ -> it.resume(true) }
+                .setNegativeButton(R.string.import2) { _, _ -> it.resume(false) }
+                .setOnCancelListener { _ -> it.resume(false) }
+                .show()
+        }
     }
 
     private suspend fun restoreOldMonolithicDatabaseFromFileInputStreamWithUI(
@@ -740,7 +733,7 @@ object BackupControl {
 
     private var moduleDir: File = SharedConstants.modulesDir
     private lateinit var internalDbDir : File
-    private val internalDbBackupDir: File // copy of db is created in this dir when doing backups
+    val internalDbBackupDir: File // copy of db is created in this dir when doing backups
         get() {
             val file = File(SharedConstants.internalFilesDir, "/backup")
             file.mkdirs()

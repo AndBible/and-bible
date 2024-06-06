@@ -145,15 +145,10 @@ class BibleFrame(
     }
 
     private fun addWindowButton() {
-        val isSingleWindow = windowControl.isSingleWindow
         if (allViews.hideWindowButtons) return
         if (windowRepository.isMaximized) return
 
-        val button =
-            when {
-                isSingleWindow -> return
-                else -> createWindowMenuButton(window)
-            }
+        val button = createWindowMenuButton(window)
 
         if (!mainBibleActivity.isSplitVertically) {
             button.translationY = mainBibleActivity.topOffset2.toFloat()
@@ -168,7 +163,7 @@ class BibleFrame(
         windowButton = button
         addView(button,
             LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                if (isSingleWindow) Gravity.BOTTOM or Gravity.END else Gravity.TOP or Gravity.END))
+                Gravity.TOP or Gravity.END))
     }
 
 

@@ -63,13 +63,13 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
     private fun setupDrivePref(pref: SwitchPreferenceCompat) {
         val category = SyncableDatabaseDefinition.nameToCategory[pref.key.split("_")[1].uppercase()]!!
         pref.setOnPreferenceClickListener {
-            if(category.enabled) {
+            if(category.syncEnabled) {
                 lifecycleScope.launch {
                     hourglass.show(R.string.synchronizing)
                     if (!CloudSync.signedIn) {
                         CloudSync.signIn(activity as ActivityBase)
                     }
-                    if (CloudSync.signedIn && category.enabled) {
+                    if (CloudSync.signedIn && category.syncEnabled) {
                         CloudSync.waitUntilFinished()
                         CloudSync.start()
                         CloudSync.waitUntilFinished()

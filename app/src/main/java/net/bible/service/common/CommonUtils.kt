@@ -1505,7 +1505,7 @@ object CommonUtils : CommonUtilsBase() {
 
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
-        else SyncableDatabaseDefinition.ALL.any { it.enabled }
+        else SyncableDatabaseDefinition.ALL.any { it.syncEnabled }
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 
@@ -1672,6 +1672,19 @@ object CommonUtils : CommonUtilsBase() {
 
     fun parseAndBibleReference(uri: String): BookAndKey?
         = parseAndBibleReference(Uri.parse(uri))
+
+    fun grantUriReadPermissions(chooserIntent: Intent, uri: Uri) {
+        val resInfoList = if (Build.VERSION.SDK_INT >= 33) {
+            BibleApplication.application.packageManager.queryIntentActivities(chooserIntent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
+        } else {
+            BibleApplication.application.packageManager.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
+        }
+        for (resolveInfo in resInfoList) {
+            val packageName = resolveInfo.activityInfo.packageName
+            BibleApplication.application.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+    }
+
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"

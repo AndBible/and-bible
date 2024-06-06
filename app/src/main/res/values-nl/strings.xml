@@ -53,6 +53,7 @@
   <string name="search_all_words">Alle woorden</string>
   <string name="search_any_word">Elk woord</string>
   <string name="search_phrase">Bewoording</string>
+  <string name="search_fts_query">Ruwe query syntax</string>
   <string name="search_result_count">%d items gevonden</string>
   <string name="search_showing_first">Te veel items. De eerste %d worden getoond.</string>
   <string name="search_bible_section_group_prompt">Waar te zoeken</string>
@@ -539,7 +540,11 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="backup_document_info">Bijbels, commentaren, woordenboeken, kaarten etc.</string>
   <string name="backup_to">Back-up naar...</string>
   <string name="backup_restore_from">Herstel van...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Herstellen of importeren van...</string>
   <string name="backup_restore">Herstellen</string>
+  <string name="backup_restore2">Herstellen of Importeren</string>
+  <string name="overwrite_something">Overschrijf %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Wat wilt u herstellen?</string>
   <string name="restore_app_database">Terugzetten app database vanuit...</string>
@@ -555,11 +560,19 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="backup_modules_email_message_2">Toegevoegd is uw %1$s modules back-up, die de volgende modules bevat: %2$s</string>
   <string name="backup_email_subject_2">%sdatabase backup</string>
   <string name="backup_email_message_2">Uw %s database met bladwijzers, notities, leesplannen en werkbladen is toegevoegd</string>
+  <string name="exported_studypads_subject">Geëxporteerde StudiePad(s)</string>
+  <string name="exported_studypads_message">Jouw %s database bevat Bladwijzers en Notities gerelateerd aan gekoppelde geselecteerde Studiepaden. </string>
   <string name="restore_unsuccessfull">Database herstellen is mislukt. Misschien gaf u een verkeerd database bestand.</string>
   <string name="restore_modules">Terugzetten Documenten vanuit...</string>
   <string name="send_backup_file">Back-up bestand verzenden</string>
   <string name="backup_modules_title">Selecteer welke modules geback-upt moeten worden</string>
   <string name="install_zip_canceled">Module installatie afgebroken</string>
+  <string name="ask_restore_or_import">Database voor %s kan hersteld worden (huidige database wordt verwijderd en geselecteerde database wordt ingeladen) of geïmporteerd (geselecteerde database wordt geïmporteerd in de bestaande database). Wat wil je doen?</string>
+  <string name="restore">Herstellen</string>
+  <string name="import2">Import</string>
+  <string name="export_studypads_help">Bestand bevat geëxporteerde Studiepaden (Labels en Bladwijzers) die geïmporteerd kunnen worden via Hoofdmenu -&gt; Back-up &amp; Herstellen.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" en %2$s andere Label(s) / Studiepad(en) en %3$s Bladwijzers</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Geïnstalleerde versie: %1$s (%2$s)</string>
@@ -691,6 +704,8 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
     </string>
   <string name="help_search_text2">Zoekterm mag speciale tekens bevatten, zoals *, AND, OR, NOT</string>
   <string name="help_search_details">Zie %s voor meer details.</string>
+  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
+  <string name="help_fts5">FTS5 Volledige tekst Query Syntax</string>
   <string name="help_workspaces_title">Werkbladen</string>
   <string name="help_workspaces_text">
         Werkbladen geven de mogelijkheid om verschillende context-specifieke werk omgevingen te hebben. Werkblad functies kunnen gevonden worden via de Werkbladen knop in het optie-menu (rechtsboven). 
@@ -734,6 +749,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="journal_description">Door gebruiker bewerkbare studiemappen met aangepaste tekst en bladwijzers</string>
   <string name="my_notes_description">Door gebruiker bewerkbare notities gekoppeld aan bladwijzers</string>
   <string name="my_notes_abbreviation">Mijn Notities</string>
+  <string name="studypad">Studiepad</string>
   <string name="studypads">Studiemappen</string>
   <string name="multi_description">Meerdere verwijzingen</string>
   <string name="multi_abbreviation">Meerdere</string>
@@ -862,7 +878,9 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="label_salvation">Redding</string>
   <string name="label_underline">Onderstreping</string>
   <string name="import_menu">Importeren &amp; Exporteren</string>
+  <string name="export">Export</string>
   <string name="export_fileformat">Exporteer als %s</string>
+  <string name="export_something">Export %s</string>
   <string name="import_items">Importeer %s</string>
   <string name="import_from_db">Importeren van App Database bestand</string>
   <string name="import_error">Importeren vanuit App Database mislukt. Database bestand zou verkeerd formaat kunnen zijn of gemaakt zijn met een te oude versie van %s.</string>

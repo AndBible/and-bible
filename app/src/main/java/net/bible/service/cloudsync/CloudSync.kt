@@ -114,7 +114,7 @@ object CloudSync {
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
             val category = dbDef.category
-            category.enabled = false
+            category.syncEnabled = false
             dbDef.dao.clearSyncStatus()
             dbDef.dao.clearSyncConfiguration()
         }
@@ -188,7 +188,7 @@ object CloudSync {
                     }
                 }
                 if (initialOperation == null) {
-                    dbDef.category.enabled = false
+                    dbDef.category.syncEnabled = false
                     throw CancelStartedSync()
                 } else {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
@@ -279,7 +279,7 @@ object CloudSync {
             tmpFile.delete()
             val activity = CurrentActivityHolder.currentActivity ?: throw CancelStartedSync()
             Dialogs.showMsg2(activity, cantFetchString(dbDef.category.contentDescription))
-            dbDef.category.enabled = false
+            dbDef.category.syncEnabled = false
             Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > ${dbDef.version}")
             throw CancelStartedSync()
         } else {
@@ -357,7 +357,7 @@ object CloudSync {
 
             DatabaseContainer.databaseAccessorFactories.asyncMap {
                 val dbDef = it.invoke()
-                if(!dbDef.category.enabled) return@asyncMap
+                if(!dbDef.category.syncEnabled) return@asyncMap
                 if(dbDef.dao.getLong("disabledForVersion") == dbDef.version.toLong()) return@asyncMap
                 try {
                     initializeSync(dbDef)
@@ -523,7 +523,7 @@ object CloudSync {
     suspend fun hasChanges(): Boolean =
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
-            dbDef.category.enabled && dbDef.hasChanges
+            dbDef.category.syncEnabled && dbDef.hasChanges
         }.any { it }
 
     suspend fun bytesUsed(): Long =

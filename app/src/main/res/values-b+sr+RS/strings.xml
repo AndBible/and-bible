@@ -554,6 +554,7 @@
   <string name="backup_document_info">Света Писма, тумачења, речници, карте, итд.</string>
   <string name="backup_to">Направи разервне копије у...</string>
   <string name="backup_restore_from">Вратити из...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Повратити</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Шта желите да повратите?</string>
@@ -575,6 +576,8 @@
   <string name="send_backup_file">Пошаљи датотеку резервне копије</string>
   <string name="backup_modules_title">Одабери модуле за резервну копију</string>
   <string name="install_zip_canceled">Уградња модула отказана</string>
+  <string name="restore">Повратити</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Ауторска права: %s</string>
   <string name="module_about_installed_version">Уграђена верзија: %1$s (%2$s)</string>

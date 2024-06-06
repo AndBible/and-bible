@@ -41,6 +41,7 @@
   <string name="search_in">Vind in %s</string>
   <string name="do_in_background">Gaan voort in die agtergrond</string>
   <string name="rebuild_index_button">Herbou</string>
+  <string name="creating_index_for">Skep indeks vir %s....</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s resultate in  %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Alle woorde</string>
   <string name="search_any_word">Enige woord</string>
   <string name="search_phrase">Frase</string>
+  <string name="search_fts_query">Rou navraag sintaks</string>
   <string name="search_result_count">%d vergelykings gevind</string>
   <string name="search_showing_first">Te veel vergelykings. Wys Eerste %d</string>
   <string name="search_bible_section_group_prompt">Soek Waar</string>
@@ -538,7 +540,11 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="backup_document_info">Bybels, kommentare, woordeboeke, kaarte ens.</string>
   <string name="backup_to">Rugsteun na ...</string>
   <string name="backup_restore_from">Herstel vanaf ...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Herstel of voer in vanaf ... </string>
   <string name="backup_restore">Herstel</string>
+  <string name="backup_restore2">Herstel of voer in</string>
+  <string name="overwrite_something">Oorskryf %s? </string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Wat wil jy herstel?</string>
   <string name="restore_app_database">Rugsteun toep databasis vanaf ...</string>
@@ -554,12 +560,20 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="backup_modules_email_message_2">Aangeheg is jou %1$s  modules rugsteun, wat die volgende modules bevat: %2$s</string>
   <string name="backup_email_subject_2">%s databasis rugsteun</string>
   <string name="backup_email_message_2">Jou %s databasis met boekmerke, notas, leesplanne en werkruimtes is aangeheg</string>
+  <string name="exported_studypads_subject">Uitgevoerde Studieblok(e)</string>
+  <string name="exported_studypads_message">Jou %s databasis wat Boekmerke en Notas bevat, wat verband hou met geselekteerde StudyPads is aangeheg</string>
   <string name="restore_unsuccessfull">Die herstel van die databasis was onsuksesvol. Miskien het jy \'n ongeldige databasis lêer gegee.
  </string>
   <string name="restore_modules">Herstel dokumente vanaf ...</string>
   <string name="send_backup_file">Stuur \'n rugsteunlêer</string>
   <string name="backup_modules_title">Kies watter modules om te rugsteun</string>
   <string name="install_zip_canceled">Module installasie gekanselleer</string>
+  <string name="ask_restore_or_import">Databasis vir %s kan óf herstel word (d.w.s. bestaande databasis word verwyder en geselekteerde databasis word gelaai) of ingevoer (geselekteerde databasis word in bestaande databasis ingevoer). Wat wil jy doen?</string>
+  <string name="restore">Herstel</string>
+  <string name="import2">Invoer</string>
+  <string name="export_studypads_help">Lêer wat uitgevoerde Studiebloke bevat (dws etikette en boekmerke) kan ingevoer word via hoofkieslys -&gt; rugsteun en herstel.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" and %2$s ander etiket(te) / studieblad(e) en %3$s Boekmerke</string>
   <!--About-->
   <string name="module_about_copyright">Kopiereg:%s</string>
   <string name="module_about_installed_version">Geïnstalleerde weergawe: %1$s (%2$s)</string>
@@ -696,6 +710,10 @@ Benewens boekmerke, kan daar persoonlike teksinskrywings in \'n studieblok wees.
   <!--TODO: to be removed-->
   <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
 (sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
+  <string name="help_search_text2">Soek teks kan spesiale karakters insluit soos *, AND, OR, NOT</string>
+  <string name="help_search_details">Sien asseblief %s vir meer besonderhede.</string>
+  <string name="help_apache_lucene">Apache Lucene - Navraag Parser Sintaks</string>
+  <string name="help_fts5">FTS5 Vol teks Navraag Sintaks</string>
   <string name="help_workspaces_title">Werkruimtes</string>
   <string name="help_workspaces_text">
 Met werkruimtes kan daar verskeie konteksafhanklike werksomgewings wees. Werkruimtefunksies kan
@@ -748,6 +766,7 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="journal_description">Gebruiker-redigeerbare studie blokkies met persoonlike teks en boekmerke</string>
   <string name="my_notes_description">Gebruiker-redigeerbare notas verbonde aan boekmerke</string>
   <string name="my_notes_abbreviation">My Notas</string>
+  <string name="studypad">Studie Blok</string>
   <string name="studypads">Studie Blokkies</string>
   <string name="multi_description">Veelvuldige verwysings</string>
   <string name="multi_abbreviation">Veelvuldige</string>
@@ -867,7 +886,9 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="label_salvation">Redding</string>
   <string name="label_underline">Onderlyn</string>
   <string name="import_menu">Invoer &amp; Uitvoer</string>
+  <string name="export">Uitvoer</string>
   <string name="export_fileformat">Voer uit as %s</string>
+  <string name="export_something">Uitvoer %s</string>
   <string name="import_items">Invoer %s</string>
   <string name="import_from_db">Voer in uit Program databasis lêer</string>
   <string name="import_error">Invoer vanaf Program databasis het misluk. Databasis lêer kan verkeerde formaat wees of gemaak word met te ou weergawe van %s.</string>
@@ -890,6 +911,7 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="strongs_off">Af</string>
   <string name="strongs_links">Skakels</string>
   <string name="strongs_text_and_links">Teks en Skakels</string>
+  <string name="strongs_hidden_links">Versteekte skakels</string>
   <string name="verse_tip">Om gedeeltelike of baie verse te kies, kan jy Bybel teks lank druk</string>
   <string name="permission_required">Toestemming benodig</string>
   <string name="labels_search_hint">Soek</string>

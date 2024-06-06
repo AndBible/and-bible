@@ -289,8 +289,12 @@ fun getColumnNames(db: SupportSQLiteDatabase, tableName: String, schema: String?
     return columnNames
 }
 
-fun joinColumnNames(columnNames: List<String>): String {
-    return columnNames.joinToString(",", transform = { "`${it}`" })
+fun joinColumnNames(columnNames: List<String>, prefix: String? = null): String {
+    if (prefix != null) {
+        return columnNames.joinToString(",", transform = { "$prefix.`${it}`" })
+    } else {
+        return columnNames.joinToString(",", transform = { "`${it}`" })
+    }
 }
 
 fun getColumnNamesJoined(db: SupportSQLiteDatabase, tableName: String, schema: String? = null): String {

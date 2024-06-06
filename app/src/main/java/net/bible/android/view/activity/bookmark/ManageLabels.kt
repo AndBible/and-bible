@@ -32,7 +32,6 @@ import android.text.style.ImageSpan
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
@@ -62,21 +61,17 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
-import net.bible.android.database.LogEntryTypes
-import net.bible.service.common.CommonUtils.convertDipsToPx
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.displayName
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
+import net.bible.service.db.exportStudyPads
 import kotlin.collections.ArrayList
-import net.bible.service.device.ScreenSettings
 import java.util.regex.PatternSyntaxException
 
 private const val TAG = "BookmarkLabels"
@@ -318,6 +313,8 @@ class ManageLabels : ListActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.manage_labels_options_menu, menu)
+        menu.findItem(R.id.export_studypads).title = getString(R.string.export_something, getString(R.string.studypads))
+        menu.findItem(R.id.import_studypads).title = getString(R.string.import_items, getString(R.string.studypads))
         menu.findItem(R.id.resetButton).isVisible = data.hasResetButton
         menu.findItem(R.id.reOrder).isVisible = data.hasReOrderButton
         return true
@@ -329,6 +326,24 @@ class ManageLabels : ListActivityBase() {
             R.id.help -> help()
             R.id.newLabel -> newLabel()
             R.id.resetButton -> reset()
+            R.id.export_studypads -> {
+                lifecycleScope.launch {
+                    val labels = Dialogs.multiselect(
+                        this@ManageLabels,
+                        getString(R.string.export_something, getString(R.string.studypads)),
+                        bookmarkControl.assignableLabels
+                    ) { it.displayName }
+                    if (labels.isNotEmpty()) {
+                        exportStudyPads(this@ManageLabels, *labels.toTypedArray())
+                    }
+                }
+            }
+            R.id.import_studypads -> {
+                lifecycleScope.launch {
+                    BackupControl.backupPopup(this@ManageLabels)
+                    updateLabelList(rePopulate = true, reOrder = true)
+                }
+            }
             R.id.reOrder -> updateLabelList(rePopulate = true, reOrder = true)
             android.R.id.home -> saveAndExit()
             else -> isHandled = false

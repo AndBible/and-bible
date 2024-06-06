@@ -41,6 +41,7 @@
   <string name="search_in">Finde in %s</string>
   <string name="do_in_background">Im Hintergrund fertigstellen</string>
   <string name="rebuild_index_button">Erneut aufbauen</string>
+  <string name="creating_index_for">Der Index für %s wird erstellt...</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s Ergebnisse in %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">allen Wörtern</string>
   <string name="search_any_word">einigen Wörtern</string>
   <string name="search_phrase">genauer Wortfolge</string>
+  <string name="search_fts_query">Raw query syntax</string>
   <string name="search_result_count">%d Treffer gefunden</string>
   <string name="search_showing_first">Zu viele Treffer. Nur die ersten %d werden angezeigt</string>
   <string name="search_bible_section_group_prompt">Suchbereich</string>
@@ -521,7 +523,11 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="backup_document_info">Bibeln, Kommentare, Wörterbücher, Landkarten etc.</string>
   <string name="backup_to">Sicherung auf...</string>
   <string name="backup_restore_from">Wiederherstellen von...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Wiederherstellen oder importieren von...</string>
   <string name="backup_restore">Wiederherstellen</string>
+  <string name="backup_restore2">Wiederherstellung oder Import</string>
+  <string name="overwrite_something">Überschreiben von %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Was möchtest du wiederherstellen?</string>
   <string name="restore_app_database">Wiederherstellen der Datenbank von...</string>
@@ -537,11 +543,19 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="backup_modules_email_message_2">Angehängt findest du dein %1$s Modulbackup, welches folgende Module enthält: %2$s</string>
   <string name="backup_email_subject_2">%s Datenbanksicherung</string>
   <string name="backup_email_message_2">Ihre %s Datenbank mit Lesezeichen, Notizen, Leseplänen und Arbeitsbereichen ist angehängt.</string>
+  <string name="exported_studypads_subject">Exportierte Studienmappe(n)</string>
+  <string name="exported_studypads_message">Ihre %s-Datenbank mit Lesezeichen und Notizen zu den ausgewählten StudyPads ist angehängt</string>
   <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
   <string name="restore_modules">Dokumente wiederherstellen von...</string>
   <string name="send_backup_file">Sende Backup</string>
   <string name="backup_modules_title">Zu sichernde Module auswählen</string>
   <string name="install_zip_canceled">Modulinstallation abgebrochen</string>
+  <string name="ask_restore_or_import">Die Datenbank für %s kann entweder wiederhergestellt (d. h. die vorhandene Datenbank wird entfernt und die ausgewählte Datenbank wird geladen) oder importiert (die ausgewählte Datenbank wird in die vorhandene Datenbank importiert) werden. Was möchten Sie tun?</string>
+  <string name="restore">Wiederherstellen</string>
+  <string name="import2">Import</string>
+  <string name="export_studypads_help">Dateien mit exportierten StudyPads (d.h. Etiketten und Lesezeichen) können über Hauptmenü -&amp;gt; Sichern &amp;amp Wiederherstellen importiert werden.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" und %2$s andere Label(s) / Studienmappe/(n) und %3$s Lesezeichen</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Installierte Version: %1$s (%2$s)</string>
@@ -669,6 +683,10 @@ Neben Lesezeichen können auch andere Einträge händisch hinzugefügt werden.</
   <string name="help_search_title">Suche</string>
   <!--TODO: to be removed-->
   <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
+  <string name="help_search_text2">Der Suchtext kann Sonderzeichen wie *, AND, OR, NOT enthalten</string>
+  <string name="help_search_details">Siehe %s für mehr Details.</string>
+  <string name="help_apache_lucene">Apache Lucene - Abfrage-Analyse-Syntax</string>
+  <string name="help_fts5">FTS5 Volltextabfragesyntax</string>
   <string name="help_workspaces_title">Arbeitsbereich</string>
   <string name="help_workspaces_text">
 Mit Arbeitsbereichen können Sie verschiedene unabhängige Arbeitsumgebungen erstellen.
@@ -710,6 +728,7 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="journal_description">Bearbeitbare Studienmappen mit benutzerdefiniertem Text und Lesezeichen</string>
   <string name="my_notes_description">Benutzereigene editierbare Notizen als Anhang zu Lesezeichen</string>
   <string name="my_notes_abbreviation">Eigene Notizen</string>
+  <string name="studypad">Studienmappe</string>
   <string name="studypads">Studienmappen</string>
   <string name="multi_description">Mehrere Querverweise</string>
   <string name="multi_abbreviation">Multiple</string>
@@ -830,7 +849,9 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="label_salvation">Errettung</string>
   <string name="label_underline">Unterstreichung</string>
   <string name="import_menu">Import &amp; Export</string>
+  <string name="export">Export</string>
   <string name="export_fileformat">Exportiere als %s</string>
+  <string name="export_something">Export %s</string>
   <string name="import_items">Importiere %s</string>
   <string name="import_from_db">Importiere von der Datenbankdatei der Applikation</string>
   <string name="import_error">Das Importieren von der Datenbankdatei ist fehlgeschlagen. Evtl war die Datei im falschen Format oder wurde mit einer zu alten Version von %s erstellt.</string>
@@ -853,6 +874,7 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="strongs_off">Aus</string>
   <string name="strongs_links">Verweise</string>
   <string name="strongs_text_and_links">Text und Verweise</string>
+  <string name="strongs_hidden_links">Verborgene Verknüpfungen</string>
   <string name="verse_tip">Um Versteile oder mehrere Verse zu markieren, den Bibeltext drücken und halten</string>
   <string name="permission_required">Genehmigung benötigt</string>
   <string name="labels_search_hint">Suche</string>

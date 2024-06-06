@@ -527,31 +527,43 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="backup_database">Βάση δεδομένων</string>
   <string name="backup_documents">Έγγραφα</string>
   <string name="backup_application_info">Αρχείο εφαρμογής (.APK)</string>
-  <string name="backup_database_info">Σελιδοδείκτες, ετικέτες, σημειώσεις, σημειωματάρια, σχέδια ανάγνωσης, χώροι εργασίας κ.λ.π.</string>
+  <string name="backup_database_info">Σελιδοδείκτες, ετικέτες, σημειώσεις, μπλοκ μελέτης, σχέδια ανάγνωσης, χώροι εργασίας κ.λ.π.</string>
   <string name="backup_document_info">Άγιες Γραφές, σχoλιασμοί, λεξικά, χάρτες κλπ.</string>
   <string name="backup_to">Αντίγραφο σε...</string>
   <string name="backup_restore_from">Επαναφορά από...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Επαναφορά ή εισαγωγή από...</string>
   <string name="backup_restore">Επαναφορά</string>
+  <string name="backup_restore2">Επαναφορά ή εισαγωγή</string>
+  <string name="overwrite_something">Αντικατάσταση %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Τι θέλετε να επαναφέρετε?</string>
   <string name="restore_app_database">Επαναφορά βάσης δεδομένων εφαρμογής από...</string>
   <string name="restore_database">Επαναφορά αρχείου βάσης δεδομένων</string>
-  <string name="restore_confirmation">Αντικατάσταση Σημειώσεων Μου, σελιδοδεικτών, σημειωματάριων, σχεδίων ανάγνωσης και χώρων εργασίας?</string>
+  <string name="restore_confirmation">Αντικατάσταση Σημειώσεων Μου, σελιδοδεικτών, Μπλοκ Μελέτης, σχεδίων ανάγνωσης και χώρων εργασίας?</string>
   <string name="restore_success2">Επιλεγμένα τμήματα βάσης δεδομένων επαναφέρθηκαν επιτυχώς</string>
-  <string name="restore_success">Οι Σημειώσεις Μου, σελιδοδεικτες, σημειωματάρια, σχέδια ανάγνωσης και χώροι εργασίας επαναφέρθηκαν επιτυχώς</string>
+  <string name="restore_success">Οι Σημειώσεις Μου, σελιδοδεικτες, Μπλοκ Μελέτης, σχέδια ανάγνωσης και χώροι εργασίας επαναφέρθηκαν επιτυχώς</string>
   <string name="downloading_backup">Κατέβασμα αντιγράφου ασφαλείας...</string>
   <string name="loading_backup">Επαναφορά βάσης δεδομένων από αντίγραφο...</string>
-  <string name="backup_success2">Οι Σημειώσεις Μου, σελιδοδείκτες, σημειωματάρια, σχέδια ανάγνωσης και χώροι εργασίας αποθηκεύτηκαν επιτυχώς</string>
+  <string name="backup_success2">Οι Σημειώσεις Μου, σελιδοδείκτες, Μπλοκ Μελέτης, σχέδια ανάγνωσης και χώροι εργασίας αποθηκεύτηκαν επιτυχώς</string>
   <string name="backup_modules_success">Τα επιλεγμένα πρόσθετα ή έγγραφα αποθηκεύτηκαν επιτυχώς.</string>
   <string name="backup_modules_email_subject_2">Αντίγραφα προσθέτων %s</string>
   <string name="backup_modules_email_message_2">Τα αντίγραφο σας των προσθέτων %1$s επισυνάπτονται, που περιέχει τα ακόλουθα πρόσθετα: %2$s</string>
   <string name="backup_email_subject_2">Αντίγραφο βάσης δεδομένων %s</string>
   <string name="backup_email_message_2">Η βάση δεδομένων %s επισυνάπτεται και περιέχει σελιδοδείκτες, σημειώσεις, σχέδια ανάγνωσης και χώρους εργασίας</string>
+  <string name="exported_studypads_subject">Εξαγόμενο(α) μπλοκ μελέτης</string>
+  <string name="exported_studypads_message">Η βάση δεδομένων του %s επισυνάπτεται και περιέχει Σελιδοδείκτες και Σημειώσεις σχετικές με τα επιλεγμένα μπλοκ μελέτης</string>
   <string name="restore_unsuccessfull">Η επαναφορά της βάσης απέτυχε. Πιθανόν δώσατε άκυρο αρχείο βάσης δεδομένων.</string>
   <string name="restore_modules">Επαναφορά εγγράφων από...</string>
   <string name="send_backup_file">Αποστολή αντιγράφου ασφαλείας</string>
   <string name="backup_modules_title">Επιλέξτε ποιά πρόσθετα θα αντιγράψετε</string>
   <string name="install_zip_canceled">Ακυρώθηκε η εγκατάσταση προσθέτου</string>
+  <string name="ask_restore_or_import">Η βάση δεδομένων για %s μπορεί είτε να αντικατασταθεί (π.χ. η υπάρχουσα βάση διαγράφεται και η επιλεγμένη βάση φορτώνεται) είτε να εισαχθεί (η επιλεγμένη βάση εισάγεται μέσα στην υπάρχουσα βάση). Τι θέλετε να κάνετε?</string>
+  <string name="restore">Επαναφορά</string>
+  <string name="import2">Εισαγωγή</string>
+  <string name="export_studypads_help">Το αρχείο που περιέχει τα εξαγόμενα Μπλοκ μελέτης (π.χ. Ετικέτες  και Σελιδοδείκτες) μπορεί να εισαχθεί στο Κύριο Μενού -&gt; Αντίγραφο ασφαλείας και Επαναφορά.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" και %2$s άλλη(ες) ετικέτα/(ες) / Μπλοκ Μελέτης και %3$s Σελιδοδείκτες</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Εγκατεστημένη έκδοση: %1$s (%2$s)</string>
@@ -674,7 +686,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 το αναδυόμενο μενού. Μπορείτε να προσθέσετε τις δικές σας σημειώσεις στον νέο σελιδοδείκτη πατώντας το πλέον επισημασμένο κείμενο στην προβολή Βίβλου. Υπάρχει επίσης ένα ειδικό έγγραφο \"Οι Σημειώσεις μου\" στα Σχόλια που σας επιτρέπει
 να δείτε τις σημειώσεις σας σε ένα ξεχωριστό παράθυρο.</string>
   <string name="help_studypads_text">
-Τα Σημειωματάρια Μελέτης έχουν σχεδιαστεί να διευκολύνουν την συγγραφή σημειώσεων κηρύγματος,ετοιμασία κηρύγματος ή απλά
+Τα Μπλοκ Μελέτης έχουν σχεδιαστεί να διευκολύνουν την συγγραφή σημειώσεων κηρύγματος,ετοιμασία κηρύγματος ή απλά
 την συγγραφή προσωπικών σημειώσεων Βιβλικής μελέτης που περιέχουν πολλαπλές Βιβλικές παραπομπές. Κάθε Σημειωματάριο Μελέτης συνδέεται με μια ετικέτα σελιδοδείκτη.
 Όλοι οι Σελιδοδείκτες που έχουν δημιουργηθεί με αυτή την αντίστοιχη ετικέτα εμφανίζονται στο έγγραφο του Σημειωματάριου Μελέτης.
 Επιπρόσθετα με τους Σελιδοδείκτες, μπορούν να υπάρχουν ιδιόχειρες εισαγωγές κειμένου στο Σημειωματάριο.</string>
@@ -732,10 +744,11 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="strongs_mode_title">Διάλεξε επιλογή strongs</string>
   <string name="download_dialog_message">Τα ακόλουθα βιβλία δεν ήταν δυνατό να μεταφορτωθούν:</string>
   <string name="select_multiple">Πολλαπλή επιλογή</string>
-  <string name="journal_description">Σημειωματάρια μελέτης του χρήστη με ιδιόχειρες σημειώσεις και σελιδοδείκτες</string>
+  <string name="journal_description">Μπλοκ Μελέτης του χρήστη με ιδιόχειρες σημειώσεις και σελιδοδείκτες</string>
   <string name="my_notes_description">Σημειώσεις του χρήστη επισυναπτόμενες στους σελιδοδείκτες</string>
   <string name="my_notes_abbreviation">Οι σημειώσεις μου</string>
-  <string name="studypads">Σημειωματάρια Μελέτης</string>
+  <string name="studypad">Μπλοκ Μελέτης</string>
+  <string name="studypads">Μπλοκ Μελέτης</string>
   <string name="multi_description">Πολλαπλές παραπομπές</string>
   <string name="multi_abbreviation">Πολλαπλές</string>
   <string name="compare_description">Σύγκριση μεταφράσεων</string>
@@ -825,7 +838,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="highlight_entire_verse">Επισήμανση ολόκληρου στίχου</string>
   <string name="favourite_label">Αγαπημένη ετικέτα</string>
   <string name="edit_label">Επεξεργασία ετικέτας</string>
-  <string name="delete_label_confirmation">Απομάκρυνση ετικέτας σελιδοδείκτη \"%s\"? Οι σχετικές σημειώσεις Σημειωματάριου θα αφαιρεθούν επίσης.</string>
+  <string name="delete_label_confirmation">Απομάκρυνση ετικέτας σελιδοδείκτη \"%s\"? Τα συνδεδεμένα Μπλοκ Μελέτης θα αφαιρεθούν επίσης.</string>
   <string name="bookmark_underline_style_arbitrary">Στυλ υπογράμμισης για σελιδοδείκτες επιλογής</string>
   <string name="bookmark_underline_style_whole_verse">Στυλ υπογράμμισης για σελιδοδείκτες ολόκληρου στίχου</string>
   <string name="active_labels">Επιλεγμένες ετικέτες</string>
@@ -854,7 +867,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="label_salvation">Σωτηρία</string>
   <string name="label_underline">Υπογραμμισμένα</string>
   <string name="import_menu">Εισαγωγή &amp; εξαγωγή</string>
+  <string name="export">Εξαγωγή</string>
   <string name="export_fileformat">Εξαγωγή ως %s</string>
+  <string name="export_something">Εξαγωγή %s</string>
   <string name="import_items">Εισαγωγή %s</string>
   <string name="import_from_db">Εισαγωγή από αρχείο βάσης δεδομένων</string>
   <string name="import_error">Εισαγωγή από αρχείο βάσης δεδομένων απέτυχε. Λάθος μορφή βάσης ή δομημένη με πολύ παλιά έκδοση του %s</string>
@@ -946,13 +961,13 @@ http://www.heartlight.org, κατόπιν άδειας</string>
  </string>
   <string name="restore_backup_sections">Ποιά τμήματα αντιγράφων θέλετε να επανακτήσετε?</string>
   <string name="db_repositories">Αποθετήρια και σχετικές ρυθμίσεις</string>
-  <string name="db_bookmarks">Σελιδοδείκτες, Σημειώσεις Μου, Ετικέτες και Σημειωματάρια</string>
+  <string name="db_bookmarks">Σελιδοδείκτες, Σημειώσεις Μου, Ετικέτες και Μπλοκ Μελέτης</string>
   <string name="synchronizing">Συγχρονισμός...</string>
   <string name="overrideBackup">
 Βρέθηκε στο Cloud, βάση δεδομένων που δεν είναι συγχρονισμένη σε αυτή τη συσκευή.
 Η βάση περιέχει %s. Τι θέλετε να κάνετε?</string>
   <string name="reading_plans_content">Σχέδια ανάγνωσης και η κατάσταση τους</string>
-  <string name="bookmarks_contents">Σελιδοδείκτες, Ετικέτες και Σημειωματάρια</string>
+  <string name="bookmarks_contents">Σελιδοδείκτες, Ετικέτες και Μπλοκ Μελέτης</string>
   <string name="workspaces_contents">Χώροι εργασίας και Παράθυρα</string>
   <string name="cloud_fetch_and_restore_initial">Αντιγραφή από το cloud στη συσκευή</string>
   <string name="cloud_create_new">Αντιγραφή από τη συσκευή στο Cloud</string>

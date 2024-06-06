@@ -531,7 +531,11 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="backup_document_info">Raamatut, kommentaarit, sanakirjat, kartat jne.</string>
   <string name="backup_to">Varmuuskopioi…</string>
   <string name="backup_restore_from">Palauta varmuuskopiosta…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Palauta tai tuo ...</string>
   <string name="backup_restore">Palauta</string>
+  <string name="backup_restore2">Palauta tai tuo</string>
+  <string name="overwrite_something">Ylikirjoita %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Mitä haluat palauttaa?</string>
   <string name="restore_app_database">Palauta sovelluksen tietokanta...</string>
@@ -547,11 +551,19 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="backup_modules_email_message_2">Liitteenä on sovelluksen %1$s dokumenttien varmuuskopio, joka sisältää seuraavat moduulit: %2$s</string>
   <string name="backup_email_subject_2">Sovelluksen %s tietokannan varmuuskopio</string>
   <string name="backup_email_message_2">Liitetiedostona on sovelluksen %s tietokanta, joka sisältää kirjanmerkit, muistiinpanot, lukusuunnitelmat ja työtilat.</string>
+  <string name="exported_studypads_subject">Viedyt opintoalusta(t)</string>
+  <string name="exported_studypads_message">Liitetiedostona on %s tietokanta joka sisältää kirjanmerkit ja muistiinpanot valittuun opintoalustaan liittyen.</string>
   <string name="restore_unsuccessfull">Tietokannan palauttaminen varmuuskopiosta epäonnistui. Annoit ehkä virheellisen tietokantatiedoston.</string>
   <string name="restore_modules">Palauta dokumentteja…</string>
   <string name="send_backup_file">Lähetä varmuuskopiotiedosto</string>
   <string name="backup_modules_title">Valitse mitkä moduulit varmuuskopioidaan</string>
   <string name="install_zip_canceled">Moduulin asennus peruuntui</string>
+  <string name="ask_restore_or_import">%s voidaan joko palauttaa (ts. tietokanta tyhjennetään ja valittu tietokanta ladataan tilalle) tai tuoda (valittu tietokanta tuodaan entiseen tietokantaan). Mitä haluat tehdä?</string>
+  <string name="restore">Palauta</string>
+  <string name="import2">Tuo</string>
+  <string name="export_studypads_help">Tiedosto jossa on viedyt opintoalustat (ts kirjanmerkkiryhmät ja kirjanmerkit) voidaan tuoda: Päävalikko -&gt; Varmuuskopioi &amp; palauta.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" ja %2$s muuta kirjanmerkkiryhmää / opintoalustaa ja %3$s kirjanmerkkiä</string>
   <!--About-->
   <string name="module_about_copyright">Kopiointioikeudet: %s</string>
   <string name="module_about_installed_version">Asennettu versio: %1$s (%2$s)</string>
@@ -710,6 +722,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="journal_description">Opintoalustat joihin käyttäjä voi lisätä tekstiä ja kirjanmerkkejä</string>
   <string name="my_notes_description">Kirjanmerkkeihin tehdyt merkinnät </string>
   <string name="my_notes_abbreviation">Omat merkinnät</string>
+  <string name="studypad">Opintoalusta</string>
   <string name="studypads">Opintoalustat</string>
   <string name="multi_description">Useita viittauksia</string>
   <string name="multi_abbreviation">Viitteitä</string>
@@ -818,7 +831,9 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="label_salvation">Pelastus</string>
   <string name="label_underline">Alleviivaus</string>
   <string name="import_menu">Tuo &amp; vie</string>
+  <string name="export">Vie</string>
   <string name="export_fileformat">Vie muodossa %s</string>
+  <string name="export_something">Vie %s</string>
   <string name="import_items">Tuo muodossa %s</string>
   <string name="import_from_db">Tuo sovelluksen tietokannasta</string>
   <string name="import_error">Tuonti sovelluksen tietokannasta epäonnistui. Tietokanta saattaa olla väärässä muodossa tai se on tehty liian vanhalla %s:n versiolla.</string>

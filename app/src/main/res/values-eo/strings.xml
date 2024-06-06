@@ -522,7 +522,11 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="backup_document_info">Biblioj, komentaroj, vortaroj, mapoj, ktp.</string>
   <string name="backup_to">Sekurkopii al…</string>
   <string name="backup_restore_from">Restarigi el…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Restarigi aŭ enporti el…</string>
   <string name="backup_restore">Restarigi</string>
+  <string name="backup_restore2">Restarigi aŭ enporti</string>
+  <string name="overwrite_something">Ĉu anstataŭigi %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Kion vi volas restarigi?</string>
   <string name="restore_app_database">Restarigi datumbazon el…</string>
@@ -537,12 +541,20 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="backup_modules_email_subject_2">%s: sekurkopio de moduloj</string>
   <string name="backup_modules_email_message_2">Sekurkopio de la jenaj moduloj de aplikaĵo %1$s: %2$s troviĝas en la kunsendaĵo. </string>
   <string name="backup_email_subject_2">%s: sekurkopio de datumbazo</string>
-  <string name="backup_email_message_2">Datumbazo enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn de la programo %s troviĝas en la kunsendaĵo</string>
+  <string name="backup_email_message_2">Datumbazo de la programo %s enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn troviĝas en la kunsendaĵo</string>
+  <string name="exported_studypads_subject">Elportitaj notblokoj</string>
+  <string name="exported_studypads_message">Datumbazo de la programo %s enhavanta viajn legosignojn kaj notojn por la elektita notbloko troviĝas en la kunsendaĵo</string>
   <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
   <string name="restore_modules">Restarigi dokumentojn el…</string>
   <string name="send_backup_file">Sendi dosieron de sekurkopio</string>
   <string name="backup_modules_title">Elekti modulojn por sekurkopii</string>
   <string name="install_zip_canceled">Rezignis instali modulon</string>
+  <string name="ask_restore_or_import">Datumbazo de %s povas esti restarigita (la ekzista datumbazo foriĝos kaj estos anstataŭigita per la elektata datumbazo) aŭ enportita (la elektata datumbazo estos enportita al la ekzista datumbazo). Kion vi volas fari?</string>
+  <string name="restore">Restarigi</string>
+  <string name="import2">Enporti</string>
+  <string name="export_studypads_help">Dosieroj enhavantaj elportitajn notblokojn (ekzemple etikedojn kaj legosignojn) povas esti enportitaj per la butono “Sekurkopio” de la ĉefa menuo.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">“%1$s” kaj %2$s alia(j) etikedo(j) / notbloko(j), kaj %3$s legosignoj</string>
   <!--About-->
   <string name="module_about_copyright">Aŭtorrajto: %s</string>
   <string name="module_about_installed_version">Instalita versio: %1$s (%2$s)</string>
@@ -708,6 +720,7 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="journal_description">Redakteblaj notblokoj kun propra teksto kaj legosignoj</string>
   <string name="my_notes_description">Redakteblaj notoj ligitaj al legosignoj</string>
   <string name="my_notes_abbreviation">Notoj</string>
+  <string name="studypad">notblokon</string>
   <string name="studypads">Notblokoj</string>
   <string name="multi_description">Pluraj referencoj</string>
   <string name="multi_abbreviation">Pluraj</string>
@@ -827,7 +840,9 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="label_salvation">Saviĝo</string>
   <string name="label_underline">Substrekita</string>
   <string name="import_menu">Enporti aŭ elporti</string>
+  <string name="export">Elporti</string>
   <string name="export_fileformat">Elporti kiel %s</string>
+  <string name="export_something">Elporti %s</string>
   <string name="import_items">Enporti %s</string>
   <string name="import_from_db">Enporti el dosiero de aplikaĵa datumbazo</string>
   <string name="import_error">Fiaskis enporti datumojn el aplikaĵa datumbazo. La dosiero povas esti en malĝusta formo aŭ povas esti farita per tro malnova versio de la aplikaĵo %s.</string>

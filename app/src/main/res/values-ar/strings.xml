@@ -526,6 +526,7 @@
   <string name="backup_document_info">الأناجيل، التعليقات، القواميس، الخرائط إلخ.</string>
   <string name="backup_to">قم بنسخ احتياطي إلى...</string>
   <string name="backup_restore_from">استعادة من...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">إستعادة</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">ماذا تريد أن تستعيد؟</string>
@@ -545,6 +546,8 @@
   <string name="send_backup_file">إرسال ملف النسخة الاحتياطية</string>
   <string name="backup_modules_title">حدد الوحدات لنسخها احتياطياً.</string>
   <string name="install_zip_canceled">تثبيت الوحدة تم إلغائه.</string>
+  <string name="restore">إستعادة</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">حقوق النشر: %s</string>
   <string name="module_about_installed_version">النسخة المثبتة: %1$s (%2$s)</string>

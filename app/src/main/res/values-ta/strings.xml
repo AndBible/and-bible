@@ -553,6 +553,7 @@
   <string name="backup_document_info">விவிலியம், விளக்க உரைகள், அகராதிகள், வரைபடங்கள் மற்றும் பல.</string>
   <string name="backup_to">...க்கு நகல் எடு</string>
   <string name="backup_restore_from">.... இல் இருந்து மீட்டமை</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">மீட்டமை</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">எதை மீட்டமைக்க வேண்டும்?</string>
@@ -574,6 +575,8 @@
   <string name="send_backup_file">நகல் கோப்பை அனுப்பு</string>
   <string name="backup_modules_title">நகல் எடுக்கவேண்டிய மாடியுல்களை தெரிவு செய்க</string>
   <string name="install_zip_canceled">மாடியுல்களை நிறுவுவது ரத்து செய்யப்பட்டது</string>
+  <string name="restore">மீட்டமை</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">காப்புரிமை: %s</string>
   <string name="module_about_installed_version">நிறுவப்பட்ட பதிப்பு: %1$s (%2$s)</string>

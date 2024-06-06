@@ -552,6 +552,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_document_info">Библии, комментарии, словари, карты и т. д.</string>
   <string name="backup_to">Резервное копирование в…</string>
   <string name="backup_restore_from">Восстановить из…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Восстановить</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Что вы хотите восстановить?</string>
@@ -573,6 +574,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="send_backup_file">Отправить файл резервной копии</string>
   <string name="backup_modules_title">Выберите модули для резервного копирования</string>
   <string name="install_zip_canceled">Установка модуля отменена</string>
+  <string name="restore">Восстановить</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Авторское право: %s</string>
   <string name="module_about_installed_version">Установленная версия: %1$s(%2$s)</string>
