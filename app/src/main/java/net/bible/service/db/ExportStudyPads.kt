@@ -181,6 +181,6 @@ suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntit
         fileName = filename,
         subject = subject,
         message = message,
-        chooserTitle = R.string.send_backup_file,
+        chooserTitle = activity.getString(R.string.send_backup_file),
     )
 }

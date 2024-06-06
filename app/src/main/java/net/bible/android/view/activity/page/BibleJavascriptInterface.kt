@@ -34,6 +34,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -555,7 +556,6 @@ class BibleJavascriptInterface(
         targetDir.mkdirs()
         val targetFile = File(targetDir, "shared.html")
         targetFile.writeText(html)
-        val uri = FileProvider.getUriForFile(mainBibleActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
 
         val docName = when(val firstDoc = bibleView.firstDocument) {
             is StudyPadDocument -> firstDoc.label.displayName
@@ -563,38 +563,19 @@ class BibleJavascriptInterface(
             is MyNotesDocument -> mainBibleActivity.getString(R.string.my_notes_abbreviation)
             else -> throw RuntimeException("Illegal doc type")
         }
+
         val titleStr = mainBibleActivity.getString(R.string.export_fileformat, "HTML")
-        val emailIntent = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_SUBJECT, docName)
-            putExtra(Intent.EXTRA_TEXT, titleStr)
-            putExtra(Intent.EXTRA_STREAM, uri)
-            type = "text/html"
-        }
-
-        // Add the "Save" option to the chooser
-        val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-        saveIntent.addCategory(Intent.CATEGORY_OPENABLE)
-        saveIntent.type = "text/html"
-        saveIntent.putExtra(Intent.EXTRA_TITLE, "shared.html")
-
-        val chooserIntent = Intent.createChooser(emailIntent, titleStr)
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
-
-        scope.launch(Dispatchers.Main) {
-            val result = mainBibleActivity.awaitIntent(chooserIntent)
-            val data = result.data
-            if (result.resultCode == Activity.RESULT_OK && data?.data != null) {
-                val destinationUri = data.data!!
-
-                withContext(Dispatchers.IO) {
-                    mainBibleActivity.contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
-                        mainBibleActivity.contentResolver.openInputStream(uri)?.use { inputStream ->
-                            inputStream.copyTo(outputStream)
-                        }
-                    }
-                }
-            }
-
+        scope.launch {
+            BackupControl.saveOrShare(
+                mainBibleActivity,
+                targetFile,
+                fileName = "shared.html",
+                shareMimeType = "text/html",
+                saveMimeType = "text/html",
+                chooserTitle = titleStr,
+                message = titleStr,
+                subject = docName
+            )
         }
     }
 

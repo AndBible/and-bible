@@ -112,7 +112,7 @@ object BackupControl {
             fileName = DATABASE_BACKUP_NAME,
             subject = activity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium),
             message = activity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium),
-            chooserTitle = R.string.send_backup_file,
+            chooserTitle = activity.getString(R.string.send_backup_file),
             successMsg = R.string.backup_success2,
             errorMsg = R.string.error_occurred,
         )
@@ -125,7 +125,7 @@ object BackupControl {
         saveMimeType: String = ZIP_MIMETYPE,
         subject: String? = null,
         message: String? = null,
-        chooserTitle: Int,
+        chooserTitle: String,
         successMsg: Int? = null,
         errorMsg: Int = R.string.error_occurred,
     ): Boolean {
@@ -162,7 +162,7 @@ object BackupControl {
                 }
             }
         }
-        val chooserIntent = Intent.createChooser(intent, activity.getString(chooserTitle))
+        val chooserIntent = Intent.createChooser(intent, chooserTitle)
         val result = activity.awaitIntent(chooserIntent)
         val ok = if (saveOrShare == SaveOrShare.SAVE) {
             result.data?.data?.let { destinationUri ->
@@ -431,7 +431,7 @@ object BackupControl {
             fileName = fileName,
             subject = subject,
             message = message,
-            chooserTitle = R.string.send_backup_file,
+            chooserTitle = getString(R.string.send_backup_file),
             successMsg = R.string.backup_modules_success,
             errorMsg = R.string.error_occurred,
         )
@@ -452,7 +452,7 @@ object BackupControl {
             callingActivity,
             file = tempFile,
             fileName = "and-bible.apk",
-            chooserTitle = R.string.backup_app2,
+            chooserTitle = getString(R.string.backup_app2),
             // MIME of .apk is "application/vnd.android.package-archive".
             // but Bluetooth does not accept this. Let's use "*/*" instead.
             shareMimeType = "*/*" ,
