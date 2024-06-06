@@ -162,7 +162,7 @@ object BackupControl {
                 }
             }
         }
-        val chooserIntent = Intent.createChooser(intent, chooserTitle?.let { activity.getString(it)})
+        val chooserIntent = Intent.createChooser(intent, activity.getString(chooserTitle))
         val result = activity.awaitIntent(chooserIntent)
         val ok = if (saveOrShare == SaveOrShare.SAVE) {
             result.data?.data?.let { destinationUri ->
@@ -186,7 +186,7 @@ object BackupControl {
                     ok
                 }
             } ?: false
-        } else result.resultCode == Activity.RESULT_OK
+        } else result.resultCode == Activity.RESULT_OK || result.resultCode == Activity.RESULT_CANCELED
 
         withContext(Dispatchers.Main) {
             if (ok) {
