@@ -17,7 +17,7 @@
   -->
 
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <files-path name="internal backup dir" path="backup"/>
-    <files-path name="automatic database backups" path="database_backups/"/>
-    <files-path name="logcat.txt.gz and screenshot" path="log"/>
+    <files-path name="internal_backup_dir" path="backup"/>
+    <files-path name="automatic_database_backups" path="database_backups/"/>
+    <files-path name="logcats_and_screenshots" path="log"/>
 </paths>

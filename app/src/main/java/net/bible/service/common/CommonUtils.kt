@@ -1675,13 +1675,13 @@ object CommonUtils : CommonUtilsBase() {
 
     fun grantUriReadPermissions(chooserIntent: Intent, uri: Uri) {
         val resInfoList = if (Build.VERSION.SDK_INT >= 33) {
-            BibleApplication.application.packageManager.queryIntentActivities(chooserIntent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
+            application.packageManager.queryIntentActivities(chooserIntent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
         } else {
-            BibleApplication.application.packageManager.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
+            application.packageManager.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
         }
         for (resolveInfo in resInfoList) {
             val packageName = resolveInfo.activityInfo.packageName
-            BibleApplication.application.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            application.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
     }
 
