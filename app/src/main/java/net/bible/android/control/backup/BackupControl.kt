@@ -191,7 +191,9 @@ object BackupControl {
                     }
                     if(version <= OLD_DATABASE_VERSION) {
                         Log.i(TAG, "Loading from backup database with version $version")
-                        beforeRestore()
+                        beforeRestore(SyncableDatabaseDefinition.BOOKMARKS)
+                        beforeRestore(SyncableDatabaseDefinition.WORKSPACES)
+                        beforeRestore(SyncableDatabaseDefinition.READINGPLANS)
                         DatabaseContainer.reset()
                         // When restoring old style db, we need to remove all databases first
                         deleteAllDatabases()
@@ -559,26 +561,22 @@ object BackupControl {
         return version <= maxDatabaseVersion(file.name)
     }
 
-    private suspend fun beforeRestore() {
+    private suspend fun beforeRestore(category: SyncableDatabaseDefinition) {
         if(DatabaseContainer.ready && CloudSync.signedIn) {
-            for (it in DatabaseContainer.databaseAccessors) {
-                it.category.syncEnabled = false
-            }
+            category.syncEnabled = false
             ABEventBus.post(ToastEvent(R.string.disabling_sync))
             CloudSync.waitUntilFinished()
-            CloudSync.signOut()
         }
     }
 
-    private suspend fun afterRestore(selection: List<String>? = null) {
-        for (it in DatabaseContainer.databaseAccessors) {
-            it.category.syncEnabled = false
-        }
-        for(s in selection?: ALL_DB_FILENAMES.toList()) {
+    private suspend fun afterRestore(restoredSelection: List<SyncableDatabaseDefinition>? = null) {
+        val selection: List<SyncableDatabaseDefinition> = restoredSelection?: SyncableDatabaseDefinition.ALL.toList()
+        for(s in selection) {
+            s.syncEnabled = false
             val db: SyncableRoomDatabase? = when(s) {
-                BookmarkDatabase.dbFileName -> DatabaseContainer.instance.bookmarkDb
-                ReadingPlanDatabase.dbFileName -> DatabaseContainer.instance.readingPlanDb
-                WorkspaceDatabase.dbFileName -> DatabaseContainer.instance.workspaceDb
+                SyncableDatabaseDefinition.BOOKMARKS -> DatabaseContainer.instance.bookmarkDb
+                SyncableDatabaseDefinition.READINGPLANS -> DatabaseContainer.instance.readingPlanDb
+                SyncableDatabaseDefinition.WORKSPACES -> DatabaseContainer.instance.workspaceDb
                 else -> null
             }
             if(db != null) {
@@ -604,7 +602,7 @@ object BackupControl {
         tmpFile.outputStream().use {inputStream.copyTo(it) }
         CommonUtils.unzipFile(tmpFile, unzipFolder)
 
-        val selection =
+        val restoredSelection =
             Closeable {
                 tmpFile.delete()
                 unzipFolder.deleteRecursively()
@@ -623,12 +621,11 @@ object BackupControl {
                         selectDatabaseSections(activity, containedBackups)
                     else
                         containedBackups
-
+                val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
                 if (selection.isEmpty()) {
                     return@withContext false
                 }
                 hourglass.show()
-                beforeRestore()
                 for (fileName in selection) {
                     val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
                     val f = File(unzipFolder, "db/${fileName}")
@@ -639,6 +636,11 @@ object BackupControl {
                     if (restore == null) continue
 
                     if (restore) {
+                        if(category != null) {
+                            restoredSelection.add(category)
+                            beforeRestore(category)
+                        }
+
                         val areYouSure = if (category != null) {
                             Dialogs.simpleQuestion(
                                 activity,
@@ -661,11 +663,11 @@ object BackupControl {
                     }
                 }
                 DatabaseContainer.reset()
-                selection
+                restoredSelection
             }
         if (DatabaseContainer.ready) {
             DatabaseContainer.instance
-            afterRestore(selection)
+            afterRestore(restoredSelection)
         }
         hourglass.dismiss()
         Log.i(TAG, "Restored database successfully")
