@@ -43,6 +43,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.math.exp
 
 private const val TAG = "ExportStudyPad"
 
@@ -172,30 +173,14 @@ suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntit
         }
     }
     exportDbFile.delete()
-    sendFile(filename, zipFile, activity)
-    zipFile.delete()
-}
-
-suspend fun sendFile(filename: String, file: File, activity: ActivityBase) {
     val subject = activity.getString(R.string.exported_studypads_subject)
     val message = activity.getString(R.string.exported_studypads_message, CommonUtils.applicationNameMedium)
-    val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", file)
-    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-        putExtra(Intent.EXTRA_STREAM, uri)
-        putExtra(Intent.EXTRA_SUBJECT, subject)
-        putExtra(Intent.EXTRA_TEXT, message)
-        type = ZIP_MIMETYPE
-    }
-    val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-        addCategory(Intent.CATEGORY_OPENABLE)
-        type = ZIP_MIMETYPE
-        putExtra(Intent.EXTRA_TITLE, filename)
-    }
-
-    val chooserIntent = Intent.createChooser(shareIntent, activity.getString(R.string.send_backup_file))
-    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
-    activity.awaitIntent(chooserIntent).data?.data?.let {
-        val out = BibleApplication.application.contentResolver.openOutputStream(it)!!
-        FileInputStream(file).copyTo(out)
-    }
+    BackupControl.saveOrShare(
+        activity = activity,
+        file = zipFile,
+        fileName = filename,
+        subject = subject,
+        message = message,
+        chooserTitle = R.string.send_backup_file,
+    )
 }

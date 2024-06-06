@@ -117,7 +117,7 @@ object BackupControl {
             errorMsg = R.string.error_occurred,
         )
 
-    private suspend fun saveOrShare(
+    public suspend fun saveOrShare(
         activity: ActivityBase,
         file: File,
         fileName: String,
