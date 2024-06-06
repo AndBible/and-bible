@@ -66,7 +66,7 @@
   <!--Open (bible reference X)-->
   <string name="go_to_ref">Atverti %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
-  <string name="search_what">Ieškoti \"%s\"</string>
+  <string name="search_what">Ieškoti „%s“</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Skyrių &amp; eilučių numeriai</string>
   <string name="prefs_show_verseno_summary">Rodyti skyrių &amp; eilučių numerius</string>
@@ -548,7 +548,11 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="backup_document_info">Biblijos, komentarai, žodynai, žemėlapiai ir t.t.</string>
   <string name="backup_to">Daryti atsarginę kopiją į…</string>
   <string name="backup_restore_from">Atkurti iš…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Atkurti arba importuoti iš...</string>
   <string name="backup_restore">Atstatyti</string>
+  <string name="backup_restore2">Atkurti arba importuoti</string>
+  <string name="overwrite_something">Perrašyti %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Ką norite atkurti?</string>
   <string name="restore_app_database">Atkurti programėlės duomenų bazę iš…</string>
@@ -564,11 +568,19 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="backup_modules_email_message_2">Priede yra jūsų %1$s modulių atsarginė kopija, kurioje yra šie moduliai: %2$s</string>
   <string name="backup_email_subject_2">%s duomenų bazės atsarginė kopija</string>
   <string name="backup_email_message_2">Jūsų %s duomenų bazė su žymėmis, pastabomis, skaitymo planais ir darbo sritimis yra pridėta</string>
+  <string name="exported_studypads_subject">Eksportuoti bloknotai</string>
+  <string name="exported_studypads_message">Jūsų %s duomenų bazė su Žymėmis ir Pastabomis, susijusiomis su pažymėtais bloknotais, yra prisegta</string>
   <string name="restore_unsuccessfull">Duomenų bazės atkūrimas buvo nesėkmingas. Galbūt, pateikėte neteisingą duomenų bazės failą.</string>
   <string name="restore_modules">Atkurti dokumentus iš…</string>
   <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
   <string name="backup_modules_title">Pasirinkite kurių modulių atsargines kopijas darysite</string>
   <string name="install_zip_canceled">Modulio diegimo atsisakyta</string>
+  <string name="ask_restore_or_import">%s duomenų bazė gali būti atkurta (t. y. esama duomenų bazė pašalinta, o pasirinkta duomenų bazė įkelta) arba importuota (pasirinkta duomenų bazė importuota į esamą). Ką norite atlikti?</string>
+  <string name="restore">Atkurti</string>
+  <string name="import2">Importuoti</string>
+  <string name="export_studypads_help">Failas su eksportuotais bloknotais (t.y. etiketėmis ir žymėmis) gali būti importuotas per pagrindinį meniu -&gt; Saugoti ir atkurti atsargines kopijas.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">„%1$s“ ir %2$s kitos etiketės / bloknotai ir %3$s žymės</string>
   <!--About-->
   <string name="module_about_copyright">Autorių teisės: %s</string>
   <string name="module_about_installed_version">Įdiegta versija: %1$s (%2$s)</string>
@@ -763,6 +775,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="journal_description">Naudotojo redaguojami bloknotai su įterpiamu tekstu ir žymėmis</string>
   <string name="my_notes_description">Naudotojo redaguojamos pastabos, pridėtos prie žymių</string>
   <string name="my_notes_abbreviation">Mano pastabos</string>
+  <string name="studypad">Bloknotas</string>
   <string name="studypads">Bloknotai</string>
   <string name="multi_description">Sudėtinės nuorodos</string>
   <string name="multi_abbreviation">Sudėtinės</string>
@@ -893,7 +906,9 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="label_salvation">Išgelbėjimas</string>
   <string name="label_underline">Pabraukimas</string>
   <string name="import_menu">Importuoti ir eksportuoti</string>
+  <string name="export">Eksportuoti</string>
   <string name="export_fileformat">Eksportuoti kaip %s</string>
+  <string name="export_something">Eksportuoti %s</string>
   <string name="import_items">Importuoti %s</string>
   <string name="import_from_db">Importuoti iš programėlės duomenų bazės failo</string>
   <string name="import_error">Nepavyko importuoti iš programėlės duomenų bazės. Gali būti, kad duomenų bazės failas yra neteisingo formato arba sukurtas naudojant per seną %s versiją.</string>

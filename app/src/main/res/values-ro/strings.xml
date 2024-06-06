@@ -558,7 +558,11 @@
   <string name="backup_document_info">Biblii, comentarii, dicționare, hărți, etc.</string>
   <string name="backup_to">Copiază în…</string>
   <string name="backup_restore_from">Recuperează din…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Recuperează sau importă din…</string>
   <string name="backup_restore">Recuperează</string>
+  <string name="backup_restore2">Recuperează sau importă</string>
+  <string name="overwrite_something">Înlocuiești %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Ce vrei să recuperezi?</string>
   <string name="restore_app_database">Recuperează baza de date a aplicației din…</string>
@@ -574,11 +578,19 @@
   <string name="backup_modules_email_message_2">Atașat este copia de rezervă a modulelor %1$s care conține următoarele module: %2$s</string>
   <string name="backup_email_subject_2">%s copie a bazei de date</string>
   <string name="backup_email_message_2">Baza de date a %s care conține semne de carte, notițe, planuri de citire și spații de studiu este atașată</string>
+  <string name="exported_studypads_subject">Notițe de studiu exportate</string>
+  <string name="exported_studypads_message">Baza de date a %s care conține semne de carte și notițele de studiu alese este atașată</string>
   <string name="restore_unsuccessfull">Restabilirea bazei de date nu a reușit. Poate ai furnizat un fișier greșit.</string>
   <string name="restore_modules">Recuperează documentele din…</string>
   <string name="send_backup_file">Trimite o copie de rezervă</string>
   <string name="backup_modules_title">Alege ce vrei să copiezi</string>
   <string name="install_zip_canceled">Instalarea a fost anulată</string>
+  <string name="ask_restore_or_import">Baza de date pentru %s poate să fie recuperată (adică baza de date existentă este eliminată și baza de date aleasă este încărcată) sau importată (baza de date aleasă este importată în baza de date existentă). Ce dorești să faci?</string>
+  <string name="restore">Recuperează</string>
+  <string name="import2">Importă</string>
+  <string name="export_studypads_help">Fișierul care conține notițele de studiu exportate (adică etichete și semne de carte) poate fi importat prin intermediul opțiunilor principale -&gt; Copie de rezervă &amp; Recuperează.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">„%1$s” și %2$s altă(e) Etichetă(e) / Notiță(e) de studiu și %3$s Semne de carte</string>
   <!--About-->
   <string name="module_about_copyright">Drepturi de autor: %s</string>
   <string name="module_about_installed_version">Versiunea instalată: %1$s (%2$s)</string>
@@ -779,6 +791,7 @@
   <string name="journal_description">Notițe de studiu modificabile cu text și semne de carte</string>
   <string name="my_notes_description">Notițe modificabile atașate semnelor de carte</string>
   <string name="my_notes_abbreviation">Notițele mele</string>
+  <string name="studypad">Notiță de studiu</string>
   <string name="studypads">Notițe de studiu</string>
   <string name="multi_description">Trimiteri multiple</string>
   <string name="multi_abbreviation">Multiple</string>
@@ -909,7 +922,9 @@
   <string name="label_salvation">Mîntuire</string>
   <string name="label_underline">Subliniat</string>
   <string name="import_menu">Importă și Exportă</string>
-  <string name="export_fileformat">Exportă în %s</string>
+  <string name="export">Exportă</string>
+  <string name="export_fileformat">Exportă ca %s</string>
+  <string name="export_something">Exportă %s</string>
   <string name="import_items">Importă %s</string>
   <string name="import_from_db">Importă din baza de date a aplicației</string>
   <string name="import_error">Importarea din baza de date a aplicației a eșuat. Fișierul bazei de date ar putea avea un format greșit sau a fost creat cu o versiune prea veche de %s.</string>

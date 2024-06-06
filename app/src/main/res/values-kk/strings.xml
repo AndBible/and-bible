@@ -522,6 +522,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="backup_document_info">Киелі кітаптар, түсіндірмелер, сөздіктер, карталар және т.</string>
   <string name="backup_to">Сақтық көшірме жасау…</string>
   <string name="backup_restore_from">Қалпына келтіру…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Қалпына келтіру</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Сіз нені қалпына келтіргіңіз келеді?</string>
@@ -543,6 +544,8 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="send_backup_file">Сақтық көшірме файлын жіберу</string>
   <string name="backup_modules_title"> Модульдердің қайсысын сақтық көшіруге жіберетінін таңдау</string>
   <string name="install_zip_canceled">Модульді орнату тоқтатылды</string>
+  <string name="restore">Қалпына келтіру</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Авторлық құқық:%s</string>
   <string name="module_about_installed_version">Орнатылған нұсқасы: %1$s (%2$s)</string>

@@ -531,6 +531,7 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="backup_document_info">Bibles, commentaires, dictionnaires, cartes, etc.</string>
   <string name="backup_to">Sauvegarder vers...</string>
   <string name="backup_restore_from">Restaurer de...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Restaurer</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Que voulez-vous restaurer ?</string>
@@ -553,6 +554,8 @@ Le fichier est peut-être invalide.</string>
   <string name="send_backup_file">Soumettre un fichier de sauvegarde</string>
   <string name="backup_modules_title">Sélectionner quels modules sauvergarder</string>
   <string name="install_zip_canceled">Installation du module annulée</string>
+  <string name="restore">Restaurer</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Version installée : %1$s (%2$s)</string>

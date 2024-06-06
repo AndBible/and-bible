@@ -547,6 +547,7 @@
   <string name="backup_document_info">Біблії, коментарі, словники, карти тощо</string>
   <string name="backup_to">Резервне копіювання в ...</string>
   <string name="backup_restore_from">Відновити з...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Відновлення</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Що ви хочете відновити?</string>
@@ -568,6 +569,8 @@
   <string name="send_backup_file">Надіслати файл резервної копії</string>
   <string name="backup_modules_title">Виберіть модулі для резервного копіювання</string>
   <string name="install_zip_canceled">Встановлення модуля скасовано</string>
+  <string name="restore">Відновлення</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Aвторські права: %s</string>
   <string name="module_about_installed_version">Встановлена версія: %1$s (%2$s)</string>

@@ -414,6 +414,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <!--Backup and restore-->
   <string name="backup_and_restore">Sikkerhetskopiering</string>
   <string name="backup_modules2">Sikkerhetskopier dokumenter til...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Gjenopprett</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_confirmation">Skrive over mine notater, bokmerker, studiebrett, leseplaner og arbeidsområder?</string>
@@ -428,6 +429,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="send_backup_file">Send en sikkerhetskopi-fil</string>
   <string name="backup_modules_title">Velg hvilke moduler som skal sikkerhetskopieres</string>
   <string name="install_zip_canceled">Installasjon av modul avbrutt</string>
+  <string name="restore">Gjenopprett</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Opphavsrett: %s</string>
   <string name="module_about_versification">Versifisering: %s</string>

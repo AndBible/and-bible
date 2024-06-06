@@ -522,7 +522,11 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="backup_document_info">Bibbie, commentari, dizionari, mappe ecc.</string>
   <string name="backup_to">Esegui backup su…</string>
   <string name="backup_restore_from">Ripristina da…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Ripristina o Importa da…</string>
   <string name="backup_restore">Ripristina</string>
+  <string name="backup_restore2">Ripristina o Importa</string>
+  <string name="overwrite_something">Sovrascrivere %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Cosa vuoi ripristinare?</string>
   <string name="restore_app_database">Ripristina il database dell\'app da...</string>
@@ -538,11 +542,19 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="backup_modules_email_message_2">In allegato il backup dei moduli %1$s, che contiene i seguenti moduli: %2$s</string>
   <string name="backup_email_subject_2">Backup del database %s</string>
   <string name="backup_email_message_2">Il tuo database %s contenente segnalibri, annotazioni, piani di lettura e spazi di lavoro è allegato</string>
+  <string name="exported_studypads_subject">Appunti di studio esportati</string>
+  <string name="exported_studypads_message">Il tuo database %s contenente Segnalibri e Note relativi agli Appunti di studio selezionati è stato allegato</string>
   <string name="restore_unsuccessfull">Il ripristino del database non ha avuto esito positivo. Forse hai fornito un file di database non valido.</string>
   <string name="restore_modules">Ripristina documenti da...</string>
   <string name="send_backup_file">Invia un file di backup</string>
   <string name="backup_modules_title">Seleziona i moduli di cui eseguire il backup</string>
   <string name="install_zip_canceled">Installazione del modulo annullata</string>
+  <string name="ask_restore_or_import">Il database per %s può essere ripristinato (andando a sostituire quello esistente) oppure importato (il database selezionato verrà importato in quello esistente). Cosa vuoi fare?</string>
+  <string name="restore">Ripristina</string>
+  <string name="import2">Importa</string>
+  <string name="export_studypads_help">Il file contenente gli Appunti di studio esportati (cioè Etichette e Segnalibri) può essere importato andando in Menu Principale -&gt; Backup e ripristino.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" e %2$s altre Etichette / Appunti di studio e %3$s Segnalibri</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Versione installata: %1$s (%2$s)</string>
@@ -717,6 +729,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="journal_description">Appunti di studio modificabili con testo e segnalibri personali</string>
   <string name="my_notes_description">Annotazioni modificabili allegate ai segnalibri</string>
   <string name="my_notes_abbreviation">Annotazioni</string>
+  <string name="studypad">Appunti di studio</string>
   <string name="studypads">Appunti di studio</string>
   <string name="multi_description">Riferimenti multipli</string>
   <string name="multi_abbreviation">Multipli</string>
@@ -847,7 +860,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="label_salvation">Salvezza</string>
   <string name="label_underline">Sottolinea</string>
   <string name="import_menu">Importa &amp; esporta</string>
+  <string name="export">Esporta</string>
   <string name="export_fileformat">Esporta come %s</string>
+  <string name="export_something">Esporta %s</string>
   <string name="import_items">Importa %s</string>
   <string name="import_from_db">Importa dalla base di dati dell\'applicazione</string>
   <string name="import_error">L\'importazione del database dell\'app non è riuscita. Il file di database potrebbe essere in un formato sbagliato o creato da una versione troppo vecchia di %s.</string>
