@@ -160,7 +160,7 @@ suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntit
         execSQL("DETACH DATABASE export")
     }
 
-    val filename = if (labels.size > 1) "StudyPads.abdb" else labels.first().name + ".adbd"
+    val filename = if (labels.size > 1) "StudyPads.abdb" else labels.first().name + ".abdb"
     val zipFile = File(BackupControl.internalDbBackupDir, filename)
     ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
         FileInputStream(exportDbFile).use { inFile ->
