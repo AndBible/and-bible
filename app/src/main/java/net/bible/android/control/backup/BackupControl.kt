@@ -19,6 +19,7 @@ package net.bible.android.control.backup
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -29,6 +30,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -66,7 +68,6 @@ import net.bible.service.download.isPseudoBook
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.CommonUtils.determineFileType
-import net.bible.service.common.CommonUtils.grantUriReadPermissions
 import net.bible.service.db.bookmarksDbStats
 import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.dbFile
@@ -99,65 +100,105 @@ const val MODULE_BACKUP_SUFFIX = ".abmd"
 const val DATABASE_BACKUP_NAME = "AndBibleDatabaseBackup$DATABASE_BACKUP_SUFFIX"
 const val MODULE_BACKUP_NAME = "AndBibleModulesBackup$MODULE_BACKUP_SUFFIX"
 
-const val ZIP_MIMETYPE = "application/zip"
+const val ZIP_MIMETYPE = "application/x-zip"
+
+enum class SaveOrShare {SAVE, SHARE}
 
 object BackupControl {
-    /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
-     */
-    private suspend fun backupDatabaseToUri(activity: ActivityBase, uri: Uri, file: File) = withContext(Dispatchers.IO) {
-        val hourglass = Hourglass(activity)
-        hourglass.show()
+    internal suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) =
+        saveOrShare(
+            activity = activity,
+            file = file,
+            fileName = DATABASE_BACKUP_NAME,
+            subject = activity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium),
+            message = activity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium),
+            chooserTitle = R.string.send_backup_file,
+            successMsg = R.string.backup_success2,
+            errorMsg = R.string.error_occurred,
+        )
 
-        val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
-        val inputStream = FileInputStream(file)
+    private suspend fun saveOrShare(
+        activity: ActivityBase,
+        file: File,
+        fileName: String,
+        shareMimeType: String = ZIP_MIMETYPE,
+        saveMimeType: String = ZIP_MIMETYPE,
+        subject: String? = null,
+        message: String? = null,
+        chooserTitle: Int,
+        successMsg: Int? = null,
+        errorMsg: Int = R.string.error_occurred,
+    ): Boolean {
+        val saveOrShare =
+            withContext(Dispatchers.Main) {
+                suspendCoroutine<SaveOrShare?> {
+                    AlertDialog.Builder(activity)
+                        .setTitle(R.string.backup_backup_title)
+                        .setMessage(R.string.backup_backup_message)
+                        .setNegativeButton(R.string.backup_phone_storage) { _, _ -> it.resume(SaveOrShare.SAVE) }
+                        .setPositiveButton(R.string.generic_share) { _, _ -> it.resume(SaveOrShare.SHARE) }
+                        .setNeutralButton(R.string.cancel) { _, _ -> it.resume(null) }
+                        .setOnCancelListener { _ -> it.resume(null) }
+                        .show()
+                }
+            } ?: return false
 
-        var ok = true
-        try {
-            out.use {
-                inputStream.copyTo(out)
+        val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", file)
+        val intent = when(saveOrShare) {
+            SaveOrShare.SAVE -> {
+                Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    putExtra(Intent.EXTRA_TITLE, fileName)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    type = saveMimeType
+                }
             }
-        } catch (ex: IOException) {
-            Log.e(TAG, ex.message ?: "Error occurred in backuping db")
-            ok = false
+            SaveOrShare.SHARE -> {
+                Intent(Intent.ACTION_SEND).apply {
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    if(subject != null) putExtra(Intent.EXTRA_SUBJECT, subject)
+                    if(message != null) putExtra(Intent.EXTRA_TEXT, message)
+                    type = shareMimeType
+                }
+            }
         }
-        hourglass.dismiss()
+        val chooserIntent = Intent.createChooser(intent, chooserTitle?.let { activity.getString(it)})
+        val result = activity.awaitIntent(chooserIntent)
+        val ok = if (saveOrShare == SaveOrShare.SAVE) {
+            result.data?.data?.let { destinationUri ->
+                withContext(Dispatchers.IO) {
+                    val hourglass = Hourglass(activity)
+                    hourglass.show()
+
+                    val out = BibleApplication.application.contentResolver.openOutputStream(destinationUri)!!
+                    val inputStream = FileInputStream(file)
+
+                    var ok = true
+                    try {
+                        out.use {
+                            inputStream.copyTo(out)
+                        }
+                    } catch (ex: IOException) {
+                        Log.e(TAG, ex.message ?: "Error occurred in backuping db")
+                        ok = false
+                    }
+                    hourglass.dismiss()
+                    ok
+                }
+            } ?: false
+        } else result.resultCode == Activity.RESULT_OK
+
         withContext(Dispatchers.Main) {
             if (ok) {
                 Log.i(TAG, "Copied database to chosen backup location successfully")
-                Dialogs.showMsg2(activity, R.string.backup_success2)
+                if(successMsg != null) Dialogs.showMsg2(activity, successMsg)
             } else {
                 Log.e(TAG, "Error copying database to chosen location.")
-                ErrorReportControl.showErrorDialog(activity, activity.getString(R.string.error_occurred))
+                ErrorReportControl.showErrorDialog(activity, activity.getString(errorMsg))
             }
         }
-    }
 
-    internal suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) = withContext(Dispatchers.IO) {
-        val hourglass = Hourglass(activity)
-        hourglass.show()
-
-        val subject = activity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
-        val message = activity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
-        val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", file)
-		val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, message)
-            type = ZIP_MIMETYPE
-        }
-        val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = ZIP_MIMETYPE
-            putExtra(Intent.EXTRA_TITLE, DATABASE_BACKUP_NAME)
-        }
-
-		val chooserIntent = Intent.createChooser(shareIntent, getString(R.string.send_backup_file))
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
-        grantUriReadPermissions(chooserIntent, uri)
-        hourglass.dismiss()
-		activity.awaitIntent(chooserIntent).data?.data?.let { destinationUri ->
-            backupDatabaseToUri(activity, destinationUri, file)
-        }
+        return ok
     }
 
     private suspend fun restoreOldMonolithicDatabaseFromInputStream(possiblyGzippedInputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
@@ -361,24 +402,6 @@ object BackupControl {
         }
     }
 
-    private suspend fun backupModulesToUri(uri: Uri): Boolean {
-        // at this point the zip file has already been created
-        val fileName = MODULE_BACKUP_NAME
-        val zipFile = File(internalDbBackupDir, fileName)
-        val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
-        val inputStream = FileInputStream(zipFile)
-        var ok = true
-        try {
-            withContext(Dispatchers.IO) {
-                inputStream.copyTo(out)
-                out.close()
-            }
-        } catch (ex: IOException) {
-            ok = false
-        }
-        return ok
-    }
-
     suspend fun backupModulesViaIntent(callingActivity: ActivityBase)  = withContext(Dispatchers.Main)   {
         val fileName = MODULE_BACKUP_NAME
         internalDbBackupDir.mkdirs()
@@ -398,43 +421,20 @@ object BackupControl {
         createModulesZip(books, zipFile)
         hourglass.dismiss()
 
-        // send intent to pick file
-        var ok = true
-
         val modulesString = books.joinToString(", ") { it.abbreviation }
         val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
         val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
 
-        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", zipFile)
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, message)
-            type = "application/zip"
-        }
-        val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/zip"
-            putExtra(Intent.EXTRA_TITLE, fileName)
-        }
-
-        val chooserIntent = Intent.createChooser(shareIntent, getString(R.string.send_backup_file))
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
-        grantUriReadPermissions(chooserIntent, uri)
-
-        callingActivity.awaitIntent(chooserIntent).data?.data?.let {
-            ok = backupModulesToUri(it)
-        }
-
-        hourglass.dismiss()
-        if (ok) {
-            Log.i(TAG, "Copied modules to chosen backup location successfully")
-            Dialogs.showMsg(R.string.backup_modules_success)
-        } else {
-            Log.e(TAG, "Error copying modules to chosen location.")
-            Dialogs.showErrorMsg(R.string.error_occurred)
-        }
-
+        saveOrShare(
+            activity = callingActivity,
+            file = zipFile,
+            fileName = fileName,
+            subject = subject,
+            message = message,
+            chooserTitle = R.string.send_backup_file,
+            successMsg = R.string.backup_modules_success,
+            errorMsg = R.string.error_occurred,
+        )
     }
 
     suspend fun backupApp(callingActivity: ActivityBase) {
@@ -447,38 +447,17 @@ object BackupControl {
             tempFile.delete()
             File(app.sourceDir).copyTo(tempFile)
         }
-        val fileUri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", tempFile)
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+
+        saveOrShare(
+            callingActivity,
+            file = tempFile,
+            fileName = "and-bible.apk",
+            chooserTitle = R.string.backup_app2,
             // MIME of .apk is "application/vnd.android.package-archive".
             // but Bluetooth does not accept this. Let's use "*/*" instead.
-            type = "*/*"
-            putExtra(Intent.EXTRA_STREAM, fileUri)
-        }
-        val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/vnd.android.package-archive"
-            putExtra(Intent.EXTRA_TITLE, "and-bible.apk")
-        }
-
-        val chooserIntent = Intent.createChooser(shareIntent, callingActivity.getString(R.string.backup_app2))
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
-        grantUriReadPermissions(chooserIntent, fileUri)
-
-        withContext(Dispatchers.Main) {
-            callingActivity.awaitIntent(chooserIntent).data?.data?.let { destinationUri ->
-                withContext(Dispatchers.IO) {
-                    callingActivity.contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
-                        callingActivity.contentResolver.openInputStream(fileUri)?.use {  inputStream ->
-                            try {
-                                inputStream.copyTo(outputStream)
-                            } catch (ex: IOException) {
-                                Log.e(TAG, ex.message ?: "Error occurred while trying to backup the app (apk)")
-                            }
-                        }
-                    }
-                }
-            }
-        }
+            shareMimeType = "*/*" ,
+            saveMimeType = "application/vnd.android.package-archive",
+        )
     }
 
     fun makeDatabaseBackupFile(): File? {
@@ -517,7 +496,6 @@ object BackupControl {
             return@withContext
         }
         saveDbBackupFileViaIntent(callingActivity, backupZipFile)
-        backupZipFile.delete()
     }
 
     enum class AbDbFileType {

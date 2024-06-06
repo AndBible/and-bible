@@ -634,6 +634,9 @@
     <string name="mynotes">My Notes</string>
 
     <!-- Backup and restore -->
+    <string name="backup_backup_title">Backup to where?</string>
+    <string name="backup_backup_message">Backup to phone or elsewhere via Share function (email, Google Drive etc.)?</string>
+    <string name="backup_phone_storage">Phone storage</string>
     <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup_modules2">Backup Documents to…</string>
     <string name="backup_app_database2">Backup app database to…</string>

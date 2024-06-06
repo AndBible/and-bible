@@ -36,7 +36,6 @@ import net.bible.android.database.migrations.joinColumnNames
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.grantUriReadPermissions
 import net.bible.service.common.getFirst
 import java.io.BufferedInputStream
 import java.io.File
@@ -195,7 +194,6 @@ suspend fun sendFile(filename: String, file: File, activity: ActivityBase) {
 
     val chooserIntent = Intent.createChooser(shareIntent, activity.getString(R.string.send_backup_file))
     chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
-    grantUriReadPermissions(chooserIntent, uri)
     activity.awaitIntent(chooserIntent).data?.data?.let {
         val out = BibleApplication.application.contentResolver.openOutputStream(it)!!
         FileInputStream(file).copyTo(out)
