@@ -26,6 +26,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
 import net.bible.android.control.backup.ZIP_MIMETYPE
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -160,7 +161,7 @@ suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntit
         execSQL("DETACH DATABASE export")
     }
 
-    val filename = if (labels.size > 1) "StudyPads.abdb" else labels.first().name + ".abdb"
+    val filename = if (labels.size > 1) "StudyPads$DATABASE_BACKUP_SUFFIX" else labels.first().name + DATABASE_BACKUP_SUFFIX
     val zipFile = File(BackupControl.internalDbBackupDir, filename)
     ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
         FileInputStream(exportDbFile).use { inFile ->

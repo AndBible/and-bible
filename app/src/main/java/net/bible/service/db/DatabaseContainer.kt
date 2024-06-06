@@ -23,6 +23,7 @@ import androidx.room.RoomDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.LogEntry
@@ -244,7 +245,7 @@ class DatabaseContainer {
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
             val backupPath = CommonUtils.dbBackupPath
             val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
-            val backupFile = File(backupPath, "dbBackup-${CommonUtils.applicationVersionNumber}-$versionString-$timeStamp.abdb")
+            val backupFile = File(backupPath, "dbBackup-${CommonUtils.applicationVersionNumber}-$versionString-$timeStamp$DATABASE_BACKUP_SUFFIX")
             backupZipFile.copyTo(backupFile, true)
             backupZipFile.delete()
         }

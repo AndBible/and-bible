@@ -93,8 +93,11 @@ import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-const val DATABASE_BACKUP_NAME = "AndBibleDatabaseBackup.abdb"
-const val MODULE_BACKUP_NAME = "AndBibleModulesBackup.abmd"
+const val DATABASE_BACKUP_SUFFIX = ".abdb"
+const val MODULE_BACKUP_SUFFIX = ".abmd"
+
+const val DATABASE_BACKUP_NAME = "AndBibleDatabaseBackup$DATABASE_BACKUP_SUFFIX"
+const val MODULE_BACKUP_NAME = "AndBibleModulesBackup$MODULE_BACKUP_SUFFIX"
 
 const val ZIP_MIMETYPE = "application/zip"
 
