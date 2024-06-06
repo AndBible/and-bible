@@ -478,6 +478,9 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <!--User Notes-->
   <string name="mynotes">ကိုယ်ပိုင်မှတ်စုများ</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">ဘယ်နေရာတွင် အရန်ဖိုင်လုပ်မည်နည်း။ </string>
+  <string name="backup_backup_message">ဖုန်း သို့မဟုတ် အခြားနေရာများဖြစ်တဲ့ ဝေမျှ လုပ်ဆောင်ချက် (email, Google Drive etc.)တို့တွင် အရန်ဖိုင် လုပ်လိုပါသလား။ </string>
+  <string name="backup_phone_storage">ဖုန်းသိုလှောင်ပမာဏ</string>
   <string name="backup_and_restore">&amp; အားအရန်ဖိုင် ပြုလုပ်ပါ; ပြန်ယူပါ</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->

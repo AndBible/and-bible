@@ -499,6 +499,9 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <!--User Notes-->
   <string name="mynotes">मेरे टिप्पणीयां</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">कहां बैकअप करे?</string>
+  <string name="backup_backup_message">फोन में बैकअप करें या कहीं औरा (ईमेल, गूगल ड्राइव आदि) शेयर फंक्शन के द्वारा?</string>
+  <string name="backup_phone_storage">फोन स्टोरेज</string>
   <string name="backup_and_restore"> बैकअप &amp; रिस्टोर</string>
   <string name="backup_modules2">पुस्तक बैकअप करे...</string>
   <!--Restore = overwrite existing. Import = merge into existing-->

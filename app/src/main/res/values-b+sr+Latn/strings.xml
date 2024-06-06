@@ -541,6 +541,9 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <!--User Notes-->
   <string name="mynotes">Moje beleške</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Gde se čuva rezervna kopija?</string>
+  <string name="backup_backup_message">Rezervna kopija na telefon ili drugom mestu putem Funkcije deljenja (e-pošta, Gugl Drajv itd.)?</string>
+  <string name="backup_phone_storage">Skladište telefona</string>
   <string name="backup_and_restore">Rezervna kopija i vraćanje</string>
   <string name="backup_modules2">Rezervna kopija dokumenata na...</string>
   <string name="backup_app_database2">Napravi rezervnu kopiju baze podataka aplikacije na...</string>

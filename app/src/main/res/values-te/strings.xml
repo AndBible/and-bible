@@ -532,6 +532,9 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <!--User Notes-->
   <string name="mynotes">నా నోట్స్</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">ఎక్కడికి బ్యాకప్ చేయాలి?</string>
+  <string name="backup_backup_message">షేర్ ఫంక్షన్ ద్వారా ఫోన్‌కి లేదా మరెక్కడైనా బ్యాకప్ చేయాలా? (ఇమెయిల్, గూగుల్ డ్రైవ్ మొదలైనవి) </string>
+  <string name="backup_phone_storage">ఫోన్ నిల్వ</string>
   <string name="backup_and_restore">బ్యాకప్ &amp; పునరుద్ధరించు</string>
   <string name="backup_modules2">ఇక్కడికి పత్రాలను బ్యాకప్ చేయండి…</string>
   <string name="backup_app_database2">ఇక్కడికి యాప్ డేటాబేస్‌ని బ్యాకప్ చేయండి...</string>

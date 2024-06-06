@@ -511,6 +511,9 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <!--User Notes-->
   <string name="mynotes">Eigene Notizen</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Wohin speichern?</string>
+  <string name="backup_backup_message">Auf dem Handy speichern oder über die Teilen-Funktion woandershin (E-Mail, Google Drive, etc.)?</string>
+  <string name="backup_phone_storage">Handyspeicher</string>
   <string name="backup_and_restore">Sicherung &amp; Wiederherstellung</string>
   <string name="backup_modules2">Dokumente sichern nach...</string>
   <string name="backup_app_database2">Sicherungsdatenbank sichern nach...</string>

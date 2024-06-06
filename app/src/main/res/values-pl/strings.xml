@@ -504,6 +504,9 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <!--User Notes-->
   <string name="mynotes">Moje notatki</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Dokąd?</string>
+  <string name="backup_backup_message">Czy utworzyć kopię zapasową w pamięci wewnętrznej, czy używając funkcji „udostępnij” (poczta, Dysk Google, itp.)?</string>
+  <string name="backup_phone_storage">Pamięć wewnętrzna</string>
   <string name="backup_and_restore">Kopia zapasowa</string>
   <string name="backup_modules2">Utwórz kopię zapasową dokumentów…</string>
   <string name="backup_app_database2">Utwórz kopię zapasową bazy danych…</string>

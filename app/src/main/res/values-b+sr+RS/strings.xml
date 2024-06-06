@@ -542,6 +542,9 @@
   <!--User Notes-->
   <string name="mynotes">Моје белешке</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Где се чува резервна копија?</string>
+  <string name="backup_backup_message">Резервна копија на телефон или другом месту путем Функције дељења (е-пошта, Гугл Драјв итд.)?</string>
+  <string name="backup_phone_storage">Складиште телефона</string>
   <string name="backup_and_restore">Резервна копија и враћање</string>
   <string name="backup_modules2">Резервна копија докумената на...</string>
   <string name="backup_app_database2">Направи резервну копију базе података апликације на...</string>

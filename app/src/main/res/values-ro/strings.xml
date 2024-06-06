@@ -546,6 +546,9 @@
   <!--User Notes-->
   <string name="mynotes">Notița mea</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Unde salvez copia?</string>
+  <string name="backup_backup_message">Copiezi în telefon sau în altă parte (e-mail, Google Drive etc.)?</string>
+  <string name="backup_phone_storage">Memoria telefonului</string>
   <string name="backup_and_restore">Copiere și Recuperare</string>
   <string name="backup_modules2">Copiază documente în…</string>
   <string name="backup_app_database2">Copiază baza de date a aplicației în…</string>

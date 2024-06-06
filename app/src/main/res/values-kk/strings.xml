@@ -510,6 +510,9 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--User Notes-->
   <string name="mynotes">Менің Ескертпелерім</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Сақтық көшірме қайда жасау керек?</string>
+  <string name="backup_backup_message">Бөлісу функциясы арқылы (электрондық пошта, Google Drive т.б.с.с.) телефонға немесе басқа жерге сақтық көшірме жасау керек пе?</string>
+  <string name="backup_phone_storage">Телефон жад қоймасы</string>
   <string name="backup_and_restore">Сақтық көшіру мен Қалпына келтіру</string>
   <string name="backup_modules2">Құжаттардың Сақтық көшірмесін жасау</string>
   <string name="backup_app_database2">Қолданба дерекқорының сақтық көшірмесін…</string>

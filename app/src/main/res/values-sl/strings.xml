@@ -542,6 +542,9 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <!--User Notes-->
   <string name="mynotes">Moje opombe</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Kam varnostno kopiram?</string>
+  <string name="backup_backup_message">Ali želite varnostno kopirati v telefon ali kam drugam s funkcijo skupne rabe (e-pošta, Google Drive, itd.)?</string>
+  <string name="backup_phone_storage">Pomnilnik telefona</string>
   <string name="backup_and_restore">Varnostna kopija &amp; Obnova</string>
   <string name="backup_modules2">Varnostno kopiranje dokumentov v… </string>
   <string name="backup_app_database2">Varnostno kopiranje podatkovne baze aplikacije v...</string>

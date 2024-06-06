@@ -540,6 +540,9 @@ http://www.heartlight.org, разрешение предоставлено
   <!--User Notes-->
   <string name="mynotes">Мои заметки</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Сохранить резервную копию куда?</string>
+  <string name="backup_backup_message">Резервное копирование на телефон или в другое место через функцию «Поделиться» (электронная почта, Google Drive и т. д.)?</string>
+  <string name="backup_phone_storage">Память телефона</string>
   <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
   <string name="backup_modules2">Резервное копирование документов на...</string>
   <string name="backup_app_database2">Резервное копирование базы данных приложения в…</string>

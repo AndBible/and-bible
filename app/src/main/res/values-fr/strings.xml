@@ -519,6 +519,9 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <!--User Notes-->
   <string name="mynotes">Mes notes</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Vers où sauvegarder ?</string>
+  <string name="backup_backup_message">Sauvegarder sur le téléphone ou ailleurs via la fonction Partager (courriel, Google Drive, etc.) ?</string>
+  <string name="backup_phone_storage">Stockage de téléphone</string>
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
   <string name="backup_modules2">Sauvegarde les documents vers...</string>
   <string name="backup_app_database2">Sauvegarde la base de données de l’app dans…</string>

@@ -517,6 +517,9 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <!--User Notes-->
   <string name="mynotes">Anotações</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Fazer backup para onde?</string>
+  <string name="backup_backup_message">Backup para telefone ou outro local através da função Compartilhar (e-mail, Google Drive etc.)?</string>
+  <string name="backup_phone_storage">Armanezamento do telefone</string>
   <string name="backup_and_restore">Backup e Restauro</string>
   <string name="backup_modules2">Fazer Backup dos Documentos para...</string>
   <string name="backup_app_database2">Fazer uma cópia de segurança da base de dados da aplicação para...</string>

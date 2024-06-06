@@ -535,6 +535,9 @@ http://www.heartlight.org 准予使用
   <!--User Notes-->
   <string name="mynotes">筆記列表</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">備份目的地</string>
+  <string name="backup_backup_message">以分享功能備份至手機或其他目的地 (電郵、Google Drive等)？</string>
+  <string name="backup_phone_storage">手機空間</string>
   <string name="backup_and_restore">備份及回復</string>
   <string name="backup_modules2">備份文件至...</string>
   <string name="backup_app_database2">備份程式資料庫至...</string>

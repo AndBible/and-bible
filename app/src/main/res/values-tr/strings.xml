@@ -544,6 +544,9 @@
   <!--User Notes-->
   <string name="mynotes">Notlarım</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Nereye yedeklensin?</string>
+  <string name="backup_backup_message">Telefona ya da Paylaş fonksiyonuyla  (email, Google Drive vb.) başka yere yedekle?</string>
+  <string name="backup_phone_storage">Telefon hafıza</string>
   <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
   <string name="backup_modules2">Belgeler yedekleme hedefi…</string>
   <string name="backup_app_database2">Uygulama veritabanını şuraya yedekleyin…</string>

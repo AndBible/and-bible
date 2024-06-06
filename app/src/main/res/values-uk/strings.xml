@@ -535,6 +535,9 @@
   <!--User Notes-->
   <string name="mynotes">Мої примітки</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Резервне копіювання куди?</string>
+  <string name="backup_backup_message">Резервне копіювання на телефон або в інше місце за допомогою функції Поділитись (електронна пошта, Google Drive тощо)?</string>
+  <string name="backup_phone_storage">Пам\'ять телефону</string>
   <string name="backup_and_restore">Резервне копіювання та відновлення</string>
   <string name="backup_modules2">Резервне копіювання документів у…</string>
   <string name="backup_app_database2">Резервне копіювання бази даних додатку у…</string>

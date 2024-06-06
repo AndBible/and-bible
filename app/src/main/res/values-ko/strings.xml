@@ -478,6 +478,9 @@
   <!--User Notes-->
   <string name="mynotes">내 참고들</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">어디에 백업할까요?</string>
+  <string name="backup_backup_message">전화기에 백업할까요 아니면 공유 기능을 이용해 다른 곳(이메일, 구글 드라이브 등)에 백업할까요?</string>
+  <string name="backup_phone_storage">폰 저장소</string>
   <string name="backup_and_restore">백업과 복원</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">복원</string>

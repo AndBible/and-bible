@@ -528,6 +528,9 @@ praat buite die omskrewe versreeks begin het.</string>
   <!--User Notes-->
   <string name="mynotes">My Notas</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Rugsteun na waar?</string>
+  <string name="backup_backup_message">Rugsteun na foon of elders via die deel-funksie (e-pos, Google Drive, ens.)?</string>
+  <string name="backup_phone_storage">Foon berging</string>
   <string name="backup_and_restore">Rugsteun &amp; herstel</string>
   <string name="backup_modules2">Rugsteun dokumente na ...</string>
   <string name="backup_app_database2">Rugsteun program databasis na...</string>

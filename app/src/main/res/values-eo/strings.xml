@@ -510,6 +510,9 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <!--User Notes-->
   <string name="mynotes">Miaj notoj</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Kien sekurkopii?</string>
+  <string name="backup_backup_message">Ĉu sekurkopii al konservejo aŭ ĉu per la menuo “kunhavigi” (retpoŝto, Google Drive, ktp.)?</string>
+  <string name="backup_phone_storage">Konservejo</string>
   <string name="backup_and_restore">Sekurkopio</string>
   <string name="backup_modules2">Sekurkopii dokumentojn al…</string>
   <string name="backup_app_database2">Sekurkopii aplikaĵan datumbazon al…</string>

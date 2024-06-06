@@ -520,6 +520,9 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <!--User Notes-->
   <string name="mynotes">Jegyzeteim</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Biztonsági mentés hova?</string>
+  <string name="backup_backup_message">Biztonsági mentése a telefonra vagy megosztása (email, Google Drive, etc.)?</string>
+  <string name="backup_phone_storage">Belső memória</string>
   <string name="backup_and_restore">Biztonsági mentés és helyreállítás</string>
   <string name="backup_modules2">Biztonsági mentés készítése a telepített dokumentumokról ide…</string>
   <string name="backup_app_database2">Biztonsági mentés készítése az alkalmazás adatbázisáról ide…</string>

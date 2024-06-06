@@ -412,6 +412,9 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <!--User Notes-->
   <string name="mynotes">Mine notater</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Sikkerhetskopier til hvor?</string>
+  <string name="backup_backup_message">Sikkerhetskopier til telefon eller andre steder via delefunksjonen (epost, Google Drive etc.)?</string>
+  <string name="backup_phone_storage">Telefonlager</string>
   <string name="backup_and_restore">Sikkerhetskopiering</string>
   <string name="backup_modules2">Sikkerhetskopier dokumenter til...</string>
   <!--Restore = overwrite existing. Import = merge into existing-->

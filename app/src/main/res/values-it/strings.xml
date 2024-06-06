@@ -510,6 +510,9 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <!--User Notes-->
   <string name="mynotes">Annotazioni</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Dove salvare?</string>
+  <string name="backup_backup_message">Eseguire il backup sul telefono o altrove tramite la funzione Condividi (e-mail, Google Drive ecc.)?</string>
+  <string name="backup_phone_storage">Memoria del telefono</string>
   <string name="backup_and_restore">Backup e ripristino</string>
   <string name="backup_modules2">Backup dei documenti su...</string>
   <string name="backup_app_database2">Esegui backup del database su…</string>

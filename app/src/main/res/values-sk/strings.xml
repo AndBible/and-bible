@@ -542,6 +542,9 @@ Režim opakovania bol vypnutý, pretože
   <!--User Notes-->
   <string name="mynotes">Moje poznámky</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Kam zálohovať?</string>
+  <string name="backup_backup_message">Zálohovať do telefónu alebo inam cez funkciu Zdielať (e-mail, Google Drive apod.)?</string>
+  <string name="backup_phone_storage">Úložisko telefónu</string>
   <string name="backup_and_restore">Záloha a obnovenie</string>
   <string name="backup_modules2">Zálohovať dokument do…</string>
   <string name="backup_app_database2">Zálohovať apl. databázu do…</string>

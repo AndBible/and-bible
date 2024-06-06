@@ -528,6 +528,9 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <!--User Notes-->
   <string name="mynotes">Mijn notities</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Waar backup opslaan?</string>
+  <string name="backup_backup_message">Back-up naar telefoon of elders via Deel functie (email, Google Drive etc.)?</string>
+  <string name="backup_phone_storage">Telefoonopslag</string>
   <string name="backup_and_restore">Back-up en herstel</string>
   <string name="backup_modules2">Back-up Documenten naar...</string>
   <string name="backup_app_database2">Back-up app database naar...</string>

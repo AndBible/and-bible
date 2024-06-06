@@ -538,6 +538,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <!--User Notes-->
   <string name="mynotes">Poznámky</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Umístění zálohy</string>
+  <string name="backup_backup_message">Zálohovat do telefonu nebo pomocí sdílení (e-mail, Google Drive apod.)?</string>
+  <string name="backup_phone_storage">Úložiště telefonu</string>
   <string name="backup_and_restore">Záloha a obnova</string>
   <string name="backup_modules2">Zálohovat dokumenty do ...</string>
   <string name="backup_app_database2">Zálohovat aplikační databázi do ...</string>

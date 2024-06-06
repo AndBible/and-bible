@@ -404,6 +404,8 @@ i GT och NT varje dag.
   <!--User Notes-->
   <string name="mynotes">Anteckningar</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Var vill du Säkerhetskopiera?</string>
+  <string name="backup_phone_storage">Telefon laging</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Återställ</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->

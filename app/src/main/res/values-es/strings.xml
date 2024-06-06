@@ -541,6 +541,9 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--User Notes-->
   <string name="mynotes">Mis Notas</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Guardar copia de seguridad en...</string>
+  <string name="backup_backup_message">¿Guardar copia de seguridad en el teléfono o en otro lugar a través de la función compartir (correo electrónico, Google Drive, etc.)?</string>
+  <string name="backup_phone_storage">Almacenamiento del teléfono</string>
   <string name="backup_and_restore">Copia de seguridad y restauración</string>
   <string name="backup_modules2">Guardar copia de seguridad de documentos en...</string>
   <string name="backup_app_database2">Guardar copia de seguridad de la base de datos de la aplicación en...</string>

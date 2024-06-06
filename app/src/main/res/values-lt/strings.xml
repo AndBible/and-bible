@@ -536,6 +536,9 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <!--User Notes-->
   <string name="mynotes">Mano pastabos</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Kur išsaugoti atsarginę kopiją?</string>
+  <string name="backup_backup_message">Išsaugoti atsarginę kopiją telefone arba kitur naudojant bendrinimo funkciją (el. paštas, „Google“ Diskas ir kt.)?</string>
+  <string name="backup_phone_storage">Telefono saugykla</string>
   <string name="backup_and_restore">Saugoti ir atkurti atsargines kopijas</string>
   <string name="backup_modules2">Saugoti dokumentų atsargines kopijas į...</string>
   <string name="backup_app_database2">Saugoti apl. duomenų bazę į...</string>

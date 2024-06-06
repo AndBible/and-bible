@@ -519,6 +519,9 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <!--User Notes-->
   <string name="mynotes">Omat kommentit</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Mihin varmuuskopioidaan?</string>
+  <string name="backup_backup_message">Varmuuskopioidaanko puhelimen muistiin vai muualle Jaa -toimintoa käyttäen (sähköposti, Google Drive jne.)?</string>
+  <string name="backup_phone_storage">Puhelimen muisti</string>
   <string name="backup_and_restore">Varmuuskopioi &amp; palauta</string>
   <string name="backup_modules2">Varmuuskopioi dokumentit…</string>
   <string name="backup_app_database2">Varmuuskopioi sovelluksen tietokanta…</string>

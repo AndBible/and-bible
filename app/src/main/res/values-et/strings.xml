@@ -449,6 +449,9 @@ Kas jätkame?</string>
   <!--User Notes-->
   <string name="mynotes">Minu märkmed</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Kuhu varundada?</string>
+  <string name="backup_backup_message">Kas soovid salvestada varukoopia telefoni või jagada (e-post, Google Drive jne)?</string>
+  <string name="backup_phone_storage">Telefoni mälu</string>
   <string name="backup_and_restore">Varundamine ja taastamine</string>
   <string name="backup_modules2">Varunda dokumendid kohta...</string>
   <string name="backup_app_database2">Varunda rakenduse andmebaas kohta...</string>

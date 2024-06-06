@@ -514,6 +514,8 @@
   <!--User Notes-->
   <string name="mynotes">ملاحظاتي</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">النسخ الاحتياطي إلى أين؟</string>
+  <string name="backup_phone_storage">ذاكرة الهاتف</string>
   <string name="backup_and_restore">النسخ الاحتياطي و الاستعادة</string>
   <string name="backup_modules2">نسخ المستندات احتياطياً إلى...</string>
   <string name="backup_app_database2">نسخ احتياطي لقاعدة بيانات التطبيق إلى...</string>
