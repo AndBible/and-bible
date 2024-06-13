@@ -319,23 +319,36 @@ class InstallZip : ActivityBase() {
         lifecycleScope.launch {
             when (intent?.action) {
                 Intent.ACTION_VIEW -> {
-                    val q = getString(R.string.install_do_you_want, intent.data?.run {getDisplayName(this) }?: "?")
-                    val result = Dialogs.simpleQuestion(this@InstallZip, q)
-                    if(result) {
-                        val mimeType = getMimeType(intent.data!!)
+                    val uri = intent.data!!
+                    val inputStream = BufferedInputStream(contentResolver.openInputStream(intent.data!!))
+                    val mimeType = getMimeType(uri)
+                    val displayName = getDisplayName(uri)
+                    val manifest = AndBibleBackupManifest.fromInputStream(inputStream)
+                    if(
+                        // installStudyPads will ask after reading the file (will show stats from db)
+                        manifest?.backupType == BackupType.STUDYPAD_EXPORT
+                        || askIfWantInstall(displayName)
+                    ) {
                         if(mimeType == "application/epub+zip") {
-                            installEpub(intent.data!!)
+                            installEpub(inputStream, displayName)
                         } else {
-                            installZip(intent!!.data!!)
+                            installZip(inputStream, displayName)
                         }
                     } else {
                         finish()
                     }
                 }
-                Intent.ACTION_SEND -> installZip(intent.getParcelableExtra(Intent.EXTRA_STREAM)!!)
+                Intent.ACTION_SEND -> {
+                    val uri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)!!
+                    val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
+                    val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
+                    installZip(inputStream, displayName)
+                }
                 Intent.ACTION_SEND_MULTIPLE -> {
                     for (uri in intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)!!) {
-                        installZip(uri)
+                        val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
+                        val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
+                        installZip(inputStream, displayName)
                     }
                 }
                 else -> {
@@ -343,6 +356,11 @@ class InstallZip : ActivityBase() {
                 }
             }
         }
+    }
+
+    private suspend fun askIfWantInstall(displayName: String?): Boolean {
+        val q = getString(R.string.install_do_you_want, displayName?: "?")
+        return Dialogs.simpleQuestion(this@InstallZip, q)
     }
 
     override fun onDestroy() {
@@ -381,8 +399,13 @@ class InstallZip : ActivityBase() {
 
         val result = awaitIntent(intent)
         if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data!!.data!!
+            val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
+            val inputStream = BufferedInputStream(contentResolver.openInputStream(intent.data!!))
+            val mimeType = getMimeType(uri)
+
             try {
-                installFromFile(result.data!!.data!!)
+                installFromFile(inputStream, displayName, mimeType)
             } catch (e: InstallZipError) {
                 Log.e(TAG, "Error occurred in installing module", e)
                 val msg = when(e) {
@@ -426,22 +449,15 @@ class InstallZip : ActivityBase() {
             if(mimeTypeIdx < 0) null else it.getString(mimeTypeIdx)
         }
 
-    private suspend fun installFromFile(uri: Uri): Boolean {
-        val displayName = getDisplayName(uri) ?: "unknown-filename"
-        val mimeType = getMimeType(uri)
+    private suspend fun installFromFile(inputStream: BufferedInputStream, displayName: String, mimeType: String?): Boolean {
         if(mimeType == "application/epub+zip") {
-            return installEpub(uri)
+            return installEpub(inputStream, displayName)
         }
 
-        val inputStream = try {
-            BufferedInputStream(contentResolver.openInputStream(uri))
-        } catch (e: FileNotFoundException) {
-            throw FileNotFound()
-        }
         val fileTypeFromContent = determineFileType(inputStream)
 
         if (fileTypeFromContent == BackupControl.AbDbFileType.ZIP) {
-            return installZip(uri)
+            return installZip(inputStream, displayName)
         }
 
         if(fileTypeFromContent != BackupControl.AbDbFileType.SQLITE3) {
@@ -512,16 +528,14 @@ class InstallZip : ActivityBase() {
     }
 
 
-    private suspend fun installZip(uri: Uri): Boolean {
+    private suspend fun installZip(bufferedInputStream: BufferedInputStream, displayName: String?): Boolean {
         var result = false
         binding.installZipLabel.text = getString(R.string.checking_zip_file)
-
-        val bufferedInputStream = BufferedInputStream(contentResolver.openInputStream(uri))
 
         binding.loadingIndicator.visibility = View.VISIBLE
         val manifest = AndBibleBackupManifest.fromInputStream(bufferedInputStream)
         if (manifest?.backupType == BackupType.STUDYPAD_EXPORT) {
-            result = installStudyPads(uri)
+            result = installStudyPads(bufferedInputStream)
             finish()
         } else {
             val zh = ZipHandler(
@@ -539,7 +553,7 @@ class InstallZip : ActivityBase() {
             try {
                 zh.execute()
             } catch (e: EpubFile) {
-                installEpub(uri)
+                installEpub(bufferedInputStream, displayName)
                 finish()
             }
         }
@@ -550,9 +564,8 @@ class InstallZip : ActivityBase() {
         return result
     }
 
-    private suspend fun installStudyPads(uri: Uri): Boolean {
+    private suspend fun installStudyPads(inputStream: InputStream): Boolean {
         val category = SyncableDatabaseDefinition.BOOKMARKS
-        val inputStream = contentResolver.openInputStream(uri)!!
         val unzipFolder = File(BackupControl.internalDbBackupDir, "unzip")
         unzipInputStream(inputStream, unzipFolder)
         val file = File(unzipFolder, "db/${BookmarkDatabase.dbFileName}")
@@ -573,11 +586,11 @@ class InstallZip : ActivityBase() {
 
     private val bookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
-    private suspend fun installEpub(uri: Uri): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun installEpub(inputStream: InputStream, displayName_: String?): Boolean = withContext(Dispatchers.IO) {
+        val displayName = displayName_ ?: UUID.randomUUID().toString()
         withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
         }
-        val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
         val dir = File(SharedConstants.modulesDir, "epub/$displayName")
         if (dir.exists()) {
             val initials = epubInitials(displayName)
@@ -595,7 +608,7 @@ class InstallZip : ActivityBase() {
             }
         }
         dir.mkdirs()
-        unzipInputStream(contentResolver.openInputStream(uri)!!, dir)
+        unzipInputStream(inputStream, dir)
         val installOk = addManuallyInstalledEpubBooks()
         withContext(Dispatchers.Main) {
             if(installOk) {

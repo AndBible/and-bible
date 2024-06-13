@@ -75,6 +75,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.common.internal.service.Common
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -1869,14 +1870,20 @@ val Key.shortName: String get() =
 enum class DbType {
     BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS
 }
-enum class BackupType {STUDYPAD_EXPORT, DB_BACKUP, MODULE_BACKUP}
+enum class BackupType {
+    // Note! We can only trust STUDYPAD_EXPORT, as manifest is not existing before AB version 822.
+    STUDYPAD_EXPORT,
+    DB_BACKUP,
+    MODULE_BACKUP
+}
 
 const val ANDBIBLE_BACKUP_MANIFEST_FILENAME = "AndBibleBackupManifest.json"
 @Serializable
 data class AndBibleBackupManifest(
     val backupType: BackupType,
     val contains: Set<DbType>? = null,
-    val version: Int = 1,
+    val manifestVersion: Int = 1,
+    val andBibleVersion: Int = CommonUtils.applicationVersionNumber
 ) {
     fun toJson(): String {
         return CommonUtils.json.encodeToString(serializer(), this)
