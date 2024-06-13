@@ -19,18 +19,15 @@ package net.bible.android.control.backup
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import io.requery.android.database.sqlite.SQLiteDatabase
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -67,7 +64,10 @@ import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.common.AndBibleBackupManifest
+import net.bible.service.common.BackupType
 import net.bible.service.common.CommonUtils.determineFileType
+import net.bible.service.common.DbType
 import net.bible.service.db.bookmarksDbStats
 import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.dbFile
@@ -352,9 +352,12 @@ object BackupControl {
             }
         }
 
+        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP)
+
         withContext(Dispatchers.IO) {
             FileOutputStream(zipFile).use { out ->
                 ZipOutputStream(out).use { outFile ->
+                    manifest.saveToZip(outFile)
                     for (b in books) {
                         val bmd = b.bookMetaData as SwordBookMetaData
                         if (b.isManuallyInstalledMyBibleBook) {
@@ -482,7 +485,12 @@ object BackupControl {
         val files = ALL_DB_FILENAMES.map {File(internalDbDir, it)}.filter {it.exists()}
         if(files.isEmpty()) return null
 
+        val manifest = AndBibleBackupManifest(backupType = BackupType.DB_BACKUP, contains = setOf(
+            DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS
+        ))
+
         ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
+            manifest.saveToZip(outFile)
             for(b in files) {
                 addFileToZip(outFile, b)
             }
@@ -498,9 +506,7 @@ object BackupControl {
         saveDbBackupFileViaIntent(callingActivity, backupZipFile)
     }
 
-    enum class AbDbFileType {
-        SQLITE3, ZIP, UNKNOWN
-    }
+    enum class AbDbFileType {SQLITE3, ZIP, UNKNOWN}
 
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
@@ -656,7 +662,7 @@ object BackupControl {
         true
     }
 
-    private suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
+    suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
         val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS) {
             " (${bookmarksDbStats(category, backupFile)})"
         } else ""

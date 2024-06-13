@@ -35,7 +35,11 @@ import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.android.database.migrations.joinColumnNames
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.common.AndBibleBackupManifest
+import net.bible.service.common.BackupType
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.DbType
+import net.bible.service.common.displayName
 import net.bible.service.common.getFirst
 import java.io.BufferedInputStream
 import java.io.File
@@ -163,7 +167,13 @@ suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntit
 
     val filename = if (labels.size > 1) "StudyPads$DATABASE_BACKUP_SUFFIX" else labels.first().name + DATABASE_BACKUP_SUFFIX
     val zipFile = File(BackupControl.internalDbBackupDir, filename)
+    val manifest = AndBibleBackupManifest(
+        backupType = BackupType.STUDYPAD_EXPORT,
+        contains = setOf(DbType.BOOKMARKS),
+        studyPadNames = labels.map { it.displayName }
+    )
     ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
+        manifest.saveToZip(outFile)
         FileInputStream(exportDbFile).use { inFile ->
             BufferedInputStream(inFile).use { origin ->
                 val entry = ZipEntry("db/${BookmarkDatabase.dbFileName}")

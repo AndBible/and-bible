@@ -50,13 +50,20 @@ import net.bible.android.activity.databinding.ActivityInstallZipBinding
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.database.BookmarkDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
+import net.bible.service.common.AndBibleBackupManifest
+import net.bible.service.common.BackupType
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.common.CommonUtils.unzipInputStream
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.bookmarksDbStats
+import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.epub.EPUB_OPTIMIZER_VERSION
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
@@ -118,6 +125,7 @@ class ZipHandler(
         while (entry != null) {
             totalEntries++
             val name = entry.name.replace('\\', '/')
+
             val targetFile = File(targetDirectory, name)
             if (!entry.isDirectory && targetFile.exists()) {
                 existingFiles.add(targetFile.relativeTo(targetDirectory).canonicalPath)
@@ -131,6 +139,7 @@ class ZipHandler(
             } else if (name.startsWith("epub/") || name.startsWith("mysword/") || name.startsWith("mybible/")) {
                 modulesFound = true
                 modsDirFound = true
+            } else if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
             } else {
                 otherFiles.add(name)
             }
@@ -168,6 +177,10 @@ class ZipHandler(
             ze = zIn.nextEntry
             while (ze != null) {
                 val name = ze.name.replace('\\', '/')
+                if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
+                    ze = zIn.nextEntry
+                    continue
+                }
 
                 val file = File(targetDirectory, name)
                 if (name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF))
@@ -379,7 +392,7 @@ class InstallZip : ActivityBase() {
                     is CantWrite -> getString(R.string.sqlite_cant_write)
                     else -> throw RuntimeException(e)
                 }
-                suspendCoroutine<Boolean> {
+                suspendCoroutine {
                     AlertDialog.Builder(this@InstallZip)
                         .setTitle(R.string.error_occurred)
                         .setMessage(getString(R.string.install_failed_reason, msg))
@@ -427,8 +440,9 @@ class InstallZip : ActivityBase() {
         }
         val fileTypeFromContent = determineFileType(inputStream)
 
-        if (fileTypeFromContent == BackupControl.AbDbFileType.ZIP)
+        if (fileTypeFromContent == BackupControl.AbDbFileType.ZIP) {
             return installZip(uri)
+        }
 
         if(fileTypeFromContent != BackupControl.AbDbFileType.SQLITE3) {
             throw InvalidFile(displayName)
@@ -501,25 +515,56 @@ class InstallZip : ActivityBase() {
     private suspend fun installZip(uri: Uri): Boolean {
         var result = false
         binding.installZipLabel.text = getString(R.string.checking_zip_file)
-        val zh = ZipHandler(
-                {contentResolver.openInputStream(uri)},
-                {percent -> updateProgress(percent)},
-                {finishResult ->
+
+        val bufferedInputStream = BufferedInputStream(contentResolver.openInputStream(uri))
+
+        binding.loadingIndicator.visibility = View.VISIBLE
+        val manifest = AndBibleBackupManifest.fromInputStream(bufferedInputStream)
+        if (manifest?.backupType == BackupType.STUDYPAD_EXPORT) {
+            result = installStudyPads(uri)
+            finish()
+        } else {
+            val zh = ZipHandler(
+                { bufferedInputStream },
+                { percent -> updateProgress(percent) },
+                { finishResult ->
                     result = finishResult == Activity.RESULT_OK
                     setResult(finishResult);
                     ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                     finish()
                 },
-            this
-        )
-        binding.loadingIndicator.visibility = View.VISIBLE
-        try {
-            zh.execute()
-        } catch (e: EpubFile) {
-            installEpub(uri)
+                this
+            )
+
+            try {
+                zh.execute()
+            } catch (e: EpubFile) {
+                installEpub(uri)
+                finish()
+            }
         }
         binding.loadingIndicator.visibility = View.GONE
+        if (result) {
+            ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
+        }
         return result
+    }
+
+    private suspend fun installStudyPads(uri: Uri): Boolean {
+        val category = SyncableDatabaseDefinition.BOOKMARKS
+        val inputStream = contentResolver.openInputStream(uri)!!
+        val unzipFolder = File(BackupControl.internalDbBackupDir, "unzip")
+        unzipInputStream(inputStream, unzipFolder)
+        val file = File(unzipFolder, "db/${BookmarkDatabase.dbFileName}")
+        val stats = bookmarksDbStats(category, file)
+        val result = Dialogs.simpleQuestion(this@InstallZip, getString(R.string.install_do_you_want, stats))
+        if (!result) {
+            unzipFolder.deleteRecursively()
+            return false
+        }
+        importDatabaseFile(category, file)
+        unzipFolder.deleteRecursively()
+        return true
     }
 
     fun onEventMainThread(e: InstallZipEvent) {

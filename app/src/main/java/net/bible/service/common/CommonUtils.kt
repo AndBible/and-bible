@@ -159,6 +159,8 @@ import org.jdom2.input.SAXBuilder
 import org.jdom2.xpath.XPathFactory
 import org.spongycastle.util.io.pem.PemReader
 import java.io.BufferedInputStream
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -175,7 +177,9 @@ import java.security.spec.X509EncodedKeySpec
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -303,6 +307,7 @@ object CommonUtils : CommonUtilsBase() {
 
 	val json = Json {
         ignoreUnknownKeys = true
+        encodeDefaults = true
     }
 
     private const val TAG = "CommonUtils"
@@ -1585,8 +1590,9 @@ object CommonUtils : CommonUtilsBase() {
         val headerString = String(header)
         if(headerString == "SQLite format 3\u0000")
             BackupControl.AbDbFileType.SQLITE3
-        else if(headerString.startsWith("PK\u0003\u0004"))
+        else if(headerString.startsWith("PK\u0003\u0004")) {
             BackupControl.AbDbFileType.ZIP
+        }
         else
             BackupControl.AbDbFileType.UNKNOWN
     }
@@ -1859,3 +1865,52 @@ val Key.shortName: String get() =
             return text
         }
     else name
+
+enum class DbType {
+    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS
+}
+enum class BackupType {STUDYPAD_EXPORT, DB_BACKUP, MODULE_BACKUP}
+
+const val ANDBIBLE_BACKUP_MANIFEST_FILENAME = "AndBibleBackupManifest.json"
+@Serializable
+data class AndBibleBackupManifest(
+    val backupType: BackupType,
+    val contains: Set<DbType>? = null,
+    val studyPadNames: List<String>? = null,
+    val version: Int = 1,
+) {
+    fun toJson(): String {
+        return CommonUtils.json.encodeToString(serializer(), this)
+    }
+
+    fun saveToZip(zipStream: ZipOutputStream) {
+        val content = ByteArrayInputStream(toJson().toByteArray())
+        val entry = ZipEntry(ANDBIBLE_BACKUP_MANIFEST_FILENAME)
+        zipStream.putNextEntry(entry)
+        content.copyTo(zipStream)
+    }
+    companion object {
+        fun fromJson(jsonString: String): AndBibleBackupManifest {
+            return CommonUtils.json.decodeFromString(serializer(), jsonString)
+        }
+
+        fun fromInputStream(inputStream: BufferedInputStream): AndBibleBackupManifest? {
+            inputStream.mark(1024)
+            val manifest = ZipInputStream(inputStream).let {
+                val entry = it.nextEntry
+                if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
+                    val out = ByteArrayOutputStream()
+                    val buffer = ByteArray(1024)
+                    var len: Int
+                    while (it.read(buffer).also { len = it } > 0) {
+                        out.write(buffer, 0, len)
+                    }
+                    val outString = out.toString()
+                    fromJson(outString)
+                } else null
+            }
+            inputStream.reset()
+            return manifest
+        }
+    }
+}
