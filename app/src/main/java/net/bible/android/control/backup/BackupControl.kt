@@ -100,7 +100,7 @@ const val MODULE_BACKUP_SUFFIX = ".abmd"
 const val DATABASE_BACKUP_NAME = "AndBibleDatabaseBackup$DATABASE_BACKUP_SUFFIX"
 const val MODULE_BACKUP_NAME = "AndBibleModulesBackup$MODULE_BACKUP_SUFFIX"
 
-const val ZIP_MIMETYPE = "application/x-zip"
+const val ZIP_MIMETYPE = "application/zip"
 
 enum class SaveOrShare {SAVE, SHARE}
 
