@@ -1876,7 +1876,6 @@ const val ANDBIBLE_BACKUP_MANIFEST_FILENAME = "AndBibleBackupManifest.json"
 data class AndBibleBackupManifest(
     val backupType: BackupType,
     val contains: Set<DbType>? = null,
-    val studyPadNames: List<String>? = null,
     val version: Int = 1,
 ) {
     fun toJson(): String {

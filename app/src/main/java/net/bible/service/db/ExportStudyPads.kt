@@ -170,7 +170,6 @@ suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntit
     val manifest = AndBibleBackupManifest(
         backupType = BackupType.STUDYPAD_EXPORT,
         contains = setOf(DbType.BOOKMARKS),
-        studyPadNames = labels.map { it.displayName }
     )
     ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
         manifest.saveToZip(outFile)
