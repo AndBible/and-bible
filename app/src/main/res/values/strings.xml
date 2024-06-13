@@ -890,6 +890,7 @@
     <string name="format_mysword">MySword documents (*.mybible)</string>
     <string name="format_mybible">MyBible documents (*.SQLite3)</string>
     <string name="format_epub">EPUB documents (*.epub)</string>
+    <string name="format_studypads">StudyPads from AndBible databases (*.abdb)</string>
     <string name="redownload_message">
         A list of previous books/documents was found. Click below to easily download them again.
     </string>
