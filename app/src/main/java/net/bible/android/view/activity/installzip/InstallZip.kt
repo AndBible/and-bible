@@ -320,7 +320,7 @@ class InstallZip : ActivityBase() {
             when (intent?.action) {
                 Intent.ACTION_VIEW -> {
                     val uri = intent.data!!
-                    val inputStream = BufferedInputStream(contentResolver.openInputStream(intent.data!!))
+                    val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
                     val mimeType = getMimeType(uri)
                     val displayName = getDisplayName(uri)
                     val manifest = AndBibleBackupManifest.fromInputStream(inputStream)
@@ -402,7 +402,7 @@ class InstallZip : ActivityBase() {
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data!!.data!!
             val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
-            val inputStream = BufferedInputStream(contentResolver.openInputStream(intent.data!!))
+            val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
             val mimeType = getMimeType(uri)
 
             try {
