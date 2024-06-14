@@ -146,7 +146,6 @@ private fun fixPrimaryLabels(db: SupportSQLiteDatabase) = db.run {
 }
 
 suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntities.Label) = withContext(Dispatchers.IO) {
-    Dialogs.simpleInfoMessage(activity, "export_studypads_help", R.string.export_studypads_help)
     val exportDbFile = CommonUtils.tmpFile
     val exportDb = DatabaseContainer.instance.getBookmarkDb(exportDbFile.absolutePath)
     exportDb.openHelper.writableDatabase.use {}
