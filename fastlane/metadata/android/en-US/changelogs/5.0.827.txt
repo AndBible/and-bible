@@ -1,6 +1,6 @@
 - Export & Import study pads (see https://youtu.be/prhkcVo5mQQ)
 - Fix backup to Google Drive
-- Import database backups to merge databases (instead of restore)
+- Possible to import database backups to merge databases
 
 5.0
 "What's new" video: https://youtu.be/bf33j4tLbxQ
