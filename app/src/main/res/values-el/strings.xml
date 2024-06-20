@@ -519,6 +519,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <!--User Notes-->
   <string name="mynotes">Οι σημειώσεις μου</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Που να δημιουργηθεί το αντίγραφο ασφαλείας?</string>
+  <string name="backup_backup_message">Αντίγραφο ασφαλείας στο τηλέφωνο ή αλλού μέσω της Κοινοποίησης (email, Google Drive κλπ.)?</string>
+  <string name="backup_phone_storage">Αποθηκευτικός χώρος τηλεφώνου</string>
   <string name="backup_and_restore">Αντίγραφο ασφαλείας &amp; επαναφορά</string>
   <string name="backup_modules2">Αντίγραφο ασφαλείας εγγράφων στο...</string>
   <string name="backup_app_database2">Αντίγραφο ασφαλείας βάσης στο...</string>
@@ -734,6 +737,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="format_mysword">Έγγραφα MySword (*.mybible)</string>
   <string name="format_mybible">Έγγραφα MyBible (*.SQLite3)</string>
   <string name="format_epub">Έγγραφα EPUB (*.epub)</string>
+  <string name="format_studypads">Μπλοκ μελέτης από βάσεις δεδομένων του AndBible (*.abdb)</string>
   <string name="redownload_message">
 Βρέθηκε μία λίστα προηγουμένων βιβλίων/εγγράφων. Πατήστε εδώ για να μεταφορτωθούν εύκολα πάλι.</string>
   <!--Uncategorized-->

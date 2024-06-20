@@ -764,6 +764,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="format_mysword">MySword dokumentai (*.mybible)</string>
   <string name="format_mybible">MyBible dokumentai (*.SQLite3)</string>
   <string name="format_epub">EPUB dokumentai (*.epub)</string>
+  <string name="format_studypads">Bloknotai iš AndBible duomenų bazių (*.abdb)</string>
   <string name="redownload_message">
         Buvo rastas ankstesnių knygų/dokumentų sąrašas. Spustelėkite žemiau, norėdami vėl juos lengvai atsisiųsti.
     </string>

@@ -530,6 +530,9 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <!--User Notes-->
   <string name="mynotes">Minhas notas</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Fazer backup para onde?</string>
+  <string name="backup_backup_message">Backup para telefone ou outro local através da função Compartilhar (e-mail, Google Drive etc.)?</string>
+  <string name="backup_phone_storage">Armanezamento do telefone</string>
   <string name="backup_and_restore">Backup e restauração</string>
   <string name="backup_modules2">Fazer cópia de segurança dos documentos para...</string>
   <string name="backup_app_database2">Fazer cópia de segurança do banco de dados do aplicativo para ...</string>
@@ -747,6 +750,7 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="format_mysword">Documentos MySword (*.mybible)</string>
   <string name="format_mybible">Documentos MyBible (*.SQLite3)</string>
   <string name="format_epub">Documentos EPUB (*.epub)</string>
+  <string name="format_studypads">Bloco de estudos dos banco de dados AndBible (*.abdb)</string>
   <string name="redownload_message">
 Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
   <!--Uncategorized-->

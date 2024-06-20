@@ -710,6 +710,7 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punkto
   <string name="format_mysword">dokumentoj MySword (*.mybible)</string>
   <string name="format_mybible">dokumentoj MyBible (*.SQLite3)</string>
   <string name="format_epub">dokumentoj EPUB (*.epub)</string>
+  <string name="format_studypads">notblokoj el AndBible-datumbazoj (*.abdb)</string>
   <string name="redownload_message">
 Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝuti ilin.</string>
   <!--Uncategorized-->

@@ -771,6 +771,7 @@ respaldo.
   <string name="format_mysword">Documentos MySword (*.mybible)</string>
   <string name="format_mybible">Documentos MyBible (.SQLite3)</string>
   <string name="format_epub">Documentos EPUB (*.epub)</string>
+  <string name="format_studypads">Pizarras de estudio de la base de datos AndBible (*.abdb)</string>
   <string name="redownload_message">
 Se encontró una lista de libros / documentos anteriores. Haga clic a continuación para volver a descargarlos fácilmente.
 </string>

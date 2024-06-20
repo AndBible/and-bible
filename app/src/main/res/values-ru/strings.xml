@@ -759,6 +759,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="format_mysword">MySword ресурсы (*.mybible)</string>
   <string name="format_mybible">MyBible ресурсы (*.SQLite3)</string>
   <string name="format_epub">EPUB ресурсы (*.epub)</string>
+  <string name="format_studypads">Блокноты из баз данных AndBible (*.abdb)</string>
   <string name="redownload_message">
         Был найден список предыдущих книг / ресурсов. Нажмите ниже, чтобы легко загрузить их снова.
     </string>
@@ -904,7 +905,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="label_salvation">Спасение</string>
   <string name="label_underline">Подчеркивание</string>
   <string name="import_menu">Импорт и экспорт</string>
+  <string name="export">Экспортировать</string>
   <string name="export_fileformat">Экспорт как %s</string>
+  <string name="export_something">Экспортировать %s</string>
   <string name="import_items">Импорт как %s</string>
   <string name="import_from_db">Импорт из файла базы данных приложения</string>
   <string name="import_error">Не удалось выполнить импорт из базы данных приложения. Файл базы данных может иметь неправильный формат или создан слишком старой версии %s.</string>

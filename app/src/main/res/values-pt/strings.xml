@@ -737,6 +737,7 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="format_mysword">Ficheiros MySword (*. mybible)</string>
   <string name="format_mybible">Ficheiros MyBible (*.SQLite3)</string>
   <string name="format_epub">Ficheiros EPUB (*.epub)</string>
+  <string name="format_studypads">Áreas de Estudo da base de dados AndBible (*.abdb)</string>
   <string name="redownload_message">
 Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
   <!--Uncategorized-->

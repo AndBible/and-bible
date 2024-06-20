@@ -702,6 +702,7 @@ Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym g�
   <string name="format_mysword">dokumenty MySword (*.mybible)</string>
   <string name="format_mybible">dokumenty MyBible (*.SQLite3)</string>
   <string name="format_epub">dokumenty EPUB (*.epub)</string>
+  <string name="format_studypads">bloczki notatek z baz danych AndBible (*.abdb)</string>
   <string name="redownload_message">
 Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby pobrać je ponownie.</string>
   <!--Uncategorized-->

@@ -718,6 +718,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="format_mysword">Documenti MySword (*.mybible)</string>
   <string name="format_mybible">Documenti MyBible (*.SQLite3)</string>
   <string name="format_epub">Documenti EPUB (*.epub)</string>
+  <string name="format_studypads">Appunti di studio da database AndBible (*.abdb)</string>
   <string name="redownload_message">
         E\' stato trovato un elenco di libri/documenti precedenti. Tocca qui sotto per riscaricarli facilmente.
     </string>
@@ -867,7 +868,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="export_fileformat">Esporta come %s</string>
   <string name="export_something">Esporta %s</string>
   <string name="import_items">Importa %s</string>
-  <string name="import_from_db">Importa dalla base di dati dell\'applicazione</string>
+  <string name="import_from_db">Importa dal database dell\'applicazione</string>
   <string name="import_error">L\'importazione del database dell\'app non è riuscita. Il file di database potrebbe essere in un formato sbagliato o creato da una versione troppo vecchia di %s.</string>
   <string name="chooser_range">Intervallo</string>
   <string name="chooser_jump">Salta</string>
@@ -1006,7 +1007,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="report">Segnala</string>
   <string name="sync_error">Errore nella sincronizzazione del Cloud</string>
   <string name="error_notification_channel_name">Notifiche di errore</string>
-  <string name="restore_from_cloud_description">Se la sincronizzazione del dispositivo è attivata in un altro dispositivo, è possibile iniziare a ripristinare la base di dati dal Cloud.</string>
+  <string name="restore_from_cloud_description">Se la sincronizzazione del dispositivo è attivata in un altro dispositivo, è possibile iniziare a ripristinare il database dal Cloud.</string>
   <string name="enable_sync">Attiva sincronizzazione</string>
   <string name="last_updated">Ultimo aggiornamento: %s</string>
   <!--MyBible/MySword module support-->
