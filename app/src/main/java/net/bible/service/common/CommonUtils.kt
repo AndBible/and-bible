@@ -1376,7 +1376,7 @@ object CommonUtils : CommonUtilsBase() {
         Log.i(TAG, "Language tag $languageTag, code $languageCode")
 
         // Transifex as of 21.2.2024
-        val goodLanguages = "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt,yue,zh-Hans-CN,zh-Hant-TW,es,ta,cs,hu,nl,sr,te".split(",")
+        val goodLanguages = "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt,yue,zh-Hans-CN,zh-Hant-TW,es,ta,cs,hu,nl,sr,te,pl".split(",")
 
         // 4.0 list:
 
