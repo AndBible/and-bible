@@ -19,7 +19,9 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.SearchManager
 import android.content.ClipData
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -347,6 +349,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 CommonUtils.copyToClipboard(clip)
                 return true
             }
+            R.id.web_search -> {
+                var text = if(currentSelectionText?.length ?: 0) null else currentSelectionText
+                if (text != null) { openWebSearch(mainBibleActivity, currentSelectionText) }
+                return true
+            }
             R.id.search -> {
                 val text = currentSelectionText
                 val sel = currentSelection
@@ -417,6 +424,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             executeJavascriptOnUiThread(
                 "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
             )
+        }
+    }
+
+    fun openWebSearch(context: Context, query: String) {
+        try {
+            //var intent : Intent? = null
+            val intent = Intent(Intent.ACTION_WEB_SEARCH)
+            intent.putExtra(SearchManager.QUERY, query)
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(context.getClass().getName(), "Browser app not available to search: " + query)
         }
     }
 
