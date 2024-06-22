@@ -53,6 +53,12 @@
 			android:visible="false"
 			app:showAsAction="always"
 			/>
+		<item android:id="@+id/web_search"
+			android:title="@string/web_search"
+			android:orderInCategory="2"
+			app:showAsAction="always"
+			android:visible="false"
+			/>
 		<item android:id="@+id/search"
 			android:title="@string/search"
 			android:orderInCategory="2"
