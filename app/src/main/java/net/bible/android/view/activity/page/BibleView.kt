@@ -493,7 +493,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     setVisible(true)
                 }
-                menu.findItem(R.id.add_bookmark_whole_verse).run{
+                menu.Item(R.id.add_bookmark_whole_verse).run{
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     setVisible(true)
                 }
@@ -528,7 +528,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(ref == null && currentSelectionText != null) {
                 val item = menu.findItem(R.id.search)
                 item.isVisible = true
-                item.title = if(currentSelectionText?.length < 16) context.getString(R.string.search_what, currentSelectionText) else "Find"
+                item.title = if(currentSelectionText?.length < 16) context.getString(R.string.search_what, currentSelectionText) else context.getString(R.string.search, currentSelectionText)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelectionText != null) {
                 var menuItemOrder = 100
