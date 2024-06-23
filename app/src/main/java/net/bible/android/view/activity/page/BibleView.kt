@@ -493,7 +493,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     setVisible(true)
                 }
-                menu.Item(R.id.add_bookmark_whole_verse).run{
+                menu.findItem(R.id.add_bookmark_whole_verse).run{
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     setVisible(true)
                 }
