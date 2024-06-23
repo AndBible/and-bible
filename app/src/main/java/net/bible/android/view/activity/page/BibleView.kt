@@ -525,11 +525,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     BookName.setFullBookName(wasFullBookName)
                 }
             }
-            val searchText = if((currentSelectionText?.length ?: 0) > 15) null else currentSelectionText
+            val searchText = if(currentSelectionText?.length ?: 0) null else currentSelectionText
             if(ref == null && searchText != null) {
                 val item = menu.findItem(R.id.search)
                 item.isVisible = true
-                item.title = context.getString(R.string.search_what, searchText)
+                item.title = if(searchText.length < 16) context.getString(R.string.search_what, searchText) else "Find"
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelectionText != null) {
                 var menuItemOrder = 100
