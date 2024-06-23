@@ -350,8 +350,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             R.id.web_search -> {
-                var text = if(currentSelectionText?.length ?: 0) null else currentSelectionText
-                if (text != null) { openWebSearch(mainBibleActivity, currentSelectionText) }
+                if (currentSelectionText != null) { openWebSearch(mainBibleActivity, currentSelectionText) }
                 return true
             }
             R.id.search -> {
