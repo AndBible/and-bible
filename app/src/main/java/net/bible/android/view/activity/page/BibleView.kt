@@ -528,7 +528,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(ref == null && currentSelectionText != null) {
                 val item = menu.findItem(R.id.search)
                 item.isVisible = true
-                item.title = if(currentSelectionText?.length < 16) context.getString(R.string.search_what, currentSelectionText) else context.getString(R.string.search, currentSelectionText)
+                item.title = if(currentSelectionText?.length < 16) context.getString(R.string.search_what, currentSelectionText) else context.getString(R.string.search)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelectionText != null) {
                 var menuItemOrder = 100
