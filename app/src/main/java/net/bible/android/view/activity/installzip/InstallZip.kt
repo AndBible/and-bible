@@ -17,22 +17,6 @@
 
 package net.bible.android.view.activity.installzip
 
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.util.ArrayList
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
-
-import net.bible.android.activity.R
-
-import org.crosswire.common.util.NetUtil
-import org.crosswire.jsword.book.BookException
-import org.crosswire.jsword.book.sword.SwordBookDriver
-import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.book.sword.SwordBookPath
-import org.crosswire.jsword.book.sword.SwordConstants
-
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -46,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
+import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ActivityInstallZipBinding
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
@@ -72,12 +57,22 @@ import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.addMySwordBook
+import org.crosswire.common.util.NetUtil
+import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBookDriver
+import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.book.sword.SwordGenBook
 import java.io.BufferedInputStream
-import java.io.FileNotFoundException
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.util.UUID
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
@@ -320,19 +315,18 @@ class InstallZip : ActivityBase() {
             when (intent?.action) {
                 Intent.ACTION_VIEW -> {
                     val uri = intent.data!!
-                    val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
                     val mimeType = getMimeType(uri)
                     val displayName = getDisplayName(uri)
-                    val manifest = AndBibleBackupManifest.fromInputStream(inputStream)
+                    val manifest = AndBibleBackupManifest.fromUri(uri)
                     if(
                         // installStudyPads will ask after reading the file (will show stats from db)
                         manifest?.backupType == BackupType.STUDYPAD_EXPORT
                         || askIfWantInstall(displayName)
                     ) {
                         if(mimeType == "application/epub+zip") {
-                            installEpub(inputStream, displayName)
+                            installEpub(uri, displayName)
                         } else {
-                            installZip(inputStream, displayName)
+                            installZip(uri, displayName)
                         }
                     } else {
                         finish()
@@ -340,15 +334,13 @@ class InstallZip : ActivityBase() {
                 }
                 Intent.ACTION_SEND -> {
                     val uri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)!!
-                    val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
                     val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
-                    installZip(inputStream, displayName)
+                    installZip(uri, displayName)
                 }
                 Intent.ACTION_SEND_MULTIPLE -> {
                     for (uri in intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)!!) {
-                        val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
                         val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
-                        installZip(inputStream, displayName)
+                        installZip(uri, displayName)
                     }
                 }
                 else -> {
@@ -402,11 +394,10 @@ class InstallZip : ActivityBase() {
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data!!.data!!
             val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
-            val inputStream = BufferedInputStream(contentResolver.openInputStream(uri))
             val mimeType = getMimeType(uri)
 
             try {
-                installFromFile(inputStream, displayName, mimeType)
+                installFromFile(uri, displayName, mimeType)
             } catch (e: InstallZipError) {
                 Log.e(TAG, "Error occurred in installing module", e)
                 val msg = when(e) {
@@ -450,15 +441,15 @@ class InstallZip : ActivityBase() {
             if(mimeTypeIdx < 0) null else it.getString(mimeTypeIdx)
         }
 
-    private suspend fun installFromFile(inputStream: BufferedInputStream, displayName: String, mimeType: String?): Boolean {
+    private suspend fun installFromFile(uri: Uri, displayName: String, mimeType: String?): Boolean {
         if(mimeType == "application/epub+zip") {
-            return installEpub(inputStream, displayName)
+            return installEpub(uri, displayName)
         }
 
-        val fileTypeFromContent = determineFileType(inputStream)
+        val fileTypeFromContent = determineFileType(uri)
 
         if (fileTypeFromContent == BackupControl.AbDbFileType.ZIP) {
-            return installZip(inputStream, displayName)
+            return installZip(uri, displayName)
         }
 
         if(fileTypeFromContent != BackupControl.AbDbFileType.SQLITE3) {
@@ -472,7 +463,7 @@ class InstallZip : ActivityBase() {
         }
 
         binding.loadingIndicator.visibility = View.VISIBLE
-        inputStream.use { fIn ->
+        contentResolver.openInputStream(uri)!!.use { fIn ->
             val outDir = File(SharedConstants.modulesDir, filetype.displayName)
             outDir.mkdirs()
             val outFile = File(outDir, displayName)
@@ -529,18 +520,19 @@ class InstallZip : ActivityBase() {
     }
 
 
-    private suspend fun installZip(bufferedInputStream: BufferedInputStream, displayName: String?): Boolean {
+    private suspend fun installZip(uri: Uri, displayName: String?): Boolean {
         var result = false
         binding.installZipLabel.text = getString(R.string.checking_zip_file)
-
         binding.loadingIndicator.visibility = View.VISIBLE
-        val manifest = AndBibleBackupManifest.fromInputStream(bufferedInputStream)
+        val manifest = AndBibleBackupManifest.fromUri(uri)
         if (manifest?.backupType == BackupType.STUDYPAD_EXPORT) {
-            result = installStudyPads(bufferedInputStream)
+            result = installStudyPads(uri)
             finish()
         } else {
             val zh = ZipHandler(
-                { bufferedInputStream },
+                {
+                    contentResolver.openInputStream(uri)
+                },
                 { percent -> updateProgress(percent) },
                 { finishResult ->
                     result = finishResult == Activity.RESULT_OK
@@ -554,7 +546,7 @@ class InstallZip : ActivityBase() {
             try {
                 zh.execute()
             } catch (e: EpubFile) {
-                installEpub(bufferedInputStream, displayName)
+                installEpub(uri, displayName)
                 finish()
             }
         }
@@ -565,7 +557,8 @@ class InstallZip : ActivityBase() {
         return result
     }
 
-    private suspend fun installStudyPads(inputStream: InputStream): Boolean {
+    private suspend fun installStudyPads(uri: Uri): Boolean {
+        val inputStream = contentResolver.openInputStream(uri)!!
         val category = SyncableDatabaseDefinition.BOOKMARKS
         val unzipFolder = File(BackupControl.internalDbBackupDir, "unzip")
         unzipInputStream(inputStream, unzipFolder)
@@ -587,7 +580,7 @@ class InstallZip : ActivityBase() {
 
     private val bookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
-    private suspend fun installEpub(inputStream: InputStream, displayName_: String?): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun installEpub(uri: Uri, displayName_: String?): Boolean = withContext(Dispatchers.IO) {
         val displayName = displayName_ ?: UUID.randomUUID().toString()
         withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
@@ -609,7 +602,7 @@ class InstallZip : ActivityBase() {
             }
         }
         dir.mkdirs()
-        unzipInputStream(inputStream, dir)
+        unzipInputStream(contentResolver.openInputStream(uri)!!, dir)
         val installOk = addManuallyInstalledEpubBooks()
         withContext(Dispatchers.Main) {
             if(installOk) {

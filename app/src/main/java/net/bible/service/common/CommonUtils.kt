@@ -1582,19 +1582,18 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    suspend fun determineFileType(inputStream: BufferedInputStream): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
-        val header = ByteArray(16)
-        inputStream.mark(16)
-        inputStream.read(header)
-        inputStream.reset()
-        val headerString = String(header)
-        if(headerString == "SQLite format 3\u0000")
-            BackupControl.AbDbFileType.SQLITE3
-        else if(headerString.startsWith("PK\u0003\u0004")) {
-            BackupControl.AbDbFileType.ZIP
-        }
-        else
-            BackupControl.AbDbFileType.UNKNOWN
+    suspend fun determineFileType(uri: Uri): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
+        application.contentResolver.openInputStream(uri)?.use { inputStream ->
+            val header = ByteArray(16)
+            inputStream.read(header)
+            val headerString = String(header)
+            if (headerString == "SQLite format 3\u0000")
+                BackupControl.AbDbFileType.SQLITE3
+            else if (headerString.startsWith("PK\u0003\u0004")) {
+                BackupControl.AbDbFileType.ZIP
+            } else
+                BackupControl.AbDbFileType.UNKNOWN
+        } ?: BackupControl.AbDbFileType.UNKNOWN
     }
 
     fun makeAndBibleUrl(
@@ -1899,9 +1898,9 @@ data class AndBibleBackupManifest(
             return CommonUtils.json.decodeFromString(serializer(), jsonString)
         }
 
-        fun fromInputStream(inputStream: BufferedInputStream): AndBibleBackupManifest? {
-            inputStream.mark(1024)
-            val manifest = ZipInputStream(inputStream).let {
+        fun fromUri(uri: Uri): AndBibleBackupManifest? {
+            val inputStream = application.contentResolver.openInputStream(uri)!!
+            val manifest = ZipInputStream(inputStream).use {
                 val entry = it.nextEntry
                 if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
                     val out = ByteArrayOutputStream()
@@ -1914,7 +1913,6 @@ data class AndBibleBackupManifest(
                     fromJson(outString)
                 } else null
             }
-            inputStream.reset()
             return manifest
         }
     }
