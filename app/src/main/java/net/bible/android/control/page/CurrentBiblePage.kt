@@ -202,12 +202,11 @@ class CurrentBiblePage(
         }
     }
 
-    //TODO allow japanese search - japanese bibles use smartcn which is not available
     /** can we enable the main menu search button
      */
     override val isSearchable: Boolean
-        get() = try { //TODO allow japanese search - japanese bibles use smartcn which is not available
-            !currentDocument!!.doesNotExist && "ja" != currentDocument!!.language.code
+        get() = try {
+            !currentDocument!!.doesNotExist
         } catch (e: Exception) {
             Log.w(TAG, "Missing language code", e)
             true
