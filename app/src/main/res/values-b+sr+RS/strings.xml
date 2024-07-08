@@ -542,6 +542,9 @@
   <!--User Notes-->
   <string name="mynotes">Моје белешке</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Где се чува резервна копија?</string>
+  <string name="backup_backup_message">Резервна копија на телефон или другом месту путем Функције дељења (е-пошта, Гугл Драјв итд.)?</string>
+  <string name="backup_phone_storage">Складиште телефона</string>
   <string name="backup_and_restore">Резервна копија и враћање</string>
   <string name="backup_modules2">Резервна копија докумената на...</string>
   <string name="backup_app_database2">Направи резервну копију базе података апликације на...</string>
@@ -554,6 +557,7 @@
   <string name="backup_document_info">Света Писма, тумачења, речници, карте, итд.</string>
   <string name="backup_to">Направи разервне копије у...</string>
   <string name="backup_restore_from">Вратити из...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Повратити</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Шта желите да повратите?</string>
@@ -575,6 +579,8 @@
   <string name="send_backup_file">Пошаљи датотеку резервне копије</string>
   <string name="backup_modules_title">Одабери модуле за резервну копију</string>
   <string name="install_zip_canceled">Уградња модула отказана</string>
+  <string name="restore">Повратити</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Ауторска права: %s</string>
   <string name="module_about_installed_version">Уграђена верзија: %1$s (%2$s)</string>

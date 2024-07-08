@@ -542,6 +542,9 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <!--User Notes-->
   <string name="mynotes">Moje opombe</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Kam varnostno kopiram?</string>
+  <string name="backup_backup_message">Ali želite varnostno kopirati v telefon ali kam drugam s funkcijo skupne rabe (e-pošta, Google Drive, itd.)?</string>
+  <string name="backup_phone_storage">Pomnilnik telefona</string>
   <string name="backup_and_restore">Varnostna kopija &amp; Obnova</string>
   <string name="backup_modules2">Varnostno kopiranje dokumentov v… </string>
   <string name="backup_app_database2">Varnostno kopiranje podatkovne baze aplikacije v...</string>
@@ -554,7 +557,11 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="backup_document_info">Biblije, komentarji, slovarji, zemljevidi, itd.</string>
   <string name="backup_to">Varnostno kopiranje v…</string>
   <string name="backup_restore_from">Obnovi iz…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Obnovi ali uvozi iz ...</string>
   <string name="backup_restore">Povrni iz arhiva</string>
+  <string name="backup_restore2">Obnovi ali uvozi iz</string>
+  <string name="overwrite_something">Prepišem %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Kaj želite obnoviti?</string>
   <string name="restore_app_database">Obnovitev baze aplikacije iz…</string>
@@ -570,11 +577,19 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="backup_modules_email_message_2">Priložena je varnostna kopija %1$s modulov, ki vsebuje naslednje module: %2$s</string>
   <string name="backup_email_subject_2">%s varnostno kopiranje</string>
   <string name="backup_email_message_2">Vaša %s baza podatkov, ki vsebuje zaznamke, opombe, načrte za branje in delovne prostore, je pripeta</string>
+  <string name="exported_studypads_subject">Izvoženi študijski zaznamki</string>
+  <string name="exported_studypads_message">Vaša %s baza podatkov, ki vsebuje zaznamke in opombe, povezane z izbranimi študijskimi zaznamki, je priložena</string>
   <string name="restore_unsuccessfull">Obnovitev baze podatkov ni bila uspešna. Morda ste navedli neveljavno datoteko baze podatkov.</string>
   <string name="restore_modules">Obnovi dokumente iz…</string>
   <string name="send_backup_file">Pošlji arhivsko datoteko</string>
   <string name="backup_modules_title">Izberite, katere module želite varnostno kopirati</string>
   <string name="install_zip_canceled">Namestitev modula je preklicana</string>
+  <string name="ask_restore_or_import">Bazo podatkov za %s je mogoče obnoviti (tj. obstoječo zbirko podatkov odstranimo in naložimo izbrano zbirko podatkov) ali uvozimo (izbrano bazo podatkov uvozimo v obstoječo zbirko podatkov). Kaj želite storiti?</string>
+  <string name="restore">Povrni iz arhiva</string>
+  <string name="import2">Uvoz</string>
+  <string name="export_studypads_help">Datoteko, ki vsebuje izvožene študijske zaznamke (tj. oznake in zaznamke), lahko uvozite prek glavnega menija -&gt; Varnostno kopiranje &amp; Obnovi.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" in %2$s druge Oznake / Študijske opombe in %3$s Zaznamki</string>
   <!--About-->
   <string name="module_about_copyright">Avtorske pravice: %s</string>
   <string name="module_about_installed_version">Nameščena verzija: %1$s (%2$s)</string>
@@ -762,6 +777,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="journal_description">Uporabniške beležnice za urejanje z besedilom in zaznamki po meri</string>
   <string name="my_notes_description">Uporabniško urejene opombe, priložene zaznamkom</string>
   <string name="my_notes_abbreviation">Moje opombe</string>
+  <string name="studypad">Študijski zaznamki</string>
   <string name="studypads">Beležke</string>
   <string name="multi_description">Več referenc</string>
   <string name="multi_abbreviation">Več</string>
@@ -891,7 +907,9 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="label_salvation">Rešitev duše</string>
   <string name="label_underline">Podčrtaj</string>
   <string name="import_menu">Uvoz in izvoz</string>
+  <string name="export">Izvoz</string>
   <string name="export_fileformat">Izvozi kot %s</string>
+  <string name="export_something">Izvoz %s</string>
   <string name="import_items">Uvozi %s</string>
   <string name="import_from_db">Uvoz iz podatkovne datoteke</string>
   <string name="import_error">Uvoz iz podatkovne datoteke ni uspel. Datoteka je lahko napačne oblike ali pa je narejena s prestaro različico%s.</string>

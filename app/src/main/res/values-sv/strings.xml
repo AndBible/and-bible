@@ -404,6 +404,9 @@ i GT och NT varje dag.
   <!--User Notes-->
   <string name="mynotes">Anteckningar</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Var vill du Säkerhetskopiera?</string>
+  <string name="backup_phone_storage">Telefon laging</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Återställ</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Vill du återställa?</string>
@@ -413,6 +416,8 @@ i GT och NT varje dag.
   <string name="send_backup_file">Skicka en säkerhetskopieringsfil</string>
   <string name="backup_modules_title">Välj vilken modul att säkerhetskopiera</string>
   <string name="install_zip_canceled">Modulinstallation avbruten</string>
+  <string name="restore">Återställ</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <!--Bug reporting-->

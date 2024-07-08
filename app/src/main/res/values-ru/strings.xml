@@ -41,6 +41,7 @@
   <string name="search_in">Найти в %s</string>
   <string name="do_in_background">Продолжить в фоновом режиме</string>
   <string name="rebuild_index_button">Перестроить</string>
+  <string name="creating_index_for">Создаю индекс для %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s результатов в %2s</string>
   <!--Tasks-->
@@ -540,6 +541,9 @@ http://www.heartlight.org, разрешение предоставлено
   <!--User Notes-->
   <string name="mynotes">Мои заметки</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Сохранить резервную копию куда?</string>
+  <string name="backup_backup_message">Резервное копирование на телефон или в другое место через функцию «Поделиться» (электронная почта, Google Drive и т. д.)?</string>
+  <string name="backup_phone_storage">Память телефона</string>
   <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
   <string name="backup_modules2">Резервное копирование документов на...</string>
   <string name="backup_app_database2">Резервное копирование базы данных приложения в…</string>
@@ -552,7 +556,11 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_document_info">Библии, комментарии, словари, карты и т. д.</string>
   <string name="backup_to">Резервное копирование в…</string>
   <string name="backup_restore_from">Восстановить из…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Восстановить или Импортировать из...</string>
   <string name="backup_restore">Восстановить</string>
+  <string name="backup_restore2">Восстановить или Импортировать</string>
+  <string name="overwrite_something">Перезаписать %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Что вы хотите восстановить?</string>
   <string name="restore_app_database">Восстановить базу данных приложения из…</string>
@@ -568,11 +576,17 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_modules_email_message_2">Прикреплена %1$s резервная копия ваших модулей, которая содержит следующие модули:%2$s</string>
   <string name="backup_email_subject_2">%s резервное копирование базы данных</string>
   <string name="backup_email_message_2">Ваша %s база данных, содержащая закладки, заметки, планы чтения и рабочие области, прилагается</string>
+  <string name="exported_studypads_subject">Экспортированный Блокнот(ы)</string>
+  <string name="exported_studypads_message">Прикреплен %sвашей базы данных, содержащий Закладки и Заметки, относящиеся к выбранным Блокнотам</string>
   <string name="restore_unsuccessfull">Восстановление базы данных не удалось. Возможно, вы указали неверный файл базы данных.</string>
   <string name="restore_modules">Восстановить документы из…</string>
   <string name="send_backup_file">Отправить файл резервной копии</string>
   <string name="backup_modules_title">Выберите модули для резервного копирования</string>
   <string name="install_zip_canceled">Установка модуля отменена</string>
+  <string name="ask_restore_or_import">База данных для %sможет быть либо восстановлена (т.е. существующая база данных удаляется и загружается выбранная база данных), либо импортирована (выбранная база данных импортируется в существующую). Что Вы хотите сделать?</string>
+  <string name="restore">Восстановить</string>
+  <string name="import2">Импортировать</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Авторское право: %s</string>
   <string name="module_about_installed_version">Установленная версия: %1$s(%2$s)</string>
@@ -708,6 +722,8 @@ http://www.heartlight.org, разрешение предоставлено
   <!--TODO: to be removed-->
   <string name="help_search_text">Текст поиска может содержать специальные символы, такие как *, ?, AND, OR, NOT
 (см. \"Apache Lucene - Query Parser Syntax\" для более подробной информации)</string>
+  <string name="help_search_text2">Строка поиска может включать спецсимволы, такие как *, AND, OR, NOT</string>
+  <string name="help_search_details">Пожалуйста смотрите подробности в %s.</string>
   <string name="help_workspaces_title">Рабочие области</string>
   <string name="help_workspaces_text">
 Рабочие области позволяют иметь несколько контекстно-зависимых рабочих сред. Функции рабочей области
@@ -743,6 +759,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="format_mysword">MySword ресурсы (*.mybible)</string>
   <string name="format_mybible">MyBible ресурсы (*.SQLite3)</string>
   <string name="format_epub">EPUB ресурсы (*.epub)</string>
+  <string name="format_studypads">Блокноты из баз данных AndBible (*.abdb)</string>
   <string name="redownload_message">
         Был найден список предыдущих книг / ресурсов. Нажмите ниже, чтобы легко загрузить их снова.
     </string>
@@ -757,6 +774,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="journal_description">Редактируемые пользователем блокноты с настраиваемым текстом и закладками</string>
   <string name="my_notes_description">Редактируемые пользователем заметки, прикрепленные к закладкам</string>
   <string name="my_notes_abbreviation">Мои заметки</string>
+  <string name="studypad">Блокнот</string>
   <string name="studypads">Блокноты</string>
   <string name="multi_description">Несколько ссылок</string>
   <string name="multi_abbreviation">Несколько</string>
@@ -887,7 +905,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="label_salvation">Спасение</string>
   <string name="label_underline">Подчеркивание</string>
   <string name="import_menu">Импорт и экспорт</string>
+  <string name="export">Экспортировать</string>
   <string name="export_fileformat">Экспорт как %s</string>
+  <string name="export_something">Экспортировать %s</string>
   <string name="import_items">Импорт как %s</string>
   <string name="import_from_db">Импорт из файла базы данных приложения</string>
   <string name="import_error">Не удалось выполнить импорт из базы данных приложения. Файл базы данных может иметь неправильный формат или создан слишком старой версии %s.</string>
@@ -910,6 +930,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="strongs_off">Выкл.</string>
   <string name="strongs_links">Ссылки</string>
   <string name="strongs_text_and_links">Текст и ссылки</string>
+  <string name="strongs_hidden_links">Скрытые Ссылки</string>
   <string name="verse_tip">Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии.</string>
   <string name="permission_required">Отказано в доступе</string>
   <string name="labels_search_hint">Поиск</string>

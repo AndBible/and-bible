@@ -478,7 +478,11 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <!--User Notes-->
   <string name="mynotes">ကိုယ်ပိုင်မှတ်စုများ</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">ဘယ်နေရာတွင် အရန်ဖိုင်လုပ်မည်နည်း။ </string>
+  <string name="backup_backup_message">ဖုန်း သို့မဟုတ် အခြားနေရာများဖြစ်တဲ့ ဝေမျှ လုပ်ဆောင်ချက် (email, Google Drive etc.)တို့တွင် အရန်ဖိုင် လုပ်လိုပါသလား။ </string>
+  <string name="backup_phone_storage">ဖုန်းသိုလှောင်ပမာဏ</string>
   <string name="backup_and_restore">&amp; အားအရန်ဖိုင် ပြုလုပ်ပါ; ပြန်ယူပါ</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">မည်သည့်အရာကို ပြန်ယူလိုပါသနည်း။ </string>
   <string name="restore_app_database">အက်ပ် ဒေတာဘေ့စ်အား ...မှ ပြန်ယူပါ</string>
@@ -496,6 +500,7 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="send_backup_file">အရန်ဖိုင်တစ်ခုကို ပို့ပါ</string>
   <string name="backup_modules_title">အရန်ဖိုင်လုပ်မည့် သင်ခန်းစာများကို ရွေးချယ်ပါ</string>
   <string name="install_zip_canceled">သင်ခန်းစာ ထည့်သွင်းခြင်းအား ပယ်ဖျက်လိုက်ပါပြီ</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">မူပိုင်ခွင့်: %s</string>
   <string name="module_about_versification">ဗားရှင်းဖွဲ့နွဲ့နည်း: %s</string>

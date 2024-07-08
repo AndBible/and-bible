@@ -517,6 +517,9 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <!--User Notes-->
   <string name="mynotes">Anotações</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Fazer backup para onde?</string>
+  <string name="backup_backup_message">Backup para telefone ou outro local através da função Compartilhar (e-mail, Google Drive etc.)?</string>
+  <string name="backup_phone_storage">Armanezamento do telefone</string>
   <string name="backup_and_restore">Backup e Restauro</string>
   <string name="backup_modules2">Fazer Backup dos Documentos para...</string>
   <string name="backup_app_database2">Fazer uma cópia de segurança da base de dados da aplicação para...</string>
@@ -529,7 +532,11 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_document_info">Bíblias, comentários, dicionários, mapas, etc.</string>
   <string name="backup_to">Fazer uma cópia de segurança para...</string>
   <string name="backup_restore_from">Restaurar uma cópia de segurança a partir de...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Restaurar ou importar de...</string>
   <string name="backup_restore">Restaurar</string>
+  <string name="backup_restore2">Restaurar ou Importar</string>
+  <string name="overwrite_something">Substituir %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">O que deseja restaurar?</string>
   <string name="restore_app_database">Restaurar base de dados da aplicação a partir de...</string>
@@ -545,11 +552,19 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_modules_email_message_2">Em anexo estão %1$s dos módulos em backup, que contêm os seguintes módulos:%2$s</string>
   <string name="backup_email_subject_2">%sde backup da base de dados</string>
   <string name="backup_email_message_2">A sua %sbase de dados contém marcadores, anotações, planos de leitura e áreas de trabalho em anexo</string>
+  <string name="exported_studypads_subject">Áreas de Estudo exportados</string>
+  <string name="exported_studypads_message">A sua base de dados %s contém marcadores e anotações relacionados com as Áreas de Estudo seleccionadas em anexo.</string>
   <string name="restore_unsuccessfull">Não foi possível restaurar a base de dados. Talvez tenha fornecido um ficheiro de base de dados inválido.</string>
   <string name="restore_modules">Restaurar documentos a partir de...</string>
   <string name="send_backup_file">Enviar ficheiro de backup</string>
   <string name="backup_modules_title">Escolher quais os módulos para incluir no backup</string>
   <string name="install_zip_canceled">Instalação de módulos cancelada</string>
+  <string name="ask_restore_or_import">A base de dados para %s pode ser restaurada (ou seja, a base de dados existente é removida e a base de dados selecionada é carregada), ou importada (a base de dados selecionada é importada para a base de dados existente). O que é que pretende fazer?</string>
+  <string name="restore">Restaurar</string>
+  <string name="import2">Importar</string>
+  <string name="export_studypads_help">O ficheiro que contém Áreas de Estudo exportados (ou seja, etiquetas e marcadores) pode ser importado através do Menu Principal -&gt; Backup e Restauro.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" e %2$s outras Etiquetas / Áreas de Estudo e %3$s Marcadores</string>
   <!--About-->
   <string name="module_about_copyright">Direitos de Autor:%s</string>
   <string name="module_about_installed_version">Versão instalada: %1$s(%2$s)</string>
@@ -722,6 +737,7 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="format_mysword">Ficheiros MySword (*. mybible)</string>
   <string name="format_mybible">Ficheiros MyBible (*.SQLite3)</string>
   <string name="format_epub">Ficheiros EPUB (*.epub)</string>
+  <string name="format_studypads">Áreas de Estudo da base de dados AndBible (*.abdb)</string>
   <string name="redownload_message">
 Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
   <!--Uncategorized-->
@@ -735,6 +751,7 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="journal_description">Áreas de estudo editáveis ​​pelo utilizador, com texto e marcadores personalizados</string>
   <string name="my_notes_description">Notas editáveis ​​pelo utilizador, anexadas aos marcadores</string>
   <string name="my_notes_abbreviation">Anotações</string>
+  <string name="studypad">Áreas de Estudo</string>
   <string name="studypads">Áreas de Estudo</string>
   <string name="multi_description">Referências múltiplas</string>
   <string name="multi_abbreviation">Múltiplas</string>
@@ -855,7 +872,9 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="label_salvation">Guardar</string>
   <string name="label_underline">Sublinhar</string>
   <string name="import_menu">Importar e Exportar</string>
+  <string name="export">Exportar</string>
   <string name="export_fileformat">Exportar como %s</string>
+  <string name="export_something">Exportar %s</string>
   <string name="import_items">Importar %s</string>
   <string name="import_from_db">Importar a partir de ficheiro da Base de Dados da Aplicação</string>
   <string name="import_error">A importação a partir da Base de Dados do aplicativo falhou. O ficheiro da Base de Dados pode estar no formato errado ou ter uma versão muito antiga de %s.</string>

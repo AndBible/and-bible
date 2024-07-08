@@ -504,6 +504,9 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <!--User Notes-->
   <string name="mynotes">Moje notatki</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Dokąd?</string>
+  <string name="backup_backup_message">Czy utworzyć kopię zapasową w pamięci wewnętrznej, czy używając funkcji „udostępnij” (poczta, Dysk Google, itp.)?</string>
+  <string name="backup_phone_storage">Pamięć wewnętrzna</string>
   <string name="backup_and_restore">Kopia zapasowa</string>
   <string name="backup_modules2">Utwórz kopię zapasową dokumentów…</string>
   <string name="backup_app_database2">Utwórz kopię zapasową bazy danych…</string>
@@ -516,7 +519,11 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="backup_document_info">Biblie, komentarze, słowniki, mapy, itd.</string>
   <string name="backup_to">Utwórz kopię zapasową…</string>
   <string name="backup_restore_from">Przywróć z kopii zapasowej…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Przywróć lub importuj z…</string>
   <string name="backup_restore">Przywróć</string>
+  <string name="backup_restore2">Przywróć lub importuj</string>
+  <string name="overwrite_something">Czy nadpisać %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Co przywrócić?</string>
   <string name="restore_app_database">Przywróć bazę danych z…</string>
@@ -531,12 +538,20 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="backup_modules_email_subject_2">%s: kopia zapasowa modułów</string>
   <string name="backup_modules_email_message_2">W załączniku znajduje się kopia zapasowa następujących modułów aplikacji %1$s: %2$s.</string>
   <string name="backup_email_subject_2">%s: kopia zapasowa bazy danych</string>
-  <string name="backup_email_message_2">W załączniku znajduje się kopia zapasowa bazy danych aplikacji %s zawierająca Twoje zakładki, notatki, plany czytania i obszary robocze</string>
+  <string name="backup_email_message_2">W załączniku znajduje się baza danych aplikacji %s zawierająca Twoje zakładki, notatki, plany czytania i obszary robocze</string>
+  <string name="exported_studypads_subject">Wyeksportowane bloczki notatek</string>
+  <string name="exported_studypads_message">W załączniku znajduje się baza danych aplikacji %s zawierająca zakładki i notatki wybranego bloczku notatek</string>
   <string name="restore_unsuccessfull">Nie udało się przywrócić bazy danych z kopii zapasowej. Prawdopodobnie plik jest uszkodzony.</string>
   <string name="restore_modules">Przywróć dokumenty z…</string>
   <string name="send_backup_file">Wyślij plik kopii zapasowej</string>
   <string name="backup_modules_title">Wybór modułów do kopii zapasowej</string>
   <string name="install_zip_canceled">Przerwano instalację modułu</string>
+  <string name="ask_restore_or_import">Baza danych zawierająca %s może zostać przywrócona (istniejąca baza danych zostanie usunięta i zastąpiona wybieraną) lub zaimportowana (wybierana baza danych zostanie połączona z istniejącą). Co chcesz zrobić?</string>
+  <string name="restore">Przywróć</string>
+  <string name="import2">Importuj</string>
+  <string name="export_studypads_help">Pliki zawierające wyeksportowane bloczki notatek (np. etykiety i zakładki) można zaimportować wybierając „Kopia zapasowa” z menu głównego aplikacji.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">„%1$s” i %2$s innych etykiet / bloczków notatek i %3$s zakładek</string>
   <!--About-->
   <string name="module_about_copyright">Prawa autorskie: %s</string>
   <string name="module_about_installed_version">Zainstalowana wersja: %1$s (%2$s)</string>
@@ -687,6 +702,7 @@ Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym g�
   <string name="format_mysword">dokumenty MySword (*.mybible)</string>
   <string name="format_mybible">dokumenty MyBible (*.SQLite3)</string>
   <string name="format_epub">dokumenty EPUB (*.epub)</string>
+  <string name="format_studypads">bloczki notatek z baz danych AndBible (*.abdb)</string>
   <string name="redownload_message">
 Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby pobrać je ponownie.</string>
   <!--Uncategorized-->
@@ -700,6 +716,7 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="journal_description">Edytowalne bloczki notatek z własnym tekstem i zakładkami</string>
   <string name="my_notes_description">Edytowalne notatki dołączane do zakładek</string>
   <string name="my_notes_abbreviation">Moje notatki</string>
+  <string name="studypad">bloczek notatek</string>
   <string name="studypads">Bloczki notatek</string>
   <string name="multi_description">Mnogie odsyłacze</string>
   <string name="multi_abbreviation">Odsyłacze</string>
@@ -818,7 +835,9 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="label_salvation">Zbawienie</string>
   <string name="label_underline">Podkreślony</string>
   <string name="import_menu">Importuj / eksportuj</string>
+  <string name="export">Eksportuj</string>
   <string name="export_fileformat">Eksportuj jako %s</string>
+  <string name="export_something">Eksportuj %s</string>
   <string name="import_items">Importuj %s</string>
   <string name="import_from_db">Importuj z pliku bazy danych aplikacji</string>
   <string name="import_error">Nie udało się zaimportować z bazy danych aplikacji. Plik bazy danych może być w złym formacie bądź być utworzony przez bardzo starą wersję aplikacji %s.</string>

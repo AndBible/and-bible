@@ -103,7 +103,9 @@ Other labels: all other labels.</string>
     </string>
   <!--User Notes-->
   <!--Backup and restore-->
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <!--Bug reporting-->
   <!--Document types-->

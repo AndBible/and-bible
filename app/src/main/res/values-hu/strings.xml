@@ -520,6 +520,9 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <!--User Notes-->
   <string name="mynotes">Jegyzeteim</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Biztonsági mentés hova?</string>
+  <string name="backup_backup_message">Biztonsági mentése a telefonra vagy megosztása (email, Google Drive, etc.)?</string>
+  <string name="backup_phone_storage">Belső memória</string>
   <string name="backup_and_restore">Biztonsági mentés és helyreállítás</string>
   <string name="backup_modules2">Biztonsági mentés készítése a telepített dokumentumokról ide…</string>
   <string name="backup_app_database2">Biztonsági mentés készítése az alkalmazás adatbázisáról ide…</string>
@@ -532,6 +535,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="backup_document_info">Bibliák, kommentárok, szótárok, térképek, stb.</string>
   <string name="backup_to">Biztonsági mentés ide...</string>
   <string name="backup_restore_from">Visszaállítás innen...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Visszaállítás</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Mi kerüljön visszaállításra?</string>
@@ -553,6 +557,8 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="send_backup_file">Biztonsági mentés küldése</string>
   <string name="backup_modules_title">Válassza ki mely modulokról szeretne biztonsági mentést készíteni</string>
   <string name="install_zip_canceled">Modulok telepítése megszakadt</string>
+  <string name="restore">Visszaállítás</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">© %s</string>
   <string name="module_about_installed_version">Telepített verzió: %1$s (%2$s)</string>

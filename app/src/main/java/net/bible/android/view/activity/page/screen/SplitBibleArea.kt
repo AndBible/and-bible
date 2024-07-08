@@ -78,6 +78,7 @@ import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.shortName
+import net.bible.service.db.exportStudyPads
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.isStudyPad
 import net.bible.service.sword.BookAndKey
@@ -718,8 +719,11 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
         val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu!!
 
-        val export = menu.findItem(R.id.exportHtml)
-        export.title = app.getString(R.string.export_fileformat, "HTML")
+        val exportHtml = menu.findItem(R.id.exportHtml)
+        exportHtml.title = app.getString(R.string.export_fileformat, "HTML")
+
+        val exportStudypad = menu.findItem(R.id.exportStudypad)
+        exportStudypad.title = app.getString(R.string.export_something, app.getString(R.string.studypad))
 
         synchronized(BookName::class.java) {
             val oldValue = BookName.isFullBookName()
@@ -956,9 +960,16 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             },
                 visible = window.isVisible && (
                     firstDoc is StudyPadDocument ||
-                    firstDoc is MultiFragmentDocument  ||
-                    firstDoc is MyNotesDocument
-                )
+                        firstDoc is MultiFragmentDocument  ||
+                        firstDoc is MyNotesDocument
+                    )
+            )
+            R.id.exportStudypad -> CommandPreference({ _, _, _ ->
+                mainBibleActivity.lifecycleScope.launch {
+                    exportStudyPads(mainBibleActivity, (firstDoc as StudyPadDocument).label)
+                }
+            },
+                visible = window.isVisible && (firstDoc is StudyPadDocument)
             )
             else -> throw RuntimeException("Illegal menu item")
         }

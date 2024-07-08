@@ -535,6 +535,9 @@ http://www.heartlight.org 准予使用
   <!--User Notes-->
   <string name="mynotes">筆記列表</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">備份目的地</string>
+  <string name="backup_backup_message">以分享功能備份至手機或其他目的地 (電郵、Google Drive等)？</string>
+  <string name="backup_phone_storage">手機空間</string>
   <string name="backup_and_restore">備份及回復</string>
   <string name="backup_modules2">備份文件至...</string>
   <string name="backup_app_database2">備份程式資料庫至...</string>
@@ -547,6 +550,7 @@ http://www.heartlight.org 准予使用
   <string name="backup_document_info">聖經、註釋、字典、地圖等。</string>
   <string name="backup_to">備份至...</string>
   <string name="backup_restore_from">回復至...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">回復</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">你想回復什麼？</string>
@@ -568,6 +572,8 @@ http://www.heartlight.org 准予使用
   <string name="send_backup_file">傳送備份檔案</string>
   <string name="backup_modules_title">選擇備份模組</string>
   <string name="install_zip_canceled">模組安裝已取消</string>
+  <string name="restore">回復</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">版權: %s</string>
   <string name="module_about_installed_version">已安裝版本：%1$s (%2$s)</string>

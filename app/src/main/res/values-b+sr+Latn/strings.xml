@@ -541,6 +541,9 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <!--User Notes-->
   <string name="mynotes">Moje beleške</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Gde se čuva rezervna kopija?</string>
+  <string name="backup_backup_message">Rezervna kopija na telefon ili drugom mestu putem Funkcije deljenja (e-pošta, Gugl Drajv itd.)?</string>
+  <string name="backup_phone_storage">Skladište telefona</string>
   <string name="backup_and_restore">Rezervna kopija i vraćanje</string>
   <string name="backup_modules2">Rezervna kopija dokumenata na...</string>
   <string name="backup_app_database2">Napravi rezervnu kopiju baze podataka aplikacije na...</string>
@@ -553,6 +556,7 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="backup_document_info">Sveta Pisma, tumačenja, rečnici, karte, itd.</string>
   <string name="backup_to">Napravi rezervne kopije u...</string>
   <string name="backup_restore_from">Vratiti iz...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Povratiti</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Šta želite da povratite?</string>
@@ -574,6 +578,8 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="send_backup_file">Pošalji datoteku rezervne kopije</string>
   <string name="backup_modules_title">Odaberi module za rezervnu kopiju</string>
   <string name="install_zip_canceled">Ugradnja modula otkazana</string>
+  <string name="restore">Povratiti</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Autorska prava: %s</string>
   <string name="module_about_installed_version">Ugrađena verzija: %1$s (%2$s)</string>

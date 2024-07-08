@@ -530,6 +530,9 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <!--User Notes-->
   <string name="mynotes">Minhas notas</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Fazer backup para onde?</string>
+  <string name="backup_backup_message">Backup para telefone ou outro local através da função Compartilhar (e-mail, Google Drive etc.)?</string>
+  <string name="backup_phone_storage">Armanezamento do telefone</string>
   <string name="backup_and_restore">Backup e restauração</string>
   <string name="backup_modules2">Fazer cópia de segurança dos documentos para...</string>
   <string name="backup_app_database2">Fazer cópia de segurança do banco de dados do aplicativo para ...</string>
@@ -542,7 +545,11 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_document_info">Bíblias, comentários, dicionários, mapas, etc.</string>
   <string name="backup_to">Cópia de segurança para</string>
   <string name="backup_restore_from">Restauração de cópia de segurança de ...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Restaurar ou importar de...</string>
   <string name="backup_restore">Restaurar</string>
+  <string name="backup_restore2">Restaurar ou Importar</string>
+  <string name="overwrite_something">Sobrescreverr %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">O que deseja restaurar?</string>
   <string name="restore_app_database">Restaurar banco de dados do aplicativo a partir de ...</string>
@@ -558,11 +565,19 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_modules_email_message_2">Em anexo estão %1$sdos módulos em cópias de segurança, que contêm os seguintes módulos: %2$s</string>
   <string name="backup_email_subject_2">%sde cópia de segurança do banco de dados</string>
   <string name="backup_email_message_2">A sua %sbase de dados contém marcadores, notas, planos de leitura e áreas de trabalho em anexo</string>
+  <string name="exported_studypads_subject">Áreas de Estudo exportada(s)</string>
+  <string name="exported_studypads_message">O seu banco de dados %s contém Marcadores e Notas relacionados com as Áreas de Estudo selecionadas em anexo.</string>
   <string name="restore_unsuccessfull">Não foi possível restaurar o banco de dados. Talvez tenha fornecido um arquivo de banco de dados inválido.</string>
   <string name="restore_modules">Restaurar documentos a partir de...</string>
   <string name="send_backup_file">Enviar arquivo de cópia de segurança</string>
   <string name="backup_modules_title">Escolher quais os módulos para incluir na cópia de segurança</string>
   <string name="install_zip_canceled">Instalação de módulos cancelada</string>
+  <string name="ask_restore_or_import">O banco de dados para %s pode ser restaurado (ou seja, o banco de dados existente é removido e o banco de dados selecionado é carregado), ou importado (o banco de dados selecionado é importado para o banco de dados existente). O que você pretende fazer?</string>
+  <string name="restore">Restaurar</string>
+  <string name="import2">Importar</string>
+  <string name="export_studypads_help">O arquivo que contém Blocos de estudo exportados (ou seja, etiquetas e marcadores) pode ser importado através do Menu Principal -&gt; Backup e Restauração.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" e %2$s outras Etiqueta(s) / Área de Estudo(s) e %3$s Marcadores</string>
   <!--About-->
   <string name="module_about_copyright">Direitos autorais:%s</string>
   <string name="module_about_installed_version">Versão instalada: %1$s(%2$s)</string>
@@ -735,6 +750,7 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="format_mysword">Documentos MySword (*.mybible)</string>
   <string name="format_mybible">Documentos MyBible (*.SQLite3)</string>
   <string name="format_epub">Documentos EPUB (*.epub)</string>
+  <string name="format_studypads">Bloco de estudos dos banco de dados AndBible (*.abdb)</string>
   <string name="redownload_message">
 Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
   <!--Uncategorized-->
@@ -748,6 +764,7 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="journal_description">Estudos editáveis ​​pelo utilizador, com texto e marcadores personalizados</string>
   <string name="my_notes_description">Notas editáveis ​​pelo utilizador, anexadas aos marcadores</string>
   <string name="my_notes_abbreviation">Minhas notas</string>
+  <string name="studypad">Blocos de estudo</string>
   <string name="studypads">Blocos de estudo</string>
   <string name="multi_description">Referências múltiplas</string>
   <string name="multi_abbreviation">Múltiplas</string>
@@ -867,7 +884,9 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="label_salvation">Salvação</string>
   <string name="label_underline">Sublinhado</string>
   <string name="import_menu">Importar e Exportar</string>
+  <string name="export">Exportar</string>
   <string name="export_fileformat">Exportar como %s</string>
+  <string name="export_something">Exportar %s</string>
   <string name="import_items">Importar %s</string>
   <string name="import_from_db">Importar do banco de dados</string>
   <string name="import_error">A importação a partir do banco de dados do aplicativo falhou. O arquivo do banco de dados pode estar no formato errado ou ter uma versão muito antiga de %s.</string>

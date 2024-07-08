@@ -344,8 +344,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             val result = awaitIntent(intent)
             CurrentActivityHolder.activate(this@StartupActivity)
             if (result.resultCode == Activity.RESULT_OK) {
-                val inputStream = contentResolver.openInputStream(result.data!!.data!!) ?: return@launch
-                if (BackupControl.restoreAppDatabaseFromInputStreamWithUI(this@StartupActivity, inputStream)) {
+                val uri = result.data?.data ?: return@launch
+                if (BackupControl.restoreAppDatabaseFromUriWithUI(this@StartupActivity, uri)) {
                     Log.i(TAG, "Restored database successfully")
                     postBasicInitialisationControl()
                 }

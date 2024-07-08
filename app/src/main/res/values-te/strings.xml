@@ -532,6 +532,9 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <!--User Notes-->
   <string name="mynotes">నా నోట్స్</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">ఎక్కడికి బ్యాకప్ చేయాలి?</string>
+  <string name="backup_backup_message">షేర్ ఫంక్షన్ ద్వారా ఫోన్‌కి లేదా మరెక్కడైనా బ్యాకప్ చేయాలా? (ఇమెయిల్, గూగుల్ డ్రైవ్ మొదలైనవి) </string>
+  <string name="backup_phone_storage">ఫోన్ నిల్వ</string>
   <string name="backup_and_restore">బ్యాకప్ &amp; పునరుద్ధరించు</string>
   <string name="backup_modules2">ఇక్కడికి పత్రాలను బ్యాకప్ చేయండి…</string>
   <string name="backup_app_database2">ఇక్కడికి యాప్ డేటాబేస్‌ని బ్యాకప్ చేయండి...</string>
@@ -544,6 +547,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="backup_document_info">బుక్‌మార్క్‌లు, లేబుల్‌లు, నోట్స్, స్టడీ ప్యాడ్‌లు, రీడింగ్ ప్లాన్‌లు, వర్క్‌స్పేస్‌లు మొదలైనవి.</string>
   <string name="backup_to">ఇక్కడికి బ్యాకప్…</string>
   <string name="backup_restore_from">దీని నుండి పునరుద్ధరించు…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">పునరుద్ధరించు</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">మీరు ఏమి పునరుద్ధరించాలనుకుంటున్నారు?</string>
@@ -565,6 +569,8 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="send_backup_file">బ్యాకప్ ఫైల్‌ను పంపండి</string>
   <string name="backup_modules_title">ఏ మాడ్యూల్‌లను బ్యాకప్ చేయాలో ఎంచుకోండి</string>
   <string name="install_zip_canceled">మాడ్యూల్ ఇన్‌స్టాల్ రద్దు చేయబడింది</string>
+  <string name="restore">పునరుద్ధరించు</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">కాపీరైట్: %s</string>
   <string name="module_about_installed_version">ఇన్‌స్టాల్ చేసిన వెర్షన్: %1$s (%2$s)</string>

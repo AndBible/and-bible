@@ -41,6 +41,7 @@
   <string name="search_in">Hľadať v %s</string>
   <string name="do_in_background">Pokračovať na pozadí</string>
   <string name="rebuild_index_button">Znova vytvoriť</string>
+  <string name="creating_index_for">Vytváranie indexu pre %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s výsledkov v %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Všetky slová</string>
   <string name="search_any_word">Ktorékoľvek slovo</string>
   <string name="search_phrase">Fráza</string>
+  <string name="search_fts_query">Syntax surového dopytu</string>
   <string name="search_result_count">Nájdené výsledky: %d</string>
   <string name="search_showing_first">Príliš veľa výsledkov. Zobrazujem prvých %d</string>
   <string name="search_bible_section_group_prompt">Kde hľadať</string>
@@ -540,6 +542,9 @@ Režim opakovania bol vypnutý, pretože
   <!--User Notes-->
   <string name="mynotes">Moje poznámky</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Kam zálohovať?</string>
+  <string name="backup_backup_message">Zálohovať do telefónu alebo inam cez funkciu Zdielať (e-mail, Google Drive apod.)?</string>
+  <string name="backup_phone_storage">Úložisko telefónu</string>
   <string name="backup_and_restore">Záloha a obnovenie</string>
   <string name="backup_modules2">Zálohovať dokument do…</string>
   <string name="backup_app_database2">Zálohovať apl. databázu do…</string>
@@ -552,7 +557,11 @@ Režim opakovania bol vypnutý, pretože
   <string name="backup_document_info">Biblie, komentáre, slovníky, mapy atď.</string>
   <string name="backup_to">Zálohovať do…</string>
   <string name="backup_restore_from">Obnoviť z…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Obnoviť alebo importovať z…</string>
   <string name="backup_restore">Obnoviť</string>
+  <string name="backup_restore2">Obnoviť alebo importovať</string>
+  <string name="overwrite_something">Prepísať%s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Čo chcete obnoviť?</string>
   <string name="restore_app_database">Obnoviť databázu aplikácie z…</string>
@@ -568,11 +577,18 @@ Režim opakovania bol vypnutý, pretože
   <string name="backup_modules_email_message_2">V prílohe je %1$s záloha vašich modulov, ktorá obsahuje nasledujúce moduly: %2$s</string>
   <string name="backup_email_subject_2">záloha databázy %s</string>
   <string name="backup_email_message_2">Vaša databáza %s obsahujúca záložky, poznámky, plán čítania a pracovnej plochy je pripojená.</string>
+  <string name="exported_studypads_subject">Vyexportované Študijné zložky</string>
+  <string name="exported_studypads_message">Vaša databáza %s, obsahujúca záložky a poznámky týkajúce sa vybraných Študijných zložiek, je pripojená</string>
   <string name="restore_unsuccessfull">Obnovenie databázy nebolo úspešné. Pravdepodobne ste zadali neplatný databázový súbor. </string>
   <string name="restore_modules">Obnoviť Dokumenty z…</string>
   <string name="send_backup_file">Odoslať zálohovací súbor</string>
   <string name="backup_modules_title">Vybrať, ktoré moduly zálohovať</string>
   <string name="install_zip_canceled">Inštalovanie modulov prerušené</string>
+  <string name="ask_restore_or_import">Databáza pre %s môže byť buď obnovená (t. j. existujúca databáza sa odstráni a vybraná databáza sa načíta) alebo importovaná (vybraná databáza sa importuje do existujúcej databázy). Čo si prajete vykonať?</string>
+  <string name="restore">Obnoviť</string>
+  <string name="import2">Import</string>
+  <string name="export_studypads_help">Súbor obsahujúci vyexportované Študijné zložky (t. j. Štítky a Záložky) je možné importovať z Hlavnej ponuky -&gt; Záloha &amp; Obnoviť.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Inštalovaná verzia: %1$s (%2$s)</string>
@@ -713,6 +729,10 @@ Režim opakovania bol vypnutý, pretože
   <!--TODO: to be removed-->
   <string name="help_search_text">Vyhľadávaný text môže obsahovať aj špeciálne znaky ako *,?, AND, OR, NOT
 (viď \"Apache Lucene - Query Parser Syntax\" pre viac detailov)</string>
+  <string name="help_search_text2">Hľadaný text môže obsahovať špeciálne znaky ako *, AND, OR, NOT</string>
+  <string name="help_search_details">Ďalšie podrobnosti nájdete v%s.</string>
+  <string name="help_apache_lucene">Syntax analyzátora dopytov – Apache Lucene</string>
+  <string name="help_fts5">Syntax celotextového dopytu FTS5</string>
   <string name="help_workspaces_title">Pracovné plochy</string>
   <string name="help_workspaces_text">
         Pracovné plochy umožňujú mať viacero pracovných prostredí závislých od kontextu. Funkcie pracovnej plochy
@@ -768,6 +788,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="journal_description">Používateľom upravovateľné študijné zložky s vlastným textom a záložkami</string>
   <string name="my_notes_description">Používateľom upravovateľné študijné zložky pripojené k záložkám</string>
   <string name="my_notes_abbreviation">Moje poznámky</string>
+  <string name="studypad">Študijná zložka</string>
   <string name="studypads">Študijné zložky</string>
   <string name="multi_description">Viac referencií</string>
   <string name="multi_abbreviation">Viac</string>
@@ -897,7 +918,9 @@ Režim opakovania bol vypnutý, pretože
   <string name="label_salvation">Spasenie</string>
   <string name="label_underline">Podčiarknutie</string>
   <string name="import_menu">Import a Export</string>
+  <string name="export">Export</string>
   <string name="export_fileformat">Exportovať ako %s</string>
+  <string name="export_something">Exportovať %s</string>
   <string name="import_items">Importovať %s</string>
   <string name="import_from_db">Importovať z databázového súboru aplikácie</string>
   <string name="import_error">Import z databázy aplikácie zlyhal. Databázový súbor môže mať nesprávny formát alebo môže byť vytvorený v príliš starej verzií %s. </string>
@@ -920,6 +943,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="strongs_off">Vypnuté</string>
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Texty a odkazy</string>
+  <string name="strongs_hidden_links">Skryté odkazy</string>
   <string name="verse_tip">Dlhým stlačením Biblického textu označíte časť alebo viacero veršov</string>
   <string name="permission_required">Vyžaduje sa povolenie</string>
   <string name="labels_search_hint">Hľadať</string>

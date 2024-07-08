@@ -90,7 +90,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/backup_restore"
+            android:text="@string/backup_restore2"
             android:layout_marginTop="20dp"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -131,7 +131,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp"
-            android:text="@string/backup_restore_from" />
+            android:text="@string/backup_restore_from2" />
 
 
         <TextView

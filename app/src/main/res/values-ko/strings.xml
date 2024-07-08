@@ -478,7 +478,11 @@
   <!--User Notes-->
   <string name="mynotes">내 참고들</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">어디에 백업할까요?</string>
+  <string name="backup_backup_message">전화기에 백업할까요 아니면 공유 기능을 이용해 다른 곳(이메일, 구글 드라이브 등)에 백업할까요?</string>
+  <string name="backup_phone_storage">폰 저장소</string>
   <string name="backup_and_restore">백업과 복원</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">복원</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">무엇을 복원할까요?</string>
@@ -497,6 +501,8 @@
   <string name="send_backup_file">백업 파일 보내기</string>
   <string name="backup_modules_title">어떤 모듈을 백업할지 선택</string>
   <string name="install_zip_canceled">모듈 설치가 취소됨</string>
+  <string name="restore">복원</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">저작권: %s</string>
   <string name="module_about_versification">시형: %s</string>

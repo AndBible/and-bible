@@ -151,6 +151,9 @@ android {
         buildConfigField("String", "BuildDate", "\"${SimpleDateFormat("dd/MM/YY HH:mm:ss").format(Date())}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "org.andbible.tests"
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 
     buildTypes {
@@ -344,19 +347,20 @@ dependencies {
     val coreKtxVersion: String by rootProject.extra
     val sqliteAndroidVersion: String by rootProject.extra
 
-    implementation(project(":db"))
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    ksp("androidx.room:room-compiler:$roomVersion")
 
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.room:room-ktx:$roomVersion")
     implementation("androidx.core:core-ktx:$coreKtxVersion")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.media:media:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.webkit:webkit:1.10.0")
+    implementation("androidx.webkit:webkit:1.11.0")
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
 
@@ -378,7 +382,7 @@ dependencies {
     //implementation("com.jaredrummler:colorpicker:1.1.0")
     implementation("com.github.AndBible:ColorPicker:ab-fix-1")
 
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.material:material:1.12.0")
 
     implementation("androidx.room:room-runtime:$roomVersion")
 
@@ -411,8 +415,6 @@ dependencies {
     implementation("jaxen:jaxen:2.0.0")
 
     debugImplementation("com.facebook.stetho:stetho:1.6.0")
-
-    testImplementation(project(":db"))
 
     // TESTS
     //testImplementation("com.github.AndBible:robolectric:4.3.1-andbible3")

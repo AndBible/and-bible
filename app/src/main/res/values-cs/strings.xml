@@ -538,6 +538,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <!--User Notes-->
   <string name="mynotes">Poznámky</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Umístění zálohy</string>
+  <string name="backup_backup_message">Zálohovat do telefonu nebo pomocí sdílení (e-mail, Google Drive apod.)?</string>
+  <string name="backup_phone_storage">Úložiště telefonu</string>
   <string name="backup_and_restore">Záloha a obnova</string>
   <string name="backup_modules2">Zálohovat dokumenty do ...</string>
   <string name="backup_app_database2">Zálohovat aplikační databázi do ...</string>
@@ -550,6 +553,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="backup_document_info">Bible, komentáře, slovníky, mapy atd.</string>
   <string name="backup_to">Zálohovat do...</string>
   <string name="backup_restore_from">Obnovit z...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Obnovit</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Které položky chcete obnovit?</string>
@@ -571,6 +575,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="send_backup_file">Odeslat soubor zálohy</string>
   <string name="backup_modules_title">Vyberte, které moduly zálohovat</string>
   <string name="install_zip_canceled">Instalace modulu zrušena</string>
+  <string name="restore">Obnovit</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Autorská práva: %s</string>
   <string name="module_about_installed_version">nstalovaná verze: %1$s (%2$s)</string>

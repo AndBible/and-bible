@@ -41,6 +41,7 @@
   <string name="search_in">在 %s 中查找</string>
   <string name="do_in_background">在后台运行</string>
   <string name="rebuild_index_button">重建</string>
+  <string name="creating_index_for">为%s建立索引</string>
   <!--X results in module Y-->
   <string name="search_with_results2">在 %2s 中找到 %1s 个结果</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">所有的词</string>
   <string name="search_any_word">任何一词</string>
   <string name="search_phrase">完整句子</string>
+  <string name="search_fts_query">原始查询句法</string>
   <string name="search_result_count">匹配到 %d 条结果</string>
   <string name="search_showing_first">符合条件的结果过多。仅显示前面的 %d 条</string>
   <string name="search_bible_section_group_prompt">搜寻范围</string>
@@ -538,6 +540,9 @@ http://www.heartlight.org 准予使用
   <!--User Notes-->
   <string name="mynotes">笔记列表</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">备份目的地</string>
+  <string name="backup_backup_message">以分享功能备份至手机或其他目的地 (电邮、Google Drive等)？</string>
+  <string name="backup_phone_storage">手机空间</string>
   <string name="backup_and_restore">备份及恢复</string>
   <string name="backup_modules2">备份文件</string>
   <string name="backup_app_database2">备份应用数据库到...</string>
@@ -550,7 +555,11 @@ http://www.heartlight.org 准予使用
   <string name="backup_document_info">圣经、评论、词典、地图等。</string>
   <string name="backup_to">备份到...</string>
   <string name="backup_restore_from">从备份恢复...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">从指定地方恢复或导入</string>
   <string name="backup_restore">恢复</string>
+  <string name="backup_restore2">恢复或导入</string>
+  <string name="overwrite_something">是否覆盖%s？</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">你想恢复什么？</string>
   <string name="restore_app_database">从指定地方恢复程序资料库</string>
@@ -566,11 +575,16 @@ http://www.heartlight.org 准予使用
   <string name="backup_modules_email_message_2">此附你的 %1$s 模组备份，包含了以下模组: %2$s</string>
   <string name="backup_email_subject_2">%s 资料库备份</string>
   <string name="backup_email_message_2">你的%s载有书签、笔记、读经计划及工作检视的资料库已包括在内</string>
+  <string name="exported_studypads_subject">导出学习笔记</string>
+  <string name="exported_studypads_message">学习计划相关的%s数据库已为您添加，包含了书签、笔记</string>
   <string name="restore_unsuccessfull">未能回复资料库。或许你的资料库档案无效。</string>
   <string name="restore_modules">从指定地方恢复文档</string>
   <string name="send_backup_file">传送备份档案</string>
   <string name="backup_modules_title">选择备份模组</string>
   <string name="install_zip_canceled">模组安装已取消</string>
+  <string name="restore">恢复</string>
+  <string name="import2">导入</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">版权: %s</string>
   <string name="module_about_installed_version">安装的版本：%1$s（%2$s）</string>
@@ -700,6 +714,8 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <!--TODO: to be removed-->
   <string name="help_search_text">搜寻字词可以加入特殊字符如 * , ?, AND, OR, NOT
 (有关详细信息请参「Apache Lucene - Query Parser Syntax」)</string>
+  <string name="help_search_text2">搜索文本可包括特殊符号，比如*, AND, OR, NOT</string>
+  <string name="help_search_details">更多详情请见%s</string>
   <string name="help_workspaces_title">工作检视</string>
   <string name="help_workspaces_text">
 工作检视可让你打开数个工作环境。
@@ -747,6 +763,7 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="journal_description">使用者可自行编辑个人笔记及标记书签</string>
   <string name="my_notes_description">书签已附带使用者的笔记</string>
   <string name="my_notes_abbreviation">笔记列表</string>
+  <string name="studypad">学习笔记</string>
   <string name="studypads">个人笔记</string>
   <string name="multi_description">多重参考</string>
   <string name="multi_abbreviation">多重</string>
@@ -877,7 +894,9 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="label_salvation">救恩</string>
   <string name="label_underline">下划线</string>
   <string name="import_menu">导入与导出</string>
+  <string name="export">导出</string>
   <string name="export_fileformat">以%s导出</string>
+  <string name="export_something">导出%s</string>
   <string name="import_items">以%s导入</string>
   <string name="import_from_db">从应用程序数据库文件导入</string>
   <string name="import_error">从应用程序数据库导入失败。数据库文件版本可能太旧，或者是从太旧的%s建立。</string>

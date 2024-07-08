@@ -544,6 +544,9 @@
   <!--User Notes-->
   <string name="mynotes">Notlarım</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Nereye yedeklensin?</string>
+  <string name="backup_backup_message">Telefona ya da Paylaş fonksiyonuyla  (email, Google Drive vb.) başka yere yedekle?</string>
+  <string name="backup_phone_storage">Telefon hafıza</string>
   <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
   <string name="backup_modules2">Belgeler yedekleme hedefi…</string>
   <string name="backup_app_database2">Uygulama veritabanını şuraya yedekleyin…</string>
@@ -556,6 +559,7 @@
   <string name="backup_document_info">Kutsal Kitaplar, yorum kitaplar, sözlükler, haritalar vb.</string>
   <string name="backup_to">Yedekleme hedefi…</string>
   <string name="backup_restore_from">Geri yükle kaynağı…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Yedekten geri yükle</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Neyi geri yüklemek istiyorsunuz?</string>
@@ -577,6 +581,8 @@
   <string name="send_backup_file">Yedekleme dosyasını gönder</string>
   <string name="backup_modules_title">Hangi modüllerin yedekleneceğini seçin</string>
   <string name="install_zip_canceled">Modül yüklemesi iptal edildi</string>
+  <string name="restore">Yedekten geri yükle</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Telif hakkı: %s</string>
   <string name="module_about_installed_version">Yüklü sürüm: %1$s (%2$s)</string>

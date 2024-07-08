@@ -635,6 +635,9 @@
     <string name="mynotes">My Notes</string>
 
     <!-- Backup and restore -->
+    <string name="backup_backup_title">Backup to where?</string>
+    <string name="backup_backup_message">Backup to phone or elsewhere via Share function (email, Google Drive etc.)?</string>
+    <string name="backup_phone_storage">Phone storage</string>
     <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup_modules2">Backup Documents to…</string>
     <string name="backup_app_database2">Backup app database to…</string>
@@ -647,7 +650,11 @@
     <string name="backup_document_info">Bibles, commentaries, dictionaries, maps etc.</string>
     <string name="backup_to">Backup to…</string>
     <string name="backup_restore_from">Restore from…</string>
+    <!-- Restore = overwrite existing. Import = merge into existing -->
+    <string name="backup_restore_from2">Restore or Import from…</string>
     <string name="backup_restore">Restore</string>
+    <string name="backup_restore2">Restore or Import</string>
+    <string name="overwrite_something">Overwrite %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
     <string name="restore_what">What do you want to restore?</string>
@@ -667,11 +674,21 @@
 
     <string name="backup_email_subject_2">%s database backup</string>
     <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
+
+    <string name="exported_studypads_subject">Exported StudyPad(s)</string>
+    <string name="exported_studypads_message">Your %s database containing Bookmarks and Notes related to selected StudyPads is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <string name="restore_modules">Restore Documents from…</string>
     <string name="send_backup_file">Send a backup file</string>
     <string name="backup_modules_title">Select which modules to backup</string>
     <string name="install_zip_canceled">Module install cancelled</string>
+    <string name="ask_restore_or_import">Database for %s can be either restored (i.e. existing database is removed and selected database is loaded) or imported (selected database is imported into existing database). What do you want to do?</string>
+    <string name="restore">Restore</string>
+    <string name="import2">Import</string>
+    <string name="export_studypads_help">File containing exported StudyPads (i.e Labels and Bookmarks) can be imported via Main Menu -> Backup &amp; Restore.</string>
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+    <string name="bookmarks_db_stats">\"%1$s\" and %2$s other Label(s) / StudyPad/(s) and %3$s Bookmarks</string>
 
     <!-- About -->
     <string name="module_about_copyright">Copyright: %s</string>
@@ -874,6 +891,7 @@
     <string name="format_mysword">MySword documents (*.mybible)</string>
     <string name="format_mybible">MyBible documents (*.SQLite3)</string>
     <string name="format_epub">EPUB documents (*.epub)</string>
+    <string name="format_studypads">StudyPads from AndBible databases (*.abdb)</string>
     <string name="redownload_message">
         A list of previous books/documents was found. Click below to easily download them again.
     </string>
@@ -891,6 +909,7 @@
     <string name="journal_description">User-editable study pads with custom text and bookmarks</string>
     <string name="my_notes_description">User-editable notes attached to bookmarks</string>
     <string name="my_notes_abbreviation">My Notes</string>
+    <string name="studypad">Study Pad</string>
     <string name="studypads">Study Pads</string>
     <string name="multi_description">Multiple references</string>
     <string name="multi_abbreviation">Multiple</string>
@@ -1025,7 +1044,9 @@
     <string name="label_salvation">Salvation</string>
     <string name="label_underline">Underline</string>
     <string name="import_menu">Import &amp; Export</string>
+    <string name="export">Export</string>
     <string name="export_fileformat">Export as %s</string>
+    <string name="export_something">Export %s</string>
     <string name="import_items">Import %s</string>
     <string name="import_from_db">Import from App Database file</string>
     <string name="import_error">Importing from App Database failed. Database file could be wrong format or made with too old version of %s.</string>

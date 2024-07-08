@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, inject, onBeforeUnmount, onMounted, onUnmounted, ref, watch} from "vue";
+import {computed, inject, onBeforeUnmount, onMounted, onUnmounted, ref, shallowRef, watch} from "vue";
 import {useCommon} from "@/composables";
 import {exec, init, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText.vue";
@@ -63,7 +63,7 @@ const android = inject(androidKey)!;
 const {parse, features} = inject(customFeaturesKey)!
 const {editorMode} = inject(keyboardKey)!;
 const hasRefParser = computed(() => features.has("RefParser"));
-const editorElement = ref<HTMLElement | null>(null);
+const editorElement = shallowRef<HTMLElement | null>(null);
 
 type EditorElement = HTMLElement & { content: HTMLElement }
 

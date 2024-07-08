@@ -41,6 +41,7 @@
   <string name="search_in">Encuentra en %s</string>
   <string name="do_in_background">Continuar en el fondo</string>
   <string name="rebuild_index_button">Reconstruir</string>
+  <string name="creating_index_for">Crear índice para %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s resultados en %2s</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Todas las palabras.</string>
   <string name="search_any_word">Cualquier palabra</string>
   <string name="search_phrase">Frase</string>
+  <string name="search_fts_query">Sintaxis de consulta en bruto</string>
   <string name="search_result_count">%d coincidencias encontradas</string>
   <string name="search_showing_first">Demasiadas coincidencias. Mostrando las primeras %d</string>
   <string name="search_bible_section_group_prompt">Busca Donde</string>
@@ -539,6 +541,9 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--User Notes-->
   <string name="mynotes">Mis Notas</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Guardar copia de seguridad en...</string>
+  <string name="backup_backup_message">¿Guardar copia de seguridad en el teléfono o en otro lugar a través de la función compartir (correo electrónico, Google Drive, etc.)?</string>
+  <string name="backup_phone_storage">Almacenamiento del teléfono</string>
   <string name="backup_and_restore">Copia de seguridad y restauración</string>
   <string name="backup_modules2">Guardar copia de seguridad de documentos en...</string>
   <string name="backup_app_database2">Guardar copia de seguridad de la base de datos de la aplicación en...</string>
@@ -551,7 +556,11 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="backup_document_info">Biblias, comentarios, diccionarios, mapas, etc.</string>
   <string name="backup_to">Guardar copia de seguridad en...</string>
   <string name="backup_restore_from">Restaurar copia de seguridad desde...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Restaurar o importar desde...</string>
   <string name="backup_restore">Resturar</string>
+  <string name="backup_restore2">Restaurar o Importar</string>
+  <string name="overwrite_something">¿Sobrescribir %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">¿Qué quiere restaurar?</string>
   <string name="restore_app_database">Restaurar la base de datos de la aplicación desde...</string>
@@ -567,11 +576,19 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="backup_modules_email_message_2">Se adjunta la copia de seguridad de sus módulos de %1$s, que contiene los siguientes módulos: %2$s</string>
   <string name="backup_email_subject_2">Copia de seguridad de la base de datos de %s</string>
   <string name="backup_email_message_2">Se adjunta su base de datos de %s que contiene marcadores, mis notas, planes de lectura y espacios</string>
+  <string name="exported_studypads_subject">Pizarras de estudio exportados</string>
+  <string name="exported_studypads_message">Se adjunta su base de datos %s que contiene Marcadores y Notas relacionados con los Pizarras de estudio seleccionados</string>
   <string name="restore_unsuccessfull">La restauración de la base de datos tuvo un error. Tal vez le dio un archivo de base de datos no válido.</string>
   <string name="restore_modules">Restaurar documentos desde...</string>
   <string name="send_backup_file">Enviar un archivo de copia de seguridad</string>
   <string name="backup_modules_title">Seleccione qué módulos desea guardar</string>
   <string name="install_zip_canceled">La instalación del módulo fue cancelada</string>
+  <string name="ask_restore_or_import">La base de datos para %s  puede restaurarse (es decir, se elimina la base de datos existente y se carga la base de datos seleccionada) o importarse (la base de datos seleccionada se importa en la base de datos existente). ¿Qué desea hacer?</string>
+  <string name="restore">Resturar</string>
+  <string name="import2">Importar</string>
+  <string name="export_studypads_help">El archivo que contiene las Pizarras de estudio exportadas (es decir, Etiquetas y Marcadores) puede importarse a través de Menú principal -&gt; Copia de seguridad y restauración.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" e %2$s otras Etiquetas / Estudios y %3$s Marcadores</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Versión instalada: %1$s (%2$s)</string>
@@ -710,6 +727,10 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
   <!--TODO: to be removed-->
   <string name="help_search_text">La búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT
 (vea \"Apache Lucene - Query Parser Syntax\" para más detalles)</string>
+  <string name="help_search_text2">El texto de búsqueda puede incluir caracteres especiales como *, AND, OR, NOT</string>
+  <string name="help_search_details">Consulte %s para obtener más detalles.</string>
+  <string name="help_apache_lucene">Apache Lucene - Sintaxis del analizador de consultas</string>
+  <string name="help_fts5">FTS5 Sintaxis de consulta de texto completo</string>
   <string name="help_workspaces_title">Espacios</string>
   <string name="help_workspaces_text">
         Los espacios permiten tener múltiples entornos de trabajo dependientes del contexto. Funciones del espacio
@@ -750,6 +771,7 @@ respaldo.
   <string name="format_mysword">Documentos MySword (*.mybible)</string>
   <string name="format_mybible">Documentos MyBible (.SQLite3)</string>
   <string name="format_epub">Documentos EPUB (*.epub)</string>
+  <string name="format_studypads">Pizarras de estudio de la base de datos AndBible (*.abdb)</string>
   <string name="redownload_message">
 Se encontró una lista de libros / documentos anteriores. Haga clic a continuación para volver a descargarlos fácilmente.
 </string>
@@ -764,6 +786,7 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="journal_description">Pizarras de estudio editables por el usuario con texto personalizado y marcadores</string>
   <string name="my_notes_description">Notas editables por el usuario adjuntas a los marcadores</string>
   <string name="my_notes_abbreviation">Mis Notas</string>
+  <string name="studypad">Pizarras de estudio</string>
   <string name="studypads">Pizarras de Estudio</string>
   <string name="multi_description">Referencias múltiples</string>
   <string name="multi_abbreviation">Múltiple</string>
@@ -894,7 +917,9 @@ informe los problemas a los mantenedores de texto
   <string name="label_salvation">Salvación</string>
   <string name="label_underline">Subrayar</string>
   <string name="import_menu">Importar &amp; Exportar</string>
+  <string name="export">Exportar</string>
   <string name="export_fileformat">Exportar cómo %s</string>
+  <string name="export_something">Exportar %s</string>
   <string name="import_items">Importar %s</string>
   <string name="import_from_db">Importar desde el archivo de la base de datos de la aplicación</string>
   <string name="import_error">Error al importar desde la base de datos de la aplicación. El archivo de base de datos puede tener un formato incorrecto o estar hecho con una versión demasiado antigua de %s.</string>
@@ -917,6 +942,7 @@ informe los problemas a los mantenedores de texto
   <string name="strongs_off">Apagada</string>
   <string name="strongs_links">Enlaces</string>
   <string name="strongs_text_and_links">Texto y Enlaces</string>
+  <string name="strongs_hidden_links">Enlaces ocultos</string>
   <string name="verse_tip">Para hace una selección parcial o de muchos versículos puede mantener presionado el texto de la Biblia</string>
   <string name="permission_required">Se necesita permiso</string>
   <string name="labels_search_hint">Búsqueda</string>

@@ -20,8 +20,11 @@ package net.bible.service.cloudsync
 import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.activity.R
+import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.LogEntry
+import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.SyncableRoomDatabase
+import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
@@ -34,46 +37,82 @@ const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
 
 enum class SyncableDatabaseDefinition {
     BOOKMARKS, WORKSPACES, READINGPLANS;
-    class Table(val tableName: String, val idField1: String = "id", val idField2: String? = null)
+    class Table(
+        val tableName: String,
+        val idField1: String = "id",
+        val idField2: String? = null,
+    )
     val contentDescription: Int get() = when(this) {
         READINGPLANS -> R.string.reading_plans_content
         BOOKMARKS -> R.string.bookmarks_contents
         WORKSPACES -> R.string.workspaces_contents
     }
 
+    val filename get() = when(this) {
+        BOOKMARKS -> BookmarkDatabase.dbFileName
+        READINGPLANS ->ReadingPlanDatabase.dbFileName
+        WORKSPACES -> WorkspaceDatabase.dbFileName
+    }
+
     val tables get() = when(this) {
         BOOKMARKS -> listOf(
-            Table("Label"),
-            Table("BibleBookmark"),
-            Table("BibleBookmarkNotes", "bookmarkId"),
-            Table("BibleBookmarkToLabel", "bookmarkId", "labelId"),
-            Table("GenericBookmark"),
-            Table("GenericBookmarkNotes", "bookmarkId"),
-            Table("GenericBookmarkToLabel", "bookmarkId", "labelId"),
-            Table("StudyPadTextEntry"),
-            Table("StudyPadTextEntryText", "studyPadTextEntryId"),
+            Table(
+                tableName = "Label"
+            ),
+            Table(
+                tableName = "BibleBookmark"
+            ),
+            Table(
+                tableName = "BibleBookmarkNotes",
+                idField1 = "bookmarkId"
+            ),
+            Table(
+                tableName = "BibleBookmarkToLabel",
+                idField1 = "bookmarkId",
+                idField2 = "labelId"
+            ),
+            Table(
+                tableName = "GenericBookmark"
+            ),
+            Table(
+                tableName = "GenericBookmarkNotes",
+                idField1 = "bookmarkId"
+            ),
+            Table(
+                tableName = "GenericBookmarkToLabel",
+                idField1 = "bookmarkId",
+                idField2 = "labelId"
+            ),
+            Table(
+                tableName = "StudyPadTextEntry"
+            ),
+            Table(
+                tableName = "StudyPadTextEntryText",
+                idField1 = "studyPadTextEntryId"
+            ),
         )
         WORKSPACES -> listOf(
-            Table("Workspace"),
-            Table("Window"),
-            Table("PageManager", "windowId"),
+            Table(tableName = "Workspace"),
+            Table(tableName = "Window"),
+            Table(tableName = "PageManager", idField1 = "windowId"),
         )
         READINGPLANS -> listOf(
-            Table("ReadingPlan"),
-            Table("ReadingPlanStatus"),
+            Table(tableName = "ReadingPlan"),
+            Table(tableName = "ReadingPlanStatus"),
         )
     }
 
-    var enabled
+    var syncEnabled
         get() = CommonUtils.settings.getBoolean("gdrive_"+ name.lowercase(), false)
         set(value) = CommonUtils.settings.setBoolean("gdrive_"+name.lowercase(), value)
 
-    private val accessor get() = DatabaseContainer.databaseAccessorsByCategory[this]!!
-    val lastSynchronized get() = if(!enabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
+    val accessor get() = DatabaseContainer.databaseAccessorsByCategory[this]!!
+    val lastSynchronized get() = if(!syncEnabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
 
     companion object {
         val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS)
         val nameToCategory = ALL.associateBy { it.name }
+        val filenameToCategory = ALL.associateBy { it.filename }
     }
 }
 

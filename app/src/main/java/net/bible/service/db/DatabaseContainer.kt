@@ -23,6 +23,7 @@ import androidx.room.RoomDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.LogEntry
@@ -55,7 +56,7 @@ import java.util.*
 
 const val OLD_MONOLITHIC_DATABASE_NAME = "andBibleDatabase.db"
 
-const val TAG = "DbContainer"
+private const val TAG = "DbContainer"
 
 val ALL_DB_FILENAMES = arrayOf(
     BookmarkDatabase.dbFileName,
@@ -244,7 +245,7 @@ class DatabaseContainer {
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
             val backupPath = CommonUtils.dbBackupPath
             val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
-            val backupFile = File(backupPath, "dbBackup-${CommonUtils.applicationVersionNumber}-$versionString-$timeStamp.abdb")
+            val backupFile = File(backupPath, "dbBackup-${CommonUtils.applicationVersionNumber}-$versionString-$timeStamp$DATABASE_BACKUP_SUFFIX")
             backupZipFile.copyTo(backupFile, true)
             backupZipFile.delete()
         }
@@ -252,6 +253,8 @@ class DatabaseContainer {
 
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
     private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb)
+
+    val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
 
     internal fun sync() = allDatabases.forEach {
         it.openHelper.writableDatabase
@@ -313,30 +316,30 @@ class DatabaseContainer {
         fun getDatabaseAccessorFactories(container: DatabaseContainer): List<() -> SyncableDatabaseAccessor<*>> = container.run {
             listOf(
                 { SyncableDatabaseAccessor(
-                    bookmarkDb,
-                    { n -> getBookmarkDb(n) }, { resetBookmarkDb() },
-                    application.getDatabasePath(BookmarkDatabase.dbFileName),
-                    SyncableDatabaseDefinition.BOOKMARKS,
-                    { entries ->
+                    localDb = bookmarkDb,
+                    dbFactory = { n -> getBookmarkDb(n) }, _resetLocalDb = { resetBookmarkDb() },
+                    localDbFile = application.getDatabasePath(BookmarkDatabase.dbFileName),
+                    category = SyncableDatabaseDefinition.BOOKMARKS,
+                    _reactToUpdates = { entries ->
                         ABEventBus.post(BookmarksUpdatedViaSyncEvent(entries))
                     },
                 ) },
                 { SyncableDatabaseAccessor(
-                    workspaceDb,
-                    { n -> getWorkspaceDb(n) }, { resetWorkspaceDb() },
-                    application.getDatabasePath(WorkspaceDatabase.dbFileName),
-                    SyncableDatabaseDefinition.WORKSPACES,
-                    {
+                    localDb = workspaceDb,
+                    dbFactory = { n -> getWorkspaceDb(n) }, _resetLocalDb = { resetWorkspaceDb() },
+                    localDbFile = application.getDatabasePath(WorkspaceDatabase.dbFileName),
+                    category = SyncableDatabaseDefinition.WORKSPACES,
+                    _reactToUpdates = {
                         ABEventBus.post(WorkspacesUpdatedViaSyncEvent(it))
                     },
                 ) },
                 { SyncableDatabaseAccessor(
-                    readingPlanDb,
-                    { n -> getReadingPlanDb(n) },
-                    { resetReadingPlanDb() },
-                    application.getDatabasePath(ReadingPlanDatabase.dbFileName),
-                    SyncableDatabaseDefinition.READINGPLANS,
-                    {
+                    localDb = readingPlanDb,
+                    dbFactory = { n -> getReadingPlanDb(n) },
+                    _resetLocalDb = { resetReadingPlanDb() },
+                    localDbFile = application.getDatabasePath(ReadingPlanDatabase.dbFileName),
+                    category = SyncableDatabaseDefinition.READINGPLANS,
+                    _reactToUpdates = {
                         ABEventBus.post(ReadingPlansUpdatedViaSyncEvent(it))
                     },
                 )

@@ -449,6 +449,9 @@ Kas jätkame?</string>
   <!--User Notes-->
   <string name="mynotes">Minu märkmed</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Kuhu varundada?</string>
+  <string name="backup_backup_message">Kas soovid salvestada varukoopia telefoni või jagada (e-post, Google Drive jne)?</string>
+  <string name="backup_phone_storage">Telefoni mälu</string>
   <string name="backup_and_restore">Varundamine ja taastamine</string>
   <string name="backup_modules2">Varunda dokumendid kohta...</string>
   <string name="backup_app_database2">Varunda rakenduse andmebaas kohta...</string>
@@ -459,6 +462,7 @@ Kas jätkame?</string>
   <string name="backup_application_info">Rakenduse fail (.apk)</string>
   <string name="backup_to">Varunda kohta...</string>
   <string name="backup_restore_from">Taasta...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Taasta</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Mida sa soovid taastada?</string>
@@ -473,6 +477,8 @@ Kas jätkame?</string>
   <string name="send_backup_file">Saada varukoopia fail</string>
   <string name="backup_modules_title">Vali varundatavad moodulid</string>
   <string name="install_zip_canceled">Mooduli paigaldus katkestatud</string>
+  <string name="restore">Taasta</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Autoriõigused: %s</string>
   <string name="module_about_installed_version">Paigaldatud versioon: %1$s (%2$s)</string>

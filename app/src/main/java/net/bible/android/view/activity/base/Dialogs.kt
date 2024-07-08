@@ -18,10 +18,9 @@ package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
 import android.content.Context
-import android.os.Build
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +28,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -156,19 +156,85 @@ object Dialogs {
         return result
     }
 
-    suspend fun simpleQuestion(context: Context, message: String? = null, title: String? = context.getString(R.string.are_you_sure)) = suspendCoroutine {
-        AlertDialog.Builder(context)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
-            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
-            .setOnCancelListener { _ -> it.resume(false) }
-            .show()
+    suspend fun simpleQuestion(context: Context, message: String? = null, title: String? = context.getString(R.string.are_you_sure)) = withContext(Dispatchers.Main) {
+        suspendCoroutine {
+            AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
+                .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
+                .setOnCancelListener { _ -> it.resume(false) }
+                .show()
+        }
     }
 
-    suspend fun simpleQuestion(context: Context, message: Int? = null, title: Int? = R.string.are_you_sure) {
+    suspend fun simpleQuestion(context: Context, message: Int? = null, title: Int? = R.string.are_you_sure): Boolean {
         val titleStr = if(title == null) null else context.getString(title)
         val messageStr = if(message == null) null else context.getString(message)
-        simpleQuestion(context, message = messageStr, title = titleStr)
+        return simpleQuestion(context, message = messageStr, title = titleStr)
     }
+    suspend fun simpleInfoMessage(context: Context, key: String, message: String? = context.getString(R.string.are_you_sure)) = withContext(Dispatchers.Main) {
+        suspendCoroutine {
+            if (CommonUtils.settings.getBoolean("skip_$key", false)) {
+                it.resume(true)
+                return@suspendCoroutine
+            }
+            AlertDialog.Builder(context)
+                .setTitle(R.string.information)
+                .setMessage(message)
+                .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
+                .setNeutralButton(R.string.dont_show) { _, _ ->
+                    CommonUtils.settings.setBoolean("skip_$key", true)
+                    it.resume(true)
+                }
+                .show()
+        }
+    }
+
+    suspend fun simpleInfoMessage(context: Context, key: String, message: Int? = R.string.are_you_sure): Boolean {
+        val messageStr = if(message == null) null else context.getString(message)
+        return simpleInfoMessage(context, key, messageStr)
+    }
+
+    suspend fun <T> multiselect(context: Context, title: String, items: List<T>, itemToString: ((arg: T) -> String)? = null): List<T> = suspendCoroutine {
+        val itemNames = items.map { itemToString?.let { it1 -> it1(it) }?: it.toString() }.toTypedArray()
+        val checkedItems = itemNames.map { false }.toBooleanArray()
+        val dialog = AlertDialog.Builder(context)
+            .setPositiveButton(R.string.okay) { d, _ ->
+                val selectedItems = items.filterIndexed { index, book -> checkedItems[index] }
+                if (selectedItems.isEmpty()) {
+                    it.resume(emptyList())
+                } else {
+                    it.resume(selectedItems)
+                }
+            }
+            .setMultiChoiceItems(itemNames, checkedItems) { _, pos, value ->
+                checkedItems[pos] = value
+            }
+            .setNeutralButton(R.string.select_all) { _, _ -> it.resume(emptyList()) }
+            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(emptyList()) }
+            .setOnCancelListener { _ -> it.resume(emptyList()) }
+            .setTitle(title)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val allSelected = checkedItems.find { !it } == null
+                val newValue = !allSelected
+                val v = dialog.listView
+                for (i in 0 until v.count) {
+                    v.setItemChecked(i, newValue)
+                    checkedItems[i] = newValue
+                }
+                (it as Button).text =
+                    context.getString(if (allSelected) R.string.select_all else R.string.select_none)
+            }
+        }
+        dialog.show()
+        CommonUtils.fixAlertDialogButtons(dialog)
+    }
+
+    suspend fun <T> multiselect(context: Context, title: Int, items: List<T>, itemToString: ((arg: T) -> String)? = null): List<T> =
+        multiselect(context, context.getString(title), items, itemToString)
+
 }

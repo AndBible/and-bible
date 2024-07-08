@@ -504,6 +504,9 @@
   <!--User Notes-->
   <string name="mynotes">הערות אישיות</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">היכן לגבות?</string>
+  <string name="backup_backup_message">גיבוי לזכרון המכשיר או באמצעות שיתוף (אימייל, Google Drive ועוד) ?</string>
+  <string name="backup_phone_storage">אחסון המכשיר</string>
   <string name="backup_and_restore">גיבוי ושחזור</string>
   <string name="backup_modules2">גיבוי מסמכים ל....</string>
   <string name="backup_app_database2">גיבוי מסד הנתונים של האפליקציה אל...</string>
@@ -513,6 +516,7 @@
   <string name="backup_application_info">קובץ אפליקציה file (.APK)</string>
   <string name="backup_to">גיבוי אל...</string>
   <string name="backup_restore_from">שחזור גיבוי מ...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">שחזור</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">מה לשחזר?</string>
@@ -532,6 +536,8 @@
   <string name="send_backup_file">שליחת קובץ גיבוי</string>
   <string name="backup_modules_title">בחירת מודולים לגיבוי</string>
   <string name="install_zip_canceled">התקנת המודול בוטלה</string>
+  <string name="restore">שחזור</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">כל הזכויות שמורות: %s</string>
   <string name="module_about_installed_version">הגרסה המותקנת: %1$s (%2$s)</string>

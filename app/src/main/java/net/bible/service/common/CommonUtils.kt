@@ -159,6 +159,8 @@ import org.jdom2.input.SAXBuilder
 import org.jdom2.xpath.XPathFactory
 import org.spongycastle.util.io.pem.PemReader
 import java.io.BufferedInputStream
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -175,7 +177,9 @@ import java.security.spec.X509EncodedKeySpec
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -303,6 +307,7 @@ object CommonUtils : CommonUtilsBase() {
 
 	val json = Json {
         ignoreUnknownKeys = true
+        encodeDefaults = true
     }
 
     private const val TAG = "CommonUtils"
@@ -1371,7 +1376,7 @@ object CommonUtils : CommonUtilsBase() {
         Log.i(TAG, "Language tag $languageTag, code $languageCode")
 
         // Transifex as of 21.2.2024
-        val goodLanguages = "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt,yue,zh-Hans-CN,zh-Hant-TW,es,ta,cs,hu,nl,sr,te".split(",")
+        val goodLanguages = "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt,yue,zh-Hans-CN,zh-Hant-TW,es,ta,cs,hu,nl,sr,te,pl".split(",")
 
         // 4.0 list:
 
@@ -1505,7 +1510,7 @@ object CommonUtils : CommonUtilsBase() {
 
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
-        else SyncableDatabaseDefinition.ALL.any { it.enabled }
+        else SyncableDatabaseDefinition.ALL.any { it.syncEnabled }
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 
@@ -1577,18 +1582,18 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    suspend fun determineFileType(inputStream: BufferedInputStream): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
-        val header = ByteArray(16)
-        inputStream.mark(16)
-        inputStream.read(header)
-        inputStream.reset()
-        val headerString = String(header)
-        if(headerString == "SQLite format 3\u0000")
-            BackupControl.AbDbFileType.SQLITE3
-        else if(headerString.startsWith("PK\u0003\u0004"))
-            BackupControl.AbDbFileType.ZIP
-        else
-            BackupControl.AbDbFileType.UNKNOWN
+    suspend fun determineFileType(uri: Uri): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
+        application.contentResolver.openInputStream(uri)?.use { inputStream ->
+            val header = ByteArray(16)
+            inputStream.read(header)
+            val headerString = String(header)
+            if (headerString == "SQLite format 3\u0000")
+                BackupControl.AbDbFileType.SQLITE3
+            else if (headerString.startsWith("PK\u0003\u0004")) {
+                BackupControl.AbDbFileType.ZIP
+            } else
+                BackupControl.AbDbFileType.UNKNOWN
+        } ?: BackupControl.AbDbFileType.UNKNOWN
     }
 
     fun makeAndBibleUrl(
@@ -1859,3 +1864,56 @@ val Key.shortName: String get() =
             return text
         }
     else name
+
+enum class DbType {
+    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS
+}
+enum class BackupType {
+    // Note! We can only trust STUDYPAD_EXPORT, as manifest is not existing before AB version 822.
+    STUDYPAD_EXPORT,
+    DB_BACKUP,
+    MODULE_BACKUP
+}
+
+const val ANDBIBLE_BACKUP_MANIFEST_FILENAME = "AndBibleBackupManifest.json"
+@Serializable
+data class AndBibleBackupManifest(
+    val backupType: BackupType,
+    val contains: Set<DbType>? = null,
+    val manifestVersion: Int = 1,
+    val andBibleVersion: Int = CommonUtils.applicationVersionNumber
+) {
+    fun toJson(): String {
+        return CommonUtils.json.encodeToString(serializer(), this)
+    }
+
+    fun saveToZip(zipStream: ZipOutputStream) {
+        val content = ByteArrayInputStream(toJson().toByteArray())
+        val entry = ZipEntry(ANDBIBLE_BACKUP_MANIFEST_FILENAME)
+        zipStream.putNextEntry(entry)
+        content.copyTo(zipStream)
+    }
+    companion object {
+        fun fromJson(jsonString: String): AndBibleBackupManifest {
+            return CommonUtils.json.decodeFromString(serializer(), jsonString)
+        }
+
+        fun fromUri(uri: Uri): AndBibleBackupManifest? {
+            val inputStream = application.contentResolver.openInputStream(uri)!!
+            val manifest = ZipInputStream(inputStream).use {
+                val entry = it.nextEntry
+                if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
+                    val out = ByteArrayOutputStream()
+                    val buffer = ByteArray(1024)
+                    var len: Int
+                    while (it.read(buffer).also { len = it } > 0) {
+                        out.write(buffer, 0, len)
+                    }
+                    val outString = out.toString()
+                    fromJson(outString)
+                } else null
+            }
+            return manifest
+        }
+    }
+}

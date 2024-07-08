@@ -335,14 +335,8 @@ object BugReport {
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
                 type = "text/plain"
             }
-            val saveFileIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/zip"
-                putExtra(Intent.EXTRA_TITLE, "log-screenshot-andbible.zip")
-            }
 
             val chooserIntent = Intent.createChooser(emailIntent, activity.getString(R.string.send_bug_report_title))
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveFileIntent))
             chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             activity.awaitIntent(chooserIntent).data?.data?.let { destinationUri ->
                 activity.lifecycleScope.launch(Dispatchers.IO) {
