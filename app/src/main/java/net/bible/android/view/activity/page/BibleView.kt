@@ -350,7 +350,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             R.id.web_search -> {
-                if (currentSelectionText != null) { openWebSearch(mainBibleActivity, currentSelectionText) }
+                if (currentSelectionText != null) { openWebSearch(mainBibleActivity, currentSelectionText!!) }
                 return true
             }
             R.id.search -> {
@@ -428,12 +428,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun openWebSearch(context: Context, query: String) {
         try {
-            //var intent : Intent? = null
             val intent = Intent(Intent.ACTION_WEB_SEARCH)
             intent.putExtra(SearchManager.QUERY, query)
             context.startActivity(intent)
         } catch (e: Exception) {
-            Log.e(context.getClass().getName(), "Browser app not available to search: " + query)
+            Log.e(TAG, "Browser app not available to search: " + query)
         }
     }
 
@@ -545,7 +544,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(ref == null && currentSelectionText != null) {
                 val item = menu.findItem(R.id.search)
                 item.isVisible = true
-                item.title = if(currentSelectionText?.length < 16) context.getString(R.string.search_what, currentSelectionText) else context.getString(R.string.search)
+                item.title = if(currentSelectionText!!.length < 16) context.getString(R.string.search_what, currentSelectionText) else context.getString(R.string.search)
+            }
+            if (currentSelectionText != null) {
+                menu.findItem(R.id.web_search).apply {
+                    isVisible = true
+                }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelectionText != null) {
                 var menuItemOrder = 100
