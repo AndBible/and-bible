@@ -780,6 +780,7 @@
   <string name="format_mysword">Documente MySword (*.mybible)</string>
   <string name="format_mybible">Documente MyBible (*.SQLite3)</string>
   <string name="format_epub">Documente EPUB (*.epub)</string>
+  <string name="format_studypads">Notițe de studiu din bazele de date AndBible (*.abdb)</string>
   <string name="redownload_message">
         A fost găsită o listă de cărți/documente anterioare. Apasă mai jos pentru a le descărca din nou.
     </string>

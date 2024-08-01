@@ -2,8 +2,8 @@
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Estudos bíblicos</string>
-  <string name="app_name_medium">Estudos bíblicos (AndBible)</string>
-  <string name="app_name_long">AndBible: Estudos bíblicos</string>
+  <string name="app_name_medium">Bíblia de estudo (AndBible)</string>
+  <string name="app_name_long">AndBible: Bíblia de estudo</string>
   <string name="project">Projeto Open Source AndBible</string>
   <string name="version_text">Versão %s</string>
   <string name="no_sdcard_error">Por favor insira um cartão SD e reinicie o aplicativo.</string>
