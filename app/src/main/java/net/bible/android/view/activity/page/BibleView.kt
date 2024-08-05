@@ -19,7 +19,9 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.SearchManager
 import android.content.ClipData
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -347,6 +349,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 CommonUtils.copyToClipboard(clip)
                 return true
             }
+            R.id.web_search -> {
+                if (currentSelectionText != null) { openWebSearch(mainBibleActivity, currentSelectionText!!) }
+                return true
+            }
             R.id.search -> {
                 val text = currentSelectionText
                 val sel = currentSelection
@@ -417,6 +423,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             executeJavascriptOnUiThread(
                 "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
             )
+        }
+    }
+
+    fun openWebSearch(context: Context, query: String) {
+        try {
+            val intent = Intent(Intent.ACTION_WEB_SEARCH)
+            intent.putExtra(SearchManager.QUERY, query)
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Browser app not available to search: " + query)
         }
     }
 
@@ -525,11 +541,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     BookName.setFullBookName(wasFullBookName)
                 }
             }
-            val searchText = if((currentSelectionText?.length ?: 0) > 15) null else currentSelectionText
-            if(ref == null && searchText != null) {
+            if(ref == null && currentSelectionText != null) {
                 val item = menu.findItem(R.id.search)
                 item.isVisible = true
-                item.title = context.getString(R.string.search_what, searchText)
+                item.title = if(currentSelectionText!!.length < 16) context.getString(R.string.search_what, currentSelectionText) else context.getString(R.string.search)
+            }
+            if (currentSelectionText != null) {
+                menu.findItem(R.id.web_search).apply {
+                    isVisible = true
+                }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelectionText != null) {
                 var menuItemOrder = 100

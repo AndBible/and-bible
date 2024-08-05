@@ -941,6 +941,7 @@
     <string name="tell_friend_message3">Install it from Play Store: %s</string>
     <string name="tell_friend_message4">Read more &amp; more install options: %s</string>
     <string name="share_verse_ok">Share / Copy</string>
+    <string name="web_search">Web search</string>
     <string name="verse_action_copy">Copy</string>
     <string name="generic_share">Share</string>
     <string name="share_verse_menu_title">Share / copy…</string>
