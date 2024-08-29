@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span/>
+  <span class="no-op"/>
 </template>
 
 <script setup lang="ts">
@@ -25,6 +25,6 @@ import {useCommon} from "@/composables"
 useCommon();
 </script>
 
-<style scoped>
+<style>
 
 </style>

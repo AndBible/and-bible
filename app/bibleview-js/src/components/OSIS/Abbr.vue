@@ -26,7 +26,7 @@ defineProps<{expansion: string}>();
 useCommon();
 </script>
 
-<style scoped>
+<style>
 .abbreviation {
 
 }

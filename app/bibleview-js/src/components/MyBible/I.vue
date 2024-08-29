@@ -27,7 +27,7 @@ const {config} = useCommon();
 const show = computed(() => config.showNonCanonical);
 </script>
 
-<style scoped>
+<style>
 .nonCanonical {
     font-style: italic;
 }

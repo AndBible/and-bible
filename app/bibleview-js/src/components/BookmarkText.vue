@@ -64,7 +64,7 @@ const highlightOffset = computed(() => {
 useCommon();
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "~@/common.scss";
 
 .bookmark-text {

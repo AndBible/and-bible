@@ -27,7 +27,7 @@ checkUnsupportedProps(props, "type");
 useCommon();
 </script>
 
-<style scoped>
+<style>
 .foreign-style {
     font-style: italic;
 }

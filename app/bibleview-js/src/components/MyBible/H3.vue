@@ -27,6 +27,6 @@ import {useCommon} from "@/composables";
 useCommon()
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "~@/common.scss";
 </style>

@@ -90,7 +90,7 @@ function openLink(event: MouseEvent, url: string) {
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "~@/common.scss";
 
 .reference {
