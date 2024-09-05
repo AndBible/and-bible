@@ -168,10 +168,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 }
                 else intent.getStringExtra(SearchControl.SEARCH_TEXT) ?: ""
 
-            val searchDocument = (intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?: "").run {
-                if (StringUtils.isEmpty(this))
-                    windowControl.activeWindowPageManager.currentBible.currentDocument!!.initials
-                else this
+            val searchDocument = (intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?: "").let {
+                it.ifEmpty { windowControl.activeWindowPageManager.currentBible.currentDocument!!.initials }
             }
             Log.i(TAG, "Searching $searchText in $searchDocument")
 
