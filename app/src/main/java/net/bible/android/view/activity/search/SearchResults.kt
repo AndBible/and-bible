@@ -179,7 +179,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 return@Main false
             }
             if (doc.indexStatus != IndexStatus.DONE) {
-                startActivity(Intent(this@SearchResults, SearchIndex::class.java))
+                val intent = Intent(this@SearchResults, SearchIndex::class.java)
+                intent.putExtra(SearchControl.SEARCH_DOCUMENT, doc.initials)
+                startActivity(intent)
                 return@Main false
             }
             if(linkControl.tryToOpenRef(searchText)) {
