@@ -232,6 +232,8 @@ class ZipHandler(
         } catch (e: IOException) {
             Log.e(TAG, "Error occurred", e)
             InstallResult.ERROR
+        } catch (e: IllegalArgumentException) {
+            InstallResult.INVALID_MODULE
         } catch (e: InvalidModule) {
             InstallResult.INVALID_MODULE
         } catch (e: ModulesExists) {
