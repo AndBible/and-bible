@@ -794,6 +794,7 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="tell_friend_message3">Instale a partir da Play Store: %s</string>
   <string name="tell_friend_message4">Leia mais; e mais opções de instalação: %s</string>
   <string name="share_verse_ok">Compartilhar / Copiar</string>
+  <string name="web_search">Pesquisa na Web</string>
   <string name="verse_action_copy">Copiar</string>
   <string name="generic_share">Compartilhar</string>
   <string name="share_verse_menu_title">Compartilhar / copiar...</string>
