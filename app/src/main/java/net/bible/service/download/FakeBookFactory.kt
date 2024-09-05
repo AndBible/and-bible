@@ -24,6 +24,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookMetaData
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -189,3 +190,4 @@ Versification=KJVA"""
 val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null
 val Book.isStudyPad get() = bookMetaData.getProperty("AndBibleIsStudyPad") != null
 val Book.doesNotExist get() = bookMetaData.getProperty("AndBibleDoesNotExist") != null
+val Book.isRemoved get() = Books.installed().getBook(initials) == null

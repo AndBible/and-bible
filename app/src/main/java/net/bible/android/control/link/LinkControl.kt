@@ -33,6 +33,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
@@ -310,9 +311,8 @@ class LinkControl @Inject constructor(
 
     fun showAllOccurrences(ref: String, bibleSection: SearchBibleSection) {
         val currentBible = currentPageManager.currentBible.currentDocument!!
-        var strongsBible: Book? = null
         // if current bible has no Strongs refs then try to find one that has
-        strongsBible = if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
+        val strongsBible = if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
             currentBible
         } else {
             SwordDocumentFacade.defaultBibleWithStrongs

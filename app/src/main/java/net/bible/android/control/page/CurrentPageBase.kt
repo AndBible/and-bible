@@ -28,6 +28,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
+import net.bible.service.download.isRemoved
 import net.bible.service.history.AddHistoryItem
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
@@ -190,6 +191,7 @@ abstract class CurrentPageBase protected constructor(
                     _currentDocument = real
                 }
             }
+            if (_currentDocument?.isRemoved == true) return CommonUtils.defaultBible
             return _currentDocument
         }
 
