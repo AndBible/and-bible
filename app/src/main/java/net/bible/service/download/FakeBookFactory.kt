@@ -131,6 +131,7 @@ Encoding=UTF-8
 Category=Generic Books
 LCSH=Bible--Commentaries.
 AndBibleIsStudyPad=1
+AndBibleSpecial=1
 Versification=KJVA"""
 
     private val COMPARE_DUMMY_CONF get() = """[Compare]
@@ -140,6 +141,7 @@ Category=Commentaries
 Feature=StrongsNumbers
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
+AndBibleSpecial=1
 Versification=KJVA"""
 
 
@@ -149,6 +151,7 @@ Abbreviation=${application.getString(R.string.multi_abbreviation)}
 Category=Generic Books
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
+AndBibleSpecial=1
 Versification=KJVA"""
 
     private val MY_NOTE_DUMMY_CONF get() = """[MyNote]
@@ -158,6 +161,7 @@ Category=Commentaries
 Feature=StrongsNumbers
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
+AndBibleSpecial=1
 Versification=KJVA"""
 
     private fun doesNotExistConf(id: String, type: BookCategory) = """[$id]
@@ -188,6 +192,7 @@ Versification=KJVA"""
 }
 
 val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null
+val Book.isSpecial get() = bookMetaData.getProperty("AndBibleSpecial") != null
 val Book.isStudyPad get() = bookMetaData.getProperty("AndBibleIsStudyPad") != null
 val Book.doesNotExist get() = bookMetaData.getProperty("AndBibleDoesNotExist") != null
-val Book.isRemoved get() = Books.installed().getBook(initials) == null
+val Book.isRemoved get() = !isSpecial && Books.installed().getBook(initials) == null

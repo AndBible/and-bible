@@ -28,6 +28,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
+import net.bible.service.download.isPseudoBook
 import net.bible.service.download.isRemoved
 import net.bible.service.history.AddHistoryItem
 import net.bible.service.sword.DocumentNotFound
@@ -191,7 +192,9 @@ abstract class CurrentPageBase protected constructor(
                     _currentDocument = real
                 }
             }
-            if (_currentDocument?.isRemoved == true) return CommonUtils.defaultBible
+            if (_currentDocument?.isRemoved == true) {
+                _currentDocument = getDefaultBook()
+            }
             return _currentDocument
         }
 
