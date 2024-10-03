@@ -813,24 +813,25 @@
 
     <!-- Help -->
     <string name="help_nav_title">Navigation</string>
-    <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger.
-        Double-tap Bible text to toggle full screen mode.
-        Split screens (called also windows) have menu button on their top-right corner,
+    <string name="help_nav_text">
+        - Click the Bible reference in the toolbar to change the current verse reference.\n
+        - Swipe left or right to go to the next or previous chapter.\n
+        - Split screens (called windows) have a menu button on their top-right corner
         which enables you to use several window-specific functions and customize window outlook and behaviour.
     </string>
     <string name="help_contextmenus_title">Context Menus</string>
     <string name="help_contextmenus_text">
-        Long pressing in opens context menu or action mode in several views.
-        Long press on the Bible view to open the action mode for actions affecting the current verse.
-        Long press on a document item in list view of Choose Document or Download to delete document or view information.
-        Long press a bookmark in bookmarks listing to add labels or delete bookmark.
-        Long press links to choose if you want to open them in current window, new window or special links window.
+        Long pressing most views will activate the text selection tool.
+        The highlighted text can then be bookmarked. Some views provide additional options
+        such as comparing versions or searching for words.
     </string>
     <string name="help_bookmarks_title">Bookmarks &amp; My Notes</string>
-    <string name="help_bookmarks_text">Bookmarks can be created by selecting some text and choosing "Bookmark" from
-        the popup menu. You can add your custom notes to the new bookmark by tapping the now
-        highlighted text in Bible view. There is also a "My Notes" special document in commentaries that allows you
-        to view your notes in a separate window.
+    <string name="help_bookmarks_text">Bookmarks can be created by either:\n
+        1. Long press to select some text and choosing "Bookmark" from the popup menu.\n
+        2. Tap once and choose the Bookmark button.\n
+        You can add custom notes to the new bookmark by tapping the pencil icon for the bookmark.
+        There is also a "My Notes" special document in commentaries that allows you
+        to view all your notes for the current chapter.
     </string>
     <string name="help_studypads_text">
         Study pads are designed to make it easy to write sermon notes, prepare sermons or just
@@ -857,21 +858,22 @@
     </string>
     <string name="help_hidden_features_title">Hidden shortcuts</string>
     <string name="help_hidden_features_text">
-        Swipe down from toolbar to show workspace selector.
-        Long press window button to quickly minimize.
-        Long press speak toolbar button to quickly go to speak settings.
-        Long press verse location title in toolbar to jump to document selector.
-        Long press the Back button to access the History list.
+        - Swipe down starting on the bible verse selector to show the workspace selector.\n
+        - Long press the window button to quickly minimize.\n
+        - Long press the Speak toolbar button to quickly go to speak settings.\n
+        - Long press the verse location title in toolbar to jump to document selector.\n
+        - Long press the Back button to access the History list.
     </string>
     <string name="help_window_pinning_title">Window pinning</string>
     <string name="help_window_pinning_text">
-        You can enable window pinning from options menu (three dots, right top corner).
-        If window pinning is enabled, you may show many pinned windows on Bible view,
-        but only one non-pinned window. Pinned windows are displayed first, and then
-        unpinned windows. You might want to open Bible documents as pinned windows, and
-        commentaries and maps etc. as non-pinned windows. Then you can easily
+        You can enable window pinning from options menu (three dots, right top corner).\n
+        - Multiple pinned windows can be displayed simultaneously.\n
+        - Only a single unpinned window can be displayed.\n
+        - Pinned windows are displayed first, then unpinned windows, then the links window.\n
+        - You might want to open Bible documents as pinned windows and
+        commentaries or maps as non-pinned windows. Then you can easily
         have Bible documents always opened, and switch quickly between commentaries and
-        other extra material when you study Bible.
+        other extra material.
     </string>
 
     <!-- Welcome text -->
