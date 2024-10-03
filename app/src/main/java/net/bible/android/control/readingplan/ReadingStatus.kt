@@ -72,7 +72,7 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
         setStatus(readingNo, false)
     }
 
-    fun setStatus(readingNo: Int, read: Boolean, saveStatus: Boolean = true) {
+    private fun setStatus(readingNo: Int, read: Boolean) {
         val chapterRead = status.chapterReadArray.find { it.readingNumber == readingNo }
         if (chapterRead == null) {
             status.chapterReadArray.add(ChapterRead(readingNo, read))
@@ -82,7 +82,7 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
         }
         status.chapterReadArray.sortBy { it.readingNumber }
 
-        if (saveStatus) saveStatus()
+        saveStatus()
     }
 
     open fun isRead(readingNo: Int): Boolean {
