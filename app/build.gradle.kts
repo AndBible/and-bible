@@ -39,6 +39,7 @@ val discreteFlavorName = "discrete"
 // This value must remain the same as it has been since the original
 // release in 2010 for continuity of updates for existing users.
 val applicationIdStandard = "net.bible.android.activity"
+//val applicationIdStandard = "net.bible.android.activity.next"
 // An alternative applicationId, to be used for the "discrete" flavor.
 val applicationIdDiscrete = "com.app.calculator"
 
@@ -142,7 +143,7 @@ android {
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId = applicationIdStandard
-        minSdk = 23
+        minSdk = 26
         targetSdk = 34
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
@@ -227,7 +228,6 @@ android {
 
         create("github") {
             dimension = dimDistributionChannelName
-            minSdk = 21
         }
     }
 
@@ -339,7 +339,6 @@ androidComponents {
 dependencies {
     val commonsTextVersion: String by rootProject.extra
     val jdomVersion: String by rootProject.extra
-    val jswordVersion: String by rootProject.extra
     val kotlinVersion: String by rootProject.extra
     val coroutinesVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
@@ -405,7 +404,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0") // make sure this is the same version that commons-text depends on
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
 
-    implementation("com.github.AndBible:jsword:$jswordVersion") {
+    implementation(project(":jsword")) {
         exclude("org.apache.httpcomponents")
     }
 
