@@ -22,6 +22,7 @@ import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordContentFacade
+import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.BooksEvent
@@ -38,6 +39,7 @@ object BookInstallWatcher {
         Books.installed().addBooksListener(object : BooksListener {
             override fun bookAdded(ev: BooksEvent) {
                 val book = ev.book
+                Activator.deactivate(book)
                 initialiseRequiredMapping(book)
                 addBookToDb(book)
                 AndBibleAddons.clearCaches()

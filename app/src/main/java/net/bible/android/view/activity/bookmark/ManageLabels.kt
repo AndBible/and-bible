@@ -684,7 +684,7 @@ class ManageLabels : ListActivityBase() {
                     data.selectedLabels.contains(label.id)
 
             shownLabels.addAll(allLabels.filter { labelMatches(it) })
-            val labelUnlabeledNotModified = allLabels.find { it.id == bookmarkControl.labelUnlabelled.id } == null
+            val labelUnlabeledNotModified = data.changedLabels.find { it == bookmarkControl.labelUnlabelled.id } != null
             if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled) && !labelUnlabeledNotModified) {
                 shownLabels.add(bookmarkControl.labelUnlabelled)
             }

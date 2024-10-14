@@ -15,7 +15,7 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span :class="{redLetters: config.showRedLetters && isJesus}">{{ displayMarker }}<slot/></span></template>
+<template><span class="q" :class="{redLetters: config.showRedLetters && isJesus}">{{ displayMarker }}<slot/></span></template>
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
@@ -41,7 +41,7 @@ const displayMarker = computed(() => {
 const {config} = useCommon();
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 $redLetters: rgb(215, 13, 13);
 .redLetters {
   color: $redLetters !important;

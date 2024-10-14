@@ -32,7 +32,7 @@ const exportMode = inject(exportModeKey, ref(false));
 const {sprintf, strings} = useCommon();
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "~@/common.scss";
 
 .verseNumber {

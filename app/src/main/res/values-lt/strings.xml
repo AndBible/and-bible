@@ -809,6 +809,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="tell_friend_message3">Įsidiek iš „Play“ parduotuvės: %s</string>
   <string name="tell_friend_message4">Sužinok daugiau apie programėlę ir kaip ją įsidiegti: %s</string>
   <string name="share_verse_ok">Bendrinti / Kopijuoti</string>
+  <string name="web_search">Paieška internete</string>
   <string name="verse_action_copy">Kopijuoti</string>
   <string name="generic_share">Dalintis</string>
   <string name="share_verse_menu_title">Bendrinti / kopijuoti…</string>

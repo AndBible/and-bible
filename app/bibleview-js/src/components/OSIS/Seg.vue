@@ -29,7 +29,7 @@ const isOtPassage = computed(() => props.type === "otPassage");
 useCommon();
 </script>
 
-<style scoped>
+<style>
 
 .otPassage {
     font-style: italic;

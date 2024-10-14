@@ -83,7 +83,7 @@ function runningHandle() {
 }
 
 const handle = computed(() => props.n || runningHandle());
-const isFootNote = computed(() => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction", undefined].includes(props.type!));
+const isFootNote = computed(() => ["x-footnote", "explanation", "translation", "study", "variant", "alternative", "x-editor-correction", undefined].includes(props.type!));
 const typeStr = computed(() => get(typeStrings, props.type!));
 const noteType = computed(() => typeStr.value ? sprintf(strings.noteText, typeStr.value) : strings.noteTextWithoutType);
 const isCrossReference = computed(() => props.type === "crossReference");

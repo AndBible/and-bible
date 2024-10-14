@@ -34,7 +34,7 @@ const show = computed(() => props.sID);
 useCommon();
 </script>
 
-<style scoped>
+<style>
 .lg {
     height: 0.3em;
     display: block;

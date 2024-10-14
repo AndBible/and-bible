@@ -746,6 +746,7 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="tell_friend_message3">Możesz ją zainstalować ze sklepu Play: %s</string>
   <string name="tell_friend_message4">Więcej informacji (w j. angielskim) znajdziesz na stronie: %s</string>
   <string name="share_verse_ok">Udostępnij / kopiuj</string>
+  <string name="web_search">Szukaj w internecie</string>
   <string name="verse_action_copy">Kopiuj</string>
   <string name="generic_share">Udostępnij</string>
   <string name="share_verse_menu_title">Udostępnij / kopiuj…</string>

@@ -781,6 +781,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="tell_friend_message3">Εγκαταστήστε τη από το Play Store: %s</string>
   <string name="tell_friend_message4">Διαβάστε περισσότερα &amp; περισσότερες επιλογές εγκατάστασης: %s</string>
   <string name="share_verse_ok">Κοινοποίηση / Αντιγραφή</string>
+  <string name="web_search">Αναζήτηση web</string>
   <string name="verse_action_copy">Αντιγραφή</string>
   <string name="generic_share">Κοινοποίηση</string>
   <string name="share_verse_menu_title">Κοινοποίηση / αντιγραφή...</string>

@@ -312,7 +312,7 @@ setupEventBusListener("scroll_up", () => scrollUpDown(true));
 useSharing({topElement, android});
 const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 @import "~@/common.scss";
 
 $ring-size: 35px;
@@ -458,10 +458,6 @@ $borderDistance: 0;
 
   background-color: rgba(0, 0, 0, 0.15);
 }
-
-</style>
-<style lang="scss">
-@import "~@/common.scss";
 
 a {
   color: blue;

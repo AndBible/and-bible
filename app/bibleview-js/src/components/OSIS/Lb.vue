@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span><br/><slot/></span>
+  <span class="lb"><br/><slot/></span>
 </template>
 
 <script setup lang="ts">
@@ -27,6 +27,6 @@ checkUnsupportedProps(props, "type");
 useCommon();
 </script>
 
-<style scoped>
+<style>
 
 </style>

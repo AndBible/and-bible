@@ -38,7 +38,7 @@ const hiStyle = computed(() => {
 useCommon();
 </script>
 
-<style scoped>
+<style>
 .hi-italic, .rend-italic {
     font-style: italic;
 }

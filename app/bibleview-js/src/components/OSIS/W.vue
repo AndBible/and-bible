@@ -18,13 +18,13 @@
 <template>
   <template v-if="showStrongsSeparately">
     <template v-if="(showStrongs && lemma) && (config.showMorphology && morph)">
-      <slot/><span class="base skip-offset">&nbsp;<a :class="{isHighlighted}" class="strongs highlight-transition" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a>/<a :class="{isHighlighted}" class="morph highlight-transition" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
+      <slot/><span class="w-base skip-offset">&nbsp;<a :class="{isHighlighted}" class="strongs highlight-transition" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a>/<a :class="{isHighlighted}" class="morph highlight-transition" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else-if="(showStrongs && lemma) && (!config.showMorphology || !morph)">
-      <slot/><span class="base skip-offset">&nbsp;<a class="strongs highlight-transition" :class="{isHighlighted}" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a></span>
+      <slot/><span class="w-base skip-offset">&nbsp;<a class="strongs highlight-transition" :class="{isHighlighted}" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a></span>
     </template>
     <template v-else-if="(!showStrongs || !lemma) && (config.showMorphology && morph)">
-      <slot/><span class="base skip-offset">&nbsp;<a class="morph highlight-transition" :href="formatLink(morph)" :class="{isHighlighted}" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
+      <slot/><span class="w-base skip-offset">&nbsp;<a class="morph highlight-transition" :href="formatLink(morph)" :class="{isHighlighted}" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else><slot/></template>
   </template>
@@ -111,7 +111,7 @@ const showStrongsSeparately = computed(() => !exportMode.value && config.strongs
 
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "~@/common.scss";
 
 .link-style {
@@ -123,7 +123,7 @@ const showStrongsSeparately = computed(() => !exportMode.value && config.strongs
   }
 }
 
-.base {
+.w-base {
   font-size: 0.6em;
   text-decoration: none;
   color: gray;

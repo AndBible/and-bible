@@ -232,6 +232,8 @@ class ZipHandler(
         } catch (e: IOException) {
             Log.e(TAG, "Error occurred", e)
             InstallResult.ERROR
+        } catch (e: IllegalArgumentException) {
+            InstallResult.INVALID_MODULE
         } catch (e: InvalidModule) {
             InstallResult.INVALID_MODULE
         } catch (e: ModulesExists) {
@@ -429,6 +431,7 @@ class InstallZip : ActivityBase() {
 
     private fun getDisplayName(uri: Uri): String? =
         contentResolver.query(uri, null, null, null, null)?.use {
+            if (it.isLast) return null;
             it.moveToFirst()
             val displayNameIdx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
             if(displayNameIdx < 0) null else it.getString(displayNameIdx)
@@ -436,6 +439,7 @@ class InstallZip : ActivityBase() {
 
     private fun getMimeType(uri: Uri): String? =
         contentResolver.query(uri, null, null, null, null)?.use {
+            if (it.isLast) return null;
             it.moveToFirst()
             val mimeTypeIdx = it.getColumnIndex("mime_type")
             if(mimeTypeIdx < 0) null else it.getString(mimeTypeIdx)

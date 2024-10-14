@@ -28,7 +28,7 @@ checkUnsupportedProps(props, "role")
 useCommon();
 </script>
 
-<style scoped>
+<style>
 td {
     padding: 5px;
 

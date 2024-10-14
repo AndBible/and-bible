@@ -56,7 +56,7 @@ const show = computed(() =>
 const isSubTitle = computed(() => props.type === "sub");
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .listStyle .titleStyle {
   margin-inline-start: -1em;
 }

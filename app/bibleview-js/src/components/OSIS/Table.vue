@@ -27,6 +27,6 @@ checkUnsupportedProps(props, "border", ["1", "0"])
 useCommon();
 </script>
 
-<style scoped>
+<style>
 
 </style>

@@ -39,7 +39,7 @@ const openAllLink = computed(() => {
 const {strings} = useCommon();
 </script>
 
-<style scoped>
+<style>
 .open-all {
     padding-top: 1em;
     text-align: right;

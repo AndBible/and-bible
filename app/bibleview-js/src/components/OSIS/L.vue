@@ -67,5 +67,5 @@ const isIndent = computed(() => type.value === "x-indent");
 useCommon();
 </script>
 
-<style scoped>
+<style>
 </style>
