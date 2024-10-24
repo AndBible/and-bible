@@ -74,6 +74,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 R.id.allWords -> SearchType.ALL_WORDS
                 R.id.anyWord -> SearchType.ANY_WORDS
                 R.id.phrase -> SearchType.PHRASE
+                R.id.regex -> SearchType.REGEX
                 else -> {
                     Log.e(TAG, "Unexpected radio selection")
                     SearchType.ANY_WORDS

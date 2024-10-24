@@ -164,10 +164,7 @@ object SwordDocumentFacade {
             return realDocument.epubBackend?.state?.isIndexed == true
         }
         val indexManager = IndexManagerFactory.getIndexManager()
-        if (indexManager.isIndexed(realDocument)) {
-            return true
-        }
-        return false
+        return indexManager.isIndexed(realDocument) && !indexManager.needsReindexing(realDocument)
     }
 
     /** this custom index creation has been optimised for slow, low memory devices
