@@ -40,9 +40,17 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
     private val dateBasedWithYear = SimpleDateFormat("MMM-d/yyyy", Locale.getDefault())
 
     private var readingKeys: List<Key>? = null
+
+    private var _readingDate: Date? = null
     /** reading date for date-based plan, else null
      */
-    var readingDate: Date? = null
+    var readingDate: Date
+        get() {
+            if (_readingDate == null)
+                _readingDate = calculateDate(readingPlanInfo.startDate ?: Date())
+            return _readingDate!!
+        }
+        set(value) { _readingDate = value }
 
     init {
         checkKeysGenerated()
@@ -54,22 +62,14 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
     /** get a string representing the date this reading is planned for
      */
     val readingDateString: String
-        get() {
-            val readingDate = readingDate
-            return if (readingDate != null) {
-                SimpleDateFormat.getDateInstance().format(readingDate)
-            } else {
-                var dateString = ""
-                val startDate = readingPlanInfo.startDate
-                if (startDate != null) {
-                    val cal = Calendar.getInstance()
-                    cal.time = startDate
-                    cal.add(Calendar.DAY_OF_MONTH, day - 1)
-                    dateString = SimpleDateFormat.getDateInstance().format(cal.time)
-                }
-                dateString
-            }
-        }
+        get() = SimpleDateFormat.getDateInstance().format(readingDate)
+
+    private fun calculateDate(startDate: Date): Date {
+        val cal = Calendar.getInstance()
+        cal.time = startDate
+        cal.add(Calendar.DAY_OF_MONTH, day - 1)
+        return cal.time
+    }
 
     val readingsDesc: String
         get() {
