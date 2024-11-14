@@ -28,9 +28,10 @@ jobs:
   lint:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 10 # so that recent tags can be found
+          submodules: true
 
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
@@ -52,9 +53,10 @@ jobs:
   unit-tests:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 10 # so that recent tags can be found
+          submodules: true
 
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
