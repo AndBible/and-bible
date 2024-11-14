@@ -32,7 +32,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: '17'
+        java-version: '21'
 
     - name: Set up Node.js environment
       uses: actions/setup-node@v3
@@ -90,7 +90,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: '17'
+        java-version: '21'
 
     - name: Set up Node.js environment
       uses: actions/setup-node@v3
