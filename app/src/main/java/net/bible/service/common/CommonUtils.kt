@@ -1899,7 +1899,7 @@ data class AndBibleBackupManifest(
         }
 
         fun fromUri(uri: Uri): AndBibleBackupManifest? {
-            val inputStream = application.contentResolver.openInputStream(uri)!!
+            val inputStream = application.contentResolver.openInputStream(uri) ?: return null
             val manifest = ZipInputStream(inputStream).use {
                 val entry = it.nextEntry
                 if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
