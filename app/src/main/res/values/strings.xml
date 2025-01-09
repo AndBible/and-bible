@@ -1180,6 +1180,7 @@
     <string name="adapters_google_drive">Google Drive</string>
     <string name="adapters_next_cloud">Next Cloud</string>
     <string name="auth_title">Authentication to %s</string>
+    <string name="auth_server_uri">Server URL</string>
     <string name="auth_username">User name</string>
     <string name="auth_password">Password</string>
     <string name="auth_access_token">Access token</string>

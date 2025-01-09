@@ -378,7 +378,6 @@ dependencies {
             exclude("org.apache.httpcomponents")
         }
     }
-
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 
     //implementation("com.jaredrummler:colorpicker:1.1.0")
@@ -415,6 +414,12 @@ dependencies {
 
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("jaxen:jaxen:2.0.0")
+
+    implementation("com.github.nextcloud:android-library:2.19.1") {
+        exclude(group = "org.ogce", module = "xpp3") // unused in Android and brings wrong Junit version
+    }
+    implementation("commons-httpclient:commons-httpclient:3.1@jar")
+
 
     debugImplementation("com.facebook.stetho:stetho:1.6.0")
 

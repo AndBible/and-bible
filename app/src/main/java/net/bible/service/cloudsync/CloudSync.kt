@@ -35,6 +35,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.application
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
@@ -56,11 +57,12 @@ const val TAG = "DeviceSync"
 class CancelStartedSync: Exception()
 class WorkspaceRefreshRequired {}
 
-enum class CloudAdapters {
-    GOOGLE_DRIVE;
+enum class CloudAdapters(val isEnabled: Boolean = true) {
+    GOOGLE_DRIVE(!BuildVariant.DistributionChannel.isFdroid), NEXT_CLOUD;
 
     val displayName: Int get() = when(this) {
         GOOGLE_DRIVE -> R.string.adapters_google_drive
+        NEXT_CLOUD -> R.string.adapters_next_cloud
     }
     val newAdapter: CloudAdapter get() = when(this) {
         GOOGLE_DRIVE -> {
@@ -68,9 +70,15 @@ enum class CloudAdapters {
             val constructor = adapter.getDeclaredConstructor()
             constructor.newInstance() as CloudAdapter
         }
+        NEXT_CLOUD -> NextCloudAdapter(
+            CommonUtils.settings.getString("gdrive_server_url"),
+            CommonUtils.settings.getString("gdrive_username"),
+            CommonUtils.settings.getString("gdrive_password")
+        )
     }
 
     companion object {
+        val allEnabled: List<CloudAdapters> get() = CloudAdapters.entries.filter { it.isEnabled }
         var current: CloudAdapters
             get() {
                 val adapterStr = CommonUtils.settings.getString("sync_adapter", "GOOGLE_DRIVE")!!
