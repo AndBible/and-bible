@@ -723,4 +723,5 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="last_updated">Sist endret: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
+  <string name="prefs_swipe_mode_chapter">Kapittel</string>
 </resources>

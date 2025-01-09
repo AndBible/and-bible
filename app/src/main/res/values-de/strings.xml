@@ -718,6 +718,7 @@ Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster an
   <string name="format_mysword">MySword Dokumente (*.mybible)</string>
   <string name="format_mybible">MyBible Dokumente (*.sqlite3)</string>
   <string name="format_epub">EPUB Dokumente (*.epub)</string>
+  <string name="format_studypads">Studienmappen aus Bibel+ Datenbanken (*.abdb)</string>
   <string name="redownload_message">
 Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um sie auf einmal wieder herunterzuladen.</string>
   <!--Uncategorized-->
@@ -761,6 +762,7 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="tell_friend_message3">Installiere vom Play Store: %s</string>
   <string name="tell_friend_message4">Weitere Info &amp; Installationsoptionen: %s</string>
   <string name="share_verse_ok">Teilen/Kopieren</string>
+  <string name="web_search">Websuche</string>
   <string name="verse_action_copy">Kopieren</string>
   <string name="generic_share">Teilen</string>
   <string name="share_verse_menu_title">Teilen/Kopieren...</string>
@@ -1017,4 +1019,5 @@ Es wird keine Fehlerbehebungen oder Updates mehr erhalten.</string>
 Wenn du nicht updaten möchtest, deaktiviere bitte die automatische Aktualisierung in deinem App-Store (Google Play, F-Droid etc.).</string>
   <string name="dont_show">
 Diese Nachricht nicht mehr anzeigen</string>
+  <string name="prefs_swipe_mode_chapter">Kapitel</string>
 </resources>

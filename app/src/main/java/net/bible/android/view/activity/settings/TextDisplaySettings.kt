@@ -155,6 +155,9 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         if(itmOptions.title != null) {
             p.title = itmOptions.title
         }
+        if(itmOptions.summary != null) {
+            p.summary = itmOptions.summary
+        }
         p.isEnabled = itmOptions.enabled
         p.isVisible = itmOptions.visible
 

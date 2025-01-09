@@ -162,6 +162,9 @@ class AppSettingsUpdated
 const val MAX_DOC_STR_LENGTH = 4000000;
 private val notFound = WebResourceResponse(null, null, null)
 
+const val white = -1
+const val black = -16777216
+
 @Serializable
 class Selection(
     val bookInitials: String?,
@@ -268,7 +271,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val maxHorizontalScroll: Int
         get() = computeHorizontalScrollRange() - computeHorizontalScrollExtent()
 
-    private val gestureListener  = BibleGestureListener(mainBibleActivity)
+    private val gestureListener  = BibleGestureListener(mainBibleActivity, this)
 
     private var toBeDestroyed = false
 
@@ -1000,7 +1003,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if (links.size > 1) {
                 linkControl.openMulti(links)
             } else {
-                linkControl.loadApplicationUrl(links.first())
+                linkControl.loadApplicationUrl(links.first(), null)
             }
             true
         }
@@ -1041,15 +1044,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val ordinal = uri.getQueryParameter("ordinal")
             val v11n = uri.getQueryParameter("v11n")
             val forceDoc = uri.getBooleanQueryParameter("force-doc", false)
+            val book = Books.installed().getBook(doc)
             if(ordinal != null) {
-                val book = Books.installed().getBook(doc)
                 val bookKey = book!!.getKey(osisRef).let {if(it is RangedPassage) it.first() else it }
                 linkControl.showLink(book, BookAndKey(bookKey, book, OrdinalRange(ordinal.toInt())))
             } else if (osisRef != null) {
-                linkControl.loadApplicationUrl(BibleLink("osis", osisRef.trim(), v11n, forceDoc = forceDoc))
+                linkControl.loadApplicationUrl(BibleLink("osis", osisRef.trim(), v11n, forceDoc = forceDoc), book)
             } else {
                 val contentRef = uri.getQueryParameter("content")!!
-                linkControl.loadApplicationUrl(BibleLink("content", contentRef.trim(), v11n, forceDoc = forceDoc))
+                linkControl.loadApplicationUrl(BibleLink("content", contentRef.trim(), v11n, forceDoc = forceDoc), book)
             }
             true
         }
@@ -1186,7 +1189,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     val backgroundColor: Int get() {
         val colors = window.pageManager.actualTextDisplaySettings.colors
-        return (if(ScreenSettings.nightMode) colors?.nightBackground else colors?.dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
+        val monochromeMode = CommonUtils.settings.monochromeMode
+        val nightBackground = if(monochromeMode) black else colors?.nightBackground
+        val dayBackground = if(monochromeMode) white else colors?.dayBackground
+        return (if(ScreenSettings.nightMode) nightBackground else dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
     }
 
     var lastUpdated = 0L
@@ -1309,11 +1315,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val genericModalButtons = json.encodeToString(serializer(),
             CommonUtils.settings.getStringSet("gen_bookmark_modal_buttons", setOf("BOOKMARK", "BOOKMARK_NOTES", "SPEAK"))
         )
+        val monochromeMode = CommonUtils.settings.monochromeMode
+        val disableAnimations = CommonUtils.settings.disableAnimations
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
                     appSettings: {
                         activeWindow: $isActive,
+                        isBottomWindow: $isBottomWindow,
                         hasActiveIndicator: $hasActiveIndicator, 
                         nightMode: $nightMode, 
                         errorBox: $showErrorBox, 
@@ -1324,6 +1333,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         windowId: '${window.displayId}',
                         bibleModalButtons: $bibleModalButtons, 
                         genericModalButtons: $genericModalButtons, 
+                        monochromeMode: $monochromeMode,
+                        disableAnimations: $disableAnimations,
+                        fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                     }, 
                     initial: $initial,
                     });
@@ -1627,7 +1639,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         if(window.isVisible) {
             updateOffsets(true)
-            updateActive()
+            updateConfig()
         }
     }
 

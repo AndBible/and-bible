@@ -1081,4 +1081,5 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="dont_show">
         Tuto zprávu již nezobrazovat
     </string>
+  <string name="prefs_swipe_mode_chapter">Kapitola</string>
 </resources>

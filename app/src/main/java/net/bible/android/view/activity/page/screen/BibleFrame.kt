@@ -139,7 +139,7 @@ class BibleFrame(
         bibleView.updateBackgroundColor()
         setBackgroundColor(bibleView.backgroundColor)
 
-        addView(bibleView, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        addView(bibleView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         mainBibleActivity.registerForContextMenu(bibleView as View)
         addWindowButton()
     }
@@ -162,7 +162,7 @@ class BibleFrame(
 
         windowButton = button
         addView(button,
-            LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+            LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                 Gravity.TOP or Gravity.END))
     }
 

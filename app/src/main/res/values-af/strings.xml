@@ -756,6 +756,7 @@ Rugsteun.</string>
   <string name="format_mysword">MySword dokumente (*.mybible)</string>
   <string name="format_mybible">MyBible dokumente (*. SQLite3)</string>
   <string name="format_epub">EPUB dokumente (*.epub) </string>
+  <string name="format_studypads">Studie blokke van AndBible-databasisse (*.abdb)</string>
   <string name="redownload_message">
 n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af te laai. </string>
   <!--Uncategorized-->
@@ -799,6 +800,7 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="tell_friend_message3">Installeer dit by Google Play Winkel: %s</string>
   <string name="tell_friend_message4">Lees meer &amp; meer installeer opsies: %s</string>
   <string name="share_verse_ok">Deel / Kopieer</string>
+  <string name="web_search">Web soektog </string>
   <string name="verse_action_copy">Kopieër</string>
   <string name="generic_share">Deel</string>
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
@@ -1055,4 +1057,5 @@ Dit sal nie foutoplossings of opdaterings ontvang nie</string>
 As jy nie wil opgradeer nie, deaktiveer asseblief \'Outomatiese opdaterings\' in jou toepassingwinkel (Google Play / F-Droid ens.).</string>
   <string name="dont_show">
 Moenie hierdie boodskap weer wys nie</string>
+  <string name="prefs_swipe_mode_chapter">Hoofstuk</string>
 </resources>

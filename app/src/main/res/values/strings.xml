@@ -189,6 +189,8 @@
     <string name="prefs_margin_size_summary">Adjust left and right margin of the text view. You can also
         adjust maximum width of the text.
     </string>
+    <string name="prefs_margin_size_summary_2">Tip: You can tap margin area to jump one page up / down.</string>
+
     <string name="prefs_text_colors_summary">Adjust text and background colors and noise effect</string>
     <string name="text_display_settings_activity_title">Text display settings</string>
     <string name="workspace_text_display_settings_title">Text options - %s</string>
@@ -1236,4 +1238,13 @@
     <string name="dont_show">
         Don\'t show this message again
     </string>
+    <string name="pref_font_size_multiplier_title">Font size multiplier</string>
+    <string name="pref_font_size_multiplier_summary_1">Multiply text font sizes by this number.</string>
+    <string name="pref_font_size_multiplier_summary_2">Useful if you have a synchronized device that is used with larger font.</string>
+    <string name="current_value">Current value: %s</string>
+    <string name="prefs_bible_view_swipe_mode_title">Action for swipe left / right gesture</string>
+    <string name="prefs_bible_view_swipe_mode_summary">Swipe left / right gesture can be used to go to next page / chapter.</string>
+    <string name="prefs_swipe_mode_chapter">Chapter</string>
+    <string name="prefs_swipe_mode_page">Page</string>
+    <string name="prefs_swipe_mode_none">Disabled</string>
 </resources>

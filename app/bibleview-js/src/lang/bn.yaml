@@ -1,0 +1,65 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: "বুকমার্ক "
+bookmarksAndNotes: বুকমার্ক এবং আমার নোট
+openMyNotes: আমার নোটে খুলুন
+openStudyPad: স্টাডি প্যাডে খুলুন (%s)
+noteText: পাদটীকা (%s)
+noteTextWithoutType: "পদটীকা "
+crossReferenceText: ক্রস রেফারেন্স
+findAllOccurrences: সমস্ত ঘটনা সন্ধান করুন
+reportError: একটি ত্রুটি রিপোর্ট করুন
+errorTitle: ত্রুটি ঘটেছে
+warningTitle: সতর্কতা
+normalTitle: দয়া করে নোট করুন
+footnoteTypeStudy: অধ্যয়ন
+footnoteTypeExplanation: ব্যাখ্যা
+footnoteTypeVariant: বৈকল্পিক
+footnoteTypeAlternative: বিকল্প
+footnoteTypeTranslation: অনুবাদ
+clearLog: ত্রুটি লগ সাফ করুন
+editTextPlaceholder: পাঠ্য সম্পাদনা করতে আলতো চাপুন
+inputPlaceholder: এখানে লিখুন
+inputReference: বাইবেলের রেফারেন্স লিখুন
+invalidReference: "পদ পাওয়া যায়নি "
+bookmarkAccurate: বুকমার্ক %s-এ তৈরি করা হয়েছিল
+bookmarkInaccurate: "বুকমার্ক বইয়ের তথ্য সংরক্ষিত নেই, বিষয়বস্তু %s-এ প্রদর্শিত হয়।"
+defaultBook: ডিফল্ট বাইবেল নথি
+ok: "ঠিক আছে "
+yes: "হ্যাঁ "
+ambiguousSelection: "আপনি কোন পদক্ষেপ নিতে চান?"
+cancel: "বাতিল "
+removeBookmarkConfirmationTitle: "বুকমার্ক সরাবেন?"
+removeBookmarkConfirmation: "আপনি কি এই বুকমার্ক সরানোর বিষয়ে নিশ্চিত?"
+createdAt: "তৈরি করা হয়েছে: %s"
+lastUpdatedOn: "সর্বশেষ আপডেট:%s"
+strongsAndMorph: সংজ্ঞা এবং রূপবিদ্যা
+externalLink: বাহ্যিক লিঙ্ক খুলুন
+referenceLink: রেফারেন্স লিঙ্ক খুলুন
+openFootnote: ফুটনোট খুলুন
+noMyNotesTitle: এই অধ্যায়ের জন্য আমার নোট নেই.
+noMyNotesDescription: >
+  একটি বাইবেল নথিতে বুকমার্ক তৈরি করে শুরু করুন। বুকমার্কগুলি তারপর এখানে উপস্থিত হবে এবং আপনি তাদের সাথে আপনার ব্যক্তিগত নোটগুলি যোগ করতে পারেন
+emptyStudyPad: >
+  খালি স্টাডি প্যাড। এখানে টেক্সট এন্ট্রি তৈরি করে অথবা এই স্টাডি প্যাডের সাথে মিলে যায় এমন একটি বুকমার্ক লেবেল দিয়ে বুকমার্ক তৈরি করে এই স্টাডি প্যাডে যোগ করা শুরু করুন
+doYouWantToDeleteEntry: "এই স্টাডি প্যাড এন্ট্রি মুছবেন?"
+removeStudyPadConfirmationTitle: "স্টাডি প্যাড এন্ট্রি সরান?"
+dragHelp: পুনরায় সাজাতে টেনে আনুন
+openAll: সব রেফারেন্স খুলুন
+editBookmarkPlaceholder: এই বুকমার্কের জন্য আমার নোট সম্পাদনা করতে আলতো চাপুন
+onlyLabel: শুধুমাত্র লেবেল
+wholeBookmark: পুরো বুকমার্ক
+assignLabelsMenuEntry1: লেবেল নির্বাচন বা সম্পাদনা করুন...
+favouriteLabels: প্রিয় লেবেল
+recentLabels: সাম্প্রতিক লেবেল
+bookmarkLabels: বুকমার্ক লেবেল
+refParserHelp: ইংরেজি ছাড়া অন্য ভাষায় রেফারেন্স ব্যবহার করতে অনুগ্রহ করে %s মডিউল ইনস্টল করুন।
+openDownloads: অ্যাড-অন ডাউনলোডগুলিতে যান
+verseShare: "ভাগ / শেয়ার "
+verseSpeak: কথাবলুন
+verseCompare: তুলনা করুন
+verseNote: দ্রষ্টব্য
+verseMyNotes: আমার নোটস
+verseShareLong: এই পদ শেয়ার করুন
+verseCompareLong: পদ তুলনা করুন
+verseNoteLong: একটি নোট লিখুন
+addBookmark: বুকমার্ক

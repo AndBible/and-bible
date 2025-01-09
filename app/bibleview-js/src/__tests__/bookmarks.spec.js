@@ -41,7 +41,7 @@ describe("verseHighlight tests", () => {
 
         const highlightColorFn = (v) => Color(v.color);
 
-        const css = verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount, highlightColorFn});
+        const css = verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount, highlightColorFn, appSettings: {nightMode: false}});
         expect(css).toBe(result);
     }
 
@@ -79,7 +79,7 @@ describe("useBookmark tests", () => {
     let gb, b;
     let startOrd, startOff, endOrd, endOff;
     beforeEach(() => {
-        const {config} = useConfig();
+        const {config, appSettings} = useConfig();
         gb = useGlobalBookmarks(config, {value: "bible"});
         const fragmentReady = ref(true);
         b = useBookmarks(
@@ -91,7 +91,8 @@ describe("useBookmark tests", () => {
             true,
             fragmentReady,
             {adjustedColor: () => null},
-            config
+            config,
+            appSettings,
         );
         gb.updateBookmarkLabels([{
             id: 1,

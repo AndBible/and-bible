@@ -1058,4 +1058,5 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="dont_show">
         Não mostrar essa mensagem novamente
     </string>
+  <string name="prefs_swipe_mode_chapter">Capítulo</string>
 </resources>

@@ -145,7 +145,12 @@ async function removeBookmark() {
     }
 }
 
+const {strings, appSettings} = useCommon();
+
 function buttonColor(color: ColorParam, highlighted = false) {
+    if (appSettings.monochromeMode) {
+        return "";
+    }
     if (props.inBookmarkModal) {
         return ""
     }
@@ -159,7 +164,6 @@ function buttonColor(color: ColorParam, highlighted = false) {
     return `color:${col.hsl().string()};`;
 }
 
-const {strings} = useCommon();
 </script>
 
 <style scoped lang="scss">
@@ -168,6 +172,14 @@ const {strings} = useCommon();
 .button-container {
   display: flex;
   justify-content: space-between;
+  .monochrome & {
+    border-color: black;
+    border-top: solid;
+    border-width: 1px;
+    &.night {
+      border-color: white;
+    }
+  }
 }
 
 .ambiguous {
@@ -186,6 +198,9 @@ const {strings} = useCommon();
   cursor: pointer;
   font-size: 25px;
   color: $button-grey;
+  .night.monochrome & {
+    color: white;
+  }
   padding: 5px;
 
   &.end {

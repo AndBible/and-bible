@@ -93,7 +93,7 @@
 
 $button-border-radius: 8px;
 $button-padding: 6px;
-$button-grey: #8e8e8e;
+$button-grey: var(--modal-grey);
 
 .button {
   font-size: 90%;
@@ -110,6 +110,9 @@ $button-grey: #8e8e8e;
     .night & {
       background-color: #616161;
       color: #bdbdbd;
+    }
+    .night.monochrome & {
+      color: white;
     }
   }
   &.warning {
@@ -160,7 +163,14 @@ $button-grey: #8e8e8e;
   justify-content: flex-start;
 }
 
-$modal-header-background-color: rgba(172,172,172,1);
+:root {
+  --modal-grey:  rgb(172,172,172);
+  .monochrome {
+    --modal-grey: rgb(76, 76, 76);
+  }
+}
+
+$modal-header-background-color: var(--modal-grey);
 $night-modal-header-background-color: rgba(69,69,69,1);
 
 $modal-content-background-color: #fefefe;
@@ -168,10 +178,16 @@ $modal-content-background-color-night: rgb(33, 33, 33);
 
 .highlight-transition {
   transition: background-color 0.5s ease;
+  .noAnimation & {
+    transition: none;
+  }
 }
 
 .isHighlighted {
   background-color: rgba(0, 0, 0, 0.1);
+  .monochrome & {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
   .night & {
     background-color: rgba(255, 255, 255, 0.3);
   }

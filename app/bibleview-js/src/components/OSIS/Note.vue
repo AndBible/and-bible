@@ -131,6 +131,12 @@ const showHandle = computed(() => {
 .isCrossReference {
   @extend .note-handle-base;
   color: orange;
+  .monochrome & {
+    color: black;
+  }
+  .monochrome.night & {
+    color: white;
+  }
 }
 
 .open-all {
@@ -140,11 +146,23 @@ const showHandle = computed(() => {
 .isFootNote {
   @extend .note-handle-base;
   color: #b63afd;
+  .monochrome & {
+    color: black;
+  }
+  .monochrome.night & {
+    color: white;
+  }
 }
 
 .isOther {
   @extend .note-handle-base;
   color: #209546;
+  .monochrome & {
+    color: black;
+  }
+  .monochrome.night & {
+    color: white;
+  }
 }
 
 .scrollable {

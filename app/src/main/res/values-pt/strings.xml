@@ -140,6 +140,7 @@
   <string name="prefs_display_customization_cat">Aparência</string>
   <string name="prefs_behavior_customization_cat">Comportamento da aplicação</string>
   <string name="prefs_margin_size_summary">Ajuste as margens esquerda e direita da janela de texto. Pode também ajustar a largura máxima do texto.</string>
+  <string name="prefs_margin_size_summary_2">Sugestão: Pode tocar na área da margem para saltar uma página para cima/para baixo.</string>
   <string name="prefs_text_colors_summary">Ajuste o texto e a cor de fundo e os efeitos sonoros</string>
   <string name="text_display_settings_activity_title">Configurações de exibição de texto</string>
   <string name="workspace_text_display_settings_title">Opções de texto - %s</string>
@@ -1046,4 +1047,13 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="dont_show">
         Não mostrar essa mensagem novamente
     </string>
+  <string name="pref_font_size_multiplier_title">Multiplicador de tamanho de letra</string>
+  <string name="pref_font_size_multiplier_summary_1">Multiplica os tamanhos de letra do texto por este número.</string>
+  <string name="pref_font_size_multiplier_summary_2">Útil se tiver um dispositivo sincronizado que seja utilizado com um tipo de letra maior.</string>
+  <string name="current_value">Valor atual: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Ação para o gesto de deslizar para a esquerda / direita</string>
+  <string name="prefs_bible_view_swipe_mode_summary">O gesto de deslizar para a esquerda/direita pode ser utilizado para ir para a página/capítulo seguinte.</string>
+  <string name="prefs_swipe_mode_chapter">Capítulo</string>
+  <string name="prefs_swipe_mode_page">Página</string>
+  <string name="prefs_swipe_mode_none">Desativado</string>
 </resources>

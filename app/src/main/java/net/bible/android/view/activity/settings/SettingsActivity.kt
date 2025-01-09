@@ -34,6 +34,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SeekBarPreference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -50,6 +51,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
+import java.util.Locale
 
 class PreferenceStore: PreferenceDataStore() {
     private val prefs = CommonUtils.settings
@@ -149,9 +151,12 @@ class SettingsActivity: ActivityBase() {
                     "google_drive_sync",
                     "bible_bookmark_modal_buttons",
                     "gen_bookmark_modal_buttons",
+                    "monochrome_mode",
+                    "disable_animations",
+                    "font_size_multiplier",
+                    "bible_view_swipe_mode"
                 )
                 for(key in keys) {
-                    editor.removeString(key)
                     editor.removeString(key)
                     editor.removeBoolean(key)
                     editor.removeLong(key)
@@ -219,6 +224,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val showGreekMorph = setupDictionary(greekMorph, FeatureType.GREEK_PARSE)
         val dictCategory = preferenceScreen.findPreference<PreferenceCategory>("dictionaries_category") as PreferenceCategory
         dictCategory.isVisible = showGreek || showHebrew || showGreekMorph
+        val fontSizeMultiplier = preferenceScreen.findPreference<SeekBarPreference>("font_size_multiplier") as SeekBarPreference
+
+        fun getFontSizeMultiplierSummary(value: Int) =
+            getString(R.string.pref_font_size_multiplier_summary_1) + " " +
+            getString(R.string.pref_font_size_multiplier_summary_2) + " " +
+            getString(R.string.current_value,
+                String.format(Locale.getDefault(), "%1.1fx", value / 100F)
+            )
+
+        fontSizeMultiplier.summary = getFontSizeMultiplierSummary(CommonUtils.settings.fontSizeMultiplier)
+        fontSizeMultiplier.setOnPreferenceChangeListener { pref, newValue ->
+            fontSizeMultiplier.summary = getFontSizeMultiplierSummary(newValue as Int)
+            true
+        }
 
         preferenceScreen.findPreference<ListPreference>("toolbar_button_actions")?.apply {
                 if (value.isNullOrBlank())

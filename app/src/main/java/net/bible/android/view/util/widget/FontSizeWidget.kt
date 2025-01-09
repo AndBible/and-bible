@@ -36,6 +36,7 @@ import net.bible.android.activity.databinding.TextSizeWidgetBinding
 import net.bible.android.activity.databinding.ValueSliderWidgetBinding
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.AndBibleAddons
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.ProvidedFont
 import java.util.*
 
@@ -128,7 +129,7 @@ class FontSizeWidget(context: Context, attributeSet: AttributeSet?): LinearLayou
     fun updateValue() = bindings.apply {
         val availableFonts = availableFonts
         val fontSize = value
-        dialogMessage.textSize = fontSize.toFloat()
+        dialogMessage.textSize = fontSize.toFloat()* CommonUtils.settings.fontSizeMultiplierFloat
         fontSizeValue.text = context.getString(R.string.font_size_pt, fontSize)
         val fontDefinition = availableFonts.find { it.realFontFamily == fontFamily }?:return@apply
         dialogMessage.typeface = getTypeFace(fontDefinition)

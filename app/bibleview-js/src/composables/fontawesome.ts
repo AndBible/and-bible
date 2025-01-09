@@ -46,8 +46,12 @@ import {
     faTags,
     faTextWidth,
     faTimes,
-    faTrash
+    faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+
+import {
+    faClock
+} from "@fortawesome/free-regular-svg-icons";
 
 export function useFontAwesome() {
     const customWholeVerseFalse: IconDefinition = {
@@ -111,6 +115,7 @@ export function useFontAwesome() {
         faQuestionCircle,
         faHandPointer,
         faSave,
-        faCheck
+        faCheck,
+        faClock,
     );
 }

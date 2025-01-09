@@ -98,6 +98,9 @@ const {
     bookmarkToLabels: bookmarkToLabels_,
     genericBookmarkToLabels: genericBookmarkToLabels_,
 } = props.document;
+
+const {strings, appSettings} = useCommon()
+
 const journal = useStudyPad(label);
 provide("journal", journal);
 const {scrollToId} = inject(scrollKey)!;
@@ -234,6 +237,7 @@ function appendNewEntry() {
 
 const labelNameStyle = computed(() => {
     if (exportMode.value) return;
+    if (appSettings.monochromeMode) return;
     const color: Color = adjustedColorOrig(label.style.color)!;
     const textColor = color.isLight() ? "var(--label-text-black)" : "var(--label-text-white)";
     return `background-color: ${color.string()}; color: ${textColor};`;
@@ -243,7 +247,6 @@ function studyPadOrdinal(journalEntry: StudyPadItem) {
     return journalEntry.hashCode
 }
 
-const {strings} = useCommon()
 </script>
 
 <style scoped lang="scss">

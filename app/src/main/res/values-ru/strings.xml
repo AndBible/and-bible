@@ -1085,4 +1085,5 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="dont_show">
         Больше не показывать это сообщение
     </string>
+  <string name="prefs_swipe_mode_chapter">Глава</string>
 </resources>

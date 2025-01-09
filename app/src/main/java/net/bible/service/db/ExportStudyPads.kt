@@ -17,29 +17,22 @@
 
 package net.bible.service.db
 
-import android.content.Intent
-import androidx.core.content.FileProvider
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
-import net.bible.android.control.backup.ZIP_MIMETYPE
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.android.database.migrations.joinColumnNames
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.DbType
-import net.bible.service.common.displayName
 import net.bible.service.common.getFirst
 import java.io.BufferedInputStream
 import java.io.File
@@ -47,7 +40,6 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import kotlin.math.exp
 
 private const val TAG = "ExportStudyPad"
 
@@ -145,6 +137,8 @@ private fun fixPrimaryLabels(db: SupportSQLiteDatabase) = db.run {
     }
 }
 
+fun sanitizeFilename(name: String): String = name.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+
 suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntities.Label) = withContext(Dispatchers.IO) {
     val exportDbFile = CommonUtils.tmpFile
     val exportDb = DatabaseContainer.instance.getBookmarkDb(exportDbFile.absolutePath)
@@ -164,7 +158,7 @@ suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntit
         execSQL("DETACH DATABASE export")
     }
 
-    val filename = if (labels.size > 1) "StudyPads$DATABASE_BACKUP_SUFFIX" else labels.first().name + DATABASE_BACKUP_SUFFIX
+    val filename = if (labels.size > 1) "StudyPads$DATABASE_BACKUP_SUFFIX" else sanitizeFilename(labels.first().name) + DATABASE_BACKUP_SUFFIX
     val zipFile = File(BackupControl.internalDbBackupDir, filename)
     val manifest = AndBibleBackupManifest(
         backupType = BackupType.STUDYPAD_EXPORT,

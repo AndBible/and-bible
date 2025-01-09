@@ -16,18 +16,18 @@
  */
 
 
-import {computed, nextTick, reactive, Ref} from "vue";
+import {computed, nextTick, reactive, Ref, shallowRef, triggerRef} from "vue";
 import {emit, setupEventBusListener} from "@/eventbus";
 import {isEqual} from "lodash";
-import {Deferred} from "@/utils";
+import {Deferred, setupWindowEventListener} from "@/utils";
 import {BibleViewDocumentType} from "@/types/documents";
 
 export type StrongsMode = 0 | 1 | 2 | 3
 export const strongsModes: Record<string, StrongsMode> = {off: 0, inline: 1, links: 2, hidden: 3}
 
 export let errorBox = false;
-const white = -1;
-const black = -16777216;
+export const white = -1;
+export const black = -16777216;
 
 let developmentMode: boolean = false;
 export let testMode: boolean = false;
@@ -91,6 +91,7 @@ export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|
 export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"
 
 export type AppSettings = {
+    isBottomWindow: boolean,
     topOffset: number,
     bottomOffset: number,
     nightMode: boolean,
@@ -108,11 +109,16 @@ export type AppSettings = {
     windowId: IdType,
     bibleModalButtons: BibleModalButtonId[],
     genericModalButtons: GenericModalButtonId[],
+    monochromeMode: boolean,
+    disableAnimations: boolean,
+    fontSizeMultiplier: number,
 }
 
 export type CalculatedConfig = Ref<{
     topOffset: number
     topMargin: number
+    marginLeft: number
+    marginRight: number
 }>
 
 export function useConfig(documentType: Ref<BibleViewDocumentType>) {
@@ -168,6 +174,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
     const nightMode = new URLSearchParams(window.location.search).get("night") === "true";
     const appSettings: AppSettings = reactive({
         topOffset: 0,
+        isBottomWindow: false,
         bottomOffset: 100,
         nightMode: nightMode,
         errorBox: false,
@@ -184,6 +191,9 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         windowId: "",
         bibleModalButtons: ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "COMPARE", "SHARE"],
         genericModalButtons: ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK"],
+        monochromeMode: false,
+        disableAnimations: false,
+        fontSizeMultiplier: 1.0,
     });
 
     function calcMmInPx() {
@@ -198,15 +208,29 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
     const mmInPx = calcMmInPx();
 
     const isBible = computed(() => documentType.value === "bible");
+    const resizeTrigger = shallowRef();
+    setupWindowEventListener("resize", () => triggerRef(resizeTrigger));
 
     const calculatedConfig = computed(() => {
+        resizeTrigger.value;
         let topOffset = appSettings.topOffset;
         let topMargin = 0;
         if (isBible.value) {
             topMargin = config.topMargin * mmInPx;
             topOffset += topMargin;
         }
-        return {topOffset, topMargin};
+        const windowWidth = window.innerWidth;
+        const maxWidth = config.marginSize.maxWidth * mmInPx;
+        const leftPadding = config.marginSize.marginLeft * mmInPx;
+        const rightPadding = config.marginSize.marginRight * mmInPx;
+
+        const elementWidth = Math.min(maxWidth, windowWidth - leftPadding - rightPadding);
+        const margin = (windowWidth - elementWidth) / 2;
+
+        const marginLeft = margin + (leftPadding - rightPadding)/2;
+        const marginRight = margin + (rightPadding - leftPadding)/2;
+
+        return {topOffset, topMargin, marginLeft, marginRight};
     });
 
     window.bibleViewDebug.config = config;

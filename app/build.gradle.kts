@@ -285,7 +285,7 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
         resources.excludes.add("META-INF/LICENSE.txt")
         resources.excludes.add("META-INF/NOTICE.txt")
         resources.excludes.add("META-INF/DEPENDENCIES")
@@ -310,6 +310,7 @@ if(gradle.startParameter.taskNames.any { it.contains("Fdroid") }) {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         println("Excluding ${name}")
         exclude("**/googledrive/*")
+        exclude("**/onyx/*")
     }
 }
 
@@ -353,18 +354,19 @@ dependencies {
     implementation("androidx.core:core-ktx:$coreKtxVersion")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.media:media:1.7.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.webkit:webkit:1.11.0")
+    implementation("androidx.webkit:webkit:1.12.1")
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
-
-    //// Google Drive API
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei").map { "${it}Implementation" }) {
+        // Onyx SDK (e-ink devices)
+        variantImplementation("com.onyx.android.sdk:onyxsdk-device:1.2.32") // NOTE: remember to check its AndroidManifest.xml and remove unnecessary permissions in our AndroidManifest.xml
+        // Google Drive API
         variantImplementation("com.google.android.gms:play-services-auth:20.7.0")
         variantImplementation("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
             exclude("org.apache.httpcomponents")
@@ -460,3 +462,13 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.1")
 }
 
+afterEvaluate {
+    android.applicationVariants.all { variant ->
+        if (listOf("Googleplay", "Github", "Amazon", "Samsung", "Huawei").find { variant.flavorName.endsWith(it) } != null) {
+            repositories {
+                maven { url = uri("https://repo.boox.com/repository/maven-public/") }
+            }
+        }
+        true
+    }
+}

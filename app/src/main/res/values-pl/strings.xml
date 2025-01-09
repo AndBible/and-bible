@@ -997,4 +997,5 @@ Nie zostaną wydane poprawki błędów i aktualizacje.</string>
 Jeżeli nie chcesz przejść na nowszą wersję, wyłącz automatyczne aktualizacje w używanym sklepie z aplikacjami (Google Play, F-Droid,…).</string>
   <string name="dont_show">
 Nie wyświetlaj tego ponownie</string>
+  <string name="prefs_swipe_mode_chapter">Rozdział</string>
 </resources>

@@ -9,4 +9,3 @@ Installer.7=sword-https,Wycliffe (CrossWire),crosswire.org,/ftpmirror/pub/sword/
 Installer.8=sword-https,eBible,ebible.org,/sword/zip,/sword,,,
 Installer.9=sword-https,Lockman (CrossWire),crosswire.org,/ftpmirror/pub/sword/lockmanpackages,/ftpmirror/pub/sword/lockmanraw,,,
 Installer.10=sword-https,STEP Bible (Tyndale),public.modules.stepbible.org,/packages,/catalog,,,
-Installer.11=sword-https,CrossWire Attic,crosswire.org,/ftpmirror/pub/sword/atticpackages/rawzip,/ftpmirror/pub/sword/atticraw,,,

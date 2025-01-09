@@ -140,6 +140,7 @@
   <string name="prefs_display_customization_cat">Aspetto dell\'interfaccia</string>
   <string name="prefs_behavior_customization_cat">Comportamento dell\'applicazione</string>
   <string name="prefs_margin_size_summary">Regola il margine sinistro e destro della visualizzazione del testo. Puoi anche regolare la larghezza massima del testo.</string>
+  <string name="prefs_margin_size_summary_2">Suggerimento: tocca l\'area dei margini per saltare di una pagina in alto o in basso.</string>
   <string name="prefs_text_colors_summary">Regola i colori del testo e dello sfondo e l\'effetto del rumore</string>
   <string name="text_display_settings_activity_title">Impostazioni di visualizzazione del testo</string>
   <string name="workspace_text_display_settings_title">Opzioni di testo - %s</string>
@@ -765,7 +766,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="share_verse_ok">Condividi / Copia</string>
   <string name="web_search">Ricerca web</string>
   <string name="verse_action_copy">Copia</string>
-  <string name="generic_share">Condivida</string>
+  <string name="generic_share">Condividi</string>
   <string name="share_verse_menu_title">Condividi / copia...</string>
   <string name="show_versenumbers">Mostra i numeri dei versetti</string>
   <string name="show_full_verses">Mostra i versetti completi</string>
@@ -1045,4 +1046,13 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="dont_show">
         Non mostrare più questo messaggio
     </string>
+  <string name="pref_font_size_multiplier_title">Moltiplicatore dimensione carattere</string>
+  <string name="pref_font_size_multiplier_summary_1">Moltiplica le dimensioni dei caratteri di testo con questo numero.</string>
+  <string name="pref_font_size_multiplier_summary_2">Utile se hai un dispositivo sincronizzato che utilizzi con caratteri più grandi.</string>
+  <string name="current_value">Valore attuale: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Azione per il gesto scorri a sinistra / destra</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Il gesto scorri a sinistra / destra può essere usato per andare alla pagina o al carattere successivo.</string>
+  <string name="prefs_swipe_mode_chapter">Capitolo</string>
+  <string name="prefs_swipe_mode_page">Pagina</string>
+  <string name="prefs_swipe_mode_none">Disabilitato</string>
 </resources>

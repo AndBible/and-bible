@@ -24,6 +24,7 @@ import android.view.ViewConfiguration
 
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.util.TouchOwner
+import net.bible.service.common.BibleViewSwipeMode
 import net.bible.service.common.CommonUtils
 import kotlin.math.abs
 
@@ -31,7 +32,10 @@ import kotlin.math.abs
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : SimpleOnGestureListener() {
+class BibleGestureListener(
+    private val mainBibleActivity: MainBibleActivity,
+    val bibleView: BibleView
+) : SimpleOnGestureListener() {
     private val scaledMinimumDistance: Int = CommonUtils.convertDipsToPx(DISTANCE_DIP)
     private val scaledMinimumFullScreenScrollDistance: Int = CommonUtils.convertDipsToPx(SCROLL_DIP)
 
@@ -87,10 +91,17 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
                     goNext = !goNext
 
                 if (goNext) {
-                    mainBibleActivity.next()
+                    when(CommonUtils.settings.bibleViewSwipeMode) {
+                        BibleViewSwipeMode.CHAPTER -> mainBibleActivity.next()
+                        BibleViewSwipeMode.PAGE -> bibleView.volumeDownPressed()
+                        BibleViewSwipeMode.NONE -> {}
+                    }
                 } else {
-                    // left to right swipe
-                    mainBibleActivity.previous()
+                    when(CommonUtils.settings.bibleViewSwipeMode) {
+                        BibleViewSwipeMode.CHAPTER -> mainBibleActivity.previous()
+                        BibleViewSwipeMode.PAGE -> bibleView.volumeUpPressed()
+                        BibleViewSwipeMode.NONE -> {}
+                    }
                 }
                 return true
             }

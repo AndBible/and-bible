@@ -1046,4 +1046,5 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="dont_show">
         Ne plus montrer ce message
     </string>
+  <string name="prefs_swipe_mode_chapter">Chapitre</string>
 </resources>

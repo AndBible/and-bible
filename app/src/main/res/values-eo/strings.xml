@@ -133,7 +133,7 @@
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d p.</string>
   <string name="value_mm">%d mm</string>
-  <string name="auto_fullscreen_summary">Aŭtomate baskuli al plenekrano dum rulumi tekston. Konsilo: vi ĉiam povas baskuli al plenekrano per dufoje frapeti la ekranon.</string>
+  <string name="auto_fullscreen_summary">Aŭtomate baskuligi al plenekrano dum rulumi tekston. Konsilo: vi ĉiam povas baskuligi al plenekrano per dufoje frapeti la ekranon.</string>
   <string name="prefs_margin_size_title">Ŝanĝi larĝojn de marĝenoj</string>
   <string name="prefs_margin_size_mm_title">Larĝoj de marĝenoj (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Spertulaj agordoj</string>
@@ -168,7 +168,7 @@
   <string name="hide_bible_reference_overlay_title">Kaŝi surtavolon de bibliaj referencoj</string>
   <string name="hide_bible_reference_overlay_summary">Ne montri travideblan tavolon de bibliaj referencoj kiam la aplikaĵo laboras en plenekrana reĝimo</string>
   <string name="full_screen_hide_buttons_pref_title">Kaŝi strion de fenestraj butonoj en plenekrano</string>
-  <string name="full_screen_hide_buttons_pref_summary">Kiam baskuli al plenekrana reĝimo, aŭtomate kaŝi breton de fenestraj butonoj, kiu aperas ĉe subo de la ekrano</string>
+  <string name="full_screen_hide_buttons_pref_summary">Kiam baskuligi al plenekrana reĝimo, aŭtomate kaŝi breton de fenestraj butonoj, kiu aperas ĉe subo de la ekrano</string>
   <string name="prefs_dictionaries_cat">Vortaroj</string>
   <string name="choose_strongs_greek_dictionary_title">Greka vortaro de Strong</string>
   <string name="choose_strongs_greek_dictionary_summary">Elekti vortaron de Strong por difinojn de grekaj vortoj</string>
@@ -663,7 +663,7 @@ Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</stri
   <!--Help-->
   <string name="help_nav_title">Navigi</string>
   <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, fingrumu la ekranon (mal)dekstren.
- Duoble frapetu la tekston por baskuli plenekranon.
+ Duoble frapetu la tekston por baskuligi plenekranon.
  Ĉe la supra dekstra angulo troviĝas butono dividi ekranon (montri la aplikaĵon en kelkaj fenestroj), per tiu ĉi butono vi ankaŭ povas alĝustigi aspekton kaj sintenon de fenestro(j).</string>
   <string name="help_contextmenus_title">Kuntekstaj menuoj</string>
   <string name="help_contextmenus_text">
@@ -686,7 +686,7 @@ Notblokoj estas destinitaj por fari notojn pri predikoj, prepari predikojn aŭ p
   <string name="help_fts5">plentekstan serĉan sintakson de FTS5</string>
   <string name="help_workspaces_title">Laborspacoj</string>
   <string name="help_workspaces_text">
-Laborspacoj ebligas havi plurajn sendependajn mediojn por labori. Funkcioj de laborspacoj estas disponeblaj per la menuo de agordoj (ĉe supra dekstra angulo). Fingrumu suben el la ilarstrio por rapide aliri labortablojn. Fingrumu maldekstren/dekstren sur la ilarstrio por baskuli inter antaŭa/sekva laborspacoj.</string>
+Laborspacoj ebligas havi plurajn sendependajn mediojn por labori. Funkcioj de laborspacoj estas disponeblaj per la menuo de agordoj (ĉe supra dekstra angulo). Fingrumu suben el la ilarstrio por rapide aliri labortablojn. Fingrumu maldekstren/dekstren sur la ilarstrio por baskuligi inter antaŭa/sekva laborspacoj.</string>
   <string name="help_hidden_features_title">Gestoj</string>
   <string name="help_hidden_features_text">
 Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
@@ -1007,4 +1007,5 @@ Post eldoni la sekvan version, tiu ĉi versio ne estos prizorgata.</string>
 Se vi ne volas promocii, malaktivigu “aŭtomatajn ĝisdatigojn” en via aplikaĵa vendejo (Google Play, F-Droid, ktp.)</string>
   <string name="dont_show">
 Ne montri tion ĉi denove</string>
+  <string name="prefs_swipe_mode_chapter">Ĉapitro</string>
 </resources>

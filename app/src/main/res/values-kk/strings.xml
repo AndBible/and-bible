@@ -1004,4 +1004,5 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
 Жаңартқыңыз келмесе, қолданбалар дүкенінде (Google Play / F-Droid т.б.) \"Автоматты жаңартуларды\" өшіріңіз.</string>
   <string name="dont_show">
 Бұл хабарды қайта көрсетпеңіз</string>
+  <string name="prefs_swipe_mode_chapter">Тарау</string>
 </resources>

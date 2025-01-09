@@ -58,7 +58,7 @@ const $emit = defineEmits(["selected"]);
 const props = defineProps<{ bookmarkId: IdType }>();
 
 const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
-useCommon();
+const {appSettings} = useCommon();
 const bookmark = computed(() => bookmarkMap.get(props.bookmarkId)! as BaseBookmark);
 const bookmarkNotes = computed(() => bookmark.value.notes!);
 
@@ -67,9 +67,12 @@ const primaryLabel = computed(() => {
     return bookmarkLabels.get(primaryLabelId)!;
 });
 
-const buttonStyle = computed(() => {
+const buttonStyle = computed<string|undefined>(() => {
     let color = Color(primaryLabel.value.color);
     color = color.alpha(0.5)
+    if (appSettings.monochromeMode) {
+        return;
+    }
     return `background-color: ${color.hsl()};`
 });
 
@@ -98,8 +101,21 @@ function htmlToString(html: string) {
 .ambiguous-button {
   color: black;
 
+  .monochrome & {
+    background-color: white;
+    border-style: solid;
+    border-width: 1px;
+  }
+
   .night & {
     color: #d7d7d7;
+  }
+
+  .monochrome.night & {
+    color: white;
+    background-color: black;
+    border-style: solid;
+    border-width: 1px;
   }
 
   @extend .button;

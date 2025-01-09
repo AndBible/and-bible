@@ -24,6 +24,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Color
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
@@ -140,7 +141,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
@@ -310,8 +310,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 checkDocBackupDBInSync()
             }
             initialized = true
-            startSync()
         }
+        syncScope.launch { startSync() }
         if(intent.hasExtra("openLink")) {
             val uri = Uri.parse(intent.getStringExtra("openLink"))
             openLink(uri)
@@ -337,6 +337,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         var currentSliderOffset = 0.0F
+
+        if (CommonUtils.settings.monochromeMode) {
+            binding.drawerLayout.setScrimColor(Color.TRANSPARENT)
+        }
 
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {
@@ -670,7 +674,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             strongsButton.setOnClickListener {
                 val prefOptions = dummyStrongsPrefOption
-                prefOptions.value = (prefOptions.value as Int + 1) % 4
+                prefOptions.value = (prefOptions.value as Int + 1) % 3
                 prefOptions.handle()
                 updateStrongsButton()
             }
@@ -952,7 +956,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
         }
         if(dummyStrongsPrefOption.value == 0) {
-            binding.strongsButton.alpha = 0.5F
+            val alpha = if(CommonUtils.settings.disableAnimations) 0.8F else 0.5F
+            binding.strongsButton.alpha = alpha
         } else
             binding.strongsButton.alpha = 1.0F
     }
@@ -1233,6 +1238,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun showSystemUI(setNavBarColor: Boolean=true) {
+        val monochromeMode = CommonUtils.settings.monochromeMode
         var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {
@@ -1243,8 +1249,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
                 val toolbarColor = if (ScreenSettings.nightMode)
                     resources.getColor(R.color.actionbar_background_night, theme)
-                else
+                else if (monochromeMode) {
+                    Color.BLACK
+                } else {
                     workspaceSettings.workspaceColor ?: defaultWorkspaceColor
+                }
 
                 binding.run {
                     homeButton.setBackgroundColor(toolbarColor)
@@ -1258,7 +1267,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     binding.homeButton.drawable.setTint(workspaceSettings.workspaceColor ?: defaultWorkspaceColor)
                 }
 
-                val color = if (setNavBarColor) {
+                val color = if (setNavBarColor && !monochromeMode) {
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
                     color ?: UiUtils.bibleViewDefaultBackgroundColor
                 } else {
@@ -1288,12 +1297,22 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .translationY(binding.speakTransport.height.toFloat())
                 .setInterpolator(AccelerateInterpolator())
                 .withEndAction { binding.speakTransport.visibility = View.GONE }
+                .apply {
+                    if(CommonUtils.settings.disableAnimations) {
+                        duration = 0
+                    }
+                }
                 .start()
         } else {
             binding.speakTransport.visibility = View.VISIBLE
             binding.speakTransport.animate()
                 .translationY(-bottomOffset1.toFloat())
                 .setInterpolator(DecelerateInterpolator())
+                .apply {
+                    if(CommonUtils.settings.disableAnimations) {
+                        duration = 0
+                    }
+                }
                 .start()
         }
         ABEventBus.post(UpdateRestoreWindowButtons())
@@ -1399,7 +1418,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             syncScope.launch { synchronize(true) }
         } else {
             updateActions()
-            syncScope.launch { startSync() }
+            syncScope.launch {
+                delay(5000) // Wait a little bit as wifi might be auto-turned on after returning from sleep
+                startSync()
+            }
         }
     }
 
@@ -1477,7 +1499,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
                     .setInterpolator(AccelerateInterpolator())
                     .withEndAction { toolbarLayout.visibility = View.GONE }
-                    .start()
+                    .apply {
+                        if(CommonUtils.settings.disableAnimations) {
+                            duration = 0
+                        }
+                    }.start()
             }
             else {
                 showSystemUI()
@@ -1486,7 +1512,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 toolbarLayout.visibility = View.VISIBLE
                 toolbarLayout.animate().translationY(topOffset1.toFloat())
                     .setInterpolator(DecelerateInterpolator())
-                    .start()
+                    .apply {
+                        if(CommonUtils.settings.disableAnimations) {
+                            duration = 0
+                        }
+                    }.start()
                 updateActions()
             }
         }
@@ -1889,6 +1919,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     fun activate(v: View) {
         CurrentActivityHolder.activate(this)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        CommonUtils.onyxSupport?.setupOnyxNormal()
     }
 
     companion object {

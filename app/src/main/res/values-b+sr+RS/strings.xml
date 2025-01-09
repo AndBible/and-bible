@@ -1053,4 +1053,5 @@
 Уколико не желите да надоградите, молимо онемогућите \'Аутоматска ажурирања\' у Вашој продавници апликација (Google Play / F-Droid, итд.)</string>
   <string name="dont_show">
 Немојте више приказивати ову поруку поново</string>
+  <string name="prefs_swipe_mode_chapter">Поглавље</string>
 </resources>

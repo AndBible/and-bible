@@ -768,6 +768,7 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="tell_friend_message3">Play Store link: %s</string>
   <string name="tell_friend_message4">További infók és telepítési lehetőségek: %s</string>
   <string name="share_verse_ok">Megosztás / másolás</string>
+  <string name="web_search">Keresés a neten</string>
   <string name="verse_action_copy">Másolás</string>
   <string name="generic_share">Megosztás</string>
   <string name="share_verse_menu_title">Megosztás / másolás…</string>
@@ -858,7 +859,9 @@ jelentse be az észlelt problémát</string>
   <string name="label_salvation">Üdvözülés</string>
   <string name="label_underline">Aláhúzás</string>
   <string name="import_menu">Import és Export</string>
+  <string name="export">Export</string>
   <string name="export_fileformat">Export mint %s</string>
+  <string name="export_something">Export %s</string>
   <string name="import_items">Import %s</string>
   <string name="import_from_db">Importálás App adatbázis fájlból</string>
   <string name="import_error">A adatbázis importálása sikertelen volt. Az adatbázis fájl formátuma rossz vagy a(z) %s túl régi verziójából származik.</string>
@@ -881,6 +884,7 @@ jelentse be az észlelt problémát</string>
   <string name="strongs_off">Kikapcsolva </string>
   <string name="strongs_links">Hivatkozások</string>
   <string name="strongs_text_and_links">Szöveg és hivatkozások</string>
+  <string name="strongs_hidden_links">Rejtett hivatkozások</string>
   <string name="verse_tip">Versrészlet vagy több vers kiválasztásához hosszan nyomjon a Biblia szövegre</string>
   <string name="permission_required">Engedély szükséges </string>
   <string name="labels_search_hint">Keresés</string>
@@ -1034,4 +1038,5 @@ jelentse be az észlelt problémát</string>
   <string name="dont_show">
         Ne jelenítse meg ezt az üzenetet többet
     </string>
+  <string name="prefs_swipe_mode_chapter">Fejezet</string>
 </resources>

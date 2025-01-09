@@ -72,7 +72,7 @@ export function useScroll(
 
     function doScrolling(elementY: number, duration = 1000) {
         console.log("doScrolling", elementY, duration);
-        const noScrolling = duration === 0;
+        const noScrolling = duration === 0 || appSettings.disableAnimations;
         stopScrolling(!noScrolling);
         const startingY = window.scrollY;
         const diff = elementY - startingY;
@@ -140,6 +140,9 @@ export function useScroll(
             osisRef?: string
         }> = {}) {
         console.log("scrollToId", {toId, now, highlight, force, duration, ordinalStart, ordinalEnd});
+        if (appSettings.disableAnimations) {
+            now = true;
+        }
         stopScrolling();
         let delta = calculatedConfig.value.topOffset;
         if (highlight && ordinalStart) {

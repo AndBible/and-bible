@@ -702,4 +702,5 @@
   <string name="last_updated">최근 업데이트: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
+  <string name="prefs_swipe_mode_chapter">장</string>
 </resources>

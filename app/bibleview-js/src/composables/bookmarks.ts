@@ -91,13 +91,15 @@ export function verseHighlighting(
         highlightLabelCount,
         underlineLabels,
         underlineLabelCount,
-        highlightColorFn
+        highlightColorFn,
+        appSettings,
     }: {
         highlightLabels: LabelAndId[],
         highlightLabelCount: LabelCountMap,
         underlineLabels: LabelAndId[],
         underlineLabelCount: LabelCountMap,
         highlightColorFn: (label: LabelAndStyle, count: number) => Color,
+        appSettings: AppSettings,
     }): string
 {
     // Percentage heights allocated to background highlight
@@ -106,6 +108,8 @@ export function verseHighlighting(
     const underlineHeight = 4;
     const spaceBetweenLines = 2;
     let gradientCSS = '';
+
+    const monochromeUnderlineColor = Color(appSettings.nightMode ? "white": "black");
 
     {
         // Generate background gradients
@@ -129,7 +133,10 @@ export function verseHighlighting(
         let span = 0;
         for (const {label: s, id} of underlineLabels) {
             for (let i = 0; i < underlineLabelCount.get(id)!; i++) {
-                underlineColors.push(new Color(s.color).hsl().string());
+                const color = appSettings.monochromeMode
+                    ? monochromeUnderlineColor
+                    : new Color(s.color).hsl();
+                underlineColors.push(color.string());
             }
         }
         if (underlineColors.length !== 0) {
@@ -512,11 +519,23 @@ export function useBookmarks(
             })).filter(l => !l.label.isSpeak);
 
         return verseHighlighting({
-            highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount, highlightColorFn: highlightColor
+            highlightLabels,
+            highlightLabelCount,
+            underlineLabels,
+            underlineLabelCount,
+            highlightColorFn: highlightColor,
+            appSettings
         });
     }
 
+    const monochromeHighlightColor = appSettings.nightMode
+        ? Color.rgb(180, 180, 180)
+        : Color.rgb(210, 210, 210);
+
     function highlightColor(label: LabelAndStyle, count: number): Color {
+        if (appSettings.monochromeMode) {
+            return monochromeHighlightColor;
+        }
         let c = new Color(label.color)
         c = c.alpha(appSettings.nightMode ? 0.4 : 0.3)
         for (let i = 0; i < count - 1; i++) {
@@ -618,7 +637,7 @@ export function useBookmarks(
         if (config.showBookmarks) {
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
                 if (hasSpeakLabel(b)) {
-                    const color = adjustedColor("red").string()
+                    const color = adjustedColor(appSettings.monochromeMode ? "black" : "red").string()
                     const iconElement = getIconElement(speakIcon, color);
 
                     iconElement.addEventListener("click", event => addEventFunction(event,
@@ -646,7 +665,7 @@ export function useBookmarks(
             const bookmark = bookmarkList[0];
             if (bookmark) {
                 const bookmarkLabel = getBookmarkStyleLabel(bookmark);
-                const color = adjustedColor(bookmarkLabel.color).string();
+                const color = adjustedColor(appSettings.monochromeMode ? "black" : bookmarkLabel.color).string();
                 const iconElement = getIconElement(hasNote ? editIcon : bookmarkIcon, color);
                 iconElement.addEventListener("click", event => {
                     for (const b of bookmarkList) {
@@ -695,7 +714,7 @@ export function useBookmarks(
             const lastElement = document.querySelector(`#doc-${documentId} #o-${lastOrdinal}`) as HTMLElement;
             const b = bookmarkList[0];
             const bookmarkLabel = getBookmarkStyleLabel(b);
-            const color = adjustedColor(bookmarkLabel.color).string();
+            const color = adjustedColor(appSettings.monochromeMode ? "black" : bookmarkLabel.color).string();
             const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
             iconElement.addEventListener("click", event => {
                 for (const b of bookmarkList) {

@@ -792,4 +792,5 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="last_updated">နောက်ဆုံး အဆင်မြှင့်တင်ပြီး: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
+  <string name="prefs_swipe_mode_chapter">အခန်းကြီး</string>
 </resources>

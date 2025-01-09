@@ -1038,4 +1038,5 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 Αν δεν θέλετε να αναβαθμίσετε,παρακαλώ απενεργοποιήστε τις ¨Αυτόματες ενημερώσεις\" στο app store σας (Google Play / F-Droid κλπ)</string>
   <string name="dont_show">
 Μην δείξεις το μήνυμα αυτό ξανά</string>
+  <string name="prefs_swipe_mode_chapter">Κεφάλαιο</string>
 </resources>

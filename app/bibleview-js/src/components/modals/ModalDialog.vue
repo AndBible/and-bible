@@ -19,7 +19,11 @@
   <teleport to="#modals">
     <div v-if="blocking" @click.stop="$emit('close')" class="modal-backdrop"/>
     <div :class="{blocking}">
-      <div ref="modal" @click.stop class="modal-content" :class="{blocking, wide, edit, limit}"
+      <div
+          ref="modal"
+          @click.stop
+          class="modal-content"
+          :class="{blocking, wide, edit, limit}"
       >
         <div ref="header" class="modal-header">
           <slot name="title-div">
@@ -147,6 +151,9 @@ defineExpose({height});
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
+  .monochrome & {
+    background-color: unset;
+  }
 }
 
 $border-radius: 8pt;
@@ -168,10 +175,18 @@ $border-radius2: $border-radius - 1.5pt;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   animation-name: animatetop;
   animation-duration: 0.2s;
+  .noAnimation & {
+    animation: none;
+    box-shadow: none;
+  }
 
   .night & {
     background-color: $modal-content-background-color-night;
     color: #bdbdbd;
+  }
+
+  .monochrome.night & {
+    border-color: white;
   }
 
   border-radius: $border-radius;
@@ -216,6 +231,9 @@ $border-radius2: $border-radius - 1.5pt;
     background-color: $night-modal-header-background-color;
     --header-backround: #{$night-modal-header-background-color};
     color: #e2e2e2;
+  }
+  .monochrome.night & {
+    color: white;
   }
 }
 

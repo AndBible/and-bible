@@ -1098,4 +1098,5 @@ Próximamente habrá un nuevo lanzamiento. La fecha de lanzamiento prevista es %
   <string name="dont_show">
         No volver a mostrar este mensaje
     </string>
+  <string name="prefs_swipe_mode_chapter">Capítulo</string>
 </resources>

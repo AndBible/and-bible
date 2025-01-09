@@ -45,9 +45,15 @@ const {config} = useCommon();
 $redLetters: rgb(215, 13, 13);
 .redLetters {
   color: $redLetters !important;
+  .monochrome & {
+    color: unset !important;
+  }
 }
 
 .redLetters > a:link, a:visited {
   color: $redLetters;
+  .monochrome & {
+    color: unset !important;
+  }
 }
 </style>

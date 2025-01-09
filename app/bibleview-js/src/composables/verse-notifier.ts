@@ -40,11 +40,11 @@ export function useVerseNotifier(
 
     function* iterate(direction = "ltr") {
         if (direction === "ltr") {
-            for (let x = window.innerWidth - Math.max(step, config.marginSize.marginRight); x > 0; x -= step) {
+            for (let x = window.innerWidth - Math.max(step, calculatedConfig.value.marginRight); x > 0; x -= step) {
                 yield x;
             }
         } else {
-            for (let x = Math.max(step, config.marginSize.marginLeft); x < window.innerWidth; x += step) {
+            for (let x = Math.max(step, calculatedConfig.value.marginLeft); x < window.innerWidth; x += step) {
                 yield x;
             }
         }
@@ -54,30 +54,33 @@ export function useVerseNotifier(
     // totally frozen during scrolling
     const onScroll = throttle(() => {
         if (isScrolling.value) return;
-        const y = calculatedConfig.value.topOffset + lineHeight.value * 0.8;
+        let y = calculatedConfig.value.topOffset + lineHeight.value * 0.8;
 
         // Find element, starting from right
         let element: Nullable<HTMLElement>;
-        let directionChanged = true;
-        while (directionChanged) {
-            directionChanged = false;
-            for (const x of iterate(lastDirection)) {
-                element = document.elementFromPoint(x, y) as Nullable<HTMLElement>
-                if (element) {
-                    element = element.closest(".ordinal") as Nullable<HTMLElement>;
+        while (y < window.innerHeight) {
+            let directionChanged = true;
+            while (directionChanged) {
+                directionChanged = false;
+                for (const x of iterate(lastDirection)) {
+                    element = document.elementFromPoint(x, y) as Nullable<HTMLElement>
                     if (element) {
-                        const direction = window.getComputedStyle(element).getPropertyValue("direction");
-                        if (direction !== lastDirection) {
-                            directionChanged = true;
-                            lastDirection = direction;
-                            break;
+                        element = element.closest(".ordinal") as Nullable<HTMLElement>;
+                        if (element) {
+                            const direction = window.getComputedStyle(element).getPropertyValue("direction");
+                            if (direction !== lastDirection) {
+                                directionChanged = true;
+                                lastDirection = direction;
+                                break;
+                            }
+                            currentVerse.value = parseInt(element.dataset.ordinal!)
+                            const doc = element.closest(".document") as Nullable<HTMLElement>
+                            currentKey.value = doc?.dataset.osisRef || ""
+                            return;
                         }
-                        currentVerse.value = parseInt(element.dataset.ordinal!)
-                        const doc = element.closest(".document") as Nullable<HTMLElement>
-                        currentKey.value = doc?.dataset.osisRef || ""
-                        break;
                     }
                 }
+                y += lineHeight.value * 0.5;
             }
         }
     }, 50);

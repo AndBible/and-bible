@@ -1049,4 +1049,5 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="dont_show">
 不再顯示此訊息
 </string>
+  <string name="prefs_swipe_mode_chapter">章節</string>
 </resources>

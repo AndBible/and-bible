@@ -1057,4 +1057,5 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
 如果你不想升级至新版本，请在你的应用程序商店（Google Play / F-Droid等）关闭“自动升级”。</string>
   <string name="dont_show">
 不再显示这条信息</string>
+  <string name="prefs_swipe_mode_chapter">章节</string>
 </resources>

@@ -91,7 +91,7 @@ class LinkControl @Inject constructor(
         val key = BookAndKeyList()
         val bookKeys = links.mapNotNull {
             try {
-                getBookAndKey(it.url, it.versification, it.forceDoc)
+                getBookAndKey(it.url, it.versification, null)
             } catch (e: NoSuchKeyException) {
                 null
             }
@@ -117,7 +117,7 @@ class LinkControl @Inject constructor(
         return true
     }
 
-    fun loadApplicationUrl(link: BibleView.BibleLink): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc)
+    fun loadApplicationUrl(link: BibleView.BibleLink, book: Book? = null): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc, book)
 
     fun errorLink() {
         ErrorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
@@ -126,25 +126,25 @@ class LinkControl @Inject constructor(
     /**
      *  Returns either BookAndKey or BookAndKeyList
      */
-    private fun getBookAndKey(uriStr: String, versification: Versification, forceDoc: Boolean): Key? {
+    private fun getBookAndKey(uriStr: String, versification: Versification, book: Book?): Key? {
         Log.i(TAG, "Loading: $uriStr")
         val uriAnalyzer = UriAnalyzer()
         if (uriAnalyzer.analyze(uriStr)) {
             return when (uriAnalyzer.docType) {
-                UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key, versification)
+                UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key, versification, book)
                 UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key, StrongsKeyType.GREEK)
                 UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key, StrongsKeyType.HEBREW)
                 UriAnalyzer.DocType.ROBINSON -> getRobinsonMorphologyKey(uriAnalyzer.key)
-                UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, forceDoc)
+                UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, book)
                 else -> null
             }
         }
         return null
     }
 
-    private fun loadApplicationUrl(uriStr: String, versification: Versification, forceDoc: Boolean): Boolean {
+    private fun loadApplicationUrl(uriStr: String, versification: Versification, forceDoc: Boolean, book: Book?): Boolean {
         val bookAndKeys =
-            try {getBookAndKey(uriStr, versification, forceDoc)}
+            try {getBookAndKey(uriStr, versification, if(forceDoc) book else null)}
             catch (e: NoSuchKeyException) {return false} ?: return false
 
         when(bookAndKeys) {
@@ -169,16 +169,16 @@ class LinkControl @Inject constructor(
 	}
 
     @Throws(NoSuchKeyException::class)
-    private fun getSpecificDocRefKey(initials: String?, reference: String, versification: Versification, forceDoc: Boolean): BookAndKey? {
+    private fun getSpecificDocRefKey(initials: String?, reference: String, versification: Versification, book: Book?): BookAndKey? {
         var ref = reference
         if (StringUtils.isEmpty(initials)) {
-            return getBibleKey(ref, versification)
+            return getBibleKey(ref, versification, book)
         } else {
             val document = SwordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
                 Dialogs.showErrorMsg(R.string.document_not_installed, initials)
-            } else if(document.bookCategory == BookCategory.BIBLE && !forceDoc) {
-                return getBibleKey(ref, versification)
+            } else if(document.bookCategory == BookCategory.BIBLE && book == null) {
+                return getBibleKey(ref, versification, book)
             } else if(document.isGreekDef || document.isHebrewDef) {
                 return getStrongsKey(document, reference)
             }
@@ -214,9 +214,9 @@ class LinkControl @Inject constructor(
     /** user has selected a Bible verse link
      */
     @Throws(NoSuchKeyException::class)
-    private fun getBibleKey(keyText: String, versification: Versification): BookAndKey {
+    private fun getBibleKey(keyText: String, versification: Versification, book: Book?): BookAndKey {
         val key: Passage = PassageKeyFactory.instance().getKey(versification, keyText)
-        return BookAndKey(key)
+        return BookAndKey(key, book)
     }
 
     enum class KeyType {

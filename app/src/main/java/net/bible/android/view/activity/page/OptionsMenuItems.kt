@@ -60,6 +60,7 @@ interface OptionsMenuItemInterface {
     fun setNonSpecific() {}
 
     val title: String?
+    val summary: String?
     val icon: Int?
 }
 
@@ -87,6 +88,7 @@ abstract class GeneralPreference(
     override var value: Any = false
     override fun handle() {}
     override val title: String? = null
+    override val summary: String? = null
     override val icon: Int? = null
     override val opensDialog get()  = !isBoolean
 }
@@ -260,6 +262,7 @@ class CommandPreference(
     override val inherited: Boolean = false,
     override val opensDialog: Boolean = false,
     override val title: String? = null,
+    override val summary: String? = null,
 ) : OptionsMenuItemInterface {
     override fun handle() {
         handle?.invoke()
@@ -475,6 +478,7 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     private val maxWidth get() = (value  as WorkspaceEntities.MarginSize).maxWidth ?: defaultVal.maxWidth!!
     private val defaultVal = TextDisplaySettings.default.marginSize!!
     override val title: String get() = application.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal, maxWidth)
+    override val summary: String? get() = application.getString(R.string.prefs_margin_size_summary) + " " + application.getString(R.string.prefs_margin_size_summary_2)
     override val visible = true
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         MarginSizeWidget.dialog(activity, value as WorkspaceEntities.MarginSize,

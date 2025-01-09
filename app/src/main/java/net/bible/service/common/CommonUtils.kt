@@ -158,7 +158,6 @@ import org.crosswire.jsword.versification.system.Versifications
 import org.jdom2.input.SAXBuilder
 import org.jdom2.xpath.XPathFactory
 import org.spongycastle.util.io.pem.PemReader
-import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -261,6 +260,8 @@ open class CommonUtilsBase {
     @Inject lateinit var bibleTraverser: BibleTraverser
 }
 
+enum class BibleViewSwipeMode {CHAPTER, PAGE, NONE}
+
 class Ref<T>(var value: T? = null)
 
 /**
@@ -325,7 +326,7 @@ object CommonUtils : CommonUtilsBase() {
             try {
                 val manager = application.packageManager
                 val info = manager.getPackageInfo(application.packageName, 0)
-                versionName = info.versionName
+                versionName = info.versionName ?: throw NameNotFoundException()
             } catch (e: NameNotFoundException) {
                 Log.e(TAG, "Error getting package name.", e)
                 versionName = "Error"
@@ -428,6 +429,12 @@ object CommonUtils : CommonUtilsBase() {
         fun removeDouble(key: String) = setDouble(key, null)
         fun removeLong(key: String) = setLong(key, null)
         fun removeBoolean(key: String) = setBoolean(key, null)
+
+        val monochromeMode: Boolean get() = getBoolean("monochrome_mode", onyxSupport?.isMonochrome == true)
+        val disableAnimations: Boolean get() = getBoolean("disable_animations", onyxSupport?.isOnyxDevice == true)
+        val fontSizeMultiplier: Int get() = getInt("font_size_multiplier", 100)
+        val fontSizeMultiplierFloat: Float get() = getInt("font_size_multiplier", 100) / 100F
+        val bibleViewSwipeMode: BibleViewSwipeMode get() = BibleViewSwipeMode.valueOf(getString("bible_view_swipe_mode", "CHAPTER")!!)
     }
 
     private var _settings: AndBibleSettings? = null
@@ -1081,6 +1088,7 @@ object CommonUtils : CommonUtilsBase() {
 
     var initialized = false
     private var booksInitialized = false
+    var onyxSupport: OnyxSupportInterface? = null
 
     fun initializeApp() {
         if(!initialized) {
@@ -1098,6 +1106,8 @@ object CommonUtils : CommonUtilsBase() {
             if(!BuildVariant.Appearance.isDiscrete) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
+            initializeOnyx()
+
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
             addManuallyInstalledEpubBooks()
@@ -1119,6 +1129,14 @@ object CommonUtils : CommonUtilsBase() {
                 }
             }
             booksInitialized = true
+        }
+    }
+
+    private fun initializeOnyx() {
+        if (FLAVOR_distchannel != "fdroid") {
+            val adapter = Class.forName("net.bible.service.onyx.OnyxSupport")
+            val constructor = adapter.getDeclaredConstructor()
+            onyxSupport = constructor.newInstance() as OnyxSupportInterface
         }
     }
 
@@ -1145,6 +1163,7 @@ object CommonUtils : CommonUtilsBase() {
                 addManuallyInstalledMySwordBooks()
                 addManuallyInstalledEpubBooks()
             }
+            initializeOnyx()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1375,8 +1394,8 @@ object CommonUtils : CommonUtilsBase() {
 
         Log.i(TAG, "Language tag $languageTag, code $languageCode")
 
-        // Transifex as of 21.2.2024
-        val goodLanguages = "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt,yue,zh-Hans-CN,zh-Hant-TW,es,ta,cs,hu,nl,sr,te,pl".split(",")
+        // Transifex as of 6.12.2024
+        val goodLanguages = "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt,yue,zh-Hans-CN,zh-Hant-TW,es,ta,cs,hu,nl,sr,te,pl,hr,bn".split(",")
 
         // 4.0 list:
 
@@ -1663,7 +1682,10 @@ object CommonUtils : CommonUtilsBase() {
         val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
 
         val match = urlRegex.find(uri.path.toString()) ?: return null
-        val keyStr = match.groups[1]?.value ?: return null
+        var keyStr = match.groups[1]?.value ?: return null
+        if (keyStr.contains(":")) {
+            keyStr = keyStr.split(":", limit = 2)[1]
+        }
 
         val key: Passage = PassageKeyFactory.instance().getKey(v11n, keyStr)
 
@@ -1677,6 +1699,7 @@ object CommonUtils : CommonUtilsBase() {
 
     fun parseAndBibleReference(uri: String): BookAndKey?
         = parseAndBibleReference(Uri.parse(uri))
+
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"

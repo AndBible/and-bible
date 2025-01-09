@@ -855,4 +855,5 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="last_updated">पिछली बार अपडेट किया गया: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
+  <string name="prefs_swipe_mode_chapter">अध्याय</string>
 </resources>

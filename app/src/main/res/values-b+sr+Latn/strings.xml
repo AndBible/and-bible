@@ -1051,4 +1051,5 @@ Neće dobijati ažuriranja niti zakrpe za greške.</string>
 Ukoliko ne želite da nadogradite, molimo onemogućite \'Automatska ažuriranja\' u Vašoj prodavnici aplikacija (Google Play / F-Droid, itd.)</string>
   <string name="dont_show">
 Nemojte više prikazivati ovu poruku ponovo</string>
+  <string name="prefs_swipe_mode_chapter">Poglavlje</string>
 </resources>
