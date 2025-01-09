@@ -18,16 +18,32 @@
 package net.bible.service.cloudsync
 
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.nextcloud.common.NextcloudClient
+import com.owncloud.android.lib.common.OwnCloudClient
 import com.owncloud.android.lib.common.OwnCloudClientFactory
+import com.owncloud.android.lib.common.OwnCloudCredentialsFactory
+import com.owncloud.android.lib.common.operations.OnRemoteOperationListener
+import com.owncloud.android.lib.common.operations.RemoteOperation
+import com.owncloud.android.lib.common.operations.RemoteOperationResult
 import com.owncloud.android.lib.resources.files.*
 import com.owncloud.android.lib.resources.files.model.RemoteFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.base.ActivityBase
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.OutputStream
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+
+fun getWaiter(command: () -> Void): OnRemoteOperationListener {
+    return OnRemoteOperationListener { operation, result ->
+        command.invoke()
+    }
+}
 
 
 class NextCloudAdapter(
@@ -39,7 +55,7 @@ class NextCloudAdapter(
         const val TAG: String = "NextCloud"
     }
 
-    private var _client: NextcloudClient? = null
+    private var _client: OwnCloudClient? = null
     private val client get() = _client!!
 
     override val signedIn: Boolean get() = _client != null
@@ -47,7 +63,10 @@ class NextCloudAdapter(
     override suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) {
         try {
             val serverUri = Uri.parse(serverUrl)
-            _client = OwnCloudClientFactory.createNextcloudClient(serverUri, username, password, activity, true)
+            _client = OwnCloudClientFactory.createOwnCloudClient(serverUri, activity, true).apply {
+                credentials = OwnCloudCredentialsFactory.newBasicCredentials(username, password)
+                userId = username
+            }
             return@withContext true
         } catch (e: Exception) {
             Log.e(TAG, "Login to NextCloud failed", e)
@@ -60,43 +79,55 @@ class NextCloudAdapter(
         _client = null
     }
 
-    override fun get(id: String): CloudFile {
-        val remoteFile = ReadFileRemoteOperation(id).execute(client).resultData as RemoteFile
-        return remoteFile.toCloudFile()
+    override suspend fun get(id: String): CloudFile {
+        throw FileNotFoundException()
+        val result = ReadFileRemoteOperation(id).execute()
+        val remoteFile = result.resultData as RemoteFile
+        return remoteFile.toSyncFile()
     }
 
-    override fun listFiles(
+    override suspend fun listFiles(
         parentsIds: List<String>?,
         name: String?,
         mimeType: String?,
         createdTimeAtLeast: Long?
     ): List<CloudFile> {
+        return listOf()
         TODO()
         //val path = parentsIds?.firstOrNull() ?: FileUtils.PATH_SEPARATOR
-        //val result = ReadFolderRemoteOperation(path).execute(client)
+        //val operation = ReadFolderRemoteOperation(name)
+        //val result = operation.execute(client)
+
         //return result.resultData.filterIsInstance<RemoteFile>().map { it.toCloudFile() }
     }
 
-    override fun getFolders(parentId: String): List<CloudFile> {
+    suspend fun <T >RemoteOperation<T>.execute(): RemoteOperationResult<T> = suspendCoroutine {
+        execute(this@NextCloudAdapter.client, OnRemoteOperationListener { operation, result ->
+            it.resume(result as RemoteOperationResult<T>)
+        }, Handler(Looper.getMainLooper()))
+    }
+
+    override suspend fun getFolders(parentId: String): List<CloudFile> {
+        val result = ReadFolderRemoteOperation(parentId).execute()
+        result.resultData
         TODO()
         //return listFiles(parentsIds = listOf(parentId), mimeType = FileUtils.MIME_TYPE_FOLDER)
     }
 
-    override fun download(id: String, outputStream: OutputStream) {
+    override suspend fun download(id: String, outputStream: OutputStream) {
         TODO()
         //val remotePath = FileUtils.PATH_SEPARATOR + id
         //val operation = DownloadFileRemoteOperation(remotePath, outputStream)
         //operation.execute(client)
     }
 
-    override fun createNewFolder(name: String, parentId: String?): CloudFile {
-        val parentPath = parentId ?: FileUtils.PATH_SEPARATOR
-        val folderPath = "$parentPath/$name"
-        CreateFolderRemoteOperation(folderPath, true).execute(client)
+    override suspend fun createNewFolder(name: String, parentId: String?): CloudFile {
+        val folderPath = if(parentId == null) "/${name}" else "$parentId/$name"
+        val result = CreateFolderRemoteOperation(folderPath, true).execute()
         return get(folderPath)
     }
 
-    override fun upload(name: String, file: File, parentId: String?): CloudFile {
+    override suspend fun upload(name: String, file: File, parentId: String?): CloudFile {
         TODO()
         //val parentPath = parentId ?: FileUtils.PATH_SEPARATOR
         //val remotePath = "$parentPath/$name"
@@ -105,19 +136,19 @@ class NextCloudAdapter(
         //return get(remotePath)
     }
 
-    override fun delete(id: String) {
+    override suspend fun delete(id: String) {
         val remotePath = FileUtils.PATH_SEPARATOR + id
-        RemoveFileRemoteOperation(remotePath).execute(client)
+        RemoveFileRemoteOperation(remotePath).execute()
     }
+}
 
-    private fun RemoteFile.toCloudFile(): CloudFile {
-        TODO()
-        //return CloudFile(
-        //    id = remotePath.trim(FileUtils.PATH_SEPARATOR),
-        //    name = fileName,
-        //    size = length,
-        //    createdTime = creationTimestamp,
-        //    parentId = parent.trimEnd('/').substringAfterLast('/')
-        //)
-    }
+private fun RemoteFile.toSyncFile(): CloudFile {
+    TODO()
+    //return CloudFile(
+    //    id = remotePath.trim(FileUtils.PATH_SEPARATOR),
+    //    name = fileName,
+    //    size = length,
+    //    createdTime = creationTimestamp,
+    //    parentId = parent.trimEnd('/').substringAfterLast('/')
+    //)
 }

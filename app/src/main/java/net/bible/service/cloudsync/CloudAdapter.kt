@@ -33,16 +33,16 @@ interface CloudAdapter {
     val signedIn: Boolean
     suspend fun signIn(activity: ActivityBase): Boolean
     suspend fun signOut()
-    fun get(id: String): CloudFile
-    fun listFiles(
+    suspend fun get(id: String): CloudFile
+    suspend fun listFiles(
         parentsIds: List<String>? = null,
         name: String? = null,
         mimeType: String? = null,
         createdTimeAtLeast: Long? = null
     ): List<CloudFile>
-    fun getFolders(parentId: String): List<CloudFile>
-    fun download(id: String, outputStream: OutputStream)
-    fun createNewFolder(name: String, parentId: String? = null): CloudFile
-    fun upload(name: String, file: File, parentId: String? = null): CloudFile
-    fun delete(id: String)
+    suspend fun getFolders(parentId: String): List<CloudFile>
+    suspend fun download(id: String, outputStream: OutputStream)
+    suspend fun createNewFolder(name: String, parentId: String? = null): CloudFile
+    suspend fun upload(name: String, file: File, parentId: String? = null): CloudFile
+    suspend fun delete(id: String)
 }

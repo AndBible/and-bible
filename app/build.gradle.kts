@@ -414,7 +414,6 @@ dependencies {
 
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("jaxen:jaxen:2.0.0")
-
     implementation("com.github.nextcloud:android-library:2.19.1") {
         exclude(group = "org.ogce", module = "xpp3") // unused in Android and brings wrong Junit version
     }

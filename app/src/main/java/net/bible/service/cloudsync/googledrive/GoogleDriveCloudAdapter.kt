@@ -57,7 +57,7 @@ import kotlin.coroutines.resumeWithException
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
 const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
 
-fun DriveFile.toSyncFile() = CloudFile(
+private fun DriveFile.toSyncFile() = CloudFile(
     id = id,
     name = name,
     size = getSize()?: 0,
@@ -65,7 +65,7 @@ fun DriveFile.toSyncFile() = CloudFile(
     parentId = parents.first()
 )
 
-fun Drive.Files.List.collectAll(): List<DriveFile> {
+private fun Drive.Files.List.collectAll(): List<DriveFile> {
     val result = mutableListOf<DriveFile>()
     var pageToken: String? = null
     do {
@@ -193,7 +193,7 @@ class GoogleDriveCloudAdapter: CloudAdapter {
         return true
     }
 
-    override fun get(id: String): CloudFile =
+    override suspend fun get(id: String): CloudFile =
         try {
             service.files()
                 .get(id)
@@ -207,7 +207,7 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             }
         }
 
-    override fun listFiles(
+    override suspend fun listFiles(
         parentsIds: List<String>?,
         name: String?,
         mimeType: String?,
@@ -247,18 +247,18 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             .map { it.toSyncFile() }
     }
 
-    override fun getFolders(parentId: String): List<CloudFile> =
+    override suspend fun getFolders(parentId: String): List<CloudFile> =
         listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
 
-    override fun delete(id: String) {
+    override suspend fun delete(id: String) {
         service.files().delete(id).execute()
     }
 
-    override fun download(id: String, outputStream: OutputStream) {
+    override suspend fun download(id: String, outputStream: OutputStream) {
        service.files().get(id).executeMediaAndDownloadTo(outputStream)
     }
 
-    override fun createNewFolder(name: String, parentId: String?): CloudFile =
+    override suspend fun createNewFolder(name: String, parentId: String?): CloudFile =
         service.files()
             .create(DriveFile().apply {
                 this.name = name
@@ -269,7 +269,7 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             .execute()
             .toSyncFile()
 
-    override fun upload(name: String, file: File, parentId: String?): CloudFile =
+    override suspend fun upload(name: String, file: File, parentId: String?): CloudFile =
         service.files().create(
             DriveFile().apply {
                 this.name = name

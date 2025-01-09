@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mariadb
+    container_name: nextcloud-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example-root-password
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: example-password
+    volumes:
+      - db_data:/var/lib/mysql
+
+  app:
+    image: nextcloud
+    container_name: nextcloud-app
+    restart: always
+    ports:
+      - 8081:80
+    volumes:
+      - nextcloud_data:/var/www/html
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: example-password
+      NEXTCLOUD_TRUSTED_DOMAINS: 10.0.2.2 172.22.0.1
+      NEXTCLOUD_ADMIN_USER: admin
+      NEXTCLOUD_ADMIN_PASSWORD: admin
+
+    depends_on:
+      - db
+
+volumes:
+  db_data:
+  nextcloud_data:
+
+networks:
+  default:
+    driver: bridge

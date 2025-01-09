@@ -205,7 +205,7 @@ object CloudSync {
             }
         }
 
-        fun createNewSyncFolder(): String {
+        suspend fun createNewSyncFolder(): String {
             Log.i(TAG, "Creating new sync folder ${dbDef.categoryName} $syncFolderName")
 
             // If there is already sync folder, let's remove it (and its contents)
@@ -221,7 +221,7 @@ object CloudSync {
             }
         }
 
-        fun createNewDeviceSyncFolder() {
+        suspend fun createNewDeviceSyncFolder() {
             val deviceIdentifier = CommonUtils.deviceIdentifier
             Log.i(TAG, "Creating new device sync folder $syncFolderName/$deviceIdentifier")
             adapter.createNewFolder(
@@ -436,16 +436,16 @@ object CloudSync {
 
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, System.currentTimeMillis())
 
-        val folderResult = adapter.getFolders(syncFolder)
+        val devicePatchFolders = adapter.getFolders(syncFolder)
 
-        if (folderResult.isEmpty()) {
+        if (devicePatchFolders.isEmpty()) {
             Log.i(TAG, "No patch folders yet")
             return@withContext
         }
-        Log.i(TAG, "Folders \n${folderResult.joinToString("\n") { "${it.id} ${it.name}" }}")
+        Log.i(TAG, "Folders \n${devicePatchFolders.joinToString("\n") { "${it.id} ${it.name}" }}")
 
         val patchResults = adapter.listFiles(
-            parentsIds = folderResult.map { it.id },
+            parentsIds = devicePatchFolders.map { it.id },
             createdTimeAtLeast = lastSynchronized
         ).sortedBy { it.createdTime }
 
@@ -453,7 +453,7 @@ object CloudSync {
 
         class FolderWithMeta(val folder: CloudFile, val loadedCount: Long)
 
-        val folders = folderResult
+        val folders = devicePatchFolders
             .map {
                 FolderWithMeta(it, dbDef.dao.lastPatchNum(it.name) ?: 0)
             }.associateBy { it.folder.id }
