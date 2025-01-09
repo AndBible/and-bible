@@ -1,7 +1,9 @@
 <img align="right" width="250" height="250" src="https://raw.githubusercontent.com/AndBible/and-bible/develop/svg/logo.svg?sanitized=true">
 
-[![Android CI](https://github.com/AndBible/and-bible/workflows/Run%20tests/badge.svg?branch=develop)](https://github.com/AndBible/and-bible/actions/workflows/run-tests.yml)
-[![Licence](https://img.shields.io/badge/licence-GPL-blue.svg)](https://github.com/tuomas2/automate/blob/master/LICENSE.txt)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/andbible/and-bible/run-tests.yml?branch=develop&label=Android%20CI)
+![GitHub License](https://img.shields.io/github/license/andbible/and-bible)
+<a href="https://matrix.to/#/#andbible:matrix.org">![Matrix](https://img.shields.io/matrix/andbible%3Amatrix.org?logo=Matrix&logoColor=green&logoSize=auto&label=Matrix%20Chat)</a>
+<a href="https://shop.tuomasairaksinen.fi">![Static Badge](https://img.shields.io/badge/%E2%9D%A4%EF%B8%8F%20Sponsor%20AndBible%20-%20blue)</a>
    
 # AndBible: Bible Study
 
@@ -14,7 +16,7 @@ Powerful offline open source Bible Study tool for Android
      alt="Get it on Google Play"
      height="80">](https://play.google.com/store/apps/details?id=net.bible.android.activity)
 
-## Promovideo
+## Promo Video
 
 [See promovideo in Youtube](https://www.youtube.com/watch?v=xf7m4rSuxGw)
 
@@ -22,7 +24,7 @@ Powerful offline open source Bible Study tool for Android
 Please see the [Home Page](https://andbible.org/).
 
 For help see the [wiki](https://github.com/andbible/and-bible/wiki) or the 
-[FAQ](https://github.com/andbible/and-bible/wiki/FAQ).
+[FAQ](https://github.com/andbible/and-bible/wiki/FAQ) or chat with us on [matrix](https://matrix.to/#/#andbible:matrix.org).
 
 ## Developers
 
