@@ -43,6 +43,6 @@ interface CloudAdapter {
     suspend fun getFolders(parentId: String): List<CloudFile>
     suspend fun download(id: String, outputStream: OutputStream)
     suspend fun createNewFolder(name: String, parentId: String? = null): CloudFile
-    suspend fun upload(name: String, file: File, parentId: String? = null): CloudFile
+    suspend fun upload(name: String, file: File, parentId: String): CloudFile
     suspend fun delete(id: String)
 }

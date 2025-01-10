@@ -269,11 +269,11 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             .execute()
             .toSyncFile()
 
-    override suspend fun upload(name: String, file: File, parentId: String?): CloudFile =
+    override suspend fun upload(name: String, file: File, parentId: String): CloudFile =
         service.files().create(
             DriveFile().apply {
                 this.name = name
-                parents = listOf(parentId?: "appDataFolder")
+                parents = listOf(parentId)
             },
             FileContent(GZIP_MIMETYPE, file)
         )
