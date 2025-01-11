@@ -458,7 +458,11 @@ object CloudSync {
             val parentFolderId = it.parentId
             val folderWithMeta = folders[parentFolderId]!!
             val num = patchNumber(it.name)
-            if(versionNumber(it.name) > dbDef.version) throw IncompatiblePatchVersion()
+            if(versionNumber(it.name) > dbDef.version) {
+                // We need to load next time also last set of patches.
+                dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, lastSynchronized)
+                throw IncompatiblePatchVersion()
+            }
             val existing = dbDef.dao.syncStatus(folderWithMeta.folder.name, patchNumber(it.name))
             if (existing == null && num > folderWithMeta.loadedCount) {
                 DriveFileWithMeta(it, folderWithMeta.folder.name)
