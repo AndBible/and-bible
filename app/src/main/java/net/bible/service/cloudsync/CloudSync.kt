@@ -135,10 +135,11 @@ object CloudSync {
 
         val syncFolderName = "${application.applicationInfo.packageName}-sync-${dbDef.categoryName}"
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
-        if(syncFolderId != null) {
+        val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
+        if(syncDeviceFolderId != null) {
             // Verify if id is found in Drive
             try {
-                adapter.get(syncFolderId)
+                adapter.get(syncDeviceFolderId)
             } catch (e: FileNotFoundException) {
                 syncFolderId = null
                 dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)

@@ -134,7 +134,7 @@ class NextCloudAdapter(
     }
 
     override suspend fun upload(name: String, file: File, parentId: String): CloudFile {
-        val remotePath = "$parentId/$name"
+        val remotePath = "${parentId.trimEnd('/')}/$name"
         UploadFileRemoteOperation(
             file.absolutePath,
             remotePath,
