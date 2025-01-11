@@ -26,6 +26,8 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.media.AudioManager
+import android.net.ConnectivityManager
+import android.net.Network
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -311,10 +313,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
             initialized = true
         }
-        syncScope.launch { startSync() }
         if(intent.hasExtra("openLink")) {
             val uri = Uri.parse(intent.getStringExtra("openLink"))
             openLink(uri)
+        }
+        val connManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            connManager.registerDefaultNetworkCallback(networkCallback)
+        }
+    }
+
+    var networkCallback = object: ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            super.onAvailable(network)
+            syncScope.launch { startSync() }
         }
     }
 
@@ -1396,13 +1408,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             windowRepository.saveIntoDb(false)
             if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {
                 Log.i(TAG, "Performing periodic sync")
-                CommonUtils.settings.setLong("globalLastSynchronized", now)
                 if(!CloudSync.signedIn) {
                     CloudSync.signIn(this@MainBibleActivity)
                 }
                 CloudSync.start()
                 CloudSync.waitUntilFinished()
             }
+        }
+    }
+
+    fun onEvent(event: CloudSyncEvent) {
+        if (!event.running) {
+            CommonUtils.settings.setLong("globalLastSynchronized", now)
         }
     }
 
@@ -1418,10 +1435,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             syncScope.launch { synchronize(true) }
         } else {
             updateActions()
-            syncScope.launch {
-                delay(5000) // Wait a little bit as wifi might be auto-turned on after returning from sleep
-                startSync()
-            }
+            syncScope.launch { startSync() }
         }
     }
 

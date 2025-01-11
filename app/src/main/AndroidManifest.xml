@@ -22,6 +22,7 @@
     android:versionCode="845"
     android:versionName="5.0.845">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" android:minSdkVersion="24"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
