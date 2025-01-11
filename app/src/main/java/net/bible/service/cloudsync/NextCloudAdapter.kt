@@ -21,7 +21,6 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.nextcloud.common.NextcloudClient
 import com.owncloud.android.lib.common.OwnCloudClient
 import com.owncloud.android.lib.common.OwnCloudClientFactory
 import com.owncloud.android.lib.common.OwnCloudCredentialsFactory
@@ -34,18 +33,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.asyncMap
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.OutputStream
+import kotlin.collections.List
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-fun getWaiter(command: () -> Void): OnRemoteOperationListener {
-    return OnRemoteOperationListener { operation, result ->
-        command.invoke()
-    }
-}
-
+const val FOLDER_MIMETYPE = "DIR"
 
 class NextCloudAdapter(
     private val serverUrl: String?,
@@ -88,8 +84,9 @@ class NextCloudAdapter(
 
     override suspend fun get(id: String): CloudFile {
         val result = ReadFileRemoteOperation(id).execute()
-        val remoteFile = result.singleData as? RemoteFile
-        return remoteFile!!.toSyncFile()
+        if (!result.isSuccess) throw FileNotFoundException()
+        val remoteFile = result.singleData as RemoteFile
+        return remoteFile.toSyncFile()
     }
 
     override suspend fun listFiles(
@@ -98,20 +95,29 @@ class NextCloudAdapter(
         mimeType: String?,
         createdTimeAtLeast: Long?
     ): List<CloudFile> {
-        val jobs = parentsIds
-        return listOf()
-        TODO()
-        //val path = parentsIds?.firstOrNull() ?: FileUtils.PATH_SEPARATOR
-        //val operation = ReadFolderRemoteOperation(name)
-        //val result = operation.execute(client)
+        val results = (parentsIds?: listOf("/")).asyncMap { parentId ->
+            val operation = ReadFolderRemoteOperation("/" + parentId.trimStart('/').trimEnd('/') + "/")
+            val result = operation.execute()
+            val filtered = (result.data as List<RemoteFile>)
+                .filterNot { it.remotePath == parentId }
+            return@asyncMap filtered
+        }.flatten()
 
-        //return result.resultData.filterIsInstance<RemoteFile>().map { it.toCloudFile() }
+        var filtered: List<RemoteFile> = results
+        if(createdTimeAtLeast != null) {
+            filtered = filtered.filter { it.modifiedTimestamp > createdTimeAtLeast }
+        }
+        if (name != null) {
+            filtered = filtered.filter { it.name == name }
+        }
+        if (mimeType != null) {
+            filtered = filtered.filter { it.mimeType == mimeType }
+        }
+        return filtered.map { it.toSyncFile() }
     }
 
-    override suspend fun getFolders(parentId: String): List<CloudFile> {
-        val result = ReadFolderRemoteOperation(parentId).execute()
-        return (result.data as List<RemoteFile>).filter { it.mimeType == "DIR" && it.remotePath != parentId }.map { it.toSyncFile() }
-    }
+    override suspend fun getFolders(parentId: String): List<CloudFile> =
+        listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
 
     override suspend fun download(id: String, outputStream: OutputStream) {
         val tmpFile = File(CommonUtils.tmpDir, id)
@@ -122,14 +128,13 @@ class NextCloudAdapter(
     }
 
     override suspend fun createNewFolder(name: String, parentId: String?): CloudFile {
-        val folderPath = if(parentId == null) "/${name}" else "$parentId/$name"
+        val folderPath = if(parentId == null) "/${name.trimStart('/')}" else "${parentId.trimEnd('/')}/$name"
         CreateFolderRemoteOperation(folderPath, true).execute()
         return get(folderPath)
     }
 
     override suspend fun upload(name: String, file: File, parentId: String): CloudFile {
-        val parentPath = parentId
-        val remotePath = "$parentPath/$name"
+        val remotePath = "$parentId/$name"
         UploadFileRemoteOperation(
             file.absolutePath,
             remotePath,
@@ -150,6 +155,9 @@ private fun RemoteFile.toSyncFile(): CloudFile {
         name = remotePath!!,
         size = length,
         createdTime = creationTimestamp,
-        parentId = remotePath!!.trimEnd('/').substringAfterLast('/')
+        parentId = parent
     )
 }
+
+private val RemoteFile.name get() = remotePath!!.trimEnd('/').substringAfterLast('/')
+private val RemoteFile.parent get() = remotePath!!.trimEnd('/').substringBeforeLast('/') + "/"
