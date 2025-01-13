@@ -85,6 +85,7 @@ export type Config = {
         maxWidth: number,
     },
     topMargin: number,
+    showPageNumber: boolean,
 }
 
 export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"
@@ -169,6 +170,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
             maxWidth: 300,
         },
         topMargin: 0,
+        showPageNumber: false,
     });
     const rtl = new URLSearchParams(window.location.search).get("rtl") === "true";
     const nightMode = new URLSearchParams(window.location.search).get("night") === "true";
@@ -229,8 +231,9 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
 
         const marginLeft = margin + (leftPadding - rightPadding)/2;
         const marginRight = margin + (rightPadding - leftPadding)/2;
+        const pageHeight = window.innerHeight - topOffset - appSettings.bottomOffset;
 
-        return {topOffset, topMargin, marginLeft, marginRight};
+        return {topOffset, topMargin, marginLeft, marginRight, pageHeight};
     });
 
     window.bibleViewDebug.config = config;

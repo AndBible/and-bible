@@ -164,6 +164,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<IdType>? = null,
+        @ColumnInfo(defaultValue = "NULL") var showPageNumber: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -186,6 +187,7 @@ class WorkspaceEntities {
             BOOKMARKS_SHOW,
             BOOKMARKS_HIDELABELS,
             MYNOTES,
+            PAGENUMBER,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -209,6 +211,7 @@ class WorkspaceEntities {
             Types.FONTFAMILY -> fontFamily
             Types.BOOKMARKS_SHOW -> showBookmarks
             Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
+            Types.PAGENUMBER -> showPageNumber
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -233,6 +236,7 @@ class WorkspaceEntities {
                 Types.LINE_SPACING -> lineSpacing = value as Int?
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
                 Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<IdType>?
+                Types.PAGENUMBER -> showPageNumber = value as Boolean?
             }
         }
 
@@ -289,6 +293,7 @@ class WorkspaceEntities {
                 lineSpacing = 16,
                 showBookmarks = true,
                 bookmarksHideLabels = emptyList(),
+                showPageNumber = false
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {

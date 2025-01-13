@@ -54,6 +54,11 @@
       <div class="prev-page-button" @click.stop="scrollUpDown(true)" :style="{width: `${calculatedConfig.marginLeft}px`}"/>
       <div class="next-page-button" @click.stop="scrollUpDown()" :style="{width: `${calculatedConfig.marginRight}px`}" />
     </template>
+    <div class="pagenumber" :style="{bottom: `${appSettings.bottomOffset}px`}" v-if="config.showPageNumber">
+      <div class="pagenumber-text">
+        {{ pageNumber }}
+      </div>
+    </div>
     <div
         v-if="appSettings.isBottomWindow"
         @touchmove.stop.prevent
@@ -136,7 +141,7 @@ const customCss = useCustomCss();
 provide(customCssKey, customCss);
 
 const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
-const {doScrolling, scrollToId} = scroll;
+const {doScrolling, scrollToId, scrollYAtStart, scrollY} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
 const android = useAndroid(globalBookmarks, config);
@@ -168,7 +173,7 @@ const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, andro
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
 
-const {documentsCleared} = useInfiniteScroll(android, documents);
+const {documentsCleared} = useInfiniteScroll(android, scroll, documents);
 const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {
@@ -334,17 +339,22 @@ setupEventBusListener("adjust_loading_count", (a: number) => {
 });
 
 const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
-
-function scrollUpDown(up = false) {
-    let amount =
-        window.innerHeight
-        - calculatedConfig.value.topOffset
-        - appSettings.bottomOffset;
+const scrollAmount = computed(() => {
+    let amount = calculatedConfig.value.pageHeight;
     if (documentType.value !== "bible" || (documentType.value === "bible" && !config.topMargin)) {
         amount -= 1.5*lineHeight.value; // 1.5 times because last line might be otherwise displayed partially
     }
-    doScrolling(window.scrollY + (up ? -amount : amount), 0)
+    return amount;
+})
+
+function scrollUpDown(up = false) {
+    doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
 }
+
+const pageNumber = computed(() => {
+    const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
+    return num.toFixed(1);
+});
 
 setupEventBusListener("scroll_down", () => scrollUpDown());
 setupEventBusListener("scroll_up", () => scrollUpDown(true));
@@ -586,6 +596,34 @@ a {
   bottom: 0;
   top: 0;
   width: 0;
+}
+
+.pagenumber {
+  z-index: 5;
+  position: fixed;
+  right: 2mm;
+  margin-bottom: 2mm;
+  bottom: 0;
+  width: 1cm;
+  height: 0.5cm;
+  font-size: 70%;
+  font-weight: bold;
+  color: var(--text-color);
+  background: rgba(207, 207, 207, 0.71);
+  .noAnimation & {
+    background-color: var(--background-color);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--text-color);
+  }
+  border-radius: 0.5cm;
+  justify-content: center;
+  .pagenumber-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 
 .prev-page-button {

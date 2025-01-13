@@ -25,9 +25,15 @@ private val removeFavouriteLabels = makeMigration(2..3) { _db ->
     _db.execSQL("ALTER TABLE Workspace DROP COLUMN workspace_settings_favouriteLabels")
 }
 
+private val addPageNumber = makeMigration(3..4) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showPageNumber` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showPageNumber` INTEGER DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
+    addPageNumber
 )
 
-const val WORKSPACE_DATABASE_VERSION = 3
+const val WORKSPACE_DATABASE_VERSION = 4

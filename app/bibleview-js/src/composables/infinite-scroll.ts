@@ -21,16 +21,18 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-import {computed, nextTick, onMounted, watch} from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {filterNotNull, setupWindowEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
 import {AnyDocument, isOsisDocument} from "@/types/documents";
 import {Nullable} from "@/types/common";
 import {BookCategory} from "@/types/client-objects";
+import {UseScroll} from "@/composables/scroll";
 
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
-    bibleViewDocuments: AnyDocument[]
+    {scrollYAtStart}: UseScroll,
+    bibleViewDocuments: AnyDocument[],
 ) {
     const enabledCategories: Set<BookCategory> = new Set(["BIBLE", "GENERAL_BOOK"]);
     let currentPos: number;
@@ -157,6 +159,7 @@ export function useInfiniteScroll(
 
             // do no try to get scrollPosition here because it has not settled
             const adjustedTop = origPosition - priorHeight + bodyHeight();
+            scrollYAtStart.value += adjustedTop;
             setScrollPosition(adjustedTop);
         }
     }

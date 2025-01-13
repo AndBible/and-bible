@@ -17,10 +17,12 @@
 
 import {computed, nextTick, ref, Ref, watch} from "vue";
 import {setupEventBusListener} from "@/eventbus";
-import {isInViewport} from "@/utils";
+import {isInViewport, setupWindowEventListener} from "@/utils";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {Nullable} from "@/types/common";
+
+export type UseScroll = ReturnType<typeof useScroll>;
 
 export function useScroll(
     config: Config,
@@ -179,6 +181,11 @@ export function useScroll(
         }
     }
 
+    const scrollY = ref<number>(0);
+    setupWindowEventListener('scroll', () => scrollY.value = window.scrollY);
+
+    const scrollYAtStart = ref<number>(0);
+
     async function setupContent(
         {
             jumpToOrdinal = null,
@@ -210,6 +217,7 @@ export function useScroll(
             console.log("scrolling to beginning of document (now)");
             scrollToId(null, {now: true, force: true});
         }
+        scrollYAtStart.value = window.scrollY;
 
         console.log("Content is set ready!");
     }
@@ -217,6 +225,6 @@ export function useScroll(
     setupEventBusListener("set_offsets", setToolbarOffset)
     setupEventBusListener("scroll_to_verse", scrollToId)
     setupEventBusListener("setup_content", setupContent)
-    return {scrollToId, isScrolling, doScrolling}
+    return {scrollToId, isScrolling, doScrolling, scrollYAtStart, scrollY}
 }
 

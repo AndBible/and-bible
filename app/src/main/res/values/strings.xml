@@ -1246,4 +1246,6 @@
     <string name="prefs_swipe_mode_chapter">Chapter</string>
     <string name="prefs_swipe_mode_page">Page</string>
     <string name="prefs_swipe_mode_none">Disabled</string>
+    <string name="page_number_title">Relative page number</string>
+    <string name="page_number_summary">Show page number overlay. Page number is relative to the starting position.</string>
 </resources>
