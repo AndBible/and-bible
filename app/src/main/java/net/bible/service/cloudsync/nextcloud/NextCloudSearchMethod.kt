@@ -47,41 +47,41 @@ class NextCloudSearchMethod(
 
     private fun createQuery(): Document? {
         val template = """
-                       <d:searchrequest xmlns:d="$DAV_NAMESPACE" xmlns:oc="http://owncloud.org/ns">
-                           <d:basicsearch>
-                               <d:select>
-                                   <d:prop>
-                                     <oc:fileid/>
-                                     <d:displayname/>
-                                     <oc:size/>
-                                     <d:getcontenttype/>
-                                     <d:getlastmodified/>
-                                   </d:prop>
-                               </d:select>
-                               <d:from>
-                                   <d:scope>
-                                       <d:href>/files/$userId/$folder</d:href>
-                                       <d:depth>infinity</d:depth>
-                                   </d:scope>
-                               </d:from>
-                               <d:where>
-                                   <d:gt>
-                                       <d:prop>
-                                           <d:getlastmodified/>
-                                       </d:prop>
-                                       <d:literal>${DateTime(lastModifiedAtLeast).toStringRfc3339()}</d:literal>
-                                   </d:gt>                
-                               </d:where>                                
-                               <d:orderby>
-                                   <d:order>
-                                       <d:prop>
-                                           <d:getlastmodified/>
-                                       </d:prop>
-                                       <d:ascending/>
-                                   </d:order>
-                               </d:orderby>
-                           </d:basicsearch>
-                       </d:searchrequest> 
+        <d:searchrequest xmlns:d="$DAV_NAMESPACE" xmlns:oc="http://owncloud.org/ns">
+            <d:basicsearch>
+                <d:select>
+                    <d:prop>
+                      <oc:fileid/>
+                      <d:displayname/>
+                      <oc:size/>
+                      <d:getcontenttype/>
+                      <d:getlastmodified/>
+                    </d:prop>
+                </d:select>
+                <d:from>
+                    <d:scope>
+                        <d:href>/files/$userId/$folder</d:href>
+                        <d:depth>infinity</d:depth>
+                    </d:scope>
+                </d:from>
+                <d:where>
+                    <d:gt>
+                        <d:prop>
+                            <d:getlastmodified/>
+                        </d:prop>
+                        <d:literal>${DateTime(lastModifiedAtLeast).toStringRfc3339()}</d:literal>
+                    </d:gt>                
+                </d:where>                                
+                <d:orderby>
+                    <d:order>
+                        <d:prop>
+                            <d:getlastmodified/>
+                        </d:prop>
+                        <d:ascending/>
+                    </d:order>
+                </d:orderby>
+            </d:basicsearch>
+        </d:searchrequest> 
         """.trimIndent()
 
         return try {
