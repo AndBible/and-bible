@@ -32,6 +32,8 @@ import com.owncloud.android.lib.resources.files.model.RemoteFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.cloudsync.nextcloud.GenericRemoteOperation
+import net.bible.service.cloudsync.nextcloud.NextCloudSearchMethod
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import java.io.File
@@ -96,17 +98,25 @@ class NextCloudAdapter(
         createdTimeAtLeast: Long?
     ): List<CloudFile> {
         val results = (parentsIds?: listOf("/")).asyncMap { parentId ->
-            val operation = ReadFolderRemoteOperation("/" + parentId.trimStart('/').trimEnd('/') + "/")
+            val parentFolder = "/" + parentId.trimStart('/').trimEnd('/') + "/"
+            val operation = if (createdTimeAtLeast != null) {
+                val method = NextCloudSearchMethod(
+                    client,
+                    parentFolder,
+                    createdTimeAtLeast
+                )
+                GenericRemoteOperation(method)
+            } else {
+                ReadFolderRemoteOperation(parentFolder)
+            }
+
             val result = operation.execute()
             val filtered = (result.data as List<RemoteFile>)
-                .filterNot { it.remotePath == parentId }
+                .filterNot { it.remotePath == parentFolder }
             return@asyncMap filtered
         }.flatten()
 
         var filtered: List<RemoteFile> = results
-        if(createdTimeAtLeast != null) {
-            filtered = filtered.filter { it.modifiedTimestamp > createdTimeAtLeast }
-        }
         if (name != null) {
             filtered = filtered.filter { it.name == name }
         }

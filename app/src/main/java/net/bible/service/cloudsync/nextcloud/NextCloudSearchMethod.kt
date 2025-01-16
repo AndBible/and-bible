@@ -1,18 +1,28 @@
 package net.bible.service.cloudsync.nextcloud
 
+import com.google.api.client.util.DateTime
+import com.owncloud.android.lib.common.OwnCloudClient
 import org.apache.jackrabbit.webdav.client.methods.SearchMethod
 import org.apache.jackrabbit.webdav.search.SearchInfo
+import org.apache.jackrabbit.webdav.xml.Namespace
 import org.w3c.dom.Document
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
 
 class NextCloudSearchMethod(
-    uri: String?,
+    client: OwnCloudClient,
     val folder: String,
     val lastModifiedAtLeast: Long,
-    searchInfo: SearchInfo
-) : SearchMethod(uri, searchInfo) {
+) : SearchMethod(
+    client.davUri.toString(),
+    SearchInfo(
+        "NC",
+        Namespace.XMLNS_NAMESPACE,
+        "/"
+    )
 
+    ) {
+    val userId = client.userIdPlain
     init {
         setRequestHeader(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_VALUE)
         setRequestBody(createQuery())
@@ -20,7 +30,6 @@ class NextCloudSearchMethod(
 
     private fun createQuery(): Document? {
         val template = """
-                       <?xml version="1.0" encoding="UTF-8"?>
                        <d:searchrequest xmlns:d="$DAV_NAMESPACE" xmlns:oc="http://owncloud.org/ns">
                            <d:basicsearch>
                                <d:select>
@@ -34,7 +43,7 @@ class NextCloudSearchMethod(
                                </d:select>
                                <d:from>
                                    <d:scope>
-                                       <d:href>$folder</d:href>
+                                       <d:href>/files/$userId/$folder</d:href>
                                        <d:depth>infinity</d:depth>
                                    </d:scope>
                                </d:from>
@@ -43,9 +52,9 @@ class NextCloudSearchMethod(
                                        <d:prop>
                                            <d:getlastmodified/>
                                        </d:prop>
-                                       <d:literal>$lastModifiedAtLeast</d:literal>
-                                   </d:gt>
-                               </d:where>
+                                       <d:literal>${DateTime(lastModifiedAtLeast).toStringRfc3339()}</d:literal>
+                                   </d:gt>                
+                               </d:where>                                
                                <d:orderby>
                                    <d:order>
                                        <d:prop>
@@ -60,7 +69,7 @@ class NextCloudSearchMethod(
 
         return try {
             val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            builder.parse(template)
+            builder.parse(template.byteInputStream())
         } catch (parserError: ParserConfigurationException) {
             System.err.println("ParserConfigurationException: " + parserError.getLocalizedMessage())
             return null
