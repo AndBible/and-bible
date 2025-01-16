@@ -54,7 +54,11 @@
       <div class="prev-page-button" @click.stop="scrollUpDown(true)" :style="{width: `${calculatedConfig.marginLeft}px`}"/>
       <div class="next-page-button" @click.stop="scrollUpDown()" :style="{width: `${calculatedConfig.marginRight}px`}" />
     </template>
-    <div class="pagenumber" :style="{bottom: `${appSettings.bottomOffset}px`}" v-if="config.showPageNumber">
+    <div class="pagenumber"
+         :style="{bottom: `${appSettings.bottomOffset}px`}"
+         v-if="config.showPageNumber"
+         @click="resetPageNumber()"
+    >
       <div class="pagenumber-text">
         {{ pageNumber }}
       </div>
@@ -62,6 +66,7 @@
     <div
         v-if="appSettings.isBottomWindow"
         @touchmove.stop.prevent
+        :style="{height: `${appSettings.bottomOffset}px`}"
         class="bottom-touch-block"
     />
     <div id="bottom"/>
@@ -356,6 +361,10 @@ const pageNumber = computed(() => {
     return num.toFixed(1);
 });
 
+function resetPageNumber() {
+    scrollYAtStart.value = scrollY.value
+}
+
 setupEventBusListener("scroll_down", () => scrollUpDown());
 setupEventBusListener("scroll_up", () => scrollUpDown(true));
 
@@ -635,9 +644,15 @@ a {
 .bottom-touch-block {
   position: fixed;
   bottom: 0;
-  height: 1cm;
   width: 100%;
-  background: transparent;
+  background: linear-gradient(to bottom, transparent 0%, var(--background-color) 15%, var(--background-color) 100%);
+
+  .noAnimation & {
+    background: var(--background-color);
+    border-color: var(--text-color);
+    border-top-style: dashed;
+    border-width: 1px;
+  }
   z-index: 10;
 }
 

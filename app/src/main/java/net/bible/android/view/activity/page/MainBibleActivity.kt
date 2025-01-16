@@ -323,7 +323,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    var networkCallback = object: ConnectivityManager.NetworkCallback() {
+    val networkCallback = object: ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
             syncScope.launch { startSync() }
@@ -1373,9 +1373,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private suspend fun startSync() {
         if(CommonUtils.isCloudSyncEnabled) {
-            if(now - lastSynchronized > syncInterval) {
-                synchronize(true)
-            }
+            synchronize(true)
             if(syncJob != null) {
                 Log.e(TAG, "syncJob already exists")
             } else {
