@@ -419,8 +419,8 @@ dependencies {
     implementation("com.github.nextcloud:android-library:2.19.1") {
         exclude(group = "org.ogce", module = "xpp3") // unused in Android and brings wrong Junit version
     }
-    implementation("commons-httpclient:commons-httpclient:3.1@jar")
-    implementation("org.apache.jackrabbit:jackrabbit-webdav:2.13.5")
+    implementation("commons-httpclient:commons-httpclient:3.1@jar")  // Make sure this is same version as in NextCloud lib
+    implementation("org.apache.jackrabbit:jackrabbit-webdav:2.13.5") // Make sure this is same version as in NextCloud lib
 
 
     debugImplementation("com.facebook.stetho:stetho:1.6.0")
