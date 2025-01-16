@@ -133,3 +133,5 @@
 -dontwarn java.lang.invoke.StringConcatFactory
 
 -keep class org.jaxen.saxpath.base.XPathReader
+
+-dontwarn edu.umd.cs.findbugs.annotations.SuppressFBWarnings
