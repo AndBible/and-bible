@@ -99,6 +99,12 @@ class NextCloudAdapter(
     ): List<CloudFile> {
         val results = (parentsIds?: listOf("/")).asyncMap { parentId ->
             val parentFolder = "/" + parentId.trimStart('/').trimEnd('/') + "/"
+            // NextCloudSearchMethod method is used for searching recently modified
+            // patch files (more efficient than listing them all).
+            // Method search scope, however, is infinitely deep (NextCloud server, as
+            // of writing this, does not seem to care about d:depth definition at all,
+            // so for listing folders (when createdTimeAtLeast is null) we use
+            // ReadFolderRemoteOperation instead.
             val operation = if (createdTimeAtLeast != null) {
                 val method = NextCloudSearchMethod(
                     client,
