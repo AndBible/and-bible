@@ -42,6 +42,7 @@ import java.io.FileNotFoundException
 import java.io.OutputStream
 import kotlin.collections.List
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 const val FOLDER_MIMETYPE = "DIR"
@@ -81,6 +82,10 @@ class NextCloudAdapter(
 
     suspend fun <T >RemoteOperation<T>.execute(): RemoteOperationResult<T> = suspendCoroutine {
         execute(this@NextCloudAdapter.client, OnRemoteOperationListener { operation, result ->
+            if (!result.isSuccess) {
+                it.resumeWithException(result.exception)
+                return@OnRemoteOperationListener
+            }
             it.resume(result as RemoteOperationResult<T>)
         }, Handler(Looper.getMainLooper()))
     }
