@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.cloudsync
+package net.bible.service.cloudsync.nextcloud
 
 import android.net.Uri
 import android.os.Handler
@@ -32,8 +32,9 @@ import com.owncloud.android.lib.resources.files.model.RemoteFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.cloudsync.nextcloud.GenericRemoteOperation
-import net.bible.service.cloudsync.nextcloud.NextCloudSearchMethod
+import net.bible.service.cloudsync.CloudAdapter
+import net.bible.service.cloudsync.CloudFile
+import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import java.io.File
