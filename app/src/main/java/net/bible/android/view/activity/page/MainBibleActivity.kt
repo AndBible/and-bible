@@ -326,7 +326,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val networkCallback = object: ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
-            syncScope.launch { startSync() }
+            if (!paused) {
+                syncScope.launch { startSync() }
+            }
         }
     }
 
