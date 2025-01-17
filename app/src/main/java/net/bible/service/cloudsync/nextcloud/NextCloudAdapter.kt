@@ -39,6 +39,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.io.OutputStream
 import kotlin.collections.List
 import kotlin.coroutines.resume
@@ -82,7 +83,7 @@ class NextCloudAdapter(
 
     suspend fun <T >RemoteOperation<T>.execute(): RemoteOperationResult<T> = suspendCoroutine {
         execute(this@NextCloudAdapter.client, OnRemoteOperationListener { operation, result ->
-            if (!result.isSuccess) {
+            if (!result.isSuccess && result.exception != null) {
                 it.resumeWithException(result.exception)
                 return@OnRemoteOperationListener
             }
