@@ -17,12 +17,14 @@
 
 package net.bible.service.cloudsync.nextcloud
 
-import com.google.api.client.util.DateTime
 import com.owncloud.android.lib.common.OwnCloudClient
 import org.apache.jackrabbit.webdav.client.methods.SearchMethod
 import org.apache.jackrabbit.webdav.search.SearchInfo
 import org.apache.jackrabbit.webdav.xml.Namespace
 import org.w3c.dom.Document
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
 
@@ -46,6 +48,10 @@ class NextCloudSearchMethod(
     }
 
     private fun createQuery(): Document? {
+        val lastModifiedAtLeastDate: String =
+            Instant.ofEpochMilli(lastModifiedAtLeast)
+                .atOffset(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"))
         val template = """
         <d:searchrequest xmlns:d="$DAV_NAMESPACE" xmlns:oc="http://owncloud.org/ns">
             <d:basicsearch>
@@ -69,7 +75,7 @@ class NextCloudSearchMethod(
                         <d:prop>
                             <d:getlastmodified/>
                         </d:prop>
-                        <d:literal>${DateTime(lastModifiedAtLeast).toStringRfc3339()}</d:literal>
+                        <d:literal>$lastModifiedAtLeastDate</d:literal>
                     </d:gt>                
                 </d:where>                                
                 <d:orderby>

@@ -175,7 +175,7 @@ class NextCloudAdapter(
 private fun RemoteFile.toSyncFile(): CloudFile {
     return CloudFile(
         id = remotePath!!,
-        name = remotePath!!,
+        name = name,
         size = length,
         createdTime = creationTimestamp,
         parentId = parent
