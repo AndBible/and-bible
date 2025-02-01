@@ -104,8 +104,7 @@ class NextCloudAdapter(
         mimeType: String?,
         createdTimeAtLeast: Long?
     ): List<CloudFile> {
-        val results = (parentsIds?: listOf("/")).asyncMap { parentId ->
-            val parentFolder = "/" + parentId.trimStart('/').trimEnd('/') + "/"
+        val results = (parentsIds?: listOf("/")).asyncMap { parentFolder ->
             // NextCloudSearchMethod method is used for searching recently modified
             // patch files (more efficient than listing them all).
             // Method search scope, however, is infinitely deep (NextCloud server, as
@@ -125,7 +124,7 @@ class NextCloudAdapter(
 
             val result = operation.execute()
             val filtered = (result.data as List<RemoteFile>)
-                .filterNot { it.remotePath == parentFolder }
+                .filterNot { it.remotePath?.trimEnd('/') == parentFolder }
             return@asyncMap filtered
         }.flatten()
 
@@ -151,20 +150,34 @@ class NextCloudAdapter(
     }
 
     override suspend fun createNewFolder(name: String, parentId: String?): CloudFile {
-        val folderPath = if(parentId == null) "/${name.trimStart('/')}" else "${parentId.trimEnd('/')}/$name"
+        val parentPath = parentId ?: "/"
+        val folderPath = "$parentPath/$name"
         CreateFolderRemoteOperation(folderPath, true).execute()
-        return get(folderPath)
+        return CloudFile(
+            id = folderPath,
+            name = name,
+            size = 0,
+            createdTime = System.currentTimeMillis(),
+            parentId = parentPath
+        )
     }
 
     override suspend fun upload(name: String, file: File, parentId: String): CloudFile {
-        val remotePath = "${parentId.trimEnd('/')}/$name"
+        val remotePath = "$parentId/$name"
+        val createdTimeSeconds = System.currentTimeMillis() / 1000
         UploadFileRemoteOperation(
             file.absolutePath,
             remotePath,
             GZIP_MIMETYPE,
-            System.currentTimeMillis() / 1000
+            createdTimeSeconds,
         ).execute()
-        return get(remotePath)
+        return CloudFile(
+            id = remotePath,
+            name = name,
+            size = file.length(),
+            createdTime = createdTimeSeconds*1000,
+            parentId = parentId
+        )
     }
 
     override suspend fun delete(id: String) {
