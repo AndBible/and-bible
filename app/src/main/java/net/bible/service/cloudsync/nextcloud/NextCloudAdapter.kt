@@ -150,7 +150,7 @@ class NextCloudAdapter(
     }
 
     override suspend fun createNewFolder(name: String, parentId: String?): CloudFile {
-        val parentPath = parentId ?: "/"
+        val parentPath = parentId ?: ""
         val folderPath = "$parentPath/$name"
         CreateFolderRemoteOperation(folderPath, true).execute()
         return CloudFile(
