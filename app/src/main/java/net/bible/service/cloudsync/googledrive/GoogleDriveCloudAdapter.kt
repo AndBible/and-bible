@@ -41,10 +41,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
+import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
 import net.bible.service.cloudsync.GZIP_MIMETYPE
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.TAG
 import net.bible.service.common.CommonUtils
 import java.io.File
@@ -253,6 +255,27 @@ class GoogleDriveCloudAdapter: CloudAdapter {
     override suspend fun delete(id: String) {
         service.files().delete(id).execute()
     }
+
+    override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean {
+        // For Google Drive implementation, we just need to
+        // verify that id is found in Drive
+        try {
+            get(id)
+        } catch (e: FileNotFoundException) {
+            return false
+        }
+        return true
+    }
+
+    override suspend fun makeSyncFolderKnown(
+        dbDef: SyncableDatabaseAccessor<*>,
+        name: String,
+        id: String
+    )
+    // For Google Drive implementation, we don't need to do anything
+    {}
+
+    override fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = emptyList()
 
     override suspend fun download(id: String, outputStream: OutputStream) {
        service.files().get(id).executeMediaAndDownloadTo(outputStream)

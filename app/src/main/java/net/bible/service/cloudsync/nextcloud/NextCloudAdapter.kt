@@ -31,32 +31,32 @@ import com.owncloud.android.lib.resources.files.*
 import com.owncloud.android.lib.resources.files.model.RemoteFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
 import net.bible.service.cloudsync.GZIP_MIMETYPE
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.service.cloudsync.TAG
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.io.OutputStream
+import java.util.UUID
 import kotlin.collections.List
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 const val FOLDER_MIMETYPE = "DIR"
+const val NEXTCLOUD_SECRET_FILE_NAME_KEY = "nextCloudSecretFile"
 
 class NextCloudAdapter(
     private val serverUrl: String?,
     private val username: String?,
     private val password: String?
 ) : CloudAdapter {
-    companion object {
-        const val TAG: String = "NextCloud"
-    }
-
     private var _client: OwnCloudClient? = null
     private val client get() = _client!!
 
@@ -170,11 +170,42 @@ class NextCloudAdapter(
     override suspend fun delete(id: String) {
         RemoveFileRemoteOperation(id).execute()
     }
+
+    override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean {
+        var secretFileName = dbDef.dao.getString(NEXTCLOUD_SECRET_FILE_NAME_KEY)?: return false
+        try {
+            get("$id/$secretFileName")
+        } catch (e: FileNotFoundException) {
+            dbDef.dao.removeConfig(NEXTCLOUD_SECRET_FILE_NAME_KEY)
+            return false
+        }
+        return true
+    }
+
+    override suspend fun makeSyncFolderKnown(
+        dbDef: SyncableDatabaseAccessor<*>,
+        name: String,
+        id: String
+    ) {
+        Log.i(TAG, "Making NextCloud sync folder known")
+        val secretFileName = "device-known-${CommonUtils.deviceIdentifier}-${UUID.randomUUID()}"
+        val tmpFile = File.createTempFile("ng-secret", null)
+        val result = upload(secretFileName, tmpFile, id)
+        Log.i(TAG, "Result: $result")
+        tmpFile.delete()
+        dbDef.dao.setConfig(NEXTCLOUD_SECRET_FILE_NAME_KEY, secretFileName)
+    }
+
+    override fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> {
+        return listOf(
+           dbDef.dao.getConfig(NEXTCLOUD_SECRET_FILE_NAME_KEY)
+        ).filterNotNull()
+    }
 }
 
 private fun RemoteFile.toSyncFile(): CloudFile {
     return CloudFile(
-        id = remotePath!!,
+        id = "$parent/$name",
         name = name,
         size = length,
         createdTime = creationTimestamp,
@@ -183,4 +214,4 @@ private fun RemoteFile.toSyncFile(): CloudFile {
 }
 
 private val RemoteFile.name get() = remotePath!!.trimEnd('/').substringAfterLast('/')
-private val RemoteFile.parent get() = remotePath!!.trimEnd('/').substringBeforeLast('/') + "/"
+private val RemoteFile.parent get() = remotePath!!.trimEnd('/').substringBeforeLast('/')

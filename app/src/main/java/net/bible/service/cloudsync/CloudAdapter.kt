@@ -17,6 +17,7 @@
 
 package net.bible.service.cloudsync
 
+import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import java.io.File
 import java.io.OutputStream
@@ -45,4 +46,7 @@ interface CloudAdapter {
     suspend fun createNewFolder(name: String, parentId: String? = null): CloudFile
     suspend fun upload(name: String, file: File, parentId: String): CloudFile
     suspend fun delete(id: String)
+    suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean
+    suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String)
+    fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration>
 }

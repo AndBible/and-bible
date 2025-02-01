@@ -40,7 +40,6 @@ import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
-import java.io.FileNotFoundException
 import java.io.IOException
 import kotlin.IllegalStateException
 import kotlin.coroutines.resume
@@ -133,15 +132,11 @@ object CloudSync {
     private val uiMutex = Mutex()
     private suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>) {
         var initialOperation: InitialOperation?= null
-
         val syncFolderName = "${application.applicationInfo.packageName}-sync-${dbDef.categoryName}"
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
-        val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
-        if(syncDeviceFolderId != null) {
-            // Verify if id is found in Drive
-            try {
-                adapter.get(syncDeviceFolderId)
-            } catch (e: FileNotFoundException) {
+        if (syncFolderId != null) {
+            val syncFolderKnown = adapter.isSyncFolderKnown(dbDef, name=syncFolderName, id=syncFolderId)
+            if (!syncFolderKnown) {
                 syncFolderId = null
                 dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
                 dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
@@ -149,7 +144,6 @@ object CloudSync {
         }
 
         var preliminarySyncFolderId: String? = null
-
         if(syncFolderId == null) {
             adapter.listFiles(name = syncFolderName)
                 .firstOrNull()?.id?.also {
@@ -203,6 +197,7 @@ object CloudSync {
                 } else {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
                     syncFolderId = preliminarySyncFolderId
+                    adapter.makeSyncFolderKnown(dbDef, syncFolderName, syncFolderId)
                 }
             }
         }
@@ -218,6 +213,7 @@ object CloudSync {
 
             return adapter.createNewFolder(syncFolderName).id.also {
                 Log.i(TAG, "Global sync folder id $it")
+                adapter.makeSyncFolderKnown(dbDef, syncFolderName, it)
                 dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, it)
                 syncFolderId = it
             }
@@ -271,7 +267,9 @@ object CloudSync {
     }
 
     private suspend fun fetchAndRestoreInitial(dbDef: SyncableDatabaseAccessor<*>) {
+        val syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         val deviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
+        val adapterConfigs = adapter.getConfigs(dbDef)
         val initialFile = adapter
             .listFiles(
                 parentsIds = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!),
@@ -297,8 +295,10 @@ object CloudSync {
             tmpFile.copyTo(dbDef.localDbFile, overwrite = true)
             tmpFile.delete()
             dbDef.resetLocalDb()
+            dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, syncFolderId)
             dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
             dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
+            dbDef.dao.setConfig(adapterConfigs)
             dropTriggers(dbDef)
             createTriggers(dbDef)
             dbDef.dao.addStatus(
