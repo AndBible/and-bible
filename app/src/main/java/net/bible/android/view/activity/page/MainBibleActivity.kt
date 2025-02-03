@@ -323,10 +323,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    var networkAvailable: Boolean = false
     val networkCallback = object: ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
+            networkAvailable = true
             syncScope.launch { startSync() }
+        }
+
+        override fun onLost(network: Network) {
+            super.onLost(network)
+            networkAvailable = false
+            stopPeriodicSync()
         }
     }
 
@@ -1402,7 +1410,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val now get() = System.currentTimeMillis()
 
     private suspend fun synchronize(force: Boolean = false) {
-        if(CommonUtils.isCloudSyncEnabled) {
+        if(CommonUtils.isCloudSyncEnabled && networkAvailable) {
             windowRepository.saveIntoDb(false)
             if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {
                 Log.i(TAG, "Performing periodic sync")
