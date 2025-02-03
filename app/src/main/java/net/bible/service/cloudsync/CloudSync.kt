@@ -34,7 +34,6 @@ import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.application
 import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
@@ -57,12 +56,14 @@ const val TAG = "DeviceSync"
 class CancelStartedSync: Exception()
 class WorkspaceRefreshRequired {}
 
+val app get() = BibleApplication.application
+
 enum class CloudAdapters(val isEnabled: Boolean = true) {
     GOOGLE_DRIVE(!BuildVariant.DistributionChannel.isFdroid), NEXT_CLOUD;
 
-    val displayName: Int get() = when(this) {
-        GOOGLE_DRIVE -> R.string.adapters_google_drive
-        NEXT_CLOUD -> R.string.adapters_next_cloud
+    val displayName: String get() = when(this) {
+        GOOGLE_DRIVE -> app.getString(R.string.adapters_google_drive)
+        NEXT_CLOUD -> app.getString(R.string.adapters_next_cloud) + " (" + app.getString(R.string.beta_flag) + ")"
     }
     val newAdapter: CloudAdapter get() = when(this) {
         GOOGLE_DRIVE -> {
@@ -132,7 +133,7 @@ object CloudSync {
     private val uiMutex = Mutex()
     private suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>) {
         var initialOperation: InitialOperation?= null
-        val syncFolderName = "${application.applicationInfo.packageName}-sync-${dbDef.categoryName}"
+        val syncFolderName = "${app.applicationInfo.packageName}-sync-${dbDef.categoryName}"
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
             val syncFolderKnown = adapter.isSyncFolderKnown(dbDef, name=syncFolderName, id=syncFolderId)
@@ -322,12 +323,12 @@ object CloudSync {
         val syncStarted = CompletableDeferred<Boolean>()
         this.syncStarted = syncStarted
 
-        val intent = Intent(application, SyncService::class.java)
+        val intent = Intent(app, SyncService::class.java)
         intent.action = SyncService.START_SERVICE
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
-                application.startForegroundService(intent)
+                app.startForegroundService(intent)
             } catch (e: IllegalStateException) {
                 Log.e(TAG, "Could not start sync due to ", e)
                 syncStarted.complete(false)
@@ -336,7 +337,7 @@ object CloudSync {
             }
             Log.i(TAG, "Foreground service started")
         } else {
-            application.startService(intent)
+            app.startService(intent)
         }
         syncStarted
     }
@@ -415,7 +416,6 @@ object CloudSync {
     }
 
     private fun cantFetchString(contentDescriptionId: Int): String {
-       val app = application
        val s1 = app.getString(R.string.sync_cant_fetch)
        val s2 = app.getString(R.string.sync_disabling, app.getString(contentDescriptionId))
        val s3 = app.getString(R.string.sync_update_app)

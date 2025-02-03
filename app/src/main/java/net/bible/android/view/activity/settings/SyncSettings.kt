@@ -145,12 +145,12 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 passwordPref.isVisible = !isGoogleDrive
                 serverUrlPref.isVisible = !isGoogleDrive
 
-                result += " " + getString(R.string.sync_adapter_summary, getString(newValue.displayName))
+                result += " " + getString(R.string.sync_adapter_summary, newValue.displayName)
                 summary = result
             }
             setSummary(CloudAdapters.current)
             entryValues = CloudAdapters.allEnabled.map { it.name }.toTypedArray()
-            entries = CloudAdapters.allEnabled.map { getString(it.displayName) }.toTypedArray()
+            entries = CloudAdapters.allEnabled.map { it.displayName }.toTypedArray()
             setOnPreferenceChangeListener { _, newValue ->
                 setSummary(CloudAdapters.valueOf(newValue as String))
                 true
