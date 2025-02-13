@@ -144,7 +144,11 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 usernamePref.isVisible = !isGoogleDrive
                 passwordPref.isVisible = !isGoogleDrive
                 serverUrlPref.isVisible = !isGoogleDrive
-
+                if(CloudSync.signedIn) {
+                    usernamePref.isEnabled = false
+                    passwordPref.isEnabled = false
+                    serverUrlPref.isEnabled = false
+                }
                 result += " " + getString(R.string.sync_adapter_summary, newValue.displayName)
                 summary = result
             }
