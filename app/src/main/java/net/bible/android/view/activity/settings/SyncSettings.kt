@@ -58,13 +58,12 @@ class SyncSettingsActivity: ActivityBase() {
 }
 
 class SyncSettingsFragment: PreferenceFragmentCompat() {
-    private val hourglassContainer = lazy { Hourglass(requireContext()) }
-    private val hourglass get() = hourglassContainer.value
     private fun setupDrivePref(pref: SwitchPreferenceCompat) {
         val category = SyncableDatabaseDefinition.nameToCategory[pref.key.split("_")[1].uppercase()]!!
         pref.setOnPreferenceClickListener {
             if(category.syncEnabled) {
                 lifecycleScope.launch {
+                    val hourglass = Hourglass(requireContext())
                     hourglass.show(R.string.synchronizing)
                     if (!CloudSync.signedIn) {
                         CloudSync.signIn(activity as ActivityBase)
@@ -105,6 +104,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             setOnPreferenceClickListener {
                 lifecycleScope.launch {
                     if(Dialogs.simpleQuestion(requireContext(), message =getString(R.string.sync_confirmation))) {
+                        val hourglass = Hourglass(requireContext())
                         hourglass.show()
                         CloudSync.signOut()
                         hourglass.dismiss()
