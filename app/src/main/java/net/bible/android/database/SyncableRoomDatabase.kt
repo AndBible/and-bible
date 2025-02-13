@@ -103,8 +103,14 @@ interface SyncDao {
     @Query("SELECT booleanVAlue FROM SyncConfiguration WHERE keyName = :keyName")
     fun getBoolean(keyName: String): Boolean?
 
+    @Query("SELECT * FROM SyncConfiguration WHERE keyName = :keyName")
+    fun getConfig(keyName: String): SyncConfiguration?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun setConfig(config: SyncConfiguration)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun setConfig(configs: List<SyncConfiguration>)
 
     @Query("DELETE FROM SyncConfiguration WHERE keyName = :keyName")
     fun removeConfig(keyName: String)

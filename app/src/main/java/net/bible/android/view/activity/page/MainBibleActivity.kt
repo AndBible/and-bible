@@ -328,7 +328,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
             networkAvailable = true
-            syncScope.launch { startSync() }
+            if (!paused) {
+                syncScope.launch { startSync() }
+            }
         }
 
         override fun onLost(network: Network) {

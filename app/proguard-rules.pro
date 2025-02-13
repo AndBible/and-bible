@@ -133,3 +133,48 @@
 -dontwarn java.lang.invoke.StringConcatFactory
 
 -keep class org.jaxen.saxpath.base.XPathReader
+
+# Nextcloud
+-keep,allowshrinking class com.owncloud.android.** { *; }
+-keep,allowshrinking class org.apache.jackrabbit.webdav.** { *; }
+-keep,allowshrinking class org.apache.commons.codec.** { *; }
+-keep,allowshrinking class org.apache.commons.logging.** { *; }
+-keep class org.apache.commons.httpclient.** { *; }
+-keep,allowshrinking class org.parceler.** { *; }
+-keep,allowshrinking class org.slf4j.** { *; }
+
+#ignore nextcloud related warnings
+-dontwarn com.owncloud.android.lib.**
+-dontwarn org.apache.jackrabbit.webdav.**
+-dontwarn org.apache.commons.codec.**
+-dontwarn org.apache.commons.logging.**
+-dontwarn org.slf4j.**
+
+-dontskipnonpubliclibraryclasses
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+
+
+
+-keepattributes InnerClasses
+#end nextcloud

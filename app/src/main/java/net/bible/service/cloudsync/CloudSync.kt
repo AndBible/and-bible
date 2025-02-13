@@ -34,11 +34,11 @@ import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.application
+import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
-import java.io.FileNotFoundException
 import java.io.IOException
 import kotlin.IllegalStateException
 import kotlin.coroutines.resume
@@ -56,11 +56,14 @@ const val TAG = "DeviceSync"
 class CancelStartedSync: Exception()
 class WorkspaceRefreshRequired {}
 
-enum class CloudAdapters {
-    GOOGLE_DRIVE;
+val app get() = BibleApplication.application
 
-    val displayName: Int get() = when(this) {
-        GOOGLE_DRIVE -> R.string.adapters_google_drive
+enum class CloudAdapters(val isEnabled: Boolean = true) {
+    GOOGLE_DRIVE(!BuildVariant.DistributionChannel.isFdroid), NEXT_CLOUD;
+
+    val displayName: String get() = when(this) {
+        GOOGLE_DRIVE -> app.getString(R.string.adapters_google_drive)
+        NEXT_CLOUD -> app.getString(R.string.adapters_next_cloud) + " (" + app.getString(R.string.beta_flag) + ")"
     }
     val newAdapter: CloudAdapter get() = when(this) {
         GOOGLE_DRIVE -> {
@@ -68,9 +71,15 @@ enum class CloudAdapters {
             val constructor = adapter.getDeclaredConstructor()
             constructor.newInstance() as CloudAdapter
         }
+        NEXT_CLOUD -> NextCloudAdapter(
+            CommonUtils.settings.getString("gdrive_server_url"),
+            CommonUtils.settings.getString("gdrive_username"),
+            CommonUtils.settings.getString("gdrive_password")
+        )
     }
 
     companion object {
+        val allEnabled: List<CloudAdapters> get() = CloudAdapters.entries.filter { it.isEnabled }
         var current: CloudAdapters
             get() {
                 val adapterStr = CommonUtils.settings.getString("sync_adapter", "GOOGLE_DRIVE")!!
@@ -124,14 +133,11 @@ object CloudSync {
     private val uiMutex = Mutex()
     private suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>) {
         var initialOperation: InitialOperation?= null
-
-        val syncFolderName = "${application.applicationInfo.packageName}-sync-${dbDef.categoryName}"
+        val syncFolderName = "${app.applicationInfo.packageName}-sync-${dbDef.categoryName}"
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
-        if(syncFolderId != null) {
-            // Verify if id is found in Drive
-            try {
-                adapter.get(syncFolderId)
-            } catch (e: FileNotFoundException) {
+        if (syncFolderId != null) {
+            val syncFolderKnown = adapter.isSyncFolderKnown(dbDef, name=syncFolderName, id=syncFolderId)
+            if (!syncFolderKnown) {
                 syncFolderId = null
                 dbDef.dao.removeConfig(SYNC_FOLDER_FILE_ID_KEY)
                 dbDef.dao.removeConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY)
@@ -139,7 +145,6 @@ object CloudSync {
         }
 
         var preliminarySyncFolderId: String? = null
-
         if(syncFolderId == null) {
             adapter.listFiles(name = syncFolderName)
                 .firstOrNull()?.id?.also {
@@ -193,11 +198,12 @@ object CloudSync {
                 } else {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
                     syncFolderId = preliminarySyncFolderId
+                    adapter.makeSyncFolderKnown(dbDef, syncFolderName, syncFolderId)
                 }
             }
         }
 
-        fun createNewSyncFolder(): String {
+        suspend fun createNewSyncFolder(): String {
             Log.i(TAG, "Creating new sync folder ${dbDef.categoryName} $syncFolderName")
 
             // If there is already sync folder, let's remove it (and its contents)
@@ -208,12 +214,13 @@ object CloudSync {
 
             return adapter.createNewFolder(syncFolderName).id.also {
                 Log.i(TAG, "Global sync folder id $it")
+                adapter.makeSyncFolderKnown(dbDef, syncFolderName, it)
                 dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, it)
                 syncFolderId = it
             }
         }
 
-        fun createNewDeviceSyncFolder() {
+        suspend fun createNewDeviceSyncFolder() {
             val deviceIdentifier = CommonUtils.deviceIdentifier
             Log.i(TAG, "Creating new device sync folder $syncFolderName/$deviceIdentifier")
             adapter.createNewFolder(
@@ -261,7 +268,9 @@ object CloudSync {
     }
 
     private suspend fun fetchAndRestoreInitial(dbDef: SyncableDatabaseAccessor<*>) {
+        val syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         val deviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
+        val adapterConfigs = adapter.getConfigs(dbDef)
         val initialFile = adapter
             .listFiles(
                 parentsIds = listOf(dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!),
@@ -287,8 +296,10 @@ object CloudSync {
             tmpFile.copyTo(dbDef.localDbFile, overwrite = true)
             tmpFile.delete()
             dbDef.resetLocalDb()
+            dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, syncFolderId)
             dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
             dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
+            dbDef.dao.setConfig(adapterConfigs)
             dropTriggers(dbDef)
             createTriggers(dbDef)
             dbDef.dao.addStatus(
@@ -312,12 +323,12 @@ object CloudSync {
         val syncStarted = CompletableDeferred<Boolean>()
         this.syncStarted = syncStarted
 
-        val intent = Intent(application, SyncService::class.java)
+        val intent = Intent(app, SyncService::class.java)
         intent.action = SyncService.START_SERVICE
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
-                application.startForegroundService(intent)
+                app.startForegroundService(intent)
             } catch (e: IllegalStateException) {
                 Log.e(TAG, "Could not start sync due to ", e)
                 syncStarted.complete(false)
@@ -326,7 +337,7 @@ object CloudSync {
             }
             Log.i(TAG, "Foreground service started")
         } else {
-            application.startService(intent)
+            app.startService(intent)
         }
         syncStarted
     }
@@ -405,7 +416,6 @@ object CloudSync {
     }
 
     private fun cantFetchString(contentDescriptionId: Int): String {
-       val app = application
        val s1 = app.getString(R.string.sync_cant_fetch)
        val s2 = app.getString(R.string.sync_disabling, app.getString(contentDescriptionId))
        val s3 = app.getString(R.string.sync_update_app)
@@ -428,16 +438,16 @@ object CloudSync {
 
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, System.currentTimeMillis())
 
-        val folderResult = adapter.getFolders(syncFolder)
+        val devicePatchFolders = adapter.getFolders(syncFolder)
 
-        if (folderResult.isEmpty()) {
+        if (devicePatchFolders.isEmpty()) {
             Log.i(TAG, "No patch folders yet")
             return@withContext
         }
-        Log.i(TAG, "Folders \n${folderResult.joinToString("\n") { "${it.id} ${it.name}" }}")
+        Log.i(TAG, "Folders \n${devicePatchFolders.joinToString("\n") { "${it.id} ${it.name}" }}")
 
         val patchResults = adapter.listFiles(
-            parentsIds = folderResult.map { it.id },
+            parentsIds = devicePatchFolders.map { it.id },
             createdTimeAtLeast = lastSynchronized
         ).sortedBy { it.createdTime }
 
@@ -445,7 +455,7 @@ object CloudSync {
 
         class FolderWithMeta(val folder: CloudFile, val loadedCount: Long)
 
-        val folders = folderResult
+        val folders = devicePatchFolders
             .map {
                 FolderWithMeta(it, dbDef.dao.lastPatchNum(it.name) ?: 0)
             }.associateBy { it.folder.id }
