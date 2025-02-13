@@ -1051,7 +1051,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="pref_font_size_multiplier_summary_2">Utile se hai un dispositivo sincronizzato che utilizzi con caratteri più grandi.</string>
   <string name="current_value">Valore attuale: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Azione per il gesto scorri a sinistra / destra</string>
-  <string name="prefs_bible_view_swipe_mode_summary">Il gesto scorri a sinistra / destra può essere usato per andare alla pagina o al carattere successivo.</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Il gesto scorri a sinistra / destra può essere usato per andare alla pagina o al capitolo successivo.</string>
   <string name="prefs_swipe_mode_chapter">Capitolo</string>
   <string name="prefs_swipe_mode_page">Pagina</string>
   <string name="prefs_swipe_mode_none">Disabilitato</string>

@@ -140,6 +140,7 @@
   <string name="prefs_display_customization_cat">Išvaizda ir turinys</string>
   <string name="prefs_behavior_customization_cat">Programėlės elgsena</string>
   <string name="prefs_margin_size_summary">Derinti teksto paraštes kairėje ir dešinėje. Taip pat galima derinti maksimalų teksto plotį.</string>
+  <string name="prefs_margin_size_summary_2">Patarimas: Galite bakstelėti paraščių srityje, kad verstumėte vieną puslapį aukštyn / žemyn. </string>
   <string name="prefs_text_colors_summary">Keisti teksto ir fono spalvas bei triukšmo efektą</string>
   <string name="text_display_settings_activity_title">Teksto rodymo nustatymai</string>
   <string name="workspace_text_display_settings_title">Teksto parinktys - %s</string>
@@ -1092,5 +1093,13 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="dont_show">
         Daugiau neberodyti šio pranešimo
     </string>
+  <string name="pref_font_size_multiplier_title">Šrifto dydžio daugiklis</string>
+  <string name="pref_font_size_multiplier_summary_1">Dauginti teksto šrifto dydžius iš šio skaičiaus.</string>
+  <string name="pref_font_size_multiplier_summary_2">Naudinga, jei turite sinchronizuojamą įrenginį, kuriame naudojamas didesnis šriftas.</string>
+  <string name="current_value">Dabartinė reikšmė: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Perbraukimo kairėn / dešinėn gesto veiksmas</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Perbraukimo kairėn / dešinėn gestas gali būti naudojamas perėjimui į kitą puslapį / skyrių.</string>
   <string name="prefs_swipe_mode_chapter">Skyrius</string>
+  <string name="prefs_swipe_mode_page">Puslapis</string>
+  <string name="prefs_swipe_mode_none">Išjungta</string>
 </resources>
