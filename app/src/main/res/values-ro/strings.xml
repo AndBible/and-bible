@@ -142,6 +142,7 @@
   <string name="prefs_margin_size_summary">Reglează marginile din stînga și din dreapta textului.
         Poți ajusta lățimea maximă a textului.
     </string>
+  <string name="prefs_margin_size_summary_2">Sfat: Poți atinge zona de margine pentru a trece la pagina următoare / precedentă.</string>
   <string name="prefs_text_colors_summary">Reglează culorile textului și ale fondului și zgomotul fondului</string>
   <string name="text_display_settings_activity_title">Reglări pentru text</string>
   <string name="workspace_text_display_settings_title">Opțiuni de text - %s</string>
@@ -179,11 +180,11 @@
   <string name="choose_strongs_greek_morphology_title">Morfologia greacă a lui Robinson</string>
   <string name="choose_strongs_greek_morphology_summary">Alege dicționarul Robinson pentru definițiile morfologiei grecești</string>
   <string name="prefs_top_margin_title_mm">Marginea de sus (%d mm)</string>
-  <string name="font_size_title">Mărime caractere</string>
-  <string name="font_size_title_pt">Mărime caractere (%d pt)</string>
-  <string name="prefs_font_text_size_summary">Schimbă mărimea caracterelor</string>
-  <string name="pref_font_family_label_name">Caractere (%s)</string>
-  <string name="prefs_font_family_summary">Schimbă tipul de caractere. Sfat: mai multe caractere pot fi instalate prin Descarcă documente / Extensii.</string>
+  <string name="font_size_title">Mărime litere</string>
+  <string name="font_size_title_pt">Mărime litere (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Schimbă mărimea literelor</string>
+  <string name="pref_font_family_label_name">Tip de litere (%s)</string>
+  <string name="prefs_font_family_summary">Schimbă tipul de litere. Sfat: mai multe tipuri de litere pot fi instalate prin Descarcă documente / Extensii.</string>
   <string name="prefs_text_bookmarks_title">Semne de carte și Notițele mele</string>
   <string name="prefs_enable_bluetooth_title">Activează butoanele media Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Folosește butoanele media Bluetooth pentru a începe/opri vorbirea.</string>
@@ -1107,5 +1108,13 @@
   <string name="dont_show">
         Nu mai arăta acest mesaj
     </string>
+  <string name="pref_font_size_multiplier_title">Multiplicator mărime litere</string>
+  <string name="pref_font_size_multiplier_summary_1">Multiplică mărimea literelor textului cu acest număr.</string>
+  <string name="pref_font_size_multiplier_summary_2">Util dacă ai un aparat sincronizat care este folosit cu litere mai mari.</string>
+  <string name="current_value">Valoarea actuală: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Acțiune pentru gestul de tragere în stânga / dreapta</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Gestul de tragere în stânga / dreapta poate fi utilizat pentru a trece la pagina / capitolul următor.</string>
   <string name="prefs_swipe_mode_chapter">Capitol</string>
+  <string name="prefs_swipe_mode_page">Pagina</string>
+  <string name="prefs_swipe_mode_none">Dezactivat</string>
 </resources>

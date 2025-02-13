@@ -22,7 +22,7 @@
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Hjälp &amp;aps; tips</string>
   <string name="administration">Administration</string>
-  <string name="rate_application">Betygsätt &amp; Omdöme</string>
+  <string name="rate_application">Betygsätt &amp; recensera</string>
   <string name="chooce_document">Välj Dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Välj bok</string>
@@ -183,6 +183,7 @@
   <string name="prefs_text_colors_menutitle">Färginställningar</string>
   <string name="window_color_settings_title">Fönsterfärg inställningar</string>
   <string name="workspace_color_settings_title">Arbetsytans standard färginställningar</string>
+  <string name="color_workspace">Färg på arbetsyta</string>
   <string name="color_text">Textfärg</string>
   <string name="color_background">Bakgrundsfärg</string>
   <string name="colors_day_mode_title">Dagsläge</string>
@@ -215,7 +216,7 @@
   <string name="morph_robinson_not_installed">Vänligen ladda ner lexikonet \'Robinson\'s Morphological Analysis Codes\'</string>
   <string name="go_to_downloads">Gå till nerladdningar</string>
   <!--Module download-->
-  <string name="download">Hämta böcker</string>
+  <string name="download">Hämta dokument</string>
   <string name="redownload">Åternerladda Dokument</string>
   <string name="download_confirmation">Ladda ner en Bibel från Internet?</string>
   <string name="download_source_last_updated">Dokumentet uppdaterades senast: %s.</string>
@@ -239,18 +240,22 @@ via \"Ladda Dokument Från Zip\". Är du säker på att du vill fortsätta med n
 Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="do_not_ask_again">Ja, fråga inte mer</string>
   <string name="recommended_document">Rekommenderat!</string>
-  <string name="about_version_history">Version historik: %s</string>
+  <string name="about_version_history">Versionshistorik: %s</string>
   <string name="download_errors">Nerladdningsfel</string>
   <string name="failed_repositories_message">Kunde inte ansluta till följande dokumentserver: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Följande filer kunde inte laddas ner:\n\n%s\n\n</string>
   <!--Install zip file-->
+  <string name="install_zip">Läs in dokument från filer</string>
   <string name="install_zip_module">Installera Bibelmodul</string>
+  <string name="install_zip_module_discrete">Installera kalkylatormodul</string>
   <string name="install_zip_successfull">Modulen installerades utan problem</string>
   <string name="extracting_zip_file">Packar upp Zip filen...</string>
   <string name="checking_zip_file">Kontrollerar angiven fil...</string>
   <string name="invalid_module">Filen innehåller inte en giltig SWORD-modul</string>
+  <string name="install_zip_title">Vänta medan moduler läses in från en fil.</string>
   <string name="overwrite_files">Följande filer finns redan: %s, Vill du skriva över?  </string>
   <string name="overwrite_files_title">Skriva över filer?</string>
+  <string name="install_do_you_want">Vill du installera modulen (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Läsningsplan</string>
   <string name="reading_plans_plural">Läsplaner</string>
@@ -304,6 +309,8 @@ i GT och NT varje dag.
   <string name="bookmarks">Bokmärken</string>
   <string name="bookmark_added">Bokmärket sparat</string>
   <!--Bookmark / note labels-->
+  <string name="labels">Etiketter</string>
+  <string name="manage_labels">Hantera etiketter</string>
   <string name="assign_labels">Tilldela etiketter</string>
   <string name="new_item">Ny</string>
   <string name="new_label">Ny etikett</string>
@@ -314,8 +321,16 @@ i GT och NT varje dag.
   <string name="add_bookmark_whole_verse1">Verser</string>
   <string name="add_bookmark_whole_verse2">Fullständiga verser</string>
   <string name="remove_bookmark">Radera</string>
+  <string name="bookmark_settings_hide_labels_title">Dölj valda etiketter</string>
+  <string name="bookmark_settings_hide_labels_summary">Dölj bokmärken som är märkta med de etiketter som du väljer</string>
+  <string name="auto_assign_labels_title">Etikettinställningar</string>
+  <string name="auto_assign_labels">Tilldela automatiskt &amp; Markera etiketter som favoriter</string>
+  <string name="auto_assign_labels1">Tilldela etikett automatiskt till nya bokmärken</string>
+  <string name="label_color">Etikettfärg</string>
   <!--can be removed-->
   <string name="label_color_example">Exempel</string>
+  <string name="bookmark_warning3">Vill du ändå uppdatera modulen?</string>
+  <string name="bookmark_warning4">Det rekommenderas att du säkerhetskopierar modulen innan du uppdaterar.</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datumordning</string>
   <string name="sort_by_bible_book">Biblisk ordning</string>
@@ -369,20 +384,27 @@ i GT och NT varje dag.
   <string name="speak_previous">Föregående</string>
   <string name="speak_status_stopped">Stannad</string>
   <string name="speak_autobookmarking_disabled">Automatisk bokmärkning avaktiverad!</string>
+  <string name="auto_assing_labels_help1">Här kan du ändra vilka etiketter som tilldelas automatiskt till bokmärken som du skapar.</string>
   <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Denna inställningen gäller för %s</string>
   <string name="setting_scope_window">Detta fönster</string>
   <string name="setting_scope_workspace">denna arbetsyta</string>
+  <string name="assing_labels_help1">Varje bokmärke kan tilldelas flera etiketter.</string>
   <!--param is bookmark icon-->
+  <string name="assing_labels_help2">Använd %s för att ange vilken etikettfärg som visas.</string>
   <!--param is auto-assign label icon-->
+  <string name="assing_labels_help3">Tryck på %s för att låta den etiketten tilldelas automatiskt till nya bokmärken.</string>
   <!--param is heart icon-->
+  <string name="assing_labels_help4">Tryck på %s för att lägga till etiketten till din lista över favoriter för snabb åtkomst.</string>
   <!--param is refresh icon-->
   <string name="workspace_text_options_help_title">Arbetsytans textinställningar</string>
   <string name="window_text_options_help_title">Fönstertextinställningar</string>
   <!--Parameter is actual icon-->
+  <string name="window_text_options_help1">%s-ikonen indikerar att inställningen kommer från inställningarna för arbetsyta</string>
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">standardvärden</string>
+  <string name="reset_workspace_defaults">standardvärden för arbetsyta</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -405,23 +427,42 @@ i GT och NT varje dag.
   <string name="mynotes">Anteckningar</string>
   <!--Backup and restore-->
   <string name="backup_backup_title">Var vill du Säkerhetskopiera?</string>
+  <string name="backup_backup_message">Säkerhetskopiera till telefonen eller till en annan plats via delningsfunktionen (e-post, Google Drive etc.)?</string>
   <string name="backup_phone_storage">Telefon laging</string>
+  <string name="backup_and_restore">Säkerhetskopiera &amp; återställ</string>
+  <string name="backup_modules2">Säkerhetskopiera dokument till...</string>
+  <string name="backup_app_database2">Säkerhetskopiera appdatabas till...</string>
+  <string name="backup_app2">Säkerhetskopiera app (.apk-fil) till...</string>
+  <string name="backup_to">Säkerhetskopiera till...</string>
+  <string name="backup_restore_from">Återställ från...</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Återställ eller importera från...</string>
   <string name="backup_restore">Återställ</string>
+  <string name="backup_restore2">Återställ eller importera</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Vill du återställa?</string>
   <string name="restore_app_database">Återställ appdatabasen från...</string>
   <string name="restore_database">Återställ Databasfilen</string>
+  <string name="downloading_backup">Laddar ner säkerhetskopia...</string>
+  <string name="loading_backup">Läser in databas från säkerhetskopia...</string>
+  <string name="backup_modules_success">Markerade moduler har säkerhetskopierats.</string>
+  <string name="backup_modules_email_subject_2">Säkerhetskopia av %s-moduler</string>
+  <string name="backup_modules_email_message_2">Säkerhetskopian av dina %1$s-moduler är bifogad och innehåller följande moduler: %2$s</string>
   <string name="restore_modules">Återställ dokumenten från...</string>
   <string name="send_backup_file">Skicka en säkerhetskopieringsfil</string>
-  <string name="backup_modules_title">Välj vilken modul att säkerhetskopiera</string>
+  <string name="backup_modules_title">Välj vilka moduler att säkerhetskopiera</string>
   <string name="install_zip_canceled">Modulinstallation avbruten</string>
+  <string name="ask_restore_or_import">Databasen för %s kan antingen återställas (dvs. den existerande databasen tas bort och den markerade databasen läses in) eller importeras (den markerade databasen importeras in i den existerande databasen). Vad vill du göra?</string>
   <string name="restore">Återställ</string>
+  <string name="import2">Importera</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title1">Bugg rapportering</string>
+  <string name="send_bug_report_title1">Buggrapportering</string>
+  <string name="send_feedback_title">Feedback</string>
+  <string name="send_bug_report_title">Feedback/buggrapportering</string>
+  <string name="report_bug_big_heading">SKRIV DIN FEEDBACK ELLER BUGGRAPPORT OVANFÖR DENNA RAD</string>
   <string name="report_bug_heading1">Instruktioner</string>
   <string name="report_bug_heading2">Till exempel:</string>
   <string name="report_bug_instructions1">1. Öppnad app</string>
@@ -455,6 +496,7 @@ i GT och NT varje dag.
   <string name="all">Alla</string>
   <string name="edit">Ändra</string>
   <string name="reset_generic">Återställ</string>
+  <string name="watch_tutorial_video">Se instruktionsvideo (på engelska)</string>
   <string name="verse_not_found">Versen hittades inte</string>
   <!--Errors-->
   <string name="report_error">Skicka rapport</string>
@@ -462,12 +504,14 @@ i GT och NT varje dag.
   <string name="error_occurred_with_link">Ett fel har inträffat. %s</string>
   <string name="error_no_content">Innehåll saknas för den markerade versen</string>
   <string name="error_page_too_large">Sidan är för stor för att laddas</string>
-  <string name="error_key_not_in_document">Hittades inte i bok</string>
+  <string name="error_key_not_in_document">Hittades inte i dokument</string>
   <string name="error_key_not_in_document2">%s hittades inte i dokument %s.</string>
   <string name="empty_list">Inga poster att visa</string>
   <string name="error_skip">Hoppa över</string>
+  <string name="bug_report_email_title">Skicka buggrapport via e-post</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text till tal</string>
+  <string name="notification_channel_progress_status">Avisering om hur nerladdning av dokument etc. förlöper.</string>
   <!--Workspaces-->
   <string name="new_workspace">Ny</string>
   <string name="switch_to_workspace">Arbetsytor</string>
@@ -497,18 +541,27 @@ i GT och NT varje dag.
   <string name="stable_notice_title">Appen har blivit uppgraderad!</string>
   <string name="upgrade_video_message">Var god kolla på videon om de nya funktionerna i detta släpp (%s)</string>
   <!--History-->
+  <string name="history_for">Historik (%1$s: Fönster %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigering</string>
   <string name="help_search_title">Sök</string>
   <!--TODO: to be removed-->
+  <string name="help_search_text2">Söktexten kan innehålla specialtecken som *, AND, OR, NOT</string>
+  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
   <string name="help_workspaces_title">Arbetsytor</string>
   <string name="help_hidden_features_title">Dolda genvägar</string>
   <string name="help_window_pinning_title">Nåla fast fönster</string>
   <!--Welcome text-->
   <string name="redownload_documents">Snabb Åternerladdning</string>
   <!--Supported file formats for documents-->
+  <string name="supported_formats_title">Format som stöds</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="supported_formats">Format som stöds för att läsa in dokument från en fil: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
+  <string name="format_zip">Zip-fil som innehåller Sword-modul(er) eller säkerhetskopia av dokument (*.abmd) skapad av %s</string>
+  <string name="format_mysword">MySword-dokument (*.mybible)</string>
+  <string name="format_mybible">MyBible-dokument (*.SQLite3)</string>
+  <string name="format_epub">EPUB-dokument (*.epub)</string>
   <!--Uncategorized-->
   <string name="close">Stäng</string>
   <string name="first_time_help_do_not_show_again">Jag förstår</string>
@@ -529,7 +582,7 @@ i GT och NT varje dag.
   <string name="try_again_passphrase">Lösenordsfras funderade inte, försök igen?</string>
   <string name="prefs_show_error_box_title">Visa Javascript error box</string>
   <string name="active_window_indicator_title">Visa aktiv fönsterindekator</string>
-  <string name="app_licence_title">Öppen källkod licens</string>
+  <string name="app_licence_title">Licens för öppen källkod</string>
   <string name="how_to_contribute">Hur bidrar jag?</string>
   <string name="tell_friend_title">Rekommendera till en vän</string>
   <string name="tell_friend_message1">Jag skulle vilja rekommendera %s till dig.</string>
@@ -545,7 +598,7 @@ i GT och NT varje dag.
   <string name="verse_share_advertise">Dela genom %s</string>
   <string name="version_name">Versions namn</string>
   <!--meaning, bible version name-->
-  <string name="backup_button">Säkerhetskopia</string>
+  <string name="backup_button">Säkerhetskopiera</string>
   <string name="back_button">Bak</string>
   <string name="upgrading_database">Upgraderar databas. Var god vänta...</string>
   <string name="show_notes">Visa anteckningar</string>
@@ -555,6 +608,9 @@ i GT och NT varje dag.
   <string name="rate_title">Betygsätta och recensera appen</string>
   <string name="rate_message5">
   Positiva och detaljerade recensioner hjälper open sourceprojektet AndBibeln mycket. Tack!</string>
+  <string name="rate_message6">
+        Tänk gärna på följande innan du lämnar en negativ recension:
+    </string>
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->
   <!--param is "please read what you can do"-->
@@ -578,19 +634,32 @@ vänligen rapportera problemen till text ansvariga
   <string name="whole_verse_turned_on">Bokmärket är nu markerat för hela versen</string>
   <string name="this_bookmark">Detta bokmärke</string>
   <string name="this_workspace">Denna arbetsyta</string>
+  <string name="primary_label">Primär etikett</string>
+  <string name="favourite_label">Markera etikett som favorit</string>
+  <string name="edit_label">Redigera etikett</string>
+  <string name="active_labels">Markerade etiketter</string>
+  <string name="recent_labels">Senaste etiketter</string>
+  <string name="other_labels">Andra etiketter</string>
   <string name="book_menu_sort_row_opt">Sortera böckerna horizontellt</string>
+  <string name="book_menu_group_by_category">Gruppera böcker enligt kategori</string>
+  <string name="book_menu_show_long_book_name">Visa långt boknamn</string>
+  <string name="reset_hide_labels">Vill du återställa inställningarna för att dölja valda etiketter?</string>
   <string name="system_items1">Mer</string>
-  <string name="text_copied_to_clicpboard">Text kopierad till klippbordet</string>
+  <string name="text_copied_to_clicpboard">Text kopierad till urklipp</string>
   <string name="toggle_fullscreen">Fullskärm</string>
   <string name="exit_fullscreen">Dubbeltryck på skärmen för att avbryta fullskärmsläge</string>
+  <string name="reset_app_prefs">Vill du återställa alla globala appinställningar som visas på den här skärmen till deras standardvärden?</string>
   <string name="label_red">Röd</string>
   <string name="label_green">Grön</string>
   <string name="label_blue">Blå</string>
   <string name="label_underline">Understrykning</string>
   <string name="import_menu">Importera &amp; Exportera</string>
+  <string name="export">Exportera</string>
   <string name="export_fileformat">Exportera som %s</string>
+  <string name="export_something">Exportera %s</string>
   <string name="import_items">Importera %s</string>
   <string name="import_from_db">Importera från appdatabasfilen</string>
+  <string name="import_error">Import från appdatabas misslyckades. Databasfilen kan ha fel format eller vara skapad med för gammal version av %s.</string>
   <string name="chooser_range">Räckvidd</string>
   <string name="chooser_jump">Hoppa</string>
   <string name="chooser_OT_abbrev">GT</string>
@@ -612,15 +681,36 @@ vänligen rapportera problemen till text ansvariga
   <!--Context: calculator. Wrong number format etc.-->
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <!--Window synchronize groups-->
+  <string name="sync_group_submenu">Synkronisera grupp</string>
+  <string name="sync_group_n">Grupp %d</string>
+  <string name="disable_sync">Inaktivera synkronisering</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories_info_button_label">Information</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Öppna bibellänkar i AndBibeln</string>
   <string name="open_bible_links_summary">Vid klick på länkar som hänvisar till AndBibelstödda URL\'er, öppna dem i AndBibeln</string>
+  <string name="copyReference">Kopiera länk till urklipp</string>
   <!--Device cloud synchronization-->
+  <string name="workspaces_contents">Arbetsytor och fönster</string>
+  <string name="cloud_disable_sync">Avbryt &amp; inaktivera synkronisering</string>
+  <string name="cloud_sync_title">Enhetssynkronisering</string>
+  <string name="prefs_reset_sync_summary">Inaktivera synkronisering och återställ relaterade inställningar.</string>
   <!--... after restoring from backup file-->
+  <string name="enable_sync">Aktivera synkronisering</string>
   <string name="last_updated">Senast uppdaterad: %s</string>
   <!--MyBible/MySword module support-->
+  <string name="sqlite_invalid_file">Ogiltig modulfil eller ogiltigt filnamn: %s</string>
+  <string name="install_failed_reason">Installation av modulen misslyckades av följande orsak: %s</string>
   <!--Other / uncategorized-->
+  <string name="buy_development">Köp apputveckling</string>
+  <string name="buy_development2">Understöd projektet</string>
+  <string name="new_version_warning3">
+        Den kommer inte få buggfixar eller uppdateringar.
+    </string>
+  <string name="new_version_warning4">
+        Om du inte vill uppgradera; inaktivera \"Uppdatera appar automatiskt\" (Google Play / F-Droid etc).
+    </string>
+  <string name="prefs_swipe_mode_chapter">Kapitel</string>
+  <string name="prefs_swipe_mode_none">Inaktiverad</string>
 </resources>

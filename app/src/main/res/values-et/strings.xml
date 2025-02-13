@@ -41,6 +41,7 @@
   <string name="search_in">Otsi %s seest</string>
   <string name="do_in_background">Jätka taustal</string>
   <string name="rebuild_index_button">Loo uuesti</string>
+  <string name="creating_index_for"> %s registri loomine …</string>
   <!--X results in module Y-->
   <string name="search_with_results2"> %2s sisaldab %1s tulemust</string>
   <!--Tasks-->
@@ -52,6 +53,7 @@
   <string name="search_all_words">Kõik sõnad</string>
   <string name="search_any_word">Mõni sõnadest</string>
   <string name="search_phrase">Fraas</string>
+  <string name="search_fts_query">Toore päringu süntaks</string>
   <string name="search_result_count">Leiti %d tulemust</string>
   <string name="search_showing_first">Liiga palju tulemusi. Näidatakse esimest %d tulemust</string>
   <string name="search_bible_section_group_prompt">Kust otsida</string>
@@ -186,6 +188,7 @@
   <string name="windowMinimise">Minimeeri</string>
   <string name="windowSynchronise">Sünkrooni</string>
   <string name="move_window">Liiguta</string>
+  <string name="move_window_to_position2">Asukoht %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Kopeeri seaded</string>
   <string name="copy_settings_to_workspace">Tööala</string>
   <string name="copy_settings_to_window">Aken %1$d (%2$s: %3$s)</string>
@@ -470,6 +473,7 @@ Kas jätkame?</string>
   <string name="backup_database">Andmebaas</string>
   <string name="backup_documents">Dokumendid</string>
   <string name="backup_application_info">Rakenduse fail (.apk)</string>
+  <string name="backup_document_info">Piiblitekstid, kommentaarid, sõnastikud, kaardid jne.</string>
   <string name="backup_to">Varunda kohta...</string>
   <string name="backup_restore_from">Taasta...</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
@@ -547,6 +551,7 @@ Kas jätkame?</string>
   <string name="error_key_not_in_document">Dokumendist ei leitud</string>
   <string name="empty_list">Pole ühtegi kirjet, mida näidata</string>
   <string name="error_skip">Jäta vahele</string>
+  <string name="bug_report_email_title">Saada vearaport e-postiga</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst kõneks</string>
   <string name="notification_channel_progress_status">Edenemise teavitus näiteks dokumentide allalaadimisel jms.</string>
@@ -591,10 +596,13 @@ Kas jätkame?</string>
     </string>
   <string name="help_search_text2">Otsingutekstis võib olla ka erimärke nagu *, AND, OR, NOT</string>
   <string name="help_search_details">Vaata lisainfoks %s.</string>
+  <string name="help_apache_lucene">Apache Lucene - päringu parseri süntaks</string>
+  <string name="help_fts5">FTS5 täistekst päringu süntaks</string>
   <string name="help_workspaces_title">Tööalad</string>
   <string name="help_hidden_features_title">Peidetud otseteed</string>
   <string name="help_window_pinning_title">Akna kinnitamine</string>
   <!--Welcome text-->
+  <string name="redownload_documents">Kiire uuesti allalaadimine</string>
   <!--Supported file formats for documents-->
   <string name="supported_formats_title">Toetatud vormingud</string>
   <!--argument is app_name_andbible (AndBible).-->
@@ -607,6 +615,7 @@ Kas jätkame?</string>
   <string name="format_epub">EPUB dokument (*.epub)</string>
   <!--Uncategorized-->
   <string name="close">Sulge</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Mõistan</string>
   <string name="first_time_help_show_next_time">Näita järgmisel korral uuesti</string>
   <string name="select_multiple">Vali mitu</string>
@@ -747,9 +756,11 @@ Kas jätkame?</string>
   <string name="labels_search_hint">Otsing</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Lihtne kalkulaator</string>
+  <string name="prefs_persecution_cat">Seaded tagakiusatuile</string>
   <string name="prefs_discrete_mode">Peida religioossed sümbolid</string>
   <string name="prefs_show_calculator">Kalkulaator</string>
   <string name="prefs_calculator_pin">Kalkulaatori PIN</string>
+  <string name="calc_division_by_zero">Nulliga jagamine pole võimalik</string>
   <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Vigane vorming</string>
   <string name="calc_wrong_format_operand">Vigane vorming. Ava ilma numbriteta?</string>
@@ -790,6 +801,7 @@ Kas jätkame?</string>
   <string name="sync_introduction">Tutvustus</string>
   <string name="are_you_sure">Oled sa kindel?</string>
   <!--... after restoring from backup file-->
+  <string name="enable_sync">Luba sünkroniseerimine</string>
   <string name="last_updated">Viimati uuendatud: %s</string>
   <!--MyBible/MySword module support-->
   <string name="install_failed_reason">Mooduli paigaldus ebaõnnestus: %s.</string>
@@ -799,5 +811,10 @@ Kas jätkame?</string>
   <string name="nameless">Pealkiri on määramata</string>
   <string name="buy_development">Aita rahastada arendust</string>
   <string name="buy_development2">Toeta projekti</string>
+  <string name="dont_show">
+        Ära näita seda teadet enam
+    </string>
   <string name="prefs_swipe_mode_chapter">Peatükk</string>
+  <string name="prefs_swipe_mode_page">Lehekülg</string>
+  <string name="prefs_swipe_mode_none">Keelatud</string>
 </resources>
