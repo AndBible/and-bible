@@ -22,9 +22,10 @@ import org.apache.jackrabbit.webdav.client.methods.SearchMethod
 import org.apache.jackrabbit.webdav.search.SearchInfo
 import org.apache.jackrabbit.webdav.xml.Namespace
 import org.w3c.dom.Document
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
 
@@ -48,10 +49,9 @@ class NextCloudSearchMethod(
     }
 
     private fun createQuery(): Document? {
-        val lastModifiedAtLeastDate: String =
-            Instant.ofEpochMilli(lastModifiedAtLeast)
-                .atOffset(ZoneOffset.UTC)
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"))
+        val lastModifiedAtLeastDate: String = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date(lastModifiedAtLeast))
         val template = """
         <d:searchrequest xmlns:d="$DAV_NAMESPACE" xmlns:oc="http://owncloud.org/ns">
             <d:basicsearch>
