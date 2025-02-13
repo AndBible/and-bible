@@ -1133,7 +1133,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     private fun initializeOnyx() {
-        if (FLAVOR_distchannel != "fdroid") {
+        if (!BuildVariant.DistributionChannel.isFdroid) {
             val adapter = Class.forName("net.bible.service.onyx.OnyxSupport")
             val constructor = adapter.getDeclaredConstructor()
             onyxSupport = constructor.newInstance() as OnyxSupportInterface
@@ -1521,12 +1521,7 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    val isCloudSyncAvailable get() = !(
-        BuildVariant.Appearance.isDiscrete
-            || BuildVariant.DistributionChannel.isFdroid
-            || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1
-        )
-
+    val isCloudSyncAvailable get() = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
         else SyncableDatabaseDefinition.ALL.any { it.syncEnabled }

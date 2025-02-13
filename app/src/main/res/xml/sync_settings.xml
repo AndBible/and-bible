@@ -42,6 +42,21 @@
 			android:title="@string/cloud_info"
 			android:icon="@drawable/ic_info_grey_24dp"
 			/>
+        <EditTextPreference
+            android:key="gdrive_server_url"
+            android:title="@string/auth_server_uri"
+            android:icon="@drawable/outline_shield_24"
+            />
+        <EditTextPreference
+            android:key="gdrive_username"
+            android:title="@string/auth_username"
+            android:icon="@drawable/outline_shield_24"
+            />
+        <EditTextPreference
+            android:key="gdrive_password"
+            android:title="@string/auth_password"
+            android:icon="@drawable/outline_shield_24"
+            />
 	</PreferenceCategory>
 
 	<PreferenceCategory

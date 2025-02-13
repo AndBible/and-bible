@@ -58,13 +58,12 @@ class SyncSettingsActivity: ActivityBase() {
 }
 
 class SyncSettingsFragment: PreferenceFragmentCompat() {
-    private val hourglassContainer = lazy { Hourglass(requireContext()) }
-    private val hourglass get() = hourglassContainer.value
     private fun setupDrivePref(pref: SwitchPreferenceCompat) {
         val category = SyncableDatabaseDefinition.nameToCategory[pref.key.split("_")[1].uppercase()]!!
         pref.setOnPreferenceClickListener {
             if(category.syncEnabled) {
                 lifecycleScope.launch {
+                    val hourglass = Hourglass(requireContext())
                     hourglass.show(R.string.synchronizing)
                     if (!CloudSync.signedIn) {
                         CloudSync.signIn(activity as ActivityBase)
@@ -105,6 +104,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             setOnPreferenceClickListener {
                 lifecycleScope.launch {
                     if(Dialogs.simpleQuestion(requireContext(), message =getString(R.string.sync_confirmation))) {
+                        val hourglass = Hourglass(requireContext())
                         hourglass.show()
                         CloudSync.signOut()
                         hourglass.dismiss()
@@ -125,6 +125,10 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 }
             }
         }
+        val usernamePref = preferenceScreen.findPreference<Preference>("gdrive_username")!!
+        val passwordPref = preferenceScreen.findPreference<Preference>("gdrive_password")!!
+        val serverUrlPref = preferenceScreen.findPreference<Preference>("gdrive_server_url")!!
+
         preferenceScreen.findPreference<ListPreference>("sync_adapter")!!.run {
             if(CloudSync.signedIn) {
                 isEnabled = false
@@ -133,15 +137,24 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 val sum1 = getString(R.string.prefs_sync_introduction_summary1)
                 val driveSum = getString(R.string.prefs_sync_introduction_summary2, getString(R.string.app_name_medium))
                 var result = sum1
-                if(newValue == CloudAdapters.GOOGLE_DRIVE) {
+                val isGoogleDrive = newValue == CloudAdapters.GOOGLE_DRIVE
+                if(isGoogleDrive) {
                     result += " $driveSum"
                 }
-                result += " " + getString(R.string.sync_adapter_summary, getString(newValue.displayName))
+                usernamePref.isVisible = !isGoogleDrive
+                passwordPref.isVisible = !isGoogleDrive
+                serverUrlPref.isVisible = !isGoogleDrive
+                if(CloudSync.signedIn) {
+                    usernamePref.isEnabled = false
+                    passwordPref.isEnabled = false
+                    serverUrlPref.isEnabled = false
+                }
+                result += " " + getString(R.string.sync_adapter_summary, newValue.displayName)
                 summary = result
             }
             setSummary(CloudAdapters.current)
-            entryValues = CloudAdapters.values().map { it.name }.toTypedArray()
-            entries = CloudAdapters.values().map { getString(it.displayName) }.toTypedArray()
+            entryValues = CloudAdapters.allEnabled.map { it.name }.toTypedArray()
+            entries = CloudAdapters.allEnabled.map { it.displayName }.toTypedArray()
             setOnPreferenceChangeListener { _, newValue ->
                 setSummary(CloudAdapters.valueOf(newValue as String))
                 true
