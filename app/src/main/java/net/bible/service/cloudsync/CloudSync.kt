@@ -82,8 +82,8 @@ enum class CloudAdapters(val isEnabled: Boolean = true) {
         val allEnabled: List<CloudAdapters> get() = CloudAdapters.entries.filter { it.isEnabled }
         var current: CloudAdapters
             get() {
-                val adapterStr = CommonUtils.settings.getString("sync_adapter", "GOOGLE_DRIVE")!!
-                return CloudAdapters.valueOf(adapterStr)
+                val adapterStr = CommonUtils.settings.getString("sync_adapter")
+                return adapterStr?.let { CloudAdapters.valueOf(it) }?: allEnabled.first()
             }
             set(value) {
                 CommonUtils.settings.setString("sync_adapter", value.name)
