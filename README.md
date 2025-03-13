@@ -65,6 +65,12 @@ For more information, see [WIKI page](https://github.com/AndBible/and-bible/wiki
 
 AndBible was originally developed by [Martin Denham](https://github.com/mjdenham) (2010-2018)
 
+## 📢 Sponsor acknowledgments
+
+![Shiloh](https://cdn.lasthourhosting.org/shiloh/shiloh-banner.png)
+
+[Shiloh](https://shilohcode.com/) is kindly sponsoring a virtual server to us. Thank you Shiloh! 
+
 ## 📜 Terms of Service and Privacy Policy
 
 - [Terms of Service](https://andbible.org/terms.html)
