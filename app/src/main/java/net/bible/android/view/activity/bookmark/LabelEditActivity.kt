@@ -52,7 +52,6 @@ import kotlin.coroutines.suspendCoroutine
 
 val customIconMap = mapOf(
     "star" to R.drawable.icon_star,
-    "heart" to R.drawable.icon_heart,
 )
 
 @ActivityScope

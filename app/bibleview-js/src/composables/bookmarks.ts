@@ -92,22 +92,17 @@ const bookmarkIcon = icon(faBookmark);
 export const customIcons = new Map<string, Icon>(
     [
         ["star", icon(faStar)],
-        ["heart", icon(faHeart)],
         ["book", icon(faBook)],
-        ["lightbulb", icon(faLightbulb)],
         ["flag", icon(faFlag)],
+        ["user", icon(faUser)],
         ["info", icon(faInfoCircle)],
         ["question", icon(faQuestionCircle)],
-        ["coffee", icon(faCoffee)],
+        ["lightbulb", icon(faLightbulb)],
         ["bell", icon(faBell)],
         ["globe", icon(faGlobe)],
         ["clock", icon(faClock)],
-        ["cogs", icon(faCogs)],
-        ["user", icon(faUser)],
         ["envelope", icon(faEnvelope)],
-        ["camera", icon(faCamera)],
         ["map-marker", icon(faMapMarkerAlt)],
-        ["trash", icon(faTrash)]
     ]
 );
 
