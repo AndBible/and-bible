@@ -27,7 +27,7 @@ import {
 } from "@/utils";
 import {setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
-import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
+import {faBookmark, faEdit, faHeadphones, faStar, faHeart, faBook, faLightbulb, faFlag, faInfoCircle, faQuestionCircle} from "@fortawesome/free-solid-svg-icons";
 import {Icon, icon} from "@fortawesome/fontawesome-svg-core";
 import {AppSettings, Config, testMode} from "@/composables/config";
 import {
@@ -70,9 +70,14 @@ const bookmarkIcon = icon(faBookmark);
 
 export const customIcons = new Map<string, Icon>(
     [
-        ["bookmark", bookmarkIcon], 
-        ["edit", editIcon], 
-        ["speak", speakIcon]]
+        ["star", icon(faStar)],
+        ["heart", icon(faHeart)],
+        ["book", icon(faBook)],
+        ["lightbulb", icon(faLightbulb)],
+        ["flag", icon(faFlag)],
+        ["info", icon(faInfoCircle)],
+        ["question", icon(faQuestionCircle)]
+    ]
 );
 
 export function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle, defaultIcon: Icon = bookmarkIcon): Icon {
