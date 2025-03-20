@@ -1,0 +1,98 @@
+<template>
+  <ModalDialog v-if="show" @close="cancel" blocking locate-top>
+    <template #title>
+      <slot name="title">
+        Select Custom Icon
+      </slot>
+    </template>
+    <div class="icon-list">
+      <div
+        v-for="[key, icon] in customIcons.entries()"
+        :key="key"
+        class="icon-item"
+        :class="{selected: key === selectedIcon}"
+        @click="selectIcon(key)">
+        <FontAwesomeIcon :icon="icon" />
+        <span>{{ key }}</span>
+      </div>
+      <!-- Option to disable custom icon -->
+      <div
+         class="icon-item"
+         :class="{selected: selectedIcon === null}"
+         @click="selectIcon(null)">
+         <FontAwesomeIcon icon="times" />
+         <span>Disable</span>
+      </div>
+    </div>
+    <template #footer>
+      <button class="button" @click="cancel">Cancel</button>
+      <button class="button" @click="confirmSelection">OK</button>
+    </template>
+  </ModalDialog>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import ModalDialog from "@/components/modals/ModalDialog.vue";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { customIcons } from "@/composables/bookmarks";
+import { Deferred } from "@/utils";
+
+const show = ref(false);
+const selectedIcon = ref<null | string>(null);
+let deferred: Deferred<null | string> | null = null;
+
+function selectIcon(key: null | string) {
+  selectedIcon.value = key;
+}
+
+function confirmSelection() {
+  deferred?.resolve(selectedIcon.value);
+  show.value = false;
+}
+
+function cancel() {
+  deferred?.resolve(undefined);
+  show.value = false;
+}
+
+// Expose a function that shows this dialog and returns the new customIcon
+async function askCustomIcon(current: null | string): Promise<null | string> {
+  selectedIcon.value = current ?? null;
+  show.value = true;
+  deferred = new Deferred<null | string>();
+  const result = await deferred.wait();
+  return result ?? null;
+}
+
+defineExpose({ askCustomIcon });
+</script>
+
+<style scoped lang="scss">
+@import "~@/common.scss";
+
+.icon-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 5px;
+  &.selected {
+    border-color: #007bff;
+    background-color: #e7f1ff;
+  }
+  span {
+    margin-top: 5px;
+    font-size: 12px;
+  }
+}
+</style>
