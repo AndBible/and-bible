@@ -189,7 +189,19 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         thisBookmarkCategory.visibility = if(data.isAssigning) View.VISIBLE else View.GONE
 
         // Set custom icon display in new view
-        customIconSelector.text = data.label.customIcon ?: "No custom icon"
+        val iconName = data.label.customIcon
+        if (iconName != null) {
+            val drawableId = customIconMap[iconName]
+            if (drawableId != null) {
+                val drawable = ContextCompat.getDrawable(root.context, drawableId)
+                customIconSelector.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+            } else {
+                customIconSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+            }
+        } else {
+            customIconSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+        }
+        customIconSelector.text = getString(R.string.choose_icon)
     }
 
     private fun saveAndExit() {
@@ -271,13 +283,12 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
     // New method to show a custom dialog for icon selection with icons in the list.
     private fun editCustomIcon() {
-        // First element is "No custom icon", then the keys of customIconMap.
-        val iconNames = listOf("No custom icon") + customIconMap.keys.toList()
+        val iconNames = listOf(getString(R.string.no_custom_icon)) + customIconMap.keys.toList()
         val adapter = object : ArrayAdapter<String>(this, android.R.layout.select_dialog_item, iconNames) {
-            override fun getView(position: Int, convertView: android.view.View?, parent: ViewGroup): android.view.View {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent) as TextView
                 val iconName = getItem(position)
-                if (iconName != null && iconName != "No custom icon") {
+                if (iconName != null && position != 0) {
                     val drawableId = customIconMap[iconName]
                     if (drawableId != null) {
                         val drawable = ContextCompat.getDrawable(context, drawableId)
@@ -294,7 +305,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             .setTitle(getString(R.string.select_custom_icon))
             .setAdapter(adapter) { _, which ->
                 val selected = iconNames[which]
-                data.label.customIcon = if (selected == "No custom icon") null else selected
+                data.label.customIcon = if (which == 0) null else selected
                 updateUI()
             }
             .create()
