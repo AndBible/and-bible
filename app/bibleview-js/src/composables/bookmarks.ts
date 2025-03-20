@@ -27,7 +27,28 @@ import {
 } from "@/utils";
 import {setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
-import {faBookmark, faEdit, faHeadphones, faStar, faHeart, faBook, faLightbulb, faFlag, faInfoCircle, faQuestionCircle} from "@fortawesome/free-solid-svg-icons";
+import {
+    faBookmark,
+    faEdit,
+    faHeadphones,
+    faStar,
+    faHeart,
+    faBook,
+    faLightbulb,
+    faFlag,
+    faInfoCircle,
+    faQuestionCircle,
+    faCoffee,
+    faBell,
+    faGlobe,
+    faClock,
+    faCogs,
+    faUser,
+    faEnvelope,
+    faCamera,
+    faMapMarkerAlt,
+    faTrash
+} from "@fortawesome/free-solid-svg-icons";
 import {Icon, icon} from "@fortawesome/fontawesome-svg-core";
 import {AppSettings, Config, testMode} from "@/composables/config";
 import {
@@ -76,7 +97,17 @@ export const customIcons = new Map<string, Icon>(
         ["lightbulb", icon(faLightbulb)],
         ["flag", icon(faFlag)],
         ["info", icon(faInfoCircle)],
-        ["question", icon(faQuestionCircle)]
+        ["question", icon(faQuestionCircle)],
+        ["coffee", icon(faCoffee)],
+        ["bell", icon(faBell)],
+        ["globe", icon(faGlobe)],
+        ["clock", icon(faClock)],
+        ["cogs", icon(faCogs)],
+        ["user", icon(faUser)],
+        ["envelope", icon(faEnvelope)],
+        ["camera", icon(faCamera)],
+        ["map-marker", icon(faMapMarkerAlt)],
+        ["trash", icon(faTrash)]
     ]
 );
 
