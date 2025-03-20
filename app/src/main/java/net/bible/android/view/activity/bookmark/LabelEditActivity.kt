@@ -52,6 +52,17 @@ import kotlin.coroutines.suspendCoroutine
 
 val customIconMap = mapOf(
     "star" to R.drawable.icon_star,
+    "book" to R.drawable.icon_book,
+    "flag" to R.drawable.icon_flag,
+    "user" to R.drawable.icon_user,
+    "info" to R.drawable.icon_info,
+    "question" to R.drawable.icon_question,
+    "lightbulb" to R.drawable.icon_lightbulb,
+    "bell" to R.drawable.icon_bell,
+    "globe" to R.drawable.icon_globe,
+    "clock" to R.drawable.icon_clock,
+    "envelope" to R.drawable.icon_envelope,
+    "map-marker" to R.drawable.icon_map_marker,
 )
 
 @ActivityScope
