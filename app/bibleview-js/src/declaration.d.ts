@@ -110,7 +110,6 @@ type TranslatedStrings = {
     verseNoteLong: string
     addBookmark: string
     selectCustomIconTitle: string
-    disableCustomIcon: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings

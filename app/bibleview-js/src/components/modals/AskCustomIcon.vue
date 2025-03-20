@@ -1,5 +1,5 @@
 <template>
-  <ModalDialog v-if="show" @close="cancel" blocking locate-top>
+  <ModalDialog v-if="show" @close="() => { /* optional: do nothing on close */ }" blocking locate-top>
     <template #title>
       <slot name="title">
         {{ strings.selectCustomIconTitle }}
@@ -13,21 +13,14 @@
         :class="{selected: key === selectedIcon}"
         @click="selectIcon(key)">
         <FontAwesomeIcon :icon="icon" />
-        <span>{{ key }}</span>
       </div>
-      <!-- Option to disable custom icon -->
       <div
          class="icon-item"
          :class="{selected: selectedIcon === null}"
          @click="selectIcon(null)">
-         <FontAwesomeIcon icon="times" />
-         <span>{{ strings.disableCustomIcon }}</span>
+         <FontAwesomeIcon :icon="faTimes" />
       </div>
     </div>
-    <template #footer>
-      <button class="button" @click="cancel">{{ strings.cancel }}</button>
-      <button class="button" @click="confirmSelection">{{ strings.ok }}</button>
-    </template>
   </ModalDialog>
 </template>
 
@@ -38,6 +31,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { customIcons } from "@/composables/bookmarks";
 import { Deferred } from "@/utils";
 import { useCommon } from "@/composables";
+import {faTimes} from "@fortawesome/free-solid-svg-icons";
 
 const { strings } = useCommon();
 
@@ -47,15 +41,7 @@ let deferred: Deferred<null | string> | null = null;
 
 function selectIcon(key: null | string) {
   selectedIcon.value = key;
-}
-
-function confirmSelection() {
   deferred?.resolve(selectedIcon.value);
-  show.value = false;
-}
-
-function cancel() {
-  deferred?.resolve(undefined);
   show.value = false;
 }
 
