@@ -59,6 +59,12 @@
         <item name="android:paddingTop">8dip</item>
         <item name="android:paddingBottom">8dip</item>
     </style>
+    <style name="CustomIconButton" parent="@android:style/TextAppearance.Small">
+        <item name="android:layout_marginStart">8dip</item>
+        <item name="android:drawablePadding">10dip</item>
+        <item name="android:layout_marginTop">48dip</item>
+        <item name="android:layout_marginBottom">48dip</item>
+    </style>
     <style name="EditBookmarkLabelItemIcon">
         <item name="android:scaleY">0.8</item>
         <item name="android:scaleX">0.8</item>
