@@ -141,6 +141,14 @@ class ManageLabelItemAdapter(context: Context?,
                 }
                 labelIcon.setColorFilter(label.color)
 
+                val resId = customIconMap[label.customIcon]
+                if (resId != null) {
+                    customIcon.setImageResource(resId)
+                } else {
+                    customIcon.setImageResource(R.drawable.ic_baseline_bookmark_24)
+                }
+                customIcon.setColorFilter(label.color)
+
                 // TODO: implement otherwise
                 bookmarkStyleAdapterHelper.styleView(labelName, label, context, false, false)
                 if (data.mode != ManageLabels.Mode.STUDYPAD) {
