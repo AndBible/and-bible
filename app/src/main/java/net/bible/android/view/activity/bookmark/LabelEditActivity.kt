@@ -189,7 +189,12 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             customIconSelector.visibility = View.VISIBLE
             val iconName = data.label.customIcon
             val drawableId = customIconMap[iconName] ?: R.drawable.ic_baseline_bookmark_24
-            val drawable = ContextCompat.getDrawable(root.context, drawableId)
+            val rawDrawable = ContextCompat.getDrawable(root.context, drawableId)
+            val drawable = rawDrawable?.let {
+                val mutated = androidx.core.graphics.drawable.DrawableCompat.wrap(it).mutate()
+                androidx.core.graphics.drawable.DrawableCompat.setTint(mutated, data.label.color)
+                mutated
+            }
             customIconSelector.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
             customIconSelector.text = getString(R.string.choose_icon)
         }
