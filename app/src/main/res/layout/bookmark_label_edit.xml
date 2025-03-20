@@ -84,7 +84,9 @@
 			android:drawablePadding="16dp"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/bookmarkStyleTitle"
-			app:layout_constraintBottom_toTopOf="@id/space3" />
+			app:layout_constraintBottom_toTopOf="@id/space3"
+            android:visibility="gone"
+            />
 
 		<Space
 			android:id="@+id/space3"

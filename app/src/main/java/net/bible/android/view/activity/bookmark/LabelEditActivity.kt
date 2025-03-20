@@ -182,26 +182,30 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             autoAssignCheckBox.visibility = GONE
             primaryAutoAssignCheckBox.visibility = GONE
         }
+
+        if (data.label.isSpeakLabel) {
+            customIconSelector.visibility = GONE
+        } else {
+            customIconSelector.visibility = View.VISIBLE
+            val iconName = data.label.customIcon
+            if (iconName != null) {
+                val drawableId = customIconMap[iconName]
+                if (drawableId != null) {
+                    val drawable = ContextCompat.getDrawable(root.context, drawableId)
+                    customIconSelector.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+                } else {
+                    customIconSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+                }
+            } else {
+                customIconSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+            }
+            customIconSelector.text = getString(R.string.choose_icon)
+        }
         selectedLabelCheckBox.isChecked = data.isThisBookmarkSelected
         primaryLabelCheckBox.isEnabled = data.isThisBookmarkSelected
         primaryAutoAssignCheckBox.isEnabled = data.isAutoAssign
 
         thisBookmarkCategory.visibility = if(data.isAssigning) View.VISIBLE else View.GONE
-
-        // Set custom icon display in new view
-        val iconName = data.label.customIcon
-        if (iconName != null) {
-            val drawableId = customIconMap[iconName]
-            if (drawableId != null) {
-                val drawable = ContextCompat.getDrawable(root.context, drawableId)
-                customIconSelector.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
-            } else {
-                customIconSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
-            }
-        } else {
-            customIconSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
-        }
-        customIconSelector.text = getString(R.string.choose_icon)
     }
 
     private fun saveAndExit() {
@@ -258,7 +262,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             updateUI()
 
             titleIcon.setOnClickListener { editColor() }
-            // New click listener for custom icon selection
             customIconSelector.setOnClickListener { editCustomIcon() }
 
             for(v in listOf(
