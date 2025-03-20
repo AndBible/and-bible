@@ -178,6 +178,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         primaryAutoAssignCheckBox.isEnabled = data.isAutoAssign
 
         thisBookmarkCategory.visibility = if(data.isAssigning) View.VISIBLE else View.GONE
+
+        // Set custom icon display in new view
+        customIconSelector.text = data.label.customIcon ?: "No custom icon"
     }
 
     private fun saveAndExit() {
@@ -234,6 +237,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             updateUI()
 
             titleIcon.setOnClickListener { editColor() }
+            // New click listener for custom icon selection
+            customIconSelector.setOnClickListener { editCustomIcon() }
 
             for(v in listOf(
                 autoAssignCheckBox,
@@ -253,6 +258,22 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                 labelName.requestFocus()
             }
         }
+    }
+
+    // New method to edit custom icon
+    private fun editCustomIcon() {
+        val icons = arrayOf(
+            "No custom icon", "star", "heart", "book", "lightbulb", "flag", "info",
+            "question", "coffee", "bell", "globe", "clock", "cogs", "user", "envelope", "camera", "map-marker", "trash"
+        )
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.select_custom_icon))
+            .setItems(icons) { _, which ->
+                data.label.customIcon = if (which == 0) null else icons[which]
+                updateUI()
+            }
+            .create()
+            .show()
     }
 
     private fun editColor() {

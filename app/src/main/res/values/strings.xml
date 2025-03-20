@@ -1250,4 +1250,6 @@
     <string name="prefs_swipe_mode_none">Disabled</string>
     <string name="page_number_title">Relative page number</string>
     <string name="page_number_summary">Show page number overlay. Page number is relative to the starting position.</string>
+    <string name="select_custom_icon">Select custom icon</string>
+    <string name="no_custom_icon">No custom icon</string>
 </resources>
