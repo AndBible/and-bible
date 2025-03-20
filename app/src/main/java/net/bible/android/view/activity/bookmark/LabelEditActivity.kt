@@ -297,20 +297,14 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun editCustomIcon() {
-        val iconNames = listOf(getString(R.string.no_custom_icon)) + customIconMap.keys.toList()
+        // Move "No custom icon" to the end of the list.
+        val iconNames = customIconMap.keys.toList() + listOf(getString(R.string.no_custom_icon))
         val gridView = GridView(this).apply {
-            // Automatically determine number of columns based on available width.
             numColumns = GridView.AUTO_FIT
-            // Set a desired column width (80dp converted to px)
             columnWidth = (80 * resources.displayMetrics.density).toInt()
             stretchMode = GridView.STRETCH_COLUMN_WIDTH
-
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             minimumHeight = (resources.displayMetrics.heightPixels * 0.5).toInt()
-            // Add padding to the grid layout (convert 16dp to px)
             val paddingPx = (16 * resources.displayMetrics.density).toInt()
             setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
             adapter = object : BaseAdapter() {
@@ -319,11 +313,12 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                 override fun getItemId(position: Int) = position.toLong()
                 override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
                     val button = convertView as? ImageButton ?: ImageButton(this@LabelEditActivity)
-                    val name = getItem(position)
-                    if (position == 0) {
+                    if (position == count - 1) {
+                        // Last item: "No custom icon" option.
                         val drawable = ContextCompat.getDrawable(context, R.drawable.icon_disabled)
                         button.setImageDrawable(drawable)
                     } else {
+                        val name = getItem(position)
                         val drawableId = customIconMap[name]!!
                         val drawable = ContextCompat.getDrawable(context, drawableId)
                         button.setImageDrawable(drawable)
@@ -334,10 +329,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     )
-                    // Disable individual click handling so GridView click events fire.
                     button.isClickable = false
                     button.isFocusable = false
-                    // Remove background color.
                     button.setBackgroundColor(android.graphics.Color.TRANSPARENT)
                     return button
                 }
@@ -349,8 +342,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             .setNegativeButton("Cancel") { d, _ -> d.dismiss() }
             .create()
         gridView.setOnItemClickListener { _, _, position, _ ->
-            val selected = iconNames[position]
-            data.label.customIcon = if (position == 0) null else selected
+            data.label.customIcon = if (position == gridView.adapter.count - 1) null else iconNames[position]
             updateUI()
             dialog.dismiss()
         }
