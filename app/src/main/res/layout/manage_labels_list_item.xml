@@ -76,20 +76,12 @@
 			android:layout_height="wrap_content"
 			android:src="@drawable/ic_baseline_bookmark_24"
 			/>
-		<ImageView
-			android:id="@+id/customIcon"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="14dp"
-			app:layout_constraintTop_toTopOf="@id/labelName"
-			app:layout_constraintStart_toEndOf="@id/primaryIcon"
-            />
 		<TextView
 			android:id="@+id/labelName"
 			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintStart_toEndOf="@id/customIcon"
+			app:layout_constraintStart_toEndOf="@id/primaryIcon"
 			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/customIcon"
 			android:layout_height="wrap_content"
 			android:layout_width="0dp"
 			android:singleLine="true"
@@ -97,7 +89,16 @@
 			android:text="TEST"
 			android:paddingStart="14dip"
 			android:textAppearance="?android:attr/textAppearanceMedium"/>
-
+		<ImageView
+			android:id="@+id/customIcon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="12dp"
+			app:layout_constraintTop_toTopOf="@id/labelName"
+			app:layout_constraintStart_toEndOf="@id/labelName"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"
+            />
 	</androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
 

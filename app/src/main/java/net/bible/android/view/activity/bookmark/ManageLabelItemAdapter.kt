@@ -144,8 +144,9 @@ class ManageLabelItemAdapter(context: Context?,
                 val resId = customIconMap[label.customIcon]
                 if (resId != null) {
                     customIcon.setImageResource(resId)
+                    customIcon.visibility = View.VISIBLE
                 } else {
-                    customIcon.setImageResource(R.drawable.ic_baseline_bookmark_24)
+                    customIcon.visibility = View.GONE
                 }
                 customIcon.setColorFilter(label.color)
 
