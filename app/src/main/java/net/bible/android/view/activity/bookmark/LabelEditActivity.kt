@@ -300,7 +300,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         val iconNames = listOf("No custom icon") + customIconMap.keys.toList()
         val gridView = GridView(this).apply {
             numColumns = 5
-            // Set layout params and a minimum height to display more rows vertically
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             minimumHeight = (resources.displayMetrics.heightPixels * 0.5).toInt()
             adapter = object : BaseAdapter() {
@@ -324,6 +323,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                     // Disable individual click handling so GridView click events fire.
                     button.isClickable = false
                     button.isFocusable = false
+                    // Remove the background color (set transparent)
+                    button.setBackgroundColor(android.graphics.Color.TRANSPARENT)
                     return button
                 }
             }
