@@ -83,4 +83,17 @@ defineExpose({ askCustomIcon });
     font-size: 12px;
   }
 }
+
+// Night mode overrides
+.night .icon-item {
+  border: 1px solid #555;
+  background-color: #222;
+  span {
+    color: #ccc;
+  }
+}
+.night .icon-item.selected {
+  border-color: #1e90ff;
+  background-color: #333;
+}
 </style>
