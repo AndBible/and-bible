@@ -300,6 +300,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         val iconNames = listOf("No custom icon") + customIconMap.keys.toList()
         val gridView = GridView(this).apply {
             numColumns = 5
+            // Set layout params and a minimum height to display more rows vertically
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            minimumHeight = (resources.displayMetrics.heightPixels * 0.5).toInt()
             adapter = object : BaseAdapter() {
                 override fun getCount() = iconNames.size
                 override fun getItem(position: Int) = iconNames[position]
@@ -307,14 +310,13 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                 override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
                     val button = convertView as? ImageButton ?: ImageButton(this@LabelEditActivity)
                     val name = getItem(position)
-                    if (name == "No custom icon") {
-                        button.setImageDrawable(null)
+                    if (position == 0) {
+                        val drawable = ContextCompat.getDrawable(context, R.drawable.icon_disabled)
+                        button.setImageDrawable(drawable)
                     } else {
-                        val drawableId = customIconMap[name]
-                        if (drawableId != null) {
-                            val drawable = ContextCompat.getDrawable(context, drawableId)
-                            button.setImageDrawable(drawable)
-                        }
+                        val drawableId = customIconMap[name]!!
+                        val drawable = ContextCompat.getDrawable(context, drawableId)
+                        button.setImageDrawable(drawable)
                     }
                     button.scaleType = ImageView.ScaleType.CENTER_INSIDE
                     button.adjustViewBounds = true
