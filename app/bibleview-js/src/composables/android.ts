@@ -84,6 +84,8 @@ export type BibleJavascriptInterface = {
     querySelection: (bookmarkId: IdType, value: boolean) => void,
     setBookmarkWholeVerse: (bookmarkId: IdType, value: boolean) => void,
     setGenericBookmarkWholeVerse: (bookmarkId: IdType, value: boolean) => void,
+    setBookmarkCustomIcon: (bookmarkId: IdType, value: Nullable<string>) => void,
+    setGenericBookmarkCustomIcon: (bookmarkId: IdType, value: Nullable<string>) => void,
     toggleCompareDocument: (documentId: string) => void,
     helpDialog: (content: string, title: Nullable<string>) => void,
     shareHtml: (html: string) => void,
@@ -472,6 +474,14 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         }
     }
 
+    function setCustomIcon(bookmark: BaseBookmark, value: Nullable<string>) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.setBookmarkCustomIcon(bookmark.id, value);
+        } else {
+            window.android.setGenericBookmarkCustomIcon(bookmark.id, value);
+        }
+    }
+
     function reportModalState(value: boolean) {
         window.android.reportModalState(value)
     }
@@ -529,6 +539,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         toggleBookmarkLabel,
         reportModalState,
         setBookmarkWholeVerse,
+        setCustomIcon,
         toggleCompareDocument,
         openMyNotes,
         openDownloads,

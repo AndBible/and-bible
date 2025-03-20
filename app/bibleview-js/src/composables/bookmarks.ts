@@ -67,7 +67,13 @@ type LabelAndId = { id: IdType, label: LabelAndStyle }
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
 const bookmarkIcon = icon(faBookmark);
-const customIcons = new Map<string, Icon>();
+
+export const customIcons = new Map<string, Icon>(
+    [
+        ["bookmark", bookmarkIcon], 
+        ["edit", editIcon], 
+        ["speak", speakIcon]]
+);
 
 function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle, defaultIcon: Icon): Icon {
     if (bookmark.customIcon != null) {
