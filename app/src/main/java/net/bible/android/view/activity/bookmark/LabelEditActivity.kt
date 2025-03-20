@@ -325,10 +325,10 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                 }
             }
         }
-        // Updated AlertDialog creation with title.
         val dialog = AlertDialog.Builder(this)
             .setTitle("Choose custom icon")
             .setView(gridView)
+            .setNegativeButton("Cancel") { d, _ -> d.dismiss() }
             .create()
         gridView.setOnItemClickListener { _, _, position, _ ->
             val selected = iconNames[position]
