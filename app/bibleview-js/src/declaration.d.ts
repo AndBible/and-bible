@@ -109,6 +109,8 @@ type TranslatedStrings = {
     verseCompareLong: string
     verseNoteLong: string
     addBookmark: string
+    selectCustomIconTitle: string
+    disableCustomIcon: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings

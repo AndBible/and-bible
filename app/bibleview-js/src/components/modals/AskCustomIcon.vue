@@ -2,12 +2,12 @@
   <ModalDialog v-if="show" @close="cancel" blocking locate-top>
     <template #title>
       <slot name="title">
-        Select Custom Icon
+        {{ strings.selectCustomIconTitle }}
       </slot>
     </template>
     <div class="icon-list">
       <div
-        v-for="[key, icon] in customIcons.entries()"
+        v-for="[key, icon] in Array.from(customIcons.entries())"
         :key="key"
         class="icon-item"
         :class="{selected: key === selectedIcon}"
@@ -21,12 +21,12 @@
          :class="{selected: selectedIcon === null}"
          @click="selectIcon(null)">
          <FontAwesomeIcon icon="times" />
-         <span>Disable</span>
+         <span>{{ strings.disableCustomIcon }}</span>
       </div>
     </div>
     <template #footer>
-      <button class="button" @click="cancel">Cancel</button>
-      <button class="button" @click="confirmSelection">OK</button>
+      <button class="button" @click="cancel">{{ strings.cancel }}</button>
+      <button class="button" @click="confirmSelection">{{ strings.ok }}</button>
     </template>
   </ModalDialog>
 </template>
@@ -37,6 +37,9 @@ import ModalDialog from "@/components/modals/ModalDialog.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { customIcons } from "@/composables/bookmarks";
 import { Deferred } from "@/utils";
+import { useCommon } from "@/composables";
+
+const { strings } = useCommon();
 
 const show = ref(false);
 const selectedIcon = ref<null | string>(null);
@@ -56,7 +59,6 @@ function cancel() {
   show.value = false;
 }
 
-// Expose a function that shows this dialog and returns the new customIcon
 async function askCustomIcon(current: null | string): Promise<null | string> {
   selectedIcon.value = current ?? null;
   show.value = true;
