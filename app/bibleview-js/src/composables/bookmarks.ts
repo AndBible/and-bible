@@ -75,7 +75,7 @@ export const customIcons = new Map<string, Icon>(
         ["speak", speakIcon]]
 );
 
-function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle, defaultIcon: Icon): Icon {
+export function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle, defaultIcon: Icon = bookmarkIcon): Icon {
     if (bookmark.customIcon != null) {
         const custom = customIcons.get(bookmark.customIcon);
         if (custom) return custom;

@@ -60,6 +60,12 @@
             <FontAwesomeIcon icon="custom-whole-verse-false"/>
           </template>
         </div>
+        <div
+            class="bookmark-button"
+            @click.stop="changeCustomIcon"
+            :style="buttonColor(primaryLabel.color)">
+          <FontAwesomeIcon :icon="bookmarkIcon" />
+        </div>
         <template v-if="showStudyPadButtons">
           <div
               v-for="label of labels.filter(l => l.isRealLabel)"
@@ -86,19 +92,21 @@
     </template>
     {{ strings.removeBookmarkConfirmation }}
   </AreYouSure>
+  <AskCustomIcon ref="askCustomIconDialog" />
 </template>
 
 <script lang="ts" setup>
 import {useCommon} from "@/composables";
 import {computed, inject, ref} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
+import AskCustomIcon from "@/components/modals/AskCustomIcon.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Color from "color";
 import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey} from "@/types/constants";
 import {ColorParam} from "@/types/common";
 import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
-import {isBibleBookmark} from "@/composables/bookmarks";
+import {isBibleBookmark, resolveIcon} from "@/composables/bookmarks";
 
 const props = withDefaults(defineProps<{
     bookmark: BaseBookmark
@@ -134,6 +142,8 @@ const primaryLabel = computed(() => {
     return bookmarkLabels.get(primaryLabelId)!;
 });
 
+const bookmarkIcon = computed(() => resolveIcon(bookmark.value, primaryLabel.value));
+
 function openStudyPad(labelId: IdType) {
     android.openStudyPad(labelId, bookmark.value);
 }
@@ -162,6 +172,15 @@ function buttonColor(color: ColorParam, highlighted = false) {
         col = col.alpha(0.7);
     }
     return `color:${col.hsl().string()};`;
+}
+
+const askCustomIconDialog = ref<InstanceType<typeof AskCustomIcon> | null>(null);
+
+async function changeCustomIcon() {
+  const newIcon = await askCustomIconDialog.value!.askCustomIcon(bookmark.value.customIcon);
+  if (newIcon !== bookmark.value.customIcon) {
+    android.setCustomIcon(bookmark.value, newIcon);
+  }
 }
 
 </script>
