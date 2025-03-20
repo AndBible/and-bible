@@ -70,6 +70,12 @@ private val labelFields = makeMigration(7..8) { _db  ->
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Label_favourite` ON `Label` (`favourite`)")
 }
 
+private val customIconMigration = makeMigration(8..9) { _db ->
+    _db.execSQL("ALTER TABLE Label ADD COLUMN customIcon TEXT DEFAULT NULL")
+    _db.execSQL("ALTER TABLE BibleBookmark ADD COLUMN customIcon TEXT DEFAULT NULL")
+    _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN customIcon TEXT DEFAULT NULL")
+}
+
 val bookmarkMigrations: Array<Migration> = arrayOf(
     separateText,
     genericTables,
@@ -78,6 +84,7 @@ val bookmarkMigrations: Array<Migration> = arrayOf(
     playbackSettings,
     genBookmarkIndex,
     labelFields,
+    customIconMigration
 )
 
-const val BOOKMARK_DATABASE_VERSION = 8
+const val BOOKMARK_DATABASE_VERSION = 9
