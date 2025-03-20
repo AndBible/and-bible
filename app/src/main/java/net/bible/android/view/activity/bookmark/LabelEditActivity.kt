@@ -26,9 +26,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
@@ -50,6 +53,12 @@ import kotlin.coroutines.suspendCoroutine
 @ActivityScope
 class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     lateinit var binding: BookmarkLabelEditBinding
+
+    // Placeholder map for custom icons; create android resources for these later.
+    private val customIconMap = mapOf(
+        "star" to R.drawable.icon_star,
+        "heart" to R.drawable.icon_heart,
+    )
 
     override fun onColorSelected(dialogId: Int, color: Int) {
         // let's remove alpha
@@ -260,16 +269,32 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         }
     }
 
-    // New method to edit custom icon
+    // New method to show a custom dialog for icon selection with icons in the list.
     private fun editCustomIcon() {
-        val icons = arrayOf(
-            "No custom icon", "star", "heart", "book", "lightbulb", "flag", "info",
-            "question", "coffee", "bell", "globe", "clock", "cogs", "user", "envelope", "camera", "map-marker", "trash"
-        )
+        // First element is "No custom icon", then the keys of customIconMap.
+        val iconNames = listOf("No custom icon") + customIconMap.keys.toList()
+        val adapter = object : ArrayAdapter<String>(this, android.R.layout.select_dialog_item, iconNames) {
+            override fun getView(position: Int, convertView: android.view.View?, parent: ViewGroup): android.view.View {
+                val view = super.getView(position, convertView, parent) as TextView
+                val iconName = getItem(position)
+                if (iconName != null && iconName != "No custom icon") {
+                    val drawableId = customIconMap[iconName]
+                    if (drawableId != null) {
+                        val drawable = ContextCompat.getDrawable(context, drawableId)
+                        view.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+                        view.compoundDrawablePadding = 16
+                    }
+                } else {
+                    view.setCompoundDrawables(null, null, null, null)
+                }
+                return view
+            }
+        }
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.select_custom_icon))
-            .setItems(icons) { _, which ->
-                data.label.customIcon = if (which == 0) null else icons[which]
+            .setAdapter(adapter) { _, which ->
+                val selected = iconNames[which]
+                data.label.customIcon = if (selected == "No custom icon") null else selected
                 updateUI()
             }
             .create()
