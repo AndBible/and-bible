@@ -74,26 +74,29 @@ defineExpose({ askCustomIcon });
   border: 1px solid #ccc;
   cursor: pointer;
   border-radius: 5px;
-  &.selected {
-    border-color: #007bff;
-    background-color: #e7f1ff;
-  }
+  
   span {
     margin-top: 5px;
     font-size: 12px;
   }
-}
-
-// Night mode overrides
-.night .icon-item {
-  border: 1px solid #555;
-  background-color: #222;
-  span {
-    color: #ccc;
+  
+  &.selected {
+    border-color: #007bff;
+    background-color: #e7f1ff;
   }
-}
-.night .icon-item.selected {
-  border-color: #1e90ff;
-  background-color: #333;
+  
+  .night & {
+    border: 1px solid #555;
+    background-color: #222;
+    
+    span {
+      color: #ccc;
+    }
+    
+    &.selected {
+      border-color: #1e90ff;
+      background-color: #333;
+    }
+  }
 }
 </style>
