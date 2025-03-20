@@ -89,6 +89,7 @@ export type BaseBookmark = {
     notes: Nullable<string>
     hasNote: boolean
     wholeVerse: boolean
+    customIcon: Nullable<string>
 }
 
 export type BibleBookmark = BaseBookmark & {
@@ -153,6 +154,7 @@ export type BookmarkStyle = Readonly<{
     markerStyleWholeVerse: boolean
     hideStyle: boolean
     hideStyleWholeVerse: boolean
+    customIcon: Nullable<string>
 }>
 
 export type Label = Readonly<{
