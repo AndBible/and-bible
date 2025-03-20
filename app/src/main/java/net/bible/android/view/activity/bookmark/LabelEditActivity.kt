@@ -299,8 +299,16 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     private fun editCustomIcon() {
         val iconNames = listOf("No custom icon") + customIconMap.keys.toList()
         val gridView = GridView(this).apply {
-            numColumns = 5
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            // Automatically determine number of columns based on available width.
+            numColumns = GridView.AUTO_FIT
+            // Set a desired column width (80dp converted to px)
+            columnWidth = (80 * resources.displayMetrics.density).toInt()
+            stretchMode = GridView.STRETCH_COLUMN_WIDTH
+
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
             minimumHeight = (resources.displayMetrics.heightPixels * 0.5).toInt()
             // Add padding to the grid layout (convert 16dp to px)
             val paddingPx = (16 * resources.displayMetrics.density).toInt()
@@ -322,11 +330,14 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                     }
                     button.scaleType = ImageView.ScaleType.CENTER_INSIDE
                     button.adjustViewBounds = true
-                    button.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    button.layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
                     // Disable individual click handling so GridView click events fire.
                     button.isClickable = false
                     button.isFocusable = false
-                    // Remove the background color (set transparent)
+                    // Remove background color.
                     button.setBackgroundColor(android.graphics.Color.TRANSPARENT)
                     return button
                 }
