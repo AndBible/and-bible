@@ -321,6 +321,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                     button.scaleType = ImageView.ScaleType.CENTER_INSIDE
                     button.adjustViewBounds = true
                     button.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    // Disable individual click handling so GridView click events fire.
+                    button.isClickable = false
+                    button.isFocusable = false
                     return button
                 }
             }
