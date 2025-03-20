@@ -302,6 +302,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             numColumns = 5
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             minimumHeight = (resources.displayMetrics.heightPixels * 0.5).toInt()
+            // Add padding to the grid layout (convert 16dp to px)
+            val paddingPx = (16 * resources.displayMetrics.density).toInt()
+            setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
             adapter = object : BaseAdapter() {
                 override fun getCount() = iconNames.size
                 override fun getItem(position: Int) = iconNames[position]
