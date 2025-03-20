@@ -89,7 +89,7 @@ const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
 const bookmarkIcon = icon(faBookmark);
 
-export const customIcons = new Map<string, Icon>(
+export const customIconMap = new Map<string, Icon>(
     [
         ["star", icon(faStar)],
         ["book", icon(faBook)],
@@ -108,11 +108,11 @@ export const customIcons = new Map<string, Icon>(
 
 export function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle, defaultIcon: Icon = bookmarkIcon): Icon {
     if (bookmark.customIcon != null) {
-        const custom = customIcons.get(bookmark.customIcon);
+        const custom = customIconMap.get(bookmark.customIcon);
         if (custom) return custom;
     }
     if (label.customIcon != null) {
-        const custom = customIcons.get(label.customIcon);
+        const custom = customIconMap.get(label.customIcon);
         if (custom) return custom;
     }
     return defaultIcon;

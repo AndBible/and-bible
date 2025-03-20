@@ -7,7 +7,7 @@
     </template>
     <div class="icon-list">
       <div
-        v-for="[key, icon] in Array.from(customIcons.entries())"
+        v-for="[key, icon] in Array.from(customIconMap.entries())"
         :key="key"
         class="icon-item"
         :class="{selected: key === selectedIcon}"
@@ -28,7 +28,7 @@
 import { ref } from "vue";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { customIcons } from "@/composables/bookmarks";
+import { customIconMap } from "@/composables/bookmarks";
 import { Deferred } from "@/utils";
 import { useCommon } from "@/composables";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
