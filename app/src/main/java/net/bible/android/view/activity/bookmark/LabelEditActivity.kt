@@ -27,7 +27,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
+import android.widget.BaseAdapter
+import android.widget.GridLayout
+import android.widget.GridLayout.LayoutParams
+import android.widget.GridView
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
@@ -49,7 +54,6 @@ import net.bible.service.common.displayName
 import net.bible.service.db.exportStudyPads
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import android.util.TypedValue
 
 val customIconMap = mapOf(
     "star" to R.drawable.icon_star,
@@ -292,36 +296,43 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         }
     }
 
-    // New method to show a custom dialog for icon selection with icons in the list.
     private fun editCustomIcon() {
-        val iconNames = listOf(getString(R.string.no_custom_icon)) + customIconMap.keys.toList()
-        val adapter = object : ArrayAdapter<String>(this, android.R.layout.select_dialog_item, iconNames) {
-            override fun getView(position: Int, convertView: android.view.View?, parent: ViewGroup): android.view.View {
-                val view = super.getView(position, convertView, parent) as TextView
-                view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f) // reduced font size
-                val iconName = getItem(position)
-                if (iconName != null && position != 0) {
-                    val drawableId = customIconMap[iconName]
-                    if (drawableId != null) {
-                        val drawable = ContextCompat.getDrawable(context, drawableId)
-                        view.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
-                        view.compoundDrawablePadding = 16
+        val iconNames = listOf("No custom icon") + customIconMap.keys.toList()
+        val gridView = GridView(this).apply {
+            numColumns = 5
+            adapter = object : BaseAdapter() {
+                override fun getCount() = iconNames.size
+                override fun getItem(position: Int) = iconNames[position]
+                override fun getItemId(position: Int) = position.toLong()
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+                    val button = convertView as? ImageButton ?: ImageButton(this@LabelEditActivity)
+                    val name = getItem(position)
+                    if (name == "No custom icon") {
+                        button.setImageDrawable(null)
+                    } else {
+                        val drawableId = customIconMap[name]
+                        if (drawableId != null) {
+                            val drawable = ContextCompat.getDrawable(context, drawableId)
+                            button.setImageDrawable(drawable)
+                        }
                     }
-                } else {
-                    view.setCompoundDrawables(null, null, null, null)
+                    button.scaleType = ImageView.ScaleType.CENTER_INSIDE
+                    button.adjustViewBounds = true
+                    button.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    return button
                 }
-                return view
             }
         }
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.select_custom_icon))
-            .setAdapter(adapter) { _, which ->
-                val selected = iconNames[which]
-                data.label.customIcon = if (which == 0) null else selected
-                updateUI()
-            }
+        val dialog = AlertDialog.Builder(this)
+            .setView(gridView)
             .create()
-            .show()
+        gridView.setOnItemClickListener { _, _, position, _ ->
+            val selected = iconNames[position]
+            data.label.customIcon = if (selected == "No custom icon") null else selected
+            updateUI()
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 
     private fun editColor() {
