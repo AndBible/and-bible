@@ -64,7 +64,7 @@
             class="bookmark-button"
             @click.stop="changeCustomIcon"
             :style="buttonColor(primaryLabel.color)">
-          <FontAwesomeIcon :icon="bookmarkIcon" />
+          <FontAwesomeIcon :icon="faIcons" />
         </div>
         <template v-if="showStudyPadButtons">
           <div
@@ -107,6 +107,7 @@ import {androidKey, globalBookmarksKey} from "@/types/constants";
 import {ColorParam} from "@/types/common";
 import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
 import {isBibleBookmark, resolveIcon} from "@/composables/bookmarks";
+import {faIcons} from "@fortawesome/free-solid-svg-icons";
 
 const props = withDefaults(defineProps<{
     bookmark: BaseBookmark
@@ -141,8 +142,6 @@ const primaryLabel = computed(() => {
     const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
     return bookmarkLabels.get(primaryLabelId)!;
 });
-
-const bookmarkIcon = computed(() => resolveIcon(bookmark.value, primaryLabel.value));
 
 function openStudyPad(labelId: IdType) {
     android.openStudyPad(labelId, bookmark.value);
