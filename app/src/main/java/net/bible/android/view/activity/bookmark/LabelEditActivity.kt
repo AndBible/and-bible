@@ -297,7 +297,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun editCustomIcon() {
-        val iconNames = listOf("No custom icon") + customIconMap.keys.toList()
+        val iconNames = listOf(getString(R.string.no_custom_icon)) + customIconMap.keys.toList()
         val gridView = GridView(this).apply {
             // Automatically determine number of columns based on available width.
             numColumns = GridView.AUTO_FIT
@@ -350,7 +350,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             .create()
         gridView.setOnItemClickListener { _, _, position, _ ->
             val selected = iconNames[position]
-            data.label.customIcon = if (selected == "No custom icon") null else selected
+            data.label.customIcon = if (position == 0) null else selected
             updateUI()
             dialog.dismiss()
         }
