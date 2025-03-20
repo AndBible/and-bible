@@ -1,5 +1,5 @@
 <template>
-  <ModalDialog v-if="show" @close="() => { /* optional: do nothing on close */ }" blocking locate-top>
+  <ModalDialog v-if="show" @close="selectIcon(selectedIcon)" blocking locate-top>
     <template #title>
       <slot name="title">
         {{ strings.selectCustomIconTitle }}
