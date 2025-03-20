@@ -67,6 +67,7 @@ type LabelAndId = { id: IdType, label: LabelAndStyle }
 const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
 const bookmarkIcon = icon(faBookmark);
+const customIcons = new Map<string, Icon>();
 
 const allStyleRangeArrays = reactive<Set<Ref<StyleRange[]>>>(new Set());
 const allStyleRanges = computed(() => {
