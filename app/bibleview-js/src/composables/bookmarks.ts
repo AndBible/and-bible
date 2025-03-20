@@ -32,22 +32,17 @@ import {
     faEdit,
     faHeadphones,
     faStar,
-    faHeart,
     faBook,
     faLightbulb,
     faFlag,
     faInfoCircle,
     faQuestionCircle,
-    faCoffee,
     faBell,
     faGlobe,
     faClock,
-    faCogs,
     faUser,
     faEnvelope,
-    faCamera,
     faMapMarkerAlt,
-    faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import {Icon, icon} from "@fortawesome/fontawesome-svg-core";
 import {AppSettings, Config, testMode} from "@/composables/config";
