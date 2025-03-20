@@ -188,17 +188,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         } else {
             customIconSelector.visibility = View.VISIBLE
             val iconName = data.label.customIcon
-            if (iconName != null) {
-                val drawableId = customIconMap[iconName]
-                if (drawableId != null) {
-                    val drawable = ContextCompat.getDrawable(root.context, drawableId)
-                    customIconSelector.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
-                } else {
-                    customIconSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
-                }
-            } else {
-                customIconSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
-            }
+            val drawableId = customIconMap[iconName] ?: R.drawable.ic_baseline_bookmark_24
+            val drawable = ContextCompat.getDrawable(root.context, drawableId)
+            customIconSelector.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
             customIconSelector.text = getString(R.string.choose_icon)
         }
         selectedLabelCheckBox.isChecked = data.isThisBookmarkSelected
