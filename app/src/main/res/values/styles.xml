@@ -59,10 +59,11 @@
         <item name="android:paddingTop">8dip</item>
         <item name="android:paddingBottom">8dip</item>
     </style>
-    <style name="CustomIconButton" parent="@android:style/TextAppearance.Small">
+    <style name="CustomIconButton" parent="@style/EditBookmarkLabelItemTitle">
         <item name="android:layout_marginStart">8dip</item>
         <item name="android:layout_marginTop">-10dip</item>
         <item name="android:drawablePadding">10dip</item>
+        <item name="android:textAllCaps">false</item>
     </style>
     <style name="EditBookmarkLabelItemIcon">
         <item name="android:scaleY">0.8</item>
