@@ -64,7 +64,7 @@ type StyleRange = {
 
 type LabelAndId = { id: IdType, label: LabelAndStyle }
 
-export function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle, defaultIcon: Icon = bookmarkIcon): Icon {
+export function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle): Icon | null {
     if (bookmark.customIcon != null) {
         const custom = customIconMap.get(bookmark.customIcon);
         if (custom) return custom;
@@ -73,7 +73,7 @@ export function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle, defaul
         const custom = customIconMap.get(label.customIcon);
         if (custom) return custom;
     }
-    return defaultIcon;
+    return null;
 }
 
 const allStyleRangeArrays = reactive<Set<Ref<StyleRange[]>>>(new Set());
@@ -647,7 +647,7 @@ export function useBookmarks(
                 if (hasSpeakLabel(b)) {
                     const label = getBookmarkStyleLabel(b);
                     const color = adjustedColor(appSettings.monochromeMode ? "black" : "red").string();
-                    const resolvedIcon = resolveIcon(b, label, speakIcon);
+                    const resolvedIcon = resolveIcon(b, label) ?? speakIcon;
                     const iconElement = getIconElement(resolvedIcon, color);
                     iconElement.addEventListener("click", event => addEventFunction(event,
                         null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
@@ -663,7 +663,8 @@ export function useBookmarks(
 
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = getBookmarkStyleLabel(b);
-                if ((config.showBookmarks && isMarkerBookmark(b, bookmarkLabel)) || (config.showMyNotes && b.hasNote)) {
+                if ((config.showBookmarks && (isMarkerBookmark(b, bookmarkLabel) || resolveIcon(b, bookmarkLabel) !== null))
+                    || (config.showMyNotes && b.hasNote)) {
                     bookmarkList.push(b)
                     if (b.hasNote) {
                         hasNote = true;
@@ -676,7 +677,7 @@ export function useBookmarks(
                 const bookmarkLabel = getBookmarkStyleLabel(bookmark);
                 const color = adjustedColor(appSettings.monochromeMode ? "black" : bookmarkLabel.color).string();
                 const defaultIcon = hasNote ? editIcon : bookmarkIcon;
-                const resolvedIcon = resolveIcon(bookmark, bookmarkLabel, defaultIcon);
+                const resolvedIcon = resolveIcon(bookmark, bookmarkLabel) ?? defaultIcon;
                 const iconElement = getIconElement(resolvedIcon, color);
                 iconElement.addEventListener("click", event => {
                     for (const b of bookmarkList) {
@@ -727,7 +728,7 @@ export function useBookmarks(
             const bookmarkLabel = getBookmarkStyleLabel(b);
             const color = adjustedColor(appSettings.monochromeMode ? "black" : bookmarkLabel.color).string();
             const defaultIcon = b.hasNote ? editIcon : bookmarkIcon;
-            const resolvedIcon = resolveIcon(b, bookmarkLabel, defaultIcon);
+            const resolvedIcon = resolveIcon(b, bookmarkLabel) ?? defaultIcon;
             const iconElement = getIconElement(resolvedIcon, color);
             iconElement.addEventListener("click", event => {
                 for (const b of bookmarkList) {
