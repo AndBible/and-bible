@@ -29,7 +29,6 @@ js_mapping = {
     "book-bible": "faBookBible.js",
     "share-nodes": "faShareNodes.js",
     "tag": "faTag.js",
-    "bookmark": "faBookmark.js",
     "star-of-david": "faStarOfDavid.js",
     "handshake": "faHandshake.js",
     "person-praying": "faPersonPraying.js",
@@ -68,8 +67,8 @@ def process_file(filepath, output_dir):
     # Create XML content using the FontAwesome values
     xml_template = f'''<?xml version="1.0" encoding="utf-8"?>
 <vector
-    android:width="48dp"
-    android:height="48dp"
+    android:width="24dp"
+    android:height="24dp"
     android:viewportWidth="{width}"
     android:viewportHeight="{height}"
     xmlns:android="http://schemas.android.com/apk/res/android">
