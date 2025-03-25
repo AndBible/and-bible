@@ -18,6 +18,7 @@ package net.bible.android.view.activity.bookmark
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.ImageSpan
@@ -303,9 +304,10 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
     private fun editCustomIcon() {
         val iconNames = customIconMap.keys.toList()
+        val size = (40 * resources.displayMetrics.density).toInt()
         val gridView = GridView(this).apply {
             numColumns = GridView.AUTO_FIT
-            columnWidth = (80 * resources.displayMetrics.density).toInt()
+            columnWidth = size
             stretchMode = GridView.STRETCH_COLUMN_WIDTH
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             minimumHeight = (resources.displayMetrics.heightPixels * 0.5).toInt()
@@ -320,21 +322,31 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                     if (position == count - 1) {
                         val drawable = ContextCompat.getDrawable(context, R.drawable.icon_disabled)
                         button.setImageDrawable(drawable)
+                        button.setBackgroundColor(
+                            if (data.label.customIcon == null) {
+                                CommonUtils.getResourceColor(R.color.grey_500)
+                            } else {
+                                Color.TRANSPARENT
+                            }
+                        )
                     } else {
                         val name = getItem(position)
                         val drawableId = customIconMap[name]!!
                         val drawable = ContextCompat.getDrawable(context, drawableId)
                         button.setImageDrawable(drawable)
+                        button.setBackgroundColor(
+                            if (name == data.label.customIcon) {
+                                CommonUtils.getResourceColor(R.color.grey_500)
+                            } else {
+                                Color.TRANSPARENT
+                            }
+                        )
                     }
                     button.scaleType = ImageView.ScaleType.CENTER_INSIDE
                     button.adjustViewBounds = true
-                    button.layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
+                    button.layoutParams = ViewGroup.LayoutParams(size, size)
                     button.isClickable = false
                     button.isFocusable = false
-                    button.setBackgroundColor(android.graphics.Color.TRANSPARENT)
                     return button
                 }
             }
@@ -367,3 +379,4 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         view.setText(spannableString, TextView.BufferType.SPANNABLE)
     }
 }
+
