@@ -257,6 +257,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "type" to wrapString("bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
+            "customIcon" to wrapString(bookmark.customIcon)
         )
     }
 }
@@ -294,6 +295,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "type" to wrapString("generic-bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to bookmark.wholeVerse.toString(),
+            "customIcon" to wrapString(bookmark.customIcon)
         )
     }
 }
@@ -308,6 +310,7 @@ data class ClientBookmarkStyle(
     val markerStyleWholeVerse: Boolean,
     val hideStyle: Boolean,
     val hideStyleWholeVerse: Boolean,
+    val customIcon: String?
 )
 
 @Serializable
@@ -329,6 +332,7 @@ data class ClientBookmarkLabel(
             markerStyleWholeVerse = label.markerStyleWholeVerse,
             hideStyle = label.hideStyle,
             hideStyleWholeVerse = label.hideStyleWholeVerse,
+            customIcon = label.customIcon
         ),
         !label.isSpecialLabel && !label.new
     )

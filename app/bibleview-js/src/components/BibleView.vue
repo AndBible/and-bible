@@ -546,7 +546,7 @@ a {
 
 .bookmark-marker {
   @extend .superscript;
-  font-size: 50%;
+  font-size: 60%;
   top: -0.8em;
   cursor: pointer;
 }
