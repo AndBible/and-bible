@@ -55,22 +55,23 @@ import net.bible.service.db.exportStudyPads
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+// Converted icons from FontAwesome via conversion script
 val customIconMap = mapOf(
     "star" to R.drawable.icon_star,
     "book" to R.drawable.icon_book,
     "flag" to R.drawable.icon_flag,
     "user" to R.drawable.icon_user,
-    "info" to R.drawable.icon_info,
-    "question" to R.drawable.icon_question,
+    "info" to R.drawable.icon_circle_info,
+    "question" to R.drawable.icon_circle_question,
+    "exclamation" to R.drawable.icon_circle_exclamation,
     "lightbulb" to R.drawable.icon_lightbulb,
     "bell" to R.drawable.icon_bell,
     "globe" to R.drawable.icon_globe,
     "clock" to R.drawable.icon_clock,
     "envelope" to R.drawable.icon_envelope,
-    "map-marker" to R.drawable.icon_map_marker,
+    "map-marker" to R.drawable.icon_location_dot,
     "link" to R.drawable.icon_link,
     "cross" to R.drawable.icon_cross,
-    "exclamation" to R.drawable.icon_exclamation,
     "church" to R.drawable.icon_church,
     "heart" to R.drawable.icon_heart,
     "heart-crack" to R.drawable.icon_heart_crack,

@@ -72,11 +72,12 @@ import {
     faMusic,
     faMicrophone,
     faLandmark,
-    faExclamationCircle
+    faExclamationCircle,
+    faClock, faCross
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
-    faClock
+    faClock as faRegularClock
 } from "@fortawesome/free-regular-svg-icons";
 
 export const speakIcon = icon(faHeadphones);
@@ -98,7 +99,7 @@ export const customIconMap = new Map<string, Icon>(
         ["envelope", icon(faEnvelope)],
         ["map-marker", icon(faMapMarkerAlt)],
         ["link", icon(faLink)],
-        ["cross", icon(faTimes)],
+        ["cross", icon(faCross)],
         ["exclamation", icon(faExclamationCircle)],
         ["church", icon(faChurch)],
         ["heart", icon(faHeart)],
@@ -184,7 +185,7 @@ export function useFontAwesome() {
         faHandPointer,
         faSave,
         faCheck,
-        faClock,
+        faRegularClock,
     );
 }
 
