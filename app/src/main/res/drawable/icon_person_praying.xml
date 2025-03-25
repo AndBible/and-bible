@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- Placeholder person praying icon -->
+    <path android:fillColor="#000000" android:pathData="M12,2a2,2 0 1,0 0,4a2,2 0 1,0 0,-4z M10,8h4l1,6h-6L10,8z"/>
+</vector>

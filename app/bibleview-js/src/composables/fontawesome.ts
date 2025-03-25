@@ -56,6 +56,23 @@ import {
     faTimes,
     faTrash,
     faUser,
+    faLink,
+    faChurch,
+    faHeartCrack,
+    faCrown,
+    faComment,
+    faKey,
+    faCalendar,
+    faBookBible,
+    faShareNodes,
+    faTag,
+    faStarOfDavid,
+    faHandshake,
+    faPersonPraying,
+    faMusic,
+    faMicrophone,
+    faLandmark,
+    faExclamationCircle
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -80,6 +97,26 @@ export const customIconMap = new Map<string, Icon>(
         ["clock", icon(faClock)],
         ["envelope", icon(faEnvelope)],
         ["map-marker", icon(faMapMarkerAlt)],
+        ["link", icon(faLink)],
+        ["cross", icon(faTimes)],
+        ["exclamation", icon(faExclamationCircle)],
+        ["church", icon(faChurch)],
+        ["heart", icon(faHeart)],
+        ["heart-crack", icon(faHeartCrack)],
+        ["crown", icon(faCrown)],
+        ["comment", icon(faComment)],
+        ["key", icon(faKey)],
+        ["calendar", icon(faCalendar)],
+        ["book-bible", icon(faBookBible)],
+        ["share-nodes", icon(faShareNodes)],
+        ["tag", icon(faTag)],
+        ["bookmark", icon(faBookmark)],
+        ["star-of-david", icon(faStarOfDavid)],
+        ["handshake", icon(faHandshake)],
+        ["person-praying", icon(faPersonPraying)],
+        ["music", icon(faMusic)],
+        ["microphone", icon(faMicrophone)],
+        ["landmark", icon(faLandmark)]
     ]
 );
 
@@ -150,3 +187,4 @@ export function useFontAwesome() {
         faClock,
     );
 }
+

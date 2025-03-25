@@ -16,7 +16,6 @@
  */
 package net.bible.android.view.activity.bookmark
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -29,8 +28,6 @@ import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.GridLayout
-import android.widget.GridLayout.LayoutParams
 import android.widget.GridView
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -71,6 +68,26 @@ val customIconMap = mapOf(
     "clock" to R.drawable.icon_clock,
     "envelope" to R.drawable.icon_envelope,
     "map-marker" to R.drawable.icon_map_marker,
+    "link" to R.drawable.icon_link,
+    "cross" to R.drawable.icon_cross,
+    "exclamation" to R.drawable.icon_exclamation,
+    "church" to R.drawable.icon_church,
+    "heart" to R.drawable.icon_heart,
+    "heart-crack" to R.drawable.icon_heart_crack,
+    "crown" to R.drawable.icon_crown,
+    "comment" to R.drawable.icon_comment,
+    "key" to R.drawable.icon_key,
+    "calendar" to R.drawable.icon_calendar,
+    "book-bible" to R.drawable.icon_book_bible,
+    "share-nodes" to R.drawable.icon_share_nodes,
+    "tag" to R.drawable.icon_tag,
+    "bookmark" to R.drawable.icon_bookmark,
+    "star-of-david" to R.drawable.icon_star_of_david,
+    "handshake" to R.drawable.icon_handshake,
+    "person-praying" to R.drawable.icon_person_praying,
+    "music" to R.drawable.icon_music,
+    "microphone" to R.drawable.icon_microphone,
+    "landmark" to R.drawable.icon_landmark
 )
 
 @ActivityScope
