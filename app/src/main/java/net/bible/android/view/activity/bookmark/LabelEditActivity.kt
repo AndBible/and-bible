@@ -37,6 +37,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.lifecycleScope
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
@@ -48,6 +49,7 @@ import net.bible.android.activity.databinding.BookmarkLabelEditBinding
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.displayName
@@ -206,12 +208,15 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             val drawableId = customIconMap[iconName] ?: R.drawable.ic_baseline_bookmark_24
             val rawDrawable = ContextCompat.getDrawable(root.context, drawableId)
             val drawable = rawDrawable?.let {
-                val mutated = androidx.core.graphics.drawable.DrawableCompat.wrap(it).mutate()
-                androidx.core.graphics.drawable.DrawableCompat.setTint(mutated, data.label.color)
+                val mutated = DrawableCompat.wrap(it).mutate()
+                DrawableCompat.setTint(mutated,
+                    if (iconName == null) CommonUtils.getResourceColor(R.color.grey_500)
+                    else data.label.color
+                )
                 mutated
             }
             customIconSelector.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
-            customIconSelector.text = getString(R.string.choose_icon)
+            customIconSelector.text = getString(R.string.select_custom_icon)
         }
         selectedLabelCheckBox.isChecked = data.isThisBookmarkSelected
         primaryLabelCheckBox.isEnabled = data.isThisBookmarkSelected
@@ -297,7 +302,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun editCustomIcon() {
-        val iconNames = customIconMap.keys.toList() + listOf(getString(R.string.no_custom_icon))
+        val iconNames = customIconMap.keys.toList()
         val gridView = GridView(this).apply {
             numColumns = GridView.AUTO_FIT
             columnWidth = (80 * resources.displayMetrics.density).toInt()
@@ -307,13 +312,12 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             val paddingPx = (16 * resources.displayMetrics.density).toInt()
             setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
             adapter = object : BaseAdapter() {
-                override fun getCount() = iconNames.size
+                override fun getCount() = iconNames.size + 1
                 override fun getItem(position: Int) = iconNames[position]
                 override fun getItemId(position: Int) = position.toLong()
                 override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
                     val button = convertView as? ImageButton ?: ImageButton(this@LabelEditActivity)
                     if (position == count - 1) {
-                        // Last item: "No custom icon" option.
                         val drawable = ContextCompat.getDrawable(context, R.drawable.icon_disabled)
                         button.setImageDrawable(drawable)
                     } else {

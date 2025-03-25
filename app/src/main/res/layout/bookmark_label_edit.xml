@@ -85,7 +85,7 @@
             android:id="@+id/customIconSelector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/choose_icon"
+            android:text="@string/select_custom_icon"
             android:background="?attr/selectableItemBackground"
             style="@style/CustomIconButton"
             app:layout_constraintStart_toStartOf="parent"
