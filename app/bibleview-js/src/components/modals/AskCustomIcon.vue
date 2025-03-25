@@ -28,10 +28,10 @@
 import { ref } from "vue";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { customIconMap } from "@/composables/bookmarks";
 import { Deferred } from "@/utils";
 import { useCommon } from "@/composables";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
+import {customIconMap} from "@/composables/fontawesome";
 
 const { strings } = useCommon();
 
