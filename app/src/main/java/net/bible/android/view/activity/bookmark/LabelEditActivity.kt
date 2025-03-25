@@ -59,7 +59,6 @@ import kotlin.coroutines.suspendCoroutine
 val customIconMap = mapOf(
     // Religious / Spiritual
     "book" to R.drawable.icon_book,
-    "bookmark" to R.drawable.icon_bookmark,
     "book-bible" to R.drawable.icon_book_bible,
     "cross" to R.drawable.icon_cross,
     "church" to R.drawable.icon_church,

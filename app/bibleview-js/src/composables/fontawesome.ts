@@ -88,7 +88,6 @@ export const customIconMap = new Map<string, Icon>(
     [
         // Religious / Spiritual
         ["book", icon(faBook)],
-        ["bookmark", icon(faBookmark)],
         ["book-bible", icon(faBookBible)],
         ["cross", icon(faCross)],
         ["church", icon(faChurch)],
