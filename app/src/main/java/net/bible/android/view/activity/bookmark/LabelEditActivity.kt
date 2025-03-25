@@ -227,7 +227,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
         val resultIntent = Intent()
         resultIntent.putExtra("data", data.toJSON())
-        setResult(Activity.RESULT_OK, resultIntent)
+        setResult(RESULT_OK, resultIntent)
         finish()
     }
 
@@ -249,7 +249,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
                 val resultIntent = Intent()
                 resultIntent.putExtra("data", data.toJSON())
-                setResult(Activity.RESULT_OK, resultIntent)
+                setResult(RESULT_OK, resultIntent)
                 finish()
             }
         }
@@ -297,7 +297,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun editCustomIcon() {
-        // Move "No custom icon" to the end of the list.
         val iconNames = customIconMap.keys.toList() + listOf(getString(R.string.no_custom_icon))
         val gridView = GridView(this).apply {
             numColumns = GridView.AUTO_FIT
@@ -337,9 +336,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             }
         }
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Choose custom icon")
+            .setTitle(R.string.select_custom_icon)
             .setView(gridView)
-            .setNegativeButton("Cancel") { d, _ -> d.dismiss() }
+            .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
             .create()
         gridView.setOnItemClickListener { _, _, position, _ ->
             data.label.customIcon = if (position == gridView.adapter.count - 1) null else iconNames[position]

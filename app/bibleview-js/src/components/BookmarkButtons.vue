@@ -106,7 +106,7 @@ import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey} from "@/types/constants";
 import {ColorParam} from "@/types/common";
 import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
-import {isBibleBookmark, resolveIcon} from "@/composables/bookmarks";
+import {isBibleBookmark} from "@/composables/bookmarks";
 import {faIcons} from "@fortawesome/free-solid-svg-icons";
 
 const props = withDefaults(defineProps<{

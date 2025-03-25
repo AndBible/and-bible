@@ -27,24 +27,7 @@ import {
 } from "@/utils";
 import {setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
-import {
-    faBookmark,
-    faEdit,
-    faHeadphones,
-    faStar,
-    faBook,
-    faLightbulb,
-    faFlag,
-    faInfoCircle,
-    faQuestionCircle,
-    faBell,
-    faGlobe,
-    faClock,
-    faUser,
-    faEnvelope,
-    faMapMarkerAlt,
-} from "@fortawesome/free-solid-svg-icons";
-import {Icon, icon} from "@fortawesome/fontawesome-svg-core";
+import {Icon} from "@fortawesome/fontawesome-svg-core";
 import {AppSettings, Config, testMode} from "@/composables/config";
 import {
     BaseBookmark,
@@ -62,6 +45,7 @@ import {
 } from "@/types/client-objects";
 import {ColorParam} from "@/types/common";
 import Color from "color";
+import {bookmarkIcon, customIconMap, editIcon, speakIcon} from "@/composables/fontawesome";
 
 type LabelId = IdType
 type LabelCountMap = Map<LabelId, number>
@@ -79,27 +63,6 @@ type StyleRange = {
 }
 
 type LabelAndId = { id: IdType, label: LabelAndStyle }
-
-const speakIcon = icon(faHeadphones);
-const editIcon = icon(faEdit);
-const bookmarkIcon = icon(faBookmark);
-
-export const customIconMap = new Map<string, Icon>(
-    [
-        ["star", icon(faStar)],
-        ["book", icon(faBook)],
-        ["flag", icon(faFlag)],
-        ["user", icon(faUser)],
-        ["info", icon(faInfoCircle)],
-        ["question", icon(faQuestionCircle)],
-        ["lightbulb", icon(faLightbulb)],
-        ["bell", icon(faBell)],
-        ["globe", icon(faGlobe)],
-        ["clock", icon(faClock)],
-        ["envelope", icon(faEnvelope)],
-        ["map-marker", icon(faMapMarkerAlt)],
-    ]
-);
 
 export function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle, defaultIcon: Icon = bookmarkIcon): Icon {
     if (bookmark.customIcon != null) {

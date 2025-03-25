@@ -15,26 +15,33 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {IconDefinition, library} from "@fortawesome/fontawesome-svg-core";
+import {Icon, icon, IconDefinition, library} from "@fortawesome/fontawesome-svg-core";
 import {
     faArrowsAltV,
+    faBell,
+    faBook,
     faBookmark,
     faCheck,
     faChevronCircleDown,
     faCompressArrowsAlt,
     faEdit,
     faEllipsisH,
+    faEnvelope,
     faExpandArrowsAlt,
     faEye,
     faEyeSlash,
     faFileAlt,
     faFireAlt,
+    faFlag,
+    faGlobe,
     faHandPointer,
     faHeadphones,
     faHeart,
     faHistory,
     faIndent,
     faInfoCircle,
+    faLightbulb,
+    faMapMarkerAlt,
     faOutdent,
     faPenSquare,
     faPlus,
@@ -43,15 +50,39 @@ import {
     faSave,
     faShareAlt,
     faSort,
+    faStar,
     faTags,
     faTextWidth,
     faTimes,
     faTrash,
+    faUser,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
     faClock
 } from "@fortawesome/free-regular-svg-icons";
+
+export const speakIcon = icon(faHeadphones);
+export const editIcon = icon(faEdit);
+export const bookmarkIcon = icon(faBookmark);
+
+export const customIconMap = new Map<string, Icon>(
+    [
+        ["star", icon(faStar)],
+        ["book", icon(faBook)],
+        ["flag", icon(faFlag)],
+        ["user", icon(faUser)],
+        ["info", icon(faInfoCircle)],
+        ["question", icon(faQuestionCircle)],
+        ["lightbulb", icon(faLightbulb)],
+        ["bell", icon(faBell)],
+        ["globe", icon(faGlobe)],
+        ["clock", icon(faClock)],
+        ["envelope", icon(faEnvelope)],
+        ["map-marker", icon(faMapMarkerAlt)],
+    ]
+);
+
 
 export function useFontAwesome() {
     const customWholeVerseFalse: IconDefinition = {

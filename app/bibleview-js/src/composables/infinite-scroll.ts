@@ -21,7 +21,7 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {computed, nextTick, onMounted, watch} from "vue";
 import {filterNotNull, setupWindowEventListener} from "@/utils";
 import {UseAndroid} from "@/composables/android";
 import {AnyDocument, isOsisDocument} from "@/types/documents";
