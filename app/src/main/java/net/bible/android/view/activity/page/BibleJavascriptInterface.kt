@@ -480,6 +480,21 @@ class BibleJavascriptInterface(
         return bookmarkControl.toggleBookmarkLabel(bookmark, labelId)
     }
 
+    // New methods added to support custom icons as per android.ts
+    @JavascriptInterface
+    fun setBookmarkCustomIcon(bookmarkId: String, value: String?) {
+        val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId))!!
+        bookmark.customIcon = value
+        bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+    }
+
+    @JavascriptInterface
+    fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?) {
+        val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
+        bookmark.customIcon = value
+        bookmarkControl.addOrUpdateGenericBookmark(bookmark)
+    }
+
     @JavascriptInterface
     fun reportModalState(value: Boolean) {
         bibleView.modalOpen = value

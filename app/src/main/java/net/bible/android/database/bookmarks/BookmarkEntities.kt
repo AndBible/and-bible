@@ -112,6 +112,7 @@ class BookmarkEntities {
         var lastUpdatedOn: Date
         var wholeVerse: Boolean
         var playbackSettings: PlaybackSettings?
+        var customIcon: String?
     }
 
     interface BaseBookmarkNotes {
@@ -154,6 +155,7 @@ class BookmarkEntities {
         val highlightedText: String
 
         val speakBook: Book?
+        var customIcon: String?
 
         fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>)
     }
@@ -176,6 +178,8 @@ class BookmarkEntities {
         override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         override var wholeVerse: Boolean = false,
         var type: BookmarkType? = null,
+        override var customIcon: String? = null,
+
         @Ignore override var new: Boolean = false,
     ): VerseRangeUser, BaseBookmarkWithNotes {
         constructor(
@@ -195,6 +199,7 @@ class BookmarkEntities {
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
             wholeVerse: Boolean = true,
             type: BookmarkType? = null,
+            customIcon: String? = null,
         ): this(
             kjvOrdinalStart = kjvOrdinalStart,
             kjvOrdinalEnd = kjvOrdinalEnd,
@@ -212,6 +217,7 @@ class BookmarkEntities {
             lastUpdatedOn = lastUpdatedOn,
             wholeVerse = wholeVerse,
             type = type,
+            customIcon = customIcon,
             new = false,
         )
 
@@ -307,6 +313,7 @@ class BookmarkEntities {
             lastUpdatedOn,
             wholeVerse,
             type,
+            customIcon,
         )
         override val noteEntity get() = if(notes == null) null else BibleBookmarkNotes(id, notes!!)
     }
@@ -357,6 +364,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
+        @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,
     ): BaseBookmark
 
     @Entity(
@@ -400,6 +408,7 @@ class BookmarkEntities {
         override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         override var wholeVerse: Boolean = false,
         override var playbackSettings: PlaybackSettings?,
+        override var customIcon: String? = null,
         @Ignore override var new: Boolean = false,
     ): BaseBookmarkWithNotes {
         constructor(
@@ -416,6 +425,7 @@ class BookmarkEntities {
             wholeVerse: Boolean = false,
             playbackSettings: PlaybackSettings? = null,
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+            customIcon: String? = null,
         ): this(
             id = id,
             key = key,
@@ -430,6 +440,7 @@ class BookmarkEntities {
             lastUpdatedOn = lastUpdatedOn,
             wholeVerse = wholeVerse,
             playbackSettings = playbackSettings,
+            customIcon = customIcon,
             new = false
         )
         constructor(
@@ -445,6 +456,7 @@ class BookmarkEntities {
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
             wholeVerse: Boolean = false,
             playbackSettings: PlaybackSettings? = null,
+            customIcon: String? = null,
             new: Boolean = false
         ): this(
             id = id,
@@ -460,6 +472,7 @@ class BookmarkEntities {
             lastUpdatedOn = lastUpdatedOn,
             wholeVerse = wholeVerse,
             playbackSettings = playbackSettings,
+            customIcon = customIcon,
             new = new
         )
         
@@ -519,6 +532,7 @@ class BookmarkEntities {
             lastUpdatedOn = lastUpdatedOn,
             wholeVerse = wholeVerse,
             playbackSettings = playbackSettings,
+            customIcon = customIcon,
         )
         override val noteEntity get() = if(notes == null) null else GenericBookmarkNotes(id, notes!!)
     }
@@ -554,6 +568,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") override var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
         override var playbackSettings: PlaybackSettings? = null,
+        @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,
     ): BaseBookmark
 
     @Entity(
@@ -634,6 +649,8 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") var hideStyleWholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "0") var favourite: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: LabelType? = null,
+        @ColumnInfo(defaultValue = "NULL") var customIcon: String? = null,
+
         @Ignore var new: Boolean = false
     ) {
         override fun toString() = name

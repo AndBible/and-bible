@@ -15,26 +15,33 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {IconDefinition, library} from "@fortawesome/fontawesome-svg-core";
+import {Icon, icon, IconDefinition, library} from "@fortawesome/fontawesome-svg-core";
 import {
     faArrowsAltV,
+    faBell,
+    faBook,
     faBookmark,
     faCheck,
     faChevronCircleDown,
     faCompressArrowsAlt,
     faEdit,
     faEllipsisH,
+    faEnvelope,
     faExpandArrowsAlt,
     faEye,
     faEyeSlash,
     faFileAlt,
     faFireAlt,
+    faFlag,
+    faGlobe,
     faHandPointer,
     faHeadphones,
     faHeart,
     faHistory,
     faIndent,
     faInfoCircle,
+    faLightbulb,
+    faMapMarkerAlt,
     faOutdent,
     faPenSquare,
     faPlus,
@@ -43,15 +50,85 @@ import {
     faSave,
     faShareAlt,
     faSort,
+    faStar,
     faTags,
     faTextWidth,
     faTimes,
     faTrash,
+    faUser,
+    faLink,
+    faChurch,
+    faHeartCrack,
+    faCrown,
+    faComment,
+    faKey,
+    faCalendar,
+    faBookBible,
+    faShareNodes,
+    faTag,
+    faStarOfDavid,
+    faHandshake,
+    faPersonPraying,
+    faMusic,
+    faMicrophone,
+    faLandmark,
+    faExclamationCircle,
+    faClock, faCross
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
-    faClock
+    faClock as faRegularClock
 } from "@fortawesome/free-regular-svg-icons";
+
+export const speakIcon = icon(faHeadphones);
+export const editIcon = icon(faEdit);
+export const bookmarkIcon = icon(faBookmark);
+
+export const customIconMap = new Map<string, Icon>(
+    [
+        // Religious / Spiritual
+        ["book", icon(faBook)],
+        ["book-bible", icon(faBookBible)],
+        ["cross", icon(faCross)],
+        ["church", icon(faChurch)],
+        ["star-of-david", icon(faStarOfDavid)],
+        ["person-praying", icon(faPersonPraying)],
+
+        // Informational / Symbolic
+        ["info", icon(faInfoCircle)],
+        ["question", icon(faQuestionCircle)],
+        ["exclamation", icon(faExclamationCircle)],
+        ["lightbulb", icon(faLightbulb)],
+        ["bell", icon(faBell)],
+        ["flag", icon(faFlag)],
+        ["star", icon(faStar)],
+        ["tag", icon(faTag)],
+
+        // Communication / Social
+        ["envelope", icon(faEnvelope)],
+        ["comment", icon(faComment)],
+        ["share-nodes", icon(faShareNodes)],
+        ["link", icon(faLink)],
+        ["handshake", icon(faHandshake)],
+
+        // Time & Location
+        ["clock", icon(faClock)],
+        ["map-marker", icon(faMapMarkerAlt)],
+        ["globe", icon(faGlobe)],
+        ["landmark", icon(faLandmark)],
+        ["calendar", icon(faCalendar)],
+
+        // People & Media / Miscellaneous
+        ["user", icon(faUser)],
+        ["music", icon(faMusic)],
+        ["microphone", icon(faMicrophone)],
+        ["key", icon(faKey)],
+        ["crown", icon(faCrown)],
+        ["heart", icon(faHeart)],
+        ["heart-crack", icon(faHeartCrack)]
+    ]
+);
+
 
 export function useFontAwesome() {
     const customWholeVerseFalse: IconDefinition = {
@@ -116,6 +193,6 @@ export function useFontAwesome() {
         faHandPointer,
         faSave,
         faCheck,
-        faClock,
+        faRegularClock,
     );
 }
