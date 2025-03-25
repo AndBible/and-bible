@@ -63,8 +63,7 @@ fun getGitDescribe(): String  = ByteArrayOutputStream().use { stdout ->
     return stdout.toString().trim()
 }
 
-val npmVersion = "10"
-
+val npmVersion = "11"
 val npmUpgrade by tasks.registering(Exec::class) {
     inputs.file("$jsDir/package.json")
     outputs.file("$jsDir/node_modules/.bin/npm")
@@ -480,3 +479,4 @@ afterEvaluate {
         true
     }
 }
+
