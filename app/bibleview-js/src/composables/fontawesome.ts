@@ -86,38 +86,47 @@ export const bookmarkIcon = icon(faBookmark);
 
 export const customIconMap = new Map<string, Icon>(
     [
-        ["star", icon(faStar)],
+        // Religious / Spiritual
         ["book", icon(faBook)],
-        ["flag", icon(faFlag)],
-        ["user", icon(faUser)],
+        ["bookmark", icon(faBookmark)],
+        ["book-bible", icon(faBookBible)],
+        ["cross", icon(faCross)],
+        ["church", icon(faChurch)],
+        ["star-of-david", icon(faStarOfDavid)],
+        ["person-praying", icon(faPersonPraying)],
+
+        // Informational / Symbolic
         ["info", icon(faInfoCircle)],
         ["question", icon(faQuestionCircle)],
+        ["exclamation", icon(faExclamationCircle)],
         ["lightbulb", icon(faLightbulb)],
         ["bell", icon(faBell)],
-        ["globe", icon(faGlobe)],
-        ["clock", icon(faClock)],
-        ["envelope", icon(faEnvelope)],
-        ["map-marker", icon(faMapMarkerAlt)],
-        ["link", icon(faLink)],
-        ["cross", icon(faCross)],
-        ["exclamation", icon(faExclamationCircle)],
-        ["church", icon(faChurch)],
-        ["heart", icon(faHeart)],
-        ["heart-crack", icon(faHeartCrack)],
-        ["crown", icon(faCrown)],
-        ["comment", icon(faComment)],
-        ["key", icon(faKey)],
-        ["calendar", icon(faCalendar)],
-        ["book-bible", icon(faBookBible)],
-        ["share-nodes", icon(faShareNodes)],
+        ["flag", icon(faFlag)],
+        ["star", icon(faStar)],
         ["tag", icon(faTag)],
-        ["bookmark", icon(faBookmark)],
-        ["star-of-david", icon(faStarOfDavid)],
+
+        // Communication / Social
+        ["envelope", icon(faEnvelope)],
+        ["comment", icon(faComment)],
+        ["share-nodes", icon(faShareNodes)],
+        ["link", icon(faLink)],
         ["handshake", icon(faHandshake)],
-        ["person-praying", icon(faPersonPraying)],
+
+        // Time & Location
+        ["clock", icon(faClock)],
+        ["map-marker", icon(faMapMarkerAlt)],
+        ["globe", icon(faGlobe)],
+        ["landmark", icon(faLandmark)],
+        ["calendar", icon(faCalendar)],
+
+        // People & Media / Miscellaneous
+        ["user", icon(faUser)],
         ["music", icon(faMusic)],
         ["microphone", icon(faMicrophone)],
-        ["landmark", icon(faLandmark)]
+        ["key", icon(faKey)],
+        ["crown", icon(faCrown)],
+        ["heart", icon(faHeart)],
+        ["heart-crack", icon(faHeartCrack)]
     ]
 );
 
@@ -188,4 +197,3 @@ export function useFontAwesome() {
         faRegularClock,
     );
 }
-

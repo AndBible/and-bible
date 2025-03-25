@@ -55,40 +55,49 @@ import net.bible.service.db.exportStudyPads
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-// Converted icons from FontAwesome via conversion script
+// Reordered customIconMap with logical categories
 val customIconMap = mapOf(
-    "star" to R.drawable.icon_star,
+    // Religious / Spiritual
     "book" to R.drawable.icon_book,
-    "flag" to R.drawable.icon_flag,
-    "user" to R.drawable.icon_user,
+    "bookmark" to R.drawable.icon_bookmark,
+    "book-bible" to R.drawable.icon_book_bible,
+    "cross" to R.drawable.icon_cross,
+    "church" to R.drawable.icon_church,
+    "star-of-david" to R.drawable.icon_star_of_david,
+    "person-praying" to R.drawable.icon_person_praying,
+
+    // Informational / Symbolic
     "info" to R.drawable.icon_circle_info,
     "question" to R.drawable.icon_circle_question,
     "exclamation" to R.drawable.icon_circle_exclamation,
     "lightbulb" to R.drawable.icon_lightbulb,
     "bell" to R.drawable.icon_bell,
-    "globe" to R.drawable.icon_globe,
-    "clock" to R.drawable.icon_clock,
-    "envelope" to R.drawable.icon_envelope,
-    "map-marker" to R.drawable.icon_location_dot,
-    "link" to R.drawable.icon_link,
-    "cross" to R.drawable.icon_cross,
-    "church" to R.drawable.icon_church,
-    "heart" to R.drawable.icon_heart,
-    "heart-crack" to R.drawable.icon_heart_crack,
-    "crown" to R.drawable.icon_crown,
-    "comment" to R.drawable.icon_comment,
-    "key" to R.drawable.icon_key,
-    "calendar" to R.drawable.icon_calendar,
-    "book-bible" to R.drawable.icon_book_bible,
-    "share-nodes" to R.drawable.icon_share_nodes,
+    "flag" to R.drawable.icon_flag,
+    "star" to R.drawable.icon_star,
     "tag" to R.drawable.icon_tag,
-    "bookmark" to R.drawable.icon_bookmark,
-    "star-of-david" to R.drawable.icon_star_of_david,
+
+    // Communication / Social
+    "envelope" to R.drawable.icon_envelope,
+    "comment" to R.drawable.icon_comment,
+    "share-nodes" to R.drawable.icon_share_nodes,
+    "link" to R.drawable.icon_link,
     "handshake" to R.drawable.icon_handshake,
-    "person-praying" to R.drawable.icon_person_praying,
+
+    // Time & Location
+    "clock" to R.drawable.icon_clock,
+    "map-marker" to R.drawable.icon_location_dot,
+    "globe" to R.drawable.icon_globe,
+    "landmark" to R.drawable.icon_landmark,
+    "calendar" to R.drawable.icon_calendar,
+
+    // People & Media / Miscellaneous
+    "user" to R.drawable.icon_user,
     "music" to R.drawable.icon_music,
     "microphone" to R.drawable.icon_microphone,
-    "landmark" to R.drawable.icon_landmark
+    "key" to R.drawable.icon_key,
+    "crown" to R.drawable.icon_crown,
+    "heart" to R.drawable.icon_heart,
+    "heart-crack" to R.drawable.icon_heart_crack
 )
 
 @ActivityScope
