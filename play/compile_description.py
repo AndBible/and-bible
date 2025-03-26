@@ -30,6 +30,8 @@ title_template = jinja2.Template("{{title}}")
 
 def render(filename, template=full_description_template, skip_issues=False):
     description = yaml.load(open(filename).read(), yaml.SafeLoader)
+    # Remove empty values from description
+    description = {k: v for k, v in description.items() if not (v.strip() == "")}
 
     variables = dict()
     variables.update(english_description)
@@ -54,8 +56,18 @@ def give_path(lang, path="../fastlane/metadata/android/", txt_file="full_descrip
     return os.path.join(dir_path, f"{path}{lang}/{txt_file}")
 
 
-en_US_yml = os.path.join(dir_path,"playstore-description.yml")
+en_US_yml = os.path.join(dir_path, "playstore-description.yml")
 english_description = yaml.load(open(en_US_yml).read(), yaml.SafeLoader)
+
+# Use en-US from translation_folder to override english texts if available
+translation_folder = os.path.join(dir_path, "description-translations")
+en_US_fixes_yml = os.path.join(translation_folder, "en-US.yml")
+
+translation_fixes = yaml.load(open(en_US_fixes_yml).read(), yaml.SafeLoader)
+translation_fixes = {k: v for k, v in translation_fixes.items() if not (v.strip() == "")}
+
+english_description.update(translation_fixes)
+
 with open(give_path("en-US"), "w") as f:
     f.write(render(en_US_yml))
 
@@ -71,7 +83,7 @@ with open(give_path("en-US", txt_file="short_description.txt"), "w") as f:
 #with open(os.path.join(dir_path, "../../homepage/index.html"), "w") as f:
 #    f.write(render(os.path.join(dir_path,"playstore-description.yml"), homepage_template, skip_issues=True))
 
-translation_folder = os.path.join(dir_path, "description-translations")
+
 matcher = re.compile(r"^([a-zA-Z-]+)\.yml$")
 for ymlfile in os.listdir(translation_folder):
     lang = matcher.match(ymlfile).group(1)
