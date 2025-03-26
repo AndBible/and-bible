@@ -20,7 +20,7 @@
  * 설교를 들으면서 노트를 적거나 성경 참조를 넣을 수 있는 스터디 패드.
  * 읽기 계획: 성경 읽기의 목표를 정하세요
  * 방대한 문서 라이브러리: 성경 번역본, 신학 주석, 사전, 지도, 기독교 서적, 모두 () 개 이상의 언어로 된 (1500) 이상의 자료들이 Crosswire와 다른 SWORD 저장소로부터 합법적으로 제공됨.
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more
 
 최고의 성경 앱을 함께 만들어요!
 
@@ -33,11 +33,11 @@ And Bible은 오픈소스 커뮤니티 프로젝트입니다. 사실 이것은 �
 
 만약 개발자 또는 테스터시라면, 프로젝트에 도움을 주는 것을 고려해 주세요. 어떻게 기여할 수 있는지 알아보시려면, https://git.io/JUnaj 을 참고해 주세요.
 
-Support by buying development time!
+Support by sponsoring development time!
 
-If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+If you don't have time or skills for code contribution, you can support AndBible by sponsoring development time.
 
-See options: https://shop.andbible.org/
+See sponsorship options here:: https://shop.andbible.org/
 
 링크
 

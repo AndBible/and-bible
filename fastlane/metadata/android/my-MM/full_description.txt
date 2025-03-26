@@ -20,7 +20,7 @@
  * တရားဟောချက်များနားထောင်နေစဉ်အတွင်း မှတ်စုများနှင့် ကျမ်းစာကိုးကားချက်များကို ပေါင်းထည့်ရန် လေ့လာရေးစာရွက်
  * ဖတ်စာအစီအစဉ်များ: ကျမ်းစာဖတ်ရှုခြင်းအတွက် ရည်မှန်းချက်များ ထားရှိခြင်း
  * ကျယ်ဝန်းသည့် မှတ်တမ်းစာကြည့်တိုက်: ကျမ်းစာဘာသာပြန်များ၊ သီဩလော်ဂျီဆိုင်ရာ အနက်ဖွင့်ကျမ်းများ၊ အဘိဓာန်များ၊ မြေပုံများနှင့် ခရစ်ယာန် စာအုပ်များကို 1500 မှတ်တမ်းများတွင် 700 ဘာသာစကားများစွာဖြင့် Crosswire နှင့် အခြား SWORD သုတဘဏ်များမှ တရားဝင် ဖြန့်ဖြူးပါသည်။
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more
 
 <b>အကောင်းဆုံးကျမ်းစာအက်ပ်ကို အတူတစ်ကွ လုပ်ဆောင်ကြရအောင်။</b>
 
@@ -33,11 +33,11 @@ And Bible သည် အခမဲ့လူထုအခြေပြုလုပ်
 
 သင်သည် ကျွမ်းကျင် ဆော့ဝဲလ်အင်ဂျင်နီယာ သို့မဟုတ် စမ်းသပ်သူဖြစ်လျှင် ကျေးဇူးပြုပြီး ဤလုပ်ငန်းကို ကူညီထောက်ပံ့ပေးရန် စဉ်းစားစေလိုပါသည်။ ကူညီထောက်ပံ့ရန် သတင်းအလက်ကို ပိုမိုသိရှိလိုပါလျှင် ကျေးဇူးပြုပြီး https://git.io/JUnaj ကို ကြည့်ပါ။
 
-<b>Support by buying development time!</b>
+<b>Support by sponsoring development time!</b>
 
-If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+If you don't have time or skills for code contribution, you can support AndBible by sponsoring development time.
 
-See options: https://shop.andbible.org/
+See sponsorship options here:: https://shop.andbible.org/
 
 <b>လင့်ခ်များ</b>
 
