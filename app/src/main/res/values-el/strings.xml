@@ -140,6 +140,7 @@
   <string name="prefs_display_customization_cat">Εμφάνιση &amp; αίσθηση</string>
   <string name="prefs_behavior_customization_cat">Συμπεριφορά εφαρμογής</string>
   <string name="prefs_margin_size_summary">Ρύθμιση αριστερού και δεξιού περιθωρίου της προβολής κειμένου. Επίσης μπορείτε να ρυθμίσετε το μέγιστο πλάτος κειμένου</string>
+  <string name="prefs_margin_size_summary_2">Συμβ: Πατώντας στο περιθώριο μπορείτε να μεταφερθείτε μια σελίδα πάνω/κάτω</string>
   <string name="prefs_text_colors_summary">Ρύθμιση κειμένου και χρωμάτων παρασκηνίου και εφέ θορύβου</string>
   <string name="text_display_settings_activity_title">Ρυθμίσεις εμφάνισης κειμένου</string>
   <string name="workspace_text_display_settings_title">Ρυθμίσεις κειμένου - %s</string>
@@ -1038,5 +1039,13 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 Αν δεν θέλετε να αναβαθμίσετε,παρακαλώ απενεργοποιήστε τις ¨Αυτόματες ενημερώσεις\" στο app store σας (Google Play / F-Droid κλπ)</string>
   <string name="dont_show">
 Μην δείξεις το μήνυμα αυτό ξανά</string>
+  <string name="pref_font_size_multiplier_title">Μεγέθυνση γραμματοσειράς</string>
+  <string name="pref_font_size_multiplier_summary_1">Μεγέθυνση γραμματοσειράς κατά αυτό το νούμερο</string>
+  <string name="pref_font_size_multiplier_summary_2">Χρήσιμο αν διαθέτετε συγχρονισμένη συσκευή που χρησιμοποιεί μεγαλύτερη γραμματοσειρά</string>
+  <string name="current_value">Τρέχουσα τιμή: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Ενέργεια χειρονομίας συρσίματος αριστερά / δεξιά</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Η χειρονομία συρσίματος δεξιά/αριστερά μπορεί να χρησιμοποιηθεί για μετάβαση στην επόμενη σελίδα / κεφάλαιο</string>
   <string name="prefs_swipe_mode_chapter">Κεφάλαιο</string>
+  <string name="prefs_swipe_mode_page">Σελίδα</string>
+  <string name="prefs_swipe_mode_none">Ανενεργή</string>
 </resources>

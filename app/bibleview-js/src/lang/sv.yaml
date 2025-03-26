@@ -1,8 +1,8 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Bokmärken
-bookmarksAndNotes: Bokmärken & anteckningar
-openMyNotes: Öppna mina anteckningar
-openStudyPad: Öppna i Study Pad (%s)
+bookmarksAndNotes: Bokmärken & egna anteckningar
+openMyNotes: Öppna i egna anteckingar
+openStudyPad: Öppna i studieblock (%s)
 noteText: Fotnoter (%s)
 noteTextWithoutType: Fotnoter
 crossReferenceText: Korshänvisningar
@@ -10,7 +10,7 @@ findAllOccurrences: Hitta alla förekomster
 reportError: Rapporera ett problem
 errorTitle: Problem uppstod
 warningTitle: Varning
-normalTitle: Vänligen notera
+normalTitle: Observera
 footnoteTypeStudy: Studera
 footnoteTypeExplanation: Förklarning
 footnoteTypeVariant: Variant
@@ -21,8 +21,8 @@ editTextPlaceholder: Tryck för att ändra texten
 inputPlaceholder: Skriv här
 inputReference: Skriv Bibel referensen
 invalidReference: Versen hittades inte
-bookmarkAccurate: Bokmärket var skapat %s
-bookmarkInaccurate: ""
+bookmarkAccurate: Bokmärket skapades i %s
+bookmarkInaccurate: "Bokmärkets bokinformation har inte sparats, innehållet visas i %s"
 defaultBook: standard Bibel dokument
 ok: OK
 yes: "Ja"
@@ -30,34 +30,35 @@ ambiguousSelection: "Vilken åtgärd vill du ta?"
 cancel: Avbryt
 removeBookmarkConfirmationTitle: Radera bokmärke
 removeBookmarkConfirmation: "Är du säker på att du vill radera detta bokmärke?"
-createdAt: "Skapad: %s"
+createdAt: "Skapat: %s"
 lastUpdatedOn: "Senast uppdaterad: %s"
 strongsAndMorph: Definition & Morfologi
 externalLink: Öppna extern länk
 referenceLink: Öppna referens länk
 openFootnote: Öppna fotnot
-noMyNotesTitle: Inga Mina Anteckningar för denna kapitel.
+noMyNotesTitle: Inga egna anteckningar för detta kapitel.
 noMyNotesDescription: >
   Kom igång genom att skapa bokmärken i ett Bibeldokument. Bokmärkena kommer sedan att visas här och du kan lägga till dina personliga anteckningar till dem.
 emptyStudyPad: >
-doYouWantToDeleteEntry: ""
-removeStudyPadConfirmationTitle: ""
-dragHelp: ""
+  Tomt studieblock. Börja bygga upp studieblocket genom att skapa textobjekt här eller genom att skapa bokmärken med en bokmärkesetikett som hör till detta studieblock.
+doYouWantToDeleteEntry: "Radera detta objekt i studieblocket?"
+removeStudyPadConfirmationTitle: "Radera objekt i studieblocket?"
+dragHelp: Dra för att ordna om
 openAll: Öppna alla referenser
-editBookmarkPlaceholder: ""
-onlyLabel: ""
+editBookmarkPlaceholder: Tryck för att redigera egna anteckningar för detta bokmärke.
+onlyLabel: Endast etikett
 wholeBookmark: Hela bokmärket
-assignLabelsMenuEntry1: ""
-favouriteLabels: ""
-recentLabels: ""
-bookmarkLabels: ""
+assignLabelsMenuEntry1: Välj eller redigera etiketter...
+favouriteLabels: Favoritmarkerade etiketter
+recentLabels: Senaste etiketter
+bookmarkLabels: Bokmärkesetiketter
 refParserHelp: Vänligen installera modulen %s för att använda referenser i andra språk än engelska.
 openDownloads: Gå till Tillägg nerladdningar
 verseShare: Dela
 verseSpeak: Läs upp
-verseCompare: Jämföra
+verseCompare: Jämför
 verseNote: Anteckning
-verseMyNotes: Anteckningar
+verseMyNotes: Egna anteckningar
 verseShareLong: Dela denna vers
 verseCompareLong: Jämför denna vers
 verseNoteLong: Skriv en anteckning

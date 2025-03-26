@@ -980,7 +980,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="cloud_fetch_and_restore_initial">Copia dal Cloud a questo dispositivo</string>
   <string name="cloud_create_new">Copia da questo dispositivo al Cloud</string>
   <string name="cloud_disable_sync">Annulla &amp; disattiva la sincronizzazione</string>
-  <string name="cloud_sync_title">Sincronizzazione dispositivo</string>
+  <string name="cloud_sync_title">Sincronizza dispositivo</string>
   <string name="reset_sync">Esci</string>
   <string name="prefs_reset_sync_summary">Disattiva la sincronizzazione e ripristina le relative impostazioni.</string>
   <string name="sync_confirmation">Sei sicuro di voler uscire e ripristinare le impostazioni di sincronizzazione?</string>
