@@ -140,6 +140,7 @@
   <string name="prefs_display_customization_cat">Look &amp; feel</string>
   <string name="prefs_behavior_customization_cat">Verhalten der Anwendung</string>
   <string name="prefs_margin_size_summary">Die Breite des linken und rechten Textrandes sowie die maximale Textbreite können hier eingestellt werden.</string>
+  <string name="prefs_margin_size_summary_2">Du kannst den Randbereich antippen, um nach oben oder unten zu blättern.</string>
   <string name="prefs_text_colors_summary">Einstellungen für Schrift und Hintergrundfarben sowie den Noise-Effekt</string>
   <string name="text_display_settings_activity_title">Anzeigeeinstellungen für die Schrift</string>
   <string name="workspace_text_display_settings_title">Textoptionen - %s</string>
@@ -1019,5 +1020,13 @@ Es wird keine Fehlerbehebungen oder Updates mehr erhalten.</string>
 Wenn du nicht updaten möchtest, deaktiviere bitte die automatische Aktualisierung in deinem App-Store (Google Play, F-Droid etc.).</string>
   <string name="dont_show">
 Diese Nachricht nicht mehr anzeigen</string>
+  <string name="pref_font_size_multiplier_title">Schriftgrößenvervielfachung</string>
+  <string name="pref_font_size_multiplier_summary_1">Vergrößere Schriftgrößen um diesen Faktor.</string>
+  <string name="pref_font_size_multiplier_summary_2">Hilfreich, wenn du ein anderes, synchronisiertes Gerät besitzt, das eine größere Schriftgröße benutzt.</string>
+  <string name="current_value">Derzeitiger Wert: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Aktion beim Wischen nach rechts</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Das Wischen nach rechts kann verwendet werden, um zur nächsten Seite oder Kapitel zu gelangen.</string>
   <string name="prefs_swipe_mode_chapter">Kapitel</string>
+  <string name="prefs_swipe_mode_page">Seite</string>
+  <string name="prefs_swipe_mode_none">Deaktiviert</string>
 </resources>
