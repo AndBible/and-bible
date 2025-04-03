@@ -19,8 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="855"
-    android:versionName="5.0.855">
+    android:versionCode="856"
+    android:versionName="5.0.856">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" android:minSdkVersion="24"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
