@@ -647,6 +647,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="workspace_listing_with_current">%s (corrente)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Questa è la versione beta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate del tutto, e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti o bug. Si consiglia ai normali lettori di utilizzare la versione stabile.</string>
   <string name="beta_notice_content_2">
@@ -991,6 +992,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Autenticazione a %s</string>
+  <string name="auth_server_uri">URL del server</string>
   <string name="auth_username">Nome utente</string>
   <string name="auth_password">Password</string>
   <string name="auth_access_token">Token di accesso</string>
@@ -1055,4 +1057,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="prefs_swipe_mode_chapter">Capitolo</string>
   <string name="prefs_swipe_mode_page">Pagina</string>
   <string name="prefs_swipe_mode_none">Disabilitato</string>
+  <string name="page_number_title">Numero di pagina relativo</string>
+  <string name="page_number_summary">Mostra il numero di pagina in sovraimpressione. Il numero di pagina è relativo alla posizione iniziale.</string>
+  <string name="select_custom_icon">Scegli icona per l\'evidenziazione</string>
 </resources>

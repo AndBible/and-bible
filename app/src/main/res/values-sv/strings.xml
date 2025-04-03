@@ -381,8 +381,8 @@ i GT och NT varje dag.
   <string name="label_color">Etikettfärg</string>
   <!--can be removed-->
   <string name="label_color_example">Exempel</string>
-  <string name="marker_style">Visa endast symbol vid markeringsbokmärken</string>
-  <string name="marker_style_whole_verse">Visa endast symbol vid versbokmärken</string>
+  <string name="marker_style">Visa endast ikon vid markeringsbokmärken</string>
+  <string name="marker_style_whole_verse">Visa endast ikon vid versbokmärken</string>
   <string name="hide_style">Dölj för markeringsbokmärken</string>
   <string name="hide_style_whole_verse">Dölj för versbokmärken</string>
   <string name="bookmark_warning">Det finns bokmärken och/eller anteckningar till detta dokument</string>
@@ -682,6 +682,7 @@ i GT och NT varje dag.
   <string name="workspace_listing_with_current">%s (nuvarande)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Detta är en beta version!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         I betaversionen finns det nya funktioner som inte ännu testats tillräckligt,
         och därför kan betan ge upphov till oväntat beteende, dvs. buggar.
@@ -1050,6 +1051,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="auth_title">Autentisering till %s</string>
+  <string name="auth_server_uri">Serverns URL</string>
   <string name="auth_username">Användarnamn</string>
   <string name="auth_password">Lösenord</string>
   <string name="auth_access_token">Access token</string>
@@ -1114,4 +1116,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="prefs_swipe_mode_chapter">Kapitel</string>
   <string name="prefs_swipe_mode_page">Sida</string>
   <string name="prefs_swipe_mode_none">Inaktiverad</string>
+  <string name="page_number_title">Relativt sidnummer</string>
+  <string name="page_number_summary">Visa sidnummer. Sidnumret är relativt till startpositionen.</string>
+  <string name="select_custom_icon">Välj en anpassad ikon</string>
 </resources>

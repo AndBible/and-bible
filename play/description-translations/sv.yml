@@ -6,7 +6,7 @@ short_description: Läs Bibeln offline samt studera kommentarer och uppslagsverk
 subtitle_1: Kraftfullt bibelstudieverktyg
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  "{{ title }}" är en kraftfull, men samtidigt lättanvänd, bibelstudieapp för Android. Appen fungerar även offline. Dess mål är inte att bara vara en bibelläsare, utan att vara ett avancerat verktyg för ingående personliga studier av Bibeln.
+  "{{ title }}" är en kraftfull, men samtidigt lättanvänd, bibelstudieapp för Android. Appen fungerar även offline. Dess mål är inte att bara vara en enkel bibelläsningsapp, utan att vara ett avancerat verktyg för ingående personliga studier av Bibeln.
 paragraph_1_2: >
   Appen är utvecklad av bibelläsare, för bibelläsare. Dess syfte är att göra dina bibelstudier smidigare, djupa och roliga. Det bästa med det här ideella gemenskapsprojektet är det har öppen källkod, är helt gratis och inte innehåller någon reklam.
 # You can also advertise here the best documents that are available in the app in your language.
