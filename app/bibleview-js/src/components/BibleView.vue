@@ -549,6 +549,12 @@ a {
   font-size: 60%;
   top: -0.8em;
   cursor: pointer;
+  > .bookmark-marker-note {
+    @extend .superscript;
+    font-size: 60%;
+    top: -0.5em;
+    padding-left: 2px;
+  }
 }
 
 .divider {
