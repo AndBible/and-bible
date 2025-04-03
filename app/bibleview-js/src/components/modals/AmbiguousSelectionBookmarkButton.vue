@@ -18,6 +18,9 @@
 <template>
   <div class="ambiguous-button" :style="buttonStyle" @click.stop="openBookmark(false)">
     <div class="verse-range one-liner">
+      <template v-if="customIcon">
+        <FontAwesomeIcon :icon="customIcon" size="xs" style="padding-inline-end: 5px"/>
+      </template>
       <template v-if="isBibleBookmark(bookmark)">
         {{ bookmark.verseRangeAbbreviated }}&nbsp;
       </template>
@@ -52,7 +55,7 @@ import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {globalBookmarksKey, locateTopKey} from "@/types/constants";
 import {BaseBookmark} from "@/types/client-objects";
-import {isBibleBookmark} from "@/composables/bookmarks";
+import {isBibleBookmark, resolveIcon} from "@/composables/bookmarks";
 
 const $emit = defineEmits(["selected"]);
 const props = defineProps<{ bookmarkId: IdType }>();
@@ -66,6 +69,8 @@ const primaryLabel = computed(() => {
     const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
     return bookmarkLabels.get(primaryLabelId)!;
 });
+
+const customIcon = computed(() => resolveIcon(bookmark.value, primaryLabel.value));
 
 const buttonStyle = computed<string|undefined>(() => {
     let color = Color(primaryLabel.value.color);
