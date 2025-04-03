@@ -182,6 +182,10 @@ fun addManuallyInstalledEpubBooks(): Boolean {
             Log.e(TAG, "addEpubBook catched IOException", e)
             f.deleteRecursively()
             ok = false
+        } catch (e: Exception) {
+            Log.e(TAG, "addEpubBook catched another exception", e)
+            f.deleteRecursively()
+            ok = false
         }
     }
     return ok
