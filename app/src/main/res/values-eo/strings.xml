@@ -46,7 +46,7 @@
   <string name="search_with_results2">%1s rezultoj en %2s</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
-  <string name="task_kill_warning">Tiuj ĉi tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
+  <string name="task_kill_warning">Tiuj ĉi tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ol ili finiĝos.</string>
   <string name="no_tasks_running">Nune neniu tasko estas lanĉata.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Serĉi versojn enhavantajn:</string>
@@ -140,6 +140,7 @@
   <string name="prefs_display_customization_cat">Aspekto</string>
   <string name="prefs_behavior_customization_cat">Sinteno</string>
   <string name="prefs_margin_size_summary">Alĝustigi dekstran kaj maldekstran marĝenojn en la vido de teksto. Vi ankaŭ povas alĝustigi maksimuman larĝon de la teksto.</string>
+  <string name="prefs_margin_size_summary_2">Konsilo: vi povas frapeti areon de marĝeno por iri unu paĝo (mal)supren.</string>
   <string name="prefs_text_colors_summary">Alĝustigi kolorojn de teksto kaj fono kaj bruan efekton</string>
   <string name="text_display_settings_activity_title">Tekstaj agordoj</string>
   <string name="workspace_text_display_settings_title">Tekstaj agordoj – %s</string>
@@ -646,6 +647,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="workspace_listing_with_current">%s (elektita)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tio ĉi estas beta-versio!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 En versio “beta” troviĝas novaj eblaĵoj, kiuj ankoraŭ ne estis sufiĉe kontrolitaj, do dum uzi tiun ĉi version vi povas sperti neatenditan sintenon – eraroj. Estas konsilinde, por ke kutimaj legantoj de Biblio uzu la stabilan version.</string>
   <string name="beta_notice_content_2">
@@ -785,7 +787,7 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="rate_message5">
 Detalaj favoraj recenzoj multe helpas al la malfermkoda projekto AndBible. Dankon!</string>
   <string name="rate_message6">
-Antaŭ skribi malfavoran recenzon, bonvolu konsideri:</string>
+Antaŭ ol skribi malfavoran recenzon, bonvolu konsideri:</string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
 • se vi spertas problemon pri la aplikaĵo, %1$s aŭ %2$s;</string>
@@ -891,7 +893,7 @@ raportu ĝin al prizorganto de modulo</string>
   <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Instrukcioj pri agordoj kaj informoj pri specifa diskreta kompilaĵo.</string>
   <string name="calculator_par1">
-Antaŭ starto de la aplikaĵo, malfermiĝas ekrano de kalkulilo.</string>
+Antaŭ ol starto de la aplikaĵo, malfermiĝas ekrano de kalkulilo.</string>
   <string name="calculator_par2">
 Tie vi povas fari kutimajn kalkulojn kaj kiam vi volas malfermi la aplikaĵon, enigu la PIN-kodon (implicite 1234) kaj sekve la butonon “=”.</string>
   <string name="calculator_par3">
@@ -958,6 +960,7 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="auth_title">Aŭtentigado al %s</string>
+  <string name="auth_server_uri">Retadreso de servilo</string>
   <string name="auth_username">Uzantnomo</string>
   <string name="auth_password">Pasvorto</string>
   <string name="auth_access_token">Alira ĵetono</string>
@@ -1007,5 +1010,15 @@ Post eldoni la sekvan version, tiu ĉi versio ne estos prizorgata.</string>
 Se vi ne volas promocii, malaktivigu “aŭtomatajn ĝisdatigojn” en via aplikaĵa vendejo (Google Play, F-Droid, ktp.)</string>
   <string name="dont_show">
 Ne montri tion ĉi denove</string>
+  <string name="pref_font_size_multiplier_title">Pligrandigi tiparon</string>
+  <string name="pref_font_size_multiplier_summary_1">Obligi grandon de tiparo je tiu ĉi nombro.</string>
+  <string name="pref_font_size_multiplier_summary_2">Uzebla kiam vi havas samtempigitan aparaton kun pli granda tiparo.</string>
+  <string name="current_value">Nuna valoro: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Ago por fingrumi (mal)dekstren</string>
   <string name="prefs_swipe_mode_chapter">Ĉapitro</string>
+  <string name="prefs_swipe_mode_page">Paĝo</string>
+  <string name="prefs_swipe_mode_none">Malaktiva</string>
+  <string name="page_number_title">Relativa paĝnumero</string>
+  <string name="page_number_summary">Montri surtavolon kun numero de paĝo. Numero de paĝo estas relativa al la komenca paĝo.</string>
+  <string name="select_custom_icon">Elekti propran emblemon de markilo</string>
 </resources>

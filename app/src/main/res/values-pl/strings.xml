@@ -140,6 +140,7 @@
   <string name="prefs_display_customization_cat">Wygląd</string>
   <string name="prefs_behavior_customization_cat">Zachowanie</string>
   <string name="prefs_margin_size_summary">Dostosuj lewy i prawy margines dookoła tekstu. Możesz także ustawić maksymalną szerokość tekstu.</string>
+  <string name="prefs_margin_size_summary_2">Wskazówka: możesz stuknąć w obszar marginesów, aby przewinąć stronę w dół / górę.</string>
   <string name="prefs_text_colors_summary">Dostosuj kolory tekstu i tła oraz efekt rozmycia</string>
   <string name="text_display_settings_activity_title">Ustawienia tekstu</string>
   <string name="workspace_text_display_settings_title">Ustawienia tekstu – %s</string>
@@ -640,6 +641,7 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="workspace_listing_with_current">%s (obecny)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">To jest wersja beta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Wersja beta zawiera funkcje, które nie zostały jeszcze wystarczająco przetestowane, więc podczas korzystania z niej mogą wystąpić błędy. Zaleca się, aby zwykli czytacze Pisma Świętego używali wersji stabilnej aplikacji.</string>
   <string name="beta_notice_content_2">
@@ -948,6 +950,7 @@ W chmurze znajduje się baza danych, która nie jest zsynchronizowana z tym urz�
   <string name="adapters_google_drive">Dysk Google</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="auth_title">Autoryzacja do %s</string>
+  <string name="auth_server_uri">Adres serwera</string>
   <string name="auth_username">Nazwa użytkownika</string>
   <string name="auth_password">Hasło</string>
   <string name="auth_access_token">Żeton dostępu</string>
@@ -997,5 +1000,14 @@ Nie zostaną wydane poprawki błędów i aktualizacje.</string>
 Jeżeli nie chcesz przejść na nowszą wersję, wyłącz automatyczne aktualizacje w używanym sklepie z aplikacjami (Google Play, F-Droid,…).</string>
   <string name="dont_show">
 Nie wyświetlaj tego ponownie</string>
+  <string name="pref_font_size_multiplier_title">Mnożnik rozmiaru czcionki</string>
+  <string name="pref_font_size_multiplier_summary_1">Przemnaża rozmiar czcionki o wybraną wartość.</string>
+  <string name="pref_font_size_multiplier_summary_2">Użyteczne, gdy masz zsynchronizowane urządzenie na którym korzystasz z większej czcionki.</string>
+  <string name="current_value">Obecna wartość: %s</string>
   <string name="prefs_swipe_mode_chapter">Rozdział</string>
+  <string name="prefs_swipe_mode_page">Strona</string>
+  <string name="prefs_swipe_mode_none">Wyłączone</string>
+  <string name="page_number_title">Względna numeracja stron</string>
+  <string name="page_number_summary">Wyświetla nakładkę z numerem strony. Numer strony jest względny do strony początkowej.</string>
+  <string name="select_custom_icon">Wybór własnej ikony znacznika</string>
 </resources>

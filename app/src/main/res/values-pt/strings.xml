@@ -654,6 +654,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="workspace_listing_with_current">%s(atual)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Esta é uma versão beta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Na versão beta, há novos recursos que ainda não foram testados corretamente,
 e, portanto, usar uma versão beta pode introduzir um comportamento inesperado, ou seja, erros.
@@ -992,6 +993,7 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="auth_title">Autenticação para %s</string>
+  <string name="auth_server_uri">URL do servidor</string>
   <string name="auth_username">Nome de utilizador</string>
   <string name="auth_password">Palavra-passe</string>
   <string name="auth_access_token">Token de acesso</string>
@@ -1056,4 +1058,7 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="prefs_swipe_mode_chapter">Capítulo</string>
   <string name="prefs_swipe_mode_page">Página</string>
   <string name="prefs_swipe_mode_none">Desativado</string>
+  <string name="page_number_title">Número relativo da página</string>
+  <string name="page_number_summary">Mostrar a sobreposição do número de página. O número da página é relativo à posição inicial.</string>
+  <string name="select_custom_icon">Selecionar o ícone do marcador</string>
 </resources>

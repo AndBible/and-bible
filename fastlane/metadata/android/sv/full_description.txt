@@ -1,6 +1,6 @@
 <b>Kraftfullt bibelstudieverktyg</b>
 
-"AndBible: Studera Bibeln" är en kraftfull, men samtidigt lättanvänd, bibelstudieapp för Android. Appen fungerar även offline. Dess mål är inte att bara vara en bibelläsare, utan att vara ett avancerat verktyg för ingående personliga studier av Bibeln.
+"AndBible: Studera Bibeln" är en kraftfull, men samtidigt lättanvänd, bibelstudieapp för Android. Appen fungerar även offline. Dess mål är inte att bara vara en enkel bibelläsningsapp, utan att vara ett avancerat verktyg för ingående personliga studier av Bibeln.
 
 Appen är utvecklad av bibelläsare, för bibelläsare. Dess syfte är att göra dina bibelstudier smidigare, djupa och roliga. Det bästa med det här ideella gemenskapsprojektet är det har öppen källkod, är helt gratis och inte innehåller någon reklam.
 
