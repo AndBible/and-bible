@@ -363,6 +363,7 @@ dependencies {
     implementation("androidx.webkit:webkit:1.12.1")
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
+
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei").map { "${it}Implementation" }) {
         // Onyx SDK (e-ink devices)
         variantImplementation("com.onyx.android.sdk:onyxsdk-device:1.2.32") // NOTE: remember to check its AndroidManifest.xml and remove unnecessary permissions in our AndroidManifest.xml
@@ -467,6 +468,12 @@ dependencies {
     // dependency to appear on your APK's compile classpath or the test APK
     // classpath.
     androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.1")
+}
+
+configurations {
+    testImplementation {
+        exclude(group = "com.github.requery", module = "sqlite-android")
+    }
 }
 
 afterEvaluate {
