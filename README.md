@@ -1,4 +1,4 @@
-<img align="right" width="250" height="250" src="https://raw.githubusercontent.com/AndBible/and-bible/develop/svg/logo.svg?sanitized=true">
+F<img align="right" width="250" height="250" src="https://raw.githubusercontent.com/AndBible/and-bible/develop/svg/logo.svg?sanitized=true">
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/andbible/and-bible/run-tests.yml?branch=develop&label=Android%20CI)
 ![GitHub License](https://img.shields.io/github/license/andbible/and-bible)
@@ -64,12 +64,6 @@ For more information, see [WIKI page](https://github.com/AndBible/and-bible/wiki
 ## 📢 Acknowledgements
 
 AndBible was originally developed by [Martin Denham](https://github.com/mjdenham) (2010-2018)
-
-## 📢 Sponsor acknowledgments
-
-![Shiloh](https://cdn.lasthourhosting.org/shiloh/shiloh-banner.png)
-
-[Shiloh](https://shilohcode.com/) is kindly sponsoring a virtual server to us. Thank you Shiloh! 
 
 ## 📜 Terms of Service and Privacy Policy
 
