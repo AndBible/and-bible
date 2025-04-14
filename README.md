@@ -1,4 +1,4 @@
-F<img align="right" width="250" height="250" src="https://raw.githubusercontent.com/AndBible/and-bible/develop/svg/logo.svg?sanitized=true">
+<img align="right" width="250" height="250" src="https://raw.githubusercontent.com/AndBible/and-bible/develop/svg/logo.svg?sanitized=true">
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/andbible/and-bible/run-tests.yml?branch=develop&label=Android%20CI)
 ![GitHub License](https://img.shields.io/github/license/andbible/and-bible)
