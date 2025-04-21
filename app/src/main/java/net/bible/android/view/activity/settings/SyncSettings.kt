@@ -18,7 +18,9 @@
 package net.bible.android.view.activity.settings
 
 import android.os.Bundle
+import android.webkit.URLUtil
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -60,25 +62,37 @@ class SyncSettingsActivity: ActivityBase() {
 class SyncSettingsFragment: PreferenceFragmentCompat() {
     private fun setupDrivePref(pref: SwitchPreferenceCompat) {
         val category = SyncableDatabaseDefinition.nameToCategory[pref.key.split("_")[1].uppercase()]!!
-        pref.setOnPreferenceClickListener {
-            if(category.syncEnabled) {
+        pref.setOnPreferenceChangeListener { _, newValue ->
+            val enableSync = newValue as Boolean
+            if(enableSync) {
                 lifecycleScope.launch {
                     val hourglass = Hourglass(requireContext())
                     hourglass.show(R.string.synchronizing)
-                    if (!CloudSync.signedIn) {
-                        CloudSync.signIn(activity as ActivityBase)
+                    
+                    var signInSuccess = CloudSync.signedIn
+                    if (!signInSuccess) {
+                        signInSuccess = CloudSync.signIn(activity as ActivityBase) == true
                     }
-                    if (CloudSync.signedIn && category.syncEnabled) {
+                    
+                    if (signInSuccess) {
+                        category.syncEnabled = true
                         CloudSync.waitUntilFinished()
                         CloudSync.start()
                         CloudSync.waitUntilFinished()
                         ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
                     }
+                    
                     hourglass.dismiss()
                     activity?.recreate()
                 }
+                // Return false to prevent the toggle from being updated now
+                // The recreate() will refresh the UI with the correct state
+                return@setOnPreferenceChangeListener false
+            } else {
+                // If turning sync off, we can do it immediately
+                category.syncEnabled = false
+                return@setOnPreferenceChangeListener true
             }
-            true
         }
         val lastSyncStr = category.lastSynchronized?.let {
             val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
@@ -127,7 +141,20 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         }
         val usernamePref = preferenceScreen.findPreference<Preference>("gdrive_username")!!
         val passwordPref = preferenceScreen.findPreference<Preference>("gdrive_password")!!
-        val serverUrlPref = preferenceScreen.findPreference<Preference>("gdrive_server_url")!!
+        val serverUrlPref = preferenceScreen.findPreference<EditTextPreference>("gdrive_server_url")!!
+
+        serverUrlPref.setOnPreferenceChangeListener { _, newValue ->
+            val newUrl = newValue as String
+            val isHttpOrHttps = newUrl.startsWith("http://") || newUrl.startsWith("https://")
+            val hasValidStructure = URLUtil.isValidUrl(newUrl) && isHttpOrHttps && !newUrl.endsWith("/login") && !newUrl.contains(" ")
+            
+            if (hasValidStructure) {
+                true
+            } else {
+                Dialogs.showErrorMsg(R.string.invalid_url_message)
+                false
+            }
+        }
 
         preferenceScreen.findPreference<ListPreference>("sync_adapter")!!.run {
             if(CloudSync.signedIn) {

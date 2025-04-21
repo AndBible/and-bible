@@ -98,10 +98,10 @@ object CloudSync {
     val signedIn get() = _adapter != null && adapter.signedIn
 
     private val signInMutex = Mutex()
-    suspend fun signIn(activity: ActivityBase) {
+    suspend fun signIn(activity: ActivityBase): Boolean? {
         if(signInMutex.isLocked) {
             Log.i(TAG, "Already signing in!")
-            return
+            return null
         }
         var errorMessage: String? = null
         val success = signInMutex.withLock {
@@ -114,11 +114,13 @@ object CloudSync {
             }
         }
         if(!success) {
+            _adapter = null
             Dialogs.showMsg2(activity, activity.getString(R.string.sign_in_failed) + " " + (errorMessage?:""))
         }
+        return success
     }
     suspend fun signOut() {
-        adapter.signOut()
+        _adapter?.signOut()
         _adapter = null
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()

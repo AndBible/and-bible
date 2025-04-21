@@ -190,7 +190,9 @@ abstract class DocumentSelectionBase(
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     selectedDocumentFilterNo = position
                     CommonUtils.settings.setInt("selected_document_filter_no", position)
-                    filterDocuments()
+                    if (this@DocumentSelectionBase::documentItemAdapter.isInitialized) {
+                        filterDocuments()
+                    }
                 }
 
                 override fun onNothingSelected(arg0: AdapterView<*>?) {}
@@ -382,7 +384,9 @@ abstract class DocumentSelectionBase(
             isLoading.value = true
             showPreLoadMessage(refresh)
             filterMutex.withLock {
-                documentItemAdapter.clear()
+                if (this@DocumentSelectionBase::documentItemAdapter.isInitialized) {
+                    documentItemAdapter.clear()
+                }
                 displayedDocuments.clear()
             }
         }
@@ -412,7 +416,9 @@ abstract class DocumentSelectionBase(
                 populateLanguageList()
                 setDefaultLanguage()
                 isPopulated = true
-                filterDocuments()
+                if (this@DocumentSelectionBase::documentItemAdapter.isInitialized) {
+                    filterDocuments()
+                }
             } finally {
                 isLoading.value = false
             }

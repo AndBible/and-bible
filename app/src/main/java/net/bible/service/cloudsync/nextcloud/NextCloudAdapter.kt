@@ -69,11 +69,25 @@ class NextCloudAdapter(
                 credentials = OwnCloudCredentialsFactory.newBasicCredentials(username, password)
                 userId = username
             }
+            if (!verifyConnection()) {
+                _client = null
+                return@withContext false
+            }
             return@withContext true
         } catch (e: Exception) {
             Log.e(TAG, "Login to NextCloud failed", e)
             _client = null
             return@withContext false
+        }
+    }
+
+    suspend fun verifyConnection(): Boolean {
+        try {
+            getFolders("/")
+            return true
+        } catch (e: Exception) {
+            Log.e(TAG, "Server connectivity test failed", e)
+            return false
         }
     }
 
