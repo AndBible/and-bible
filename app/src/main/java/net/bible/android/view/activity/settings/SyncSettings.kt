@@ -18,7 +18,9 @@
 package net.bible.android.view.activity.settings
 
 import android.os.Bundle
+import android.webkit.URLUtil
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -127,7 +129,20 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         }
         val usernamePref = preferenceScreen.findPreference<Preference>("gdrive_username")!!
         val passwordPref = preferenceScreen.findPreference<Preference>("gdrive_password")!!
-        val serverUrlPref = preferenceScreen.findPreference<Preference>("gdrive_server_url")!!
+        val serverUrlPref = preferenceScreen.findPreference<EditTextPreference>("gdrive_server_url")!!
+
+        serverUrlPref.setOnPreferenceChangeListener { _, newValue ->
+            val newUrl = newValue as String
+            val isHttpOrHttps = newUrl.startsWith("http://") || newUrl.startsWith("https://")
+            val hasValidStructure = URLUtil.isValidUrl(newUrl) && isHttpOrHttps && !newUrl.endsWith("/login") && !newUrl.contains(" ")
+            
+            if (hasValidStructure) {
+                true
+            } else {
+                Dialogs.showErrorMsg(R.string.invalid_url_message)
+                false
+            }
+        }
 
         preferenceScreen.findPreference<ListPreference>("sync_adapter")!!.run {
             if(CloudSync.signedIn) {
