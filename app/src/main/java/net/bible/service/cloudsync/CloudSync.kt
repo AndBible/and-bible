@@ -114,11 +114,12 @@ object CloudSync {
             }
         }
         if(!success) {
+            _adapter = null
             Dialogs.showMsg2(activity, activity.getString(R.string.sign_in_failed) + " " + (errorMessage?:""))
         }
     }
     suspend fun signOut() {
-        adapter.signOut()
+        _adapter?.signOut()
         _adapter = null
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
