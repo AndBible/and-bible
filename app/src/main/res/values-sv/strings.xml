@@ -68,12 +68,12 @@
   <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Hitta \"%s\"</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_title">Kapitel &amp; vers nummer</string>
+  <string name="prefs_show_verseno_title">Kapitel- &amp; versnummer</string>
   <string name="prefs_show_verseno_summary">Visa kapitel- &amp; versnummer</string>
   <string name="prefs_e_ink_mode_title">Svartvitt läge</string>
   <string name="prefs_eink_mode_summary">Använd appen i monokromt läge (inga färger) för att göra den mer lämpad för E Ink-enheter.</string>
   <string name="prefs_disable_animations_title">Inaktivera animationer</string>
-  <string name="prefs_disable_animations_summary">Inaktivera olika animationer som till exempel mjuk rullning.</string>
+  <string name="prefs_disable_animations_summary">Inaktivera olika animationer såsom mjuk skrollning.</string>
   <string name="prefs_paragraph_spacing_title">Styckesavstånd (%s mm)</string>
   <string name="prefs_paragraph_spacing_summary">Justera avståndet mellan styckeindelningarna.</string>
   <string name="prefs_show_verseno_title1">Versnummer</string>
@@ -118,7 +118,7 @@
   <string name="prefs_open_links_in_special_window_summary">Öppna länkar i specialfönster för snabbare visning av parallellhänvisningar och Strongs</string>
   <string name="prefs_text_size_sample_text">Exempeltext</string>
   <string name="prefs_screen_keep_on_title">Håll skärmen igång</string>
-  <string name="prefs_screen_keep_on_summary">Förhindra att skärmen släcks medan denna app används</string>
+  <string name="prefs_screen_keep_on_summary">Förhindra att skärmen släcks medan appen används</string>
   <string name="prefs_interface_locale_title">Språk i appen</string>
   <string name="prefs_interface_locale_summary">Välj språk för användargränssnittet</string>
   <string name="reset_fontsize">Återställ</string>
@@ -128,12 +128,12 @@
   <string name="prefs_expand_footnotes_summary">Visa parallellhänvisningens innehåll i texten, i stället för en länk som öppnar en dialogruta</string>
   <string name="all_text_options_window_menutitle">Alla textinställningar</string>
   <string name="text_options_window_menutitle">Textinställningar</string>
-  <string name="auto_fullscreen">Helskärm genom skrollning</string>
+  <string name="auto_fullscreen">Helskärm genom att skrolla</string>
   <string name="reversed_split_mode">Omvänt delat läge</string>
   <string name="add_ellipsis">%s...</string>
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
-  <string name="auto_fullscreen_summary">Byt automatiskt till fullskärm vid skrollning av text. Tips: man kan alltid byta till fullskärm genom att dubbeltrycka på skärmen.</string>
+  <string name="auto_fullscreen_summary">Byt automatiskt till helskärm när du skrollar text. Tips: du kan alltid byta till helskärm genom att dubbeltrycka på skärmen.</string>
   <string name="prefs_margin_size_title">Ändra maginalstorlek</string>
   <string name="prefs_margin_size_mm_title">Marginalstorlek (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Avancerade inställningar</string>
@@ -143,33 +143,33 @@
         justera maximal textbredd.
     </string>
   <string name="prefs_margin_size_summary_2">Tips: Du kan trycka i marginalen för att hoppa upp/ner en sida.</string>
-  <string name="prefs_text_colors_summary">Ändra text och bakgrundsfärg samt bruseffekt</string>
+  <string name="prefs_text_colors_summary">Ändra text- och bakgrundsfärg samt bruseffekt</string>
   <string name="text_display_settings_activity_title">Textskärmsinställningar</string>
   <string name="workspace_text_display_settings_title">Textinställningar - %s</string>
   <string name="window_text_display_settings_title">Textinställningar - Fönster %d</string>
   <string name="prefs_text_display_settings_title">Formatera</string>
   <string name="prefs_text_appearance_title">Utseende</string>
   <string name="prefs_justify_title">Marginaljustera texten</string>
-  <string name="prefs_justify_summary">Justera text i stilen \"justify\", vilket innebär att textens vänstra och högra marginal är i linje</string>
+  <string name="prefs_justify_summary">Justera texten så att dess vänstra och högra marginal är i linje</string>
   <string name="pref_left_margin_label_mm">Vänster marginal (%d mm)</string>
   <string name="pref_right_margin_label_mm">Höger marginal (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Maximal bredd på texten (%d mm)</string>
   <string name="prefs_line_spacing_pt">Radavstånd %1.1fx</string>
-  <string name="pref_font_family_label">font familj</string>
+  <string name="pref_font_family_label">Typsnittfamilj</string>
   <string name="prefs_top_margin_title">Övre marginal</string>
-  <string name="prefs_top_margin_summary">Lägg till marginal (med visuell indikation) till över fönstret som innehåller Bibeldokumenten. Bibeln skrollas så att den aktiva versen börjar under marginalen.</string>
+  <string name="prefs_top_margin_summary">Lägg till marginal (med visuell indikation) överst i fönstret med bibeldokumentet. Bibeln skrollas så att den valda versen börjar nedanför marginalen.</string>
   <string name="prefs_hyphenation_title">Avstavning</string>
   <string name="prefs_hyphenation_summary">Avstava ord automatiskt om språket stödjer det</string>
   <string name="prefs_line_spacing_pt_title">Radavstånd (%1.1fx)</string>
   <string name="line_spacing_title">Radavstånd</string>
-  <string name="line_spacing_summary">Välj avståndet mellan linjerna</string>
+  <string name="line_spacing_summary">Ställ in avståndet mellan raderna</string>
   <string name="select_none">Markera ingen</string>
   <string name="reset_are_you_sure">Är du säker på att du vill återställa alla dessa värden?</string>
   <string name="window_pinning_menutitle">Nåla fast fönster</string>
   <string name="hide_window_buttons_title">Dölj fönsterknappar</string>
-  <string name="hide_window_buttons_summary">Fönsterknappar som visas på höger sida av Bibelvyn är dold. Fönster navigeringsfältet visas fortfarande och man kan öppna fönster popup-menyn genom att långtrycka på den.</string>
-  <string name="hide_bible_reference_overlay_title">Dölja Bibel referensöverdrag</string>
-  <string name="hide_bible_reference_overlay_summary">Visa inte halvtransparanta Bibelreferensöverdrag när appen är i fullskärmsläge</string>
+  <string name="hide_window_buttons_summary">Fönsterknappar som visas på höger sida av bibelvyerna döljs. Navigeringsfältet för fönster visas fortfarande nere på skärmen och man kan öppna fönstermenyn genom att långtrycka där.</string>
+  <string name="hide_bible_reference_overlay_title">Dölj meddelanderuta om bibelställe</string>
+  <string name="hide_bible_reference_overlay_summary">Visa inte meddelanderuta om nuvarande bibelställe när appen är i helskärmsläge</string>
   <string name="full_screen_hide_buttons_pref_title">Dölj fönsterknappar i fullskärm</string>
   <string name="full_screen_hide_buttons_pref_summary">Vid byte till fullskärmsläge, dölj automatiskt fönsterknapplistan som är i botten av skärmen</string>
   <string name="prefs_dictionaries_cat">Uppslagsbok</string>
@@ -182,9 +182,9 @@
   <string name="prefs_top_margin_title_mm">Övre marginal (%d mm)</string>
   <string name="font_size_title">Textstorlek</string>
   <string name="font_size_title_pt">Textstorlek (%d pt)</string>
-  <string name="prefs_font_text_size_summary">Ändra huvudtext fontens storlek</string>
-  <string name="pref_font_family_label_name">Fontfamilj (%s)</string>
-  <string name="prefs_font_family_summary">Ändra fontfamilj. Tips: Mer fontar kan installeras via Download Documents/Add-ons.</string>
+  <string name="prefs_font_text_size_summary">Ändra storleken på typsnittet</string>
+  <string name="pref_font_family_label_name">Typsnittfamilj (%s)</string>
+  <string name="prefs_font_family_summary">Ändra typsnittfamilj. Tips: Fler typsnitt kan installeras via Hämta dokument / Tillägg.</string>
   <string name="prefs_text_bookmarks_title">Inställningar för bokmärken &amp; egna anteckningar</string>
   <string name="prefs_enable_bluetooth_title">Aktivera Bluetoothmedieknappar</string>
   <string name="prefs_enable_bluetooth_summary">Använd Bluetoothmedieknappar för att starta/stoppa uppläsning.</string>
@@ -353,7 +353,7 @@ i GT och NT varje dag.
   <string name="open_link_in_new_window">Öppna länk i ett nytt fönster</string>
   <string name="open_link_in_special_window">Öppna länk i ett specialfönster</string>
   <!--Bookmarks-->
-  <string name="bookmarks_and_mynotes_title">Bokmärken &amp; mina anteckningar</string>
+  <string name="bookmarks_and_mynotes_title">Bokmärken &amp; egna anteckningar</string>
   <string name="migrated_my_notes">Migrerade egna anteckningar</string>
   <string name="bookmarks">Bokmärken</string>
   <string name="bookmark_added">Bokmärket sparat</string>
@@ -718,7 +718,7 @@ i GT och NT varje dag.
         Långtryck på ett bokmärke i bokmärkeslistan för att lägga till etiketter eller radera bokmärket.
         Långtryck på länkar för att välja om du vill öppna dem i det nuvarande fönstret, ett nytt fönster eller ett länkfönster.
     </string>
-  <string name="help_bookmarks_title">Bokmärken &amp; Mina anteckningar</string>
+  <string name="help_bookmarks_title">Bokmärken &amp; egna anteckningar</string>
   <string name="help_bookmarks_text">Du kan skapa bokmärken genom att markera text och välja \"Bokmärke\" i
         menyn som visas. Du kan göra egna anteckningar i bokmärket genom att trycka på den nu
         markerade texten i bibelvyn. Det finns också ett specialdokument bland bibelkommentarerna som låter dig
@@ -916,10 +916,10 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="text_copied_to_clicpboard">Text kopierad till urklipp</string>
   <string name="prefs_disable_two_step_bookmarking_title">Bokmärkning i ett steg</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Visa menyvalen \"Markering\" och \"Verser\" direkt i bibelvyns markeringsmeny</string>
-  <string name="prefs_double_tap_to_fullscreen_title">Dubbeltryck för att starta fullskärmsläge</string>
-  <string name="prefs_double_tap_to_fullscreen_summary">Starta fullskärmsläge genom att dubbeltrycka i fönstret</string>
-  <string name="toggle_fullscreen">Fullskärm</string>
-  <string name="exit_fullscreen">Dubbeltryck på skärmen för att avbryta fullskärmsläge</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Dubbeltryck för att starta helskärmsläge</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Starta helskärmsläge genom att dubbeltrycka i fönstret</string>
+  <string name="toggle_fullscreen">Helskärm</string>
+  <string name="exit_fullscreen">Dubbeltryck på skärmen för att avbryta helskärmsläge</string>
   <string name="reset_app_prefs">Vill du återställa alla globala appinställningar som visas på den här skärmen till deras standardvärden?</string>
   <string name="label_red">Röd</string>
   <string name="label_green">Grön</string>

@@ -5,7 +5,7 @@ openMyNotes: Öppna i egna anteckingar
 openStudyPad: Öppna i studieblock (%s)
 noteText: Fotnoter (%s)
 noteTextWithoutType: Fotnoter
-crossReferenceText: Korshänvisningar
+crossReferenceText: Parallellhänvisningar
 findAllOccurrences: Hitta alla förekomster
 reportError: Rapporera ett problem
 errorTitle: Problem uppstod
@@ -44,7 +44,7 @@ emptyStudyPad: >
 doYouWantToDeleteEntry: "Radera detta objekt i studieblocket?"
 removeStudyPadConfirmationTitle: "Radera objekt i studieblocket?"
 dragHelp: Dra för att ordna om
-openAll: Öppna alla referenser
+openAll: Öppna alla hänvisningar
 editBookmarkPlaceholder: Tryck för att redigera egna anteckningar för detta bokmärke.
 onlyLabel: Endast etikett
 wholeBookmark: Hela bokmärket

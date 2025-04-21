@@ -684,6 +684,7 @@
   <string name="workspace_listing_with_current">%s (actual)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Aceasta este versiunea beta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         În versiunea beta, există caracteristici noi care n-au fost încă testate corespunzător,
         deci utilizarea versiunii beta ar putea introduce un comportament neașteptat, adică erori.
@@ -1053,6 +1054,7 @@
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Autentificare în %s</string>
+  <string name="auth_server_uri">URL-ul serverului</string>
   <string name="auth_username">Nume de utilizator</string>
   <string name="auth_password">Parola</string>
   <string name="auth_access_token">Dispozitiv de acces</string>
@@ -1117,4 +1119,7 @@
   <string name="prefs_swipe_mode_chapter">Capitol</string>
   <string name="prefs_swipe_mode_page">Pagina</string>
   <string name="prefs_swipe_mode_none">Dezactivat</string>
+  <string name="page_number_title">Numărul aproximativ al paginii</string>
+  <string name="page_number_summary">Afișează numărul paginii prin suprapunere. Numărul paginii este raportat la poziția inițială.</string>
+  <string name="select_custom_icon">Alege simbolul personalizat de evidențiere</string>
 </resources>
