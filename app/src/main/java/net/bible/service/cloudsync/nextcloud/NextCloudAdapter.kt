@@ -71,7 +71,6 @@ class NextCloudAdapter(
             }
             if (!verifyConnection()) {
                 _client = null
-                throw Exception("Failed to connect to server")
                 return@withContext false
             }
             return@withContext true
@@ -88,7 +87,6 @@ class NextCloudAdapter(
             return true
         } catch (e: Exception) {
             Log.e(TAG, "Server connectivity test failed", e)
-            _client = null
             return false
         }
     }

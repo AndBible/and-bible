@@ -62,25 +62,37 @@ class SyncSettingsActivity: ActivityBase() {
 class SyncSettingsFragment: PreferenceFragmentCompat() {
     private fun setupDrivePref(pref: SwitchPreferenceCompat) {
         val category = SyncableDatabaseDefinition.nameToCategory[pref.key.split("_")[1].uppercase()]!!
-        pref.setOnPreferenceClickListener {
-            if(category.syncEnabled) {
+        pref.setOnPreferenceChangeListener { _, newValue ->
+            val enableSync = newValue as Boolean
+            if(enableSync) {
                 lifecycleScope.launch {
                     val hourglass = Hourglass(requireContext())
                     hourglass.show(R.string.synchronizing)
-                    if (!CloudSync.signedIn) {
-                        CloudSync.signIn(activity as ActivityBase)
+                    
+                    var signInSuccess = CloudSync.signedIn
+                    if (!signInSuccess) {
+                        signInSuccess = CloudSync.signIn(activity as ActivityBase) == true
                     }
-                    if (CloudSync.signedIn && category.syncEnabled) {
+                    
+                    if (signInSuccess) {
+                        category.syncEnabled = true
                         CloudSync.waitUntilFinished()
                         CloudSync.start()
                         CloudSync.waitUntilFinished()
                         ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
                     }
+                    
                     hourglass.dismiss()
                     activity?.recreate()
                 }
+                // Return false to prevent the toggle from being updated now
+                // The recreate() will refresh the UI with the correct state
+                return@setOnPreferenceChangeListener false
+            } else {
+                // If turning sync off, we can do it immediately
+                category.syncEnabled = false
+                return@setOnPreferenceChangeListener true
             }
-            true
         }
         val lastSyncStr = category.lastSynchronized?.let {
             val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
