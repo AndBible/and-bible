@@ -98,10 +98,22 @@ private val MIGRATION_7_8 = object : Migration(7, 8) {
 private val MIGRATION_8_9 = object : Migration(8, 9) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
-            execSQL("ALTER TABLE `PageManager` ADD `commentary_currentYOffsetRatio` REAL")
-            execSQL("ALTER TABLE `PageManager` ADD `dictionary_currentYOffsetRatio` REAL")
-            execSQL("ALTER TABLE `PageManager` ADD `general_book_currentYOffsetRatio` REAL")
-            execSQL("ALTER TABLE `PageManager` ADD `map_currentYOffsetRatio` REAL")
+            // First check if the PageManager table exists to avoid crashes
+            val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='PageManager'")
+            val tableExists = cursor.count > 0
+            cursor.close()
+            
+            if (tableExists) {
+                execSQL("ALTER TABLE `PageManager` ADD `commentary_currentYOffsetRatio` REAL")
+                execSQL("ALTER TABLE `PageManager` ADD `dictionary_currentYOffsetRatio` REAL")
+                execSQL("ALTER TABLE `PageManager` ADD `general_book_currentYOffsetRatio` REAL")
+                execSQL("ALTER TABLE `PageManager` ADD `map_currentYOffsetRatio` REAL")
+            } else {
+                // Create the PageManager table if it doesn't exist
+                Log.w(TAG, "PageManager table doesn't exist. Creating it now.")
+                execSQL("CREATE TABLE IF NOT EXISTS `PageManager` (`windowId` INTEGER NOT NULL, `currentCategoryName` TEXT NOT NULL, `bible_document` TEXT, `bible_verse_versification` TEXT NOT NULL, `bible_verse_bibleBook` INTEGER NOT NULL, `bible_verse_chapterNo` INTEGER NOT NULL, `bible_verse_verseNo` INTEGER NOT NULL, `commentary_document` TEXT, `dictionary_document` TEXT, `dictionary_key` TEXT, `general_book_document` TEXT, `general_book_key` TEXT, `map_document` TEXT, `map_key` TEXT, `commentary_currentYOffsetRatio` REAL, `dictionary_currentYOffsetRatio` REAL, `general_book_currentYOffsetRatio` REAL, `map_currentYOffsetRatio` REAL, PRIMARY KEY(`windowId`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_PageManager_windowId` ON `PageManager` (`windowId`)")
+            }
         }
     }
 }
