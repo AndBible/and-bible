@@ -43,6 +43,10 @@
       <FontAwesomeIcon icon="custom-compare"/>
       <div class="title">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</div>
     </div>
+    <div v-if="hasButton('MEMORIZE')" class="large-action" @click="memorize">
+      <FontAwesomeIcon :icon="faBrain"/>
+      <div class="title">{{ vertical ? strings.verseMemorizeLong : strings.verseMemorize }}</div>
+    </div>
     <div v-if="hasButton('SPEAK')" class="large-action" @click="speak">
       <FontAwesomeIcon icon="headphones"/>
       <div class="title">{{ strings.verseSpeak }}</div>
@@ -57,6 +61,7 @@ import {useCommon} from "@/composables";
 import {androidKey, keyboardKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
 import {BibleModalButtonId, GenericModalButtonId} from "@/composables/config";
+import {faBrain} from "@fortawesome/free-solid-svg-icons";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo
@@ -111,6 +116,12 @@ function addBookmark() {
 function compare() {
     if(verseInfo.value) {
         android.compare(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
+    }
+}
+
+function memorize() {
+    if(verseInfo.value) {
+        android.memorize(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
     }
 }
 

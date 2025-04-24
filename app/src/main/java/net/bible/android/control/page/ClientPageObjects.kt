@@ -176,6 +176,14 @@ class MultiFragmentDocument(private val osisFragments: List<OsisFragment>, priva
         )
 }
 
+class MemorizeDocument(private val key: String, private val texts: Map<String, String>): Document {
+    override val asHashMap: Map<String, Any>
+        get() = mapOf(
+            "id" to wrapString(randomUUID().toString()),
+            "type" to wrapString("memorize"),
+            "texts" to mapToJson(texts),
+        )
+}
 
 class MyNotesDocument(val bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
                       val verseRange: VerseRange): Document

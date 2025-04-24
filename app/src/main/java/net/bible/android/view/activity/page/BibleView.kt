@@ -337,6 +337,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 mode.finish()
                 return true
             }
+            R.id.memorize -> {
+                memorizeSelection()
+                mode.finish()
+                return true
+            }
             R.id.share_verses -> {
                 val sel = currentSelection ?: return true
                 ShareWidget.dialog(mainBibleActivity, sel)
@@ -443,6 +448,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.i(TAG, "compareSelection")
         val verseRange = selection?.verseRange ?: return
         linkControl.openCompare(verseRange)
+    }
+
+    internal fun memorizeSelection(selection: Selection? = currentSelection) {
+        Log.i(TAG, "compareSelection")
+        val verseRange = selection?.verseRange ?: return
+        linkControl.openMemorize(verseRange)
     }
 
     val scope get() = mainBibleActivity.lifecycleScope

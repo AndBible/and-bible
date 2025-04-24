@@ -667,53 +667,6 @@ object SwordContentFacade {
         }
     }
 
-    /**
-     * Get just the canonical text of one or more book entries without any
-     * markup.
-     *
-     * @param book
-     * the book to use
-     * @param reference
-     * a reference, appropriate for the book, of one or more entries
-     */
-    @Throws(BookException::class, NoSuchKeyException::class)
-    fun getPlainText(book: Book?, reference: String?): String {
-        var plainText = ""
-        try {
-            if (book != null) {
-                val key = book.getKey(reference)
-                plainText = getPlainText(book, key)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting plain text", e)
-        }
-        return plainText
-    }
-
-    /**
-     * Get just the canonical text of one or more book entries without any
-     * markup.
-     *
-     * @param book
-     * the book to use
-     * @param key
-     * a reference, appropriate for the book, of one or more entries
-     */
-    @Throws(BookException::class, NoSuchKeyException::class)
-    fun getPlainText(book: Book?, key: Key?): String {
-        var plainText = ""
-        try {
-            if (book != null) {
-                plainText = getCanonicalText(book, key)
-                // trim any preceeding spaces that make the final output look uneven
-                plainText = plainText.trim { it <= ' ' }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting plain text", e)
-        }
-        return plainText
-    }
-
     @Throws(BookException::class)
     fun search(bible: Book, searchText: String?): Key {
         // example of fetching Strongs ref - only works with downloaded indexes!

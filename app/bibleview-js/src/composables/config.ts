@@ -88,7 +88,7 @@ export type Config = {
     showPageNumber: boolean,
 }
 
-export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"
+export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"
 export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"
 
 export type AppSettings = {

@@ -117,6 +117,11 @@ class LinkControl @Inject constructor(
         return true
     }
 
+    fun openMemorize(verseRange: VerseRange): Boolean {
+        showLink(FakeBookFactory.memorizeDocument, verseRange)
+        return true
+    }
+
     fun loadApplicationUrl(link: BibleView.BibleLink, book: Book? = null): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc, book)
 
     fun errorLink() {

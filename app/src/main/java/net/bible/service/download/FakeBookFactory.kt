@@ -89,6 +89,7 @@ object FakeBookFactory {
     }
 
     private var _compareDocument: Book? = null
+    private var _memorizeDocument: Book? = null
     private var _multiDocument: Book? = null
     private var _journalDocument: Book? = null
     private var _myNotesDocument: Book? = null
@@ -110,6 +111,12 @@ object FakeBookFactory {
         get() =
             _compareDocument ?: createFakeRepoBook("Compare", COMPARE_DUMMY_CONF, "").apply {
                 _compareDocument = this
+            }
+
+    val memorizeDocument: Book
+        get() =
+            _memorizeDocument ?: createFakeRepoBook("Memorize", MEMORIZE_DUMMY_CONF, "").apply {
+                _memorizeDocument = this
             }
 
     val journalDocument: Book
@@ -144,6 +151,14 @@ LCSH=Bible--Commentaries.
 AndBibleSpecial=1
 Versification=KJVA"""
 
+    private val MEMORIZE_DUMMY_CONF get() = """[Memorize]
+Description=${application.getString(R.string.memorize_description)}
+Abbreviation=${application.getString(R.string.memorize_abbreviation)}
+Category=Commentaries
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+AndBibleSpecial=1
+Versification=KJVA"""
 
     private val MULTI_DUMMY_CONF get() = """[Multi]
 Description=${application.getString(R.string.multi_description)}
@@ -188,7 +203,7 @@ Versification=KJVA"""
 
     fun pseudoDocuments(l: List<PseudoBook>?): List<Book> = l?.map { getPseudoBook(it.id, it.suggested) }?: emptyList()
 
-    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
+    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument, memorizeDocument)
 }
 
 val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null

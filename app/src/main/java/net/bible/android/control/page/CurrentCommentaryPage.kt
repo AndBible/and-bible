@@ -26,6 +26,7 @@ import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.isSpecial
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -54,12 +55,12 @@ open class CurrentCommentaryPage internal constructor(
     override fun startKeyChooser(context: ActivityBase) =
         context.startActivityForResult(Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
 
-    private val isSpecialDoc: Boolean get() = currentDocument == FakeBookFactory.compareDocument
+    private val isSpecialDoc: Boolean get() = currentDocument?.isSpecial == true
 
     override val currentPageContent: Document
         get() {
             return if(currentDocument == FakeBookFactory.compareDocument) {
-                val key: VerseRange = when(val origKey = originalCompareKey ?: singleKey) {
+                val key: VerseRange = when(val origKey = originalVerseRange ?: singleKey) {
                     is VerseRange -> origKey
                     is Verse -> VerseRange(origKey.versification, origKey, origKey)
                     else -> throw RuntimeException("Invalid type")
@@ -73,6 +74,21 @@ open class CurrentCommentaryPage internal constructor(
                     }
                 }.filterNotNull()
                 MultiFragmentDocument(frags, compare=true)
+            } else if (currentDocument == FakeBookFactory.memorizeDocument) {
+                val key: VerseRange = when(val origKey = originalVerseRange ?: singleKey) {
+                    is VerseRange -> origKey
+                    is Verse -> VerseRange(origKey.versification, origKey, origKey)
+                    else -> throw RuntimeException("Invalid type")
+                }
+                var texts = HashMap<String, String>()
+                for (verse in key) {
+                    // TODO: how to get desired document?
+                    //val text = SwordContentFacade.getCanonicalText(, verse)
+                    //texts[verse.osisID] = text
+                }
+
+                //SwordContentFacade.getCanonicalText()
+                MemorizeDocument(key.osisRef, texts)
             } else super.currentPageContent
         }
 
@@ -93,12 +109,12 @@ open class CurrentCommentaryPage internal constructor(
     }
 
     private fun nextVerse() {
-        originalCompareKey = null
+        originalVerseRange = null
         setKey(getKeyPlus(1))
     }
 
     private fun previousVerse() {
-        originalCompareKey = null
+        originalVerseRange = null
         setKey(getKeyPlus(-1))
     }
 
@@ -130,11 +146,11 @@ open class CurrentCommentaryPage internal constructor(
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
     // If a passage (that is not just a single verse) is displayed, it is stored here.
-    var originalCompareKey: VerseRange? = null
+    var originalVerseRange: VerseRange? = null
 
     override fun doSetKey(key: Key?) {
         if(key is VerseRange) {
-            originalCompareKey = key
+            originalVerseRange = key
         }
         if(key != null) {
             val verse = KeyUtil.getVerse(key)
@@ -161,6 +177,7 @@ open class CurrentCommentaryPage internal constructor(
         val document = entity.document
         val book = when(document) {
             FakeBookFactory.compareDocument.initials -> FakeBookFactory.compareDocument
+            FakeBookFactory.memorizeDocument.initials -> FakeBookFactory.memorizeDocument
             else -> SwordDocumentFacade.getDocumentByInitials(document) ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
         }
         if(book != null) {

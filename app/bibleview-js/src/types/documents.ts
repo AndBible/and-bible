@@ -29,7 +29,7 @@ import {
 } from "@/types/client-objects";
 import {Nullable} from "@/types/common";
 
-export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal" | "none"
+export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal" | "memorize"|"none"
 
 export type BaseDocument = {
     id: string
@@ -41,6 +41,14 @@ export type MultiFragmentDocument = {
     type: "multi"
     osisFragments: OsisFragment[]
     compare: boolean
+}
+
+export type MemorizeDocument = {
+    id: string
+    type: "memorize"
+    texts: [
+        {key: string, text: string}
+    ]
 }
 
 type BaseOsisDocument = BaseDocument & {
@@ -110,7 +118,8 @@ export type DocumentOfType<T extends BibleViewDocumentType> =
                 T extends "error" ? ErrorDocument :
                     T extends "osis" ? OsisDocument :
                         T extends "multi" ? MultiFragmentDocument :
-                            BaseDocument
+                            T extends "memorize" ? MemorizeDocument :
+                                BaseDocument
 
 export function isOsisDocument(t: AnyDocument): t is OsisDocument {
     return t.type === "osis";
