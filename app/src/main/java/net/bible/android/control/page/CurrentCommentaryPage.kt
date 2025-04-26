@@ -81,10 +81,10 @@ open class CurrentCommentaryPage internal constructor(
                 val doc = bookAndKey.document
                 val verseRange = bookAndKey.key as? VerseRange
                     ?: return ErrorDocument("Memorize: originalBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
-                var texts = HashMap<String, String>()
+                var texts = ArrayList<Pair<String, String>>()
                 for (verse in verseRange) {
                     val text = SwordContentFacade.getCanonicalText(doc, verse)
-                    texts[verse.osisID] = text
+                    texts.add(Pair(verse.osisID, text))
                 }
                 MemorizeDocument(key.osisRef, texts)
             } else super.currentPageContent

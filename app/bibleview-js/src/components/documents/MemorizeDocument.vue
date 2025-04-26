@@ -17,15 +17,16 @@
 
 <template>
   <h2>Memorize!</h2>
+  <div v-for="text in document.texts" :key="text.key">
+    <span>{{text.key}}</span> <span>{{text.text}}</span>
+  </div>
 </template>
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
-import {computed, inject, ref} from "vue";
+import {inject, ref} from "vue";
 import {appSettingsKey, exportModeKey} from "@/types/constants";
-import {OsisFragment as OsisFragmentType} from "@/types/client-objects";
 import {MemorizeDocument} from "@/types/documents";
-import {formatExportLink} from "@/utils";
 
 const props = defineProps<{ document: MemorizeDocument }>();
 
