@@ -181,7 +181,7 @@ class MemorizeDocument(private val key: String, private val texts: Map<String, S
         get() = mapOf(
             "id" to wrapString(randomUUID().toString()),
             "type" to wrapString("memorize"),
-            "texts" to mapToJson(texts),
+            "texts" to mapToJson(texts.mapValues { wrapString(it.value) })
         )
 }
 

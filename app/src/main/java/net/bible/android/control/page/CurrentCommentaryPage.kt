@@ -27,6 +27,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.isSpecial
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -75,19 +76,16 @@ open class CurrentCommentaryPage internal constructor(
                 }.filterNotNull()
                 MultiFragmentDocument(frags, compare=true)
             } else if (currentDocument == FakeBookFactory.memorizeDocument) {
-                val key: VerseRange = when(val origKey = originalVerseRange ?: singleKey) {
-                    is VerseRange -> origKey
-                    is Verse -> VerseRange(origKey.versification, origKey, origKey)
-                    else -> throw RuntimeException("Invalid type")
-                }
+                val bookAndKey = originalBookAndKey
+                    ?: return ErrorDocument("Memorize: originalBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
+                val doc = bookAndKey.document
+                val verseRange = bookAndKey.key as? VerseRange
+                    ?: return ErrorDocument("Memorize: originalBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
                 var texts = HashMap<String, String>()
-                for (verse in key) {
-                    // TODO: how to get desired document?
-                    //val text = SwordContentFacade.getCanonicalText(, verse)
-                    //texts[verse.osisID] = text
+                for (verse in verseRange) {
+                    val text = SwordContentFacade.getCanonicalText(doc, verse)
+                    texts[verse.osisID] = text
                 }
-
-                //SwordContentFacade.getCanonicalText()
                 MemorizeDocument(key.osisRef, texts)
             } else super.currentPageContent
         }

@@ -453,7 +453,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     internal fun memorizeSelection(selection: Selection? = currentSelection) {
         Log.i(TAG, "compareSelection")
         val verseRange = selection?.verseRange ?: return
-        linkControl.openMemorize(verseRange)
+        linkControl.openMemorize(BookAndKey(verseRange, selection.book))
     }
 
     val scope get() = mainBibleActivity.lifecycleScope

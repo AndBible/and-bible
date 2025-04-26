@@ -70,6 +70,7 @@ class WorkspaceEntities {
     data class CommentaryPage(
         val document: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
+        // val originalBookAndKey: String? TODO we need to serialize originalBookAndKey for memorize feature!
     )
 
     @Entity(

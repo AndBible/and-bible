@@ -117,7 +117,7 @@ class LinkControl @Inject constructor(
         return true
     }
 
-    fun openMemorize(verseRange: VerseRange): Boolean {
+    fun openMemorize(verseRange: BookAndKey): Boolean {
         showLink(FakeBookFactory.memorizeDocument, verseRange)
         return true
     }

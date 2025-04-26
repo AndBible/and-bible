@@ -205,6 +205,7 @@ open class CurrentPageManager @Inject constructor(
                 }
                 if(key is BookAndKey) {
                     nextPage.setKey(key.key)
+                    nextPage.originalBookAndKey = key
                     nextPage.anchorOrdinal = key.ordinal
                     nextPage.htmlId = key.htmlId
                 } else {
