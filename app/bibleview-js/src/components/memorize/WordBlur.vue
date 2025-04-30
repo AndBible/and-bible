@@ -21,10 +21,9 @@
       <button @click="increaseBlurLevel" class="blur-button">{{ blurButtonText }}</button>
       <button @click="resetBlur" class="reset-button">{{strings.reset}}</button>
     </div>
-    <div v-for="item in textItems" :key="item.key" class="memorize-text">
-      <span class="reference">{{ item.key }}</span>
-      <div class="verse-text">
-        <span 
+    <div class="memorize-text">
+      <span v-for="item in textItems" :key="item.key">
+        <span
             v-for="(word, wordIndex) in getWordsFromText(item.text)"
             :key="`${item.key}-${wordIndex}`"
             :class="{
@@ -36,7 +35,7 @@
         >
           {{ word }}
         </span>
-      </div>
+      </span>
     </div>
   </div>
 </template>
@@ -180,10 +179,6 @@ function revealWord(textKey: string, wordIndex: number) {
   display: block;
   padding-bottom: 0.5em;
   font-weight: bold;
-}
-
-.verse-text {
-  line-height: 1.6;
 }
 
 .word {
