@@ -82,8 +82,9 @@ interface TextItem {
 
 interface WordObject {
   word: string;
-  originalIndex: number;
-  used: boolean;
+  originalIndices: number[];  // Track all positions where this word appears
+  remainingUses: number;     // Track how many more times this word can be used
+  used: boolean;             // Word is fully used (all occurrences used)
   incorrect: boolean;
 }
 
@@ -129,10 +130,13 @@ function selectWord(itemIndex: number, buttonIndex: number, wordObj: WordObject)
     const words = getWordsFromText(props.textItems[itemIndex].text);
 
     // Check if this is the correct next word
-    if (wordObj.originalIndex === currentIndex) {
+    if (wordObj.originalIndices.includes(currentIndex)) {
         // Correct word selected
-        scrambledWords.value[itemIndex][buttonIndex].used = true;
+        scrambledWords.value[itemIndex][buttonIndex].remainingUses--;
         scrambledWords.value[itemIndex][buttonIndex].incorrect = false;
+        if (scrambledWords.value[itemIndex][buttonIndex].remainingUses === 0) {
+            scrambledWords.value[itemIndex][buttonIndex].used = true;
+        }
         currentWordIndices.value[itemIndex]++;
     } else {
         // Incorrect word selected
@@ -159,15 +163,36 @@ function resetScramble(itemIndex: number) {
 function initializeWords(itemIndex: number) {
     const words = getWordsFromText(props.textItems[itemIndex].text);
 
-    // Create new word objects
-    const wordObjects = words.map((word, idx) => ({
-        word,
-        originalIndex: idx,
-        used: false,
-        incorrect: false
-    }));
+    // Create a map to track word occurrences and their positions
+    const wordMap = new Map<string, { indices: number[], count: number }>();
+    
+    // Build the word map with all occurrences
+    words.forEach((word, idx) => {
+        const normalizedWord = word.toLowerCase();
+        if (wordMap.has(normalizedWord)) {
+            const entry = wordMap.get(normalizedWord)!;
+            entry.indices.push(idx);
+            entry.count++;
+        } else {
+            wordMap.set(normalizedWord, { indices: [idx], count: 1 });
+        }
+    });
+    
+    // Create unique word objects with their occurrences
+    const wordObjects: WordObject[] = [];
+    wordMap.forEach((data, normalizedWord) => {
+        // Find the first word from the original text to preserve proper casing and punctuation
+        const originalWord = words[data.indices[0]];
+        wordObjects.push({
+            word: originalWord,
+            originalIndices: data.indices,
+            remainingUses: data.count,
+            used: false,
+            incorrect: false
+        });
+    });
 
-    // Shuffle the words again
+    // Shuffle the words
     const scrambled = [...wordObjects].sort(() => Math.random() - 0.5);
 
     // Reset state
