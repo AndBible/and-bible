@@ -42,14 +42,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import {ref, computed, inject} from "vue";
+import {MemorizeTextItem} from "@/types/documents";
+import {appSettingsKey, exportModeKey} from "@/types/constants";
+import {useCommon} from "@/composables";
 
-interface TextItem {
-  key: string;
-  text: string;
-}
+defineProps<{textItems: MemorizeTextItem[]}>();
 
-defineProps<{textItems: TextItem[]}>();
+const exportMode = inject(exportModeKey, ref(false));
+const appSettings = inject(appSettingsKey)!;
+
+const {android, sprintf, strings} = useCommon();
 
 // Word blur implementation
 const blurLevel = ref(0);

@@ -16,24 +16,16 @@
   -->
 
 <template>
-  <h2>Memorize!</h2>
-  
+  <h2>{{document.title}}</h2>
   <WordBlur :textItems="document.texts"></WordBlur>
 </template>
 
 <script setup lang="ts">
-import {useCommon} from "@/composables";
-import {inject, ref} from "vue";
-import {appSettingsKey, exportModeKey} from "@/types/constants";
 import {MemorizeDocument} from "@/types/documents";
 import WordBlur from '@/components/memorize/WordBlur.vue';
 
-const props = defineProps<{ document: MemorizeDocument }>();
+defineProps<{ document: MemorizeDocument }>();
 
-const exportMode = inject(exportModeKey, ref(false));
-const appSettings = inject(appSettingsKey)!;
-
-const {android, sprintf, strings} = useCommon();
 </script>
 
 <style scoped lang="scss">

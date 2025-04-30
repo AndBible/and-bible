@@ -43,12 +43,16 @@ export type MultiFragmentDocument = {
     compare: boolean
 }
 
+export interface MemorizeTextItem {
+    key: string;
+    text: string;
+}
+
 export type MemorizeDocument = {
     id: string
     type: "memorize"
-    texts: [
-        {key: string, text: string}
-    ]
+    title: string
+    texts: MemorizeTextItem[]
 }
 
 type BaseOsisDocument = BaseDocument & {

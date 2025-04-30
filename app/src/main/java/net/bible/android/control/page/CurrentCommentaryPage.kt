@@ -25,6 +25,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.service.common.shortName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.isSpecial
 import net.bible.service.sword.BookAndKey
@@ -79,16 +80,16 @@ open class CurrentCommentaryPage internal constructor(
                 MultiFragmentDocument(frags, compare=true)
             } else if (currentDocument == FakeBookFactory.memorizeDocument) {
                 val bookAndKey = sourceBookAndKey
-                    ?: return ErrorDocument("Memorize: originalBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
+                    ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
                 val doc = bookAndKey.document
                 val verseRange = bookAndKey.key as? VerseRange
-                    ?: return ErrorDocument("Memorize: originalBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
+                    ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
                 var texts = ArrayList<Pair<String, String>>()
                 for (verse in verseRange) {
                     val text = SwordContentFacade.getCanonicalText(doc, verse)
-                    texts.add(Pair(verse.osisID, text))
+                    texts.add(Pair(verse.shortName, text))
                 }
-                MemorizeDocument(key.osisRef, texts)
+                MemorizeDocument(verseRange.shortName, texts)
             } else super.currentPageContent
         }
 
