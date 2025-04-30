@@ -28,6 +28,7 @@ import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_C
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.isSpecial
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -52,6 +53,7 @@ open class CurrentCommentaryPage internal constructor(
 {
 
     override val documentCategory = DocumentCategory.COMMENTARY
+    var sourceBookAndKey: BookAndKey? = null
 
     override fun startKeyChooser(context: ActivityBase) =
         context.startActivityForResult(Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
@@ -76,7 +78,7 @@ open class CurrentCommentaryPage internal constructor(
                 }.filterNotNull()
                 MultiFragmentDocument(frags, compare=true)
             } else if (currentDocument == FakeBookFactory.memorizeDocument) {
-                val bookAndKey = originalBookAndKey
+                val bookAndKey = sourceBookAndKey
                     ?: return ErrorDocument("Memorize: originalBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
                 val doc = bookAndKey.document
                 val verseRange = bookAndKey.key as? VerseRange
@@ -168,7 +170,7 @@ open class CurrentCommentaryPage internal constructor(
     override val isSearchable get() = !isSpecialDoc
 
     val entity get() =
-        WorkspaceEntities.CommentaryPage(currentDocument?.initials, anchorOrdinal?.start)
+        WorkspaceEntities.CommentaryPage(currentDocument?.initials, anchorOrdinal?.start, sourceBookAndKey?.serialized)
 
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
@@ -186,6 +188,7 @@ open class CurrentCommentaryPage internal constructor(
             // Otherwise versification will be messed up!
             onlySetCurrentDocument(book)
             anchorOrdinal = entity.anchorOrdinal?.let { OrdinalRange(it) }
+            sourceBookAndKey = entity.sourceBookAndKey?.let { BookAndKeySerialized.fromJSON(it).bookAndKey }
         }
     }
 

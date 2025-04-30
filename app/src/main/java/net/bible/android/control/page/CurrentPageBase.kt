@@ -87,7 +87,6 @@ abstract class CurrentPageBase protected constructor(
             _anchorOrdinal = newValue
         }
 
-    override var originalBookAndKey: BookAndKey? = null
     private var keyWhenAnchorOrdinalSet: Key? = null
     private var docWhenAnchorOrdinalSet: Book? = null
 

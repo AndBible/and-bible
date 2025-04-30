@@ -98,7 +98,6 @@ interface CurrentPage {
     val isSpeakable: Boolean
     val isSyncable: Boolean
 
-    var originalBookAndKey: BookAndKey?
     var anchorOrdinal: OrdinalRange?
     var htmlId: String?
 

@@ -30,10 +30,15 @@ private val addPageNumber = makeMigration(3..4) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showPageNumber` INTEGER DEFAULT NULL")
 }
 
+private val addCommentarySourceBookAndKey = makeMigration(4..5) { _db ->
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `commentary_sourceBookAndKey` TEXT DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
-    addPageNumber
+    addPageNumber,
+    addCommentarySourceBookAndKey
 )
 
-const val WORKSPACE_DATABASE_VERSION = 4
+const val WORKSPACE_DATABASE_VERSION = 5

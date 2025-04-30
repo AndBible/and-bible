@@ -42,7 +42,6 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseKey
 import java.lang.IllegalArgumentException
-import java.lang.RuntimeException
 
 import javax.inject.Inject
 
@@ -205,7 +204,9 @@ open class CurrentPageManager @Inject constructor(
                 }
                 if(key is BookAndKey) {
                     nextPage.setKey(key.key)
-                    nextPage.originalBookAndKey = key
+                    if (nextPage is CurrentCommentaryPage) {
+                        nextPage.sourceBookAndKey = key
+                    }
                     nextPage.anchorOrdinal = key.ordinal
                     nextPage.htmlId = key.htmlId
                 } else {
