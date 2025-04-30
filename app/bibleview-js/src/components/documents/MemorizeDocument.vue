@@ -34,6 +34,7 @@
   <component 
       :is="currentModeComponent"
       :text-items="document.texts"
+      :mode-config="document.state?.modeConfig"
       @save-mode-config="saveModeConfig"
   ></component>
 </template>

@@ -48,6 +48,7 @@ import { MemorizeTextItem } from "@/types/documents";
 
 defineProps<{
     textItems: MemorizeTextItem[]
+    modeConfig: any
 }>();
 
 const emit = defineEmits<{

@@ -87,7 +87,8 @@ interface WordObject {
 }
 
 const props = defineProps<{ 
-    textItems: MemorizeTextItem[]
+    textItems: MemorizeTextItem[],
+    modeConfig: any
 }>();
 
 const emit = defineEmits<{
