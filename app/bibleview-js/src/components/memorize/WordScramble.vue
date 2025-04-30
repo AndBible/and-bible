@@ -16,44 +16,43 @@
   -->
 
 <template>
-  <div>
-    <div class="memorize-controls">
-      <div class="button"
-          @touchstart="isPeeking = true"
-          @touchend="isPeeking = false"
-      >
-        {{ strings.peek }}
-      </div>
-      <div @click="resetWords()" class="button">{{ strings.reset }}</div>
+  <div class="memorize-controls">
+    <div class="button"
+         @touchstart="isPeeking = true"
+         @touchend="isPeeking = false"
+    >
+      {{ strings.peek }}
     </div>
+    <div @click="resetWords()" class="button">{{ strings.reset }}</div>
+  </div>
       
-    <!-- Text area with revealed words or full preview -->
-    <div class="memorize-text" :class="{ 'preview': isPeeking }">
-      <template v-if="isPeeking">
-        <div v-for="item in textItems" :key="item.key" class="text-block">
-          <span class="memorize-word">{{ item.text }}</span>
-        </div>
-      </template>
-      <template v-else>
-        <div v-for="(item, itemIndex) in textItems" :key="item.key" class="text-block">
-          <template v-for="(word, wordIndex) in getWordsFromText(item.text)" :key="`text-${item.key}-${wordIndex}`">
-            <span
-                class="memorize-word" 
-                :class="{ 
+  <!-- Text area with revealed words or full preview -->
+  <div class="memorize-text" :class="{ 'preview': isPeeking, 'completed': isCompleted }">
+    <template v-if="isPeeking">
+      <div v-for="item in textItems" :key="item.key" class="text-block">
+        <span class="memorize-word">{{ item.text }}</span>
+      </div>
+    </template>
+    <template v-else>
+      <div v-for="(item, itemIndex) in textItems" :key="item.key" class="text-block">
+        <template v-for="(word, wordIndex) in getWordsFromText(item.text)" :key="`text-${item.key}-${wordIndex}`">
+          <span
+              class="memorize-word"
+              :class="{
                   'revealed': isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)),
                   'punctuation': isPunctuation(word)
                 }"
-            >
-              {{ isPunctuation(word) || isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) ? word : '___' }}
-            </span>
-          </template>
-        </div>
-      </template>
-    </div>
+          >
+            {{ isPunctuation(word) || isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) ? word : '___' }}
+          </span>
+        </template>
+      </div>
+    </template>
+  </div>
       
-    <!-- Word buttons in scrambled order -->
-    <div class="word-buttons">
-      <div
+  <!-- Word buttons in scrambled order -->
+  <div class="word-buttons">
+    <div
         v-for="(wordObj, buttonIndex) in scrambledWords"
         :key="`button-${buttonIndex}`"
         class="button small"
@@ -62,15 +61,14 @@
           disabled: wordObj.used,
         }"
         @click="selectWord(buttonIndex, wordObj)"
-      >
-        {{ wordObj.word }}{{ wordObj.remainingUses > 1 ? ` (${wordObj.remainingUses})` : '' }}
-      </div>
+    >
+      {{ wordObj.word }}{{ wordObj.remainingUses > 1 ? ` (${wordObj.remainingUses})` : '' }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useCommon } from "@/composables";
 import {MemorizeTextItem} from "@/types/documents";
 
@@ -101,6 +99,15 @@ const { strings } = useCommon();
 const scrambledWords = ref<WordObject[]>([]);
 const currentWordIndex = ref<number>(0);
 const isPeeking = ref<boolean>(false);
+
+// Computed property to check if all words have been correctly placed
+const isCompleted = computed(() => {
+  // If there are no words loaded yet, we're not complete
+  if (scrambledWords.value.length === 0) return false;
+  
+  // Check if all words have been used
+  return scrambledWords.value.every(word => word.used);
+});
 
 // Convert item and word indices to a global word index
 function getGlobalWordIndex(itemIndex: number, wordIndex: number): number {
@@ -267,6 +274,15 @@ function resetWords() {
 <style scoped lang="scss">
 @import "~@/common.scss";
 
+// Completed state styles
+.completed {
+  border: 2px solid var(--success-color, #28a745);
+  border-radius: 8px;
+  padding: 0.5rem;
+  background-color: rgba(40, 167, 69, 0.05);
+}
+
+
 .memorize-text {
   .memorize-word {
     margin-right: 4px;
@@ -278,6 +294,11 @@ function resetWords() {
     &.revealed {
       color: var(--text-color);
     }
+  }
+  
+  &.completed {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 }
 
