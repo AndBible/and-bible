@@ -21,8 +21,8 @@
       <span class="reference">{{ item.key }}</span>
 
       <!-- Text area with revealed words or full preview -->
-      <div class="verse-text" :class="{ 'preview': isShowingFullText(itemIndex) || isPeeking[itemIndex] }">
-        <template v-if="isShowingFullText(itemIndex) || isPeeking[itemIndex]">
+      <div class="verse-text" :class="{ 'preview': isPeeking[itemIndex] }">
+        <template v-if="isPeeking[itemIndex]">
           <span class="word">{{ item.text }}</span>
         </template>
         <template v-else>
@@ -38,7 +38,7 @@
       </div>
       
       <!-- Word buttons in scrambled order -->
-      <div class="word-buttons" v-if="!isShowingFullText(itemIndex)">
+      <div class="word-buttons">
         <button 
           v-for="(wordObj, buttonIndex) in scrambledWords[itemIndex]" 
           :key="`button-${item.key}-${buttonIndex}`"
@@ -50,14 +50,13 @@
           :disabled="wordObj.used"
           @click="selectWord(itemIndex, buttonIndex, wordObj)"
         >
-          {{ wordObj.word }}
+          {{ wordObj.word }}{{ wordObj.remainingUses > 1 ? ` (${wordObj.remainingUses})` : '' }}
         </button>
       </div>
       
       <div class="button-container">
         <!-- Show the peek button only when the game is active (not in preview) -->
         <button 
-          v-if="!isShowingFullText(itemIndex)" 
           @touchstart="isPeeking[itemIndex] = true"
           @touchend="isPeeking[itemIndex] = false"
           class="peek-button"
@@ -71,14 +70,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useCommon } from "@/composables";
-import {sleep} from "@/utils";
-
-interface TextItem {
-  key: string;
-  text: string;
-}
+import {MemorizeTextItem} from "@/types/documents";
 
 interface WordObject {
   word: string;
@@ -89,7 +83,7 @@ interface WordObject {
 }
 
 const props = defineProps<{ 
-  textItems: TextItem[]
+  textItems: MemorizeTextItem[]
 }>();
 
 const { strings } = useCommon();
@@ -97,7 +91,6 @@ const { strings } = useCommon();
 const scrambledWords = ref<WordObject[][]>([]);
 const currentWordIndices = ref<number[]>([]);
 const showFullTextTimers = ref<number[]>([]);
-const isInitialPreview = ref<boolean[]>([]);
 const isPeeking = ref<boolean[]>([]);
 
 function getWordsFromText(text: string) {
@@ -110,13 +103,8 @@ function isWordRevealed(itemIndex: number, wordIndex: number) {
     return wordIndex < currentWordIndices.value[itemIndex];
 }
 
-function isShowingFullText(itemIndex: number) {
-    return isInitialPreview.value[itemIndex];
-}
-
 onMounted(() => {
     // Initialize the scrambled words for each text item
-    isInitialPreview.value = Array(props.textItems.length).fill(true);
     isPeeking.value = Array(props.textItems.length).fill(false);
     showFullTextTimers.value = Array(props.textItems.length).fill(0);
   
@@ -150,13 +138,9 @@ function selectWord(itemIndex: number, buttonIndex: number, wordObj: WordObject)
 }
 
 function resetScramble(itemIndex: number) {
-    // Clear any active timers
     if (showFullTextTimers.value[itemIndex]) {
         clearTimeout(showFullTextTimers.value[itemIndex]);
     }
-
-    // Start with full text preview again
-    isInitialPreview.value[itemIndex] = true;
     initializeWords(itemIndex)
 }
 
@@ -198,11 +182,6 @@ function initializeWords(itemIndex: number) {
     // Reset state
     scrambledWords.value[itemIndex] = scrambled;
     currentWordIndices.value[itemIndex] = 0;
-
-    // Show full text for 3 seconds then hide
-    showFullTextTimers.value[itemIndex] = setTimeout(() => {
-        isInitialPreview.value[itemIndex] = false;
-    }, 3000) as unknown as number;
 }
 
 </script>

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <h2>Memorize!</h2>
+  <h2>{{document.title}}</h2>
   
   <!-- Mode selection -->
   <div class="memorize-mode-selector">
@@ -33,42 +33,34 @@
   <!-- Different memorize components based on selected mode -->
   <component 
     :is="currentModeComponent" 
-    :textItems="document.texts"
+    :text-items="document.texts"
   ></component>
 </template>
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
-import {inject, ref, computed} from "vue";
-import {appSettingsKey, exportModeKey} from "@/types/constants";
+import {ref, computed} from "vue";
 import {MemorizeDocument} from "@/types/documents";
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
 
-const props = defineProps<{ document: MemorizeDocument }>();
-
-// eslint-disable-next-line vue/no-setup-props-destructure
-const exportMode = inject(exportModeKey, ref(false));
-const appSettings = inject(appSettingsKey)!;
+defineProps<{ document: MemorizeDocument }>();
 
 const {android, sprintf, strings} = useCommon();
 
-// Define available memorize modes
 const BLUR_MODE = 'blur';
 const SCRAMBLE_MODE = 'scramble';
 
 const memorizeModes = [
-  { value: BLUR_MODE, label: 'Word Blur', component: WordBlur },
-  { value: SCRAMBLE_MODE, label: 'Word Scramble', component: WordScramble }
+    { value: BLUR_MODE, label: strings.wordBlur, component: WordBlur },
+    { value: SCRAMBLE_MODE, label: strings.wordScramble, component: WordScramble }
 ];
 
-// State for selected mode
 const selectedMode = ref(BLUR_MODE);
 
-// Computed property to get current component based on selected mode
 const currentModeComponent = computed(() => {
-  const mode = memorizeModes.find(mode => mode.value === selectedMode.value);
-  return mode ? mode.component : WordBlur; // Default to WordBlur if no mode found
+    const mode = memorizeModes.find(mode => mode.value === selectedMode.value);
+    return mode ? mode.component : WordBlur;
 });
 </script>
 
