@@ -52,7 +52,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: 'save-mode-config', config: { blurLevel: number }): void
+    (e: 'save-mode-config', config: any): void
 }>();
 
 const { strings } = useCommon();

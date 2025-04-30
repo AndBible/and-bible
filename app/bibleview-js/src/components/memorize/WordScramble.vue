@@ -26,7 +26,7 @@
         >
           {{ strings.peek }}
         </button>
-        <button @click="initializeWords()" class="reset-button">{{ strings.reset }}</button>
+        <button @click="resetWords()" class="reset-button">{{ strings.reset }}</button>
       </div>
       <!-- Text area with revealed words or full preview -->
       <div class="verse-text" :class="{ 'preview': isPeeking }">
@@ -86,13 +86,18 @@ interface WordObject {
     incorrect: boolean;
 }
 
+interface WordScrambleConfig {
+    currentWordIndex: number;
+    scrambledWords: WordObject[];
+}
+
 const props = defineProps<{ 
     textItems: MemorizeTextItem[],
-    modeConfig: any
+    modeConfig: WordScrambleConfig | undefined
 }>();
 
 const emit = defineEmits<{
-    (e: 'save-mode-config', config: any): void;
+    (e: 'save-mode-config', config: WordScrambleConfig): void;
 }>();
 
 const { strings } = useCommon();
@@ -138,7 +143,12 @@ function isWordRevealed(globalWordIndex: number) {
 }
 
 onMounted(() => {
-    initializeWords();
+    if (props.modeConfig) {
+        scrambledWords.value = props.modeConfig.scrambledWords;
+        currentWordIndex.value = props.modeConfig.currentWordIndex;
+    } else {
+        resetWords();
+    }
 });
 
 function selectWord(buttonIndex: number, wordObj: WordObject) {
@@ -151,6 +161,12 @@ function selectWord(buttonIndex: number, wordObj: WordObject) {
             scrambledWords.value[buttonIndex].used = true;
         }
         currentWordIndex.value++;
+        
+        // Save state after successful word selection
+        emit('save-mode-config', {
+            currentWordIndex: currentWordIndex.value,
+            scrambledWords: scrambledWords.value
+        });
     } else {
         // Incorrect word selected
         scrambledWords.value[buttonIndex].incorrect = true;
@@ -162,7 +178,7 @@ function selectWord(buttonIndex: number, wordObj: WordObject) {
     }
 }
 
-function initializeWords() {
+function resetWords() {
     // Create a map to track all words across all text items
     const wordMap = new Map<string, { indices: number[], count: number }>();
     
@@ -211,6 +227,12 @@ function initializeWords() {
     scrambledWords.value = scrambled;
     currentWordIndex.value = 0;
     isPeeking.value = false;
+
+    // Save the initial state
+    emit('save-mode-config', {
+        currentWordIndex: currentWordIndex.value,
+        scrambledWords: scrambledWords.value
+    });
 }
 
 </script>
