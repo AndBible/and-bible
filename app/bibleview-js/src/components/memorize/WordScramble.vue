@@ -26,7 +26,7 @@
         >
           {{ strings.peek }}
         </button>
-        <button @click="resetScramble()" class="reset-button">{{ strings.reset }}</button>
+        <button @click="initializeWords()" class="reset-button">{{ strings.reset }}</button>
       </div>
       <!-- Text area with revealed words or full preview -->
       <div class="verse-text" :class="{ 'preview': isPeeking }">
@@ -74,20 +74,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useCommon } from "@/composables";
 import {MemorizeTextItem} from "@/types/documents";
 
 interface WordObject {
-  word: string;
-  originalIndices: number[];  // Track all global positions where this word appears
-  remainingUses: number;     // Track how many more times this word can be used
-  used: boolean;             // Word is fully used (all occurrences used)
-  incorrect: boolean;
+    word: string;
+    originalIndices: number[];  // Track all global positions where this word appears
+    remainingUses: number;     // Track how many more times this word can be used
+    used: boolean;             // Word is fully used (all occurrences used)
+    incorrect: boolean;
 }
 
 const props = defineProps<{ 
-  textItems: MemorizeTextItem[]
+    textItems: MemorizeTextItem[]
 }>();
 
 const { strings } = useCommon();
@@ -96,38 +96,31 @@ const scrambledWords = ref<WordObject[]>([]);
 const currentWordIndex = ref<number>(0);
 const isPeeking = ref<boolean>(false);
 
-// Calculate the total number of words across all text items
-const totalWords = computed(() => {
-  return props.textItems.reduce((count, item) => {
-    return count + getWordsFromText(item.text).length;
-  }, 0);
-});
-
 // Convert item and word indices to a global word index
 function getGlobalWordIndex(itemIndex: number, wordIndex: number): number {
-  let globalIndex = wordIndex;
-  // Add the length of all previous items' word arrays
-  for (let i = 0; i < itemIndex; i++) {
-    globalIndex += getWordsFromText(props.textItems[i].text).length;
-  }
-  return globalIndex;
+    let globalIndex = wordIndex;
+    // Add the length of all previous items' word arrays
+    for (let i = 0; i < itemIndex; i++) {
+        globalIndex += getWordsFromText(props.textItems[i].text).length;
+    }
+    return globalIndex;
 }
 
 // Get the item and local word indices from a global word index
 function getLocalIndices(globalIndex: number): { itemIndex: number, localIndex: number } {
-  let currentCount = 0;
-  for (let i = 0; i < props.textItems.length; i++) {
-    const wordsInItem = getWordsFromText(props.textItems[i].text).length;
-    if (globalIndex < currentCount + wordsInItem) {
-      return {
-        itemIndex: i,
-        localIndex: globalIndex - currentCount
-      };
+    let currentCount = 0;
+    for (let i = 0; i < props.textItems.length; i++) {
+        const wordsInItem = getWordsFromText(props.textItems[i].text).length;
+        if (globalIndex < currentCount + wordsInItem) {
+            return {
+                itemIndex: i,
+                localIndex: globalIndex - currentCount
+            };
+        }
+        currentCount += wordsInItem;
     }
-    currentCount += wordsInItem;
-  }
-  // Should never reach here if indices are correct
-  return { itemIndex: props.textItems.length - 1, localIndex: 0 };
+    // Should never reach here if indices are correct
+    return { itemIndex: props.textItems.length - 1, localIndex: 0 };
 }
 
 function getWordsFromText(text: string) {
@@ -162,10 +155,6 @@ function selectWord(buttonIndex: number, wordObj: WordObject) {
             scrambledWords.value[buttonIndex].incorrect = false;
         }, 1000);
     }
-}
-
-function resetScramble() {
-    initializeWords();
 }
 
 function initializeWords() {
