@@ -32,23 +32,19 @@
       <div class="verse-text" :class="{ 'preview': isPeeking }">
         <template v-if="isPeeking">
           <div v-for="item in textItems" :key="item.key" class="text-block">
-            <span class="reference">{{ item.key }}</span>
             <span class="word">{{ item.text }}</span>
           </div>
         </template>
         <template v-else>
           <div v-for="(item, itemIndex) in textItems" :key="item.key" class="text-block">
-            <span class="reference">{{ item.key }}</span>
-            <div>
-              <template v-for="(word, wordIndex) in getWordsFromText(item.text)" :key="`text-${item.key}-${wordIndex}`">
-                <span 
+            <template v-for="(word, wordIndex) in getWordsFromText(item.text)" :key="`text-${item.key}-${wordIndex}`">
+              <span
                   class="word" 
                   :class="{ 'revealed': isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) }"
-                >
-                  {{ isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) ? word : '___' }}
-                </span>
-              </template>
-            </div>
+              >
+                {{ isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) ? word : '___' }}
+              </span>
+            </template>
           </div>
         </template>
       </div>

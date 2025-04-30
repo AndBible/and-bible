@@ -112,9 +112,7 @@ type TranslatedStrings = {
     verseNoteLong: string
     addBookmark: string
     selectCustomIconTitle: string
-    startBlurring: string
-    blurMoreWords: string
-    allWordsBlurred: string
+    blur: string
     reset: string
     peek: string
     wordBlur: string

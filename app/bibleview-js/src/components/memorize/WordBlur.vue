@@ -18,11 +18,11 @@
 <template>
   <div>
     <div class="memorize-controls">
-      <button @click="increaseBlurLevel" class="blur-button">{{ blurButtonText }}</button>
+      <button @click="increaseBlurLevel" class="blur-button">{{ strings.blur }}</button>
       <button @click="resetBlur" class="reset-button">{{strings.reset}}</button>
     </div>
     <div class="memorize-text">
-      <span v-for="item in textItems" :key="item.key">
+      <div v-for="item in textItems" :key="item.key">
         <span
             v-for="(word, wordIndex) in getWordsFromText(item.text)"
             :key="`${item.key}-${wordIndex}`"
@@ -35,7 +35,7 @@
         >
           {{ word }}
         </span>
-      </span>
+      </div>
     </div>
   </div>
 </template>
@@ -82,16 +82,6 @@ function saveState() {
     revealedWords: revealedWords.value
   });
 }
-
-const blurButtonText = computed(() => {
-    if (blurLevel.value === 0) {
-        return strings.startBlurring;
-    } else if (blurLevel.value < 5) {
-        return strings.blurMoreWords;
-    } else {
-        return strings.allWordsBlurred;
-    }
-});
 
 const getWordsFromText = (text: string) => {
     return text.split(/\s+/).filter(word => word.length > 0);

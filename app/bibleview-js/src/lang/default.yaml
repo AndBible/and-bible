@@ -68,9 +68,7 @@ verseMemorizeLong: Memorize verse
 verseNoteLong: Write a note
 addBookmark: Bookmark
 selectCustomIconTitle: Select custom marker icon
-startBlurring: Start Blurring
-blurMoreWords: Blur More Words
-allWordsBlurred: All Words Blurred
+blur: Blur
 reset: Reset
 peek: Peek
 wordBlur: Word Blur
