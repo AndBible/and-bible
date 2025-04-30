@@ -155,8 +155,8 @@ function isPunctuation(word: string): boolean {
 
 onMounted(() => {
     if (props.modeConfig) {
-        scrambledWords.value = props.modeConfig.scrambledWords;
-        currentWordIndex.value = props.modeConfig.currentWordIndex;
+        scrambledWords.value = props.modeConfig.scrambledWords ?? [];
+        currentWordIndex.value = props.modeConfig.currentWordIndex ?? 0;
     } else {
         resetWords();
     }
