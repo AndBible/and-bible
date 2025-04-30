@@ -41,13 +41,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useCommon } from "@/composables";
 import { MemorizeTextItem } from "@/types/documents";
 
 interface WordBlurConfig {
-  blurLevel: number;
-  revealedWords: Record<string, boolean>;
+    blurConfig: {
+        blurLevel: number;
+        revealedWords: Record<string, boolean>;
+    }
 }
 
 const props = defineProps<{
@@ -66,21 +68,24 @@ const revealedWords = ref<Record<string, boolean>>({});
 const wordRevealTimer = ref<Record<string, number>>({});
 
 onMounted(() => {
-  if (props.modeConfig) {
-    blurLevel.value = props.modeConfig.blurLevel;
-    revealedWords.value = props.modeConfig.revealedWords || {};
-  }
+    const config = props.modeConfig?.blurConfig;
+    if (config) {
+        blurLevel.value = config.blurLevel;
+        revealedWords.value = config.revealedWords;
+    }
 });
 
 watch([blurLevel, revealedWords], () => {
-  saveState();
+    saveState();
 }, { deep: true });
 
 function saveState() {
-  emit('save-mode-config', {
-    blurLevel: blurLevel.value,
-    revealedWords: revealedWords.value
-  });
+    emit('save-mode-config', {
+        blurConfig: {
+            blurLevel: blurLevel.value,
+            revealedWords: revealedWords.value
+        }
+    });
 }
 
 const getWordsFromText = (text: string) => {

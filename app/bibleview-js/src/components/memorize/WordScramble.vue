@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import {ref, onMounted, computed, watch} from "vue";
 import { useCommon } from "@/composables";
 import {MemorizeTextItem} from "@/types/documents";
 
@@ -81,8 +81,10 @@ interface WordObject {
 }
 
 interface WordScrambleConfig {
-    currentWordIndex: number;
-    scrambledWords: WordObject[];
+    scrambleConfig?: {
+        currentWordIndex: number;
+        scrambledWords: WordObject[];
+    }
 }
 
 const props = defineProps<{ 
@@ -154,9 +156,10 @@ function isPunctuation(word: string): boolean {
 }
 
 onMounted(() => {
-    if (props.modeConfig) {
-        scrambledWords.value = props.modeConfig.scrambledWords ?? [];
-        currentWordIndex.value = props.modeConfig.currentWordIndex ?? 0;
+    const config = props.modeConfig?.scrambleConfig;
+    if (config) {
+        scrambledWords.value = config.scrambledWords ?? [];
+        currentWordIndex.value = config.currentWordIndex ?? 0;
     } else {
         resetWords();
     }
@@ -191,8 +194,10 @@ function selectWord(buttonIndex: number, wordObj: WordObject) {
         
         // Save state after successful word selection
         emit('save-mode-config', {
-            currentWordIndex: currentWordIndex.value,
-            scrambledWords: scrambledWords.value
+            scrambleConfig: {
+                currentWordIndex: currentWordIndex.value,
+                scrambledWords: scrambledWords.value
+            }
         });
     } else {
         // Incorrect word selected
@@ -264,8 +269,10 @@ function resetWords() {
 
     // Save the initial state
     emit('save-mode-config', {
-        currentWordIndex: currentWordIndex.value,
-        scrambledWords: scrambledWords.value
+        scrambleConfig: {
+            currentWordIndex: currentWordIndex.value,
+            scrambledWords: scrambledWords.value
+        }
     });
 }
 

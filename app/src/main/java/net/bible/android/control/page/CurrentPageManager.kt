@@ -169,10 +169,6 @@ open class CurrentPageManager @Inject constructor(
             val prevDocInPage = nextPage!!.currentDocument
             val sameDoc = nextDocument == prevDocInPage
 
-            if (nextDocument !== FakeBookFactory.memorizeDocument) {
-                jsState = null
-            }
-
             if(currentPage.currentDocument == FakeBookFactory.multiDocument && nextPage == currentBible) {
                 currentBible.setCurrentDocument(nextDocument)
                 currentPage = nextPage
@@ -202,6 +198,7 @@ open class CurrentPageManager @Inject constructor(
                                  key: Key,
                                  anchorOrdinal: OrdinalRange? = null
     ): CurrentPage? {
+        jsState = null
         val nextPage = getBookPage(currentBook, key)
         if (nextPage != null) {
             try {
