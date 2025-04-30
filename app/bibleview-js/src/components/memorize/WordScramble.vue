@@ -17,54 +17,53 @@
 
 <template>
   <div>
-    <div class="scramble-container">
-      <div class="button-container">
-        <button
-            @touchstart="isPeeking = true"
-            @touchend="isPeeking = false"
-            class="peek-button"
-        >
-          {{ strings.peek }}
-        </button>
-        <button @click="resetWords()" class="reset-button">{{ strings.reset }}</button>
-      </div>
-      <!-- Text area with revealed words or full preview -->
-      <div class="verse-text" :class="{ 'preview': isPeeking }">
-        <template v-if="isPeeking">
-          <div v-for="item in textItems" :key="item.key" class="text-block">
-            <span class="word">{{ item.text }}</span>
-          </div>
-        </template>
-        <template v-else>
-          <div v-for="(item, itemIndex) in textItems" :key="item.key" class="text-block">
-            <template v-for="(word, wordIndex) in getWordsFromText(item.text)" :key="`text-${item.key}-${wordIndex}`">
-              <span
-                  class="word" 
-                  :class="{ 'revealed': isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) }"
-              >
-                {{ isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) ? word : '___' }}
-              </span>
-            </template>
-          </div>
-        </template>
-      </div>
+    <div class="memorize-controls">
+      <button
+          @touchstart="isPeeking = true"
+          @touchend="isPeeking = false"
+          class="memorize-button utility"
+      >
+        {{ strings.peek }}
+      </button>
+      <button @click="resetWords()" class="memorize-button secondary">{{ strings.reset }}</button>
+    </div>
       
-      <!-- Word buttons in scrambled order -->
-      <div class="word-buttons">
-        <button 
-          v-for="(wordObj, buttonIndex) in scrambledWords"
-          :key="`button-${buttonIndex}`"
-          :class="{ 
-            'word-button': true, 
-            'used': wordObj.used,
-            'incorrect': wordObj.incorrect 
-          }"
-          :disabled="wordObj.used"
-          @click="selectWord(buttonIndex, wordObj)"
-        >
-          {{ wordObj.word }}{{ wordObj.remainingUses > 1 ? ` (${wordObj.remainingUses})` : '' }}
-        </button>
-      </div>
+    <!-- Text area with revealed words or full preview -->
+    <div class="memorize-text" :class="{ 'preview': isPeeking }">
+      <template v-if="isPeeking">
+        <div v-for="item in textItems" :key="item.key" class="text-block">
+          <span class="memorize-word">{{ item.text }}</span>
+        </div>
+      </template>
+      <template v-else>
+        <div v-for="(item, itemIndex) in textItems" :key="item.key" class="text-block">
+          <template v-for="(word, wordIndex) in getWordsFromText(item.text)" :key="`text-${item.key}-${wordIndex}`">
+            <span
+                class="memorize-word" 
+                :class="{ 'revealed': isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) }"
+            >
+              {{ isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) ? word : '___' }}
+            </span>
+          </template>
+        </div>
+      </template>
+    </div>
+      
+    <!-- Word buttons in scrambled order -->
+    <div class="word-buttons">
+      <button 
+        v-for="(wordObj, buttonIndex) in scrambledWords"
+        :key="`button-${buttonIndex}`"
+        :class="{ 
+          'memorize-button': true,
+          'primary': true, 
+          'incorrect': wordObj.incorrect 
+        }"
+        :disabled="wordObj.used"
+        @click="selectWord(buttonIndex, wordObj)"
+      >
+        {{ wordObj.word }}{{ wordObj.remainingUses > 1 ? ` (${wordObj.remainingUses})` : '' }}
+      </button>
     </div>
   </div>
 </template>
@@ -236,42 +235,13 @@ function resetWords() {
 <style scoped lang="scss">
 @import "~@/common.scss";
 
-.scramble-container {
-  margin-bottom: 2rem;
+.preview {
+  background-color: rgba(255, 255, 0, 0.15) !important;
+  border: 1px dashed var(--primary-color, #3498db);
 }
 
 .text-block {
   margin-bottom: 1rem;
-}
-
-.reference {
-  display: block;
-  padding-bottom: 0.5em;
-  font-weight: bold;
-}
-
-.verse-text {
-  line-height: 1.8;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  min-height: 3rem;
-  
-  &.preview {
-    background-color: rgba(255, 255, 0, 0.15);
-    border: 1px dashed var(--primary-color, #3498db);
-  }
-}
-
-.word {
-  position: relative;
-  display: inline-block;
-  margin-right: 0.25em;
-}
-
-.revealed {
-  color: var(--text-color, inherit);
 }
 
 .word-buttons {
@@ -279,58 +249,12 @@ function resetWords() {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
-}
-
-.word-button {
-  padding: 0.5rem 0.8rem;
-  border-radius: 4px;
-  background-color: var(--primary-color, #3498db);
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
   
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-  
-  &.used {
-    opacity: 0.3;
-    pointer-events: none;
-  }
-  
-  &.incorrect {
-    background-color: #e74c3c;
-    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-  }
-}
-
-.button-container {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  
-  .reset-button, .peek-button {
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  
-  .peek-button {
-    background-color: rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    color: var(--text-color, inherit);
-    touch-action: manipulation;
-  }
-  
-  .reset-button {
-    background-color: transparent;
-    border: 1px solid var(--primary-color, #3498db);
-    color: var(--primary-color, #3498db);
+  .memorize-button {
+    &.incorrect {
+      background-color: #e74c3c;
+      animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
   }
 }
 

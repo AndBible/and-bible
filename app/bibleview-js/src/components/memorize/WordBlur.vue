@@ -18,8 +18,8 @@
 <template>
   <div>
     <div class="memorize-controls">
-      <button @click="increaseBlurLevel" class="blur-button">{{ strings.blur }}</button>
-      <button @click="resetBlur" class="reset-button">{{strings.reset}}</button>
+      <button @click="increaseBlurLevel" class="memorize-button primary">{{ strings.blur }}</button>
+      <button @click="resetBlur" class="memorize-button secondary">{{strings.reset}}</button>
     </div>
     <div class="memorize-text">
       <div v-for="item in textItems" :key="item.key">
@@ -27,7 +27,7 @@
             v-for="(word, wordIndex) in getWordsFromText(item.text)"
             :key="`${item.key}-${wordIndex}`"
             :class="{
-            'word': true, 
+            'memorize-word': true, 
             'blurred': isWordBlurred(wordIndex),
             'revealed': revealedWords[`${item.key}-${wordIndex}`]
           }"
@@ -147,52 +147,4 @@ function revealWord(textKey: string, wordIndex: number) {
 <style scoped lang="scss">
 @import "~@/common.scss";
 
-.memorize-controls {
-  margin-bottom: 1rem;
-  display: flex;
-  gap: 0.5rem;
-  
-  .blur-button {
-    @extend .button;
-  }
-
-  .reset-button {
-    @extend .button;
-  }
-}
-
-.memorize-text {
-  margin-bottom: 1rem;
-}
-
-.reference {
-  display: block;
-  padding-bottom: 0.5em;
-  font-weight: bold;
-}
-
-.word {
-  position: relative;
-  display: inline-block;
-  margin-right: 0.25em;
-}
-
-.blurred {
-  color: transparent;
-  background-color: rgba(0, 0, 0, 0.2);
-  .night & {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-  border-radius: 3px;
-  padding: 0 2px;
-  cursor: pointer;
-}
-
-.revealed {
-  color: var(--text-color, inherit);
-  background-color: rgba(255, 255, 0, 0.3);
-  .night & {
-    background-color: rgba(0, 0, 0, 0.3);
-  }
-}
 </style>

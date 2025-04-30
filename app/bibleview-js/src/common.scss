@@ -222,3 +222,82 @@ table {
   width: 100%;
   table-layout: fixed;
 }
+
+// Memorize component shared styles
+.memorize-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: flex-end;
+}
+
+.memorize-text {
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  min-height: 3rem;
+}
+
+.memorize-button {
+  padding: 0.5rem 1rem;
+  border-radius: $button-border-radius;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  min-width: 90px;
+  
+  &.primary {
+    background-color: var(--primary-color, #3498db);
+    color: white;
+    border: none;
+  }
+  
+  &.secondary {
+    background-color: transparent;
+    border: 1px solid var(--primary-color, #3498db);
+    color: var(--primary-color, #3498db);
+  }
+  
+  &.utility {
+    background-color: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: var(--text-color, inherit);
+    
+    .night & {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+  
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.memorize-word {
+  position: relative;
+  display: inline-block;
+  margin-right: 0.25em;
+  
+  &.blurred {
+    color: transparent;
+    background-color: rgba(0, 0, 0, 0.2);
+    .night & {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    border-radius: 3px;
+    padding: 0 2px;
+    cursor: pointer;
+  }
+  
+  &.revealed {
+    color: var(--text-color, inherit);
+    background-color: rgba(255, 255, 0, 0.3);
+    .night & {
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+  }
+}
