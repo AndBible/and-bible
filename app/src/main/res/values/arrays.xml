@@ -208,7 +208,6 @@
 	<string-array name="pref_bible_bookmark_modal_action_defaults">
 		<item>BOOKMARK</item>
 		<item>BOOKMARK_NOTES</item>
-		<item>MY_NOTES</item>
 		<item>SHARE</item>
 		<item>COMPARE</item>
 	</string-array>
