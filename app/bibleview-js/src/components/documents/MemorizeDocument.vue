@@ -16,18 +16,86 @@
   -->
 
 <template>
-  <h2>{{document.title}}</h2>
-  <WordBlur :textItems="document.texts"></WordBlur>
+  <h2>Memorize!</h2>
+  
+  <!-- Mode selection -->
+  <div class="memorize-mode-selector">
+    <button 
+      v-for="mode in memorizeModes" 
+      :key="mode.value"
+      :class="['mode-button', { active: selectedMode === mode.value }]"
+      @click="selectedMode = mode.value"
+    >
+      {{ mode.label }}
+    </button>
+  </div>
+  
+  <!-- Different memorize components based on selected mode -->
+  <component 
+    :is="currentModeComponent" 
+    :textItems="document.texts"
+  ></component>
 </template>
 
 <script setup lang="ts">
+import {useCommon} from "@/composables";
+import {inject, ref, computed} from "vue";
+import {appSettingsKey, exportModeKey} from "@/types/constants";
 import {MemorizeDocument} from "@/types/documents";
 import WordBlur from '@/components/memorize/WordBlur.vue';
+import WordScramble from '@/components/memorize/WordScramble.vue';
 
-defineProps<{ document: MemorizeDocument }>();
+const props = defineProps<{ document: MemorizeDocument }>();
 
+// eslint-disable-next-line vue/no-setup-props-destructure
+const exportMode = inject(exportModeKey, ref(false));
+const appSettings = inject(appSettingsKey)!;
+
+const {android, sprintf, strings} = useCommon();
+
+// Define available memorize modes
+const BLUR_MODE = 'blur';
+const SCRAMBLE_MODE = 'scramble';
+
+const memorizeModes = [
+  { value: BLUR_MODE, label: 'Word Blur', component: WordBlur },
+  { value: SCRAMBLE_MODE, label: 'Word Scramble', component: WordScramble }
+];
+
+// State for selected mode
+const selectedMode = ref(BLUR_MODE);
+
+// Computed property to get current component based on selected mode
+const currentModeComponent = computed(() => {
+  const mode = memorizeModes.find(mode => mode.value === selectedMode.value);
+  return mode ? mode.component : WordBlur; // Default to WordBlur if no mode found
+});
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
+.memorize-mode-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  
+  .mode-button {
+    padding: 0.6rem 1rem;
+    border-radius: 20px;
+    background-color: transparent;
+    color: var(--primary-color, #3498db);
+    border: 1px solid var(--primary-color, #3498db);
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    
+    &.active {
+      background-color: var(--primary-color, #3498db);
+      color: white;
+    }
+  }
+}
 </style>
