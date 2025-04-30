@@ -117,6 +117,7 @@ type TranslatedStrings = {
     peek: string
     wordBlur: string
     wordScramble: string
+    more: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings

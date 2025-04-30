@@ -90,6 +90,7 @@ export type Config = {
 
 export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"
 export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"
+export type ModalButtonId = BibleModalButtonId | GenericModalButtonId
 
 export type AppSettings = {
     isBottomWindow: boolean,

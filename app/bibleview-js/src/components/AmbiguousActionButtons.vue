@@ -17,51 +17,82 @@
 
 <template>
   <div :class="{hasActions, horizontal: !vertical, vertical}">
-    <div v-if="hasButton('BOOKMARK')" class="large-action" @click="addBookmark">
-      <FontAwesomeLayers>
-        <FontAwesomeIcon icon="bookmark"/>
-        <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
-      </FontAwesomeLayers>
-      <div class="title">{{ strings.addBookmark }}</div>
+    <!-- Primary buttons that are always visible -->
+    <template v-for="button in primaryButtons" :key="button">
+      <div v-if="hasButton(button)" class="large-action" @click="handleButtonClick(button)">
+        <FontAwesomeLayers v-if="button === 'BOOKMARK'">
+          <FontAwesomeIcon icon="bookmark"/>
+          <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
+        </FontAwesomeLayers>
+        <FontAwesomeLayers v-else-if="button === 'BOOKMARK_NOTES'">
+          <FontAwesomeIcon icon="edit"/>
+          <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
+        </FontAwesomeLayers>
+        <FontAwesomeIcon v-else-if="button === 'SHARE'" icon="share-alt"/>
+        <FontAwesomeIcon v-else-if="button === 'MY_NOTES'" icon="file-alt"/>
+        <FontAwesomeIcon v-else-if="button === 'COMPARE'" icon="custom-compare"/>
+        <FontAwesomeIcon v-else-if="button === 'MEMORIZE'" :icon="faBrain"/>
+        <FontAwesomeIcon v-else-if="button === 'SPEAK'" icon="headphones"/>
+        <div class="title">
+          <template v-if="button === 'BOOKMARK'">{{ strings.addBookmark }}</template>
+          <template v-else-if="button === 'BOOKMARK_NOTES'">{{ vertical ? strings.verseNoteLong : strings.verseNote }}</template>
+          <template v-else-if="button === 'SHARE'">{{ vertical ? strings.verseShareLong : strings.verseShare }}</template>
+          <template v-else-if="button === 'MY_NOTES'">{{ strings.verseMyNotes }}</template>
+          <template v-else-if="button === 'COMPARE'">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</template>
+          <template v-else-if="button === 'MEMORIZE'">{{ vertical ? strings.verseMemorizeLong : strings.verseMemorize }}</template>
+          <template v-else-if="button === 'SPEAK'">{{ strings.verseSpeak }}</template>
+
+        </div>
+      </div>
+    </template>
+
+    <!-- More options button -->
+    <div v-if="secondaryButtons.length > 0" class="large-action" @click="toggleMoreMenu">
+      <FontAwesomeIcon :icon="faEllipsisV"/>
+      <div class="title">{{ strings.more }}</div>
     </div>
-    <div v-if="hasButton('BOOKMARK_NOTES')" class="large-action" @click="addNote">
-      <FontAwesomeLayers>
-        <FontAwesomeIcon icon="edit"/>
-        <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
-      </FontAwesomeLayers>
-      <div class="title">{{ vertical ? strings.verseNoteLong : strings.verseNote }}</div>
-    </div>
-    <div v-if="hasButton('MY_NOTES')" class="large-action" @click="openMyNotes">
-      <FontAwesomeIcon icon="file-alt"/>
-      <div class="title">{{ strings.verseMyNotes }}</div>
-    </div>
-    <div v-if="hasButton('SHARE')" class="large-action" @click="share">
-      <FontAwesomeIcon icon="share-alt"/>
-      <div class="title">{{ vertical ? strings.verseShareLong : strings.verseShare }}</div>
-    </div>
-    <div v-if="hasButton('COMPARE')" class="large-action" @click="compare">
-      <FontAwesomeIcon icon="custom-compare"/>
-      <div class="title">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</div>
-    </div>
-    <div v-if="hasButton('MEMORIZE')" class="large-action" @click="memorize">
-      <FontAwesomeIcon :icon="faBrain"/>
-      <div class="title">{{ vertical ? strings.verseMemorizeLong : strings.verseMemorize }}</div>
-    </div>
-    <div v-if="hasButton('SPEAK')" class="large-action" @click="speak">
-      <FontAwesomeIcon icon="headphones"/>
-      <div class="title">{{ strings.verseSpeak }}</div>
+
+    <!-- Dropdown menu for secondary buttons -->
+    <div v-if="showMoreMenu" class="dropdown-menu" :class="{'vertical-menu': vertical, 'locate-bottom': !locateTop}">
+      <template v-for="button in secondaryButtons" :key="button">
+        <div v-if="hasButton(button)" class="large-action" @click="handleButtonClick(button)">
+          <FontAwesomeLayers v-if="button === 'BOOKMARK'">
+            <FontAwesomeIcon icon="bookmark"/>
+            <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
+          </FontAwesomeLayers>
+          <FontAwesomeLayers v-else-if="button === 'BOOKMARK_NOTES'">
+            <FontAwesomeIcon icon="edit"/>
+            <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
+          </FontAwesomeLayers>
+          <FontAwesomeIcon v-else-if="button === 'SHARE'" icon="share-alt"/>
+          <FontAwesomeIcon v-else-if="button === 'MY_NOTES'" icon="file-alt"/>
+          <FontAwesomeIcon v-else-if="button === 'COMPARE'" icon="custom-compare"/>
+          <FontAwesomeIcon v-else-if="button === 'MEMORIZE'" :icon="faBrain"/>
+          <FontAwesomeIcon v-else-if="button === 'SPEAK'" icon="headphones"/>
+          
+          <div class="title">
+            <template v-if="button === 'BOOKMARK'">{{ strings.addBookmark }}</template>
+            <template v-else-if="button === 'BOOKMARK_NOTES'">{{ vertical ? strings.verseNoteLong : strings.verseNote }}</template>
+            <template v-else-if="button === 'SHARE'">{{ vertical ? strings.verseShareLong : strings.verseShare }}</template>
+            <template v-else-if="button === 'MY_NOTES'">{{ strings.verseMyNotes }}</template>
+            <template v-else-if="button === 'COMPARE'">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</template>
+            <template v-else-if="button === 'MEMORIZE'">{{ vertical ? strings.verseMemorizeLong : strings.verseMemorize }}</template>
+            <template v-else-if="button === 'SPEAK'">{{ strings.verseSpeak }}</template>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, inject} from "vue";
+import {computed, inject, ref} from "vue";
 import {FontAwesomeIcon, FontAwesomeLayers} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
-import {androidKey, keyboardKey, modalKey} from "@/types/constants";
+import {androidKey, keyboardKey, locateTopKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
-import {BibleModalButtonId, GenericModalButtonId} from "@/composables/config";
-import {faBrain} from "@fortawesome/free-solid-svg-icons";
+import {BibleModalButtonId, GenericModalButtonId, ModalButtonId} from "@/composables/config";
+import {faBrain, faEllipsisV} from "@fortawesome/free-solid-svg-icons";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo
@@ -75,6 +106,8 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits(["close"]);
 const {closeModals} = inject(modalKey)!
 const {setupKeyboardListener} = inject(keyboardKey)!
+const locateTop = inject(locateTopKey);
+
 const {strings, appSettings} = useCommon()
 
 const selectionInfo = computed(() => props.selectionInfo);
@@ -85,18 +118,66 @@ const ordinalInfo = computed(() => selectionInfo.value?.ordinalInfo || null);
 const startOrdinal = computed(() => selectionInfo.value && selectionInfo.value.startOrdinal);
 const endOrdinal = computed(() => selectionInfo.value && selectionInfo.value.endOrdinal);
 
-const modalButtons = computed(() => {
+const showMoreMenu = ref(false);
+const toggleMoreMenu = () => {
+    showMoreMenu.value = !showMoreMenu.value;
+};
+
+const modalButtons = computed<ModalButtonId[]>(() => {
     if(verseInfo.value) {
-        return appSettings.bibleModalButtons;
+        return ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE"];
     } else {
-        return appSettings.genericModalButtons;
+        return ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK"];
     }
 });
 
-function hasButton(buttonId: BibleModalButtonId|GenericModalButtonId) {
+const primaryButtons = computed<ModalButtonId[]>(() => {
+    let buttons: ModalButtonId[];
+    if(verseInfo.value) {
+        buttons = appSettings.bibleModalButtons;
+    } else {
+        buttons = appSettings.genericModalButtons;
+    }
+    const buttonsSet = new Set(buttons);
+    return modalButtons.value.filter(button => buttonsSet.has(button));
+});
+
+const secondaryButtons = computed(() => {
+    return modalButtons.value.filter(button => !primaryButtons.value.includes(button));
+});
+
+function hasButton(buttonId: ModalButtonId) {
     return modalButtons.value.includes(buttonId);
 }
 
+function handleButtonClick(buttonId: ModalButtonId) {
+    // Close the more menu when an action is selected
+    showMoreMenu.value = false;
+    
+    switch (buttonId) {
+        case 'BOOKMARK':
+            addBookmark();
+            break;
+        case 'BOOKMARK_NOTES':
+            addNote();
+            break;
+        case 'SHARE':
+            share();
+            break;
+        case 'MY_NOTES':
+            openMyNotes();
+            break;
+        case 'COMPARE':
+            compare();
+            break;
+        case 'MEMORIZE':
+            memorize();
+            break;
+        case 'SPEAK':
+            speak();
+            break;
+    }
+}
 
 function share() {
     if(verseInfo.value) {
@@ -221,5 +302,44 @@ setupKeyboardListener((e: KeyboardEvent) => {
   flex-direction: row;
   justify-content: space-evenly;
   flex-wrap: wrap;
+}
+
+.dropdown-menu {
+  position: absolute;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  padding: 8px;
+  margin-top: 4px;
+  min-width: 50px;
+  right: 0;
+  &.locate-bottom {
+    bottom: 0;
+  }
+  
+  .night & {
+    background-color: #333;
+  }
+
+  &.vertical-menu {
+    position: relative;
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .large-action {
+    padding: 8px;
+    margin: 4px 0;
+    border-radius: 4px;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+      
+      .night & {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
 }
 </style>
