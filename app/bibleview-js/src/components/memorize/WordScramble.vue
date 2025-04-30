@@ -27,7 +27,7 @@
   </div>
       
   <!-- Text area with revealed words or full preview -->
-  <div class="memorize-text" :class="{ 'preview': isPeeking, 'completed': isCompleted }">
+  <div class="memorize-text" :class="{ preview: isPeeking, completed: isCompleted }">
     <template v-if="isPeeking">
       <div v-for="item in textItems" :key="item.key" class="text-block">
         <span class="memorize-word">{{ item.text }}</span>
@@ -193,12 +193,7 @@ function selectWord(buttonIndex: number, wordObj: WordObject) {
         skipPunctuationTokens();
         
         // Save state after successful word selection
-        emit('save-mode-config', {
-            scrambleConfig: {
-                currentWordIndex: currentWordIndex.value,
-                scrambledWords: scrambledWords.value
-            }
-        });
+        saveState();
     } else {
         // Incorrect word selected
         scrambledWords.value[buttonIndex].incorrect = true;
@@ -208,6 +203,15 @@ function selectWord(buttonIndex: number, wordObj: WordObject) {
             scrambledWords.value[buttonIndex].incorrect = false;
         }, 1000);
     }
+}
+
+function saveState() {
+    emit('save-mode-config', {
+        scrambleConfig: {
+            currentWordIndex: currentWordIndex.value,
+            scrambledWords: scrambledWords.value
+        }
+    });
 }
 
 function resetWords() {
@@ -268,12 +272,7 @@ function resetWords() {
     isPeeking.value = false;
 
     // Save the initial state
-    emit('save-mode-config', {
-        scrambleConfig: {
-            currentWordIndex: currentWordIndex.value,
-            scrambledWords: scrambledWords.value
-        }
-    });
+    saveState();
 }
 
 </script>
