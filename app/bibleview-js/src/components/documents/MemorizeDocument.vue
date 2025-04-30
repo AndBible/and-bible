@@ -17,32 +17,185 @@
 
 <template>
   <h2>Memorize!</h2>
-  <div v-for="text in document.texts" :key="text.key">
-    <span>{{text.key}}</span> <span>{{text.text}}</span>
+  <div class="memorize-controls">
+    <button @click="increaseBlurLevel" class="blur-button">{{ blurButtonText }}</button>
+    <button @click="resetBlur" class="reset-button">Reset</button>
+  </div>
+  <div v-for="text in document.texts" :key="text.key" class="memorize-text">
+    <span class="reference">{{ text.key }}</span>
+    <div class="verse-text">
+      <span 
+        v-for="(word, wordIndex) in getWordsFromText(text.text)" 
+        :key="`${text.key}-${wordIndex}`"
+        :class="{ 
+          'word': true, 
+          'blurred': isWordBlurred(wordIndex),
+          'revealed': revealedWords[`${text.key}-${wordIndex}`]
+        }"
+        @click="revealWord(text.key, wordIndex)"
+      >
+        {{ word }}
+      </span>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
-import {inject, ref} from "vue";
+import {inject, ref, computed} from "vue";
 import {appSettingsKey, exportModeKey} from "@/types/constants";
 import {MemorizeDocument} from "@/types/documents";
 
-const props = defineProps<{ document: MemorizeDocument }>();
+defineProps<{ document: MemorizeDocument }>();
 
-// eslint-disable-next-line vue/no-setup-props-destructure
 const exportMode = inject(exportModeKey, ref(false));
 const appSettings = inject(appSettingsKey)!;
 
 const {android, sprintf, strings} = useCommon();
+
+// Word blur implementation
+const blurLevel = ref(0);
+const revealedWords = ref<Record<string, boolean>>({});
+const wordRevealTimer = ref<Record<string, number>>({});
+
+// Computed property for blur button text
+const blurButtonText = computed(() => {
+  if (blurLevel.value === 0) {
+    return "Start Blurring";
+  } else if (blurLevel.value < 5) {
+    return "Blur More Words";
+  } else {
+    return "All Words Blurred";
+  }
+});
+
+// Function to get words from text
+const getWordsFromText = (text: string) => {
+  // Split by spaces, but keep punctuation with words
+  return text.split(/\s+/).filter(word => word.length > 0);
+};
+
+// Function to check if a word should be blurred
+const isWordBlurred = (wordIndex: number) => {
+  if (blurLevel.value === 0) return false;
+  if (blurLevel.value === 5) return true;
+  
+  // Different blur patterns based on level
+  // Level 1: Every 5th word
+  if (blurLevel.value === 1) return wordIndex % 5 === 0;
+  // Level 2: Every 3rd word
+  if (blurLevel.value === 2) return wordIndex % 3 === 0;
+  // Level 3: Every 2nd word
+  if (blurLevel.value === 3) return wordIndex % 2 === 0;
+  // Level 4: Every word except every 5th
+  if (blurLevel.value === 4) return wordIndex % 5 !== 0;
+  
+  return false;
+};
+
+// Function to increase blur level
+const increaseBlurLevel = () => {
+  if (blurLevel.value < 5) {
+    blurLevel.value++;
+    // Clear any revealed words when changing level
+    revealedWords.value = {};
+    Object.keys(wordRevealTimer.value).forEach(key => {
+      clearTimeout(wordRevealTimer.value[key]);
+    });
+    wordRevealTimer.value = {};
+  }
+};
+
+// Function to reset blur
+const resetBlur = () => {
+  blurLevel.value = 0;
+  revealedWords.value = {};
+  Object.keys(wordRevealTimer.value).forEach(key => {
+    clearTimeout(wordRevealTimer.value[key]);
+  });
+  wordRevealTimer.value = {};
+};
+
+// Function to temporarily reveal a word when tapped
+const revealWord = (textKey: string, wordIndex: number) => {
+  const key = `${textKey}-${wordIndex}`;
+  
+  // Only handle clicks on blurred words
+  if (!isWordBlurred(wordIndex)) return;
+  
+  // Clear existing timer if any
+  if (wordRevealTimer.value[key]) {
+    clearTimeout(wordRevealTimer.value[key]);
+  }
+  
+  // Show the word
+  revealedWords.value[key] = true;
+  
+  // Hide it after 2 seconds
+  wordRevealTimer.value[key] = setTimeout(() => {
+    revealedWords.value[key] = false;
+  }, 2000) as unknown as number;
+};
 </script>
 
 <style scoped lang="scss">
 @import "~@/common.scss";
 
-.ref-link {
+.memorize-controls {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .blur-button {
+    background-color: var(--primary-color, #3498db);
+    color: white;
+    border: none;
+  }
+  
+  .reset-button {
+    background-color: transparent;
+    border: 1px solid var(--primary-color, #3498db);
+    color: var(--primary-color, #3498db);
+  }
+}
+
+.memorize-text {
+  margin-bottom: 1rem;
+}
+
+.reference {
+  display: block;
   padding-bottom: 0.5em;
   font-weight: bold;
 }
 
+.verse-text {
+  line-height: 1.6;
+}
+
+.word {
+  position: relative;
+  display: inline-block;
+  margin-right: 0.25em;
+}
+
+.blurred {
+  color: transparent;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.revealed {
+  color: var(--text-color, inherit);
+  background-color: rgba(255, 255, 0, 0.3);
+}
 </style>
