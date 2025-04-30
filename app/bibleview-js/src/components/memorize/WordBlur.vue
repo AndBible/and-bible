@@ -26,11 +26,11 @@
         <span
             v-for="(word, wordIndex) in getWordsFromText(item.text)"
             :key="`${item.key}-${wordIndex}`"
+            class="memorize-word"
             :class="{
-            'memorize-word': true, 
-            'blurred': isWordBlurred(wordIndex),
-            'revealed': revealedWords[`${item.key}-${wordIndex}`]
-          }"
+              blurred: isWordBlurred(wordIndex),
+              revealed: revealedWords[`${item.key}-${wordIndex}`]
+            }"
             @click="revealWord(item.key, wordIndex)"
         >
           {{ word }}
@@ -76,17 +76,13 @@ onMounted(() => {
 });
 
 watch([blurLevel, revealedWords], () => {
-    saveState();
-}, { deep: true });
-
-function saveState() {
     emit('save-mode-config', {
         blurConfig: {
             blurLevel: blurLevel.value,
             revealedWords: revealedWords.value
         }
     });
-}
+}, { deep: true });
 
 const getWordsFromText = (text: string) => {
     return text.split(/\s+/).filter(word => word.length > 0);
@@ -125,7 +121,6 @@ function increaseBlurLevel() {
     }
 }
 
-
 function resetBlur() {
     blurLevel.value = 0;
     revealedWords.value = {};
@@ -134,7 +129,6 @@ function resetBlur() {
     });
     wordRevealTimer.value = {};
 }
-
 
 function revealWord(textKey: string, wordIndex: number) {
     const key = `${textKey}-${wordIndex}`;
