@@ -100,5 +100,4 @@ interface CurrentPage {
 
     var anchorOrdinal: OrdinalRange?
     var htmlId: String?
-
 }

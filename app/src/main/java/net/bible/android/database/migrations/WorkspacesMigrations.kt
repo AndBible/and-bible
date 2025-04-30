@@ -34,11 +34,16 @@ private val addCommentarySourceBookAndKey = makeMigration(4..5) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `commentary_sourceBookAndKey` TEXT DEFAULT NULL")
 }
 
+private val addPageManagerJsState = makeMigration(5..6) { _db ->
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `jsState` TEXT DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
     addPageNumber,
-    addCommentarySourceBookAndKey
+    addCommentarySourceBookAndKey,
+    addPageManagerJsState,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 5
+const val WORKSPACE_DATABASE_VERSION = 6

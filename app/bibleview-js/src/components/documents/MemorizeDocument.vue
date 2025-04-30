@@ -34,29 +34,61 @@
   <component 
       :is="currentModeComponent"
       :text-items="document.texts"
+      @save-mode-config="saveModeConfig"
   ></component>
 </template>
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
-import {ref, computed} from "vue";
-import {MemorizeDocument} from "@/types/documents";
+import {ref, computed, watch, toRefs} from "vue";
+import {
+    MemorizeDocument,
+    MemorizeDocumentState,
+    MemorizeModeConfig,
+    MemorizeStateMode,
+    MemorizeStateModeEnum
+} from "@/types/documents";
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
 
-defineProps<{ document: MemorizeDocument }>();
+const props = defineProps<{ document: MemorizeDocument }>();
 
-const {strings} = useCommon();
+const {document} = toRefs(props);
 
-const BLUR_MODE = 'blur';
-const SCRAMBLE_MODE = 'scramble';
+const selectedMode = ref<MemorizeStateMode>(MemorizeStateModeEnum.BLUR);
+const modeConfig = ref<MemorizeModeConfig|undefined>(undefined);
+
+
+if (document.value.state?.mode) {
+    selectedMode.value = document.value.state.mode;
+}
+modeConfig.value = document.value.state?.modeConfig;
+
+const state = computed<MemorizeDocumentState>(() => {
+    return {
+        mode: selectedMode.value,
+        modeConfig: modeConfig.value,
+    }
+})
+
+const {strings, android} = useCommon();
+
 
 const memorizeModes = [
-    { value: BLUR_MODE, label: strings.wordBlur, component: WordBlur },
-    { value: SCRAMBLE_MODE, label: strings.wordScramble, component: WordScramble }
+    { value: MemorizeStateModeEnum.BLUR, label: strings.wordBlur, component: WordBlur },
+    { value: MemorizeStateModeEnum.SCRAMBLE, label: strings.wordScramble, component: WordScramble }
 ];
 
-const selectedMode = ref(BLUR_MODE);
+function saveModeConfig(_modeConfig: MemorizeModeConfig) {
+    modeConfig.value = _modeConfig;
+    saveState()
+}
+
+watch(selectedMode, saveState);
+
+function saveState() {
+    android.saveState(state.value);
+}
 
 const currentModeComponent = computed(() => {
     const mode = memorizeModes.find(mode => mode.value === selectedMode.value);

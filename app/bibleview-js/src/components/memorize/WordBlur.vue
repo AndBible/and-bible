@@ -50,6 +50,10 @@ defineProps<{
     textItems: MemorizeTextItem[]
 }>();
 
+const emit = defineEmits<{
+    (e: 'save-mode-config', config: { blurLevel: number }): void
+}>();
+
 const { strings } = useCommon();
 
 const blurLevel = ref(0);

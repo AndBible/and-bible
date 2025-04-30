@@ -92,6 +92,7 @@ export type BibleJavascriptInterface = {
     shareHtml: (html: string) => void,
     helpBookmarks: () => void,
     onKeyDown: (key: string) => void,
+    saveState: (newState: string) => void,
 }
 
 export type UseAndroid = ReturnType<typeof useAndroid>
@@ -515,6 +516,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.onKeyDown(key);
     }
 
+    function saveState(newState: any) {
+        window.android.saveState(JSON.stringify(newState));
+    }
+
     const exposed = {
         shareHtml,
         helpBookmarks,
@@ -560,6 +565,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         helpDialog,
         onKeyDown,
         parseRef,
+        saveState,
     }
 
     if (config.developmentMode) return {

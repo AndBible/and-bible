@@ -176,13 +176,14 @@ class MultiFragmentDocument(private val osisFragments: List<OsisFragment>, priva
         )
 }
 
-class MemorizeDocument(private val title: String, private val texts: List<Pair<String, String>>): Document {
+class MemorizeDocument(private val title: String, private val texts: List<Pair<String, String>>, private val state: String?): Document {
     override val asHashMap: Map<String, Any>
         get() = mapOf(
             "id" to wrapString(randomUUID().toString()),
             "type" to wrapString("memorize"),
             "title" to wrapString(title),
-            "texts" to listToJson(texts.map { "{ 'key': " + wrapString(it.first) + ", 'text':" + wrapString(it.second) + "}" })
+            "texts" to listToJson(texts.map { "{ 'key': " + wrapString(it.first) + ", 'text':" + wrapString(it.second) + "}" }),
+            "state" to (state ?: "undefined"),
         )
 }
 

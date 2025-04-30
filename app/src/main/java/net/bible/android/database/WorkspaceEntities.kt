@@ -94,6 +94,7 @@ class WorkspaceEntities {
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings?,
+        var jsState: String?,
     ) {
         fun deepCopy(): PageManager = PageManager(
             windowId = windowId,
@@ -103,7 +104,8 @@ class WorkspaceEntities {
             generalBookPage = generalBookPage?.copy(),
             mapPage = mapPage?.copy(),
             currentCategoryName = currentCategoryName,
-            textDisplaySettings = textDisplaySettings?.copy()
+            textDisplaySettings = textDisplaySettings?.copy(),
+            jsState = jsState
         )
     }
 

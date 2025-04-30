@@ -405,6 +405,11 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun saveState(newState: String) {
+        bibleView.window.pageManager.jsState = newState
+    }
+
+    @JavascriptInterface
     fun openStudyPad(labelId: String, bookmarkId: String) {
         scope.launch(Dispatchers.Main) {
             linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))

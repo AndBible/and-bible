@@ -87,6 +87,9 @@ open class CurrentPageManager @Inject constructor(
 
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
 
+    // State that JS side can store for its internal use (like Memorize doc, for specific game state)
+    var jsState: String? = null
+
     val titleText: String get() =
         if(isBibleShown || isCommentaryShown || isMyNotesShown) {
             currentBibleVerse.verse.tinyName
@@ -165,6 +168,10 @@ open class CurrentPageManager @Inject constructor(
             // is the next doc the same as the prev doc
             val prevDocInPage = nextPage!!.currentDocument
             val sameDoc = nextDocument == prevDocInPage
+
+            if (nextDocument !== FakeBookFactory.memorizeDocument) {
+                jsState = null
+            }
 
             if(currentPage.currentDocument == FakeBookFactory.multiDocument && nextPage == currentBible) {
                 currentBible.setCurrentDocument(nextDocument)
@@ -259,7 +266,8 @@ open class CurrentPageManager @Inject constructor(
             currentGeneralBook.pageEntity.copy(),
             currentMap.pageEntity.copy(),
             currentPage.documentCategory.name,
-            textDisplaySettings.copy()
+            textDisplaySettings.copy(),
+            jsState
         )
 
     var savedEntity: WorkspaceEntities.PageManager? = null
@@ -278,6 +286,7 @@ open class CurrentPageManager @Inject constructor(
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
+        jsState = pageManagerEntity.jsState
 
         val restoredBookCategory = try {
             DocumentCategory.valueOf(pageManagerEntity.currentCategoryName)

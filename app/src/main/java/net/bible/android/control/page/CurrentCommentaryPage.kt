@@ -89,7 +89,7 @@ open class CurrentCommentaryPage internal constructor(
                     val text = SwordContentFacade.getCanonicalText(doc, verse)
                     texts.add(Pair(verse.shortName, text))
                 }
-                MemorizeDocument(verseRange.shortName, texts)
+                MemorizeDocument(verseRange.shortName, texts, pageManager.jsState)
             } else super.currentPageContent
         }
 

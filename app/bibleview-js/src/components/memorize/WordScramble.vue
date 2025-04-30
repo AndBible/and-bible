@@ -90,6 +90,10 @@ const props = defineProps<{
     textItems: MemorizeTextItem[]
 }>();
 
+const emit = defineEmits<{
+    (e: 'save-mode-config', config: any): void;
+}>();
+
 const { strings } = useCommon();
 
 const scrambledWords = ref<WordObject[]>([]);
