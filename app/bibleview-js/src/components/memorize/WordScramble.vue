@@ -39,9 +39,12 @@
           <template v-for="(word, wordIndex) in getWordsFromText(item.text)" :key="`text-${item.key}-${wordIndex}`">
             <span
                 class="memorize-word" 
-                :class="{ 'revealed': isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) }"
+                :class="{ 
+                  'revealed': isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)),
+                  'punctuation': isPunctuation(word)
+                }"
             >
-              {{ isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) ? word : '___' }}
+              {{ isPunctuation(word) || isWordRevealed(getGlobalWordIndex(itemIndex, wordIndex)) ? word : '___' }}
             </span>
           </template>
         </div>
@@ -127,12 +130,20 @@ function getLocalIndices(globalIndex: number): { itemIndex: number, localIndex: 
 }
 
 function getWordsFromText(text: string) {
-    // Split by spaces, but keep punctuation with words
-    return text.split(/\s+/).filter(word => word.length > 0);
+    // Split text into words and punctuation tokens
+    // This regex matches:
+    // 1. Punctuation: one or more punctuation characters
+    // 2. Words: one or more non-whitespace, non-punctuation characters
+    const tokens = text.match(/([.,;:!?…]+)|([^\s.,;:!?…]+)/g) || [];
+    return tokens.filter(token => token.length > 0);
 }
 
 function isWordRevealed(globalWordIndex: number) {
     return globalWordIndex < currentWordIndex.value;
+}
+
+function isPunctuation(word: string): boolean {
+    return /^[.,;:!?…]+$/.test(word);
 }
 
 onMounted(() => {
@@ -144,6 +155,17 @@ onMounted(() => {
     }
 });
 
+function skipPunctuationTokens() {
+    while (currentWordIndex.value < getWordsFromText(props.textItems.map(item => item.text).join(' ')).length) {
+        const { itemIndex, localIndex } = getLocalIndices(currentWordIndex.value);
+        const word = getWordsFromText(props.textItems[itemIndex].text)[localIndex];
+        if (!isPunctuation(word)) {
+            break;
+        }
+        currentWordIndex.value++;
+    }
+}
+
 function selectWord(buttonIndex: number, wordObj: WordObject) {
     // Check if this is the correct next word
     if (wordObj.originalIndices.includes(currentWordIndex.value)) {
@@ -153,7 +175,12 @@ function selectWord(buttonIndex: number, wordObj: WordObject) {
         if (scrambledWords.value[buttonIndex].remainingUses === 0) {
             scrambledWords.value[buttonIndex].used = true;
         }
+        
+        // Advance past the current word
         currentWordIndex.value++;
+        
+        // Skip any punctuation tokens that follow
+        skipPunctuationTokens();
         
         // Save state after successful word selection
         emit('save-mode-config', {
@@ -183,6 +210,13 @@ function resetWords() {
         
         // Build the word map with all occurrences
         words.forEach((word) => {
+            // Skip punctuation - they will be shown directly
+            if (isPunctuation(word)) {
+                // Still increment the index to maintain alignment with the text
+                globalWordIndex++;
+                return;
+            }
+            
             const normalizedWord = word.toLowerCase();
             if (wordMap.has(normalizedWord)) {
                 const entry = wordMap.get(normalizedWord)!;
@@ -198,7 +232,7 @@ function resetWords() {
     // Create unique word objects with their occurrences
     const wordObjects: WordObject[] = [];
     wordMap.forEach((data, normalizedWord) => {
-        // Find a representative word from the original text (preserve casing/punctuation)
+        // Find a representative word from the original text (preserve casing)
         let originalWord = "";
         const firstIndex = data.indices[0];
         const { itemIndex, localIndex } = getLocalIndices(firstIndex);
@@ -232,6 +266,21 @@ function resetWords() {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
+.memorize-text {
+  .memorize-word {
+    margin-right: 4px;
+    
+    &.punctuation {
+      color: var(--primary-color);
+      margin-right: 0;
+    }
+    
+    &.revealed {
+      color: var(--text-color);
+    }
+  }
+}
 
 .preview {
   border: 1px dashed var(--primary-color);

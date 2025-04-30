@@ -108,6 +108,10 @@ $button-grey: var(--modal-grey);
       background-color: #d5d5d5;
     }
   }
+  &.disabled {
+    background-color: #bdbdbd;
+    color: #616161;
+  }
   &.light {
     background-color: #bdbdbd;
     color: black;
