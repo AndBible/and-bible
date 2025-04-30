@@ -112,6 +112,10 @@ type TranslatedStrings = {
     verseNoteLong: string
     addBookmark: string
     selectCustomIconTitle: string
+    startBlurring: string
+    blurMoreWords: string
+    allWordsBlurred: string
+    reset: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings

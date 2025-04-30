@@ -18,8 +18,8 @@
 <template>
   <div>
     <div class="memorize-controls">
-      <button @click="increaseBlurLevel" class="blur-button">{{ blurButtonText }}</button>
-      <button @click="resetBlur" class="reset-button">Reset</button>
+      <button @click="increaseBlurLevel" class="button blur-button">{{ blurButtonText }}</button>
+      <button @click="resetBlur" class="button reset-button">{{strings.reset}}</button>
     </div>
     <div v-for="item in textItems" :key="item.key" class="memorize-text">
       <span class="reference">{{ item.key }}</span>
@@ -42,101 +42,94 @@
 </template>
 
 <script setup lang="ts">
-import {ref, computed, inject} from "vue";
-import {MemorizeTextItem} from "@/types/documents";
-import {appSettingsKey, exportModeKey} from "@/types/constants";
-import {useCommon} from "@/composables";
+import { ref, computed } from "vue";
+import { useCommon } from "@/composables";
+import { MemorizeTextItem } from "@/types/documents";
 
-defineProps<{textItems: MemorizeTextItem[]}>();
+defineProps<{
+  textItems: MemorizeTextItem[]
+}>();
 
-const exportMode = inject(exportModeKey, ref(false));
-const appSettings = inject(appSettingsKey)!;
+const { strings } = useCommon();
 
-const {android, sprintf, strings} = useCommon();
-
-// Word blur implementation
 const blurLevel = ref(0);
 const revealedWords = ref<Record<string, boolean>>({});
 const wordRevealTimer = ref<Record<string, number>>({});
 
-// Computed property for blur button text
 const blurButtonText = computed(() => {
   if (blurLevel.value === 0) {
-    return "Start Blurring";
+    return strings.startBlurring;
   } else if (blurLevel.value < 5) {
-    return "Blur More Words";
+    return strings.blurMoreWords;
   } else {
-    return "All Words Blurred";
+    return strings.allWordsBlurred;
   }
 });
 
-// Function to get words from text
 const getWordsFromText = (text: string) => {
-  // Split by spaces, but keep punctuation with words
   return text.split(/\s+/).filter(word => word.length > 0);
 };
 
-// Function to check if a word should be blurred
-const isWordBlurred = (wordIndex: number) => {
-  if (blurLevel.value === 0) return false;
-  if (blurLevel.value === 5) return true;
-  
-  // Different blur patterns based on level
-  // Level 1: Every 5th word
-  if (blurLevel.value === 1) return wordIndex % 5 === 0;
-  // Level 2: Every 3rd word
-  if (blurLevel.value === 2) return wordIndex % 3 === 0;
-  // Level 3: Every 2nd word
-  if (blurLevel.value === 3) return wordIndex % 2 === 0;
-  // Level 4: Every word except every 5th
-  if (blurLevel.value === 4) return wordIndex % 5 !== 0;
-  
-  return false;
-};
+function isWordBlurred(wordIndex: number) {
+    if (blurLevel.value === 0) return false;
+    if (blurLevel.value === 5) return true;
 
-// Function to increase blur level
-const increaseBlurLevel = () => {
-  if (blurLevel.value < 5) {
-    blurLevel.value++;
-    // Clear any revealed words when changing level
+    // Different blur patterns based on level
+    // Level 1: Every 5th word
+    if (blurLevel.value === 1) return wordIndex % 5 === 0;
+    // Level 2: Every 3rd word
+    if (blurLevel.value === 2) return wordIndex % 3 === 0;
+    // Level 3: Every 2nd word
+    if (blurLevel.value === 3) return wordIndex % 2 === 0;
+    // Level 4: Every word except every 5th
+    if (blurLevel.value === 4) return wordIndex % 5 !== 0;
+
+    return false;
+}
+
+
+function increaseBlurLevel() {
+    if (blurLevel.value < 5) {
+        blurLevel.value++;
+        // Clear any revealed words when changing level
+        revealedWords.value = {};
+        Object.keys(wordRevealTimer.value).forEach(key => {
+            clearTimeout(wordRevealTimer.value[key]);
+        });
+        wordRevealTimer.value = {};
+    }
+}
+
+
+function resetBlur() {
+    blurLevel.value = 0;
     revealedWords.value = {};
     Object.keys(wordRevealTimer.value).forEach(key => {
-      clearTimeout(wordRevealTimer.value[key]);
+        clearTimeout(wordRevealTimer.value[key]);
     });
     wordRevealTimer.value = {};
-  }
-};
+}
 
-// Function to reset blur
-const resetBlur = () => {
-  blurLevel.value = 0;
-  revealedWords.value = {};
-  Object.keys(wordRevealTimer.value).forEach(key => {
-    clearTimeout(wordRevealTimer.value[key]);
-  });
-  wordRevealTimer.value = {};
-};
 
-// Function to temporarily reveal a word when tapped
-const revealWord = (textKey: string, wordIndex: number) => {
-  const key = `${textKey}-${wordIndex}`;
-  
-  // Only handle clicks on blurred words
-  if (!isWordBlurred(wordIndex)) return;
-  
-  // Clear existing timer if any
-  if (wordRevealTimer.value[key]) {
-    clearTimeout(wordRevealTimer.value[key]);
-  }
-  
-  // Show the word
-  revealedWords.value[key] = true;
-  
-  // Hide it after 2 seconds
-  wordRevealTimer.value[key] = setTimeout(() => {
-    revealedWords.value[key] = false;
-  }, 2000) as unknown as number;
-};
+function revealWord(textKey: string, wordIndex: number) {
+    const key = `${textKey}-${wordIndex}`;
+
+    // Only handle clicks on blurred words
+    if (!isWordBlurred(wordIndex)) return;
+
+    // Clear existing timer if any
+    if (wordRevealTimer.value[key]) {
+        clearTimeout(wordRevealTimer.value[key]);
+    }
+
+    // Show the word
+    revealedWords.value[key] = true;
+
+    // Hide it after 2 seconds
+    wordRevealTimer.value[key] = setTimeout(() => {
+        revealedWords.value[key] = false;
+    }, 2000) as unknown as number;
+}
 </script>
 
 <style scoped lang="scss">
@@ -147,24 +140,24 @@ const revealWord = (textKey: string, wordIndex: number) => {
   display: flex;
   gap: 0.5rem;
   
-  button {
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-  }
+  // button {
+  //   padding: 0.5rem 1rem;
+  //   border-radius: 4px;
+  //   font-weight: bold;
+  //   cursor: pointer;
+  // }
   
-  .blur-button {
-    background-color: var(--primary-color, #3498db);
-    color: white;
-    border: none;
-  }
-  
-  .reset-button {
-    background-color: transparent;
-    border: 1px solid var(--primary-color, #3498db);
-    color: var(--primary-color, #3498db);
-  }
+  //.blur-button {
+  //  background-color: var(--primary-color, #3498db);
+  //  color: white;
+  //  border: none;
+  //}
+  //
+  //.reset-button {
+  //  background-color: transparent;
+  //  border: 1px solid var(--primary-color, #3498db);
+  //  color: var(--primary-color, #3498db);
+  //}
 }
 
 .memorize-text {
