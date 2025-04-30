@@ -79,7 +79,7 @@ const memorizeModes = [
 ];
 
 function saveModeConfig(_modeConfig: MemorizeModeConfig) {
-    modeConfig.value = _modeConfig;
+    modeConfig.value = {...modeConfig.value, ..._modeConfig};
     saveState()
 }
 
