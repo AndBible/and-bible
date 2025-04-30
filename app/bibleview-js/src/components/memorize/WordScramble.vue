@@ -18,14 +18,13 @@
 <template>
   <div>
     <div class="memorize-controls">
-      <button
+      <div class="button"
           @touchstart="isPeeking = true"
           @touchend="isPeeking = false"
-          class="memorize-button utility"
       >
         {{ strings.peek }}
-      </button>
-      <button @click="resetWords()" class="memorize-button secondary">{{ strings.reset }}</button>
+      </div>
+      <div @click="resetWords()" class="button">{{ strings.reset }}</div>
     </div>
       
     <!-- Text area with revealed words or full preview -->
@@ -51,19 +50,18 @@
       
     <!-- Word buttons in scrambled order -->
     <div class="word-buttons">
-      <button 
+      <div
         v-for="(wordObj, buttonIndex) in scrambledWords"
         :key="`button-${buttonIndex}`"
+        class="button small"
         :class="{ 
-          'memorize-button': true,
-          'primary': true, 
-          'incorrect': wordObj.incorrect 
+          incorrect: wordObj.incorrect,
+          disabled: wordObj.used,
         }"
-        :disabled="wordObj.used"
         @click="selectWord(buttonIndex, wordObj)"
       >
         {{ wordObj.word }}{{ wordObj.remainingUses > 1 ? ` (${wordObj.remainingUses})` : '' }}
-      </button>
+      </div>
     </div>
   </div>
 </template>
@@ -236,8 +234,7 @@ function resetWords() {
 @import "~@/common.scss";
 
 .preview {
-  background-color: rgba(255, 255, 0, 0.15) !important;
-  border: 1px dashed var(--primary-color, #3498db);
+  border: 1px dashed var(--primary-color);
 }
 
 .text-block {

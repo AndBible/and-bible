@@ -95,6 +95,10 @@ $button-border-radius: 8px;
 $button-padding: 6px;
 $button-grey: var(--modal-grey);
 
+:root {
+  --primary-color: #bdbdbd;
+}
+
 .button {
   font-size: 90%;
   background-color: $button-grey;
@@ -128,6 +132,9 @@ $button-grey: var(--modal-grey);
   border-radius: $button-border-radius;
   margin: 2pt 2pt;
   min-width: 120px;
+  &.small {
+    min-width: unset;
+  }
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -223,6 +230,21 @@ table {
   table-layout: fixed;
 }
 
+.modal-backdrop {
+  display: block;
+  position: fixed;
+  z-index: 10;
+  padding-top: 10px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  .monochrome & {
+    background-color: unset;
+  }
+}
+
 // Memorize component shared styles
 .memorize-controls {
   display: flex;
@@ -238,43 +260,6 @@ table {
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   min-height: 3rem;
-}
-
-.memorize-button {
-  padding: 0.5rem 1rem;
-  border-radius: $button-border-radius;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: center;
-  min-width: 90px;
-  
-  &.primary {
-    background-color: var(--primary-color, #3498db);
-    color: white;
-    border: none;
-  }
-  
-  &.secondary {
-    background-color: transparent;
-    border: 1px solid var(--primary-color, #3498db);
-    color: var(--primary-color, #3498db);
-  }
-  
-  &.utility {
-    background-color: rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    color: var(--text-color, inherit);
-    
-    .night & {
-      background-color: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-  }
-  
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
 }
 
 .memorize-word {
@@ -295,24 +280,5 @@ table {
   
   &.revealed {
     color: var(--text-color, inherit);
-    background-color: rgba(255, 255, 0, 0.3);
-    .night & {
-      background-color: rgba(0, 0, 0, 0.3);
-    }
-  }
-}
-
-.modal-backdrop {
-  display: block;
-  position: fixed;
-  z-index: 10;
-  padding-top: 10px;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  .monochrome & {
-    background-color: unset;
   }
 }

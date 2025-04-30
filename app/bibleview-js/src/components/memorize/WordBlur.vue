@@ -18,8 +18,8 @@
 <template>
   <div>
     <div class="memorize-controls">
-      <button @click="increaseBlurLevel" class="memorize-button primary">{{ strings.blur }}</button>
-      <button @click="resetBlur" class="memorize-button secondary">{{strings.reset}}</button>
+      <div class="button" @click="increaseBlurLevel">{{ strings.blur }}</div>
+      <div class="button" @click="resetBlur">{{strings.reset}}</div>
     </div>
     <div class="memorize-text">
       <div v-for="item in textItems" :key="item.key">

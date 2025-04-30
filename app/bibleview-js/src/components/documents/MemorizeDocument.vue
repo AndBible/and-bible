@@ -16,20 +16,18 @@
   -->
 
 <template>
-  <h2>{{document.title}}</h2>
-  
   <!-- Mode selection -->
   <div class="memorize-mode-selector">
-    <button 
+    <div class="button"
         v-for="mode in memorizeModes"
         :key="mode.value"
-        :class="['mode-button', { active: selectedMode === mode.value }]"
+        :class="{toggled: selectedMode === mode.value}"
         @click="selectedMode = mode.value"
     >
       {{ mode.label }}
-    </button>
+    </div>
   </div>
-  
+  <h2>{{document.title}}</h2>
   <!-- Different memorize components based on selected mode -->
   <component 
       :is="currentModeComponent"
@@ -99,28 +97,4 @@ const currentModeComponent = computed(() => {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
-
-.memorize-mode-selector {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-  
-  .mode-button {
-    padding: 0.6rem 1rem;
-    border-radius: 20px;
-    background-color: transparent;
-    color: var(--primary-color, #3498db);
-    border: 1px solid var(--primary-color, #3498db);
-    font-weight: bold;
-    cursor: pointer;
-    white-space: nowrap;
-    
-    &.active {
-      background-color: var(--primary-color, #3498db);
-      color: white;
-    }
-  }
-}
 </style>
