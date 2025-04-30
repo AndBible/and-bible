@@ -321,6 +321,15 @@ setupKeyboardListener((e: KeyboardEvent) => {
   flex-wrap: wrap;
 }
 
+@keyframes dropdown-animate {
+  from {
+    opacity: 0
+  }
+  to {
+    opacity: 1
+  }
+}
+
 .dropdown-menu {
   position: absolute;
   background-color: white;
@@ -334,7 +343,13 @@ setupKeyboardListener((e: KeyboardEvent) => {
   &.locate-bottom {
     bottom: 0;
   }
-  
+  animation-name: dropdown-animate;
+  animation-duration: 0.2s;
+  .noAnimation & {
+    animation: none;
+    box-shadow: none;
+  }
+
   .night & {
     background-color: #333;
   }
