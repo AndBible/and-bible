@@ -46,7 +46,6 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useCommon } from "@/composables";
 import { MemorizeTextItem } from "@/types/documents";
 
-// Define a typed config interface for WordBlur
 interface WordBlurConfig {
   blurLevel: number;
   revealedWords: Record<string, boolean>;
@@ -67,7 +66,6 @@ const blurLevel = ref(0);
 const revealedWords = ref<Record<string, boolean>>({});
 const wordRevealTimer = ref<Record<string, number>>({});
 
-// Initialize state from modeConfig if available
 onMounted(() => {
   if (props.modeConfig) {
     blurLevel.value = props.modeConfig.blurLevel;
@@ -75,7 +73,6 @@ onMounted(() => {
   }
 });
 
-// Save state whenever it changes
 watch([blurLevel, revealedWords], () => {
   saveState();
 }, { deep: true });
@@ -105,24 +102,27 @@ function isWordBlurred(wordIndex: number) {
     if (blurLevel.value === 0) return false;
     if (blurLevel.value === 5) return true;
 
-    // Different blur patterns based on level
-    // Level 1: Every 5th word
-    if (blurLevel.value === 1) return wordIndex % 5 === 0;
-    // Level 2: Every 3rd word
-    if (blurLevel.value === 2) return wordIndex % 3 === 0;
-    // Level 3: Every 2nd word
-    if (blurLevel.value === 3) return wordIndex % 2 === 0;
-    // Level 4: Every word except every 5th
-    if (blurLevel.value === 4) return wordIndex % 5 !== 0;
-
-    return false;
+    // Ensure blur is progressive - once a word is blurred at a level,
+    // it remains blurred at higher levels
+    switch (blurLevel.value) {
+        case 1: // ~20% words blurred
+            return wordIndex % 5 === 0;
+        case 2: // ~40% words blurred
+            return wordIndex % 5 === 0 || wordIndex % 3 === 0;
+        case 3: // ~60% words blurred
+            return wordIndex % 5 === 0 || wordIndex % 3 === 0 || wordIndex % 2 === 0;
+        case 4: // ~80% words blurred
+            // Only show every 7th word that wasn't already blurred in level 3
+            return (wordIndex % 5 === 0 || wordIndex % 3 === 0 || wordIndex % 2 === 0) || 
+                   (wordIndex % 7 !== 0);
+        default:
+            return false;
+    }
 }
-
 
 function increaseBlurLevel() {
     if (blurLevel.value < 5) {
         blurLevel.value++;
-        // Clear any revealed words when changing level
         revealedWords.value = {};
         Object.keys(wordRevealTimer.value).forEach(key => {
             clearTimeout(wordRevealTimer.value[key]);
@@ -144,19 +144,11 @@ function resetBlur() {
 
 function revealWord(textKey: string, wordIndex: number) {
     const key = `${textKey}-${wordIndex}`;
-
-    // Only handle clicks on blurred words
     if (!isWordBlurred(wordIndex)) return;
-
-    // Clear existing timer if any
     if (wordRevealTimer.value[key]) {
         clearTimeout(wordRevealTimer.value[key]);
     }
-
-    // Show the word
     revealedWords.value[key] = true;
-
-    // Hide it after 2 seconds
     wordRevealTimer.value[key] = setTimeout(() => {
         revealedWords.value[key] = false;
     }, 2000) as unknown as number;
