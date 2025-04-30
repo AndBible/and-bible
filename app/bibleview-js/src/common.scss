@@ -102,7 +102,7 @@ $button-grey: var(--modal-grey);
 .button {
   font-size: 90%;
   background-color: $button-grey;
-  + .toggled {
+  &.toggled {
     background-color: #474747;
     &.light {
       background-color: #d5d5d5;
