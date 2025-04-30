@@ -25,14 +25,14 @@
       <span class="reference">{{ item.key }}</span>
       <div class="verse-text">
         <span 
-          v-for="(word, wordIndex) in getWordsFromText(item.text)" 
-          :key="`${item.key}-${wordIndex}`"
-          :class="{ 
+            v-for="(word, wordIndex) in getWordsFromText(item.text)"
+            :key="`${item.key}-${wordIndex}`"
+            :class="{
             'word': true, 
             'blurred': isWordBlurred(wordIndex),
             'revealed': revealedWords[`${item.key}-${wordIndex}`]
           }"
-          @click="revealWord(item.key, wordIndex)"
+            @click="revealWord(item.key, wordIndex)"
         >
           {{ word }}
         </span>
@@ -47,7 +47,7 @@ import { useCommon } from "@/composables";
 import { MemorizeTextItem } from "@/types/documents";
 
 defineProps<{
-  textItems: MemorizeTextItem[]
+    textItems: MemorizeTextItem[]
 }>();
 
 const { strings } = useCommon();
@@ -57,17 +57,17 @@ const revealedWords = ref<Record<string, boolean>>({});
 const wordRevealTimer = ref<Record<string, number>>({});
 
 const blurButtonText = computed(() => {
-  if (blurLevel.value === 0) {
-    return strings.startBlurring;
-  } else if (blurLevel.value < 5) {
-    return strings.blurMoreWords;
-  } else {
-    return strings.allWordsBlurred;
-  }
+    if (blurLevel.value === 0) {
+        return strings.startBlurring;
+    } else if (blurLevel.value < 5) {
+        return strings.blurMoreWords;
+    } else {
+        return strings.allWordsBlurred;
+    }
 });
 
 const getWordsFromText = (text: string) => {
-  return text.split(/\s+/).filter(word => word.length > 0);
+    return text.split(/\s+/).filter(word => word.length > 0);
 };
 
 function isWordBlurred(wordIndex: number) {

@@ -21,10 +21,10 @@
   <!-- Mode selection -->
   <div class="memorize-mode-selector">
     <button 
-      v-for="mode in memorizeModes" 
-      :key="mode.value"
-      :class="['mode-button', { active: selectedMode === mode.value }]"
-      @click="selectedMode = mode.value"
+        v-for="mode in memorizeModes"
+        :key="mode.value"
+        :class="['mode-button', { active: selectedMode === mode.value }]"
+        @click="selectedMode = mode.value"
     >
       {{ mode.label }}
     </button>
@@ -32,8 +32,8 @@
   
   <!-- Different memorize components based on selected mode -->
   <component 
-    :is="currentModeComponent" 
-    :text-items="document.texts"
+      :is="currentModeComponent"
+      :text-items="document.texts"
   ></component>
 </template>
 
@@ -46,7 +46,7 @@ import WordScramble from '@/components/memorize/WordScramble.vue';
 
 defineProps<{ document: MemorizeDocument }>();
 
-const {android, sprintf, strings} = useCommon();
+const {strings} = useCommon();
 
 const BLUR_MODE = 'blur';
 const SCRAMBLE_MODE = 'scramble';
