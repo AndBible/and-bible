@@ -273,7 +273,6 @@ function resetWords() {
     
     &.punctuation {
       color: var(--primary-color);
-      margin-right: 0;
     }
     
     &.revealed {
