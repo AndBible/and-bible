@@ -116,6 +116,7 @@ type TranslatedStrings = {
     blurMoreWords: string
     allWordsBlurred: string
     reset: string
+    peek: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings

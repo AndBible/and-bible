@@ -19,21 +19,26 @@
   <div>
     <div v-for="(item, itemIndex) in textItems" :key="item.key" class="scramble-container">
       <span class="reference">{{ item.key }}</span>
-      
-      <!-- Text area with revealed words -->
-      <div class="verse-text">
-        <template v-for="(word, wordIndex) in getWordsFromText(item.text)" :key="`text-${item.key}-${wordIndex}`">
-          <span 
-            class="word" 
-            :class="{ 'revealed': isWordRevealed(itemIndex, wordIndex) }"
-          >
-            {{ isWordRevealed(itemIndex, wordIndex) ? word : '___' }}
-          </span>
+
+      <!-- Text area with revealed words or full preview -->
+      <div class="verse-text" :class="{ 'preview': isShowingFullText(itemIndex) || isPeeking[itemIndex] }">
+        <template v-if="isShowingFullText(itemIndex) || isPeeking[itemIndex]">
+          <span class="word">{{ item.text }}</span>
+        </template>
+        <template v-else>
+          <template v-for="(word, wordIndex) in getWordsFromText(item.text)" :key="`text-${item.key}-${wordIndex}`">
+            <span 
+              class="word" 
+              :class="{ 'revealed': isWordRevealed(itemIndex, wordIndex) }"
+            >
+              {{ isWordRevealed(itemIndex, wordIndex) ? word : '___' }}
+            </span>
+          </template>
         </template>
       </div>
       
       <!-- Word buttons in scrambled order -->
-      <div class="word-buttons">
+      <div class="word-buttons" v-if="!isShowingFullText(itemIndex)">
         <button 
           v-for="(wordObj, buttonIndex) in scrambledWords[itemIndex]" 
           :key="`button-${item.key}-${buttonIndex}`"
@@ -50,6 +55,15 @@
       </div>
       
       <div class="button-container">
+        <!-- Show the peek button only when the game is active (not in preview) -->
+        <button 
+          v-if="!isShowingFullText(itemIndex)" 
+          @touchstart="isPeeking[itemIndex] = true"
+          @touchend="isPeeking[itemIndex] = false"
+          class="peek-button"
+        >
+          {{ strings.peek }}
+        </button>
         <button @click="resetScramble(itemIndex)" class="reset-button">{{ strings.reset }}</button>
       </div>
     </div>
@@ -59,6 +73,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from "vue";
 import { useCommon } from "@/composables";
+import {sleep} from "@/utils";
 
 interface TextItem {
   key: string;
@@ -78,93 +93,93 @@ const props = defineProps<{
 
 const { strings } = useCommon();
 
-// State for scrambled words and current progress
 const scrambledWords = ref<WordObject[][]>([]);
 const currentWordIndices = ref<number[]>([]);
+const showFullTextTimers = ref<number[]>([]);
+const isInitialPreview = ref<boolean[]>([]);
+const isPeeking = ref<boolean[]>([]);
 
-// Function to get words from text
-const getWordsFromText = (text: string) => {
-  // Split by spaces, but keep punctuation with words
-  return text.split(/\s+/).filter(word => word.length > 0);
-};
+function getWordsFromText(text: string) {
+    // Split by spaces, but keep punctuation with words
+    return text.split(/\s+/).filter(word => word.length > 0);
+}
 
-// Check if a word is revealed
-const isWordRevealed = (itemIndex: number, wordIndex: number) => {
-  return wordIndex < currentWordIndices.value[itemIndex];
-};
 
-// Initialize the scrambled words for each text item
+function isWordRevealed(itemIndex: number, wordIndex: number) {
+    return wordIndex < currentWordIndices.value[itemIndex];
+}
+
+function isShowingFullText(itemIndex: number) {
+    return isInitialPreview.value[itemIndex];
+}
+
 onMounted(() => {
-  // Initialize the scrambled words and current progress for each text item
-  props.textItems.forEach((item, index) => {
-    const words = getWordsFromText(item.text);
-    
-    // Create an array of word objects with their original indices
-    const wordObjects = words.map((word, idx) => ({
-      word,
-      originalIndex: idx,
-      used: false,
-      incorrect: false
-    }));
-    
-    // Shuffle the words
-    const scrambled = [...wordObjects].sort(() => Math.random() - 0.5);
-    
-    // Add to our state
-    scrambledWords.value[index] = scrambled;
-    currentWordIndices.value[index] = 0;
-  });
+    // Initialize the scrambled words for each text item
+    isInitialPreview.value = Array(props.textItems.length).fill(true);
+    isPeeking.value = Array(props.textItems.length).fill(false);
+    showFullTextTimers.value = Array(props.textItems.length).fill(0);
+  
+    for (let i = 0; i < props.textItems.length; i++) {
+        initializeWords(i)
+    }
 });
 
-// Handle word selection
-const selectWord = (itemIndex: number, buttonIndex: number, wordObj: WordObject) => {
-  const currentIndex = currentWordIndices.value[itemIndex];
-  const words = getWordsFromText(props.textItems[itemIndex].text);
-  
-  // Check if this is the correct next word
-  if (wordObj.originalIndex === currentIndex) {
-    // Correct word selected
-    scrambledWords.value[itemIndex][buttonIndex].used = true;
-    scrambledWords.value[itemIndex][buttonIndex].incorrect = false;
-    currentWordIndices.value[itemIndex]++;
-    
-    // Check if we completed this verse
-    if (currentWordIndices.value[itemIndex] === words.length) {
-      // Verse completed!
-      setTimeout(() => {
-        alert("Great job! Verse completed!");
-      }, 500);
-    }
-  } else {
-    // Incorrect word selected
-    scrambledWords.value[itemIndex][buttonIndex].incorrect = true;
-    
-    // Reset the incorrect status after a short delay
-    setTimeout(() => {
-      scrambledWords.value[itemIndex][buttonIndex].incorrect = false;
-    }, 1000);
-  }
-};
+function selectWord(itemIndex: number, buttonIndex: number, wordObj: WordObject) {
+    const currentIndex = currentWordIndices.value[itemIndex];
+    const words = getWordsFromText(props.textItems[itemIndex].text);
 
-// Reset the scramble for a specific text item
-const resetScramble = (itemIndex: number) => {
-  const words = getWordsFromText(props.textItems[itemIndex].text);
-  
-  // Create new word objects
-  const wordObjects = words.map((word, idx) => ({
-    word,
-    originalIndex: idx,
-    used: false,
-    incorrect: false
-  }));
-  
-  // Shuffle the words again
-  const scrambled = [...wordObjects].sort(() => Math.random() - 0.5);
-  
-  // Reset state
-  scrambledWords.value[itemIndex] = scrambled;
-  currentWordIndices.value[itemIndex] = 0;
-};
+    // Check if this is the correct next word
+    if (wordObj.originalIndex === currentIndex) {
+        // Correct word selected
+        scrambledWords.value[itemIndex][buttonIndex].used = true;
+        scrambledWords.value[itemIndex][buttonIndex].incorrect = false;
+        currentWordIndices.value[itemIndex]++;
+    } else {
+        // Incorrect word selected
+        scrambledWords.value[itemIndex][buttonIndex].incorrect = true;
+
+        // Reset the incorrect status after a short delay
+        setTimeout(() => {
+            scrambledWords.value[itemIndex][buttonIndex].incorrect = false;
+        }, 1000);
+    }
+}
+
+function resetScramble(itemIndex: number) {
+    // Clear any active timers
+    if (showFullTextTimers.value[itemIndex]) {
+        clearTimeout(showFullTextTimers.value[itemIndex]);
+    }
+
+    // Start with full text preview again
+    isInitialPreview.value[itemIndex] = true;
+    initializeWords(itemIndex)
+}
+
+function initializeWords(itemIndex: number) {
+    const words = getWordsFromText(props.textItems[itemIndex].text);
+
+    // Create new word objects
+    const wordObjects = words.map((word, idx) => ({
+        word,
+        originalIndex: idx,
+        used: false,
+        incorrect: false
+    }));
+
+    // Shuffle the words again
+    const scrambled = [...wordObjects].sort(() => Math.random() - 0.5);
+
+    // Reset state
+    scrambledWords.value[itemIndex] = scrambled;
+    currentWordIndices.value[itemIndex] = 0;
+
+    // Show full text for 3 seconds then hide
+    showFullTextTimers.value[itemIndex] = setTimeout(() => {
+        isInitialPreview.value[itemIndex] = false;
+    }, 3000) as unknown as number;
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -187,6 +202,11 @@ const resetScramble = (itemIndex: number) => {
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   min-height: 3rem;
+  
+  &.preview {
+    background-color: rgba(255, 255, 0, 0.15);
+    border: 1px dashed var(--primary-color, #3498db);
+  }
 }
 
 .word {
@@ -235,16 +255,27 @@ const resetScramble = (itemIndex: number) => {
 .button-container {
   display: flex;
   justify-content: flex-end;
+  gap: 0.5rem;
   margin-top: 0.5rem;
+  
+  .reset-button, .peek-button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .peek-button {
+    background-color: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: var(--text-color, inherit);
+    touch-action: manipulation;
+  }
   
   .reset-button {
     background-color: transparent;
     border: 1px solid var(--primary-color, #3498db);
     color: var(--primary-color, #3498db);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
   }
 }
 
