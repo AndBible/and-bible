@@ -42,17 +42,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useCommon } from "@/composables";
 import { MemorizeTextItem } from "@/types/documents";
 
-defineProps<{
+// Define a typed config interface for WordBlur
+interface WordBlurConfig {
+  blurLevel: number;
+  revealedWords: Record<string, boolean>;
+}
+
+const props = defineProps<{
     textItems: MemorizeTextItem[]
-    modeConfig: any
+    modeConfig: WordBlurConfig | undefined
 }>();
 
 const emit = defineEmits<{
-    (e: 'save-mode-config', config: any): void
+    (e: 'save-mode-config', config: WordBlurConfig): void
 }>();
 
 const { strings } = useCommon();
@@ -60,6 +66,26 @@ const { strings } = useCommon();
 const blurLevel = ref(0);
 const revealedWords = ref<Record<string, boolean>>({});
 const wordRevealTimer = ref<Record<string, number>>({});
+
+// Initialize state from modeConfig if available
+onMounted(() => {
+  if (props.modeConfig) {
+    blurLevel.value = props.modeConfig.blurLevel;
+    revealedWords.value = props.modeConfig.revealedWords || {};
+  }
+});
+
+// Save state whenever it changes
+watch([blurLevel, revealedWords], () => {
+  saveState();
+}, { deep: true });
+
+function saveState() {
+  emit('save-mode-config', {
+    blurLevel: blurLevel.value,
+    revealedWords: revealedWords.value
+  });
+}
 
 const blurButtonText = computed(() => {
     if (blurLevel.value === 0) {
