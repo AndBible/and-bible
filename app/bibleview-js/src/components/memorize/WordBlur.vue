@@ -18,8 +18,8 @@
 <template>
   <div>
     <div class="memorize-controls">
-      <button @click="increaseBlurLevel" class="button blur-button">{{ blurButtonText }}</button>
-      <button @click="resetBlur" class="button reset-button">{{strings.reset}}</button>
+      <button @click="increaseBlurLevel" class="blur-button">{{ blurButtonText }}</button>
+      <button @click="resetBlur" class="reset-button">{{strings.reset}}</button>
     </div>
     <div v-for="item in textItems" :key="item.key" class="memorize-text">
       <span class="reference">{{ item.key }}</span>
@@ -140,24 +140,13 @@ function revealWord(textKey: string, wordIndex: number) {
   display: flex;
   gap: 0.5rem;
   
-  // button {
-  //   padding: 0.5rem 1rem;
-  //   border-radius: 4px;
-  //   font-weight: bold;
-  //   cursor: pointer;
-  // }
-  
-  //.blur-button {
-  //  background-color: var(--primary-color, #3498db);
-  //  color: white;
-  //  border: none;
-  //}
-  //
-  //.reset-button {
-  //  background-color: transparent;
-  //  border: 1px solid var(--primary-color, #3498db);
-  //  color: var(--primary-color, #3498db);
-  //}
+  .blur-button {
+    @extend .button;
+  }
+
+  .reset-button {
+    @extend .button;
+  }
 }
 
 .memorize-text {
@@ -183,6 +172,9 @@ function revealWord(textKey: string, wordIndex: number) {
 .blurred {
   color: transparent;
   background-color: rgba(0, 0, 0, 0.2);
+  .night & {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
   border-radius: 3px;
   padding: 0 2px;
   cursor: pointer;
@@ -191,5 +183,8 @@ function revealWord(textKey: string, wordIndex: number) {
 .revealed {
   color: var(--text-color, inherit);
   background-color: rgba(255, 255, 0, 0.3);
+  .night & {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
 }
 </style>
