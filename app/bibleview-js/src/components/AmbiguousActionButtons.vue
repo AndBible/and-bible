@@ -16,6 +16,7 @@
   -->
 
 <template>
+  <div v-if="showMoreMenu" @click.stop="closeMoreMenu" class="modal-backdrop"/>
   <div :class="{hasActions, horizontal: !vertical, vertical}">
     <!-- Primary buttons that are always visible -->
     <template v-for="button in primaryButtons" :key="button">
@@ -47,13 +48,13 @@
     </template>
 
     <!-- More options button -->
-    <div v-if="secondaryButtons.length > 0" class="large-action" @click="toggleMoreMenu">
+    <div v-if="secondaryButtons.length > 0" class="large-action" @click.stop="moreMenuClicked" @touchstart.stop>
       <FontAwesomeIcon :icon="faEllipsisV"/>
       <div class="title">{{ strings.more }}</div>
     </div>
 
     <!-- Dropdown menu for secondary buttons -->
-    <div v-if="showMoreMenu" class="dropdown-menu" :class="{'vertical-menu': vertical, 'locate-bottom': !locateTop}">
+    <div v-if="showMoreMenu" ref="moreMenuRef" class="dropdown-menu" :class="{'vertical-menu': vertical, 'locate-bottom': !locateTop}" @click.stop>
       <template v-for="button in secondaryButtons" :key="button">
         <div v-if="hasButton(button)" class="large-action" @click="handleButtonClick(button)">
           <FontAwesomeLayers v-if="button === 'BOOKMARK'">
@@ -86,13 +87,14 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, inject, ref} from "vue";
+import {computed, inject, onMounted, onUnmounted, ref, watch} from "vue";
 import {FontAwesomeIcon, FontAwesomeLayers} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {androidKey, keyboardKey, locateTopKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
 import {BibleModalButtonId, GenericModalButtonId, ModalButtonId} from "@/composables/config";
 import {faBrain, faEllipsisV} from "@fortawesome/free-solid-svg-icons";
+import {eventBus} from "@/eventbus";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo
@@ -119,9 +121,24 @@ const startOrdinal = computed(() => selectionInfo.value && selectionInfo.value.s
 const endOrdinal = computed(() => selectionInfo.value && selectionInfo.value.endOrdinal);
 
 const showMoreMenu = ref(false);
-const toggleMoreMenu = () => {
-    showMoreMenu.value = !showMoreMenu.value;
-};
+const moreMenuRef = ref<HTMLElement | null>(null);
+
+function closeMoreMenu() {
+    showMoreMenu.value = false;
+}
+
+function moreMenuClicked(e: MouseEvent|TouchEvent) {
+    showMoreMenu.value = true;
+}
+
+watch(showMoreMenu, v => {
+    if (v) {
+        eventBus.on("back_clicked", closeMoreMenu);
+    } else {
+        eventBus.off("back_clicked", closeMoreMenu);
+    }
+
+})
 
 const modalButtons = computed<ModalButtonId[]>(() => {
     if(verseInfo.value) {

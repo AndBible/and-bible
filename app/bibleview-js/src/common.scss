@@ -301,3 +301,18 @@ table {
     }
   }
 }
+
+.modal-backdrop {
+  display: block;
+  position: fixed;
+  z-index: 10;
+  padding-top: 10px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  .monochrome & {
+    background-color: unset;
+  }
+}
