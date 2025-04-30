@@ -158,6 +158,7 @@ Category=Commentaries
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
 AndBibleSpecial=1
+HideFromSelector=1
 Versification=KJVA"""
 
     private val MULTI_DUMMY_CONF get() = """[Multi]
@@ -210,4 +211,5 @@ val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != 
 val Book.isSpecial get() = bookMetaData.getProperty("AndBibleSpecial") != null
 val Book.isStudyPad get() = bookMetaData.getProperty("AndBibleIsStudyPad") != null
 val Book.doesNotExist get() = bookMetaData.getProperty("AndBibleDoesNotExist") != null
+val Book.hideFromSelector get() = bookMetaData.getProperty("HideFromSelector") != null
 val Book.isRemoved get() = !isSpecial && Books.installed().getBook(initials) == null
