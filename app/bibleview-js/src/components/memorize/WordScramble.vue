@@ -55,7 +55,7 @@
     <div
         v-for="(wordObj, buttonIndex) in scrambledWords"
         :key="`button-${buttonIndex}`"
-        class="button small"
+        class="button small memorize-button"
         :class="{ 
           incorrect: wordObj.incorrect,
           disabled: wordObj.used,
@@ -319,13 +319,14 @@ function resetWords() {
 .word-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  
+
   .memorize-button {
     &.incorrect {
       background-color: #e74c3c;
       animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      .noAnimation & {
+        animation: none;
+      }
     }
   }
 }
