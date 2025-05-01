@@ -141,26 +141,38 @@ watch(showMoreMenu, v => {
 })
 
 const modalButtons = computed<ModalButtonId[]>(() => {
+    let allButtons: ModalButtonId[]
     if(verseInfo.value) {
-        return ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE"];
     } else {
-        return ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK"];
     }
+    let disabledButtons: ModalButtonId[];
+    if(verseInfo.value) {
+        disabledButtons = appSettings.disableBibleModalButtons;
+    } else {
+        disabledButtons = appSettings.disableGenericModalButtons;
+    }
+    const disabledButtonsSet = new Set(disabledButtons);
+    return allButtons.filter(button => !disabledButtonsSet.has(button));
 });
 
 const primaryButtons = computed<ModalButtonId[]>(() => {
-    let buttons: ModalButtonId[];
-    if(verseInfo.value) {
-        buttons = appSettings.disableBibleModalButtons; // TODO!!!
+    if (modalButtons.value.length <= 5) {
+        return modalButtons.value;
     } else {
-        buttons = appSettings.disableGenericModalButtons;
+        // If there are more than 5 buttons, show the first 4 as primary buttons
+        return modalButtons.value.slice(0, 4);
     }
-    const buttonsSet = new Set(buttons);
-    return modalButtons.value.filter(button => buttonsSet.has(button));
 });
 
 const secondaryButtons = computed(() => {
-    return modalButtons.value.filter(button => !primaryButtons.value.includes(button));
+    if (modalButtons.value.length <= 5) {
+        return [];
+    } else {
+        // If there are more than 5 primary buttons, show the first 4 as primary buttons and the rest as secondary buttons
+        return modalButtons.value.slice(4);
+    }
 });
 
 function hasButton(buttonId: ModalButtonId) {
