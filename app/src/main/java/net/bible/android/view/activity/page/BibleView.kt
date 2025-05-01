@@ -1320,11 +1320,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val hideCompareDocuments = json.encodeToString(serializer(), workspaceSettings.hideCompareDocuments)
         val limitAmbiguousModalSize = json.encodeToString(serializer(), workspaceSettings.limitAmbiguousModalSize)
-        val bibleModalButtons = json.encodeToString(serializer(),
-            CommonUtils.settings.getStringSet("bible_bookmark_modal_buttons", setOf("BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE"))
+        val disableBibleModalButtons = json.encodeToString(serializer(),
+            CommonUtils.settings.getStringSet("disable_bible_bookmark_modal_buttons", emptySet())
         )
-        val genericModalButtons = json.encodeToString(serializer(),
-            CommonUtils.settings.getStringSet("gen_bookmark_modal_buttons", setOf("BOOKMARK", "BOOKMARK_NOTES", "SPEAK"))
+        val disableGenericModalButtons = json.encodeToString(serializer(),
+            CommonUtils.settings.getStringSet("disable_gen_bookmark_modal_buttons", emptySet())
         )
         val monochromeMode = CommonUtils.settings.monochromeMode
         val disableAnimations = CommonUtils.settings.disableAnimations
@@ -1342,8 +1342,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         hideCompareDocuments: $hideCompareDocuments,
                         limitAmbiguousModalSize: $limitAmbiguousModalSize,
                         windowId: '${window.displayId}',
-                        bibleModalButtons: $bibleModalButtons, 
-                        genericModalButtons: $genericModalButtons, 
+                        disableBibleModalButtons: $disableBibleModalButtons, 
+                        disableGenericModalButtons: $disableGenericModalButtons, 
                         monochromeMode: $monochromeMode,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},

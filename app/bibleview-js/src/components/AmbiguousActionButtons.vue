@@ -151,9 +151,9 @@ const modalButtons = computed<ModalButtonId[]>(() => {
 const primaryButtons = computed<ModalButtonId[]>(() => {
     let buttons: ModalButtonId[];
     if(verseInfo.value) {
-        buttons = appSettings.bibleModalButtons;
+        buttons = appSettings.disableBibleModalButtons; // TODO!!!
     } else {
-        buttons = appSettings.genericModalButtons;
+        buttons = appSettings.disableGenericModalButtons;
     }
     const buttonsSet = new Set(buttons);
     return modalButtons.value.filter(button => buttonsSet.has(button));

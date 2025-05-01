@@ -149,8 +149,8 @@ class SettingsActivity: ActivityBase() {
                     "show_calculator",
                     "calculator_pin",
                     "google_drive_sync",
-                    "bible_bookmark_modal_buttons",
-                    "gen_bookmark_modal_buttons",
+                    "disable_bible_bookmark_modal_buttons",
+                    "disable_gen_bookmark_modal_buttons",
                     "monochrome_mode",
                     "disable_animations",
                     "font_size_multiplier",
@@ -176,10 +176,15 @@ class SettingsActivity: ActivityBase() {
 
 class SettingsFragment : PreferenceFragmentCompat() {
 	override fun onDisplayPreferenceDialog(preference: Preference) {
-        if(parentFragmentManager.findFragmentByTag("customTag") != null)
+        if (preference is net.bible.android.view.widget.InverseMultiSelectListPreference) {
+            val f = net.bible.android.view.widget.InverseMultiSelectListPreference.InverseMultiSelectListPreferenceDialogFragmentCompat.newInstance(preference.key)
+            f.setTargetFragment(this, 0)
+            f.show(parentFragmentManager, "InverseMultiSelectListPreferenceDialogFragment")
+        } else if(parentFragmentManager.findFragmentByTag("customTag") != null) {
             return
-
-        super.onDisplayPreferenceDialog(preference)
+        } else {
+            super.onDisplayPreferenceDialog(preference)
+        }
 	}
 
     private fun setupDictionary(pref: MultiSelectListPreference, type: FeatureType): Boolean {
