@@ -175,18 +175,6 @@ class SettingsActivity: ActivityBase() {
 }
 
 class SettingsFragment : PreferenceFragmentCompat() {
-	override fun onDisplayPreferenceDialog(preference: Preference) {
-        if (preference is net.bible.android.view.widget.InverseMultiSelectListPreference) {
-            val f = net.bible.android.view.widget.InverseMultiSelectListPreference.InverseMultiSelectListPreferenceDialogFragmentCompat.newInstance(preference.key)
-            f.setTargetFragment(this, 0)
-            f.show(parentFragmentManager, "InverseMultiSelectListPreferenceDialogFragment")
-        } else if(parentFragmentManager.findFragmentByTag("customTag") != null) {
-            return
-        } else {
-            super.onDisplayPreferenceDialog(preference)
-        }
-	}
-
     private fun setupDictionary(pref: MultiSelectListPreference, type: FeatureType): Boolean {
         val dicts = Books.installed().books.filter { it.hasFeature(type) }
 

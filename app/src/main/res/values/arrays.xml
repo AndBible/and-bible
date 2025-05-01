@@ -205,8 +205,6 @@
         <item>SPEAK</item>
 		<item>MEMORIZE</item>
 	</string-array>
-	<string-array name="pref_bible_bookmark_modal_action_exclude_defaults">
-	</string-array>
 	<string-array name="prefs_gen_bookmark_modal_action_names">
 		<item>@string/create_bookmark</item>
 		<item>@string/create_bookmark_with_a_note</item>
@@ -216,7 +214,5 @@
 		<item>BOOKMARK</item>
 		<item>BOOKMARK_NOTES</item>
 		<item>SPEAK</item>
-	</string-array>
-	<string-array name="pref_gen_bookmark_modal_action_exclude_defaults">
 	</string-array>
 </resources>
