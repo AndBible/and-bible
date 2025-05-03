@@ -57,10 +57,18 @@ openDownloads: Mine lisade allalaadimisele
 verseShare: Jaga
 verseSpeak: Loe ette
 verseCompare: Võrdle
+verseMemorize: ""
 verseNote: Märge
 verseMyNotes: Minu märkmed
 verseShareLong: Jaga seda salmi
 verseCompareLong: Võrdle salmi
+verseMemorizeLong: ""
 verseNoteLong: Kirjuta märge
 addBookmark: Järjehoidja
 selectCustomIconTitle: ""
+blur: ""
+reset: Nulli
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Veel

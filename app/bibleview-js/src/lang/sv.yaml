@@ -57,10 +57,18 @@ openDownloads: Gå till Tillägg nerladdningar
 verseShare: Dela
 verseSpeak: Läs upp
 verseCompare: Jämför
+verseMemorize: ""
 verseNote: Anteckning
 verseMyNotes: Egna anteckningar
 verseShareLong: Dela denna vers
 verseCompareLong: Jämför denna vers
+verseMemorizeLong: ""
 verseNoteLong: Skriv en anteckning
 addBookmark: Bokmärke
 selectCustomIconTitle: Välj en anpassad ikon
+blur: ""
+reset: Återställ
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Mer

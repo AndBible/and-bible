@@ -57,10 +57,18 @@ openDownloads: యాడ్-ఆన్ డౌన్‌లోడ్‌లకు �
 verseShare: షేర్ చేయండి
 verseSpeak: మాట్లాడు
 verseCompare: సరిపోల్చండి
+verseMemorize: ""
 verseNote: నోట్
 verseMyNotes: నా నోట్స్
 verseShareLong: ఈ వచనం షేర్ చేయండి
 verseCompareLong: వచనం సరిపోల్చండి
+verseMemorizeLong: ""
 verseNoteLong: ఒక నోట్ వ్రాయండి
 addBookmark: బుక్మార్క్
 selectCustomIconTitle: ""
+blur: ""
+reset: రీసెట్
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: మరిన్ని

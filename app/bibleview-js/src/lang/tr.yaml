@@ -57,10 +57,18 @@ openDownloads: Eklenti indirmelerine git
 verseShare: Paylaş
 verseSpeak: Sesli Oku
 verseCompare: Karşılaştır
+verseMemorize: ""
 verseNote: Not
 verseMyNotes: Notlarım
 verseShareLong: Bu ayeti paylaş
 verseCompareLong: Ayet karşılaştırması
+verseMemorizeLong: ""
 verseNoteLong: Bir not yazın
 addBookmark: Yer imi
 selectCustomIconTitle: ""
+blur: ""
+reset: Sıfırla
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Daha fazla

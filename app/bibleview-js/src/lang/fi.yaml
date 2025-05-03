@@ -57,10 +57,18 @@ openDownloads: Siirry lisäosien latauksiin
 verseShare: Jaa
 verseSpeak: Puhe
 verseCompare: Vertaa
+verseMemorize: ""
 verseNote: Muistiinpano
 verseMyNotes: Omat merkinnät
 verseShareLong: Jaa tämä jae
 verseCompareLong: Vertaa jaetta
+verseMemorizeLong: ""
 verseNoteLong: Kirjoita muistiinpano
 addBookmark: Kirjanmerkki
 selectCustomIconTitle: ""
+blur: ""
+reset: Tyhjennä
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Lisää

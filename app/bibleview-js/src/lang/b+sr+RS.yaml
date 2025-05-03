@@ -57,10 +57,18 @@ openDownloads: Идите на Преузимање додатака
 verseShare: Дели
 verseSpeak: Изговори
 verseCompare: Упоредите
+verseMemorize: ""
 verseNote: Белешка
 verseMyNotes: Моје белешке
 verseShareLong: Подели овај стих
 verseCompareLong: Упореди стих
+verseMemorizeLong: ""
 verseNoteLong: Напиши белешку
 addBookmark: Обележивач
 selectCustomIconTitle: ""
+blur: ""
+reset: Ресет
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Више

@@ -57,10 +57,18 @@ openDownloads: Перейти до завантаження додаткових
 verseShare: Поділитись
 verseSpeak: Озвучити
 verseCompare: Порівняти
+verseMemorize: ""
 verseNote: Примітка
 verseMyNotes: Мої примітки
 verseShareLong: Поділіться віршем
 verseCompareLong: Порівняти вірш
+verseMemorizeLong: ""
 verseNoteLong: Написати нотатку
 addBookmark: Закладка
 selectCustomIconTitle: ""
+blur: ""
+reset: Скинути
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Більше

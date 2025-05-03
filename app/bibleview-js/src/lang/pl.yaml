@@ -57,10 +57,18 @@ openDownloads: Otwórz pobierania
 verseShare: Udostępnij
 verseSpeak: Odsłuchaj
 verseCompare: Porównaj
+verseMemorize: ""
 verseNote: Notatka
 verseMyNotes: Moje notatki
 verseShareLong: Udostępnij werset
 verseCompareLong: Porównaj werset
+verseMemorizeLong: ""
 verseNoteLong: Napisz notatkę
 addBookmark: Zakładka
 selectCustomIconTitle: Wybór własnej ikony znacznika
+blur: ""
+reset: Reset
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Więcej

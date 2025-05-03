@@ -57,10 +57,18 @@ openDownloads: לך להורדת תוספים
 verseShare: שתף
 verseSpeak: הקראה
 verseCompare: השוואה
+verseMemorize: ""
 verseNote: הערה
 verseMyNotes: הערות אישיות
 verseShareLong: שתף פסוק זה
 verseCompareLong: השוואת פסוק
+verseMemorizeLong: ""
 verseNoteLong: כתיבת הערה
 addBookmark: סימניה
 selectCustomIconTitle: ""
+blur: ""
+reset: איפוס
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: עוד

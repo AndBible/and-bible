@@ -57,10 +57,18 @@ openDownloads: Add-on ဒေါင်းလုပ်များသို့ သ
 verseShare: မျှဝေပါ
 verseSpeak: စကားပြောပါ
 verseCompare: နှိုင်းယှဉ်ပါ
+verseMemorize: ""
 verseNote: မှတ်စု
 verseMyNotes: ကိုယ်ပိုင်မှတ်စုများ
 verseShareLong: ဤအခန်းငယ်ကို ဝေမျှပါ
 verseCompareLong: အခန်းငယ်ကို နှိုင်းယှဉ်ပါ
+verseMemorizeLong: ""
 verseNoteLong: မှတ်စုတစ်ခု ရေးပါ
 addBookmark: စာညှပ်
 selectCustomIconTitle: ""
+blur: ""
+reset: ပြန်လည်သတ်မှတ်ပါ
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: နောက်ထပ်

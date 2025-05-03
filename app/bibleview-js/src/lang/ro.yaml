@@ -57,10 +57,18 @@ openDownloads: Descarcă extensii
 verseShare: Trimite
 verseSpeak: Vorbește
 verseCompare: Compară
+verseMemorize: ""
 verseNote: Notiță
 verseMyNotes: Notițele mele
 verseShareLong: Trimite acest verset
 verseCompareLong: Compară versetele
+verseMemorizeLong: ""
 verseNoteLong: Scrie o notiță
 addBookmark: Semn de carte
 selectCustomIconTitle: Alege simbolul de evidențiere
+blur: ""
+reset: Restabilește
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Mai mult

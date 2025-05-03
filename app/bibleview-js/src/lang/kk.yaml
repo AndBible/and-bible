@@ -58,10 +58,18 @@ openDownloads: Қосымша жүктеулерге өтіңіз
 verseShare: Бөлісу
 verseSpeak: Сөйлеу
 verseCompare: Салыстыр
+verseMemorize: ""
 verseNote: Ескерту
 verseMyNotes: Менің Ескертпелерім
 verseShareLong: Осы аятпен бөлісу
 verseCompareLong: Аятты салыстыру
+verseMemorizeLong: ""
 verseNoteLong: Жазба жазу
 addBookmark: Бетбелгі
 selectCustomIconTitle: ""
+blur: ""
+reset: Қайта бастау
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Көбірек
