@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div v-if="showMoreMenu" @click.stop="closeMoreMenu" class="modal-backdrop no-background"/>
+  <div v-if="showMoreMenu" @click.stop="showMoreMenu = false" class="modal-backdrop no-background"/>
   <div :class="{hasActions, horizontal: !vertical, vertical}">
     <!-- Primary buttons that are always visible -->
     <template v-for="button in primaryButtons" :key="button">
@@ -29,7 +29,7 @@
     </template>
 
     <!-- More options button -->
-    <div v-if="secondaryButtons.length > 0" class="large-action" @click.stop="moreMenuClicked" @touchstart.stop>
+    <div v-if="secondaryButtons.length > 0" class="large-action" @click.stop="showMoreMenu = true" @touchstart.stop>
       <FontAwesomeIcon :icon="faEllipsisV"/>
       <div class="title">{{ strings.more }}</div>
     </div>
@@ -49,14 +49,13 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, inject, ref, watch} from "vue";
+import {computed, inject, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {androidKey, keyboardKey, locateTopKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
 import {ModalButtonId} from "@/composables/config";
 import {faEllipsisV} from "@fortawesome/free-solid-svg-icons";
-import {eventBus} from "@/eventbus";
 import ActionButton from "@/components/ActionButton.vue";
 
 const props = withDefaults(defineProps<{
@@ -85,23 +84,6 @@ const endOrdinal = computed(() => selectionInfo.value && selectionInfo.value.end
 
 const showMoreMenu = ref(false);
 const moreMenuRef = ref<HTMLElement | null>(null);
-
-function closeMoreMenu() {
-    showMoreMenu.value = false;
-}
-
-function moreMenuClicked(e: MouseEvent|TouchEvent) {
-    showMoreMenu.value = true;
-}
-
-watch(showMoreMenu, v => {
-    if (v) {
-        eventBus.on("back_clicked", closeMoreMenu);
-    } else {
-        eventBus.off("back_clicked", closeMoreMenu);
-    }
-
-})
 
 const modalButtons = computed<ModalButtonId[]>(() => {
     let allButtons: ModalButtonId[]
