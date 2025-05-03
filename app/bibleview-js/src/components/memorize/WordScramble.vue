@@ -102,12 +102,8 @@ const scrambledWords = ref<WordObject[]>([]);
 const currentWordIndex = ref<number>(0);
 const isPeeking = ref<boolean>(false);
 
-// Computed property to check if all words have been correctly placed
 const isCompleted = computed(() => {
-  // If there are no words loaded yet, we're not complete
   if (scrambledWords.value.length === 0) return false;
-  
-  // Check if all words have been used
   return scrambledWords.value.every(word => word.used);
 });
 
@@ -249,10 +245,9 @@ function resetWords() {
     const wordObjects: WordObject[] = [];
     wordMap.forEach((data, normalizedWord) => {
         // Find a representative word from the original text (preserve casing)
-        let originalWord = "";
         const firstIndex = data.indices[0];
         const { itemIndex, localIndex } = getLocalIndices(firstIndex);
-        originalWord = getWordsFromText(props.textItems[itemIndex].text)[localIndex];
+        const originalWord = getWordsFromText(props.textItems[itemIndex].text)[localIndex];
         
         wordObjects.push({
             word: originalWord,
@@ -263,11 +258,8 @@ function resetWords() {
         });
     });
 
-    // Shuffle the words
-    const scrambled = [...wordObjects].sort(() => Math.random() - 0.5);
-
     // Reset state
-    scrambledWords.value = scrambled;
+    scrambledWords.value = [...wordObjects].sort(() => Math.random() - 0.5);
     currentWordIndex.value = 0;
     isPeeking.value = false;
 
