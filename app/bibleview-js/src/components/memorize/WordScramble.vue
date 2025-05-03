@@ -141,9 +141,9 @@ function getLocalIndices(globalIndex: number): { itemIndex: number, localIndex: 
 function getWordsFromText(text: string) {
     // Split text into words and punctuation tokens
     // This regex matches:
-    // 1. Punctuation: one or more punctuation characters
+    // 1. Punctuation: one or more punctuation characters (including quotation marks and Unicode variants)
     // 2. Words: one or more non-whitespace, non-punctuation characters
-    const tokens = text.match(/([.,;:!?…]+)|([^\s.,;:!?…]+)/g) || [];
+    const tokens = text.match(/([“”.,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s“”.,;:!?…"'«»„‚–—\-()[\]{}]+)/g) || [];
     return tokens.filter(token => token.length > 0);
 }
 
@@ -152,7 +152,7 @@ function isWordRevealed(globalWordIndex: number) {
 }
 
 function isPunctuation(word: string): boolean {
-    return /^[.,;:!?…]+$/.test(word);
+    return /^[“”.,;:!?…"'«»„‚–—\-()[\]{}]+$/.test(word);
 }
 
 onMounted(() => {
