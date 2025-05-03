@@ -20,31 +20,12 @@
   <div :class="{hasActions, horizontal: !vertical, vertical}">
     <!-- Primary buttons that are always visible -->
     <template v-for="button in primaryButtons" :key="button">
-      <div v-if="hasButton(button)" class="large-action" @click="handleButtonClick(button)">
-        <FontAwesomeLayers v-if="button === 'BOOKMARK'">
-          <FontAwesomeIcon icon="bookmark"/>
-          <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
-        </FontAwesomeLayers>
-        <FontAwesomeLayers v-else-if="button === 'BOOKMARK_NOTES'">
-          <FontAwesomeIcon icon="edit"/>
-          <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
-        </FontAwesomeLayers>
-        <FontAwesomeIcon v-else-if="button === 'SHARE'" icon="share-alt"/>
-        <FontAwesomeIcon v-else-if="button === 'MY_NOTES'" icon="file-alt"/>
-        <FontAwesomeIcon v-else-if="button === 'COMPARE'" icon="custom-compare"/>
-        <FontAwesomeIcon v-else-if="button === 'MEMORIZE'" :icon="faBrain"/>
-        <FontAwesomeIcon v-else-if="button === 'SPEAK'" icon="headphones"/>
-        <div class="title">
-          <template v-if="button === 'BOOKMARK'">{{ strings.addBookmark }}</template>
-          <template v-else-if="button === 'BOOKMARK_NOTES'">{{ vertical ? strings.verseNoteLong : strings.verseNote }}</template>
-          <template v-else-if="button === 'SHARE'">{{ vertical ? strings.verseShareLong : strings.verseShare }}</template>
-          <template v-else-if="button === 'MY_NOTES'">{{ strings.verseMyNotes }}</template>
-          <template v-else-if="button === 'COMPARE'">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</template>
-          <template v-else-if="button === 'MEMORIZE'">{{ vertical ? strings.verseMemorizeLong : strings.verseMemorize }}</template>
-          <template v-else-if="button === 'SPEAK'">{{ strings.verseSpeak }}</template>
-
-        </div>
-      </div>
+      <ActionButton
+        v-if="hasButton(button)" 
+        :button="button" 
+        :vertical="vertical" 
+        @action-click="handleButtonClick(button)" 
+      />
     </template>
 
     <!-- More options button -->
@@ -56,45 +37,27 @@
     <!-- Dropdown menu for secondary buttons -->
     <div v-if="showMoreMenu" ref="moreMenuRef" class="dropdown-menu" :class="{'vertical-menu': vertical, 'locate-bottom': !locateTop}" @click.stop>
       <template v-for="button in secondaryButtons" :key="button">
-        <div v-if="hasButton(button)" class="large-action" @click="handleButtonClick(button)">
-          <FontAwesomeLayers v-if="button === 'BOOKMARK'">
-            <FontAwesomeIcon icon="bookmark"/>
-            <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
-          </FontAwesomeLayers>
-          <FontAwesomeLayers v-else-if="button === 'BOOKMARK_NOTES'">
-            <FontAwesomeIcon icon="edit"/>
-            <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
-          </FontAwesomeLayers>
-          <FontAwesomeIcon v-else-if="button === 'SHARE'" icon="share-alt"/>
-          <FontAwesomeIcon v-else-if="button === 'MY_NOTES'" icon="file-alt"/>
-          <FontAwesomeIcon v-else-if="button === 'COMPARE'" icon="custom-compare"/>
-          <FontAwesomeIcon v-else-if="button === 'MEMORIZE'" :icon="faBrain"/>
-          <FontAwesomeIcon v-else-if="button === 'SPEAK'" icon="headphones"/>
-          
-          <div class="title">
-            <template v-if="button === 'BOOKMARK'">{{ strings.addBookmark }}</template>
-            <template v-else-if="button === 'BOOKMARK_NOTES'">{{ vertical ? strings.verseNoteLong : strings.verseNote }}</template>
-            <template v-else-if="button === 'SHARE'">{{ vertical ? strings.verseShareLong : strings.verseShare }}</template>
-            <template v-else-if="button === 'MY_NOTES'">{{ strings.verseMyNotes }}</template>
-            <template v-else-if="button === 'COMPARE'">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</template>
-            <template v-else-if="button === 'MEMORIZE'">{{ vertical ? strings.verseMemorizeLong : strings.verseMemorize }}</template>
-            <template v-else-if="button === 'SPEAK'">{{ strings.verseSpeak }}</template>
-          </div>
-        </div>
+        <ActionButton
+          v-if="hasButton(button)" 
+          :button="button" 
+          :vertical="vertical" 
+          @action-click="handleButtonClick(button)" 
+        />
       </template>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, inject, onMounted, onUnmounted, ref, watch} from "vue";
-import {FontAwesomeIcon, FontAwesomeLayers} from "@fortawesome/vue-fontawesome";
+import {computed, inject, ref, watch} from "vue";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {androidKey, keyboardKey, locateTopKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
-import {BibleModalButtonId, GenericModalButtonId, ModalButtonId} from "@/composables/config";
-import {faBrain, faEllipsisV} from "@fortawesome/free-solid-svg-icons";
+import {ModalButtonId} from "@/composables/config";
+import {faEllipsisV} from "@fortawesome/free-solid-svg-icons";
 import {eventBus} from "@/eventbus";
+import ActionButton from "@/components/ActionButton.vue";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo
@@ -277,54 +240,6 @@ setupKeyboardListener((e: KeyboardEvent) => {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
-
-.large-action {
-  cursor: pointer;
-  min-width: 40px; // Ensures dynamic plus icon has sufficient space to be appended
-  display: flex;
-  flex-direction: row;
-
-  .horizontal & {
-    flex-direction: column;
-    font-size: 60%;
-    margin: 0 auto 0 auto;
-  }
-
-  .vertical & {
-    @extend .light;
-    @extend .button;
-  }
-
-  .fa-layers, .svg-inline--fa {
-    //    padding-inline-end: 14px;  // Causes non-alignment of the icons in the verse action dialog.
-    .horizontal & {
-      color: $button-grey;
-      .monochrome.night & {
-        color: white;
-      }
-      margin: 0 auto 0 auto;
-      padding-bottom: 5px;
-      $size: 20px;
-      width: $size;
-      height: $size;
-    }
-  }
-
-  .title {
-    margin: 0 auto 0 auto;
-    .monochrome.night & {
-      color: white;
-    }
-  }
-
-  padding-bottom: 0.5em;
-
-  .horizontal & {
-    .hasActions & {
-      padding-bottom: 5px;
-    }
-  }
-}
 
 .horizontal {
   display: flex;

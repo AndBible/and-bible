@@ -317,3 +317,52 @@ table {
     -webkit-user-select: none;
   }
 }
+
+
+.large-action {
+  cursor: pointer;
+  min-width: 40px; // Ensures dynamic plus icon has sufficient space to be appended
+  display: flex;
+  flex-direction: row;
+
+  .horizontal & {
+    flex-direction: column;
+    font-size: 60%;
+    margin: 0 auto 0 auto;
+  }
+
+  .vertical & {
+    @extend .light;
+    @extend .button;
+  }
+
+  .fa-layers, .svg-inline--fa {
+    //    padding-inline-end: 14px;  // Causes non-alignment of the icons in the verse action dialog.
+    .horizontal & {
+      color: $button-grey;
+      .monochrome.night & {
+        color: white;
+      }
+      margin: 0 auto 0 auto;
+      padding-bottom: 5px;
+      $size: 20px;
+      width: $size;
+      height: $size;
+    }
+  }
+
+  .title {
+    margin: 0 auto 0 auto;
+    .monochrome.night & {
+      color: white;
+    }
+  }
+
+  padding-bottom: 0.5em;
+
+  .horizontal & {
+    .hasActions & {
+      padding-bottom: 5px;
+    }
+  }
+}
