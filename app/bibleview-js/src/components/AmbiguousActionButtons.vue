@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div v-if="showMoreMenu" @click.stop="closeMoreMenu" class="modal-backdrop"/>
+  <div v-if="showMoreMenu" @click.stop="closeMoreMenu" class="modal-backdrop no-background"/>
   <div :class="{hasActions, horizontal: !vertical, vertical}">
     <!-- Primary buttons that are always visible -->
     <template v-for="button in primaryButtons" :key="button">

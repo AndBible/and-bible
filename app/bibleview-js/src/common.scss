@@ -247,6 +247,9 @@ table {
   .monochrome & {
     background-color: unset;
   }
+  &.no-background {
+    background-color: unset;
+  }
 }
 
 // Memorize component shared styles
