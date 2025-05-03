@@ -146,4 +146,43 @@ function revealWord(textKey: string, wordIndex: number) {
 <style scoped lang="scss">
 @import "~@/common.scss";
 
+.memorize-word {
+  &.blurred {
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    .noAnimation & {
+      transition: none;
+    }
+  }
+  
+  &.revealed {
+    animation: flash 1s;
+    .noAnimation & {
+      animation: none;
+    }
+  }
+}
+
+.memorize-controls {
+  .button {
+    min-width: 100px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    
+    &:active {
+      transform: translateY(1px);
+      opacity: 0.9;
+    }
+  }
+}
+
+@keyframes flash {
+  0% { background-color: rgba(255, 255, 0, 0.5); }
+  100% { background-color: transparent; }
+}
 </style>

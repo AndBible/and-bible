@@ -97,4 +97,48 @@ const currentModeComponent = computed(() => {
 
 <style scoped lang="scss">
 @import "~@/common.scss";
+
+.memorize-mode-selector {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 1.5rem;
+  padding: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: $button-border-radius;
+  .night & {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .button {
+    min-width: 120px;
+    margin: 0 4px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    .noAnimation & {
+      transition: none;
+    }
+    
+    &.toggled {
+      transform: scale(1.05);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      .night & {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+    }
+    
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+}
+
+h2 {
+  text-align: center;
+  margin: 1rem 0 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  .night & {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+}
 </style>

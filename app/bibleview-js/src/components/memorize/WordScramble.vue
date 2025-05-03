@@ -280,21 +280,20 @@ function resetWords() {
 <style scoped lang="scss">
 @import "~@/common.scss";
 
-// Completed state styles
-.completed {
-  border: 2px solid var(--success-color, #28a745);
-  border-radius: 8px;
-  padding: 0.5rem;
-  background-color: rgba(40, 167, 69, 0.05);
-}
-
-
 .memorize-text {
+  transition: border-color 0.3s ease;
+  
   .memorize-word {
     margin-right: 4px;
+    min-width: 1.5em;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     
     &.punctuation {
       color: var(--primary-color);
+      margin-right: 0;
     }
     
     &.revealed {
@@ -302,14 +301,30 @@ function resetWords() {
     }
   }
   
+  &.preview {
+    border: 1px dashed var(--primary-color);
+    background-color: rgba(0, 0, 0, 0.03);
+    .night & {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+    padding: 1rem;
+  }
+  
   &.completed {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+    border: 2px solid #28a745;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: rgba(40, 167, 69, 0.05);
+    .night & {
+      background-color: rgba(40, 167, 69, 0.1);
+    }
+    animation: completionPulse 2s;
+    .noAnimation & {
+      animation: none;
+    }
   }
-}
-
-.preview {
-  border: 1px dashed var(--primary-color);
 }
 
 .text-block {
@@ -319,14 +334,46 @@ function resetWords() {
 .word-buttons {
   display: flex;
   flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 1.5rem;
 
   .memorize-button {
+    margin: 2px;
+    min-width: auto;
+    padding: 8px 12px;
+    border-radius: $button-border-radius;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    .noAnimation & {
+      transition: none;
+    }
+    
+    &:active {
+      transform: translateY(1px);
+    }
+    
     &.incorrect {
       background-color: #e74c3c;
       animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
       .noAnimation & {
         animation: none;
       }
+    }
+    
+    &.disabled {
+      opacity: 0.5;
+    }
+  }
+}
+
+.memorize-controls {
+  .button {
+    min-width: 100px;
+    font-weight: 500;
+    
+    &:active {
+      transform: translateY(1px);
+      opacity: 0.9;
     }
   }
 }
@@ -344,5 +391,11 @@ function resetWords() {
   40%, 60% {
     transform: translateX(4px);
   }
+}
+
+@keyframes completionPulse {
+  0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
 }
 </style>

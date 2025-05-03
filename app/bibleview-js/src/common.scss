@@ -255,6 +255,11 @@ table {
   gap: 0.5rem;
   margin-bottom: 1rem;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  
+  @media (max-width: 400px) {
+    justify-content: center;
+  }
 }
 
 .memorize-text {
@@ -264,6 +269,15 @@ table {
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   min-height: 3rem;
+  transition: background-color 0.3s ease;
+  
+  .night & {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .noAnimation & {
+    transition: none;
+  }
 }
 
 .memorize-word {
@@ -280,9 +294,26 @@ table {
     border-radius: 3px;
     padding: 0 2px;
     cursor: pointer;
+    user-select: none;
   }
   
   &.revealed {
     color: var(--text-color, inherit);
+  }
+}
+
+// Prevent text selection on interactive elements
+.button, 
+.memorize-button, 
+[role="button"],
+.journal-button {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  
+  &:active {
+    user-select: none;
+    -webkit-user-select: none;
   }
 }
