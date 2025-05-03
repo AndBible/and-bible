@@ -57,10 +57,18 @@ openDownloads: Zu Add-on Download gehen
 verseShare: Teilen
 verseSpeak: Vorlesen
 verseCompare: Vergleiche
+verseMemorize: ""
 verseNote: Notiz
 verseMyNotes: Eigene Notizen
 verseShareLong: Diesen Vers teilen
 verseCompareLong: Vers vergleichen
+verseMemorizeLong: ""
 verseNoteLong: Eine Notiz schreiben
 addBookmark: Lesezeichen
 selectCustomIconTitle: ""
+blur: ""
+reset: Zurücksetzen
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Mehr

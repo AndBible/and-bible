@@ -57,10 +57,18 @@ openDownloads: Přejít na stažení doplňků
 verseShare: Sdílet
 verseSpeak: Předčítání
 verseCompare: Porovnat
+verseMemorize: ""
 verseNote: Poznámka
 verseMyNotes: Poznámky
 verseShareLong: Sdílet verš
 verseCompareLong: Porovnat verš
+verseMemorizeLong: ""
 verseNoteLong: Napsat poznámku
 addBookmark: Záložka
 selectCustomIconTitle: ""
+blur: ""
+reset: Resetovat
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Více

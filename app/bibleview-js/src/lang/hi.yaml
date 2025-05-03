@@ -57,10 +57,18 @@ openDownloads: ऐड-ऑन डाउनलोड पर जाएं
 verseShare: शेयर
 verseSpeak: अध्याय सुनिए
 verseCompare: तुलना करना
+verseMemorize: ""
 verseNote: नोट
 verseMyNotes: मेरे टिप्पणीयां
 verseShareLong: इस छंद को शेयर करें
 verseCompareLong: छंद की तुलना करें
+verseMemorizeLong: ""
 verseNoteLong: एक टिप्पणी लिखो
 addBookmark: बुकमार्क
 selectCustomIconTitle: ""
+blur: ""
+reset: रिसेट
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: और

@@ -57,10 +57,18 @@ openDownloads: ir para Baixar Módulos
 verseShare: Compartilhar
 verseSpeak: Falar
 verseCompare: Comparar
+verseMemorize: ""
 verseNote: Nota
 verseMyNotes: Minhas notas
 verseShareLong: Compartilhar este versículo
 verseCompareLong: Comparar versículo
+verseMemorizeLong: ""
 verseNoteLong: Escrever uma nota
 addBookmark: Marcador
 selectCustomIconTitle: ""
+blur: ""
+reset: Redefinir
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Mais

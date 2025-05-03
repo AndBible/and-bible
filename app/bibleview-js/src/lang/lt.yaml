@@ -57,10 +57,18 @@ openDownloads: Pereiti į papildinių atsiuntimus
 verseShare: Bendrinti
 verseSpeak: Klausytis
 verseCompare: Lyginti
+verseMemorize: ""
 verseNote: Pastaba
 verseMyNotes: Mano pastabos
 verseShareLong: Bendrinti šią eilutę
 verseCompareLong: Lyginti eilutę
+verseMemorizeLong: ""
 verseNoteLong: Rašyti pastabą
 addBookmark: Pridėti žymę
 selectCustomIconTitle: Pasirinkti tinkintą žymeklio piktogramą
+blur: ""
+reset: Atstatyti
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Daugiau

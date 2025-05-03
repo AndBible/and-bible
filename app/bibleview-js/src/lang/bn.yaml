@@ -57,10 +57,18 @@ openDownloads: অ্যাড-অন ডাউনলোডগুলিতে �
 verseShare: "ভাগ / শেয়ার "
 verseSpeak: কথাবলুন
 verseCompare: তুলনা করুন
+verseMemorize: ""
 verseNote: দ্রষ্টব্য
 verseMyNotes: আমার নোটস
 verseShareLong: এই পদ শেয়ার করুন
 verseCompareLong: পদ তুলনা করুন
+verseMemorizeLong: ""
 verseNoteLong: একটি নোট লিখুন
 addBookmark: বুকমার্ক
 selectCustomIconTitle: ""
+blur: ""
+reset: রিসেট
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: আরও

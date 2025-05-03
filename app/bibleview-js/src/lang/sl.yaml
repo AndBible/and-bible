@@ -57,10 +57,18 @@ openDownloads: Pojdite na Prenose dodatkov
 verseShare: Deli
 verseSpeak: Govor
 verseCompare: Primerjaj
+verseMemorize: ""
 verseNote: Beležka
 verseMyNotes: Moje opombe
 verseShareLong: Deli to vrstico
 verseCompareLong: Primerjaj vrstico
+verseMemorizeLong: ""
 verseNoteLong: Zapiši beležko
 addBookmark: Zaznamek
 selectCustomIconTitle: ""
+blur: ""
+reset: Reset
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Več

@@ -57,10 +57,18 @@ openDownloads: Перейти к загрузке дополнительных �
 verseShare: Поделиться
 verseSpeak: Прослушать
 verseCompare: Сравнить
+verseMemorize: ""
 verseNote: Заметка
 verseMyNotes: Мои заметки
 verseShareLong: Поделиться этим стихом
 verseCompareLong: Сравнить стих
+verseMemorizeLong: ""
 verseNoteLong: Написать заметку
 addBookmark: Закладка
 selectCustomIconTitle: ""
+blur: ""
+reset: Сброс настроек
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Еще

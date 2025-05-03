@@ -57,10 +57,18 @@ openDownloads: Scarica estensioni
 verseShare: Condividi
 verseSpeak: Parla/Audio
 verseCompare: Confronta
+verseMemorize: ""
 verseNote: Nota
 verseMyNotes: Annotazioni
 verseShareLong: Condividi questo verso
 verseCompareLong: Confronta verso
+verseMemorizeLong: ""
 verseNoteLong: Scrivi una nota
 addBookmark: Segnalibro
 selectCustomIconTitle: Scegli icona per l'evidenziazione
+blur: ""
+reset: Ripristina
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Di più

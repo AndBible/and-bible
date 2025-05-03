@@ -57,10 +57,18 @@ openDownloads: Malfermi elŝutojn
 verseShare: Kunhavigi
 verseSpeak: Paroli
 verseCompare: Kompari
+verseMemorize: ""
 verseNote: Noto
 verseMyNotes: Notoj
 verseShareLong: Kunhavigi verson
 verseCompareLong: Kompari verson
+verseMemorizeLong: ""
 verseNoteLong: Skribi noton
 addBookmark: Legosigno
 selectCustomIconTitle: Elekti propran emblemon de markilo
+blur: ""
+reset: Reagordi
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Pli

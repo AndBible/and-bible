@@ -57,10 +57,18 @@ openDownloads: انتقل إلى تنزيلات الإضافات
 verseShare: مشاركة
 verseSpeak: تكلم
 verseCompare: مقارنة
+verseMemorize: ""
 verseNote: ملاحظة
 verseMyNotes: ملاحظاتي
 verseShareLong: مشاركة هذه الآية
 verseCompareLong: مقارنة الآية
+verseMemorizeLong: ""
 verseNoteLong: كتابة ملاحظة
 addBookmark: إشارة مرجعية
 selectCustomIconTitle: ""
+blur: ""
+reset: اعادة تهيئة
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: المزيد

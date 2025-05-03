@@ -57,10 +57,18 @@ openDownloads: Gaan na Byvoegsel aflaaie
 verseShare: Deel
 verseSpeak: Praat
 verseCompare: Vergelyk
+verseMemorize: ""
 verseNote: Nota
 verseMyNotes: My Notas
 verseShareLong: Deel hierdie vers
 verseCompareLong: Vergelyk vers
+verseMemorizeLong: ""
 verseNoteLong: Skryf 'n nota
 addBookmark: Boekmerke
 selectCustomIconTitle: ""
+blur: ""
+reset: Herstel
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Meer

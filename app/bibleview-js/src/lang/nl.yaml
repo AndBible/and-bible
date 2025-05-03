@@ -57,10 +57,18 @@ openDownloads: Ga naar uitbreiding downloads
 verseShare: Delen
 verseSpeak: Voorlezen
 verseCompare: Vergelijken
+verseMemorize: ""
 verseNote: Notitie
 verseMyNotes: Mijn notities
 verseShareLong: Dit vers delen
 verseCompareLong: Vers vergelijken
+verseMemorizeLong: ""
 verseNoteLong: Schrijf een notitie
 addBookmark: Bladwijzer
 selectCustomIconTitle: ""
+blur: ""
+reset: Reset
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Meer

@@ -57,10 +57,18 @@ openDownloads: Idite na Preuzimanje dodataka
 verseShare: Deli
 verseSpeak: Izgovori
 verseCompare: Uporedite
+verseMemorize: ""
 verseNote: Beleška
 verseMyNotes: Moje beleške
 verseShareLong: Podeli ovaj stih
 verseCompareLong: Uporedi stih
+verseMemorizeLong: ""
 verseNoteLong: Napiši belešku
 addBookmark: Obeleživač
 selectCustomIconTitle: ""
+blur: ""
+reset: Povrati
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Više
