@@ -1015,10 +1015,12 @@ Ne montri tion ĉi denove</string>
   <string name="pref_font_size_multiplier_summary_2">Uzebla kiam vi havas samtempigitan aparaton kun pli granda tiparo.</string>
   <string name="current_value">Nuna valoro: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Ago por fingrumi (mal)dekstren</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Elekti kion fari responde al la gestoj fingrumi (mal)dekstren: ĉu ŝanĝi paĝon aŭ ĉapitron.</string>
   <string name="prefs_swipe_mode_chapter">Ĉapitro</string>
   <string name="prefs_swipe_mode_page">Paĝo</string>
   <string name="prefs_swipe_mode_none">Malaktiva</string>
   <string name="page_number_title">Relativa paĝnumero</string>
   <string name="page_number_summary">Montri surtavolon kun numero de paĝo. Numero de paĝo estas relativa al la komenca paĝo.</string>
   <string name="select_custom_icon">Elekti propran emblemon de markilo</string>
+  <string name="invalid_url_message">La ligilo – kiun vi eniris – estas malĝusta. Enigu ĝustan ligilon (ekz. https://nextcloud.example.com)</string>
 </resources>

@@ -16,25 +16,25 @@ footnoteTypeExplanation: Förklarning
 footnoteTypeVariant: Variant
 footnoteTypeAlternative: Alternativ
 footnoteTypeTranslation: Översättning
-clearLog: Rensa error loggen
+clearLog: Rensa logg med felmeddelanden
 editTextPlaceholder: Tryck för att ändra texten
 inputPlaceholder: Skriv här
-inputReference: Skriv Bibel referensen
+inputReference: Ange bibelreferens
 invalidReference: Versen hittades inte
 bookmarkAccurate: Bokmärket skapades i %s
 bookmarkInaccurate: "Bokmärkets bokinformation har inte sparats, innehållet visas i %s"
-defaultBook: standard Bibel dokument
+defaultBook: standardbibeldokument
 ok: OK
 yes: "Ja"
-ambiguousSelection: "Vilken åtgärd vill du ta?"
+ambiguousSelection: "Vad vill du göra?"
 cancel: Avbryt
-removeBookmarkConfirmationTitle: Radera bokmärke
+removeBookmarkConfirmationTitle: "Ta bort bokmärke?"
 removeBookmarkConfirmation: "Är du säker på att du vill radera detta bokmärke?"
 createdAt: "Skapat: %s"
-lastUpdatedOn: "Senast uppdaterad: %s"
+lastUpdatedOn: "Senast uppdaterat: %s"
 strongsAndMorph: Definition & Morfologi
 externalLink: Öppna extern länk
-referenceLink: Öppna referens länk
+referenceLink: Öppna referenslänk
 openFootnote: Öppna fotnot
 noMyNotesTitle: Inga egna anteckningar för detta kapitel.
 noMyNotesDescription: >

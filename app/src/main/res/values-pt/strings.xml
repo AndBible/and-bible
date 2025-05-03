@@ -1061,4 +1061,5 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="page_number_title">Número relativo da página</string>
   <string name="page_number_summary">Mostrar a sobreposição do número de página. O número da página é relativo à posição inicial.</string>
   <string name="select_custom_icon">Selecionar o ícone do marcador</string>
+  <string name="invalid_url_message">O URL que introduziu é inválido. Introduza um URL válido (por exemplo, https://nextcloud.example.com)</string>
 </resources>
