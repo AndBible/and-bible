@@ -17,29 +17,128 @@
 
 package net.bible.android.view.widget
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
+import android.content.res.TypedArray
 import android.util.AttributeSet
-import androidx.preference.MultiSelectListPreference
+import androidx.preference.DialogPreference
 
 /**
- * A custom MultiSelectListPreference that works inversely to the standard one.
+ * A custom preference that works inversely to a standard MultiSelectListPreference.
  * It stores values that are NOT selected instead of those that are selected.
  * This is useful when we want most items to be selected by default and only
  * store exceptions.
  */
-class InverseMultiSelectListPreference : MultiSelectListPreference {
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context) : super(context)
+class InverseMultiSelectListPreference : DialogPreference {
+    private var mEntries: Array<CharSequence>? = null
+    private var mEntryValues: Array<CharSequence>? = null
+    private var mValues = mutableSetOf<String>()
+    private var mSelectedItems: BooleanArray? = null
+
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) {
+        init(context, attrs)
+    }
+    
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        init(context, attrs)
+    }
+    
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+        init(context, attrs)
+    }
+    
+    constructor(context: Context) : super(context) {
+        init(context, null)
+    }
+
+    private fun init(context: Context, attrs: AttributeSet?) {
+        attrs?.let {
+            val a = context.obtainStyledAttributes(
+                attrs,
+                androidx.preference.R.styleable.MultiSelectListPreference
+            )
+
+            try {
+                // Replace TypedArrayUtils.getTextArray with direct attribute access
+                if (a.hasValue(androidx.preference.R.styleable.MultiSelectListPreference_entries)) {
+                    mEntries = a.getTextArray(androidx.preference.R.styleable.MultiSelectListPreference_entries)
+                } else if (a.hasValue(androidx.preference.R.styleable.MultiSelectListPreference_android_entries)) {
+                    mEntries = a.getTextArray(androidx.preference.R.styleable.MultiSelectListPreference_android_entries)
+                }
+
+                if (a.hasValue(androidx.preference.R.styleable.MultiSelectListPreference_entryValues)) {
+                    mEntryValues = a.getTextArray(androidx.preference.R.styleable.MultiSelectListPreference_entryValues)
+                } else if (a.hasValue(androidx.preference.R.styleable.MultiSelectListPreference_android_entryValues)) {
+                    mEntryValues = a.getTextArray(androidx.preference.R.styleable.MultiSelectListPreference_android_entryValues)
+                }
+            } finally {
+                a.recycle()
+            }
+        }
+    }
 
     /**
-     * Stores values that are NOT in the given selectedValues set
+     * Sets the values that are NOT selected (inverse logic)
      */
-    override fun setValues(selectedValues_: MutableSet<String>?) {
-        var selectedValues = selectedValues_ ?: mutableSetOf()
+    fun setValues(selectedValues_: Set<String>?) {
+        mValues = selectedValues_?.toMutableSet() ?: mutableSetOf()
+        persistStringSet(mValues)
+    }
+
+    override fun onClick() {
+        val entryValues = mEntryValues ?: return
+        val entries = mEntries ?: return
+
         val allValues = entryValues.map { it.toString() }.toSet()
-        val valuesToStore = allValues.minus(selectedValues).toMutableSet()
-        super.setValues(valuesToStore)
+        val selectedValues = allValues.minus(mValues)
+
+        mSelectedItems = BooleanArray(entryValues.size) { i ->
+            selectedValues.contains(entryValues[i].toString())
+        }
+
+        val builder = AlertDialog.Builder(context)
+            .setTitle(dialogTitle)
+            .setMultiChoiceItems(
+                entries, mSelectedItems
+            ) { _: DialogInterface, which: Int, isChecked: Boolean ->
+                mSelectedItems!![which] = isChecked
+            }
+            .setPositiveButton(
+                android.R.string.ok
+            ) { _: DialogInterface, _: Int ->
+                val newSelectedValues = mutableSetOf<String>()
+                for (i in entryValues.indices) {
+                    if (mSelectedItems!![i]) {
+                        newSelectedValues.add(entryValues[i].toString())
+                    }
+                }
+
+                // Apply inverse logic - store values that are NOT selected
+                val newValues = allValues.minus(newSelectedValues).toMutableSet()
+
+                if (callChangeListener(newValues)) {
+                    mValues = newValues
+                    persistStringSet(newValues)
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+
+        builder.create().show()
+    }
+
+    override fun onGetDefaultValue(a: TypedArray, index: Int): Any? {
+        val defaultValues = a.getTextArray(index)
+        val result = mutableSetOf<String>()
+        
+        defaultValues?.forEach {
+            result.add(it.toString())
+        }
+        
+        return result
+    }
+
+    override fun onSetInitialValue(defaultValue: Any?) {
+        setValues(getPersistedStringSet(defaultValue as? Set<String>))
     }
 }
