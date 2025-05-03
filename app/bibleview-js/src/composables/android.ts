@@ -72,6 +72,7 @@ export type BibleJavascriptInterface = {
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
+    memorize: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
     speak: (bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) => void,
@@ -91,6 +92,7 @@ export type BibleJavascriptInterface = {
     shareHtml: (html: string) => void,
     helpBookmarks: () => void,
     onKeyDown: (key: string) => void,
+    saveState: (newState: string) => void,
 }
 
 export type UseAndroid = ReturnType<typeof useAndroid>
@@ -382,6 +384,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    function memorize(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.memorize(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
     function openStudyPad(labelId: IdType, bookmark: BaseBookmark) {
         if(isBibleBookmark(bookmark) || isGenericBookmark(bookmark)) {
             // Exceptionally here bookmark type does not matter
@@ -510,6 +516,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.onKeyDown(key);
     }
 
+    function saveState(newState: any) {
+        window.android.saveState(JSON.stringify(newState));
+    }
+
     const exposed = {
         shareHtml,
         helpBookmarks,
@@ -549,11 +559,13 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         addBookmark,
         addGenericBookmark,
         compare,
+        memorize,
         speak,
         speakGeneric,
         helpDialog,
         onKeyDown,
         parseRef,
+        saveState,
     }
 
     if (config.developmentMode) return {

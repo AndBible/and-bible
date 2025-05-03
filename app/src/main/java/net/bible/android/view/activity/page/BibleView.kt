@@ -337,6 +337,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 mode.finish()
                 return true
             }
+            R.id.memorize -> {
+                memorizeSelection()
+                mode.finish()
+                return true
+            }
             R.id.share_verses -> {
                 val sel = currentSelection ?: return true
                 ShareWidget.dialog(mainBibleActivity, sel)
@@ -443,6 +448,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.i(TAG, "compareSelection")
         val verseRange = selection?.verseRange ?: return
         linkControl.openCompare(verseRange)
+    }
+
+    internal fun memorizeSelection(selection: Selection? = currentSelection) {
+        Log.i(TAG, "memorizeSelection")
+        val verseRange = selection?.verseRange ?: return
+        linkControl.openMemorize(BookAndKey(verseRange, selection.book))
     }
 
     val scope get() = mainBibleActivity.lifecycleScope
@@ -1309,11 +1320,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val hideCompareDocuments = json.encodeToString(serializer(), workspaceSettings.hideCompareDocuments)
         val limitAmbiguousModalSize = json.encodeToString(serializer(), workspaceSettings.limitAmbiguousModalSize)
-        val bibleModalButtons = json.encodeToString(serializer(),
-            CommonUtils.settings.getStringSet("bible_bookmark_modal_buttons", setOf("BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE"))
+        val disableBibleModalButtons = json.encodeToString(serializer(),
+            CommonUtils.settings.getStringSet("disable_bible_bookmark_modal_buttons", emptySet())
         )
-        val genericModalButtons = json.encodeToString(serializer(),
-            CommonUtils.settings.getStringSet("gen_bookmark_modal_buttons", setOf("BOOKMARK", "BOOKMARK_NOTES", "SPEAK"))
+        val disableGenericModalButtons = json.encodeToString(serializer(),
+            CommonUtils.settings.getStringSet("disable_gen_bookmark_modal_buttons", emptySet())
         )
         val monochromeMode = CommonUtils.settings.monochromeMode
         val disableAnimations = CommonUtils.settings.disableAnimations
@@ -1331,8 +1342,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         hideCompareDocuments: $hideCompareDocuments,
                         limitAmbiguousModalSize: $limitAmbiguousModalSize,
                         windowId: '${window.displayId}',
-                        bibleModalButtons: $bibleModalButtons, 
-                        genericModalButtons: $genericModalButtons, 
+                        disableBibleModalButtons: $disableBibleModalButtons, 
+                        disableGenericModalButtons: $disableGenericModalButtons, 
                         monochromeMode: $monochromeMode,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},

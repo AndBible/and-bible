@@ -70,6 +70,7 @@ class WorkspaceEntities {
     data class CommentaryPage(
         val document: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
+        @ColumnInfo(defaultValue = "NULL") val sourceBookAndKey: String?,
     )
 
     @Entity(
@@ -93,6 +94,7 @@ class WorkspaceEntities {
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings?,
+        var jsState: String?,
     ) {
         fun deepCopy(): PageManager = PageManager(
             windowId = windowId,
@@ -102,7 +104,8 @@ class WorkspaceEntities {
             generalBookPage = generalBookPage?.copy(),
             mapPage = mapPage?.copy(),
             currentCategoryName = currentCategoryName,
-            textDisplaySettings = textDisplaySettings?.copy()
+            textDisplaySettings = textDisplaySettings?.copy(),
+            jsState = jsState
         )
     }
 

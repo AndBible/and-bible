@@ -103,13 +103,21 @@ type TranslatedStrings = {
     verseShare: string
     verseSpeak: string
     verseCompare: string
+    verseMemorize: string
     verseNote: string
     verseMyNotes: string
     verseShareLong: string
     verseCompareLong: string
+    verseMemorizeLong: string
     verseNoteLong: string
     addBookmark: string
     selectCustomIconTitle: string
+    blur: string
+    reset: string
+    peek: string
+    wordBlur: string
+    wordScramble: string
+    more: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings

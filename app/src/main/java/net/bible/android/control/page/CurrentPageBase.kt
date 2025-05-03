@@ -31,6 +31,7 @@ import net.bible.service.download.doesNotExist
 import net.bible.service.download.isPseudoBook
 import net.bible.service.download.isRemoved
 import net.bible.service.history.AddHistoryItem
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
