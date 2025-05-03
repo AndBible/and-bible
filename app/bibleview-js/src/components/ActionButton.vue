@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="large-action" @click="handleClick">
+  <div class="large-action" @click="emit('click')">
     <FontAwesomeLayers v-if="button === 'BOOKMARK'">
       <FontAwesomeIcon icon="bookmark"/>
       <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
@@ -60,12 +60,9 @@ defineProps({
   }
 });
 
-const emit = defineEmits(['action-click']);
+const emit = defineEmits(['click']);
 const { strings } = useCommon();
 
-function handleClick() {
-  emit('action-click');
-}
 </script>
 
 <style scoped lang="scss">

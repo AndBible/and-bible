@@ -24,7 +24,7 @@
         v-if="hasButton(button)" 
         :button="button" 
         :vertical="vertical" 
-        @action-click="handleButtonClick(button)" 
+        @click="handleButtonClick(button)"
       />
     </template>
 
@@ -41,7 +41,7 @@
           v-if="hasButton(button)" 
           :button="button" 
           :vertical="vertical" 
-          @action-click="handleButtonClick(button)" 
+          @click="handleButtonClick(button)"
         />
       </template>
     </div>
