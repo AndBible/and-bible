@@ -54,14 +54,8 @@ const props = defineProps<{ document: MemorizeDocument }>();
 
 const {document} = toRefs(props);
 
-const selectedMode = ref<MemorizeStateMode>(MemorizeStateModeEnum.BLUR);
-const modeConfig = ref<MemorizeModeConfig|undefined>(undefined);
-
-
-if (document.value.state?.mode) {
-    selectedMode.value = document.value.state.mode;
-}
-modeConfig.value = document.value.state?.modeConfig;
+const selectedMode = ref<MemorizeStateMode>(document.value.state?.mode ?? MemorizeStateModeEnum.BLUR);
+const modeConfig = ref<MemorizeModeConfig|undefined>(document.value.state?.modeConfig);
 
 const state = computed<MemorizeDocumentState>(() => {
     return {
@@ -71,7 +65,6 @@ const state = computed<MemorizeDocumentState>(() => {
 })
 
 const {strings, android} = useCommon();
-
 
 const memorizeModes = [
     { value: MemorizeStateModeEnum.BLUR, label: strings.wordBlur, component: WordBlur },
