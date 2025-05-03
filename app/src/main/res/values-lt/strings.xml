@@ -674,6 +674,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="workspace_listing_with_current">%s (dabartinė)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tai yra beta versija!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         Beta versijoje yra naujų ypatybių, kurios dar nebuvo tinkamai išbandytos
         ir todėl, naudojantis beta versija, gali atsirasti netikėtos elgsenos, t. y. programėlės klaidų.
@@ -1038,6 +1039,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="adapters_google_drive">„Google“ diskas</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="auth_title">%s tapatybės nustatymas</string>
+  <string name="auth_server_uri">Serverio URL</string>
   <string name="auth_username">Naudotojo vardas</string>
   <string name="auth_password">Slaptažodis</string>
   <string name="auth_access_token">Prieigos raktas</string>
@@ -1102,4 +1104,8 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="prefs_swipe_mode_chapter">Skyrius</string>
   <string name="prefs_swipe_mode_page">Puslapis</string>
   <string name="prefs_swipe_mode_none">Išjungta</string>
+  <string name="page_number_title">Santykinis puslapio numeris</string>
+  <string name="page_number_summary">Rodyti puslapio numerio perdangą. Puslapio numeris yra santykinis pradžios vietos atžvilgiu.</string>
+  <string name="select_custom_icon">Pasirinkti tinkintą žymeklio piktogramą</string>
+  <string name="invalid_url_message">Įvestas URL yra netinkamas. Įveskite tinkamą URL (pvz., https://nextcloud.example.com)</string>
 </resources>

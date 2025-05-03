@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBibeln</string>
-  <string name="app_name_short">Bibelstudier</string>
-  <string name="app_name_medium">Bibelstudie (AndBibeln)</string>
-  <string name="app_name_long">AndBibeln: Bibelstudie</string>
+  <string name="app_name_andbible">AndBible</string>
+  <string name="app_name_short">Studera Bibeln</string>
+  <string name="app_name_medium">Studera Bibeln (AndBible)</string>
+  <string name="app_name_long">AndBible: Studera Bibeln</string>
   <string name="project">AndBible-projektet med öppen källkod</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Vänligen mata in ett SD-kort och starta om appen.</string>
@@ -821,7 +821,7 @@ i GT och NT varje dag.
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekommendera till en vän</string>
   <string name="tell_friend_message1">Jag skulle vilja rekommendera %s till dig.</string>
-  <string name="tell_friend_message2">De är kraftfull, samtidigt som den är enkel att använda, offline Bibelstudie app för android.</string>
+  <string name="tell_friend_message2">Den är en kraftfull, men samtidigt lättanvänd, bibelstudieapp för Android.</string>
   <string name="tell_friend_message3">Installera den från Play Store %s, eller från F-Droid</string>
   <string name="tell_friend_message4">Läs mer &amp; fler installationsalternativ: %s</string>
   <string name="share_verse_ok">Dela/kopiera</string>
@@ -833,7 +833,7 @@ i GT och NT varje dag.
   <string name="show_full_verses">Visa fullständiga verser</string>
   <string name="show_selection_only">Visa enbart markerad text</string>
   <string name="advertise_app">Annonsera app</string>
-  <string name="verse_share_advertise">Dela genom %s</string>
+  <string name="verse_share_advertise">Delat från %s</string>
   <string name="show_reference">Visa hänvisning</string>
   <string name="show_reference_at_front">Visa framför vers</string>
   <string name="abbreviate_reference">Förkorta hänvisning</string>
@@ -841,7 +841,7 @@ i GT och NT varje dag.
   <!--meaning, bible version name-->
   <string name="show_version_name">Visa versionsnamn</string>
   <string name="show_ellipsis">Visa tre punkter (…)</string>
-  <string name="show_quotes">Visa citat</string>
+  <string name="show_quotes">Visa citattecken</string>
   <string name="backup_button">Säkerhetskopiera</string>
   <string name="back_button">Bak</string>
   <string name="upgrading_database">Upgraderar databas. Var god vänta...</string>
@@ -1015,8 +1015,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="packages_dir">Paketkatalog (zip-filer)</string>
   <string name="warn_bad_document">Varning: Detta dokument kan (åtminstone till viss del) vara av dålig teknisk kvalitet.</string>
   <!--Open links in AndBible (Deep linking)-->
-  <string name="open_bible_links_title">Öppna bibellänkar i AndBibeln</string>
-  <string name="open_bible_links_summary">Vid klick på länkar som hänvisar till AndBibelstödda URL\'er, öppna dem i AndBibeln</string>
+  <string name="open_bible_links_title">Öppna bibellänkar i AndBible</string>
+  <string name="open_bible_links_summary">Öppna kompatibla bibellänkar i AndBible när du klickar på dem</string>
   <string name="copyReference">Kopiera länk till urklipp</string>
   <string name="reference_copied_to_clipboard">Hänvisning kopierad till urklipp</string>
   <!--Device cloud synchronization-->
@@ -1119,4 +1119,5 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="page_number_title">Relativt sidnummer</string>
   <string name="page_number_summary">Visa sidnummer. Sidnumret är relativt till startpositionen.</string>
   <string name="select_custom_icon">Välj en anpassad ikon</string>
+  <string name="invalid_url_message">URL:en du angav är ogiltig. Ange en giltig URL (t.ex. https://nextcloud.example.com).</string>
 </resources>

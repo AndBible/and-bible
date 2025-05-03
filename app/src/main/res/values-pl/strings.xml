@@ -1004,10 +1004,13 @@ Nie wyświetlaj tego ponownie</string>
   <string name="pref_font_size_multiplier_summary_1">Przemnaża rozmiar czcionki o wybraną wartość.</string>
   <string name="pref_font_size_multiplier_summary_2">Użyteczne, gdy masz zsynchronizowane urządzenie na którym korzystasz z większej czcionki.</string>
   <string name="current_value">Obecna wartość: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Akcja dla gestu przeciągnij w lewo/prawo</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Wybór co zrobić po przesunięciu palcem w lewo/prawo: czy zmienić stronę, czy rozdział.</string>
   <string name="prefs_swipe_mode_chapter">Rozdział</string>
   <string name="prefs_swipe_mode_page">Strona</string>
   <string name="prefs_swipe_mode_none">Wyłączone</string>
   <string name="page_number_title">Względna numeracja stron</string>
   <string name="page_number_summary">Wyświetla nakładkę z numerem strony. Numer strony jest względny do strony początkowej.</string>
   <string name="select_custom_icon">Wybór własnej ikony znacznika</string>
+  <string name="invalid_url_message">Wprowadzony URL jest nieprawidłowy. Wprowadź prawidłowy adres URL (n.p. https://nextcloud.example.com)</string>
 </resources>
