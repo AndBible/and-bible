@@ -193,7 +193,8 @@
 		<item>@string/my_notes_abbreviation</item>
 		<item>@string/share_verse_widget_title</item>
 		<item>@string/compare</item>
-		<item>@string/speak</item>
+        <item>@string/speak</item>
+		<item>@string/memorize_abbreviation</item>
 	</string-array>
 	<string-array name="prefs_bible_bookmark_modal_action_ids">
 		<item>BOOKMARK</item>
@@ -201,14 +202,8 @@
 		<item>MY_NOTES</item>
 		<item>SHARE</item>
 		<item>COMPARE</item>
-		<item>SPEAK</item>
-	</string-array>
-	<string-array name="pref_bible_bookmark_modal_action_defaults">
-		<item>BOOKMARK</item>
-		<item>BOOKMARK_NOTES</item>
-		<item>MY_NOTES</item>
-		<item>SHARE</item>
-		<item>COMPARE</item>
+        <item>SPEAK</item>
+		<item>MEMORIZE</item>
 	</string-array>
 	<string-array name="prefs_gen_bookmark_modal_action_names">
 		<item>@string/create_bookmark</item>
@@ -216,11 +211,6 @@
 		<item>@string/speak</item>
 	</string-array>
 	<string-array name="prefs_gen_bookmark_modal_action_ids">
-		<item>BOOKMARK</item>
-		<item>BOOKMARK_NOTES</item>
-		<item>SPEAK</item>
-	</string-array>
-	<string-array name="pref_gen_bookmark_modal_action_defaults">
 		<item>BOOKMARK</item>
 		<item>BOOKMARK_NOTES</item>
 		<item>SPEAK</item>

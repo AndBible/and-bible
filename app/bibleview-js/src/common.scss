@@ -95,14 +95,22 @@ $button-border-radius: 8px;
 $button-padding: 6px;
 $button-grey: var(--modal-grey);
 
+:root {
+  --primary-color: #bdbdbd;
+}
+
 .button {
   font-size: 90%;
   background-color: $button-grey;
-  + .toggled {
+  &.toggled {
     background-color: #474747;
     &.light {
       background-color: #d5d5d5;
     }
+  }
+  &.disabled {
+    background-color: #bdbdbd;
+    color: #616161;
   }
   &.light {
     background-color: #bdbdbd;
@@ -128,6 +136,9 @@ $button-grey: var(--modal-grey);
   border-radius: $button-border-radius;
   margin: 2pt 2pt;
   min-width: 120px;
+  &.small {
+    min-width: unset;
+  }
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -221,4 +232,140 @@ pre {
 table {
   width: 100%;
   table-layout: fixed;
+}
+
+.modal-backdrop {
+  display: block;
+  position: fixed;
+  z-index: 10;
+  padding-top: 10px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  .monochrome & {
+    background-color: unset;
+  }
+  &.no-background {
+    background-color: unset;
+  }
+}
+
+// Memorize component shared styles
+.memorize-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  
+  @media (max-width: 400px) {
+    justify-content: center;
+  }
+}
+
+.memorize-text {
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  min-height: 3rem;
+  transition: background-color 0.3s ease;
+  
+  .night & {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .noAnimation & {
+    transition: none;
+  }
+}
+
+.memorize-word {
+  position: relative;
+  display: inline-block;
+  margin-right: 0.25em;
+  
+  &.blurred {
+    color: transparent;
+    background-color: rgba(0, 0, 0, 0.2);
+    .night & {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    border-radius: 3px;
+    padding: 0 2px;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  &.revealed {
+    color: var(--text-color, inherit);
+  }
+}
+
+// Prevent text selection on interactive elements
+.button, 
+.memorize-button, 
+[role="button"],
+.journal-button {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  
+  &:active {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+
+.large-action {
+  cursor: pointer;
+  min-width: 40px; // Ensures dynamic plus icon has sufficient space to be appended
+  display: flex;
+  flex-direction: row;
+
+  .horizontal & {
+    flex-direction: column;
+    font-size: 60%;
+    margin: 0 auto 0 auto;
+  }
+
+  .vertical & {
+    @extend .light;
+    @extend .button;
+  }
+
+  .fa-layers, .svg-inline--fa {
+    //    padding-inline-end: 14px;  // Causes non-alignment of the icons in the verse action dialog.
+    .horizontal & {
+      color: $button-grey;
+      .monochrome.night & {
+        color: white;
+      }
+      margin: 0 auto 0 auto;
+      padding-bottom: 5px;
+      $size: 20px;
+      width: $size;
+      height: $size;
+    }
+  }
+
+  .title {
+    margin: 0 auto 0 auto;
+    .monochrome.night & {
+      color: white;
+    }
+  }
+
+  padding-bottom: 0.5em;
+
+  .horizontal & {
+    .hasActions & {
+      padding-bottom: 5px;
+    }
+  }
 }

@@ -42,7 +42,6 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseKey
 import java.lang.IllegalArgumentException
-import java.lang.RuntimeException
 
 import javax.inject.Inject
 
@@ -87,6 +86,9 @@ open class CurrentPageManager @Inject constructor(
     val currentMap = CurrentMapPage(this)
 
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
+
+    // State that JS side can store for its internal use (like Memorize doc, for specific game state)
+    var jsState: String? = null
 
     val titleText: String get() =
         if(isBibleShown || isCommentaryShown || isMyNotesShown) {
@@ -196,6 +198,7 @@ open class CurrentPageManager @Inject constructor(
                                  key: Key,
                                  anchorOrdinal: OrdinalRange? = null
     ): CurrentPage? {
+        jsState = null
         val nextPage = getBookPage(currentBook, key)
         if (nextPage != null) {
             try {
@@ -205,6 +208,9 @@ open class CurrentPageManager @Inject constructor(
                 }
                 if(key is BookAndKey) {
                     nextPage.setKey(key.key)
+                    if (nextPage is CurrentCommentaryPage) {
+                        nextPage.sourceBookAndKey = key
+                    }
                     nextPage.anchorOrdinal = key.ordinal
                     nextPage.htmlId = key.htmlId
                 } else {
@@ -257,7 +263,8 @@ open class CurrentPageManager @Inject constructor(
             currentGeneralBook.pageEntity.copy(),
             currentMap.pageEntity.copy(),
             currentPage.documentCategory.name,
-            textDisplaySettings.copy()
+            textDisplaySettings.copy(),
+            jsState
         )
 
     var savedEntity: WorkspaceEntities.PageManager? = null
@@ -276,6 +283,7 @@ open class CurrentPageManager @Inject constructor(
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
+        jsState = pageManagerEntity.jsState
 
         val restoredBookCategory = try {
             DocumentCategory.valueOf(pageManagerEntity.currentCategoryName)

@@ -29,6 +29,7 @@ import org.crosswire.jsword.versification.Versification
 import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.isSpecial
 import java.util.*
 
 /**
@@ -47,7 +48,7 @@ class NavigationControl @Inject constructor(
     fun getBibleBooks(isScriptureRequired: Boolean): List<BibleBook> {
         var books: MutableList<BibleBook> = ArrayList()
         val currentPassageDocument: AbstractPassageBook = currentPassageDocument
-        val documentBookList = if(currentPassageDocument == FakeBookFactory.compareDocument) {
+        val documentBookList = if(currentPassageDocument.isSpecial) {
             KJVA.bookIterator.asSequence().toList()
         } else documentBibleBooksFactory.getBooksFor(currentPassageDocument)
         for (bibleBook in documentBookList) {

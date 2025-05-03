@@ -16,47 +16,47 @@
   -->
 
 <template>
+  <div v-if="showMoreMenu" @click.stop="showMoreMenu = false" class="modal-backdrop no-background"/>
   <div :class="{hasActions, horizontal: !vertical, vertical}">
-    <div v-if="hasButton('BOOKMARK')" class="large-action" @click="addBookmark">
-      <FontAwesomeLayers>
-        <FontAwesomeIcon icon="bookmark"/>
-        <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
-      </FontAwesomeLayers>
-      <div class="title">{{ strings.addBookmark }}</div>
+    <!-- Primary buttons that are always visible -->
+    <template v-for="button in primaryButtons" :key="button">
+      <ActionButton
+        v-if="hasButton(button)" 
+        :button="button" 
+        :vertical="vertical" 
+        @click="handleButtonClick(button)"
+      />
+    </template>
+
+    <!-- More options button -->
+    <div v-if="secondaryButtons.length > 0" class="large-action" @click.stop="showMoreMenu = true" @touchstart.stop>
+      <FontAwesomeIcon :icon="faEllipsisV"/>
+      <div class="title">{{ strings.more }}</div>
     </div>
-    <div v-if="hasButton('BOOKMARK_NOTES')" class="large-action" @click="addNote">
-      <FontAwesomeLayers>
-        <FontAwesomeIcon icon="edit"/>
-        <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
-      </FontAwesomeLayers>
-      <div class="title">{{ vertical ? strings.verseNoteLong : strings.verseNote }}</div>
-    </div>
-    <div v-if="hasButton('MY_NOTES')" class="large-action" @click="openMyNotes">
-      <FontAwesomeIcon icon="file-alt"/>
-      <div class="title">{{ strings.verseMyNotes }}</div>
-    </div>
-    <div v-if="hasButton('SHARE')" class="large-action" @click="share">
-      <FontAwesomeIcon icon="share-alt"/>
-      <div class="title">{{ vertical ? strings.verseShareLong : strings.verseShare }}</div>
-    </div>
-    <div v-if="hasButton('COMPARE')" class="large-action" @click="compare">
-      <FontAwesomeIcon icon="custom-compare"/>
-      <div class="title">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</div>
-    </div>
-    <div v-if="hasButton('SPEAK')" class="large-action" @click="speak">
-      <FontAwesomeIcon icon="headphones"/>
-      <div class="title">{{ strings.verseSpeak }}</div>
+
+    <!-- Dropdown menu for secondary buttons -->
+    <div v-if="showMoreMenu" ref="moreMenuRef" class="dropdown-menu" :class="{'vertical-menu': vertical, 'locate-bottom': !locateTop}" @click.stop>
+      <template v-for="button in secondaryButtons" :key="button">
+        <ActionButton
+          v-if="hasButton(button)" 
+          :button="button" 
+          :vertical="vertical" 
+          @click="handleButtonClick(button)"
+        />
+      </template>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, inject} from "vue";
-import {FontAwesomeIcon, FontAwesomeLayers} from "@fortawesome/vue-fontawesome";
+import {computed, inject, ref} from "vue";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
-import {androidKey, keyboardKey, modalKey} from "@/types/constants";
+import {androidKey, keyboardKey, locateTopKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
-import {BibleModalButtonId, GenericModalButtonId} from "@/composables/config";
+import {ModalButtonId} from "@/composables/config";
+import {faEllipsisV} from "@fortawesome/free-solid-svg-icons";
+import ActionButton from "@/components/ActionButton.vue";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo
@@ -70,6 +70,8 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits(["close"]);
 const {closeModals} = inject(modalKey)!
 const {setupKeyboardListener} = inject(keyboardKey)!
+const locateTop = inject(locateTopKey);
+
 const {strings, appSettings} = useCommon()
 
 const selectionInfo = computed(() => props.selectionInfo);
@@ -80,18 +82,76 @@ const ordinalInfo = computed(() => selectionInfo.value?.ordinalInfo || null);
 const startOrdinal = computed(() => selectionInfo.value && selectionInfo.value.startOrdinal);
 const endOrdinal = computed(() => selectionInfo.value && selectionInfo.value.endOrdinal);
 
-const modalButtons = computed(() => {
+const showMoreMenu = ref(false);
+const moreMenuRef = ref<HTMLElement | null>(null);
+
+const modalButtons = computed<ModalButtonId[]>(() => {
+    let allButtons: ModalButtonId[]
     if(verseInfo.value) {
-        return appSettings.bibleModalButtons;
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE"];
     } else {
-        return appSettings.genericModalButtons;
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK"];
+    }
+    let disabledButtons: ModalButtonId[];
+    if(verseInfo.value) {
+        disabledButtons = appSettings.disableBibleModalButtons;
+    } else {
+        disabledButtons = appSettings.disableGenericModalButtons;
+    }
+    const disabledButtonsSet = new Set(disabledButtons);
+    return allButtons.filter(button => !disabledButtonsSet.has(button));
+});
+
+const primaryButtons = computed<ModalButtonId[]>(() => {
+    if (modalButtons.value.length <= 5) {
+        return modalButtons.value;
+    } else {
+        // If there are more than 5 buttons, show the first 4 as primary buttons
+        return modalButtons.value.slice(0, 4);
     }
 });
 
-function hasButton(buttonId: BibleModalButtonId|GenericModalButtonId) {
+const secondaryButtons = computed(() => {
+    if (modalButtons.value.length <= 5) {
+        return [];
+    } else {
+        // If there are more than 5 primary buttons, show the first 4 as primary buttons and the rest as secondary buttons
+        return modalButtons.value.slice(4);
+    }
+});
+
+function hasButton(buttonId: ModalButtonId) {
     return modalButtons.value.includes(buttonId);
 }
 
+function handleButtonClick(buttonId: ModalButtonId) {
+    // Close the more menu when an action is selected
+    showMoreMenu.value = false;
+    
+    switch (buttonId) {
+        case 'BOOKMARK':
+            addBookmark();
+            break;
+        case 'BOOKMARK_NOTES':
+            addNote();
+            break;
+        case 'SHARE':
+            share();
+            break;
+        case 'MY_NOTES':
+            openMyNotes();
+            break;
+        case 'COMPARE':
+            compare();
+            break;
+        case 'MEMORIZE':
+            memorize();
+            break;
+        case 'SPEAK':
+            speak();
+            break;
+    }
+}
 
 function share() {
     if(verseInfo.value) {
@@ -111,6 +171,12 @@ function addBookmark() {
 function compare() {
     if(verseInfo.value) {
         android.compare(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
+    }
+}
+
+function memorize() {
+    if(verseInfo.value) {
+        android.memorize(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
     }
 }
 
@@ -157,58 +223,64 @@ setupKeyboardListener((e: KeyboardEvent) => {
 <style scoped lang="scss">
 @import "~@/common.scss";
 
-.large-action {
-  cursor: pointer;
-  min-width: 40px; // Ensures dynamic plus icon has sufficient space to be appended
-  display: flex;
-  flex-direction: row;
-
-  .horizontal & {
-    flex-direction: column;
-    font-size: 60%;
-    margin: 0 auto 0 auto;
-  }
-
-  .vertical & {
-    @extend .light;
-    @extend .button;
-  }
-
-  .fa-layers, .svg-inline--fa {
-    //    padding-inline-end: 14px;  // Causes non-alignment of the icons in the verse action dialog.
-    .horizontal & {
-      color: $button-grey;
-      .monochrome.night & {
-        color: white;
-      }
-      margin: 0 auto 0 auto;
-      padding-bottom: 5px;
-      $size: 20px;
-      width: $size;
-      height: $size;
-    }
-  }
-
-  .title {
-    margin: 0 auto 0 auto;
-    .monochrome.night & {
-      color: white;
-    }
-  }
-
-  padding-bottom: 0.5em;
-
-  .horizontal & {
-    .hasActions & {
-      padding-bottom: 5px;
-    }
-  }
-}
-
 .horizontal {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
   flex-wrap: wrap;
+}
+
+@keyframes dropdown-animate {
+  from {
+    opacity: 0
+  }
+  to {
+    opacity: 1
+  }
+}
+
+.dropdown-menu {
+  position: absolute;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  padding: 8px;
+  margin-top: 4px;
+  min-width: 50px;
+  right: 0;
+  &.locate-bottom {
+    bottom: 0;
+  }
+  animation-name: dropdown-animate;
+  animation-duration: 0.2s;
+  .noAnimation & {
+    animation: none;
+    box-shadow: none;
+  }
+
+  .night & {
+    background-color: #333;
+  }
+
+  &.vertical-menu {
+    position: relative;
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .large-action {
+    padding: 8px;
+    margin: 4px 0;
+    border-radius: 4px;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+      
+      .night & {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
 }
 </style>

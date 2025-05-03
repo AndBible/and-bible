@@ -29,21 +29,21 @@ import {
 } from "@/types/client-objects";
 import {Nullable} from "@/types/common";
 
-export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal" | "none"
+export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal" | "memorize"|"none"
 
-export type BaseDocument = {
+export interface BaseDocument {
     id: string
     type: BibleViewDocumentType
 }
 
-export type MultiFragmentDocument = {
-    id: string
+export interface MultiFragmentDocument extends BaseDocument {
     type: "multi"
     osisFragments: OsisFragment[]
     compare: boolean
 }
 
-type BaseOsisDocument = BaseDocument & {
+
+interface BaseOsisDocument extends BaseDocument {
     osisFragment: OsisFragment
     bookInitials: string
     bookCategory: BookCategory
@@ -58,18 +58,18 @@ type BaseOsisDocument = BaseDocument & {
     isEpub: boolean
 }
 
-export type OsisDocument = BaseOsisDocument & {
+export interface OsisDocument extends BaseOsisDocument {
     type: "osis",
     highlightedOrdinalRange: Nullable<OrdinalRange>
 }
 
-export type ErrorDocument = BaseDocument & {
+export interface ErrorDocument extends BaseDocument {
     type: "error"
     errorMessage: string
     severity: "NORMAL" | "WARNING" | "ERROR"
 }
 
-export type BibleDocumentType = BaseOsisDocument & {
+export interface BibleDocumentType extends BaseOsisDocument {
     type: "bible"
     bookmarks: BibleBookmark[]
     bibleBookName: string
@@ -78,14 +78,14 @@ export type BibleDocumentType = BaseOsisDocument & {
     originalOrdinalRange: OrdinalRange
 }
 
-export type MyNotesDocument = BaseDocument & {
+export interface MyNotesDocument extends BaseDocument {
     type: "notes"
     bookmarks: BibleBookmark[]
     verseRange: string
     ordinalRange: OrdinalRange
 }
 
-export type StudyPadDocument = BaseDocument & {
+export interface StudyPadDocument extends BaseDocument {
     type: "journal"
     bookmarks: BaseBookmark[]
     genericBookmarks: GenericBookmark[]
@@ -110,7 +110,35 @@ export type DocumentOfType<T extends BibleViewDocumentType> =
                 T extends "error" ? ErrorDocument :
                     T extends "osis" ? OsisDocument :
                         T extends "multi" ? MultiFragmentDocument :
-                            BaseDocument
+                            T extends "memorize" ? MemorizeDocument :
+                                BaseDocument
+
+
+// types for MemorizeDocument
+export type MemorizeTextItem = {
+    key: string;
+    text: string;
+}
+
+export enum MemorizeStateModeEnum {
+    BLUR = 'blur',
+    SCRAMBLE = 'scramble'
+}
+
+export type MemorizeStateMode = MemorizeStateModeEnum[keyof MemorizeStateModeEnum];
+export type MemorizeModeConfig = any
+
+export type MemorizeDocumentState = {
+    mode?: MemorizeStateMode
+    modeConfig?: MemorizeModeConfig
+}
+
+export interface MemorizeDocument extends BaseDocument{
+    type: "memorize"
+    title: string
+    texts: MemorizeTextItem[]
+    state?: MemorizeDocumentState
+}
 
 export function isOsisDocument(t: AnyDocument): t is OsisDocument {
     return t.type === "osis";

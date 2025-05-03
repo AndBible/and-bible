@@ -398,6 +398,18 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            bibleView.memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
+    fun saveState(newState: String) {
+        bibleView.window.pageManager.jsState = newState
+    }
+
+    @JavascriptInterface
     fun openStudyPad(labelId: String, bookmarkId: String) {
         scope.launch(Dispatchers.Main) {
             linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))

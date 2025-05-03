@@ -59,10 +59,18 @@ openDownloads: Go to Add-on downloads
 verseShare: Share
 verseSpeak: Speak
 verseCompare: Compare
+verseMemorize: Memorize
 verseNote: Note
 verseMyNotes: My Notes
 verseShareLong: Share this verse
 verseCompareLong: Compare verse
+verseMemorizeLong: Memorize Bible verses
 verseNoteLong: Write a note
 addBookmark: Bookmark
 selectCustomIconTitle: Select custom marker icon
+blur: Blur
+reset: Reset
+peek: Peek
+wordBlur: Word Blur
+wordScramble: Word Scramble
+more: More
