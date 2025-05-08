@@ -17,30 +17,29 @@
 
 <template>
   <div v-if="showMoreMenu" @click.stop="showMoreMenu = false" class="modal-backdrop no-background"/>
-  <div :class="{hasActions, horizontal: !vertical, vertical}">
+  <div ref="containerRef" class="horizontal" :class="{hasActions}">
     <!-- Primary buttons that are always visible -->
     <template v-for="button in primaryButtons" :key="button">
       <ActionButton
         v-if="hasButton(button)" 
         :button="button" 
-        :vertical="vertical" 
         @click="handleButtonClick(button)"
+        ref="buttonRefs"
       />
     </template>
 
     <!-- More options button -->
-    <div v-if="secondaryButtons.length > 0" class="large-action" @click.stop="showMoreMenu = true" @touchstart.stop>
+    <div v-if="secondaryButtons.length > 0" class="large-action more-button" @click.stop="showMoreMenu = true" @touchstart.stop>
       <FontAwesomeIcon :icon="faEllipsisV"/>
       <div class="title">{{ strings.more }}</div>
     </div>
 
     <!-- Dropdown menu for secondary buttons -->
-    <div v-if="showMoreMenu" ref="moreMenuRef" class="dropdown-menu" :class="{'vertical-menu': vertical, 'locate-bottom': !locateTop}" @click.stop>
+    <div v-if="showMoreMenu" ref="moreMenuRef" class="dropdown-menu" :class="{'locate-bottom': !locateTop}" @click.stop>
       <template v-for="button in secondaryButtons" :key="button">
         <ActionButton
           v-if="hasButton(button)" 
           :button="button" 
-          :vertical="vertical" 
           @click="handleButtonClick(button)"
         />
       </template>
@@ -49,7 +48,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, inject, ref} from "vue";
+import {computed, inject, nextTick, onMounted, ref, watch} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {androidKey, keyboardKey, locateTopKey, modalKey} from "@/types/constants";
@@ -60,10 +59,8 @@ import ActionButton from "@/components/ActionButton.vue";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo
-    vertical: boolean
     hasActions: boolean
 }>(), {
-    vertical: false,
     hasActions: false
 })
 
@@ -84,6 +81,11 @@ const endOrdinal = computed(() => selectionInfo.value && selectionInfo.value.end
 
 const showMoreMenu = ref(false);
 const moreMenuRef = ref<HTMLElement | null>(null);
+const containerRef = ref<HTMLElement | null>(null);
+const buttonRefs = ref<any[]>([]);
+
+// How many buttons to show before using a "more" menu
+const visibleButtonCount = ref(4);
 
 const modalButtons = computed<ModalButtonId[]>(() => {
     let allButtons: ModalButtonId[]
@@ -102,22 +104,68 @@ const modalButtons = computed<ModalButtonId[]>(() => {
     return allButtons.filter(button => !disabledButtonsSet.has(button));
 });
 
+async function recalculateVisibleButtons() {
+    if (!containerRef.value) {
+        visibleButtonCount.value = modalButtons.value.length;
+        return;
+    }
+
+    // Wait for the DOM to update so we can measure elements
+    await nextTick();
+
+    const containerWidth = containerRef.value.clientWidth;
+    const moreButtonWidth = 70; // Estimated width of "more" button
+    const buttonElements = buttonRefs.value.filter(el => el); // Filter out any undefined refs
+
+    if (buttonElements.length === 0) {
+        // Default to a reasonable number if we can't measure
+        visibleButtonCount.value = 4;
+        return;
+    }
+
+    // Calculate average button width from existing buttons
+    let totalButtonWidth = 0;
+    for (const buttonEl of buttonElements) {
+        if (buttonEl.$el) {
+            totalButtonWidth += buttonEl.$el.offsetWidth;
+        }
+    }
+    const avgButtonWidth = totalButtonWidth / buttonElements.length;
+
+    // Calculate how many buttons can fit (leaving space for the "more" button)
+    const maxButtons = Math.floor((containerWidth - moreButtonWidth) / avgButtonWidth);
+
+    // If all buttons fit, show them all
+    if (maxButtons >= modalButtons.value.length) {
+        visibleButtonCount.value = modalButtons.value.length;
+    } else {
+        // Otherwise, show as many as will fit plus a "more" button
+        visibleButtonCount.value = Math.max(1, maxButtons);
+    }
+}
+
+// Primary buttons are shown directly
 const primaryButtons = computed<ModalButtonId[]>(() => {
-    if (modalButtons.value.length <= 5) {
+    if (modalButtons.value.length <= visibleButtonCount.value) {
         return modalButtons.value;
     } else {
-        // If there are more than 5 buttons, show the first 4 as primary buttons
-        return modalButtons.value.slice(0, 4);
+        return modalButtons.value.slice(0, visibleButtonCount.value);
     }
 });
 
+// Secondary buttons are shown in the dropdown
 const secondaryButtons = computed(() => {
-    if (modalButtons.value.length <= 5) {
+    if (modalButtons.value.length <= visibleButtonCount.value) {
         return [];
     } else {
-        // If there are more than 5 primary buttons, show the first 4 as primary buttons and the rest as secondary buttons
-        return modalButtons.value.slice(4);
+        return modalButtons.value.slice(visibleButtonCount.value);
     }
+});
+
+// Recalculate visible buttons when component mounts and whenever the window resizes
+onMounted(() => {
+    recalculateVisibleButtons();
+    window.addEventListener('resize', recalculateVisibleButtons);
 });
 
 function hasButton(buttonId: ModalButtonId) {
@@ -228,6 +276,17 @@ setupKeyboardListener((e: KeyboardEvent) => {
   flex-direction: row;
   justify-content: space-evenly;
   flex-wrap: wrap;
+}
+
+.more-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  
+  .title {
+    margin-left: 6px;
+  }
 }
 
 @keyframes dropdown-animate {
