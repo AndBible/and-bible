@@ -1023,4 +1023,6 @@ Ne montri tion ĉi denove</string>
   <string name="page_number_summary">Montri surtavolon kun numero de paĝo. Numero de paĝo estas relativa al la komenca paĝo.</string>
   <string name="select_custom_icon">Elekti propran emblemon de markilo</string>
   <string name="invalid_url_message">La ligilo – kiun vi eniris – estas malĝusta. Enigu ĝustan ligilon (ekz. https://nextcloud.example.com)</string>
+  <string name="memorize_description">Parkerigi bibliajn versojn</string>
+  <string name="memorize_abbreviation">Parkerigi</string>
 </resources>

@@ -1061,4 +1061,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="page_number_summary">Mostra il numero di pagina in sovraimpressione. Il numero di pagina è relativo alla posizione iniziale.</string>
   <string name="select_custom_icon">Scegli icona per l\'evidenziazione</string>
   <string name="invalid_url_message">L\'URL inserito non è valido. Inserisci un URL valido (ad esempio, https://nextcloud.example.com)</string>
+  <string name="memorize_description">Memorizza versi della Bibbia</string>
+  <string name="memorize_abbreviation">Memorizza</string>
 </resources>
