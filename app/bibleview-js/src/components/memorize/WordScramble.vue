@@ -159,6 +159,9 @@ onMounted(() => {
     } else {
         resetWords();
     }
+    
+    // Make sure we're not starting on a punctuation token
+    skipPunctuationTokens();
 });
 
 function skipPunctuationTokens() {
