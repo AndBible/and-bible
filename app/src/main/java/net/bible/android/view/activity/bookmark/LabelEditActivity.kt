@@ -20,6 +20,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
+import android.text.TextWatcher
 import android.text.style.ImageSpan
 import android.util.Log
 import android.view.Menu
@@ -321,6 +322,13 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                     updateUI()
                 }
             }
+            labelName.addTextChangedListener(object: TextWatcher {
+                override fun afterTextChanged(s: android.text.Editable?) {
+                    updateData()
+                }
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
 
             if(data.label.name == "") {
                 labelName.requestFocus()
