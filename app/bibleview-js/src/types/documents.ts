@@ -128,16 +128,20 @@ export enum MemorizeStateModeEnum {
 export type MemorizeStateMode = MemorizeStateModeEnum[keyof MemorizeStateModeEnum];
 export type MemorizeModeConfig = any
 
-export type MemorizeDocumentState = {
-    mode?: MemorizeStateMode
-    modeConfig?: MemorizeModeConfig
+export type MemorizeState = {
+    mode: MemorizeStateMode
+    modeConfig: MemorizeModeConfig
+}
+
+export type DocumentState = {
+    memorize: MemorizeState
 }
 
 export interface MemorizeDocument extends BaseDocument{
     type: "memorize"
     title: string
     texts: MemorizeTextItem[]
-    state?: MemorizeDocumentState
+    state?: DocumentState
 }
 
 export function isOsisDocument(t: AnyDocument): t is OsisDocument {

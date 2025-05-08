@@ -32,7 +32,7 @@
   <component 
       :is="currentModeComponent"
       :text-items="document.texts"
-      :mode-config="document.state?.modeConfig"
+      :mode-config="document.state?.memorize?.modeConfig"
       @save-mode-config="saveModeConfig"
   ></component>
 </template>
@@ -42,10 +42,10 @@ import {useCommon} from "@/composables";
 import {ref, computed, watch, toRefs} from "vue";
 import {
     MemorizeDocument,
-    MemorizeDocumentState,
+    DocumentState,
     MemorizeModeConfig,
     MemorizeStateMode,
-    MemorizeStateModeEnum
+    MemorizeStateModeEnum, MemorizeState
 } from "@/types/documents";
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
@@ -54,10 +54,10 @@ const props = defineProps<{ document: MemorizeDocument }>();
 
 const {document} = toRefs(props);
 
-const selectedMode = ref<MemorizeStateMode>(document.value.state?.mode ?? MemorizeStateModeEnum.BLUR);
-const modeConfig = ref<MemorizeModeConfig|undefined>(document.value.state?.modeConfig);
+const selectedMode = ref<MemorizeStateMode>(document.value.state?.memorize?.mode ?? MemorizeStateModeEnum.BLUR);
+const modeConfig = ref<MemorizeModeConfig|undefined>(document.value.state?.memorize?.modeConfig);
 
-const state = computed<MemorizeDocumentState>(() => {
+const memorizeState = computed<MemorizeState>(() => {
     return {
         mode: selectedMode.value,
         modeConfig: modeConfig.value,
@@ -79,7 +79,10 @@ function saveModeConfig(_modeConfig: MemorizeModeConfig) {
 watch(selectedMode, saveState);
 
 function saveState() {
-    android.saveState(state.value);
+    android.saveState({
+        ...document.value.state,
+        memorize: memorizeState.value
+    });
 }
 
 const currentModeComponent = computed(() => {
