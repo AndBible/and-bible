@@ -175,7 +175,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             val fileAndId = getFileAndId(c.getAttribute("src").value)
             val fileName = fileAndId?.first?.let { URLDecoder.decode(it, "UTF-8") }
             val htmlId = fileAndId?.second?.let { it.ifEmpty { null } }
-            val id = fileToId[fileName]!!
+            val id = fileToId[fileName] ?: return@mapNotNull null
             val keyStr: String = if(htmlId == null) {
                 id
             } else {
