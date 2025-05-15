@@ -11,6 +11,7 @@
     "type-check": "vue-tsc -p tsconfig.json",
     "type-check:ci": "vue-tsc -p tsconfig.json",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore",
+    "lint-fix": "eslint --fix . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore",
     "build-debug": "cross-env NODE_ENV=debug vite build --mode debug",
     "build-production": "cross-env NODE_ENV=production vite build --mode production",
     "build-development": "cross-env NODE_ENV=development vite build --mode development",
