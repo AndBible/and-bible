@@ -69,6 +69,11 @@
         :style="{height: `${appSettings.bottomOffset}px`}"
         class="bottom-touch-block"
     />
+    <div
+        v-if="appSettings.isBottomWindow && !appSettings.bottomOffset"
+        @touchmove.stop.prevent
+        class="invisible-bottom-touch-block"
+    />
     <div id="bottom"/>
   </div>
 </template>
@@ -647,11 +652,20 @@ a {
   right: unset;
 }
 
+.invisible-bottom-touch-block {
+  position: fixed;
+  bottom: 0;
+  height: 1cm;
+  width: 100%;
+  background: transparent;
+  z-index: 10;
+}
+
 .bottom-touch-block {
   position: fixed;
   bottom: 0;
   width: 100%;
-  background: linear-gradient(to bottom, transparent 0%, var(--background-color) 15%, var(--background-color) 100%);
+  background: var(--background-color);
 
   .noAnimation & {
     background: var(--background-color);

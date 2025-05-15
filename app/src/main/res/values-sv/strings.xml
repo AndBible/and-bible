@@ -1120,4 +1120,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="page_number_summary">Visa sidnummer. Sidnumret är relativt till startpositionen.</string>
   <string name="select_custom_icon">Välj en anpassad ikon</string>
   <string name="invalid_url_message">URL:en du angav är ogiltig. Ange en giltig URL (t.ex. https://nextcloud.example.com).</string>
+  <string name="memorize_description">Memorera bibelverser</string>
+  <string name="memorize_abbreviation">Memorera</string>
 </resources>

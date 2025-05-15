@@ -34,7 +34,7 @@ buildscript {
     val jvmToolChainVersion by extra(17)
     val coreKtxVersion by extra("1.13.1")
     val sqliteAndroidVersion by extra("3.45.0")
-    val jswordVersion by extra("2.4.22")
+    val jswordVersion by extra("2.4.23")
 
 
     repositories {
@@ -42,7 +42,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.9.1")
+        classpath("com.android.tools.build:gradle:8.9.2")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
 
