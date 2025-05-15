@@ -57,18 +57,18 @@ openDownloads: Πήγαινε στις επιπρόσθετες λήψεις
 verseShare: Διαμοιρασμός
 verseSpeak: Μιλήστε
 verseCompare: Σύγκριση
-verseMemorize: ""
+verseMemorize: Απομνημόνευση
 verseNote: Σημείωση
 verseMyNotes: Οι Σημειώσεις Μου
 verseShareLong: Μοιράσου αυτό το στίχο
 verseCompareLong: Σύγκριση στίχου
-verseMemorizeLong: ""
+verseMemorizeLong: Απομνημόνευση Βιβλικών εδαφίων
 verseNoteLong: Γράψε μία σημείωση
 addBookmark: Σελιδοδείκτης
-selectCustomIconTitle: ""
-blur: ""
+selectCustomIconTitle: Επιλογή προσαρμοσμένου εικονιδίου δείκτη
+blur: Θόλωμα
 reset: Επαναφορά
-peek: ""
-wordBlur: ""
-wordScramble: ""
+peek: Γρήγορο κοίταγμα
+wordBlur: Θόλωμσ λέξης
+wordScramble: Ανακάτεμα λέξεων
 more: Περισσότερα

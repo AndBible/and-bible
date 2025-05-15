@@ -656,6 +656,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="workspace_listing_with_current">%s (τρέχων)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Αυτή είναι μία δοκιμαστική έκδοση!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Στην δοκιμαστική έκδοση,υπάρχουν κάποιες νέες λειτουργίες που δεν έχουν δοκιμαστεί ακόμα επαρκώς,
 γι\'αυτο η χρήση δοκιμαστικής έκδοσης μπορεί να οδηγήσει σε απρόβλεπτη συμπεριφορά π.χ. σφάλματα.
@@ -989,6 +990,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Επαλήθευση στο %s</string>
+  <string name="auth_server_uri">URL Διακομιστή</string>
   <string name="auth_username">Όνομα χρήστη</string>
   <string name="auth_password">Κωδικός</string>
   <string name="auth_access_token">Κλειδί πρόσβασης</string>
@@ -1048,4 +1050,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="prefs_swipe_mode_chapter">Κεφάλαιο</string>
   <string name="prefs_swipe_mode_page">Σελίδα</string>
   <string name="prefs_swipe_mode_none">Ανενεργή</string>
+  <string name="page_number_title">Σχετικός αριθμός σελίδας</string>
+  <string name="page_number_summary">Δείξε υπερκείμενο αριθμό σελίδας. Ο αριθμός σελίδας είναι σχετικός με την θέση έναρξης</string>
+  <string name="select_custom_icon">Επιλογή προσαρμοσμένου εικονιδίου δείκτη</string>
+  <string name="invalid_url_message">Η διεύθυνση URL που δώσατε δεν είναι έγκυρη. Παρακαλώ εισάγετε έγκυρο URL (π.χ., https://nextcloud.example.com)</string>
+  <string name="memorize_description">Απομνημόνευση Βιβλικών εδαφίων</string>
+  <string name="memorize_abbreviation">Απομνημόνευση</string>
 </resources>

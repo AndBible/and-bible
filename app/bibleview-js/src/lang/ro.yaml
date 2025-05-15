@@ -57,18 +57,18 @@ openDownloads: Descarcă extensii
 verseShare: Trimite
 verseSpeak: Vorbește
 verseCompare: Compară
-verseMemorize: ""
+verseMemorize: Memorează
 verseNote: Notiță
 verseMyNotes: Notițele mele
 verseShareLong: Trimite acest verset
 verseCompareLong: Compară versetele
-verseMemorizeLong: ""
+verseMemorizeLong: Memorează versete biblice
 verseNoteLong: Scrie o notiță
 addBookmark: Semn de carte
 selectCustomIconTitle: Alege simbolul de evidențiere
-blur: ""
+blur: Neclar
 reset: Restabilește
-peek: ""
-wordBlur: ""
-wordScramble: ""
+peek: Vezi
+wordBlur: Cuvinte neclare
+wordScramble: Cuvinte amestecate
 more: Mai mult
