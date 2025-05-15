@@ -17,10 +17,7 @@
 
 import { mount } from "@vue/test-utils";
 import WordBlur from "@/components/memorize/WordBlur.vue";
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useCommon } from "@/composables";
-import { ref } from "vue";
-import { MemorizeTextItem } from "@/types/documents";
+import { describe, it, expect, vi } from 'vitest';
 
 // Mock the useCommon composable
 vi.mock("@/composables", () => ({

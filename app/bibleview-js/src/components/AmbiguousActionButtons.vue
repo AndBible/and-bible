@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, inject, nextTick, onMounted, ref, watch} from "vue";
+import {computed, inject, nextTick, onMounted, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {androidKey, keyboardKey, locateTopKey, modalKey} from "@/types/constants";

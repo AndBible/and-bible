@@ -42,7 +42,6 @@ import {useCommon} from "@/composables";
 import {ref, computed, watch, toRefs} from "vue";
 import {
     MemorizeDocument,
-    DocumentState,
     MemorizeModeConfig,
     MemorizeStateMode,
     MemorizeStateModeEnum, MemorizeState

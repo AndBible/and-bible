@@ -30,7 +30,7 @@ import { mount } from "@vue/test-utils";
 import MemorizeDocument from "@/components/documents/MemorizeDocument.vue";
 import WordBlur from "@/components/memorize/WordBlur.vue";
 import WordScramble from "@/components/memorize/WordScramble.vue";
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { MemorizeStateModeEnum } from "@/types/documents";
 
 // Mock composables

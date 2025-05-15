@@ -133,10 +133,6 @@ describe("WordScramble.vue", () => {
   it("resets the scrambled words when reset button is clicked", async () => {
     const wrapper = createWrapper();
     
-    // Get initial set of scrambled words
-    const initialButtons = wrapper.findAll('.word-buttons .button');
-    const initialWords = initialButtons.map(button => button.text().trim());
-    
     // Click the reset button
     await wrapper.findAll('.memorize-controls .button')[1].trigger('click');
     
@@ -345,11 +341,6 @@ describe("WordScramble.vue", () => {
     
     // Loop through all words and complete the exercise
     for (const word of words) {
-      // Current word should match the expected next word
-      const currentIndex = wrapper.vm.currentWordIndex;
-      const currentWordInfo = getLocalIndicesFromWrapper(wrapper, currentIndex);
-      const currentWord = getWordsFromWrapper(wrapper, currentWordInfo.itemIndex)[currentWordInfo.localIndex];
-      
       // Find and click the correct button
       const wordButton = findButtonForWord(wrapper, word);
       if (wordButton) {

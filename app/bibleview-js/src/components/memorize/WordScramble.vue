@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted, computed, watch} from "vue";
+import {ref, onMounted, computed} from "vue";
 import { useCommon } from "@/composables";
 import {MemorizeTextItem} from "@/types/documents";
 
@@ -246,7 +246,7 @@ function resetWords() {
     
     // Create unique word objects with their occurrences
     const wordObjects: WordObject[] = [];
-    wordMap.forEach((data, normalizedWord) => {
+    wordMap.forEach(data => {
         // Find a representative word from the original text (preserve casing)
         const firstIndex = data.indices[0];
         const { itemIndex, localIndex } = getLocalIndices(firstIndex);
