@@ -262,6 +262,193 @@ describe("WordScramble.vue", () => {
     // Should show completed state
     expect(wrapper.find('.memorize-text').classes()).toContain('completed');
   });
+
+  it("handles words with multiple occurrences correctly", async () => {
+    // Create text with repeated words to test multiple occurrences
+    const repeatedText = [
+      { key: "verse1", text: "The the the quick brown fox jumps over the lazy dog." }
+    ];
+    
+    const wrapper = createWrapper({ 
+      textItems: repeatedText
+    });
+    
+    // Wait for component to initialize
+    await wrapper.vm.$nextTick();
+    
+    // Find the button for the word 'the' which should have multiple occurrences
+    const theButton = Array.from(wrapper.findAll('.word-buttons .button')).find(
+      button => button.text().trim().toLowerCase().startsWith('the')
+    );
+    
+    // The button should exist and show the count
+    expect(theButton).toBeTruthy();
+    expect(theButton.text()).toContain('(');  // Should contain count indicator
+    
+    // Initial count of remaining uses
+    const initialCount = parseInt(theButton.text().match(/\((\d+)\)/)?.[1] || '0');
+    expect(initialCount).toBeGreaterThan(1);
+    
+    // Click the button to decrease its count, but not completely use it
+    await theButton.trigger('click');
+    
+    // The remaining uses should have decreased
+    const newCount = parseInt(theButton.text().match(/\((\d+)\)/)?.[1] || '0');
+    expect(newCount).toBeLessThan(initialCount);
+    
+    // But it should not be disabled yet since there are still uses left
+    expect(theButton.classes()).not.toContain('disabled');
+  });
+
+  it("handles punctuation correctly by auto-revealing it", async () => {
+    // Create text with punctuation
+    const textWithPunctuation = [
+      { key: "verse1", text: "Hello, world! How are you?" }
+    ];
+    
+    const wrapper = createWrapper({ 
+      textItems: textWithPunctuation
+    });
+    
+    // Wait for component to initialize
+    await wrapper.vm.$nextTick();
+    
+    // Check that we don't have buttons for punctuation marks
+    const buttonTexts = wrapper.findAll('.word-buttons .button').map(b => b.text().trim());
+    expect(buttonTexts).not.toContain(',');
+    expect(buttonTexts).not.toContain('!');
+    expect(buttonTexts).not.toContain('?');
+    
+    // Check that punctuation is revealed in the text (not hidden)
+    const punctuation = wrapper.findAll('.punctuation');
+    expect(punctuation.length).toBeGreaterThan(0);
+    punctuation.forEach(p => {
+      expect([',', '!', '?'].includes(p.text().trim())).toBe(true);
+    });
+  });
+
+  it("completes the exercise in sequence and transitions to completed state", async () => {
+    const wrapper = createWrapper({
+      textItems: [
+        { key: "simple", text: "This is a simple test." }
+      ]
+    });
+    
+    // Wait for component to initialize
+    await wrapper.vm.$nextTick();
+    
+    // Verify not completed initially
+    expect(wrapper.find('.memorize-text').classes()).not.toContain('completed');
+    
+    // Get all the words in sequence
+    const words = ['This', 'is', 'a', 'simple', 'test'];
+    
+    // Loop through all words and complete the exercise
+    for (const word of words) {
+      // Current word should match the expected next word
+      const currentIndex = wrapper.vm.currentWordIndex;
+      const currentWordInfo = getLocalIndicesFromWrapper(wrapper, currentIndex);
+      const currentWord = getWordsFromWrapper(wrapper, currentWordInfo.itemIndex)[currentWordInfo.localIndex];
+      
+      // Find and click the correct button
+      const wordButton = findButtonForWord(wrapper, word);
+      if (wordButton) {
+        await wordButton.trigger('click');
+      }
+      
+      // Wait for any animations or state updates
+      await wrapper.vm.$nextTick();
+    }
+    
+    // Should now be in completed state
+    expect(wrapper.find('.memorize-text').classes()).toContain('completed');
+  });
+
+  it("clears peek mode when reset is clicked", async () => {
+    const wrapper = createWrapper();
+    
+    // First enable peek mode
+    await wrapper.find('.memorize-controls .button').trigger('touchstart');
+    expect(wrapper.find('.memorize-text').classes()).toContain('preview');
+    
+    // Click reset button while in peek mode
+    await wrapper.findAll('.memorize-controls .button')[1].trigger('click');
+    
+    // Peek mode should be cleared
+    expect(wrapper.find('.memorize-text').classes()).not.toContain('preview');
+  });
+
+  it("keeps track of progress when selecting words out of order", async () => {
+    // Create a simple wrapper
+    const wrapper = createWrapper({
+      textItems: [
+        { key: "simple", text: "This is a test." }
+      ]
+    });
+    
+    await wrapper.vm.$nextTick();
+    
+    // First get the correct word
+    const currentIndex = wrapper.vm.currentWordIndex;
+    const currentWordInfo = getLocalIndicesFromWrapper(wrapper, currentIndex);
+    const correctWord = getWordsFromWrapper(wrapper, currentWordInfo.itemIndex)[currentWordInfo.localIndex];
+    
+    // Find a different word and try to click it
+    const incorrectButton = findIncorrectButton(wrapper, correctWord);
+    if (incorrectButton) {
+      await incorrectButton.trigger('click');
+      
+      // The incorrect class should be added
+      expect(incorrectButton.classes()).toContain('incorrect');
+      
+      // Current word index should not change
+      expect(wrapper.vm.currentWordIndex).toBe(currentIndex);
+      
+      // Find and click the correct button
+      const correctButton = findButtonForWord(wrapper, correctWord);
+      if (correctButton) {
+        await correctButton.trigger('click');
+        
+        // Current word index should advance
+        expect(wrapper.vm.currentWordIndex).toBe(currentIndex + 1);
+      }
+    }
+  });
+
+  it("manages state correctly for sequential replay", async () => {
+    // Test that the component correctly saves state between word selections
+    const wrapper = createWrapper();
+    await wrapper.vm.$nextTick();
+    
+    // Clear any existing emitted events
+    wrapper.emitted()['save-mode-config'] = [];
+    
+    // Get the first word
+    const currentIndex = wrapper.vm.currentWordIndex;
+    const currentWordInfo = getLocalIndicesFromWrapper(wrapper, currentIndex);
+    const currentWord = getWordsFromWrapper(wrapper, currentWordInfo.itemIndex)[currentWordInfo.localIndex];
+    
+    // Find and click the correct button
+    const wordButton = findButtonForWord(wrapper, currentWord);
+    if (wordButton) {
+      await wordButton.trigger('click');
+      
+      // Should have emitted save-mode-config
+      expect(wrapper.emitted('save-mode-config')).toBeTruthy();
+      
+      // Saved config should have incremented currentWordIndex
+      const savedConfig = wrapper.emitted('save-mode-config')[0][0];
+      expect(savedConfig.scrambleConfig.currentWordIndex).toBe(currentIndex + 1);
+      
+      // Check that the button state is updated in the saved config
+      expect(savedConfig.scrambleConfig.scrambledWords.some(w => 
+        w.originalIndices.includes(currentIndex) && 
+        (w.remainingUses === 0 ? w.used : w.remainingUses < wrapper.vm.scrambledWords.find(
+          sw => sw.originalIndices.includes(currentIndex)
+        ).remainingUses + 1)
+      )).toBe(true);
+    }
+  });
 });
 
 // Helper functions for the tests
