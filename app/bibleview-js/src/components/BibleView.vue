@@ -283,7 +283,6 @@ const contentStyle = computed(() => {
           margin-right: auto;
           color: ${textColor.hsl().string()};
           hyphens: ${config.hyphenation ? "auto" : "none"};
-          line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
           font-family: ${config.fontFamily};
