@@ -29,7 +29,7 @@
     </template>
 
     <!-- More options button -->
-    <div v-if="secondaryButtons.length > 0" class="large-action more-button" @click.stop="showMoreMenu = true" @touchstart.stop>
+    <div v-if="secondaryButtons.length > 0" class="large-action" @click.stop="showMoreMenu = true" @touchstart.stop>
       <FontAwesomeIcon :icon="faEllipsisV"/>
       <div class="title">{{ strings.more }}</div>
     </div>
@@ -132,15 +132,13 @@ async function recalculateVisibleButtons() {
     }
     const avgButtonWidth = totalButtonWidth / buttonElements.length;
 
-    // Calculate how many buttons can fit (leaving space for the "more" button)
-    const maxButtons = Math.floor((containerWidth - moreButtonWidth) / avgButtonWidth);
-
-    // If all buttons fit, show them all
-    if (maxButtons >= modalButtons.value.length) {
+    const maxButtonsWithoutMore = Math.floor(containerWidth / avgButtonWidth);
+    
+    if (maxButtonsWithoutMore >= modalButtons.value.length) {
         visibleButtonCount.value = modalButtons.value.length;
     } else {
-        // Otherwise, show as many as will fit plus a "more" button
-        visibleButtonCount.value = Math.max(1, maxButtons);
+        const maxButtonsWithMore = Math.floor((containerWidth - moreButtonWidth) / avgButtonWidth);
+        visibleButtonCount.value = Math.max(1, maxButtonsWithMore);
     }
 }
 
@@ -276,17 +274,6 @@ setupKeyboardListener((e: KeyboardEvent) => {
   flex-direction: row;
   justify-content: space-evenly;
   flex-wrap: wrap;
-}
-
-.more-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  
-  .title {
-    margin-left: 6px;
-  }
 }
 
 @keyframes dropdown-animate {
