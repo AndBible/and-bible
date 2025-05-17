@@ -29,7 +29,7 @@
     </template>
 
     <!-- More options button -->
-    <div v-if="secondaryButtons.length > 0" class="large-action more-button" @click.stop="showMoreMenu = true" @touchstart.stop>
+    <div v-if="secondaryButtons.length > 0" class="large-action" @click.stop="showMoreMenu = true" @touchstart.stop>
       <FontAwesomeIcon :icon="faEllipsisV"/>
       <div class="title">{{ strings.more }}</div>
     </div>
@@ -274,17 +274,6 @@ setupKeyboardListener((e: KeyboardEvent) => {
   flex-direction: row;
   justify-content: space-evenly;
   flex-wrap: wrap;
-}
-
-.more-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  
-  .title {
-    margin-left: 6px;
-  }
 }
 
 @keyframes dropdown-animate {
