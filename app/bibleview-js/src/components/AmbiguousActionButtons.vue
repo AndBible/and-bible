@@ -132,15 +132,13 @@ async function recalculateVisibleButtons() {
     }
     const avgButtonWidth = totalButtonWidth / buttonElements.length;
 
-    // Calculate how many buttons can fit (leaving space for the "more" button)
-    const maxButtons = Math.floor((containerWidth - moreButtonWidth) / avgButtonWidth);
-
-    // If all buttons fit, show them all
-    if (maxButtons >= modalButtons.value.length) {
+    const maxButtonsWithoutMore = Math.floor(containerWidth / avgButtonWidth);
+    
+    if (maxButtonsWithoutMore >= modalButtons.value.length) {
         visibleButtonCount.value = modalButtons.value.length;
     } else {
-        // Otherwise, show as many as will fit plus a "more" button
-        visibleButtonCount.value = Math.max(1, maxButtons);
+        const maxButtonsWithMore = Math.floor((containerWidth - moreButtonWidth) / avgButtonWidth);
+        visibleButtonCount.value = Math.max(1, maxButtonsWithMore);
     }
 }
 
