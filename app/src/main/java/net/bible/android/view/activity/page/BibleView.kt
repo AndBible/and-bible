@@ -875,6 +875,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         private val epubRelatedResourcesRe = Regex("""^epub/([^/]+)/(.*)$""")
         private val colorRe = Regex("""\b(background-color|background|background-image|color):[^;]+;""")
         private val bodyRe = Regex("""\bbody\s*\{[^}]*\}""")
+        private val lineHeightRe = Regex("""\bline-height:[^;]*;""")
         override fun handle(path: String): WebResourceResponse {
             val epubMatch = epubRe.matchEntire(path)
             if(epubMatch != null) {
@@ -895,6 +896,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val content = styleSheets.joinToString("\n") { String(it.readBytes()) }
                     .replace(colorRe, "")
                     .replace(bodyRe, "")
+                    .replace(lineHeightRe, "")
+
                 return WebResourceResponse(URLConnection.guessContentTypeFromName(path), null, content.byteInputStream())
             }
             val resourceMatch = epubRelatedResourcesRe.matchEntire(path)
