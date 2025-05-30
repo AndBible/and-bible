@@ -161,6 +161,9 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     }
 
     val tocKeys: List<Key> get() {
+        // Check if toc is null and return an empty list if it is
+        if (toc == null) return emptyList()
+
         val content = useXPathInstance { xp ->
             xp.compile("//ns:navPoint/ns:content", Filters.element(), null, tocNamespace)
                 .evaluate(toc)
