@@ -65,7 +65,6 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.book.sword.SwordGenBook
-import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -467,58 +466,64 @@ class InstallZip : ActivityBase() {
         }
 
         binding.loadingIndicator.visibility = View.VISIBLE
-        contentResolver.openInputStream(uri)!!.use { fIn ->
-            val outDir = File(SharedConstants.modulesDir, filetype.displayName)
-            outDir.mkdirs()
-            val outFile = File(outDir, displayName)
-            if(outFile.exists()) {
-                val doInstall = suspendCoroutine {
-                    AlertDialog.Builder(this)
-                        .setTitle(R.string.overwrite_files_title)
-                        .setMessage(getString(R.string.overwrite_files, "$filetype/$displayName"))
-                        .setPositiveButton(R.string.yes) {_, _ -> it.resume(true)}
-                        .setNeutralButton(R.string.cancel) {_, _ -> it.resume(false)}
-                        .setOnCancelListener {_ -> it.resume(false)}
-                        .show()
-                }
-                if(!doInstall) {
-                    ABEventBus.post(ToastEvent(R.string.install_zip_canceled))
-                    return false
-                }
-            }
-
-            if ((outFile.exists() && !outFile.canWrite()) || (!outFile.exists() && !outDir.canWrite())) {
-                throw CantWrite()
-            }
-
-            withContext(Dispatchers.IO) {
-                val header = ByteArray(16)
-                fIn.read(header)
-                if (String(header) == "SQLite format 3\u0000") {
-                    val out = FileOutputStream(outFile)
-                    withContext(Dispatchers.IO) {
-                        out.write(header)
-                        fIn.copyTo(out)
-                        out.close()
+        try {
+            val inputStream = contentResolver.openInputStream(uri) ?: throw FileNotFound()
+            inputStream.use { fIn ->
+                val outDir = File(SharedConstants.modulesDir, filetype.displayName)
+                outDir.mkdirs()
+                val outFile = File(outDir, displayName)
+                if (outFile.exists()) {
+                    val doInstall = suspendCoroutine {
+                        AlertDialog.Builder(this)
+                            .setTitle(R.string.overwrite_files_title)
+                            .setMessage(getString(R.string.overwrite_files, "$filetype/$displayName"))
+                            .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
+                            .setNeutralButton(R.string.cancel) { _, _ -> it.resume(false) }
+                            .setOnCancelListener { _ -> it.resume(false) }
+                            .show()
                     }
-                    val book = when(filetype) {
-                        FileType.MYBIBLE -> addMyBibleBook(outFile)
-                        FileType.MYSWORD -> addMySwordBook(outFile)
+                    if (!doInstall) {
+                        ABEventBus.post(ToastEvent(R.string.install_zip_canceled))
+                        return false
                     }
-                    if(book == null) {
-                        outFile.delete()
+                }
+
+                if ((outFile.exists() && !outFile.canWrite()) || (!outFile.exists() && !outDir.canWrite())) {
+                    throw CantWrite()
+                }
+
+                withContext(Dispatchers.IO) {
+                    val header = ByteArray(16)
+                    fIn.read(header)
+                    if (String(header) == "SQLite format 3\u0000") {
+                        val out = FileOutputStream(outFile)
+                        withContext(Dispatchers.IO) {
+                            out.write(header)
+                            fIn.copyTo(out)
+                            out.close()
+                        }
+                        val book = when (filetype) {
+                            FileType.MYBIBLE -> addMyBibleBook(outFile)
+                            FileType.MYSWORD -> addMySwordBook(outFile)
+                        }
+                        if (book == null) {
+                            outFile.delete()
+                            throw InvalidFile(displayName)
+                        }
+                    } else {
                         throw InvalidFile(displayName)
                     }
                 }
-                else {
-                    throw InvalidFile(displayName)
-                }
             }
+        } catch (e: IOException) {
+            binding.loadingIndicator.visibility = View.GONE
+            Log.e(TAG, "IOException when reading file", e)
+            throw FileNotFound()
         }
         binding.loadingIndicator.visibility = View.GONE
         ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
         ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
-        setResult(Activity.RESULT_OK)
+        setResult(RESULT_OK)
         finish()
         return true
     }
@@ -535,11 +540,16 @@ class InstallZip : ActivityBase() {
         } else {
             val zh = ZipHandler(
                 {
-                    contentResolver.openInputStream(uri)
+                    try {
+                        contentResolver.openInputStream(uri) ?: throw FileNotFound()
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error opening input stream for zip file", e)
+                        throw FileNotFound()
+                    }
                 },
                 { percent -> updateProgress(percent) },
                 { finishResult ->
-                    result = finishResult == Activity.RESULT_OK
+                    result = finishResult == RESULT_OK
                     setResult(finishResult);
                     ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                     finish()
@@ -562,7 +572,12 @@ class InstallZip : ActivityBase() {
     }
 
     private suspend fun installStudyPads(uri: Uri): Boolean {
-        val inputStream = contentResolver.openInputStream(uri)!!
+        val inputStream = try {
+            contentResolver.openInputStream(uri) ?: throw FileNotFound()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening input stream for study pads", e)
+            throw FileNotFound()
+        }
         val category = SyncableDatabaseDefinition.BOOKMARKS
         val unzipFolder = File(BackupControl.internalDbBackupDir, "unzip")
         unzipInputStream(inputStream, unzipFolder)
@@ -606,7 +621,13 @@ class InstallZip : ActivityBase() {
             }
         }
         dir.mkdirs()
-        unzipInputStream(contentResolver.openInputStream(uri)!!, dir)
+        try {
+            val inputStream = contentResolver.openInputStream(uri) ?: throw FileNotFound()
+            unzipInputStream(inputStream, dir)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening input stream for epub", e)
+            throw FileNotFound()
+        }
         val installOk = addManuallyInstalledEpubBooks()
         withContext(Dispatchers.Main) {
             if(installOk) {

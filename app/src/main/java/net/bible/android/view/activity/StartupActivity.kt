@@ -343,7 +343,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         lifecycleScope.launch {
             val result = awaitIntent(intent)
             CurrentActivityHolder.activate(this@StartupActivity)
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultCode == RESULT_OK) {
                 val uri = result.data?.data ?: return@launch
                 if (BackupControl.restoreAppDatabaseFromUriWithUI(this@StartupActivity, uri)) {
                     Log.i(TAG, "Restored database successfully")
