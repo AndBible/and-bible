@@ -1597,17 +1597,22 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     suspend fun determineFileType(uri: Uri): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
-        application.contentResolver.openInputStream(uri)?.use { inputStream ->
-            val header = ByteArray(16)
-            inputStream.read(header)
-            val headerString = String(header)
-            if (headerString == "SQLite format 3\u0000")
-                BackupControl.AbDbFileType.SQLITE3
-            else if (headerString.startsWith("PK\u0003\u0004")) {
-                BackupControl.AbDbFileType.ZIP
-            } else
-                BackupControl.AbDbFileType.UNKNOWN
-        } ?: BackupControl.AbDbFileType.UNKNOWN
+        try {
+            application.contentResolver.openInputStream(uri)?.use { inputStream ->
+                val header = ByteArray(16)
+                inputStream.read(header)
+                val headerString = String(header)
+                if (headerString == "SQLite format 3\u0000")
+                    BackupControl.AbDbFileType.SQLITE3
+                else if (headerString.startsWith("PK\u0003\u0004")) {
+                    BackupControl.AbDbFileType.ZIP
+                } else
+                    BackupControl.AbDbFileType.UNKNOWN
+            } ?: BackupControl.AbDbFileType.UNKNOWN
+        } catch (e: Exception) {
+            Log.e(TAG, "Unexpected exception when determining file type", e)
+            BackupControl.AbDbFileType.UNKNOWN
+        }
     }
 
     fun makeAndBibleUrl(
@@ -1912,26 +1917,32 @@ data class AndBibleBackupManifest(
         content.copyTo(zipStream)
     }
     companion object {
+        private const val TAG = "ABBackupManifest"
         fun fromJson(jsonString: String): AndBibleBackupManifest {
             return CommonUtils.json.decodeFromString(serializer(), jsonString)
         }
 
         fun fromUri(uri: Uri): AndBibleBackupManifest? {
-            val inputStream = application.contentResolver.openInputStream(uri) ?: return null
-            val manifest = ZipInputStream(inputStream).use {
-                val entry = it.nextEntry
-                if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
-                    val out = ByteArrayOutputStream()
-                    val buffer = ByteArray(1024)
-                    var len: Int
-                    while (it.read(buffer).also { len = it } > 0) {
-                        out.write(buffer, 0, len)
-                    }
-                    val outString = out.toString()
-                    fromJson(outString)
-                } else null
+            try {
+                val inputStream = application.contentResolver.openInputStream(uri) ?: return null
+                val manifest = ZipInputStream(inputStream).use {
+                    val entry = it.nextEntry
+                    if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
+                        val out = ByteArrayOutputStream()
+                        val buffer = ByteArray(1024)
+                        var len: Int
+                        while (it.read(buffer).also { len = it } > 0) {
+                            out.write(buffer, 0, len)
+                        }
+                        val outString = out.toString()
+                        fromJson(outString)
+                    } else null
+                }
+                return manifest
+            } catch (e: Exception) {
+                Log.e(TAG, "Error reading backup manifest from URI", e)
+                return null
             }
-            return manifest
         }
     }
 }

@@ -209,7 +209,8 @@ object BackupControl {
         val header = ByteArray(2)
         val gzHeaderBytes = byteArrayOf(0x1f.toByte(), 0x8b.toByte())
 
-        val bufferedInputStream = BufferedInputStream(application.contentResolver.openInputStream(uri))
+        val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+        val bufferedInputStream = BufferedInputStream(inputStream)
         bufferedInputStream.mark(2)
         bufferedInputStream.read(header)
         bufferedInputStream.reset()
@@ -516,7 +517,7 @@ object BackupControl {
             val uri = result.data?.data!!
             try {
                 restoreAppDatabaseFromUriWithUI(activity, uri)
-            } catch (e: FileNotFoundException) {null} ?: return
+            } catch (e: Exception) {null} ?: return
         }
     }
 
@@ -585,8 +586,14 @@ object BackupControl {
 
         unzipFolder.mkdirs()
 
-        tmpFile.outputStream().use { application.contentResolver.openInputStream(uri)!!.copyTo(it) }
-        CommonUtils.unzipFile(tmpFile, unzipFolder)
+        try {
+            val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+            tmpFile.outputStream().use { inputStream.copyTo(it) }
+            CommonUtils.unzipFile(tmpFile, unzipFolder)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing backup file", e)
+            throw IOException("Failed to process backup file: ${e.message}")
+        }
 
         val restoredSelection =
             Closeable {
