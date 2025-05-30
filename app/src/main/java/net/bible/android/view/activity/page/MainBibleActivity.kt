@@ -1695,8 +1695,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                     pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
                                 } else
                                     pageManager.currentPage.setKey(verse, !isFromBookmark)
-                            } else if (keyStr != null && bookStr != null){
-                                val book = Books.installed().getBook(bookStr)
+                            } else if (keyStr != null && bookStr != null) {
+                                val book =
+                                    Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr)
                                 val key = book.getKey(keyStr)
                                 val pageManager = windowControl.activeWindowPageManager
                                 val ordinal = extras.getInt("ordinal")
@@ -1713,7 +1714,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                 val pageManager = windowControl.activeWindowPageManager
                                 pageManager.setCurrentDocumentAndKey(bookAndKey.document, bookAndKey)
                             } else {
-                                val book = Books.installed().getBook(bookStr)
+                                val book =
+                                    Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr!!)
+
                                 val key = book.getKey(keyStr)
                                 windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
                             }

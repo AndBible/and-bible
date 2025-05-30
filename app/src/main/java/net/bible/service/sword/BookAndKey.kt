@@ -21,10 +21,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.versification.toVerseRange
-import net.bible.android.view.activity.bookmark.LabelEditActivity
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.ordinalRangeFor
 import net.bible.service.common.shortName
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
 import org.crosswire.common.util.ItemIterator
 import org.crosswire.jsword.book.Book
@@ -33,7 +33,6 @@ import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.RestrictionType
-import java.lang.UnsupportedOperationException
 val BookAndKey.ordinalRange: IntRange? get() = document?.ordinalRangeFor(key)
 
 @Serializable
@@ -44,7 +43,7 @@ class BookAndKeySerialized(
     val htmlId: String?,
 ) {
     val bookAndKey: BookAndKey get () {
-        val book = Books.installed().getBook(document)
+        val book = Books.installed().getBook(document) ?: FakeBookFactory.giveDoesNotExist(document)
         var key = book.getKey(key)
         if(key is RangedPassage) {
            key = key.toVerseRange
