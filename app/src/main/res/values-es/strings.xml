@@ -142,6 +142,7 @@
   <string name="prefs_margin_size_summary">Ajuste el margen izquierdo y derecho de la vista de texto. Tú también puedes
         ajustar el ancho máximo del texto.
 </string>
+  <string name="prefs_margin_size_summary_2">Consejo: Puede tocar el área del margen para saltar una página arriba/abajo.</string>
   <string name="prefs_text_colors_summary">Ajuste el texto y los colores de fondo y el efecto de ruido.</string>
   <string name="text_display_settings_activity_title">Ajustes de visualización de texto</string>
   <string name="workspace_text_display_settings_title">Opciones de texto - %s</string>
@@ -677,6 +678,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="workspace_listing_with_current">%s (actual)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">¡Esta es la versión beta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 En la versión beta, hay nuevas características que aún no se han probado adecuadamente
 y, por lo tanto, el uso de beta podría introducir un comportamiento inesperado, es decir, errores.
@@ -1043,6 +1045,7 @@ informe los problemas a los mantenedores de texto
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Autenticación en %s</string>
+  <string name="auth_server_uri">URL del servidor</string>
   <string name="auth_username">Nombre de usuario</string>
   <string name="auth_password">Contraseña</string>
   <string name="auth_access_token">Token de acceso</string>
@@ -1098,5 +1101,19 @@ Próximamente habrá un nuevo lanzamiento. La fecha de lanzamiento prevista es %
   <string name="dont_show">
         No volver a mostrar este mensaje
     </string>
+  <string name="pref_font_size_multiplier_title">Multiplicador del tamaño de letra</string>
+  <string name="pref_font_size_multiplier_summary_1">Multiplique el tamaño de las fuentes de texto por este número.</string>
+  <string name="pref_font_size_multiplier_summary_2">Útil si tiene un dispositivo sincronizado que se utiliza con una fuente más grande.</string>
+  <string name="current_value">Valor actual: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Acción para el gesto de deslizar a izquierda / derecha</string>
+  <string name="prefs_bible_view_swipe_mode_summary">El gesto de deslizar a izquierda/derecha permite pasar a la página/capítulo siguiente.</string>
   <string name="prefs_swipe_mode_chapter">Capítulo</string>
+  <string name="prefs_swipe_mode_page">Página</string>
+  <string name="prefs_swipe_mode_none">Desactivado</string>
+  <string name="page_number_title">Número de página relativo</string>
+  <string name="page_number_summary">Mostrar superposición del número de página. El número de página es relativo a la posición inicial.</string>
+  <string name="select_custom_icon">Seleccionar icono de marcador personalizado</string>
+  <string name="invalid_url_message">La URL introducida no es válida. Por favor, introduzca una URL válida (por ejemplo, https://nextcloud.example.com)</string>
+  <string name="memorize_description">Memorizar versículos de la Biblia</string>
+  <string name="memorize_abbreviation">Memorizar</string>
 </resources>

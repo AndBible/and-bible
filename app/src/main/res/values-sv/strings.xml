@@ -247,11 +247,11 @@
   <string name="chooce_language_hint">Språk</string>
   <string name="one_more_back_press">Tryck bak igen för att stänga appen</string>
   <string name="document_filter_results">%d dokument</string>
-  <string name="download_question_title">Vill du fortsätta med nerladdningen av dokument?</string>
-  <string name="download_question_message">Om du bor i ett förföljt land,
-kan du behöva vara försiktig med att ladda ner kristet material via Internet.
-Istället kanske du vill skaffa modulens zip-filer på ett säkrare sätt och installera dem.
-via \"Ladda Dokument Från Zip\". Är du säker på att du vill fortsätta med nedladdningen?
+  <string name="download_question_title">Vill du fortsätta med nedladdningen av dokument?</string>
+  <string name="download_question_message">Om du bor i ett förföljt land
+kan du behöva vara försiktig med att ladda ner kristet material via internet.
+Istället vill du kanske få tag i modulens zip-filer på ett säkrare sätt och installera dem
+via \"Läs in dokument från filer\". Är du säker på att du vill fortsätta med nedladdningen?
 Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="do_not_ask_again">Ja, fråga inte mer</string>
   <string name="recommended_document">Rekommenderat!</string>
@@ -275,7 +275,7 @@ Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="install_do_you_want">Vill du installera modulen (%s)?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Läsningsplan</string>
-  <string name="reading_plans_plural">Läsplaner</string>
+  <string name="reading_plans_plural">Läsningsplaner</string>
   <string name="rdg_plan_selector_title">Välj en läsningsplan</string>
   <string name="rdg_plan_day">Dag %s</string>
   <string name="rdg_plan_set_start_date">Välj startdatum...</string>
@@ -568,7 +568,7 @@ i GT och NT varje dag.
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Vill du återställa?</string>
   <string name="restore_app_database">Återställ appdatabasen från...</string>
-  <string name="restore_database">Återställ Databasfilen</string>
+  <string name="restore_database">Återställ databasfil</string>
   <string name="restore_confirmation">Skriv över egna anteckningar, bokmärken, studieblock, läsningsplaner och arbetsytor?</string>
   <string name="restore_success2">Markerade sektioner av databasen återställdes</string>
   <string name="restore_success">Egna anteckningar, bokmärken, studieblock, läsningsplaner och arbetsytor återställdes</string>
@@ -773,7 +773,7 @@ i GT och NT varje dag.
   <!--Supported file formats for documents-->
   <string name="supported_formats_title">Format som stöds</string>
   <!--argument is app_name_andbible (AndBible).-->
-  <string name="choose_file">Du måste välja filen som du vill läsa in i %s.</string>
+  <string name="choose_file">Välj vilken fil du vill läsa in i %s.</string>
   <string name="supported_formats">Format som stöds för att läsa in dokument från en fil: %s</string>
   <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Zip-fil som innehåller Sword-modul(er) eller säkerhetskopia av dokument (*.abmd) skapad av %s</string>
