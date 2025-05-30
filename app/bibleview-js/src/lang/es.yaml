@@ -57,18 +57,18 @@ openDownloads: Ir a descargas de complementos
 verseShare: Compartir
 verseSpeak: Con voz
 verseCompare: Comparar
-verseMemorize: ""
+verseMemorize: Memorizar
 verseNote: Nota
 verseMyNotes: Mis Notas
 verseShareLong: Compartir este versículo
 verseCompareLong: Comparar versículo
-verseMemorizeLong: ""
+verseMemorizeLong: Memorizar versículos de la Biblia
 verseNoteLong: Escribir una nota
 addBookmark: Marcador
-selectCustomIconTitle: ""
-blur: ""
+selectCustomIconTitle: Seleccionar icono de marcador personalizado
+blur: Desenfoque
 reset: Restablecer
-peek: ""
-wordBlur: ""
-wordScramble: ""
+peek: Mirar
+wordBlur: Desenfoque de palabras
+wordScramble: Revuelve las palabras
 more: Más
