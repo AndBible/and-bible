@@ -17,8 +17,6 @@
 
 import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import java.util.Properties
 
@@ -58,6 +56,14 @@ fun getGitHash(): String =
 fun getGitDescribe(): String  = ByteArrayOutputStream().use { stdout ->
     exec {
         commandLine("git", "describe", "--always")
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+fun getGitCommitDate(): String = ByteArrayOutputStream().use { stdout ->
+    exec {
+        commandLine("git", "log", "-1", "--format=%ad", "--date=format:%d/%m/%y %H:%M:%S")
         standardOutput = stdout
     }
     return stdout.toString().trim()
@@ -146,7 +152,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
-        buildConfigField("String", "BuildDate", "\"${SimpleDateFormat("dd/MM/YY HH:mm:ss").format(Date())}\"")
+        buildConfigField("String", "CommitDate", "\"${getGitCommitDate()}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "org.andbible.tests"
         ksp {
