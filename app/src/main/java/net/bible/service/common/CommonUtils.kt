@@ -1922,9 +1922,9 @@ data class AndBibleBackupManifest(
             return CommonUtils.json.decodeFromString(serializer(), jsonString)
         }
 
-        fun fromUri(uri: Uri): AndBibleBackupManifest? {
+        suspend fun fromUri(uri: Uri): AndBibleBackupManifest? = withContext(Dispatchers.IO) {
             try {
-                val inputStream = application.contentResolver.openInputStream(uri) ?: return null
+                val inputStream = application.contentResolver.openInputStream(uri) ?: return@withContext null
                 val manifest = ZipInputStream(inputStream).use {
                     val entry = it.nextEntry
                     if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
@@ -1938,10 +1938,10 @@ data class AndBibleBackupManifest(
                         fromJson(outString)
                     } else null
                 }
-                return manifest
+                return@withContext manifest
             } catch (e: Exception) {
                 Log.e(TAG, "Error reading backup manifest from URI", e)
-                return null
+                return@withContext null
             }
         }
     }
