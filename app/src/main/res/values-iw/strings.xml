@@ -510,6 +510,7 @@
   <string name="backup_and_restore">גיבוי ושחזור</string>
   <string name="backup_modules2">גיבוי מסמכים ל....</string>
   <string name="backup_app_database2">גיבוי מסד הנתונים של האפליקציה אל...</string>
+  <string name="backup_app2">שמירת האפליקציה (קובץ apk) אל...</string>
   <string name="backup_application">יישום</string>
   <string name="backup_database">מסד נתונים</string>
   <string name="backup_documents">מסמכים</string>
@@ -517,7 +518,10 @@
   <string name="backup_to">גיבוי אל...</string>
   <string name="backup_restore_from">שחזור גיבוי מ...</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">שחזור או ייבוא מ...</string>
   <string name="backup_restore">שחזור</string>
+  <string name="backup_restore2">שחזור או ייבוא</string>
+  <string name="overwrite_something">לדרוס את %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">מה לשחזר?</string>
   <string name="restore_app_database">שחזר את מסד נתוני היישום מתוך...</string>
@@ -625,6 +629,7 @@
   <string name="workspace_listing_with_current">%s (נוכחי)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">זו גרסת בטא !</string>
+  <string name="beta_flag">בטא</string>
   <string name="beta_notice_content_1">
         בגרסת הבטא, ישנן אפשרויות חדשות שלא נבדקו כהלכה,
         ועלולים לקרות דברים מוזרים, כמו באגים.
@@ -727,6 +732,7 @@
   <string name="tell_friend_message3">להתקנה מחנות היישומים: %s</string>
   <string name="tell_friend_message4">לקריאה נוספת ואפשרויות התקנה נוספות: %s</string>
   <string name="share_verse_ok">שיתוף / העתקה</string>
+  <string name="web_search">חיפוש ברשת</string>
   <string name="verse_action_copy">העתק</string>
   <string name="generic_share">שתף</string>
   <string name="share_verse_menu_title">שיתוף / העתקה ...</string>
@@ -809,7 +815,9 @@
   <string name="label_salvation">ישועה</string>
   <string name="label_underline">קו תחתי</string>
   <string name="import_menu">ייבוא וייצוא</string>
+  <string name="export">יצוא</string>
   <string name="export_fileformat">ייצוא כ %s</string>
+  <string name="export_something">יצוא %s</string>
   <string name="import_items">ייבוא %s</string>
   <string name="import_from_db">טעינה מקובץ גיבוי של מסד נתוני היישום</string>
   <string name="import_error">נכשלה טעינת נתונים מקובץ מסד נתוני היישום. ייתכן שהקובץ בפורמט לא תקין או נשמר ע\"י גרסה ישנה מדי של %s.</string>
@@ -879,6 +887,7 @@
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">הזדהות אל %s</string>
+  <string name="auth_server_uri">כתובת השרת</string>
   <string name="auth_username">שם משתמש</string>
   <string name="auth_password">סיסמה</string>
   <string name="auth_access_token">טוקן</string>
@@ -907,5 +916,11 @@
   <string name="dont_show">
         אל תציג שוב את ההודעה הזו
     </string>
+  <string name="current_value">הערך הנוכחי: %s</string>
   <string name="prefs_swipe_mode_chapter">פרק</string>
+  <string name="prefs_swipe_mode_page">עמוד</string>
+  <string name="prefs_swipe_mode_none">לא זמין</string>
+  <string name="invalid_url_message">הכתובת שהזנת אינה תקינה. יש להזין כתובת תקינה (לדוגמא: https://nextcloud.example.com)</string>
+  <string name="memorize_description">שינון פסוקים</string>
+  <string name="memorize_abbreviation">שינון</string>
 </resources>
