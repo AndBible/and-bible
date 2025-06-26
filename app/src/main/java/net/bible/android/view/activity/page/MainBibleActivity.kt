@@ -61,6 +61,9 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -217,11 +220,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Top offset with only statusbar and toolbar taken into account always
     val topOffsetWithActionBar get() = topOffset1 + actionBarHeight
 
-    // Offsets with system insets only
-    private val topOffset1 = 0
-    private val bottomOffset1 = 0
-    val rightOffset1 = 0
-    val leftOffset1 = 0
+    // Offsets with system insets only - will be updated by setupEdgeToEdge()
+    private var topOffset1 = 0
+    private var bottomOffset1 = 0
+    var rightOffset1 = 0
+    var leftOffset1 = 0
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
@@ -251,6 +254,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         empty = EmptyBinding.inflate(layoutInflater)
         frozenBinding = FrozenBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Set up edge-to-edge for Android 15 compatibility
+        setupEdgeToEdge()
 
         if(BuildVariant.Appearance.isDiscrete ||
             BuildVariant.DistributionChannel.isHuawei ||
@@ -395,6 +401,49 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowRepository.activeWindow.bibleView?.requestFocus()
             }
         })
+    }
+
+    /**
+     * Set up edge-to-edge display for Android 15 compatibility
+     */
+    private fun setupEdgeToEdge() {
+        // Enable edge-to-edge display
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        
+        // Handle display cutouts properly
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode = 
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+        
+        // Handle window insets to properly position UI elements
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+            val systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            
+            // Always apply top inset to toolbar to avoid status bar overlap
+            //binding.toolbarLayout.setPadding(0, systemBars.top, 0, 0)
+            
+            // Update our offset calculations for other UI elements
+            updateSystemInsets(systemBars.top, systemBars.bottom, systemBars.left, systemBars.right)
+            
+            // Don't consume the insets - let child views handle them as needed
+            windowInsets
+        }
+    }
+    
+    /**
+     * Update system inset values for layout calculations
+     */
+    private fun updateSystemInsets(top: Int, bottom: Int, left: Int, right: Int) {
+        // Store these values for use in offset calculations
+        topOffset1 = top
+        bottomOffset1 = bottom
+        leftOffset1 = left
+        rightOffset1 = right
+        
+        // Trigger any layout updates that depend on these offsets
+        updateBottomBars()
+        updateToolbar()
     }
 
     private fun resolveVariables() {
@@ -1241,31 +1290,57 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val sharedActivityState = SharedActivityState.instance
 
     private fun hideSystemUI() {
-        var uiFlags = (
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Use modern WindowInsetsController for Android 11+
+            window.decorView.windowInsetsController?.apply {
+                hide(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
+                systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            // Fallback for older versions, but avoid deprecated flags that conflict with edge-to-edge
+            @Suppress("DEPRECATION")
+            var uiFlags = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
             )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!ScreenSettings.nightMode) {
-                uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!ScreenSettings.nightMode) {
+                    uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                }
             }
-        }
 
-        window.decorView.systemUiVisibility = uiFlags
+            window.decorView.systemUiVisibility = uiFlags
+        }
     }
 
     private fun showSystemUI(setNavBarColor: Boolean=true) {
-        val monochromeMode = CommonUtils.settings.monochromeMode
-        var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!ScreenSettings.nightMode) {
-                uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Use modern WindowInsetsController for Android 11+
+            window.decorView.windowInsetsController?.apply {
+                show(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
+                if (!ScreenSettings.nightMode) {
+                    setSystemBarsAppearance(
+                        android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                        android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    )
+                }
             }
+        } else {
+            // Fallback for older versions
+            @Suppress("DEPRECATION")
+            var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!ScreenSettings.nightMode) {
+                    uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                }
+            }
+            window.decorView.systemUiVisibility = uiFlags
+        }
+        
+        val monochromeMode = CommonUtils.settings.monochromeMode
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(windowRepository.visibleWindows.isNotEmpty()) {
                 val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings).colors!!
 
@@ -1278,6 +1353,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
 
                 binding.run {
+                    toolbarLayout.setBackgroundColor(toolbarColor)
                     homeButton.setBackgroundColor(toolbarColor)
                     pageTitle.setBackgroundColor(toolbarColor)
                     syncIcon.setBackgroundColor(toolbarColor)
@@ -1298,18 +1374,26 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     typedValue.data
                 }
 
-                // Set the status bar to the same color
+                // For Android 15, be more careful with status bar and navigation bar colors
+                // as some of these may be deprecated or ignored in edge-to-edge mode
                 window.run {
                     clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
                     addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                    statusBarColor = toolbarColor
-                    navigationBarColor = color
+                    
+                    // Only set these colors if not targeting Android 15 or if specifically allowed
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                        statusBarColor = toolbarColor
+                        navigationBarColor = color
+                    } else {
+                        // For Android 15+, set transparent to maintain edge-to-edge
+                        //statusBarColor = Color.TRANSPARENT
+                        //navigationBarColor = Color.TRANSPARENT
+                    }
                 }
 
                 binding.speakTransport.setBackgroundColor(color)
             }
         }
-        window.decorView.systemUiVisibility = uiFlags
     }
 
     private fun updateBottomBars() {
@@ -1512,9 +1596,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateToolbar() {
         binding.apply {
-            toolbarLayout.setPadding(leftOffset1, 0, rightOffset1, 0)
+            // Set left/right padding for system bars, top padding is handled in setupEdgeToEdge()
+            toolbarLayout.setPadding(leftOffset1, toolbarLayout.paddingTop, rightOffset1, toolbarLayout.paddingBottom)
             navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
+            
             if(isFullScreen) {
                 hideSystemUI()
                 Log.i(TAG, "Fullscreen on")
@@ -1568,7 +1654,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return super.onKeyUp(keyCode, event)
     }
 
-    class MainBibleAfterRestore()
+    class MainBibleAfterRestore
 
     fun onEventMainThread(e: MainBibleAfterRestore) {
         bookmarkControl.reset()

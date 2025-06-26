@@ -148,7 +148,7 @@ android {
     defaultConfig {
         applicationId = applicationIdStandard
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
