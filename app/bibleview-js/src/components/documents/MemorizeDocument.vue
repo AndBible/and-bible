@@ -91,7 +91,7 @@ const currentModeComponent = computed(() => {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .memorize-mode-selector {
   display: flex;

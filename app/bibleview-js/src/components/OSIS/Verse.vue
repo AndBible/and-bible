@@ -80,7 +80,7 @@ const {config} = useCommon();
 </script>
 
 <style lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .linebreak {
   display: block;

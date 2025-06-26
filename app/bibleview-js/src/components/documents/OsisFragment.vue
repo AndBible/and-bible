@@ -34,9 +34,9 @@ const props = withDefaults(defineProps<{
     fragment: OsisFragment
     highlightOrdinalRange?: OrdinalRange
     highlightOffsetRange?: OffsetRange
-    hideTitles: boolean
-    doNotConvert: boolean
-    isEpub: boolean
+    hideTitles?: boolean
+    doNotConvert?: boolean
+    isEpub?: boolean
 }>(), {doNotConvert: false, hideTitles: false, isEpub: false})
 
 const {bookInitials, osisRef} = toRefs(props.fragment);

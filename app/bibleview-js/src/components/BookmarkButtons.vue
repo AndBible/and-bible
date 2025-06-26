@@ -111,8 +111,8 @@ import {faIcons} from "@fortawesome/free-solid-svg-icons";
 
 const props = withDefaults(defineProps<{
     bookmark: BaseBookmark
-    showStudyPadButtons: boolean
-    inBookmarkModal: boolean
+    showStudyPadButtons?: boolean
+    inBookmarkModal?: boolean
 }>(), {
     showStudyPadButtons: false,
     inBookmarkModal: false
@@ -185,7 +185,7 @@ async function changeCustomIcon() {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .button-container {
   display: flex;

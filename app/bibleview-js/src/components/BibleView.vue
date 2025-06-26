@@ -377,7 +377,7 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 
 </script>
 <style lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 $ring-size: 35px;
 $ring-thickness: calc(#{$ring-size} / 12);

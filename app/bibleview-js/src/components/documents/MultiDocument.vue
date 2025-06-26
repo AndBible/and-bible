@@ -92,7 +92,7 @@ const {android, sprintf, strings} = useCommon();
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .ref-link {
   padding-bottom: 0.5em;

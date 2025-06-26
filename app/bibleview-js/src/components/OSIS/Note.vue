@@ -120,7 +120,7 @@ const showHandle = computed(() => {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .note-handle-base {
   @extend .superscript;

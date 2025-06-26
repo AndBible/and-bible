@@ -47,11 +47,11 @@ import {Nullable} from "@/types/common";
 
 const emit = defineEmits(["closed", "save", "opened"]);
 const props = withDefaults(defineProps<{
-    editDirectly: boolean
-    showPlaceholder: boolean
+    editDirectly?: boolean
+    showPlaceholder?: boolean
     text: Nullable<string>
-    maxEditorHeight: string
-    constraintDisplayHeight: boolean
+    maxEditorHeight?: string
+    constraintDisplayHeight?: boolean
 }>(), {
     editDirectly: false,
     showPlaceholder: false,
@@ -107,8 +107,8 @@ defineExpose({editMode});
 </script>
 
 <style lang="scss" scoped>
-@import '~@/lib/pell/pell.scss';
-@import "~@/common.scss";
+@use "@/lib/pell/pell.scss";
+@use "@/common.scss" as *;
 
 .notes-display {
   //  width: 100%;

@@ -112,7 +112,7 @@ const showStrongsSeparately = computed(() => !exportMode.value && config.strongs
 </script>
 
 <style lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .link-style {
   text-decoration: underline dotted;

@@ -51,7 +51,7 @@ import {eventBus} from "@/eventbus";
 import {androidKey} from "@/types/constants";
 
 const props = withDefaults(
-    defineProps<{ showDragHandle: boolean, handleTouch: boolean }>(),
+    defineProps<{ showDragHandle?: boolean, handleTouch?: boolean }>(),
     {showDragHandle: false, handleTouch: false}
 )
 
@@ -110,7 +110,7 @@ function dragStart() {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .between {
   display: flex;

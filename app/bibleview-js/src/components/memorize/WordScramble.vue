@@ -273,7 +273,7 @@ function resetWords() {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .memorize-text {
   transition: border-color 0.3s ease;

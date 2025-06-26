@@ -69,7 +69,7 @@
       <EditableText
           ref="editor"
           :show-placeholder="journalEntry.type === 'journal'"
-          :edit-directly="textEntry.new"
+          :edit-directly="textEntry.new ?? false"
           :text="journalText"
           @opened="$emit('edit-opened')"
           @save="journalTextChanged"
@@ -222,7 +222,8 @@ defineExpose({editor});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "sass:color";
+@use "@/common.scss" as *;
 
 .notes {
   text-indent: 2pt;

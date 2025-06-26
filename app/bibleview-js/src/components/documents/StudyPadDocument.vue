@@ -250,7 +250,7 @@ function studyPadOrdinal(journalEntry: StudyPadItem) {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 div.journal-name {
   padding-top: 10px;

@@ -144,7 +144,7 @@ function revealWord(textKey: string, wordIndex: number) {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .memorize-word {
   &.blurred {
