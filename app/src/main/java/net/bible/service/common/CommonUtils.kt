@@ -1106,7 +1106,7 @@ object CommonUtils : CommonUtilsBase() {
             if (ttsNotificationManager == null) {
                 ttsNotificationManager = TextToSpeechNotificationManager()
             }
-            if(!BuildVariant.Appearance.isDiscrete) {
+            if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
             initializeOnyx()
@@ -1159,7 +1159,7 @@ object CommonUtils : CommonUtilsBase() {
                 if (ttsNotificationManager == null) {
                     ttsNotificationManager = TextToSpeechNotificationManager()
                 }
-                if(!BuildVariant.Appearance.isDiscrete) {
+                if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
                     ttsWidgetManager = SpeakWidgetManager()
                 }
             }

@@ -1589,14 +1589,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateToolbar() {
         binding.apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                // For Android 15+: Only set left/right padding, top padding is handled in setupEdgeToEdge()
-                toolbarLayout.setPadding(leftOffset1, toolbarLayout.paddingTop, rightOffset1, toolbarLayout.paddingBottom)
-            } else {
-                // For older versions: Use the existing approach with left/right padding only
-                toolbarLayout.setPadding(leftOffset1, toolbarLayout.paddingTop, rightOffset1, toolbarLayout.paddingBottom)
-            }
-            
+            toolbarLayout.setPadding(leftOffset1, topOffset1, rightOffset1, 0)
             navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
             
