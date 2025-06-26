@@ -185,7 +185,7 @@ async function changeCustomIcon() {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .button-container {
   display: flex;

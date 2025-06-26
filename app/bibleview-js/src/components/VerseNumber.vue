@@ -33,7 +33,7 @@ const {sprintf, strings} = useCommon();
 </script>
 
 <style lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .verseNumber {
   @extend .superscript;

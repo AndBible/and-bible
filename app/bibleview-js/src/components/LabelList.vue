@@ -161,7 +161,7 @@ defineExpose({openActions});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .icon {
   font-size: 10px;

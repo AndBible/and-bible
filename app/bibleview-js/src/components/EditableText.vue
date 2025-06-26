@@ -107,8 +107,8 @@ defineExpose({editMode});
 </script>
 
 <style lang="scss" scoped>
-@import '~@/lib/pell/pell.scss';
-@import "~@/common.scss";
+@use "@/lib/pell/pell.scss";
+@use "@/common.scss" as *;
 
 .notes-display {
   //  width: 100%;

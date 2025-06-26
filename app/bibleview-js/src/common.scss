@@ -102,6 +102,16 @@ $button-grey: var(--modal-grey);
 .button {
   font-size: 90%;
   background-color: $button-grey;
+  border: none;
+  color: white;
+  padding: $button-padding;
+  border-radius: $button-border-radius;
+  margin: 2pt 2pt;
+  min-width: 120px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  
   &.toggled {
     background-color: #474747;
     &.light {
@@ -130,18 +140,9 @@ $button-grey: var(--modal-grey);
   &.right {
     align-self: end;
   }
-  border: none;
-  color: white;
-  padding: $button-padding;
-  border-radius: $button-border-radius;
-  margin: 2pt 2pt;
-  min-width: 120px;
   &.small {
     min-width: unset;
   }
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
 }
 
 .separator {

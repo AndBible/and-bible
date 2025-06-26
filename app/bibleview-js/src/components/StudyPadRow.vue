@@ -222,7 +222,8 @@ defineExpose({editor});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "sass:color";
+@use "@/common.scss" as *;
 
 .notes {
   text-indent: 2pt;

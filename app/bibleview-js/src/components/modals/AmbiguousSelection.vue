@@ -388,7 +388,7 @@ defineExpose({handle});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .buttons {
   @extend .visible-scrollbar;

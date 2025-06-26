@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 div.journal-name {
   padding-top: 10px;

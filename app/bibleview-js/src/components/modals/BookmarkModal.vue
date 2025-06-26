@@ -214,7 +214,7 @@ async function toggleInfo(event: MouseEvent | TouchEvent) {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .bookmark-title {
   padding-top: 2px;

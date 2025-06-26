@@ -91,7 +91,7 @@ function openLink(event: MouseEvent, url: string) {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 .highlight {
   @extend .isHighlighted;
   .monochrome & {
@@ -102,7 +102,7 @@ function openLink(event: MouseEvent, url: string) {
 </style>
 
 <style lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .reference {
   @extend .highlight-transition;

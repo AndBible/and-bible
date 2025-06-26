@@ -113,7 +113,7 @@ const {strings} = useCommon();
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .notes {
   text-indent: 2pt;

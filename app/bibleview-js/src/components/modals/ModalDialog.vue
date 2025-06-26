@@ -139,7 +139,7 @@ defineExpose({height});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 $border-radius: 8pt;
 $border-radius2: $border-radius - 1.5pt;

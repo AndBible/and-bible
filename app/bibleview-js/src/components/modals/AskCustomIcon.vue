@@ -57,7 +57,7 @@ defineExpose({ askCustomIcon });
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .icon-list {
   display: flex;
