@@ -27,8 +27,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
+import android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+import android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -62,6 +68,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     // some screens are highly customised and the theme looks odd if it changes
     open val allowThemeChange = true
+    open val runSetupEdgeToEdge = true
     open val integrateWithHistoryManager: Boolean = false
 
     protected lateinit var historyTraversal: HistoryTraversal
@@ -86,6 +93,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
 
         super.onCreate(savedInstanceState)
+        if (runSetupEdgeToEdge) {
+            setupEdgeToEdge()
+        }
 
         if(!doNotInitializeApp) {
             if(CommonUtils.showCalculator) {
@@ -110,6 +120,75 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         fixNightMode()
     }
 
+    protected open fun setupEdgeToEdge() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+        } else {
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+        }
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+        
+        setupWindowInsetsListener()
+        setupSystemBarAppearance()
+    }
+
+    protected open fun setupWindowInsetsListener() {
+        val rootView = findViewById<ViewGroup>(android.R.id.content)
+        rootView?.let { root ->
+            ViewCompat.setOnApplyWindowInsetsListener(root) { view, windowInsets ->
+                val systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                
+                // Apply default padding to prevent content overlap
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    // For Android 15+, apply system bar insets as padding to the root view
+                    view.setPadding(
+                        systemBars.left,
+                        systemBars.top,
+                        systemBars.right,
+                        systemBars.bottom
+                    )
+                }
+                
+                // Notify subclasses of inset changes
+                onSystemInsetsChanged(systemBars.top, systemBars.bottom, systemBars.left, systemBars.right)
+                
+                windowInsets
+            }
+        }
+    }
+
+    protected open fun onSystemInsetsChanged(top: Int, bottom: Int, left: Int, right: Int) {}
+
+    protected open fun setupSystemBarAppearance() {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {}
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+                // Fallback for Android 8.0-10
+                var uiFlags = window.decorView.systemUiVisibility
+                if (!ScreenSettings.nightMode) {
+                    uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                } else {
+                    uiFlags = uiFlags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+                }
+                window.decorView.systemUiVisibility = uiFlags
+            }
+            else -> {
+                // Android 6.0+ supports light status bar only
+                var uiFlags = window.decorView.systemUiVisibility
+                uiFlags = if (!ScreenSettings.nightMode) {
+                    uiFlags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                } else {
+                    uiFlags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                }
+                window.decorView.systemUiVisibility = uiFlags
+            }
+        }
+    }
+
     open fun fixNightMode() {
         // First launched activity is not having proper night mode if we are using manual mode.
         // This hack fixes it.
@@ -131,12 +210,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
         Log.i(TAG, "applyTheme: nightMode = ${ScreenSettings.nightMode}")
         AppCompatDelegate.setDefaultNightMode(newNightMode)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!ScreenSettings.nightMode) {
-                val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                window.decorView.systemUiVisibility = uiFlags
-            }
-        }
     }
 
     protected fun buildActivityComponent() = CommonUtils.buildActivityComponent()

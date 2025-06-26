@@ -233,7 +233,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
     override val integrateWithHistoryManager: Boolean = true
-
+    override val runSetupEdgeToEdge: Boolean = false
     /**
      * Called when the activity is first created.
      */
@@ -251,9 +251,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         empty = EmptyBinding.inflate(layoutInflater)
         frozenBinding = FrozenBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Set up edge-to-edge for Android 15 compatibility
-        setupEdgeToEdge()
 
         if(BuildVariant.Appearance.isDiscrete ||
             BuildVariant.DistributionChannel.isHuawei ||
@@ -398,41 +395,28 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowRepository.activeWindow.bibleView?.requestFocus()
             }
         })
+        setupEdgeToEdge()
     }
 
     /**
-     * Set up edge-to-edge display for Android 15 compatibility
+     * Override setupWindowInsetsListener to provide custom toolbar inset handling
      */
-    private fun setupEdgeToEdge() {
-        // Enable edge-to-edge display - set to false for Android 15+, true for older versions
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-        } else {
-            WindowCompat.setDecorFitsSystemWindows(window, true)
-        }
-        
-        // Handle display cutouts properly
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes.layoutInDisplayCutoutMode = 
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        }
-        
-        // Handle window insets to properly position UI elements
+    override fun setupWindowInsetsListener() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
             val systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 binding.toolbarLayout.layoutParams.height = systemBars.top + resources.getDimensionPixelSize(R.dimen.toolbar_height)
                 binding.toolbarLayout.setPadding(0, systemBars.top, 0, 0)
             }
-            updateSystemInsets(systemBars.top, systemBars.bottom, systemBars.left, systemBars.right)
+            onSystemInsetsChanged(systemBars.top, systemBars.bottom, systemBars.left, systemBars.right)
             windowInsets
         }
     }
     
     /**
-     * Update system inset values for layout calculations
+     * Override onSystemInsetsChanged to update MainBibleActivity-specific UI elements
      */
-    private fun updateSystemInsets(top: Int, bottom: Int, left: Int, right: Int) {
+    override fun onSystemInsetsChanged(top: Int, bottom: Int, left: Int, right: Int) {
         // Store these values for use in offset calculations
         topOffset1 = top
         bottomOffset1 = bottom
