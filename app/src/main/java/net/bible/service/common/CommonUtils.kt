@@ -1103,7 +1103,9 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
             buildActivityComponent().inject(this@CommonUtils)
-            ttsNotificationManager = TextToSpeechNotificationManager()
+            if (ttsNotificationManager == null) {
+                ttsNotificationManager = TextToSpeechNotificationManager()
+            }
             if(!BuildVariant.Appearance.isDiscrete) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
@@ -1154,7 +1156,9 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.instance
             withContext(Dispatchers.Main) {
                 buildActivityComponent().inject(this@CommonUtils)
-                ttsNotificationManager = TextToSpeechNotificationManager()
+                if (ttsNotificationManager == null) {
+                    ttsNotificationManager = TextToSpeechNotificationManager()
+                }
                 if(!BuildVariant.Appearance.isDiscrete) {
                     ttsWidgetManager = SpeakWidgetManager()
                 }
