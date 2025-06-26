@@ -407,8 +407,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * Set up edge-to-edge display for Android 15 compatibility
      */
     private fun setupEdgeToEdge() {
-        // Enable edge-to-edge display
-        WindowCompat.setDecorFitsSystemWindows(window, true)
+        // Enable edge-to-edge display - set to false for Android 15+, true for older versions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+        } else {
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+        }
         
         // Handle display cutouts properly
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -420,8 +424,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
             val systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             
-            // Always apply top inset to toolbar to avoid status bar overlap
-            //binding.toolbarLayout.setPadding(0, systemBars.top, 0, 0)
+            // For Android 15+, adjust toolbar position using margin instead of padding
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                val layoutParams = binding.toolbarLayout.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+                layoutParams.topMargin = systemBars.top
+                binding.toolbarLayout.layoutParams = layoutParams
+            }
             
             // Update our offset calculations for other UI elements
             updateSystemInsets(systemBars.top, systemBars.bottom, systemBars.left, systemBars.right)
@@ -1596,35 +1604,69 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateToolbar() {
         binding.apply {
-            // Set left/right padding for system bars, top padding is handled in setupEdgeToEdge()
-            toolbarLayout.setPadding(leftOffset1, toolbarLayout.paddingTop, rightOffset1, toolbarLayout.paddingBottom)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                // For Android 15+: Only set left/right padding, top padding is handled in setupEdgeToEdge()
+                toolbarLayout.setPadding(leftOffset1, toolbarLayout.paddingTop, rightOffset1, toolbarLayout.paddingBottom)
+            } else {
+                // For older versions: Use the existing approach with left/right padding only
+                toolbarLayout.setPadding(leftOffset1, toolbarLayout.paddingTop, rightOffset1, toolbarLayout.paddingBottom)
+            }
+            
             navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
             
             if(isFullScreen) {
                 hideSystemUI()
                 Log.i(TAG, "Fullscreen on")
-                toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
-                    .setInterpolator(AccelerateInterpolator())
-                    .withEndAction { toolbarLayout.visibility = View.GONE }
-                    .apply {
-                        if(CommonUtils.settings.disableAnimations) {
-                            duration = 0
-                        }
-                    }.start()
+                
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    // For Android 15+: Remove top margin when going fullscreen
+                    val layoutParams = toolbarLayout.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+                    layoutParams.topMargin = 0
+                    toolbarLayout.layoutParams = layoutParams
+                    toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
+                        .setInterpolator(AccelerateInterpolator())
+                        .withEndAction { toolbarLayout.visibility = View.GONE }
+                        .apply {
+                            if(CommonUtils.settings.disableAnimations) {
+                                duration = 0
+                            }
+                        }.start()
+                } else {
+                    // For older versions: Use the existing approach
+                    toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
+                        .setInterpolator(AccelerateInterpolator())
+                        .withEndAction { toolbarLayout.visibility = View.GONE }
+                        .apply {
+                            if(CommonUtils.settings.disableAnimations) {
+                                duration = 0
+                            }
+                        }.start()
+                }
             }
             else {
                 showSystemUI()
                 Log.i(TAG, "Fullscreen off")
-                toolbarLayout.translationY = -toolbarLayout.height.toFloat()
-                toolbarLayout.visibility = View.VISIBLE
-                toolbarLayout.animate().translationY(topOffset1.toFloat())
-                    .setInterpolator(DecelerateInterpolator())
-                    .apply {
-                        if(CommonUtils.settings.disableAnimations) {
-                            duration = 0
-                        }
-                    }.start()
+                
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    // For Android 15+: Restore top margin and show toolbar
+                    val layoutParams = toolbarLayout.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+                    layoutParams.topMargin = topOffset1
+                    toolbarLayout.layoutParams = layoutParams
+                    toolbarLayout.visibility = View.VISIBLE
+                    toolbarLayout.translationY = 0f
+                } else {
+                    // For older versions: Use translationY positioning
+                    toolbarLayout.translationY = -toolbarLayout.height.toFloat()
+                    toolbarLayout.visibility = View.VISIBLE
+                    toolbarLayout.animate().translationY(topOffset1.toFloat())
+                        .setInterpolator(DecelerateInterpolator())
+                        .apply {
+                            if(CommonUtils.settings.disableAnimations) {
+                                duration = 0
+                            }
+                        }.start()
+                }
                 updateActions()
             }
         }
