@@ -18,7 +18,7 @@
 import {defineConfig, UserConfig} from 'vite'
 import { readFileSync } from 'fs';
 import {config} from "./vite.config";
-import "vitest";
+import { defineConfig as defineVitestConfig } from 'vitest/config';
 
 
 function rawText() {
@@ -51,4 +51,4 @@ const testConfig: UserConfig = {
 
 testConfig.plugins!.push(rawText());
 
-export default defineConfig(testConfig)
+export default defineVitestConfig(testConfig)
