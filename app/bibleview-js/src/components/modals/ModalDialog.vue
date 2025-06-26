@@ -62,11 +62,11 @@ import {modalKey} from "@/types/constants";
 const emit = defineEmits(["close"]);
 const props = withDefaults(
     defineProps<{
-        blocking: boolean
-        wide: boolean
-        edit: boolean
-        locateTop: boolean
-        limit: boolean
+        blocking?: boolean
+        wide?: boolean
+        edit?: boolean
+        locateTop?: boolean
+        limit?: boolean
     }>(),
     {
         blocking: false,

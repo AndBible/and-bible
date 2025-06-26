@@ -48,14 +48,14 @@ import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
 
 const props = withDefaults(defineProps<{
     bookmarkId: IdType
-    handleTouch: boolean
-    disableLinks: boolean
-    favourites: boolean
-    frequent: boolean
-    recent: boolean
-    inBookmark: boolean
-    onlyAssign: boolean
-    singleLine: boolean
+    handleTouch?: boolean
+    disableLinks?: boolean
+    favourites?: boolean
+    frequent?: boolean
+    recent?: boolean
+    inBookmark?: boolean
+    onlyAssign?: boolean
+    singleLine?: boolean
 }>(), {
     handleTouch: false,
     disableLinks: false,

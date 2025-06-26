@@ -51,7 +51,7 @@ import {eventBus} from "@/eventbus";
 import {androidKey} from "@/types/constants";
 
 const props = withDefaults(
-    defineProps<{ showDragHandle: boolean, handleTouch: boolean }>(),
+    defineProps<{ showDragHandle?: boolean, handleTouch?: boolean }>(),
     {showDragHandle: false, handleTouch: false}
 )
 

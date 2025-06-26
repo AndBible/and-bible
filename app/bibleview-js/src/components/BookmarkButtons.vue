@@ -111,8 +111,8 @@ import {faIcons} from "@fortawesome/free-solid-svg-icons";
 
 const props = withDefaults(defineProps<{
     bookmark: BaseBookmark
-    showStudyPadButtons: boolean
-    inBookmarkModal: boolean
+    showStudyPadButtons?: boolean
+    inBookmarkModal?: boolean
 }>(), {
     showStudyPadButtons: false,
     inBookmarkModal: false

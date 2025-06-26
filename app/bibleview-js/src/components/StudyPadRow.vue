@@ -69,7 +69,7 @@
       <EditableText
           ref="editor"
           :show-placeholder="journalEntry.type === 'journal'"
-          :edit-directly="textEntry.new"
+          :edit-directly="textEntry.new ?? false"
           :text="journalText"
           @opened="$emit('edit-opened')"
           @save="journalTextChanged"
