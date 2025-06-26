@@ -62,6 +62,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -1381,11 +1382,41 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun fixAlertDialogButtons(dialog: AlertDialog) {
-        val container = dialog.findViewById<Button>(android.R.id.button1).parent
+        val positiveButton = dialog.findViewById<Button>(android.R.id.button1)
+        val negativeButton = dialog.findViewById<Button>(android.R.id.button2)
+        val neutralButton = dialog.findViewById<Button>(android.R.id.button3)
+        
+        val container = positiveButton?.parent
         if(container is FrameLayout) {
-            container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, 2)
+            container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
+        } else if(container is LinearLayout) {
+            // For LinearLayout (older Android versions), ensure proper orientation and layout
+            container.orientation = LinearLayout.HORIZONTAL
+            val layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
+            layoutParams.setMargins(convertDipsToPx(4), 0, convertDipsToPx(4), 0)
+            
+            // Apply equal weight to all visible buttons for even distribution
+            positiveButton.layoutParams = layoutParams
+            negativeButton?.layoutParams = layoutParams
+            neutralButton?.layoutParams = layoutParams
         }
-        // Some older devices Androids have LinearLayout. But they don't need this hack anyway.
+        
+        // Ensure buttons have appropriate text size and padding to prevent overflow
+        listOfNotNull(positiveButton, negativeButton, neutralButton).forEach { button ->
+            button.setPadding(convertDipsToPx(8), convertDipsToPx(4), convertDipsToPx(8), convertDipsToPx(4))
+            button.minHeight = convertDipsToPx(36)
+            
+            // Ensure proper text alignment and baseline alignment
+            button.gravity = Gravity.CENTER
+            button.includeFontPadding = false
+            button.setSingleLine(false)
+            button.maxLines = 2
+            
+            // Reduce text size slightly if there are 3 buttons to ensure they fit
+            if (listOfNotNull(positiveButton, negativeButton, neutralButton).size >= 3) {
+                button.textSize = 14f
+            }
+        }
     }
 
     suspend fun checkPoorTranslations(activity: ActivityBase): Boolean {
