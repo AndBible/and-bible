@@ -294,6 +294,7 @@ android {
         resources.excludes.add("META-INF/LICENSE.txt")
         resources.excludes.add("META-INF/NOTICE.txt")
         resources.excludes.add("META-INF/DEPENDENCIES")
+        resources.excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
     }
 
     buildFeatures {
@@ -422,7 +423,7 @@ dependencies {
     implementation("jaxen:jaxen:2.0.0")
 
     // Next cloud related dependencies
-    implementation("com.github.nextcloud:android-library:2.19.1") {
+    implementation("com.github.nextcloud:android-library:2.20.0") {
         exclude(group = "org.ogce", module = "xpp3") // unused in Android and brings wrong Junit version
     }
     implementation("commons-httpclient:commons-httpclient:3.1@jar")  // Make sure this is same version as in NextCloud lib
