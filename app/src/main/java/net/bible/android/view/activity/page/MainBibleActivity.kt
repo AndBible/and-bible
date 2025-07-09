@@ -201,6 +201,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var hasHwKeys: Boolean = false
 
     private var transportBarVisible = false
+        get() = if (isFullScreen) false else field
         set(value) {
             binding.speakButton.alpha = if(value) 0.7F else 1.0F
             field = value
