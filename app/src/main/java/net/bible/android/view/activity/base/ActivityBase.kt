@@ -22,14 +22,13 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import androidx.core.graphics.Insets
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-import android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.ViewCompat
@@ -140,28 +139,28 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         val rootView = findViewById<ViewGroup>(android.R.id.content)
         rootView?.let { root ->
             ViewCompat.setOnApplyWindowInsetsListener(root) { view, windowInsets ->
-                val systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 
                 // Apply default padding to prevent content overlap
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     // For Android 15+, apply system bar insets as padding to the root view
                     view.setPadding(
-                        systemBars.left,
-                        systemBars.top,
-                        systemBars.right,
-                        systemBars.bottom
+                        insets.left,
+                        insets.top,
+                        insets.right,
+                        insets.bottom
                     )
                 }
                 
                 // Notify subclasses of inset changes
-                onSystemInsetsChanged(systemBars.top, systemBars.bottom, systemBars.left, systemBars.right)
-                
+                onSystemInsetsChanged(insets);
+
                 windowInsets
             }
         }
     }
 
-    protected open fun onSystemInsetsChanged(top: Int, bottom: Int, left: Int, right: Int) {}
+    protected open fun onSystemInsetsChanged(insets: Insets) {}
 
     protected open fun setupSystemBarAppearance() {
         when {

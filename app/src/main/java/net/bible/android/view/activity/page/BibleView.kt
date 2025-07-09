@@ -1659,6 +1659,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) = updateOffsets()
 
+    fun onEvent(event: MainBibleActivity.SystemInsetsChangedEvent) = updateOffsets()
+
     fun onEvent(event: RestoreButtonsVisibilityChanged) = updateOffsets()
 
     fun onEvent(event: SpeakTransportVisibilityChanged) = updateOffsets(true)

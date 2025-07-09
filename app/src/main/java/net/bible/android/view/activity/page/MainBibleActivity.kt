@@ -25,6 +25,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
+import androidx.core.graphics.Insets
 import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.Network
@@ -62,7 +63,6 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
@@ -217,6 +217,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Top offset with only statusbar and toolbar
     val topOffset2 = 0
 
+    private var systemInsets: Insets = Insets.NONE
     // Offsets with system insets only - will be updated by setupEdgeToEdge()
     private var topOffset1 = 0
     private var bottomOffset1 = 0
@@ -403,29 +404,33 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     override fun setupWindowInsetsListener() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
-            val systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                binding.toolbarLayout.layoutParams.height = systemBars.top + resources.getDimensionPixelSize(R.dimen.toolbar_height)
-                binding.toolbarLayout.setPadding(0, systemBars.top, 0, 0)
+                binding.toolbarLayout.layoutParams.height = insets.top + resources.getDimensionPixelSize(R.dimen.toolbar_height)
+                binding.toolbarLayout.setPadding(0, insets.top, 0, 0)
             }
-            onSystemInsetsChanged(systemBars.top, systemBars.bottom, systemBars.left, systemBars.right)
+            onSystemInsetsChanged(insets)
             windowInsets
         }
     }
-    
+
+    class SystemInsetsChangedEvent(val insets: Insets)
     /**
      * Override onSystemInsetsChanged to update MainBibleActivity-specific UI elements
      */
-    override fun onSystemInsetsChanged(top: Int, bottom: Int, left: Int, right: Int) {
+    override fun onSystemInsetsChanged(insets: Insets) {
+        systemInsets = insets
+
         // Store these values for use in offset calculations
-        topOffset1 = top
-        bottomOffset1 = bottom
-        leftOffset1 = left
-        rightOffset1 = right
+        topOffset1 = insets.top
+        bottomOffset1 = insets.bottom
+        leftOffset1 = insets.left
+        rightOffset1 = insets.right
         
         // Trigger any layout updates that depend on these offsets
         updateBottomBars()
         updateToolbar()
+        ABEventBus.post(SystemInsetsChangedEvent(insets))
     }
 
     private fun resolveVariables() {
@@ -1273,14 +1278,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Use modern WindowInsetsController for Android 11+
             window.decorView.windowInsetsController?.apply {
                 hide(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
                 systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
         } else {
-            // Fallback for older versions, but avoid deprecated flags that conflict with edge-to-edge
-            @Suppress("DEPRECATION")
             var uiFlags = (
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -1299,7 +1301,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun showSystemUI(setNavBarColor: Boolean=true) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Use modern WindowInsetsController for Android 11+
             window.decorView.windowInsetsController?.apply {
                 show(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
                 if (!ScreenSettings.nightMode) {
@@ -1310,8 +1311,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
             }
         } else {
-            // Fallback for older versions
-            @Suppress("DEPRECATION")
             var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!ScreenSettings.nightMode) {
