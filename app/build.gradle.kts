@@ -142,7 +142,7 @@ tasks.named("preBuild").configure { dependsOn(buildLoaderJs) }
 tasks.named("check").configure { dependsOn(jsTests) }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
