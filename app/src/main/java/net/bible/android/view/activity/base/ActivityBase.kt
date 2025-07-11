@@ -163,7 +163,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     protected open fun onSystemInsetsChanged(insets: Insets) {}
 
     protected open fun setupSystemBarAppearance() {
-        return
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {}
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
