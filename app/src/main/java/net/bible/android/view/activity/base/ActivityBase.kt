@@ -163,20 +163,19 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     protected open fun onSystemInsetsChanged(insets: Insets) {}
 
     protected open fun setupSystemBarAppearance() {
+        return
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {}
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
-                // Fallback for Android 8.0-10
                 var uiFlags = window.decorView.systemUiVisibility
-                if (!ScreenSettings.nightMode) {
-                    uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                uiFlags = if (!ScreenSettings.nightMode) {
+                    uiFlags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
                 } else {
-                    uiFlags = uiFlags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+                    uiFlags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
                 }
                 window.decorView.systemUiVisibility = uiFlags
             }
             else -> {
-                // Android 6.0+ supports light status bar only
                 var uiFlags = window.decorView.systemUiVisibility
                 uiFlags = if (!ScreenSettings.nightMode) {
                     uiFlags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
