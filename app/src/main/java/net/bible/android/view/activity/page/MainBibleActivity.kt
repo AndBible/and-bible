@@ -928,7 +928,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(itemOptions is SubMenuPreference)
             return
         if(itemOptions.isBoolean) {
-            itemOptions.value = !(itemOptions.value == true)
+            itemOptions.value = itemOptions.value != true
             itemOptions.handle()
             item.isChecked = itemOptions.value == true
             if(itemOptions is Preference) {
@@ -1300,6 +1300,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    private val toolbarColor get() =
+        if (ScreenSettings.nightMode)
+            resources.getColor(R.color.actionbar_background_night, theme)
+        else if (CommonUtils.settings.monochromeMode) {
+            Color.BLACK
+        } else {
+            workspaceSettings.workspaceColor ?: defaultWorkspaceColor
+        }
+
     private fun showSystemUI(setNavBarColor: Boolean=true) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.decorView.windowInsetsController?.apply {
@@ -1321,18 +1330,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             window.decorView.systemUiVisibility = uiFlags
         }
         
-        val monochromeMode = CommonUtils.settings.monochromeMode
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(windowRepository.visibleWindows.isNotEmpty()) {
                 val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings).colors!!
-
-                val toolbarColor = if (ScreenSettings.nightMode)
-                    resources.getColor(R.color.actionbar_background_night, theme)
-                else if (monochromeMode) {
-                    Color.BLACK
-                } else {
-                    workspaceSettings.workspaceColor ?: defaultWorkspaceColor
-                }
 
                 binding.run {
                     toolbarLayout.setBackgroundColor(toolbarColor)
@@ -1347,7 +1347,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     binding.homeButton.drawable.setTint(workspaceSettings.workspaceColor ?: defaultWorkspaceColor)
                 }
 
-                val color = if (setNavBarColor && !monochromeMode) {
+                val color = if (setNavBarColor && !CommonUtils.settings.monochromeMode) {
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
                     color ?: UiUtils.bibleViewDefaultBackgroundColor
                 } else {
