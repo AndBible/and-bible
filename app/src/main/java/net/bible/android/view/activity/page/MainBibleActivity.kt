@@ -235,7 +235,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
     override val integrateWithHistoryManager: Boolean = true
-    override val runSetupEdgeToEdge: Boolean = false
+    override val normalEdgeToEdgeConfiguration: Boolean = false
     /**
      * Called when the activity is first created.
      */
@@ -397,37 +397,28 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowRepository.activeWindow.bibleView?.requestFocus()
             }
         })
-        setupEdgeToEdge()
-    }
 
-    /**
-     * Override setupWindowInsetsListener to provide custom toolbar inset handling
-     */
-    override fun setupWindowInsetsListener() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
-            onSystemInsetsChanged(windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()))
-            windowInsets
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                systemInsets = insets
+
+                // Store these values for use in offset calculations
+                topOffset1 = insets.top
+                bottomOffset1 = insets.bottom
+                leftOffset1 = insets.left
+                rightOffset1 = insets.right
+
+                // Trigger any layout updates that depend on these offsets
+                updateBottomBars()
+                updateToolbar()
+                ABEventBus.post(SystemInsetsChangedEvent(insets))
+                windowInsets
+            }
         }
     }
 
     class SystemInsetsChangedEvent(val insets: Insets)
-    /**
-     * Override onSystemInsetsChanged to update MainBibleActivity-specific UI elements
-     */
-    override fun onSystemInsetsChanged(insets: Insets) {
-        systemInsets = insets
-
-        // Store these values for use in offset calculations
-        topOffset1 = insets.top
-        bottomOffset1 = insets.bottom
-        leftOffset1 = insets.left
-        rightOffset1 = insets.right
-        
-        // Trigger any layout updates that depend on these offsets
-        updateBottomBars()
-        updateToolbar()
-        ABEventBus.post(SystemInsetsChangedEvent(insets))
-    }
 
     private fun resolveVariables() {
         // Mainly for old devices (older than API 21)
