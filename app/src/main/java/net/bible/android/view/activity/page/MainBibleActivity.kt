@@ -25,6 +25,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
+import androidx.core.graphics.Insets
 import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.Network
@@ -61,6 +62,8 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -198,6 +201,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var hasHwKeys: Boolean = false
 
     private var transportBarVisible = false
+        get() = if (isFullScreen) false else field
         set(value) {
             binding.speakButton.alpha = if(value) 0.7F else 1.0F
             field = value
@@ -214,14 +218,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Top offset with only statusbar and toolbar
     val topOffset2 = 0
 
-    // Top offset with only statusbar and toolbar taken into account always
-    val topOffsetWithActionBar get() = topOffset1 + actionBarHeight
-
-    // Offsets with system insets only
-    private val topOffset1 = 0
-    private val bottomOffset1 = 0
-    val rightOffset1 = 0
-    val leftOffset1 = 0
+    private var systemInsets: Insets = Insets.NONE
+    // Offsets with system insets only - will be updated by setupEdgeToEdge()
+    private var topOffset1 = 0
+    private var bottomOffset1 = 0
+    var rightOffset1 = 0
+    var leftOffset1 = 0
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
@@ -233,7 +235,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
     override val integrateWithHistoryManager: Boolean = true
-
+    override val disableBaseSetupUi: Boolean = true
     /**
      * Called when the activity is first created.
      */
@@ -395,7 +397,28 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowRepository.activeWindow.bibleView?.requestFocus()
             }
         })
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                systemInsets = insets
+
+                // Store these values for use in offset calculations
+                topOffset1 = insets.top
+                bottomOffset1 = insets.bottom
+                leftOffset1 = insets.left
+                rightOffset1 = insets.right
+
+                // Trigger any layout updates that depend on these offsets
+                updateBottomBars()
+                updateToolbar()
+                ABEventBus.post(SystemInsetsChangedEvent(insets))
+                windowInsets
+            }
+        }
     }
+
+    class SystemInsetsChangedEvent(val insets: Insets)
 
     private fun resolveVariables() {
         // Mainly for old devices (older than API 21)
@@ -891,7 +914,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(itemOptions is SubMenuPreference)
             return
         if(itemOptions.isBoolean) {
-            itemOptions.value = !(itemOptions.value == true)
+            itemOptions.value = itemOptions.value != true
             itemOptions.handle()
             item.isChecked = itemOptions.value == true
             if(itemOptions is Preference) {
@@ -1241,43 +1264,64 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val sharedActivityState = SharedActivityState.instance
 
     private fun hideSystemUI() {
-        var uiFlags = (
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.decorView.windowInsetsController?.apply {
+                hide(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
+                systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            var uiFlags = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
             )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!ScreenSettings.nightMode) {
-                uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!ScreenSettings.nightMode) {
+                    uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                }
             }
-        }
 
-        window.decorView.systemUiVisibility = uiFlags
+            window.decorView.systemUiVisibility = uiFlags
+        }
     }
 
+    private val toolbarColor get() =
+        if (ScreenSettings.nightMode)
+            resources.getColor(R.color.actionbar_background_night, theme)
+        else if (CommonUtils.settings.monochromeMode) {
+            Color.BLACK
+        } else {
+            workspaceSettings.workspaceColor ?: defaultWorkspaceColor
+        }
+
     private fun showSystemUI(setNavBarColor: Boolean=true) {
-        val monochromeMode = CommonUtils.settings.monochromeMode
-        var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!ScreenSettings.nightMode) {
-                uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.decorView.windowInsetsController?.apply {
+                show(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
+                if (!ScreenSettings.nightMode) {
+                    setSystemBarsAppearance(
+                        android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                        android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    )
+                }
             }
+        } else {
+            var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!ScreenSettings.nightMode) {
+                    uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                }
+            }
+            window.decorView.systemUiVisibility = uiFlags
+        }
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(windowRepository.visibleWindows.isNotEmpty()) {
                 val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings).colors!!
 
-                val toolbarColor = if (ScreenSettings.nightMode)
-                    resources.getColor(R.color.actionbar_background_night, theme)
-                else if (monochromeMode) {
-                    Color.BLACK
-                } else {
-                    workspaceSettings.workspaceColor ?: defaultWorkspaceColor
-                }
-
                 binding.run {
+                    toolbarLayout.setBackgroundColor(toolbarColor)
                     homeButton.setBackgroundColor(toolbarColor)
                     pageTitle.setBackgroundColor(toolbarColor)
                     syncIcon.setBackgroundColor(toolbarColor)
@@ -1289,7 +1333,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     binding.homeButton.drawable.setTint(workspaceSettings.workspaceColor ?: defaultWorkspaceColor)
                 }
 
-                val color = if (setNavBarColor && !monochromeMode) {
+                val color = if (setNavBarColor && !CommonUtils.settings.monochromeMode) {
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
                     color ?: UiUtils.bibleViewDefaultBackgroundColor
                 } else {
@@ -1298,18 +1342,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     typedValue.data
                 }
 
-                // Set the status bar to the same color
+                // For Android 15, be more careful with status bar and navigation bar colors
+                // as some of these may be deprecated or ignored in edge-to-edge mode
                 window.run {
                     clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
                     addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                    statusBarColor = toolbarColor
-                    navigationBarColor = color
+                    
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                        statusBarColor = toolbarColor
+                        navigationBarColor = color
+                    }
                 }
 
                 binding.speakTransport.setBackgroundColor(color)
             }
         }
-        window.decorView.systemUiVisibility = uiFlags
     }
 
     private fun updateBottomBars() {
@@ -1512,12 +1559,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateToolbar() {
         binding.apply {
-            toolbarLayout.setPadding(leftOffset1, 0, rightOffset1, 0)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                binding.toolbarLayout.layoutParams.height = systemInsets.top + resources.getDimensionPixelSize(R.dimen.toolbar_height)
+                binding.toolbarLayout.setPadding(0, systemInsets.top, 0, 0)
+            }
+            toolbarLayout.setPadding(leftOffset1, topOffset1, rightOffset1, 0)
             navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
+            
             if(isFullScreen) {
                 hideSystemUI()
                 Log.i(TAG, "Fullscreen on")
+
+                toolbarLayout.translationY = 0f
                 toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
                     .setInterpolator(AccelerateInterpolator())
                     .withEndAction { toolbarLayout.visibility = View.GONE }
@@ -1530,9 +1584,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             else {
                 showSystemUI()
                 Log.i(TAG, "Fullscreen off")
+                // For older versions: Use translationY positioning
                 toolbarLayout.translationY = -toolbarLayout.height.toFloat()
                 toolbarLayout.visibility = View.VISIBLE
-                toolbarLayout.animate().translationY(topOffset1.toFloat())
+                toolbarLayout.animate().translationY(0f)
                     .setInterpolator(DecelerateInterpolator())
                     .apply {
                         if(CommonUtils.settings.disableAnimations) {
@@ -1568,7 +1623,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return super.onKeyUp(keyCode, event)
     }
 
-    class MainBibleAfterRestore()
+    class MainBibleAfterRestore
 
     fun onEventMainThread(e: MainBibleAfterRestore) {
         bookmarkControl.reset()

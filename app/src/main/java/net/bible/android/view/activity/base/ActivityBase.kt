@@ -27,8 +27,13 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -62,6 +67,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     // some screens are highly customised and the theme looks odd if it changes
     open val allowThemeChange = true
+    open val disableBaseSetupUi = false
     open val integrateWithHistoryManager: Boolean = false
 
     protected lateinit var historyTraversal: HistoryTraversal
@@ -86,6 +92,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
 
         super.onCreate(savedInstanceState)
+        if (!disableBaseSetupUi) {
+            setupUi()
+        }
 
         if(!doNotInitializeApp) {
             if(CommonUtils.showCalculator) {
@@ -110,6 +119,45 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         fixNightMode()
     }
 
+    private fun setupUi() {
+        enableEdgeToEdge()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+        } else {
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+        }
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            val rootView = findViewById<ViewGroup>(android.R.id.content)
+            rootView?.let { root ->
+                ViewCompat.setOnApplyWindowInsetsListener(root) { view, windowInsets ->
+                    val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                    // Apply default padding to prevent content overlap
+                    // For Android 15+, apply system bar insets as padding to the root view
+                    view.setPadding(
+                        insets.left,
+                        insets.top,
+                        insets.right,
+                        insets.bottom
+                    )
+                    windowInsets
+                }
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!ScreenSettings.nightMode) {
+                val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                window.decorView.systemUiVisibility = uiFlags
+            }
+        }
+    }
+
     open fun fixNightMode() {
         // First launched activity is not having proper night mode if we are using manual mode.
         // This hack fixes it.
@@ -131,12 +179,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
         Log.i(TAG, "applyTheme: nightMode = ${ScreenSettings.nightMode}")
         AppCompatDelegate.setDefaultNightMode(newNightMode)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!ScreenSettings.nightMode) {
-                val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                window.decorView.systemUiVisibility = uiFlags
-            }
-        }
     }
 
     protected fun buildActivityComponent() = CommonUtils.buildActivityComponent()

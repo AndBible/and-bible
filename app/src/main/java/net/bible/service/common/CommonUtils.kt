@@ -1103,8 +1103,10 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
             buildActivityComponent().inject(this@CommonUtils)
-            ttsNotificationManager = TextToSpeechNotificationManager()
-            if(!BuildVariant.Appearance.isDiscrete) {
+            if (ttsNotificationManager == null) {
+                ttsNotificationManager = TextToSpeechNotificationManager()
+            }
+            if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
             initializeOnyx()
@@ -1154,8 +1156,10 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.instance
             withContext(Dispatchers.Main) {
                 buildActivityComponent().inject(this@CommonUtils)
-                ttsNotificationManager = TextToSpeechNotificationManager()
-                if(!BuildVariant.Appearance.isDiscrete) {
+                if (ttsNotificationManager == null) {
+                    ttsNotificationManager = TextToSpeechNotificationManager()
+                }
+                if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
                     ttsWidgetManager = SpeakWidgetManager()
                 }
             }

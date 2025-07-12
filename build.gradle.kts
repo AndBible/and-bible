@@ -18,21 +18,21 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 plugins {
-    id("com.google.devtools.ksp") version "2.0.0-1.0.21" apply false
+    id("com.google.devtools.ksp") version "2.2.0-2.0.2" apply false
 }
 
 buildscript {
-    val kotlinVersion by extra("2.0.0")
-    val coroutinesVersion by extra("1.8.1")
-    val roomVersion by extra("2.6.1")
+    val kotlinVersion by extra("2.2.0")
+    val coroutinesVersion by extra("1.10.2")
+    val roomVersion by extra("2.7.2")
     val jdomVersion by extra("2.0.6.1") // make sure this is same version as in jsword!
     val commonsTextVersion by extra("1.9") // 1.10.0 crashes on Android 5.1
-    val kotlinxSerializationVersion by extra("1.6.3")
+    val kotlinxSerializationVersion by extra("1.8.1")
     val sourceCompatibilityVersion by extra(JavaVersion.VERSION_17)
     val targetCompatibilityVersion by extra(JavaVersion.VERSION_17)
     val jvmTargetVersion by extra("17")
     val jvmToolChainVersion by extra(17)
-    val coreKtxVersion by extra("1.13.1")
+    val coreKtxVersion by extra("1.16.0")
     val sqliteAndroidVersion by extra("3.45.0")
     val jswordVersion by extra("2.4.26")
 
@@ -42,7 +42,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.10.1")
+        classpath("com.android.tools.build:gradle:8.11.1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
 

@@ -20,11 +20,8 @@ package net.bible.android.view.activity.base
 import android.content.res.Configuration
 import android.view.Menu
 
-import net.bible.android.control.page.PageControl
 import net.bible.android.view.activity.base.actionbar.ActionBarManager
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager
-
-import javax.inject.Inject
 
 const val NO_OPTIONS_MENU = 0
 
