@@ -31,7 +31,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -47,7 +46,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.bible.android.activity.R
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.comingFromStartupActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
