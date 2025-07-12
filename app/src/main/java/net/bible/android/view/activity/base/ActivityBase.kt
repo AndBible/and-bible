@@ -142,9 +142,8 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         rootView?.let { root ->
             ViewCompat.setOnApplyWindowInsetsListener(root) { view, windowInsets ->
                 val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                
-                // Apply default padding to prevent content overlap
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    // Apply default padding to prevent content overlap
                     // For Android 15+, apply system bar insets as padding to the root view
                     view.setPadding(
                         insets.left,
@@ -153,10 +152,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
                         insets.bottom
                     )
                 }
-                
-                // Notify subclasses of inset changes
                 onSystemInsetsChanged(insets);
-
                 windowInsets
             }
         }
