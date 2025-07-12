@@ -67,7 +67,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     // some screens are highly customised and the theme looks odd if it changes
     open val allowThemeChange = true
-    open val normalEdgeToEdgeConfiguration = true
+    open val disableBaseSetupUi = false
     open val integrateWithHistoryManager: Boolean = false
 
     protected lateinit var historyTraversal: HistoryTraversal
@@ -92,8 +92,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
 
         super.onCreate(savedInstanceState)
-        if (normalEdgeToEdgeConfiguration) {
-            enableEdgeToEdge()
+        if (!disableBaseSetupUi) {
             setupUi()
         }
 
@@ -121,6 +120,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     private fun setupUi() {
+        enableEdgeToEdge()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             WindowCompat.setDecorFitsSystemWindows(window, false)
         } else {

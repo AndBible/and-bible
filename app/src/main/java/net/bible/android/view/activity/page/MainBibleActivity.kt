@@ -235,7 +235,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
     override val integrateWithHistoryManager: Boolean = true
-    override val normalEdgeToEdgeConfiguration: Boolean = false
+    override val disableBaseSetupUi: Boolean = true
     /**
      * Called when the activity is first created.
      */
