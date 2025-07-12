@@ -100,7 +100,7 @@ val npmInstall by tasks.registering(Exec::class) {
 val jsBuild by tasks.registering(Exec::class) {
     dependsOn(npmInstall)
     inputs.file("$jsDir/package.json")
-    inputs.file("$jsDir/vite.config.ts")
+    inputs.file("$jsDir/vite.config.mts")
     inputs.file("$jsDir/index.html")
     inputs.file("$jsDir/tsconfig.json")
     inputs.dir("$jsDir/src")

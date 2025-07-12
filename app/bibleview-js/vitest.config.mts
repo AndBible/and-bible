@@ -16,7 +16,7 @@
  */
 
 import { readFileSync } from 'fs';
-import {config} from "./vite.config";
+import {config} from "./vite.config.mts";
 import { defineConfig as defineVitestConfig } from 'vitest/config';
 
 
