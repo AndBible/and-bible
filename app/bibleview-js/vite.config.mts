@@ -19,8 +19,10 @@ import { fileURLToPath, URL } from 'node:url'
 import {defineConfig, UserConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { load } from "js-yaml";
-import toSource from "tosource";
+import _toSource from "tosource";
 import {resolve} from "path";
+
+const toSource = _toSource as unknown as (obj: any) => string;
 
 // https://vitejs.dev/config/
 
