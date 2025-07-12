@@ -405,12 +405,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     override fun setupWindowInsetsListener() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                binding.toolbarLayout.layoutParams.height = insets.top + resources.getDimensionPixelSize(R.dimen.toolbar_height)
-                binding.toolbarLayout.setPadding(0, insets.top, 0, 0)
-            }
-            onSystemInsetsChanged(insets)
+            onSystemInsetsChanged(windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()))
             windowInsets
         }
     }
@@ -1573,6 +1568,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateToolbar() {
         binding.apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                binding.toolbarLayout.layoutParams.height = systemInsets.top + resources.getDimensionPixelSize(R.dimen.toolbar_height)
+                binding.toolbarLayout.setPadding(0, systemInsets.top, 0, 0)
+            }
             toolbarLayout.setPadding(leftOffset1, topOffset1, rightOffset1, 0)
             navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
