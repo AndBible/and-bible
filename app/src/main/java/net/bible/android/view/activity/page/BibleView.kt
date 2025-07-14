@@ -43,6 +43,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.webkit.ConsoleMessage
 import android.webkit.JsResult
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -112,6 +113,7 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
+import net.bible.android.view.activity.page.screen.BibleFrame
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
@@ -1126,6 +1128,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
             assetLoader.shouldInterceptRequest(request.url)
+
+        override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+            Log.i(TAG, "onRenderProcessGone")
+            val bf = view.parent as BibleFrame
+            bf.recreate()
+            return true
+        }
     }
 
     private var contextMenuInfo: BibleViewContextMenuInfo? = null

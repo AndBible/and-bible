@@ -140,8 +140,19 @@ class BibleFrame(
         setBackgroundColor(bibleView.backgroundColor)
 
         addView(bibleView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-        mainBibleActivity.registerForContextMenu(bibleView as View)
+        mainBibleActivity.registerForContextMenu(bibleView)
         addWindowButton()
+    }
+
+    fun recreate() {
+        val bv = bibleView
+        removeView(bv)
+        bv.doDestroy()
+        bibleView = bibleViewFactory.getOrCreateBibleView(window)
+        bibleView.updateBackgroundColor()
+        addView(bibleView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        mainBibleActivity.registerForContextMenu(bibleView)
+        window.loadText()
     }
 
     private fun addWindowButton() {

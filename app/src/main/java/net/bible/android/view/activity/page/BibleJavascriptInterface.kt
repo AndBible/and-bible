@@ -636,5 +636,11 @@ class BibleJavascriptInterface(
         }
     }
 
+    @JavascriptInterface
+    fun crash() {
+        scope.launch {
+            mainBibleActivity.bibleViewFactory.crashAll()
+        }
+    }
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.displayId}] JSInt"
 }
