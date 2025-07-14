@@ -1570,30 +1570,35 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if(isFullScreen) {
                 hideSystemUI()
                 Log.i(TAG, "Fullscreen on")
+                toolbarLayout.visibility = View.GONE
 
-                toolbarLayout.translationY = 0f
-                toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
-                    .setInterpolator(AccelerateInterpolator())
-                    .withEndAction { toolbarLayout.visibility = View.GONE }
-                    .apply {
-                        if(CommonUtils.settings.disableAnimations) {
-                            duration = 0
-                        }
-                    }.start()
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    toolbarLayout.translationY = 0f
+                    toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
+                        .setInterpolator(AccelerateInterpolator())
+                        .withEndAction { toolbarLayout.visibility = View.GONE }
+                        .apply {
+                            if (CommonUtils.settings.disableAnimations) {
+                                duration = 0
+                            }
+                        }.start()
+                }
             }
             else {
                 showSystemUI()
                 Log.i(TAG, "Fullscreen off")
-                // For older versions: Use translationY positioning
-                toolbarLayout.translationY = -toolbarLayout.height.toFloat()
+
                 toolbarLayout.visibility = View.VISIBLE
-                toolbarLayout.animate().translationY(0f)
-                    .setInterpolator(DecelerateInterpolator())
-                    .apply {
-                        if(CommonUtils.settings.disableAnimations) {
-                            duration = 0
-                        }
-                    }.start()
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    toolbarLayout.translationY = -toolbarLayout.height.toFloat()
+                    toolbarLayout.animate().translationY(0f)
+                        .setInterpolator(DecelerateInterpolator())
+                        .apply {
+                            if (CommonUtils.settings.disableAnimations) {
+                                duration = 0
+                            }
+                        }.start()
+                }
                 updateActions()
             }
         }
