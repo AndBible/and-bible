@@ -30,4 +30,12 @@
 		  android:title="@string/sort_by_date"
 		  android:icon="@drawable/ic_baseline_sort_24"
 		  appcompat:showAsAction="always"/>
+	<item android:id="@+id/exportCsv"
+		  android:title="@string/export_csv"
+		  android:icon="@drawable/ic_save_24dp"
+		  appcompat:showAsAction="never"/>
+	<item android:id="@+id/importCsv"
+		  android:title="@string/import_csv"
+		  android:icon="@drawable/ic_file_download_24dp"
+		  appcompat:showAsAction="never"/>
 </menu>
