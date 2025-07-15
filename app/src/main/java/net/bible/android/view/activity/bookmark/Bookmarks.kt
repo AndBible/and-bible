@@ -423,8 +423,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     private fun exportBookmarksToCSV() = lifecycleScope.launch(Dispatchers.Main) {
         try {
-            val allBookmarks = bookmarkControl.allBibleBookmarks
-            if (allBookmarks.isEmpty()) {
+            val exportBookmarks = bookmarkList.filterIsInstance<BookmarkEntities.BibleBookmarkWithNotes>()
+            if (exportBookmarks.isEmpty()) {
                 Toast.makeText(this@Bookmarks, getString(R.string.no_bookmarks_to_export), Toast.LENGTH_SHORT).show()
                 return@launch
             }
@@ -438,7 +438,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
             val result = awaitIntent(intent)
             if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { exportToUri(it, allBookmarks) }
+                result.data?.data?.let { exportToUri(it, exportBookmarks) }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error starting CSV export", e)
