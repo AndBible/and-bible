@@ -341,6 +341,12 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString())
         }
 
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.importCsv).title = getString(R.string.import_items, "CSV")
+        menu.findItem(R.id.exportCsv).title = getString(R.string.export_something, "CSV")
+        return super.onPrepareOptionsMenu(menu)
+    }
     /**
      * on Click handlers
      */

@@ -794,7 +794,7 @@ open class BookmarkControl @Inject constructor(
                                 if (result.errorMessages.size > 5) "\n..." else ""
 
                         AlertDialog.Builder(context)
-                            .setTitle(getString(R.string.import_csv))
+                            .setTitle(getString(R.string.import_items, "CSV"))
                             .setMessage(message)
                             .setPositiveButton(R.string.okay, null)
                             .show()

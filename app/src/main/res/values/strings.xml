@@ -1048,10 +1048,6 @@
     <string name="label_underline">Underline</string>
     <string name="import_menu">Import &amp; Export</string>
     <string name="export">Export</string>
-    <string name="export_csv">Export CSV</string>
-    <string name="import_csv">Import CSV</string>
-    <string name="export_bookmarks_csv">Export Bible Bookmarks (CSV)</string>
-    <string name="import_bookmarks_csv">Import Bible Bookmarks (CSV)</string>
     <string name="csv_export_success">Exported %d bookmarks to CSV</string>
     <string name="csv_import_success">Import completed: %d created, %d updated</string>
     <string name="csv_import_errors">Import completed with errors: %d created, %d updated, %d errors</string>
