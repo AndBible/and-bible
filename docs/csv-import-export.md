@@ -18,6 +18,14 @@ AndBible now supports importing and exporting Bible bookmarks in CSV (Comma-Sepa
 4. Choose a location and filename for your export file
 5. Tap **Save** to export your bookmarks
 
+Or
+
+1. Open Studypad
+2. From Window menu, find item "Export as CSV"
+3. Choose a location and filename for your export file
+4. Tap **Save** to export your bookmarks
+
+
 ### Importing Bookmarks
 
 1. Open the **Bookmarks** activity from the main menu
@@ -39,24 +47,25 @@ AndBible uses **semicolon (`;`) separated** CSV format to handle commas that may
 
 ### Optional Fields
 
-| Column | Description | Example |
-|--------|-------------|---------|
-| `id` | Unique bookmark identifier | `12345` |
-| `document` | Bible translation/version | `ESV` |
-| `book` | OSIS book abbreviation | `Gen` |
-| `chapterStart` | Starting chapter number | `1` |
-| `verseStart` | Starting verse number | `1` |
-| `chapterEnd` | Ending chapter number | `1` |
-| `verseEnd` | Ending verse number | `3` |
-| `ordinalStart` | Starting verse ordinal number | `1` |
-| `ordinalEnd` | Ending verse ordinal number | `3` |
-| `createdAt` | Creation timestamp (ISO format) | `2025-01-15T10:30:00Z` |
-| `lastUpdatedOn` | Last modification timestamp | `2025-01-15T10:30:00Z` |
-| `startOffset` | Text selection start position | `0` |
-| `endOffset` | Text selection end position | `25` |
-| `labels` | Comma-separated label names | `Favorite,Study Notes` |
-| `notes` | Bookmark notes/comments | `Important passage for prayer` |
-| `customIcon` | Custom icon identifier | `star` |
+| Column          | Description                                     | Example                        |
+|-----------------|-------------------------------------------------|--------------------------------|
+| `id`            | Unique bookmark identifier                      | `12345`                        |
+| `document`      | Bible translation/version                       | `ESV`                          |
+| `book`          | OSIS book abbreviation                          | `Gen`                          |
+| `document`      | Bible document initials                         | `KJV`                          |
+| `chapterStart`  | Starting chapter number                         | `1`                            |
+| `verseStart`    | Starting verse number                           | `1`                            |
+| `chapterEnd`    | Ending chapter number                           | `1`                            |
+| `verseEnd`      | Ending verse number                             | `3`                            |
+| `ordinalStart`  | Starting verse ordinal number                   | `1`                            |
+| `ordinalEnd`    | Ending verse ordinal number                     | `3`                            |
+| `createdAt`     | Creation timestamp (ISO format)                 | `2025-01-15T10:30:00Z`         |
+| `lastUpdatedOn` | Last modification timestamp                     | `2025-01-15T10:30:00Z`         |
+| `startOffset`   | Text selection start position                   | `0`                            |
+| `endOffset`     | Text selection end position                     | `25`                           |
+| `labels`        | Comma-separated label names                     | `Favorite,Study Notes`         |
+| `notes`         | Bookmark notes/comments                         | `Important passage for prayer` |
+| `customIcon`    | Custom icon identifier                          | `star`                         |
 
 ## Verse Reference Methods
 
@@ -202,4 +211,4 @@ If you encounter issues with CSV import/export:
 
 ---
 
-*This feature was introduced in AndBible version X.X.X. For older versions, consider using the backup/restore functionality in Settings.*
+*This feature was introduced in AndBible version 5.0.882. For older versions, consider using the backup/restore functionality in Settings.*

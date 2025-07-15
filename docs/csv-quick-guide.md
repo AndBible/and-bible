@@ -10,6 +10,14 @@ Export your bookmarks to CSV format for backup, sharing, or editing in spreadshe
 2. **Choose location** and filename
 3. **Save** to create your CSV file
 
+Or
+
+1. Open Studypad
+2. From Window menu, find item "Export as CSV"
+3. **Choose location** and filename
+4. **Save** to create your CSV file
+
+
 ## How to Import Bookmarks
 
 1. **Open Bookmarks** → Menu (⋮) → **Import CSV**
