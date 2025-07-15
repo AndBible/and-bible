@@ -379,11 +379,21 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             }
             R.id.exportCsv -> {
                 isHandled = true
-                exportBookmarksToCSV()
+                lifecycleScope.launch {
+                    bookmarkControl.exportBookmarksToCSV(
+                        this@Bookmarks,
+                        bookmarkList.filterIsInstance<BookmarkEntities.BibleBookmarkWithNotes>()
+                    )
+                }
             }
             R.id.importCsv -> {
                 isHandled = true
-                importBookmarksFromCSV()
+                lifecycleScope.launch(Dispatchers.Main) {
+                    bookmarkControl.importBookmarksFromCSV(this@Bookmarks)
+                    // Refresh the bookmark list
+                    loadLabelList()
+                    loadBookmarkList()
+                }
             }
         }
         if (!isHandled) {
@@ -419,85 +429,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             selectedBookmarks.add(bookmarkList[position])
         }
         return selectedBookmarks
-    }
-
-    private fun exportBookmarksToCSV() = lifecycleScope.launch(Dispatchers.Main) {
-        try {
-            val exportBookmarks = bookmarkList.filterIsInstance<BookmarkEntities.BibleBookmarkWithNotes>()
-            if (exportBookmarks.isEmpty()) {
-                Toast.makeText(this@Bookmarks, getString(R.string.no_bookmarks_to_export), Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-
-            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "text/csv"
-                val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US).format(Date())
-                putExtra(Intent.EXTRA_TITLE, "bible_bookmarks_$timestamp.csv")
-            }
-
-            val result = awaitIntent(intent)
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { exportToUri(it, exportBookmarks) }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error starting CSV export", e)
-            ErrorReportControl.showErrorDialog(this@Bookmarks, getString(R.string.csv_export_failed, e.message), exception = e)
-        }
-    }
-
-    private fun importBookmarksFromCSV() = lifecycleScope.launch(Dispatchers.Main) {
-        try {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "text/*"
-                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/csv", "text/plain", "text/comma-separated-values"))
-            }
-
-            val result = awaitIntent(intent)
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { importFromUri(it) }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error starting CSV import", e)
-            ErrorReportControl.showErrorDialog(this@Bookmarks, getString(R.string.csv_import_failed, e.message), exception = e)
-        }
-    }
-
-    private suspend fun exportToUri(uri: Uri, bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>) = withContext(Dispatchers.IO) {
-        contentResolver.openOutputStream(uri)?.use { outputStream ->
-            BookmarkCsvUtils.exportBookmarksToCsv(outputStream, bookmarks, bookmarkControl)
-        } ?: throw IllegalArgumentException("Could not open output stream for URI: $uri")
-        withContext(Dispatchers.Main) {
-            Toast.makeText(this@Bookmarks, getString(R.string.csv_export_success, bookmarks.size), Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private suspend fun importFromUri(uri: Uri) = withContext(Dispatchers.IO) {
-        contentResolver.openInputStream(uri)?.use { inputStream ->
-            val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
-                    
-            withContext(Dispatchers.Main) {
-                if (result.errors > 0) {
-                    // Show detailed error dialog
-                    val message = getString(R.string.csv_import_errors, result.created, result.updated, result.errors) +
-                        "\n\n" + result.errorMessages.take(5).joinToString("\n") +
-                        if (result.errorMessages.size > 5) "\n..." else ""
-                            
-                    AlertDialog.Builder(this@Bookmarks)
-                        .setTitle(getString(R.string.import_csv))
-                        .setMessage(message)
-                        .setPositiveButton(R.string.okay, null)
-                        .show()
-                } else {
-                    Toast.makeText(this@Bookmarks, getString(R.string.csv_import_success, result.created, result.updated), Toast.LENGTH_SHORT).show()
-                }
-                        
-                // Refresh the bookmark list
-                loadLabelList()
-                loadBookmarkList()
-            }
-        } ?: throw IllegalArgumentException("Could not open input stream for URI: $uri")
     }
 
     companion object {
