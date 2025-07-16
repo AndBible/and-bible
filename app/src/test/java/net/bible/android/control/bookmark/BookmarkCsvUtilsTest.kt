@@ -50,10 +50,6 @@ class BookmarkCsvUtilsTest {
 
     private lateinit var bookmarkControl: BookmarkControl
 
-    private val isoDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
-        timeZone = TimeZone.getTimeZone("UTC")
-    }
-
     @Before
     fun setUp() {
         // Create a real BookmarkControl instance for testing
@@ -220,13 +216,9 @@ NotAValidOsisRef;Invalid Reference;InvalidBook;InvalidBook;abc;def;ghi;jkl;test-
 
         // Then - The implementation might handle malformed data gracefully or create errors
         // We just verify that if there are errors, they are tracked properly
-        assertTrue("Errors should be >= 0", result.errors >= 0)
-        assertTrue("Created + Updated should be >= 0", (result.created + result.updated) >= 0)
-        
-        // If there were errors, there should be error messages
-        if (result.errors > 0) {
-            assertTrue("Should have error messages when errors > 0", result.errorMessages.isNotEmpty())
-        }
+        assertTrue("Errors should be 1", result.errors == 1)
+        assertTrue("Created + Updated should be == 0", (result.created + result.updated) == 0)
+        assertTrue("Should have error messages when errors > 0", result.errorMessages.isNotEmpty())
     }
 
     @Test

@@ -190,6 +190,8 @@ object BookmarkCsvUtils {
                             if (labelNames.isNotEmpty()) {
                                 assignLabelsToBookmark(savedBookmark, labelNames, bookmarkControl)
                             }
+                        } else {
+                            errorMessages.add("Line ${lineIndex + 2}: Invalid bookmark data")
                         }
                     } catch (e: Exception) {
                         errorMessages.add("Line ${lineIndex + 2}: ${e.message}")
