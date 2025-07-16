@@ -57,18 +57,18 @@ openDownloads: Siirry lisäosien latauksiin
 verseShare: Jaa
 verseSpeak: Puhe
 verseCompare: Vertaa
-verseMemorize: ""
+verseMemorize: Opettele
 verseNote: Muistiinpano
 verseMyNotes: Omat merkinnät
 verseShareLong: Jaa tämä jae
 verseCompareLong: Vertaa jaetta
-verseMemorizeLong: ""
+verseMemorizeLong: Opettele Raamatun jakeita
 verseNoteLong: Kirjoita muistiinpano
 addBookmark: Kirjanmerkki
-selectCustomIconTitle: ""
-blur: ""
+selectCustomIconTitle: Valitse oma kuvake
+blur: Sumenna
 reset: Tyhjennä
-peek: ""
-wordBlur: ""
-wordScramble: ""
+peek: Vilkaise
+wordBlur: Sanan sumennus
+wordScramble: Sanojen sekoitus
 more: Lisää

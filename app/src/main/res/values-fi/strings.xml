@@ -656,6 +656,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="workspace_listing_with_current">%s (nykyinen)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tämä on betaversio!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Betaversiossa on uusia ominaisuuksia joita ei ole vielä kunnolla testattu,
 ja siksi betaversion käyttö voi tuoda mukanaan odotamatonta käyttäytymistä, eli bugeja. 
@@ -838,6 +839,13 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="label_underline">Alleviivaus</string>
   <string name="import_menu">Tuo &amp; vie</string>
   <string name="export">Vie</string>
+  <string name="csv_export_success">Viety %d kirjanmerkkiä CSV:n</string>
+  <string name="csv_import_success">Tuonti valmistui: %d luotu, %d päivitetty</string>
+  <string name="csv_import_errors">Tuonti valmistui: %d luotu, %d päivitetty, %d virhettä</string>
+  <string name="csv_import_failed">CSV tuonti epäonnistui: %s</string>
+  <string name="csv_export_failed">CSV vienti epäonnistui: %s</string>
+  <string name="choose_csv_file">Valitse CSV-tiedosto jonka haluat tuoda</string>
+  <string name="no_bookmarks_to_export">Ei kirjanmerkkejä vietäväksi</string>
   <string name="export_fileformat">Vie muodossa %s</string>
   <string name="export_something">Vie %s</string>
   <string name="import_items">Tuo muodossa %s</string>
@@ -940,6 +948,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Kirjautumistiedot palveluun %s</string>
+  <string name="auth_server_uri">Palvelimen URL</string>
   <string name="auth_username">Käyttäjätunnus</string>
   <string name="auth_password">Salasana</string>
   <string name="auth_access_token">Pääsytokeni (access token)</string>
@@ -994,4 +1003,10 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="prefs_swipe_mode_chapter">Luku</string>
   <string name="prefs_swipe_mode_page">Sivu</string>
   <string name="prefs_swipe_mode_none">Luku</string>
+  <string name="page_number_title">Suhteellinen sivunumero</string>
+  <string name="page_number_summary">Näytä sivunumeron. Sivunumero on suhteessa aloituskohtaan.</string>
+  <string name="select_custom_icon">Valitse oma kuvake</string>
+  <string name="invalid_url_message">URL jonka annoit ei ole kelvollinen. Anna URL oikeassa muodossa (esim. https://nextcloud.example.com)</string>
+  <string name="memorize_description">Opettele Raamatun jakeita</string>
+  <string name="memorize_abbreviation">Opettele</string>
 </resources>
