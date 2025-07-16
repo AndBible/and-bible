@@ -16,7 +16,17 @@
  */
 package net.bible.android.control.bookmark
 
+import android.app.Activity.RESULT_OK
+import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
@@ -25,8 +35,10 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
@@ -43,6 +55,7 @@ import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
@@ -55,6 +68,9 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import java.lang.IllegalArgumentException
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.min
@@ -696,6 +712,102 @@ open class BookmarkControl @Inject constructor(
         dao.update(textEntry)
         val withText = dao.studyPadTextEntryById(id)!!
         ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
+    }
+
+    suspend fun exportBookmarksToCSV(context: ActivityBase, exportBookmarks: List<BibleBookmarkWithNotes>) = context.run {
+        try {
+            if (exportBookmarks.isEmpty()) {
+                Toast.makeText(context, getString(R.string.no_bookmarks_to_export), Toast.LENGTH_SHORT)
+                    .show()
+                return
+            }
+
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/csv"
+                val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US).format(Date())
+                putExtra(Intent.EXTRA_TITLE, "bible_bookmarks_$timestamp.csv")
+            }
+
+            val result = awaitIntent(intent)
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { exportToUri(context, it, exportBookmarks) }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting CSV export", e)
+            ErrorReportControl.showErrorDialog(
+                context,
+                getString(R.string.csv_export_failed, e.message),
+                exception = e
+            )
+        }
+    }
+
+    suspend fun importBookmarksFromCSV(context: ActivityBase) = context.run {
+        try {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/*"
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/csv", "text/plain", "text/comma-separated-values"))
+            }
+
+            val result = awaitIntent(intent)
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { importFromUri(context, it) }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting CSV import", e)
+            ErrorReportControl.showErrorDialog(
+                context,
+                getString(R.string.csv_import_failed, e.message),
+                exception = e
+            )
+        }
+    }
+
+    private suspend fun exportToUri(context: Context, uri: Uri, bookmarks: List<BibleBookmarkWithNotes>) = context.run {
+        withContext(Dispatchers.IO) {
+            contentResolver.openOutputStream(uri)?.use { outputStream ->
+                BookmarkCsvUtils.exportBookmarksToCsv(outputStream, bookmarks, this@BookmarkControl)
+            } ?: throw IllegalArgumentException("Could not open output stream for URI: $uri")
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    getString(R.string.csv_export_success, bookmarks.size),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private suspend fun importFromUri(context: Context, uri: Uri) = context.run {
+        withContext(Dispatchers.IO) {
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, this@BookmarkControl)
+
+                withContext(Dispatchers.Main) {
+                    if (result.errors > 0) {
+                        // Show detailed error dialog
+                        val message =
+                            getString(R.string.csv_import_errors, result.created, result.updated, result.errors) +
+                                "\n\n" + result.errorMessages.take(5).joinToString("\n") +
+                                if (result.errorMessages.size > 5) "\n..." else ""
+
+                        AlertDialog.Builder(context)
+                            .setTitle(getString(R.string.import_items, "CSV"))
+                            .setMessage(message)
+                            .setPositiveButton(R.string.okay, null)
+                            .show()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            getString(R.string.csv_import_success, result.created, result.updated),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } ?: throw IllegalArgumentException("Could not open input stream for URI: $uri")
+        }
     }
 
     companion object {

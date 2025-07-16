@@ -70,7 +70,7 @@ object ErrorReportControl {
 
 
     enum class ErrorDialogResult {CANCEL, OKAY, REPORT, BACKUP}
-    suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, report: Boolean = true) {
+    suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, report: Boolean = true, exception: Throwable? = null) {
         Log.i(TAG, "showErrorMesage message:$msg")
         withContext(Dispatchers.Main) {
             var askAgain = true
@@ -97,7 +97,7 @@ object ErrorReportControl {
                 }
                 when(result) {
                     ErrorDialogResult.OKAY -> null
-                    ErrorDialogResult.REPORT -> BugReport.reportBug(context, useSaved = true, source = "after crash")
+                    ErrorDialogResult.REPORT -> BugReport.reportBug(context, exception=exception, useSaved = true, source = "after crash")
                     ErrorDialogResult.CANCEL -> null
                     ErrorDialogResult.BACKUP -> {
                         BackupControl.backupPopup(context)
