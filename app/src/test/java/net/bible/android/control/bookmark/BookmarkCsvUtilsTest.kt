@@ -250,6 +250,8 @@ NotAValidOsisRef;Invalid Reference;InvalidBook;InvalidBook;abc;def;ghi;jkl;test-
         // Should handle empty/null fields gracefully
         assertTrue("Should contain empty fields", dataLine.contains(";;"))
         assertFalse("Should not contain null", dataLine.contains("null"))
+        val expectedPattern = Regex("""Gen\.1\.1;Genesis 1:1;;Gen;1;1;1;1;[a-f0-9\-]+;4;4;\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z;\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z;;;;;""")
+        assertTrue("Dataline should match pattern", expectedPattern.matches(dataLine))
     }
 
     @Test
@@ -343,6 +345,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created from osisRef only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
     }
 
     @Test
@@ -363,6 +366,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created from bibleRef only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
     }
 
     @Test
@@ -383,6 +387,28 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created from book/chapter/verse fields", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
+    }
+
+    @Test
+    fun testImportMinimalCsv_OnlyBookChapterVerse2(): Unit = runBlocking {
+        // Given - CSV with only discrete book/chapter/verse fields
+        val csvContent = """osisRef;bibleRef;document;book;chapterStart;verseStart;chapterEnd;verseEnd;id;ordinalStart;ordinalEnd;createdAt;lastUpdatedOn;startOffset;endOffset;labels;notes;customIcon
+;;;Gen;1;1;2;2;;;;;;;;;"""
+
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+
+        // When
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Bookmark should be created from book/chapter/verse fields", importedBookmark)
+        assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
+        assertEquals("OsisRef should match", "Gen.1-Gen.2.2", importedBookmark?.verseRange?.osisRef)
     }
 
     @Test
@@ -403,6 +429,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created from ordinals only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
+        assertEquals("OsisRef should match", "Intro.OT", importedBookmark?.verseRange?.osisRef)
     }
 
     @Test
@@ -529,11 +556,11 @@ Gen.1.1;;;;;;;;;;;;;;;;;
         val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
 
         // Then
-        assertTrue("Should create multiple bookmarks", result.created >= 3)
+        assertEquals("Should create multiple bookmarks", result.created, 4)
         assertThat(result.errors, equalTo(0))
         
         val allBookmarks = bookmarkControl.allBibleBookmarks
-        assertTrue("Should have multiple bookmarks", allBookmarks.size >= 3)
+        assertEquals("Should have multiple bookmarks", allBookmarks.size, 4)
         
         // All should be whole verse bookmarks
         allBookmarks.forEach { bookmark ->
@@ -545,7 +572,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;
     fun testImportMinimalCsv_WithTextSelection(): Unit = runBlocking {
         // Given - CSV with minimal data but including text offsets
         val csvContent = """osisRef;bibleRef;document;book;chapterStart;verseStart;chapterEnd;verseEnd;id;ordinalStart;ordinalEnd;createdAt;lastUpdatedOn;startOffset;endOffset;labels;notes;customIcon
-Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;;;;;;;;5;15;;;"""
+Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;;;;;;5;15;;;;"""
 
         val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
         
@@ -557,17 +584,10 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;;;;;;;;5;15;;;"""
         assertThat(result.errors, equalTo(0))
         
         val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
-        assertNotNull("Bookmark should be created with text selection", importedBookmark)
-        
-        // Check if offsets are supported in this implementation
-        if (importedBookmark?.startOffset != null && importedBookmark?.endOffset != null) {
-            assertEquals("Start offset should be set", 5, importedBookmark.startOffset)
-            assertEquals("End offset should be set", 15, importedBookmark.endOffset)
-            assertFalse("Should not be whole verse when offsets are specified", importedBookmark.wholeVerse)
-        } else {
-            // Implementation might default to whole verse for minimal CSV
-            assertTrue("Should default to whole verse if offsets not supported", importedBookmark?.wholeVerse ?: true)
-        }
+        assertNotNull("Bookmark should be created with text selection", importedBookmark!!)
+        assertEquals("Start offset should be set", 5, importedBookmark.startOffset)
+        assertEquals("End offset should be set", 15, importedBookmark.endOffset)
+        assertFalse("Should not be whole verse when offsets are specified", importedBookmark.wholeVerse)
     }
 
     @Test
@@ -581,19 +601,10 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;;;;;;;;5;15;;;"""
         // When
         val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
 
-        // Then - Implementation may silently skip invalid rows or generate errors
-        // Either behavior is acceptable for missing location data
-        if (result.created > 0) {
-            // Implementation somehow handled the missing location gracefully
-            assertTrue("Created bookmark despite missing location", result.created > 0)
-        } else if (result.errors > 0) {
-            // Implementation reported errors for missing location
-            assertTrue("Should have error messages when location is missing", 
-                       result.errorMessages.isNotEmpty())
-        } else {
-            // Implementation silently skipped the invalid row - this is also acceptable
-            assertThat("No operations when skipping invalid rows", result.created + result.updated + result.errors, equalTo(0))
-        }
+        assertThat(result.created, equalTo(0))
+        assertThat(result.updated, equalTo(0))
+        assertThat(result.errors, equalTo(1))
+        assertThat(result.errorMessages, equalTo(listOf("Line 2: Invalid bookmark data")))
     }
     
     // === REDUCED HEADER CSV TESTS - Only selected columns in header ===
@@ -624,6 +635,8 @@ Gen.1.2;Another note"""
         assertNotNull("Second bookmark should exist", bookmark2)
         assertTrue("Should be whole verse bookmarks", bookmark1?.wholeVerse == true)
         assertTrue("Should be whole verse bookmarks", bookmark2?.wholeVerse == true)
+        assertEquals("First bookmark osisRef", "Gen.1.1", bookmark1?.verseRange?.osisRef)
+        assertEquals("Second bookmark osisRef", "Gen.1.2", bookmark2?.verseRange?.osisRef)
     }
 
     @Test
@@ -645,12 +658,11 @@ Genesis 1:2;StudyNote"""
         val allBookmarks = bookmarkControl.allBibleBookmarks
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
-        // Check if labels were created (implementation may vary)
         val labels = bookmarkControl.allLabels
         val hasImportantVerse = labels.any { it.name == "ImportantVerse" }
         val hasStudyNote = labels.any { it.name == "StudyNote" }
-        println("ImportantVerse label created: $hasImportantVerse")
-        println("StudyNote label created: $hasStudyNote")
+        assertTrue("ImportantVerse label should be created", hasImportantVerse)
+        assertTrue("StudyNote label should be created", hasStudyNote)
     }
 
     @Test
@@ -698,16 +710,14 @@ Matt;5;3;Blessed are the poor"""
         // Then - May create bookmarks or errors depending on implementation
         assertTrue("Should process ordinal-only CSV", (result.created + result.errors) > 0)
         
-        if (result.created > 0) {
-            val allBookmarks = bookmarkControl.allBibleBookmarks
-            assertTrue("Should create some bookmarks", allBookmarks.isNotEmpty())
+        val allBookmarks = bookmarkControl.allBibleBookmarks
+        assertTrue("Should create some bookmarks", allBookmarks.isNotEmpty())
             
-            // Check if custom icons are preserved
-            val starBookmark = allBookmarks.find { it.customIcon == "star" }
-            val heartBookmark = allBookmarks.find { it.customIcon == "heart" }
-            assertNotNull("Star bookmark should exist if ordinals work", starBookmark)
-            assertNotNull("Heart bookmark should exist if ordinals work", heartBookmark)
-        }
+        // Check if custom icons are preserved
+        val starBookmark = allBookmarks.find { it.customIcon == "star" }
+        val heartBookmark = allBookmarks.find { it.customIcon == "heart" }
+        assertNotNull("Star bookmark should exist if ordinals work", starBookmark)
+        assertNotNull("Heart bookmark should exist if ordinals work", heartBookmark)
     }
 
     @Test
@@ -757,15 +767,13 @@ Gen.1.2;5;20;Selected text in second verse"""
         val bookmark1 = allBookmarks.find { it.notes == "Selected text in first verse" }
         val bookmark2 = allBookmarks.find { it.notes == "Selected text in second verse" }
         
-        assertNotNull("First bookmark should exist", bookmark1)
-        assertNotNull("Second bookmark should exist", bookmark2)
+        assertNotNull("First bookmark should exist", bookmark1!!)
+        assertNotNull("Second bookmark should exist", bookmark2!!)
         
         // Check if text selection is supported
-        if (bookmark1?.startOffset != null && bookmark1?.endOffset != null) {
-            assertEquals("Start offset should be preserved", 10, bookmark1.startOffset)
-            assertEquals("End offset should be preserved", 25, bookmark1.endOffset)
-            assertFalse("Should not be whole verse with offsets", bookmark1.wholeVerse)
-        }
+        assertEquals("Start offset should be preserved", 10, bookmark1.startOffset)
+        assertEquals("End offset should be preserved", 25, bookmark1.endOffset)
+        assertFalse("Should not be whole verse with offsets", bookmark1.wholeVerse)
     }
 
     @Test
@@ -821,8 +829,8 @@ Gen.1.1;KJV;KJV translation note"""
         val allBookmarks = bookmarkControl.allBibleBookmarks
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
-        val esvBookmark = allBookmarks.find { it.notes == "ESV translation note" }
-        val kjvBookmark = allBookmarks.find { it.notes == "KJV translation note" }
+        val esvBookmark = allBookmarks.find { it.notes == "ESV translation note" && it.book?.initials == "ESV2011" }
+        val kjvBookmark = allBookmarks.find { it.notes == "KJV translation note" && it.book?.initials == "KJV" }
         
         assertNotNull("ESV bookmark should exist", esvBookmark)
         assertNotNull("KJV bookmark should exist", kjvBookmark)
@@ -855,6 +863,20 @@ Gen.1.3;Important;heart"""
         assertNotNull("Star bookmark should exist", starBookmark)
         assertNotNull("Bookmark icon bookmark should exist", bookmarkBookmark)
         assertNotNull("Heart bookmark should exist", heartBookmark)
+
+        // Check that labels are created
+        val labels = bookmarkControl.allLabels
+        assertTrue("Favorite label should exist", labels.any { it.name == "Favorite" })
+        assertTrue("Study label should exist", labels.any { it.name == "Study" })
+        assertTrue("Important label should exist", labels.any { it.name == "Important" })
+
+        // Check that each bookmark has the correct label
+        assertTrue("Star bookmark should have Favorite label",
+            bookmarkControl.labelsForBookmark(starBookmark!!).any { it.name == "Favorite" })
+        assertTrue("Bookmark icon bookmark should have Study label",
+            bookmarkControl.labelsForBookmark(bookmarkBookmark!!).any { it.name == "Study" })
+        assertTrue("Heart bookmark should have Important label",
+            bookmarkControl.labelsForBookmark(heartBookmark!!).any { it.name == "Important" })
         
         assertEquals("Star bookmark should have star icon", "star", starBookmark?.customIcon)
         assertEquals("Bookmark should have bookmark icon", "bookmark", bookmarkBookmark?.customIcon)
@@ -932,15 +954,12 @@ Another note;heart"""
         val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
 
         // Then - Should handle missing location data gracefully
-        if (result.created > 0) {
-            // Implementation somehow handled missing location
-            assertTrue("Created bookmarks despite missing location", result.created > 0)
-        } else if (result.errors > 0) {
-            // Implementation reported errors for missing location
-            assertTrue("Should have error messages", result.errorMessages.isNotEmpty())
-        } else {
-            // Implementation silently skipped invalid rows
-            assertThat("No operations for invalid data", result.created + result.updated + result.errors, equalTo(0))
-        }
+        assertThat(result.created, equalTo(0))
+        assertThat(result.updated, equalTo(0))
+        assertThat(result.errors, equalTo(2))
+        assertThat(result.errorMessages, equalTo(listOf(
+            "Line 2: Invalid bookmark data",
+            "Line 3: Invalid bookmark data"
+        )))
     }
 }

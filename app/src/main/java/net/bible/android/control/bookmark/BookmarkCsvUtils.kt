@@ -228,7 +228,9 @@ object BookmarkCsvUtils {
                     val newLabel = BookmarkEntities.Label(
                         name = labelName.trim(),
                         color = defaultLabelColor
-                    )
+                    ).apply {
+                        new = true
+                    }
                     bookmarkControl.insertOrUpdateLabel(newLabel)
                     labelIds.add(newLabel.id)
                 }
