@@ -53,7 +53,7 @@
   <string name="search_all_words">Kõik sõnad</string>
   <string name="search_any_word">Mõni sõnadest</string>
   <string name="search_phrase">Fraas</string>
-  <string name="search_fts_query">Toore päringu süntaks</string>
+  <string name="search_fts_query">Toorpäringu süntaks</string>
   <string name="search_result_count">Leiti %d tulemust</string>
   <string name="search_showing_first">Liiga palju tulemusi. Näidatakse esimest %d tulemust</string>
   <string name="search_bible_section_group_prompt">Kust otsida</string>
@@ -121,6 +121,7 @@
   <string name="reset_fontsize">Nulli</string>
   <string name="prefs_request_sdcard_permission_title">Käsitsi paigaldatud dokumendid on olemas</string>
   <string name="prefs_request_sdcard_permission_summary">Luba jsword/sword kausta sisemäluruumis installitud dokumentide kasutamine.</string>
+  <string name="prefs_expand_footnotes_title">Reasisesed ristviited</string>
   <string name="all_text_options_window_menutitle">Kõik teksti valikud</string>
   <string name="text_options_window_menutitle">Tekstivalikud</string>
   <string name="auto_fullscreen">Täisekraanile kerimisega</string>
@@ -285,7 +286,7 @@ mis on kaustas jsword/readingplan sama nimega kui rakendusesisene plaan. Seda po
 Palun nimeta fail millekski muuks ümber, jättes faili laienduseks .properties
 </string>
   <string name="plan_description_y1ntpspr">
-Veebiajalehe HEARTLIGHT (http://www.heartlight.org) lahkusest juurdepääsuluba tagatud</string>
+Veebiajalehe HEARTLIGHT, http://www.heartlight.org, juurdepääsuluba antud</string>
   <string name="plan_name_y1ot1nt1_chronological">Kronoloogiline ühe aastaga piibel läbi</string>
   <string name="plan_description_y1ot1nt1_chronological">
         Lugemiskavas on Piibli sündmused ajalises järjekorras.
@@ -561,13 +562,13 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="report_bug_instructions1">1. Rakenduse avamine</string>
   <string name="report_bug_instructions2">2. Akna menüül klikkimine</string>
   <string name="report_bug_instructions3">-&gt; kokkujooksmine</string>
-  <string name="report_bug_line_2">Mõnikord on manuaalselt võetud ekraanipildid ka kasuks probleemide lahendamisel.</string>
+  <string name="report_bug_line_2">Mõnikord on käsitsi tehtud ekraanipildid kasuks probleemide lahendamisel.</string>
   <string name="report_bug_line_3">Palun kasuta seda funktsiooni koheselt, et teavitada vea aset leidmisest.</string>
-  <string name="report_bug_line_4">Sa võid kasutada seda funktsiooni ka peale rakenduse avamist, peale seda, kui rakendus jooksis kokku.</string>
+  <string name="report_bug_line_4">Sa võid kasutada seda funktsiooni ka pärast rakenduse avamist, pärast rakenduse kokkujooksmist.</string>
   <string name="report_bug_heading_3">Manused:</string>
   <string name="bug_report_logcat">Rakenduse genereeritud logifail. See ei sisalda andmeid teiste rakenduste kohta.</string>
-  <string name="bug_report_screenshot">Ekraanipilt rakendusest, kui kokku jooksmine leidis aset või kui vearaport loodi.</string>
-  <string name="bug_report_attachment_line_1">Need manustatud failid aitavad märgatavalt rakenduse arendajaid vea parandamisel.</string>
+  <string name="bug_report_screenshot">Ekraanipilt rakendusest, kui kokkujooksmine leidis aset või kui vearaport loodi.</string>
+  <string name="bug_report_attachment_line_1">Need failid aitavad märgatavalt rakenduse arendajaid vea parandamisel.</string>
   <string name="report_bug_heading_4">Seadme info:</string>
   <!--Document types-->
   <string name="doc_type_all">Kõik liigid</string>
@@ -629,7 +630,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="workspace_listing_with_current">%s (praegune)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">See on beeta versioon!</string>
-  <string name="beta_flag">BETA</string>
+  <string name="beta_flag">BEETA</string>
   <string name="beta_notice_content_1">
 Beta versioonis on mõned uued funktsioonid, mida ei ole veel põhjalikult testitud,
 mistõttu võib beta rakenduse kasutamisel esineda ootamatut käitumist, näiteks tarkvaravigu.
@@ -759,7 +760,7 @@ Positiivsed ja põhjalikud arvustused aitavad väga palju AndBibel\'i avatud lä
   <string name="text_maintainers">
        palun teata probleemist dokumendi haldajatele
     </string>
-  <string name="does_not_exist_abbreviation">See ei eksisteeri</string>
+  <string name="does_not_exist_abbreviation">Ei eksisteeri</string>
   <string name="cant_change_wholeverse">Ei saa terve salmi valimist välja lülitada</string>
   <string name="whole_verse_turned_on">Järjehoidja on nüüd terve salmi kohta</string>
   <string name="this_bookmark">Käesolev järjehoidja</string>
@@ -837,7 +838,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <!--Window synchronize groups-->
   <string name="sync_group_submenu">Sünkroniseeri gruppi</string>
   <string name="sync_group_n">Gropp %d</string>
-  <string name="disable_sync">Keela sünkrronimine</string>
+  <string name="disable_sync">Keela sünkroonimine</string>
   <string name="open_in_window">Ava tulemused aknas</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
@@ -858,7 +859,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="workspaces_contents">Tööalad ja Aknad</string>
   <string name="cloud_sync_title">Andmete sünkroniseerimine</string>
   <string name="reset_sync">Logi välja</string>
-  <string name="cloud_info">PIlve info</string>
+  <string name="cloud_info">Pilve info</string>
   <string name="cloud_info_summary">Andmeid pilvehoidlas: %s Mb</string>
   <string name="sync_adapter_summary">Praegune: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
