@@ -744,6 +744,9 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         val exportStudypad = menu.findItem(R.id.exportStudypad)
         exportStudypad.title = app.getString(R.string.export_something, app.getString(R.string.studypad))
 
+        val exportStudypadCsv = menu.findItem(R.id.exportStudypadCsv)
+        exportStudypadCsv.title = app.getString(R.string.export_fileformat, "CSV")
+
         synchronized(BookName::class.java) {
             val oldValue = BookName.isFullBookName()
 
@@ -986,6 +989,15 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             R.id.exportStudypad -> CommandPreference({ _, _, _ ->
                 mainBibleActivity.lifecycleScope.launch {
                     exportStudyPads(mainBibleActivity, (firstDoc as StudyPadDocument).label)
+                }
+            },
+                visible = window.isVisible && (firstDoc is StudyPadDocument)
+            )
+            R.id.exportStudypadCsv -> CommandPreference({ _, _, _ ->
+                mainBibleActivity.lifecycleScope.launch {
+                    val bookmarkControl = mainBibleActivity.bookmarkControl
+                    val bookmarks = bookmarkControl.getBibleBookmarksWithLabel((firstDoc as StudyPadDocument).label)
+                    mainBibleActivity.bookmarkControl.exportBookmarksToCSV(mainBibleActivity, bookmarks)
                 }
             },
                 visible = window.isVisible && (firstDoc is StudyPadDocument)

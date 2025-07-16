@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -40,8 +41,10 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarksBinding
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkCsvUtils
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -57,6 +60,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import java.lang.IllegalArgumentException
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
@@ -337,6 +341,12 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString())
         }
 
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.importCsv).title = getString(R.string.import_items, "CSV")
+        menu.findItem(R.id.exportCsv).title = getString(R.string.export_something, "CSV")
+        return super.onPrepareOptionsMenu(menu)
+    }
     /**
      * on Click handlers
      */
@@ -371,6 +381,24 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                             loadBookmarkList()
                         }
                     }
+                }
+            }
+            R.id.exportCsv -> {
+                isHandled = true
+                lifecycleScope.launch {
+                    bookmarkControl.exportBookmarksToCSV(
+                        this@Bookmarks,
+                        bookmarkList.filterIsInstance<BookmarkEntities.BibleBookmarkWithNotes>()
+                    )
+                }
+            }
+            R.id.importCsv -> {
+                isHandled = true
+                lifecycleScope.launch(Dispatchers.Main) {
+                    bookmarkControl.importBookmarksFromCSV(this@Bookmarks)
+                    // Refresh the bookmark list
+                    loadLabelList()
+                    loadBookmarkList()
                 }
             }
         }
