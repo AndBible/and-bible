@@ -880,6 +880,14 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="import_items">Εισαγωγή %s</string>
   <string name="import_from_db">Εισαγωγή από αρχείο βάσης δεδομένων</string>
   <string name="import_error">Εισαγωγή από αρχείο βάσης δεδομένων απέτυχε. Λάθος μορφή βάσης ή δομημένη με πολύ παλιά έκδοση του %s</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Εγγραφο</string>
+  <string name="book">Βιβλίο</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Εύρος</string>
   <string name="chooser_jump">Μετάβαση</string>
   <string name="chooser_OT_abbrev">ΠΔ</string>

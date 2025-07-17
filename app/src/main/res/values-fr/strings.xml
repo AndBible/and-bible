@@ -875,6 +875,14 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="import_items">Importer %s</string>
   <string name="import_from_db">Importer le fichier depuis la base de données de l’App.</string>
   <string name="import_error">L’importation à partir de la base de données de l’application a échoué. Le fichier de la base de données peut être d’un format incorrect ou créé avec une version trop ancienne de %s.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Document</string>
+  <string name="book">Livre</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Plage</string>
   <string name="chooser_jump">Sauter</string>
   <string name="chooser_OT_abbrev">AT</string>

@@ -761,6 +761,14 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="import_items">%sသွင်းပါ</string>
   <string name="import_from_db">အက်ပ် ​ဒေတာဘေ့စ်ဖိုင်မှ သွင်းပါ</string>
   <string name="import_error">အက်ပ်ဒေတာဘေ့စ်မှ ထည့်သွင်းခြင်း မအောင်မြင်ပါ။ ဒေတာဘေ့စ်ဖိုင်သည် ဖွဲ့စည်းမှုပုံစံ မှားယွင်းခြင်း သို့မဟုတ် အလွန်ဟောင်းသည့်ဗားရှင်း %s ဖြင့်လုပ်ထားခြင်းကြောင့် ဖြစ်နိုင်သည်။ </string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">မှတ်တမ်း</string>
+  <string name="book">စာအုပ်</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">အတိုင်းအတာ</string>
   <string name="chooser_jump">ခုန်ပါ</string>
   <string name="chooser_OT_abbrev">ဓမ္မဟောင်းကျမ်း</string>

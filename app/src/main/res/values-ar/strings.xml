@@ -805,6 +805,14 @@
   <string name="export_fileformat">تصدير بتنسيق %s</string>
   <string name="import_items">استيراد %s</string>
   <string name="import_from_db">استيراد من ملف قاعدة بيانات تطبيق</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">المستند</string>
+  <string name="book">سفر</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_jump">قفز</string>
   <string name="chooser_OT_abbrev">OT</string>
   <string name="chooser_NT_abbrev">NT</string>

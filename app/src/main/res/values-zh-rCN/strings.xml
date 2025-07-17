@@ -900,6 +900,14 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="import_items">以%s导入</string>
   <string name="import_from_db">从应用程序数据库文件导入</string>
   <string name="import_error">从应用程序数据库导入失败。数据库文件版本可能太旧，或者是从太旧的%s建立。</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">文档</string>
+  <string name="book">书卷</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">范围</string>
   <string name="chooser_jump">跳转</string>
   <string name="chooser_OT_abbrev">旧约</string>
