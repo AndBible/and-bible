@@ -33,7 +33,7 @@ buildscript {
     val jvmTargetVersion by extra("17")
     val jvmToolChainVersion by extra(17)
     val coreKtxVersion by extra("1.16.0")
-    val sqliteAndroidVersion by extra("3.45.0")
+    val sqliteAndroidVersion by extra("3.49.0")
     val jswordVersion by extra("2.4.26")
 
 
