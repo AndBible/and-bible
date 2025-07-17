@@ -914,6 +914,13 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="label_underline">Pabraukimas</string>
   <string name="import_menu">Importuoti ir eksportuoti</string>
   <string name="export">Eksportuoti</string>
+  <string name="csv_export_success">Eksportuota %d žymių(-ės) į CSV</string>
+  <string name="csv_import_success">Importavimas užbaigtas: sukurta %d, atnaujinta %d</string>
+  <string name="csv_import_errors">Importavimas užbaigtas su klaidomis: sukurta %d, atnaujinta %d, su klaidomis %d</string>
+  <string name="csv_import_failed">CSV importavimas patyrė nesėkmę: %s</string>
+  <string name="csv_export_failed">CSV eksportavimas patyrė nesėkmę: %s</string>
+  <string name="choose_csv_file">Pasirinkite CSV failą, kurį importuoti</string>
+  <string name="no_bookmarks_to_export">Nėra žymių, kurias galima būtų eksportuoti</string>
   <string name="export_fileformat">Eksportuoti kaip %s</string>
   <string name="export_something">Eksportuoti %s</string>
   <string name="import_items">Importuoti %s</string>
@@ -1108,4 +1115,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="page_number_summary">Rodyti puslapio numerio perdangą. Puslapio numeris yra santykinis pradžios vietos atžvilgiu.</string>
   <string name="select_custom_icon">Pasirinkti tinkintą žymeklio piktogramą</string>
   <string name="invalid_url_message">Įvestas URL yra netinkamas. Įveskite tinkamą URL (pvz., https://nextcloud.example.com)</string>
+  <string name="memorize_description">Išmokti mintinai Biblijos eilutes</string>
+  <string name="memorize_abbreviation">Išmokti mintinai</string>
 </resources>
