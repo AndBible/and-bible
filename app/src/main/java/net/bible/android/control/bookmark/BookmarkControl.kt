@@ -774,7 +774,7 @@ open class BookmarkControl @Inject constructor(
         val columns = BookmarkCsvUtils.availableColumns
         
         // Load previously unchecked columns from settings
-        val uncheckedColumns = CommonUtils.settings.getStringSet("csv_export_unchecked_columns", emptySet()) ?: emptySet()
+        val uncheckedColumns = CommonUtils.settings.getStringSet("csv_export_unchecked_columns", emptySet())
         
         // Pre-select columns (all columns except those that were previously unchecked)
         val selectedColumns = Dialogs.multiselect(
