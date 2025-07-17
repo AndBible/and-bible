@@ -330,10 +330,11 @@ class ManageLabels : ListActivityBase() {
             R.id.export_studypads -> {
                 lifecycleScope.launch {
                     val labels = Dialogs.multiselect(
-                        this@ManageLabels,
-                        getString(R.string.export_something, getString(R.string.studypads)),
-                        bookmarkControl.assignableLabels
-                    ) { it.displayName }
+                        context = this@ManageLabels,
+                        title = getString(R.string.export_something, getString(R.string.studypads)),
+                        items = bookmarkControl.assignableLabels,
+                        itemToString = { it.displayName }
+                    )
                     if (labels.isNotEmpty()) {
                         exportStudyPads(this@ManageLabels, *labels.toTypedArray())
                     }

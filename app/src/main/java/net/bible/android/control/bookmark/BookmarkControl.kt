@@ -23,9 +23,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
@@ -38,7 +36,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
-import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
@@ -56,6 +53,8 @@ import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
@@ -73,6 +72,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.coroutines.resume
 import kotlin.math.min
 
 abstract class BookmarkEvent
@@ -722,6 +722,10 @@ open class BookmarkControl @Inject constructor(
                 return
             }
 
+            // Show column selection dialog
+            val selectedColumns = showColumnSelectionDialog(context)
+            if (selectedColumns.isEmpty()) return // User cancelled or selected no columns
+
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type = "text/csv"
@@ -731,7 +735,7 @@ open class BookmarkControl @Inject constructor(
 
             val result = awaitIntent(intent)
             if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { exportToUri(context, it, exportBookmarks) }
+                result.data?.data?.let { exportToUri(context, it, exportBookmarks, selectedColumns) }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error starting CSV export", e)
@@ -765,10 +769,34 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    private suspend fun exportToUri(context: Context, uri: Uri, bookmarks: List<BibleBookmarkWithNotes>) = context.run {
+
+    private suspend fun showColumnSelectionDialog(context: ActivityBase): List<String> {
+        val columns = BookmarkCsvUtils.availableColumns
+        
+        // Load previously unchecked columns from settings
+        val uncheckedColumns = CommonUtils.settings.getStringSet("csv_export_unchecked_columns", emptySet()) ?: emptySet()
+        
+        // Pre-select columns (all columns except those that were previously unchecked)
+        val selectedColumns = Dialogs.multiselect(
+            context,
+            context.getString(R.string.csv_column_selection_title),
+            columns,
+            itemToString = { column -> column.displayName },
+            preSelected = { column -> !uncheckedColumns.contains(column.key) }
+        )
+        
+        // Save the inverse selection (unchecked items) to settings
+        val selectedKeys = selectedColumns.map { it.key }.toSet()
+        val newUncheckedColumns = columns.map { it.key }.filter { !selectedKeys.contains(it) }.toSet()
+        CommonUtils.settings.setStringSet("csv_export_unchecked_columns", newUncheckedColumns)
+        
+        return selectedColumns.map { it.key }
+    }
+
+    private suspend fun exportToUri(context: Context, uri: Uri, bookmarks: List<BibleBookmarkWithNotes>, selectedColumns: List<String>) = context.run {
         withContext(Dispatchers.IO) {
             contentResolver.openOutputStream(uri)?.use { outputStream ->
-                BookmarkCsvUtils.exportBookmarksToCsv(outputStream, bookmarks, this@BookmarkControl)
+                BookmarkCsvUtils.exportBookmarksToCsv(outputStream, bookmarks, this@BookmarkControl, selectedColumns)
             } ?: throw IllegalArgumentException("Could not open output stream for URI: $uri")
             withContext(Dispatchers.Main) {
                 Toast.makeText(
