@@ -20,10 +20,12 @@ package net.bible.android.control.bookmark
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.defaultLabelColor
+import net.bible.android.view.activity.page.application
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -70,6 +72,36 @@ object BookmarkCsvUtils {
     private const val HEADER_NOTES = "notes"
     private const val HEADER_CUSTOM_ICON = "customIcon"
 
+    data class CsvColumn(
+        val key: String,
+        val displayNameResId: Int,
+        val defaultSelected: Boolean = true
+    ) {
+        val header get() = key
+        val displayName get() = application.getString(displayNameResId)
+    }
+
+    val availableColumns = listOf(
+        CsvColumn(HEADER_OSIS_REF, R.string.osis_reference),
+        CsvColumn(HEADER_BIBLE_REF, R.string.bible_reference),
+        CsvColumn(HEADER_DOCUMENT, R.string.document),
+        CsvColumn(HEADER_BOOK, R.string.book),
+        CsvColumn(HEADER_CHAPTER_START, R.string.chapter_start),
+        CsvColumn(HEADER_VERSE_START, R.string.verse_start),
+        CsvColumn(HEADER_CHAPTER_END, R.string.chapter_end),
+        CsvColumn(HEADER_VERSE_END, R.string.verse_end),
+        CsvColumn(HEADER_ID, R.string.id),
+        CsvColumn(HEADER_ORDINAL_START, R.string.ordinal_start),
+        CsvColumn(HEADER_ORDINAL_END, R.string.ordinal_end),
+        CsvColumn(HEADER_CREATED_AT, R.string.created_at),
+        CsvColumn(HEADER_LAST_UPDATED, R.string.last_updated_at),
+        CsvColumn(HEADER_START_OFFSET, R.string.start_offset),
+        CsvColumn(HEADER_END_OFFSET, R.string.end_offset),
+        CsvColumn(HEADER_LABELS, R.string.labels),
+        CsvColumn(HEADER_NOTES, R.string.bookmark_notes),
+        CsvColumn(HEADER_CUSTOM_ICON, R.string.custom_icon)
+    )
+
     private const val CSV_SEPARATOR = ";"
     private val ISO_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
         timeZone = TimeZone.getTimeZone("UTC")
@@ -81,17 +113,13 @@ object BookmarkCsvUtils {
     suspend fun exportBookmarksToCsv(
         outputStream: OutputStream,
         bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
-        bookmarkControl: BookmarkControl
+        bookmarkControl: BookmarkControl,
+        selectedColumns: List<String> = availableColumns.map { it.key }
     ) = withContext(Dispatchers.IO) {
         try {
             OutputStreamWriter(outputStream, "UTF-8").use { writer ->
-                // Write header
-                val headers = listOf(
-                    HEADER_OSIS_REF, HEADER_BIBLE_REF, HEADER_DOCUMENT, HEADER_BOOK, HEADER_CHAPTER_START,
-                    HEADER_VERSE_START, HEADER_CHAPTER_END, HEADER_VERSE_END, HEADER_ID,
-                    HEADER_ORDINAL_START, HEADER_ORDINAL_END, HEADER_CREATED_AT, HEADER_LAST_UPDATED,
-                    HEADER_START_OFFSET, HEADER_END_OFFSET, HEADER_LABELS, HEADER_NOTES, HEADER_CUSTOM_ICON
-                )
+                // Write header - only selected columns
+                val headers = availableColumns.filter { it.key in selectedColumns }.map { it.header }
                 writer.write(headers.joinToString(CSV_SEPARATOR))
                 writer.write("\n")
 
@@ -105,26 +133,30 @@ object BookmarkCsvUtils {
                     val labels = bookmarkControl.labelsForBookmark(bookmark)
                     val labelNames = labels.joinToString(";") { it.name }
 
-                    val values = listOf(
-                        verseRange.osisRef,
-                        escapeField(verseRange.name),
-                        escapeField(bookmark.book?.initials ?: ""),
-                        escapeField(start.book.osis),
-                        start.chapter.toString(),
-                        start.verse.toString(),
-                        end.chapter.toString(), 
-                        end.verse.toString(),
-                        bookmark.id.toString(),
-                        bookmark.ordinalStart.toString(),
-                        bookmark.ordinalEnd.toString(),
-                        bookmark.createdAt.let { ISO_DATE_FORMAT.format(it) },
-                        bookmark.lastUpdatedOn.let { ISO_DATE_FORMAT.format(it) },
-                        bookmark.startOffset?.toString() ?: "",
-                        bookmark.endOffset?.toString() ?: "",
-                        escapeField(labelNames),
-                        escapeField(bookmark.notes ?: ""),
-                        bookmark.customIcon ?: ""
+                    // Create map of all possible values
+                    val allValues = mapOf(
+                        HEADER_OSIS_REF to verseRange.osisRef,
+                        HEADER_BIBLE_REF to escapeField(verseRange.name),
+                        HEADER_DOCUMENT to escapeField(bookmark.book?.initials ?: ""),
+                        HEADER_BOOK to escapeField(start.book.osis),
+                        HEADER_CHAPTER_START to start.chapter.toString(),
+                        HEADER_VERSE_START to start.verse.toString(),
+                        HEADER_CHAPTER_END to end.chapter.toString(),
+                        HEADER_VERSE_END to end.verse.toString(),
+                        HEADER_ID to bookmark.id.toString(),
+                        HEADER_ORDINAL_START to bookmark.ordinalStart.toString(),
+                        HEADER_ORDINAL_END to bookmark.ordinalEnd.toString(),
+                        HEADER_CREATED_AT to bookmark.createdAt.let { ISO_DATE_FORMAT.format(it) },
+                        HEADER_LAST_UPDATED to bookmark.lastUpdatedOn.let { ISO_DATE_FORMAT.format(it) },
+                        HEADER_START_OFFSET to (bookmark.startOffset?.toString() ?: ""),
+                        HEADER_END_OFFSET to (bookmark.endOffset?.toString() ?: ""),
+                        HEADER_LABELS to escapeField(labelNames),
+                        HEADER_NOTES to escapeField(bookmark.notes ?: ""),
+                        HEADER_CUSTOM_ICON to (bookmark.customIcon ?: "")
                     )
+
+                    // Write only selected columns
+                    val values = availableColumns.filter { it.key in selectedColumns }.map { allValues[it.key] ?: "" }
                     writer.write(values.joinToString(CSV_SEPARATOR))
                     writer.write("\n")
                 }

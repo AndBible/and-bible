@@ -1053,6 +1053,10 @@
     <string name="csv_import_errors">Import completed with errors: %d created, %d updated, %d errors</string>
     <string name="csv_import_failed">CSV import failed: %s</string>
     <string name="csv_export_failed">CSV export failed: %s</string>
+    <string name="csv_column_selection_title">Select CSV Columns</string>
+    <string name="csv_column_selection_message">Choose which columns to include in the CSV export:</string>
+    <string name="csv_select_all">Select All</string>
+    <string name="csv_select_none">Select None</string>
     <string name="choose_csv_file">Choose CSV file to import</string>
     <string name="no_bookmarks_to_export">No bookmarks available to export</string>
     <string name="export_fileformat">Export as %s</string>
@@ -1060,6 +1064,29 @@
     <string name="import_items">Import %s</string>
     <string name="import_from_db">Import from App Database file</string>
     <string name="import_error">Importing from App Database failed. Database file could be wrong format or made with too old version of %s.</string>
+
+    <string name="export_bookmarks_csv">Export Bookmarks as %s</string>
+
+    <string name="osis_reference">OSIS Reference</string>
+    <string name="bible_reference">Bible Reference</string>
+    <string name="document">Document</string>
+    <string name="book">Book</string>
+    <string name="chapter_start">Chapter Start</string>
+    <string name="verse_start">Verse Start</string>
+    <string name="chapter_end">Chapter End</string>
+    <string name="verse_end">Verse End</string>
+    <string name="id">Identifier</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+    <string name="ordinal_start">Ordinal Start</string>
+    <string name="ordinal_end">Ordinal End</string>
+    <string name="created_at">Created At</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+    <string name="start_offset">Start Offset</string>
+    <string name="end_offset">End Offset</string>
+    <string name="custom_icon">Custom Icon</string>
+    <string name="last_updated_at">Last updated at</string>
+    <string name="bookmark_notes">Bookmark notes</string>
+
     <string name="chooser_range">Range</string>
     <string name="chooser_jump">Jump</string>
     <string name="chooser_OT_abbrev">OT</string>
