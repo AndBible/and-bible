@@ -844,6 +844,14 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="import_items">Importuj %s</string>
   <string name="import_from_db">Importuj z pliku bazy danych aplikacji</string>
   <string name="import_error">Nie udało się zaimportować z bazy danych aplikacji. Plik bazy danych może być w złym formacie bądź być utworzony przez bardzo starą wersję aplikacji %s.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Dokument</string>
+  <string name="book">Księga</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Zakres</string>
   <string name="chooser_jump">Przeskocz</string>
   <string name="chooser_OT_abbrev">ST</string>

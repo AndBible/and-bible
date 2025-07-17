@@ -924,6 +924,13 @@ Režim opakovania bol vypnutý, pretože
   <string name="import_items">Importovať %s</string>
   <string name="import_from_db">Importovať z databázového súboru aplikácie</string>
   <string name="import_error">Import z databázy aplikácie zlyhal. Databázový súbor môže mať nesprávny formát alebo môže byť vytvorený v príliš starej verzií %s. </string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Dokument</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Rozsah</string>
   <string name="chooser_jump">Skok</string>
   <string name="chooser_OT_abbrev">SZ</string>
