@@ -29,6 +29,8 @@ import {Nullable} from "@/types/common";
 import {BookCategory} from "@/types/client-objects";
 import {UseScroll} from "@/composables/scroll";
 
+const maxConsecutiveEmptyLoads = 3; // Safety limit
+
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
     {scrollYAtStart}: UseScroll,
@@ -51,15 +53,29 @@ export function useInfiniteScroll(
     function documentsCleared() {
         addChaptersToTop.splice(0);
         addChaptersToEnd.splice(0);
-        clearDocumentCount ++;
+        clearDocumentCount++;
+    }
+
+    function needsMoreContent(): boolean {
+        const viewportHeight = window.innerHeight;
+        const currentScrollY = scrollPosition();
+        
+        // Calculate actual content height excluding the bottom padding
+        const actualContentHeight = bottomElem ? bottomElem.offsetTop : bodyHeight();
+        
+        // Calculate remaining scrollable height from current position
+        const remainingScrollableHeight = actualContentHeight - currentScrollY - viewportHeight;
+        const minimumHeight = viewportHeight * 0.1; // 10% of viewport height as buffer
+        return remainingScrollableHeight < minimumHeight;
     }
 
     async function processQueues() {
         if(isProcessing) return;
         console.log("inf: processQueues")
         isProcessing = true;
-        // noinspection UnnecessaryLocalVariableJS
         const clearCountStart = clearDocumentCount;
+        let consecutiveEmptyLoads = 0;
+
         try {
             do {
                 const endPromises =addChaptersToEnd.splice(0);
@@ -70,20 +86,42 @@ export function useInfiniteScroll(
                     Promise.all(topPromises)
                 ]);
                 console.log("inf: Received chapters")
-                if(clearCountStart > clearDocumentCount) {
+                if(clearCountStart !== clearDocumentCount) {
                     console.log("inf: Document cleared in between, stopping")
                     return;
                 }
+                
+                let contentAdded = false;
                 if(endChaps.length > 0) {
-                    console.log("inf: Displaying received chapters at end")
-                    insertThisTextAtEnd(...filterNotNull(endChaps));
-                    await nextTick();
+                    const validEndChaps = filterNotNull(endChaps);
+                    if(validEndChaps.length > 0) {
+                        console.log("inf: Displaying received chapters at end")
+                        insertThisTextAtEnd(...validEndChaps);
+                        contentAdded = true;
+                        await nextTick();
+                    }
                 }
                 if(topChaps.length > 0) {
-                    console.log("inf: Displaying received chapters at top")
-                    await insertThisTextAtTop(filterNotNull(topChaps));
-                    await nextTick();
+                    const validTopChaps = filterNotNull(topChaps);
+                    if(validTopChaps.length > 0) {
+                        console.log("inf: Displaying received chapters at top")
+                        await insertThisTextAtTop(validTopChaps);
+                        contentAdded = true;
+                        await nextTick();
+                    }
                 }
+                
+                // Track consecutive empty loads to prevent infinite loops
+                if (!contentAdded) {
+                    consecutiveEmptyLoads++;
+                    if (consecutiveEmptyLoads >= maxConsecutiveEmptyLoads) {
+                        console.log("inf: Too many consecutive empty loads, stopping");
+                        break;
+                    }
+                } else {
+                    consecutiveEmptyLoads = 0;
+                }
+                
             } while ((addChaptersToEnd.length > 0 || addChaptersToTop.length > 0))
         } finally {
             isProcessing = false;
@@ -96,9 +134,13 @@ export function useInfiniteScroll(
         processQueues();
     }
 
-    function loadTextAtEnd() {
+    async function loadTextAtEnd() {
         addChaptersToEnd.push(requestNextChapter())
-        processQueues();
+        await processQueues();
+
+        if (isEnabled.value && needsMoreContent() && !isProcessing) {
+            await loadTextAtEnd();
+        }
     }
 
     const
@@ -118,7 +160,7 @@ export function useInfiniteScroll(
         setScrollPosition = (offset: number) => window.scrollTo(0, offset),
         addMoreAtEnd = () => {
             if (!isEnabled.value || isProcessing) return;
-            return loadTextAtEnd();
+            loadTextAtEnd();
         },
         addMoreAtTop = () => {
             if (!isEnabled.value || isProcessing) return;
