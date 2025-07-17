@@ -1,11 +1,7 @@
 package net.bible.android.control.bookmark
 
-import kotlinx.coroutines.runBlocking
-import net.bible.android.database.IdType
-import net.bible.android.database.bookmarks.BookmarkEntities
 import org.junit.Test
 import org.junit.Assert.*
-import java.io.ByteArrayOutputStream
 import java.util.*
 
 class BookmarkCsvColumnSelectionTest {
@@ -32,7 +28,7 @@ class BookmarkCsvColumnSelectionTest {
 
     @Test
     fun testCsvColumnDataClass() {
-        val column = BookmarkCsvUtils.CsvColumn("test_key", "test_header", "Test Display Name", false)
+        val column = BookmarkCsvUtils.CsvColumn("test_key", 0,  false)
         assertEquals("test_key", column.key)
         assertEquals("test_header", column.header)
         assertEquals("Test Display Name", column.displayName)
