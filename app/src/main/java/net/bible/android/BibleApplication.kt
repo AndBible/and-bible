@@ -44,7 +44,6 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.ErrorActivity
-import net.bible.android.view.activity.page.currentActivity
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
 import net.bible.service.common.BuildVariant
