@@ -145,6 +145,32 @@ export const init = settings => {
       setTimeout(() => exec(formatBlock, `<${defaultParagraphSeparator}>`), 0)
     }
   }
+  content.onpaste = event => {
+    const clipboardData = event.clipboardData || window.clipboardData
+    console.log("Pasting content...", event, clipboardData);
+    
+    // Get all available clipboard data types
+    const types = clipboardData.types || []
+    console.log("Available clipboard types:", types);
+    
+    // Check if we're trying to paste actual image files (not placeholders)
+    if (types.includes('Files') && clipboardData.files && clipboardData.files.length > 0) {
+      console.log("Files detected in clipboard:", clipboardData.files);
+      const hasRealImages = Array.from(clipboardData.files).some(file => {
+        // Only block real image files with content (size > 0)
+        return file.type.startsWith('image/') && file.size > 0;
+      });
+      if (hasRealImages) {
+        console.log("Real image files detected - blocking paste");
+        event.preventDefault();
+        return;
+      }
+    }
+    
+    const images = content.querySelectorAll('img, video, audio, embed, object, iframe');
+    console.log("Removing media elements after paste:", images.length);
+    images.forEach(el => el.remove());
+  }
   appendChild(settings.element, content)
   appendChild(settings.element, actionbar)
 
