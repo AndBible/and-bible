@@ -517,7 +517,9 @@ object BackupControl {
             val uri = result.data?.data!!
             try {
                 restoreAppDatabaseFromUriWithUI(activity, uri)
-            } catch (e: Exception) {null} ?: return
+            } catch (e: Exception) {
+                ErrorReportControl.showErrorDialog(activity, e.message ?: getString(R.string.error_occurred), exception = e)
+            }
         }
     }
 
@@ -599,6 +601,7 @@ object BackupControl {
             Closeable {
                 tmpFile.delete()
                 unzipFolder.deleteRecursively()
+                activity.lifecycleScope.launch(Dispatchers.Main) { hourglass.dismiss() }
             }.use {
                 val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
                     .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
@@ -644,7 +647,7 @@ object BackupControl {
                         } else true
                         if (!areYouSure) continue
                         Log.i(TAG, "Restoring $fileName")
-                        DatabaseContainer.instance.dbByFilename[fileName]?.close()
+                        if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
                         val targetFilePath = activity.getDatabasePath(fileName).path
                         val targetFile = File(targetFilePath)
                         f.copyTo(targetFile, overwrite = true)
@@ -658,6 +661,7 @@ object BackupControl {
                 DatabaseContainer.reset()
                 restoredSelection
             }
+        hourglass.show()
         if (DatabaseContainer.ready) {
             DatabaseContainer.instance
             afterRestore(restoredSelection)
@@ -669,7 +673,7 @@ object BackupControl {
     }
 
     suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
-        val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS) {
+        val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
             " (${bookmarksDbStats(category, backupFile)})"
         } else ""
         suspendCoroutine {
