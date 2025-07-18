@@ -1,5 +1,7 @@
 TMP:=$(shell mktemp -d)
 
+increment-version:
+	./scripts/increment-version.sh
 tx-push:
 	tx push -s -r andbible.play-store-main-description
 	tx push -s -r andbible.and-bible-stringsxml
