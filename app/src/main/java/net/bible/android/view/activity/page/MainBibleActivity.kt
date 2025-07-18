@@ -1050,7 +1050,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if (toolbarButtonSetting?.startsWith("swap-") == true)
                 setCurrentDocument(documentControl.suggestedCommentary);
             else
-                menuForDocs(view, commentariesForVerse + SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK))
+                menuForDocs(view,
+                    commentariesForVerse
+                        + SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK)
+                        + SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
+                )
         }
 
         fun bibleLongPress(view: View) {
