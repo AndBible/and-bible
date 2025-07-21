@@ -63,7 +63,7 @@ enum class CloudAdapters(val isEnabled: Boolean = true) {
 
     val displayName: String get() = when(this) {
         GOOGLE_DRIVE -> app.getString(R.string.adapters_google_drive)
-        NEXT_CLOUD -> app.getString(R.string.adapters_next_cloud) + " (" + app.getString(R.string.beta_flag) + ")"
+        NEXT_CLOUD -> app.getString(R.string.adapters_next_cloud)
     }
     val newAdapter: CloudAdapter get() = when(this) {
         GOOGLE_DRIVE -> {

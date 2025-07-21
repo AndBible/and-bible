@@ -1,0 +1,160 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build Android App",
+			"type": "shell",
+			"command": "./gradlew",
+			"args": [
+				"assembleStandardGithubDebug"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"isBackground": false,
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"label": "Run Android unit tests",
+			"type": "shell",
+			"command": "./gradlew",
+			"args": [
+				"testStandardGoogleplayDebug"
+			],
+			"group": "test",
+			"isBackground": false,
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"label": "bibleview-js: lint",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "lint:ci"],
+			"options": {
+				"cwd": "${workspaceFolder}/app/bibleview-js"
+			},
+			"group": "test",
+			"isBackground": false,
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"label": "bibleview-js: type-check",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "type-check:ci"],
+			"options": {
+				"cwd": "${workspaceFolder}/app/bibleview-js"
+			},
+			"group": "test",
+			"isBackground": false,
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"label": "bibleview-js: unit tests",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "test:ci"],
+			"options": {
+				"cwd": "${workspaceFolder}/app/bibleview-js"
+			},
+			"group": "test",
+			"isBackground": false,
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"label": "bibleview-js: build",
+			"type": "shell",
+			"command": "npm",
+			"args": ["run", "build"],
+			"options": {
+				"cwd": "${workspaceFolder}/app/bibleview-js"
+			},
+			"group": "build",
+			"isBackground": false,
+			"dependsOn": ["bibleview-js: lint", "bibleview-js: type-check"],
+			"dependsOrder": "parallel",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"label": "bibleview-js: test all",
+			"dependsOn": [
+				"bibleview-js: lint",
+				"bibleview-js: type-check",
+				"bibleview-js: unit tests"
+			],
+			"dependsOrder": "parallel",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"label": "Build All",
+			"dependsOn": [
+				"bibleview-js: build",
+				"Build Android App"
+			],
+			"dependsOrder": "sequence",
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		}
+	]
+}
