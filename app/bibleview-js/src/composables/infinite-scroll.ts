@@ -22,7 +22,7 @@
  */
 
 import {computed, nextTick, onMounted, watch} from "vue";
-import {filterNotNull, setupWindowEventListener} from "@/utils";
+import {filterNotNull, setupWindowEventListener, waitNextAnimationFrame} from "@/utils";
 import {UseAndroid} from "@/composables/android";
 import {AnyDocument, isOsisDocument} from "@/types/documents";
 import {Nullable} from "@/types/common";
@@ -137,6 +137,7 @@ export function useInfiniteScroll(
     async function loadTextAtEnd() {
         addChaptersToEnd.push(requestNextChapter())
         await processQueues();
+        await waitNextAnimationFrame();
 
         if (isEnabled.value && needsMoreContent() && !isProcessing) {
             await loadTextAtEnd();
