@@ -360,6 +360,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             mainMenuCommandHandler.handleMenuRequest(menuItem)
         }
 
+        // Set version text in navigation drawer header
+        val headerView = binding.navigationView.getHeaderView(0)
+        val versionTextView = headerView.findViewById<TextView>(R.id.versionText)
+        val versionMsg = getString(R.string.version_text, CommonUtils.applicationVersionName)
+        versionTextView.text = versionMsg
+
         var currentSliderOffset = 0.0F
 
         if (CommonUtils.settings.monochromeMode) {
