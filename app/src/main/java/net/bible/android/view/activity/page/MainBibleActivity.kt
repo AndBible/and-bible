@@ -67,6 +67,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -192,6 +193,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var documentViewManager: DocumentViewManager
     lateinit var bibleViewFactory: BibleViewFactory
     private lateinit var mainMenuCommandHandler: MenuCommandHandler
+    
+    private val navigationView: NavigationView by lazy {
+        binding.drawerLayout.findViewById<NavigationView>(R.id.navigationView)!!
+    }
 
     private var navigationBarHeight = 0
     private var actionBarHeight = 0
@@ -259,7 +264,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             BuildVariant.DistributionChannel.isFdroid ||
             BuildVariant.DistributionChannel.isAmazon
         ) {
-            binding.navigationView.menu.findItem(R.id.rateButton).isVisible = false
+            navigationView.menu.findItem(R.id.rateButton).isVisible = false
         }
 
         CommonUtils.buildActivityComponent().inject(this)
@@ -353,16 +358,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         updateToolbar()
         updateBottomBars()
         if (!CommonUtils.isCloudSyncAvailable) {
-            binding.navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
+            navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
-        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
+        navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
         }
 
-        // Set version text in navigation drawer header
-        val headerView = binding.navigationView.getHeaderView(0)
-        val versionTextView = headerView.findViewById<TextView>(R.id.versionText)
+        // Set version text in navigation drawer footer
+        val versionTextView = binding.drawerLayout.findViewById<TextView>(R.id.versionText)
         val versionMsg = getString(R.string.version_text, CommonUtils.applicationVersionName)
         versionTextView.text = versionMsg
 
@@ -1574,7 +1578,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 binding.toolbarLayout.setPadding(0, systemInsets.top, 0, 0)
             }
             toolbarLayout.setPadding(leftOffset1, topOffset1, rightOffset1, 0)
-            navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
             
             if(isFullScreen) {

@@ -41,7 +41,6 @@
         android:layout_height="48dp"
         android:src="@drawable/ic_logo"
         android:contentDescription="@string/app_name_andbible"
-        android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/statusBarSpacer"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -59,20 +58,5 @@
         app:layout_constraintBottom_toBottomOf="@id/appLogo"
         app:layout_constraintStart_toEndOf="@id/appLogo"
         app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Version text at bottom -->
-    <TextView
-        android:id="@+id/versionText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/version_text"
-        android:textSize="12sp"
-        android:textColor="?attr/android:textColorSecondary"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/appLogo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout> 
