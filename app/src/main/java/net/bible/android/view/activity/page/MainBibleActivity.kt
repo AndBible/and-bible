@@ -195,7 +195,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private lateinit var mainMenuCommandHandler: MenuCommandHandler
     
     private val navigationView: NavigationView by lazy {
-        binding.drawerLayout.findViewById<NavigationView>(R.id.navigationView)!!
+        binding.drawerLayout.findViewById(R.id.navigationView)!!
+    }
+
+    private val versionTextView: TextView by lazy {
+        binding.drawerLayout.findViewById(R.id.versionText)!!
     }
 
     private var navigationBarHeight = 0
@@ -366,7 +370,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         // Set version text in navigation drawer footer
-        val versionTextView = binding.drawerLayout.findViewById<TextView>(R.id.versionText)
         val versionMsg = getString(R.string.version_text, CommonUtils.applicationVersionName)
         versionTextView.text = versionMsg
 
