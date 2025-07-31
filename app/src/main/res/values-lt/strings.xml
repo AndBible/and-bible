@@ -926,14 +926,21 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="import_items">Importuoti %s</string>
   <string name="import_from_db">Importuoti iš programėlės duomenų bazės failo</string>
   <string name="import_error">Nepavyko importuoti iš programėlės duomenų bazės. Gali būti, kad duomenų bazės failas yra neteisingo formato arba sukurtas naudojant per seną %s versiją.</string>
+  <string name="export_bookmarks_csv">Eksportuoti žymes kaip %s</string>
   <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">OSIS nuoroda</string>
   <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Biblijos nuoroda</string>
   <string name="document">Dokumentas</string>
   <string name="book">Knyga</string>
   <!--Chapter is the chapter number in the book, starting from 1-->
   <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="id">Identifikatorius</string>
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="created_at">Sukurta</string>
   <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="custom_icon">Tinkinta piktograma</string>
+  <string name="last_updated_at">Paskiausiai atnaujinta</string>
   <string name="chooser_range">Rėžis</string>
   <string name="chooser_jump">Peršokti</string>
   <string name="chooser_OT_abbrev">ST</string>
