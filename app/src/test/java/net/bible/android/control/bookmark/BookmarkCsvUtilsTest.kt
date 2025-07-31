@@ -1152,4 +1152,765 @@ Another note;heart"""
             "Record 3: Invalid bookmark data"
         )))
     }
+
+    // === HTML ENRICHED NOTES TESTS ===
+    // These tests verify that HTML content in bookmark notes is handled correctly
+    // during CSV export and import operations
+
+    @Test
+    fun testExportAndImportHtmlBasicFormatting(): Unit = runBlocking {
+        // Given - Bookmark with basic HTML formatting
+        val htmlNote = """This note contains <b>bold text</b>, <i>italic text</i>, and <u>underlined text</u>. 
+Also includes <strong>strong emphasis</strong> and <em>emphasis</em>."""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.1")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("HTML basic formatting should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testExportAndImportHtmlLists(): Unit = runBlocking {
+        // Given - Bookmark with HTML lists
+        val htmlNote = """Study points:
+<ul>
+<li>First point with <b>bold</b> text</li>
+<li>Second point with <i>italic</i> text</li>
+<li>Third point with nested list:
+  <ol>
+    <li>Nested item 1</li>
+    <li>Nested item 2</li>
+  </ol>
+</li>
+</ul>"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.2")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("HTML lists should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testExportAndImportHtmlLinks(): Unit = runBlocking {
+        // Given - Bookmark with HTML links
+        val htmlNote = """References:
+<a href="https://example.com/study">Study Resource</a>
+<a href="mailto:pastor@church.org">Contact Pastor</a>
+<a href="tel:+1234567890">Phone Number</a>
+Cross-reference: <a href="verse://John.3.16">John 3:16</a>"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.3")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("HTML links should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testExportAndImportHtmlTables(): Unit = runBlocking {
+        // Given - Bookmark with HTML tables
+        val htmlNote = """Comparison table:
+<table border="1">
+<tr>
+  <th>Version</th>
+  <th>Translation</th>
+  <th>Note</th>
+</tr>
+<tr>
+  <td>ESV</td>
+  <td>"In the beginning..."</td>
+  <td>Literal translation</td>
+</tr>
+<tr>
+  <td>NIV</td>
+  <td>"In the beginning..."</td>
+  <td>Thought-for-thought</td>
+</tr>
+</table>"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.4")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("HTML tables should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testExportAndImportHtmlImages(): Unit = runBlocking {
+        // Given - Bookmark with HTML images
+        val htmlNote = """Visual aids:
+<img src="https://example.com/map.jpg" alt="Biblical map" width="300" height="200"/>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" alt="Small image"/>
+<figure>
+  <img src="diagram.svg" alt="Family tree"/>
+  <figcaption>David's family tree</figcaption>
+</figure>"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.5")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("HTML images should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testExportAndImportHtmlBlockElements(): Unit = runBlocking {
+        // Given - Bookmark with HTML block elements
+        val htmlNote = """<h1>Main Heading</h1>
+<h2>Subheading</h2>
+<h3>Sub-subheading</h3>
+
+<p>This is a paragraph with some text. It contains <span style="color: red;">colored text</span> and <span class="highlight">highlighted text</span>.</p>
+
+<blockquote>
+"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life."
+<cite>John 3:16</cite>
+</blockquote>
+
+<div class="note">
+  <p>Personal reflection:</p>
+  <p>This verse speaks to God's amazing love for humanity.</p>
+</div>
+
+<pre><code>
+// Code example
+function processVerse(verse) {
+  return verse.toUpperCase();
+}
+</code></pre>"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.6")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("HTML block elements should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testExportAndImportHtmlComplexNesting(): Unit = runBlocking {
+        // Given - Bookmark with complex nested HTML
+        val htmlNote = """<div class="study-note">
+  <h2>Study on <em>Genesis 1:1</em></h2>
+  
+  <section class="analysis">
+    <h3>Textual Analysis</h3>
+    <p>The Hebrew word <span lang="he" dir="rtl">בְּרֵאשִׁית</span> means "in the beginning".</p>
+    
+    <details>
+      <summary>Etymology</summary>
+      <p>From the root <strong>ברא</strong> meaning "to create".</p>
+      <ul>
+        <li>First occurrence: Genesis 1:1</li>
+        <li>Related words:
+          <ol>
+            <li><span lang="he">בָּרָא</span> - he created</li>
+            <li><span lang="he">בְּרִיאָה</span> - creation</li>
+          </ol>
+        </li>
+      </ul>
+    </details>
+  </section>
+  
+  <aside class="cross-references">
+    <h4>Cross References</h4>
+    <ul>
+      <li><a href="verse://John.1.1">John 1:1</a> - "In the beginning was the Word"</li>
+      <li><a href="verse://Heb.11.3">Hebrews 11:3</a> - Faith and creation</li>
+    </ul>
+  </aside>
+  
+  <footer>
+    <small>Study completed on <time datetime="2023-01-15">January 15, 2023</time></small>
+  </footer>
+</div>"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.7")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("Complex nested HTML should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testExportAndImportHtmlWithAttributes(): Unit = runBlocking {
+        // Given - Bookmark with HTML elements containing various attributes
+        val htmlNote = """<div id="main-note" class="study-note important" data-verse="Gen.1.8" style="background-color: yellow; padding: 10px;">
+  <p class="intro" style="font-weight: bold; color: #333;">Introduction to Creation</p>
+  
+  <form action="/submit-note" method="post">
+    <label for="rating">Rate this study:</label>
+    <select id="rating" name="rating" required>
+      <option value="1">1 - Poor</option>
+      <option value="5" selected>5 - Excellent</option>
+    </select>
+    
+    <input type="hidden" name="verse" value="Gen.1.8"/>
+    <input type="text" placeholder="Additional comments" maxlength="100"/>
+    <button type="submit" disabled>Submit</button>
+  </form>
+  
+  <audio controls preload="none">
+    <source src="pronunciation.mp3" type="audio/mpeg"/>
+    <source src="pronunciation.ogg" type="audio/ogg"/>
+    Your browser does not support the audio element.
+  </audio>
+  
+  <video width="320" height="240" controls poster="thumbnail.jpg">
+    <source src="teaching.mp4" type="video/mp4"/>
+    <track kind="subtitles" src="subtitles.vtt" srclang="en" label="English"/>
+  </video>
+</div>"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.8")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("HTML with attributes should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testExportAndImportHtmlSpecialCharacters(): Unit = runBlocking {
+        // Given - Bookmark with HTML special characters and entities
+        val htmlNote = """<p>Special characters test:</p>
+<ul>
+  <li>HTML entities: &lt; &gt; &amp; &quot; &apos; &nbsp;</li>
+  <li>Numeric entities: &#39; &#34; &#60; &#62;</li>
+  <li>Named entities: &copy; &reg; &trade; &mdash; &ndash;</li>
+  <li>Unicode characters: ✓ ✗ → ← ↑ ↓ ★ ☆</li>
+  <li>Mathematical symbols: ≤ ≥ ≠ ≈ ∞ π ∑ ∏</li>
+  <li>Hebrew: אֱלֹהִים בָּרָא</li>
+  <li>Greek: θεὸς ἠγάπησεν</li>
+  <li>Emoji: 📖 🙏 ✝️ ⛪ 🕊️</li>
+</ul>
+
+<pre>
+Literal text with <tags> and &entities; preserved
+"Quotes" and 'apostrophes' and semicolons;
+Line breaks
+and	tabs	preserved
+</pre>"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.9")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("HTML with special characters should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testExportAndImportHtmlMixedContent(): Unit = runBlocking {
+        // Given - Bookmark with mixed plain text and HTML content
+        val htmlNote = """This is plain text at the beginning.
+
+<h2>Now we switch to HTML</h2>
+
+<p>This paragraph contains <strong>bold text</strong> and goes back to plain text.</p>
+
+More plain text here with some "quotes" and; semicolons.
+
+<blockquote>
+A quote that spans
+multiple lines
+with various formatting.
+</blockquote>
+
+Final plain text section with normal content.
+
+<script>
+// This script should be preserved as-is
+function highlightVerse(verseId) {
+  document.getElementById(verseId).style.backgroundColor = 'yellow';
+}
+</script>
+
+<style>
+.important { font-weight: bold; color: red; }
+.note { font-style: italic; }
+</style>
+
+<!-- This is an HTML comment that should be preserved -->
+
+Final line of mixed content."""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.10")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("Mixed HTML and plain text content should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testExportAndImportHtmlMalformed(): Unit = runBlocking {
+        // Given - Bookmark with malformed HTML (missing closing tags, etc.)
+        val htmlNote = """<div class="note">
+  <h2>Study Notes</h2>
+  <p>This paragraph is not closed
+  
+  <ul>
+    <li>First item
+    <li>Second item without closing tag
+    <li>Third item <b>with unclosed bold
+  </ul>
+  
+  <p>Another paragraph <span style="color: red;">with unclosed span
+  
+  <img src="image.jpg" alt="No closing tag for img">
+  <br>
+  <hr>
+  
+  <table>
+    <tr>
+      <td>Cell 1
+      <td>Cell 2</td>
+    </tr>
+  </table>
+  
+  Final text without proper closing div"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.11")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("Malformed HTML should be preserved exactly as-is", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testImportDirectHtmlFromCsv(): Unit = runBlocking {
+        // Given - CSV with HTML content directly embedded
+        val htmlNote = """<div class="direct-import">
+  <h3>Direct HTML Import Test</h3>
+  <p>This HTML content is <em>directly embedded</em> in the CSV file.</p>
+  <ul>
+    <li>Item with ""escaped quotes""</li>
+    <li>Item with; semicolons</li>
+    <li>Item with
+newlines</li>
+  </ul>
+</div>"""
+
+        val csvContent = """osisRef;notes
+Gen.1.12;"${htmlNote.replace("\"", "\"\"")}""""
+
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        
+        // When
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("Direct HTML import should work correctly", htmlNote, importedBookmark?.notes)
+    }
+
+    @Test
+    fun testMultipleBookmarksWithVariousHtmlContent(): Unit = runBlocking {
+        // Given - Multiple bookmarks with different types of HTML content
+        val bookmarks = listOf(
+            Pair("Gen.1.13", "<p>Simple <b>bold</b> text</p>"),
+            Pair("Gen.1.14", "<ul><li>List item 1</li><li>List item 2</li></ul>"),
+            Pair("Gen.1.15", "<table><tr><td>Cell</td></tr></table>"),
+            Pair("Gen.1.16", "<div class=\"complex\"><h2>Title</h2><p>Content with <a href=\"#\">link</a></p></div>"),
+            Pair("Gen.1.17", "Plain text mixed with <em>HTML</em> elements")
+        )
+
+        val savedBookmarks = bookmarks.map { (osisRef, htmlNote) ->
+            val testVerseRange = VerseRangeFactory.fromString(KJVA, osisRef)
+            val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+                verseRange = testVerseRange,
+                textRange = null,
+                wholeVerse = true,
+                book = null
+            ).apply {
+                notes = htmlNote
+                new = true
+            }
+            bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        }
+
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export all bookmarks
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, savedBookmarks, bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        savedBookmarks.forEach { bookmarkControl.deleteBookmark(it) }
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(5))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmarks = bookmarkControl.allBibleBookmarks.sortedBy { it.verseRange.start.verse }
+        assertEquals("Should import all bookmarks", 5, importedBookmarks.size)
+        
+        // Verify each bookmark's HTML content is preserved
+        bookmarks.forEachIndexed { index, (_, expectedHtml) ->
+            val actualHtml = importedBookmarks[index].notes
+            assertEquals("HTML content should be preserved for bookmark ${index + 1}", expectedHtml, actualHtml)
+        }
+    }
+
+    @Test
+    fun testHtmlCsvEscapingEdgeCases(): Unit = runBlocking {
+        // Given - HTML content that contains CSV-problematic characters
+        val htmlNote = """<div data-csv="test;with;semicolons">
+  <p title="Quote test: &quot;double&quot; and 'single' quotes">Content</p>
+  <pre>
+Line 1 with "quotes"
+Line 2 with; semicolons
+Line 3 with, commas
+Line 4 with	tabs
+Line 5 with
+newlines
+  </pre>
+  <script>
+  var csv = "field1;field2;field3";
+  var html = "<div>test</div>";
+  var quotes = "He said \"Hello\" to me";
+  </script>
+</div>"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.18")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = htmlNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Verify that the CSV content properly escapes the HTML
+        assertTrue("CSV should be properly quoted due to semicolons", csvContent.contains("\"<div data-csv="))
+        assertTrue("CSV should escape internal quotes", csvContent.contains("&quot;double&quot;"))
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("Complex HTML with CSV edge cases should be preserved exactly", htmlNote, importedBookmark?.notes)
+    }
 }
