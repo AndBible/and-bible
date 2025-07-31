@@ -413,19 +413,27 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
-                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                systemInsets = insets
+                val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
+                
+                systemInsets = systemBarInsets
 
                 // Store these values for use in offset calculations
-                topOffset1 = insets.top
-                bottomOffset1 = insets.bottom
-                leftOffset1 = insets.left
-                rightOffset1 = insets.right
+                topOffset1 = systemBarInsets.top
+                bottomOffset1 = systemBarInsets.bottom
+                leftOffset1 = systemBarInsets.left
+                rightOffset1 = systemBarInsets.right
+
+                // Handle keyboard (IME) insets for proper text input positioning
+                if (imeInsets.bottom > 0) {
+                    // Keyboard is visible - adjust the bottom offset to account for it
+                    bottomOffset1 = maxOf(systemBarInsets.bottom, imeInsets.bottom)
+                }
 
                 // Trigger any layout updates that depend on these offsets
                 updateBottomBars()
                 updateToolbar()
-                ABEventBus.post(SystemInsetsChangedEvent(insets))
+                ABEventBus.post(SystemInsetsChangedEvent(systemBarInsets))
                 windowInsets
             }
         }
@@ -1925,7 +1933,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun setSoftKeyboardMode() {
-        if (windowControl.isMultiWindow) {
+        // Android 15 edge-to-edge enforcement fix:
+        // When targeting API 35+, traditional adjustPan/adjustResize may not work properly
+        // with edge-to-edge mode. Use adjustNothing and handle keyboard insets manually
+        // through WindowInsetsCompat.Type.ime() for better compatibility.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            // Try adjustNothing first for proper edge-to-edge behavior
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+        } else if (windowControl.isMultiWindow) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         } else {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
