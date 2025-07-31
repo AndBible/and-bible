@@ -599,7 +599,7 @@ i GT och NT varje dag.
   <string name="module_about_latest_version">Senaste version: %1$s (%2$s)</string>
   <string name="module_about_versification">Versifikation: %s</string>
   <string name="module_about_repository">Distributionsserver: %s</string>
-  <string name="module_about_osisId">OSIS ID: %s</string>
+  <string name="module_about_osisId">OSIS-id: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title1">Buggrapportering</string>
   <string name="send_feedback_title">Feedback</string>
@@ -928,19 +928,43 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="label_underline">Understrykning</string>
   <string name="import_menu">Importera &amp; Exportera</string>
   <string name="export">Exportera</string>
+  <string name="csv_export_success">Exporterade %d bokmärken till CSV</string>
+  <string name="csv_import_success">Import slutförd: %d skapade, %d uppdaterade</string>
+  <string name="csv_import_errors">Import slutförd med fel: %d skapade, %d uppdaterade, %d fel</string>
+  <string name="csv_import_failed">CSV-import misslyckades: %s</string>
+  <string name="csv_export_failed">CSV-export misslyckades: %s</string>
+  <string name="csv_column_selection_title">Välj kolumner för CSV-filen</string>
+  <string name="choose_csv_file">Välj en CSV-fil att importera</string>
+  <string name="no_bookmarks_to_export">Inga bokmärken tillgängliga för export</string>
   <string name="export_fileformat">Exportera som %s</string>
   <string name="export_something">Exportera %s</string>
   <string name="import_items">Importera %s</string>
   <string name="import_from_db">Importera från appdatabasfilen</string>
   <string name="import_error">Import från appdatabas misslyckades. Databasfilen kan ha fel format eller vara skapad med för gammal version av %s.</string>
+  <string name="export_bookmarks_csv">Exportera bokmärken som %s</string>
   <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">OSIS-referens</string>
   <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Bibelreferens</string>
   <string name="document">Dokument</string>
   <string name="book">Bok</string>
   <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Kapitel i början</string>
   <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Vers i början</string>
+  <string name="chapter_end">Kapitel i slutet</string>
+  <string name="verse_end">Vers i slutet</string>
+  <string name="id">Identifierare</string>
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="ordinal_start">Ordinal i början</string>
+  <string name="ordinal_end">Ordinal i slutet</string>
+  <string name="created_at">Skapades (datum &amp; tid)</string>
   <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset">Förskjutning i början</string>
+  <string name="end_offset">Förskjutning i slutet</string>
+  <string name="custom_icon">Anpassad ikon</string>
+  <string name="last_updated_at">Uppdaterades senast</string>
+  <string name="bookmark_notes">Bokmärkesanteckningar</string>
   <string name="chooser_range">Räckvidd</string>
   <string name="chooser_jump">Hoppa</string>
   <string name="chooser_OT_abbrev">GT</string>

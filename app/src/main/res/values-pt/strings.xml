@@ -876,19 +876,43 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="label_underline">Sublinhar</string>
   <string name="import_menu">Importar e Exportar</string>
   <string name="export">Exportar</string>
+  <string name="csv_export_success">Exportou %d marcadores para CSV</string>
+  <string name="csv_import_success">Importação concluída: %d criados, %d actualizados</string>
+  <string name="csv_import_errors">Importação concluída com erros: %d criados, %d actualizados, %d erros</string>
+  <string name="csv_import_failed">Falha na importação de CSV: %s</string>
+  <string name="csv_export_failed">Falha na exportação de CSV: %s</string>
+  <string name="csv_column_selection_title">Selecione Colunas CSV</string>
+  <string name="choose_csv_file">Escolher o ficheiro CSV a importar</string>
+  <string name="no_bookmarks_to_export">Não há marcadores disponíveis para exportar</string>
   <string name="export_fileformat">Exportar como %s</string>
   <string name="export_something">Exportar %s</string>
   <string name="import_items">Importar %s</string>
   <string name="import_from_db">Importar a partir de ficheiro da Base de Dados da Aplicação</string>
   <string name="import_error">A importação a partir da Base de Dados do aplicativo falhou. O ficheiro da Base de Dados pode estar no formato errado ou ter uma versão muito antiga de %s.</string>
+  <string name="export_bookmarks_csv">Exportar marcadores como %s</string>
   <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">Referência OSIS</string>
   <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Referências bíblicas</string>
   <string name="document">Documento</string>
   <string name="book">Livro</string>
   <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Início do capítulo</string>
   <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Início do verso</string>
+  <string name="chapter_end">Capítulo Fim</string>
+  <string name="verse_end">Verso Fim</string>
+  <string name="id">Identificador</string>
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="ordinal_start">Início ordinal</string>
+  <string name="ordinal_end">Fim ordinal</string>
+  <string name="created_at">Criado em</string>
   <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset">Desvio de início</string>
+  <string name="end_offset">Desvio final</string>
+  <string name="custom_icon">Ícone personalizado</string>
+  <string name="last_updated_at">Última atualização em</string>
+  <string name="bookmark_notes">Notas dos marcadores</string>
   <string name="chooser_range">Onde procurar</string>
   <string name="chooser_jump">Salatar para</string>
   <string name="chooser_OT_abbrev">AT</string>
