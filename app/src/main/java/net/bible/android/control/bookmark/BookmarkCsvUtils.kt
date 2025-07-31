@@ -180,16 +180,21 @@ object BookmarkCsvUtils {
 
         try {
             BufferedReader(InputStreamReader(inputStream, "UTF-8")).use { reader ->
-                val headerLine = reader.readLine() ?: throw IOException("Empty CSV file")
-                val headers = parseCSVLine(headerLine)
+                val headerRecord = readCsvRecord(reader) ?: throw IOException("Empty CSV file")
+                val headers = headerRecord
                 val headerMap = headers.withIndex().associate { it.value to it.index }
 
-                reader.lineSequence().forEachIndexed { lineIndex, line ->
+                var recordNumber = 2 // Start from 2 since header is 1
+                while (true) {
+                    val record = readCsvRecord(reader) ?: break
+                    
                     try {
-                        if (line.trim().isEmpty()) return@forEachIndexed
+                        if (record.all { it.trim().isEmpty() }) {
+                            recordNumber++
+                            continue
+                        }
                         
-                        val values = parseCSVLine(line)
-                        val bookmarkData = parseCsvRowToBookmark(values, headerMap, lineIndex + 2)
+                        val bookmarkData = parseCsvRowToBookmark(record, headerMap, recordNumber)
                         
                         if (bookmarkData != null) {
                             val (bookmark, labelNames) = bookmarkData
@@ -223,12 +228,13 @@ object BookmarkCsvUtils {
                                 assignLabelsToBookmark(savedBookmark, labelNames, bookmarkControl)
                             }
                         } else {
-                            errorMessages.add("Line ${lineIndex + 2}: Invalid bookmark data")
+                            errorMessages.add("Record $recordNumber: Invalid bookmark data")
                         }
                     } catch (e: Exception) {
-                        errorMessages.add("Line ${lineIndex + 2}: ${e.message}")
-                        Log.w(TAG, "Error importing bookmark from line ${lineIndex + 2}", e)
+                        errorMessages.add("Record $recordNumber: ${e.message}")
+                        Log.w(TAG, "Error importing bookmark from record $recordNumber", e)
                     }
+                    recordNumber++
                 }
             }
         } catch (e: Exception) {
@@ -426,34 +432,55 @@ object BookmarkCsvUtils {
         }
     }
 
-    private fun parseCSVLine(line: String): List<String> {
+    /**
+     * Reads a complete CSV record that may span multiple lines
+     */
+    private fun readCsvRecord(reader: BufferedReader): List<String>? {
         val result = mutableListOf<String>()
         var current = StringBuilder()
         var inQuotes = false
-        var i = 0
-
-        while (i < line.length) {
-            val char = line[i]
-            when {
-                char == '"' && inQuotes && i + 1 < line.length && line[i + 1] == '"' -> {
-                    // Escaped quote
-                    current.append('"')
-                    i += 2
-                    continue
+        
+        while (true) {
+            val line = reader.readLine() ?: break
+            
+            var i = 0
+            while (i < line.length) {
+                val char = line[i]
+                when {
+                    char == '"' && inQuotes && i + 1 < line.length && line[i + 1] == '"' -> {
+                        // Escaped quote
+                        current.append('"')
+                        i += 2
+                        continue
+                    }
+                    char == '"' -> {
+                        inQuotes = !inQuotes
+                    }
+                    char == ';' && !inQuotes -> {
+                        result.add(current.toString())
+                        current = StringBuilder()
+                    }
+                    else -> {
+                        current.append(char)
+                    }
                 }
-                char == '"' -> {
-                    inQuotes = !inQuotes
-                }
-                char == ';' && !inQuotes -> {
-                    result.add(current.toString())
-                    current = StringBuilder()
-                }
-                else -> {
-                    current.append(char)
-                }
+                i++
             }
-            i++
+            
+            if (inQuotes) {
+                // We're inside quotes and hit end of line - add newline and continue reading
+                current.append('\n')
+            } else {
+                // Not in quotes, record is complete
+                break
+            }
         }
+        
+        if (result.isEmpty() && current.isEmpty()) {
+            return null // End of file
+        }
+        
+        // Add the last field
         result.add(current.toString())
         return result
     }

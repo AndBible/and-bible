@@ -41,7 +41,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.text.SimpleDateFormat
 import java.util.*
 
 @RunWith(RobolectricTestRunner::class)
@@ -308,6 +307,197 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
         val csvOutput = outputStream.toString("UTF-8")
         assertTrue("Should escape fields with semicolons", csvOutput.contains("\"Note with; semicolon"))
         assertTrue("Should escape fields with quotes", csvOutput.contains("\"\"quotes\"\""))
+        assertTrue("Should handle newlines in notes", csvOutput.contains("\nnewlines"))
+    }
+
+    @Test
+    fun testExportAndImportMultiLineNotes(): Unit = runBlocking {
+        // Given - Bookmark with multi-line notes
+        val multiLineNote = """This is a multi-line note.
+It contains several lines.
+Some with "quotes" and; semicolons.
+And even empty lines:
+
+Like that one above."""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.1")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = multiLineNote
+            customIcon = "heart"
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When - Export
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Clean up for import test
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // When - Import the exported CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        assertEquals("Multi-line notes should be preserved exactly", multiLineNote, importedBookmark?.notes)
+        assertEquals("Custom icon should be preserved", "heart", importedBookmark?.customIcon)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
+    }
+
+    @Test
+    fun testImportFullFormatMultiLineNotesFromCsv(): Unit = runBlocking {
+        // Given - Full CSV format with multi-line notes (with all fields filled to avoid parsing issues)
+        val csvContent = """osisRef;bibleRef;document;book;chapterStart;verseStart;chapterEnd;verseEnd;id;ordinalStart;ordinalEnd;createdAt;lastUpdatedOn;startOffset;endOffset;labels;notes;customIcon
+Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01-01T00:00:00Z;0;0;;"This is a multi-line note.
+It spans multiple lines.
+With various ""quotes"" and; semicolons.";star"""
+
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        
+        // When
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        
+        val expectedNote = """This is a multi-line note.
+It spans multiple lines.
+With various "quotes" and; semicolons."""
+        assertEquals("Multi-line notes should be imported correctly", expectedNote, importedBookmark?.notes)
+        assertEquals("Custom icon should be set", "star", importedBookmark?.customIcon)
+    }
+
+    @Test
+    fun testImportMultiLineNotesFromCsv(): Unit = runBlocking {
+        // Given - Simplified CSV with multi-line notes
+        val csvContent = """osisRef;notes;customIcon
+Gen.1.1;"This is a multi-line note.
+It spans multiple lines.
+With various ""quotes"" and; semicolons.";star"""
+
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        
+        // When
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Imported bookmark should exist", importedBookmark)
+        
+        val expectedNote = """This is a multi-line note.
+It spans multiple lines.
+With various "quotes" and; semicolons."""
+        assertEquals("Multi-line notes should be imported correctly", expectedNote, importedBookmark?.notes)
+        assertEquals("Custom icon should be set", "star", importedBookmark?.customIcon)
+    }
+
+    @Test
+    fun testImportMultipleBookmarksWithMultiLineNotes(): Unit = runBlocking {
+        // Given - CSV with multiple bookmarks, some with multi-line notes
+        val csvContent = """osisRef;notes;customIcon
+Gen.1.1;Single line note;star
+Gen.1.2;"Multi-line note
+with newlines
+and special chars: ""quotes"" and; semicolons";heart
+Gen.1.3;Another single line;bookmark"""
+
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        
+        // When
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then
+        assertThat(result.created, equalTo(3))
+        assertThat(result.errors, equalTo(0))
+        
+        val allBookmarks = bookmarkControl.allBibleBookmarks.sortedBy { it.verseRange.start.verse }
+        assertEquals("Should import 3 bookmarks", 3, allBookmarks.size)
+        
+        // Check first bookmark (single line)
+        assertEquals("Single line note", allBookmarks[0].notes)
+        assertEquals("star", allBookmarks[0].customIcon)
+        
+        // Check second bookmark (multi-line)
+        val expectedMultiLineNote = """Multi-line note
+with newlines
+and special chars: "quotes" and; semicolons"""
+        assertEquals(expectedMultiLineNote, allBookmarks[1].notes)
+        assertEquals("heart", allBookmarks[1].customIcon)
+        
+        // Check third bookmark (single line)
+        assertEquals("Another single line", allBookmarks[2].notes)
+        assertEquals("bookmark", allBookmarks[2].customIcon)
+    }
+
+    @Test
+    fun testExportMultiLineNotesEscaping(): Unit = runBlocking {
+        // Given - Bookmark with complex multi-line notes
+        val complexNote = """Line 1 with "quotes"
+Line 2 with; semicolons
+Line 3 with both "quotes" and; semicolons
+Line 4 with ""double quotes""
+
+Empty line above
+Final line"""
+
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.1")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = complexNote
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        val outputStream = ByteArrayOutputStream()
+
+        // When
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        
+        // Then
+        val csvOutput = outputStream.toString("UTF-8")
+        val lines = csvOutput.split("\n")
+        
+        // The CSV should be properly escaped and contain the multi-line content
+        assertTrue("CSV should contain properly escaped quotes", csvOutput.contains("\"\"quotes\"\""))
+        assertTrue("CSV should contain newlines", csvOutput.contains("\n"))
+        assertTrue("CSV should be properly quoted for multi-line content", csvOutput.contains("\"Line 1 with"))
+        
+        // Test round-trip by importing it back
+        val inputStream = ByteArrayInputStream(csvOutput.toByteArray(Charsets.UTF_8))
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Round-trip imported bookmark should exist", importedBookmark)
+        assertEquals("Round-trip should preserve exact multi-line content", complexNote, importedBookmark?.notes)
     }
 
     @Test
@@ -604,7 +794,7 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;;;;;;5;15;;;;"""
         assertThat(result.created, equalTo(0))
         assertThat(result.updated, equalTo(0))
         assertThat(result.errors, equalTo(1))
-        assertThat(result.errorMessages, equalTo(listOf("Line 2: Invalid bookmark data")))
+        assertThat(result.errorMessages, equalTo(listOf("Record 2: Invalid bookmark data")))
     }
     
     // === REDUCED HEADER CSV TESTS - Only selected columns in header ===
@@ -958,8 +1148,8 @@ Another note;heart"""
         assertThat(result.updated, equalTo(0))
         assertThat(result.errors, equalTo(2))
         assertThat(result.errorMessages, equalTo(listOf(
-            "Line 2: Invalid bookmark data",
-            "Line 3: Invalid bookmark data"
+            "Record 2: Invalid bookmark data",
+            "Record 3: Invalid bookmark data"
         )))
     }
 }
