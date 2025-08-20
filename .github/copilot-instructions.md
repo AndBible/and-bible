@@ -52,12 +52,14 @@ npm install  # Takes ~17 seconds, downloads 666 packages
 npm run dev         # Development server - starts in ~337ms at http://localhost:5173/
 npm run test:ci     # Unit tests - takes 5-6 seconds, 140+ tests
 npm run lint        # ESLint checking - takes ~4 seconds
+npm run lint-fix    # Auto-fix lint issues - takes ~4 seconds
 npm run type-check  # TypeScript validation - takes ~7 seconds
 
 # Build commands (NO INTERNET REQUIRED)
-npm run build-debug      # Debug build - takes ~8 seconds, includes source maps
-npm run build-development # Development build - takes ~6 seconds  
-npm run build-production  # Production build - takes ~6 seconds, optimized
+npm run build              # Full build (type-check + build-only) - takes ~13 seconds
+npm run build-debug        # Debug build - takes ~8 seconds, includes source maps
+npm run build-development  # Development build - takes ~6 seconds  
+npm run build-production   # Production build - takes ~6 seconds, optimized
 ```
 
 ### Android Gradle Build System (REQUIRES INTERNET)
@@ -84,8 +86,11 @@ npm run build-production  # Production build - takes ~6 seconds, optimized
 - **Vue.js npm install**: ~17 seconds (initial setup only)
 - **Vue.js tests**: ~5-6 seconds (140+ tests pass)
 - **Vue.js linting**: ~4 seconds
+- **Vue.js lint-fix**: ~4 seconds (auto-fixes issues)
 - **Vue.js type checking**: ~7 seconds
-- **Vue.js builds**: ~6-8 seconds
+- **Vue.js builds**: ~6-8 seconds (individual variants)
+- **Vue.js full build**: ~13 seconds (type-check + build-only in parallel)
+- **Vue.js dev server**: ~337ms startup
 - **Android Gradle builds**: 10-45 minutes first time, faster subsequent builds
 - **Android unit tests**: 15-30 minutes
 - **Android instrumented tests**: 60+ minutes
@@ -134,6 +139,14 @@ npm run dev  # Should start on http://localhost:5173/ in ~337ms
 cd app/bibleview-js
 npm run test:ci && npm run lint && npm run type-check && npm run build-debug
 # Should complete in ~25 seconds total
+
+# Fastest validation cycle (recommended for rapid iteration)
+cd app/bibleview-js  
+npm run test:ci && npm run lint  # ~10 seconds - catches most issues
+
+# Full Vue.js validation cycle
+cd app/bibleview-js
+npm run build  # ~13 seconds - includes type-check and production build
 
 # Pre-commit validation
 cd app/bibleview-js && npm run lint  # Fix any linting errors
