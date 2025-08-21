@@ -164,21 +164,32 @@ class TextToSpeechServiceManager @Inject constructor(
             tts.addEarcon(EARCON_PRE_BOOK_CHANGE, application.packageName, R.raw.long_pling)
 
             // set speech rate
-            setRate(SpeakSettings.load().playbackSettings.speed)
+            val speakSettings = SpeakSettings.load()
+            setRate(speakSettings.playbackSettings.speed)
 
-            var localeOK = false
+            var localeOK = true // Assume OK initially
             var locale: Locale? = null
-            var i = 0
-            while (i < localePreferenceList.size && !localeOK) {
-                locale = localePreferenceList[i]
-                Log.i(TAG, "Checking for locale:$locale")
-                val result = tts.setLanguage(locale)
-                localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
-                if (localeOK) {
-                    Log.i(TAG, "Successful locale:$locale")
-                    currentLocale = locale
+            
+            // Check if we should use system default voice
+            if (speakSettings.playbackSettings.useSystemDefaultVoice) {
+                Log.i(TAG, "Using system default voice - skipping language override")
+                currentLocale = Locale.getDefault()
+                locale = currentLocale
+            } else {
+                // Original logic for setting specific language
+                localeOK = false
+                var i = 0
+                while (i < localePreferenceList.size && !localeOK) {
+                    locale = localePreferenceList[i]
+                    Log.i(TAG, "Checking for locale:$locale")
+                    val result = tts.setLanguage(locale)
+                    localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
+                    if (localeOK) {
+                        Log.i(TAG, "Successful locale:$locale")
+                        currentLocale = locale
+                    }
+                    i++
                 }
-                i++
             }
 
             if (!localeOK) {

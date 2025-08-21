@@ -55,6 +55,9 @@ data class PlaybackSettings (
     val speakTitles: Boolean = true,
     val speakFootnotes: Boolean = false,
     var speed: Int = 100,
+    
+    // Voice settings
+    val useSystemDefaultVoice: Boolean = true,
 
     // Bookmark related metadata.
     // Restoring bookmark from widget uses this.

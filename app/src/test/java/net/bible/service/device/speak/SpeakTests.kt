@@ -1229,3 +1229,31 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range(), equalTo("Rom.7.1"))
     }
 }
+
+@RunWith(RobolectricTestRunner::class)
+@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
+class SpeakVoiceCustomizationTests {
+    
+    @Test
+    fun testDefaultVoiceSettingValue() {
+        val defaultSettings = SpeakSettings()
+        // By default, useSystemDefaultVoice should be true
+        assertThat(defaultSettings.playbackSettings.useSystemDefaultVoice, equalTo(true))
+    }
+    
+    @Test 
+    fun testVoiceSettingSerializationTrue() {
+        val settings = SpeakSettings(playbackSettings = PlaybackSettings(useSystemDefaultVoice = true))
+        val json = settings.toJson()
+        val restored = SpeakSettings.fromJson(json)
+        assertThat(restored.playbackSettings.useSystemDefaultVoice, equalTo(true))
+    }
+    
+    @Test
+    fun testVoiceSettingSerializationFalse() {
+        val settings = SpeakSettings(playbackSettings = PlaybackSettings(useSystemDefaultVoice = false))
+        val json = settings.toJson()
+        val restored = SpeakSettings.fromJson(json)
+        assertThat(restored.playbackSettings.useSystemDefaultVoice, equalTo(false))
+    }
+}
