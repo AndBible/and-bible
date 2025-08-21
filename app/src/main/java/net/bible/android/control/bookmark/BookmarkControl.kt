@@ -194,14 +194,10 @@ open class BookmarkControl @Inject constructor(
         return bookmark
     }
     
-    fun updateBookmarkEditAction(bookmarkId: IdType, editAction: EditAction): Boolean {
+    fun updateBookmarkEditAction(bookmarkId: IdType, editAction: EditAction) {
         val bookmark = dao.bibleBookmarkById(bookmarkId) ?: dao.genericBookmarkById(bookmarkId) ?: return false
         bookmark.editAction = editAction
-        addLabels(bookmark)
-        addText(bookmark)
-        dao.update(bookmark.bookmarkEntity)
-        ABEventBus.post(BookmarkAddedOrUpdatedEvent(bookmark))
-        return true
+        addOrUpdateBookmark(bookmark)
     }
 
     fun toggleBookmarkLabel(bookmark: BaseBookmarkWithNotes, labelId: String) {
