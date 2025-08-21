@@ -66,6 +66,24 @@ verseMemorizeLong: Απομνημόνευση Βιβλικών εδαφίων
 verseNoteLong: Γράψε μία σημείωση
 addBookmark: Σελιδοδείκτης
 selectCustomIconTitle: Επιλογή προσαρμοσμένου εικονιδίου δείκτη
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
 blur: Θόλωμα
 reset: Επαναφορά
 peek: Γρήγορο κοίταγμα

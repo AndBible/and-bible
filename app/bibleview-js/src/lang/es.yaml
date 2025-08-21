@@ -66,6 +66,24 @@ verseMemorizeLong: Memorizar versículos de la Biblia
 verseNoteLong: Escribir una nota
 addBookmark: Marcador
 selectCustomIconTitle: Seleccionar icono de marcador personalizado
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
 blur: Desenfoque
 reset: Restablecer
 peek: Mirar

@@ -26,7 +26,7 @@
   <!--Passage navigation-->
   <string name="choosePassageBookName">Buchauswahl</string>
   <string name="choosePassageChapterName">Kapitelauswahl</string>
-  <string name="choosePassageVerseName">Vers wählen</string>
+  <string name="choosePassageVerseName">Versauswahl</string>
   <string name="bible">Biblische Bücher</string>
   <string name="deuterocanonical">Apokryphen</string>
   <!--Search-->
@@ -35,7 +35,7 @@
   <string name="create_index_for">Ein Index ist für die Suche nötig \n\nIndex für %serstellen?</string>
   <string name="rebuild_index_for">Index für %serneut erstellen?</string>
   <string name="indexing_wait_msg">Nach erfolgreicher Indexerstellung werden Sie zum Suchdialog weitergeleitet.</string>
-  <string name="index_create">Erzeuge</string>
+  <string name="index_create">Erzeugen</string>
   <string name="rebuild_index">Index neu erstellen</string>
   <string name="search_in">Finde in %s</string>
   <string name="do_in_background">Im Hintergrund fertigstellen</string>
