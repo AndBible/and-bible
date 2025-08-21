@@ -66,6 +66,24 @@ verseMemorizeLong: Õpi piiblisalme pähe
 verseNoteLong: Kirjuta märge
 addBookmark: Järjehoidja
 selectCustomIconTitle: Kohanda markeri ikooni
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
 blur: Peida mõned
 reset: Nulli
 peek: Piilu

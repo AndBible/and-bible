@@ -66,6 +66,24 @@ verseMemorizeLong: Parkerigi bibliajn versojn
 verseNoteLong: Skribi noton
 addBookmark: Legosigno
 selectCustomIconTitle: Elekti propran emblemon de markilo
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
 blur: Kovri
 reset: Nuligi
 peek: Ŝtelrigardi

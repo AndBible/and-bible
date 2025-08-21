@@ -66,6 +66,24 @@ verseMemorizeLong: Memorera bibelverser
 verseNoteLong: Skriv en anteckning
 addBookmark: Bokmärke
 selectCustomIconTitle: Välj en anpassad ikon
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
 blur: Sudda ut
 reset: Återställ
 peek: Kika
