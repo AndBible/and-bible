@@ -579,7 +579,16 @@ class ManageLabels : ListActivityBase() {
 
         val deleteLabelIds = data.deletedLabels.toList()
         if(deleteLabelIds.isNotEmpty()) {
-            bookmarkControl.deleteLabels(deleteLabelIds)
+            // Check if there are orphaned bookmarks that would be deleted
+            val orphanedBookmarks = bookmarkControl.findOrphanedBookmarks(deleteLabelIds)
+            val deleteOrphanedBookmarks = if (orphanedBookmarks.isNotEmpty()) {
+                val message = getString(R.string.confirm_delete_orphaned_bookmarks, orphanedBookmarks.size)
+                askConfirmation(message, yesNo = true)
+            } else {
+                false
+            }
+            
+            bookmarkControl.deleteLabels(deleteLabelIds, deleteOrphanedBookmarks)
         }
 
         val saveLabels = allLabels

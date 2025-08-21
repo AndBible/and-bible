@@ -304,7 +304,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun deleteLabels(labelIds: String) {
         val ids: List<IdType> = json.decodeFromString(serializer(), labelIds)
-        bookmarkControl.deleteLabels(ids)
+        bookmarkControl.deleteLabels(ids, deleteOrphanedBookmarks = false)
     }
 
     @JavascriptInterface

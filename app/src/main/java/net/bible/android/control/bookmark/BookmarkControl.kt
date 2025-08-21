@@ -441,17 +441,19 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    fun deleteLabels(toList: List<IdType>) {
-        // Find bookmarks that only have the labels being deleted
+    /**
+     * Find bookmarks that would become orphaned (have no labels) when the specified labels are deleted
+     */
+    fun findOrphanedBookmarks(labelIdsToDelete: List<IdType>): List<BaseBookmarkWithNotes> {
         val bookmarksToDelete = mutableListOf<BaseBookmarkWithNotes>()
         
-        for (labelId in toList) {
+        for (labelId in labelIdsToDelete) {
             // Get all Bible bookmarks with this label
             val bibleBookmarks = dao.bookmarksWithLabel(labelId)
             for (bookmark in bibleBookmarks) {
                 val allLabels = dao.labelsForBookmark(bookmark.id).map { it.id }
                 // If this bookmark only has labels that are being deleted, mark it for deletion
-                if (allLabels.all { it in toList }) {
+                if (allLabels.all { it in labelIdsToDelete }) {
                     bookmarksToDelete.add(bookmark)
                 }
             }
@@ -461,18 +463,25 @@ open class BookmarkControl @Inject constructor(
             for (bookmark in genericBookmarks) {
                 val allLabels = dao.labelsForGenericBookmark(bookmark.id).map { it.id }
                 // If this bookmark only has labels that are being deleted, mark it for deletion
-                if (allLabels.all { it in toList }) {
+                if (allLabels.all { it in labelIdsToDelete }) {
                     bookmarksToDelete.add(bookmark)
                 }
             }
         }
         
-        // Delete bookmarks that only have the labels being deleted
-        if (bookmarksToDelete.isNotEmpty()) {
-            deleteBookmarks(bookmarksToDelete.distinct())
+        return bookmarksToDelete.distinct()
+    }
+
+    fun deleteLabels(toList: List<IdType>, deleteOrphanedBookmarks: Boolean = false) {
+        // Optionally delete bookmarks that only have the labels being deleted
+        if (deleteOrphanedBookmarks) {
+            val bookmarksToDelete = findOrphanedBookmarks(toList)
+            if (bookmarksToDelete.isNotEmpty()) {
+                deleteBookmarks(bookmarksToDelete)
+            }
         }
         
-        // Now delete the labels (CASCADE will handle remaining bookmark-to-label relationships)
+        // Delete the labels (CASCADE will handle remaining bookmark-to-label relationships)
         dao.deleteLabelsByIds(toList)
     }
 
