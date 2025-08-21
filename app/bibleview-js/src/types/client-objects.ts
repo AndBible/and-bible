@@ -25,6 +25,17 @@ export type Features = {
     readonly keyName?: Nullable<string>
 }
 
+export enum EditActionMode {
+    APPEND = "APPEND",
+    PREPEND = "PREPEND", 
+    REPLACE = "REPLACE"
+}
+
+export type EditAction = {
+    mode: EditActionMode | null
+    content: string | null
+}
+
 // ClientObjects.kt: OsisFragment
 export type OsisFragment = {
     xml: string,
@@ -90,6 +101,7 @@ export type BaseBookmark = {
     hasNote: boolean
     wholeVerse: boolean
     customIcon: Nullable<string>
+    editAction: EditAction
 }
 
 export type BibleBookmark = BaseBookmark & {

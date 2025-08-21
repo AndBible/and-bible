@@ -267,7 +267,8 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "type" to wrapString("bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
-            "customIcon" to wrapString(bookmark.customIcon)
+            "customIcon" to wrapString(bookmark.customIcon),
+            "editAction" to json.encodeToString(serializer(), bookmark.editAction ?: BookmarkEntities.EditAction()),
         )
     }
 }
@@ -305,7 +306,8 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "type" to wrapString("generic-bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to bookmark.wholeVerse.toString(),
-            "customIcon" to wrapString(bookmark.customIcon)
+            "customIcon" to wrapString(bookmark.customIcon),
+            "editAction" to json.encodeToString(serializer(), bookmark.editAction ?: BookmarkEntities.EditAction()),
         )
     }
 }
@@ -328,7 +330,7 @@ data class ClientBookmarkLabel(
     val id: IdType,
     val name: String,
     val style: ClientBookmarkStyle,
-    val isRealLabel: Boolean
+    val isRealLabel: Boolean,
 ) {
     constructor(label: BookmarkEntities.Label): this(
         label.id,
@@ -344,7 +346,7 @@ data class ClientBookmarkLabel(
             hideStyleWholeVerse = label.hideStyleWholeVerse,
             customIcon = label.customIcon
         ),
-        !label.isSpecialLabel && !label.new
+        !label.isSpecialLabel && !label.new,
     )
 }
 

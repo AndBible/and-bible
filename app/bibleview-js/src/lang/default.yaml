@@ -68,6 +68,21 @@ verseMemorizeLong: Memorize Bible verses
 verseNoteLong: Write a note
 addBookmark: Bookmark
 selectCustomIconTitle: Select custom marker icon
+subtitlePlaceholder: Subtitle text
+xmlParseError: XML parsing error
+bookmarkSettingsTitle: Configure bookmark settings
+customIconLabel: Custom icon
+editActionLabel: Edit action
+editActionModeLabel: Mode
+editActionModeNone: None
+editActionModeAppend: Append text
+editActionModePrepend: Prepend text
+editActionModeReplace: Replace text
+editActionContentLabel: Content
+editActionContentPlaceholder: Enter text to be added to the bookmark...
+insertParagraphBreak: Insert paragraph break
+insertSubtitle: Insert subtitle
+formatHelp: "Use <br/> for paragraph breaks and <subtitle>text</subtitle> for subtitles"
 blur: Blur
 reset: Reset
 peek: Peek

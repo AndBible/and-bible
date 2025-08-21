@@ -40,6 +40,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -72,7 +73,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.coroutines.resume
 import kotlin.math.min
 
 abstract class BookmarkEvent
@@ -193,6 +193,17 @@ open class BookmarkControl @Inject constructor(
         )
         return bookmark
     }
+    
+    fun updateBookmarkEditAction(bookmarkId: IdType, editAction: EditAction): Boolean {
+        val bookmark = dao.bibleBookmarkById(bookmarkId) ?: dao.genericBookmarkById(bookmarkId) ?: return false
+        bookmark.editAction = editAction
+        addLabels(bookmark)
+        addText(bookmark)
+        dao.update(bookmark.bookmarkEntity)
+        ABEventBus.post(BookmarkAddedOrUpdatedEvent(bookmark))
+        return true
+    }
+
     fun toggleBookmarkLabel(bookmark: BaseBookmarkWithNotes, labelId: String) {
         val labels = labelsForBookmark(bookmark).toMutableList()
         val foundLabel = labels.find { it.id == IdType(labelId) }

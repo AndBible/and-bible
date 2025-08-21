@@ -62,8 +62,9 @@
         </div>
         <div
             class="bookmark-button"
-            @click.stop="changeCustomIcon"
-            :style="buttonColor(primaryLabel.color)">
+            @click.stop="configureBookmarkSettings"
+            :style="buttonColor(primaryLabel.color)"
+            :title="strings.bookmarkSettingsTitle">
           <FontAwesomeIcon :icon="faIcons" />
         </div>
         <template v-if="showStudyPadButtons">
@@ -92,14 +93,14 @@
     </template>
     {{ strings.removeBookmarkConfirmation }}
   </AreYouSure>
-  <AskCustomIcon ref="askCustomIconDialog" />
+  <AskBookmarkSettings ref="askBookmarkSettingsDialog" />
 </template>
 
 <script lang="ts" setup>
 import {useCommon} from "@/composables";
 import {computed, inject, ref} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
-import AskCustomIcon from "@/components/modals/AskCustomIcon.vue";
+import AskBookmarkSettings from "@/components/modals/AskBookmarkSettings.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Color from "color";
 import {sortBy} from "lodash";
@@ -173,12 +174,24 @@ function buttonColor(color: ColorParam, highlighted = false) {
     return `color:${col.hsl().string()};`;
 }
 
-const askCustomIconDialog = ref<InstanceType<typeof AskCustomIcon> | null>(null);
+const askBookmarkSettingsDialog = ref<InstanceType<typeof AskBookmarkSettings> | null>(null);
 
-async function changeCustomIcon() {
-  const newIcon = await askCustomIconDialog.value!.askCustomIcon(bookmark.value.customIcon);
-  if (newIcon !== bookmark.value.customIcon) {
-    android.setCustomIcon(bookmark.value, newIcon);
+async function configureBookmarkSettings() {
+  const result = await askBookmarkSettingsDialog.value!.askBookmarkSettings(
+    bookmark.value.customIcon, 
+    bookmark.value.editAction
+  );
+  if (result) {
+    if (result.customIcon !== bookmark.value.customIcon) {
+      android.setCustomIcon(bookmark.value, result.customIcon);
+    }
+    // TODO: Add Android method to update edit action
+    // This would need to be implemented in BibleJavascriptInterface.kt
+    if (result.editAction.mode !== bookmark.value.editAction.mode || 
+        result.editAction.content !== bookmark.value.editAction.content)
+    {
+        android.setEditAction(bookmark.value, result.editAction);
+    }
   }
 }
 

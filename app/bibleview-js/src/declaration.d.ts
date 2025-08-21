@@ -112,6 +112,21 @@ type TranslatedStrings = {
     verseNoteLong: string
     addBookmark: string
     selectCustomIconTitle: string
+    bookmarkSettingsTitle: string
+    customIconLabel: string
+    editActionLabel: string
+    editActionModeLabel: string
+    editActionModeNone: string
+    editActionModeAppend: string
+    editActionModePrepend: string
+    editActionModeReplace: string
+    editActionContentLabel: string
+    editActionContentPlaceholder: string
+    insertParagraphBreak: string
+    insertSubtitle: string
+    formatHelp: string
+    subtitlePlaceholder: string
+    xmlParseError: string
     blur: string
     reset: string
     peek: string

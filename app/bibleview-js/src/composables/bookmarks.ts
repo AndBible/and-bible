@@ -46,6 +46,7 @@ import {
 import {ColorParam} from "@/types/common";
 import Color from "color";
 import {bookmarkIcon, customIconMap, editIcon, speakIcon} from "@/composables/fontawesome";
+import {EditActionMode} from "@/types/client-objects";
 
 type LabelId = IdType
 type LabelCountMap = Map<LabelId, number>
@@ -570,6 +571,56 @@ export function useBookmarks(
         return container;
     }
 
+    function parseEditActionContent(content: string): DocumentFragment {
+        const fragment = document.createDocumentFragment();
+        
+        // Split content by XML tags while preserving the tags
+        const parts = content.split(/(<br\s*\/?>|<subtitle>.*?<\/subtitle>)/);
+        
+        for (const part of parts) {
+            if (!part) continue;
+            
+            if (part.match(/^<br\s*\/?>$/)) {
+                // Paragraph break
+                const spanElement = document.createElement("span");
+                spanElement.className = "paragraphBreak skip-offset";
+                fragment.appendChild(spanElement);
+            } else if (part.match(/^<subtitle>(.*?)<\/subtitle>$/)) {
+                // Subtitle
+                const match = part.match(/^<subtitle>(.*?)<\/subtitle>$/);
+                if (match) {
+                    const h3Element = document.createElement("h3");
+                    h3Element.className = "titleStyle skip-offset";
+                    h3Element.textContent = match[1];
+                    fragment.appendChild(h3Element);
+                }
+            } else {
+                // Regular text
+                if (part.trim()) {
+                    const textNode = document.createTextNode(part);
+                    fragment.appendChild(textNode);
+                }
+            }
+        }
+        
+        return fragment;
+    }
+
+    function createEditActionElement(bookmark: BaseBookmark): HTMLElement | null {
+        const editAction = bookmark.editAction;
+        if (!editAction.mode || !editAction.content) {
+            return null;
+        }
+
+        const container = document.createElement("span");
+        container.classList.add("bookmark-edit-action", "skip-offset");
+        
+        const content = parseEditActionContent(editAction.content);
+        container.appendChild(content);
+        
+        return container;
+    }
+
     function highlightStyleRange(styleRange: StyleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         let firstElement: Element, lastElement: Element;
@@ -697,6 +748,80 @@ export function useBookmarks(
                 undoHighlights.push(() => iconElement.remove());
             }
 
+        }
+        
+        // Handle edit actions (PREPEND, APPEND, REPLACE)
+        if (config.showBookmarks) {
+            for (const b of bookmarks) {
+                const editAction = b.editAction;
+                if (editAction.mode && editAction.content) {
+                    const bookmarkRange = combinedRange(b);
+                    
+                    if (editAction.mode === EditActionMode.PREPEND && arrayEq(bookmarkRange[0], [startOrdinal, startOff])) {
+                        // PREPEND: Add content before the bookmark start
+                        const editElement = createEditActionElement(b);
+                        if (editElement) {
+                            editElement.addEventListener("click", event => addEventFunction(event,
+                                null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                            firstElement.parentElement!.insertBefore(editElement, firstElement);
+                            undoHighlights.push(() => editElement.remove());
+                        }
+                    } else if (editAction.mode === EditActionMode.APPEND && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
+                        // APPEND: Add content after the bookmark end
+                        const editElement = createEditActionElement(b);
+                        if (editElement) {
+                            editElement.addEventListener("click", event => addEventFunction(event,
+                                null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                            lastElement!.parentNode!.insertBefore(editElement, lastElement!.nextSibling);
+                            undoHighlights.push(() => editElement.remove());
+                        }
+                    } else if (editAction.mode === EditActionMode.REPLACE) {
+                        // REPLACE: Hide original content and add replacement content with same styling
+                        if (arrayEq(bookmarkRange[0], [startOrdinal, startOff]) && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
+                            // Hide the original bookmarked content
+                            if (!startOff && !endOff) {
+                                // Whole verse replacement
+                                for (let ord = startOrdinal; ord <= (endOff === null ? endOrdinal : endOrdinal - 1); ord++) {
+                                    const elem = document.querySelector(`#doc-${documentId} #o-${ord}`) as HTMLElement;
+                                    if (elem) {
+                                        const originalDisplay = elem.style.display;
+                                        elem.style.display = 'none';
+                                        undoHighlights.push(() => {
+                                            elem.style.display = originalDisplay;
+                                        });
+                                    }
+                                }
+                            } else {
+                                // Partial content replacement using highlight elements
+                                const replacementElements = document.querySelectorAll(`#doc-${documentId} .bookmarked`);
+                                replacementElements.forEach((elem: Element) => {
+                                    const htmlElem = elem as HTMLElement;
+                                    if (htmlElem.closest(`#o-${startOrdinal}`) || htmlElem.closest(`#o-${endOrdinal}`)) {
+                                        const originalDisplay = htmlElem.style.display;
+                                        htmlElem.style.display = 'none';
+                                        undoHighlights.push(() => {
+                                            htmlElem.style.display = originalDisplay;
+                                        });
+                                    }
+                                });
+                            }
+                            
+                            // Add replacement content with same background styling as original bookmark
+                            const editElement = createEditActionElement(b);
+                            if (editElement) {
+                                // Apply the same bookmark styling to the replacement content
+                                editElement.classList.add('bookmarked');
+                                editElement.style.backgroundImage = style;
+                                
+                                editElement.addEventListener("click", event => addEventFunction(event,
+                                    null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                                firstElement.parentElement!.insertBefore(editElement, firstElement);
+                                undoHighlights.push(() => editElement.remove());
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
