@@ -77,7 +77,7 @@ class SpeakControl @Inject constructor(
     private var _speakPageManager: CurrentPageManager? = null
 
     private var ttsInitialized = false
-    private val ttsServiceManager: TextToSpeechServiceManager get () {
+    val ttsServiceManager: TextToSpeechServiceManager get () {
         if(!ttsInitialized)
             ttsInitialized = true
         return textToSpeechServiceManager.get()

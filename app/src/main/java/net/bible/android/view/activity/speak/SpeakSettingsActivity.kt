@@ -94,11 +94,11 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
     private fun loadAvailableVoices() {
         try {
             // Get current book language
-            val currentBook = speakControl.ttsServiceManager?.currentlyPlayingBook
+            val currentBook = speakControl.ttsServiceManager.currentlyPlayingBook
             currentLanguageCode = currentBook?.language?.code ?: "en"
             
             // Get available voices for this language
-            availableVoices = speakControl.ttsServiceManager?.getAvailableVoicesForLanguage(currentLanguageCode!!) ?: emptyList()
+            availableVoices = speakControl.ttsServiceManager.getAvailableVoicesForLanguage(currentLanguageCode!!)
             
             // Update spinner with voice names
             val voiceNames = availableVoices.map { it.displayName }
