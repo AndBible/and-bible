@@ -59,7 +59,7 @@ import {
 } from "@/types/documents";
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
-import {TabContainer} from '@/components/tabs';
+import TabContainer from '@/components/tabs/TabContainer.vue';
 import {faEyeSlash, faRandom} from "@fortawesome/free-solid-svg-icons";
 
 const props = defineProps<{ document: MemorizeDocument }>();

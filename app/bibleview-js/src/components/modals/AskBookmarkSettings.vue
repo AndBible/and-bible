@@ -131,7 +131,7 @@ import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {Deferred} from "@/utils";
 import {useCommon} from "@/composables";
-import {TabContainer} from "@/components/tabs";
+import TabContainer from "@/components/tabs/TabContainer.vue";
 import {
     faArrowDown,
     faArrowUp,
