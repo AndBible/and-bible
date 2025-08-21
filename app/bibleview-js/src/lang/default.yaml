@@ -68,9 +68,8 @@ verseMemorizeLong: Memorize Bible verses
 verseNoteLong: Write a note
 addBookmark: Bookmark
 selectCustomIconTitle: Select custom marker icon
-subtitlePlaceholder: Subtitle text
-xmlParseError: XML parsing error
 bookmarkSettingsTitle: Configure bookmark settings
+subtitlePlaceholder: Subtitle text
 customIconLabel: Custom icon
 editActionLabel: Edit action
 editActionModeLabel: Mode
@@ -78,9 +77,10 @@ editActionModeNone: None
 editActionModeAppend: Append text
 editActionModePrepend: Prepend text
 editActionContentLabel: Content
-editActionContentPlaceholder: Enter text to be added to the bookmark...
+editActionContentPlaceholder: Enter text to be added to document...
 insertParagraphBreak: Insert paragraph break
 insertSubtitle: Insert subtitle
+xmlParseError: XML parsing error
 invalidTag: Invalid tag
 invalidClosingTag: Invalid closing tag
 unmatchedClosingTag: Unmatched closing tag
