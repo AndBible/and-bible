@@ -27,7 +27,7 @@ import {computed, inject, onMounted, provide, ref, toRefs, watch} from "vue";
 import {highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment.vue";
 import {useCommon} from "@/composables";
-import {customCssKey, osisFragmentKey} from "@/types/constants";
+import {customCssKey, osisFragmentKey, hideTitlesKey} from "@/types/constants";
 import {OffsetRange, OrdinalRange, OsisFragment} from "@/types/client-objects";
 
 const props = withDefaults(defineProps<{
@@ -43,7 +43,7 @@ const {bookInitials, osisRef} = toRefs(props.fragment);
 const uniqueId = ref(Date.now().toString());
 
 if (props.hideTitles) {
-    provide("hideTitles", true);
+    provide(hideTitlesKey, true);
 }
 
 provide(osisFragmentKey, props.fragment)

@@ -29,6 +29,7 @@ import {useStrings} from "@/composables/strings";
 import {useCustomFeatures} from "@/composables/features";
 import {useReferenceCollector} from "@/composables";
 import {useKeyboard} from "@/composables/keyboard";
+import {useStudyPad} from "@/composables/journal";
 
 export const osisFragmentKey: InjectionKey<OsisFragment> = Symbol("osisFragment");
 export const androidKey: InjectionKey<ReturnType<typeof useAndroid>> = Symbol("android");
@@ -50,3 +51,7 @@ export const stringsKey: InjectionKey<ReturnType<typeof useStrings>> = Symbol("s
 export const exportModeKey: InjectionKey<Ref<boolean>> = Symbol("exportMode");
 export const customFeaturesKey: InjectionKey<ReturnType<typeof useCustomFeatures>> = Symbol("customFeatures");
 export const locateTopKey: InjectionKey<Ref<boolean>> = Symbol("locateTop");
+export const activeTabKey: InjectionKey<Ref<string>> = Symbol("activeTab");
+export const setActiveTabKey: InjectionKey<(tabId: string) => void> = Symbol("setActiveTab");
+export const journalKey: InjectionKey<ReturnType<typeof useStudyPad>> = Symbol("journal");
+export const hideTitlesKey: InjectionKey<boolean> = Symbol("hideTitles");
