@@ -120,15 +120,43 @@ class VoiceManager {
      * Format a voice name for display to users
      */
     private fun formatVoiceDisplayName(voice: Voice): String {
-        val baseName = voice.name
+        var baseName = voice.name
+            // Remove common TTS engine prefixes
             .replace("com.google.android.tts:", "")
             .replace("com.samsung.android.tts:", "")
+            .replace("com.svox.pico:", "")
+            .replace("com.cereproc.cerevoice.tts:", "")
+            .replace("com.acapelagroup.android.tts:", "")
+            // Remove quality/neural indicators from name
             .replace("#neural", "")
             .replace("#high", "")
             .replace("#medium", "")
             .replace("#low", "")
             .replace("-#", " ")
             .replace("_", " ")
+            .replace("-", " ")
+            // Remove language codes that are redundant
+            .replace(Regex("\\b${voice.locale.language}[-_]", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("\\b${voice.locale.country}[-_]", RegexOption.IGNORE_CASE), "")
+            // Clean up common patterns
+            .replace(Regex("\\btts\\b", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("\\bvoice\\b", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+        
+        // If name is empty or too generic, use locale display name
+        if (baseName.isEmpty() || baseName.length < 2) {
+            baseName = voice.locale.displayName
+        }
+        
+        // Capitalize first letter of each word
+        baseName = baseName.split(" ").joinToString(" ") { word ->
+            if (word.isNotEmpty()) {
+                word.substring(0, 1).uppercase() + word.substring(1).lowercase()
+            } else {
+                word
+            }
+        }
         
         val qualityIndicator = when (voice.quality) {
             Voice.QUALITY_VERY_HIGH -> " (Very High Quality)"

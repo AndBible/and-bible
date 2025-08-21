@@ -127,19 +127,104 @@
                         android:progress="100" />
                 </LinearLayout>
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/speak_subtitle_padding"
-                    android:text="@string/repeat_passage"
-                    android:textStyle="bold" />
+                    android:orientation="vertical">
 
-                <CheckBox
-                    android:id="@+id/repeatPassageCheckbox"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/speak_subtitle_padding"
+                        android:text="@string/speak_voice_settings_title"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/speak_row_padding"
+                        android:layout_marginEnd="@dimen/speak_row_padding"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/voice_selection_explanation"
+                        android:textSize="14sp" />
+
+                    <RadioGroup
+                        android:id="@+id/voiceSelectionGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/speak_row_padding"
+                        android:orientation="vertical">
+
+                        <RadioButton
+                            android:id="@+id/systemDefaultVoiceOption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/voice_selection_system_default" />
+
+                        <RadioButton
+                            android:id="@+id/languageSpecificVoiceOption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/voice_selection_language_specific" />
+
+                        <RadioButton
+                            android:id="@+id/manualVoiceSelectionOption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/voice_selection_manual" />
+
+                    </RadioGroup>
+
+                    <LinearLayout
+                        android:id="@+id/voiceSelectionLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginEnd="@dimen/speak_row_padding"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:text="@string/select_voice"
+                            android:textSize="14sp"
+                            android:layout_marginEnd="8dp" />
+
+                        <Spinner
+                            android:id="@+id/voiceSpinner"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="15dip" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/speak_row_padding"
-                    android:text="@string/set_repeat_passage_range" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/speak_subtitle_padding"
+                        android:text="@string/repeat_passage"
+                        android:textStyle="bold" />
+
+                    <CheckBox
+                        android:id="@+id/repeatPassageCheckbox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/speak_row_padding"
+                        android:text="@string/set_repeat_passage_range" />
+                </LinearLayout>
 
                 <Space
                     android:layout_width="match_parent"

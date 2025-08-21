@@ -757,7 +757,78 @@ class TextToSpeechServiceManager @Inject constructor(
     fun updateSettings(ev: SpeakSettingsChangedEvent) {
         mSpeakTextProvider.updateSettings(ev)
         setRate(ev.speakSettings.playbackSettings.speed)
-
+        
+        // Apply voice changes if TTS is available
+        mTts?.let { tts ->
+            applyVoiceConfiguration(tts, ev.speakSettings)
+        }
+    }
+    
+    /**
+     * Apply voice configuration based on current settings
+     */
+    private fun applyVoiceConfiguration(tts: TextToSpeech, speakSettings: SpeakSettings) {
+        var localeOK = true
+        var locale: Locale? = null
+        
+        // Determine voice selection approach based on settings
+        val voiceSelectionMode = if (speakSettings.playbackSettings.useSystemDefaultVoice) {
+            // Backwards compatibility: convert old boolean to new enum
+            net.bible.android.database.bookmarks.VoiceSelectionMode.SYSTEM_DEFAULT
+        } else {
+            speakSettings.playbackSettings.voiceSelectionMode
+        }
+        
+        when (voiceSelectionMode) {
+            net.bible.android.database.bookmarks.VoiceSelectionMode.SYSTEM_DEFAULT -> {
+                Log.i(TAG, "Applying system default voice")
+                currentLocale = Locale.getDefault()
+                locale = currentLocale
+            }
+            net.bible.android.database.bookmarks.VoiceSelectionMode.MANUAL_SELECTION -> {
+                val selectedVoiceName = speakSettings.playbackSettings.selectedVoiceName
+                if (selectedVoiceName != null) {
+                    Log.i(TAG, "Applying manually selected voice: $selectedVoiceName")
+                    localeOK = voiceManager.setVoiceByName(tts, selectedVoiceName)
+                    if (localeOK) {
+                        // Get the locale of the selected voice
+                        currentLocale = tts.voice?.locale ?: Locale.getDefault()
+                        locale = currentLocale
+                    } else {
+                        Log.w(TAG, "Failed to set selected voice $selectedVoiceName, falling back to language-specific")
+                        // Fall back to language-specific mode
+                        localeOK = false
+                    }
+                } else {
+                    Log.w(TAG, "Manual voice selection enabled but no voice selected, falling back to language-specific")
+                    localeOK = false
+                }
+            }
+            net.bible.android.database.bookmarks.VoiceSelectionMode.LANGUAGE_SPECIFIC -> {
+                // Use language-specific logic
+                localeOK = false
+            }
+        }
+        
+        // If manual selection failed or language-specific mode, use original logic
+        if (!localeOK) {
+            var i = 0
+            while (i < localePreferenceList.size && !localeOK) {
+                locale = localePreferenceList[i]
+                Log.i(TAG, "Checking for locale:$locale")
+                val result = tts.setLanguage(locale)
+                localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
+                if (localeOK) {
+                    Log.i(TAG, "Successful locale:$locale")
+                    currentLocale = locale
+                }
+                i++
+            }
+        }
+        
+        if (!localeOK) {
+            Log.w(TAG, "Could not apply voice configuration - TTS language not available")
+        }
     }
 
     companion object {
