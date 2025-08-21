@@ -82,7 +82,12 @@ editActionContentLabel: Content
 editActionContentPlaceholder: Enter text to be added to the bookmark...
 insertParagraphBreak: Insert paragraph break
 insertSubtitle: Insert subtitle
-formatHelp: "Use <br/> for paragraph breaks and <subtitle>text</subtitle> for subtitles"
+formatHelp: "Use {brTag} for paragraph breaks and {subtitleTag} for subtitles"
+invalidTag: Invalid tag
+invalidClosingTag: Invalid closing tag
+unmatchedClosingTag: Unmatched closing tag
+unclosedTag: Unclosed tag
+unknownError: Unknown error
 blur: Blur
 reset: Reset
 peek: Peek
