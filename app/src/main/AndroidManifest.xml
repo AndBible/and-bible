@@ -37,6 +37,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH" tools:node="remove" />
     <uses-permission android:name="android.permission.DUMP" tools:node="remove" />
 
+    <!-- Remove permissions added by nextcloud android library (we really don't need them!) -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" tools:node="remove" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" tools:node="remove" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" tools:node="remove" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" tools:node="remove" />
+
     <!-- allow use on Google TV -->
     <uses-feature
         android:name="android.hardware.touchscreen"
