@@ -7,32 +7,15 @@
     </template>
     
     <div class="settings-container">
-      <!-- Tab Navigation -->
-      <div class="tab-navigation">
-        <button
-          type="button"
-          class="tab-button"
-          :class="{ active: activeTab === 'icons' }"
-          @click="activeTab = 'icons'"
-        >
-          <FontAwesomeIcon :icon="faIcons" />
-          {{ strings.customIconLabel }}
-        </button>
-        <button
-          type="button"
-          class="tab-button"
-          :class="{ active: activeTab === 'editAction' }"
-          @click="activeTab = 'editAction'"
-        >
-          <FontAwesomeIcon :icon="faEdit" />
-          {{ strings.editActionLabel }}
-        </button>
-      </div>
-
-      <!-- Tab Content -->
-      <div class="tab-content">
+      <TabContainer
+          :tabs="tabsConfig"
+          :default-tab="activeTab"
+          container-class="bookmark-settings-tabs"
+          content-class="bookmark-settings-content"
+          @tab-change="handleTabChange"
+      >
         <!-- Custom Icon Tab -->
-        <div v-if="activeTab === 'icons'" class="tab-panel">
+        <template #icons>
           <div class="icon-list">
             <div
               v-for="[key, icon] in Array.from(customIconMap.entries())"
@@ -49,10 +32,10 @@
                <FontAwesomeIcon :icon="faTimes" />
             </div>
           </div>
-        </div>
+        </template>
 
         <!-- Edit Action Tab -->
-        <div v-if="activeTab === 'editAction'" class="tab-panel">
+        <template #editAction>
           <div class="edit-action-controls">
             <div class="mode-selection">
               <label>{{ strings.editActionModeLabel }}:</label>
@@ -147,8 +130,8 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </template>
+      </TabContainer>
     </div>
 
     <div class="dialog-buttons">
@@ -170,6 +153,7 @@ import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {Deferred} from "@/utils";
 import {useCommon} from "@/composables";
+import {TabContainer} from "@/components/tabs";
 import {
     faArrowDown,
     faArrowUp,
@@ -204,6 +188,25 @@ const contentTextarea = ref<HTMLTextAreaElement | null>(null);
 const validationError = ref<string | null>(null);
 
 let deferred: Deferred<BookmarkSettings | null> | null = null;
+
+// Tab configuration for the TabContainer
+const tabsConfig = computed(() => [
+    { 
+        id: 'icons', 
+        label: strings.customIconLabel, 
+        icon: faIcons 
+    },
+    { 
+        id: 'editAction', 
+        label: strings.editActionLabel, 
+        icon: faEdit 
+    }
+]);
+
+// Handle tab change events
+function handleTabChange(tabId: string) {
+    activeTab.value = tabId as 'icons' | 'editAction';
+}
 
 const formatHelpText = computed(() => {
     return strings.formatHelp
@@ -334,77 +337,12 @@ watch(() => selectedEditAction.mode, (newMode) => {
   margin: 20px 0;
 }
 
-.tab-navigation {
-  display: flex;
-  border-bottom: 2px solid #eee;
-  
-  .night & {
-    border-bottom-color: #444;
-  }
-}
-
-.tab-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: #666;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s ease;
+.bookmark-settings-tabs {
   flex: 1;
-  justify-content: center;
-  
-  .night & {
-    color: #999;
-  }
-  
-  &:hover {
-    color: #007bff;
-    background: #f8f9fa;
-    
-    .night & {
-      color: #1e90ff;
-      background: #333;
-    }
-  }
-  
-  &.active {
-    color: #007bff;
-    border-bottom-color: #007bff;
-    
-    .night & {
-      color: #1e90ff;
-      border-bottom-color: #1e90ff;
-    }
-  }
-  
-  svg {
-    font-size: 16px;
-  }
 }
 
-.tab-content {
+.bookmark-settings-content {
   min-height: 200px;
-}
-
-.tab-panel {
-  animation: fadeIn 0.2s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .setting-section {
