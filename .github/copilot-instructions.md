@@ -241,23 +241,22 @@ cd app/bibleview-js && npm run lint-fix    # Auto-fixes some issues
 # 1. ALWAYS start with Vue.js tests for immediate feedback
 cd app/bibleview-js && npm run test:ci && npm run lint
 
-# 2. Use validation scripts for comprehensive checking  
-./scripts/test-validation.sh              # Vue.js only (20 seconds)
-./scripts/run-tests.sh --quick            # Vue.js + Android check (25 seconds)
+# 2. Quick Vue.js validation cycle for rapid iteration
+cd app/bibleview-js && npm run test:ci && npm run lint && npm run type-check  # ~16 seconds
 
 # 3. Run Android tests only when necessary (Android-specific changes)
-./scripts/run-tests.sh --android-only     # Full Android tests (10-45 minutes)
 ./gradlew testStandardGoogleplayDebugUnitTest --tests "*YourSpecificTest*"  # Targeted tests
+./gradlew check  # Full validation (45+ minutes)
 
-# 4. For full validation (CI-style, long running):
-./scripts/run-tests.sh --full             # Complete test suite (45+ minutes)
+# 4. For comprehensive validation including builds
+./gradlew check  # Complete test suite with builds (45+ minutes)
 ```
 
 **Recommended Copilot Workflow:**
-1. **Quick iteration**: `./scripts/test-validation.sh` (20s)
-2. **Pre-commit validation**: `./scripts/run-tests.sh --quick` (25s)  
-3. **Android changes**: `./scripts/run-tests.sh --android-only` (10-45min)
-4. **Release validation**: `./scripts/run-tests.sh --full` (45+ min)
+1. **Quick iteration**: `cd app/bibleview-js && npm run test:ci && npm run lint` (~10s)
+2. **Pre-commit validation**: `cd app/bibleview-js && npm run test:ci && npm run lint && npm run type-check` (~16s)  
+3. **Android changes**: `./gradlew testStandardGoogleplayDebugUnitTest` (15-30min)
+4. **Release validation**: `./gradlew check` (45+ min)
 
 ## Project-Specific Conventions
 
@@ -469,26 +468,30 @@ npm run type-check  # 7 seconds
 ./gradlew check  # includes all tests and builds
 ```
 
-### Quick Test Validation Script
-Use the provided scripts for rapid test validation:
+### Standard Test Execution Commands
+Use the repository's standard testing tools for comprehensive validation:
+
+**Vue.js Testing (NO INTERNET after npm install)**
 ```bash
-./scripts/test-validation.sh     # Runs all Vue.js tests + validation in ~20 seconds
-./scripts/run-tests.sh --quick   # Vue.js tests + Android environment check
-./scripts/run-tests.sh --help    # See all available options
+cd app/bibleview-js
+npm run test:ci           # Test suite: 140+ tests in ~5 seconds
+npm run lint              # ESLint checking: ~4 seconds
+npm run type-check        # TypeScript validation: ~7 seconds
+npm run build-debug       # Build validation: ~8 seconds
 ```
 
-**Script Options:**
-- `--vue-only`: Vue.js tests only (~20 seconds)
-- `--quick`: Vue.js tests + Android environment check (~25 seconds) 
-- `--android-only`: Android tests only (10-45 minutes, requires internet)
-- `--full`: Complete test suite (45+ minutes, requires internet)
+**Android Testing (REQUIRES INTERNET)**
+```bash
+./gradlew check                                    # Full checks including JS tests: 45+ minutes
+./gradlew testStandardGoogleplayDebugUnitTest     # Android unit tests: 15-30 minutes
+make instrumented-tests                           # Instrumented tests: 60+ minutes
+# OR: ./gradlew emulatorStandardGoogleplayDebugAndroidTest
+```
 
-**Quick validation features:**
-- ✅ Validates environment setup (Java 17, Node.js 20.x, npm 10.x)
-- ✅ Runs Vue.js test suite (140+ tests in ~5 seconds)
-- ✅ Performs linting validation (~4 seconds)  
-- ✅ Executes TypeScript type checking (~7 seconds)
-- ⚠️  Provides guidance for Android test execution
+**Combined Testing**
+```bash
+./gradlew check     # Runs both Vue.js and Android tests automatically (45+ minutes)
+```
 
 ### Validated Test Classes and Timing
 **Vue.js Tests** (verified working, 5-6 seconds total):
