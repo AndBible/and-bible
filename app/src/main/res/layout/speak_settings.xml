@@ -98,12 +98,76 @@
                         android:textSize="@dimen/speak_titles_text_size"
                         android:textStyle="bold" />
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/speak_row_padding"
+                        android:layout_marginEnd="@dimen/speak_row_padding"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/voice_selection_explanation"
+                        android:textSize="14sp" />
+
+                    <RadioGroup
+                        android:id="@+id/voiceSelectionGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/speak_row_padding"
+                        android:orientation="vertical">
+
+                        <RadioButton
+                            android:id="@+id/systemDefaultVoiceOption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/voice_selection_system_default" />
+
+                        <RadioButton
+                            android:id="@+id/languageSpecificVoiceOption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/voice_selection_language_specific" />
+
+                        <RadioButton
+                            android:id="@+id/manualVoiceSelectionOption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/voice_selection_manual" />
+
+                    </RadioGroup>
+
+                    <LinearLayout
+                        android:id="@+id/voiceSelectionLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginEnd="@dimen/speak_row_padding"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:text="@string/select_voice"
+                            android:textSize="14sp"
+                            android:layout_marginEnd="8dp" />
+
+                        <Spinner
+                            android:id="@+id/voiceSpinner"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                    </LinearLayout>
+
+                    <!-- Keep the old checkbox for backwards compatibility (hidden) -->
                     <CheckBox
                         android:id="@+id/useSystemDefaultVoice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/speak_row_padding"
-                        android:text="@string/conf_use_system_default_voice" />
+                        android:text="@string/conf_use_system_default_voice"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <Space

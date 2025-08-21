@@ -494,6 +494,12 @@
     <string name="conf_use_system_default_voice">Use system default voice</string>
     <string name="conf_use_system_default_voice_desc">Use the voice you have configured in your device system settings</string>
     <string name="speak_voice_settings_title">Voice Settings</string>
+    <string name="voice_selection_system_default">System default voice</string>
+    <string name="voice_selection_language_specific">Language-specific voice</string>
+    <string name="voice_selection_manual">Choose specific voice</string>
+    <string name="select_voice">Select Voice</string>
+    <string name="no_voices_available">No voices available for this language</string>
+    <string name="voice_selection_explanation">Choose how AndBible selects the voice for reading text</string>
     <string name="speak_queue">Queue</string>
     <string name="speak_repeat">Repeat</string>
 

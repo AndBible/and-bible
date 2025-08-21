@@ -99,6 +99,7 @@ class TextToSpeechServiceManager @Inject constructor(
     private val mSpeakTiming: SpeakTiming
 
     private val ttsLanguageSupport = TTSLanguageSupport()
+    private val voiceManager = VoiceManager()
     private var uniqueUtteranceNo: Long = 0
 
     // tts.isSpeaking() returns false when multiple text is queued on some older versions of Android so maintain it manually
@@ -170,14 +171,47 @@ class TextToSpeechServiceManager @Inject constructor(
             var localeOK = true // Assume OK initially
             var locale: Locale? = null
             
-            // Check if we should use system default voice
-            if (speakSettings.playbackSettings.useSystemDefaultVoice) {
-                Log.i(TAG, "Using system default voice - skipping language override")
-                currentLocale = Locale.getDefault()
-                locale = currentLocale
+            // Determine voice selection approach based on settings
+            val voiceSelectionMode = if (speakSettings.playbackSettings.useSystemDefaultVoice) {
+                // Backwards compatibility: convert old boolean to new enum
+                net.bible.android.database.bookmarks.VoiceSelectionMode.SYSTEM_DEFAULT
             } else {
-                // Original logic for setting specific language
-                localeOK = false
+                speakSettings.playbackSettings.voiceSelectionMode
+            }
+            
+            when (voiceSelectionMode) {
+                net.bible.android.database.bookmarks.VoiceSelectionMode.SYSTEM_DEFAULT -> {
+                    Log.i(TAG, "Using system default voice - skipping language override")
+                    currentLocale = Locale.getDefault()
+                    locale = currentLocale
+                }
+                net.bible.android.database.bookmarks.VoiceSelectionMode.MANUAL_SELECTION -> {
+                    val selectedVoiceName = speakSettings.playbackSettings.selectedVoiceName
+                    if (selectedVoiceName != null) {
+                        Log.i(TAG, "Using manually selected voice: $selectedVoiceName")
+                        localeOK = voiceManager.setVoiceByName(tts, selectedVoiceName)
+                        if (localeOK) {
+                            // Get the locale of the selected voice
+                            currentLocale = tts.voice?.locale ?: Locale.getDefault()
+                            locale = currentLocale
+                        } else {
+                            Log.w(TAG, "Failed to set selected voice $selectedVoiceName, falling back to language-specific")
+                            // Fall back to language-specific mode
+                            localeOK = false
+                        }
+                    } else {
+                        Log.w(TAG, "Manual voice selection enabled but no voice selected, falling back to language-specific")
+                        localeOK = false
+                    }
+                }
+                net.bible.android.database.bookmarks.VoiceSelectionMode.LANGUAGE_SPECIFIC -> {
+                    // Original logic for setting specific language
+                    localeOK = false
+                }
+            }
+            
+            // If manual selection failed or language-specific mode, use original logic
+            if (!localeOK) {
                 var i = 0
                 while (i < localePreferenceList.size && !localeOK) {
                     locale = localePreferenceList[i]
@@ -263,6 +297,14 @@ class TextToSpeechServiceManager @Inject constructor(
 
     fun isLanguageAvailable(langCode: String): Boolean {
         return ttsLanguageSupport.isLangKnownToBeSupported(langCode)
+    }
+
+    fun getAvailableVoicesForLanguage(languageCode: String): List<VoiceManager.VoiceInfo> {
+        return voiceManager.getAvailableVoicesForLanguage(mTts, languageCode)
+    }
+
+    fun getAllAvailableVoicesGroupedByLanguage(): Map<String, List<VoiceManager.VoiceInfo>> {
+        return voiceManager.getAllAvailableVoicesGroupedByLanguage(mTts)
     }
 
     @Synchronized
