@@ -750,7 +750,7 @@ export function useBookmarks(
 
         }
         
-        // Handle edit actions (PREPEND, APPEND, REPLACE)
+        // Handle edit actions (PREPEND, APPEND)
         if (config.showBookmarks) {
             for (const b of bookmarks) {
                 const editAction = b.editAction;
