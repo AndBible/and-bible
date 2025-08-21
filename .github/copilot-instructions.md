@@ -67,17 +67,17 @@ npm run build-production   # Production build - takes ~6 seconds, optimized
 
 ```bash
 # NEVER CANCEL these builds - they can take 10-45 minutes on first run
-# Build commands (REQUIRES INTERNET - set timeout to 60+ minutes)
+# Build commands (REQUIRES INTERNET - set timeout appropriately)
 ./gradlew assembleStandardGithubDebug    # Debug build - NEVER CANCEL
 ./gradlew assembleStandardGithubRelease  # Release build - NEVER CANCEL
 
-# Test commands (REQUIRES INTERNET - set timeout to 30+ minutes) 
+# Test commands (REQUIRES INTERNET) 
 ./gradlew testStandardGoogleplayDebug    # Unit tests only - NEVER CANCEL
 ./gradlew testStandardGoogleplayRelease  # Release unit tests - NEVER CANCEL
-./gradlew check                          # Full test suite - NEVER CANCEL (45+ minutes)
+./gradlew check                          # Full test suite - NEVER CANCEL
 
 # Instrumented tests (REQUIRES INTERNET + Android emulator)
-./gradlew connectedStandardGooglePlayDebugAndroidTest  # NEVER CANCEL (60+ minutes)
+./gradlew connectedStandardGooglePlayDebugAndroidTest  # NEVER CANCEL
 ```
 
 ### Build Validation and Timing Expectations
@@ -92,9 +92,9 @@ npm run build-production   # Production build - takes ~6 seconds, optimized
 - **Vue.js full build**: ~13 seconds (type-check + build-only in parallel)
 - **Vue.js dev server**: ~337ms startup
 - **Android Gradle builds**: 10-45 minutes first time, faster subsequent builds
-- **Android unit tests**: 15-30 minutes
-- **Android instrumented tests**: 60+ minutes
-- **Full check**: 45+ minutes
+- **Android unit tests**: Variable timing
+- **Android instrumented tests**: Variable timing
+- **Full check**: Variable timing
 
 ## Validation Scenarios
 
@@ -118,7 +118,7 @@ npm run dev  # Should start on http://localhost:5173/ in ~337ms
 **Note**: Android builds require internet connectivity and take significant time.
 
 ```bash
-# Unit test validation (REQUIRES INTERNET - 15-30 minutes)
+# Unit test validation (REQUIRES INTERNET)
 ./gradlew testStandardGoogleplayDebug  # NEVER CANCEL
 
 # Build validation (REQUIRES INTERNET - 10-45 minutes) 
@@ -246,17 +246,17 @@ cd app/bibleview-js && npm run test:ci && npm run lint && npm run type-check  # 
 
 # 3. Run Android tests only when necessary (Android-specific changes)
 ./gradlew testStandardGoogleplayDebugUnitTest --tests "*YourSpecificTest*"  # Targeted tests
-./gradlew check  # Full validation (45+ minutes)
+./gradlew check  # Full validation
 
 # 4. For comprehensive validation including builds
-./gradlew check  # Complete test suite with builds (45+ minutes)
+./gradlew check  # Complete test suite with builds
 ```
 
 **Recommended Copilot Workflow:**
 1. **Quick iteration**: `cd app/bibleview-js && npm run test:ci && npm run lint` (~10s)
 2. **Pre-commit validation**: `cd app/bibleview-js && npm run test:ci && npm run lint && npm run type-check` (~16s)  
-3. **Android changes**: `./gradlew testStandardGoogleplayDebugUnitTest` (15-30min)
-4. **Release validation**: `./gradlew check` (45+ min)
+3. **Android changes**: `./gradlew testStandardGoogleplayDebugUnitTest`
+4. **Release validation**: `./gradlew check`
 
 ## Project-Specific Conventions
 
@@ -464,7 +464,7 @@ npm run type-check  # 7 seconds
 ./gradlew testStandardGoogleplayDebugUnitTest --tests "*.BookmarkControlTest"      # Specific test class
 ./gradlew testStandardGoogleplayDebugUnitTest --tests "*.BookmarkControlTest.testAddBookmark*"  # Test methods with pattern
 
-# Full Android test suite (CI use only - NEVER CANCEL - 45+ minutes)
+# Full Android test suite (CI use only - NEVER CANCEL)
 ./gradlew check  # includes all tests and builds
 ```
 
@@ -482,15 +482,14 @@ npm run build-debug       # Build validation: ~8 seconds
 
 **Android Testing (REQUIRES INTERNET)**
 ```bash
-./gradlew check                                    # Full checks including JS tests: 45+ minutes
-./gradlew testStandardGoogleplayDebugUnitTest     # Android unit tests: 15-30 minutes
-make instrumented-tests                           # Instrumented tests: 60+ minutes
-# OR: ./gradlew emulatorStandardGoogleplayDebugAndroidTest
+./gradlew check                                    # Full checks including JS tests
+./gradlew testStandardGoogleplayDebugUnitTest     # Android unit tests
+./gradlew emulatorStandardGoogleplayDebugAndroidTest  # Instrumented tests
 ```
 
 **Combined Testing**
 ```bash
-./gradlew check     # Runs both Vue.js and Android tests automatically (45+ minutes)
+./gradlew check     # Runs both Vue.js and Android tests automatically
 ```
 
 ### Validated Test Classes and Timing
@@ -582,7 +581,7 @@ This repository follows GitHub Copilot coding agent best practices:
 ### ✅ Testing Strategy and Execution  
 - **Fast feedback loops**: Vue.js tests (140+ tests in ~5 seconds)
 - **Comprehensive test coverage**: Frontend (Vue.js) + Backend (Android) validation
-- **Automated test scripts**: `./scripts/test-validation.sh` and `./scripts/run-tests.sh`
+- **Standard repository tools**: npm scripts and Gradle tasks for comprehensive testing
 - **Performance expectations**: Clear timing guidance for all test types
 
 ### ✅ Development Workflow Optimization
