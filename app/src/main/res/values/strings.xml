@@ -959,6 +959,7 @@
     <string name="show_version_name">Include version name</string>
     <string name="show_ellipsis">Show ellipsis (…)</string>
     <string name="show_quotes">Show quotes</string>
+    <string name="separate_verses_with_newlines">Separate verses with newlines</string>
 
     <string name="backup_button">Backup</string>
     <string name="back_button">Back</string>

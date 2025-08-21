@@ -377,7 +377,8 @@ class TestShare {
         showNotes: Boolean = true,
         showVersion: Boolean = true,
         showEllipsis: Boolean = true,
-        showQuotes: Boolean = true
+        showQuotes: Boolean = true,
+        separateVersesWithNewlines: Boolean = false
     ) {
 
         val book = Books.installed().getBook(initials) as SwordBook
@@ -406,6 +407,7 @@ class TestShare {
             showNotes = showNotes,
             showVersion = showVersion,
             showEllipsis = showEllipsis,
+            separateVersesWithNewlines = separateVersesWithNewlines,
         )
 
         assertThat(text, equalTo(compareText))
@@ -582,5 +584,143 @@ class TestShare {
             showQuotes = false,
             showEllipsis = false,
             showNotes = false
+        )
+
+    // Tests for separateVersesWithNewlines feature
+    @Test
+    fun testShareWithNewlines_SingleVerse() =
+        testShare(
+            initials = "ESV2011",
+            verseRangeStr = "Ps.83.1",
+            offsetRange = 7..30,
+            showVerseNumbers = true,
+            showWholeVerse = true,
+            separateVersesWithNewlines = true,
+            compareText = """“O God, do not keep silence; do not hold your peace or be still, O God!”
+
+Psa 83:1, ESV2011"""
+        )
+
+    @Test
+    fun testShareWithNewlines_SingleVerseNoVerseNumbers() =
+        testShare(
+            initials = "ESV2011",
+            verseRangeStr = "Ps.83.1",
+            offsetRange = 7..30,
+            showVerseNumbers = false,
+            showWholeVerse = true,
+            separateVersesWithNewlines = true,
+            compareText = """“O God, do not keep silence; do not hold your peace or be still, O God!”
+
+Psa 83:1, ESV2011"""
+        )
+
+    @Test
+    fun testShareWithNewlines_MultipleVerses() =
+        testShare(
+            initials = "ESV2011",
+            verseRangeStr = "Ps.83.1-Ps.83.2",
+            offsetRange = 7..30,
+            showVerseNumbers = true,
+            showWholeVerse = true,
+            separateVersesWithNewlines = true,
+            compareText = """“1. O God, do not keep silence; do not hold your peace or be still, O God!
+
+2. For behold, your enemies make an uproar; those who hate you have raised their heads.”
+
+Psa 83:1-2, ESV2011"""
+        )
+
+    @Test
+    fun testShareWithNewlines_MultipleVersesNoVerseNumbers() =
+        testShare(
+            initials = "ESV2011",
+            verseRangeStr = "Ps.83.1-Ps.83.2",
+            offsetRange = 7..30,
+            showVerseNumbers = false,
+            showWholeVerse = true,
+            separateVersesWithNewlines = true,
+            compareText = """“O God, do not keep silence; do not hold your peace or be still, O God!
+
+For behold, your enemies make an uproar; those who hate you have raised their heads.”
+
+Psa 83:1-2, ESV2011""")
+
+    @Test
+    fun testShareWithNewlines_ReferenceAtFront() =
+        testShare(
+            initials = "ESV2011",
+            verseRangeStr = "Ps.83.1",
+            offsetRange = 7..30,
+            showVerseNumbers = true,
+            showWholeVerse = true,
+            showReferenceAtFront = true,
+            separateVersesWithNewlines = true,
+            compareText = """Psa 83:1 ESV2011
+
+“O God, do not keep silence; do not hold your peace or be still, O God!”"""
+        )
+
+    @Test
+    fun testShareWithNewlines_PartialSelection() =
+        testShare(
+            initials = "ESV2011",
+            verseRangeStr = "Ps.83.1-Ps.83.2",
+            offsetRange = 7..30,
+            showVerseNumbers = true,
+            showWholeVerse = false,
+            separateVersesWithNewlines = true,
+            compareText = """“1. ...do not keep silence; do not hold your peace or be still, O God!
+
+2. For behold, your enemies make ...”
+
+Psa 83:1-2, ESV2011"""
+        )
+
+    @Test
+    fun testShareWithNewlines_ThreeVerses() =
+        testShare(
+            initials = "ESV2011",
+            verseRangeStr = "Matt.2.23-Matt.3.2",
+            offsetRange = 7..11,
+            showVerseNumbers = true,
+            showWholeVerse = true,
+            separateVersesWithNewlines = true,
+            compareText = """“23. And he went and lived in a city called Nazareth, so that what was spoken by the prophets might be fulfilled, that he would be called a Nazarene.
+
+1. In those days John the Baptist came preaching in the wilderness of Judea,
+
+2. “Repent, for the kingdom of heaven is at hand.””
+
+Mat 2:23-3:2, ESV2011"""
+
+    )
+
+    @Test
+    fun testShareWithNewlines_NoQuotes() =
+        testShare(
+            initials = "ESV2011",
+            verseRangeStr = "Ps.83.1",
+            offsetRange = 7..30,
+            showVerseNumbers = true,
+            showWholeVerse = true,
+            showQuotes = false,
+            separateVersesWithNewlines = true,
+            compareText = """O God, do not keep silence; do not hold your peace or be still, O God!
+
+Psa 83:1, ESV2011"""
+        )
+
+    @Test
+    fun testShareWithNewlines_NoReference() =
+        testShare(
+            initials = "ESV2011",
+            verseRangeStr = "Ps.83.1",
+            offsetRange = 7..30,
+            showVerseNumbers = true,
+            showWholeVerse = true,
+            showReference = false,
+            separateVersesWithNewlines = true,
+            compareText = """“O God, do not keep silence; do not hold your peace or be still, O God!”"""
         )
 }
