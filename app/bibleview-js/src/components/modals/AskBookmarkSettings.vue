@@ -335,7 +335,6 @@ watch(() => selectedEditAction.mode, (newMode) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin: 20px 0;
 }
 
 .bookmark-settings-tabs {

@@ -141,5 +141,6 @@ defineExpose({
 
 .tab-content {
   flex: 1;
+  padding-top: 1em;
 }
 </style>
