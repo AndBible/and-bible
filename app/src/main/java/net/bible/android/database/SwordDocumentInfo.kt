@@ -30,6 +30,7 @@ data class SwordDocumentInfo(
     var language: String,
     var repository: String,
     var cipherKey: String? = null,
+    var customOrder: Int? = null,
 )
 
 @Dao

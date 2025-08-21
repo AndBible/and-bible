@@ -456,31 +456,65 @@ abstract class DocumentSelectionBase(
                             }
                         }
 
-                        displayedDocuments.sortWith(
-                            compareBy(
-                                {
-                                    when(downloadControl.getDocumentStatus(it).documentInstallStatus) {
-                                        DocumentStatus.DocumentInstallStatus.BEING_INSTALLED -> 0
-                                        DocumentStatus.DocumentInstallStatus.UPGRADE_AVAILABLE -> 1
-                                        else -> 2
-                                    }
-                                },
-                                { SwordDocumentFacade.getDocumentByInitials(it.initials) == null },
-                                { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
-                                {
-                                    when (it.bookCategory) {
-                                        BookCategory.BIBLE -> 0
-                                        BookCategory.COMMENTARY -> 1
-                                        BookCategory.DICTIONARY -> 2
-                                        BookCategory.GENERAL_BOOK -> 4
-                                        BookCategory.MAPS -> 5
-                                        BookCategory.AND_BIBLE -> 6
-                                        else -> 7
-                                    }
-                                },
-                                { it.abbreviation.lowercase(Locale(it.language.code)) }
+                        val useCustomOrder = CommonUtils.settings.getBoolean("use_custom_document_order", false)
+                        
+                        if (useCustomOrder) {
+                            displayedDocuments.sortWith(
+                                compareBy(
+                                    {
+                                        when(downloadControl.getDocumentStatus(it).documentInstallStatus) {
+                                            DocumentStatus.DocumentInstallStatus.BEING_INSTALLED -> 0
+                                            DocumentStatus.DocumentInstallStatus.UPGRADE_AVAILABLE -> 1
+                                            else -> 2
+                                        }
+                                    },
+                                    { SwordDocumentFacade.getDocumentByInitials(it.initials) == null },
+                                    { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
+                                    {
+                                        when (it.bookCategory) {
+                                            BookCategory.BIBLE -> 0
+                                            BookCategory.COMMENTARY -> 1
+                                            BookCategory.DICTIONARY -> 2
+                                            BookCategory.GENERAL_BOOK -> 4
+                                            BookCategory.MAPS -> 5
+                                            BookCategory.AND_BIBLE -> 6
+                                            else -> 7
+                                        }
+                                    },
+                                    { 
+                                        // Get custom order from database, default to a high value for unordered items
+                                        DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getBook(it.initials)?.customOrder ?: Int.MAX_VALUE
+                                    },
+                                    { it.abbreviation.lowercase(Locale(it.language.code)) }
+                                )
                             )
-                        )
+                        } else {
+                            displayedDocuments.sortWith(
+                                compareBy(
+                                    {
+                                        when(downloadControl.getDocumentStatus(it).documentInstallStatus) {
+                                            DocumentStatus.DocumentInstallStatus.BEING_INSTALLED -> 0
+                                            DocumentStatus.DocumentInstallStatus.UPGRADE_AVAILABLE -> 1
+                                            else -> 2
+                                        }
+                                    },
+                                    { SwordDocumentFacade.getDocumentByInitials(it.initials) == null },
+                                    { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
+                                    {
+                                        when (it.bookCategory) {
+                                            BookCategory.BIBLE -> 0
+                                            BookCategory.COMMENTARY -> 1
+                                            BookCategory.DICTIONARY -> 2
+                                            BookCategory.GENERAL_BOOK -> 4
+                                            BookCategory.MAPS -> 5
+                                            BookCategory.AND_BIBLE -> 6
+                                            else -> 7
+                                        }
+                                    },
+                                    { it.abbreviation.lowercase(Locale(it.language.code)) }
+                                )
+                            )
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error initialising view", e)

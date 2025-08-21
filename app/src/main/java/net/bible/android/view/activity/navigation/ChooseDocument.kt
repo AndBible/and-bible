@@ -128,6 +128,14 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         return super.onPrepareActionMode(mode, menu, selectedItemPositions)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        super.onPrepareOptionsMenu(menu)
+        val useCustomOrder = CommonUtils.settings.getBoolean("use_custom_document_order", false)
+        menu.findItem(R.id.orderAlphabetical)?.isChecked = !useCustomOrder
+        menu.findItem(R.id.orderCustom)?.isChecked = useCustomOrder
+        return true
+    }
+
     override fun onActionItemClicked(item: MenuItem, selectedItemPositions: List<Int>): Boolean {
         when(item.itemId) {
             R.id.unlock -> lifecycleScope.launch(Dispatchers.Main) {
@@ -171,6 +179,16 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                     ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                     reloadDocuments()
                 }
+            }
+            R.id.orderAlphabetical -> {
+                isHandled = true
+                CommonUtils.settings.setBoolean("use_custom_document_order", false)
+                reloadDocuments()
+            }
+            R.id.orderCustom -> {
+                isHandled = true
+                CommonUtils.settings.setBoolean("use_custom_document_order", true)
+                reloadDocuments()
             }
         }
         if (!isHandled) {

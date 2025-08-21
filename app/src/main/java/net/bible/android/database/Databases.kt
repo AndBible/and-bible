@@ -114,7 +114,7 @@ abstract class TemporaryDatabase: RoomDatabase() {
     abstract fun documentSearchDao(): DocumentSearchDao
 }
 
-const val REPO_DATABASE_VERSION = 1
+const val REPO_DATABASE_VERSION = 2
 
 @Database(
     entities = [
