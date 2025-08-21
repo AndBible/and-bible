@@ -130,7 +130,7 @@
                 :placeholder="strings.editActionContentPlaceholder"
                 class="content-textarea"
                 :class="{ 'has-error': validationError }"
-                rows="6">
+              >
               </textarea>
               
               <!-- Validation Error -->
