@@ -60,6 +60,7 @@ import {
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
 import {TabContainer} from '@/components/tabs';
+import {faEyeSlash, faRandom} from "@fortawesome/free-solid-svg-icons";
 
 const props = defineProps<{ document: MemorizeDocument }>();
 
@@ -87,12 +88,14 @@ const tabsConfig = computed(() => [
     { 
         id: 'blur', 
         label: strings.wordBlur,
-        value: MemorizeStateModeEnum.BLUR
+        value: MemorizeStateModeEnum.BLUR,
+        icon: faEyeSlash,
     },
     { 
         id: 'scramble', 
         label: strings.wordScramble,
-        value: MemorizeStateModeEnum.SCRAMBLE
+        value: MemorizeStateModeEnum.SCRAMBLE,
+        icon: faRandom,
     }
 ]);
 
@@ -133,69 +136,7 @@ function saveState() {
 }
 
 h2 {
+  font-size: 1.2em;
   text-align: center;
-  margin: 1rem 0 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  .night & {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
-}
-
-// Custom styling for memorize mode selector using TabContainer
-:deep(.memorize-mode-selector) {
-  display: flex;
-  justify-content: center;
-  margin: 0.5rem 0 1.5rem;
-  padding: 0.5rem;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: $button-border-radius;
-  border-bottom: none !important; // Remove default tab border
-  
-  .night & {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-  
-  .tab-button {
-    min-width: 120px;
-    margin: 0 4px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-    border-radius: $button-border-radius;
-    border-bottom: 1px solid transparent !important; // Override default tab styling
-    background: rgba(255, 255, 255, 0.5);
-    
-    .night & {
-      background: rgba(0, 0, 0, 0.3);
-    }
-    
-    .noAnimation & {
-      transition: none;
-    }
-    
-    &.active {
-      transform: scale(1.05);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      background: var(--button-background-color);
-      border-color: var(--button-border-color);
-      
-      .night & {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      }
-    }
-    
-    &:active {
-      transform: translateY(1px);
-    }
-    
-    &:hover:not(.active) {
-      background: rgba(255, 255, 255, 0.8);
-      
-      .night & {
-        background: rgba(0, 0, 0, 0.5);
-      }
-    }
-  }
 }
 </style>
