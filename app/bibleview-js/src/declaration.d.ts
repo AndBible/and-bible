@@ -125,6 +125,11 @@ type TranslatedStrings = {
     insertParagraphBreak: string
     insertSubtitle: string
     formatHelp: string
+    invalidTag: string
+    invalidClosingTag: string
+    unmatchedClosingTag: string
+    unclosedTag: string
+    unknownError: string
     subtitlePlaceholder: string
     xmlParseError: string
     blur: string

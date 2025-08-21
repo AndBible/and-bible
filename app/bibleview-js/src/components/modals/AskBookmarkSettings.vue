@@ -73,7 +73,7 @@
                   :class="{ active: selectedEditAction.mode === EditActionMode.APPEND }"
                   @click="selectedEditAction.mode = EditActionMode.APPEND"
                   :title="strings.editActionModeAppend">
-                  <FontAwesomeIcon :icon="faPlus" />
+                  <FontAwesomeIcon :icon="faArrowDown" />
                   <span>{{ strings.editActionModeAppend }}</span>
                 </button>
                 
@@ -142,7 +142,7 @@
               <!-- Format Help -->
               <div class="format-help">
                 <small>
-                  {{ strings.formatHelp }}
+                  {{ formatHelpText }}
                 </small>
               </div>
             </div>
@@ -165,12 +165,13 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, reactive, ref, watch} from "vue";
+import {computed, nextTick, reactive, ref, watch} from "vue";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {Deferred} from "@/utils";
 import {useCommon} from "@/composables";
 import {
+    faArrowDown,
     faArrowUp,
     faBan,
     faEdit,
@@ -179,10 +180,10 @@ import {
     faHeading,
     faIcons,
     faParagraph,
-    faPlus,
     faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import {customIconMap} from "@/composables/fontawesome";
+import {validateBookmarkEditActionContent} from "@/utils/xml-validation";
 import {EditAction, EditActionMode} from "@/types/client-objects";
 
 const { strings } = useCommon();
@@ -203,6 +204,12 @@ const contentTextarea = ref<HTMLTextAreaElement | null>(null);
 const validationError = ref<string | null>(null);
 
 let deferred: Deferred<BookmarkSettings | null> | null = null;
+
+const formatHelpText = computed(() => {
+    return strings.formatHelp
+        .replace('{brTag}', '<br/>')
+        .replace('{subtitleTag}', '<subtitle>text</subtitle>');
+});
 
 function selectIcon(key: null | string) {
     selectedIcon.value = key;
@@ -254,66 +261,6 @@ async function insertSubtitle() {
     textarea.focus();
 }
 
-function validateXmlContent(content: string): string | null {
-    if (!content || content.trim() === '') {
-        return null; // Empty content is valid
-    }
-    
-    try {
-        const wrappedContent = `<root>${content}</root>`;
-        
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(wrappedContent, 'application/xml');
-        
-        const parserError = doc.querySelector('parsererror');
-        if (parserError) {
-            // Extract error message from parser error
-            const errorText = parserError.textContent || '';
-            return strings.xmlParseError + ": " + errorText;
-        }
-        
-        // Additional validation: check for balanced tags
-        const allowedTags = ['br', 'subtitle'];
-        const tagRegex = /<(\/?)(br|subtitle)(?:\s[^>]*)?>/gi;
-        const tagStack: string[] = [];
-        let match;
-        
-        while ((match = tagRegex.exec(content)) !== null) {
-            const isClosing = match[1] === '/';
-            const tagName = match[2].toLowerCase();
-            
-            if (!allowedTags.includes(tagName)) {
-                return `Invalid tag: <${tagName}>. Only <br/> and <subtitle> tags are allowed.`;
-            }
-            
-            if (tagName === 'br') {
-                // br tags should be self-closing
-                if (isClosing) {
-                    return `Invalid tag: </br>. Use <br/> instead.`;
-                }
-            } else if (tagName === 'subtitle') {
-                if (isClosing) {
-                    if (tagStack.length === 0 || tagStack[tagStack.length - 1] !== 'subtitle') {
-                        return `Unmatched closing tag: </subtitle>`;
-                    }
-                    tagStack.pop();
-                } else {
-                    tagStack.push('subtitle');
-                }
-            }
-        }
-        
-        // Check for unclosed tags
-        if (tagStack.length > 0) {
-            return `Unclosed tag: <${tagStack[tagStack.length - 1]}>`;
-        }
-        
-        return null; // Valid XML
-    } catch (error) {
-        return `XML validation error: ${error instanceof Error ? error.message : 'Unknown error'}`;
-    }
-}
-
 function validateContent() {
     const content = selectedEditAction.content;
     if (!content || selectedEditAction.mode === null) {
@@ -321,7 +268,7 @@ function validateContent() {
         return true;
     }
     
-    const error = validateXmlContent(content);
+    const error = validateBookmarkEditActionContent(content, strings);
     validationError.value = error;
     return error === null;
 }
