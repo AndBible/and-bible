@@ -84,6 +84,31 @@
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="15dip" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/speak_title_padding"
+                        android:text="@string/speak_voice_settings_title"
+                        android:textSize="@dimen/speak_titles_text_size"
+                        android:textStyle="bold" />
+
+                    <CheckBox
+                        android:id="@+id/useSystemDefaultVoice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/speak_row_padding"
+                        android:text="@string/conf_use_system_default_voice" />
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="15dip" />
             </LinearLayout>
 
             <LinearLayout

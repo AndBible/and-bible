@@ -53,6 +53,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         binding.apply {
             synchronize.setOnClickListener { updateSettings() }
             replaceDivineName.setOnClickListener { updateSettings() }
+            useSystemDefaultVoice.setOnClickListener { updateSettings() }
             autoBookmark.setOnClickListener { updateSettings() }
             restoreSettingsFromBookmarks.setOnClickListener { updateSettings() }
         }
@@ -69,6 +70,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         binding.apply {
             synchronize.isChecked = AdvancedSpeakSettings.synchronize
             replaceDivineName.isChecked = AdvancedSpeakSettings.replaceDivineName
+            useSystemDefaultVoice.isChecked = settings.playbackSettings.useSystemDefaultVoice
             restoreSettingsFromBookmarks.isChecked = AdvancedSpeakSettings.restoreSettingsFromBookmarks
             autoBookmark.isChecked = AdvancedSpeakSettings.autoBookmark
         }
@@ -83,6 +85,9 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         val settings = SpeakSettings.load().apply {
             sleepTimer = currentSettings.sleepTimer
             lastSleepTimer = currentSettings.lastSleepTimer
+            playbackSettings = playbackSettings.copy(
+                useSystemDefaultVoice = binding.useSystemDefaultVoice.isChecked
+            )
         }
         binding.apply {
             AdvancedSpeakSettings.synchronize = synchronize.isChecked
