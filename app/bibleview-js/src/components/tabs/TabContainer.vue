@@ -44,6 +44,7 @@ import {computed, provide, ref, watch} from 'vue';
 import TabNavigation from './TabNavigation.vue';
 import TabPanel from './TabPanel.vue';
 import {IconDefinition} from "@fortawesome/fontawesome-svg-core";
+import {activeTabKey, setActiveTabKey} from "@/types/constants";
 
 export interface Tab {
   id: string;
@@ -72,7 +73,6 @@ const emit = defineEmits<{
   tabChange: [tabId: string, tab: Tab];
 }>();
 
-// Initialize active tab to the first available tab or defaultTab
 const activeTab = ref<string>(
     props.defaultTab || 
     props.tabs.find(tab => !tab.disabled)?.id || 
@@ -80,14 +80,12 @@ const activeTab = ref<string>(
     ''
 );
 
-// Computed tab data with validation
 const tabs = computed(() => {
   return props.tabs.filter(tab => tab.id && tab.label);
 });
 
-// Provide the active tab state to child components
-provide('activeTab', activeTab);
-provide('setActiveTab', (tabId: string) => {
+provide(activeTabKey, activeTab);
+provide(setActiveTabKey, (tabId: string) => {
   if (tabId !== activeTab.value) {
     const tab = tabs.value.find(t => t.id === tabId);
     if (tab && !tab.disabled) {
@@ -96,7 +94,6 @@ provide('setActiveTab', (tabId: string) => {
   }
 });
 
-// Handle tab change events from navigation
 function handleTabChange(tabId: string) {
   const tab = tabs.value.find(t => t.id === tabId);
   if (tab && !tab.disabled && tabId !== activeTab.value) {
@@ -105,7 +102,6 @@ function handleTabChange(tabId: string) {
   }
 }
 
-// Watch for prop changes and validate active tab
 watch(() => props.tabs, (newTabs) => {
   if (!newTabs.find(tab => tab.id === activeTab.value)) {
     const firstAvailable = newTabs.find(tab => !tab.disabled);
@@ -115,7 +111,6 @@ watch(() => props.tabs, (newTabs) => {
   }
 }, { immediate: true });
 
-// Watch for defaultTab changes
 watch(() => props.defaultTab, (newDefaultTab) => {
   if (newDefaultTab && newDefaultTab !== activeTab.value) {
     const tab = tabs.value.find(t => t.id === newDefaultTab);
@@ -125,7 +120,6 @@ watch(() => props.defaultTab, (newDefaultTab) => {
   }
 });
 
-// Expose methods for programmatic control
 defineExpose({
   setActiveTab: (tabId: string) => handleTabChange(tabId),
   getActiveTab: () => activeTab.value,
