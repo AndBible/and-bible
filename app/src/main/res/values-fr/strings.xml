@@ -567,7 +567,7 @@ Le fichier est peut-être invalide.</string>
   <string name="ask_restore_or_import">La base de données pour %s peut être soit restaurée (c’est-à-dire que la base de données existante est supprimée et la base de données sélectionnée est chargée), soit importée (la base de données sélectionnée est importée dans la base de données existante). Que souhaitez-vous faire ?</string>
   <string name="restore">Restaurer</string>
   <string name="import2">Importer</string>
-  <string name="export_studypads_help">Le fichier contenant les Bloc-notes exportés (c'est-à-dire les étiquettes et les signets) peut être importé via le menu principal -&amp;gt; Sauvegarder &amp; Restaurer.</string>
+  <string name="export_studypads_help">Le fichier contenant les Bloc-notes exportés (c\'est-à-dire les étiquettes et les signets) peut être importé via le menu principal -&amp;gt; Sauvegarder &amp; Restaurer.</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">« %1$s » et %2$s autres étiquette(s) / Bloc-note(s) et %3$ssignets</string>
   <!--About-->
