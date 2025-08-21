@@ -26,11 +26,13 @@ import androidx.appcompat.view.ActionMode
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.document.canDelete
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.DocumentSearchDao
+import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -122,8 +124,15 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
 
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
         if(selectedItemPositions.isNotEmpty()) {
-            menu.findItem(R.id.unlock).isVisible = displayedDocuments[selectedItemPositions[0]].isEnciphered
-            menu.findItem(R.id.delete).isVisible = displayedDocuments[selectedItemPositions[0]].canDelete
+            val useCustomOrder = CommonUtils.settings.getBoolean("use_custom_document_order", false)
+            val position = selectedItemPositions[0]
+            
+            menu.findItem(R.id.unlock).isVisible = displayedDocuments[position].isEnciphered
+            menu.findItem(R.id.delete).isVisible = displayedDocuments[position].canDelete
+            
+            // Show move up/down only in custom order mode
+            menu.findItem(R.id.move_up).isVisible = useCustomOrder && position > 0
+            menu.findItem(R.id.move_down).isVisible = useCustomOrder && position < displayedDocuments.size - 1
         }
         return super.onPrepareActionMode(mode, menu, selectedItemPositions)
     }
@@ -141,6 +150,18 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
             R.id.unlock -> lifecycleScope.launch(Dispatchers.Main) {
                 CommonUtils.unlockDocument(this@ChooseDocument, displayedDocuments[selectedItemPositions[0]])
                 reloadDocuments()
+            }
+            R.id.move_up -> {
+                if (selectedItemPositions.isNotEmpty()) {
+                    moveDocument(selectedItemPositions[0], -1)
+                }
+                return true
+            }
+            R.id.move_down -> {
+                if (selectedItemPositions.isNotEmpty()) {
+                    moveDocument(selectedItemPositions[0], 1)
+                }
+                return true
             }
         }
         return super.onActionItemClicked(item, selectedItemPositions)
@@ -195,6 +216,54 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
             isHandled = super.onOptionsItemSelected(item)
         }
         return isHandled
+    }
+    
+    private fun moveDocument(position: Int, direction: Int) {
+        if (position < 0 || position >= displayedDocuments.size) return
+        
+        val newPosition = position + direction
+        if (newPosition < 0 || newPosition >= displayedDocuments.size) return
+        
+        // Swap documents in the list
+        val document = displayedDocuments[position]
+        val otherDocument = displayedDocuments[newPosition]
+        
+        displayedDocuments[position] = otherDocument
+        displayedDocuments[newPosition] = document
+        
+        // Update custom order in database
+        lifecycleScope.launch {
+            updateCustomOrder()
+            withContext(Dispatchers.Main) {
+                documentItemAdapter.notifyDataSetChanged()
+            }
+        }
+    }
+    
+    private suspend fun updateCustomOrder() {
+        // Update custom order for all documents based on their current position within their category
+        val documentsByCategory = displayedDocuments.groupBy { it.bookCategory }
+        
+        documentsByCategory.forEach { (category, documents) ->
+            documents.forEachIndexed { index, document ->
+                val swordDocInfo = DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getBook(document.initials)
+                if (swordDocInfo != null) {
+                    swordDocInfo.customOrder = index
+                    DatabaseContainer.instance.repoDb.swordDocumentInfoDao().update(swordDocInfo)
+                } else {
+                    // Create new SwordDocumentInfo if it doesn't exist
+                    val newDocInfo = SwordDocumentInfo(
+                        initials = document.initials,
+                        name = document.name,
+                        abbreviation = document.abbreviation,
+                        language = document.language.code,
+                        repository = "", // Default empty repository
+                        customOrder = index
+                    )
+                    DatabaseContainer.instance.repoDb.swordDocumentInfoDao().insert(newDocInfo)
+                }
+            }
+        }
     }
 
     companion object {

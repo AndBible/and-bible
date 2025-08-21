@@ -466,6 +466,8 @@
     <!-- Document ordering -->
     <string name="document_ordering">Document ordering</string>
     <string name="document_order_custom">Custom order</string>
+    <string name="move_up">Move up</string>
+    <string name="move_down">Move down</string>
     <!-- notes = user notes ("My Notes") that are attached to bookmark -->
     <string name="filter_by_notes">Search notes</string>
 
