@@ -95,7 +95,6 @@ describe('Edit Actions', () => {
     // Test that all edit action modes are available
     expect(EditActionMode.APPEND).toBe('APPEND')
     expect(EditActionMode.PREPEND).toBe('PREPEND')
-    expect(EditActionMode.REPLACE).toBe('REPLACE')
   })
 
   it('should create edit action elements with proper classes', () => {
@@ -172,77 +171,5 @@ describe('Edit Actions', () => {
     expect(tempDiv.textContent).toContain('Introduction')
     expect(tempDiv.textContent).toContain('Content here')
     expect(tempDiv.textContent).toContain('More content')
-  })
-
-  it('should allow replacement content to maintain bookmark styling', () => {
-    // Test that replacement content can receive the same styling as original bookmark
-    const bookmark = {
-      id: 'test-bookmark',
-      ordinalRange: [100, 100],
-      offsetRange: [0, null],
-      editAction: {
-        mode: EditActionMode.REPLACE,
-        content: 'Replacement content with <subtitle>styled subtitle</subtitle>'
-      }
-    }
-
-    // Mock the createEditActionElement functionality
-    function mockCreateEditActionElement(bookmark) {
-      if (!bookmark.editAction.mode || !bookmark.editAction.content) return null;
-      
-      const container = document.createElement('span');
-      container.classList.add('bookmark-edit-action', 'skip-offset');
-      
-      // Parse the content (simplified version of parseEditActionContent)
-      const parts = bookmark.editAction.content.split(/(<br\s*\/?>|<subtitle>.*?<\/subtitle>)/);
-      
-      for (const part of parts) {
-        if (!part) continue;
-        
-        if (part.match(/^<br\s*\/?>$/)) {
-          const spanElement = document.createElement('span');
-          spanElement.className = 'paragraphBreak skip-offset';
-          container.appendChild(spanElement);
-        } else if (part.match(/^<subtitle>(.*?)<\/subtitle>$/)) {
-          const match = part.match(/^<subtitle>(.*?)<\/subtitle>$/);
-          if (match) {
-            const h3Element = document.createElement('h3');
-            h3Element.className = 'titleStyle skip-offset';
-            h3Element.textContent = match[1];
-            container.appendChild(h3Element);
-          }
-        } else if (part.trim()) {
-          const textNode = document.createTextNode(part);
-          container.appendChild(textNode);
-        }
-      }
-      
-      return container;
-    }
-
-    // Create the edit action element using mock function
-    const element = mockCreateEditActionElement(bookmark)
-    
-    // Simulate applying bookmark styling (as done in REPLACE mode)
-    element.classList.add('bookmarked')
-    element.setAttribute('style', 'background-image: linear-gradient(rgba(255, 0, 0, 0.3), rgba(255, 0, 0, 0.3))')
-    
-    // Verify styling classes are applied correctly
-    expect(element.classList.contains('bookmarked')).toBe(true)
-    expect(element.classList.contains('skip-offset')).toBe(true)
-    expect(element.getAttribute('style')).toContain('background-image')
-    
-    // Verify content is properly parsed
-    expect(element.textContent).toContain('Replacement content with')
-    expect(element.textContent).toContain('styled subtitle')
-    
-    const subtitle = element.querySelector('.titleStyle')
-    expect(subtitle).toBeTruthy()
-    expect(subtitle.textContent).toBe('styled subtitle')
-    expect(subtitle.classList.contains('skip-offset')).toBe(true)
-    
-    // Verify that the element can receive the same styling as a regular bookmark
-    expect(element.classList.contains('bookmark-edit-action')).toBe(true)
-    expect(element.tagName.toLowerCase()).toBe('span')
   })
 })

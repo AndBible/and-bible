@@ -97,9 +97,8 @@ enum class BookmarkType {EXAMPLE}
 class BookmarkEntities {
     @Serializable
     enum class EditActionMode {
-        APPEND,      // Add text after selection
-        PREPEND,     // Add text before selection
-        REPLACE      // Replace selection with new text
+        APPEND,
+        PREPEND,
     }
 
     @Serializable

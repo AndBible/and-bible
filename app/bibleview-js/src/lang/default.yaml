@@ -77,7 +77,6 @@ editActionModeLabel: Mode
 editActionModeNone: None
 editActionModeAppend: Append text
 editActionModePrepend: Prepend text
-editActionModeReplace: Replace text
 editActionContentLabel: Content
 editActionContentPlaceholder: Enter text to be added to the bookmark...
 insertParagraphBreak: Insert paragraph break

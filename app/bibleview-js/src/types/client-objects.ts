@@ -28,7 +28,6 @@ export type Features = {
 export enum EditActionMode {
     APPEND = "APPEND",
     PREPEND = "PREPEND", 
-    REPLACE = "REPLACE"
 }
 
 export type EditAction = {

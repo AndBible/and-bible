@@ -119,7 +119,6 @@ type TranslatedStrings = {
     editActionModeNone: string
     editActionModeAppend: string
     editActionModePrepend: string
-    editActionModeReplace: string
     editActionContentLabel: string
     editActionContentPlaceholder: string
     insertParagraphBreak: string

@@ -69,16 +69,6 @@
                   <FontAwesomeIcon :icon="faArrowUp" />
                   <span>{{ strings.editActionModePrepend }}</span>
                 </button>
-                
-                <button
-                  type="button"
-                  class="mode-toggle"
-                  :class="{ active: selectedEditAction.mode === EditActionMode.REPLACE }"
-                  @click="selectedEditAction.mode = EditActionMode.REPLACE"
-                  :title="strings.editActionModeReplace">
-                  <FontAwesomeIcon :icon="faExchangeAlt" />
-                  <span>{{ strings.editActionModeReplace }}</span>
-                </button>
               </div>
             </div>
             
