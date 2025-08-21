@@ -123,7 +123,6 @@ type TranslatedStrings = {
     editActionContentPlaceholder: string
     insertParagraphBreak: string
     insertSubtitle: string
-    formatHelp: string
     invalidTag: string
     invalidClosingTag: string
     unmatchedClosingTag: string

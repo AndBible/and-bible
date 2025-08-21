@@ -83,7 +83,6 @@
                   @click="insertParagraphBreak"
                   :title="strings.insertParagraphBreak || 'Insert paragraph break'">
                   <FontAwesomeIcon :icon="faParagraph" />
-                  <span>¶</span>
                 </button>
                 
                 <button
@@ -92,7 +91,6 @@
                   @click="insertSubtitle"
                   :title="strings.insertSubtitle || 'Insert subtitle'">
                   <FontAwesomeIcon :icon="faHeading" />
-                  <span>H</span>
                 </button>
               </div>
               
@@ -110,13 +108,6 @@
               <div v-if="validationError" class="validation-error">
                 <FontAwesomeIcon :icon="faExclamationTriangle" />
                 <span>{{ validationError }}</span>
-              </div>
-              
-              <!-- Format Help -->
-              <div class="format-help">
-                <small>
-                  {{ formatHelpText }}
-                </small>
               </div>
             </div>
           </div>
@@ -149,7 +140,6 @@ import {
     faArrowUp,
     faBan,
     faEdit,
-    faExchangeAlt,
     faExclamationTriangle,
     faHeading,
     faIcons,
@@ -198,12 +188,6 @@ const tabsConfig = computed<Tab[]>(() => [
 function handleTabChange(tabId: string) {
     activeTab.value = tabId as 'icons' | 'editAction';
 }
-
-const formatHelpText = computed(() => {
-    return strings.formatHelp
-        .replace('{brTag}', '<br/>')
-        .replace('{subtitleTag}', '<subtitle>text</subtitle>');
-});
 
 function selectIcon(key: null | string) {
     selectedIcon.value = key;

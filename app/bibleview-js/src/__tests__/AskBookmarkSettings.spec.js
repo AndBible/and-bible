@@ -26,7 +26,6 @@ vi.mock('@/composables', () => ({
       editActionModeReplace: 'Replace',
       insertParagraphBreak: 'Insert paragraph break',
       insertSubtitle: 'Insert subtitle', 
-      formatHelp: 'Use <br/> for paragraph breaks and <subtitle>text</subtitle> for subtitles',
       cancel: 'Cancel',
       ok: 'OK'
     },
