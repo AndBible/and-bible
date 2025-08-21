@@ -5,13 +5,7 @@
 export interface XmlValidationOptions {
     allowedTags: string[];
     selfClosingTags?: string[];
-    errorMessages?: {
-        xmlParseError?: string;
-        invalidTag?: string;
-        invalidClosingTag?: string;
-        unmatchedClosingTag?: string;
-        unclosedTag?: string;
-    };
+    errorMessages?: Partial<ErrorStrings>;
 }
 
 /**
@@ -92,22 +86,30 @@ export function validateXmlContent(content: string, options: XmlValidationOption
     }
 }
 
+type ErrorStrings = {
+    xmlParseError: string;
+    invalidTag: string;
+    invalidClosingTag: string;
+    unmatchedClosingTag: string;
+    unclosedTag: string;
+}
+
 /**
  * Validates bookmark edit action content (convenience function)
  * @param content The content to validate
  * @param strings Translation strings for error messages
  * @returns null if valid, error message string if invalid
  */
-export function validateBookmarkEditActionContent(content: string, strings: any): string | null {
+export function validateBookmarkEditActionContent(content: string, strings: ErrorStrings): string | null {
     return validateXmlContent(content, {
         allowedTags: ['br', 'subtitle'],
         selfClosingTags: ['br'],
         errorMessages: {
-            xmlParseError: strings.xmlParseError || 'XML parsing error',
-            invalidTag: strings.invalidTag || 'Invalid tag',
-            invalidClosingTag: strings.invalidClosingTag || 'Invalid closing tag',
-            unmatchedClosingTag: strings.unmatchedClosingTag || 'Unmatched closing tag',
-            unclosedTag: strings.unclosedTag || 'Unclosed tag',
+            xmlParseError: strings.xmlParseError,
+            invalidTag: strings.invalidTag,
+            invalidClosingTag: strings.invalidClosingTag,
+            unmatchedClosingTag: strings.unmatchedClosingTag,
+            unclosedTag: strings.unclosedTag,
         }
     });
 }

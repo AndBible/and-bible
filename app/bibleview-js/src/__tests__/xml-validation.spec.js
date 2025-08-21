@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { validateXmlContent, validateBookmarkEditActionContent, XmlValidationOptions } from '@/utils/xml-validation'
+import { validateXmlContent, validateBookmarkEditActionContent } from '@/utils/xml-validation'
 
 describe('xml-validation', () => {
   describe('validateXmlContent', () => {
-    const basicOptions: XmlValidationOptions = {
+    const basicOptions = {
       allowedTags: ['br', 'subtitle'],
       selfClosingTags: ['br'],
       errorMessages: {
@@ -66,7 +66,7 @@ describe('xml-validation', () => {
     })
 
     it('should work with custom error messages', () => {
-      const customOptions: XmlValidationOptions = {
+      const customOptions = {
         allowedTags: ['span'],
         errorMessages: {
           invalidTag: 'Custom invalid tag message',
@@ -78,7 +78,7 @@ describe('xml-validation', () => {
     })
 
     it('should work with different allowed tags', () => {
-      const htmlOptions: XmlValidationOptions = {
+      const htmlOptions = {
         allowedTags: ['p', 'span', 'div'],
         selfClosingTags: [],
       }
@@ -109,7 +109,7 @@ describe('xml-validation', () => {
 
     it('should handle empty content', () => {
       expect(validateBookmarkEditActionContent('', mockStrings)).toBeNull()
-      expect(validateBookmarkEditActionContent(null as any, mockStrings)).toBeNull()
+      expect(validateBookmarkEditActionContent(null, mockStrings)).toBeNull()
     })
 
     it('should use custom error messages from strings', () => {
@@ -124,7 +124,7 @@ describe('xml-validation', () => {
   })
 
   describe('edge cases', () => {
-    const options: XmlValidationOptions = {
+    const options = {
       allowedTags: ['br', 'subtitle'],
       selfClosingTags: ['br']
     }
