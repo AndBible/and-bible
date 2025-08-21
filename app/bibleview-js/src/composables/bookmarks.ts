@@ -575,6 +575,7 @@ export function useBookmarks(
         let firstElement: Element, lastElement: Element;
         const style = config.showBookmarks ? styleForStyleRange(styleRange) : "";
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId)!);
+        const hideLabels = new Set(config.bookmarksHideLabels);
 
         function addBookmarkEventFunctions(event: MouseEvent) {
             for (const b of bookmarks) {
@@ -669,11 +670,14 @@ export function useBookmarks(
 
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = getBookmarkStyleLabel(b);
-                if ((config.showBookmarks && (isMarkerBookmark(b, bookmarkLabel) || resolveIcon(b, bookmarkLabel) !== null))
-                    || (config.showMyNotes && b.hasNote)) {
-                    bookmarkList.push(b)
-                    if (b.hasNote) {
-                        hasNote = true;
+                // Don't show markers for hidden bookmarks (hide style overrides marker style)
+                if (!isHiddenBookmark(b, bookmarkLabel) && intersection(new Set(b.labels), hideLabels).size === 0) {
+                    if ((config.showBookmarks && (isMarkerBookmark(b, bookmarkLabel) || resolveIcon(b, bookmarkLabel) !== null))
+                        || (config.showMyNotes && b.hasNote)) {
+                        bookmarkList.push(b)
+                        if (b.hasNote) {
+                            hasNote = true;
+                        }
                     }
                 }
             }
@@ -722,7 +726,8 @@ export function useBookmarks(
 
             // Marker will be put to the last verse, collect those to a map.
             const key = b.ordinalRange[1];
-            if (intersection(new Set(b.labels), hideLabels).size === 0) {
+            const bookmarkLabel = getBookmarkStyleLabel(b);
+            if (!isHiddenBookmark(b, bookmarkLabel) && intersection(new Set(b.labels), hideLabels).size === 0) {
                 const value = bookmarkMap.get(key) || [];
                 value.push(b);
                 bookmarkMap.set(key, value);
