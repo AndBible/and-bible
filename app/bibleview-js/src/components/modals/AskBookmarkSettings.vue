@@ -81,7 +81,7 @@
                   type="button"
                   class="format-button"
                   @click="insertParagraphBreak"
-                  :title="strings.insertParagraphBreak || 'Insert paragraph break'">
+                  :title="strings.insertParagraphBreak">
                   <FontAwesomeIcon :icon="faParagraph" />
                 </button>
                 
@@ -89,7 +89,7 @@
                   type="button"
                   class="format-button"
                   @click="insertSubtitle"
-                  :title="strings.insertSubtitle || 'Insert subtitle'">
+                  :title="strings.insertSubtitle">
                   <FontAwesomeIcon :icon="faHeading" />
                 </button>
               </div>
