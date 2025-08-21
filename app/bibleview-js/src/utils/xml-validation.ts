@@ -5,7 +5,7 @@
 export interface XmlValidationOptions {
     allowedTags: string[];
     selfClosingTags?: string[];
-    errorMessages?: Partial<ErrorStrings>;
+    errorMessages: Partial<ErrorStrings>;
 }
 
 /**
@@ -35,7 +35,7 @@ export function validateXmlContent(content: string, options: XmlValidationOption
         if (parserError) {
             // Extract error message from parser error
             const errorText = parserError.textContent || '';
-            const xmlParseError = errorMessages.xmlParseError || 'XML parsing error';
+            const xmlParseError = errorMessages.xmlParseError;
             return `${xmlParseError}: ${errorText}`;
         }
         
@@ -49,21 +49,21 @@ export function validateXmlContent(content: string, options: XmlValidationOption
             const tagName = match[2].toLowerCase();
             
             if (!allowedTags.includes(tagName)) {
-                const invalidTag = errorMessages.invalidTag || 'Invalid tag';
+                const invalidTag = errorMessages.invalidTag;
                 return `${invalidTag}: <${tagName}>. Only <${allowedTags.join('>, <')}> tags are allowed.`;
             }
             
             if (selfClosingTags.includes(tagName)) {
                 // Self-closing tags should not have closing tags
                 if (isClosing) {
-                    const invalidClosingTag = errorMessages.invalidClosingTag || 'Invalid closing tag';
+                    const invalidClosingTag = errorMessages.invalidClosingTag;
                     return `${invalidClosingTag}: </${tagName}>. Use <${tagName}/> instead.`;
                 }
             } else {
                 // Non-self-closing tags should be properly balanced
                 if (isClosing) {
                     if (tagStack.length === 0 || tagStack[tagStack.length - 1] !== tagName) {
-                        const unmatchedClosingTag = errorMessages.unmatchedClosingTag || 'Unmatched closing tag';
+                        const unmatchedClosingTag = errorMessages.unmatchedClosingTag;
                         return `${unmatchedClosingTag}: </${tagName}>`;
                     }
                     tagStack.pop();
@@ -75,13 +75,13 @@ export function validateXmlContent(content: string, options: XmlValidationOption
         
         // Check for unclosed tags
         if (tagStack.length > 0) {
-            const unclosedTag = errorMessages.unclosedTag || 'Unclosed tag';
+            const unclosedTag = errorMessages.unclosedTag;
             return `${unclosedTag}: <${tagStack[tagStack.length - 1]}>`;
         }
         
         return null; // Valid XML
     } catch (error) {
-        const xmlParseError = errorMessages.xmlParseError || 'XML validation error';
+        const xmlParseError = errorMessages.xmlParseError;
         return `${xmlParseError}: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }
 }
