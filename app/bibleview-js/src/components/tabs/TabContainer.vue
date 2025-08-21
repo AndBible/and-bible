@@ -43,11 +43,12 @@
 import {computed, provide, ref, watch} from 'vue';
 import TabNavigation from './TabNavigation.vue';
 import TabPanel from './TabPanel.vue';
+import {IconDefinition} from "@fortawesome/fontawesome-svg-core";
 
 export interface Tab {
   id: string;
   label: string;
-  icon?: string;
+  icon?: string | IconDefinition;
   disabled?: boolean;
 }
 

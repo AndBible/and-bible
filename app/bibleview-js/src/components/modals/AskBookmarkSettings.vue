@@ -169,6 +169,7 @@ import {
 import {customIconMap} from "@/composables/fontawesome";
 import {validateBookmarkEditActionContent} from "@/utils/xml-validation";
 import {EditAction, EditActionMode} from "@/types/client-objects";
+import {Tab} from "@/components/tabs/TabContainer.vue";
 
 const { strings } = useCommon();
 
@@ -190,7 +191,7 @@ const validationError = ref<string | null>(null);
 let deferred: Deferred<BookmarkSettings | null> | null = null;
 
 // Tab configuration for the TabContainer
-const tabsConfig = computed(() => [
+const tabsConfig = computed<Tab[]>(() => [
     { 
         id: 'icons', 
         label: strings.customIconLabel, 
