@@ -122,18 +122,16 @@ function saveState() {
 }
 </script>
 
-<style scoped lang="scss">
-@use "@/common.scss" as *;
-
-.memorize-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+<style lang="scss">
 
 .memorize-content {
-  flex: 1;
+  margin-top: 0.8em;
 }
+
+</style>
+
+<style scoped lang="scss">
+@use "@/common.scss" as *;
 
 h2 {
   font-size: 1.2em;
