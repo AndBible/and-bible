@@ -37,6 +37,44 @@
         <!-- Edit Action Tab -->
         <template #editAction>
           <div class="edit-action-controls">
+            <div v-if="selectedEditAction.mode" class="content-input">
+              <label>{{ strings.editActionContentLabel }}:</label>
+
+              <!-- Formatting Buttons -->
+              <div class="formatting-buttons">
+                <button
+                    type="button"
+                    class="format-button"
+                    @click="insertParagraphBreak"
+                    :title="strings.insertParagraphBreak">
+                  <FontAwesomeIcon :icon="faParagraph" />
+                </button>
+
+                <button
+                    type="button"
+                    class="format-button"
+                    @click="insertSubtitle"
+                    :title="strings.insertSubtitle">
+                  <FontAwesomeIcon :icon="faHeading" />
+                </button>
+              </div>
+
+              <textarea
+                  ref="contentTextarea"
+                  v-model="selectedEditAction.content"
+                  @input="validateContent"
+                  :placeholder="strings.editActionContentPlaceholder"
+                  class="content-textarea"
+                  :class="{ 'has-error': validationError }"
+              >
+              </textarea>
+
+              <!-- Validation Error -->
+              <div v-if="validationError" class="validation-error">
+                <FontAwesomeIcon :icon="faExclamationTriangle" />
+                <span>{{ validationError }}</span>
+              </div>
+            </div>
             <div class="mode-selection">
               <label>{{ strings.editActionModeLabel }}:</label>
               <div class="mode-toggle-buttons">
@@ -49,7 +87,15 @@
                   <FontAwesomeIcon :icon="faBan" />
                   <span>{{ strings.editActionModeNone }}</span>
                 </button>
-                
+                <button
+                    type="button"
+                    class="mode-toggle"
+                    :class="{ active: selectedEditAction.mode === EditActionMode.PREPEND }"
+                    @click="selectedEditAction.mode = EditActionMode.PREPEND"
+                    :title="strings.editActionModePrepend">
+                  <FontAwesomeIcon :icon="faArrowUp" />
+                  <span>{{ strings.editActionModePrepend }}</span>
+                </button>
                 <button
                   type="button"
                   class="mode-toggle"
@@ -59,55 +105,6 @@
                   <FontAwesomeIcon :icon="faArrowDown" />
                   <span>{{ strings.editActionModeAppend }}</span>
                 </button>
-                
-                <button
-                  type="button"
-                  class="mode-toggle"
-                  :class="{ active: selectedEditAction.mode === EditActionMode.PREPEND }"
-                  @click="selectedEditAction.mode = EditActionMode.PREPEND"
-                  :title="strings.editActionModePrepend">
-                  <FontAwesomeIcon :icon="faArrowUp" />
-                  <span>{{ strings.editActionModePrepend }}</span>
-                </button>
-              </div>
-            </div>
-            
-            <div v-if="selectedEditAction.mode" class="content-input">
-              <label>{{ strings.editActionContentLabel }}:</label>
-              
-              <!-- Formatting Buttons -->
-              <div class="formatting-buttons">
-                <button
-                  type="button"
-                  class="format-button"
-                  @click="insertParagraphBreak"
-                  :title="strings.insertParagraphBreak">
-                  <FontAwesomeIcon :icon="faParagraph" />
-                </button>
-                
-                <button
-                  type="button"
-                  class="format-button"
-                  @click="insertSubtitle"
-                  :title="strings.insertSubtitle">
-                  <FontAwesomeIcon :icon="faHeading" />
-                </button>
-              </div>
-              
-              <textarea 
-                ref="contentTextarea"
-                v-model="selectedEditAction.content"
-                @input="validateContent"
-                :placeholder="strings.editActionContentPlaceholder"
-                class="content-textarea"
-                :class="{ 'has-error': validationError }"
-              >
-              </textarea>
-              
-              <!-- Validation Error -->
-              <div v-if="validationError" class="validation-error">
-                <FontAwesomeIcon :icon="faExclamationTriangle" />
-                <span>{{ validationError }}</span>
               </div>
             </div>
           </div>
@@ -175,7 +172,7 @@ const tabsConfig = computed<Tab[]>(() => [
     { 
         id: 'icons', 
         label: strings.customIconLabel, 
-        icon: faIcons 
+        icon: selectedIcon.value ? customIconMap.get(selectedIcon.value) : faIcons
     },
     { 
         id: 'editAction', 
@@ -386,7 +383,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
 
 .mode-toggle-buttons {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
