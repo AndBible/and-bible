@@ -219,6 +219,46 @@ cd app/bibleview-js && npm run lint-fix    # Auto-fixes some issues
 ./gradlew clean  # Clear build cache (REQUIRES INTERNET)
 ```
 
+### Test-Specific Troubleshooting
+```bash
+# Vue.js test warnings about lifecycle hooks (non-blocking):
+# These Vue lifecycle warnings in tests are expected and do not indicate failures
+
+# Vue.js test skips (normal behavior):
+# Some tests are conditionally skipped based on environment/data availability
+
+# Android test timeout issues:
+# Never cancel Android tests - they require full completion for proper state
+# Use --info flag for detailed progress: ./gradlew testStandardGoogleplayDebugUnitTest --info
+
+# Selective Android test execution for faster feedback:
+./gradlew testStandardGoogleplayDebugUnitTest --tests "*.CommonUtilsTest.testIsAndroid"  # Single test method
+./gradlew testStandardGoogleplayDebugUnitTest --tests "*BookmarkControl*"               # All bookmark tests
+```
+
+### Copilot Test Execution Best Practices
+```bash
+# 1. ALWAYS start with Vue.js tests for immediate feedback
+cd app/bibleview-js && npm run test:ci && npm run lint
+
+# 2. Use validation scripts for comprehensive checking  
+./scripts/test-validation.sh              # Vue.js only (20 seconds)
+./scripts/run-tests.sh --quick            # Vue.js + Android check (25 seconds)
+
+# 3. Run Android tests only when necessary (Android-specific changes)
+./scripts/run-tests.sh --android-only     # Full Android tests (10-45 minutes)
+./gradlew testStandardGoogleplayDebugUnitTest --tests "*YourSpecificTest*"  # Targeted tests
+
+# 4. For full validation (CI-style, long running):
+./scripts/run-tests.sh --full             # Complete test suite (45+ minutes)
+```
+
+**Recommended Copilot Workflow:**
+1. **Quick iteration**: `./scripts/test-validation.sh` (20s)
+2. **Pre-commit validation**: `./scripts/run-tests.sh --quick` (25s)  
+3. **Android changes**: `./scripts/run-tests.sh --android-only` (10-45min)
+4. **Release validation**: `./scripts/run-tests.sh --full` (45+ min)
+
 ## Project-Specific Conventions
 
 ### Working Without Internet Access
@@ -429,6 +469,27 @@ npm run type-check  # 7 seconds
 ./gradlew check  # includes all tests and builds
 ```
 
+### Quick Test Validation Script
+Use the provided scripts for rapid test validation:
+```bash
+./scripts/test-validation.sh     # Runs all Vue.js tests + validation in ~20 seconds
+./scripts/run-tests.sh --quick   # Vue.js tests + Android environment check
+./scripts/run-tests.sh --help    # See all available options
+```
+
+**Script Options:**
+- `--vue-only`: Vue.js tests only (~20 seconds)
+- `--quick`: Vue.js tests + Android environment check (~25 seconds) 
+- `--android-only`: Android tests only (10-45 minutes, requires internet)
+- `--full`: Complete test suite (45+ minutes, requires internet)
+
+**Quick validation features:**
+- ✅ Validates environment setup (Java 17, Node.js 20.x, npm 10.x)
+- ✅ Runs Vue.js test suite (140+ tests in ~5 seconds)
+- ✅ Performs linting validation (~4 seconds)  
+- ✅ Executes TypeScript type checking (~7 seconds)
+- ⚠️  Provides guidance for Android test execution
+
 ### Validated Test Classes and Timing
 **Vue.js Tests** (verified working, 5-6 seconds total):
 - `dom.spec.js`: 62 tests - DOM manipulation and text processing
@@ -500,3 +561,38 @@ For persecution-sensitive regions, `discrete` flavor transforms app into calcula
 - `CalculatorActivity` as disguise screen
 - Hidden Bible functionality accessible via PIN
 - Use `BuildVariant.Appearance.isDiscrete` for conditional features
+
+## GitHub Copilot Best Practices Compliance
+
+This repository follows GitHub Copilot coding agent best practices:
+
+### ✅ Clear Project Structure Documentation
+- **Comprehensive architecture overview**: Core components, hybrid Vue.js/Android design
+- **Detailed build system documentation**: Gradle variants, Vue.js configurations  
+- **Database architecture**: Multiple specialized Room databases with migration patterns
+
+### ✅ Environment and Prerequisites
+- **Specific version requirements**: Java 17, Node.js 20.x, npm 10.x validated
+- **Internet connectivity guidance**: Clear distinction between offline/online capabilities
+- **Setup verification commands**: Automated environment checking
+
+### ✅ Testing Strategy and Execution  
+- **Fast feedback loops**: Vue.js tests (140+ tests in ~5 seconds)
+- **Comprehensive test coverage**: Frontend (Vue.js) + Backend (Android) validation
+- **Automated test scripts**: `./scripts/test-validation.sh` and `./scripts/run-tests.sh`
+- **Performance expectations**: Clear timing guidance for all test types
+
+### ✅ Development Workflow Optimization
+- **Rapid iteration support**: Vue.js-first development with offline capability
+- **Selective testing**: Targeted Android tests for specific changes only
+- **Build system understanding**: Multi-flavor Android builds with appropriate variants
+
+### ✅ Troubleshooting and Common Issues
+- **Environment-specific guidance**: Internet connectivity requirements per build type
+- **Common failure patterns**: TypeScript errors, linting issues, build cache problems
+- **Recovery procedures**: Clear steps for resolving common development issues
+
+### ✅ Tool Integration and Automation
+- **Ecosystem tool usage**: npm scripts, Gradle tasks, ESLint, TypeScript validation
+- **Command standardization**: Consistent patterns for linting, building, testing
+- **Performance optimization**: Parallel builds, incremental compilation support
