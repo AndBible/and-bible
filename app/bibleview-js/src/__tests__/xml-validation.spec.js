@@ -81,6 +81,13 @@ describe('xml-validation', () => {
       const htmlOptions = {
         allowedTags: ['p', 'span', 'div'],
         selfClosingTags: [],
+        errorMessages: {
+          xmlParseError: 'XML parsing error',
+          invalidTag: 'Invalid tag',
+          invalidClosingTag: 'Invalid closing tag',
+          unmatchedClosingTag: 'Unmatched closing tag',
+          unclosedTag: 'Unclosed tag',
+        }
       }
       
       expect(validateXmlContent('<p>Test</p>', htmlOptions)).toBeNull()
@@ -93,7 +100,11 @@ describe('xml-validation', () => {
 
   describe('validateBookmarkEditActionContent', () => {
     const mockStrings = {
-      xmlParseError: 'XML parse error'
+      xmlParseError: 'XML parse error',
+      invalidTag: 'Invalid tag',
+      invalidClosingTag: 'Invalid closing tag',
+      unmatchedClosingTag: 'Unmatched closing tag',
+      unclosedTag: 'Unclosed tag',
     }
 
     it('should validate bookmark-specific content', () => {
@@ -126,7 +137,14 @@ describe('xml-validation', () => {
   describe('edge cases', () => {
     const options = {
       allowedTags: ['br', 'subtitle'],
-      selfClosingTags: ['br']
+      selfClosingTags: ['br'],
+      errorMessages: {
+        xmlParseError: 'XML parsing error',
+        invalidTag: 'Invalid tag',
+        invalidClosingTag: 'Invalid closing tag',
+        unmatchedClosingTag: 'Unmatched closing tag',
+        unclosedTag: 'Unclosed tag',
+      }
     }
 
     it('should handle malformed XML gracefully', () => {
@@ -148,6 +166,179 @@ describe('xml-validation', () => {
 
     it('should handle multiple spaces in tags', () => {
       expect(validateXmlContent('Text<br  />More', options)).toBeNull()
+    })
+
+    it('should handle self-closing tags without slash', () => {
+      // HTML-style self-closing without trailing slash should cause XML parsing error
+      const result = validateXmlContent('Text<br>More', options)
+      expect(result).toContain('XML parsing error') // DOMParser catches this as malformed XML
+    })
+
+    it('should handle deeply nested valid tags', () => {
+      const content = '<subtitle>Chapter <subtitle>Nested</subtitle> Title</subtitle>'
+      expect(validateXmlContent(content, options)).toBeNull()
+    })
+
+    it('should handle multiple consecutive self-closing tags', () => {
+      expect(validateXmlContent('Line1<br/>Line2<br/>Line3<br/>End', options)).toBeNull()
+    })
+
+    it('should handle tags with various attributes', () => {
+      const extendedOptions = {
+        ...options,
+        allowedTags: ['br', 'subtitle', 'span']
+      }
+      expect(validateXmlContent('Text<span class="highlight" id="test" data-value="123">content</span>', extendedOptions)).toBeNull()
+      expect(validateXmlContent('Text<br class="break" />More', extendedOptions)).toBeNull()
+    })
+
+    it('should reject mixed case tag mismatches', () => {
+      // Opening with different case than closing should fail XML parsing
+      const result = validateXmlContent('Text<subtitle>Content</SUBTITLE>More', options)
+      expect(result).toContain('XML parsing error')
+    })
+
+    it('should handle empty tag content', () => {
+      expect(validateXmlContent('Text<subtitle></subtitle>More', options)).toBeNull()
+    })
+
+    it('should handle tag order validation', () => {
+      // Incorrectly nested tags should fail at XML parsing level
+      const result = validateXmlContent('Text<subtitle>Start<subtitle>End</subtitle>Missing close', options)
+      expect(result).toContain('XML parsing error') // DOMParser catches this before our validation
+    })
+
+    it('should handle special characters in content', () => {
+      // Raw special characters like < and > need to be XML-escaped to be valid
+      expect(validateXmlContent('Text with &amp; &lt; &gt; &quot; &apos; characters<br/>More', options)).toBeNull()
+      
+      // Unescaped < and > characters should cause XML parsing errors
+      const result = validateXmlContent('Text with & < > " \' characters<br/>More', options)
+      expect(result).toContain('XML parsing error')
+    })
+  })
+
+  describe('comprehensive error scenarios', () => {
+    const fullOptions = {
+      allowedTags: ['br', 'subtitle', 'span', 'div'],
+      selfClosingTags: ['br'],
+      errorMessages: {
+        xmlParseError: 'XML parsing error',
+        invalidTag: 'Invalid tag',
+        invalidClosingTag: 'Invalid closing tag',
+        unmatchedClosingTag: 'Unmatched closing tag',
+        unclosedTag: 'Unclosed tag',
+      }
+    }
+
+    it('should provide specific error for unknown tags', () => {
+      const result = validateXmlContent('Text<unknown>content</unknown>', fullOptions)
+      expect(result).toContain('Invalid tag: <unknown>')
+      expect(result).toContain('Only <br>, <subtitle>, <span>, <div> tags are allowed')
+    })
+
+    it('should handle multiple errors prioritizing first encountered', () => {
+      // Should catch the first invalid tag
+      const result = validateXmlContent('Text<unknown>content</unknown><invalid>more</invalid>', fullOptions)
+      expect(result).toContain('Invalid tag: <unknown>')
+    })
+
+    it('should validate complex nested structures', () => {
+      const complexContent = `
+        Start text<br/>
+        <subtitle>Main Title
+          <span>Highlighted text</span>
+          <div>
+            <span>Nested span in div</span>
+          </div>
+        </subtitle>
+        End text<br/>
+      `
+      expect(validateXmlContent(complexContent, fullOptions)).toBeNull()
+    })
+
+    it('should catch unbalanced nested tags', () => {
+      const result = validateXmlContent('<subtitle><span>Text</subtitle></span>', fullOptions)
+      expect(result).toContain('XML parsing error')
+    })
+
+    it('should handle malformed self-closing tags correctly', () => {
+      const optionsWithInput = {
+        ...fullOptions,
+        allowedTags: [...fullOptions.allowedTags, 'input'],
+        selfClosingTags: [...fullOptions.selfClosingTags, 'input']
+      }
+      
+      expect(validateXmlContent('Text<input/>More', optionsWithInput)).toBeNull()
+      
+      // Closing tag for self-closing element should cause XML parsing error
+      const result = validateXmlContent('Text</input>More', optionsWithInput)
+      expect(result).toContain('XML parsing error') // DOMParser catches unmatched closing tag
+    })
+
+    it('should handle null and undefined content gracefully', () => {
+      expect(validateXmlContent(null, fullOptions)).toBeNull()
+      expect(validateXmlContent(undefined, fullOptions)).toBeNull()
+    })
+
+    it('should test custom validation after XML parsing succeeds', () => {
+      // These tests specifically target our custom validation logic that runs after DOMParser
+      
+      // Test our custom tag validation logic - this will be well-formed XML but with invalid tags
+      const customTagOptions = {
+        allowedTags: ['span'],
+        selfClosingTags: [],
+        errorMessages: {
+          xmlParseError: 'XML parsing error',
+          invalidTag: 'Invalid tag',
+          invalidClosingTag: 'Invalid closing tag',
+          unmatchedClosingTag: 'Unmatched closing tag',
+          unclosedTag: 'Unclosed tag',
+        }
+      }
+      
+      // This is well-formed XML but uses disallowed tags
+      const invalidTagResult = validateXmlContent('<div>content</div>', customTagOptions)
+      expect(invalidTagResult).toContain('Invalid tag: <div>')
+      
+      // Test mixed case validation where XML is valid but our logic catches tag name issues
+      const mixedCaseResult = validateXmlContent('<BR>content</BR>', customTagOptions)
+      expect(mixedCaseResult).toContain('Invalid tag: <br>') // Our logic converts to lowercase
+    })
+  })
+
+  describe('validateBookmarkEditActionContent additional tests', () => {
+    const completeStrings = {
+      xmlParseError: 'XML parse error',
+      invalidTag: 'Invalid tag',
+      invalidClosingTag: 'Invalid closing tag',
+      unmatchedClosingTag: 'Unmatched closing tag',
+      unclosedTag: 'Unclosed tag',
+    }
+
+    it('should handle complex bookmark content scenarios', () => {
+      // Valid complex content
+      const validContent = 'Introduction text<br/>More content<subtitle>Chapter Title</subtitle>Final text<br/>'
+      expect(validateBookmarkEditActionContent(validContent, completeStrings)).toBeNull()
+    })
+
+    it('should reject multiple invalid tags', () => {
+      const result = validateBookmarkEditActionContent('Text<div>Invalid</div><span>Also invalid</span>', completeStrings)
+      expect(result).toContain('Invalid tag: <div>')
+    })
+
+    it('should handle edge case with only allowed tags', () => {
+      expect(validateBookmarkEditActionContent('<br/>', completeStrings)).toBeNull()
+      expect(validateBookmarkEditActionContent('<subtitle></subtitle>', completeStrings)).toBeNull()
+    })
+
+    it('should validate nested subtitle content', () => {
+      expect(validateBookmarkEditActionContent('<subtitle>Title with<br/>line break</subtitle>', completeStrings)).toBeNull()
+    })
+
+    it('should reject unclosed subtitle tags', () => {
+      const result = validateBookmarkEditActionContent('Text<subtitle>Unclosed title', completeStrings)
+      expect(result).toContain('XML parse error')
     })
   })
 })
