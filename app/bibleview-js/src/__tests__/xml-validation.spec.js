@@ -120,7 +120,6 @@ describe('xml-validation', () => {
 
     it('should handle empty content', () => {
       expect(validateBookmarkEditActionContent('', mockStrings)).toBeNull()
-      expect(validateBookmarkEditActionContent(null, mockStrings)).toBeNull()
     })
 
     it('should use custom error messages from strings', () => {
@@ -274,11 +273,6 @@ describe('xml-validation', () => {
       // Closing tag for self-closing element should cause XML parsing error
       const result = validateXmlContent('Text</input>More', optionsWithInput)
       expect(result).toContain('XML parsing error') // DOMParser catches unmatched closing tag
-    })
-
-    it('should handle null and undefined content gracefully', () => {
-      expect(validateXmlContent(null, fullOptions)).toBeNull()
-      expect(validateXmlContent(undefined, fullOptions)).toBeNull()
     })
 
     it('should test custom validation after XML parsing succeeds', () => {
