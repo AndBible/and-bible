@@ -640,8 +640,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
     border-color: #0056b3;
   }
   
-  &:disabled,
-  &.disabled {
+  &:disabled {
     background: #6c757d;
     border-color: #6c757d;
     cursor: not-allowed;

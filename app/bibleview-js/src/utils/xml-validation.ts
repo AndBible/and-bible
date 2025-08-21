@@ -15,7 +15,7 @@ export interface XmlValidationOptions {
  * @returns null if valid, error message string if invalid
  */
 export function validateXmlContent(content: string, options: XmlValidationOptions): string | null {
-    if (!content || content.trim() === '') {
+    if (content.trim() === '') {
         return null; // Empty content is valid
     }
     

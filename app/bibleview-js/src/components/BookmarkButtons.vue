@@ -185,9 +185,7 @@ async function configureBookmarkSettings() {
     if (result.customIcon !== bookmark.value.customIcon) {
       android.setCustomIcon(bookmark.value, result.customIcon);
     }
-    // TODO: Add Android method to update edit action
-    // This would need to be implemented in BibleJavascriptInterface.kt
-    if (result.editAction.mode !== bookmark.value.editAction.mode || 
+    if (result.editAction.mode !== bookmark.value.editAction.mode ||
         result.editAction.content !== bookmark.value.editAction.content)
     {
         android.setEditAction(bookmark.value, result.editAction);

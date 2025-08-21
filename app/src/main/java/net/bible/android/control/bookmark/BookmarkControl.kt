@@ -195,7 +195,7 @@ open class BookmarkControl @Inject constructor(
     }
     
     fun updateBookmarkEditAction(bookmarkId: IdType, editAction: EditAction) {
-        val bookmark = dao.bibleBookmarkById(bookmarkId) ?: dao.genericBookmarkById(bookmarkId) ?: return false
+        val bookmark = dao.bibleBookmarkById(bookmarkId) ?: dao.genericBookmarkById(bookmarkId) ?: return
         bookmark.editAction = editAction
         addOrUpdateBookmark(bookmark)
     }
