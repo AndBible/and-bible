@@ -112,7 +112,16 @@ class WorkspaceEntities {
     data class WindowLayout(
         val state: String,
         val weight: Float = 1.0f
-    )
+    ) {
+        init {
+            // Defensive programming: ensure weight is never null or invalid
+            // This should not happen based on the data class definition, but
+            // protects against database corruption or reflection-based operations
+            require(weight.isFinite() && weight > 0f) { 
+                "WindowLayout weight must be a positive finite number, got: $weight" 
+            }
+        }
+    }
 
     @Serializable
     data class MarginSize(

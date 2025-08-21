@@ -21,14 +21,32 @@ import net.bible.android.database.WorkspaceEntities
 
 class WindowLayout(entity: WorkspaceEntities.WindowLayout?) {
     fun restoreFrom(entity: WorkspaceEntities.WindowLayout) {
-        this.weight = entity.weight
+        val entityWeight = entity.weight
+        this.weight = when {
+            entityWeight <= 0f || !entityWeight.isFinite() -> {
+                android.util.Log.w("WindowLayout", "Invalid weight in restoreFrom: $entityWeight, using default 1.0f")
+                1.0f
+            }
+            else -> entityWeight
+        }
         this.state = WindowState.fixedValueOf(entity.state)
     }
 
     var state =
         if(entity != null) WindowState.fixedValueOf(entity.state) else WindowState.VISIBLE
 
-    var weight = entity?.weight ?: 1.0f
+    var weight = run {
+        val entityWeight = entity?.weight
+        when {
+            entityWeight == null -> 1.0f
+            entityWeight <= 0f || !entityWeight.isFinite() -> {
+                // Log warning about invalid weight and use default
+                android.util.Log.w("WindowLayout", "Invalid weight value: $entityWeight, using default 1.0f")
+                1.0f
+            }
+            else -> entityWeight
+        }
+    }
 
 
     enum class WindowState {
