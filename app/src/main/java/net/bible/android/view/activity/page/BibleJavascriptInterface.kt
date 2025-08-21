@@ -302,6 +302,12 @@ class BibleJavascriptInterface(
     fun deleteStudyPadEntry(studyPadId: String) = bookmarkControl.deleteStudyPadTextEntry(IdType(studyPadId))
 
     @JavascriptInterface
+    fun deleteLabels(labelIds: String) {
+        val ids: List<IdType> = json.decodeFromString(serializer(), labelIds)
+        bookmarkControl.deleteLabels(ids)
+    }
+
+    @JavascriptInterface
     fun removeBookmarkLabel(bookmarkId: String, labelId: String) = bookmarkControl.removeBibleBookmarkLabel(IdType(bookmarkId), IdType(labelId))
 
     @JavascriptInterface
