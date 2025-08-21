@@ -86,7 +86,6 @@ describe('AskBookmarkSettings.vue', () => {
     
     // Check that the component exposes the required methods
     expect(typeof component.askBookmarkSettings).toBe('function')
-    expect(typeof component.askCustomIcon).toBe('function')
   })
 
   it('has correct initial state', () => {

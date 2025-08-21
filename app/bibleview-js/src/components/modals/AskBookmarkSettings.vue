@@ -180,7 +180,6 @@ import {
     faHeading,
     faIcons,
     faParagraph,
-    faPlus,
     faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import {customIconMap} from "@/composables/fontawesome";
