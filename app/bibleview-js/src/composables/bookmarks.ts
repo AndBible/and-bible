@@ -606,10 +606,10 @@ export function useBookmarks(
         return fragment;
     }
 
-    function createEditActionElement(bookmark: BaseBookmark): HTMLElement | null {
+    function createEditActionElement(bookmark: BaseBookmark): HTMLElement {
         const editAction = bookmark.editAction;
         if (!editAction.mode || !editAction.content) {
-            return null;
+            throw new Error("Edit action is missing mode or content");
         }
 
         const container = document.createElement("span");
@@ -754,71 +754,65 @@ export function useBookmarks(
         if (config.showBookmarks) {
             for (const b of bookmarks) {
                 const editAction = b.editAction;
-                if (editAction.mode && editAction.content) {
-                    const bookmarkRange = combinedRange(b);
-                    
-                    if (editAction.mode === EditActionMode.PREPEND && arrayEq(bookmarkRange[0], [startOrdinal, startOff])) {
-                        // PREPEND: Add content before the bookmark start
-                        const editElement = createEditActionElement(b);
-                        if (editElement) {
-                            editElement.addEventListener("click", event => addEventFunction(event,
-                                null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
-                            firstElement.parentElement!.insertBefore(editElement, firstElement);
-                            undoHighlights.push(() => editElement.remove());
-                        }
-                    } else if (editAction.mode === EditActionMode.APPEND && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
-                        // APPEND: Add content after the bookmark end
-                        const editElement = createEditActionElement(b);
-                        if (editElement) {
-                            editElement.addEventListener("click", event => addEventFunction(event,
-                                null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
-                            lastElement!.parentNode!.insertBefore(editElement, lastElement!.nextSibling);
-                            undoHighlights.push(() => editElement.remove());
-                        }
-                    } else if (editAction.mode === EditActionMode.REPLACE) {
-                        // REPLACE: Hide original content and add replacement content with same styling
-                        if (arrayEq(bookmarkRange[0], [startOrdinal, startOff]) && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
-                            // Hide the original bookmarked content
-                            if (!startOff && !endOff) {
-                                // Whole verse replacement
-                                for (let ord = startOrdinal; ord <= (endOff === null ? endOrdinal : endOrdinal - 1); ord++) {
-                                    const elem = document.querySelector(`#doc-${documentId} #o-${ord}`) as HTMLElement;
-                                    if (elem) {
-                                        const originalDisplay = elem.style.display;
-                                        elem.style.display = 'none';
-                                        undoHighlights.push(() => {
-                                            elem.style.display = originalDisplay;
-                                        });
-                                    }
+                if (!(editAction.mode && editAction.content)) {
+                    continue;
+                }
+                const bookmarkRange = combinedRange(b);
+                if (editAction.mode === EditActionMode.PREPEND && arrayEq(bookmarkRange[0], [startOrdinal, startOff])) {
+                    // PREPEND: Add content before the bookmark start
+                    const editElement = createEditActionElement(b);
+                    editElement.addEventListener("click", event => addEventFunction(event,
+                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                    firstElement.parentElement!.insertBefore(editElement, firstElement);
+                    undoHighlights.push(() => editElement.remove());
+                } else if (editAction.mode === EditActionMode.APPEND && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
+                    // APPEND: Add content after the bookmark end
+                    const editElement = createEditActionElement(b);
+                    editElement.addEventListener("click", event => addEventFunction(event,
+                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                    lastElement!.parentNode!.insertBefore(editElement, lastElement!.nextSibling);
+                    undoHighlights.push(() => editElement.remove());
+                } else if (editAction.mode === EditActionMode.REPLACE) {
+                    // REPLACE: Hide original content and add replacement content with same styling
+                    if (arrayEq(bookmarkRange[0], [startOrdinal, startOff]) && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
+                        // Hide the original bookmarked content
+                        if (!startOff && !endOff) {
+                            // Whole verse replacement
+                            for (let ord = startOrdinal; ord <= (endOff === null ? endOrdinal : endOrdinal - 1); ord++) {
+                                const elem = document.querySelector(`#doc-${documentId} #o-${ord}`) as HTMLElement;
+                                if (elem) {
+                                    const originalDisplay = elem.style.display;
+                                    elem.style.display = 'none';
+                                    undoHighlights.push(() => {
+                                        elem.style.display = originalDisplay;
+                                    });
                                 }
-                            } else {
-                                // Partial content replacement using highlight elements
-                                const replacementElements = document.querySelectorAll(`#doc-${documentId} .bookmarked`);
-                                replacementElements.forEach((elem: Element) => {
-                                    const htmlElem = elem as HTMLElement;
-                                    if (htmlElem.closest(`#o-${startOrdinal}`) || htmlElem.closest(`#o-${endOrdinal}`)) {
-                                        const originalDisplay = htmlElem.style.display;
-                                        htmlElem.style.display = 'none';
-                                        undoHighlights.push(() => {
-                                            htmlElem.style.display = originalDisplay;
-                                        });
-                                    }
-                                });
                             }
-                            
-                            // Add replacement content with same background styling as original bookmark
-                            const editElement = createEditActionElement(b);
-                            if (editElement) {
-                                // Apply the same bookmark styling to the replacement content
-                                editElement.classList.add('bookmarked');
-                                editElement.style.backgroundImage = style;
-                                
-                                editElement.addEventListener("click", event => addEventFunction(event,
-                                    null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
-                                firstElement.parentElement!.insertBefore(editElement, firstElement);
-                                undoHighlights.push(() => editElement.remove());
-                            }
+                        } else {
+                            // Partial content replacement using highlight elements
+                            const replacementElements = document.querySelectorAll(`#doc-${documentId} .bookmarked`);
+                            replacementElements.forEach((elem: Element) => {
+                                const htmlElem = elem as HTMLElement;
+                                if (htmlElem.closest(`#o-${startOrdinal}`) || htmlElem.closest(`#o-${endOrdinal}`)) {
+                                    const originalDisplay = htmlElem.style.display;
+                                    htmlElem.style.display = 'none';
+                                    undoHighlights.push(() => {
+                                        htmlElem.style.display = originalDisplay;
+                                    });
+                                }
+                            });
                         }
+
+                        // Add replacement content with same background styling as original bookmark
+                        const editElement = createEditActionElement(b);
+                        // Apply the same bookmark styling to the replacement content
+                        editElement.classList.add('bookmarked');
+                        editElement.style.backgroundImage = style;
+
+                        editElement.addEventListener("click", event => addEventFunction(event,
+                            null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                        firstElement.parentElement!.insertBefore(editElement, firstElement);
+                        undoHighlights.push(() => editElement.remove());
                     }
                 }
             }
