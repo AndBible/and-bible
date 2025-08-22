@@ -341,6 +341,16 @@ troubleshooting:
   
   # Common build failures
   build_failures:
+    vue_lifecycle_warnings:
+      problem: "Vue lifecycle warnings in test output ([Vue warn]: onMounted/onUnmounted...)"
+      solution: "These warnings are expected and non-blocking. Tests can pass despite these warnings."
+      note: "Lifecycle warnings in Vue tests are normal when testing composables"
+      
+    typescript_version_warning:
+      problem: "TypeScript version warning (not officially supported by @typescript-eslint)"
+      solution: "This is a warning, not an error. Linting and type-checking still work correctly."
+      note: "YOUR TYPESCRIPT VERSION: 5.8.3 vs SUPPORTED: >=4.7.4 <5.6.0"
+      
     typescript_errors:
       check_command: "cd app/bibleview-js && npm run type-check"
       solution: "Fix TypeScript errors before proceeding"
