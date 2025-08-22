@@ -1,0 +1,498 @@
+# AndBible GitHub Copilot Setup Steps
+# Comprehensive development environment setup and workflow guide for AndBible project
+
+name: "AndBible Development Environment Setup"
+version: "1.0.0"
+description: "Complete setup guide for AndBible - A powerful offline Bible study app with hybrid Android/Vue.js architecture"
+
+# =============================================================================
+# PROJECT OVERVIEW
+# =============================================================================
+project_info:
+  name: "AndBible"
+  description: "Powerful offline Bible study app for Android"
+  architecture: "Hybrid Android (Kotlin) + Vue.js frontend + JSword library"
+  key_technologies:
+    - "Android (Kotlin)"
+    - "Vue.js 3 + TypeScript"
+    - "Java 17"
+    - "Node.js 20.x"
+    - "Room database"
+    - "Vite build system"
+    - "Gradle build system"
+  
+  main_components:
+    android_app: "app/ - Main Kotlin/Android application with Room database"
+    vue_frontend: "app/bibleview-js/ - Vue.js 3 frontend for Bible text rendering"
+    jsword_library: "jsword/ - Java library for SWORD Bible format handling"
+
+# =============================================================================
+# PREREQUISITES AND ENVIRONMENT SETUP
+# =============================================================================
+environment_setup:
+  critical_requirements:
+    - "Internet connectivity REQUIRED for Android Gradle builds"
+    - "Vue.js components work offline after initial npm install"
+    - "Java 17 (OpenJDK 17.0.16+8 or higher)"
+    - "Node.js 20.x (tested with v20.19.4)"
+    - "npm 10.x (tested with v10.8.2)"
+    - "Android SDK 23+ (API levels 23-36)"
+
+  verification_commands:
+    java_version:
+      command: "java --version"
+      expected_output: "Should show Java 17"
+    
+    nodejs_version:
+      command: "node --version" 
+      expected_output: "Should show v20.x"
+    
+    npm_version:
+      command: "npm --version"
+      expected_output: "Should show v10.x"
+    
+    android_sdk:
+      command: "echo $ANDROID_SDK_ROOT"
+      expected_output: "Should point to Android SDK installation"
+
+  setup_steps:
+    - name: "Verify Java 17 installation"
+      command: "java --version"
+      
+    - name: "Verify Node.js 20.x installation"
+      command: "node --version"
+      
+    - name: "Verify npm installation"
+      command: "npm --version"
+      
+    - name: "Check Android SDK"
+      command: "echo $ANDROID_SDK_ROOT"
+      
+    - name: "Initial Vue.js dependencies setup (REQUIRES INTERNET)"
+      working_directory: "app/bibleview-js"
+      command: "npm install"
+      duration: "~17 seconds"
+      note: "Downloads 666 packages, required for all Vue.js development"
+
+# =============================================================================
+# DEVELOPMENT WORKFLOWS
+# =============================================================================
+development_workflows:
+  
+  # Vue.js Development (NO INTERNET REQUIRED after npm install)
+  vue_js_development:
+    description: "Fast development cycle for Vue.js components"
+    internet_required: false
+    working_directory: "app/bibleview-js"
+    
+    core_commands:
+      dev_server:
+        command: "npm run dev"
+        description: "Development server"
+        duration: "~337ms startup"
+        url: "http://localhost:5173/"
+        
+      unit_tests:
+        command: "npm run test:ci"
+        description: "Unit tests"
+        duration: "5-6 seconds"
+        test_count: "140+ tests"
+        
+      linting:
+        command: "npm run lint"
+        description: "ESLint checking"
+        duration: "~4 seconds"
+        
+      lint_fix:
+        command: "npm run lint-fix"
+        description: "Auto-fix lint issues"
+        duration: "~4 seconds"
+        
+      type_check:
+        command: "npm run type-check"
+        description: "TypeScript validation"
+        duration: "~7 seconds"
+    
+    build_commands:
+      full_build:
+        command: "npm run build"
+        description: "Full build (type-check + build-only)"
+        duration: "~13 seconds"
+        
+      debug_build:
+        command: "npm run build-debug"
+        description: "Debug build with source maps"
+        duration: "~8 seconds"
+        
+      development_build:
+        command: "npm run build-development"
+        description: "Development build"
+        duration: "~6 seconds"
+        
+      production_build:
+        command: "npm run build-production"
+        description: "Production build, optimized"
+        duration: "~6 seconds"
+
+  # Android Development (REQUIRES INTERNET)
+  android_development:
+    description: "Android Gradle build system"
+    internet_required: true
+    critical_warning: "NEVER CANCEL these builds - they can take 10-45 minutes on first run"
+    working_directory: "."
+    
+    build_commands:
+      debug_build:
+        command: "./gradlew assembleStandardGithubDebug"
+        description: "Standard debug build"
+        duration: "10-45 minutes first time"
+        warning: "NEVER CANCEL"
+        
+      release_build:
+        command: "./gradlew assembleStandardGithubRelease"
+        description: "Standard release build"
+        duration: "10-45 minutes first time"
+        warning: "NEVER CANCEL"
+        
+      discrete_release:
+        command: "./gradlew assembleDiscreteGithubRelease"
+        description: "Calculator disguise build for persecution-sensitive areas"
+        duration: "10-45 minutes first time"
+        warning: "NEVER CANCEL"
+    
+    test_commands:
+      unit_tests_debug:
+        command: "./gradlew testStandardGoogleplayDebug"
+        description: "Unit tests for debug variant"
+        warning: "NEVER CANCEL"
+        
+      unit_tests_release:
+        command: "./gradlew testStandardGoogleplayRelease"
+        description: "Unit tests for release variant"
+        warning: "NEVER CANCEL"
+        
+      full_check:
+        command: "./gradlew check"
+        description: "Full test suite including JS tests"
+        warning: "NEVER CANCEL"
+        
+      instrumented_tests:
+        command: "./gradlew connectedStandardGooglePlayDebugAndroidTest"
+        description: "Instrumented tests (requires emulator)"
+        requirements: "Android emulator running"
+        warning: "NEVER CANCEL"
+
+# =============================================================================
+# VALIDATION SCENARIOS
+# =============================================================================
+validation_scenarios:
+  
+  # Fast Vue.js validation (RECOMMENDED for rapid iteration)
+  vue_js_validation:
+    description: "Quick validation cycle for Vue.js components"
+    duration: "~16 seconds total"
+    internet_required: false
+    working_directory: "app/bibleview-js"
+    
+    steps:
+      - name: "Run unit tests"
+        command: "npm run test:ci"
+        expected: "All 140+ tests pass"
+        
+      - name: "Check linting"
+        command: "npm run lint"
+        expected: "No linting errors"
+        
+      - name: "Validate TypeScript"
+        command: "npm run type-check"
+        expected: "No TypeScript errors"
+        
+      - name: "Build verification"
+        command: "npm run build-debug"
+        expected: "Successful build"
+  
+  # Android validation (use sparingly during development)
+  android_validation:
+    description: "Comprehensive Android validation"
+    internet_required: true
+    working_directory: "."
+    warning: "Only run when specifically testing Android integration"
+    
+    steps:
+      - name: "Unit test validation"
+        command: "./gradlew testStandardGoogleplayDebug"
+        expected: "All unit tests pass"
+        
+      - name: "Build validation"
+        command: "./gradlew assembleStandardGithubDebug"
+        expected: "Successful APK build"
+        duration: "10-45 minutes"
+
+  # Combined validation for release
+  comprehensive_validation:
+    description: "Full validation including builds and tests"
+    internet_required: true
+    duration: "Variable, can take hours"
+    
+    steps:
+      - name: "Vue.js validation"
+        working_directory: "app/bibleview-js"
+        command: "npm run test:ci && npm run lint && npm run type-check && npm run build"
+        
+      - name: "Android validation"
+        command: "./gradlew check"
+        note: "Includes both Vue.js and Android tests"
+
+# =============================================================================
+# RECOMMENDED DEVELOPMENT WORKFLOWS
+# =============================================================================
+recommended_workflows:
+  
+  # Fast iteration cycle (NO INTERNET REQUIRED)
+  rapid_iteration:
+    description: "Fastest validation cycle for development"
+    duration: "~10 seconds"
+    internet_required: false
+    use_case: "Rapid iteration during development"
+    
+    command: "cd app/bibleview-js && npm run test:ci && npm run lint"
+    
+  # Pre-commit validation
+  pre_commit:
+    description: "Validation before committing changes"
+    duration: "~25 seconds"
+    internet_required: false
+    use_case: "Before committing changes"
+    
+    commands:
+      - "cd app/bibleview-js"
+      - "npm run test:ci && npm run lint && npm run type-check && npm run build-debug"
+  
+  # Android-specific changes
+  android_changes:
+    description: "When making Android-specific changes"
+    internet_required: true
+    use_case: "Android-specific modifications"
+    
+    commands:
+      - "# First validate Vue.js components"
+      - "cd app/bibleview-js && npm run test:ci && npm run lint"
+      - "# Then run targeted Android tests"
+      - "./gradlew testStandardGoogleplayDebugUnitTest --tests \"*YourSpecificTest*\""
+
+# =============================================================================
+# PROJECT-SPECIFIC CONVENTIONS
+# =============================================================================
+project_conventions:
+  
+  # Build flavors and variants
+  build_variants:
+    appearance_dimension:
+      standard: "Normal Bible app appearance"
+      discrete: "Calculator disguise for persecution-sensitive areas"
+      
+    distribution_dimension:
+      googleplay: "Google Play Store distribution"
+      fdroid: "F-Droid distribution"
+      github: "GitHub releases"
+      samsung: "Samsung Galaxy Store"
+      huawei: "Huawei AppGallery"
+      amazon: "Amazon Appstore"
+  
+  # Architecture patterns
+  architecture_patterns:
+    workspace_centric: "Multiple workspaces contain windows with different Bible versions"
+    window_management: "Split-screen support with synchronized scrolling"
+    hybrid_web_native: "Bible text rendered in Vue.js WebView with native Android UI"
+    database_architecture: "Multiple Room databases with migration support"
+  
+  # Data flow
+  data_flow:
+    kotlin_to_typescript: "Document serialization via JSON with type safety"
+    android_vue_bridge: "BibleJavascriptInterface for bidirectional communication"
+    event_driven: "mitt-based event system for Vue.js component communication"
+
+# =============================================================================
+# TROUBLESHOOTING
+# =============================================================================
+troubleshooting:
+  
+  # Internet connectivity issues
+  connectivity_issues:
+    problem: "Android builds fail with network errors"
+    solutions:
+      - "Verify internet connectivity: curl -I https://dl.google.com/dl/android/maven2/"
+      - "Android builds CANNOT work offline - all Gradle dependencies require internet"
+      - "Vue.js builds work offline after initial npm install"
+  
+  # Build environment issues
+  environment_issues:
+    java_version_wrong:
+      problem: "Incorrect Java version"
+      solution: "java --version must show Java 17. Update JAVA_HOME if needed"
+      
+    nodejs_version_wrong:
+      problem: "Incorrect Node.js version"
+      solution: "node --version must show 20.x. Install correct Node.js version"
+      
+    android_sdk_missing:
+      problem: "Android SDK not found"
+      solution: "echo $ANDROID_SDK_ROOT must point to valid Android SDK. Set ANDROID_SDK_ROOT environment variable"
+  
+  # Common build failures
+  build_failures:
+    typescript_errors:
+      check_command: "cd app/bibleview-js && npm run type-check"
+      solution: "Fix TypeScript errors before proceeding"
+      
+    linting_errors:
+      check_command: "cd app/bibleview-js && npm run lint"
+      auto_fix: "cd app/bibleview-js && npm run lint-fix"
+      
+    android_cache_issues:
+      problem: "Builds work but tests fail"
+      solution: "./gradlew clean  # Clear build cache (REQUIRES INTERNET)"
+
+# =============================================================================
+# CI/CD INTEGRATION
+# =============================================================================
+ci_cd_patterns:
+  
+  # Existing workflows
+  current_workflows:
+    build_apk: ".github/workflows/build-apk.yml - Builds APK on tag push"
+    run_tests: ".github/workflows/run-tests.yml - Kotlin/Android tests"
+    jslint: ".github/workflows/jslint.yml - JavaScript/TypeScript validation"
+    branch_management: ".github/workflows/branch-management.yml - Automatic merging"
+    labeled: ".github/workflows/labeled.yml - Project management"
+  
+  # Workflow patterns
+  workflow_patterns:
+    vue_js_checks:
+      - "Set up Node.js 20"
+      - "npm ci in app/bibleview-js"
+      - "npm run lint:ci"
+      - "npm run test:ci"
+      - "npm run type-check:ci"
+      
+    android_checks:
+      - "Set up JDK 17"
+      - "Set up Node.js 20"
+      - "Cache gradle dependencies"
+      - "Download test modules if needed"
+      - "./gradlew testStandardGoogleplayRelease"
+      
+    build_apk:
+      - "Set up JDK 17 and Node.js 20"
+      - "Cache gradle dependencies"
+      - "./gradlew assembleStandardGithubRelease assembleDiscreteGithubRelease"
+      - "Sign APKs with keystore"
+      - "Create GitHub release"
+
+# =============================================================================
+# PERFORMANCE EXPECTATIONS
+# =============================================================================
+performance_expectations:
+  vue_js_timings:
+    npm_install: "~17 seconds (initial setup only)"
+    unit_tests: "~5-6 seconds (140+ tests)"
+    linting: "~4 seconds"
+    lint_fix: "~4 seconds"
+    type_checking: "~7 seconds"
+    individual_builds: "~6-8 seconds"
+    full_build: "~13 seconds (parallel type-check + build-only)"
+    dev_server: "~337ms startup"
+    
+  android_timings:
+    gradle_builds: "10-45 minutes first time, faster subsequent builds"
+    unit_tests: "Variable timing"
+    instrumented_tests: "Variable timing"
+    full_check: "Variable timing"
+    
+  recommended_cycles:
+    rapid_development: "Vue.js tests + lint = ~10 seconds"
+    pre_commit_validation: "Vue.js full validation = ~16 seconds"
+    comprehensive_validation: "Full project validation = hours"
+
+# =============================================================================
+# MANUAL VALIDATION SCENARIOS
+# =============================================================================
+manual_validation:
+  
+  vue_js_browser_testing:
+    description: "Manual verification of Vue.js components"
+    steps:
+      - "cd app/bibleview-js && npm run dev"
+      - "Open http://localhost:5173/ in browser"
+      - "Verify Bible text rendering works"
+      - "Test bookmark functionality"
+      - "Check for console errors"
+      - "Verify responsive design"
+  
+  android_device_testing:
+    description: "Manual verification on Android device/emulator"
+    prerequisites:
+      - "Successful APK build"
+      - "Android device or emulator"
+    steps:
+      - "Install APK on device/emulator"
+      - "Test basic Bible reading functionality"
+      - "Test bookmark creation and management"
+      - "Test workspace and window management"
+      - "Test search functionality"
+      - "Verify no crashes during navigation"
+      - "Test offline functionality"
+
+# =============================================================================
+# BEST PRACTICES FOR COPILOT USAGE
+# =============================================================================
+copilot_best_practices:
+  
+  development_approach:
+    - "Start with Vue.js validation for immediate feedback"
+    - "Use Vue.js-first development when possible (faster iteration)"
+    - "Run Android builds only when specifically testing Android integration"
+    - "Never cancel long-running Android builds"
+    - "Focus on Vue.js components for rapid prototyping"
+  
+  testing_strategy:
+    - "Always run Vue.js tests first (~10 seconds)"
+    - "Use targeted Android tests for specific changes"
+    - "Save comprehensive validation for release preparation"
+    - "Prioritize fast feedback loops during development"
+  
+  troubleshooting_approach:
+    - "Check Vue.js components first (faster debugging)"
+    - "Verify environment setup if builds fail"
+    - "Use lint-fix for automatic code style corrections"
+    - "Clear Gradle cache if Android tests behave unexpectedly"
+  
+  workflow_optimization:
+    - "Use Vue.js dev server for rapid UI iteration"
+    - "Leverage hot reload for Vue.js components"
+    - "Cache npm and Gradle dependencies in CI"
+    - "Use selective test execution for faster feedback"
+
+# =============================================================================
+# ADDITIONAL RESOURCES
+# =============================================================================
+resources:
+  documentation:
+    wiki: "https://github.com/andbible/and-bible/wiki"
+    developer_docs: "https://github.com/AndBible/and-bible/wiki/Developer-documentation"
+    faq: "https://github.com/andbible/and-bible/wiki/FAQ"
+    
+  community:
+    matrix_chat: "https://matrix.to/#/#andbible:matrix.org"
+    website: "https://andbible.org/"
+    
+  copilot_instructions: ".github/copilot-instructions.md"
+  
+  key_files:
+    android_main_activity: "app/src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"
+    vue_main_component: "app/bibleview-js/src/components/BibleView.vue"
+    database_entities: "app/src/main/java/net/bible/android/database/WorkspaceEntities.kt"
+    javascript_interface: "app/src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt"
+    package_json: "app/bibleview-js/package.json"
+    android_build: "app/build.gradle.kts"
+    vite_config: "app/bibleview-js/vite.config.mts"
