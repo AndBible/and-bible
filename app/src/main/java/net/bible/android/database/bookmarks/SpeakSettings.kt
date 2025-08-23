@@ -51,7 +51,6 @@ object VerseRangeSerializer: KSerializer<VerseRange?> {
 
 @Serializable
 enum class VoiceSelectionMode {
-    SYSTEM_DEFAULT,
     LANGUAGE_SPECIFIC,
     MANUAL_SELECTION
 }
@@ -65,7 +64,7 @@ data class PlaybackSettings (
     
     // Voice settings
     val useSystemDefaultVoice: Boolean = true, // Kept for backwards compatibility
-    val voiceSelectionMode: VoiceSelectionMode = VoiceSelectionMode.SYSTEM_DEFAULT,
+    val voiceSelectionMode: VoiceSelectionMode = VoiceSelectionMode.LANGUAGE_SPECIFIC,
     val selectedVoiceName: String? = null, // For manual voice selection
 
     // Bookmark related metadata.

@@ -139,6 +139,14 @@
                         android:text="@string/speak_voice_settings_title"
                         android:textStyle="bold" />
 
+                    <CheckBox
+                        android:id="@+id/customVoiceCheckbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/speak_row_padding"
+                        android:layout_marginEnd="@dimen/speak_row_padding"
+                        android:text="@string/custom_voice" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -147,33 +155,6 @@
                         android:layout_marginBottom="8dp"
                         android:text="@string/voice_selection_explanation"
                         android:textSize="14sp" />
-
-                    <RadioGroup
-                        android:id="@+id/voiceSelectionGroup"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/speak_row_padding"
-                        android:orientation="vertical">
-
-                        <RadioButton
-                            android:id="@+id/systemDefaultVoiceOption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/voice_selection_system_default" />
-
-                        <RadioButton
-                            android:id="@+id/languageSpecificVoiceOption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/voice_selection_language_specific" />
-
-                        <RadioButton
-                            android:id="@+id/manualVoiceSelectionOption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/voice_selection_manual" />
-
-                    </RadioGroup>
 
                     <LinearLayout
                         android:id="@+id/voiceSelectionLayout"

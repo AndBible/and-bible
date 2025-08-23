@@ -158,6 +158,12 @@ class VoiceManager {
             }
         }
         
+        // Expand language codes to full language names
+        val languageName = getLanguageName(voice.locale.language)
+        if (languageName.isNotEmpty() && !baseName.contains(languageName, ignoreCase = true)) {
+            baseName = "$languageName $baseName".trim()
+        }
+        
         val qualityIndicator = when (voice.quality) {
             Voice.QUALITY_VERY_HIGH -> " (Very High Quality)"
             Voice.QUALITY_HIGH -> " (High Quality)"
@@ -170,6 +176,64 @@ class VoiceManager {
         val networkIndicator = if (voice.isNetworkConnectionRequired) " (Online)" else ""
         
         return baseName + qualityIndicator + networkIndicator
+    }
+    
+    /**
+     * Get full language name from language code
+     */
+    private fun getLanguageName(languageCode: String): String {
+        return when (languageCode.lowercase()) {
+            "en" -> "English"
+            "es" -> "Spanish"
+            "fr" -> "French"
+            "de" -> "German"
+            "it" -> "Italian"
+            "pt" -> "Portuguese"
+            "ru" -> "Russian"
+            "zh" -> "Chinese"
+            "ja" -> "Japanese"
+            "ko" -> "Korean"
+            "ar" -> "Arabic"
+            "hi" -> "Hindi"
+            "tr" -> "Turkish"
+            "pl" -> "Polish"
+            "nl" -> "Dutch"
+            "sv" -> "Swedish"
+            "da" -> "Danish"
+            "no" -> "Norwegian"
+            "fi" -> "Finnish"
+            "el" -> "Greek"
+            "he" -> "Hebrew"
+            "th" -> "Thai"
+            "vi" -> "Vietnamese"
+            "hu" -> "Hungarian"
+            "cs" -> "Czech"
+            "sk" -> "Slovak"
+            "ro" -> "Romanian"
+            "bg" -> "Bulgarian"
+            "hr" -> "Croatian"
+            "sl" -> "Slovenian"
+            "et" -> "Estonian"
+            "lv" -> "Latvian"
+            "lt" -> "Lithuanian"
+            else -> ""
+        }
+    }
+
+    /**
+     * Get the language code of a voice by name
+     */
+    fun getVoiceLanguage(tts: TextToSpeech?, voiceName: String): String? {
+        if (tts == null) return null
+        
+        return try {
+            val voices = tts.voices ?: return null
+            val voice = voices.find { it.name == voiceName }
+            voice?.locale?.language
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting voice language for $voiceName", e)
+            null
+        }
     }
 
     companion object {

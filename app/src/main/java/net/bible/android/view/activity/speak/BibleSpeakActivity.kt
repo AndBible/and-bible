@@ -58,6 +58,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     private var voiceAdapter: ArrayAdapter<String>? = null
     private var availableVoices: List<VoiceManager.VoiceInfo> = emptyList()
     private var currentLanguageCode: String? = null
+    private var lastDocumentLanguageCode: String? = null
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,8 +84,8 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             repeatPassageCheckbox.setOnClickListener { setRepeatPassage() }
             sleepTimer.setOnClickListener { setSleepTime() }
             
-            // Voice selection listeners
-            voiceSelectionGroup.setOnCheckedChangeListener { _, _ -> 
+            // Custom voice checkbox listener
+            customVoiceCheckbox.setOnClickListener { 
                 updateVoiceSelectionUI()
                 updateSettings()
             }
@@ -119,18 +120,19 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         repeatPassageCheckbox.text = settings.playbackSettings.verseRange?.name?: getString(R.string.speak_verse_range_to_repeat)
         repeatPassageCheckbox.isChecked = settings.playbackSettings.verseRange != null
         
-        // Set voice selection mode
+        // Set voice selection mode 
         val voiceMode = if (settings.playbackSettings.useSystemDefaultVoice) {
-            VoiceSelectionMode.SYSTEM_DEFAULT
+            // Backwards compatibility: old system default becomes language-specific
+            VoiceSelectionMode.LANGUAGE_SPECIFIC
         } else {
             settings.playbackSettings.voiceSelectionMode
         }
         
-        when (voiceMode) {
-            VoiceSelectionMode.SYSTEM_DEFAULT -> systemDefaultVoiceOption.isChecked = true
-            VoiceSelectionMode.LANGUAGE_SPECIFIC -> languageSpecificVoiceOption.isChecked = true
-            VoiceSelectionMode.MANUAL_SELECTION -> manualVoiceSelectionOption.isChecked = true
-        }
+        // Set custom voice checkbox based on mode
+        customVoiceCheckbox.isChecked = (voiceMode == VoiceSelectionMode.MANUAL_SELECTION)
+        
+        // Check for language change that should disable custom voice
+        checkAndHandleLanguageChange()
         
         // Set selected voice in spinner
         val selectedVoiceName = settings.playbackSettings.selectedVoiceName
@@ -185,8 +187,45 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
     
     private fun updateVoiceSelectionUI() {
-        val showVoiceSelection = binding.manualVoiceSelectionOption.isChecked
+        val showVoiceSelection = binding.customVoiceCheckbox.isChecked
         binding.voiceSelectionLayout.visibility = if (showVoiceSelection) View.VISIBLE else View.GONE
+    }
+    
+    private fun checkAndHandleLanguageChange() {
+        try {
+            // Get current document language
+            val currentBook = speakControl.ttsServiceManager.currentlyPlayingBook
+            val newLanguageCode = currentBook?.language?.code ?: "en"
+            
+            // If language changed and custom voice is enabled, check if voice is compatible
+            if (lastDocumentLanguageCode != null && lastDocumentLanguageCode != newLanguageCode && binding.customVoiceCheckbox.isChecked) {
+                val settings = SpeakSettings.load()
+                val selectedVoiceName = settings.playbackSettings.selectedVoiceName
+                
+                if (selectedVoiceName != null) {
+                    val voiceLanguage = speakControl.ttsServiceManager.getVoiceLanguage(selectedVoiceName)
+                    
+                    // If voice language doesn't match document language, disable custom voice
+                    if (voiceLanguage != null && voiceLanguage != newLanguageCode) {
+                        Log.i(TAG, "Document language changed from $lastDocumentLanguageCode to $newLanguageCode, voice language is $voiceLanguage - disabling custom voice")
+                        binding.customVoiceCheckbox.isChecked = false
+                        updateVoiceSelectionUI()
+                        // Update settings will be called by the checkbox listener
+                        
+                        // Show toast to inform user
+                        Toast.makeText(this, "Custom voice disabled due to language change", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            
+            lastDocumentLanguageCode = newLanguageCode
+            currentLanguageCode = newLanguageCode
+            
+            // Reload voices for new language
+            loadAvailableVoices()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking language change", e)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -292,11 +331,10 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
 
 
     fun updateSettings() {
-        val voiceSelectionMode = when {
-            binding.systemDefaultVoiceOption.isChecked -> VoiceSelectionMode.SYSTEM_DEFAULT
-            binding.languageSpecificVoiceOption.isChecked -> VoiceSelectionMode.LANGUAGE_SPECIFIC
-            binding.manualVoiceSelectionOption.isChecked -> VoiceSelectionMode.MANUAL_SELECTION
-            else -> VoiceSelectionMode.SYSTEM_DEFAULT
+        val voiceSelectionMode = if (binding.customVoiceCheckbox.isChecked) {
+            VoiceSelectionMode.MANUAL_SELECTION
+        } else {
+            VoiceSelectionMode.LANGUAGE_SPECIFIC
         }
         
         // Get selected voice for manual selection
@@ -316,7 +354,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 speakFootnotes = binding.speakFootnotes.isChecked,
                 speed = binding.speakSpeed.progress,
                 verseRange = settings.playbackSettings.verseRange,
-                useSystemDefaultVoice = voiceSelectionMode == VoiceSelectionMode.SYSTEM_DEFAULT, // For backwards compatibility
+                useSystemDefaultVoice = false, // Always false now - backwards compatibility
                 voiceSelectionMode = voiceSelectionMode,
                 selectedVoiceName = selectedVoiceName
             )

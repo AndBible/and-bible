@@ -173,18 +173,13 @@ class TextToSpeechServiceManager @Inject constructor(
             
             // Determine voice selection approach based on settings
             val voiceSelectionMode = if (speakSettings.playbackSettings.useSystemDefaultVoice) {
-                // Backwards compatibility: convert old boolean to new enum
-                net.bible.android.database.bookmarks.VoiceSelectionMode.SYSTEM_DEFAULT
+                // Backwards compatibility: convert old boolean to new enum (use language-specific instead)
+                net.bible.android.database.bookmarks.VoiceSelectionMode.LANGUAGE_SPECIFIC
             } else {
                 speakSettings.playbackSettings.voiceSelectionMode
             }
             
             when (voiceSelectionMode) {
-                net.bible.android.database.bookmarks.VoiceSelectionMode.SYSTEM_DEFAULT -> {
-                    Log.i(TAG, "Using system default voice - skipping language override")
-                    currentLocale = Locale.getDefault()
-                    locale = currentLocale
-                }
                 net.bible.android.database.bookmarks.VoiceSelectionMode.MANUAL_SELECTION -> {
                     val selectedVoiceName = speakSettings.playbackSettings.selectedVoiceName
                     if (selectedVoiceName != null) {
@@ -301,6 +296,10 @@ class TextToSpeechServiceManager @Inject constructor(
 
     fun getAvailableVoicesForLanguage(languageCode: String): List<VoiceManager.VoiceInfo> {
         return voiceManager.getAvailableVoicesForLanguage(mTts, languageCode)
+    }
+    
+    fun getVoiceLanguage(voiceName: String): String? {
+        return voiceManager.getVoiceLanguage(mTts, voiceName)
     }
 
     fun getAllAvailableVoicesGroupedByLanguage(): Map<String, List<VoiceManager.VoiceInfo>> {
@@ -773,18 +772,13 @@ class TextToSpeechServiceManager @Inject constructor(
         
         // Determine voice selection approach based on settings
         val voiceSelectionMode = if (speakSettings.playbackSettings.useSystemDefaultVoice) {
-            // Backwards compatibility: convert old boolean to new enum
-            net.bible.android.database.bookmarks.VoiceSelectionMode.SYSTEM_DEFAULT
+            // Backwards compatibility: convert old boolean to new enum (use language-specific instead)
+            net.bible.android.database.bookmarks.VoiceSelectionMode.LANGUAGE_SPECIFIC
         } else {
             speakSettings.playbackSettings.voiceSelectionMode
         }
         
         when (voiceSelectionMode) {
-            net.bible.android.database.bookmarks.VoiceSelectionMode.SYSTEM_DEFAULT -> {
-                Log.i(TAG, "Applying system default voice")
-                currentLocale = Locale.getDefault()
-                locale = currentLocale
-            }
             net.bible.android.database.bookmarks.VoiceSelectionMode.MANUAL_SELECTION -> {
                 val selectedVoiceName = speakSettings.playbackSettings.selectedVoiceName
                 if (selectedVoiceName != null) {
