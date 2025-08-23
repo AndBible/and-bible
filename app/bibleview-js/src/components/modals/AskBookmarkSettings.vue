@@ -37,6 +37,21 @@
         <!-- Edit Action Tab -->
         <template #editAction>
           <div class="edit-action-controls">
+            <!-- Experimental Features Notice -->
+            <div class="experimental-notice">
+              <div class="experimental-header">
+                <FontAwesomeIcon :icon="faExclamationTriangle" class="experimental-icon" />
+                <span class="experimental-title">{{ strings.experimentalFeatureTitle }}</span>
+                <button
+                    type="button"
+                    class="help-button"
+                    @click="showExperimentalHelp"
+                    :title="strings.experimentalFeatureHelpTitle">
+                  <FontAwesomeIcon :icon="faQuestionCircle" />
+                </button>
+              </div>
+            </div>
+            
             <div v-if="selectedEditAction.mode" class="content-input">
               <label>{{ strings.editActionContentLabel }}:</label>
 
@@ -141,6 +156,7 @@ import {
     faHeading,
     faIcons,
     faParagraph,
+    faQuestionCircle,
     faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import {customIconMap} from "@/composables/fontawesome";
@@ -148,7 +164,7 @@ import {validateBookmarkEditActionContent} from "@/utils/xml-validation";
 import {EditAction, EditActionMode} from "@/types/client-objects";
 import {Tab} from "@/components/tabs/TabContainer.vue";
 
-const { strings } = useCommon();
+const { strings, appSettings, android } = useCommon();
 
 interface BookmarkSettings {
     customIcon: string | null;
@@ -168,18 +184,26 @@ const validationError = ref<string | null>(null);
 let deferred: Deferred<BookmarkSettings | null> | null = null;
 
 // Tab configuration for the TabContainer
-const tabsConfig = computed<Tab[]>(() => [
-    { 
-        id: 'icons', 
-        label: strings.customIconLabel, 
-        icon: selectedIcon.value ? customIconMap.get(selectedIcon.value) : faIcons
-    },
-    { 
-        id: 'editAction', 
-        label: strings.editActionLabel, 
-        icon: faEdit 
+const tabsConfig = computed<Tab[]>(() => {
+    const tabs = [
+        { 
+            id: 'icons', 
+            label: strings.customIconLabel, 
+            icon: selectedIcon.value ? customIconMap.get(selectedIcon.value) : faIcons
+        }
+    ];
+    
+    // Only show edit action tab if experimental features are enabled
+    if (appSettings.enableExperimentalFeatures) {
+        tabs.push({ 
+            id: 'editAction', 
+            label: strings.editActionLabel, 
+            icon: faEdit 
+        });
     }
-]);
+    
+    return tabs;
+});
 
 // Handle tab change events
 function handleTabChange(tabId: string) {
@@ -188,6 +212,10 @@ function handleTabChange(tabId: string) {
 
 function selectIcon(key: null | string) {
     selectedIcon.value = key;
+}
+
+function showExperimentalHelp() {
+    android.helpDialog(strings.experimentalFeatureHelpContent, strings.experimentalFeatureHelpTitle);
 }
 
 async function insertParagraphBreak() {
@@ -273,14 +301,21 @@ async function askBookmarkSettings(currentIcon: null | string, currentEditAction
     if (currentIcon !== null) {
         activeTab.value = 'icons';
     }
-    else if (currentEditAction.mode !== null) {
+    else if (currentEditAction.mode !== null && appSettings.enableExperimentalFeatures) {
         activeTab.value = 'editAction';
     } else {
-        activeTab.value = 'icons'; // Default to icons tab if nothing is set
+        activeTab.value = 'icons'; // Default to icons tab if nothing is set or experimental features disabled
     }
     selectedIcon.value = currentIcon ?? null;
-    selectedEditAction.mode = currentEditAction.mode;
-    selectedEditAction.content = currentEditAction.content;
+    
+    // Reset edit action to null if experimental features are disabled
+    if (!appSettings.enableExperimentalFeatures) {
+        selectedEditAction.mode = null;
+        selectedEditAction.content = null;
+    } else {
+        selectedEditAction.mode = currentEditAction.mode;
+        selectedEditAction.content = currentEditAction.content;
+    }
   
     show.value = true;
     deferred = new Deferred<BookmarkSettings | null>();

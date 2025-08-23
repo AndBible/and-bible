@@ -121,6 +121,9 @@ type TranslatedStrings = {
     editActionModePrepend: string
     editActionContentLabel: string
     editActionContentPlaceholder: string
+    experimentalFeatureTitle: string
+    experimentalFeatureHelpTitle: string
+    experimentalFeatureHelpContent: string
     insertParagraphBreak: string
     insertSubtitle: string
     invalidTag: string
