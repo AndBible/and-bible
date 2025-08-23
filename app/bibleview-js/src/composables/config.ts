@@ -114,6 +114,7 @@ export type AppSettings = {
     monochromeMode: boolean,
     disableAnimations: boolean,
     fontSizeMultiplier: number,
+    enableExperimentalFeatures: boolean,
 }
 
 export type CalculatedConfig = Ref<{
@@ -197,6 +198,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         monochromeMode: false,
         disableAnimations: false,
         fontSizeMultiplier: 1.0,
+        enableExperimentalFeatures: false,
     });
 
     function calcMmInPx() {

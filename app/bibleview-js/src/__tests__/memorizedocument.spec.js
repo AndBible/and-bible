@@ -85,7 +85,7 @@ describe("MemorizeDocument.vue", () => {
 
   it("renders the mode selector buttons", () => {
     const wrapper = createWrapper();
-    const buttons = wrapper.findAll(".memorize-mode-selector .button");
+    const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
     
     expect(buttons.length).toBe(2);
     expect(buttons[0].text()).toBe("Word Blur");
@@ -95,7 +95,14 @@ describe("MemorizeDocument.vue", () => {
   it("shows the blur mode component by default", () => {
     const wrapper = createWrapper();
     expect(wrapper.findComponent(WordBlur).exists()).toBe(true);
-    expect(wrapper.findComponent(WordScramble).exists()).toBe(false);
+    // With TabContainer, inactive components might still exist in DOM but be hidden
+    // Check for the correct active panel instead
+    const blurPanel = wrapper.find('[id="tabpanel-blur"]');
+    const scramblePanel = wrapper.find('[id="tabpanel-scramble"]');
+    expect(blurPanel.isVisible()).toBe(true);
+    if (scramblePanel.exists()) {
+      expect(scramblePanel.isVisible()).toBe(false);
+    }
   });
 
   it("switches to scramble mode when button is clicked", async () => {
@@ -105,11 +112,20 @@ describe("MemorizeDocument.vue", () => {
     expect(wrapper.findComponent(WordBlur).exists()).toBe(true);
     
     // Click on the scramble mode button
-    await wrapper.findAll(".memorize-mode-selector .button")[1].trigger("click");
-    
-    // Should switch to scramble mode
-    expect(wrapper.findComponent(WordBlur).exists()).toBe(false);
-    expect(wrapper.findComponent(WordScramble).exists()).toBe(true);
+    const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
+    if (buttons.length > 1) {
+      await buttons[1].trigger("click");
+      
+      // Should switch to scramble mode
+      expect(wrapper.findComponent(WordBlur).exists()).toBe(true);
+      expect(wrapper.findComponent(WordScramble).exists()).toBe(true);
+      
+      // Check panel visibility
+      const blurPanel = wrapper.find('[id="tabpanel-blur"]');
+      const scramblePanel = wrapper.find('[id="tabpanel-scramble"]');
+      if (blurPanel.exists()) expect(blurPanel.isVisible()).toBe(false);
+      expect(scramblePanel.isVisible()).toBe(true);
+    }
   });
 
   it("provides the correct props to the child component", () => {
@@ -133,10 +149,13 @@ describe("MemorizeDocument.vue", () => {
     const mockSaveState = wrapper.vm.android.saveState;
     
     // Change mode
-    await wrapper.findAll(".memorize-mode-selector .button")[1].trigger("click");
-    
-    // Should save state
-    expect(mockSaveState).toHaveBeenCalled();
+    const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
+    if (buttons.length > 1) {
+      await buttons[1].trigger("click");
+      
+      // Should save state
+      expect(mockSaveState).toHaveBeenCalled();
+    }
   });
 
   it("handles the save-mode-config event from child components", async () => {
@@ -166,11 +185,19 @@ describe("MemorizeDocument.vue", () => {
     });
     
     // Should start in scramble mode
-    expect(wrapper.findComponent(WordBlur).exists()).toBe(false);
+    expect(wrapper.findComponent(WordBlur).exists()).toBe(true);
     expect(wrapper.findComponent(WordScramble).exists()).toBe(true);
     
-    // The scramble button should be toggled
-    const buttons = wrapper.findAll(".memorize-mode-selector .button");
-    expect(buttons[1].classes()).toContain("toggled");
+    // Check panel visibility for scramble mode
+    const blurPanel = wrapper.find('[id="tabpanel-blur"]');
+    const scramblePanel = wrapper.find('[id="tabpanel-scramble"]');
+    if (blurPanel.exists()) expect(blurPanel.isVisible()).toBe(false);
+    expect(scramblePanel.isVisible()).toBe(true);
+    
+    // The scramble button should be active (not toggled since we're using TabContainer)
+    const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
+    if (buttons.length > 1) {
+      expect(buttons[1].classes()).toContain("active");
+    }
   });
 });

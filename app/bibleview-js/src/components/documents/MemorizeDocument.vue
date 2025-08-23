@@ -16,25 +16,36 @@
   -->
 
 <template>
-  <!-- Mode selection -->
-  <div class="memorize-mode-selector">
-    <div class="button"
-        v-for="mode in memorizeModes"
-        :key="mode.value"
-        :class="{toggled: selectedMode === mode.value}"
-        @click="selectedMode = mode.value"
-    >
-      {{ mode.label }}
-    </div>
-  </div>
   <h2>{{document.title}}</h2>
-  <!-- Different memorize components based on selected mode -->
-  <component 
-      :is="currentModeComponent"
-      :text-items="document.texts"
-      :mode-config="document.state?.memorize?.modeConfig"
-      @save-mode-config="saveModeConfig"
-  ></component>
+  
+  <!-- Mode selection using TabContainer -->
+  <TabContainer
+      :tabs="tabsConfig"
+      :default-tab="selectedTabId"
+      container-class="memorize-container"
+      navigation-class="memorize-mode-selector"
+      content-class="memorize-content"
+      :show-navigation="true"
+      @tab-change="handleModeChange"
+  >
+    <!-- Word Blur Tab -->
+    <template #blur>
+      <WordBlur
+          :text-items="document.texts"
+          :mode-config="document.state?.memorize?.modeConfig"
+          @save-mode-config="saveModeConfig"
+      />
+    </template>
+
+    <!-- Word Scramble Tab -->
+    <template #scramble>
+      <WordScramble
+          :text-items="document.texts"
+          :mode-config="document.state?.memorize?.modeConfig"
+          @save-mode-config="saveModeConfig"
+      />
+    </template>
+  </TabContainer>
 </template>
 
 <script setup lang="ts">
@@ -48,6 +59,8 @@ import {
 } from "@/types/documents";
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
+import TabContainer from '@/components/tabs/TabContainer.vue';
+import {faEyeSlash, faRandom} from "@fortawesome/free-solid-svg-icons";
 
 const props = defineProps<{ document: MemorizeDocument }>();
 
@@ -55,6 +68,11 @@ const {document} = toRefs(props);
 
 const selectedMode = ref<MemorizeStateMode>(document.value.state?.memorize?.mode ?? MemorizeStateModeEnum.BLUR);
 const modeConfig = ref<MemorizeModeConfig|undefined>(document.value.state?.memorize?.modeConfig);
+
+// Computed for mapping selected mode to tab ID
+const selectedTabId = computed(() => {
+    return selectedMode.value === MemorizeStateModeEnum.BLUR ? 'blur' : 'scramble';
+});
 
 const memorizeState = computed<MemorizeState>(() => {
     return {
@@ -65,10 +83,29 @@ const memorizeState = computed<MemorizeState>(() => {
 
 const {strings, android} = useCommon();
 
-const memorizeModes = [
-    { value: MemorizeStateModeEnum.BLUR, label: strings.wordBlur, component: WordBlur },
-    { value: MemorizeStateModeEnum.SCRAMBLE, label: strings.wordScramble, component: WordScramble }
-];
+// Tab configuration for the TabContainer
+const tabsConfig = computed(() => [
+    { 
+        id: 'blur', 
+        label: strings.wordBlur,
+        value: MemorizeStateModeEnum.BLUR,
+        icon: faEyeSlash,
+    },
+    { 
+        id: 'scramble', 
+        label: strings.wordScramble,
+        value: MemorizeStateModeEnum.SCRAMBLE,
+        icon: faRandom,
+    }
+]);
+
+// Handle tab/mode change events
+function handleModeChange(tabId: string) {
+    const modeData = tabsConfig.value.find(config => config.id === tabId);
+    if (modeData) {
+        selectedMode.value = modeData.value;
+    }
+}
 
 function saveModeConfig(_modeConfig: MemorizeModeConfig) {
     modeConfig.value = {...modeConfig.value, ..._modeConfig};
@@ -83,57 +120,21 @@ function saveState() {
         memorize: memorizeState.value
     });
 }
-
-const currentModeComponent = computed(() => {
-    const mode = memorizeModes.find(mode => mode.value === selectedMode.value);
-    return mode ? mode.component : WordBlur;
-});
 </script>
+
+<style lang="scss">
+
+.memorize-content {
+  margin-top: 0.8em;
+}
+
+</style>
 
 <style scoped lang="scss">
 @use "@/common.scss" as *;
 
-.memorize-mode-selector {
-  display: flex;
-  justify-content: center;
-  margin: 0.5rem 0 1.5rem;
-  padding: 0.5rem;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: $button-border-radius;
-  .night & {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-  
-  .button {
-    min-width: 120px;
-    margin: 0 4px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    .noAnimation & {
-      transition: none;
-    }
-    
-    &.toggled {
-      transform: scale(1.05);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      .night & {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      }
-    }
-    
-    &:active {
-      transform: translateY(1px);
-    }
-  }
-}
-
 h2 {
+  font-size: 1.2em;
   text-align: center;
-  margin: 1rem 0 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  .night & {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
 }
 </style>

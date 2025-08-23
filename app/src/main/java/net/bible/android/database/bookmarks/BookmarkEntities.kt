@@ -31,6 +31,7 @@ import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
+import androidx.room.Embedded
 import androidx.room.Ignore
 import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
@@ -95,6 +96,18 @@ enum class BookmarkType {EXAMPLE}
 
 class BookmarkEntities {
     @Serializable
+    enum class EditActionMode {
+        APPEND,
+        PREPEND,
+    }
+
+    @Serializable
+    data class EditAction(
+        val mode: EditActionMode? = null,
+        val content: String? = null,
+    )
+
+    @Serializable
     class TextRange(val start: Int, val end: Int) {
         val clientList get() = listOf(start, end)
     }
@@ -113,6 +126,7 @@ class BookmarkEntities {
         var wholeVerse: Boolean
         var playbackSettings: PlaybackSettings?
         var customIcon: String?
+        var editAction: EditAction?
     }
 
     interface BaseBookmarkNotes {
@@ -156,6 +170,7 @@ class BookmarkEntities {
 
         val speakBook: Book?
         var customIcon: String?
+        var editAction: EditAction?
 
         fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>)
     }
@@ -179,6 +194,7 @@ class BookmarkEntities {
         override var wholeVerse: Boolean = false,
         var type: BookmarkType? = null,
         override var customIcon: String? = null,
+        @Embedded(prefix="editAction_") override var editAction: EditAction? = null,
 
         @Ignore override var new: Boolean = false,
     ): VerseRangeUser, BaseBookmarkWithNotes {
@@ -200,6 +216,7 @@ class BookmarkEntities {
             wholeVerse: Boolean = true,
             type: BookmarkType? = null,
             customIcon: String? = null,
+            editAction: EditAction? = null,
         ): this(
             kjvOrdinalStart = kjvOrdinalStart,
             kjvOrdinalEnd = kjvOrdinalEnd,
@@ -219,6 +236,7 @@ class BookmarkEntities {
             type = type,
             customIcon = customIcon,
             new = false,
+            editAction = editAction,
         )
 
         constructor(verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?): this(
@@ -314,6 +332,7 @@ class BookmarkEntities {
             wholeVerse,
             type,
             customIcon,
+            editAction,
         )
         override val noteEntity get() = if(notes == null) null else BibleBookmarkNotes(id, notes!!)
     }
@@ -365,6 +384,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
         @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,
+        @Embedded(prefix = "editAction_") override var editAction: EditAction? = null,
     ): BaseBookmark
 
     @Entity(
@@ -409,6 +429,8 @@ class BookmarkEntities {
         override var wholeVerse: Boolean = false,
         override var playbackSettings: PlaybackSettings?,
         override var customIcon: String? = null,
+        @Embedded(prefix="editAction_") override var editAction: EditAction? = null,
+
         @Ignore override var new: Boolean = false,
     ): BaseBookmarkWithNotes {
         constructor(
@@ -426,6 +448,7 @@ class BookmarkEntities {
             playbackSettings: PlaybackSettings? = null,
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
             customIcon: String? = null,
+            editAction: EditAction? = null,
         ): this(
             id = id,
             key = key,
@@ -441,7 +464,8 @@ class BookmarkEntities {
             wholeVerse = wholeVerse,
             playbackSettings = playbackSettings,
             customIcon = customIcon,
-            new = false
+            new = false,
+            editAction = editAction
         )
         constructor(
             id: IdType = IdType(),
@@ -533,6 +557,7 @@ class BookmarkEntities {
             wholeVerse = wholeVerse,
             playbackSettings = playbackSettings,
             customIcon = customIcon,
+            editAction = editAction,
         )
         override val noteEntity get() = if(notes == null) null else GenericBookmarkNotes(id, notes!!)
     }
@@ -569,6 +594,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "0") override var wholeVerse: Boolean = false,
         override var playbackSettings: PlaybackSettings? = null,
         @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,
+        @Embedded(prefix="editAction_") override var editAction: EditAction? = null,
     ): BaseBookmark
 
     @Entity(

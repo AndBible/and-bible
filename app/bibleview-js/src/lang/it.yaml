@@ -66,6 +66,24 @@ verseMemorizeLong: Memorizza versi della Bibbia
 verseNoteLong: Scrivi una nota
 addBookmark: Segnalibro
 selectCustomIconTitle: Scegli icona per l'evidenziazione
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
 blur: Sfoca
 reset: Ripristina
 peek: Sbircia

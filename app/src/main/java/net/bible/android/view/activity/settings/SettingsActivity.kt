@@ -154,7 +154,8 @@ class SettingsActivity: ActivityBase() {
                     "monochrome_mode",
                     "disable_animations",
                     "font_size_multiplier",
-                    "bible_view_swipe_mode"
+                    "bible_view_swipe_mode",
+                    "enable_experimental_features"
                 )
                 for(key in keys) {
                     editor.removeString(key)
