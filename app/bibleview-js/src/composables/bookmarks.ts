@@ -720,7 +720,6 @@ export function useBookmarks(
 
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = getBookmarkStyleLabel(b);
-                // Don't show markers for hidden bookmarks (hide style overrides marker style)
                 if (!isHiddenBookmark(b, bookmarkLabel)) {
                     if ((config.showBookmarks && (isMarkerBookmark(b, bookmarkLabel) || resolveIcon(b, bookmarkLabel) !== null))
                         || (config.showMyNotes && b.hasNote)) {
@@ -803,7 +802,6 @@ export function useBookmarks(
             // Marker will be put to the last verse, collect those to a map.
             const key = b.ordinalRange[1];
             const bookmarkLabel = getBookmarkStyleLabel(b);
-            // Don't show markers for hidden bookmarks (hide style overrides marker style)
             if (!isHiddenBookmark(b, bookmarkLabel) && intersection(new Set(b.labels), hideLabels).size === 0) {
                 const value = bookmarkMap.get(key) || [];
                 value.push(b);
