@@ -122,7 +122,6 @@ type TranslatedStrings = {
     editActionContentLabel: string
     editActionContentPlaceholder: string
     experimentalFeatureTitle: string
-    experimentalFeatureDescription: string
     experimentalFeatureHelpTitle: string
     experimentalFeatureHelpContent: string
     insertParagraphBreak: string

@@ -50,7 +50,6 @@
                   <FontAwesomeIcon :icon="faQuestionCircle" />
                 </button>
               </div>
-              <p class="experimental-description">{{ strings.experimentalFeatureDescription }}</p>
             </div>
             
             <div v-if="selectedEditAction.mode" class="content-input">
@@ -695,8 +694,7 @@ watch(() => selectedEditAction.mode, (newMode) => {
   border: 1px solid #ffeaa7;
   border-radius: 4px;
   padding: 12px;
-  margin-bottom: 16px;
-  
+
   .night & {
     background: #2d2416;
     border-color: #4a3d1b;
@@ -707,7 +705,6 @@ watch(() => selectedEditAction.mode, (newMode) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
 }
 
 .experimental-icon {
