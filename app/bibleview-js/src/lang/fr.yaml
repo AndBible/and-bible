@@ -57,18 +57,36 @@ openDownloads: Allez dans "Téléchargements d'extensions
 verseShare: Partager
 verseSpeak: Lecture audio
 verseCompare: Comparer
-verseMemorize: ""
+verseMemorize: Mémoriser
 verseNote: Note
 verseMyNotes: Mes notes
 verseShareLong: Partager ce verset
 verseCompareLong: Comparer ce verset
-verseMemorizeLong: ""
+verseMemorizeLong: Mémoriser des versets bibliques
 verseNoteLong: Écrire une note
 addBookmark: Signets
-selectCustomIconTitle: ""
-blur: ""
+selectCustomIconTitle: "Sélection d'une icône de marqueur personnalisée "
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: Griser
 reset: Réinitialiser
-peek: ""
-wordBlur: ""
-wordScramble: ""
+peek: Voir
+wordBlur: Griser les mots
+wordScramble: Mélanger les mots
 more: Plus

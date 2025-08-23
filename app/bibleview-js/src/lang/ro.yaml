@@ -66,6 +66,24 @@ verseMemorizeLong: Memorează versete biblice
 verseNoteLong: Scrie o notiță
 addBookmark: Semn de carte
 selectCustomIconTitle: Alege simbolul de evidențiere
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
 blur: Neclar
 reset: Restabilește
 peek: Vezi

@@ -66,6 +66,24 @@ verseMemorizeLong: Išmokti mintinai Biblijos eilutes
 verseNoteLong: Rašyti pastabą
 addBookmark: Pridėti žymę
 selectCustomIconTitle: Pasirinkti tinkintą žymeklio piktogramą
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
 blur: ""
 reset: Atstatyti
 peek: ""
