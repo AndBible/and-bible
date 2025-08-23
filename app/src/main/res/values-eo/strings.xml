@@ -354,6 +354,7 @@ laŭ ilia permeso.</string>
   <string name="add_bookmark_whole_verse">Legosigno (versoj)</string>
   <string name="add_bookmark_whole_verse1">Versoj</string>
   <string name="add_bookmark_whole_verse2">Plenaj versoj</string>
+  <string name="add_paragraph_break">Aldoni novan linion</string>
   <string name="remove_bookmark">Forigi</string>
   <string name="bookmark_settings_hide_labels_title">Kaŝi elektitajn etikedojn</string>
   <string name="bookmark_settings_hide_labels_summary">Kaŝi legosignojn markitajn per specifa(j) etikedo(j)</string>
@@ -772,6 +773,7 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="show_version_name">Ampleksi titolon de traduko</string>
   <string name="show_ellipsis">Montri tripunkton (…)</string>
   <string name="show_quotes">Montri citilojn</string>
+  <string name="separate_verses_with_newlines">Disigi versojn per novaj linioj</string>
   <string name="backup_button">Konservi</string>
   <string name="back_button">Reen</string>
   <string name="upgrading_database">Ĝisdatigado de datumbazo. Bonvolu atendi…</string>
