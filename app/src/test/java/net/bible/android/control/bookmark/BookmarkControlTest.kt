@@ -213,7 +213,15 @@ class BookmarkControlTest {
         Assert.assertTrue("bookmark3 should remain", 
             remainingBookmarks.any { it.id == bookmark3.id })
         
-        // Reset for second test
+        // Reset for second test - clean up database first
+        val existingBookmarks = bookmarkControl!!.allBibleBookmarks
+        for (bookmark in existingBookmarks) {
+            bookmarkControl!!.deleteBookmark(bookmark)
+        }
+        val existingLabels = bookmarkControl!!.allLabels
+        for (label in existingLabels) {
+            bookmarkControl!!.deleteLabel(label)
+        }
         setUp()
         
         // Test 2: Create the scenario again but with deleteOrphanedBookmarks = true
