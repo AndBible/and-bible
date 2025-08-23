@@ -82,6 +82,9 @@ useCommon();
 <style scoped>
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.1s ease;
+    .noAnimation & {
+        transition: none;
+    }
 }
 
 .fade-enter-from, .fade-leave-to {

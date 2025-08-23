@@ -91,6 +91,9 @@ function handleTabClick(tabId: string) {
   color: #666;
   border-bottom: 2px solid transparent;
   transition: all 0.2s ease;
+  .noAnimation & {
+    transition: none;
+  }
   flex: 1;
   justify-content: center;
   
