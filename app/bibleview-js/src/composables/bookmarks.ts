@@ -46,6 +46,7 @@ import {
 import {ColorParam} from "@/types/common";
 import Color from "color";
 import {bookmarkIcon, customIconMap, editIcon, speakIcon} from "@/composables/fontawesome";
+import {EditActionMode} from "@/types/client-objects";
 
 type LabelId = IdType
 type LabelCountMap = Map<LabelId, number>
@@ -570,6 +571,56 @@ export function useBookmarks(
         return container;
     }
 
+    function parseEditActionContent(content: string): DocumentFragment {
+        const fragment = document.createDocumentFragment();
+        
+        // Split content by XML tags while preserving the tags
+        const parts = content.split(/(<br\s*\/?>|<subtitle>.*?<\/subtitle>)/);
+        
+        for (const part of parts) {
+            if (!part) continue;
+            
+            if (part.match(/^<br\s*\/?>$/)) {
+                // Paragraph break
+                const spanElement = document.createElement("span");
+                spanElement.className = "paragraphBreak skip-offset";
+                fragment.appendChild(spanElement);
+            } else if (part.match(/^<subtitle>(.*?)<\/subtitle>$/)) {
+                // Subtitle
+                const match = part.match(/^<subtitle>(.*?)<\/subtitle>$/);
+                if (match) {
+                    const h3Element = document.createElement("h3");
+                    h3Element.className = "titleStyle skip-offset";
+                    h3Element.textContent = match[1];
+                    fragment.appendChild(h3Element);
+                }
+            } else {
+                // Regular text
+                if (part.trim()) {
+                    const textNode = document.createTextNode(part);
+                    fragment.appendChild(textNode);
+                }
+            }
+        }
+        
+        return fragment;
+    }
+
+    function createEditActionElement(bookmark: BaseBookmark): HTMLElement {
+        const editAction = bookmark.editAction;
+        if (!editAction.mode || !editAction.content) {
+            throw new Error("Edit action is missing mode or content");
+        }
+
+        const container = document.createElement("span");
+        container.classList.add("bookmark-edit-action", "skip-offset");
+        
+        const content = parseEditActionContent(editAction.content);
+        container.appendChild(content);
+        
+        return container;
+    }
+
     function highlightStyleRange(styleRange: StyleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         let firstElement: Element, lastElement: Element;
@@ -700,6 +751,32 @@ export function useBookmarks(
                 undoHighlights.push(() => iconElement.remove());
             }
 
+        }
+        
+        // Handle edit actions (PREPEND, APPEND)
+        if (config.showBookmarks) {
+            for (const b of bookmarks) {
+                const editAction = b.editAction;
+                if (!(editAction.mode && editAction.content)) {
+                    continue;
+                }
+                const bookmarkRange = combinedRange(b);
+                if (editAction.mode === EditActionMode.PREPEND && arrayEq(bookmarkRange[0], [startOrdinal, startOff])) {
+                    // PREPEND: Add content before the bookmark start
+                    const editElement = createEditActionElement(b);
+                    editElement.addEventListener("click", event => addEventFunction(event,
+                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                    firstElement.parentElement!.insertBefore(editElement, firstElement);
+                    undoHighlights.push(() => editElement.remove());
+                } else if (editAction.mode === EditActionMode.APPEND && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
+                    // APPEND: Add content after the bookmark end
+                    const editElement = createEditActionElement(b);
+                    editElement.addEventListener("click", event => addEventFunction(event,
+                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                    lastElement!.parentNode!.insertBefore(editElement, lastElement!.nextSibling);
+                    undoHighlights.push(() => editElement.remove());
+                }
+            }
         }
     }
 

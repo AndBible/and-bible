@@ -277,7 +277,9 @@ function resetWords() {
 
 .memorize-text {
   transition: border-color 0.3s ease;
-  
+  .noAnimation & {
+    transition: none;
+  }
   .memorize-word {
     margin-right: 4px;
     min-width: 1.5em;

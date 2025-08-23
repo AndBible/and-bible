@@ -334,6 +334,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 mode.finish()
                 return true
             }
+            R.id.add_paragraph_break -> {
+                addParagraphBreakBookmark()
+                mode.finish()
+                return true
+            }
             R.id.compare -> {
                 compareSelection()
                 mode.finish()
@@ -436,6 +441,50 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    fun addParagraphBreakBookmark(selection: Selection? = currentSelection) {
+        selection?: return
+        Log.i(TAG, "addParagraphBreakBookmark")
+
+        val initialLabels = workspaceSettings.autoAssignLabels
+        val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
+
+        val textRange =
+            if (selection.startOffset != null && selection.endOffset != null)
+                BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
+            else null
+
+        val bookmark: BookmarkEntities.BaseBookmarkWithNotes =
+            if(selection.book?.bookCategory == BookCategory.BIBLE) {
+                val verseRange = selection.verseRange
+                BookmarkEntities.BibleBookmarkWithNotes(verseRange!!, textRange, false, selection.swordBook)
+            } else {
+                BookmarkEntities.GenericBookmarkWithNotes(
+                    key = selection.osisRef!!,
+                    book = selection.book!!,
+                    ordinalStart = selection.startOrdinal,
+                    ordinalEnd = selection.endOrdinal,
+                    textRange = textRange,
+                    wholeVerse = false,
+                    new = true,
+                )
+            }
+        
+        if(primaryLabelId != null) {
+            val label = bookmarkControl.labelById(primaryLabelId)
+            if(label != null) {
+                bookmark.primaryLabelId = primaryLabelId
+            }
+        }
+
+        // Set the edit action to append a paragraph break
+        bookmark.editAction = BookmarkEntities.EditAction(
+            mode = BookmarkEntities.EditActionMode.APPEND,
+            content = "<br/>"
+        )
+
+        bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
+    }
+
     fun openWebSearch(context: Context, query: String) {
         try {
             val intent = Intent(Intent.ACTION_WEB_SEARCH)
@@ -535,16 +584,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     setVisible(true)
                 }
             }
+
             menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.share_verses).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             if(sel == null) {
                 menu.findItem(R.id.add_bookmark).isVisible = false
                 menu.findItem(R.id.add_bookmark_selection).isVisible = false
                 menu.findItem(R.id.add_bookmark_whole_verse).isVisible = false
+                menu.findItem(R.id.add_paragraph_break).isVisible = false
             }
             if(!isBible) {
                 menu.findItem(R.id.compare).isVisible = false
                 menu.findItem(R.id.share_verses).isVisible = false
+            }
+            
+            // Hide experimental features if not enabled
+            val experimentalFeaturesEnabled = CommonUtils.settings.getBoolean("enable_experimental_features", false)
+            if (!experimentalFeaturesEnabled) {
+                menu.findItem(R.id.add_paragraph_break).isVisible = false
             }
             val ref = currentSelectionRef
             if(ref != null) {
@@ -1340,6 +1397,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         )
         val monochromeMode = CommonUtils.settings.monochromeMode
         val disableAnimations = CommonUtils.settings.disableAnimations
+        val enableExperimentalFeatures = CommonUtils.settings.getBoolean("enable_experimental_features", false)
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
@@ -1359,6 +1417,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         monochromeMode: $monochromeMode,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
+                        enableExperimentalFeatures: $enableExperimentalFeatures,
                     }, 
                     initial: $initial,
                     });

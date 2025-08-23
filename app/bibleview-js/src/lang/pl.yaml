@@ -66,6 +66,24 @@ verseMemorizeLong: Ucz się wersetów biblijnych na pamięć
 verseNoteLong: Napisz notatkę
 addBookmark: Zakładka
 selectCustomIconTitle: Wybór własnej ikony znacznika
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
 blur: Zasłoń
 reset: Reset
 peek: Podglądnij

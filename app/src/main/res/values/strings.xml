@@ -438,6 +438,7 @@
     <string name="add_bookmark_whole_verse">Bookmark Verse</string>
     <string name="add_bookmark_whole_verse1">Verses</string>
     <string name="add_bookmark_whole_verse2">Full verses</string>
+    <string name="add_paragraph_break">Paragraph break</string>
     <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
@@ -927,6 +928,8 @@
     <string name="try_again_passphrase">Passphrase did not work, try again?</string>
     <string name="show_unlock_info">Module &amp; unlock info</string>
 
+    <string name="prefs_experimental_features_title">Experimental features</string>
+    <string name="prefs_experimental_features_summary">Enable experimental features that are still in development and may change or be removed</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
