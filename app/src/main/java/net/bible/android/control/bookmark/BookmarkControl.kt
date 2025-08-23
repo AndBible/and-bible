@@ -81,6 +81,7 @@ class BookmarkAddedOrUpdatedEvent(val bookmark: BaseBookmarkWithNotes): Bookmark
 class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BaseBookmarkToLabel)
 class BookmarksDeletedEvent(val bookmarkIds: List<IdType>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
+class LabelsDeletedEvent(val labelIds: List<IdType>): BookmarkEvent()
 class BookmarkNoteModifiedEvent(val bookmarkId: IdType, val notes: String?, val lastUpdatedOn: Long): BookmarkEvent()
 
 class StudyPadOrderEvent(
@@ -490,6 +491,9 @@ open class BookmarkControl @Inject constructor(
         
         // Delete the labels (CASCADE will handle remaining bookmark-to-label relationships)
         dao.deleteLabelsByIds(toList)
+        
+        // Post event to notify that labels have been deleted
+        ABEventBus.post(LabelsDeletedEvent(toList))
     }
 
     fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<BibleBookmarkWithNotes> {
