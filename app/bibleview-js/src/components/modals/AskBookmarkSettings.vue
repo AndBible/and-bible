@@ -37,6 +37,22 @@
         <!-- Edit Action Tab -->
         <template #editAction>
           <div class="edit-action-controls">
+            <!-- Experimental Features Notice -->
+            <div class="experimental-notice">
+              <div class="experimental-header">
+                <FontAwesomeIcon :icon="faExclamationTriangle" class="experimental-icon" />
+                <span class="experimental-title">{{ strings.experimentalFeatureTitle }}</span>
+                <button
+                    type="button"
+                    class="help-button"
+                    @click="showExperimentalHelp"
+                    :title="strings.experimentalFeatureHelpTitle">
+                  <FontAwesomeIcon :icon="faQuestionCircle" />
+                </button>
+              </div>
+              <p class="experimental-description">{{ strings.experimentalFeatureDescription }}</p>
+            </div>
+            
             <div v-if="selectedEditAction.mode" class="content-input">
               <label>{{ strings.editActionContentLabel }}:</label>
 
@@ -141,6 +157,7 @@ import {
     faHeading,
     faIcons,
     faParagraph,
+    faQuestionCircle,
     faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import {customIconMap} from "@/composables/fontawesome";
@@ -148,7 +165,7 @@ import {validateBookmarkEditActionContent} from "@/utils/xml-validation";
 import {EditAction, EditActionMode} from "@/types/client-objects";
 import {Tab} from "@/components/tabs/TabContainer.vue";
 
-const { strings } = useCommon();
+const { strings, appSettings, android } = useCommon();
 
 interface BookmarkSettings {
     customIcon: string | null;
@@ -168,18 +185,26 @@ const validationError = ref<string | null>(null);
 let deferred: Deferred<BookmarkSettings | null> | null = null;
 
 // Tab configuration for the TabContainer
-const tabsConfig = computed<Tab[]>(() => [
-    { 
-        id: 'icons', 
-        label: strings.customIconLabel, 
-        icon: selectedIcon.value ? customIconMap.get(selectedIcon.value) : faIcons
-    },
-    { 
-        id: 'editAction', 
-        label: strings.editActionLabel, 
-        icon: faEdit 
+const tabsConfig = computed<Tab[]>(() => {
+    const tabs = [
+        { 
+            id: 'icons', 
+            label: strings.customIconLabel, 
+            icon: selectedIcon.value ? customIconMap.get(selectedIcon.value) : faIcons
+        }
+    ];
+    
+    // Only show edit action tab if experimental features are enabled
+    if (appSettings.enableExperimentalFeatures) {
+        tabs.push({ 
+            id: 'editAction', 
+            label: strings.editActionLabel, 
+            icon: faEdit 
+        });
     }
-]);
+    
+    return tabs;
+});
 
 // Handle tab change events
 function handleTabChange(tabId: string) {
@@ -188,6 +213,10 @@ function handleTabChange(tabId: string) {
 
 function selectIcon(key: null | string) {
     selectedIcon.value = key;
+}
+
+function showExperimentalHelp() {
+    android.helpDialog(strings.experimentalFeatureHelpContent, strings.experimentalFeatureHelpTitle);
 }
 
 async function insertParagraphBreak() {
@@ -273,14 +302,21 @@ async function askBookmarkSettings(currentIcon: null | string, currentEditAction
     if (currentIcon !== null) {
         activeTab.value = 'icons';
     }
-    else if (currentEditAction.mode !== null) {
+    else if (currentEditAction.mode !== null && appSettings.enableExperimentalFeatures) {
         activeTab.value = 'editAction';
     } else {
-        activeTab.value = 'icons'; // Default to icons tab if nothing is set
+        activeTab.value = 'icons'; // Default to icons tab if nothing is set or experimental features disabled
     }
     selectedIcon.value = currentIcon ?? null;
-    selectedEditAction.mode = currentEditAction.mode;
-    selectedEditAction.content = currentEditAction.content;
+    
+    // Reset edit action to null if experimental features are disabled
+    if (!appSettings.enableExperimentalFeatures) {
+        selectedEditAction.mode = null;
+        selectedEditAction.content = null;
+    } else {
+        selectedEditAction.mode = currentEditAction.mode;
+        selectedEditAction.content = currentEditAction.content;
+    }
   
     show.value = true;
     deferred = new Deferred<BookmarkSettings | null>();
@@ -650,6 +686,82 @@ watch(() => selectedEditAction.mode, (newMode) => {
       background: #6c757d;
       border-color: #6c757d;
     }
+  }
+}
+
+// Experimental Features Notice Styles
+.experimental-notice {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 16px;
+  
+  .night & {
+    background: #2d2416;
+    border-color: #4a3d1b;
+  }
+}
+
+.experimental-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.experimental-icon {
+  color: #856404;
+  font-size: 16px;
+  
+  .night & {
+    color: #ffeaa7;
+  }
+}
+
+.experimental-title {
+  font-weight: 600;
+  color: #856404;
+  
+  .night & {
+    color: #ffeaa7;
+  }
+}
+
+.help-button {
+  margin-left: auto;
+  padding: 4px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #6c757d;
+  font-size: 14px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  
+  .night & {
+    color: #adb5bd;
+  }
+  
+  &:hover {
+    background: rgba(108, 117, 125, 0.1);
+    color: #495057;
+    
+    .night & {
+      background: rgba(173, 181, 189, 0.1);
+      color: #ced4da;
+    }
+  }
+}
+
+.experimental-description {
+  margin: 0;
+  font-size: 13px;
+  color: #6c4a00;
+  line-height: 1.4;
+  
+  .night & {
+    color: #d1b656;
   }
 }
 </style>
