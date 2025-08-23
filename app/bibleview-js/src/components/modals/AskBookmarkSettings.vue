@@ -435,6 +435,9 @@ watch(() => selectedEditAction.mode, (newMode) => {
   font-size: 12px;
   font-weight: 500;
   transition: all 0.2s ease;
+  .noAnimation & {
+    transition: none;
+  }
   min-height: 60px;
   
   .night & {
@@ -593,6 +596,9 @@ watch(() => selectedEditAction.mode, (newMode) => {
   font-size: 12px;
   font-weight: 500;
   transition: all 0.2s ease;
+  .noAnimation & {
+    transition: none;
+  }
   
   .night & {
     background: #333;
