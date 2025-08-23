@@ -66,6 +66,24 @@ verseMemorizeLong: Opettele Raamatun jakeita
 verseNoteLong: Kirjoita muistiinpano
 addBookmark: Kirjanmerkki
 selectCustomIconTitle: Valitse oma kuvake
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
 blur: Sumenna
 reset: Tyhjennä
 peek: Vilkaise

@@ -26,6 +26,7 @@ import {AsyncFunc, StudyPadEntryType, JSONString, LogEntry, Nullable} from "@/ty
 import {
     BaseBookmark,
     CombinedRange,
+    EditAction,
     StudyPadBibleBookmarkItem,
     StudyPadGenericBookmarkItem,
     StudyPadItem,
@@ -86,6 +87,7 @@ export type BibleJavascriptInterface = {
     setBookmarkWholeVerse: (bookmarkId: IdType, value: boolean) => void,
     setGenericBookmarkWholeVerse: (bookmarkId: IdType, value: boolean) => void,
     setBookmarkCustomIcon: (bookmarkId: IdType, value: Nullable<string>) => void,
+    setBookmarkEditAction: (bookmarkId: IdType, value: string) => void,
     setGenericBookmarkCustomIcon: (bookmarkId: IdType, value: Nullable<string>) => void,
     toggleCompareDocument: (documentId: string) => void,
     helpDialog: (content: string, title: Nullable<string>) => void,
@@ -488,6 +490,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         }
     }
 
+    function setEditAction(bookmark: BaseBookmark, value: EditAction) {
+        window.android.setBookmarkEditAction(bookmark.id, JSON.stringify(value));
+    }
+
     function reportModalState(value: boolean) {
         window.android.reportModalState(value)
     }
@@ -550,6 +556,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         reportModalState,
         setBookmarkWholeVerse,
         setCustomIcon,
+        setEditAction,
         toggleCompareDocument,
         openMyNotes,
         openDownloads,

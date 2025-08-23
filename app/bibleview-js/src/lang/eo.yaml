@@ -66,6 +66,24 @@ verseMemorizeLong: Parkerigi bibliajn versojn
 verseNoteLong: Skribi noton
 addBookmark: Legosigno
 selectCustomIconTitle: Elekti propran emblemon de markilo
+bookmarkSettingsTitle: Alĝustigi legosignon
+subtitlePlaceholder: Teksto de subtitolo
+customIconLabel: Propra bildsimbolo
+editActionLabel: Redakti agon
+editActionModeLabel: Reĝimo
+editActionModeNone: neniu (forigi)
+editActionModeAppend: antaŭaldoni tekston
+editActionModePrepend: postaldoni tekston
+editActionContentLabel: Enhavo
+editActionContentPlaceholder: Enigu tekston aldonotan al la dokumento…
+insertParagraphBreak: Aldoni linirompon
+insertSubtitle: Aldoni subtitolon
+xmlParseError: Eraro dum pritrakti XML
+invalidTag: Erara marko
+invalidClosingTag: Erara fina marko
+unmatchedClosingTag: Malkongrua fina marko
+unclosedTag: Nefermita marko
+unknownError: Nekonata eraro
 blur: Kovri
 reset: Nuligi
 peek: Ŝtelrigardi

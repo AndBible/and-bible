@@ -66,6 +66,24 @@ verseMemorizeLong: Ucz się wersetów biblijnych na pamięć
 verseNoteLong: Napisz notatkę
 addBookmark: Zakładka
 selectCustomIconTitle: Wybór własnej ikony znacznika
+bookmarkSettingsTitle: Dostosowywanie zakładki
+subtitlePlaceholder: Tekst podtytułu
+customIconLabel: Własna ikona
+editActionLabel: Edytuj akcję
+editActionModeLabel: Tryb
+editActionModeNone: brak (usuń)
+editActionModeAppend: dodaj tekst przed
+editActionModePrepend: dodaj tekst po
+editActionContentLabel: Treść
+editActionContentPlaceholder: Wprowadź tekst do dodania do dokumentu…
+insertParagraphBreak: Dodaj nową linię
+insertSubtitle: Dodaj podtytuł
+xmlParseError: Błąd przetwarzania XML
+invalidTag: Nieprawidłowy znacznik
+invalidClosingTag: Nieprawidłowy znacznik zamykający
+unmatchedClosingTag: Niepasujący znacznik zamykający
+unclosedTag: Niezamknięty znacznik
+unknownError: Nieznany błąd
 blur: Zasłoń
 reset: Reset
 peek: Podglądnij
