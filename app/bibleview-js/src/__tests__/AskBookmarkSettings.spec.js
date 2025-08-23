@@ -27,11 +27,19 @@ vi.mock('@/composables', () => ({
       insertParagraphBreak: 'Insert paragraph break',
       insertSubtitle: 'Insert subtitle', 
       cancel: 'Cancel',
-      ok: 'OK'
+      ok: 'OK',
+      experimentalFeatureTitle: 'Experimental',
+      experimentalFeatureDescription: 'This feature is experimental',
+      experimentalFeatureHelpTitle: 'About Experimental Features',
+      experimentalFeatureHelpContent: 'Experimental features may change'
     },
     appSettings: {
       bottomOffset: 0,
-      topOffset: 0
+      topOffset: 0,
+      enableExperimentalFeatures: false  // Default to disabled for most tests
+    },
+    android: {
+      helpDialog: vi.fn()
     }
   })
 }));
@@ -121,5 +129,22 @@ describe('AskBookmarkSettings.vue', () => {
     // We can't easily test the private validation function from the outside,
     // but we can verify the component mounts with validation state
     expect(wrapper.exists()).toBe(true)
+  })
+
+  it('hides edit action tab when experimental features are disabled', () => {
+    // Our mock has enableExperimentalFeatures: false by default
+    const component = wrapper.vm
+    
+    // Verify the computed tabs don't include edit action tab
+    expect(component.tabsConfig).toBeDefined()
+    const tabs = component.tabsConfig
+    
+    // Should only have icons tab, no edit action tab
+    expect(tabs.length).toBe(1)
+    expect(tabs[0].id).toBe('icons')
+    
+    // Should not have edit action tab
+    const editActionTab = tabs.find(tab => tab.id === 'editAction')
+    expect(editActionTab).toBeUndefined()
   })
 })
