@@ -80,7 +80,7 @@ editActionContentLabel: Content
 editActionContentPlaceholder: Enter text to be added to document...
 experimentalFeatureTitle: Experimental
 experimentalFeatureHelpTitle: About Experimental Features
-experimentalFeatureHelpContent: Experimental features are new capabilities that are still being developed and tested. They may not work perfectly and could change significantly or be removed in future app versions. Use them at your own discretion.
+experimentalFeatureHelpContent: Experimental features are new capabilities that are still being developed and tested. They may not work perfectly and could change significantly or be removed in future app versions.
 insertParagraphBreak: Insert paragraph break
 insertSubtitle: Insert subtitle
 xmlParseError: XML parsing error
