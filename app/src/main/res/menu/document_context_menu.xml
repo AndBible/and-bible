@@ -42,13 +42,5 @@
 		  android:title="@string/delete_index"
 		  appcompat:showAsAction="never"/>
 	
-	<item android:id="@+id/move_up"
-		android:title="@string/move_up"
-		android:icon="@drawable/ic_arrow_drop_up_grey_24dp"
-		appcompat:showAsAction="ifRoom"/>
-	
-	<item android:id="@+id/move_down"
-		android:title="@string/move_down"
-		android:icon="@drawable/ic_arrow_drop_down_grey_24dp"
-		appcompat:showAsAction="ifRoom"/>
+
 </menu>
