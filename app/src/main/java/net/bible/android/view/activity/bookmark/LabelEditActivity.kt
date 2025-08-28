@@ -270,6 +270,12 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         finish()
     }
 
+    enum class RemoveOption {
+        CANCEL,
+        DELETE_LABEL_ONLY,
+        DELETE_LABEL_AND_BOOKMARKS
+    }
+
     private fun remove() {
         Log.i(TAG, "remove")
         updateData()
@@ -291,13 +297,13 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                     AlertDialog.Builder(this@LabelEditActivity)
                         .setMessage(dialogMessage)
                         .setPositiveButton(R.string.delete_label_and_bookmarks) { _, _ -> 
-                            continuation.resume("deleteAll")
+                            continuation.resume(RemoveOption.DELETE_LABEL_AND_BOOKMARKS)
                         }
                         .setNegativeButton(R.string.delete_label_only) { _, _ ->
-                            continuation.resume("deleteLabel")
+                            continuation.resume(RemoveOption.DELETE_LABEL_ONLY)
                         }
                         .setNeutralButton(R.string.cancel) { _, _ ->
-                            continuation.resume("cancel")
+                            continuation.resume(RemoveOption.CANCEL)
                         }
                         .setCancelable(true)
                         .create().show()
@@ -311,21 +317,21 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                         .setCancelable(true)
                         .create().show()
                 }
-                if (confirmed) "deleteLabel" else "cancel"
+                if (confirmed) RemoveOption.DELETE_LABEL_ONLY else RemoveOption.CANCEL
             }
             
             when (result) {
-                "deleteAll" -> {
+                RemoveOption.DELETE_LABEL_AND_BOOKMARKS -> {
                     data.delete = true
                     data.deleteOrphanedBookmarks = true
                     finishWithResult()
                 }
-                "deleteLabel" -> {
+                RemoveOption.DELETE_LABEL_ONLY -> {
                     data.delete = true
                     data.deleteOrphanedBookmarks = false
                     finishWithResult()
                 }
-                // "cancel" - do nothing
+                RemoveOption.CANCEL -> {}
             }
         }
     }
