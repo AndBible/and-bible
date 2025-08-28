@@ -371,6 +371,7 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="add_bookmark_whole_verse">Marcar versículo</string>
   <string name="add_bookmark_whole_verse1">Versos</string>
   <string name="add_bookmark_whole_verse2">Versos completos</string>
+  <string name="add_paragraph_break">Salto de párrafo</string>
   <string name="remove_bookmark">Eliminar</string>
   <string name="bookmark_settings_hide_labels_title">Ocultar etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que se marcaron con la(s) etiqueta(s) especificada(s)</string>
@@ -803,6 +804,8 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="unlock_info">Información de desbloqueo de módulo cifrado</string>
   <string name="try_again_passphrase">La contraseña no funcionó, ¿intentar de nuevo?</string>
   <string name="show_unlock_info">Módulo e información de desbloqueo</string>
+  <string name="prefs_experimental_features_title">Funciones experimentales</string>
+  <string name="prefs_experimental_features_summary">Habilita funciones experimentales que aún están en desarrollo y pueden cambiar o eliminarse</string>
   <string name="prefs_show_error_box_title">Mostrar la caja de errores Javascript</string>
   <string name="prefs_show_error_box_summary">Útil para desarrolladores que están depurando errores javascript de BibleView. Esto ralentizará la aplicación.</string>
   <string name="active_window_indicator_title">Mostrar el indicador de ventana activa</string>
@@ -834,6 +837,7 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="show_version_name">Incluir el nombre de la versión</string>
   <string name="show_ellipsis">Mostrar puntos suspensivos (…)</string>
   <string name="show_quotes">Mostrar comillas</string>
+  <string name="separate_verses_with_newlines">Separa los versos con saltos de línea.</string>
   <string name="backup_button">Copia de seguridad</string>
   <string name="back_button">Atrás</string>
   <string name="upgrading_database">Actualizando la base de datos. Por favor espere…</string>

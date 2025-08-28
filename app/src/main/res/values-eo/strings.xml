@@ -742,6 +742,8 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="unlock_info">Informoj pri malfermi ĉifritan modulon</string>
   <string name="try_again_passphrase">Erara pasvorto; ĉu reprovi?</string>
   <string name="show_unlock_info">Pri ĉifrita modulo</string>
+  <string name="prefs_experimental_features_title">Eksperimentaj ebloj</string>
+  <string name="prefs_experimental_features_summary">Aktivigi eblojn, kiuj plue estas prilaborataj kaj povas esti ŝanĝitaj aŭ forigitaj</string>
   <string name="prefs_show_error_box_title">Montri JavaScript-erarujon</string>
   <string name="prefs_show_error_box_summary">Uzebla por programistoj por solvi JavaScript‑rilatajn erarojn en BibleView. Tio ĉi malrapidigos la aplikaĵon.</string>
   <string name="active_window_indicator_title">Montri indikilon de aktiva fenestro</string>

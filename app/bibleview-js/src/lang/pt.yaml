@@ -66,24 +66,27 @@ verseMemorizeLong: Memorizar versículos da Bíblia
 verseNoteLong: Escreva uma nota
 addBookmark: Marcador
 selectCustomIconTitle: Selecionar o ícone do marcador
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
+bookmarkSettingsTitle: Configurar as definições dos favoritos
+subtitlePlaceholder: Texto da legenda
+customIconLabel: Ícone personalizado
+editActionLabel: Editar ação
+editActionModeLabel: Modalidade
+editActionModeNone: Nenhum
+editActionModeAppend: Anexar texto
+editActionModePrepend: Adicionar texto
+editActionContentLabel: Conteúdo
+editActionContentPlaceholder: Insira o texto a ser adicionado ao documento...
+experimentalFeatureTitle: Experimental
+experimentalFeatureHelpTitle: Sobre funcionalidades experimentais
+experimentalFeatureHelpContent: As funcionalidades experimentais são novas capacidades que ainda estão a ser desenvolvidas e testadas. Podem não funcionar perfeitamente e podem sofrer alterações significativas ou ser removidas em versões futuras da aplicação.
+insertParagraphBreak: Inserir quebra de parágrafo
+insertSubtitle: Inserir legenda
+xmlParseError: Erro de análise XML
+invalidTag: Tag inválida
+invalidClosingTag: Tag de encerramento inválida
+unmatchedClosingTag: Tag de fechamento sem par
+unclosedTag: Tag não fechada
+unknownError: Erro desconhecido
 blur: Borrão
 reset: Reiniciar
 peek: Espreitar
