@@ -32,7 +32,6 @@ import net.bible.android.view.activity.ActivityScope
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.common.automaticSpeakBookmarkingVideo
 import net.bible.service.common.htmlToSpan
-import javax.inject.Inject
 
 @ActivityScope
 class SpeakSettingsActivity : AbstractSpeakActivity() {
@@ -49,9 +48,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
 
         super.buildActivityComponent().inject(this)
         ABEventBus.register(this)
-        
         resetView(SpeakSettings.load())
-        
         binding.apply {
             synchronize.setOnClickListener { updateSettings() }
             replaceDivineName.setOnClickListener { updateSettings() }
@@ -86,14 +83,12 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             sleepTimer = currentSettings.sleepTimer
             lastSleepTimer = currentSettings.lastSleepTimer
         }
-        
         binding.apply {
             AdvancedSpeakSettings.synchronize = synchronize.isChecked
             AdvancedSpeakSettings.autoBookmark = autoBookmark.isChecked
             AdvancedSpeakSettings.replaceDivineName = replaceDivineName.isChecked
             AdvancedSpeakSettings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
         }
-        
         settings.save(updateBookmark = true)
         resetView(settings)
     }
