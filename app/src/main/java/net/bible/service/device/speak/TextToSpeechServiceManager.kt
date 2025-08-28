@@ -761,9 +761,9 @@ class TextToSpeechServiceManager @Inject constructor(
      * Apply voice configuration based on current settings
      */
     private fun applyVoiceConfiguration(tts: TextToSpeech, speakSettings: SpeakSettings) {
-        var localeOK = true
-        var locale: Locale? = null
-        
+        var localeOK: Boolean
+        var locale: Locale?
+
         val voiceSelectionMode = speakSettings.playbackSettings.voiceSelectionMode
 
         when (voiceSelectionMode) {
@@ -775,7 +775,6 @@ class TextToSpeechServiceManager @Inject constructor(
                     if (localeOK) {
                         // Get the locale of the selected voice
                         currentLocale = tts.voice?.locale ?: Locale.getDefault()
-                        locale = currentLocale
                     } else {
                         Log.w(TAG, "Failed to set selected voice $selectedVoiceName, falling back to language-specific")
                         // Fall back to language-specific mode

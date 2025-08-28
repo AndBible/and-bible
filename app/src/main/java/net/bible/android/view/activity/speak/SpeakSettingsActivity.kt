@@ -21,7 +21,8 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.*
+import android.widget.CheckBox
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpeakSettingsBinding

@@ -55,7 +55,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
 
     lateinit var binding: SpeakBibleBinding
     
-    private var voiceAdapter: ArrayAdapter<String>? = null
+    lateinit private var voiceAdapter: ArrayAdapter<String>
     private var availableVoices: List<VoiceManager.VoiceInfo> = emptyList()
     private var currentLanguageCode: String? = null
     private var lastDocumentLanguageCode: String? = null
@@ -67,6 +67,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         setContentView(binding.root)
         buildActivityComponent().inject(this)
         ABEventBus.register(this)
+        setupVoiceSelection()
         binding.apply {
             speakSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -83,13 +84,10 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             speakFootnotes.setOnClickListener { updateSettings() }
             repeatPassageCheckbox.setOnClickListener { setRepeatPassage() }
             sleepTimer.setOnClickListener { setSleepTime() }
-            
-            // Custom voice checkbox listener
-            customVoiceCheckbox.setOnClickListener { 
+            customVoiceCheckbox.setOnClickListener {
                 updateVoiceSelectionUI()
                 updateSettings()
             }
-            
             voiceSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     updateSettings()
@@ -98,7 +96,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             }
         }
         
-        setupVoiceSelection()
         resetView(SpeakSettings.load())
     }
 
@@ -119,13 +116,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_set, settings.sleepTimer) else getString(R.string.conf_speak_sleep_timer)
         repeatPassageCheckbox.text = settings.playbackSettings.verseRange?.name?: getString(R.string.speak_verse_range_to_repeat)
         repeatPassageCheckbox.isChecked = settings.playbackSettings.verseRange != null
-        
-        // Set voice selection mode 
-        val voiceMode = settings.playbackSettings.voiceSelectionMode
-        
-        // Set custom voice checkbox based on mode
-        customVoiceCheckbox.isChecked = (voiceMode == VoiceSelectionMode.MANUAL_SELECTION)
-        
+        customVoiceCheckbox.isChecked = (settings.playbackSettings.voiceSelectionMode == VoiceSelectionMode.MANUAL_SELECTION)
         // Check for language change that should disable custom voice
         checkAndHandleLanguageChange()
         
@@ -142,9 +133,8 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
     
     private fun setupVoiceSelection() {
-        // Initialize voice spinner
         voiceAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf<String>())
-        voiceAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        voiceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.voiceSpinner.adapter = voiceAdapter
         
         // Load available voices for current document language
@@ -152,32 +142,19 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
     
     private fun loadAvailableVoices() {
-        try {
-            // Get current book language
-            val currentBook = speakControl.ttsServiceManager.currentlyPlayingBook
-            currentLanguageCode = currentBook?.language?.code ?: "en"
+        currentLanguageCode = speakControl.ttsServiceManager.currentlyPlayingBook?.language?.code ?: "en"
+        availableVoices = speakControl.ttsServiceManager.getAvailableVoicesForLanguage(currentLanguageCode!!)
+
+        voiceAdapter.clear()
+        voiceAdapter.addAll(availableVoices.map { it.displayName })
+        voiceAdapter.notifyDataSetChanged()
             
-            // Get available voices for this language
-            availableVoices = speakControl.ttsServiceManager.getAvailableVoicesForLanguage(currentLanguageCode!!)
-            
-            // Update spinner with voice names
-            val voiceNames = availableVoices.map { it.displayName }
-            voiceAdapter?.clear()
-            voiceAdapter?.addAll(voiceNames)
-            voiceAdapter?.notifyDataSetChanged()
-            
-            // Show message if no voices available
-            if (availableVoices.isEmpty()) {
-                voiceAdapter?.add(getString(R.string.no_voices_available))
-                binding.voiceSpinner.isEnabled = false
-            } else {
-                binding.voiceSpinner.isEnabled = true
-            }
-        } catch (e: Exception) {
-            // Handle gracefully - TTS might not be initialized yet
-            voiceAdapter?.clear()
-            voiceAdapter?.add(getString(R.string.no_voices_available))
+        // Show message if no voices available
+        if (availableVoices.isEmpty()) {
+            voiceAdapter.add(getString(R.string.no_voices_available))
             binding.voiceSpinner.isEnabled = false
+        } else {
+            binding.voiceSpinner.isEnabled = true
         }
     }
     
