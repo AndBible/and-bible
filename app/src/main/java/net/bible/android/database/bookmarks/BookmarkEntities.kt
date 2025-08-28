@@ -99,6 +99,7 @@ class BookmarkEntities {
     enum class EditActionMode {
         APPEND,
         PREPEND,
+        REPLACE,
     }
 
     @Serializable

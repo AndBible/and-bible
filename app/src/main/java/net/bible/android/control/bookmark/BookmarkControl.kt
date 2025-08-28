@@ -77,7 +77,7 @@ import kotlin.math.min
 
 abstract class BookmarkEvent
 
-class BookmarkAddedOrUpdatedEvent(val bookmark: BaseBookmarkWithNotes): BookmarkEvent()
+class BookmarksAddedOrUpdatedEvent(val bookmarks: List<BaseBookmarkWithNotes>): BookmarkEvent()
 class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BaseBookmarkToLabel)
 class BookmarksDeletedEvent(val bookmarkIds: List<IdType>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
@@ -190,7 +190,7 @@ open class BookmarkControl @Inject constructor(
         addText(bookmark)
         addLabels(bookmark)
         ABEventBus.post(
-            BookmarkAddedOrUpdatedEvent(bookmark)
+            BookmarksAddedOrUpdatedEvent(listOf(bookmark))
         )
         return bookmark
     }
@@ -440,12 +440,12 @@ open class BookmarkControl @Inject constructor(
         for(b in dao.bibleBookmarksByIds(bookmarkUpserts.toList())) {
             addLabels(b)
             addText(b)
-            ABEventBus.post(BookmarkAddedOrUpdatedEvent(b))
+            ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
         }
         for(b in dao.genericBookmarksByIds(genericBookmarkUpserts.toList())) {
             addLabels(b)
             addText(b)
-            ABEventBus.post(BookmarkAddedOrUpdatedEvent(b))
+            ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
         }
     }
 
@@ -476,16 +476,27 @@ open class BookmarkControl @Inject constructor(
         return bookmarksToDelete.distinct()
     }
 
-    fun deleteLabels(toList: List<IdType>, deleteOrphanedBookmarks: Boolean = false) {
+    fun deleteLabels(labelIdList: List<IdType>, deleteOrphanedBookmarks: Boolean = false) {
         if (deleteOrphanedBookmarks) {
-            val bookmarksToDelete = findOrphanedBookmarks(toList)
+            val bookmarksToDelete = findOrphanedBookmarks(labelIdList)
             if (bookmarksToDelete.isNotEmpty()) {
                 deleteBookmarks(bookmarksToDelete)
             }
         }
-        
-        dao.deleteLabelsByIds(toList)
-        ABEventBus.post(LabelsDeletedEvent(toList))
+        var bookmarks: List<BaseBookmarkWithNotes> =
+            dao.bibleBookmarksWithPrimaryLabel(labelIdList) +
+            dao.genericBookmarksWithPrimaryLabel(labelIdList)
+
+        dao.deleteLabelsByIds(labelIdList)
+        bookmarks =
+            dao.bibleBookmarksByIds(bookmarks.map { it.id }) +
+            dao.genericBookmarksByIds(bookmarks.map { it.id })
+        for (b in bookmarks) {
+            addText(b)
+            addLabels(b)
+        }
+        ABEventBus.post(BookmarksAddedOrUpdatedEvent(bookmarks))
+        ABEventBus.post(LabelsDeletedEvent(labelIdList))
     }
 
     fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<BibleBookmarkWithNotes> {
