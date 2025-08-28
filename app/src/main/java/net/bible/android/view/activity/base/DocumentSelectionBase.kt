@@ -809,10 +809,11 @@ class DocumentAdapter(private val activity: DocumentSelectionBase): RecyclerView
         val documentListItem = holder.layout as DocumentListItem
         documentListItem.document = document
         documentListItem.recommendedDocuments = activity.recommendedDocuments.value
-        documentListItem.setIcons()
         
-        // Setup document info using data binding pattern
+        // Initialize binding before calling setIcons()
         val bindings = DocumentListItemBinding.bind(holder.layout)
+        documentListItem.binding = bindings
+        documentListItem.setIcons()
         bindings.documentAbbreviation.text = document.abbreviation
         
         var name = document.name
