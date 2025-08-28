@@ -121,12 +121,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         repeatPassageCheckbox.isChecked = settings.playbackSettings.verseRange != null
         
         // Set voice selection mode 
-        val voiceMode = if (settings.playbackSettings.useSystemDefaultVoice) {
-            // Backwards compatibility: old system default becomes language-specific
-            VoiceSelectionMode.LANGUAGE_SPECIFIC
-        } else {
-            settings.playbackSettings.voiceSelectionMode
-        }
+        val voiceMode = settings.playbackSettings.voiceSelectionMode
         
         // Set custom voice checkbox based on mode
         customVoiceCheckbox.isChecked = (voiceMode == VoiceSelectionMode.MANUAL_SELECTION)
@@ -354,7 +349,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 speakFootnotes = binding.speakFootnotes.isChecked,
                 speed = binding.speakSpeed.progress,
                 verseRange = settings.playbackSettings.verseRange,
-                useSystemDefaultVoice = false, // Always false now - backwards compatibility
                 voiceSelectionMode = voiceSelectionMode,
                 selectedVoiceName = selectedVoiceName
             )

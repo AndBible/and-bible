@@ -63,9 +63,8 @@ data class PlaybackSettings (
     var speed: Int = 100,
     
     // Voice settings
-    val useSystemDefaultVoice: Boolean = true, // Kept for backwards compatibility
     val voiceSelectionMode: VoiceSelectionMode = VoiceSelectionMode.LANGUAGE_SPECIFIC,
-    val selectedVoiceName: String? = null, // For manual voice selection
+    val selectedVoiceName: String? = null,
 
     // Bookmark related metadata.
     // Restoring bookmark from widget uses this.

@@ -38,14 +38,9 @@ class VoiceManager {
     /**
      * Get all available voices for a specific language
      */
-    fun getAvailableVoicesForLanguage(tts: TextToSpeech?, languageCode: String): List<VoiceInfo> {
-        if (tts == null) return emptyList()
-        
-        return try {
-            val voices = tts.voices ?: return emptyList()
-            voices.filter { voice ->
-                voice.locale.language.equals(languageCode, ignoreCase = true)
-            }.map { voice ->
+    fun getAvailableVoicesForLanguage(tts: TextToSpeech, languageCode: String): List<VoiceInfo> =
+        tts.voices.filter { voice -> voice.locale.language.equals(languageCode, ignoreCase = true) }
+            .map { voice ->
                 VoiceInfo(
                     name = voice.name,
                     displayName = formatVoiceDisplayName(voice),
@@ -58,60 +53,17 @@ class VoiceManager {
                     .thenByDescending { it.quality }  // Higher quality first
                     .thenBy { it.displayName }  // Alphabetical by display name
             )
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting voices for language $languageCode", e)
-            emptyList()
-        }
-    }
-
-    /**
-     * Get all available voices grouped by language
-     */
-    fun getAllAvailableVoicesGroupedByLanguage(tts: TextToSpeech?): Map<String, List<VoiceInfo>> {
-        if (tts == null) return emptyMap()
-        
-        return try {
-            val voices = tts.voices ?: return emptyMap()
-            voices.map { voice ->
-                VoiceInfo(
-                    name = voice.name,
-                    displayName = formatVoiceDisplayName(voice),
-                    locale = voice.locale,
-                    quality = voice.quality,
-                    isNetworkConnectionRequired = voice.isNetworkConnectionRequired
-                )
-            }.groupBy { it.locale.language }
-            .mapValues { (_, voiceList) ->
-                voiceList.sortedWith(
-                    compareBy<VoiceInfo> { it.isNetworkConnectionRequired }
-                        .thenByDescending { it.quality }
-                        .thenBy { it.displayName }
-                )
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting all voices", e)
-            emptyMap()
-        }
-    }
 
     /**
      * Set a specific voice by name
      */
-    fun setVoiceByName(tts: TextToSpeech?, voiceName: String): Boolean {
-        if (tts == null) return false
-        
-        return try {
-            val voices = tts.voices ?: return false
-            val voice = voices.find { it.name == voiceName }
-            if (voice != null) {
-                val result = tts.setVoice(voice)
-                result == TextToSpeech.SUCCESS
-            } else {
-                Log.w(TAG, "Voice not found: $voiceName")
-                false
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error setting voice $voiceName", e)
+    fun setVoiceByName(tts: TextToSpeech, voiceName: String): Boolean {
+        val voice = tts.voices.find { it.name == voiceName }
+        return if (voice != null) {
+            val result = tts.setVoice(voice)
+            result == TextToSpeech.SUCCESS
+        } else {
+            Log.w(TAG, "Voice not found: $voiceName")
             false
         }
     }
@@ -120,50 +72,6 @@ class VoiceManager {
      * Format a voice name for display to users
      */
     private fun formatVoiceDisplayName(voice: Voice): String {
-        var baseName = voice.name
-            // Remove common TTS engine prefixes
-            .replace("com.google.android.tts:", "")
-            .replace("com.samsung.android.tts:", "")
-            .replace("com.svox.pico:", "")
-            .replace("com.cereproc.cerevoice.tts:", "")
-            .replace("com.acapelagroup.android.tts:", "")
-            // Remove quality/neural indicators from name
-            .replace("#neural", "")
-            .replace("#high", "")
-            .replace("#medium", "")
-            .replace("#low", "")
-            .replace("-#", " ")
-            .replace("_", " ")
-            .replace("-", " ")
-            // Remove language codes that are redundant
-            .replace(Regex("\\b${voice.locale.language}[-_]", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("\\b${voice.locale.country}[-_]", RegexOption.IGNORE_CASE), "")
-            // Clean up common patterns
-            .replace(Regex("\\btts\\b", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("\\bvoice\\b", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("\\s+"), " ")
-            .trim()
-        
-        // If name is empty or too generic, use locale display name
-        if (baseName.isEmpty() || baseName.length < 2) {
-            baseName = voice.locale.displayName
-        }
-        
-        // Capitalize first letter of each word
-        baseName = baseName.split(" ").joinToString(" ") { word ->
-            if (word.isNotEmpty()) {
-                word.substring(0, 1).uppercase() + word.substring(1).lowercase()
-            } else {
-                word
-            }
-        }
-        
-        // Expand language codes to full language names
-        val languageName = getLanguageName(voice.locale.language)
-        if (languageName.isNotEmpty() && !baseName.contains(languageName, ignoreCase = true)) {
-            baseName = "$languageName $baseName".trim()
-        }
-        
         val qualityIndicator = when (voice.quality) {
             Voice.QUALITY_VERY_HIGH -> " (Very High Quality)"
             Voice.QUALITY_HIGH -> " (High Quality)"
@@ -174,66 +82,17 @@ class VoiceManager {
         }
         
         val networkIndicator = if (voice.isNetworkConnectionRequired) " (Online)" else ""
-        
+        val baseName = voice.locale.displayName
         return baseName + qualityIndicator + networkIndicator
-    }
-    
-    /**
-     * Get full language name from language code
-     */
-    private fun getLanguageName(languageCode: String): String {
-        return when (languageCode.lowercase()) {
-            "en" -> "English"
-            "es" -> "Spanish"
-            "fr" -> "French"
-            "de" -> "German"
-            "it" -> "Italian"
-            "pt" -> "Portuguese"
-            "ru" -> "Russian"
-            "zh" -> "Chinese"
-            "ja" -> "Japanese"
-            "ko" -> "Korean"
-            "ar" -> "Arabic"
-            "hi" -> "Hindi"
-            "tr" -> "Turkish"
-            "pl" -> "Polish"
-            "nl" -> "Dutch"
-            "sv" -> "Swedish"
-            "da" -> "Danish"
-            "no" -> "Norwegian"
-            "fi" -> "Finnish"
-            "el" -> "Greek"
-            "he" -> "Hebrew"
-            "th" -> "Thai"
-            "vi" -> "Vietnamese"
-            "hu" -> "Hungarian"
-            "cs" -> "Czech"
-            "sk" -> "Slovak"
-            "ro" -> "Romanian"
-            "bg" -> "Bulgarian"
-            "hr" -> "Croatian"
-            "sl" -> "Slovenian"
-            "et" -> "Estonian"
-            "lv" -> "Latvian"
-            "lt" -> "Lithuanian"
-            else -> ""
-        }
     }
 
     /**
      * Get the language code of a voice by name
      */
-    fun getVoiceLanguage(tts: TextToSpeech?, voiceName: String): String? {
-        if (tts == null) return null
-        
-        return try {
-            val voices = tts.voices ?: return null
-            val voice = voices.find { it.name == voiceName }
-            voice?.locale?.language
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting voice language for $voiceName", e)
-            null
-        }
+    fun getVoiceLanguage(tts: TextToSpeech, voiceName: String): String? {
+        val voices = tts.voices ?: return null
+        val voice = voices.find { it.name == voiceName }
+        return voice?.locale?.language
     }
 
     companion object {

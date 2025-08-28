@@ -173,13 +173,8 @@ class TextToSpeechServiceManager @Inject constructor(
             var locale: Locale? = null
             
             // Determine voice selection approach based on settings
-            val voiceSelectionMode = if (speakSettings.playbackSettings.useSystemDefaultVoice) {
-                // Backwards compatibility: convert old boolean to new enum (use language-specific instead)
-                VoiceSelectionMode.LANGUAGE_SPECIFIC
-            } else {
-                speakSettings.playbackSettings.voiceSelectionMode
-            }
-            
+            val voiceSelectionMode = speakSettings.playbackSettings.voiceSelectionMode
+
             when (voiceSelectionMode) {
                 VoiceSelectionMode.MANUAL_SELECTION -> {
                     val selectedVoiceName = speakSettings.playbackSettings.selectedVoiceName
@@ -296,15 +291,13 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     fun getAvailableVoicesForLanguage(languageCode: String): List<VoiceManager.VoiceInfo> {
-        return voiceManager.getAvailableVoicesForLanguage(mTts, languageCode)
+        val tts = mTts ?: return emptyList()
+        return voiceManager.getAvailableVoicesForLanguage(tts, languageCode)
     }
     
     fun getVoiceLanguage(voiceName: String): String? {
-        return voiceManager.getVoiceLanguage(mTts, voiceName)
-    }
-
-    fun getAllAvailableVoicesGroupedByLanguage(): Map<String, List<VoiceManager.VoiceInfo>> {
-        return voiceManager.getAllAvailableVoicesGroupedByLanguage(mTts)
+        val tts = mTts ?: return null
+        return voiceManager.getVoiceLanguage(tts, voiceName)
     }
 
     @Synchronized
@@ -771,14 +764,8 @@ class TextToSpeechServiceManager @Inject constructor(
         var localeOK = true
         var locale: Locale? = null
         
-        // Determine voice selection approach based on settings
-        val voiceSelectionMode = if (speakSettings.playbackSettings.useSystemDefaultVoice) {
-            // Backwards compatibility: convert old boolean to new enum (use language-specific instead)
-            VoiceSelectionMode.LANGUAGE_SPECIFIC
-        } else {
-            speakSettings.playbackSettings.voiceSelectionMode
-        }
-        
+        val voiceSelectionMode = speakSettings.playbackSettings.voiceSelectionMode
+
         when (voiceSelectionMode) {
             VoiceSelectionMode.MANUAL_SELECTION -> {
                 val selectedVoiceName = speakSettings.playbackSettings.selectedVoiceName
