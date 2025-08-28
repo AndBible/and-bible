@@ -70,49 +70,19 @@ class WindowRestoreSyncTest {
         window1.pageManager.currentBible.currentChapterVerse = initialChapterVerse
         window2.pageManager.currentBible.currentChapterVerse = initialChapterVerse
         
-        println("Initial state:")
-        println("Window1 position: ${window1.pageManager.currentBible.currentChapterVerse}")
-        println("Window2 position: ${window2.pageManager.currentBible.currentChapterVerse}")
-        println("Window1 visible: ${window1.isVisible}")
-        println("Window2 visible: ${window2.isVisible}")
-        
         // Minimize window2
         windowControl!!.minimiseWindow(window2)
-        println("After minimizing window2:")
-        println("Window1 visible: ${window1.isVisible}")
-        println("Window2 visible: ${window2.isVisible}")
-        
         assertThat(window2.isVisible, equalTo(false))
         assertThat(window1.isVisible, equalTo(true))
         
         // Move window1 to a different verse
         val newChapterVerse = ChapterVerse(2, 5)
         window1.pageManager.currentBible.currentChapterVerse = newChapterVerse
-        println("After moving window1:")
-        println("Window1 position: ${window1.pageManager.currentBible.currentChapterVerse}")
-        println("Window2 position: ${window2.pageManager.currentBible.currentChapterVerse}")
-        
         assertThat(window1.pageManager.currentBible.currentChapterVerse, equalTo(newChapterVerse))
         
         // Restore window2 - this should synchronize it with window1's current position
-        println("Before restoring window2:")
-        println("Active window: ${windowControl!!.activeWindow.displayId}")
-        println("Window1 sync: ${window1.isSynchronised}")
-        println("Window2 sync: ${window2.isSynchronised}")
-        println("Window1 pin mode: ${window1.isPinMode}")
-        println("Window2 pin mode: ${window2.isPinMode}")
-        println("Window1 links window: ${window1.isLinksWindow}")
-        println("Window2 links window: ${window2.isLinksWindow}")
-        
         windowControl!!.restoreWindow(window2)
-        Thread.sleep(500) // Allow time for synchronization
-        
-        println("After restoring window2:")
-        println("Window1 visible: ${window1.isVisible}")
-        println("Window2 visible: ${window2.isVisible}")
-        println("Active window: ${windowControl!!.activeWindow.displayId}")
-        println("Window1 position: ${window1.pageManager.currentBible.currentChapterVerse}")
-        println("Window2 position: ${window2.pageManager.currentBible.currentChapterVerse}")
+        Thread.sleep(1000) // Allow time for synchronization
         
         assertThat(window2.isVisible, equalTo(true))
         // This is the test that should pass with our fix:

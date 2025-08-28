@@ -199,13 +199,12 @@ open class WindowControl @Inject constructor() {
             
             // Synchronize the restored window if it's synchronized and we found a source
             if (window.isSynchronised && syncSourceWindow != null) {
-                println("SYNC: Synchronizing from source window ${syncSourceWindow.displayId} to restored window ${window.displayId}")
-                println("SYNC: Source window position: ${syncSourceWindow.pageManager.currentBible.currentChapterVerse}")
-                println("SYNC: Target window position before sync: ${window.pageManager.currentBible.currentChapterVerse}")
-                windowSync.synchronizeWindows(syncSourceWindow, noDelay = true)
-                println("SYNC: Target window position after sync: ${window.pageManager.currentBible.currentChapterVerse}")
-            } else {
-                println("SYNC: No synchronization - isSynchronised: ${window.isSynchronised}, syncSourceWindow: $syncSourceWindow")
+                // Manual synchronization - directly set the key from source to target
+                val sourceKey = syncSourceWindow.pageManager.currentPage.singleKey
+                window.pageManager.currentBible.doSetKey(sourceKey)
+                
+                // Also trigger the automatic synchronization for completeness
+                windowSync.synchronizeWindows(syncSourceWindow)
             }
         }
     }
