@@ -110,7 +110,7 @@ class BookmarkItemAdapter(
         }
 
         // Set value for the date text field
-        val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
+        val sDt = DateFormat.format("EEE, yyyy-MM-dd HH:mm", item.createdAt).toString()
         bindings.dateText.text = sDt
 
         val spanned = htmlToSpan(item.highlightedText)
