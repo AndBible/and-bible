@@ -1229,7 +1229,30 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun menuForDocs(v: View, documents: List<Book>) {
         val menu = PopupMenu(this, v)
-        val docs = documents.sortedWith(compareBy({it.language.code}, {it.abbreviation}))
+        
+        // Sort documents based on custom ordering setting
+        val docs = if (CommonUtils.settings.getBoolean("use_custom_document_order", false)) {
+            // Custom ordering: use customOrder from database, fallback to alphabetical for missing values
+            val docDao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+            documents.sortedWith { book1, book2 ->
+                val info1 = docDao.getBook(book1.initials)
+                val info2 = docDao.getBook(book2.initials)
+                
+                val order1 = info1?.customOrder ?: Int.MAX_VALUE
+                val order2 = info2?.customOrder ?: Int.MAX_VALUE
+                
+                when {
+                    order1 != Int.MAX_VALUE && order2 != Int.MAX_VALUE -> order1.compareTo(order2)
+                    order1 != Int.MAX_VALUE -> -1  // book1 has custom order, book2 doesn't
+                    order2 != Int.MAX_VALUE -> 1   // book2 has custom order, book1 doesn't
+                    else -> compareBy<Book>({it.language.code}, {it.abbreviation}).compare(book1, book2)  // both fallback to alphabetical
+                }
+            }
+        } else {
+            // Alphabetical ordering (default)
+            documents.sortedWith(compareBy({it.language.code}, {it.abbreviation}))
+        }
+        
         docs.forEachIndexed { i, book ->
             val item = menu.menu.add(Menu.NONE, i, Menu.NONE, getString(R.string.something_with_parenthesis, book.abbreviation, book.language.code))
             if(currentDocument == book) {

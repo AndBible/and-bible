@@ -56,6 +56,9 @@ import java.util.*
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu.document_context_menu) {
+    
+    // Enable custom ordering for ChooseDocument
+    override val supportsCustomOrdering: Boolean = true
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

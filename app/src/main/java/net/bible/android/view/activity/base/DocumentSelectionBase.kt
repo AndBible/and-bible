@@ -126,6 +126,11 @@ abstract class DocumentSelectionBase(
     private val enableLoadingIndicator: Boolean = true,
     ) : CustomTitlebarActivityBase(optionsMenuId), ActionModeActivity
 {
+    // Override this property in subclasses to enable/disable custom ordering
+    protected open val supportsCustomOrdering: Boolean = false
+    
+    // Public getter for adapter access
+    internal fun supportsCustomOrdering(): Boolean = supportsCustomOrdering
     @Inject lateinit var downloadControl: DownloadControl
 
     protected lateinit var binding: DocumentSelectionBinding
@@ -792,8 +797,8 @@ class DocumentAdapter(private val activity: DocumentSelectionBase): RecyclerView
         val document = documents[position]
         val dragHolder = holder.layout.findViewById<ImageView>(R.id.dragHolder)
         
-        // Show drag handle only in custom order mode
-        val useCustomOrder = CommonUtils.settings.getBoolean("use_custom_document_order", false)
+        // Show drag handle only in custom order mode AND if the activity supports custom ordering
+        val useCustomOrder = activity.supportsCustomOrdering() && CommonUtils.settings.getBoolean("use_custom_document_order", false)
         dragHolder.visibility = if (useCustomOrder) View.VISIBLE else View.GONE
         
         if (useCustomOrder) {
