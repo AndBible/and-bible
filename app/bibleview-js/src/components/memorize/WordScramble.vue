@@ -20,6 +20,8 @@
     <div class="button"
          @touchstart="isPeeking = true"
          @touchend="isPeeking = false"
+         @mousedown="isPeeking = true"
+         @mouseup="isPeeking = false"
     >
       {{ strings.peek }}
     </div>
