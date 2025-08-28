@@ -124,7 +124,7 @@ abstract class DocumentSelectionBase(
     optionsMenuId: Int,
     private val actionModeMenuId: Int,
     private val enableLoadingIndicator: Boolean = true,
-    ) : CustomTitlebarActivityBase(optionsMenuId), ListActionModeHelper.ActionModeActivity
+    ) : CustomTitlebarActivityBase(optionsMenuId), ActionModeActivity
 {
     @Inject lateinit var downloadControl: DownloadControl
 
@@ -206,7 +206,7 @@ abstract class DocumentSelectionBase(
     }
 
     protected fun initialiseView() {
-        recyclerView = findViewById<RecyclerView>(android.R.id.list)
+        recyclerView = findViewById(android.R.id.list)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)
         
