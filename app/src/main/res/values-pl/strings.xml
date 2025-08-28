@@ -347,6 +347,7 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="add_bookmark_whole_verse">Zakładka (wersety)</string>
   <string name="add_bookmark_whole_verse1">Wersety</string>
   <string name="add_bookmark_whole_verse2">Pełne wersety</string>
+  <string name="add_paragraph_break">Dodaj nową linię</string>
   <string name="remove_bookmark">Usuń</string>
   <string name="bookmark_settings_hide_labels_title">Ukryj wybrane etykiety</string>
   <string name="bookmark_settings_hide_labels_summary">Ukryj zakładki oznaczone określonymi etykietami</string>
@@ -764,6 +765,7 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="show_version_name">Zawrzyj nazwę przekładu</string>
   <string name="show_ellipsis">Wstaw wielokropek (…)</string>
   <string name="show_quotes">Wstaw cudzysłowy</string>
+  <string name="separate_verses_with_newlines">Oddziel wersety nowymi liniami</string>
   <string name="backup_button">Zapisz</string>
   <string name="back_button">Cofnij</string>
   <string name="upgrading_database">Aktualizacja bazy danych. Proszę czekać…</string>
