@@ -174,7 +174,7 @@ open class WindowControl @Inject constructor() {
         } else {
             if (window == activeWindow) return
 
-            // Find a source window for synchronization before minimizing other windows
+            // Find a synchronized source window before minimizing other windows
             val syncSourceWindow = if (window.isSynchronised) {
                 windowRepository.visibleWindows.firstOrNull { 
                     it.id != window.id && it.isSynchronised && it.isSyncable 
@@ -197,13 +197,8 @@ open class WindowControl @Inject constructor() {
             ABEventBus.post(NumberOfWindowsChangedEvent())
             activeWindow = window
             
-            // Synchronize the restored window if it's synchronized and we found a source
+            // Trigger synchronization using the source window we found
             if (window.isSynchronised && syncSourceWindow != null) {
-                // Manual synchronization - directly set the key from source to target
-                val sourceKey = syncSourceWindow.pageManager.currentPage.singleKey
-                window.pageManager.currentBible.doSetKey(sourceKey)
-                
-                // Also trigger the automatic synchronization for completeness
                 windowSync.synchronizeWindows(syncSourceWindow)
             }
         }
