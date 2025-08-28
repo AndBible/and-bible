@@ -40,6 +40,7 @@ import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.android.database.bookmarks.VoiceSelectionMode
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
@@ -174,13 +175,13 @@ class TextToSpeechServiceManager @Inject constructor(
             // Determine voice selection approach based on settings
             val voiceSelectionMode = if (speakSettings.playbackSettings.useSystemDefaultVoice) {
                 // Backwards compatibility: convert old boolean to new enum (use language-specific instead)
-                net.bible.android.database.bookmarks.VoiceSelectionMode.LANGUAGE_SPECIFIC
+                VoiceSelectionMode.LANGUAGE_SPECIFIC
             } else {
                 speakSettings.playbackSettings.voiceSelectionMode
             }
             
             when (voiceSelectionMode) {
-                net.bible.android.database.bookmarks.VoiceSelectionMode.MANUAL_SELECTION -> {
+                VoiceSelectionMode.MANUAL_SELECTION -> {
                     val selectedVoiceName = speakSettings.playbackSettings.selectedVoiceName
                     if (selectedVoiceName != null) {
                         Log.i(TAG, "Using manually selected voice: $selectedVoiceName")
@@ -199,7 +200,7 @@ class TextToSpeechServiceManager @Inject constructor(
                         localeOK = false
                     }
                 }
-                net.bible.android.database.bookmarks.VoiceSelectionMode.LANGUAGE_SPECIFIC -> {
+                VoiceSelectionMode.LANGUAGE_SPECIFIC -> {
                     // Original logic for setting specific language
                     localeOK = false
                 }
@@ -773,13 +774,13 @@ class TextToSpeechServiceManager @Inject constructor(
         // Determine voice selection approach based on settings
         val voiceSelectionMode = if (speakSettings.playbackSettings.useSystemDefaultVoice) {
             // Backwards compatibility: convert old boolean to new enum (use language-specific instead)
-            net.bible.android.database.bookmarks.VoiceSelectionMode.LANGUAGE_SPECIFIC
+            VoiceSelectionMode.LANGUAGE_SPECIFIC
         } else {
             speakSettings.playbackSettings.voiceSelectionMode
         }
         
         when (voiceSelectionMode) {
-            net.bible.android.database.bookmarks.VoiceSelectionMode.MANUAL_SELECTION -> {
+            VoiceSelectionMode.MANUAL_SELECTION -> {
                 val selectedVoiceName = speakSettings.playbackSettings.selectedVoiceName
                 if (selectedVoiceName != null) {
                     Log.i(TAG, "Applying manually selected voice: $selectedVoiceName")
@@ -798,7 +799,7 @@ class TextToSpeechServiceManager @Inject constructor(
                     localeOK = false
                 }
             }
-            net.bible.android.database.bookmarks.VoiceSelectionMode.LANGUAGE_SPECIFIC -> {
+            VoiceSelectionMode.LANGUAGE_SPECIFIC -> {
                 // Use language-specific logic
                 localeOK = false
             }
