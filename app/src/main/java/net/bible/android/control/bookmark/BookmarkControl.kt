@@ -456,21 +456,17 @@ open class BookmarkControl @Inject constructor(
         val bookmarksToDelete = mutableListOf<BaseBookmarkWithNotes>()
         
         for (labelId in labelIdsToDelete) {
-            // Get all Bible bookmarks with this label
             val bibleBookmarks = dao.bookmarksWithLabel(labelId)
             for (bookmark in bibleBookmarks) {
                 val allLabels = dao.labelsForBookmark(bookmark.id).map { it.id }
-                // If this bookmark only has labels that are being deleted, mark it for deletion
                 if (allLabels.all { it in labelIdsToDelete }) {
                     bookmarksToDelete.add(bookmark)
                 }
             }
             
-            // Get all generic bookmarks with this label
             val genericBookmarks = dao.genericBookmarksWithLabel(labelId)
             for (bookmark in genericBookmarks) {
                 val allLabels = dao.labelsForGenericBookmark(bookmark.id).map { it.id }
-                // If this bookmark only has labels that are being deleted, mark it for deletion
                 if (allLabels.all { it in labelIdsToDelete }) {
                     bookmarksToDelete.add(bookmark)
                 }
@@ -481,7 +477,6 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun deleteLabels(toList: List<IdType>, deleteOrphanedBookmarks: Boolean = false) {
-        // Optionally delete bookmarks that only have the labels being deleted
         if (deleteOrphanedBookmarks) {
             val bookmarksToDelete = findOrphanedBookmarks(toList)
             if (bookmarksToDelete.isNotEmpty()) {
@@ -489,10 +484,7 @@ open class BookmarkControl @Inject constructor(
             }
         }
         
-        // Delete the labels (CASCADE will handle remaining bookmark-to-label relationships)
         dao.deleteLabelsByIds(toList)
-        
-        // Post event to notify that labels have been deleted
         ABEventBus.post(LabelsDeletedEvent(toList))
     }
 

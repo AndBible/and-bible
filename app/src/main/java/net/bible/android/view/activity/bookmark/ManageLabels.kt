@@ -583,16 +583,11 @@ class ManageLabels : ListActivityBase() {
 
         val deleteLabelIds = data.deletedLabels.toList()
         if(deleteLabelIds.isNotEmpty()) {
-            // Separate labels based on whether user chose to delete orphaned bookmarks
             val labelsWithOrphanedBookmarkDeletion = data.deletedLabelsWithOrphanedBookmarks.toList()
             val labelsWithoutOrphanedBookmarkDeletion = deleteLabelIds.filter { !labelsWithOrphanedBookmarkDeletion.contains(it) }
-            
-            // Delete labels without orphaned bookmarks first (if any)
             if (labelsWithoutOrphanedBookmarkDeletion.isNotEmpty()) {
                 bookmarkControl.deleteLabels(labelsWithoutOrphanedBookmarkDeletion, deleteOrphanedBookmarks = false)
             }
-            
-            // Delete labels with orphaned bookmarks (if any)
             if (labelsWithOrphanedBookmarkDeletion.isNotEmpty()) {
                 bookmarkControl.deleteLabels(labelsWithOrphanedBookmarkDeletion, deleteOrphanedBookmarks = true)
             }

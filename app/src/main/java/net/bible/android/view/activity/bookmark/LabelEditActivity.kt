@@ -275,7 +275,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         updateData()
 
         lifecycleScope.launch(Dispatchers.Main) {
-            // Check if this label deletion would orphan bookmarks
             val orphanedBookmarks = bookmarkControl.findOrphanedBookmarks(listOf(data.label.id))
             
             val (dialogMessage, showOrphanedOptions) = if (orphanedBookmarks.isNotEmpty()) {
@@ -288,24 +287,22 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             }
             
             val result = if (showOrphanedOptions) {
-                // Show three-option dialog: Cancel, Delete label only, Delete label and bookmarks
                 suspendCoroutine { continuation ->
                     AlertDialog.Builder(this@LabelEditActivity)
                         .setMessage(dialogMessage)
                         .setPositiveButton(R.string.delete_label_and_bookmarks) { _, _ -> 
                             continuation.resume("deleteAll")
                         }
-                        .setNeutralButton(R.string.delete_label_only) { _, _ -> 
+                        .setNegativeButton(R.string.delete_label_only) { _, _ ->
                             continuation.resume("deleteLabel")
                         }
-                        .setNegativeButton(R.string.cancel) { _, _ -> 
+                        .setNeutralButton(R.string.cancel) { _, _ ->
                             continuation.resume("cancel")
                         }
                         .setCancelable(true)
                         .create().show()
                 }
             } else {
-                // Show simple yes/no dialog
                 val confirmed = suspendCoroutine { continuation ->
                     AlertDialog.Builder(this@LabelEditActivity)
                         .setMessage(dialogMessage)
