@@ -20,6 +20,7 @@ import {onMounted, onUnmounted} from "vue";
 
 type EventTypeNames =
     "update_labels"
+    | "delete_labels"
     | "clear_document"
     | "add_documents"
     | "set_config"

@@ -209,6 +209,14 @@ export function useGlobalBookmarks(config: Config) {
         labelsUpdated.value++;
     }
 
+    function deleteBookmarkLabels(inputData: IdType[]) {
+        if (!inputData.length) return
+        for (const v of inputData) {
+            bookmarkLabels.delete(v)
+        }
+        labelsUpdated.value++;
+    }
+
     function updateBookmarks(inputData: BaseBookmark[]) {
         for (const v of inputData) {
             const bmark = {...v, hasNote: !!v.notes};
@@ -250,6 +258,10 @@ export function useGlobalBookmarks(config: Config) {
 
     setupEventBusListener("update_labels", function updateLabels(labels: Label[]) {
         return updateBookmarkLabels(labels);
+    })
+
+    setupEventBusListener("delete_labels", function deleteLabels(labelIds: IdType[]) {
+        return deleteBookmarkLabels(labelIds);
     })
 
     window.bibleViewDebug.bookmarks = bookmarks;

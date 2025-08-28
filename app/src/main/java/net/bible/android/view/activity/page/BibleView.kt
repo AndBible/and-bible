@@ -72,6 +72,7 @@ import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
+import net.bible.android.control.bookmark.LabelsDeletedEvent
 import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
 import net.bible.android.control.download.DownloadControl
@@ -1693,6 +1694,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: BookmarksDeletedEvent) {
         val bookmarkIds = json.encodeToString(serializer(), event.bookmarkIds)
         executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
+    }
+
+    fun onEvent(event: LabelsDeletedEvent) {
+        val labelIds = json.encodeToString(serializer(), event.labelIds)
+        executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
