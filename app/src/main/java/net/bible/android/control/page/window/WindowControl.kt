@@ -174,6 +174,13 @@ open class WindowControl @Inject constructor() {
         } else {
             if (window == activeWindow) return
 
+            // Find a source window for synchronization before minimizing other windows
+            val syncSourceWindow = if (window.isSynchronised) {
+                windowRepository.visibleWindows.firstOrNull { 
+                    it.id != window.id && it.isSynchronised && it.isSyncable 
+                }
+            } else null
+
             if(!window.isPinMode && !window.isLinksWindow) {
                 for (it in windowRepository.windowList.filter { !it.isPinMode && !it.isLinksWindow }) {
                     it.windowState = WindowState.MINIMISED
@@ -189,6 +196,17 @@ open class WindowControl @Inject constructor() {
 
             ABEventBus.post(NumberOfWindowsChangedEvent())
             activeWindow = window
+            
+            // Synchronize the restored window if it's synchronized and we found a source
+            if (window.isSynchronised && syncSourceWindow != null) {
+                println("SYNC: Synchronizing from source window ${syncSourceWindow.displayId} to restored window ${window.displayId}")
+                println("SYNC: Source window position: ${syncSourceWindow.pageManager.currentBible.currentChapterVerse}")
+                println("SYNC: Target window position before sync: ${window.pageManager.currentBible.currentChapterVerse}")
+                windowSync.synchronizeWindows(syncSourceWindow, noDelay = true)
+                println("SYNC: Target window position after sync: ${window.pageManager.currentBible.currentChapterVerse}")
+            } else {
+                println("SYNC: No synchronization - isSynchronised: ${window.isSynchronised}, syncSourceWindow: $syncSourceWindow")
+            }
         }
     }
 
