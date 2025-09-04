@@ -130,6 +130,7 @@ import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
+import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.IOUtil
 import org.crosswire.common.util.Version
@@ -1114,6 +1115,7 @@ object CommonUtils : CommonUtilsBase() {
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
             addManuallyInstalledEpubBooks()
+            addManuallyInstalledTtfBooks()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1167,6 +1169,7 @@ object CommonUtils : CommonUtilsBase() {
                 addManuallyInstalledMyBibleBooks()
                 addManuallyInstalledMySwordBooks()
                 addManuallyInstalledEpubBooks()
+                addManuallyInstalledTtfBooks()
             }
             initializeOnyx()
 
