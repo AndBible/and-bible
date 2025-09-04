@@ -251,6 +251,7 @@ val BookmarkEntities.Label.displayName get() =
     when {
         isSpeakLabel -> application.getString(R.string.speak)
         isUnlabeledLabel -> application.getString(R.string.label_unlabelled)
+        isParagraphBreakLabel -> application.getString(R.string.add_paragraph_break)
         else -> name
     }
 

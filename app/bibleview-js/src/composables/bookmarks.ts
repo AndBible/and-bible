@@ -789,6 +789,25 @@ export function useBookmarks(
                 }
             }
         }
+
+        // Handle paragraph breaks
+        if (config.showBookmarks) {
+            for (const b of bookmarks) {
+                const bookmarkLabel = getBookmarkStyleLabel(b);
+                if (bookmarkLabel.isParagraphBreak) {
+                    const bookmarkRange = combinedRange(b);
+                    if (arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
+                        // Add paragraph break after the bookmark end
+                        const paragraphBreakElement = document.createElement("span");
+                        paragraphBreakElement.className = "paragraphBreak skip-offset";
+                        paragraphBreakElement.addEventListener("click", event => addEventFunction(event,
+                            null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                        lastElement!.parentNode!.insertBefore(paragraphBreakElement, lastElement!.nextSibling);
+                        undoHighlights.push(() => paragraphBreakElement.remove());
+                    }
+                }
+            }
+        }
     }
 
     function addMarkers() {

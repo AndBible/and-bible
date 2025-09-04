@@ -477,6 +477,9 @@ interface BookmarkDao {
     @Query("SELECT * from Label WHERE name = '${SPEAK_LABEL_NAME}' LIMIT 1")
     fun speakLabelByName(): Label?
 
+    @Query("SELECT * from Label WHERE name = '${PARAGRAH_BREAK_LABEL_NAME}' LIMIT 1")
+    fun paragraphBreakLabelByName(): Label?
+
     @Query("SELECT * from Label WHERE name = '${UNLABELED_NAME}' LIMIT 1")
     fun unlabeledLabelByName(): Label?
 
