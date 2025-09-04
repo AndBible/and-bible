@@ -743,6 +743,9 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="app_licence_title">Licencja</string>
   <string name="how_to_contribute">Jak pomóc?</string>
   <string name="confirm_delete_bookmarks">Czy na pewno chcesz usunąć %d zakładek i powiązanych notatek?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Wybrana etykieta jest dołączona do %d zakładek, które nie mają innych etykiet. Czy chcesz usunąć te zakładki wraz z etykietą?</string>
+  <string name="delete_label_and_bookmarks">Usuń etykietę i zakładki</string>
+  <string name="delete_label_only">Usuń tylko etykietę</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Poleć znajomemu</string>
   <string name="tell_friend_message1">Chciał(a)bym polecić Ci aplikację %s.</string>

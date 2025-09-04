@@ -751,6 +751,9 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="app_licence_title">Permesilo</string>
   <string name="how_to_contribute">Kontribui</string>
   <string name="confirm_delete_bookmarks">Ĉu vi certe volas forigi %d legosignojn kaj iliajn notojn?</string>
+  <string name="confirm_delete_orphaned_bookmarks">La elektita etikedo estas ligita al %d legosignojn, kiuj ne havas aliajn etikedojn. Ĉu vi volas forigi tiujn ĉi legosignojn kun la etikedo?</string>
+  <string name="delete_label_and_bookmarks">Forigi etikedon kaj legosignojn</string>
+  <string name="delete_label_only">Forigi nur etikedon</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekomendi al amiko</string>
   <string name="tell_friend_message1">Mi volus rekomendi al vi la aplikaĵon %s.</string>

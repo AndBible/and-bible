@@ -760,6 +760,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="app_licence_title">Licenza Open Source</string>
   <string name="how_to_contribute">Come contribuire?</string>
   <string name="confirm_delete_bookmarks">Vuoi rimuovere %d segnalibri e le loro annotazioni?</string>
+  <string name="confirm_delete_orphaned_bookmarks">L\'etichetta selezionata è collegata a %d segnalibri che non hanno altre etichette. Vuoi eliminare questi segnalibri insieme alle etichette?</string>
+  <string name="delete_label_and_bookmarks">Elimina etichetta e segnalibri</string>
+  <string name="delete_label_only">Elimina solo l\'etichetta</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Consiglia a un amico</string>
   <string name="tell_friend_message1">Vorrei consigliarti %s</string>

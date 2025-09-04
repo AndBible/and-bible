@@ -359,6 +359,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="add_bookmark_whole_verse">Στίχος ως σελιδοδείκτης</string>
   <string name="add_bookmark_whole_verse1">Στίχοι</string>
   <string name="add_bookmark_whole_verse2">Ολόκληροι στίχοι</string>
+  <string name="add_paragraph_break">Νέα παράγραφος</string>
   <string name="remove_bookmark">Διαγραφή</string>
   <string name="bookmark_settings_hide_labels_title">Απόκρυψη επιλεγμένων ετικετών</string>
   <string name="bookmark_settings_hide_labels_summary">Απόκρυψη σελιδοδεικτών με επιλεγμένη(ες) ετικέτες</string>
@@ -768,6 +769,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="unlock_info">Πληροφορίες ξεκλειδώματος κρυπτογραφημένου προσθέτου</string>
   <string name="try_again_passphrase">Η φράση πρόσβασης δεν έγινε δεκτή, άλλη μια προσπάθεια?</string>
   <string name="show_unlock_info">Πληροφορίες ξεκλειδώματος προσθέτου &amp;</string>
+  <string name="prefs_experimental_features_title">Πειραματικες δυνατότητες</string>
+  <string name="prefs_experimental_features_summary">Ενεργοποιήστε πειραματικές δυνατότητες που βρίσκονται ακόμα υπό ανάπτυξη και μπορεί να αλλάξουν ή να αποσυρθούν</string>
   <string name="prefs_show_error_box_title">Δείξε το παράθυρο σφάλματος javascript</string>
   <string name="prefs_show_error_box_summary">Χρήσιμο για προγραμματιστές όταν αποσφαλματώνουν τα σφάλματα javascript στην προβολή Βίβλου. Αυτό θα επιβραδύνει την εφαρμογή</string>
   <string name="active_window_indicator_title">Δείξε ένδειξη ενεργού παραθύρου</string>
@@ -775,6 +778,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="app_licence_title">Άδεια Ανοιχτού Κώδικα</string>
   <string name="how_to_contribute">Πως μπορώ να συνεισφέρω?</string>
   <string name="confirm_delete_bookmarks">Θέλετε να απομακρύνετε %dσελιδοδείκτες και τις σημειώσεις τους?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Η επιλεγμένη ετικέτα είναι συνδεδεμένη με %d σελιδοδείκτες που δεν έχουν άλλες ετικέτες. Θέλετε να διαγράψετε αυτούς τους σελιδοδείκτες μαζί με τις ετικέτες;</string>
+  <string name="delete_label_and_bookmarks">Διαγραφή ετικέτας και σελιδοδεικτών</string>
+  <string name="delete_label_only">Διαγραφή ετικέτας μόνο</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Προτείνετε σε έναν φίλο</string>
   <string name="tell_friend_message1">Θα ήθελα να σας προτείνω το %s.</string>
@@ -799,6 +805,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="show_version_name">Εμφάνιση ονόματος έκδοσης</string>
   <string name="show_ellipsis">Εμφάνιση έλλειψης (...)</string>
   <string name="show_quotes">Εμφάνιση παραθέσεων</string>
+  <string name="separate_verses_with_newlines">Διαχωρίστε τα εδάφια σε νέες γραμμές</string>
   <string name="backup_button">Δημιουργία αντιγράφων ασφαλείας</string>
   <string name="back_button">Πίσω</string>
   <string name="upgrading_database">Αναβάθμιση βάσης δεδομένων. Περιμένετε...</string>

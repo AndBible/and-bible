@@ -813,6 +813,9 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="app_licence_title">Licencia de software libre</string>
   <string name="how_to_contribute">¿Cómo contribuir?</string>
   <string name="confirm_delete_bookmarks">¿Desea eliminar %d marcadores y sus notas?</string>
+  <string name="confirm_delete_orphaned_bookmarks">La etiqueta seleccionada se adjunta a %d marcadores que no tienen otras etiquetas. ¿Desea eliminar estos marcadores junto con las etiquetas?</string>
+  <string name="delete_label_and_bookmarks">Eliminar etiqueta y marcadores</string>
+  <string name="delete_label_only">Eliminar solo la etiqueta</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recomendar a las amistades</string>
   <string name="tell_friend_message1">Me gustaría recomendarte %s.</string>

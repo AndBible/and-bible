@@ -778,6 +778,9 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="app_licence_title">Licença Open Source</string>
   <string name="how_to_contribute">Como contribuir</string>
   <string name="confirm_delete_bookmarks">Pretende remover os marcadores de %d e as suas notas?</string>
+  <string name="confirm_delete_orphaned_bookmarks">A etiqueta selecionada é anexada a %d marcadores que não têm outras etiquetas. Quer eliminar estes marcadores juntamente com as etiquetas?</string>
+  <string name="delete_label_and_bookmarks">Apagar etiqueta e marcadores</string>
+  <string name="delete_label_only">Apagar apenas a etiqueta</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recomende a um amigo</string>
   <string name="tell_friend_message1">Gostaria de recomendar-te %s</string>
