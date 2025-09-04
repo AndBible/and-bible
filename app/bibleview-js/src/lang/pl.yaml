@@ -76,6 +76,9 @@ editActionModeAppend: dodaj tekst przed
 editActionModePrepend: dodaj tekst po
 editActionContentLabel: Treść
 editActionContentPlaceholder: Wprowadź tekst do dodania do dokumentu…
+experimentalFeatureTitle: Eksperymentalne
+experimentalFeatureHelpTitle: O eksperymentalnych funkcjach
+experimentalFeatureHelpContent: "Eksperymentalne funkcje są nowymi możliwościami aplikacji, nad którymi wciąż trwają prace i testy. Mogą one nie działać bezbłędnie i zostać znacząco zmienione lub usunięte w przyszłych wersjach aplikacji."
 insertParagraphBreak: Dodaj nową linię
 insertSubtitle: Dodaj podtytuł
 xmlParseError: Błąd przetwarzania XML

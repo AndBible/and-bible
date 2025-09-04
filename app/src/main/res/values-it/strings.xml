@@ -347,6 +347,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="add_bookmark_whole_verse">Segnalibro su verso</string>
   <string name="add_bookmark_whole_verse1">Versetti</string>
   <string name="add_bookmark_whole_verse2">Versetti completi</string>
+  <string name="add_paragraph_break">Interruzione di paragrafo</string>
   <string name="remove_bookmark">Rimuovi</string>
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
@@ -750,6 +751,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="unlock_info">Info sullo sblocco del modulo cifrato</string>
   <string name="try_again_passphrase">La password non ha funzionato, vuoi riprovare?</string>
   <string name="show_unlock_info">Info su modulo e sblocco</string>
+  <string name="prefs_experimental_features_title">Funzionalità sperimentali</string>
+  <string name="prefs_experimental_features_summary">Abilita le funzionalità sperimentali che sono ancora in fase di sviluppo e potrebbero subire modifiche o essere rimosse</string>
   <string name="prefs_show_error_box_title">Mostra finestra errori Javascript</string>
   <string name="prefs_show_error_box_summary">Utile agli sviluppatori per trovare gli errori javascript in BibleView. Questo rallenterà l\'app.</string>
   <string name="active_window_indicator_title">Mostra indicatore di finestra attiva</string>
@@ -781,6 +784,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="show_version_name">Includi nome della versione</string>
   <string name="show_ellipsis">Mostra tre puntini (…)</string>
   <string name="show_quotes">Mostra virgolette</string>
+  <string name="separate_verses_with_newlines">Separa i versi con nuove righe</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Indietro</string>
   <string name="upgrading_database">Sto aggiornando il database. Attendi...</string>

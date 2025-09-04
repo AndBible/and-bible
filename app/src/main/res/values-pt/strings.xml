@@ -361,6 +361,7 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="add_bookmark_whole_verse">Colocar marcador no versículo</string>
   <string name="add_bookmark_whole_verse1">Versículos</string>
   <string name="add_bookmark_whole_verse2">Versículos completos</string>
+  <string name="add_paragraph_break">Quebra de parágrafo</string>
   <string name="remove_bookmark">Remover</string>
   <string name="bookmark_settings_hide_labels_title">Esconder as etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que são marcados com etiqueta (s) especificada</string>
@@ -768,6 +769,8 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="unlock_info">Informação sobre o desbloqueamento do módulo</string>
   <string name="try_again_passphrase">A Palavra passe não foi reconhecida, tentar de novo?</string>
   <string name="show_unlock_info">Informação de módulo e de desbloqueamento</string>
+  <string name="prefs_experimental_features_title">Recursos experimentais</string>
+  <string name="prefs_experimental_features_summary">Ativar funcionalidades experimentais que ainda estão em desenvolvimento e podem ser alteradas ou removidas</string>
   <string name="prefs_show_error_box_title">Mostrar a caixa de erro Javascript</string>
   <string name="prefs_show_error_box_summary">Útil para programadores ao depurar erros secundários de BibleView javascript. Isso tornará o aplicação mais lenta.</string>
   <string name="active_window_indicator_title">Mostrar indicador de janela ativa</string>
@@ -799,6 +802,7 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="show_version_name">Incluir o nome da versão</string>
   <string name="show_ellipsis">Mostrar reticências (...)</string>
   <string name="show_quotes">Mostrar citações</string>
+  <string name="separate_verses_with_newlines">Separe os versos com novas linhas</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Para trás</string>
   <string name="upgrading_database">Atualizando a base de dados. Por favor espere...</string>

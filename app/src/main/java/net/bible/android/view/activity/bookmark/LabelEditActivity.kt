@@ -45,9 +45,11 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarkLabelEditBinding
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
+import javax.inject.Inject
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.CommonUtils.json
@@ -102,6 +104,9 @@ val customIconMap = mapOf(
 
 @ActivityScope
 class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
+
+    @Inject lateinit var bookmarkControl: BookmarkControl
+    
     lateinit var binding: BookmarkLabelEditBinding
 
 
@@ -159,6 +164,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         var isThisBookmarkSelected: Boolean,
         var isThisBookmarkPrimary: Boolean,
         var delete: Boolean = false,
+        var deleteOrphanedBookmarks: Boolean = false,
     ) {
         fun toJSON(): String = json.encodeToString(serializer(), this)
 
@@ -264,28 +270,77 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         finish()
     }
 
+    enum class RemoveOption {
+        CANCEL,
+        DELETE_LABEL_ONLY,
+        DELETE_LABEL_AND_BOOKMARKS
+    }
+
     private fun remove() {
         Log.i(TAG, "remove")
         updateData()
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val result = suspendCoroutine {
-                AlertDialog.Builder(this@LabelEditActivity)
-                    .setMessage(getString(R.string.delete_label_confirmation, data.label.name))
-                    .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
-                    .setNegativeButton(R.string.no) {_, _ -> it.resume(false)}
-                    .setCancelable(true)
-                    .create().show()
+            val orphanedBookmarks = bookmarkControl.findOrphanedBookmarks(listOf(data.label.id))
+            
+            val (dialogMessage, showOrphanedOptions) = if (orphanedBookmarks.isNotEmpty()) {
+                val baseMessage = getString(R.string.delete_label_confirmation, data.label.name)
+                val orphanedMessage = getString(R.string.confirm_delete_orphaned_bookmarks, orphanedBookmarks.size)
+                val combinedMessage = "$baseMessage\n\n$orphanedMessage"
+                Pair(combinedMessage, true)
+            } else {
+                Pair(getString(R.string.delete_label_confirmation, data.label.name), false)
             }
-            if(result) {
-                data.delete = true
-
-                val resultIntent = Intent()
-                resultIntent.putExtra("data", data.toJSON())
-                setResult(RESULT_OK, resultIntent)
-                finish()
+            
+            val result = if (showOrphanedOptions) {
+                suspendCoroutine { continuation ->
+                    AlertDialog.Builder(this@LabelEditActivity)
+                        .setMessage(dialogMessage)
+                        .setPositiveButton(R.string.delete_label_and_bookmarks) { _, _ -> 
+                            continuation.resume(RemoveOption.DELETE_LABEL_AND_BOOKMARKS)
+                        }
+                        .setNegativeButton(R.string.delete_label_only) { _, _ ->
+                            continuation.resume(RemoveOption.DELETE_LABEL_ONLY)
+                        }
+                        .setNeutralButton(R.string.cancel) { _, _ ->
+                            continuation.resume(RemoveOption.CANCEL)
+                        }
+                        .setCancelable(true)
+                        .create().show()
+                }
+            } else {
+                val confirmed = suspendCoroutine { continuation ->
+                    AlertDialog.Builder(this@LabelEditActivity)
+                        .setMessage(dialogMessage)
+                        .setPositiveButton(R.string.yes) { _, _ -> continuation.resume(true) }
+                        .setNegativeButton(R.string.no) { _, _ -> continuation.resume(false) }
+                        .setCancelable(true)
+                        .create().show()
+                }
+                if (confirmed) RemoveOption.DELETE_LABEL_ONLY else RemoveOption.CANCEL
+            }
+            
+            when (result) {
+                RemoveOption.DELETE_LABEL_AND_BOOKMARKS -> {
+                    data.delete = true
+                    data.deleteOrphanedBookmarks = true
+                    finishWithResult()
+                }
+                RemoveOption.DELETE_LABEL_ONLY -> {
+                    data.delete = true
+                    data.deleteOrphanedBookmarks = false
+                    finishWithResult()
+                }
+                RemoveOption.CANCEL -> {}
             }
         }
+    }
+    
+    private fun finishWithResult() {
+        val resultIntent = Intent()
+        resultIntent.putExtra("data", data.toJSON())
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

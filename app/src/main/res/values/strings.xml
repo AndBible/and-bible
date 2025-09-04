@@ -945,6 +945,9 @@
 
     <string name="how_to_contribute">How to contribute?</string>
     <string name="confirm_delete_bookmarks">Do you want to remove %d bookmarks and their notes?</string>
+    <string name="confirm_delete_orphaned_bookmarks">The selected label is attached to %d bookmarks that have no other labels. Do you want to delete these bookmarks along with the labels?</string>
+    <string name="delete_label_and_bookmarks">Delete label and bookmarks</string>
+    <string name="delete_label_only">Delete label only</string>
     <string name="module_size_megabytes">%.1f MB</string>
     <string name="tell_friend_title">Recommend to a friend</string>
     <string name="tell_friend_message1">I would like to recommend %s to you.</string>

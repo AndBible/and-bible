@@ -181,9 +181,7 @@ open class WindowControl @Inject constructor() {
             }
 
             window.windowState = WindowState.VISIBLE
-
-            window.updateTextIfNeeded()
-
+            window.updateOrScroll()
             if (activeWindow.isSynchronised)
                 windowRepository.lastSyncWindowId = activeWindow.id
 
