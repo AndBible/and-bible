@@ -76,6 +76,9 @@ editActionModeAppend: antaŭaldoni tekston
 editActionModePrepend: postaldoni tekston
 editActionContentLabel: Enhavo
 editActionContentPlaceholder: Enigu tekston aldonotan al la dokumento…
+experimentalFeatureTitle: Eksperimenta
+experimentalFeatureHelpTitle: Pri eksperimentaj ebloj
+experimentalFeatureHelpContent: "Eksperimentaj ebloj estas novaj trajtoj, kiuj plue estas prilaborataj kaj testataj. Ili povas ne funkcii perfekte kaj povas esti signife ŝanĝitaj aŭ forigitaj en venontaj versioj de la aplikaĵo."
 insertParagraphBreak: Aldoni linirompon
 insertSubtitle: Aldoni subtitolon
 xmlParseError: Eraro dum pritrakti XML

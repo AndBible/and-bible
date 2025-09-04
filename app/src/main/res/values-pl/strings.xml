@@ -734,6 +734,8 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="unlock_info">Informacja o szyfrowanych modułach</string>
   <string name="try_again_passphrase">Błędne hasło, czy spróbować ponownie?</string>
   <string name="show_unlock_info">O szyfrowanym module</string>
+  <string name="prefs_experimental_features_title">Funkcje eksperymentalne</string>
+  <string name="prefs_experimental_features_summary">Aktywuje funkcje, które są w dalszym ciągu opracowywane i mogą ulec zmianom lub zostać usunięte</string>
   <string name="prefs_show_error_box_title">Wyświetl konsolę błędów JavaScript</string>
   <string name="prefs_show_error_box_summary">Przydatne dla programistów do naprawy błędów JavaScript komponentu BibleView. Spowoduje spowolnienie aplikacji.</string>
   <string name="active_window_indicator_title">Wyświetl znacznik aktywnego okna</string>

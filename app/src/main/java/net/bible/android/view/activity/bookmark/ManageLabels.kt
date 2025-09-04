@@ -187,6 +187,7 @@ class ManageLabels : ListActivityBase() {
         val selectedLabels: MutableSet<IdType> = mutableSetOf(),
         val autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
         val deletedLabels: MutableSet<IdType> = mutableSetOf(),
+        val deletedLabelsWithOrphanedBookmarks: MutableSet<IdType> = mutableSetOf(),
         val changedLabels: MutableSet<IdType> = mutableSetOf(),
 
         var autoAssignPrimaryLabel: IdType? = null,
@@ -467,9 +468,12 @@ class ManageLabels : ListActivityBase() {
         editLabel(newLabel)
     }
 
-    private fun deleteLabel(label: BookmarkEntities.Label) {
+    private fun deleteLabel(label: BookmarkEntities.Label, deleteOrphanedBookmarks: Boolean = false) {
         Log.i(TAG, "deleteLabel")
         data.deletedLabels.add(label.id)
+        if (deleteOrphanedBookmarks) {
+            data.deletedLabelsWithOrphanedBookmarks.add(label.id)
+        }
         data.selectedLabels.remove(label.id)
         data.autoAssignLabels.remove(label.id)
         data.changedLabels.remove(label.id)
@@ -520,7 +524,7 @@ class ManageLabels : ListActivityBase() {
 
                 if (newLabelData.delete) {
                     Log.i(TAG, "editLabel delete specified")
-                    deleteLabel(label)
+                    deleteLabel(label, newLabelData.deleteOrphanedBookmarks)
                 } else {
                     Log.i(TAG, "editLabel delete not specified")
                     allLabels.remove(label)
@@ -579,7 +583,14 @@ class ManageLabels : ListActivityBase() {
 
         val deleteLabelIds = data.deletedLabels.toList()
         if(deleteLabelIds.isNotEmpty()) {
-            bookmarkControl.deleteLabels(deleteLabelIds)
+            val labelsWithOrphanedBookmarkDeletion = data.deletedLabelsWithOrphanedBookmarks.toList()
+            val labelsWithoutOrphanedBookmarkDeletion = deleteLabelIds.filter { !labelsWithOrphanedBookmarkDeletion.contains(it) }
+            if (labelsWithoutOrphanedBookmarkDeletion.isNotEmpty()) {
+                bookmarkControl.deleteLabels(labelsWithoutOrphanedBookmarkDeletion, deleteOrphanedBookmarks = false)
+            }
+            if (labelsWithOrphanedBookmarkDeletion.isNotEmpty()) {
+                bookmarkControl.deleteLabels(labelsWithOrphanedBookmarkDeletion, deleteOrphanedBookmarks = true)
+            }
         }
 
         val saveLabels = allLabels

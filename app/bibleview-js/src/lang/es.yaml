@@ -66,24 +66,27 @@ verseMemorizeLong: Memorizar versículos de la Biblia
 verseNoteLong: Escribir una nota
 addBookmark: Marcador
 selectCustomIconTitle: Seleccionar icono de marcador personalizado
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
+bookmarkSettingsTitle: Configurar los ajustes de marcadores
+subtitlePlaceholder: Texto del subtítulo
+customIconLabel: Icono personalizado
+editActionLabel: Editar acción
+editActionModeLabel: Modalidad
+editActionModeNone: Ninguno
+editActionModeAppend: Añadir texto
+editActionModePrepend: Anteponer texto
+editActionContentLabel: Contenido
+editActionContentPlaceholder: Introduzca el texto que desea añadir al documento...
+experimentalFeatureTitle: Experimental
+experimentalFeatureHelpTitle: Acerca de las funciones experimentales
+experimentalFeatureHelpContent: Las funciones experimentales son nuevas capacidades que aún se están desarrollando y probando. Es posible que no funcionen perfectamente y que cambien significativamente o se eliminen en futuras versiones de la aplicación.
+insertParagraphBreak: Insertar salto de párrafo
+insertSubtitle: Inserta subtítulo
+xmlParseError: Error de análisis XML
+invalidTag: Etiqueta no válida
+invalidClosingTag: Etiqueta de cierre no válida
+unmatchedClosingTag: Etiqueta de cierre no coincidente
+unclosedTag: Etiqueta sin cerrar
+unknownError: Error desconocido
 blur: Desenfoque
 reset: Restablecer
 peek: Mirar

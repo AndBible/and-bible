@@ -66,12 +66,13 @@ import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.PassageChangeMediator
-import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
+import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
+import net.bible.android.control.bookmark.LabelsDeletedEvent
 import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
 import net.bible.android.control.download.DownloadControl
@@ -1623,23 +1624,28 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return this
     }
 
-    fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
+    fun onEvent(event: BookmarksAddedOrUpdatedEvent) {
         val document = firstDocument
 
-        val clientBookmark = when(event.bookmark) {
-            is BookmarkEntities.BibleBookmarkWithNotes ->
-                ClientBibleBookmark(event.bookmark,
-                    when (document) {
-                        is BibleDocument -> document.swordBook.versification
-                        is MyNotesDocument -> KJVA
-                        else -> null
-                    })
-            is BookmarkEntities.GenericBookmarkWithNotes -> ClientGenericBookmark(event.bookmark)
-            else -> throw RuntimeException("Invalid type")
-        }
+        val clientBookmarks = event.bookmarks.map {
+            when (it) {
+                is BookmarkEntities.BibleBookmarkWithNotes ->
+                    ClientBibleBookmark(
+                        it,
+                        when (document) {
+                            is BibleDocument -> document.swordBook.versification
+                            is MyNotesDocument -> KJVA
+                            else -> null
+                        }
+                    )
 
-        val bookmarkStr = clientBookmark.asJson
-        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);""")
+                is BookmarkEntities.GenericBookmarkWithNotes -> ClientGenericBookmark(it)
+                else -> throw RuntimeException("Invalid type")
+            }
+        }.map { it.asJson }
+
+        val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
+        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
     }
 
     fun onEvent(event: BookmarkNoteModifiedEvent) {
@@ -1693,6 +1699,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: BookmarksDeletedEvent) {
         val bookmarkIds = json.encodeToString(serializer(), event.bookmarkIds)
         executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
+    }
+
+    fun onEvent(event: LabelsDeletedEvent) {
+        val labelIds = json.encodeToString(serializer(), event.labelIds)
+        executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {

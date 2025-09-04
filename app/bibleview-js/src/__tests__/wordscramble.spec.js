@@ -130,6 +130,25 @@ describe("WordScramble.vue", () => {
     expect(wrapper.find('.memorize-text').classes()).not.toContain('preview');
   });
 
+  it("toggles isPeeking when peek button is pressed and released with mouse events", async () => {
+    const wrapper = createWrapper();
+    
+    // Initially not peeking
+    expect(wrapper.find('.memorize-text').classes()).not.toContain('preview');
+    
+    // Simulate mousedown (press) on peek button
+    await wrapper.find('.memorize-controls .button').trigger('mousedown');
+    
+    // Should now be peeking
+    expect(wrapper.find('.memorize-text').classes()).toContain('preview');
+    
+    // Simulate mouseup (release) on peek button
+    await wrapper.find('.memorize-controls .button').trigger('mouseup');
+    
+    // Should no longer be peeking
+    expect(wrapper.find('.memorize-text').classes()).not.toContain('preview');
+  });
+
   it("resets the scrambled words when reset button is clicked", async () => {
     const wrapper = createWrapper();
     

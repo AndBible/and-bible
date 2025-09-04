@@ -66,24 +66,27 @@ verseMemorizeLong: Memorizza versi della Bibbia
 verseNoteLong: Scrivi una nota
 addBookmark: Segnalibro
 selectCustomIconTitle: Scegli icona per l'evidenziazione
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
+bookmarkSettingsTitle: Configura le impostazioni dei segnalibri
+subtitlePlaceholder: Testo dei sottotitoli
+customIconLabel: Icona personalizzata
+editActionLabel: Modifica azione
+editActionModeLabel: Modalità
+editActionModeNone: Nessuno
+editActionModeAppend: Aggiungi testo
+editActionModePrepend: Anteponi testo
+editActionContentLabel: Contenuto
+editActionContentPlaceholder: Inserisci il testo da aggiungere al documento...
+experimentalFeatureTitle: Sperimentale
+experimentalFeatureHelpTitle: Informazioni sulle funzionalità sperimentali
+experimentalFeatureHelpContent: Le funzionalità sperimentali sono nuove funzionalità ancora in fase di sviluppo e test. Potrebbero non funzionare perfettamente e potrebbero subire modifiche significative o essere rimosse nelle versioni future dell'app.
+insertParagraphBreak: Inserisci interruzione di paragrafo
+insertSubtitle: Inserisci sottotitolo
+xmlParseError: Errore di analisi XML
+invalidTag: Tag non valido
+invalidClosingTag: Tag di chiusura non valido
+unmatchedClosingTag: Tag di chiusura non corrispondente
+unclosedTag: Tag non chiuso
+unknownError: Errore sconosciuto
 blur: Sfoca
 reset: Ripristina
 peek: Sbircia
