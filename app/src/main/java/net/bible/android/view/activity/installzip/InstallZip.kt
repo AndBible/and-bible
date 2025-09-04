@@ -391,8 +391,17 @@ class InstallZip : ActivityBase() {
         }
 
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.type = "application/*"
-
+        intent.type = "*/*"
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(
+            "application/zip",
+            "application/x-zip-compressed",
+            "application/epub+zip",
+            "application/x-font-ttf",
+            "font/ttf",
+            "font/otf",
+            "application/x-font-ttf",
+            "application/x-font-otf"
+        ))
         val result = awaitIntent(intent)
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data!!.data!!
@@ -512,6 +521,7 @@ class InstallZip : ActivityBase() {
                         val book = when (filetype) {
                             FileType.MYBIBLE -> addMyBibleBook(outFile)
                             FileType.MYSWORD -> addMySwordBook(outFile)
+                            else -> throw InvalidFile(displayName)
                         }
                         if (book == null) {
                             outFile.delete()

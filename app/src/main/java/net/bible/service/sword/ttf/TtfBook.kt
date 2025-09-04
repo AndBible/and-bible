@@ -19,7 +19,6 @@ package net.bible.service.sword.ttf
 
 import android.util.Log
 import net.bible.android.SharedConstants
-import net.bible.service.sword.SqliteSwordDriver
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -34,31 +33,25 @@ fun addTtfBook(file: File) {
     val fontName = file.nameWithoutExtension
     val moduleInitials = "TTF_$fontName"
     
-    // Check if already registered
     if (Books.installed().getBook(moduleInitials) != null) return
     
-    // Create module configuration
     val conf = """
 [$moduleInitials]
-Description=$fontName TTF Font
-Category=AndBible Fonts
+Description=$fontName
+Category=And Bible
 ModDrv=RawGenBook
-DataPath=./${moduleInitials}/
+DataPath=./ttf/
 Encoding=UTF-8
 AndBibleProvidesFont=$fontName;${file.name}
-AndBibleMinimumVersion=500
+AndBibleMinimumVersion=892
 """
     
     Log.i(TAG, "Creating TTF font module $moduleInitials, $fontName")
+
     val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
-    
-    // Set the location to the ttf directory
-    metadata.setLocation(file.parentFile.toURI())
-    metadata.driver = SqliteSwordDriver()
-    
+    metadata.location = file.parentFile.toURI()
     val backend = NullBackend()
     val book = SwordBook(metadata, backend)
-    
     Books.installed().addBook(book)
 }
 
