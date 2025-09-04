@@ -45,6 +45,7 @@ import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.determineFileType
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils.unzipInputStream
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmarksDbStats
@@ -424,7 +425,7 @@ class InstallZip : ActivityBase() {
     }
 
     enum class FileType {
-        MYBIBLE, MYSWORD;
+        MYBIBLE, MYSWORD, TTF;
         val displayName get () = name.lowercase()
     }
 
@@ -447,6 +448,11 @@ class InstallZip : ActivityBase() {
     private suspend fun installFromFile(uri: Uri, displayName: String, mimeType: String?): Boolean {
         if(mimeType == "application/epub+zip") {
             return installEpub(uri, displayName)
+        }
+
+        // Check for TTF files first
+        if(displayName.lowercase().endsWith(".ttf") || mimeType?.contains("font") == true) {
+            return installTtf(uri, displayName)
         }
 
         val fileTypeFromContent = determineFileType(uri)
@@ -598,6 +604,105 @@ class InstallZip : ActivityBase() {
     }
 
     private val bookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+
+    private suspend fun installTtf(uri: Uri, displayName_: String?): Boolean = withContext(Dispatchers.IO) {
+        val displayName = displayName_ ?: UUID.randomUUID().toString()
+        withContext(Dispatchers.Main) {
+            binding.loadingIndicator.visibility = View.VISIBLE
+        }
+        
+        // Create unique font module name based on TTF filename
+        val fontName = displayName.removeSuffix(".ttf")
+        val moduleInitials = "TTF_$fontName"
+        
+        // Use proper SWORD module structure
+        val swordDir = SwordBookPath.getSwordDownloadDir()
+        val confDir = File(swordDir, SwordConstants.DIR_CONF)
+        val moduleDir = File(swordDir, SwordConstants.DIR_DATA + "/" + moduleInitials)
+        
+        // Check if module already exists
+        val confFile = File(confDir, "$moduleInitials${SwordConstants.EXTENSION_CONF}")
+        if (confFile.exists() || moduleDir.exists()) {
+            val doInstall = withContext(Dispatchers.Main) {
+                suspendCoroutine {
+                    AlertDialog.Builder(this@InstallZip)
+                        .setTitle(R.string.overwrite_files_title)
+                        .setMessage(getString(R.string.overwrite_files, "$moduleInitials"))
+                        .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
+                        .setNeutralButton(R.string.cancel) { _, _ -> it.resume(false) }
+                        .setOnCancelListener { _ -> it.resume(false) }
+                        .show()
+                }
+            }
+            if (!doInstall) {
+                withContext(Dispatchers.Main) {
+                    ABEventBus.post(ToastEvent(R.string.install_zip_canceled))
+                    binding.loadingIndicator.visibility = View.GONE
+                    finish()
+                }
+                return@withContext false
+            }
+            // Remove existing installation
+            confFile.delete()
+            moduleDir.deleteRecursively()
+        }
+        
+        // Create directories
+        confDir.mkdirs()
+        moduleDir.mkdirs()
+        
+        try {
+            // Copy the TTF file to module directory
+            val inputStream = contentResolver.openInputStream(uri) ?: throw FileNotFound()
+            val ttfFile = File(moduleDir, displayName)
+            inputStream.use { input ->
+                ttfFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            
+            // Create SWORD module configuration file
+            val confContent = """
+[${moduleInitials}]
+Description=${fontName} TTF Font
+Category=AndBible Fonts
+ModDrv=RawGenBook
+DataPath=./${moduleInitials}/
+Encoding=UTF-8
+AndBibleProvidesFont=${fontName};${displayName}
+AndBibleMinimumVersion=500
+"""
+            confFile.writeText(confContent.trimIndent())
+            
+            // Create fonts.css file for web frontend
+            val fontsDir = File(moduleDir, "fonts")
+            fontsDir.mkdirs()
+            val cssFile = File(fontsDir, "fonts.css")
+            val cssContent = """
+@font-face {
+    font-family: '${fontName}';
+    src: url('../${displayName}') format('truetype');
+}
+"""
+            cssFile.writeText(cssContent.trimIndent())
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error installing TTF font", e)
+            confFile.delete()
+            moduleDir.deleteRecursively()
+            throw FileNotFound()
+        }
+        
+        withContext(Dispatchers.Main) {
+            // Clear addons cache so the new font module is recognized
+            AndBibleAddons.clearCaches()
+            ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
+            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            binding.loadingIndicator.visibility = View.GONE
+            finish()
+        }
+        true
+    }
 
     private suspend fun installEpub(uri: Uri, displayName_: String?): Boolean = withContext(Dispatchers.IO) {
         val displayName = displayName_ ?: UUID.randomUUID().toString()
