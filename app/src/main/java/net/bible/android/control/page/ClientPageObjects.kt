@@ -316,6 +316,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
 data class ClientBookmarkStyle(
     val color: Int,
     val isSpeak: Boolean,
+    val isParagraphBreak: Boolean,
     val underline: Boolean,
     val underlineWholeVerse: Boolean,
     val markerStyle: Boolean,
@@ -344,7 +345,8 @@ data class ClientBookmarkLabel(
             markerStyleWholeVerse = label.markerStyleWholeVerse,
             hideStyle = label.hideStyle,
             hideStyleWholeVerse = label.hideStyleWholeVerse,
-            customIcon = label.customIcon
+            customIcon = label.customIcon,
+            isParagraphBreak = label.isParagraphBreakLabel,
         ),
         !label.isSpecialLabel && !label.new,
     )

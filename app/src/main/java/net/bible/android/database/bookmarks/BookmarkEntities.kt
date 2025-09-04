@@ -47,6 +47,7 @@ import kotlin.math.abs
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
 
 const val SPEAK_LABEL_NAME = "__SPEAK_LABEL__"
+const val PARAGRAH_BREAK_LABEL_NAME = "__PARAGRAPH_BREAK_LABEL__"
 const val UNLABELED_NAME = "__UNLABELED__"
 
 /**
@@ -682,6 +683,7 @@ class BookmarkEntities {
         override fun toString() = name
         val isSpeakLabel get() = name == SPEAK_LABEL_NAME
         val isUnlabeledLabel get() = name == UNLABELED_NAME
-        val isSpecialLabel get() = isSpeakLabel || isUnlabeledLabel
+        val isParagraphBreakLabel get() = name == PARAGRAH_BREAK_LABEL_NAME
+        val isSpecialLabel get() = isSpeakLabel || isUnlabeledLabel || isParagraphBreakLabel
     }
 }

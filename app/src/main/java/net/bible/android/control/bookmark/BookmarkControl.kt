@@ -49,6 +49,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntryTe
 import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntryWithText
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
+import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
@@ -325,6 +326,17 @@ open class BookmarkControl @Inject constructor(
     val labelUnlabelled: Label get() {
         return dao.unlabeledLabelByName()
             ?: Label(name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor).apply {
+                dao.insert(this)
+            }
+    }
+
+    val paragraphBreakLabel: Label get() {
+        return dao.paragraphBreakLabelByName()
+            ?: Label(
+                name = PARAGRAH_BREAK_LABEL_NAME,
+                hideStyle = true,
+                hideStyleWholeVerse = true,
+            ).apply {
                 dao.insert(this)
             }
     }

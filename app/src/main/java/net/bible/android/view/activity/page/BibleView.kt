@@ -446,9 +446,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         selection?: return
         Log.i(TAG, "addParagraphBreakBookmark")
 
-        val initialLabels = workspaceSettings.autoAssignLabels
-        val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
-
         val textRange =
             if (selection.startOffset != null && selection.endOffset != null)
                 BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
@@ -470,20 +467,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 )
             }
         
-        if(primaryLabelId != null) {
-            val label = bookmarkControl.labelById(primaryLabelId)
-            if(label != null) {
-                bookmark.primaryLabelId = primaryLabelId
-            }
-        }
-
-        // Set the edit action to append a paragraph break
-        bookmark.editAction = BookmarkEntities.EditAction(
-            mode = BookmarkEntities.EditActionMode.APPEND,
-            content = "<br/>"
-        )
-
-        bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
+        bookmark.primaryLabelId = bookmarkControl.paragraphBreakLabel.id
+        bookmarkControl.addOrUpdateBookmark(bookmark, setOf(bookmarkControl.paragraphBreakLabel.id))
     }
 
     fun openWebSearch(context: Context, query: String) {
@@ -1295,6 +1280,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // make sure this has been created
         bookmarkControl.labelUnlabelled
         bookmarkControl.speakLabel
+        bookmarkControl.paragraphBreakLabel
 
         bookmarkLabels = bookmarkControl.assignableLabels.toMutableList()
         initialKey = key

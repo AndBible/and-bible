@@ -159,6 +159,7 @@ export function isStudyPadBookmark(item: StudyPadItem): item is BaseStudyPadBook
 export type BookmarkStyle = Readonly<{
     color: number
     isSpeak: boolean
+    isParagraphBreak: boolean
     underline: boolean
     underlineWholeVerse: boolean
     markerStyle: boolean

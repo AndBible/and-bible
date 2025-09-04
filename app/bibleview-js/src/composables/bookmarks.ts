@@ -767,25 +767,35 @@ export function useBookmarks(
         // Handle edit actions (PREPEND, APPEND)
         if (config.showBookmarks) {
             for (const b of bookmarks) {
-                const editAction = b.editAction;
-                if (!(editAction.mode && editAction.content)) {
-                    continue;
-                }
                 const bookmarkRange = combinedRange(b);
-                if (editAction.mode === EditActionMode.PREPEND && arrayEq(bookmarkRange[0], [startOrdinal, startOff])) {
+                if (b.editAction.mode === EditActionMode.PREPEND && arrayEq(bookmarkRange[0], [startOrdinal, startOff])) {
                     // PREPEND: Add content before the bookmark start
                     const editElement = createEditActionElement(b);
                     editElement.addEventListener("click", event => addEventFunction(event,
                         null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
                     firstElement.parentElement!.insertBefore(editElement, firstElement);
                     undoHighlights.push(() => editElement.remove());
-                } else if (editAction.mode === EditActionMode.APPEND && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
+                } else if (b.editAction.mode === EditActionMode.APPEND && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
                     // APPEND: Add content after the bookmark end
                     const editElement = createEditActionElement(b);
                     editElement.addEventListener("click", event => addEventFunction(event,
                         null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
                     lastElement!.parentNode!.insertBefore(editElement, lastElement!.nextSibling);
                     undoHighlights.push(() => editElement.remove());
+                }
+
+                // Handle paragraph breaks by special label
+                const bookmarkLabel = getBookmarkStyleLabel(b);
+                if (bookmarkLabel.isParagraphBreak) {
+                    if (arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
+                        // Add paragraph break after the bookmark end
+                        const paragraphBreakElement = document.createElement("span");
+                        paragraphBreakElement.className = "paragraphBreak skip-offset";
+                        paragraphBreakElement.addEventListener("click", event => addEventFunction(event,
+                            null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                        lastElement!.parentNode!.insertBefore(paragraphBreakElement, lastElement!.nextSibling);
+                        undoHighlights.push(() => paragraphBreakElement.remove());
+                    }
                 }
             }
         }
