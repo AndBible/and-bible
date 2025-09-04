@@ -41,6 +41,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.CommonUtils
@@ -370,7 +371,8 @@ class InstallZip : ActivityBase() {
             val mySword = getString(R.string.format_mysword)
             val epub = getString(R.string.format_epub)
             val studyPads = getString(R.string.format_studypads)
-            val formats = getString(R.string.choose_file, getString(R.string.app_name_andbible)) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword, $epub, $studyPads")
+            val ttf = getString(R.string.format_ttf)
+            val formats = getString(R.string.choose_file, getString(R.string.app_name_andbible)) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword, $epub, $ttf, $studyPads")
 
             AlertDialog.Builder(this@InstallZip)
                 .setTitle(R.string.install_zip)
@@ -596,11 +598,13 @@ class InstallZip : ActivityBase() {
             }
             throw FileNotFound()
         }
-        
+
+        addManuallyInstalledTtfBooks()
+
         withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.GONE
             ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
-            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            AndBibleAddons.clearCaches()
             setResult(RESULT_OK)
             finish()
         }

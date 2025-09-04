@@ -29,9 +29,6 @@ import java.io.File
 
 const val TAG = "TtfBook"
 
-/**
- * Driver for TTF font addon modules
- */
 class TtfSwordDriver: AbstractBookDriver() {
     override fun getBooks(): Array<Book> {
         return emptyArray()
@@ -51,7 +48,6 @@ class TtfSwordDriver: AbstractBookDriver() {
     }
 }
 
-val Book.isManuallyInstalledTtfBook get() = bookMetaData.getProperty("AndBibleProvidesFont") != null
 val Book.ttfFile: File get() {
     val providesFont = bookMetaData.getProperty("AndBibleProvidesFont") ?: ""
     val fileName = providesFont.split(";").getOrNull(1) ?: ""
