@@ -695,7 +695,9 @@ class ManageLabels : ListActivityBase() {
                     filterRegex.containsMatchIn(label.displayName) ||
                     data.selectedLabels.contains(label.id)
 
-            shownLabels.addAll(allLabels.filter { labelMatches(it) })
+            val matchingLabels = allLabels.filter { labelMatches(it) }
+            shownLabels.addAll(matchingLabels)
+            
             val labelUnlabeledNotModified = data.changedLabels.find { it == bookmarkControl.labelUnlabelled.id } != null
             if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled) && !labelUnlabeledNotModified) {
                 shownLabels.add(bookmarkControl.labelUnlabelled)
@@ -706,18 +708,40 @@ class ManageLabels : ListActivityBase() {
             if(!data.hideCategories) {
                 shownLabels.add(LabelCategory.RECENT)
                 shownLabels.add(LabelCategory.OTHER)
+                
+                // Add recent labels again so they also appear in the "Other" category
+                // This ensures recent labels are found in both Recent and Other categories
+                val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels
+                    .map { it.labelId }
+                val recentLabelsToAddToOther = matchingLabels.filter { recentLabelIds.contains(it.id) }
+                shownLabels.addAll(recentLabelsToAddToOther)
             }
         }
 
         val recentLabelIds = bookmarkControl.windowControl.windowRepository.workspaceSettings.recentLabels
             .map { it.labelId }
         if(rePopulate || reOrder) {
+            // Track which recent labels we've already seen to distinguish duplicates
+            val seenRecentLabels = mutableSetOf<IdType>()
+            
             shownLabels.sortWith(compareBy({
                 val inActiveCategory = data.showActiveCategory &&
                     (it == LabelCategory.ACTIVE ||
                         (it is BookmarkEntities.Label && data.contextSelectedItems.contains(it.id)))
-                val inRecentCategory = !data.hideCategories &&
-                    (it == LabelCategory.RECENT || (it is BookmarkEntities.Label && recentLabelIds.contains(it.id)))
+                        
+                // For recent labels, the first occurrence goes to Recent, subsequent ones go to Other
+                val isRecentLabel = it is BookmarkEntities.Label && recentLabelIds.contains(it.id)
+                val inRecentCategory = if (isRecentLabel) {
+                    val labelId = (it as BookmarkEntities.Label).id
+                    val isFirstOccurrence = !seenRecentLabels.contains(labelId)
+                    if (isFirstOccurrence) {
+                        seenRecentLabels.add(labelId)
+                    }
+                    !data.hideCategories && isFirstOccurrence
+                } else {
+                    !data.hideCategories && it == LabelCategory.RECENT
+                }
+                
                 when {
                     inActiveCategory -> 1
                     inRecentCategory -> 2
