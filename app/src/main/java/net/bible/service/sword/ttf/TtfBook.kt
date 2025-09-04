@@ -19,13 +19,44 @@ package net.bible.service.sword.ttf
 
 import android.util.Log
 import net.bible.android.SharedConstants
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.basic.AbstractBookDriver
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.io.File
 
 const val TAG = "TtfBook"
+
+/**
+ * Driver for TTF font addon modules
+ */
+class TtfSwordDriver: AbstractBookDriver() {
+    override fun getBooks(): Array<Book> {
+        return emptyArray()
+    }
+
+    override fun getDriverName(): String {
+        return "TtfSwordDriver"
+    }
+
+    override fun isDeletable(book: Book): Boolean {
+        return book.ttfFile.canWrite()
+    }
+
+    override fun delete(book: Book) {
+        book.ttfFile.delete()
+        Books.installed().removeBook(book)
+    }
+}
+
+val Book.isManuallyInstalledTtfBook get() = bookMetaData.getProperty("AndBibleProvidesFont") != null
+val Book.ttfFile: File get() {
+    val providesFont = bookMetaData.getProperty("AndBibleProvidesFont") ?: ""
+    val fileName = providesFont.split(";").getOrNull(1) ?: ""
+    return File(File(SharedConstants.modulesDir, "ttf"), fileName)
+}
 
 fun addTtfBook(file: File) {
     if (!(file.canRead() && file.isFile && file.extension.lowercase() == "ttf")) return
@@ -50,6 +81,7 @@ AndBibleMinimumVersion=892
 
     val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
     metadata.location = file.parentFile.toURI()
+    metadata.driver = TtfSwordDriver()
     val backend = NullBackend()
     val book = SwordBook(metadata, backend)
     Books.installed().addBook(book)
