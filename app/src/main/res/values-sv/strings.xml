@@ -370,6 +370,7 @@ i GT och NT varje dag.
   <string name="add_bookmark_whole_verse">Bokmärk vers</string>
   <string name="add_bookmark_whole_verse1">Verser</string>
   <string name="add_bookmark_whole_verse2">Fullständiga verser</string>
+  <string name="add_paragraph_break">Styckebrytning</string>
   <string name="remove_bookmark">Radera</string>
   <string name="bookmark_settings_hide_labels_title">Dölj valda etiketter</string>
   <string name="bookmark_settings_hide_labels_summary">Dölj bokmärken som är märkta med de etiketter som du väljer</string>
@@ -615,7 +616,7 @@ i GT och NT varje dag.
   <string name="report_bug_line_3">Vänligen använd denna funktion för att rapportera så snart du upptäcker ett problem.</string>
   <string name="report_bug_line_4">Du kan också använda denna funktion efter att du öppnat appen, efter en krash har skett.
 </string>
-  <string name="report_bug_heading_3">Bilaga:</string>
+  <string name="report_bug_heading_3">Bilagor:</string>
   <string name="bug_report_logcat">Loggfiler som skapas med denna app innehåller ingen information om någon annan app.</string>
   <string name="bug_report_screenshot">Skärmdump av appen när den krashade, eller när buggrapporteringen skapades.</string>
   <string name="bug_report_attachment_line_1">Att infoga dessa filer hjälper apputvecklarna mycket i att fixa de rapporterade buggarna.</string>
@@ -810,6 +811,8 @@ i GT och NT varje dag.
   <string name="unlock_info">Krypterad modul upplåsningsinformation</string>
   <string name="try_again_passphrase">Lösenordsfras funderade inte, försök igen?</string>
   <string name="show_unlock_info">Modul &amp; upplåsningsinfo</string>
+  <string name="prefs_experimental_features_title">Experimentella funktioner</string>
+  <string name="prefs_experimental_features_summary">Aktivera experimentella funktioner som fortfarande utvecklas och kan ändras eller tas bort</string>
   <string name="prefs_show_error_box_title">Visa Javascript error box</string>
   <string name="prefs_show_error_box_summary">Användbart för utvecklare vid felsökning av javascript-fel i BibleView. Detta gör appen långsammare.</string>
   <string name="active_window_indicator_title">Visa aktiv fönsterindekator</string>
@@ -817,6 +820,9 @@ i GT och NT varje dag.
   <string name="app_licence_title">Licens för öppen källkod</string>
   <string name="how_to_contribute">Hur bidrar jag?</string>
   <string name="confirm_delete_bookmarks">Vill du ta bort %d bokmärken och deras anteckningar?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Den valda etiketten är tilldelad till %d bokmärken som inte har andra etiketter. Vill du radera dessa bokmärken och denna etikett?</string>
+  <string name="delete_label_and_bookmarks">Radera etikett och bokmärken</string>
+  <string name="delete_label_only">Radera bara etikett</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekommendera till en vän</string>
   <string name="tell_friend_message1">Jag skulle vilja rekommendera %s till dig.</string>
@@ -841,6 +847,7 @@ i GT och NT varje dag.
   <string name="show_version_name">Visa versionsnamn</string>
   <string name="show_ellipsis">Visa tre punkter (…)</string>
   <string name="show_quotes">Visa citattecken</string>
+  <string name="separate_verses_with_newlines">Separera verser med radbrytningar</string>
   <string name="backup_button">Säkerhetskopiera</string>
   <string name="back_button">Bak</string>
   <string name="upgrading_database">Upgraderar databas. Var god vänta...</string>

@@ -360,6 +360,7 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="add_bookmark_whole_verse">Signet de verset</string>
   <string name="add_bookmark_whole_verse1">Versets</string>
   <string name="add_bookmark_whole_verse2">Tous les versets</string>
+  <string name="add_paragraph_break">Retour à la ligne</string>
   <string name="remove_bookmark">Supprimer</string>
   <string name="bookmark_settings_hide_labels_title">Masquer les étiquettes spécifiées</string>
   <string name="bookmark_settings_hide_labels_summary">Cacher les signets qui sont marqués avec une ou plusieurs étiquettes spécifiées</string>
@@ -776,6 +777,8 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="unlock_info">Infos de déverrouillage du module crypté</string>
   <string name="try_again_passphrase">La phrase de passe n’a pas fonctionné, essayez à nouveau ?</string>
   <string name="show_unlock_info">Module et info de déverrouillage</string>
+  <string name="prefs_experimental_features_title">Fonctionnalités expérimentales</string>
+  <string name="prefs_experimental_features_summary">Activer les fonctionnalités expérimentales qui sont toujours en développement et peut encore être modifier ou supprimer.</string>
   <string name="prefs_show_error_box_title">Afficher la boîte d’erreur Javascript</string>
   <string name="prefs_show_error_box_summary">Utile pour les développeurs lors du débogage des erreurs javascript de BibleView. Cela rendra l’application plus lente.</string>
   <string name="active_window_indicator_title">Afficher l’indicateur de la fenêtre active</string>
@@ -783,6 +786,9 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="app_licence_title">Licence à code source ouvert</string>
   <string name="how_to_contribute">Comment contribuer ?</string>
   <string name="confirm_delete_bookmarks">Voulez-vous supprimer les signets %d et leurs notes ?</string>
+  <string name="confirm_delete_orphaned_bookmarks">L’étiquette sélectionnée est attachée au signet %d qui n’a pas d’autre étiquette. Voulez-vous supprimer ces signets avec ces étiquettes ?</string>
+  <string name="delete_label_and_bookmarks">Effacer les étiquettes et les signets</string>
+  <string name="delete_label_only">Supprimer l’étiquette uniquement</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recommander à un ami</string>
   <string name="tell_friend_message1">Je voudrais vous recommander %s.</string>
@@ -807,6 +813,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="show_version_name">Inclure le nom de version</string>
   <string name="show_ellipsis">Afficher les ellipses (...)</string>
   <string name="show_quotes">Montrer les citations</string>
+  <string name="separate_verses_with_newlines">Séparer les versets par des sauts de ligne</string>
   <string name="backup_button">Sauvegarde</string>
   <string name="back_button">Retour</string>
   <string name="upgrading_database">Mise à jour de la base de données. Veuillez patienter...</string>

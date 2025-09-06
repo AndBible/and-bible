@@ -66,27 +66,27 @@ verseMemorizeLong: Memorera bibelverser
 verseNoteLong: Skriv en anteckning
 addBookmark: Bokmärke
 selectCustomIconTitle: Välj en anpassad ikon
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
+bookmarkSettingsTitle: Konfigurera bokmärkesinställningar
+subtitlePlaceholder: Text för underrubrik
+customIconLabel: Anpassad ikon
+editActionLabel: Redigera åtgärd
+editActionModeLabel: Läge
+editActionModeNone: Ingen
+editActionModeAppend: Infoga text efter
+editActionModePrepend: Infoga text före
+editActionContentLabel: Innehåll
+editActionContentPlaceholder: Ange text som ska läggas till i dokument...
 experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpTitle: Om experimentella funktioner
 experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
+insertParagraphBreak: Infoga styckebrytning
+insertSubtitle: Infoga underrubrik
 xmlParseError: ""
 invalidTag: ""
 invalidClosingTag: ""
 unmatchedClosingTag: ""
 unclosedTag: ""
-unknownError: ""
+unknownError: Okänt fel
 blur: Sudda ut
 reset: Återställ
 peek: Kika
