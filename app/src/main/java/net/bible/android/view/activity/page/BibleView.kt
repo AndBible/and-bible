@@ -583,7 +583,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 menu.findItem(R.id.compare).isVisible = false
                 menu.findItem(R.id.share_verses).isVisible = false
             }
-            
+            if (!CommonUtils.settings.addParagraphBreakEnabled) {
+                menu.findItem(R.id.add_paragraph_break).isVisible = false
+            }
+
             val ref = currentSelectionRef
             if(ref != null) {
                 val item = menu.findItem(R.id.open_ref)
@@ -1379,7 +1382,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         )
         val monochromeMode = CommonUtils.settings.monochromeMode
         val disableAnimations = CommonUtils.settings.disableAnimations
-        val enableExperimentalFeatures = CommonUtils.settings.getBoolean("enable_experimental_features", false)
+        val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
@@ -1399,7 +1402,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         monochromeMode: $monochromeMode,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
-                        enableExperimentalFeatures: $enableExperimentalFeatures,
+                        enabledExperimentalFeatures: $enabledExperimentalFeatures,
                     }, 
                     initial: $initial,
                     });

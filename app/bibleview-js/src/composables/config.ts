@@ -114,7 +114,7 @@ export type AppSettings = {
     monochromeMode: boolean,
     disableAnimations: boolean,
     fontSizeMultiplier: number,
-    enableExperimentalFeatures: boolean,
+    enabledExperimentalFeatures: Feature[],
 }
 
 export type CalculatedConfig = Ref<{
@@ -198,7 +198,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         monochromeMode: false,
         disableAnimations: false,
         fontSizeMultiplier: 1.0,
-        enableExperimentalFeatures: false,
+        enabledExperimentalFeatures: [],
     });
 
     function calcMmInPx() {
@@ -346,4 +346,10 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         })
 
     return {config, appSettings, calculatedConfig};
+}
+
+type Feature = "add_paragraph_break" | "bookmark_edit_actions"
+
+export function isExperimentalFeatureEnabled(appSettings: AppSettings, feature: Feature): boolean {
+    return appSettings.enabledExperimentalFeatures.includes(feature);
 }
