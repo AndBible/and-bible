@@ -276,7 +276,36 @@
             android:name="net.bible.android.view.activity.installzip.InstallZip"
             android:label="@string/install_zip_module"
             android:screenOrientation="portrait"
-            />
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="application/x-font-ttf" />
+                <data android:mimeType="font/ttf" />
+                <data android:mimeType="font/otf" />
+                <data android:mimeType="application/x-font-otf" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" android:pathPattern=".*\\.ttf" />
+                <data android:scheme="file" android:pathPattern=".*\\.TTF" />
+                <data android:scheme="file" android:pathPattern=".*\\.otf" />
+                <data android:scheme="file" android:pathPattern=".*\\.OTF" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" android:pathPattern=".*\\.ttf" />
+                <data android:scheme="content" android:pathPattern=".*\\.TTF" />
+                <data android:scheme="content" android:pathPattern=".*\\.otf" />
+                <data android:scheme="content" android:pathPattern=".*\\.OTF" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="net.bible.android.view.activity.discrete.CalculatorActivity"
             android:label="@string/app_name_calculator"
