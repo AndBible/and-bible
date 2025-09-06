@@ -146,6 +146,7 @@ import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {Deferred} from "@/utils";
 import {useCommon} from "@/composables";
+import {isExperimentalFeatureEnabled} from "@/composables/config";
 import TabContainer from "@/components/tabs/TabContainer.vue";
 import {
     faArrowDown,
@@ -193,8 +194,8 @@ const tabsConfig = computed<Tab[]>(() => {
         }
     ];
     
-    // Only show edit action tab if experimental features are enabled
-    if (appSettings.enableExperimentalFeatures) {
+    // Only show edit action tab if bookmark edit actions experimental feature is enabled
+    if (isExperimentalFeatureEnabled(appSettings, 'bookmark_edit_actions')) {
         tabs.push({ 
             id: 'editAction', 
             label: strings.editActionLabel, 
@@ -301,7 +302,7 @@ async function askBookmarkSettings(currentIcon: null | string, currentEditAction
     if (currentIcon !== null) {
         activeTab.value = 'icons';
     }
-    else if (currentEditAction.mode !== null && appSettings.enableExperimentalFeatures) {
+    else if (currentEditAction.mode !== null && isExperimentalFeatureEnabled(appSettings, 'bookmark_edit_actions')) {
         activeTab.value = 'editAction';
     } else {
         activeTab.value = 'icons'; // Default to icons tab if nothing is set or experimental features disabled
@@ -309,7 +310,7 @@ async function askBookmarkSettings(currentIcon: null | string, currentEditAction
     selectedIcon.value = currentIcon ?? null;
     
     // Reset edit action to null if experimental features are disabled
-    if (!appSettings.enableExperimentalFeatures) {
+    if (!isExperimentalFeatureEnabled(appSettings, 'bookmark_edit_actions')) {
         selectedEditAction.mode = null;
         selectedEditAction.content = null;
     } else {

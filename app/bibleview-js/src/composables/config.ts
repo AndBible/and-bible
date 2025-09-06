@@ -114,7 +114,7 @@ export type AppSettings = {
     monochromeMode: boolean,
     disableAnimations: boolean,
     fontSizeMultiplier: number,
-    enableExperimentalFeatures: boolean,
+    enabledExperimentalFeatures: string[],
 }
 
 export type CalculatedConfig = Ref<{
@@ -198,7 +198,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         monochromeMode: false,
         disableAnimations: false,
         fontSizeMultiplier: 1.0,
-        enableExperimentalFeatures: false,
+        enabledExperimentalFeatures: [],
     });
 
     function calcMmInPx() {
@@ -346,4 +346,9 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         })
 
     return {config, appSettings, calculatedConfig};
+}
+
+// Helper function to check if a specific experimental feature is enabled
+export function isExperimentalFeatureEnabled(appSettings: AppSettings, feature: string): boolean {
+    return appSettings.enabledExperimentalFeatures.includes(feature);
 }

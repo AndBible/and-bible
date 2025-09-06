@@ -585,8 +585,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             
             // Hide experimental features if not enabled
-            val experimentalFeaturesEnabled = CommonUtils.settings.getBoolean("enable_experimental_features", false)
-            if (!experimentalFeaturesEnabled) {
+            if (!CommonUtils.settings.addParagraphBreakEnabled) {
                 menu.findItem(R.id.add_paragraph_break).isVisible = false
             }
             val ref = currentSelectionRef
@@ -1384,7 +1383,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         )
         val monochromeMode = CommonUtils.settings.monochromeMode
         val disableAnimations = CommonUtils.settings.disableAnimations
-        val enableExperimentalFeatures = CommonUtils.settings.getBoolean("enable_experimental_features", false)
+        val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()}, 
@@ -1404,7 +1403,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         monochromeMode: $monochromeMode,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
-                        enableExperimentalFeatures: $enableExperimentalFeatures,
+                        enabledExperimentalFeatures: $enabledExperimentalFeatures,
                     }, 
                     initial: $initial,
                     });

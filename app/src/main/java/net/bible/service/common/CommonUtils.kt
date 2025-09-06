@@ -438,6 +438,12 @@ object CommonUtils : CommonUtilsBase() {
         val fontSizeMultiplier: Int get() = getInt("font_size_multiplier", 100)
         val fontSizeMultiplierFloat: Float get() = getInt("font_size_multiplier", 100) / 100F
         val bibleViewSwipeMode: BibleViewSwipeMode get() = BibleViewSwipeMode.valueOf(getString("bible_view_swipe_mode", "CHAPTER")!!)
+        
+        // Experimental features - all default to disabled
+        val enabledExperimentalFeatures: Set<String> get() = getStringSet("experimental_features", emptySet())
+        fun isExperimentalFeatureEnabled(feature: String): Boolean = enabledExperimentalFeatures.contains(feature)
+        val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
+        val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break"))
     }
 
     private var _settings: AndBibleSettings? = null
