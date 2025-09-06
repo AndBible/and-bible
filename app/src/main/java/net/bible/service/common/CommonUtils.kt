@@ -443,7 +443,7 @@ object CommonUtils : CommonUtilsBase() {
         val enabledExperimentalFeatures: Set<String> get() = getStringSet("experimental_features", emptySet())
         fun isExperimentalFeatureEnabled(feature: String): Boolean = enabledExperimentalFeatures.contains(feature)
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
-        val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break"))
+        val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
     }
 
     private var _settings: AndBibleSettings? = null
