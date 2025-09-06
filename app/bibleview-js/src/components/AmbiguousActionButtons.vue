@@ -90,9 +90,9 @@ const visibleButtonCount = ref(4);
 const modalButtons = computed<ModalButtonId[]>(() => {
     let allButtons: ModalButtonId[]
     if(verseInfo.value) {
-         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "ADD_PARAGRAPH_BREAK"];
     } else {
-         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK"];
     }
     let disabledButtons: ModalButtonId[];
     if(verseInfo.value) {
@@ -196,6 +196,9 @@ function handleButtonClick(buttonId: ModalButtonId) {
         case 'SPEAK':
             speak();
             break;
+        case 'ADD_PARAGRAPH_BREAK':
+            addParagraphBreak();
+            break;
     }
 }
 
@@ -248,6 +251,15 @@ function speak() {
         android.speakGeneric(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value);
     }
     closeModals()
+}
+
+function addParagraphBreak() {
+    if(verseInfo.value) {
+        android.addParagraphBreakBookmark(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
+    } else if(ordinalInfo.value) {
+        android.addGenericParagraphBreakBookmark(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value);
+    }
+    emit("close");
 }
 
 setupKeyboardListener((e: KeyboardEvent) => {
