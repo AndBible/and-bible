@@ -114,7 +114,7 @@ export type AppSettings = {
     monochromeMode: boolean,
     disableAnimations: boolean,
     fontSizeMultiplier: number,
-    enabledExperimentalFeatures: string[],
+    enabledExperimentalFeatures: Feature[],
 }
 
 export type CalculatedConfig = Ref<{
@@ -348,7 +348,8 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
     return {config, appSettings, calculatedConfig};
 }
 
-// Helper function to check if a specific experimental feature is enabled
-export function isExperimentalFeatureEnabled(appSettings: AppSettings, feature: string): boolean {
+type Feature = "add_paragraph_break" | "bookmark_edit_actions"
+
+export function isExperimentalFeatureEnabled(appSettings: AppSettings, feature: Feature): boolean {
     return appSettings.enabledExperimentalFeatures.includes(feature);
 }

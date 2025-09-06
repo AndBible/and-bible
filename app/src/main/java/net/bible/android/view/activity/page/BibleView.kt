@@ -583,6 +583,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 menu.findItem(R.id.compare).isVisible = false
                 menu.findItem(R.id.share_verses).isVisible = false
             }
+            if (!CommonUtils.settings.enabledExperimentalFeatures.contains("add_paragraph_break")) {
+                menu.findItem(R.id.add_paragraph_break).isVisible = false
+            }
 
             val ref = currentSelectionRef
             if(ref != null) {

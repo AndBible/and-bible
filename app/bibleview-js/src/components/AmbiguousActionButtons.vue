@@ -53,7 +53,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {androidKey, keyboardKey, locateTopKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
-import {ModalButtonId} from "@/composables/config";
+import {isExperimentalFeatureEnabled, ModalButtonId} from "@/composables/config";
 import {faEllipsisV} from "@fortawesome/free-solid-svg-icons";
 import ActionButton from "@/components/ActionButton.vue";
 
@@ -93,6 +93,9 @@ const modalButtons = computed<ModalButtonId[]>(() => {
          allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "ADD_PARAGRAPH_BREAK"];
     } else {
          allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK"];
+    }
+    if (!isExperimentalFeatureEnabled(appSettings, "add_paragraph_break")) {
+        allButtons = allButtons.filter(b => b !== "ADD_PARAGRAPH_BREAK");
     }
     let disabledButtons: ModalButtonId[];
     if(verseInfo.value) {
