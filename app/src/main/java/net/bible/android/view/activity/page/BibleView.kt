@@ -584,11 +584,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 menu.findItem(R.id.share_verses).isVisible = false
             }
             
-            // Hide experimental features if not enabled
-            val experimentalFeaturesEnabled = CommonUtils.settings.getBoolean("enable_experimental_features", false)
-            if (!experimentalFeaturesEnabled) {
-                menu.findItem(R.id.add_paragraph_break).isVisible = false
-            }
             val ref = currentSelectionRef
             if(ref != null) {
                 val item = menu.findItem(R.id.open_ref)
