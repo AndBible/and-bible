@@ -483,7 +483,6 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         val cmds = SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Exod.19.3"))
         assertThat((cmds[0] as TextCommand).text, containsString("ja Jahve huusi"))
     }
-
 }
 
 @RunWith(RobolectricTestRunner::class)
