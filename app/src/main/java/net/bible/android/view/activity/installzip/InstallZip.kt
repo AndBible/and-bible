@@ -327,10 +327,10 @@ class InstallZip : ActivityBase() {
                         manifest?.backupType == BackupType.STUDYPAD_EXPORT
                         || askIfWantInstall(displayName)
                     ) {
-                        if(mimeType == "application/epub+zip") {
-                            installEpub(uri, displayName)
-                        } else {
-                            installZip(uri, displayName)
+                        when (mimeType) {
+                            "application/epub+zip" -> installEpub(uri, displayName)
+                            "font/ttf", "application/x-font-ttf" -> installTtf(uri, displayName)
+                            else -> installZip(uri, displayName)
                         }
                     } else {
                         finish()
