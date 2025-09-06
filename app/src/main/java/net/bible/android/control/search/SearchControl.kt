@@ -23,13 +23,16 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
+import net.bible.android.view.activity.search.EpubSearch
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResultsDto
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.epub.isEpub
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
@@ -60,12 +63,17 @@ class SearchControl @Inject constructor(
      *
      * @return required Intent
      */
-    fun getSearchIntent(document: Book?, activity: Activity): Intent {
+    fun getSearchIntent(document: Book?, activity: Activity): Intent? {
         val indexStatus = document?.indexStatus
         Log.i(TAG, "Index status:$indexStatus")
         return if (indexStatus == IndexStatus.DONE) {
             Log.i(TAG, "Index status is DONE")
-            Intent(activity, Search::class.java)
+            if(document.isEpub) {
+                Intent(activity, EpubSearch::class.java)
+            } else
+                Intent(activity, Search::class.java)
+        } else if (document?.bookCategory == BookCategory.GENERAL_BOOK) {
+            return null
         } else {
             Log.i(TAG, "Index status is NOT DONE")
             Intent(activity, SearchIndex::class.java)
@@ -211,7 +219,7 @@ class SearchControl @Inject constructor(
         const val TARGET_DOCUMENT = "TargetDocument"
         private const val STRONG_COLON_STRING = LuceneIndex.FIELD_STRONG + ":"
         private const val STRONG_COLON_STRING_PLACE_HOLDER = LuceneIndex.FIELD_STRONG + "COLON"
-        const val MAX_SEARCH_RESULTS = 1000
+        const val MAX_SEARCH_RESULTS = 5000
         private const val TAG = "SearchControl"
     }
 }

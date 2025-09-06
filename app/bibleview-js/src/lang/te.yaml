@@ -1,6 +1,6 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: బుక్ మార్క్‌స్
-bookmarksAndNotes: ""
+bookmarksAndNotes: బుక్‌మార్క్‌లు & నా నోట్స్
 openMyNotes: నా నోట్స్‌లో తెరవండి
 openStudyPad: స్టడీ ప్యాడ్‌లో తెరవండి (%s)
 noteText: ఫుట్ నోట్స్ (%s)
@@ -57,9 +57,39 @@ openDownloads: యాడ్-ఆన్ డౌన్‌లోడ్‌లకు �
 verseShare: షేర్ చేయండి
 verseSpeak: మాట్లాడు
 verseCompare: సరిపోల్చండి
+verseMemorize: ""
 verseNote: నోట్
 verseMyNotes: నా నోట్స్
 verseShareLong: ఈ వచనం షేర్ చేయండి
 verseCompareLong: వచనం సరిపోల్చండి
+verseMemorizeLong: ""
 verseNoteLong: ఒక నోట్ వ్రాయండి
 addBookmark: బుక్మార్క్
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: రీసెట్
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: మరిన్ని

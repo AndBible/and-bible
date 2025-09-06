@@ -12,7 +12,6 @@
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Pasáž</string>
   <string name="search">Hledat</string>
-  <string name="search_in_andbible">Hledat v Bibli</string>
   <string name="settings">Nastavení aplikace</string>
   <string name="history">Historie</string>
   <string name="speak">Předčítání</string>
@@ -41,6 +40,7 @@
   <string name="search_in">Hledat v %s</string>
   <string name="do_in_background">Pokračovat na pozadí</string>
   <string name="rebuild_index_button">Znovu vytvořit</string>
+  <string name="creating_index_for">Vytváří se index pro %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">Výsledkem %1s je %2s</string>
   <!--Tasks-->
@@ -52,6 +52,7 @@
   <string name="search_all_words">Všechna slova</string>
   <string name="search_any_word">Jakékoli slovo</string>
   <string name="search_phrase">Fráze</string>
+  <string name="search_fts_query">Surová syntaxe dotazu</string>
   <string name="search_result_count">Nalezeno %d záznamů</string>
   <string name="search_showing_first">Příliš mnoho záznamů. Zobrazuji prvných %d</string>
   <string name="search_bible_section_group_prompt">Hledat kde</string>
@@ -475,7 +476,6 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="window_text_options_help1">Ikona %s značí, že se nastavení přebírá z pracovní plochy.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">Ikona %s značí, že nastavení pro toto okno bylo změněno.</string>
-  <string name="window_text_options_help3">Nastavení pracovní plochy neovlivní toto okno.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Pomocí tlačítka %1$s vrátíte nastavení zpět na %2$s.</string>
   <string name="reset_defaults">výchozí hodnoty</string>
@@ -537,6 +537,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <!--User Notes-->
   <string name="mynotes">Poznámky</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Umístění zálohy</string>
+  <string name="backup_backup_message">Zálohovat do telefonu nebo pomocí sdílení (e-mail, Google Drive apod.)?</string>
+  <string name="backup_phone_storage">Úložiště telefonu</string>
   <string name="backup_and_restore">Záloha a obnova</string>
   <string name="backup_modules2">Zálohovat dokumenty do ...</string>
   <string name="backup_app_database2">Zálohovat aplikační databázi do ...</string>
@@ -549,6 +552,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="backup_document_info">Bible, komentáře, slovníky, mapy atd.</string>
   <string name="backup_to">Zálohovat do...</string>
   <string name="backup_restore_from">Obnovit z...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Obnovit</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Které položky chcete obnovit?</string>
@@ -570,6 +574,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="send_backup_file">Odeslat soubor zálohy</string>
   <string name="backup_modules_title">Vyberte, které moduly zálohovat</string>
   <string name="install_zip_canceled">Instalace modulu zrušena</string>
+  <string name="restore">Obnovit</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Autorská práva: %s</string>
   <string name="module_about_installed_version">nstalovaná verze: %1$s (%2$s)</string>
@@ -705,9 +711,14 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
        Kromě záložek je možné do studijní složky zapisovat vlastní text.
 </string>
   <string name="help_search_title">Hledat</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
         (pro více informací viz \"Apache Lucene - Query Parser Syntax\")
 </string>
+  <string name="help_search_text2">Vyhledávací dotaz může obsahovat speciální znaky a slova jako *, ?, ~, AND, OR, NOT</string>
+  <string name="help_search_details">Pro více detailů viz. %s .</string>
+  <string name="help_apache_lucene">Apache Lucene - formát vyhledávacího dotazu</string>
+  <string name="help_fts5">FTS5 Syntaxe fulltextového dotazu</string>
   <string name="help_workspaces_title">Pracovní plochy</string>
   <string name="help_workspaces_text">
        Pracovní plochy umožňují používat více pracovních prostředí podle kontextu. Do funkcí pracovní plochy
@@ -895,6 +906,14 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="import_items">Importovat %s</string>
   <string name="import_from_db">Importovat databázový soubor</string>
   <string name="import_error">Import databázového souboru se nezdařil. Soubor může mít špatný formát nebo je vytvořen velmi starou verzí %s.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Dokument</string>
+  <string name="book">Kniha</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Rozsah</string>
   <string name="chooser_jump">Přejít</string>
   <string name="chooser_OT_abbrev">SZ</string>
@@ -914,6 +933,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="strongs_off">Vypnuto</string>
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Text a odkazy</string>
+  <string name="strongs_hidden_links">Skryté odkazy</string>
   <string name="verse_tip">Pasáž textu označíte přidržením textu na delší dobu.</string>
   <string name="permission_required">Je potřeba oprávnění</string>
   <string name="labels_search_hint">Hledat</string>
@@ -1033,6 +1053,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="error_notification_channel_name">Upozornění na chybu</string>
   <string name="restore_from_cloud_description">Jesliže máte zapnutou synchronizaci v jiném zařízení, můžete začít obnovou databáze ze sítě.</string>
   <string name="enable_sync">Povolit synchronizaci</string>
+  <string name="last_updated">Aktualizováno: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Soubor nelze číst</string>
   <string name="sqlite_invalid_file">Neplatný modul nebo jméno souboru: %s</string>
@@ -1067,4 +1088,5 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="dont_show">
         Tuto zprávu již nezobrazovat
     </string>
+  <string name="prefs_swipe_mode_chapter">Kapitola</string>
 </resources>

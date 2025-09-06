@@ -1,0 +1,23 @@
+<!--
+  ~ Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<vector android:height="24dp"
+    android:viewportHeight="1000" android:viewportWidth="1000 "
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+  <path android:fillColor="@android:color/darker_gray"
+      android:pathData="M 132 0 V 610 H 474 C 511 610 540 580 540 544 V 66 C 540 29 510 0 474 0 Z M 318 122 H 358 C 369 122 378 131 378 142 V 192 H 429 C 440 192 449 201 449 212 V 252 C 449 263 439 277 429 272 H 378 V 409 C 378 420 369 429 358 429 H 318 C 307 429 299 420 298 409 V 272 H 248 C 237 272 228 263 228 252 V 212 C 228 201 237 192 248 192 H 298 V 142 C 298 131 329 124 318 122 Z M 0 66 V 543 C 0 580 30 609 66 609 H 90 V 0 H 66 C 29 0 0 30 0 66 Z M 765 374 C 735 374 711 398 711 428 V 817 L 622 728 C 612 718 598 712 584 712 C 570 712 556 718 546 728 C 525 749 525 783 546 804 L 727 985 C 748 1006 782 1006 803 985 L 984 804 C 1005 783 1005 749 984 728 C 963 707 929 707 908 728 L 819 817 V 428 C 819 398 795 374 765 374 Z"/>
+</vector>

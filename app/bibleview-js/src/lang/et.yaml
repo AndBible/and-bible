@@ -10,11 +10,11 @@ findAllOccurrences: Leia kõik esinemised
 reportError: Teata veast
 errorTitle: Tekkis viga
 warningTitle: Hoiatus
-normalTitle: ""
-footnoteTypeStudy: ""
+normalTitle: Pane tähele
+footnoteTypeStudy: Õppetükk
 footnoteTypeExplanation: Selgitus
-footnoteTypeVariant: ""
-footnoteTypeAlternative: ""
+footnoteTypeVariant: Variant
+footnoteTypeAlternative: Alternatiiv
 footnoteTypeTranslation: Tõlge
 clearLog: Puhasta vealogi
 editTextPlaceholder: Puuduta teksti lisamiseks
@@ -22,8 +22,8 @@ inputPlaceholder: Kirjuta siia
 inputReference: Sisesta Piibli kirjakoht
 invalidReference: Salmi ei leitud
 bookmarkAccurate: "%s järjehoidja"
-bookmarkInaccurate: ""
-defaultBook: ""
+bookmarkInaccurate: "Järjehoidja raamatut  ei ole, sisu näidatakse %s."
+defaultBook: vaikimisi Piibli dokument
 ok: OK
 yes: "Jah"
 ambiguousSelection: "Millist tegevust soovid teha?"
@@ -33,7 +33,7 @@ removeBookmarkConfirmation: "Kas oled kindel, et soovid seda järjehoidjat kustu
 createdAt: "Loodud: %s"
 lastUpdatedOn: "Viimati uuendatud: %s"
 strongsAndMorph: Definisioon ja morfoloogia
-externalLink: ""
+externalLink: Ava väline link
 referenceLink: Ava viide
 openFootnote: Ava allmärkus
 noMyNotesTitle: Selle peatüki kohta märkmeid pole
@@ -47,19 +47,49 @@ dragHelp: Lohista järjekorra muutmiseks
 openAll: Ava kõik viited
 editBookmarkPlaceholder: Puuduta minu märkmete lisamiseks
 onlyLabel: Ainult silt
-wholeBookmark: ""
+wholeBookmark: Kogu järjehoidja
 assignLabelsMenuEntry1: Vali või muuda silte...
 favouriteLabels: Lemmiksildid
 recentLabels: Hiljutised sildid
 bookmarkLabels: Järjehoidja sildid
-refParserHelp: ""
-openDownloads: ""
+refParserHelp: "Palun paigalda moodul %s, et kasutada viiteid muudele keeltele kui inglise keel."
+openDownloads: Mine lisade allalaadimisele
 verseShare: Jaga
 verseSpeak: Loe ette
 verseCompare: Võrdle
+verseMemorize: Õpi pähe
 verseNote: Märge
 verseMyNotes: Minu märkmed
 verseShareLong: Jaga seda salmi
 verseCompareLong: Võrdle salmi
+verseMemorizeLong: Õpi piiblisalme pähe
 verseNoteLong: Kirjuta märge
 addBookmark: Järjehoidja
+selectCustomIconTitle: Kohanda markeri ikooni
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: Peida mõned
+reset: Nulli
+peek: Piilu
+wordBlur: Puuduolevad sõnad
+wordScramble: Sassi aetud sõnad
+more: Veel

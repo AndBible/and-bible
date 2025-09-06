@@ -16,7 +16,6 @@
  */
 package net.bible.android.control.report
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -58,7 +57,20 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import androidx.core.content.edit
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
+const val ONE_HOUR = 1000L * 60L * 60L
+
+// Crash data file constants
+const val LAST_CRASH_STACKTRACE_FILE = "last_crash_stacktrace.txt"
+const val LAST_CRASH_LOGCAT_FILE = "last_crash_logcat.txt.gz"
+const val LAST_CRASH_SCREENSHOT_FILE = "last_crash_screenshot.webp"
+const val STACKTRACE_FILE = "stacktrace.txt"
+const val LOGCAT_FILE = "logcat.txt.gz"
+val TIMESTAMP_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
 
 object ErrorReportControl {
     fun sendErrorReportEmail(e: Throwable? = null, source: String) {
@@ -69,7 +81,7 @@ object ErrorReportControl {
 
 
     enum class ErrorDialogResult {CANCEL, OKAY, REPORT, BACKUP}
-    suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, report: Boolean = true) {
+    suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, report: Boolean = true, exception: Throwable? = null) {
         Log.i(TAG, "showErrorMesage message:$msg")
         withContext(Dispatchers.Main) {
             var askAgain = true
@@ -96,7 +108,7 @@ object ErrorReportControl {
                 }
                 when(result) {
                     ErrorDialogResult.OKAY -> null
-                    ErrorDialogResult.REPORT -> BugReport.reportBug(context, useSaved = true, source = "after crash")
+                    ErrorDialogResult.REPORT -> BugReport.reportBug(context, exception=exception, useSaved = true, source = "after crash")
                     ErrorDialogResult.CANCEL -> null
                     ErrorDialogResult.BACKUP -> {
                         BackupControl.backupPopup(context)
@@ -107,11 +119,24 @@ object ErrorReportControl {
         }
     }
 
-    @SuppressLint("ApplySharedPref")
+    private fun resetCrashCounts() {
+        CommonUtils.realSharedPreferences.edit(commit = true) {
+            putLong("app-crashed-time", 0L)
+            putInt("app-crashed-count", 0)
+        }
+    }
+
     suspend fun checkCrash(activity: ActivityBase) {
-        val crashed = CommonUtils.realSharedPreferences.getBoolean("app-crashed", false)
-        if (crashed) {
-            CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", false).commit() // Yes, we want this to be flushed to file immediately
+        val crashedCount = CommonUtils.realSharedPreferences.getInt("app-crashed-count", 0)
+        val crashedTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
+
+        // If crash happened more than one hour ago, forget about it
+        if (crashedTime != 0L && System.currentTimeMillis() - crashedTime > ONE_HOUR) {
+            resetCrashCounts()
+        }
+        // If more than 1 crash happened within 1 hour, then let user report it (and do db backup)
+        else if (crashedCount > 1 && crashedTime != 0L && System.currentTimeMillis() - crashedTime < ONE_HOUR) {
+            resetCrashCounts()
             val msg = activity.getString(R.string.error_occurred_crash_last_time)
             showErrorDialog(activity, msg)
         }
@@ -123,10 +148,15 @@ const val SCREENSHOT_FILE = "screenshot.webp"
 object BugReport {
     private fun createErrorText(exception: Throwable? = null, stackTrace: String? = null) = try {
         StringBuilder().run {
+            append("App id: ").append(BibleApplication.application.packageName).append("\n")
             append("Version: ").append(applicationVersionName).append("\n")
             append("Android version: ").append(Build.VERSION.RELEASE).append("\n")
             append("Android SDK version: ").append(Build.VERSION.SDK_INT).append("\n")
             append("Manufacturer: ").append(Build.MANUFACTURER).append("\n")
+            append("Hardware: ").append(Build.HARDWARE).append("\n")
+            append("Product: ").append(Build.PRODUCT).append("\n")
+            append("Device: ").append(Build.DEVICE).append("\n")
+            append("Brand: ").append(Build.BRAND).append("\n")
             append("Model: ").append(Build.MODEL).append("\n")
             append("Storage Mb free: ").append(megabytesFree).append("\n")
             append("WebView version: ").append(WebViewCompat.getCurrentWebViewPackage(BibleApplication.application)?.versionName).append("\n")
@@ -136,13 +166,34 @@ object BugReport {
             val maxHeapSizeInMB = runtime.maxMemory() / 1048576L
             append("Used heap memory in Mb: ").append(usedMemInMB).append("\n")
             append("Max heap memory in Mb: ").append(maxHeapSizeInMB).append("\n\n")
+            
+            // Add last crash information if available
+            val lastCrashFile = File(logDir, LAST_CRASH_STACKTRACE_FILE)
+            val crashTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
+            
+            if (lastCrashFile.exists() && crashTime > 0) {
+                try {
+                    val crashData = lastCrashFile.readText()
+
+                    if (crashData.isNotEmpty()) {
+                        val formattedTime = TIMESTAMP_FORMAT.format(Date(crashTime))
+                        append("=== LAST APP CRASH INFORMATION ===\n")
+                        append("Last crash occurred at: ").append(formattedTime).append("\n")
+                        append("Crash stacktrace:\n").append(crashData).append("\n")
+                        append("=== END LAST CRASH INFORMATION ===\n\n")
+                    }
+                } catch (e: Exception) {
+                    append("Error reading last crash information: ").append(e.message).append("\n\n")
+                }
+            }
+            
             if (exception != null) {
                 val errors = StringWriter()
                 exception.printStackTrace(PrintWriter(errors))
-                append("Exception:\n").append(errors.toString())
+                append("Current Exception:\n").append(errors.toString())
             }
             if (stackTrace != null) {
-                append("Exception:\n").append(stackTrace)
+                append("Current Exception:\n").append(stackTrace)
             }
             toString()
         }
@@ -190,7 +241,7 @@ object BugReport {
         logBasicInfo()
         // Let's give log buffers a little time to flush themselves
         Thread.sleep(1000)
-        val f = File(logDir, "logcat.txt.gz")
+        val f = File(logDir, LOGCAT_FILE)
         logDir.mkdirs()
 
         try {
@@ -207,10 +258,50 @@ object BugReport {
         val pw = PrintWriter(sw)
         e.printStackTrace(pw)
         val s = sw.toString()
-        val f = File(logDir, "stacktrace.txt")
+        val f = File(logDir, STACKTRACE_FILE)
         f.delete()
         f.outputStream().use {
             it.write(s.toByteArray())
+        }
+    }
+
+    fun saveCrashData() {
+        cleanupOldCrashData()
+        // Save crash-specific stack trace, logcat and screenshot
+        val crashStackTraceFile = File(logDir, LAST_CRASH_STACKTRACE_FILE)
+        val crashLogcatFile = File(logDir, LAST_CRASH_LOGCAT_FILE)
+        val crashScreenshotFile = File(logDir, LAST_CRASH_SCREENSHOT_FILE)
+
+        val stackTraceFile = File(logDir, STACKTRACE_FILE)
+        if (stackTraceFile.exists()) {
+            stackTraceFile.copyTo(crashStackTraceFile, overwrite = true)
+        }
+
+        // Copy current logcat to crash-specific file
+        val logcatFile = File(logDir, LOGCAT_FILE)
+        if (logcatFile.exists()) {
+            logcatFile.copyTo(crashLogcatFile, overwrite = true)
+        }
+        
+        // Copy current screenshot to crash-specific file
+        val screenshotFile = File(logDir, SCREENSHOT_FILE)
+        if (screenshotFile.exists()) {
+            screenshotFile.copyTo(crashScreenshotFile, overwrite = true)
+        }
+    }
+
+    fun cleanupOldCrashData() {
+        try {
+            val crashTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
+            
+            if (crashTime > 0 && System.currentTimeMillis() - crashTime < ONE_HOUR * 24) {
+                // Remove old crash files
+                listOf(LAST_CRASH_STACKTRACE_FILE, LAST_CRASH_LOGCAT_FILE, LAST_CRASH_SCREENSHOT_FILE).forEach { fileName ->
+                    File(logDir, fileName).delete()
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error cleaning up old crash data", e)
         }
     }
     fun saveScreenshot() {
@@ -249,6 +340,14 @@ object BugReport {
         val logcat = getString(R.string.bug_report_logcat)
         val screenShot = getString(R.string.bug_report_screenshot)
 
+        // Check if crash files exist
+        val lastCrashFile = File(BugReport.logDir, LAST_CRASH_STACKTRACE_FILE)
+        val hasCrashData = lastCrashFile.exists()
+        val crashAttachments = if (hasCrashData) {
+            "              - $LAST_CRASH_LOGCAT_FILE: Logcat from the last app crash\n" +
+            "              - $LAST_CRASH_SCREENSHOT_FILE: Screenshot from the last app crash\n"
+        } else ""
+
         "\n\n" +
             """
             --- $bigHeading ---
@@ -264,9 +363,9 @@ object BugReport {
             $line3 $line4
             
             $heading3
-              - logcat.txt.gz: $logcat
-              - screenshot.webp: $screenShot
-            
+              - $LOGCAT_FILE: $logcat
+              - $SCREENSHOT_FILE: $screenShot
+$crashAttachments            
             $line5 $line2
             
             $heading4
@@ -278,8 +377,15 @@ object BugReport {
     suspend fun reportBug(context_: ActivityBase? = null, exception: Throwable? = null, useSaved: Boolean = false, source: String) {
         val activity = context_ ?: CurrentActivityHolder.currentActivity!!
         val screenshotFile = File(logDir, SCREENSHOT_FILE)
-        val logcatFile = File(logDir, "logcat.txt.gz")
-        val stackTraceFile = File(logDir, "stacktrace.txt")
+        val logcatFile = File(logDir, LOGCAT_FILE)
+        val stackTraceFile = File(logDir, STACKTRACE_FILE)
+        val lastCrashStackTraceFile = File(logDir, LAST_CRASH_STACKTRACE_FILE)
+        val lastCrashLogcatFile = File(logDir, LAST_CRASH_LOGCAT_FILE)
+        val lastCrashScreenshotFile = File(logDir, LAST_CRASH_SCREENSHOT_FILE)
+        
+        if(source != "after crash") {
+            stackTraceFile.delete()
+        }
         val stackTrace = if(stackTraceFile.canRead()) String(stackTraceFile.readBytes()) else null
 
         val hourglass = Hourglass(activity)
@@ -295,7 +401,8 @@ object BugReport {
         hourglass.dismiss()
 
         withContext(Dispatchers.Main) {
-            val result = Dialogs.simpleQuestion(activity,
+            val result = Dialogs.simpleQuestion(
+                activity,
                 message = activity.getString(R.string.bug_report_email_text),
                 title = activity.getString(R.string.bug_report_email_title),
             )
@@ -308,9 +415,26 @@ object BugReport {
             )
             val message = getBugReportMessage(activity, exception, stackTrace)
 
-            val uris = ArrayList(listOf(logcatFile, screenshotFile).filter { it.canRead() }.map {
+            // Include crash-specific files if they exist and are recent
+            val attachmentFiles = mutableListOf<File>()
+            
+            // Always include current logcat and screenshot
+            if (logcatFile.canRead()) attachmentFiles.add(logcatFile)
+            if (screenshotFile.canRead()) attachmentFiles.add(screenshotFile)
+            
+            // Include crash-specific files if they exist and are recent (within 24 hours)
+            if (lastCrashStackTraceFile.exists()) {
+                val crashTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
+                if (crashTime > 0 && System.currentTimeMillis() - crashTime < 24 * ONE_HOUR) {
+                    if (lastCrashLogcatFile.canRead()) attachmentFiles.add(lastCrashLogcatFile)
+                    if (lastCrashScreenshotFile.canRead()) attachmentFiles.add(lastCrashScreenshotFile)
+                }
+            }
+
+            val uris = ArrayList(attachmentFiles.map {
                 FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", it)
             })
+            
             val emailIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
                 putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
                 putExtra(Intent.EXTRA_SUBJECT, subject)
@@ -318,51 +442,10 @@ object BugReport {
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
                 type = "text/plain"
             }
-            val saveFileIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/zip"
-                putExtra(Intent.EXTRA_TITLE, "log-screenshot-andbible.zip")
-            }
 
             val chooserIntent = Intent.createChooser(emailIntent, activity.getString(R.string.send_bug_report_title))
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveFileIntent))
             chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            activity.awaitIntent(chooserIntent).data?.data?.let { destinationUri ->
-                activity.lifecycleScope.launch(Dispatchers.IO) {
-                    val zipFile = File(logDir, "logcat-screenshot.zip")
-                    if (zipFile.exists()) zipFile.delete()
-
-                    ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zipOutputStream ->
-                        // add the screenshot file to the zip
-                        FileInputStream(screenshotFile).use { fileInputStream ->
-                            val entry = ZipEntry(SCREENSHOT_FILE)
-                            zipOutputStream.putNextEntry(entry)
-                            fileInputStream.copyTo(zipOutputStream)
-                            zipOutputStream.closeEntry()
-                        }
-
-                        // add the logcat file to the zip
-                        FileInputStream(logcatFile).use { fileInputStream ->
-                            val entry = ZipEntry("logcat.txt.gz")
-                            zipOutputStream.putNextEntry(entry)
-                            fileInputStream.copyTo(zipOutputStream)
-                            zipOutputStream.closeEntry()
-                        }
-                    }
-
-                    val out = activity.contentResolver.openOutputStream(destinationUri)!!
-                    val inputStream = FileInputStream(zipFile)
-
-                    try {
-                        withContext(Dispatchers.IO) {
-                            inputStream.copyTo(out)
-                            out.close()
-                        }
-                    } catch (ex: IOException) {
-                        Log.e(TAG, ex.message ?: "Error occurred in trying to save log file")
-                    }
-                }
-            }
+            activity.awaitIntent(chooserIntent)
         }
     }
 }

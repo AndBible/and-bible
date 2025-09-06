@@ -25,7 +25,11 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.service.common.shortName
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.isSpecial
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -50,16 +54,17 @@ open class CurrentCommentaryPage internal constructor(
 {
 
     override val documentCategory = DocumentCategory.COMMENTARY
+    var sourceBookAndKey: BookAndKey? = null
 
     override fun startKeyChooser(context: ActivityBase) =
         context.startActivityForResult(Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
 
-    private val isSpecialDoc: Boolean get() = currentDocument == FakeBookFactory.compareDocument
+    private val isSpecialDoc: Boolean get() = currentDocument?.isSpecial == true
 
     override val currentPageContent: Document
         get() {
             return if(currentDocument == FakeBookFactory.compareDocument) {
-                val key: VerseRange = when(val origKey = originalCompareKey ?: singleKey) {
+                val key: VerseRange = when(val origKey = originalVerseRange ?: singleKey) {
                     is VerseRange -> origKey
                     is Verse -> VerseRange(origKey.versification, origKey, origKey)
                     else -> throw RuntimeException("Invalid type")
@@ -73,6 +78,18 @@ open class CurrentCommentaryPage internal constructor(
                     }
                 }.filterNotNull()
                 MultiFragmentDocument(frags, compare=true)
+            } else if (currentDocument == FakeBookFactory.memorizeDocument) {
+                val bookAndKey = sourceBookAndKey
+                    ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
+                val doc = bookAndKey.document
+                val verseRange = bookAndKey.key as? VerseRange
+                    ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
+                var texts = ArrayList<Pair<String, String>>()
+                for (verse in verseRange) {
+                    val text = SwordContentFacade.getCanonicalText(doc, verse)
+                    texts.add(Pair(verse.shortName, text))
+                }
+                MemorizeDocument(verseRange.name, texts, pageManager.jsState)
             } else super.currentPageContent
         }
 
@@ -93,12 +110,12 @@ open class CurrentCommentaryPage internal constructor(
     }
 
     private fun nextVerse() {
-        originalCompareKey = null
+        originalVerseRange = null
         setKey(getKeyPlus(1))
     }
 
     private fun previousVerse() {
-        originalCompareKey = null
+        originalVerseRange = null
         setKey(getKeyPlus(-1))
     }
 
@@ -130,11 +147,11 @@ open class CurrentCommentaryPage internal constructor(
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
     // If a passage (that is not just a single verse) is displayed, it is stored here.
-    var originalCompareKey: VerseRange? = null
+    var originalVerseRange: VerseRange? = null
 
     override fun doSetKey(key: Key?) {
         if(key is VerseRange) {
-            originalCompareKey = key
+            originalVerseRange = key
         }
         if(key != null) {
             val verse = KeyUtil.getVerse(key)
@@ -154,13 +171,14 @@ open class CurrentCommentaryPage internal constructor(
     override val isSearchable get() = !isSpecialDoc
 
     val entity get() =
-        WorkspaceEntities.CommentaryPage(currentDocument?.initials, anchorOrdinal?.start)
+        WorkspaceEntities.CommentaryPage(currentDocument?.initials, anchorOrdinal?.start, sourceBookAndKey?.serialized)
 
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
         val document = entity.document
         val book = when(document) {
             FakeBookFactory.compareDocument.initials -> FakeBookFactory.compareDocument
+            FakeBookFactory.memorizeDocument.initials -> FakeBookFactory.memorizeDocument
             else -> SwordDocumentFacade.getDocumentByInitials(document) ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
         }
         if(book != null) {
@@ -171,6 +189,7 @@ open class CurrentCommentaryPage internal constructor(
             // Otherwise versification will be messed up!
             onlySetCurrentDocument(book)
             anchorOrdinal = entity.anchorOrdinal?.let { OrdinalRange(it) }
+            sourceBookAndKey = entity.sourceBookAndKey?.let { BookAndKeySerialized.fromJSON(it).bookAndKey }
         }
     }
 

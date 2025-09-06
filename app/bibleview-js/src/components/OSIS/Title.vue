@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed, inject} from "vue";
-import {bibleDocumentInfoKey} from "@/types/constants";
+import {bibleDocumentInfoKey, hideTitlesKey} from "@/types/constants";
 
 const props = withDefaults(
     defineProps<{
@@ -41,7 +41,7 @@ checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "c
 checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
 checkUnsupportedProps(props, "canonical", ["true", "false"]);
 const {config} = useCommon();
-const hideTitles = inject("hideTitles", false);
+const hideTitles = inject(hideTitlesKey, false);
 
 const isCanonical = computed(() => props.canonical === "true");
 
@@ -56,7 +56,7 @@ const show = computed(() =>
 const isSubTitle = computed(() => props.type === "sub");
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .listStyle .titleStyle {
   margin-inline-start: -1em;
 }

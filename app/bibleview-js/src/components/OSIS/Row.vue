@@ -25,6 +25,6 @@ import {useCommon} from "@/composables";
 useCommon()
 </script>
 
-<style scoped>
+<style>
 
 </style>

@@ -429,7 +429,6 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="window_text_options_help1">ဆက်တင်များသည် အလုပ်ခွင်ရှိဆက်တင်များမှ လာသည်ဟု %s တင်္ကေတမှ ဖော်ပြသည်။</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">ဤဆက်တင်သည် သီးသန့်ဝင်းဒိုးတစ်ခုအတွက် ပြောင်းလဲထားပြီဟု %s တင်္ကေတမှ ဖော်ပြသည်။</string>
-  <string name="window_text_options_help3">အလုပ်ခွင်ဆက်တင်သည် ဤဝင်းဒိုးအပေါ်အကျိုးသက်ရောက်စေမည် မဟုတ်ပါ။ </string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">ပုံသေ တန်ဖိုးများ</string>
   <string name="reset_workspace_defaults">အလုပ်ခွင် ပုံသေ တန်ဖိုးများ</string>
@@ -479,7 +478,11 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <!--User Notes-->
   <string name="mynotes">ကိုယ်ပိုင်မှတ်စုများ</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">ဘယ်နေရာတွင် အရန်ဖိုင်လုပ်မည်နည်း။ </string>
+  <string name="backup_backup_message">ဖုန်း သို့မဟုတ် အခြားနေရာများဖြစ်တဲ့ ဝေမျှ လုပ်ဆောင်ချက် (email, Google Drive etc.)တို့တွင် အရန်ဖိုင် လုပ်လိုပါသလား။ </string>
+  <string name="backup_phone_storage">ဖုန်းသိုလှောင်ပမာဏ</string>
   <string name="backup_and_restore">&amp; အားအရန်ဖိုင် ပြုလုပ်ပါ; ပြန်ယူပါ</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">မည်သည့်အရာကို ပြန်ယူလိုပါသနည်း။ </string>
   <string name="restore_app_database">အက်ပ် ဒေတာဘေ့စ်အား ...မှ ပြန်ယူပါ</string>
@@ -497,6 +500,7 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="send_backup_file">အရန်ဖိုင်တစ်ခုကို ပို့ပါ</string>
   <string name="backup_modules_title">အရန်ဖိုင်လုပ်မည့် သင်ခန်းစာများကို ရွေးချယ်ပါ</string>
   <string name="install_zip_canceled">သင်ခန်းစာ ထည့်သွင်းခြင်းအား ပယ်ဖျက်လိုက်ပါပြီ</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">မူပိုင်ခွင့်: %s</string>
   <string name="module_about_versification">ဗားရှင်းဖွဲ့နွဲ့နည်း: %s</string>
@@ -607,6 +611,7 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="help_studypads_text">
 လေ့လာရေးစာရွက်များသည် တရားဟောချက် မှတ်စုများကို အလွယ်တကူ ရေးနိုင်ရန်၊ တရားဟော ချက် ပြင်ဆင်နိုင်ရန် သို့မဟုတ် ကျမ်းစာအညွှန်း များစွာပါဝင်သည့် ကိုယ်ပိုင်ကျမ်းစာလေ့လာချက် မှတ်စုများကို ရေးချနိုင်ရန် ဖန်တီးထားခြင်း ဖြစ်သည်။ လေ့လာရေးစာရွက်တစ်ရွက်စီကို စာညှပ်လေ ဘယ်လ်တစ်ခုနှင့် ဆက်စပ်ထားပါသည်။ ထိုသက်ဆိုင်ရာလေဘယ်လ်များဖြင့် ဖန်တီးပြီးသော စာညှပ်များအားလုံးသည် လေ့လာရေး စာရွက်မှတ်တမ်းတွင် ပေါ်လာမည်ဖြစ်သည်။ လေ့လာရေးစာရွက်တစ်ရွက်တွင် စာညှပ်များအပြင် စိတ်ကြိုက်ဖန်တီးနိုင်သည့် စာသားထည့်သွင်းခြင်း များလည်း ပါဝင်နိုင်သည်။  </string>
   <string name="help_search_title">ရှာဖွေပါ</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">စာသားရှာဖွေရာတွင် အထူးတင်္ကေတများဖြစ်သည့် *, ?, AND, OR, NOT တို့ပါဝင်နိုင်သည်
         (အသေးစိတ်ကို \"Apache Lucene - Query Parser Syntax\" တွင် ကြည့်ပါ)
     </string>
@@ -756,6 +761,14 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="import_items">%sသွင်းပါ</string>
   <string name="import_from_db">အက်ပ် ​ဒေတာဘေ့စ်ဖိုင်မှ သွင်းပါ</string>
   <string name="import_error">အက်ပ်ဒေတာဘေ့စ်မှ ထည့်သွင်းခြင်း မအောင်မြင်ပါ။ ဒေတာဘေ့စ်ဖိုင်သည် ဖွဲ့စည်းမှုပုံစံ မှားယွင်းခြင်း သို့မဟုတ် အလွန်ဟောင်းသည့်ဗားရှင်း %s ဖြင့်လုပ်ထားခြင်းကြောင့် ဖြစ်နိုင်သည်။ </string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">မှတ်တမ်း</string>
+  <string name="book">စာအုပ်</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">အတိုင်းအတာ</string>
   <string name="chooser_jump">ခုန်ပါ</string>
   <string name="chooser_OT_abbrev">ဓမ္မဟောင်းကျမ်း</string>
@@ -784,6 +797,8 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">နောက်ဆုံး အဆင်မြှင့်တင်ပြီး: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
+  <string name="prefs_swipe_mode_chapter">အခန်းကြီး</string>
 </resources>

@@ -37,7 +37,7 @@ externalLink: Ouvrir un lien externe
 referenceLink: Ouvrir un lien de référence
 openFootnote: Ouvrir une note de bas de page
 noMyNotesTitle: Pas Mes notes pour ce chapitre.
-noMyNotesDescription: >-
+noMyNotesDescription: >
   Commencez par créer des signets dans un document biblique. Les signets apparaîtront ensuite ici et vous pourrez y ajouter vos notes personnelles.
 emptyStudyPad: >
   Bloc-notes vide. Commencez à compléter ce bloc-notes en créant des entrées de texte ici ou en créant des signets avec une étiquette de signet correspondant à ce bloc-notes.
@@ -57,9 +57,39 @@ openDownloads: Allez dans "Téléchargements d'extensions
 verseShare: Partager
 verseSpeak: Lecture audio
 verseCompare: Comparer
+verseMemorize: Mémoriser
 verseNote: Note
 verseMyNotes: Mes notes
 verseShareLong: Partager ce verset
 verseCompareLong: Comparer ce verset
+verseMemorizeLong: Mémoriser des versets bibliques
 verseNoteLong: Écrire une note
 addBookmark: Signets
+selectCustomIconTitle: "Sélection d'une icône de marqueur personnalisée "
+bookmarkSettingsTitle: Configurer les paramètres des étiquettes
+subtitlePlaceholder: Texte de sous-titre
+customIconLabel: Icône personnalisée
+editActionLabel: Éditer l’action
+editActionModeLabel: Mode
+editActionModeNone: Aucun
+editActionModeAppend: Ajouter du texte à la fin
+editActionModePrepend: Ajouter du texte au début
+editActionContentLabel: Table des matières
+editActionContentPlaceholder: Entrer du texte pour être ajouter au document…
+experimentalFeatureTitle: Expérimental
+experimentalFeatureHelpTitle: Au sujet des fonctionnalités expérimentales
+experimentalFeatureHelpContent: "Les fonctionnalités expérimentales sont de nouveaux ajouts qui sont encore développés et en test. Ils peuvent ne pas fonctionner parfaitement, et peuvent changer significativement, ou être supprimés dans de futures versions."
+insertParagraphBreak: Insérer un retour à la ligne
+insertSubtitle: Insérer un sous-titre
+xmlParseError: Erreur d'analyse XML
+invalidTag: Étiquette invalide
+invalidClosingTag: Étiquette de fin invalide
+unmatchedClosingTag: Étiquette de fin non correspondante
+unclosedTag: Étiquette non fermée
+unknownError: Erreur inconnue
+blur: Griser
+reset: Réinitialiser
+peek: Voir
+wordBlur: Griser les mots
+wordScramble: Mélanger les mots
+more: Plus

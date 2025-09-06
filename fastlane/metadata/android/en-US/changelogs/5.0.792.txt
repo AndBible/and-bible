@@ -1,0 +1,16 @@
+- Bugfixes
+- When listening, show "Open X:Y" in window menu to jump to speak passage
+- New sort option for bookmarks
+- New feature: Searching in EPUB files
+- New feature: "Hidden links" style for Strongs
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (via Google drive currently)
+- MyBible / MySword modules
+
+Support development financially: https://shop.andbible.org/

@@ -24,6 +24,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookMetaData
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -88,6 +89,7 @@ object FakeBookFactory {
     }
 
     private var _compareDocument: Book? = null
+    private var _memorizeDocument: Book? = null
     private var _multiDocument: Book? = null
     private var _journalDocument: Book? = null
     private var _myNotesDocument: Book? = null
@@ -111,6 +113,12 @@ object FakeBookFactory {
                 _compareDocument = this
             }
 
+    val memorizeDocument: Book
+        get() =
+            _memorizeDocument ?: createFakeRepoBook("Memorize", MEMORIZE_DUMMY_CONF, "").apply {
+                _memorizeDocument = this
+            }
+
     val journalDocument: Book
         get() =
             _journalDocument ?: createFakeRepoBook("Journal", JOURNAL_DUMMY_CONF, "").apply {
@@ -130,6 +138,7 @@ Encoding=UTF-8
 Category=Generic Books
 LCSH=Bible--Commentaries.
 AndBibleIsStudyPad=1
+AndBibleSpecial=1
 Versification=KJVA"""
 
     private val COMPARE_DUMMY_CONF get() = """[Compare]
@@ -139,8 +148,18 @@ Category=Commentaries
 Feature=StrongsNumbers
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
+AndBibleSpecial=1
 Versification=KJVA"""
 
+    private val MEMORIZE_DUMMY_CONF get() = """[Memorize]
+Description=${application.getString(R.string.memorize_description)}
+Abbreviation=${application.getString(R.string.memorize_abbreviation)}
+Category=Commentaries
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+AndBibleSpecial=1
+HideFromSelector=1
+Versification=KJVA"""
 
     private val MULTI_DUMMY_CONF get() = """[Multi]
 Description=${application.getString(R.string.multi_description)}
@@ -148,6 +167,7 @@ Abbreviation=${application.getString(R.string.multi_abbreviation)}
 Category=Generic Books
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
+AndBibleSpecial=1
 Versification=KJVA"""
 
     private val MY_NOTE_DUMMY_CONF get() = """[MyNote]
@@ -157,6 +177,7 @@ Category=Commentaries
 Feature=StrongsNumbers
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
+AndBibleSpecial=1
 Versification=KJVA"""
 
     private fun doesNotExistConf(id: String, type: BookCategory) = """[$id]
@@ -183,9 +204,12 @@ Versification=KJVA"""
 
     fun pseudoDocuments(l: List<PseudoBook>?): List<Book> = l?.map { getPseudoBook(it.id, it.suggested) }?: emptyList()
 
-    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
+    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument, memorizeDocument)
 }
 
 val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null
+val Book.isSpecial get() = bookMetaData.getProperty("AndBibleSpecial") != null
 val Book.isStudyPad get() = bookMetaData.getProperty("AndBibleIsStudyPad") != null
 val Book.doesNotExist get() = bookMetaData.getProperty("AndBibleDoesNotExist") != null
+val Book.hideFromSelector get() = bookMetaData.getProperty("HideFromSelector") != null
+val Book.isRemoved get() = !isSpecial && Books.installed().getBook(initials) == null

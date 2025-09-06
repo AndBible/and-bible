@@ -1,0 +1,15 @@
+- Fix backup to Google Drive (#3260)
+- Export & Import study pads (#3141)
+- Import database backups to merge databases (instead of restore) (#3259)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (via Google drive currently)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

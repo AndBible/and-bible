@@ -87,7 +87,6 @@ import {
     getEventVerseInfo,
     getHighestPriorityEventFunctions,
     isBottomHalfClicked,
-    setupDocumentEventListener,
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton.vue";
 import {emit, setupEventBusListener} from "@/eventbus";
@@ -105,7 +104,7 @@ import {BaseBookmark} from "@/types/client-objects";
 import {Nullable, Optional, SelectionInfo} from "@/types/common";
 
 const props = withDefaults(
-    defineProps<{ blocking: boolean, doNotCloseModals: boolean }>(),
+    defineProps<{ blocking?: boolean, doNotCloseModals?: boolean }>(),
     {blocking: false, doNotCloseModals: false}
 );
 
@@ -322,10 +321,10 @@ async function handle(event: MouseEvent) {
     if (eventFunctions.length > 0 || _verseInfo != null || _ordinalInfo != null) {
         const firstFunc = eventFunctions[0];
         if (
-            (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs)
-            || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs)
+              (eventFunctions.length === 1 && firstFunc.options.priority > 0 && !firstFunc.options.dottedStrongs && !firstFunc.options.hiddenStrongs)
+              || (allEventFunctions.length === 1 && firstFunc.options.dottedStrongs && !firstFunc.options.hiddenStrongs)
         ) {
-            if (eventFunctions[0].options.bookmarkId) {
+            if (eventFunctions[0].options.bookmarkId || firstFunc.options.hiddenStrongs) {
                 emit("bookmark_clicked", eventFunctions[0].options.bookmarkId, {locateTop: isBottomHalfClicked(event)});
             } else {
                 const cb = eventFunctions[0].callback;
@@ -389,7 +388,7 @@ defineExpose({handle});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .buttons {
   @extend .visible-scrollbar;

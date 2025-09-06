@@ -2,8 +2,8 @@
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Kutsal Kitap Çalışması</string>
-  <string name="app_name_medium">İncil Çalışması (AndBible)</string>
-  <string name="app_name_long">AndBible: İncil Çalışması</string>
+  <string name="app_name_medium">Kutsal Kitap Çalışması (AndBible)</string>
+  <string name="app_name_long">&amp;Bible: Kutsal Kitap Çalışması</string>
   <string name="project">AndBible Açık Kaynak Projesi</string>
   <string name="version_text">Sürüm %s</string>
   <string name="no_sdcard_error">Lütfen bir hafıza kartı takıp uygulamayı yeniden başlatın.</string>
@@ -12,7 +12,6 @@
   <string name="chooseBook">Belge</string>
   <string name="selectPassage">Kısım</string>
   <string name="search">Ara</string>
-  <string name="search_in_andbible">Kutsal Kitap’ta arama yap</string>
   <string name="settings">Uygulama tercihleri</string>
   <string name="history">Geçmiş</string>
   <string name="speak">Sesli Oku</string>
@@ -480,7 +479,6 @@
   <string name="window_text_options_help1">%s simgesi, ayarın çalışma ayarlarından geldiğini gösterir.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s simgesi, bu belirli pencere için bu ayarın değiştiğini gösterir.</string>
-  <string name="window_text_options_help3">Çalışma alanı ayarı bu pencereyi etkilemeyecektir.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Tüm bu ayarları %2$s değerine sıfırlamak için %1$s düğmesini kullanın.</string>
   <string name="reset_defaults">varsayılan değerler</string>
@@ -545,6 +543,9 @@
   <!--User Notes-->
   <string name="mynotes">Notlarım</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Nereye yedeklensin?</string>
+  <string name="backup_backup_message">Telefona ya da Paylaş fonksiyonuyla  (email, Google Drive vb.) başka yere yedekle?</string>
+  <string name="backup_phone_storage">Telefon hafıza</string>
   <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
   <string name="backup_modules2">Belgeler yedekleme hedefi…</string>
   <string name="backup_app_database2">Uygulama veritabanını şuraya yedekleyin…</string>
@@ -557,6 +558,7 @@
   <string name="backup_document_info">Kutsal Kitaplar, yorum kitaplar, sözlükler, haritalar vb.</string>
   <string name="backup_to">Yedekleme hedefi…</string>
   <string name="backup_restore_from">Geri yükle kaynağı…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Yedekten geri yükle</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Neyi geri yüklemek istiyorsunuz?</string>
@@ -578,6 +580,8 @@
   <string name="send_backup_file">Yedekleme dosyasını gönder</string>
   <string name="backup_modules_title">Hangi modüllerin yedekleneceğini seçin</string>
   <string name="install_zip_canceled">Modül yüklemesi iptal edildi</string>
+  <string name="restore">Yedekten geri yükle</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Telif hakkı: %s</string>
   <string name="module_about_installed_version">Yüklü sürüm: %1$s (%2$s)</string>
@@ -715,6 +719,7 @@ katkıda bulunmayı düşünün. :-)</string>
     Yer imlerine ek olarak, bir çalışma defterinde özel metin girişleri de olabilir.
   </string>
   <string name="help_search_title">Arama</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">
     Arama metni *, ?, AND, OR, NOT gibi özel karakterler içerebilir
     (Daha fazla bilgi için \"Apache Lucene - Sorgu Ayrıştırıcı Sözdizimi\" bölümüne bakın)
@@ -908,6 +913,14 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="import_items">%s içe aktarın</string>
   <string name="import_from_db">Uygulama Veritabanı dosyasından içe aktar</string>
   <string name="import_error">Uygulama Veritabanından içe aktarma başarısız oldu. Veritabanı dosyası yanlış biçimde olabilir veya %suygulamasının çok eski sürümüyle yapılmış olabilir.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Belge</string>
+  <string name="book">Kitap</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Menzil</string>
   <string name="chooser_jump">Atla</string>
   <string name="chooser_OT_abbrev">EA</string>
@@ -1046,6 +1059,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="error_notification_channel_name">Hata bildirimleri</string>
   <string name="restore_from_cloud_description">Başka bir cihazda Cihaz Senkronizasyonunu etkinleştirdiyseniz, veritabanını Buluttan geri yükleyerek başlayabilirsiniz.</string>
   <string name="enable_sync">Senkronizasyonu etkinleştir</string>
+  <string name="last_updated">Son güncelleme: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Dosya okunamıyor</string>
   <string name="sqlite_invalid_file">Geçersiz modül dosyası veya dosya adı: %s</string>
@@ -1080,4 +1094,5 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="dont_show">
     Bu mesajı bir daha gösterme
   </string>
+  <string name="prefs_swipe_mode_chapter">Bölüm</string>
 </resources>

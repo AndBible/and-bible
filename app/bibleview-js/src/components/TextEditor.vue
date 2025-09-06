@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, inject, onBeforeUnmount, onMounted, onUnmounted, ref, watch} from "vue";
+import {computed, inject, onBeforeUnmount, onMounted, onUnmounted, ref, shallowRef, watch} from "vue";
 import {useCommon} from "@/composables";
 import {exec, init, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText.vue";
@@ -63,7 +63,7 @@ const android = inject(androidKey)!;
 const {parse, features} = inject(customFeaturesKey)!
 const {editorMode} = inject(keyboardKey)!;
 const hasRefParser = computed(() => features.has("RefParser"));
-const editorElement = ref<HTMLElement | null>(null);
+const editorElement = shallowRef<HTMLElement | null>(null);
 
 type EditorElement = HTMLElement & { content: HTMLElement }
 
@@ -211,12 +211,12 @@ onUnmounted(() => {
 const {sprintf} = useCommon();
 </script>
 <style lang="scss">
-@import '~@/lib/pell/pell.scss';
-@import '~@/common.scss';
+@use "@/lib/pell/pell.scss" as pell;
+@use "@/common.scss" as *;
 
 .pell-content {
   @extend .visible-scrollbar;
-  max-height: calc(var(--max-height) - #{$pell-button-height} - 2 * #{$pell-content-padding});
+  max-height: calc(var(--max-height) - #{pell.$pell-button-height} - 2 * #{pell.$pell-content-padding});
   height: inherit;
   padding: 0 7px 5px 7px;
   z-index: 1;
@@ -225,8 +225,8 @@ const {sprintf} = useCommon();
 
 .pell-button {
   color: inherit;
-  width: $pell-button-width *0.9;
-  height: $pell-button-height *0.9;
+  width: pell.$pell-button-width *0.9;
+  height: pell.$pell-button-height *0.9;
   margin: 0 1px 0 1px;
 
   .night & {
@@ -276,7 +276,7 @@ const {sprintf} = useCommon();
 .saved-notice {
   position: absolute;
   right: 5px;
-  bottom: $pell-button-height;
+  bottom: pell.$pell-button-height;
   padding-inline-end: 3pt;
   color: hsla(112, 40%, 33%, 0.8);
 

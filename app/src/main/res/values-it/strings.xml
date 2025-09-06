@@ -12,7 +12,6 @@
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Passaggio</string>
   <string name="search">Trova</string>
-  <string name="search_in_andbible">Trova nella Bibbia</string>
   <string name="settings">Preferenze dell\'app</string>
   <string name="history">Cronologia</string>
   <string name="speak">Parla/Audio</string>
@@ -41,6 +40,7 @@
   <string name="search_in">Trova in %s</string>
   <string name="do_in_background">Continua in sottofondo</string>
   <string name="rebuild_index_button">Ricostruisci</string>
+  <string name="creating_index_for">Creazione indice per %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s risultati in %2s</string>
   <!--Tasks-->
@@ -52,6 +52,7 @@
   <string name="search_all_words">Tutte le parole</string>
   <string name="search_any_word">Ogni parola</string>
   <string name="search_phrase">Frase</string>
+  <string name="search_fts_query">Sintassi della query</string>
   <string name="search_result_count">%d risultati trovati</string>
   <string name="search_showing_first">Troppi risultati. Mostro i primi %d</string>
   <string name="search_bible_section_group_prompt">Dove cercare</string>
@@ -138,6 +139,7 @@
   <string name="prefs_display_customization_cat">Aspetto dell\'interfaccia</string>
   <string name="prefs_behavior_customization_cat">Comportamento dell\'applicazione</string>
   <string name="prefs_margin_size_summary">Regola il margine sinistro e destro della visualizzazione del testo. Puoi anche regolare la larghezza massima del testo.</string>
+  <string name="prefs_margin_size_summary_2">Suggerimento: tocca l\'area dei margini per saltare di una pagina in alto o in basso.</string>
   <string name="prefs_text_colors_summary">Regola i colori del testo e dello sfondo e l\'effetto del rumore</string>
   <string name="text_display_settings_activity_title">Impostazioni di visualizzazione del testo</string>
   <string name="workspace_text_display_settings_title">Opzioni di testo - %s</string>
@@ -345,6 +347,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="add_bookmark_whole_verse">Segnalibro su verso</string>
   <string name="add_bookmark_whole_verse1">Versetti</string>
   <string name="add_bookmark_whole_verse2">Versetti completi</string>
+  <string name="add_paragraph_break">Interruzione di paragrafo</string>
   <string name="remove_bookmark">Rimuovi</string>
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
@@ -456,7 +459,6 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="window_text_options_help1">L\'icona %s indica che l\'impostazione deriva da quelle dello spazio di lavoro.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">L\'icona %s indica che questa impostazione è stata cambiata per questa specifica finestra.</string>
-  <string name="window_text_options_help3">Le impostazioni dello spazio di lavoro non influiranno su questa finestra.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Usa %1$s per reimpostare tutte queste impostazioni ai %2$s.</string>
   <string name="reset_defaults">valori predefiniti</string>
@@ -509,6 +511,9 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <!--User Notes-->
   <string name="mynotes">Annotazioni</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Dove salvare?</string>
+  <string name="backup_backup_message">Eseguire il backup sul telefono o altrove tramite la funzione Condividi (e-mail, Google Drive ecc.)?</string>
+  <string name="backup_phone_storage">Memoria del telefono</string>
   <string name="backup_and_restore">Backup e ripristino</string>
   <string name="backup_modules2">Backup dei documenti su...</string>
   <string name="backup_app_database2">Esegui backup del database su…</string>
@@ -521,7 +526,11 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="backup_document_info">Bibbie, commentari, dizionari, mappe ecc.</string>
   <string name="backup_to">Esegui backup su…</string>
   <string name="backup_restore_from">Ripristina da…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Ripristina o Importa da…</string>
   <string name="backup_restore">Ripristina</string>
+  <string name="backup_restore2">Ripristina o Importa</string>
+  <string name="overwrite_something">Sovrascrivere %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Cosa vuoi ripristinare?</string>
   <string name="restore_app_database">Ripristina il database dell\'app da...</string>
@@ -537,11 +546,19 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="backup_modules_email_message_2">In allegato il backup dei moduli %1$s, che contiene i seguenti moduli: %2$s</string>
   <string name="backup_email_subject_2">Backup del database %s</string>
   <string name="backup_email_message_2">Il tuo database %s contenente segnalibri, annotazioni, piani di lettura e spazi di lavoro è allegato</string>
+  <string name="exported_studypads_subject">Appunti di studio esportati</string>
+  <string name="exported_studypads_message">Il tuo database %s contenente Segnalibri e Note relativi agli Appunti di studio selezionati è stato allegato</string>
   <string name="restore_unsuccessfull">Il ripristino del database non ha avuto esito positivo. Forse hai fornito un file di database non valido.</string>
   <string name="restore_modules">Ripristina documenti da...</string>
   <string name="send_backup_file">Invia un file di backup</string>
   <string name="backup_modules_title">Seleziona i moduli di cui eseguire il backup</string>
   <string name="install_zip_canceled">Installazione del modulo annullata</string>
+  <string name="ask_restore_or_import">Il database per %s può essere ripristinato (andando a sostituire quello esistente) oppure importato (il database selezionato verrà importato in quello esistente). Cosa vuoi fare?</string>
+  <string name="restore">Ripristina</string>
+  <string name="import2">Importa</string>
+  <string name="export_studypads_help">Il file contenente gli Appunti di studio esportati (cioè Etichette e Segnalibri) può essere importato andando in Menu Principale -&gt; Backup e ripristino.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" e %2$s altre Etichette / Appunti di studio e %3$s Segnalibri</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Versione installata: %1$s (%2$s)</string>
@@ -630,6 +647,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="workspace_listing_with_current">%s (corrente)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Questa è la versione beta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate del tutto, e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti o bug. Si consiglia ai normali lettori di utilizzare la versione stabile.</string>
   <string name="beta_notice_content_2">
@@ -661,9 +679,14 @@ Premi a lungo i collegamenti per scegliere se desideri aprirli nella finestra co
   <string name="help_studypads_text">
 Gli Appunti di studio sono progettati per facilitare la scrittura di appunti per la preparazione di sermoni, o semplicemente per annotare note personali di studio della Bibbia con riferimenti biblici multipli. Ogni Appunto di studio è associato a un\'etichetta di Segnalibro. Tutti i Segnalibri creati con una specifica etichetta appaiono automaticamente nel documento dell\'appunto di studio. Oltre ai Segnalibri, si possono inserire voci di testo personalizzate negli Appunti di studio.</string>
   <string name="help_search_title">Ricerca</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Il testo di ricerca può includere caratteri speciali come *,?, AND, OR, NOT
   (vedi \"Apache Lucene - Sintassi del parser di query\" per maggiori dettagli)
 </string>
+  <string name="help_search_text2">Il testo della ricerca può includere caratteri speciali come *, AND, OR, NOT</string>
+  <string name="help_search_details">Vedi %s per ulteriori dettagli.</string>
+  <string name="help_apache_lucene">Apache Lucene - Sintassi del parser di query</string>
+  <string name="help_fts5">FTS5 Sintassi delle query full-text</string>
   <string name="help_workspaces_title">Spazi di lavoro</string>
   <string name="help_workspaces_text">
 Gli spazi di lavoro consentono di avere più ambienti di lavoro dipendenti dal contesto. È possibile accedere alle funzioni dello spazio
@@ -697,6 +720,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="format_mysword">Documenti MySword (*.mybible)</string>
   <string name="format_mybible">Documenti MyBible (*.SQLite3)</string>
   <string name="format_epub">Documenti EPUB (*.epub)</string>
+  <string name="format_studypads">Appunti di studio da database AndBible (*.abdb)</string>
   <string name="redownload_message">
         E\' stato trovato un elenco di libri/documenti precedenti. Tocca qui sotto per riscaricarli facilmente.
     </string>
@@ -711,6 +735,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="journal_description">Appunti di studio modificabili con testo e segnalibri personali</string>
   <string name="my_notes_description">Annotazioni modificabili allegate ai segnalibri</string>
   <string name="my_notes_abbreviation">Annotazioni</string>
+  <string name="studypad">Appunti di studio</string>
   <string name="studypads">Appunti di studio</string>
   <string name="multi_description">Riferimenti multipli</string>
   <string name="multi_abbreviation">Multipli</string>
@@ -726,6 +751,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="unlock_info">Info sullo sblocco del modulo cifrato</string>
   <string name="try_again_passphrase">La password non ha funzionato, vuoi riprovare?</string>
   <string name="show_unlock_info">Info su modulo e sblocco</string>
+  <string name="prefs_experimental_features_title">Funzionalità sperimentali</string>
+  <string name="prefs_experimental_features_summary">Abilita le funzionalità sperimentali che sono ancora in fase di sviluppo e potrebbero subire modifiche o essere rimosse</string>
   <string name="prefs_show_error_box_title">Mostra finestra errori Javascript</string>
   <string name="prefs_show_error_box_summary">Utile agli sviluppatori per trovare gli errori javascript in BibleView. Questo rallenterà l\'app.</string>
   <string name="active_window_indicator_title">Mostra indicatore di finestra attiva</string>
@@ -733,6 +760,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="app_licence_title">Licenza Open Source</string>
   <string name="how_to_contribute">Come contribuire?</string>
   <string name="confirm_delete_bookmarks">Vuoi rimuovere %d segnalibri e le loro annotazioni?</string>
+  <string name="confirm_delete_orphaned_bookmarks">L\'etichetta selezionata è collegata a %d segnalibri che non hanno altre etichette. Vuoi eliminare questi segnalibri insieme alle etichette?</string>
+  <string name="delete_label_and_bookmarks">Elimina etichetta e segnalibri</string>
+  <string name="delete_label_only">Elimina solo l\'etichetta</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Consiglia a un amico</string>
   <string name="tell_friend_message1">Vorrei consigliarti %s</string>
@@ -740,8 +770,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="tell_friend_message3">Puoi installarlo da Play Store: %s</string>
   <string name="tell_friend_message4">Altre informazioni e opzioni di installazione: %s</string>
   <string name="share_verse_ok">Condividi / Copia</string>
+  <string name="web_search">Ricerca web</string>
   <string name="verse_action_copy">Copia</string>
-  <string name="generic_share">Condivida</string>
+  <string name="generic_share">Condividi</string>
   <string name="share_verse_menu_title">Condividi / copia...</string>
   <string name="show_versenumbers">Mostra i numeri dei versetti</string>
   <string name="show_full_verses">Mostra i versetti completi</string>
@@ -756,6 +787,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="show_version_name">Includi nome della versione</string>
   <string name="show_ellipsis">Mostra tre puntini (…)</string>
   <string name="show_quotes">Mostra virgolette</string>
+  <string name="separate_verses_with_newlines">Separa i versi con nuove righe</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Indietro</string>
   <string name="upgrading_database">Sto aggiornando il database. Attendi...</string>
@@ -841,10 +873,44 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="label_salvation">Salvezza</string>
   <string name="label_underline">Sottolinea</string>
   <string name="import_menu">Importa &amp; esporta</string>
+  <string name="export">Esporta</string>
+  <string name="csv_export_success">Esportati %d segnalibri in CSV</string>
+  <string name="csv_import_success">Importazione completata: %d creati, %d aggiornati</string>
+  <string name="csv_import_errors">Importazione completata con errori: %d creati, %d aggiornati, %d errori</string>
+  <string name="csv_import_failed">Importazione CSV fallita: %s</string>
+  <string name="csv_export_failed">Esportazione CSV fallita: %s</string>
+  <string name="csv_column_selection_title">Scelta colonne CSV</string>
+  <string name="choose_csv_file">Scegli le colonne CSV da importare</string>
+  <string name="no_bookmarks_to_export">Non sono disponibili segnalibri da esportare</string>
   <string name="export_fileformat">Esporta come %s</string>
+  <string name="export_something">Esporta %s</string>
   <string name="import_items">Importa %s</string>
-  <string name="import_from_db">Importa dalla base di dati dell\'applicazione</string>
+  <string name="import_from_db">Importa dal database dell\'applicazione</string>
   <string name="import_error">L\'importazione del database dell\'app non è riuscita. Il file di database potrebbe essere in un formato sbagliato o creato da una versione troppo vecchia di %s.</string>
+  <string name="export_bookmarks_csv">Esporta segnalibri come %s</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">Riferimento OSIS</string>
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Riferimento biblico</string>
+  <string name="document">Documento</string>
+  <string name="book">Libro</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Inizio capitolo</string>
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Inizio verso</string>
+  <string name="chapter_end">Fine capitolo</string>
+  <string name="verse_end">Fine verso</string>
+  <string name="id">Identificatore</string>
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="ordinal_start">Inizio ordinale</string>
+  <string name="ordinal_end">Fine ordinale</string>
+  <string name="created_at">Creato il</string>
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset">Offset iniziale</string>
+  <string name="end_offset">Offset finale</string>
+  <string name="custom_icon">Icona personalizzata</string>
+  <string name="last_updated_at">Ultimo aggiornamento il</string>
+  <string name="bookmark_notes">Note dei segnalibri</string>
   <string name="chooser_range">Intervallo</string>
   <string name="chooser_jump">Salta</string>
   <string name="chooser_OT_abbrev">AT</string>
@@ -864,6 +930,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="strongs_off">Spento</string>
   <string name="strongs_links">Collegamenti</string>
   <string name="strongs_text_and_links">Testo e collegamenti</string>
+  <string name="strongs_hidden_links">Collegamenti Nascosti</string>
   <string name="verse_tip">Per scegliere versetti parziali o multipli, puoi tenere premuto a lungo il testo biblico</string>
   <string name="permission_required">Autorizzazione necessaria</string>
   <string name="labels_search_hint">Ricerca</string>
@@ -887,8 +954,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
         Prima di accedere all\'app, viene mostrata la schermata della calcolatrice.
     </string>
   <string name="calculator_par2">
-        In questa, puoi eseguire normali calcoli, e quando vuoi accedere all\'app, ti basta
-        inserire il tuo codice PIN (il default is 1234) e poi premere il bottone \"=\".
+        In questa puoi eseguire normali calcoli, e quando vuoi accedere all\'app, ti basta
+        inserire il tuo codice PIN (predefinito è 1234) e poi premere il pulsante \"=\".
     </string>
   <string name="calculator_par3">
         Puoi impostare un tuo PIN personale dall\'impostazione \"PIN calcolatrice\".
@@ -952,7 +1019,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="cloud_fetch_and_restore_initial">Copia dal Cloud a questo dispositivo</string>
   <string name="cloud_create_new">Copia da questo dispositivo al Cloud</string>
   <string name="cloud_disable_sync">Annulla &amp; disattiva la sincronizzazione</string>
-  <string name="cloud_sync_title">Sincronizzazione dispositivo</string>
+  <string name="cloud_sync_title">Sincronizza dispositivo</string>
   <string name="reset_sync">Esci</string>
   <string name="prefs_reset_sync_summary">Disattiva la sincronizzazione e ripristina le relative impostazioni.</string>
   <string name="sync_confirmation">Sei sicuro di voler uscire e ripristinare le impostazioni di sincronizzazione?</string>
@@ -963,6 +1030,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Autenticazione a %s</string>
+  <string name="auth_server_uri">URL del server</string>
   <string name="auth_username">Nome utente</string>
   <string name="auth_password">Password</string>
   <string name="auth_access_token">Token di accesso</string>
@@ -981,8 +1049,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="report">Segnala</string>
   <string name="sync_error">Errore nella sincronizzazione del Cloud</string>
   <string name="error_notification_channel_name">Notifiche di errore</string>
-  <string name="restore_from_cloud_description">Se la sincronizzazione del dispositivo è attivata in un altro dispositivo, è possibile iniziare a ripristinare la base di dati dal Cloud.</string>
+  <string name="restore_from_cloud_description">Se la sincronizzazione del dispositivo è attivata in un altro dispositivo, è possibile iniziare a ripristinare il database dal Cloud.</string>
   <string name="enable_sync">Attiva sincronizzazione</string>
+  <string name="last_updated">Ultimo aggiornamento: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Impossibile leggere il file</string>
   <string name="sqlite_invalid_file">File o nome modulo non valido: %s</string>
@@ -1017,4 +1086,19 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="dont_show">
         Non mostrare più questo messaggio
     </string>
+  <string name="pref_font_size_multiplier_title">Moltiplicatore dimensione carattere</string>
+  <string name="pref_font_size_multiplier_summary_1">Moltiplica le dimensioni dei caratteri di testo con questo numero.</string>
+  <string name="pref_font_size_multiplier_summary_2">Utile se hai un dispositivo sincronizzato che utilizzi con caratteri più grandi.</string>
+  <string name="current_value">Valore attuale: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Azione per il gesto scorri a sinistra / destra</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Il gesto scorri a sinistra / destra può essere usato per andare alla pagina o al capitolo successivo.</string>
+  <string name="prefs_swipe_mode_chapter">Capitolo</string>
+  <string name="prefs_swipe_mode_page">Pagina</string>
+  <string name="prefs_swipe_mode_none">Disabilitato</string>
+  <string name="page_number_title">Numero di pagina relativo</string>
+  <string name="page_number_summary">Mostra il numero di pagina in sovraimpressione. Il numero di pagina è relativo alla posizione iniziale.</string>
+  <string name="select_custom_icon">Scegli icona per l\'evidenziazione</string>
+  <string name="invalid_url_message">L\'URL inserito non è valido. Inserisci un URL valido (ad esempio, https://nextcloud.example.com)</string>
+  <string name="memorize_description">Memorizza versi della Bibbia</string>
+  <string name="memorize_abbreviation">Memorizza</string>
 </resources>

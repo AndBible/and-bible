@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span :class="{paragraphBreak}">{{ marker }}<slot/></span>
+  <span class="milestone" :class="{paragraphBreak}">{{ marker }}<slot/></span>
 </template>
 
 <script setup lang="ts">
@@ -40,7 +40,7 @@ const paragraphBreak = computed(() => props.type === "line");
 useCommon();
 </script>
 
-<style scoped lang="scss">
-@import "~@/common.scss";
+<style lang="scss">
+@use "@/common.scss" as *;
 
 </style>

@@ -60,6 +60,13 @@
             <FontAwesomeIcon icon="custom-whole-verse-false"/>
           </template>
         </div>
+        <div
+            class="bookmark-button"
+            @click.stop="configureBookmarkSettings"
+            :style="buttonColor(primaryLabel.color)"
+            :title="strings.bookmarkSettingsTitle">
+          <FontAwesomeIcon :icon="faIcons" />
+        </div>
         <template v-if="showStudyPadButtons">
           <div
               v-for="label of labels.filter(l => l.isRealLabel)"
@@ -86,12 +93,14 @@
     </template>
     {{ strings.removeBookmarkConfirmation }}
   </AreYouSure>
+  <AskBookmarkSettings ref="askBookmarkSettingsDialog" />
 </template>
 
 <script lang="ts" setup>
 import {useCommon} from "@/composables";
 import {computed, inject, ref} from "vue";
 import AreYouSure from "@/components/modals/AreYouSure.vue";
+import AskBookmarkSettings from "@/components/modals/AskBookmarkSettings.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Color from "color";
 import {sortBy} from "lodash";
@@ -99,11 +108,12 @@ import {androidKey, globalBookmarksKey} from "@/types/constants";
 import {ColorParam} from "@/types/common";
 import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
 import {isBibleBookmark} from "@/composables/bookmarks";
+import {faIcons} from "@fortawesome/free-solid-svg-icons";
 
 const props = withDefaults(defineProps<{
     bookmark: BaseBookmark
-    showStudyPadButtons: boolean
-    inBookmarkModal: boolean
+    showStudyPadButtons?: boolean
+    inBookmarkModal?: boolean
 }>(), {
     showStudyPadButtons: false,
     inBookmarkModal: false
@@ -145,7 +155,12 @@ async function removeBookmark() {
     }
 }
 
+const {strings, appSettings} = useCommon();
+
 function buttonColor(color: ColorParam, highlighted = false) {
+    if (appSettings.monochromeMode) {
+        return "";
+    }
     if (props.inBookmarkModal) {
         return ""
     }
@@ -159,15 +174,41 @@ function buttonColor(color: ColorParam, highlighted = false) {
     return `color:${col.hsl().string()};`;
 }
 
-const {strings} = useCommon();
+const askBookmarkSettingsDialog = ref<InstanceType<typeof AskBookmarkSettings> | null>(null);
+
+async function configureBookmarkSettings() {
+  const result = await askBookmarkSettingsDialog.value!.askBookmarkSettings(
+    bookmark.value.customIcon, 
+    bookmark.value.editAction
+  );
+  if (result) {
+    if (result.customIcon !== bookmark.value.customIcon) {
+      android.setCustomIcon(bookmark.value, result.customIcon);
+    }
+    if (result.editAction.mode !== bookmark.value.editAction.mode ||
+        result.editAction.content !== bookmark.value.editAction.content)
+    {
+        android.setEditAction(bookmark.value, result.editAction);
+    }
+  }
+}
+
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .button-container {
   display: flex;
   justify-content: space-between;
+  .monochrome & {
+    border-color: black;
+    border-top: solid;
+    border-width: 1px;
+    &.night {
+      border-color: white;
+    }
+  }
 }
 
 .ambiguous {
@@ -186,6 +227,9 @@ const {strings} = useCommon();
   cursor: pointer;
   font-size: 25px;
   color: $button-grey;
+  .night.monochrome & {
+    color: white;
+  }
   padding: 5px;
 
   &.end {

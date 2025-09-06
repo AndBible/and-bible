@@ -18,7 +18,6 @@ package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -157,21 +156,10 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         Log.i(TAG, "Preparing search results")
         var isOk: Boolean
         try {
-            var fromProcessTextIntent = false
-            val searchText =
-                if(intent.action == Intent.ACTION_PROCESS_TEXT) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        val result = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT) ?: ""
-                        if(result != "") fromProcessTextIntent = true
-                        result
-                    } else ""
-                }
-                else intent.getStringExtra(SearchControl.SEARCH_TEXT) ?: ""
+            val searchText = intent.getStringExtra(SearchControl.SEARCH_TEXT) ?: ""
 
-            val searchDocument = (intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?: "").run {
-                if (StringUtils.isEmpty(this))
-                    windowControl.activeWindowPageManager.currentBible.currentDocument!!.initials
-                else this
+            val searchDocument = (intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?: "").let {
+                it.ifEmpty { windowControl.activeWindowPageManager.currentBible.currentDocument!!.initials }
             }
             Log.i(TAG, "Searching $searchText in $searchDocument")
 
@@ -181,20 +169,16 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 return@Main false
             }
             if (doc.indexStatus != IndexStatus.DONE) {
-                startActivity(Intent(this@SearchResults, SearchIndex::class.java))
+                val intent = Intent(this@SearchResults, SearchIndex::class.java)
+                intent.putExtra(SearchControl.SEARCH_DOCUMENT, doc.initials)
+                startActivity(intent)
                 return@Main false
             }
             if(linkControl.tryToOpenRef(searchText)) {
-                if(fromProcessTextIntent) {
-                    val handlerIntent = Intent(this@SearchResults, MainBibleActivity::class.java)
-                    handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    startActivity(handlerIntent)
-                } else {
-                    // If using search to jump to reference, drop search activities from history
-                    historyTraversal.historyManager.popHistoryItem() // SearchResults
-                    historyTraversal.historyManager.popHistoryItem() // Search
-                    finish()
-                }
+                // If using search to jump to reference, drop search activities from history
+                historyTraversal.historyManager.popHistoryItem() // SearchResults
+                historyTraversal.historyManager.popHistoryItem() // Search
+                finish()
                 return@Main false
             }
             this@SearchResults.searchDocument = doc

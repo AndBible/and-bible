@@ -36,6 +36,7 @@
 }
 
 .journal-button {
+  cursor: pointer;
   z-index: 1;
   color: rgba(0, 0, 0, 0.5);
   .night & {
@@ -92,32 +93,15 @@
 
 $button-border-radius: 8px;
 $button-padding: 6px;
-$button-grey: #8e8e8e;
+$button-grey: var(--modal-grey);
+
+:root {
+  --primary-color: #bdbdbd;
+}
 
 .button {
   font-size: 90%;
   background-color: $button-grey;
-  + .toggled {
-    background-color: #474747;
-    &.light {
-      background-color: #d5d5d5;
-    }
-  }
-  &.light {
-    background-color: #bdbdbd;
-    color: black;
-    .night & {
-      background-color: #616161;
-      color: #bdbdbd;
-    }
-  }
-  &.warning {
-    background: rgba(255, 0, 0, 0.5);
-    color: black;
-  }
-  &.right {
-    align-self: end;
-  }
   border: none;
   color: white;
   padding: $button-padding;
@@ -127,6 +111,38 @@ $button-grey: #8e8e8e;
   text-align: center;
   text-decoration: none;
   display: inline-block;
+  
+  &.toggled {
+    background-color: #474747;
+    &.light {
+      background-color: #d5d5d5;
+    }
+  }
+  &.disabled {
+    background-color: #bdbdbd;
+    color: #616161;
+  }
+  &.light {
+    background-color: #bdbdbd;
+    color: black;
+    .night & {
+      background-color: #616161;
+      color: #bdbdbd;
+    }
+    .night.monochrome & {
+      color: white;
+    }
+  }
+  &.warning {
+    background: rgba(255, 0, 0, 0.5);
+    color: black;
+  }
+  &.right {
+    align-self: end;
+  }
+  &.small {
+    min-width: unset;
+  }
 }
 
 .separator {
@@ -159,7 +175,14 @@ $button-grey: #8e8e8e;
   justify-content: flex-start;
 }
 
-$modal-header-background-color: rgba(172,172,172,1);
+:root {
+  --modal-grey:  rgb(172,172,172);
+  .monochrome {
+    --modal-grey: rgb(76, 76, 76);
+  }
+}
+
+$modal-header-background-color: var(--modal-grey);
 $night-modal-header-background-color: rgba(69,69,69,1);
 
 $modal-content-background-color: #fefefe;
@@ -167,10 +190,16 @@ $modal-content-background-color-night: rgb(33, 33, 33);
 
 .highlight-transition {
   transition: background-color 0.5s ease;
+  .noAnimation & {
+    transition: none;
+  }
 }
 
 .isHighlighted {
   background-color: rgba(0, 0, 0, 0.1);
+  .monochrome & {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
   .night & {
     background-color: rgba(255, 255, 255, 0.3);
   }
@@ -204,4 +233,214 @@ pre {
 table {
   width: 100%;
   table-layout: fixed;
+}
+
+.modal-backdrop {
+  display: block;
+  position: fixed;
+  z-index: 10;
+  padding-top: 10px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  .monochrome & {
+    background-color: unset;
+  }
+  &.no-background {
+    background-color: unset;
+  }
+}
+
+// Memorize component shared styles
+.memorize-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  
+  @media (max-width: 400px) {
+    justify-content: center;
+  }
+}
+
+.memorize-text {
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  min-height: 3rem;
+  transition: background-color 0.3s ease;
+  
+  .night & {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .noAnimation & {
+    transition: none;
+  }
+}
+
+.memorize-word {
+  position: relative;
+  display: inline-block;
+  margin-right: 0.25em;
+  
+  &.blurred {
+    color: transparent;
+    background-color: rgba(0, 0, 0, 0.2);
+    .night & {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    border-radius: 3px;
+    padding: 0 2px;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  &.revealed {
+    color: var(--text-color, inherit);
+  }
+}
+
+// Prevent text selection on interactive elements
+.button, 
+.memorize-button, 
+[role="button"],
+.journal-button {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  
+  &:active {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+
+.large-action {
+  cursor: pointer;
+  min-width: 40px; // Ensures dynamic plus icon has sufficient space to be appended
+  display: flex;
+  flex-direction: row;
+
+  .horizontal & {
+    flex-direction: column;
+    font-size: 60%;
+    margin: 0 auto 0 auto;
+  }
+
+  .vertical & {
+    @extend .light;
+    @extend .button;
+  }
+
+  .fa-layers, .svg-inline--fa {
+    //    padding-inline-end: 14px;  // Causes non-alignment of the icons in the verse action dialog.
+    .horizontal & {
+      color: $button-grey;
+      .monochrome.night & {
+        color: white;
+      }
+      margin: 0 auto 0 auto;
+      padding-bottom: 5px;
+      $size: 20px;
+      width: $size;
+      height: $size;
+    }
+  }
+
+  .title {
+    margin: 0 auto 0 auto;
+    .monochrome.night & {
+      color: white;
+    }
+  }
+
+  padding-bottom: 0.5em;
+
+  .horizontal & {
+    .hasActions & {
+      padding-bottom: 5px;
+    }
+  }
+}
+
+// Experimental Features Notice Styles
+.experimental-notice {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  padding: 12px;
+
+  .night & {
+    background: #2d2416;
+    border-color: #4a3d1b;
+  }
+}
+
+.experimental-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.experimental-icon {
+  color: #856404;
+  font-size: 16px;
+
+  .night & {
+    color: #ffeaa7;
+  }
+}
+
+.experimental-title {
+  font-weight: 600;
+  color: #856404;
+
+  .night & {
+    color: #ffeaa7;
+  }
+}
+
+.help-button {
+  margin-left: auto;
+  padding: 4px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #6c757d;
+  font-size: 14px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+
+  .night & {
+    color: #adb5bd;
+  }
+
+  &:hover {
+    background: rgba(108, 117, 125, 0.1);
+    color: #495057;
+
+    .night & {
+      background: rgba(173, 181, 189, 0.1);
+      color: #ced4da;
+    }
+  }
+}
+
+.experimental-description {
+  margin: 0;
+  font-size: 13px;
+  color: #6c4a00;
+  line-height: 1.4;
+
+  .night & {
+    color: #d1b656;
+  }
 }

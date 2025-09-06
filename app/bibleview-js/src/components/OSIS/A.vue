@@ -38,6 +38,6 @@ function openLink(event: MouseEvent, url: string) {
 }
 </script>
 
-<style scoped>
+<style>
 
 </style>

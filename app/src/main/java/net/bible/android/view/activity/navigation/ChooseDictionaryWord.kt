@@ -35,6 +35,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
@@ -118,7 +119,7 @@ class ChooseDictionaryWord : ListActivityBase() {
         }
 
         override fun toString(): String {
-            val text = readOsisFragment(book, key);
+            val text = try  { readOsisFragment(book, key) } catch (e: OsisError) {e.xml}
             val snippet = getEntrySnippet(text, key.toString())
             return if (snippet != "")
                 "$key - $snippet"

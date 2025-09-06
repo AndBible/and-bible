@@ -104,7 +104,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         } catch (nsve: Exception) {
             -1
         }
-        val currentVerse = windowControl.activeWindowPageManager.currentPage.singleKey as Verse
+        val currentVerse = windowControl.activeWindowPageManager.currentVersePage.singleKey as Verse
         val bookColorAndGroup = GridChoosePassageBook.getBookColorAndGroup(book.ordinal)
 
         val keys = ArrayList<ButtonInfo>()

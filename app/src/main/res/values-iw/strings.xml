@@ -14,7 +14,6 @@
   <string name="chooseBook">הטקסט</string>
   <string name="selectPassage">מעבר</string>
   <string name="search">חיפוש</string>
-  <string name="search_in_andbible">מצא בכתובים</string>
   <string name="settings">הגדרות כלליות</string>
   <string name="history">היסטוריה</string>
   <string name="speak">הקראה</string>
@@ -455,7 +454,6 @@
   <string name="window_text_options_help1">האייקון \"%s\" מציין שהבחירה מגיעה מהגדרות מסך העבודה.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">האייקון  \"%s\" מציין שההגדרה שונתה עבור חלון מסויים זה.</string>
-  <string name="window_text_options_help3">ההגדרה במסך העבודה לא תשפיע על חלון זה.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">ערכי ברירת מחדל</string>
   <string name="reset_workspace_defaults">ערכי ברירת מחדל של סביבת העבודה</string>
@@ -505,16 +503,24 @@
   <!--User Notes-->
   <string name="mynotes">הערות אישיות</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">היכן לגבות?</string>
+  <string name="backup_backup_message">גיבוי לזכרון המכשיר או באמצעות שיתוף (אימייל, Google Drive ועוד) ?</string>
+  <string name="backup_phone_storage">אחסון המכשיר</string>
   <string name="backup_and_restore">גיבוי ושחזור</string>
   <string name="backup_modules2">גיבוי מסמכים ל....</string>
   <string name="backup_app_database2">גיבוי מסד הנתונים של האפליקציה אל...</string>
+  <string name="backup_app2">שמירת האפליקציה (קובץ apk) אל...</string>
   <string name="backup_application">יישום</string>
   <string name="backup_database">מסד נתונים</string>
   <string name="backup_documents">מסמכים</string>
   <string name="backup_application_info">קובץ אפליקציה file (.APK)</string>
   <string name="backup_to">גיבוי אל...</string>
   <string name="backup_restore_from">שחזור גיבוי מ...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">שחזור או ייבוא מ...</string>
   <string name="backup_restore">שחזור</string>
+  <string name="backup_restore2">שחזור או ייבוא</string>
+  <string name="overwrite_something">לדרוס את %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">מה לשחזר?</string>
   <string name="restore_app_database">שחזר את מסד נתוני היישום מתוך...</string>
@@ -533,6 +539,8 @@
   <string name="send_backup_file">שליחת קובץ גיבוי</string>
   <string name="backup_modules_title">בחירת מודולים לגיבוי</string>
   <string name="install_zip_canceled">התקנת המודול בוטלה</string>
+  <string name="restore">שחזור</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">כל הזכויות שמורות: %s</string>
   <string name="module_about_installed_version">הגרסה המותקנת: %1$s (%2$s)</string>
@@ -620,6 +628,7 @@
   <string name="workspace_listing_with_current">%s (נוכחי)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">זו גרסת בטא !</string>
+  <string name="beta_flag">בטא</string>
   <string name="beta_notice_content_1">
         בגרסת הבטא, ישנן אפשרויות חדשות שלא נבדקו כהלכה,
         ועלולים לקרות דברים מוזרים, כמו באגים.
@@ -653,6 +662,7 @@
   <string name="help_studypads_text">
 פנקסי לימוד מתוכננים לאפשר בקלות הכנת דרשות או הערות אישיות הכוללות מספר מראי מקומות. כל פנקס לימוד מקושר לתווית אחת. כל הסימניות המקושרות לתווית זו יופיעו בפנקס הלימוד. ניתן להוסיף לפנקס לימוד גם טקסט חופשי.</string>
   <string name="help_search_title">חיפוש</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">חיפוש טקסט יכול לכלול סימנים מיוחדים כגון  *, ?, AND, OR, NOT
         (קרא את \"Apache Lucene - Query Parser Syntax\" למידע נוסף [באנגלית[))
     </string>
@@ -721,6 +731,7 @@
   <string name="tell_friend_message3">להתקנה מחנות היישומים: %s</string>
   <string name="tell_friend_message4">לקריאה נוספת ואפשרויות התקנה נוספות: %s</string>
   <string name="share_verse_ok">שיתוף / העתקה</string>
+  <string name="web_search">חיפוש ברשת</string>
   <string name="verse_action_copy">העתק</string>
   <string name="generic_share">שתף</string>
   <string name="share_verse_menu_title">שיתוף / העתקה ...</string>
@@ -803,10 +814,20 @@
   <string name="label_salvation">ישועה</string>
   <string name="label_underline">קו תחתי</string>
   <string name="import_menu">ייבוא וייצוא</string>
+  <string name="export">יצוא</string>
   <string name="export_fileformat">ייצוא כ %s</string>
+  <string name="export_something">יצוא %s</string>
   <string name="import_items">ייבוא %s</string>
   <string name="import_from_db">טעינה מקובץ גיבוי של מסד נתוני היישום</string>
   <string name="import_error">נכשלה טעינת נתונים מקובץ מסד נתוני היישום. ייתכן שהקובץ בפורמט לא תקין או נשמר ע\"י גרסה ישנה מדי של %s.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">הטקסט</string>
+  <string name="book">ספר</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">טווח</string>
   <string name="chooser_jump">עבור אל</string>
   <string name="chooser_OT_abbrev">התנ\"ך</string>
@@ -873,6 +894,7 @@
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">הזדהות אל %s</string>
+  <string name="auth_server_uri">כתובת השרת</string>
   <string name="auth_username">שם משתמש</string>
   <string name="auth_password">סיסמה</string>
   <string name="auth_access_token">טוקן</string>
@@ -885,6 +907,7 @@
   <string name="sync_error">שגיאה בסנכרון לענן</string>
   <string name="error_notification_channel_name">הודעות שגיאה</string>
   <string name="enable_sync">אפשר סנכרון</string>
+  <string name="last_updated">עודכן לאחרונה: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">לא ניתן לקרוא את הקובץ</string>
   <string name="sqlite_cant_write">לא ניתן לשמור את הקובץ</string>
@@ -900,4 +923,11 @@
   <string name="dont_show">
         אל תציג שוב את ההודעה הזו
     </string>
+  <string name="current_value">הערך הנוכחי: %s</string>
+  <string name="prefs_swipe_mode_chapter">פרק</string>
+  <string name="prefs_swipe_mode_page">עמוד</string>
+  <string name="prefs_swipe_mode_none">לא זמין</string>
+  <string name="invalid_url_message">הכתובת שהזנת אינה תקינה. יש להזין כתובת תקינה (לדוגמא: https://nextcloud.example.com)</string>
+  <string name="memorize_description">שינון פסוקים</string>
+  <string name="memorize_abbreviation">שינון</string>
 </resources>

@@ -21,7 +21,6 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
@@ -29,6 +28,10 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
+import net.bible.service.download.isPseudoBook
+import net.bible.service.download.isRemoved
+import net.bible.service.history.AddHistoryItem
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
@@ -92,12 +95,6 @@ abstract class CurrentPageBase protected constructor(
 
     /** notify mediator that page has changed and a lot of things need to update themselves
      */
-    private fun beforePageChange() {
-        ABEventBus.post(BeforeCurrentPageChangeEvent(window = pageManager.window))
-    }
-
-    /** notify mediator that page has changed and a lot of things need to update themselves
-     */
     private fun pageChange() {
         if (!isInhibitChangeNotifications) {
             PassageChangeMediator.onCurrentPageChanged(pageManager.window)
@@ -106,8 +103,10 @@ abstract class CurrentPageBase protected constructor(
 
     override val singleKey: Key? get() = key
 
-    override fun setKey(key: Key) {
-        beforePageChange()
+    override fun setKey(key: Key, addHistoryItem: Boolean) {
+        if(addHistoryItem) {
+            ABEventBus.post(AddHistoryItem(window = pageManager.window))
+        }
         doSetKey(key)
         pageChange()
     }
@@ -193,6 +192,9 @@ abstract class CurrentPageBase protected constructor(
                 if(real != null) {
                     _currentDocument = real
                 }
+            }
+            if (_currentDocument?.isRemoved == true) {
+                _currentDocument = getDefaultBook()
             }
             return _currentDocument
         }

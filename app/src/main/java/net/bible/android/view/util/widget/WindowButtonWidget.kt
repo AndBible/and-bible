@@ -100,9 +100,9 @@ class WindowButtonWidget(
                 && window?.isPinMode == true
                 && !isMaximised
             )
-                View.VISIBLE
+                VISIBLE
             else
-                View.INVISIBLE
+                INVISIBLE
 
         val isPinnedWindow = window?.isPinMode == true
         val isLinksWindow = window?.isLinksWindow == true

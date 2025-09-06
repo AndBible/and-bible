@@ -73,7 +73,7 @@ const notes = computed<BibleBookmark[]>(() => {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .bible-text {
   margin-top: 2pt;

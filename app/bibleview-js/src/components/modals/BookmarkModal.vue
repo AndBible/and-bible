@@ -24,6 +24,9 @@
           <LabelList single-line handle-touch in-bookmark :bookmark-id="bookmark.id" ref="labelList"/>
         </div>
         <div class="title-text one-liner">
+          <template v-if="customIcon">
+            <FontAwesomeIcon :icon="customIcon" size="xs" style="padding-inline-end: 5px"/>
+          </template>
           <template v-if="isBibleBookmark(bookmark)">{{ bookmark.verseRangeAbbreviated }}</template>
           <q v-if="bookmark.text"><i>{{ bookmark.text }}</i></q>
         </div>
@@ -110,7 +113,7 @@ import {clickWaiter} from "@/utils";
 import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
 import {BaseBookmark} from "@/types/client-objects";
-import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
+import {isBibleBookmark, isGenericBookmark, resolveIcon} from "@/composables/bookmarks";
 
 const showBookmark = ref(false);
 const android = inject(androidKey)!;
@@ -130,6 +133,17 @@ const bookmark = computed<BaseBookmark | null>(() => {
 const labels = computed(() => {
     if (!bookmark.value) return [];
     return sortBy(bookmark.value!.labels.map(l => bookmarkLabels.get(l)!), ["name"])
+});
+
+const primaryLabel = computed(() => {
+    const primaryLabelId = bookmark.value?.primaryLabelId || bookmark.value?.labels[0];
+    if (!primaryLabelId) return null;
+    return bookmarkLabels.get(primaryLabelId);
+});
+
+const customIcon = computed(() => {
+    if (!bookmark.value || !primaryLabel.value) return null;
+    return resolveIcon(bookmark.value, primaryLabel.value);
 });
 
 const bookmarkNotes = computed(() => bookmark.value!.notes);
@@ -200,7 +214,7 @@ async function toggleInfo(event: MouseEvent | TouchEvent) {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .bookmark-title {
   padding-top: 2px;

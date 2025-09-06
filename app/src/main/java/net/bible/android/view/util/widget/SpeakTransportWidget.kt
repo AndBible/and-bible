@@ -20,6 +20,7 @@ package net.bible.android.view.util.widget
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -45,6 +46,8 @@ import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.service.common.CommonUtils
+import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -64,6 +67,17 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         buildActivityComponent().inject(this)
 
         binding.apply {
+            val allButtons = listOf(
+                speakPauseButton, prevButton, nextButton,
+                stopButton, configButton, rewindButton,
+                forwardButton, bookmarkButton,
+            )
+            if (CommonUtils.settings.monochromeMode) {
+                statusText.setTextColor(if(ScreenSettings.nightMode) Color.WHITE else Color.BLACK)
+                for(b in allButtons) {
+                    b.setBackgroundColor(Color.BLACK)
+                }
+            }
             speed.progress = SpeakSettings.load().playbackSettings.speed
             speed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -88,7 +102,9 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
             rewindButton.setOnClickListener { onButtonClick(it) }
             forwardButton.setOnClickListener { onButtonClick(it) }
             bookmarkButton.setOnClickListener { onBookmarkButtonClick() }
+
             bookmarkButton.visibility = if (speakBookmarks.isNotEmpty()) View.VISIBLE else View.GONE
+
             if (context.theme.obtainStyledAttributes(attributeSet, R.styleable.SpeakTransportWidget, 0, 0)
                     .getBoolean(R.styleable.SpeakTransportWidget_hideStatus, false)
             ) {

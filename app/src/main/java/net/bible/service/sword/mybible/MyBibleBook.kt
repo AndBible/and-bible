@@ -312,7 +312,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun readBible(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
-        var text = state.sqlDb.rawQuery(
+        var text: String? = state.sqlDb.rawQuery(
             "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
             arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
         ).use {
@@ -342,7 +342,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                 "<title canonical=\"false\">$story</title>$text"
             }
         }
-        return text
+        return text ?: ""
     }
     private fun readDictionary(state: SqliteVerseBackendState, key: Key): String {
         if(key !is DefaultLeafKeyList) throw RuntimeException("Invalid key");

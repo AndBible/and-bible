@@ -18,6 +18,8 @@ package net.bible.service.sword
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Log
+import android.util.LruCache
 import androidx.core.content.ContextCompat
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
@@ -42,6 +44,7 @@ import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.PassageType
 import java.io.File
 
+private const val FIVE_MINUTES_MS: Long = 1000 * 60 * 5
 /**
  * Create directories required by JSword and set required JSword configuration.
  *
@@ -89,11 +92,14 @@ object SwordEnvironmentInitialisation {
 
     @Throws(BookException::class)
     fun enableDefaultAndManualInstallFolder() {
+        Log.i("SwordInit", "enableDefaultAndManualInstallFolder: manual folders enabled!")
         CWProject.setHome("jsword.home", SharedConstants.modulesDir.absolutePath, SharedConstants.manualInstallDir.absolutePath)
         // the following causes Sword to initialise itself and can take quite a few seconds
 		// add manual install dir to this list
         SwordBookPath.setAugmentPath(arrayOf(SharedConstants.manualInstallDir, SharedConstants.manualInstallDir2))
     }
+
+    private val messageShownLast = LruCache<String, Long>(100);
 
     /** JSword calls back to this listener in the event of some types of error
      *
@@ -108,20 +114,22 @@ object SwordEnvironmentInitialisation {
                 showMsg(ev)
             }
 
+
             private fun showMsg(ev: ReporterEvent?) {
-                val msg: String?
-                msg = if (ev == null) {
-                    getResourceString(R.string.error_occurred)
-                } else if (!StringUtils.isEmpty(ev.message)) {
-                    ev.message
-                } else if (ev.exception != null && StringUtils.isEmpty(ev.exception.message)) {
-                    ev.exception.message
-                } else {
-                    getResourceString(R.string.error_occurred)
+                val msg = when {
+                    ev == null -> getResourceString(R.string.error_occurred)
+                    !StringUtils.isEmpty(ev.message) -> ev.message
+                    ev.exception != null && !StringUtils.isEmpty(ev.exception.message) ->
+                        getResourceString(R.string.error_occurred_with_link, ev.exception.message!!)
+                    else -> getResourceString(R.string.error_occurred)
+                }
+                val lastShown = messageShownLast.get(msg)
+                messageShownLast.put(msg, System.currentTimeMillis())
+                if (lastShown != null && System.currentTimeMillis() - lastShown < FIVE_MINUTES_MS) {
+                    return // Error message has been shown recently, let's not spam user!
                 }
                 // convert Throwable to Exception for Dialogs
-                val e: Exception
-                e = if (ev != null) {
+                val e: Exception = if (ev != null) {
                     val th = ev.exception
                     if (th is Exception) th else Exception("Jsword Exception", th)
                 } else {

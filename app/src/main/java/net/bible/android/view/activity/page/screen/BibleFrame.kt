@@ -139,21 +139,27 @@ class BibleFrame(
         bibleView.updateBackgroundColor()
         setBackgroundColor(bibleView.backgroundColor)
 
-        addView(bibleView, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-        mainBibleActivity.registerForContextMenu(bibleView as View)
+        addView(bibleView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        mainBibleActivity.registerForContextMenu(bibleView)
         addWindowButton()
     }
 
+    fun recreate() {
+        val bv = bibleView
+        removeView(bv)
+        bv.doDestroy()
+        bibleView = bibleViewFactory.getOrCreateBibleView(window)
+        bibleView.updateBackgroundColor()
+        addView(bibleView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        mainBibleActivity.registerForContextMenu(bibleView)
+        window.loadText()
+    }
+
     private fun addWindowButton() {
-        val isSingleWindow = windowControl.isSingleWindow
         if (allViews.hideWindowButtons) return
         if (windowRepository.isMaximized) return
 
-        val button =
-            when {
-                isSingleWindow -> return
-                else -> createWindowMenuButton(window)
-            }
+        val button = createWindowMenuButton(window)
 
         if (!mainBibleActivity.isSplitVertically) {
             button.translationY = mainBibleActivity.topOffset2.toFloat()
@@ -167,8 +173,8 @@ class BibleFrame(
 
         windowButton = button
         addView(button,
-            LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                if (isSingleWindow) Gravity.BOTTOM or Gravity.END else Gravity.TOP or Gravity.END))
+            LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+                Gravity.TOP or Gravity.END))
     }
 
 

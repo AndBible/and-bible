@@ -2,9 +2,9 @@ Zaawansowane narzędzie do studiowania Pisma Świętego
 
 "AndBible: Studium Biblii" jest potężnym i zarazem łatwym w użyciu narzędziem do czytania Biblii bez dostępu do internetu na system Android. Nie jest to zwykły czytnik Pisma Świętego, ale zaawansowane narzędzie do głębokiego osobistego studiowania Biblii.
 
-Ta aplikacja jest rozwijana przez i dla czytaczy Pisma Świętego. Jej celem jest sprawienie, aby czytanie Biblii było wygodne, głębokie i radosne. Najważniejsze w naszym projekcie jest to, że jest on otwartoźródłowy (open source), całkowicie darmowy i nie zawiera reklam. Stworzona od podstaw na system Android, nasza aplikacja zajmuje niewiele miejsca, jest lekka i szybka.
+Ta aplikacja jest rozwijana przez i dla czytaczy Pisma Świętego. Jej celem jest sprawienie, aby czytanie Biblii było wygodne, głębokie i radosne. Najważniejsze w naszym projekcie jest to, że jest on otwartoźródłowy (open source), całkowicie darmowy i nie zawiera reklam.
 
-Z polskich wersji Biblii dostępna jest Biblia Gdańska (z roku 1881) i Uwspółcześniona Biblia Gdańska (2018).
+Z polskich wersji Biblii dostępna jest Biblia gdańska (z roku 1881), Uwspółcześniona Biblia gdańska (2018) i Przekład toruński (2017).
 
 Możliwości aplikacji Studium Biblii
 
@@ -20,11 +20,11 @@ Aplikacja wyróżnia się wieloma zmyślnymi, oryginalnymi cechami, które to u�
  * „bloczki notatek” umożliwiające dodawanie notatek i odnośników do Biblii podczas słuchania kazań
  * plany czytania: zdefiniuj własne cele czytania
  * obszerna biblioteka dokumentów: tłumaczenia, komentarze teologiczne, słowniki, mapy, książki chrześcijańskie, w sumie ponad 1500 dokumentów w 700 językach legalnie rozpowszechnianych przez CrossWire i inne repozytoria SWORD
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
+ * wsparcie dla plików MyBible, MySword i EPUB pozwalające na dalsze rozszerzenie Twojej biblioteki
 
 Razem stwórzmy najlepszą apkę do czytania Biblii!
 
-And Bible jest otwartoźródłowym projektem społecznościowym. Oznacza to, że każdy posiadający odpowiednie umiejętności może – i jest zachęcany – do uczestnictwa w rozwoju projektu poprzez:
+AndBible jest otwartoźródłowym projektem społecznościowym. Oznacza to, że każdy posiadający odpowiednie umiejętności może – i jest zachęcany – do uczestnictwa w rozwoju projektu poprzez:
 
  * programowanie nowych funkcji;
  * testowanie funkcji próbnych;
@@ -33,11 +33,11 @@ And Bible jest otwartoźródłowym projektem społecznościowym. Oznacza to, że
 
 Jeżeli jesteś zawodowym programistą lub testerem, prosimy rozważyć włączenie się w rozwój aplikacji. Więcej informacji znajduje się na stronie https://git.io/JUnaj
 
-Support by buying development time!
+Wspomóż poprzez opłacenie czasu programisty!
 
-If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+Jeżeli nie masz czasu lub zdolności programistycznych, wciąż możesz wspomóc projekt wykupując czas pracy profesjonalnego programisty.
 
-See options: https://shop.andbible.org/
+Czytaj więcej: https://shop.andbible.org/
 
 Odnośniki
 

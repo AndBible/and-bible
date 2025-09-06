@@ -29,7 +29,6 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
-import kotlin.math.max
 
 class WindowSync(private val windowRepository: WindowRepository) {
     private var lastSyncWasInNightMode: Boolean = false
@@ -45,7 +44,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             setResyncRequired()
 
         for (window in windowRepository.visibleWindows) {
-            window.updateTextIfNeeded()
+            window.updateOrScroll()
         }
         lastSyncWasInNightMode = ScreenSettings.nightMode
     }

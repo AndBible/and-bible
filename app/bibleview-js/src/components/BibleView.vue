@@ -16,7 +16,12 @@
   -->
 
 <template>
-  <div @click="ambiguousSelection?.handle" :class="{night: appSettings.nightMode}" :style="topStyle" :dir="direction">
+  <div
+      @click="ambiguousSelection?.handle"
+      :class="{night: appSettings.nightMode, noAnimation: appSettings.disableAnimations, monochrome: appSettings.monochromeMode}"
+      :style="topStyle"
+      :dir="direction"
+  >
     <div class="background" :style="backgroundStyle"/>
     <div :style="`height:${calculatedConfig.topOffset}px`"/>
     <div :style="modalStyle" id="modals"/>
@@ -35,19 +40,46 @@
       <div class="bottom-right-corner"/>
     </div>
     <div id="top"/>
-    <div class="loading" v-if="isLoading"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
-    <div id="content" ref="topElement" :style="contentStyle">
-      <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load
-        properly
+    <div class="loading" v-if="isLoading">
+      <div v-if="appSettings.disableAnimations" class="loading-icon">
+        <FontAwesomeIcon size="2x" icon="fa-regular fa-clock"/>
       </div>
+      <div v-else class="lds-ring"><div/><div/><div/><div/></div>
+    </div>
+    <div id="content" ref="topElement" :style="contentStyle">
+      <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <DocumentBroker v-for="document in documents" :key="document.id" :document="document"/>
     </div>
+    <template v-if="!modalOpen">
+      <div class="prev-page-button" @click.stop="scrollUpDown(true)" :style="{width: `${calculatedConfig.marginLeft}px`}"/>
+      <div class="next-page-button" @click.stop="scrollUpDown()" :style="{width: `${calculatedConfig.marginRight}px`}" />
+    </template>
+    <div class="pagenumber"
+         :style="{bottom: `${appSettings.bottomOffset}px`}"
+         v-if="config.showPageNumber"
+         @click="resetPageNumber()"
+    >
+      <div class="pagenumber-text">
+        {{ pageNumber }}
+      </div>
+    </div>
+    <div
+        v-if="appSettings.isBottomWindow"
+        @touchmove.stop.prevent
+        :style="{height: `${appSettings.bottomOffset}px`}"
+        class="bottom-touch-block"
+    />
+    <div
+        v-if="appSettings.isBottomWindow && !appSettings.bottomOffset"
+        @touchmove.stop.prevent
+        class="invisible-bottom-touch-block"
+    />
     <div id="bottom"/>
   </div>
 </template>
 <script lang="ts" setup>
 import DocumentBroker from "@/components/documents/DocumentBroker.vue";
-import {computed, nextTick, onMounted, onUnmounted, provide, reactive, ref, Ref, watch} from "vue";
+import {computed, nextTick, onMounted, onUnmounted, provide, reactive, ref, Ref, shallowRef, watch} from "vue";
 import {testBookmarkLabels, testData} from "@/testdata";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
 import {useGlobalBookmarks} from "@/composables/bookmarks";
@@ -78,7 +110,7 @@ import {useKeyboard} from "@/composables/keyboard";
 import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
-import {useConfig} from "@/composables/config";
+import {black, useConfig, white} from "@/composables/config";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
@@ -86,6 +118,7 @@ import {useCustomFeatures} from "@/composables/features";
 import {useSharing} from "@/composables/sharing";
 import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 console.log("BibleView setup");
 useAddonFonts();
@@ -108,7 +141,7 @@ const lineHeight = computed(() => {
 
 const strings = useStrings();
 window.bibleViewDebug.documents = documents;
-const topElement = ref<HTMLElement | null>(null);
+const topElement = shallowRef<HTMLElement | null>(null);
 const documentPromise: Ref<Promise<void> | null> = ref(null);
 const verseHighlight = useOrdinalHighlight();
 provide(ordinalHighlightKey, verseHighlight);
@@ -118,7 +151,7 @@ const customCss = useCustomCss();
 provide(customCssKey, customCss);
 
 const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
-const {doScrolling, scrollToId} = scroll;
+const {doScrolling, scrollToId, scrollYAtStart, scrollY} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
 const android = useAndroid(globalBookmarks, config);
@@ -135,7 +168,7 @@ function getFootNoteCount() {
 
 provide(footnoteCountKey, {getFootNoteCount});
 
-const {closeModals} = modal;
+const {closeModals, modalOpen} = modal;
 
 const mounted = ref(false);
 
@@ -150,7 +183,7 @@ const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, andro
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
 
-const {documentsCleared} = useInfiniteScroll(android, documents);
+const {documentsCleared} = useInfiniteScroll(android, scroll, documents);
 const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {
@@ -165,6 +198,7 @@ function addDocuments(...docs: AnyDocument[]) {
         documents.push(...docs);
         await nextTick();
         await Promise.all(customCss.customCssPromises);
+        await waitNextAnimationFrame();
         loadingCount.value--;
         if(loadingCount.value < 0) {
             loadingCount.value = 0;
@@ -228,7 +262,9 @@ provide(androidKey, android);
 const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
 
 const backgroundStyle = computed(() => {
-    const colorInt = appSettings.nightMode ? config.colors.nightBackground : config.colors.dayBackground;
+    const nightColor = appSettings.monochromeMode ? black : config.colors.nightBackground;
+    const dayColor = appSettings.monochromeMode? white : config.colors.dayBackground;
+    const colorInt = appSettings.nightMode ? nightColor : dayColor;
     if (colorInt === null) return "";
     const backgroundColor = Color(colorInt).hsl().string();
     return `
@@ -237,7 +273,9 @@ const backgroundStyle = computed(() => {
 });
 
 const contentStyle = computed(() => {
-    const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor : config.colors.dayTextColor);
+    const nightColor = appSettings.monochromeMode? white: config.colors.nightTextColor;
+    const dayColor = appSettings.monochromeMode ? black: config.colors.dayTextColor;
+    const textColor = Color(appSettings.nightMode ? nightColor : dayColor);
 
     let style = `
           max-width: ${config.marginSize.maxWidth}mm;
@@ -245,17 +283,16 @@ const contentStyle = computed(() => {
           margin-right: auto;
           color: ${textColor.hsl().string()};
           hyphens: ${config.hyphenation ? "auto" : "none"};
-          line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
           font-family: ${config.fontFamily};
-          font-size: ${config.fontSize}px;
-          --font-size: ${config.fontSize}px;
+          font-size: ${config.fontSize*appSettings.fontSizeMultiplier}px;
+          --font-size: ${config.fontSize*appSettings.fontSizeMultiplier}px;
           `;
     if (config.marginSize.marginLeft || config.marginSize.marginRight) {
         style += `
-            margin-left: ${config.marginSize.marginLeft}mm;
-            margin-right: ${config.marginSize.marginRight}mm;
+            padding-left: ${config.marginSize.marginLeft}mm;
+            padding-right: ${config.marginSize.marginRight}mm;
           `;
     }
     return style;
@@ -265,17 +302,29 @@ const modalStyle = computed(() => {
     return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
-          --font-size:${config.fontSize}px;
+          --font-size:${config.fontSize*appSettings.fontSizeMultiplier}px;
           --font-family:${config.fontFamily};`
 });
 
 const topStyle = computed(() => {
-    const backgroundColor = Color(appSettings.nightMode ? config.colors.nightBackground : config.colors.dayBackground);
+    const nightTextColor = appSettings.monochromeMode? white: config.colors.nightTextColor;
+    const dayTextColor = appSettings.monochromeMode ? black: config.colors.dayTextColor;
+
+    const nightBackgroundColor = appSettings.monochromeMode ? black : config.colors.nightBackground;
+    const dayBackgroundColor = appSettings.monochromeMode? white : config.colors.dayBackground;
+
+    const backgroundColor = Color(appSettings.nightMode ? nightBackgroundColor : dayBackgroundColor);
     const noiseOpacity = appSettings.nightMode ? config.colors.nightNoise : config.colors.dayNoise;
-    const textColor = Color(appSettings.nightMode ? config.colors.nightTextColor : config.colors.dayTextColor);
-    const verseNumberColor = appSettings.nightMode ?
-        textColor.fade(0.2).hsl().string() :
-        textColor.fade(0.5).hsl().string();
+    const textColor = Color(appSettings.nightMode ? nightTextColor : dayTextColor);
+    let verseNumberColor: string;
+    if (appSettings.monochromeMode) {
+        verseNumberColor = textColor.hsl().string();
+    } else {
+        verseNumberColor = appSettings.nightMode ?
+            textColor.fade(0.2).hsl().string() :
+            textColor.fade(0.5).hsl().string();
+    }
+
     return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
@@ -299,10 +348,25 @@ setupEventBusListener("adjust_loading_count", (a: number) => {
 });
 
 const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
+const scrollAmount = computed(() => {
+    let amount = calculatedConfig.value.pageHeight;
+    if (documentType.value !== "bible" || (documentType.value === "bible" && !config.topMargin)) {
+        amount -= 1.5*lineHeight.value; // 1.5 times because last line might be otherwise displayed partially
+    }
+    return amount;
+})
 
 function scrollUpDown(up = false) {
-    const amount = window.innerHeight / 2;
-    doScrolling(window.pageYOffset + (up ? -amount : amount), 500)
+    doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
+}
+
+const pageNumber = computed(() => {
+    const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
+    return num.toFixed(1);
+});
+
+function resetPageNumber() {
+    scrollYAtStart.value = scrollY.value
 }
 
 setupEventBusListener("scroll_down", () => scrollUpDown());
@@ -310,9 +374,10 @@ setupEventBusListener("scroll_up", () => scrollUpDown(true));
 
 useSharing({topElement, android});
 const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
+
 </script>
-<style lang="scss" scoped>
-@import "~@/common.scss";
+<style lang="scss">
+@use "@/common.scss" as *;
 
 $ring-size: 35px;
 $ring-thickness: calc(#{$ring-size} / 12);
@@ -321,6 +386,14 @@ $ring-thickness: calc(#{$ring-size} / 12);
   position: fixed;
   left: calc(50% - #{$ring-size} / 2);
   top: calc(50% - #{$ring-size} / 2);
+}
+
+.loading-icon {
+  border-radius: 50%;
+  background: white;
+  .night & {
+    background: black;
+  }
 }
 
 $ring-color: $button-grey;
@@ -451,16 +524,21 @@ $borderDistance: 0;
   left: 0;
   right: 0;
 
-  .night & {
+ .night & {
     background-color: rgba(255, 255, 255, 0.15);
   }
 
   background-color: rgba(0, 0, 0, 0.15);
-}
 
-</style>
-<style lang="scss">
-@import "~@/common.scss";
+  .noAnimation & {
+    background-color: unset;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.5);
+    font-smooth: never;
+  }
+  .night.noAnimation & {
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
+  }
+}
 
 a {
   color: blue;
@@ -472,9 +550,15 @@ a {
 
 .bookmark-marker {
   @extend .superscript;
-  font-size: 50%;
+  font-size: 60%;
   top: -0.8em;
   cursor: pointer;
+  > .bookmark-marker-note {
+    @extend .superscript;
+    font-size: 60%;
+    top: -0.5em;
+    padding-left: 2px;
+  }
 }
 
 .divider {
@@ -482,7 +566,7 @@ a {
 }
 
 #bottom {
-  padding-bottom: 100vh;
+  padding-bottom: 200vh;
 }
 
 .modal-action-button {
@@ -524,4 +608,71 @@ a {
   width: 5em;
   height: 1em;
 }
+
+.next-page-button {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  width: 0;
+}
+
+.pagenumber {
+  z-index: 5;
+  position: fixed;
+  right: 2mm;
+  margin-bottom: 2mm;
+  bottom: 0;
+  width: 1cm;
+  height: 0.5cm;
+  font-size: 70%;
+  font-weight: bold;
+  color: var(--text-color);
+  background: rgba(207, 207, 207, 0.71);
+  .noAnimation & {
+    background-color: var(--background-color);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--text-color);
+  }
+  border-radius: 0.5cm;
+  justify-content: center;
+  .pagenumber-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.prev-page-button {
+  @extend .next-page-button;
+  left: 0;
+  right: unset;
+}
+
+.invisible-bottom-touch-block {
+  position: fixed;
+  bottom: 0;
+  height: 1cm;
+  width: 100%;
+  background: transparent;
+  z-index: 10;
+}
+
+.bottom-touch-block {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: var(--background-color);
+
+  .noAnimation & {
+    background: var(--background-color);
+    border-color: var(--text-color);
+    border-top-style: dashed;
+    border-width: 1px;
+  }
+  z-index: 10;
+}
+
 </style>

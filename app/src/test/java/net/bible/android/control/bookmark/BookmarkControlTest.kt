@@ -161,6 +161,99 @@ class BookmarkControlTest {
     }
 
     @Test
+    fun testDeleteLabelsWithOrphanedBookmarks() {
+        // Test that when deleting a StudyPad label, bookmarks that only have that label are NOT deleted by default
+        // but can be deleted if explicitly requested
+        
+        // Create bookmarks and labels
+        val bookmark1 = addTestVerse()
+        val bookmark2 = addTestVerse()
+        val bookmark3 = addTestVerse()
+        
+        val studyPadLabel = addTestLabel()  // This will be deleted
+        val keepLabel = addTestLabel()      // This will be kept
+        
+        // bookmark1: only has studyPadLabel (would be orphaned, but should remain by default)
+        bookmarkControl!!.setLabelsForBookmark(bookmark1!!, listOf(studyPadLabel))
+        
+        // bookmark2: has both studyPadLabel and keepLabel (should remain, and lose studyPadLabel)
+        bookmarkControl!!.setLabelsForBookmark(bookmark2!!, listOf(studyPadLabel, keepLabel))
+        
+        // bookmark3: only has keepLabel (should remain unchanged)
+        bookmarkControl!!.setLabelsForBookmark(bookmark3!!, listOf(keepLabel))
+        
+        // Verify initial state
+        Assert.assertEquals(3, bookmarkControl!!.allBibleBookmarks.size)
+        Assert.assertEquals(2, bookmarkControl!!.getBibleBookmarksWithLabel(studyPadLabel).size)
+        Assert.assertEquals(2, bookmarkControl!!.getBibleBookmarksWithLabel(keepLabel).size)
+        
+        // Test 1: Delete labels without deleting orphaned bookmarks (default behavior)
+        bookmarkControl!!.deleteLabels(listOf(studyPadLabel.id), deleteOrphanedBookmarks = false)
+        
+        // Verify results - all bookmarks should remain
+        val remainingBookmarks = bookmarkControl!!.allBibleBookmarks
+        Assert.assertEquals("Expected all 3 bookmarks to remain", 3, remainingBookmarks.size)
+        
+        // bookmark1 should remain but have no labels (orphaned)
+        Assert.assertTrue("bookmark1 should remain", 
+            remainingBookmarks.any { it.id == bookmark1.id })
+        val bookmark1Labels = bookmarkControl!!.labelsForBookmark(
+            remainingBookmarks.find { it.id == bookmark1.id }!!)
+        Assert.assertEquals("bookmark1 should have no labels", 0, bookmark1Labels.size)
+        
+        // bookmark2 should remain and only have keepLabel
+        Assert.assertTrue("bookmark2 should remain", 
+            remainingBookmarks.any { it.id == bookmark2.id })
+        val bookmark2Labels = bookmarkControl!!.labelsForBookmark(
+            remainingBookmarks.find { it.id == bookmark2.id }!!)
+        Assert.assertEquals("bookmark2 should have 1 label", 1, bookmark2Labels.size)
+        Assert.assertEquals("bookmark2 should have keepLabel", keepLabel.id, bookmark2Labels[0].id)
+        
+        // bookmark3 should remain unchanged
+        Assert.assertTrue("bookmark3 should remain", 
+            remainingBookmarks.any { it.id == bookmark3.id })
+        
+        // Reset for second test - clean up database first
+        val existingBookmarks = bookmarkControl!!.allBibleBookmarks
+        for (bookmark in existingBookmarks) {
+            bookmarkControl!!.deleteBookmark(bookmark)
+        }
+        val existingLabels = bookmarkControl!!.allLabels
+        for (label in existingLabels) {
+            bookmarkControl!!.deleteLabel(label)
+        }
+        setUp()
+        
+        // Test 2: Create the scenario again but with deleteOrphanedBookmarks = true
+        val bookmark1b = addTestVerse()
+        val bookmark2b = addTestVerse()
+        val bookmark3b = addTestVerse()
+        
+        val studyPadLabelB = addTestLabel()
+        val keepLabelB = addTestLabel()
+        
+        bookmarkControl!!.setLabelsForBookmark(bookmark1b!!, listOf(studyPadLabelB))
+        bookmarkControl!!.setLabelsForBookmark(bookmark2b!!, listOf(studyPadLabelB, keepLabelB))
+        bookmarkControl!!.setLabelsForBookmark(bookmark3b!!, listOf(keepLabelB))
+        
+        // Delete labels WITH deleting orphaned bookmarks
+        bookmarkControl!!.deleteLabels(listOf(studyPadLabelB.id), deleteOrphanedBookmarks = true)
+        
+        val remainingBookmarks2 = bookmarkControl!!.allBibleBookmarks
+        Assert.assertEquals("Expected 2 bookmarks to remain when deleting orphaned", 2, remainingBookmarks2.size)
+        
+        // bookmark1b should be deleted (it only had studyPadLabelB)
+        Assert.assertFalse("bookmark1b should be deleted when deleteOrphanedBookmarks=true", 
+            remainingBookmarks2.any { it.id == bookmark1b.id })
+        
+        // bookmark2b and bookmark3b should remain
+        Assert.assertTrue("bookmark2b should remain", 
+            remainingBookmarks2.any { it.id == bookmark2b.id })
+        Assert.assertTrue("bookmark3b should remain", 
+            remainingBookmarks2.any { it.id == bookmark3b.id })
+    }
+
+    @Test
     fun testVerseRange() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 2), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 5))
         val newBookmark = BibleBookmarkWithNotes(verseRange, null, true, null)

@@ -46,7 +46,6 @@ import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
 class WindowChangedEvent(val window: Window)
@@ -185,15 +184,13 @@ class Window (
         if(!isVisible) return
 
         Log.i(TAG, "Loading OSIS xml in background")
-        val key: Key?
         var anchorOrdinal: OrdinalRange? = null
         val currentPage = pageManager.currentPage
-
-        if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
-            key = pageManager.currentBibleVerse.verse
+        val key = if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
+            pageManager.currentBibleVerse.verse
         } else {
-            key = pageManager.currentPage.key
             anchorOrdinal = currentPage.anchorOrdinal
+            pageManager.currentPage.key
         }
         val htmlId = if(currentPage.currentDocument?.isEpub == true) {
             currentPage.htmlId
@@ -318,7 +315,7 @@ class Window (
         val anchorOrdinal = pageManager.currentPage.anchorOrdinal
         val htmlId = pageManager.currentPage.htmlId
         if(prevKey == key && (anchorOrdinal != null || htmlId != null)) {
-            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal, htmlId)
+            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal, htmlId, document?.initials, key?.osisRef)
             return
         }
         loadText(notifyLocationChange = true)
@@ -341,12 +338,34 @@ class Window (
         return bibleView?.hasChapterLoaded(chapter) == true
     }
 
-    fun updateTextIfNeeded() {
-        if((displayedKey != pageManager.currentPage.key || displayedBook != pageManager.currentPage.currentDocument)
-            || (windowControl.windowSync.lastForceSyncAll > lastUpdated))
-        {
+    fun updateOrScroll() {
+        if((displayedKey != pageManager.currentPage.key
+            || displayedBook != pageManager.currentPage.currentDocument)
+            || (windowControl.windowSync.lastForceSyncAll > lastUpdated)
+        ) {
             loadText()
+        } else {
+            scrollToText()
         }
+    }
+
+    private fun scrollToText() {
+        val currentPage = pageManager.currentPage
+        if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
+            bibleView?.scrollOrJumpToVerse(
+                pageManager.currentBibleVerse.verse,
+                true
+            )
+        } else {
+            bibleView?.scrollOrJumpToOrdinal(
+                currentPage.anchorOrdinal,
+                currentPage.htmlId,
+                currentPage.currentDocument?.initials,
+                currentPage.singleKey?.osisRef,
+                true
+            )
+        }
+
     }
 
     private val TAG get() = "BibleView[${displayId}] WIN"

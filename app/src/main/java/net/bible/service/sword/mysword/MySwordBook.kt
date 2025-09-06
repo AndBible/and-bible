@@ -341,36 +341,39 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     }
 
     private val strongsMorphRe = Regex("""(\w+)<W([GH])(\d+)><WT([a-zA-Z\d\-]+)( l="([^"]+)")?>""")
-    private val strongsRe = Regex("""(\w+)<W([GH])(\d+)>""")
+    private val strongsRe = Regex("""(\w+)<W([GH]\d+)>(<W([GH]\d+)>)?(<W([GH]\d+)>)?""")
     private val morphRe = Regex("""<WT([a-zA-Z\d\-]+)( l="([^"]+)")?>""")
     private val tagEndRe = Regex("""<(Ts|Fi|Fo|q|e|t|x|h|g)>""")
     private val singleTagRe = Regex("""<(CM|CL|PF\d|Pl\d|Cl|D|wh|wg|wt|br)>""")
 
     // MySword has weird non-xml tags, so we need to do some transformation here.
     // https://www.mysword.info/modules-format
-    private fun transformMySwordTags(mySwordText: String): String =
-        mySwordText
-            .replace(strongsMorphRe) { m ->
-                val word = m.groups[1]!!.value
-                val lang = m.groups[2]!!.value
-                val strongsNum = m.groups[3]!!.value
-                val morphCode = m.groups[4]!!.value
-                "<w lemma=\"strong:${lang}${strongsNum}\" morph=\"strongMorph:${morphCode}\">${word}</w>"
-            }
-            .replace(strongsRe) { m ->
-                val (word, lang, num) = m.destructured
-                "<w lemma=\"strong:${lang}${num}\">${word}</w>"
-            }
-            .replace(morphRe) { m ->
-                val morphCode = m.groups[1]!!.value
-                "<w morph=\"strongMorph:${morphCode}\">${morphCode}</w>"
-            }
-            .replace(tagEndRe) {m ->
-                "</${m.groups[1]!!.value.uppercase()}>"
-            }
-            .replace(singleTagRe) {m ->
-                "<${m.groups[1]!!.value}/>"
-            }
+    private fun transformMySwordTags(mySwordText: String): String = mySwordText
+        .replace(strongsMorphRe) { m ->
+            val word = m.groups[1]!!.value
+            val lang = m.groups[2]!!.value
+            val strongsNum = m.groups[3]!!.value
+            val morphCode = m.groups[4]!!.value
+            "<w lemma=\"strong:${lang}${strongsNum}\" morph=\"strongMorph:${morphCode}\">${word}</w>"
+        }
+        .replace(strongsRe) { m ->
+            val word = m.groups[1]!!.value
+            val strongs1 = m.groups[2]!!.value
+            val strongs2 = m.groups[4]?.value
+            val strongs3 = m.groups[6]?.value
+            val strongs = listOf(strongs1, strongs2, strongs3).filterNotNull().joinToString(" ") { "strong:$it" }
+            "<w lemma=\"$strongs\">${word}</w>"
+        }
+        .replace(morphRe) { m ->
+            val morphCode = m.groups[1]!!.value
+            "<w morph=\"strongMorph:${morphCode}\">${morphCode}</w>"
+        }
+        .replace(tagEndRe) { m ->
+            "</${m.groups[1]!!.value.uppercase()}>"
+        }
+        .replace(singleTagRe) { m ->
+            "<${m.groups[1]!!.value}/>"
+        }
 
     override fun readRawContent(state: SqliteVerseBackendState, key: Key): String = try {
         when (bookMetaData.bookCategory) {

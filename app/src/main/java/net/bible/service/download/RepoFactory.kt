@@ -65,7 +65,7 @@ class RepoFactory(private val downloadManager: DownloadManager) {
     // In priority order (if the same version of module is found in many, it will be picked up
     // from the earlier of the repository list).
     private val normalRepositories = listOf(
-        defaultRepo, crosswireRepo, eBibleRepo, lockmanRepo, wycliffeRepo, andBibleExtraRepo, ibtRepo, stepRepo
+        defaultRepo, crosswireRepo, eBibleRepo, lockmanRepo, wycliffeRepo, andBibleExtraRepo, ibtRepo, stepRepo,
     )
 
     private val betaRepositories = listOf(crosswireBetaRepo, andBibleBetaRepo)

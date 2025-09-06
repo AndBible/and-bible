@@ -1,0 +1,313 @@
+/*
+ * Copyright (c) 2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.service.cloudsync.googledrive
+
+import android.accounts.Account
+import android.app.Activity
+import android.os.Parcel
+import android.util.Base64
+import android.util.Log
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.gms.auth.api.identity.SignInCredential
+import com.google.android.gms.tasks.Task
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.client.googleapis.json.GoogleJsonResponseException
+import com.google.api.client.http.FileContent
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.gson.GsonFactory
+import com.google.api.client.util.DateTime
+import com.google.api.services.drive.model.File as DriveFile
+import com.google.api.services.drive.Drive
+import com.google.api.services.drive.DriveScopes
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import net.bible.android.BibleApplication
+import net.bible.android.database.SyncConfiguration
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.cloudsync.CloudAdapter
+import net.bible.service.cloudsync.CloudFile
+import net.bible.service.cloudsync.GZIP_MIMETYPE
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.service.cloudsync.TAG
+import net.bible.service.common.CommonUtils
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.io.OutputStream
+import java.util.Collections
+import kotlin.coroutines.resumeWithException
+
+const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
+const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
+
+private fun DriveFile.toSyncFile() = CloudFile(
+    id = id,
+    name = name,
+    size = getSize()?: 0,
+    createdTime = createdTime.value,
+    parentId = parents.first()
+)
+
+private fun Drive.Files.List.collectAll(): List<DriveFile> {
+    val result = mutableListOf<DriveFile>()
+    var pageToken: String? = null
+    do {
+        val lst = setPageToken(pageToken).execute()
+        result.addAll(lst.files)
+        pageToken = lst.nextPageToken
+    } while(pageToken != null)
+    return result
+}
+
+suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation ->
+    addOnSuccessListener { result ->
+        continuation.resume(result, null)
+    }
+    addOnFailureListener { exception ->
+        continuation.resumeWithException(exception)
+    }
+    addOnCanceledListener {
+        continuation.cancel()
+    }
+}
+
+private const val FIELDS = "id, name, size, createdTime, parents"
+
+
+class GoogleDriveCloudAdapter: CloudAdapter {
+    private var oneTapClient: SignInClient = Identity.getSignInClient(BibleApplication.application)
+    private var account: Account? = null
+
+    override val signedIn get() = account != null
+    private var _service: Drive? = null
+    private val service: Drive
+        get() {
+        if (!signedIn) {
+            throw IllegalStateException("Not signed in")
+        }
+        return _service?: Drive.Builder(
+            NetHttpTransport(),
+            GsonFactory.getDefaultInstance(),
+            GoogleAccountCredential
+                .usingOAuth2(BibleApplication.application, Collections.singleton(DriveScopes.DRIVE_APPDATA))
+                .setSelectedAccount(account)
+        ).setApplicationName("AndBible").build().also {
+            _service = it
+        }
+    }
+
+    private var lastAccount: Account?
+        get() {
+            val s = CommonUtils.realSharedPreferences.getString("lastAccount", null)?: return null
+            return try {
+                val bytes = Base64.decode(s, Base64.DEFAULT)
+                val p = Parcel.obtain()
+                p.unmarshall(bytes, 0, bytes.size)
+                p.setDataPosition(0)
+                val account = Account(p)
+                account
+            } catch (e: Exception) {
+                CommonUtils.realSharedPreferences.edit().remove("lastAccount").apply()
+                null
+            }
+        }
+        set(value) {
+            if(value == null) {
+                CommonUtils.realSharedPreferences.edit().remove("lastAccount").apply()
+            } else {
+                val p = Parcel.obtain()
+                value.writeToParcel(p, 0)
+                val s = String(Base64.encode(p.marshall(), Base64.DEFAULT))
+                CommonUtils.realSharedPreferences.edit().putString("lastAccount", s).apply()
+            }
+        }
+
+    override suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) {
+        Log.i(TAG, "Starting")
+        try {
+            account = lastAccount ?: oneTapSignIn(activity).also {lastAccount = it }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error signing in", e)
+            account = null
+            throw e
+        }
+        val success = ensureDriveAccess(activity)
+        if(!success) {
+            account = null
+            lastAccount = null
+        }
+        return@withContext success
+    }
+
+    private suspend fun oneTapSignIn(activity: ActivityBase): Account {
+        Log.i(TAG, "Signing in (one tap)")
+        val signInRequest = BeginSignInRequest.builder()
+            .setGoogleIdTokenRequestOptions(
+                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                    .setSupported(true)
+                    .setServerClientId(webClientId)
+                    .setFilterByAuthorizedAccounts(false)
+                    .build()
+            )
+            .setAutoSelectEnabled(true)
+            .build()
+        val beginSignInResult = oneTapClient.beginSignIn(signInRequest).await()
+        val intent = activity.awaitPendingIntent(beginSignInResult.pendingIntent).data
+        val oneTapCredential: SignInCredential = oneTapClient.getSignInCredentialFromIntent(intent)
+        return Account(oneTapCredential.id, BibleApplication.application.packageName)
+    }
+
+    private suspend fun ensureDriveAccess(activity: ActivityBase): Boolean {
+        try {
+            service.files().list()
+                .setSpaces("appDataFolder")
+                .setFields("nextPageToken, files(id, name, size)")
+                .execute()
+        } catch (e: UserRecoverableAuthIOException) {
+            val result = activity.awaitIntent(e.intent)
+            return result.resultCode == Activity.RESULT_OK
+        } catch (e: IOException) {
+            Log.e(TAG, "Network unavailable", e)
+            return true // We do not want to log out because of this!
+        } catch (e: Throwable) {
+            Log.e(TAG, "ensureDriveAccess error", e)
+            return false
+        }
+        return true
+    }
+
+    override suspend fun get(id: String): CloudFile =
+        try {
+            service.files()
+                .get(id)
+                .setFields(FIELDS)
+                .execute().toSyncFile()
+        } catch (e: GoogleJsonResponseException) {
+            if(e.statusCode == 404) {
+                throw FileNotFoundException()
+            } else {
+                throw e;
+            }
+        }
+
+    override suspend fun listFiles(
+        parentsIds: List<String>?,
+        name: String?,
+        mimeType: String?,
+        createdTimeAtLeast: Long?
+    ): List<CloudFile> {
+        val createdTimeAtLeastDateTime = createdTimeAtLeast?.let { DateTime(it) }
+        val q = mutableListOf<String>()
+        if (parentsIds != null) {
+            q.add(
+               parentsIds.joinToString(
+                   separator = " or ",
+                   prefix = "(",
+                   postfix = ")",
+               ) { "'$it' in parents" }
+            )
+        }
+        if(createdTimeAtLeastDateTime != null) {
+            q.add(
+               "createdTime > '${createdTimeAtLeastDateTime.toStringRfc3339()}'"
+            )
+        }
+        if(name != null) {
+            q.add("name = '$name'")
+        }
+        if(mimeType != null) {
+            q.add("mimeType = '$mimeType'")
+        }
+        if(q.isEmpty()) {
+            throw RuntimeException("Illegal query")
+        }
+        return service.files().list()
+            .setSpaces("appDataFolder")
+            .setQ(q.joinToString(" and "))
+            .setPageSize(1000) // maximum page size
+            .setFields("nextPageToken, files($FIELDS)")
+            .collectAll()
+            .map { it.toSyncFile() }
+    }
+
+    override suspend fun getFolders(parentId: String): List<CloudFile> =
+        listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
+
+    override suspend fun delete(id: String) {
+        service.files().delete(id).execute()
+    }
+
+    override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean {
+        // For Google Drive implementation, we just need to
+        // verify that id is found in Drive
+        try {
+            get(id)
+        } catch (e: FileNotFoundException) {
+            return false
+        }
+        return true
+    }
+
+    override suspend fun makeSyncFolderKnown(
+        dbDef: SyncableDatabaseAccessor<*>,
+        name: String,
+        id: String
+    )
+    // For Google Drive implementation, we don't need to do anything
+    {}
+
+    override fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = emptyList()
+
+    override suspend fun download(id: String, outputStream: OutputStream) {
+       service.files().get(id).executeMediaAndDownloadTo(outputStream)
+    }
+
+    override suspend fun createNewFolder(name: String, parentId: String?): CloudFile =
+        service.files()
+            .create(DriveFile().apply {
+                this.name = name
+                mimeType = FOLDER_MIMETYPE
+                parents = listOf(parentId ?: "appDataFolder")
+            })
+            .setFields(FIELDS)
+            .execute()
+            .toSyncFile()
+
+    override suspend fun upload(name: String, file: File, parentId: String): CloudFile =
+        service.files().create(
+            DriveFile().apply {
+                this.name = name
+                parents = listOf(parentId)
+            },
+            FileContent(GZIP_MIMETYPE, file)
+        )
+            .setFields(FIELDS)
+            .execute()
+            .toSyncFile()
+
+    override suspend fun signOut() {
+        oneTapClient.signOut().await()
+        lastAccount = null
+        account = null
+    }
+}
+

@@ -18,6 +18,9 @@
 <template>
   <div class="ambiguous-button" :style="buttonStyle" @click.stop="openBookmark(false)">
     <div class="verse-range one-liner">
+      <template v-if="customIcon">
+        <FontAwesomeIcon :icon="customIcon" size="xs" style="padding-inline-end: 5px"/>
+      </template>
       <template v-if="isBibleBookmark(bookmark)">
         {{ bookmark.verseRangeAbbreviated }}&nbsp;
       </template>
@@ -52,13 +55,13 @@ import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {globalBookmarksKey, locateTopKey} from "@/types/constants";
 import {BaseBookmark} from "@/types/client-objects";
-import {isBibleBookmark} from "@/composables/bookmarks";
+import {isBibleBookmark, resolveIcon} from "@/composables/bookmarks";
 
 const $emit = defineEmits(["selected"]);
 const props = defineProps<{ bookmarkId: IdType }>();
 
 const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
-useCommon();
+const {appSettings} = useCommon();
 const bookmark = computed(() => bookmarkMap.get(props.bookmarkId)! as BaseBookmark);
 const bookmarkNotes = computed(() => bookmark.value.notes!);
 
@@ -67,9 +70,14 @@ const primaryLabel = computed(() => {
     return bookmarkLabels.get(primaryLabelId)!;
 });
 
-const buttonStyle = computed(() => {
+const customIcon = computed(() => resolveIcon(bookmark.value, primaryLabel.value));
+
+const buttonStyle = computed<string|undefined>(() => {
     let color = Color(primaryLabel.value.color);
     color = color.alpha(0.5)
+    if (appSettings.monochromeMode) {
+        return;
+    }
     return `background-color: ${color.hsl()};`
 });
 
@@ -93,13 +101,26 @@ function htmlToString(html: string) {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .ambiguous-button {
   color: black;
 
+  .monochrome & {
+    background-color: white;
+    border-style: solid;
+    border-width: 1px;
+  }
+
   .night & {
     color: #d7d7d7;
+  }
+
+  .monochrome.night & {
+    color: white;
+    background-color: black;
+    border-style: solid;
+    border-width: 1px;
   }
 
   @extend .button;

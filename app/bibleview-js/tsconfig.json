@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
+    "module": "Node16",
     "strict": true,
-    "jsx": "preserve",
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "allowJs": true,
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

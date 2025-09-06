@@ -54,35 +54,27 @@
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/x-zip" />
                 <data android:mimeType="application/zip" />
                 <data android:mimeType="application/epub+zip" />
+                <data android:mimeType="application/x-font-ttf" />
+                <data android:mimeType="font/ttf" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
-
                 <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/x-zip" />
                 <data android:mimeType="application/zip" />
                 <data android:mimeType="application/epub+zip" />
+                <data android:mimeType="application/x-font-ttf" />
+                <data android:mimeType="font/ttf" />
             </intent-filter>
         </activity>
-        <activity-alias
-            android:targetActivity="net.bible.android.view.activity.search.SearchResults"
-            android:name="net.bible.android.view.activity.search.SearchResults"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search_in_andbible"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.PROCESS_TEXT" />
-                <data android:mimeType="text/plain"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity-alias>
+
         <receiver
             android:name=".SpeakWidgetManager$SmallSpeakControlWidget"
             android:exported="true"
-            android:enabled="false"
             >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -95,7 +87,6 @@
 
         <receiver android:name=".SpeakWidgetManager$MiddleSpeakControlWidget"
             android:exported="true"
-            android:enabled="false"
             >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -108,7 +99,6 @@
 
         <receiver android:name=".SpeakWidgetManager$LargeSpeakControlWidget"
             android:exported="true"
-            android:enabled="false"
             >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

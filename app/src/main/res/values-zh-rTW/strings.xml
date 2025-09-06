@@ -12,7 +12,6 @@
   <string name="chooseBook">文件</string>
   <string name="selectPassage">聖經段落</string>
   <string name="search">尋找</string>
-  <string name="search_in_andbible">在聖經中查找</string>
   <string name="settings">程式偏好</string>
   <string name="history">閱讀歷史</string>
   <string name="speak">朗讀</string>
@@ -476,7 +475,6 @@ http://www.heartlight.org 准予使用
   <string name="window_text_options_help1">%s 圖示標示此設定是來自工作區設定</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s 圖示標示此設定已被更改至此視窗</string>
-  <string name="window_text_options_help3">工作區設定不會影響此視窗</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">以 %1$s 按鈕重設所有設定至 %2$s。</string>
   <string name="reset_defaults">預設數值</string>
@@ -536,6 +534,9 @@ http://www.heartlight.org 准予使用
   <!--User Notes-->
   <string name="mynotes">筆記列表</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">備份目的地</string>
+  <string name="backup_backup_message">以分享功能備份至手機或其他目的地 (電郵、Google Drive等)？</string>
+  <string name="backup_phone_storage">手機空間</string>
   <string name="backup_and_restore">備份及回復</string>
   <string name="backup_modules2">備份文件至...</string>
   <string name="backup_app_database2">備份程式資料庫至...</string>
@@ -548,6 +549,7 @@ http://www.heartlight.org 准予使用
   <string name="backup_document_info">聖經、註釋、字典、地圖等。</string>
   <string name="backup_to">備份至...</string>
   <string name="backup_restore_from">回復至...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">回復</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">你想回復什麼？</string>
@@ -569,6 +571,8 @@ http://www.heartlight.org 准予使用
   <string name="send_backup_file">傳送備份檔案</string>
   <string name="backup_modules_title">選擇備份模組</string>
   <string name="install_zip_canceled">模組安裝已取消</string>
+  <string name="restore">回復</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">版權: %s</string>
   <string name="module_about_installed_version">已安裝版本：%1$s (%2$s)</string>
@@ -695,6 +699,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 研習筆記可方便使用者編寫及準備講道筆記、或者作個人的多經文研究。每一個研習筆記都有專屬的書籤。所有標記了該書籤的經文，均會自動出現在對應的研習筆記中。除了書籤以外，使用者亦可自行增添文字。
 </string>
   <string name="help_search_title">搜尋</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">搜尋字詞可以加入特殊字符如 * , ?, AND, OR, NOT
 (有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_workspaces_title">工作區</string>
@@ -878,6 +883,14 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="import_items">以%s匯入</string>
   <string name="import_from_db">從程式資料庫檔案匯入</string>
   <string name="import_error">從程式資料庫匯入失敗。資料庫檔案版本或許太舊，或者是從太舊的%s建立。</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">文件</string>
+  <string name="book">書卷</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">範圍</string>
   <string name="chooser_jump">跳轉</string>
   <string name="chooser_OT_abbrev">舊約</string>
@@ -1012,6 +1025,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="error_notification_channel_name">錯誤通知</string>
   <string name="restore_from_cloud_description">如果在另一裝置上已啟用同步功能，你可以先從雲端回復資料庫。</string>
   <string name="enable_sync">啟用同步功能</string>
+  <string name="last_updated">最後更新：%s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">無法讀取文件</string>
   <string name="sqlite_invalid_file">無效的模組檔案或檔案名稱：%s</string>
@@ -1045,4 +1059,5 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="dont_show">
 不再顯示此訊息
 </string>
+  <string name="prefs_swipe_mode_chapter">章節</string>
 </resources>

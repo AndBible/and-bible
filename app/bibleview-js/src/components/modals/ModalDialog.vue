@@ -19,7 +19,11 @@
   <teleport to="#modals">
     <div v-if="blocking" @click.stop="$emit('close')" class="modal-backdrop"/>
     <div :class="{blocking}">
-      <div ref="modal" @click.stop class="modal-content" :class="{blocking, wide, edit, limit}"
+      <div
+          ref="modal"
+          @click.stop
+          class="modal-content"
+          :class="{blocking, wide, edit, limit}"
       >
         <div ref="header" class="modal-header">
           <slot name="title-div">
@@ -49,7 +53,7 @@
   </teleport>
 </template>
 <script setup lang="ts">
-import {inject, nextTick, onMounted, onUnmounted, ref, watch} from "vue";
+import {inject, nextTick, onMounted, onUnmounted, ref, shallowRef, watch} from "vue";
 import {useCommon} from "@/composables";
 import {draggableElement, setupDocumentEventListener, setupWindowEventListener,} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -58,11 +62,11 @@ import {modalKey} from "@/types/constants";
 const emit = defineEmits(["close"]);
 const props = withDefaults(
     defineProps<{
-        blocking: boolean
-        wide: boolean
-        edit: boolean
-        locateTop: boolean
-        limit: boolean
+        blocking?: boolean
+        wide?: boolean
+        edit?: boolean
+        locateTop?: boolean
+        limit?: boolean
     }>(),
     {
         blocking: false,
@@ -73,7 +77,7 @@ const props = withDefaults(
     }
 );
 
-const modal = ref<HTMLElement | null>(null);
+const modal = shallowRef<HTMLElement | null>(null);
 const header = ref(null);
 const ready = ref(false);
 
@@ -135,19 +139,7 @@ defineExpose({height});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
-
-.modal-backdrop {
-  display: block;
-  position: fixed;
-  z-index: 10;
-  padding-top: 10px;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-}
+@use "@/common.scss" as *;
 
 $border-radius: 8pt;
 $border-radius2: $border-radius - 1.5pt;
@@ -168,10 +160,18 @@ $border-radius2: $border-radius - 1.5pt;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   animation-name: animatetop;
   animation-duration: 0.2s;
+  .noAnimation & {
+    animation: none;
+    box-shadow: none;
+  }
 
   .night & {
     background-color: $modal-content-background-color-night;
     color: #bdbdbd;
+  }
+
+  .monochrome.night & {
+    border-color: white;
   }
 
   border-radius: $border-radius;
@@ -216,6 +216,9 @@ $border-radius2: $border-radius - 1.5pt;
     background-color: $night-modal-header-background-color;
     --header-backround: #{$night-modal-header-background-color};
     color: #e2e2e2;
+  }
+  .monochrome.night & {
+    color: white;
   }
 }
 

@@ -60,6 +60,7 @@ interface OptionsMenuItemInterface {
     fun setNonSpecific() {}
 
     val title: String?
+    val summary: String?
     val icon: Int?
 }
 
@@ -87,6 +88,7 @@ abstract class GeneralPreference(
     override var value: Any = false
     override fun handle() {}
     override val title: String? = null
+    override val summary: String? = null
     override val icon: Int? = null
     override val opensDialog get()  = !isBoolean
 }
@@ -208,6 +210,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
                 TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.string.prefs_show_bookmarks_title
                 TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
+                TextDisplaySettings.Types.PAGENUMBER -> R.string.page_number_title
             }
             return application.getString(id)
         }
@@ -234,6 +237,7 @@ open class Preference(val settings: SettingsBundle,
             TextDisplaySettings.Types.JUSTIFY -> R.drawable.ic_justify_text_24dp
             TextDisplaySettings.Types.HYPHENATION -> R.drawable.ic_hyphenation_24dp
             TextDisplaySettings.Types.MYNOTES -> R.drawable.ic_note_regular_24dp
+            TextDisplaySettings.Types.PAGENUMBER -> R.drawable.ic_chapter_verse_numbers_24dp
             else -> R.drawable.ic_baseline_star_24
         }
 }
@@ -258,7 +262,9 @@ class CommandPreference(
     override var value: Any = Object(),
     override val visible: Boolean = true,
     override val inherited: Boolean = false,
-    override val opensDialog: Boolean = false
+    override val opensDialog: Boolean = false,
+    override val title: String? = null,
+    override val summary: String? = null,
 ) : OptionsMenuItemInterface {
     override fun handle() {
         handle?.invoke()
@@ -268,7 +274,6 @@ class CommandPreference(
         return true
     }
 
-    override val title: String? = null
     override val icon: Int? = null
     override val isBoolean get() = handle != null && value is Boolean
 }
@@ -297,6 +302,10 @@ class MyNotesPreference (settings: SettingsBundle) : Preference(settings, TextDi
 
 class RedLettersPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.REDLETTERS) {
     override val enabled: Boolean get() = pageManager.isBibleShown && pageManager.currentPage.currentDocument?.hasFeature(FeatureType.WORDS_OF_CHRIST) == true
+}
+
+class ExpandXrefsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.EXPAND_XREFS) {
+    override val enabled: Boolean get() = Preference(settings, TextDisplaySettings.Types.XREFS).value == true
 }
 
 class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.STRONGS) {
@@ -471,6 +480,7 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     private val maxWidth get() = (value  as WorkspaceEntities.MarginSize).maxWidth ?: defaultVal.maxWidth!!
     private val defaultVal = TextDisplaySettings.default.marginSize!!
     override val title: String get() = application.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal, maxWidth)
+    override val summary: String? get() = application.getString(R.string.prefs_margin_size_summary) + " " + application.getString(R.string.prefs_margin_size_summary_2)
     override val visible = true
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         MarginSizeWidget.dialog(activity, value as WorkspaceEntities.MarginSize,

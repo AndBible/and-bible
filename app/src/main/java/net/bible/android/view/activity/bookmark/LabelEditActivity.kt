@@ -16,19 +16,27 @@
  */
 package net.bible.android.view.activity.bookmark
 
-import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
+import android.text.TextWatcher
 import android.text.style.ImageSpan
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.GridView
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.lifecycleScope
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
@@ -37,18 +45,70 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarkLabelEditBinding
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
+import javax.inject.Inject
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.displayName
+import net.bible.service.db.exportStudyPads
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+// Reordered customIconMap with logical categories
+val customIconMap = mapOf(
+    // Religious / Spiritual
+    "book" to R.drawable.icon_book,
+    "book-bible" to R.drawable.icon_book_bible,
+    "cross" to R.drawable.icon_cross,
+    "church" to R.drawable.icon_church,
+    "star-of-david" to R.drawable.icon_star_of_david,
+    "person-praying" to R.drawable.icon_person_praying,
+
+    // Informational / Symbolic
+    "info" to R.drawable.icon_circle_info,
+    "question" to R.drawable.icon_circle_question,
+    "exclamation" to R.drawable.icon_circle_exclamation,
+    "lightbulb" to R.drawable.icon_lightbulb,
+    "bell" to R.drawable.icon_bell,
+    "flag" to R.drawable.icon_flag,
+    "star" to R.drawable.icon_star,
+    "tag" to R.drawable.icon_tag,
+
+    // Communication / Social
+    "envelope" to R.drawable.icon_envelope,
+    "comment" to R.drawable.icon_comment,
+    "share-nodes" to R.drawable.icon_share_nodes,
+    "link" to R.drawable.icon_link,
+    "handshake" to R.drawable.icon_handshake,
+
+    // Time & Location
+    "clock" to R.drawable.icon_clock,
+    "map-marker" to R.drawable.icon_location_dot,
+    "globe" to R.drawable.icon_globe,
+    "landmark" to R.drawable.icon_landmark,
+    "calendar" to R.drawable.icon_calendar,
+
+    // People & Media / Miscellaneous
+    "user" to R.drawable.icon_user,
+    "music" to R.drawable.icon_music,
+    "microphone" to R.drawable.icon_microphone,
+    "key" to R.drawable.icon_key,
+    "crown" to R.drawable.icon_crown,
+    "heart" to R.drawable.icon_heart,
+    "heart-crack" to R.drawable.icon_heart_crack
+)
+
 @ActivityScope
 class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
+
+    @Inject lateinit var bookmarkControl: BookmarkControl
+    
     lateinit var binding: BookmarkLabelEditBinding
+
 
     override fun onColorSelected(dialogId: Int, color: Int) {
         // let's remove alpha
@@ -83,6 +143,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         var isHandled = true
         when(item.itemId){
             R.id.removeLabel -> remove()
+            R.id.share -> lifecycleScope.launch { exportStudyPads(this@LabelEditActivity, data.label) }
             android.R.id.home -> saveAndExit()
             else -> isHandled = false
         }
@@ -103,6 +164,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         var isThisBookmarkSelected: Boolean,
         var isThisBookmarkPrimary: Boolean,
         var delete: Boolean = false,
+        var deleteOrphanedBookmarks: Boolean = false,
     ) {
         fun toJSON(): String = json.encodeToString(serializer(), this)
 
@@ -171,6 +233,25 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             autoAssignCheckBox.visibility = GONE
             primaryAutoAssignCheckBox.visibility = GONE
         }
+
+        if (data.label.isSpeakLabel) {
+            customIconSelector.visibility = GONE
+        } else {
+            customIconSelector.visibility = View.VISIBLE
+            val iconName = data.label.customIcon
+            val drawableId = customIconMap[iconName] ?: R.drawable.ic_baseline_bookmark_24
+            val rawDrawable = ContextCompat.getDrawable(root.context, drawableId)
+            val drawable = rawDrawable?.let {
+                val mutated = DrawableCompat.wrap(it).mutate()
+                DrawableCompat.setTint(mutated,
+                    if (iconName == null) CommonUtils.getResourceColor(R.color.grey_500)
+                    else data.label.color
+                )
+                mutated
+            }
+            customIconSelector.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+            customIconSelector.text = getString(R.string.select_custom_icon)
+        }
         selectedLabelCheckBox.isChecked = data.isThisBookmarkSelected
         primaryLabelCheckBox.isEnabled = data.isThisBookmarkSelected
         primaryAutoAssignCheckBox.isEnabled = data.isAutoAssign
@@ -185,8 +266,14 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
         val resultIntent = Intent()
         resultIntent.putExtra("data", data.toJSON())
-        setResult(Activity.RESULT_OK, resultIntent)
+        setResult(RESULT_OK, resultIntent)
         finish()
+    }
+
+    enum class RemoveOption {
+        CANCEL,
+        DELETE_LABEL_ONLY,
+        DELETE_LABEL_AND_BOOKMARKS
     }
 
     private fun remove() {
@@ -194,23 +281,66 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         updateData()
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val result = suspendCoroutine {
-                AlertDialog.Builder(this@LabelEditActivity)
-                    .setMessage(getString(R.string.delete_label_confirmation, data.label.name))
-                    .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
-                    .setNegativeButton(R.string.no) {_, _ -> it.resume(false)}
-                    .setCancelable(true)
-                    .create().show()
+            val orphanedBookmarks = bookmarkControl.findOrphanedBookmarks(listOf(data.label.id))
+            
+            val (dialogMessage, showOrphanedOptions) = if (orphanedBookmarks.isNotEmpty()) {
+                val baseMessage = getString(R.string.delete_label_confirmation, data.label.name)
+                val orphanedMessage = getString(R.string.confirm_delete_orphaned_bookmarks, orphanedBookmarks.size)
+                val combinedMessage = "$baseMessage\n\n$orphanedMessage"
+                Pair(combinedMessage, true)
+            } else {
+                Pair(getString(R.string.delete_label_confirmation, data.label.name), false)
             }
-            if(result) {
-                data.delete = true
-
-                val resultIntent = Intent()
-                resultIntent.putExtra("data", data.toJSON())
-                setResult(Activity.RESULT_OK, resultIntent)
-                finish()
+            
+            val result = if (showOrphanedOptions) {
+                suspendCoroutine { continuation ->
+                    AlertDialog.Builder(this@LabelEditActivity)
+                        .setMessage(dialogMessage)
+                        .setPositiveButton(R.string.delete_label_and_bookmarks) { _, _ -> 
+                            continuation.resume(RemoveOption.DELETE_LABEL_AND_BOOKMARKS)
+                        }
+                        .setNegativeButton(R.string.delete_label_only) { _, _ ->
+                            continuation.resume(RemoveOption.DELETE_LABEL_ONLY)
+                        }
+                        .setNeutralButton(R.string.cancel) { _, _ ->
+                            continuation.resume(RemoveOption.CANCEL)
+                        }
+                        .setCancelable(true)
+                        .create().show()
+                }
+            } else {
+                val confirmed = suspendCoroutine { continuation ->
+                    AlertDialog.Builder(this@LabelEditActivity)
+                        .setMessage(dialogMessage)
+                        .setPositiveButton(R.string.yes) { _, _ -> continuation.resume(true) }
+                        .setNegativeButton(R.string.no) { _, _ -> continuation.resume(false) }
+                        .setCancelable(true)
+                        .create().show()
+                }
+                if (confirmed) RemoveOption.DELETE_LABEL_ONLY else RemoveOption.CANCEL
+            }
+            
+            when (result) {
+                RemoveOption.DELETE_LABEL_AND_BOOKMARKS -> {
+                    data.delete = true
+                    data.deleteOrphanedBookmarks = true
+                    finishWithResult()
+                }
+                RemoveOption.DELETE_LABEL_ONLY -> {
+                    data.delete = true
+                    data.deleteOrphanedBookmarks = false
+                    finishWithResult()
+                }
+                RemoveOption.CANCEL -> {}
             }
         }
+    }
+    
+    private fun finishWithResult() {
+        val resultIntent = Intent()
+        resultIntent.putExtra("data", data.toJSON())
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -232,6 +362,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             updateUI()
 
             titleIcon.setOnClickListener { editColor() }
+            customIconSelector.setOnClickListener { editCustomIcon() }
 
             for(v in listOf(
                 autoAssignCheckBox,
@@ -246,11 +377,80 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                     updateUI()
                 }
             }
+            labelName.addTextChangedListener(object: TextWatcher {
+                override fun afterTextChanged(s: android.text.Editable?) {
+                    updateData()
+                }
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
 
             if(data.label.name == "") {
                 labelName.requestFocus()
             }
         }
+    }
+
+    private fun editCustomIcon() {
+        val iconNames = customIconMap.keys.toList()
+        val size = (40 * resources.displayMetrics.density).toInt()
+        val gridView = GridView(this).apply {
+            numColumns = GridView.AUTO_FIT
+            columnWidth = size
+            stretchMode = GridView.STRETCH_COLUMN_WIDTH
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            minimumHeight = (resources.displayMetrics.heightPixels * 0.5).toInt()
+            val paddingPx = (16 * resources.displayMetrics.density).toInt()
+            setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
+            adapter = object : BaseAdapter() {
+                override fun getCount() = iconNames.size + 1
+                override fun getItem(position: Int) = iconNames[position]
+                override fun getItemId(position: Int) = position.toLong()
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+                    val button = convertView as? ImageButton ?: ImageButton(this@LabelEditActivity)
+                    if (position == count - 1) {
+                        val drawable = ContextCompat.getDrawable(context, R.drawable.icon_disabled)
+                        button.setImageDrawable(drawable)
+                        button.setBackgroundColor(
+                            if (data.label.customIcon == null) {
+                                CommonUtils.getResourceColor(R.color.grey_500)
+                            } else {
+                                Color.TRANSPARENT
+                            }
+                        )
+                    } else {
+                        val name = getItem(position)
+                        val drawableId = customIconMap[name]!!
+                        val drawable = ContextCompat.getDrawable(context, drawableId)
+                        button.setImageDrawable(drawable)
+                        button.setBackgroundColor(
+                            if (name == data.label.customIcon) {
+                                CommonUtils.getResourceColor(R.color.grey_500)
+                            } else {
+                                Color.TRANSPARENT
+                            }
+                        )
+                    }
+                    button.scaleType = ImageView.ScaleType.CENTER_INSIDE
+                    button.adjustViewBounds = true
+                    button.layoutParams = ViewGroup.LayoutParams(size, size)
+                    button.isClickable = false
+                    button.isFocusable = false
+                    return button
+                }
+            }
+        }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.select_custom_icon)
+            .setView(gridView)
+            .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
+            .create()
+        gridView.setOnItemClickListener { _, _, position, _ ->
+            data.label.customIcon = if (position == gridView.adapter.count - 1) null else iconNames[position]
+            updateUI()
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 
     private fun editColor() {
@@ -268,3 +468,4 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         view.setText(spannableString, TextView.BufferType.SPANNABLE)
     }
 }
+

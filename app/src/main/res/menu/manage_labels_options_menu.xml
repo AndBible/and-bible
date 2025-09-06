@@ -38,4 +38,14 @@
         android:icon="@drawable/ic_baseline_undo_24"
         app:showAsAction="never"
         />
+    <item android:id="@+id/export_studypads"
+        android:title=""
+        android:icon="@drawable/ic_baseline_undo_24"
+        app:showAsAction="never"
+        />
+    <item android:id="@+id/import_studypads"
+        android:title=""
+        android:icon="@drawable/ic_baseline_undo_24"
+        app:showAsAction="never"
+        />
 </menu>

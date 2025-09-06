@@ -57,9 +57,39 @@ openDownloads: לך להורדת תוספים
 verseShare: שתף
 verseSpeak: הקראה
 verseCompare: השוואה
+verseMemorize: שינון
 verseNote: הערה
 verseMyNotes: הערות אישיות
 verseShareLong: שתף פסוק זה
 verseCompareLong: השוואת פסוק
+verseMemorizeLong: שינון פסוקים
 verseNoteLong: כתיבת הערה
 addBookmark: סימניה
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: איפוס
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: עוד

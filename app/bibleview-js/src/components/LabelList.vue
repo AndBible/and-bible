@@ -42,20 +42,20 @@ import {computed, inject, ref, Ref, watch} from "vue";
 import {addAll, clickWaiter, removeAll} from "@/utils";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {sortBy} from "lodash";
-import {androidKey, appSettingsKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
+import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
 import {BaseBookmark, LabelAndStyle} from "@/types/client-objects";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
 
 const props = withDefaults(defineProps<{
     bookmarkId: IdType
-    handleTouch: boolean
-    disableLinks: boolean
-    favourites: boolean
-    frequent: boolean
-    recent: boolean
-    inBookmark: boolean
-    onlyAssign: boolean
-    singleLine: boolean
+    handleTouch?: boolean
+    disableLinks?: boolean
+    favourites?: boolean
+    frequent?: boolean
+    recent?: boolean
+    inBookmark?: boolean
+    onlyAssign?: boolean
+    singleLine?: boolean
 }>(), {
     handleTouch: false,
     disableLinks: false,
@@ -69,12 +69,14 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits(["has-entries"]);
 
-const {adjustedColor} = useCommon();
-const appSettings = inject(appSettingsKey)!;
+const {adjustedColor, appSettings} = useCommon();
 const android = inject(androidKey)!;
 const actions: Ref<InstanceType<typeof BookmarkLabelActions> | null> = ref(null);
 
 function labelStyle(label: LabelAndStyle) {
+    if (appSettings.monochromeMode) {
+        return "";
+    }
     const color = adjustedColor(label.color);
     if (isAssigned(label.id)) {
         const textColor = color.isLight() ? "var(--label-text-black)" : "var(--label-text-white)";
@@ -159,7 +161,7 @@ defineExpose({openActions});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .icon {
   font-size: 10px;
@@ -187,6 +189,19 @@ defineExpose({openActions});
   .night & {
     background-color: black;
     color: #bbbbbb;
+  }
+
+  .monochrome & {
+    background-color: white;
+    color: black;
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    &.night {
+      background-color: white;
+      color: black;
+      border-color: black;
+    }
   }
 
   &.notAssigned {

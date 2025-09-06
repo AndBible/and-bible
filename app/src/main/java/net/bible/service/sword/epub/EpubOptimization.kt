@@ -37,6 +37,9 @@ import java.net.URLDecoder
 import java.util.zip.GZIPOutputStream
 
 private val urlRe = Regex("""^https?://.*""")
+
+const val EPUB_OPTIMIZER_VERSION = 2
+
 fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
     val file = fileForOriginalId(origId)?: return Pair(null, 0)
     val parentFolder = file.parentFile!!
@@ -78,7 +81,9 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
     return useSaxBuilder { it.build(file) }
         .let {
             val processed = fixReferences(it.rootElement)
-            val maxOrdinal = SwordContentFacade.addAnchors(processed, bookMetaData.language.code, true)
+            val body = useXPathInstance { xp -> xp.compile("//ns:body", Filters.element(), null, xhtmlNamespace).evaluateFirst(processed) }
+                ?: return Pair(null, 0)
+            val maxOrdinal = SwordContentFacade.addAnchors(body, bookMetaData.language.code, true)
             Pair(it, maxOrdinal)
         }
 }
@@ -167,22 +172,23 @@ fun EpubBackendState.optimizeEpub() {
         return docs
     }
 
-    fun getOrdinalRange(doc: Document): IntRange {
+    fun getOrdinalRange(doc: Document): IntRange? {
         val bvas = useXPathInstance { xp ->
             xp.compile(
                 "//ns:BVA",
                 Filters.element(), null, xhtmlNamespace
             ).evaluate(doc)
         }
-        if(bvas.size == 0) return 0..0
+        if(bvas.size == 0) return null
         return bvas.first().getAttribute("ordinal").intValue ..
             bvas.last().getAttribute("ordinal").intValue
     }
 
     fun splitIntoFragments(originalId: String, origDocument: Document, maxOrdinal: Int): List<EpubFragment> {
-        return splitIntoN(origDocument, 0..maxOrdinal, maxOrdinal/ORDINALS_PER_FRAGMENT).map {
+        return splitIntoN(origDocument, 0..maxOrdinal, maxOrdinal/ORDINALS_PER_FRAGMENT).mapNotNull {
             val ordinalRange = getOrdinalRange(it)
-            EpubFragment(originalId = originalId, ordinalRange.first, ordinalRange.last).apply {
+            if (ordinalRange == null) null
+            else EpubFragment(originalId = originalId, ordinalRange.first, ordinalRange.last).apply {
                 element=it.rootElement
             }
         }
@@ -230,7 +236,9 @@ fun EpubBackendState.optimizeEpub() {
         val (origDocument, maxOrdinal) = readOriginal(k)
         origDocument ?: continue
 
-        val fragments = splitIntoFragments(k, origDocument, maxOrdinal)
+        val fragments = splitIntoFragments(k, origDocument, maxOrdinal).let {
+            it.ifEmpty{ listOf(EpubFragment(k, 0, 0).apply { element = origDocument.rootElement }) }
+        }
         val ids = writeDao.insert(*fragments.toTypedArray())
         for((id, frag) in ids.zip(fragments)) {
             frag.id = id
@@ -254,6 +262,9 @@ fun EpubBackendState.optimizeEpub() {
             frag.element = null // clear up memory
         }
         fileForOriginalId(k)?.delete()
+    }
+    versionFile.outputStream().use {
+        it.write("$EPUB_OPTIMIZER_VERSION".toByteArray())
     }
     val total = (System.currentTimeMillis() - start) / 1000
     writeDb.close()

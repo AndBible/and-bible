@@ -12,7 +12,6 @@
   <string name="chooseBook">Document</string>
   <string name="selectPassage">Passage</string>
   <string name="search">Rechercher</string>
-  <string name="search_in_andbible">Trouver dans la Bible</string>
   <string name="settings">Paramètres de l’application</string>
   <string name="history">Historique</string>
   <string name="speak">Lecture audio</string>
@@ -41,6 +40,7 @@
   <string name="search_in">Rechercher dans %s</string>
   <string name="do_in_background">Continuer en arrière-plan</string>
   <string name="rebuild_index_button">Recréer</string>
+  <string name="creating_index_for">Créer un index pour %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s résultats dans %2s</string>
   <!--Tasks-->
@@ -52,6 +52,7 @@
   <string name="search_all_words">Tous les mots</string>
   <string name="search_any_word">N\'importe quel mot</string>
   <string name="search_phrase">Phrase</string>
+  <string name="search_fts_query">Syntaxe de requête brute</string>
   <string name="search_result_count">%d résultats trouvés</string>
   <string name="search_showing_first">Trop de correspondances. Affichage des %d premiers résultats</string>
   <string name="search_bible_section_group_prompt">Plage de recherche</string>
@@ -138,6 +139,7 @@
   <string name="prefs_display_customization_cat">Apparence</string>
   <string name="prefs_behavior_customization_cat">Comportement de l’application</string>
   <string name="prefs_margin_size_summary">Configure les marges gauche et droite du texte, ainsi que la largeur maximale du texte.</string>
+  <string name="prefs_margin_size_summary_2">Astuce : vous pouvez appuyer sur la marge pour passer à la page suivante ou précédente.</string>
   <string name="prefs_text_colors_summary">Ajuste les couleurs du texte, du fond et le motif de fond.</string>
   <string name="text_display_settings_activity_title">Paramètres d’affichage de texte</string>
   <string name="workspace_text_display_settings_title">Options du texte - %s</string>
@@ -358,6 +360,7 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="add_bookmark_whole_verse">Signet de verset</string>
   <string name="add_bookmark_whole_verse1">Versets</string>
   <string name="add_bookmark_whole_verse2">Tous les versets</string>
+  <string name="add_paragraph_break">Retour à la ligne</string>
   <string name="remove_bookmark">Supprimer</string>
   <string name="bookmark_settings_hide_labels_title">Masquer les étiquettes spécifiées</string>
   <string name="bookmark_settings_hide_labels_summary">Cacher les signets qui sont marqués avec une ou plusieurs étiquettes spécifiées</string>
@@ -468,7 +471,6 @@ l’emplacement de ces signets/notes se déplace à l’intérieur du document o
   <string name="window_text_options_help1">L’icône %s indique que ce paramètre provient des paramètres de l’espace.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">l’icône %s indique que ce paramètre a été modifié pour cette fenêtre spécifique.</string>
-  <string name="window_text_options_help3">Le paramètre de l’espace n’affectera pas cette fenêtre.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Utilisez le bouton %1$s  pour réinitialiser tous ces paramètres dans %2$s.</string>
   <string name="reset_defaults">Valeurs par défaut</string>
@@ -520,6 +522,9 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <!--User Notes-->
   <string name="mynotes">Mes notes</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Vers où sauvegarder ?</string>
+  <string name="backup_backup_message">Sauvegarder sur le téléphone ou ailleurs via la fonction Partager (courriel, Google Drive, etc.) ?</string>
+  <string name="backup_phone_storage">Stockage de téléphone</string>
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
   <string name="backup_modules2">Sauvegarde les documents vers...</string>
   <string name="backup_app_database2">Sauvegarde la base de données de l’app dans…</string>
@@ -532,7 +537,11 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="backup_document_info">Bibles, commentaires, dictionnaires, cartes, etc.</string>
   <string name="backup_to">Sauvegarder vers...</string>
   <string name="backup_restore_from">Restaurer de...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Restaurer ou importer depuis…</string>
   <string name="backup_restore">Restaurer</string>
+  <string name="backup_restore2">Restaurer ou importer</string>
+  <string name="overwrite_something">Écraser %s ?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Que voulez-vous restaurer ?</string>
   <string name="restore_app_database">Restaurer la base de données de l’application depuis…</string>
@@ -548,12 +557,20 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="backup_modules_email_message_2">Vous trouverez ci-joint votre sauvegarde %1$s des modules, qui contient les modules suivants : %2$s</string>
   <string name="backup_email_subject_2">%s sauvegarde de la base de données</string>
   <string name="backup_email_message_2">Votre base de données %s contenant des signets, des notes, des plans de lecture et des espaces de travail est jointe</string>
+  <string name="exported_studypads_subject">bloc-note(s) exporté(s)</string>
+  <string name="exported_studypads_message">Votre base de données %s contenant les signets et les notes liés à  vos espaces  sélectionnés est jointe</string>
   <string name="restore_unsuccessfull">La restauration de la base de données a échoué.
 Le fichier est peut-être invalide.</string>
   <string name="restore_modules">Restaurer les documents depuis…</string>
   <string name="send_backup_file">Soumettre un fichier de sauvegarde</string>
   <string name="backup_modules_title">Sélectionner quels modules sauvergarder</string>
   <string name="install_zip_canceled">Installation du module annulée</string>
+  <string name="ask_restore_or_import">La base de données pour %s peut être soit restaurée (c’est-à-dire que la base de données existante est supprimée et la base de données sélectionnée est chargée), soit importée (la base de données sélectionnée est importée dans la base de données existante). Que souhaitez-vous faire ?</string>
+  <string name="restore">Restaurer</string>
+  <string name="import2">Importer</string>
+  <string name="export_studypads_help">Le fichier contenant les Bloc-notes exportés (c\'est-à-dire les étiquettes et les signets) peut être importé via le menu principal -&amp;gt; Sauvegarder &amp; Restaurer.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">« %1$s » et %2$s autres étiquette(s) / Bloc-note(s) et %3$ssignets</string>
   <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Version installée : %1$s (%2$s)</string>
@@ -642,6 +659,7 @@ Le fichier est peut-être invalide.</string>
   <string name="workspace_listing_with_current">%s (courant)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ceci est une version bêta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Dans une version bêta, les nouvelles fonctionnalités n\'ont pas encore été toutes entièrement testées,
 une bêta peut donc produire des bogues qui sont encore en cours d\'analyse et de correction.
@@ -682,8 +700,13 @@ d’afficher vos notes dans une fenêtre séparée.</string>
   Tous les signets qui ont été créés avec cette étiquette respective apparaissent automatiquement dans le document du bloc-note.
 En plus des signets, un bloc-note peut contenir des entrées de texte personnalisées.</string>
   <string name="help_search_title">Rechercher</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">La recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND, OR, NOT
  (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
+  <string name="help_search_text2">Le texte recherché peut inclure des caractères spéciaux tels que *, AND, OR, NOT.</string>
+  <string name="help_search_details">Veillez voir %s pour plus de détails.</string>
+  <string name="help_apache_lucene">Apache Lucene - Syntaxe de l’analyseur de requêtes</string>
+  <string name="help_fts5">Syntaxe de requête en texte intégral FTS5</string>
   <string name="help_workspaces_title">Espaces</string>
   <string name="help_workspaces_text">
 Les espaces de travail permettent d’avoir plusieurs environnements de travail dépendant du contexte. Les fonctions de l’espace de travail
@@ -723,6 +746,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="format_mysword">Documents MySword (*.mybible)</string>
   <string name="format_mybible">Documents MyBible (*.SQLite3)</string>
   <string name="format_epub">Documents EPUB (*.epub)</string>
+  <string name="format_studypads">Bloc-notes des bases de données Andbible (*.abdb)</string>
   <string name="redownload_message">
         Une liste de livres/documents précédents a été trouvée. Cliquez ci-dessous pour les télécharger à nouveau facilement.
     </string>
@@ -737,6 +761,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="journal_description">Bloc-notes modifiables par l’utilisateur avec du texte et des signets personnalisés</string>
   <string name="my_notes_description">Fichier d’étude modifiables par l’utilisateur joints à des signets</string>
   <string name="my_notes_abbreviation">Mes notes</string>
+  <string name="studypad">Bloc-note</string>
   <string name="studypads">Bloc-notes</string>
   <string name="multi_description">références multiples</string>
   <string name="multi_abbreviation">Multiple</string>
@@ -752,6 +777,8 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="unlock_info">Infos de déverrouillage du module crypté</string>
   <string name="try_again_passphrase">La phrase de passe n’a pas fonctionné, essayez à nouveau ?</string>
   <string name="show_unlock_info">Module et info de déverrouillage</string>
+  <string name="prefs_experimental_features_title">Fonctionnalités expérimentales</string>
+  <string name="prefs_experimental_features_summary">Activer les fonctionnalités expérimentales qui sont toujours en développement et peut encore être modifier ou supprimer.</string>
   <string name="prefs_show_error_box_title">Afficher la boîte d’erreur Javascript</string>
   <string name="prefs_show_error_box_summary">Utile pour les développeurs lors du débogage des erreurs javascript de BibleView. Cela rendra l’application plus lente.</string>
   <string name="active_window_indicator_title">Afficher l’indicateur de la fenêtre active</string>
@@ -759,6 +786,9 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="app_licence_title">Licence à code source ouvert</string>
   <string name="how_to_contribute">Comment contribuer ?</string>
   <string name="confirm_delete_bookmarks">Voulez-vous supprimer les signets %d et leurs notes ?</string>
+  <string name="confirm_delete_orphaned_bookmarks">L’étiquette sélectionnée est attachée au signet %d qui n’a pas d’autre étiquette. Voulez-vous supprimer ces signets avec ces étiquettes ?</string>
+  <string name="delete_label_and_bookmarks">Effacer les étiquettes et les signets</string>
+  <string name="delete_label_only">Supprimer l’étiquette uniquement</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recommander à un ami</string>
   <string name="tell_friend_message1">Je voudrais vous recommander %s.</string>
@@ -766,6 +796,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="tell_friend_message3">L’installer depuis le Play Store : %s</string>
   <string name="tell_friend_message4">Lire davantage &amp; plus d’options d’installation: %s</string>
   <string name="share_verse_ok">Partager / copier</string>
+  <string name="web_search">Recherche sur le web</string>
   <string name="verse_action_copy">Copier</string>
   <string name="generic_share">Partager</string>
   <string name="share_verse_menu_title">Partager / copier...</string>
@@ -782,6 +813,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="show_version_name">Inclure le nom de version</string>
   <string name="show_ellipsis">Afficher les ellipses (...)</string>
   <string name="show_quotes">Montrer les citations</string>
+  <string name="separate_verses_with_newlines">Séparer les versets par des sauts de ligne</string>
   <string name="backup_button">Sauvegarde</string>
   <string name="back_button">Retour</string>
   <string name="upgrading_database">Mise à jour de la base de données. Veuillez patienter...</string>
@@ -865,10 +897,42 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="label_salvation">Salut</string>
   <string name="label_underline">Surligner</string>
   <string name="import_menu">Importer &amp; exporter</string>
+  <string name="export">Exporter</string>
+  <string name="csv_export_success">Le signet %d  à été exporté en CSV</string>
+  <string name="csv_import_success">Importation terminée : %dest crée, %d est mise à jour </string>
+  <string name="csv_import_errors">Importation terminée avec des erreurs : création de %d, mise à jour de %d, erreurs avec %d</string>
+  <string name="csv_import_failed">L\'importation du CSV a échoué : %s</string>
+  <string name="csv_export_failed">L’exportation du CSV a échoué : %s</string>
+  <string name="csv_column_selection_title">Sélectionner les colonnes du CSV</string>
+  <string name="choose_csv_file">Choisir un fichier CSV à importer</string>
+  <string name="no_bookmarks_to_export">Pas de signets disponible pour être exporté</string>
   <string name="export_fileformat">Exporter comme %s</string>
+  <string name="export_something">Exportation de %s</string>
   <string name="import_items">Importer %s</string>
   <string name="import_from_db">Importer le fichier depuis la base de données de l’App.</string>
   <string name="import_error">L’importation à partir de la base de données de l’application a échoué. Le fichier de la base de données peut être d’un format incorrect ou créé avec une version trop ancienne de %s.</string>
+  <string name="export_bookmarks_csv">Exporter des signets comme %s</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference"> Référence OSIS</string>
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference"> Référence biblique</string>
+  <string name="document">Document</string>
+  <string name="book">Livre</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Début de chapitre</string>
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Début de verset</string>
+  <string name="chapter_end">Fin de chapitre</string>
+  <string name="verse_end">Fin de verset</string>
+  <string name="id">Identifiant</string>
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="created_at">Créé à</string>
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset">Décalage de départ</string>
+  <string name="end_offset">Décalage de fin</string>
+  <string name="custom_icon">Icône personnalisée</string>
+  <string name="last_updated_at">Dernière mise à jour à</string>
+  <string name="bookmark_notes">Notes de signet</string>
   <string name="chooser_range">Plage</string>
   <string name="chooser_jump">Sauter</string>
   <string name="chooser_OT_abbrev">AT</string>
@@ -888,6 +952,7 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="strongs_off">Désactivé</string>
   <string name="strongs_links">Liens</string>
   <string name="strongs_text_and_links">Textes et liens</string>
+  <string name="strongs_hidden_links">Liens cachés</string>
   <string name="verse_tip">Pour sélectionner un ou plusieurs versets, vous pouvez appuyer longuement sur le texte biblique.</string>
   <string name="permission_required">Permission nécessaire</string>
   <string name="labels_search_hint">Rechercher</string>
@@ -986,6 +1051,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">NextCloud</string>
   <string name="auth_title">Authentification à %s</string>
+  <string name="auth_server_uri">URL du serveur</string>
   <string name="auth_username">Nom d’utilisateur</string>
   <string name="auth_password">Mot de passe</string>
   <string name="auth_access_token">Code d’accès</string>
@@ -1006,6 +1072,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="error_notification_channel_name">Erreur de notifications</string>
   <string name="restore_from_cloud_description">Si la synchronisation des appareils est activée sur un autre appareil, vous pouvez commencer par restaurer la base de données à partir du Cloud.</string>
   <string name="enable_sync">Activer la synchronisation</string>
+  <string name="last_updated">Dernière mise à jour : %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Ne peut pas lire ce fichier</string>
   <string name="sqlite_invalid_file">Fichier de module ou nom de fichier invalide : %s</string>
@@ -1039,4 +1106,17 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="dont_show">
         Ne plus montrer ce message
     </string>
+  <string name="pref_font_size_multiplier_summary_1">Multiplier la taille des polices de texte par ce nombre.</string>
+  <string name="pref_font_size_multiplier_summary_2">Utile si vous disposez d\'un appareil synchronisé qui utilise une police de caractères plus grande.</string>
+  <string name="current_value">Valeur actuelle : %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Action pour le geste de balayage vers la gauche / droite</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Le geste de balayage vers la gauche/droite permet de passer à la page/au chapitre suivant.</string>
+  <string name="prefs_swipe_mode_chapter">Chapitre</string>
+  <string name="prefs_swipe_mode_page">Page</string>
+  <string name="prefs_swipe_mode_none">Désactiver</string>
+  <string name="page_number_summary">Afficher le numéro de page en superposition. Le numéro de page est relatif à la position de départ.</string>
+  <string name="select_custom_icon">Sélection d\'une icône de marqueur personnalisée </string>
+  <string name="invalid_url_message">L\'URL que vous avez entrée est invalide. Veuillez entrer une URL valide (par ex. https://nextcloud.example.com)</string>
+  <string name="memorize_description">Mémoriser des versets bibliques</string>
+  <string name="memorize_abbreviation">Mémoriser</string>
 </resources>

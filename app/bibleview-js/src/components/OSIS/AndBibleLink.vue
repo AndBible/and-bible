@@ -31,6 +31,6 @@ function openLink(event: MouseEvent, url: string) {
 useCommon();
 </script>
 
-<style scoped>
+<style>
 
 </style>

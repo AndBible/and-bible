@@ -19,3 +19,4 @@
 *.env.*
 /projectFilesBackup/
 /app/src/main/assets/web/bibleview-js/
+/jsword/

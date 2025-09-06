@@ -33,9 +33,9 @@ class ChooseMapKey : ChooseKeyBase() {
     override val keyList: List<Key>?
         get() = currentMapPage.cachedGlobalKeyList
 
-    override fun itemSelected(key: Key) {
+    override fun itemSelected(key: Key?) {
         val myIntent = Intent(this, ChooseMapKey::class.java)
-        myIntent.putExtra("key", key.osisRef)
+        myIntent.putExtra("key", key?.osisRef)
         myIntent.putExtra("book", currentMapPage.currentDocument?.initials)
         setResult(Activity.RESULT_OK, myIntent)
     }

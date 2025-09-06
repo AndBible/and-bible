@@ -88,6 +88,8 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
     var isCurrentlyShowingScripture = false
     var isShowLongBookName = false
 
+    val monochrome = CommonUtils.settings.monochromeMode
+
     fun clear() {
         removeAllViews()
         buttonInfoList = null
@@ -248,8 +250,8 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                 HtmlCompat.fromHtml(buttonInfo.name!!, HtmlCompat.FROM_HTML_MODE_LEGACY)
             }
 
-            setTextColor(buttonInfo.textColor)
-            backgroundTintList = ColorStateList.valueOf(buttonInfo.tintColor)
+            setTextColor(if(monochrome) Color.BLACK else buttonInfo.textColor)
+            backgroundTintList = ColorStateList.valueOf(if(monochrome) Color.WHITE else buttonInfo.tintColor)
 
             if (buttonInfo.highlight) {
                 typeface = Typeface.DEFAULT_BOLD

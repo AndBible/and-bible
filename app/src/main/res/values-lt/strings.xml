@@ -12,7 +12,6 @@
   <string name="chooseBook">Dokumentas</string>
   <string name="selectPassage">Ištrauka</string>
   <string name="search">Paieška</string>
-  <string name="search_in_andbible">Ieškoti Biblijoje</string>
   <string name="settings">Programėlės nustatymai</string>
   <string name="history">Istorija</string>
   <string name="speak">Klausytis</string>
@@ -41,8 +40,9 @@
   <string name="search_in">Ieškoti čia: %s</string>
   <string name="do_in_background">Tęsti fone</string>
   <string name="rebuild_index_button">Perkurti</string>
+  <string name="creating_index_for">Kuriamas %s indeksas…</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1s rezultatų %2s</string>
+  <string name="search_with_results2">Rezultatų (%1s): %2s</string>
   <!--Tasks-->
   <string name="progress_status">Pažanga</string>
   <string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
@@ -52,6 +52,7 @@
   <string name="search_all_words">Visi žodžiai</string>
   <string name="search_any_word">Bet kuris žodis</string>
   <string name="search_phrase">Frazė</string>
+  <string name="search_fts_query">Neapdorotų užklausų sintaksė</string>
   <string name="search_result_count">Surasta atitikčių: %d</string>
   <string name="search_showing_first">Per daug atitikčių. Rodomos pirmos %d</string>
   <string name="search_bible_section_group_prompt">Kur ieškoti</string>
@@ -64,7 +65,7 @@
   <!--Open (bible reference X)-->
   <string name="go_to_ref">Atverti %s</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
-  <string name="search_what">Ieškoti \"%s\"</string>
+  <string name="search_what">Ieškoti „%s“</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Skyrių &amp; eilučių numeriai</string>
   <string name="prefs_show_verseno_summary">Rodyti skyrių &amp; eilučių numerius</string>
@@ -138,6 +139,7 @@
   <string name="prefs_display_customization_cat">Išvaizda ir turinys</string>
   <string name="prefs_behavior_customization_cat">Programėlės elgsena</string>
   <string name="prefs_margin_size_summary">Derinti teksto paraštes kairėje ir dešinėje. Taip pat galima derinti maksimalų teksto plotį.</string>
+  <string name="prefs_margin_size_summary_2">Patarimas: Galite bakstelėti paraščių srityje, kad verstumėte vieną puslapį aukštyn / žemyn. </string>
   <string name="prefs_text_colors_summary">Keisti teksto ir fono spalvas bei triukšmo efektą</string>
   <string name="text_display_settings_activity_title">Teksto rodymo nustatymai</string>
   <string name="workspace_text_display_settings_title">Teksto parinktys - %s</string>
@@ -477,7 +479,6 @@
   <string name="window_text_options_help1">%s piktograma nurodo, kad nustatymas yra perimamas iš darbo srities nustatymų.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s piktograma nurodo, kad šis nustatymas buvo pakeistas šiam konkrečiam langui.</string>
-  <string name="window_text_options_help3">Darbo srities nustatymas nepaveiks šio lango.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Naudokite mygtuką %1$s norėdami atstatyti visus šiuos nustatymus į %2$s.</string>
   <string name="reset_defaults">numatytąsias reikšmes</string>
@@ -535,6 +536,9 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <!--User Notes-->
   <string name="mynotes">Mano pastabos</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Kur išsaugoti atsarginę kopiją?</string>
+  <string name="backup_backup_message">Išsaugoti atsarginę kopiją telefone arba kitur naudojant bendrinimo funkciją (el. paštas, „Google“ Diskas ir kt.)?</string>
+  <string name="backup_phone_storage">Telefono saugykla</string>
   <string name="backup_and_restore">Saugoti ir atkurti atsargines kopijas</string>
   <string name="backup_modules2">Saugoti dokumentų atsargines kopijas į...</string>
   <string name="backup_app_database2">Saugoti apl. duomenų bazę į...</string>
@@ -547,7 +551,11 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="backup_document_info">Biblijos, komentarai, žodynai, žemėlapiai ir t.t.</string>
   <string name="backup_to">Daryti atsarginę kopiją į…</string>
   <string name="backup_restore_from">Atkurti iš…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Atkurti arba importuoti iš...</string>
   <string name="backup_restore">Atstatyti</string>
+  <string name="backup_restore2">Atkurti arba importuoti</string>
+  <string name="overwrite_something">Perrašyti %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Ką norite atkurti?</string>
   <string name="restore_app_database">Atkurti programėlės duomenų bazę iš…</string>
@@ -563,11 +571,19 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="backup_modules_email_message_2">Priede yra jūsų %1$s modulių atsarginė kopija, kurioje yra šie moduliai: %2$s</string>
   <string name="backup_email_subject_2">%s duomenų bazės atsarginė kopija</string>
   <string name="backup_email_message_2">Jūsų %s duomenų bazė su žymėmis, pastabomis, skaitymo planais ir darbo sritimis yra pridėta</string>
+  <string name="exported_studypads_subject">Eksportuoti bloknotai</string>
+  <string name="exported_studypads_message">Jūsų %s duomenų bazė su Žymėmis ir Pastabomis, susijusiomis su pažymėtais bloknotais, yra prisegta</string>
   <string name="restore_unsuccessfull">Duomenų bazės atkūrimas buvo nesėkmingas. Galbūt, pateikėte neteisingą duomenų bazės failą.</string>
   <string name="restore_modules">Atkurti dokumentus iš…</string>
   <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
   <string name="backup_modules_title">Pasirinkite kurių modulių atsargines kopijas darysite</string>
   <string name="install_zip_canceled">Modulio diegimo atsisakyta</string>
+  <string name="ask_restore_or_import">%s duomenų bazė gali būti atkurta (t. y. esama duomenų bazė pašalinta, o pasirinkta duomenų bazė įkelta) arba importuota (pasirinkta duomenų bazė importuota į esamą). Ką norite atlikti?</string>
+  <string name="restore">Atkurti</string>
+  <string name="import2">Importuoti</string>
+  <string name="export_studypads_help">Failas su eksportuotais bloknotais (t.y. etiketėmis ir žymėmis) gali būti importuotas per pagrindinį meniu -&gt; Saugoti ir atkurti atsargines kopijas.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">„%1$s“ ir %2$s kitos etiketės / bloknotai ir %3$s žymės</string>
   <!--About-->
   <string name="module_about_copyright">Autorių teisės: %s</string>
   <string name="module_about_installed_version">Įdiegta versija: %1$s (%2$s)</string>
@@ -657,6 +673,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="workspace_listing_with_current">%s (dabartinė)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tai yra beta versija!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         Beta versijoje yra naujų ypatybių, kurios dar nebuvo tinkamai išbandytos
         ir todėl, naudojantis beta versija, gali atsirasti netikėtos elgsenos, t. y. programėlės klaidų.
@@ -704,8 +721,13 @@ Naujai žymei pridėti pastabas galite Biblijos rodinyje paspaudę ant paryškin
         Be žymių, bloknote dar gali būti įterpiami teksto įrašai.
     </string>
   <string name="help_search_title">Paieška</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Paieškos tekste gali būti specialūs simboliai, tokie kaip *, ?, AND, OR, NOT
 (Išsamios informacijos ieškokite „Apache Lucene - Query Parser Syntax“)</string>
+  <string name="help_search_text2">Ieškomame tekste gali būti ypatingi simboliai, pvz.: *, AND, OR, NOT</string>
+  <string name="help_search_details">Išsamesnei informacijai, žiūrėkite %s.</string>
+  <string name="help_apache_lucene">Apache Lucene - Užklausų analizatoriaus sintaksė</string>
+  <string name="help_fts5">FTS5 absoliučiųjų užklausų sintaksė</string>
   <string name="help_workspaces_title">Darbo sritys</string>
   <string name="help_workspaces_text">
         Darbo sritys leidžia turėti kelias darbines aplinkas. Darbo sričių funkcijas
@@ -743,6 +765,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="format_mysword">MySword dokumentai (*.mybible)</string>
   <string name="format_mybible">MyBible dokumentai (*.SQLite3)</string>
   <string name="format_epub">EPUB dokumentai (*.epub)</string>
+  <string name="format_studypads">Bloknotai iš AndBible duomenų bazių (*.abdb)</string>
   <string name="redownload_message">
         Buvo rastas ankstesnių knygų/dokumentų sąrašas. Spustelėkite žemiau, norėdami vėl juos lengvai atsisiųsti.
     </string>
@@ -757,6 +780,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="journal_description">Naudotojo redaguojami bloknotai su įterpiamu tekstu ir žymėmis</string>
   <string name="my_notes_description">Naudotojo redaguojamos pastabos, pridėtos prie žymių</string>
   <string name="my_notes_abbreviation">Mano pastabos</string>
+  <string name="studypad">Bloknotas</string>
   <string name="studypads">Bloknotai</string>
   <string name="multi_description">Sudėtinės nuorodos</string>
   <string name="multi_abbreviation">Sudėtinės</string>
@@ -786,6 +810,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="tell_friend_message3">Įsidiek iš „Play“ parduotuvės: %s</string>
   <string name="tell_friend_message4">Sužinok daugiau apie programėlę ir kaip ją įsidiegti: %s</string>
   <string name="share_verse_ok">Bendrinti / Kopijuoti</string>
+  <string name="web_search">Paieška internete</string>
   <string name="verse_action_copy">Kopijuoti</string>
   <string name="generic_share">Dalintis</string>
   <string name="share_verse_menu_title">Bendrinti / kopijuoti…</string>
@@ -887,10 +912,34 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="label_salvation">Išgelbėjimas</string>
   <string name="label_underline">Pabraukimas</string>
   <string name="import_menu">Importuoti ir eksportuoti</string>
+  <string name="export">Eksportuoti</string>
+  <string name="csv_export_success">Eksportuota %d žymių(-ės) į CSV</string>
+  <string name="csv_import_success">Importavimas užbaigtas: sukurta %d, atnaujinta %d</string>
+  <string name="csv_import_errors">Importavimas užbaigtas su klaidomis: sukurta %d, atnaujinta %d, su klaidomis %d</string>
+  <string name="csv_import_failed">CSV importavimas patyrė nesėkmę: %s</string>
+  <string name="csv_export_failed">CSV eksportavimas patyrė nesėkmę: %s</string>
+  <string name="choose_csv_file">Pasirinkite CSV failą, kurį importuoti</string>
+  <string name="no_bookmarks_to_export">Nėra žymių, kurias galima būtų eksportuoti</string>
   <string name="export_fileformat">Eksportuoti kaip %s</string>
+  <string name="export_something">Eksportuoti %s</string>
   <string name="import_items">Importuoti %s</string>
   <string name="import_from_db">Importuoti iš programėlės duomenų bazės failo</string>
   <string name="import_error">Nepavyko importuoti iš programėlės duomenų bazės. Gali būti, kad duomenų bazės failas yra neteisingo formato arba sukurtas naudojant per seną %s versiją.</string>
+  <string name="export_bookmarks_csv">Eksportuoti žymes kaip %s</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">OSIS nuoroda</string>
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Biblijos nuoroda</string>
+  <string name="document">Dokumentas</string>
+  <string name="book">Knyga</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="id">Identifikatorius</string>
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="created_at">Sukurta</string>
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="custom_icon">Tinkinta piktograma</string>
+  <string name="last_updated_at">Paskiausiai atnaujinta</string>
   <string name="chooser_range">Rėžis</string>
   <string name="chooser_jump">Peršokti</string>
   <string name="chooser_OT_abbrev">ST</string>
@@ -910,6 +959,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="strongs_off">Išjungta</string>
   <string name="strongs_links">Nuorodos</string>
   <string name="strongs_text_and_links">Tekstas ir nuorodos</string>
+  <string name="strongs_hidden_links">Paslėptos nuorodos</string>
   <string name="verse_tip">Norėdami žymėti kelias eilutes ar eilutės dalį, paspauskite ir palaikykite ant Biblijos teksto</string>
   <string name="permission_required">Reikalingas leidimas</string>
   <string name="labels_search_hint">Ieškoti</string>
@@ -1010,6 +1060,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="adapters_google_drive">„Google“ diskas</string>
   <string name="adapters_next_cloud">Nextcloud</string>
   <string name="auth_title">%s tapatybės nustatymas</string>
+  <string name="auth_server_uri">Serverio URL</string>
   <string name="auth_username">Naudotojo vardas</string>
   <string name="auth_password">Slaptažodis</string>
   <string name="auth_access_token">Prieigos raktas</string>
@@ -1030,6 +1081,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="error_notification_channel_name">Pranešimai apie klaidas</string>
   <string name="restore_from_cloud_description">Jei kitame įrenginyje esate įjungę įrenginio sinchronizavimą, galite pradėti atkurdami iš debesijos duomenų bazę.</string>
   <string name="enable_sync">Įjungti sinchronizavimą</string>
+  <string name="last_updated">Paskiausiai atnaujinta: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Nepavyksta perskaityti failo</string>
   <string name="sqlite_invalid_file">Neteisingas modulio failas ar failo pavadinimas: %s</string>
@@ -1064,4 +1116,19 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="dont_show">
         Daugiau neberodyti šio pranešimo
     </string>
+  <string name="pref_font_size_multiplier_title">Šrifto dydžio daugiklis</string>
+  <string name="pref_font_size_multiplier_summary_1">Dauginti teksto šrifto dydžius iš šio skaičiaus.</string>
+  <string name="pref_font_size_multiplier_summary_2">Naudinga, jei turite sinchronizuojamą įrenginį, kuriame naudojamas didesnis šriftas.</string>
+  <string name="current_value">Dabartinė reikšmė: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Perbraukimo kairėn / dešinėn gesto veiksmas</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Perbraukimo kairėn / dešinėn gestas gali būti naudojamas perėjimui į kitą puslapį / skyrių.</string>
+  <string name="prefs_swipe_mode_chapter">Skyrius</string>
+  <string name="prefs_swipe_mode_page">Puslapis</string>
+  <string name="prefs_swipe_mode_none">Išjungta</string>
+  <string name="page_number_title">Santykinis puslapio numeris</string>
+  <string name="page_number_summary">Rodyti puslapio numerio perdangą. Puslapio numeris yra santykinis pradžios vietos atžvilgiu.</string>
+  <string name="select_custom_icon">Pasirinkti tinkintą žymeklio piktogramą</string>
+  <string name="invalid_url_message">Įvestas URL yra netinkamas. Įveskite tinkamą URL (pvz., https://nextcloud.example.com)</string>
+  <string name="memorize_description">Išmokti mintinai Biblijos eilutes</string>
+  <string name="memorize_abbreviation">Išmokti mintinai</string>
 </resources>

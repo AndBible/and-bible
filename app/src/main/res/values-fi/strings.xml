@@ -12,7 +12,6 @@
   <string name="chooseBook">Teos</string>
   <string name="selectPassage">Siirry</string>
   <string name="search">Etsi</string>
-  <string name="search_in_andbible">Etsi Raamatusta</string>
   <string name="settings">Sovelluksen asetukset</string>
   <string name="history">Historia</string>
   <string name="speak">Puhe</string>
@@ -41,6 +40,7 @@
   <string name="search_in">Etsi dokumentissa %s</string>
   <string name="do_in_background">Jatka taustalla</string>
   <string name="rebuild_index_button">Luo indeksi</string>
+  <string name="creating_index_for">Luodaan indeksiä: %s...</string>
   <!--X results in module Y-->
   <string name="search_with_results2"> %2s:  %1s tulosta</string>
   <!--Tasks-->
@@ -52,6 +52,7 @@
   <string name="search_all_words">Kaikkia sanoja</string>
   <string name="search_any_word">Jotain sanoista</string>
   <string name="search_phrase">Lausetta</string>
+  <string name="search_fts_query">Raa\'an kyselyn syntaksi</string>
   <string name="search_result_count">%d jaetta löytyi</string>
   <string name="search_showing_first">Liian monta hakutulosta. Näytetään ensimmäiset %d</string>
   <string name="search_bible_section_group_prompt">Kohdista haku</string>
@@ -138,6 +139,7 @@
   <string name="prefs_display_customization_cat">Ulkonäkö</string>
   <string name="prefs_behavior_customization_cat">Sovelluksen käyttäytyminen</string>
   <string name="prefs_margin_size_summary">Säädä tekstinäkymän vasenta ja oikeaa marginaalia. Voit mysö asettaa tekstille maksimileveyden.</string>
+  <string name="prefs_margin_size_summary_2">Vinkki: voit napsauttaa marginaalialuetta hypätäksesi sivun verran ylös/alas.</string>
   <string name="prefs_text_colors_summary">Säädä tekstin ja taustan värejä ja kohinatehostetta</string>
   <string name="text_display_settings_activity_title">Tekstin näytön valinnat</string>
   <string name="workspace_text_display_settings_title">Tekstin valinnat - %s</string>
@@ -459,7 +461,6 @@ Jos dokumentin rakenne on muuttunut, dokumentin päivittäminen voi saada aikaan
   <string name="window_text_options_help1">%s kertoo että asetus tulee työtilan asetuksista.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s kertoo että asetusta on muutettu tälle ikkunalle.</string>
-  <string name="window_text_options_help3">Työtilan asetukset eivät vaikuta tähän ikkunaan.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Käytä %1$s alustaaksesi kaikki nämä asetukset takaisin %2$s.</string>
   <string name="reset_defaults">oletusarvoihinsa</string>
@@ -518,6 +519,9 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <!--User Notes-->
   <string name="mynotes">Omat kommentit</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Mihin varmuuskopioidaan?</string>
+  <string name="backup_backup_message">Varmuuskopioidaanko puhelimen muistiin vai muualle Jaa -toimintoa käyttäen (sähköposti, Google Drive jne.)?</string>
+  <string name="backup_phone_storage">Puhelimen muisti</string>
   <string name="backup_and_restore">Varmuuskopioi &amp; palauta</string>
   <string name="backup_modules2">Varmuuskopioi dokumentit…</string>
   <string name="backup_app_database2">Varmuuskopioi sovelluksen tietokanta…</string>
@@ -530,7 +534,11 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="backup_document_info">Raamatut, kommentaarit, sanakirjat, kartat jne.</string>
   <string name="backup_to">Varmuuskopioi…</string>
   <string name="backup_restore_from">Palauta varmuuskopiosta…</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Palauta tai tuo ...</string>
   <string name="backup_restore">Palauta</string>
+  <string name="backup_restore2">Palauta tai tuo</string>
+  <string name="overwrite_something">Ylikirjoita %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Mitä haluat palauttaa?</string>
   <string name="restore_app_database">Palauta sovelluksen tietokanta...</string>
@@ -546,11 +554,19 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="backup_modules_email_message_2">Liitteenä on sovelluksen %1$s dokumenttien varmuuskopio, joka sisältää seuraavat moduulit: %2$s</string>
   <string name="backup_email_subject_2">Sovelluksen %s tietokannan varmuuskopio</string>
   <string name="backup_email_message_2">Liitetiedostona on sovelluksen %s tietokanta, joka sisältää kirjanmerkit, muistiinpanot, lukusuunnitelmat ja työtilat.</string>
+  <string name="exported_studypads_subject">Viedyt opintoalusta(t)</string>
+  <string name="exported_studypads_message">Liitetiedostona on %s tietokanta joka sisältää kirjanmerkit ja muistiinpanot valittuun opintoalustaan liittyen.</string>
   <string name="restore_unsuccessfull">Tietokannan palauttaminen varmuuskopiosta epäonnistui. Annoit ehkä virheellisen tietokantatiedoston.</string>
   <string name="restore_modules">Palauta dokumentteja…</string>
   <string name="send_backup_file">Lähetä varmuuskopiotiedosto</string>
   <string name="backup_modules_title">Valitse mitkä moduulit varmuuskopioidaan</string>
   <string name="install_zip_canceled">Moduulin asennus peruuntui</string>
+  <string name="ask_restore_or_import">%s voidaan joko palauttaa (ts. tietokanta tyhjennetään ja valittu tietokanta ladataan tilalle) tai tuoda (valittu tietokanta tuodaan entiseen tietokantaan). Mitä haluat tehdä?</string>
+  <string name="restore">Palauta</string>
+  <string name="import2">Tuo</string>
+  <string name="export_studypads_help">Tiedosto jossa on viedyt opintoalustat (ts kirjanmerkkiryhmät ja kirjanmerkit) voidaan tuoda: Päävalikko -&gt; Varmuuskopioi &amp; palauta.</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+  <string name="bookmarks_db_stats">\"%1$s\" ja %2$s muuta kirjanmerkkiryhmää / opintoalustaa ja %3$s kirjanmerkkiä</string>
   <!--About-->
   <string name="module_about_copyright">Kopiointioikeudet: %s</string>
   <string name="module_about_installed_version">Asennettu versio: %1$s (%2$s)</string>
@@ -639,6 +655,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="workspace_listing_with_current">%s (nykyinen)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tämä on betaversio!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Betaversiossa on uusia ominaisuuksia joita ei ole vielä kunnolla testattu,
 ja siksi betaversion käyttö voi tuoda mukanaan odotamatonta käyttäytymistä, eli bugeja. 
@@ -665,7 +682,12 @@ Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pi
   <string name="help_bookmarks_text">Voit luoda kirjanmerkkejä valitsemalla tekstiä ja valitsemalla \"Kirjanmerkki\" ponnahdusvalikosta. Voit lisätä omia huomioita uuteen kirjanmerkkiin painamalla korostettua tekstiä raamattunäkymässä. Voit myös käyttää \"Omat Merkinnät\" -erikoisdokumenttia, joka löytyy kommentaareista. Sen avulla voit tarkastella huomioitasi erillisessä ikkunassa.</string>
   <string name="help_studypads_text">Opintoalustat on suunniteltu siihen että voit helposti kirjoittaa muistiinpanoja saarnan aikana, valmistella saarnoja tai kirjoittaa raamattuviittauksia sisältäviä muistiinpanoja Raamattua tutkiessasi. Jokainen tutkimusalusta on liitetty yhteen kirjanmerkkiryhmään. Kaikki kirjanmerkit jotka luot kyseiseen kirjanmerkkiryhmään näkyvät automaattisesti opintoalustadokumentissa. Kirjanmerkkien lisäksi voit myös lisätä omia tekstikatkelmia opintoalustaan. </string>
   <string name="help_search_title">Etsi</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">Tekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)</string>
+  <string name="help_search_text2">Etsittävä teksti voi sisältää erikoismerkkejä kuten *, AND, OR, NOT</string>
+  <string name="help_search_details">Katso lisätietoja: %s</string>
+  <string name="help_apache_lucene">Apache Lucene kyselysyntaksi</string>
+  <string name="help_fts5">FTS5 kyselykieli</string>
   <string name="help_workspaces_title">Työtilat</string>
   <string name="help_workspaces_text">
 Työtilat mahdollistaa usean eri työympäristön eri asiayhteyksiin. Työtilaan liittyvät toiminnot ovat käytettävissä oikealla yläkulmassa löytyvästä valikosta. Nopea tapa käsitellä työtiloja on pyyhkäistä alaspäin työkalupalkista. Voit myös pyykäistä vasemmalle ja oikealle työkalupalkista päästäksesi edelliseen / seuraavaan työtilaan. </string>
@@ -692,6 +714,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="format_mysword">MySword-dokumentti (*.mybible)</string>
   <string name="format_mybible">MyBible-dokumentti (*.SQLite3)</string>
   <string name="format_epub">EPUB-dokumentit (*.epub)</string>
+  <string name="format_studypads">Opintoalustat AndBible tietokannasta (*.abdb)</string>
   <string name="redownload_message">Lista aiemmin asennetuista dokumenteista löytyi. Napsauta alta asentaaksesi ne uudelleen helposti. </string>
   <!--Uncategorized-->
   <string name="close">Sulje</string>
@@ -704,6 +727,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="journal_description">Opintoalustat joihin käyttäjä voi lisätä tekstiä ja kirjanmerkkejä</string>
   <string name="my_notes_description">Kirjanmerkkeihin tehdyt merkinnät </string>
   <string name="my_notes_abbreviation">Omat merkinnät</string>
+  <string name="studypad">Opintoalusta</string>
   <string name="studypads">Opintoalustat</string>
   <string name="multi_description">Useita viittauksia</string>
   <string name="multi_abbreviation">Viitteitä</string>
@@ -733,6 +757,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="tell_friend_message3">Asenna se Play-kaupasta: %s</string>
   <string name="tell_friend_message4">Lue lisää &amp; lisää asennusvaihtoehtoja: %s</string>
   <string name="share_verse_ok">Jaa / Kopioi</string>
+  <string name="web_search">Haku internetistä</string>
   <string name="verse_action_copy">Kopioi</string>
   <string name="generic_share">Jaa</string>
   <string name="share_verse_menu_title">Jaa / kopioi…</string>
@@ -812,10 +837,44 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="label_salvation">Pelastus</string>
   <string name="label_underline">Alleviivaus</string>
   <string name="import_menu">Tuo &amp; vie</string>
+  <string name="export">Vie</string>
+  <string name="csv_export_success">Viety %d kirjanmerkkiä CSV:n</string>
+  <string name="csv_import_success">Tuonti valmistui: %d luotu, %d päivitetty</string>
+  <string name="csv_import_errors">Tuonti valmistui: %d luotu, %d päivitetty, %d virhettä</string>
+  <string name="csv_import_failed">CSV tuonti epäonnistui: %s</string>
+  <string name="csv_export_failed">CSV vienti epäonnistui: %s</string>
+  <string name="csv_column_selection_title">Valitse CSV:n sarakkeet</string>
+  <string name="choose_csv_file">Valitse CSV-tiedosto jonka haluat tuoda</string>
+  <string name="no_bookmarks_to_export">Ei kirjanmerkkejä vietäväksi</string>
   <string name="export_fileformat">Vie muodossa %s</string>
+  <string name="export_something">Vie %s</string>
   <string name="import_items">Tuo muodossa %s</string>
   <string name="import_from_db">Tuo sovelluksen tietokannasta</string>
   <string name="import_error">Tuonti sovelluksen tietokannasta epäonnistui. Tietokanta saattaa olla väärässä muodossa tai se on tehty liian vanhalla %s:n versiolla.</string>
+  <string name="export_bookmarks_csv">Vie kirjanmerkit muodossa %s</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">OSIS viite</string>
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Raamattuviite</string>
+  <string name="document">Teos</string>
+  <string name="book">Kirja</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Luvun aloitus</string>
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Jakeen aloitus</string>
+  <string name="chapter_end">Luvun lopetus</string>
+  <string name="verse_end">Jakeen lopetus</string>
+  <string name="id">Tunniste</string>
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="ordinal_start">Ordinaalin aloitus</string>
+  <string name="ordinal_end">Ordinaalin lopetus</string>
+  <string name="created_at">Luomisajankohta</string>
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset"> Alun siirtymä</string>
+  <string name="end_offset">Lopun siirtymä</string>
+  <string name="custom_icon">Valittu kuvake</string>
+  <string name="last_updated_at">Viimeksi päivitetty</string>
+  <string name="bookmark_notes">Kirjanmerkin muistiinpanot</string>
   <string name="chooser_range">Alue</string>
   <string name="chooser_jump">Hyppää</string>
   <string name="chooser_OT_abbrev">OT</string>
@@ -835,6 +894,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="strongs_off">Pois päältä</string>
   <string name="strongs_links">Linkkejä</string>
   <string name="strongs_text_and_links">Teksti ja linkit</string>
+  <string name="strongs_hidden_links">Piilotetut linkit</string>
   <string name="verse_tip">Valitaksesi osittaisia tai useita jakeita, napauta pitkään Raamatun tekstiä</string>
   <string name="permission_required">Lupa tarvitaan</string>
   <string name="labels_search_hint">Etsi</string>
@@ -912,6 +972,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Kirjautumistiedot palveluun %s</string>
+  <string name="auth_server_uri">Palvelimen URL</string>
   <string name="auth_username">Käyttäjätunnus</string>
   <string name="auth_password">Salasana</string>
   <string name="auth_access_token">Pääsytokeni (access token)</string>
@@ -932,6 +993,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="error_notification_channel_name">Virheiden notifikaatiot</string>
   <string name="restore_from_cloud_description">Jos sinulla on laitteiden synkronointi pällä toisessa laitteessa, voit aloittaa palauttamalla tietokannan pilvipalvelusta.</string>
   <string name="enable_sync">Kytke synkronointi päälle</string>
+  <string name="last_updated">Viimeksi päivitetty: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Ei voitu lukea tiedostoa</string>
   <string name="sqlite_invalid_file">Tiedostonimi tai tiedosto viallinen: %s</string>
@@ -956,4 +1018,19 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="new_version_warning3">Siihen ei tule enää bugikorjauksia tai päivityksiä.</string>
   <string name="new_version_warning4">Jos et halua päivittää, kytke pois automaattiset päivitykset sovelluskaupastasi (Google Play / F-Droid tms.).</string>
   <string name="dont_show">Älä näytä tää viestiä uudelleen</string>
+  <string name="pref_font_size_multiplier_title">Fontin koon kerroin</string>
+  <string name="pref_font_size_multiplier_summary_1">Muuta fontin kokoa tällä kertoimella.</string>
+  <string name="pref_font_size_multiplier_summary_2">Kätevä jos käytössäsi on synkronoitu laite jolla haluat käyttää suurempaa fonttia.</string>
+  <string name="current_value">Nykyinen arvo: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Toiminne pyyhkäisyeleelle (oikea / vasen)</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Pyyhkäisyelettä vasemmalle / oikealle voidaan käyttää seuraavaan sivuun / lukuun siirtymiseen.</string>
+  <string name="prefs_swipe_mode_chapter">Luku</string>
+  <string name="prefs_swipe_mode_page">Sivu</string>
+  <string name="prefs_swipe_mode_none">Luku</string>
+  <string name="page_number_title">Suhteellinen sivunumero</string>
+  <string name="page_number_summary">Näytä sivunumeron. Sivunumero on suhteessa aloituskohtaan.</string>
+  <string name="select_custom_icon">Valitse oma kuvake</string>
+  <string name="invalid_url_message">URL jonka annoit ei ole kelvollinen. Anna URL oikeassa muodossa (esim. https://nextcloud.example.com)</string>
+  <string name="memorize_description">Opettele Raamatun jakeita</string>
+  <string name="memorize_abbreviation">Opettele</string>
 </resources>

@@ -42,6 +42,8 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
+import net.bible.android.view.activity.search.EpubSearch
+import net.bible.android.view.activity.search.EpubSearchResults
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchIndexProgressStatus
@@ -101,6 +103,8 @@ interface ActivityComponent {
     fun inject(searchIndex: SearchIndex)
     fun inject(w: SpeakTransportWidget)
     fun inject(search: Search)
+    fun inject(search: EpubSearch)
+    fun inject(searchResults: EpubSearchResults)
     fun inject(searchResults: SearchResults)
     fun inject(history: History)
 

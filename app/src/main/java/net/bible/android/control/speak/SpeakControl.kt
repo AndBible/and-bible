@@ -84,7 +84,7 @@ class SpeakControl @Inject constructor(
     }
     
 
-    private val speakPageManager: CurrentPageManager
+    val speakPageManager: CurrentPageManager
         get() {
             var pageManager = _speakPageManager
             if(pageManager == null) {
@@ -147,7 +147,13 @@ class SpeakControl @Inject constructor(
         MediaButtonHandler.release()
     }
 
+    private var speakBook: Book? = null
+    private var speakKey: Key? = null
+    val speakBookAndKey: BookAndKey? get() = speakKey?.let {BookAndKey(it, speakBook) }
+
     fun onEventMainThread(event: SpeakProgressEvent) {
+        speakKey = event.key
+        speakBook = event.book
         if (AdvancedSpeakSettings.synchronize || event.forceFollow) {
             val book = speakPageManager.currentPage.currentDocument
             speakPageManager.setCurrentDocumentAndKey(book, event.key)
@@ -300,8 +306,8 @@ class SpeakControl @Inject constructor(
     }
 
     private fun speakAny(bookRef: String, osisRef: String) {
-        val book = Books.installed().getBook(bookRef)
         try {
+            val book = Books.installed().getBook(bookRef)
             if((book as? SwordBook)?.bookCategory == BookCategory.BIBLE) {
                 val verse = (book.getKey(osisRef) as RangedPassage).getVerseAt(0)
                 speakBible(book, verse)
@@ -310,9 +316,13 @@ class SpeakControl @Inject constructor(
                 speakGeneric(key)
             }
         } catch (e: NoSuchKeyException) {
-            Log.e(TAG, "Key not found $osisRef in $currentBook")
+            Log.e(TAG, "Key not found $osisRef in $bookRef", e)
+            // Fall back to default behavior instead of crashing
+            startSpeakingFromDefault()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error restoring speaking position", e)
+            startSpeakingFromDefault()
         }
-
     }
 
     fun speakKeyListLegacy(book: Book, keyList: List<Key>, queue: Boolean) {

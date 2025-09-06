@@ -1,6 +1,6 @@
 <b>Poderosa ferramenta de estudo bíblico</b>
 
-"AndBible: Estudos bíblicos" é um ´poderoso aplicativo de estudo da Bíblia offline, porém fácil de usar, para Android. O aplicativo não pretende ser simplesmente um leitor da Bíblia,  foca--se em ser uma ferramenta avançada para fazer um profundo estudo bíblico pessoal.
+"AndBible: Bíblia de estudo" é um ´poderoso aplicativo de estudo da Bíblia offline, porém fácil de usar, para Android. O aplicativo não pretende ser simplesmente um leitor da Bíblia,  foca--se em ser uma ferramenta avançada para fazer um profundo estudo bíblico pessoal.
 
 Este aplicativo é desenvolvido por leitores da Bíblia, para leitores da Bíblia. Seu objetivo é ajudá-lo a tornar seu estudo bíblico conveniente, profundo e divertido. A melhor parte desse projeto comunitário sem fins lucrativos é que ele é de código aberto, totalmente gratuito e não contém anúncios.
 

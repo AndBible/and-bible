@@ -18,18 +18,19 @@
 <template>
   <template v-if="showStrongsSeparately">
     <template v-if="(showStrongs && lemma) && (config.showMorphology && morph)">
-      <slot/><span class="base skip-offset">&nbsp;<a :class="{isHighlighted}" class="strongs highlight-transition" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a>/<a :class="{isHighlighted}" class="morph highlight-transition" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
+      <slot/><span class="w-base skip-offset">&nbsp;<a :class="{isHighlighted}" class="strongs highlight-transition" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a>/<a :class="{isHighlighted}" class="morph highlight-transition" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else-if="(showStrongs && lemma) && (!config.showMorphology || !morph)">
-      <slot/><span class="base skip-offset">&nbsp;<a class="strongs highlight-transition" :class="{isHighlighted}" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a></span>
+      <slot/><span class="w-base skip-offset">&nbsp;<a class="strongs highlight-transition" :class="{isHighlighted}" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a></span>
     </template>
     <template v-else-if="(!showStrongs || !lemma) && (config.showMorphology && morph)">
-      <slot/><span class="base skip-offset">&nbsp;<a class="morph highlight-transition" :href="formatLink(morph)" :class="{isHighlighted}" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
+      <slot/><span class="w-base skip-offset">&nbsp;<a class="morph highlight-transition" :href="formatLink(morph)" :class="{isHighlighted}" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else><slot/></template>
   </template>
   <template v-else>
-    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)" :class="{isHighlighted}"  class="highlight-transition link-style" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span>
+    <span v-if="(showStrongsHidden && lemma) || (showStrongsHidden && config.showMorphology && morph)" :class="{isHighlighted}"  class="highlight-transition" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span>
+    <span v-else-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)" :class="{isHighlighted}"  class="highlight-transition link-style" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span>
     <span v-else><slot/></span>
   </template>
 </template>
@@ -100,17 +101,18 @@ function goToLink(event: MouseEvent, url: string) {
         resetHighlights();
         isHighlighted.value = true;
         addCustom(() => isHighlighted.value = false);
-    }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value});
+    }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, dottedStrongs: !showStrongsSeparately.value, hiddenStrongs:showStrongsHidden.value});
 }
 
 const exportMode = inject(exportModeKey, ref(false));
 const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
+const showStrongsHidden = computed(() => !exportMode.value && config.strongsMode == strongsModes.hidden);
 const showStrongsSeparately = computed(() => !exportMode.value && config.strongsMode === strongsModes.links);
 
 </script>
 
-<style scoped lang="scss">
-@import "~@/common.scss";
+<style lang="scss">
+@use "@/common.scss" as *;
 
 .link-style {
   text-decoration: underline dotted;
@@ -121,7 +123,7 @@ const showStrongsSeparately = computed(() => !exportMode.value && config.strongs
   }
 }
 
-.base {
+.w-base {
   font-size: 0.6em;
   text-decoration: none;
   color: gray;

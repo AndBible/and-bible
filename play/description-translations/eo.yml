@@ -8,8 +8,8 @@ subtitle_1: Ampleksa aplikaĵo por studi Biblion
 paragraph_1_1: >+
   "{{ title }}" estas ampleksa, tamen facile uzebla ilo por studi la Sanktan Skribon por la operaciumo Android. Ĝi ne celas esti simpla legilo de Biblio, sed koncentriĝas esti spertula ilo por profunde persone studi Biblion.
 
-paragraph_1_2: >
-  Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Biblio. Ĝia celo estas igi studadon de Biblio oportuna, profunda kaj amuza. La plej grava fakto de tiu ĉi neprofitcela komunuma projekto estas, ke ĝi estas malfermkoda, tute senpaga kaj enhavas neniun reklamon. Programita cele por Android, la aplikaĵo estas malgranda, do tre efika kaj rapida.
+paragraph_1_2: >-
+  Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Biblio. Ĝia celo estas igi studadon de Biblio oportuna, profunda kaj amuza. La plej grava fakto de tiu ĉi neprofitcela komunuma projekto estas, ke ĝi estas malfermkoda, tute senpaga kaj enhavas neniun reklamon.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >-
   Esperanta Londona Biblio.
@@ -35,19 +35,19 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   granda biblioteko de dokumentoj: tradukoj, teologiaj komentaroj, vortaroj, mapoj, kristanismaj libroj, pli ol {{total_documents}} dokumentoj en {{total_languages}} lingvoj, laŭleĝe distribuataj de per CrossWire kaj per aliaj SWORD-deponejoj
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  deveno de ĉiuj dokumentoj estas kontrolita por certigi, ke ĉiuj dokumentoj povas esti laŭleĝe distribuataj aŭ ricevis permeson de kopirajt‑posedantoj {{unavailable_documents}}
+feature_10_1: >
+  subteno por moduloj MyBible, MySword kaj dosieroj EPUB por eĉ pli plivastigi vian bibliotekon
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: " "
 feature_12: >-
   funkcias malkonekte: interreta konekto estas bezonata nur por elŝuti dokumentojn
+# UNUSED
 feature_13: >-
   “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
 subtitle_3: Ni kune faru la plej bonan apon por legi Biblion!
 paragraph_3_1: >-
-  And Biblio estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:
+  AndBible estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:
 contr_1: programi novajn eblojn;
 contr_2: testi beta-eblojn;
 contr_3: traduki la programon;
@@ -59,10 +59,16 @@ subtitle_4: Ligiloj
 link_1: >
   hejmpaĝo: {{homepage_url}}
 link_2: >
-  ŝatu la apon Studi Biblion ĉe {{facebook_url}}
+  ŝatu la apon AndBible ĉe {{facebook_url}}
 link_3: >
   nia YouTube-kanalo: {{youtube_url}}
 link_4: >
   oftaj demandoj (en la angla) {{faq_url}}
 link_5: >
   projekt-paĝo ĉe GitHub: {{github_url}}
+buy_title: >-
+  Subtenu per aĉeti labortempon de programisto!
+buy_1: >
+  Se mankas al vi tempo aŭ scipovoj por kontribui al la projekto, vi povas subteni ĝin per aĉeti labortempon de profesia programisto.
+buy_2: >-
+  Pliaj informoj

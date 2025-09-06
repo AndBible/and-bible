@@ -12,7 +12,6 @@
   <string name="chooseBook">Dokumentum</string>
   <string name="selectPassage">Igehely</string>
   <string name="search">Keresés</string>
-  <string name="search_in_andbible">Keresés a Bibliában</string>
   <string name="settings">Beálítások</string>
   <string name="history">Előzmények</string>
   <string name="speak">Felolvasás</string>
@@ -463,7 +462,6 @@ Ha a dokumentum struktúrája változik, akkor az ilyen könyvjelzők/jegyzetek 
   <string name="window_text_options_help1">A %s ikon azt mutatja, hogy az adott beállítás a munkaterület beállításokból származik.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">A %s ikon azt mutatja, hogy ez a beállítás ehhez az ablakhoz tartozik.</string>
-  <string name="window_text_options_help3">A munkaterület beállításai nincsenek hatással erre az ablakra.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">A %1$s gomb segítségével az összes beállítás visszaállítható %2$s-re.</string>
   <string name="reset_defaults">alapértelmezett értékek</string>
@@ -521,6 +519,9 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <!--User Notes-->
   <string name="mynotes">Jegyzeteim</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">Biztonsági mentés hova?</string>
+  <string name="backup_backup_message">Biztonsági mentése a telefonra vagy megosztása (email, Google Drive, etc.)?</string>
+  <string name="backup_phone_storage">Belső memória</string>
   <string name="backup_and_restore">Biztonsági mentés és helyreállítás</string>
   <string name="backup_modules2">Biztonsági mentés készítése a telepített dokumentumokról ide…</string>
   <string name="backup_app_database2">Biztonsági mentés készítése az alkalmazás adatbázisáról ide…</string>
@@ -533,6 +534,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="backup_document_info">Bibliák, kommentárok, szótárok, térképek, stb.</string>
   <string name="backup_to">Biztonsági mentés ide...</string>
   <string name="backup_restore_from">Visszaállítás innen...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">Visszaállítás</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Mi kerüljön visszaállításra?</string>
@@ -554,6 +556,8 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="send_backup_file">Biztonsági mentés küldése</string>
   <string name="backup_modules_title">Válassza ki mely modulokról szeretne biztonsági mentést készíteni</string>
   <string name="install_zip_canceled">Modulok telepítése megszakadt</string>
+  <string name="restore">Visszaállítás</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">© %s</string>
   <string name="module_about_installed_version">Telepített verzió: %1$s (%2$s)</string>
@@ -683,6 +687,7 @@ vagy bármilyen jegyzet készítését, amely több bibliai verse hivatkozik. Mi
 Az adott címkével létrehozott összes könyvjelző automatikusan megjelenik a jegyzetlapon.
 A könyvjelzők mellett egyéni szövegbejegyzések is hozzáadhatók a jegyzetlapokhoz.</string>
   <string name="help_search_title">Keresés</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">A keresési kifejezés spciális karaktereket és kifejezéseket is tartalmazhat, például: \", ?, AND, OR, NOT
 (további információkért keresse az \"Apache Lucence - Query Parser\" szintaxisát)</string>
   <string name="help_workspaces_title">Munkamenetek</string>
@@ -762,6 +767,7 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="tell_friend_message3">Play Store link: %s</string>
   <string name="tell_friend_message4">További infók és telepítési lehetőségek: %s</string>
   <string name="share_verse_ok">Megosztás / másolás</string>
+  <string name="web_search">Keresés a neten</string>
   <string name="verse_action_copy">Másolás</string>
   <string name="generic_share">Megosztás</string>
   <string name="share_verse_menu_title">Megosztás / másolás…</string>
@@ -852,10 +858,20 @@ jelentse be az észlelt problémát</string>
   <string name="label_salvation">Üdvözülés</string>
   <string name="label_underline">Aláhúzás</string>
   <string name="import_menu">Import és Export</string>
+  <string name="export">Export</string>
   <string name="export_fileformat">Export mint %s</string>
+  <string name="export_something">Export %s</string>
   <string name="import_items">Import %s</string>
   <string name="import_from_db">Importálás App adatbázis fájlból</string>
   <string name="import_error">A adatbázis importálása sikertelen volt. Az adatbázis fájl formátuma rossz vagy a(z) %s túl régi verziójából származik.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Dokumentum</string>
+  <string name="book">Könyv</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Tartomány</string>
   <string name="chooser_jump">Ugrás</string>
   <string name="chooser_OT_abbrev">Ószövetség</string>
@@ -875,6 +891,7 @@ jelentse be az észlelt problémát</string>
   <string name="strongs_off">Kikapcsolva </string>
   <string name="strongs_links">Hivatkozások</string>
   <string name="strongs_text_and_links">Szöveg és hivatkozások</string>
+  <string name="strongs_hidden_links">Rejtett hivatkozások</string>
   <string name="verse_tip">Versrészlet vagy több vers kiválasztásához hosszan nyomjon a Biblia szövegre</string>
   <string name="permission_required">Engedély szükséges </string>
   <string name="labels_search_hint">Keresés</string>
@@ -994,6 +1011,7 @@ jelentse be az észlelt problémát</string>
   <string name="error_notification_channel_name">Hiba értesítés</string>
   <string name="restore_from_cloud_description">Ha egy másik eszközön engedélyezve van a szinkronizálás, akkor visszaállíthatja az adatbázist a konfigurált tárhelyről.</string>
   <string name="enable_sync">A szinkronizáció engedélyezése</string>
+  <string name="last_updated">Útóljára módosítva: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">A fájl nem olvasható</string>
   <string name="sqlite_invalid_file">Érvénytelen modul fájl vagy fájlnév: %s</string>
@@ -1027,4 +1045,5 @@ jelentse be az észlelt problémát</string>
   <string name="dont_show">
         Ne jelenítse meg ezt az üzenetet többet
     </string>
+  <string name="prefs_swipe_mode_chapter">Fejezet</string>
 </resources>

@@ -17,23 +17,20 @@
 
 package net.bible.android.view.activity.page
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.widget.TextView
-import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
-import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -48,11 +45,14 @@ import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
+import net.bible.android.database.bookmarks.BookmarkEntities.EditActionMode
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
@@ -68,6 +68,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
@@ -81,6 +82,7 @@ class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
+    val linkControl get() = bibleView.linkControl
     val bookmarkControl get() = bibleView.bookmarkControl
     val downloadControl get() = bibleView.downloadControl
 
@@ -200,6 +202,12 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun setBookmarkEditAction(bookmarkId: String, valueStr: String) {
+        val editAction = json.decodeFromString<EditAction>(serializer(), valueStr)
+        bookmarkControl.updateBookmarkEditAction(IdType(bookmarkId), editAction)
+    }
+
+    @JavascriptInterface
     fun console(loggerName: String, message: String) {
         Log.i(TAG, "Console[$loggerName] $message")
     }
@@ -220,9 +228,9 @@ class BibleJavascriptInterface(
     fun openEpubLink(bookInitials: String, toKeyStr: String, toId: String) {
         val book = Books.installed().getBook(bookInitials) as SwordGenBook
         val backend = book.backend as EpubBackend
-        val key = backend.getKey(toKeyStr, toId)
+        val key = backend.getKey(toKeyStr, toId) ?: return
         scope.launch(Dispatchers.Main) {
-            bibleView.linkControl.showLink(book, BookAndKey(key, book, htmlId = toId))
+            linkControl.showLink(book, BookAndKey(key, book, htmlId = toId))
         }
     }
 
@@ -237,7 +245,7 @@ class BibleJavascriptInterface(
                 val lnk = "${bibleBook.osis} $rest"
                 val bibleLink = BibleView.BibleLink("content", target=lnk)
                 scope.launch(Dispatchers.Main) {
-                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                    linkControl.loadApplicationUrl(bibleLink)
                 }
             }
             link.startsWith("S:") -> {
@@ -245,7 +253,7 @@ class BibleJavascriptInterface(
                 val (prefix, rest) = link.split(":", limit=2)
                 val bibleLink = BibleView.BibleLink("strong", target=rest)
                 scope.launch(Dispatchers.Main) {
-                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                    linkControl.loadApplicationUrl(bibleLink)
                 }
             }
             link.startsWith("#b") -> {
@@ -256,7 +264,7 @@ class BibleJavascriptInterface(
                 val lnk = "${bibleBook.osis}.$chapInt.$verInt"
                 val bibleLink = BibleView.BibleLink("content", target=lnk)
                 scope.launch(Dispatchers.Main) {
-                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                    linkControl.loadApplicationUrl(bibleLink)
                 }
             }
             link.startsWith("#s") || link.startsWith("#d") -> {
@@ -264,7 +272,7 @@ class BibleJavascriptInterface(
                 val rest = link.substring(2)
                 val bibleLink = BibleView.BibleLink("strong", target=rest)
                 scope.launch(Dispatchers.Main) {
-                    bibleView.linkControl.loadApplicationUrl(bibleLink)
+                    linkControl.loadApplicationUrl(bibleLink)
                 }
             }
             else -> {
@@ -391,6 +399,16 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        bibleView.addParagraphBreakBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+    }
+
+    @JavascriptInterface
+    fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
+        bibleView.addParagraphBreakBookmark(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+    }
+
+    @JavascriptInterface
     fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
@@ -398,16 +416,28 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            bibleView.memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
+    fun saveState(newState: String) {
+        bibleView.window.pageManager.jsState = newState
+    }
+
+    @JavascriptInterface
     fun openStudyPad(labelId: String, bookmarkId: String) {
         scope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))
+            linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))
         }
     }
 
     @JavascriptInterface
     fun openMyNotes(v11n: String, ordinal: Int) {
         scope.launch(Dispatchers.Main) {
-            bibleView.linkControl.openMyNotes(v11n, ordinal)
+            linkControl.openMyNotes(v11n, ordinal)
         }
     }
 
@@ -428,7 +458,12 @@ class BibleJavascriptInterface(
     fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials)
-            val origKey = book.getKey(osisRef)
+            val origKey = try {
+                book.getKey(osisRef)
+            } catch (e: NoSuchKeyException) {
+                val bookAndKey = linkControl.getStrongsKey(book, osisRef)
+                bookAndKey?.key ?: return@launch
+            }
             val key = (origKey as? RangedPassage)?.toVerseRange ?:  try {KeyUtil.getVerse(origKey)} catch (e: ClassCastException) {origKey}
             val ordinalRange = OrdinalRange(ordinal, positiveOrNull(endOrdinal))
             val bookAndKey = BookAndKey(key, book, ordinalRange)
@@ -469,6 +504,20 @@ class BibleJavascriptInterface(
     fun toggleGenericBookmarkLabel(bookmarkId: String, labelId: String) {
         val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
         return bookmarkControl.toggleBookmarkLabel(bookmark, labelId)
+    }
+
+    @JavascriptInterface
+    fun setBookmarkCustomIcon(bookmarkId: String, value: String?) {
+        val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId))!!
+        bookmark.customIcon = value
+        bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+    }
+
+    @JavascriptInterface
+    fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?) {
+        val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
+        bookmark.customIcon = value
+        bookmarkControl.addOrUpdateGenericBookmark(bookmark)
     }
 
     @JavascriptInterface
@@ -547,7 +596,6 @@ class BibleJavascriptInterface(
         targetDir.mkdirs()
         val targetFile = File(targetDir, "shared.html")
         targetFile.writeText(html)
-        val uri = FileProvider.getUriForFile(mainBibleActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
 
         val docName = when(val firstDoc = bibleView.firstDocument) {
             is StudyPadDocument -> firstDoc.label.displayName
@@ -555,38 +603,19 @@ class BibleJavascriptInterface(
             is MyNotesDocument -> mainBibleActivity.getString(R.string.my_notes_abbreviation)
             else -> throw RuntimeException("Illegal doc type")
         }
+
         val titleStr = mainBibleActivity.getString(R.string.export_fileformat, "HTML")
-        val emailIntent = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_SUBJECT, docName)
-            putExtra(Intent.EXTRA_TEXT, titleStr)
-            putExtra(Intent.EXTRA_STREAM, uri)
-            type = "text/html"
-        }
-
-        // Add the "Save" option to the chooser
-        val saveIntent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-        saveIntent.addCategory(Intent.CATEGORY_OPENABLE)
-        saveIntent.type = "text/html"
-        saveIntent.putExtra(Intent.EXTRA_TITLE, "shared.html")
-
-        val chooserIntent = Intent.createChooser(emailIntent, titleStr)
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(saveIntent))
-
-        scope.launch(Dispatchers.Main) {
-            val result = mainBibleActivity.awaitIntent(chooserIntent)
-            val data = result.data
-            if (result.resultCode == Activity.RESULT_OK && data?.data != null) {
-                val destinationUri = data.data!!
-
-                withContext(Dispatchers.IO) {
-                    mainBibleActivity.contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
-                        mainBibleActivity.contentResolver.openInputStream(uri)?.use { inputStream ->
-                            inputStream.copyTo(outputStream)
-                        }
-                    }
-                }
-            }
-
+        scope.launch {
+            BackupControl.saveOrShare(
+                mainBibleActivity,
+                targetFile,
+                fileName = "shared.html",
+                shareMimeType = "text/html",
+                saveMimeType = "text/html",
+                chooserTitle = titleStr,
+                message = titleStr,
+                subject = docName
+            )
         }
     }
 
@@ -606,10 +635,14 @@ class BibleJavascriptInterface(
                 }
                 "AltKeyO" -> mainBibleActivity.showOptionsMenu()
                 "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
+                "CtrlKeyW" -> {
+                    val intent = Intent(mainBibleActivity, WorkspaceSelectorActivity::class.java)
+                    mainBibleActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
+                }
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()
                 "CtrlKeyF" -> {
                     val intent = mainBibleActivity.searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, mainBibleActivity)
-                    mainBibleActivity.startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                    intent?.let {mainBibleActivity.startActivityForResult(it, ActivityBase.STD_REQUEST_CODE)}
                 }
                 "Space" -> {
                     if(!mainBibleActivity.speakControl.isStopped) {
@@ -620,5 +653,11 @@ class BibleJavascriptInterface(
         }
     }
 
+    @JavascriptInterface
+    fun crash() {
+        scope.launch {
+            mainBibleActivity.bibleViewFactory.crashAll()
+        }
+    }
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.displayId}] JSInt"
 }

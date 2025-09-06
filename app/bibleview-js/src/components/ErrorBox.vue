@@ -51,7 +51,7 @@ const showLog = ref(false);
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .logbox {
   z-index: 3;

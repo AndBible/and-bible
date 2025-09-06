@@ -69,6 +69,9 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import java.util.*
 
+
+var comingFromStartupActivity = false
+
 /** Called first to show download screen if no documents exist
  *
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -189,6 +192,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         super.onCreate(savedInstanceState)
         ABEventBus.register(this)
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
+        if(CommonUtils.isDiscrete) {
+            spinnerBinding.imageView.setImageResource(
+                R.drawable.ic_calculator_color
+            )
+            spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
+        }
         startupViewBinding = StartupViewBinding.inflate(layoutInflater)
         setContentView(spinnerBinding.root)
         buildActivityComponent().inject(this)
@@ -209,12 +218,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
             // switch back to ui thread to continue
             postBasicInitialisationControl()
-            if(CommonUtils.isDiscrete) {
-                spinnerBinding.imageView.setImageResource(
-                    R.drawable.ic_calculator_color
-                )
-                spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
-            }
         }
     }
 
@@ -340,9 +343,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         lifecycleScope.launch {
             val result = awaitIntent(intent)
             CurrentActivityHolder.activate(this@StartupActivity)
-            if (result.resultCode == Activity.RESULT_OK) {
-                val inputStream = contentResolver.openInputStream(result.data!!.data!!) ?: return@launch
-                if (BackupControl.restoreAppDatabaseFromInputStreamWithUI(this@StartupActivity, inputStream)) {
+            if (result.resultCode == RESULT_OK) {
+                val uri = result.data?.data ?: return@launch
+                if (BackupControl.restoreAppDatabaseFromUriWithUI(this@StartupActivity, uri)) {
                     Log.i(TAG, "Restored database successfully")
                     postBasicInitialisationControl()
                 }
@@ -417,6 +420,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 }
             }
             CommonUtils.initializeAppCoroutine()
+            comingFromStartupActivity = true
             startActivity(handlerIntent)
             finish()
         }

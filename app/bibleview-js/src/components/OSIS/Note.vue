@@ -16,7 +16,7 @@
   -->
 <template>
   <template v-if="isCrossReference && config.showXrefs && config.expandXrefs">
-    &nbsp;<slot/>&nbsp;
+    <slot/>
   </template>
   <template v-else>
     <AmbiguousSelection do-not-close-modals ref="ambiguousSelection"/>
@@ -83,7 +83,7 @@ function runningHandle() {
 }
 
 const handle = computed(() => props.n || runningHandle());
-const isFootNote = computed(() => ["explanation", "translation", "study", "variant", "alternative", "x-editor-correction", undefined].includes(props.type!));
+const isFootNote = computed(() => ["x-footnote", "explanation", "translation", "study", "variant", "alternative", "x-editor-correction", undefined].includes(props.type!));
 const typeStr = computed(() => get(typeStrings, props.type!));
 const noteType = computed(() => typeStr.value ? sprintf(strings.noteText, typeStr.value) : strings.noteTextWithoutType);
 const isCrossReference = computed(() => props.type === "crossReference");
@@ -120,7 +120,7 @@ const showHandle = computed(() => {
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .note-handle-base {
   @extend .superscript;
@@ -131,6 +131,12 @@ const showHandle = computed(() => {
 .isCrossReference {
   @extend .note-handle-base;
   color: orange;
+  .monochrome & {
+    color: black;
+  }
+  .monochrome.night & {
+    color: white;
+  }
 }
 
 .open-all {
@@ -140,11 +146,23 @@ const showHandle = computed(() => {
 .isFootNote {
   @extend .note-handle-base;
   color: #b63afd;
+  .monochrome & {
+    color: black;
+  }
+  .monochrome.night & {
+    color: white;
+  }
 }
 
 .isOther {
   @extend .note-handle-base;
   color: #209546;
+  .monochrome & {
+    color: black;
+  }
+  .monochrome.night & {
+    color: white;
+  }
 }
 
 .scrollable {

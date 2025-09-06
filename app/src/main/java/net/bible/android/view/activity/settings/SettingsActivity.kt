@@ -34,6 +34,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SeekBarPreference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -50,6 +51,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
+import java.util.Locale
 
 class PreferenceStore: PreferenceDataStore() {
     private val prefs = CommonUtils.settings
@@ -59,11 +61,16 @@ class PreferenceStore: PreferenceDataStore() {
 
     override fun getInt(key: String, defValue: Int): Int = prefs.getInt(key, defValue)
 
-    override fun getBoolean(key: String, defValue: Boolean): Boolean = prefs.getBoolean(key, defValue)
+    override fun getBoolean(key: String, defValue: Boolean): Boolean =
+        if (useRealShared(key)) CommonUtils.realSharedPreferences.getBoolean(key, defValue)
+        else prefs.getBoolean(key, defValue)
 
-    override fun putBoolean(key: String, value: Boolean) = prefs.setBoolean(key, value)
 
-    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key == "calculator_pin" || key.startsWith("night_mode")
+    override fun putBoolean(key: String, value: Boolean) =
+        if(useRealShared(key)) CommonUtils.realSharedPreferences.edit().putBoolean(key, value).apply()
+        else prefs.setBoolean(key, value)
+
+    private fun useRealShared(key: String): Boolean = key == "locale_pref" || key == "calculator_pin" || key == "show_calculator" || key == "discrete_mode" || key.startsWith("night_mode")
 
     override fun putString(key: String, value: String?) =
         if(useRealShared(key)) CommonUtils.realSharedPreferences.edit().putString(key, value).apply()
@@ -139,15 +146,18 @@ class SettingsActivity: ActivityBase() {
                     "night_mode_pref3",
                     "request_sdcard_permission_pref",
                     "show_errorbox",
-                    "discrete_mode",
                     "show_calculator",
                     "calculator_pin",
                     "google_drive_sync",
-                    "bible_bookmark_modal_buttons",
-                    "gen_bookmark_modal_buttons",
+                    "disable_bible_bookmark_modal_buttons",
+                    "disable_gen_bookmark_modal_buttons",
+                    "monochrome_mode",
+                    "disable_animations",
+                    "font_size_multiplier",
+                    "bible_view_swipe_mode",
+                    "enable_experimental_features"
                 )
                 for(key in keys) {
-                    editor.removeString(key)
                     editor.removeString(key)
                     editor.removeBoolean(key)
                     editor.removeLong(key)
@@ -155,6 +165,8 @@ class SettingsActivity: ActivityBase() {
                 }
                 CommonUtils.realSharedPreferences.edit().remove("locale_pref").apply()
                 CommonUtils.realSharedPreferences.edit().remove("calculator_pin").apply()
+                CommonUtils.realSharedPreferences.edit().remove("show_calculator").apply()
+                CommonUtils.realSharedPreferences.edit().remove("discrete_mode").apply()
                 recreate()
             }
             .setNegativeButton(R.string.cancel, null)
@@ -164,13 +176,6 @@ class SettingsActivity: ActivityBase() {
 }
 
 class SettingsFragment : PreferenceFragmentCompat() {
-	override fun onDisplayPreferenceDialog(preference: Preference) {
-        if(parentFragmentManager.findFragmentByTag("customTag") != null)
-            return
-
-        super.onDisplayPreferenceDialog(preference)
-	}
-
     private fun setupDictionary(pref: MultiSelectListPreference, type: FeatureType): Boolean {
         val dicts = Books.installed().books.filter { it.hasFeature(type) }
 
@@ -213,6 +218,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val showGreekMorph = setupDictionary(greekMorph, FeatureType.GREEK_PARSE)
         val dictCategory = preferenceScreen.findPreference<PreferenceCategory>("dictionaries_category") as PreferenceCategory
         dictCategory.isVisible = showGreek || showHebrew || showGreekMorph
+        val fontSizeMultiplier = preferenceScreen.findPreference<SeekBarPreference>("font_size_multiplier") as SeekBarPreference
+
+        fun getFontSizeMultiplierSummary(value: Int) =
+            getString(R.string.pref_font_size_multiplier_summary_1) + " " +
+            getString(R.string.pref_font_size_multiplier_summary_2) + " " +
+            getString(R.string.current_value,
+                String.format(Locale.getDefault(), "%1.1fx", value / 100F)
+            )
+
+        fontSizeMultiplier.summary = getFontSizeMultiplierSummary(CommonUtils.settings.fontSizeMultiplier)
+        fontSizeMultiplier.setOnPreferenceChangeListener { pref, newValue ->
+            fontSizeMultiplier.summary = getFontSizeMultiplierSummary(newValue as Int)
+            true
+        }
 
         preferenceScreen.findPreference<ListPreference>("toolbar_button_actions")?.apply {
                 if (value.isNullOrBlank())

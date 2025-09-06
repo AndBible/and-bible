@@ -32,7 +32,6 @@ import android.text.style.ImageSpan
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
@@ -62,21 +61,18 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
-import net.bible.android.database.LogEntryTypes
-import net.bible.service.common.CommonUtils.convertDipsToPx
+import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.displayName
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
+import net.bible.service.db.exportStudyPads
 import kotlin.collections.ArrayList
-import net.bible.service.device.ScreenSettings
 import java.util.regex.PatternSyntaxException
 
 private const val TAG = "BookmarkLabels"
@@ -191,6 +187,7 @@ class ManageLabels : ListActivityBase() {
         val selectedLabels: MutableSet<IdType> = mutableSetOf(),
         val autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
         val deletedLabels: MutableSet<IdType> = mutableSetOf(),
+        val deletedLabelsWithOrphanedBookmarks: MutableSet<IdType> = mutableSetOf(),
         val changedLabels: MutableSet<IdType> = mutableSetOf(),
 
         var autoAssignPrimaryLabel: IdType? = null,
@@ -305,6 +302,7 @@ class ManageLabels : ListActivityBase() {
                 setSearchInsideTextButtonBackground()
                 updateLabelList(rePopulate = true)
             }
+            editSearchText.requestFocus()
         }
         ABEventBus.register(this)
         reBuildQuickSearchButtonList()
@@ -317,6 +315,8 @@ class ManageLabels : ListActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.manage_labels_options_menu, menu)
+        menu.findItem(R.id.export_studypads).title = getString(R.string.export_something, getString(R.string.studypads))
+        menu.findItem(R.id.import_studypads).title = getString(R.string.import_items, getString(R.string.studypads))
         menu.findItem(R.id.resetButton).isVisible = data.hasResetButton
         menu.findItem(R.id.reOrder).isVisible = data.hasReOrderButton
         return true
@@ -328,6 +328,26 @@ class ManageLabels : ListActivityBase() {
             R.id.help -> help()
             R.id.newLabel -> newLabel()
             R.id.resetButton -> reset()
+            R.id.export_studypads -> {
+                lifecycleScope.launch {
+                    val labels = Dialogs.multiselect(
+                        context = this@ManageLabels,
+                        title = getString(R.string.export_something, getString(R.string.studypads)),
+                        items = bookmarkControl.assignableLabels,
+                        itemToString = { it.displayName }
+                    )
+                    if (labels.isNotEmpty()) {
+                        exportStudyPads(this@ManageLabels, *labels.toTypedArray())
+                    }
+                }
+            }
+            R.id.import_studypads -> {
+                val intent = Intent(this, InstallZip::class.java)
+                lifecycleScope.launch {
+                    awaitIntent(intent)
+                    updateLabelList(rePopulate = true, reOrder = true)
+                }
+            }
             R.id.reOrder -> updateLabelList(rePopulate = true, reOrder = true)
             android.R.id.home -> saveAndExit()
             else -> isHandled = false
@@ -407,6 +427,7 @@ class ManageLabels : ListActivityBase() {
         val d = AlertDialog.Builder(this)
             .setPositiveButton(R.string.okay, null)
             .setTitle(title)
+            .setIcon(R.drawable.ic_logo)
             .setMessage(span)
             .create()
 
@@ -447,9 +468,12 @@ class ManageLabels : ListActivityBase() {
         editLabel(newLabel)
     }
 
-    private fun deleteLabel(label: BookmarkEntities.Label) {
+    private fun deleteLabel(label: BookmarkEntities.Label, deleteOrphanedBookmarks: Boolean = false) {
         Log.i(TAG, "deleteLabel")
         data.deletedLabels.add(label.id)
+        if (deleteOrphanedBookmarks) {
+            data.deletedLabelsWithOrphanedBookmarks.add(label.id)
+        }
         data.selectedLabels.remove(label.id)
         data.autoAssignLabels.remove(label.id)
         data.changedLabels.remove(label.id)
@@ -500,7 +524,7 @@ class ManageLabels : ListActivityBase() {
 
                 if (newLabelData.delete) {
                     Log.i(TAG, "editLabel delete specified")
-                    deleteLabel(label)
+                    deleteLabel(label, newLabelData.deleteOrphanedBookmarks)
                 } else {
                     Log.i(TAG, "editLabel delete not specified")
                     allLabels.remove(label)
@@ -559,7 +583,14 @@ class ManageLabels : ListActivityBase() {
 
         val deleteLabelIds = data.deletedLabels.toList()
         if(deleteLabelIds.isNotEmpty()) {
-            bookmarkControl.deleteLabels(deleteLabelIds)
+            val labelsWithOrphanedBookmarkDeletion = data.deletedLabelsWithOrphanedBookmarks.toList()
+            val labelsWithoutOrphanedBookmarkDeletion = deleteLabelIds.filter { !labelsWithOrphanedBookmarkDeletion.contains(it) }
+            if (labelsWithoutOrphanedBookmarkDeletion.isNotEmpty()) {
+                bookmarkControl.deleteLabels(labelsWithoutOrphanedBookmarkDeletion, deleteOrphanedBookmarks = false)
+            }
+            if (labelsWithOrphanedBookmarkDeletion.isNotEmpty()) {
+                bookmarkControl.deleteLabels(labelsWithOrphanedBookmarkDeletion, deleteOrphanedBookmarks = true)
+            }
         }
 
         val saveLabels = allLabels
@@ -665,7 +696,7 @@ class ManageLabels : ListActivityBase() {
                     data.selectedLabels.contains(label.id)
 
             shownLabels.addAll(allLabels.filter { labelMatches(it) })
-            val labelUnlabeledNotModified = allLabels.find { it.id == bookmarkControl.labelUnlabelled.id } == null
+            val labelUnlabeledNotModified = data.changedLabels.find { it == bookmarkControl.labelUnlabelled.id } != null
             if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled) && !labelUnlabeledNotModified) {
                 shownLabels.add(bookmarkControl.labelUnlabelled)
             }

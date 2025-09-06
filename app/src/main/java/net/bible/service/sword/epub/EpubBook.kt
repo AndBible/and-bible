@@ -44,12 +44,14 @@ import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.jdom2.input.JDOMParseException
 import java.io.File
+import java.io.IOException
 
 fun getConfig(
     initials: String,
     abbreviation: String,
     description: String,
     language: String,
+    version: Long,
     about: String,
     path: String,
 ): String = """
@@ -60,7 +62,7 @@ Category=${BookCategory.GENERAL_BOOK.name}
 AndBibleEpubModule=1
 AndBibleEpubDir=$path
 Lang=$language
-Version=0.0
+Version=$version
 Encoding=UTF-8
 SourceType=OSIS
 ModDrv=RawGenBook
@@ -115,7 +117,7 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
         state.keys
             .toMutableList()
             .iterator()
-    fun getKey(originalKey: String, htmlId: String): Key = state.getKey(originalKey, htmlId)
+    fun getKey(originalKey: String, htmlId: String): Key? = state.getKey(originalKey, htmlId)
     override fun get(index: Int): Key = state.get(index)
     override fun indexOf(that: Key): Int = state.indexOf(that)
 
@@ -176,6 +178,14 @@ fun addManuallyInstalledEpubBooks(): Boolean {
             Log.e(TAG, "addEpubBook catched JDOMParseException", e)
             f.deleteRecursively()
             ok = false
+        } catch (e: IOException) {
+            Log.e(TAG, "addEpubBook catched IOException", e)
+            f.deleteRecursively()
+            ok = false
+        } catch (e: Exception) {
+            Log.e(TAG, "addEpubBook catched another exception", e)
+            f.deleteRecursively()
+            ok = false
         }
     }
     return ok
@@ -183,4 +193,5 @@ fun addManuallyInstalledEpubBooks(): Boolean {
 
 val Book.isManuallyInstalledEpub get() = bookMetaData.getProperty("AndBibleEpubModule") != null
 val Book.isEpub get() = isManuallyInstalledEpub || ((bookMetaData as? SwordBookMetaData)?.bookType == epubBookType)
+val Book.epubBackend get() = (this as? SwordGenBook)?.backend as? EpubBackend
 val Book.epubDir get() = bookMetaData.getProperty("AndBibleEpubDir")

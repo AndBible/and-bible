@@ -440,7 +440,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="window_text_options_help1">%s आइकन इंगित करता है कि सेटिंग, कार्यक्षेत्र की सेटिंग्स से आती है।</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s आइकन इंगित करता है कि यह सेटिंग इस विशिष्ट विंडो के लिए बदल दी गई है।</string>
-  <string name="window_text_options_help3">कार्यक्षेत्र की सेटिंग इस विंडो को प्रभावित नहीं करेगी।</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="reset_defaults">डिफॉल्ट मूल्य</string>
   <string name="reset_workspace_defaults">कार्यक्षेत्र डिफ़ॉल्ट मूल्य</string>
@@ -500,8 +499,12 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <!--User Notes-->
   <string name="mynotes">मेरे टिप्पणीयां</string>
   <!--Backup and restore-->
+  <string name="backup_backup_title">कहां बैकअप करे?</string>
+  <string name="backup_backup_message">फोन में बैकअप करें या कहीं औरा (ईमेल, गूगल ड्राइव आदि) शेयर फंक्शन के द्वारा?</string>
+  <string name="backup_phone_storage">फोन स्टोरेज</string>
   <string name="backup_and_restore"> बैकअप &amp; रिस्टोर</string>
   <string name="backup_modules2">पुस्तक बैकअप करे...</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">बैकअप से नवीकरण</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">आप क्या पुनर्स्थापित करना चाहते हैं?</string>
@@ -520,6 +523,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="send_backup_file">बैकअप फाइल भेजे</string>
   <string name="backup_modules_title"> बैकअप के लिए मॉड्यूल का चयन करें</string>
   <string name="install_zip_canceled">मॉड्यूल का इंस्टॉल होना रद्द</string>
+  <string name="restore">बैकअप से नवीकरण</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">कॉपीराइट: %s</string>
   <string name="module_about_versification">छंद रचना: %s</string>
@@ -650,6 +655,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 बुकमार्क के अतिरिक्त, स्टडी पैड में कस्टम टेक्स्ट प्रविष्टियां हो सकती हैं।
  </string>
   <string name="help_search_title"> खोज</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text"> खोज पाठ में *,?,AND,OR,NOT जैसे विशेष वर्ण शामिल हो सकते हैं
 (अधिक विवरण के लिए \"Apache Lucene - Query Parser Syntax\"  देखें)
 </string>
@@ -818,6 +824,14 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="import_items">%s के रूप में आयात करें</string>
   <string name="import_from_db">ऐप डेटाबेस फ़ाइल से आयात करें</string>
   <string name="import_error">ऐप डेटाबेस से आयात करना विफल रहा। डेटाबेस फ़ाइल गलत प्रारूप हो सकती है या %s के बहुत पुराने संस्करण के साथ बनाई गई हो सकती है।</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">किताबें</string>
+  <string name="book">पुस्तक</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">सीमा</string>
   <string name="chooser_jump">जाएं</string>
   <string name="chooser_OT_abbrev">प.न.</string>
@@ -846,6 +860,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
   <!--... after restoring from backup file-->
+  <string name="last_updated">पिछली बार अपडेट किया गया: %s</string>
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
+  <string name="prefs_swipe_mode_chapter">अध्याय</string>
 </resources>

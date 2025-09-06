@@ -27,6 +27,7 @@
 		<item>@string/strongs_off</item>
 		<item>@string/strongs_links</item>
 		<item>@string/strongs_text_and_links</item>
+		<item>@string/strongs_hidden_links</item>
 	</string-array>
 
 	<string-array name="documentTypes">
@@ -52,8 +53,20 @@
 	</string-array>
 	<!-- Bible/commentary toolbar button press actions -->
 
+    <string-array name="prefs_bible_view_swipe_mode_values">
+        <item>CHAPTER</item>
+        <item>PAGE</item>
+        <item>NONE</item>
+    </string-array>
+
+    <string-array name="prefs_bible_view_swipe_mode_descriptions">
+        <item>@string/prefs_swipe_mode_chapter</item>
+        <item>@string/prefs_swipe_mode_page</item>
+        <item>@string/prefs_swipe_mode_none</item>
+    </string-array>
+
 	<!-- Screen colors: automatic night mode, day, night -->
-	<string-array name="prefs_night_mode_descriptions">
+    <string-array name="prefs_night_mode_descriptions">
 		<item>@string/prefs_night_mode_manual</item>
 		<item>@string/prefs_night_mode_automatic</item>
 	</string-array>
@@ -89,6 +102,7 @@
 		<item>@string/lang_afrikaans</item>
 		<item>@string/lang_arabic</item>
 		<item>@string/lang_bulgarian</item>
+        <item>@string/lang_bengali</item>
 		<item>@string/lang_burmese</item>
 		<item>@string/lang_czech</item>
 		<item>@string/lang_german</item>
@@ -100,6 +114,7 @@
 		<item>@string/lang_french</item>
 		<item>@string/lang_hebrew</item>
 		<item>@string/lang_hindi</item>
+        <item>@string/lang_croatian</item>
 		<item>@string/lang_hungarian</item>
 		<item>@string/lang_indonesian</item>
 		<item>@string/lang_italian</item>
@@ -133,6 +148,7 @@
 		<item>af</item>
 		<item>ar</item>
 		<item>bg</item>
+        <item>bn</item>
 		<item>my</item>
 		<item>cs</item>
 		<item>de</item>
@@ -143,7 +159,8 @@
 		<item>fi</item>
 		<item>fr</item>
 		<item>iw</item>
-		<item>hi</item>
+        <item>hi</item>
+		<item>hr</item>
 		<item>hu</item>
 		<item>in</item>
 		<item>it</item>
@@ -173,39 +190,33 @@
     <string-array name="prefs_bible_bookmark_modal_action_names">
 		<item>@string/create_bookmark</item>
 		<item>@string/create_bookmark_with_a_note</item>
+        <item>@string/add_paragraph_break</item>
 		<item>@string/my_notes_abbreviation</item>
 		<item>@string/share_verse_widget_title</item>
 		<item>@string/compare</item>
-		<item>@string/speak</item>
+        <item>@string/speak</item>
+		<item>@string/memorize_abbreviation</item>
 	</string-array>
 	<string-array name="prefs_bible_bookmark_modal_action_ids">
 		<item>BOOKMARK</item>
 		<item>BOOKMARK_NOTES</item>
+        <item>ADD_PARAGRAPH_BREAK</item>
 		<item>MY_NOTES</item>
 		<item>SHARE</item>
 		<item>COMPARE</item>
-		<item>SPEAK</item>
-	</string-array>
-	<string-array name="pref_bible_bookmark_modal_action_defaults">
-		<item>BOOKMARK</item>
-		<item>BOOKMARK_NOTES</item>
-		<item>MY_NOTES</item>
-		<item>SHARE</item>
-		<item>COMPARE</item>
+        <item>SPEAK</item>
+        <item>MEMORIZE</item>
 	</string-array>
 	<string-array name="prefs_gen_bookmark_modal_action_names">
 		<item>@string/create_bookmark</item>
 		<item>@string/create_bookmark_with_a_note</item>
+        <item>@string/add_paragraph_break</item>
 		<item>@string/speak</item>
 	</string-array>
 	<string-array name="prefs_gen_bookmark_modal_action_ids">
 		<item>BOOKMARK</item>
 		<item>BOOKMARK_NOTES</item>
-		<item>SPEAK</item>
-	</string-array>
-	<string-array name="pref_gen_bookmark_modal_action_defaults">
-		<item>BOOKMARK</item>
-		<item>BOOKMARK_NOTES</item>
+        <item>ADD_PARAGRAPH_BREAK</item>
 		<item>SPEAK</item>
 	</string-array>
 </resources>

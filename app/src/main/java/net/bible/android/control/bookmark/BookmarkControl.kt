@@ -16,7 +16,15 @@
  */
 package net.bible.android.control.bookmark
 
+import android.app.Activity.RESULT_OK
+import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
@@ -25,12 +33,14 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -39,10 +49,14 @@ import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntryTe
 import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntryWithText
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
+import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
@@ -55,16 +69,20 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import java.lang.IllegalArgumentException
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.min
 
 abstract class BookmarkEvent
 
-class BookmarkAddedOrUpdatedEvent(val bookmark: BaseBookmarkWithNotes): BookmarkEvent()
+class BookmarksAddedOrUpdatedEvent(val bookmarks: List<BaseBookmarkWithNotes>): BookmarkEvent()
 class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BaseBookmarkToLabel)
 class BookmarksDeletedEvent(val bookmarkIds: List<IdType>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
+class LabelsDeletedEvent(val labelIds: List<IdType>): BookmarkEvent()
 class BookmarkNoteModifiedEvent(val bookmarkId: IdType, val notes: String?, val lastUpdatedOn: Long): BookmarkEvent()
 
 class StudyPadOrderEvent(
@@ -173,10 +191,17 @@ open class BookmarkControl @Inject constructor(
         addText(bookmark)
         addLabels(bookmark)
         ABEventBus.post(
-            BookmarkAddedOrUpdatedEvent(bookmark)
+            BookmarksAddedOrUpdatedEvent(listOf(bookmark))
         )
         return bookmark
     }
+    
+    fun updateBookmarkEditAction(bookmarkId: IdType, editAction: EditAction) {
+        val bookmark = dao.bibleBookmarkById(bookmarkId) ?: dao.genericBookmarkById(bookmarkId) ?: return
+        bookmark.editAction = editAction
+        addOrUpdateBookmark(bookmark)
+    }
+
     fun toggleBookmarkLabel(bookmark: BaseBookmarkWithNotes, labelId: String) {
         val labels = labelsForBookmark(bookmark).toMutableList()
         val foundLabel = labels.find { it.id == IdType(labelId) }
@@ -305,6 +330,17 @@ open class BookmarkControl @Inject constructor(
             }
     }
 
+    val paragraphBreakLabel: Label get() {
+        return dao.paragraphBreakLabelByName()
+            ?: Label(
+                name = PARAGRAH_BREAK_LABEL_NAME,
+                hideStyle = true,
+                hideStyleWholeVerse = true,
+            ).apply {
+                dao.insert(this)
+            }
+    }
+
     fun reset() {}
 
     fun isSpeakBookmark(bookmark: BaseBookmarkWithNotes): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
@@ -416,17 +452,63 @@ open class BookmarkControl @Inject constructor(
         for(b in dao.bibleBookmarksByIds(bookmarkUpserts.toList())) {
             addLabels(b)
             addText(b)
-            ABEventBus.post(BookmarkAddedOrUpdatedEvent(b))
+            ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
         }
         for(b in dao.genericBookmarksByIds(genericBookmarkUpserts.toList())) {
             addLabels(b)
             addText(b)
-            ABEventBus.post(BookmarkAddedOrUpdatedEvent(b))
+            ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
         }
     }
 
-    fun deleteLabels(toList: List<IdType>) {
-        dao.deleteLabelsByIds(toList)
+    /**
+     * Find bookmarks that would become orphaned (have no labels) when the specified labels are deleted
+     */
+    fun findOrphanedBookmarks(labelIdsToDelete: List<IdType>): List<BaseBookmarkWithNotes> {
+        val bookmarksToDelete = mutableListOf<BaseBookmarkWithNotes>()
+        
+        for (labelId in labelIdsToDelete) {
+            val bibleBookmarks = dao.bookmarksWithLabel(labelId)
+            for (bookmark in bibleBookmarks) {
+                val allLabels = dao.labelsForBookmark(bookmark.id).map { it.id }
+                if (allLabels.all { it in labelIdsToDelete }) {
+                    bookmarksToDelete.add(bookmark)
+                }
+            }
+            
+            val genericBookmarks = dao.genericBookmarksWithLabel(labelId)
+            for (bookmark in genericBookmarks) {
+                val allLabels = dao.labelsForGenericBookmark(bookmark.id).map { it.id }
+                if (allLabels.all { it in labelIdsToDelete }) {
+                    bookmarksToDelete.add(bookmark)
+                }
+            }
+        }
+        
+        return bookmarksToDelete.distinct()
+    }
+
+    fun deleteLabels(labelIdList: List<IdType>, deleteOrphanedBookmarks: Boolean = false) {
+        if (deleteOrphanedBookmarks) {
+            val bookmarksToDelete = findOrphanedBookmarks(labelIdList)
+            if (bookmarksToDelete.isNotEmpty()) {
+                deleteBookmarks(bookmarksToDelete)
+            }
+        }
+        var bookmarks: List<BaseBookmarkWithNotes> =
+            dao.bibleBookmarksWithPrimaryLabel(labelIdList) +
+            dao.genericBookmarksWithPrimaryLabel(labelIdList)
+
+        dao.deleteLabelsByIds(labelIdList)
+        bookmarks =
+            dao.bibleBookmarksByIds(bookmarks.map { it.id }) +
+            dao.genericBookmarksByIds(bookmarks.map { it.id })
+        for (b in bookmarks) {
+            addText(b)
+            addLabels(b)
+        }
+        ABEventBus.post(BookmarksAddedOrUpdatedEvent(bookmarks))
+        ABEventBus.post(LabelsDeletedEvent(labelIdList))
     }
 
     fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<BibleBookmarkWithNotes> {
@@ -696,6 +778,130 @@ open class BookmarkControl @Inject constructor(
         dao.update(textEntry)
         val withText = dao.studyPadTextEntryById(id)!!
         ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
+    }
+
+    suspend fun exportBookmarksToCSV(context: ActivityBase, exportBookmarks: List<BibleBookmarkWithNotes>) = context.run {
+        try {
+            if (exportBookmarks.isEmpty()) {
+                Toast.makeText(context, getString(R.string.no_bookmarks_to_export), Toast.LENGTH_SHORT)
+                    .show()
+                return
+            }
+
+            // Show column selection dialog
+            val selectedColumns = showColumnSelectionDialog(context)
+            if (selectedColumns.isEmpty()) return // User cancelled or selected no columns
+
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/csv"
+                val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US).format(Date())
+                putExtra(Intent.EXTRA_TITLE, "bible_bookmarks_$timestamp.csv")
+            }
+
+            val result = awaitIntent(intent)
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { exportToUri(context, it, exportBookmarks, selectedColumns) }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting CSV export", e)
+            ErrorReportControl.showErrorDialog(
+                context,
+                getString(R.string.csv_export_failed, e.message),
+                exception = e
+            )
+        }
+    }
+
+    suspend fun importBookmarksFromCSV(context: ActivityBase) = context.run {
+        try {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/*"
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/csv", "text/plain", "text/comma-separated-values"))
+            }
+
+            val result = awaitIntent(intent)
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { importFromUri(context, it) }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting CSV import", e)
+            ErrorReportControl.showErrorDialog(
+                context,
+                getString(R.string.csv_import_failed, e.message),
+                exception = e
+            )
+        }
+    }
+
+
+    private suspend fun showColumnSelectionDialog(context: ActivityBase): List<String> {
+        val columns = BookmarkCsvUtils.availableColumns
+        
+        // Load previously unchecked columns from settings
+        val uncheckedColumns = CommonUtils.settings.getStringSet("csv_export_unchecked_columns", emptySet())
+        
+        // Pre-select columns (all columns except those that were previously unchecked)
+        val selectedColumns = Dialogs.multiselect(
+            context,
+            context.getString(R.string.csv_column_selection_title),
+            columns,
+            itemToString = { column -> column.displayName },
+            preSelected = { column -> !uncheckedColumns.contains(column.key) }
+        )
+        
+        // Save the inverse selection (unchecked items) to settings
+        val selectedKeys = selectedColumns.map { it.key }.toSet()
+        val newUncheckedColumns = columns.map { it.key }.filter { !selectedKeys.contains(it) }.toSet()
+        CommonUtils.settings.setStringSet("csv_export_unchecked_columns", newUncheckedColumns)
+        
+        return selectedColumns.map { it.key }
+    }
+
+    private suspend fun exportToUri(context: Context, uri: Uri, bookmarks: List<BibleBookmarkWithNotes>, selectedColumns: List<String>) = context.run {
+        withContext(Dispatchers.IO) {
+            contentResolver.openOutputStream(uri)?.use { outputStream ->
+                BookmarkCsvUtils.exportBookmarksToCsv(outputStream, bookmarks, this@BookmarkControl, selectedColumns)
+            } ?: throw IllegalArgumentException("Could not open output stream for URI: $uri")
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    getString(R.string.csv_export_success, bookmarks.size),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private suspend fun importFromUri(context: Context, uri: Uri) = context.run {
+        withContext(Dispatchers.IO) {
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, this@BookmarkControl)
+
+                withContext(Dispatchers.Main) {
+                    if (result.errors > 0) {
+                        // Show detailed error dialog
+                        val message =
+                            getString(R.string.csv_import_errors, result.created, result.updated, result.errors) +
+                                "\n\n" + result.errorMessages.take(5).joinToString("\n") +
+                                if (result.errorMessages.size > 5) "\n..." else ""
+
+                        AlertDialog.Builder(context)
+                            .setTitle(getString(R.string.import_items, "CSV"))
+                            .setMessage(message)
+                            .setPositiveButton(R.string.okay, null)
+                            .show()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            getString(R.string.csv_import_success, result.created, result.updated),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } ?: throw IllegalArgumentException("Could not open input stream for URI: $uri")
+        }
     }
 
     companion object {

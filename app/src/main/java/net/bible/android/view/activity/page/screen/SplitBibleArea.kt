@@ -19,7 +19,6 @@ package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
 import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -55,7 +54,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SplitBibleAreaBinding
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.MultiFragmentDocument
@@ -63,6 +61,7 @@ import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
@@ -72,19 +71,21 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.Preference
 import net.bible.android.view.activity.page.SubMenuPreference
+import net.bible.android.view.activity.page.application
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.firstBibleDoc
+import net.bible.service.common.shortName
+import net.bible.service.db.exportStudyPads
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.isStudyPad
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.versification.BookName
-import java.lang.IndexOutOfBoundsException
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -105,10 +106,13 @@ class LockableHorizontalScrollView(context: Context, attributeSet: AttributeSet)
 
 class RestoreButtonsVisibilityChanged
 
+var clipboardKey: BookAndKey? = null
+
 @SuppressLint("ViewConstructor")
 class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLayout(mainBibleActivity) {
     private val isSplitVertically get() = mainBibleActivity.isSplitVertically
     private val windowControl: WindowControl get() = mainBibleActivity.windowControl
+    private val speakControl: SpeakControl get() = mainBibleActivity.speakControl
     private val bibleViewFactory: BibleViewFactory get() = mainBibleActivity.bibleViewFactory
 
     private val res = BibleApplication.application.resources
@@ -533,11 +537,16 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                         alpha(VISIBLE_ALPHA)
                         interpolator = DecelerateInterpolator()
                     }  else {
-                        alpha(hiddenAlpha)
+                        if (!CommonUtils.settings.disableAnimations) {
+                            alpha(hiddenAlpha)
+                        }
                         interpolator = AccelerateInterpolator()
                     }
                     withEndAction {
                         buttonsWillAnimate = false
+                    }
+                    if(CommonUtils.settings.disableAnimations) {
+                        duration = 0
                     }
                     start()
                 }
@@ -588,6 +597,11 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                     .translationX(transX)
                     .setInterpolator(DecelerateInterpolator())
                     .withEndAction { Log.i(TAG, "animate finished") }
+                    .apply {
+                        if(CommonUtils.settings.disableAnimations) {
+                            setDuration(0)
+                        }
+                    }
                     .start()
             } else {
                 Log.i(TAG, "setting without animate")
@@ -615,12 +629,21 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             bibleReferenceOverlay.visibility = View.VISIBLE
             bibleReferenceOverlay.animate().alpha(1.0f)
                 .setInterpolator(DecelerateInterpolator())
+                .apply {
+                    if(CommonUtils.settings.disableAnimations) {
+                        setDuration(0)
+                    }
+                }
                 .start()
         }  else {
             bibleReferenceOverlay.animate().alpha(0f)
                 .setInterpolator(AccelerateInterpolator())
                 .withEndAction { bibleReferenceOverlay.visibility = View.GONE }
-                .start()
+                .apply {
+                    if(CommonUtils.settings.disableAnimations) {
+                        setDuration(0)
+                    }
+                }.start()
         }
     }
 
@@ -715,8 +738,14 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
         val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu!!
 
-        val export = menu.findItem(R.id.exportHtml)
-        export.title = app.getString(R.string.export_fileformat, "HTML")
+        val exportHtml = menu.findItem(R.id.exportHtml)
+        exportHtml.title = app.getString(R.string.export_fileformat, "HTML")
+
+        val exportStudypad = menu.findItem(R.id.exportStudypad)
+        exportStudypad.title = app.getString(R.string.export_something, app.getString(R.string.studypad))
+
+        val exportStudypadCsv = menu.findItem(R.id.exportStudypadCsv)
+        exportStudypadCsv.title = app.getString(R.string.export_bookmarks_csv, "CSV")
 
         synchronized(BookName::class.java) {
             val oldValue = BookName.isFullBookName()
@@ -851,11 +880,53 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 launch = { _, _, _ ->  windowControl.closeWindow(window)},
                 visible = windowControl.isWindowRemovable(window) && !isMaximised
             )
+            R.id.goToSpeak -> CommandPreference(
+                title = application.getString(R.string.go_to_ref, speakControl.speakPageManager.currentPage.bookAndKey?.let {
+                    if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
+                        it.key.shortName
+                    } else {
+                        it.shortName
+                    }
+                }),
+                launch = { _, _, _ ->
+                    speakControl.speakBookAndKey?.let {
+                        if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
+                            window.pageManager.setCurrentDocumentAndKey(null, it.key)
+                        } else {
+                            window.pageManager.setCurrentDocumentAndKey(it.document, it)
+                        }
+                    }
+                },
+                visible = !speakControl.isStopped
+            )
+            R.id.goToReference -> CommandPreference(
+                title = application.getString(R.string.go_to_ref, clipboardKey?.let {
+                    if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
+                        it.key.shortName
+                    } else {
+                        it.shortName
+                    }
+                }),
+                launch = { _, _, _ ->
+                    clipboardKey?.let {
+                        if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
+                            window.pageManager.setCurrentDocumentAndKey(null, it.key)
+                        } else if (it.document == null)  {
+                            window.pageManager.setCurrentDocumentAndKey(null, it.key)
+                        } else {
+                            window.pageManager.setCurrentDocumentAndKey(it.document, it)
+                        }
+                    }
+                },
+                visible = clipboardKey != null
+            )
             R.id.copyReference -> CommandPreference(
                 launch = { _, _, _ ->
                     val doc = window.pageManager.currentPage.currentDocument?: return@CommandPreference
                     val key = window.pageManager.currentPage.singleKey?: return@CommandPreference
-                    val ordinal = window.pageManager.currentPage.anchorOrdinal?.start
+                    val ordinalRange = window.pageManager.currentPage.anchorOrdinal
+                    val ordinal = ordinalRange?.start
+                    clipboardKey = BookAndKey(key, doc, ordinalRange)
 
                     val url = CommonUtils.makeAndBibleUrl(
                         keyStr = key.osisRef,
@@ -911,9 +982,25 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             },
                 visible = window.isVisible && (
                     firstDoc is StudyPadDocument ||
-                    firstDoc is MultiFragmentDocument  ||
-                    firstDoc is MyNotesDocument
-                )
+                        firstDoc is MultiFragmentDocument  ||
+                        firstDoc is MyNotesDocument
+                    )
+            )
+            R.id.exportStudypad -> CommandPreference({ _, _, _ ->
+                mainBibleActivity.lifecycleScope.launch {
+                    exportStudyPads(mainBibleActivity, (firstDoc as StudyPadDocument).label)
+                }
+            },
+                visible = window.isVisible && (firstDoc is StudyPadDocument)
+            )
+            R.id.exportStudypadCsv -> CommandPreference({ _, _, _ ->
+                mainBibleActivity.lifecycleScope.launch {
+                    val bookmarkControl = mainBibleActivity.bookmarkControl
+                    val bookmarks = bookmarkControl.getBibleBookmarksWithLabel((firstDoc as StudyPadDocument).label)
+                    mainBibleActivity.bookmarkControl.exportBookmarksToCSV(mainBibleActivity, bookmarks)
+                }
+            },
+                visible = window.isVisible && (firstDoc is StudyPadDocument)
             )
             else -> throw RuntimeException("Illegal menu item")
         }
@@ -921,6 +1008,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
     companion object {
         private const val TAG = "SplitBibleArea"
+        private const val HIDDEN_ALPHA_DISABLE_ANIMATIONS = 0.5F
         private const val HIDDEN_ALPHA = 0.2F
         private const val HIDDEN_ALPHA_NIGHT = 0.5F
         private const val VISIBLE_ALPHA = 1.0F

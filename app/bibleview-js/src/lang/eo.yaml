@@ -1,6 +1,6 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Legosignoj
-bookmarksAndNotes: ""
+bookmarksAndNotes: Legosignoj kaj miaj notoj
 openMyNotes: Malfermi en miaj notoj
 openStudyPad: Malfermi en notbloko (%s)
 noteText: Piednoto (%s)
@@ -57,9 +57,39 @@ openDownloads: Malfermi elŝutojn
 verseShare: Kunhavigi
 verseSpeak: Paroli
 verseCompare: Kompari
+verseMemorize: Parkerigi
 verseNote: Noto
 verseMyNotes: Notoj
 verseShareLong: Kunhavigi verson
 verseCompareLong: Kompari verson
+verseMemorizeLong: Parkerigi bibliajn versojn
 verseNoteLong: Skribi noton
 addBookmark: Legosigno
+selectCustomIconTitle: Elekti propran emblemon de markilo
+bookmarkSettingsTitle: Alĝustigi legosignon
+subtitlePlaceholder: Teksto de subtitolo
+customIconLabel: Propra bildsimbolo
+editActionLabel: Redakti agon
+editActionModeLabel: Reĝimo
+editActionModeNone: neniu (forigi)
+editActionModeAppend: antaŭaldoni tekston
+editActionModePrepend: postaldoni tekston
+editActionContentLabel: Enhavo
+editActionContentPlaceholder: Enigu tekston aldonotan al la dokumento…
+experimentalFeatureTitle: Eksperimenta
+experimentalFeatureHelpTitle: Pri eksperimentaj ebloj
+experimentalFeatureHelpContent: "Eksperimentaj ebloj estas novaj trajtoj, kiuj plue estas prilaborataj kaj testataj. Ili povas ne funkcii perfekte kaj povas esti signife ŝanĝitaj aŭ forigitaj en venontaj versioj de la aplikaĵo."
+insertParagraphBreak: Aldoni linirompon
+insertSubtitle: Aldoni subtitolon
+xmlParseError: Eraro dum pritrakti XML
+invalidTag: Erara marko
+invalidClosingTag: Erara fina marko
+unmatchedClosingTag: Malkongrua fina marko
+unclosedTag: Nefermita marko
+unknownError: Nekonata eraro
+blur: Kovri
+reset: Nuligi
+peek: Ŝtelrigardi
+wordBlur: Kovri vortojn
+wordScramble: Malordigi vortojn
+more: Pli

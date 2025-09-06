@@ -671,7 +671,13 @@ class TextToSpeechServiceManager @Inject constructor(
             val isBible = CommonUtils.settings.getBoolean(PERSIST_BIBLE_PROVIDER, true)
             switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
 
-            isPaused = mSpeakTextProvider.restoreState()
+            isPaused =
+                try {
+                    mSpeakTextProvider.restoreState()
+                } catch (e: Exception) {
+                    Log.e(TAG, "restoreState fails", e)
+                    false 
+            }
             Log.i(TAG, "Now pause state is $isPaused")
 
             // restore locale information so tts knows which voice to load when it initialises

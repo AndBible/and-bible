@@ -17,11 +17,11 @@
 
 package net.bible.service.history
 
+import android.content.Intent
 import android.util.Log
 
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -33,6 +33,7 @@ import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
+import java.lang.Exception
 
 
 import java.util.ArrayList
@@ -47,6 +48,9 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+class AddHistoryItem(val window: Window? = null)
+
 @ApplicationScope
 class HistoryManager @Inject constructor(private val windowControl: WindowControl) {
 
@@ -102,6 +106,9 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
             } catch (e: NoSuchKeyException) {
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
+            } catch (e: Exception) {
+                Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
+                continue
             }
             stack.add(KeyHistoryItem(doc, key, entity.anchorOrdinal?.let { OrdinalRange(it) }, window, entity.createdAt))
         }
@@ -120,10 +127,8 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
 
     /** allow current page to save any settings or data before being changed
      */
-    fun onEvent(event: BeforeCurrentPageChangeEvent) {
-        if (event.updateHistory) {
-            addHistoryItem(event.window)
-        }
+    fun onEvent(event: AddHistoryItem) {
+        addHistoryItem(event.window)
     }
 
     fun canGoBack(): Boolean {
@@ -133,11 +138,11 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
     /**
      * called when a verse is changed to allow current Activity to be saved in History list
      */
-    private fun addHistoryItem(window: Window?) {
+    fun addHistoryItem(window: Window?, intent: Intent? = null) {
         // if we cause the change by requesting Back then ignore it
         val activeWindow = window ?: windowControl.activeWindow
         if (!isGoingBack) {
-            val item = createHistoryItem(activeWindow)
+            val item = createHistoryItem(activeWindow, intent)
             add(getHistoryStack(activeWindow.id), item)
         }
     }
@@ -146,11 +151,14 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
         getHistoryStack(windowControl.activeWindow.id).pop()
     }
 
-    private fun createHistoryItem(window: Window): HistoryItem? {
+    private fun createHistoryItem(window: Window, intent: Intent?): HistoryItem? {
         var historyItem: HistoryItem? = null
 
         val currentActivity = CurrentActivityHolder.currentActivity
-        if (currentActivity is MainBibleActivity) {
+        if (intent != null) {
+            val title = intent.getStringExtra("description")?: "-"
+            historyItem = IntentHistoryItem(title, intent, window)
+        } else if (currentActivity is MainBibleActivity) {
             val currentPage = window.pageManager.currentPage
             val doc = currentPage.currentDocument
             if (currentPage.key == null) {

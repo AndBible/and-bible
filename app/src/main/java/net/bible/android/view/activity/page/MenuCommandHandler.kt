@@ -60,6 +60,7 @@ const val needHelpLink = "https://github.com/AndBible/and-bible/wiki/Support"
 const val howToAdd = "https://github.com/AndBible/and-bible/wiki/FAQ#please-add-module-x-to-and-bible"
 const val textIssue = "https://github.com/AndBible/and-bible/wiki/FAQ#i-found-text-issue-in-one-of-the-bible--commentary-etc-modules-in-and-bible"
 const val buyDevelopmentLink = "https://shop.andbible.org"
+const val homepageLink = "https://andbible.org"
 
 /** Handle requests from the main menu
  *
@@ -221,7 +222,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                     isHandled = true
                 }
                 R.id.tellFriend -> {
-                    val homepage = Uri.parse("https://andbible.github.io")
+                    val homepage = Uri.parse(homepageLink)
                     val playstore = Uri.parse("https://play.google.com/store/apps/details?id=" + mainBibleActivity.packageName)
 
                     val appName = mainBibleActivity.getString(R.string.app_name_long)

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span v-if="show" :class="{nonCanonical: config.makeNonCanonicalItalic && isNonCanonical}"><slot/></span>
+  <span v-if="show" class="trans-change" :class="{nonCanonical: config.makeNonCanonicalItalic && isNonCanonical}"><slot/></span>
 </template>
 
 <script setup lang="ts">
@@ -31,7 +31,7 @@ const isNonCanonical = computed(() => props.type?.toLowerCase() === "added");
 const show = computed(() => (!isNonCanonical.value) || (isNonCanonical.value && config.showNonCanonical));
 </script>
 
-<style scoped>
+<style>
 .nonCanonical {
     font-style: italic;
 }

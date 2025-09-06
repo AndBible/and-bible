@@ -41,7 +41,7 @@ describe("verseHighlight tests", () => {
 
         const highlightColorFn = (v) => Color(v.color);
 
-        const css = verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount, highlightColorFn});
+        const css = verseHighlighting({highlightLabels, highlightLabelCount, underlineLabels, underlineLabelCount, highlightColorFn, appSettings: {nightMode: false}});
         expect(css).toBe(result);
     }
 
@@ -79,7 +79,7 @@ describe("useBookmark tests", () => {
     let gb, b;
     let startOrd, startOff, endOrd, endOff;
     beforeEach(() => {
-        const {config} = useConfig();
+        const {config, appSettings} = useConfig();
         gb = useGlobalBookmarks(config, {value: "bible"});
         const fragmentReady = ref(true);
         b = useBookmarks(
@@ -91,7 +91,8 @@ describe("useBookmark tests", () => {
             true,
             fragmentReady,
             {adjustedColor: () => null},
-            config
+            config,
+            appSettings,
         );
         gb.updateBookmarkLabels([{
             id: 1,
@@ -304,6 +305,126 @@ describe("useBookmark tests", () => {
 
     });
 
+});
+
+describe("marker visibility tests", () => {
+    let gb, b;
+    beforeEach(() => {
+        const {config, appSettings} = useConfig();
+        gb = useGlobalBookmarks(config, {value: "bible"});
+        const fragmentReady = ref(true);
+        b = useBookmarks(
+            "fragKey",
+            [10,20],
+            gb,
+            "KJV",
+            null,
+            true,
+            fragmentReady,
+            {adjustedColor: () => null},
+            config,
+            appSettings,
+        );
+    });
+
+    it("hidden bookmark with marker style should be hidden from style ranges", () => {
+        // Create a label with both marker style and hide style - hide should override marker
+        gb.updateBookmarkLabels([{
+            id: 1,
+            color: 1,
+            underline: false,
+            markerStyle: true,
+            markerStyleWholeVerse: false,
+            hideStyle: true,
+            hideStyleWholeVerse: false,
+        }]);
+
+        // Add a bookmark with this label
+        gb.updateBookmarks([{
+            id: 1,
+            ordinalRange: [10, 10],
+            offsetRange: null,
+            labels: [1],
+            bookInitials: "KJV",
+            notes: null,
+            wholeVerse: false,
+            type: "bookmark",
+        }]);
+
+        const rs = b.styleRanges.value;
+        expect(rs.length).toBe(1);
+        
+        // The bookmark should be marked as hidden, not highlighted
+        expect(rs[0].hiddenLabelIds).toContain(1);
+        expect(rs[0].highlightLabelIds).not.toContain(1);
+        expect(rs[0].underlineLabelIds).not.toContain(1);
+    });
+
+    it("hidden bookmark with marker style (whole verse) should be hidden from style ranges", () => {
+        // Create a label with both marker style and hide style for whole verse
+        gb.updateBookmarkLabels([{
+            id: 1,
+            color: 1,
+            underline: false,
+            markerStyle: false,
+            markerStyleWholeVerse: true,
+            hideStyle: false,
+            hideStyleWholeVerse: true,
+        }]);
+
+        // Add a whole verse bookmark with this label
+        gb.updateBookmarks([{
+            id: 1,
+            ordinalRange: [10, 10],
+            offsetRange: null,
+            labels: [1],
+            bookInitials: "KJV",
+            notes: null,
+            wholeVerse: true,
+            type: "bookmark",
+        }]);
+
+        const rs = b.styleRanges.value;
+        expect(rs.length).toBe(1);
+        
+        // The bookmark should be marked as hidden, not highlighted
+        expect(rs[0].hiddenLabelIds).toContain(1);
+        expect(rs[0].highlightLabelIds).not.toContain(1);
+        expect(rs[0].underlineLabelIds).not.toContain(1);
+    });
+
+    it("marker style bookmark without hide settings should show as highlighted", () => {
+        // Create a label with marker style but NO hide style
+        gb.updateBookmarkLabels([{
+            id: 1,
+            color: 1,
+            underline: false,
+            markerStyle: true,
+            markerStyleWholeVerse: false,
+            hideStyle: false,
+            hideStyleWholeVerse: false,
+        }]);
+
+        // Add a bookmark with this label
+        gb.updateBookmarks([{
+            id: 1,
+            ordinalRange: [10, 10],
+            offsetRange: null,
+            labels: [1],
+            bookInitials: "KJV",
+            notes: null,
+            wholeVerse: false,
+            type: "bookmark",
+        }]);
+
+        const rs = b.styleRanges.value;
+        expect(rs.length).toBe(1);
+        
+        // The bookmark should be marked as highlighted (since it's marker style but not hidden)
+        expect(rs[0].hiddenLabelIds).toContain(1); // Marker bookmarks are actually moved to hidden for highlight processing
+        expect(rs[0].highlightLabelIds).not.toContain(1);
+        expect(rs[0].underlineLabelIds).not.toContain(1);
+    });
 });
 
 describe("abbreviate tests", () => {

@@ -12,7 +12,6 @@
   <string name="chooseBook">கோப்பு</string>
   <string name="selectPassage">பகுதி</string>
   <string name="search">தேடல்</string>
-  <string name="search_in_andbible">விவிலியத்தில் தேடு</string>
   <string name="settings">விருப்பத்தேர்வுகள்</string>
   <string name="history">வரலாறு</string>
   <string name="speak">பேசுக</string>
@@ -477,7 +476,6 @@
   <string name="window_text_options_help1">%s ஐகான், அமைப்புகள் அனைத்தும் பணி இடத்திலிருந்து எடுக்கப்படுகின்றது என்பதைகுறிக்கும்.</string>
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">இந்த குறிப்பிட்ட சாளரத்திற்கு இந்த அமைப்பு மாற்றப்பட்டுள்ளது என்பதை %s ஐகான் குறிக்கிறது.</string>
-  <string name="window_text_options_help3">பணியிட அமைப்புகள் இந்த சாரலத்தை பாதிக்காது.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">எல்லா அமைப்புகளையும் %2$sக்கு மீட்டமைக்க %1$sபொத்தானைப் பயன்படுத்தவும்</string>
   <string name="reset_defaults">இயல்பு நிலை அமைப்புகள்</string>
@@ -554,6 +552,7 @@
   <string name="backup_document_info">விவிலியம், விளக்க உரைகள், அகராதிகள், வரைபடங்கள் மற்றும் பல.</string>
   <string name="backup_to">...க்கு நகல் எடு</string>
   <string name="backup_restore_from">.... இல் இருந்து மீட்டமை</string>
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore">மீட்டமை</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">எதை மீட்டமைக்க வேண்டும்?</string>
@@ -575,6 +574,8 @@
   <string name="send_backup_file">நகல் கோப்பை அனுப்பு</string>
   <string name="backup_modules_title">நகல் எடுக்கவேண்டிய மாடியுல்களை தெரிவு செய்க</string>
   <string name="install_zip_canceled">மாடியுல்களை நிறுவுவது ரத்து செய்யப்பட்டது</string>
+  <string name="restore">மீட்டமை</string>
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">காப்புரிமை: %s</string>
   <string name="module_about_installed_version">நிறுவப்பட்ட பதிப்பு: %1$s (%2$s)</string>
@@ -711,6 +712,7 @@
         புக்மார்க்குகளுக்கு கூடுதலாக, ஸ்டடி பேடில் தனிப்பயன் உரை உள்ளீடுகளும் இருக்கலாம்.
     </string>
   <string name="help_search_title">தேடல்</string>
+  <!--TODO: to be removed-->
   <string name="help_search_text">தேடும்போது *, ?, AND, OR, NOT போன்ற சிறப்பு எழுத்துகளைப் பயன்படுத்தலாம்.
         (மேலதிக தகவல்களுக்கு \"Apache Lucene - Query Parser Syntax\" ஐ காண்க)</string>
   <string name="help_workspaces_title">பணியிடங்கள்</string>
@@ -902,6 +904,14 @@
   <string name="import_items">%sஐ உள்ளேற்று</string>
   <string name="import_from_db">ஆப் தரவுத்தள கோப்பிலிருந்து உள்ளேற்றவும்</string>
   <string name="import_error">தரவுத்தளத்திலிருந்து உள்ளேற்ற இயலவில்லை. தரவுத்தளக் கோப்பு தவறான வடிவமைப்பாக இருக்கலாம் அல்லது %sஇன் பழைய பதிப்பைக் கொண்டு உருவாக்கப்பட்டிருக்கலாம்.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">கோப்பு</string>
+  <string name="book">நூல்</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">வரம்பு </string>
   <string name="chooser_jump">தாவு</string>
   <string name="chooser_OT_abbrev">பஏ</string>
@@ -1040,6 +1050,7 @@
   <string name="error_notification_channel_name">பிழை அறிவிப்புகள்</string>
   <string name="restore_from_cloud_description">வேறு ஒரு கருவியில் ஒத்திசைவினை இயக்கி இருந்தால், மேக சேமிப்பகத்திலிருந்து தரவு தளத்தை மீட்டமைக்கலாம்.</string>
   <string name="enable_sync">ஒத்திசைவை இயக்கு</string>
+  <string name="last_updated">கடைசியாக புதுப்பிக்கப்பட்டது: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">கோப்பினை படிக்க இயலவில்லை</string>
   <string name="sqlite_invalid_file">தவறான தொகுதி கோப்பு அல்லது கோப்புப் பெயர்: %s</string>
@@ -1074,4 +1085,5 @@
   <string name="dont_show">
         இந்த குறிப்பை மீண்டும் காட்டாதே
     </string>
+  <string name="prefs_swipe_mode_chapter">அதிகாரம்</string>
 </resources>

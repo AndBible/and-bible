@@ -69,7 +69,7 @@ import {useCommon} from "@/composables";
 import {setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
 import StudyPadRow from "@/components/StudyPadRow.vue";
-import {androidKey, exportModeKey, globalBookmarksKey, scrollKey} from "@/types/constants";
+import {androidKey, exportModeKey, globalBookmarksKey, scrollKey, journalKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
 import {useStudyPad} from "@/composables/journal";
@@ -98,8 +98,11 @@ const {
     bookmarkToLabels: bookmarkToLabels_,
     genericBookmarkToLabels: genericBookmarkToLabels_,
 } = props.document;
+
+const {strings, appSettings} = useCommon()
+
 const journal = useStudyPad(label);
-provide("journal", journal);
+provide(journalKey, journal);
 const {scrollToId} = inject(scrollKey)!;
 const android = inject(androidKey)!;
 
@@ -234,6 +237,7 @@ function appendNewEntry() {
 
 const labelNameStyle = computed(() => {
     if (exportMode.value) return;
+    if (appSettings.monochromeMode) return;
     const color: Color = adjustedColorOrig(label.style.color)!;
     const textColor = color.isLight() ? "var(--label-text-black)" : "var(--label-text-white)";
     return `background-color: ${color.string()}; color: ${textColor};`;
@@ -243,11 +247,10 @@ function studyPadOrdinal(journalEntry: StudyPadItem) {
     return journalEntry.hashCode
 }
 
-const {strings} = useCommon()
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 div.journal-name {
   padding-top: 10px;

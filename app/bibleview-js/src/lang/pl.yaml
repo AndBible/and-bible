@@ -1,6 +1,6 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Zakładki
-bookmarksAndNotes: ""
+bookmarksAndNotes: Zakładki i moje notatki
 openMyNotes: Otwórz w moich notatkach
 openStudyPad: Otwórz w bloczku notatek (%s)
 noteText: Przypis (%s)
@@ -57,9 +57,39 @@ openDownloads: Otwórz pobierania
 verseShare: Udostępnij
 verseSpeak: Odsłuchaj
 verseCompare: Porównaj
+verseMemorize: Nauka na pamięć
 verseNote: Notatka
 verseMyNotes: Moje notatki
 verseShareLong: Udostępnij werset
 verseCompareLong: Porównaj werset
+verseMemorizeLong: Ucz się wersetów biblijnych na pamięć
 verseNoteLong: Napisz notatkę
 addBookmark: Zakładka
+selectCustomIconTitle: Wybór własnej ikony znacznika
+bookmarkSettingsTitle: Dostosowywanie zakładki
+subtitlePlaceholder: Tekst podtytułu
+customIconLabel: Własna ikona
+editActionLabel: Edytuj akcję
+editActionModeLabel: Tryb
+editActionModeNone: brak (usuń)
+editActionModeAppend: dodaj tekst przed
+editActionModePrepend: dodaj tekst po
+editActionContentLabel: Treść
+editActionContentPlaceholder: Wprowadź tekst do dodania do dokumentu…
+experimentalFeatureTitle: Eksperymentalne
+experimentalFeatureHelpTitle: O eksperymentalnych funkcjach
+experimentalFeatureHelpContent: "Eksperymentalne funkcje są nowymi możliwościami aplikacji, nad którymi wciąż trwają prace i testy. Mogą one nie działać bezbłędnie i zostać znacząco zmienione lub usunięte w przyszłych wersjach aplikacji."
+insertParagraphBreak: Dodaj nową linię
+insertSubtitle: Dodaj podtytuł
+xmlParseError: Błąd przetwarzania XML
+invalidTag: Nieprawidłowy znacznik
+invalidClosingTag: Nieprawidłowy znacznik zamykający
+unmatchedClosingTag: Niepasujący znacznik zamykający
+unclosedTag: Niezamknięty znacznik
+unknownError: Nieznany błąd
+blur: Zasłoń
+reset: Reset
+peek: Podglądnij
+wordBlur: Zasłoń słowa
+wordScramble: Pomieszaj słowa
+more: Więcej

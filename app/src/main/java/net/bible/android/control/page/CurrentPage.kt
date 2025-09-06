@@ -19,6 +19,7 @@ package net.bible.android.control.page
 import kotlinx.serialization.Serializable
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.sword.BookAndKey
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
@@ -46,6 +47,7 @@ interface CurrentPage {
 
     val documentCategory: DocumentCategory
     val pageManager: CurrentPageManager
+    val bookAndKey: BookAndKey? get() = singleKey?.let {BookAndKey(it, currentDocument, anchorOrdinal, htmlId)}
 
     fun startKeyChooser(context: ActivityBase)
 
@@ -74,7 +76,7 @@ interface CurrentPage {
     val displayKey: Key?
 
 	/** set key and update screens  */
-	fun setKey(key: Key)
+	fun setKey(key: Key, addHistoryItem: Boolean = true)
 
     /** get key for 1 verse instead of whole chapter if bible
      */
@@ -98,5 +100,4 @@ interface CurrentPage {
 
     var anchorOrdinal: OrdinalRange?
     var htmlId: String?
-
 }

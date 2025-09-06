@@ -62,6 +62,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -89,7 +90,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.BuildConfig.BUILD_TYPE
-import net.bible.android.activity.BuildConfig.BuildDate
+import net.bible.android.activity.BuildConfig.CommitDate
 import net.bible.android.activity.BuildConfig.FLAVOR_appearance
 import net.bible.android.activity.BuildConfig.FLAVOR_distchannel
 import net.bible.android.activity.BuildConfig.GitHash
@@ -129,6 +130,7 @@ import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
+import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.IOUtil
 import org.crosswire.common.util.Version
@@ -145,6 +147,8 @@ import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.Passage
+import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseKey
 import org.crosswire.jsword.passage.VerseRange
@@ -152,10 +156,12 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.Versifications
 import org.jdom2.input.SAXBuilder
 import org.jdom2.xpath.XPathFactory
 import org.spongycastle.util.io.pem.PemReader
-import java.io.BufferedInputStream
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -172,7 +178,9 @@ import java.security.spec.X509EncodedKeySpec
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -244,6 +252,7 @@ val BookmarkEntities.Label.displayName get() =
     when {
         isSpeakLabel -> application.getString(R.string.speak)
         isUnlabeledLabel -> application.getString(R.string.label_unlabelled)
+        isParagraphBreakLabel -> application.getString(R.string.add_paragraph_break)
         else -> name
     }
 
@@ -253,6 +262,8 @@ open class CommonUtilsBase {
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bibleTraverser: BibleTraverser
 }
+
+enum class BibleViewSwipeMode {CHAPTER, PAGE, NONE}
 
 class Ref<T>(var value: T? = null)
 
@@ -268,7 +279,7 @@ object AdvancedSpeakSettings {
         }
 
     var synchronize: Boolean
-        get() = CommonUtils.settings.getBoolean("speak_synchronize", false)
+        get() = CommonUtils.settings.getBoolean("speak_synchronize", true)
         set(value) {
             CommonUtils.settings.setBoolean("speak_synchronize", value)
         }
@@ -287,7 +298,7 @@ object AdvancedSpeakSettings {
 
     fun reset() {
         autoBookmark = false
-        synchronize = false
+        synchronize = true
         replaceDivineName = false
         restoreSettingsFromBookmarks = false
     }
@@ -300,6 +311,7 @@ object CommonUtils : CommonUtilsBase() {
 
 	val json = Json {
         ignoreUnknownKeys = true
+        encodeDefaults = true
     }
 
     private const val TAG = "CommonUtils"
@@ -317,13 +329,13 @@ object CommonUtils : CommonUtilsBase() {
             try {
                 val manager = application.packageManager
                 val info = manager.getPackageInfo(application.packageName, 0)
-                versionName = info.versionName
+                versionName = info.versionName ?: throw NameNotFoundException()
             } catch (e: NameNotFoundException) {
                 Log.e(TAG, "Error getting package name.", e)
                 versionName = "Error"
             }
 
-            return "$versionName#$GitHash $FLAVOR_distchannel $FLAVOR_appearance $BUILD_TYPE (built $BuildDate)"
+            return "$versionName#$GitHash $FLAVOR_distchannel $FLAVOR_appearance $BUILD_TYPE ($CommitDate)"
         }
 
     val mainVersion: String get() {
@@ -420,6 +432,12 @@ object CommonUtils : CommonUtilsBase() {
         fun removeDouble(key: String) = setDouble(key, null)
         fun removeLong(key: String) = setLong(key, null)
         fun removeBoolean(key: String) = setBoolean(key, null)
+
+        val monochromeMode: Boolean get() = getBoolean("monochrome_mode", onyxSupport?.isMonochrome == true)
+        val disableAnimations: Boolean get() = getBoolean("disable_animations", onyxSupport?.isOnyxDevice == true)
+        val fontSizeMultiplier: Int get() = getInt("font_size_multiplier", 100)
+        val fontSizeMultiplierFloat: Float get() = getInt("font_size_multiplier", 100) / 100F
+        val bibleViewSwipeMode: BibleViewSwipeMode get() = BibleViewSwipeMode.valueOf(getString("bible_view_swipe_mode", "CHAPTER")!!)
     }
 
     private var _settings: AndBibleSettings? = null
@@ -473,21 +491,20 @@ object CommonUtils : CommonUtilsBase() {
                 .build()
     }
 
-    fun getShareableDocumentText(selection: Selection): String {
-        return SwordContentFacade.getSelectionText(
-            selection,
-            showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
-            advertiseApp = settings.getBoolean("share_show_add", true),
-            abbreviateReference = settings.getBoolean("share_abbreviate_reference", true),
-            showNotes = settings.getBoolean("show_notes", true),
-            showVersion = settings.getBoolean("share_show_version", true),
-            showReference = settings.getBoolean("share_show_reference", true),
-            showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
-            showSelectionOnly = settings.getBoolean("show_selection_only", true),
-            showEllipsis = settings.getBoolean("show_ellipsis", true),
-            showQuotes = settings.getBoolean("share_show_quotes", false)
-        )
-    }
+    fun getShareableDocumentText(selection: Selection): String = SwordContentFacade.getSelectionText(
+        selection,
+        showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
+        advertiseApp = settings.getBoolean("share_show_add", true),
+        abbreviateReference = settings.getBoolean("share_abbreviate_reference", true),
+        showNotes = settings.getBoolean("show_notes", true),
+        showVersion = settings.getBoolean("share_show_version", true),
+        showReference = settings.getBoolean("share_show_reference", true),
+        showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
+        showSelectionOnly = settings.getBoolean("show_selection_only", true),
+        showEllipsis = settings.getBoolean("show_ellipsis", true),
+        showQuotes = settings.getBoolean("share_show_quotes", false),
+        separateVersesWithNewlines = settings.getBoolean("share_separate_verses_newlines", false)
+    )
 
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)
@@ -1073,6 +1090,7 @@ object CommonUtils : CommonUtilsBase() {
 
     var initialized = false
     private var booksInitialized = false
+    var onyxSupport: OnyxSupportInterface? = null
 
     fun initializeApp() {
         if(!initialized) {
@@ -1086,13 +1104,18 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
             buildActivityComponent().inject(this@CommonUtils)
-            ttsNotificationManager = TextToSpeechNotificationManager()
-            if(!BuildVariant.Appearance.isDiscrete) {
+            if (ttsNotificationManager == null) {
+                ttsNotificationManager = TextToSpeechNotificationManager()
+            }
+            if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
+            initializeOnyx()
+
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
             addManuallyInstalledEpubBooks()
+            addManuallyInstalledTtfBooks()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1114,6 +1137,14 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
+    private fun initializeOnyx() {
+        if (!BuildVariant.DistributionChannel.isFdroid) {
+            val adapter = Class.forName("net.bible.service.onyx.OnyxSupport")
+            val constructor = adapter.getDeclaredConstructor()
+            onyxSupport = constructor.newInstance() as OnyxSupportInterface
+        }
+    }
+
     suspend fun initializeAppCoroutine() {
         if(!initialized) {
             try {
@@ -1127,8 +1158,10 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.instance
             withContext(Dispatchers.Main) {
                 buildActivityComponent().inject(this@CommonUtils)
-                ttsNotificationManager = TextToSpeechNotificationManager()
-                if(!BuildVariant.Appearance.isDiscrete) {
+                if (ttsNotificationManager == null) {
+                    ttsNotificationManager = TextToSpeechNotificationManager()
+                }
+                if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
                     ttsWidgetManager = SpeakWidgetManager()
                 }
             }
@@ -1136,7 +1169,9 @@ object CommonUtils : CommonUtilsBase() {
                 addManuallyInstalledMyBibleBooks()
                 addManuallyInstalledMySwordBooks()
                 addManuallyInstalledEpubBooks()
+                addManuallyInstalledTtfBooks()
             }
+            initializeOnyx()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1150,8 +1185,7 @@ object CommonUtils : CommonUtilsBase() {
         if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
             if(!application.isRunningTests) {
                 for (it in docDao.getUnlocked()) {
-                    val book = Books.installed().getBook(it.initials)
-                    book.unlock(it.cipherKey)
+                    Books.installed().getBook(it.initials)?.unlock(it.cipherKey)
                 }
             }
             booksInitialized = true
@@ -1355,11 +1389,41 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun fixAlertDialogButtons(dialog: AlertDialog) {
-        val container = dialog.findViewById<Button>(android.R.id.button1).parent
+        val positiveButton = dialog.findViewById<Button>(android.R.id.button1)
+        val negativeButton = dialog.findViewById<Button>(android.R.id.button2)
+        val neutralButton = dialog.findViewById<Button>(android.R.id.button3)
+        
+        val container = positiveButton?.parent
         if(container is FrameLayout) {
-            container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, 2)
+            container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
+        } else if(container is LinearLayout) {
+            // For LinearLayout (older Android versions), ensure proper orientation and layout
+            container.orientation = LinearLayout.HORIZONTAL
+            val layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
+            layoutParams.setMargins(convertDipsToPx(4), 0, convertDipsToPx(4), 0)
+            
+            // Apply equal weight to all visible buttons for even distribution
+            positiveButton.layoutParams = layoutParams
+            negativeButton?.layoutParams = layoutParams
+            neutralButton?.layoutParams = layoutParams
         }
-        // Some older devices Androids have LinearLayout. But they don't need this hack anyway.
+        
+        // Ensure buttons have appropriate text size and padding to prevent overflow
+        listOfNotNull(positiveButton, negativeButton, neutralButton).forEach { button ->
+            button.setPadding(convertDipsToPx(8), convertDipsToPx(4), convertDipsToPx(8), convertDipsToPx(4))
+            button.minHeight = convertDipsToPx(36)
+            
+            // Ensure proper text alignment and baseline alignment
+            button.gravity = Gravity.CENTER
+            button.includeFontPadding = false
+            button.setSingleLine(false)
+            button.maxLines = 2
+            
+            // Reduce text size slightly if there are 3 buttons to ensure they fit
+            if (listOfNotNull(positiveButton, negativeButton, neutralButton).size >= 3) {
+                button.textSize = 14f
+            }
+        }
     }
 
     suspend fun checkPoorTranslations(activity: ActivityBase): Boolean {
@@ -1368,8 +1432,8 @@ object CommonUtils : CommonUtilsBase() {
 
         Log.i(TAG, "Language tag $languageTag, code $languageCode")
 
-        // Transifex as of 28.10.2023
-        val goodLanguages = "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt,yue,zh-Hans-CN,zh-Hant-TW,es,ta,cs,hu".split(",")
+        // Transifex as of 6.12.2024
+        val goodLanguages = "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt,yue,zh-Hans-CN,zh-Hant-TW,es,ta,cs,hu,nl,sr,te,pl,hr,bn".split(",")
 
         // 4.0 list:
 
@@ -1450,7 +1514,7 @@ object CommonUtils : CommonUtilsBase() {
         // There's issue on Android 5 that icon simply disappears and calculator does not appear.
         // See https://github.com/AndBible/and-bible/issues/2310
         if (BuildVariant.Appearance.isDiscrete || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) return
-        val discrete = settings.getBoolean("discrete_mode", false)
+        val discrete = realSharedPreferences.getBoolean("discrete_mode", false)
         val packageName = BuildConfig.APPLICATION_ID
         val allNames = listOf(
             "net.bible.android.activity.StartupActivity",
@@ -1495,13 +1559,12 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    val isCloudSyncAvailable get() = !(BuildVariant.Appearance.isDiscrete || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1)
-
+    val isCloudSyncAvailable get() = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
-        else SyncableDatabaseDefinition.ALL.any { it.enabled }
-    val isDiscrete get() = settings.getBoolean("discrete_mode", false) || BuildVariant.Appearance.isDiscrete
-    val showCalculator get() = settings.getBoolean("show_calculator", false) || BuildVariant.Appearance.isDiscrete
+        else SyncableDatabaseDefinition.ALL.any { it.syncEnabled }
+    val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
+    val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 
     fun md5Hash(str: String): String {
         val md = MessageDigest.getInstance("MD5")
@@ -1571,18 +1634,23 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    suspend fun determineFileType(inputStream: BufferedInputStream): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
-        val header = ByteArray(16)
-        inputStream.mark(16)
-        inputStream.read(header)
-        inputStream.reset()
-        val headerString = String(header)
-        if(headerString == "SQLite format 3\u0000")
-            BackupControl.AbDbFileType.SQLITE3
-        else if(headerString.startsWith("PK\u0003\u0004"))
-            BackupControl.AbDbFileType.ZIP
-        else
+    suspend fun determineFileType(uri: Uri): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
+        try {
+            application.contentResolver.openInputStream(uri)?.use { inputStream ->
+                val header = ByteArray(16)
+                inputStream.read(header)
+                val headerString = String(header)
+                if (headerString == "SQLite format 3\u0000")
+                    BackupControl.AbDbFileType.SQLITE3
+                else if (headerString.startsWith("PK\u0003\u0004")) {
+                    BackupControl.AbDbFileType.ZIP
+                } else
+                    BackupControl.AbDbFileType.UNKNOWN
+            } ?: BackupControl.AbDbFileType.UNKNOWN
+        } catch (e: Exception) {
+            Log.e(TAG, "Unexpected exception when determining file type", e)
             BackupControl.AbDbFileType.UNKNOWN
+        }
     }
 
     fun makeAndBibleUrl(
@@ -1613,6 +1681,63 @@ object CommonUtils : CommonUtilsBase() {
         clipboard.setPrimaryClip(clip)
         ABEventBus.post(ToastEvent(application.getString(toastMessage)))
     }
+
+    private val calcPinRegex = Regex("""^(0+)(\d+)$""")
+
+    fun removeLeadingZeroes(s: String): String {
+        val match = calcPinRegex.matchEntire(s)
+        if(match != null) {
+            return match.groupValues[2]
+        }
+        return s
+    }
+
+    suspend fun documentUpgradeConfirmation(context: Activity): Boolean = context.run {
+        val warningTitle = getString(R.string.bookmark_warning)
+        val warningMessage = getString(R.string.bookmark_warning2)
+        val warningRecommendation = getString(R.string.bookmark_warning4)
+        val warningQuestion = getString(R.string.bookmark_warning3)
+        val warningMsg = "$warningMessage\n\n$warningRecommendation\n\n$warningQuestion"
+        withContext(Dispatchers.Main) {
+            suspendCoroutine {
+                AlertDialog.Builder(this@run)
+                    .setTitle(warningTitle)
+                    .setMessage(warningMsg)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
+                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }.create().show()
+            }
+        }
+    }
+
+    fun parseAndBibleReference(uri: Uri): BookAndKey? {
+        val urlRegex = Regex("""/(.*)""")
+        val docStr = uri.getQueryParameter("document")
+        val doc = if (docStr != null) Books.installed().getBook(docStr) else null
+
+        val defV11n = if (doc is SwordBook) doc.versification else KJVA
+        val v11nStr = uri.getQueryParameter("v11n")
+        val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
+
+        val match = urlRegex.find(uri.path.toString()) ?: return null
+        var keyStr = match.groups[1]?.value ?: return null
+        if (keyStr.contains(":")) {
+            keyStr = keyStr.split(":", limit = 2)[1]
+        }
+
+        val key: Passage = PassageKeyFactory.instance().getKey(v11n, keyStr)
+
+        val ordinalStr = uri.getQueryParameter("ordinal")
+        if(ordinalStr != null) {
+            val ord = ordinalStr.toInt()
+            return BookAndKey(key, doc, ordinal = OrdinalRange(ord))
+        }
+        return BookAndKey(key, doc)
+    }
+
+    fun parseAndBibleReference(uri: String): BookAndKey?
+        = parseAndBibleReference(Uri.parse(uri))
+
 }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
@@ -1752,10 +1877,10 @@ val BookAndKey.next: BookAndKey get() {
                 }
 
                 is GenBookBackend -> {
-                    val keyList = backend.readIndex()
+                    val keyList = backend.readIndex().flatten().toList()
                     val idx = keyList.indexOf(this.key)
                     try {
-                        keyList.get(idx + 1)
+                        keyList[idx + 1]
                     } catch (e: IndexOutOfBoundsException) {
                         keyList.first()
                     }
@@ -1800,3 +1925,62 @@ val Key.shortName: String get() =
             return text
         }
     else name
+
+enum class DbType {
+    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS
+}
+enum class BackupType {
+    // Note! We can only trust STUDYPAD_EXPORT, as manifest is not existing before AB version 822.
+    STUDYPAD_EXPORT,
+    DB_BACKUP,
+    MODULE_BACKUP
+}
+
+const val ANDBIBLE_BACKUP_MANIFEST_FILENAME = "AndBibleBackupManifest.json"
+@Serializable
+data class AndBibleBackupManifest(
+    val backupType: BackupType,
+    val contains: Set<DbType>? = null,
+    val manifestVersion: Int = 1,
+    val andBibleVersion: Int = CommonUtils.applicationVersionNumber
+) {
+    fun toJson(): String {
+        return CommonUtils.json.encodeToString(serializer(), this)
+    }
+
+    fun saveToZip(zipStream: ZipOutputStream) {
+        val content = ByteArrayInputStream(toJson().toByteArray())
+        val entry = ZipEntry(ANDBIBLE_BACKUP_MANIFEST_FILENAME)
+        zipStream.putNextEntry(entry)
+        content.copyTo(zipStream)
+    }
+    companion object {
+        private const val TAG = "ABBackupManifest"
+        fun fromJson(jsonString: String): AndBibleBackupManifest {
+            return CommonUtils.json.decodeFromString(serializer(), jsonString)
+        }
+
+        suspend fun fromUri(uri: Uri): AndBibleBackupManifest? = withContext(Dispatchers.IO) {
+            try {
+                val inputStream = application.contentResolver.openInputStream(uri) ?: return@withContext null
+                val manifest = ZipInputStream(inputStream).use {
+                    val entry = it.nextEntry
+                    if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
+                        val out = ByteArrayOutputStream()
+                        val buffer = ByteArray(1024)
+                        var len: Int
+                        while (it.read(buffer).also { len = it } > 0) {
+                            out.write(buffer, 0, len)
+                        }
+                        val outString = out.toString()
+                        fromJson(outString)
+                    } else null
+                }
+                return@withContext manifest
+            } catch (e: Exception) {
+                Log.e(TAG, "Error reading backup manifest from URI", e)
+                return@withContext null
+            }
+        }
+    }
+}

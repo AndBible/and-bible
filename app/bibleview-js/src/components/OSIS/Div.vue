@@ -77,6 +77,6 @@ const isPreVerse = computed(() => getIsPreVerse(props.type, props.subType));
 const verseNum = computed(() => verseInfo!.verse);
 </script>
 
-<style lang="scss" scoped>
-@import "~@/common.scss";
+<style lang="scss">
+@use "@/common.scss" as *;
 </style>

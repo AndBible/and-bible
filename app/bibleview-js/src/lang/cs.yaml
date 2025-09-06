@@ -41,7 +41,7 @@ noMyNotesDescription: >
   Nejprve si v biblickém dokumentu vytvořte záložku. Ty budou následně dostupné zde a můžete si k nim přidávat své poznámky.
 emptyStudyPad: >
   Prázdná studijní složka. Sem můžete přidávat textové poznámky nebo tvořit záložky se štítkem odkazujícím k této studijní složce.
-doYouWantToDeleteEntry: "Smazat obsah studijní složky?"
+doYouWantToDeleteEntry: "Smazat tento obsah ze složky?"
 removeStudyPadConfirmationTitle: "Odstranit studijní složku?"
 dragHelp: Přetažením setřídit
 openAll: Otevřít všechny odkazy
@@ -57,9 +57,39 @@ openDownloads: Přejít na stažení doplňků
 verseShare: Sdílet
 verseSpeak: Předčítání
 verseCompare: Porovnat
+verseMemorize: ""
 verseNote: Poznámka
 verseMyNotes: Poznámky
 verseShareLong: Sdílet verš
 verseCompareLong: Porovnat verš
+verseMemorizeLong: ""
 verseNoteLong: Napsat poznámku
 addBookmark: Záložka
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: Resetovat
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Více

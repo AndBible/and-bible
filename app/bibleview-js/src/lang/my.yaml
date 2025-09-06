@@ -57,9 +57,39 @@ openDownloads: Add-on ဒေါင်းလုပ်များသို့ သ
 verseShare: မျှဝေပါ
 verseSpeak: စကားပြောပါ
 verseCompare: နှိုင်းယှဉ်ပါ
+verseMemorize: ""
 verseNote: မှတ်စု
 verseMyNotes: ကိုယ်ပိုင်မှတ်စုများ
 verseShareLong: ဤအခန်းငယ်ကို ဝေမျှပါ
 verseCompareLong: အခန်းငယ်ကို နှိုင်းယှဉ်ပါ
+verseMemorizeLong: ""
 verseNoteLong: မှတ်စုတစ်ခု ရေးပါ
 addBookmark: စာညှပ်
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: ပြန်လည်သတ်မှတ်ပါ
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: နောက်ထပ်

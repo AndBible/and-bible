@@ -17,17 +17,15 @@
 
 import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import java.util.Properties
 
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-kapt")
     id("kotlinx-serialization")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 val jsDir = "bibleview-js"
@@ -63,14 +61,21 @@ fun getGitDescribe(): String  = ByteArrayOutputStream().use { stdout ->
     return stdout.toString().trim()
 }
 
-val npmVersion = "10"
+fun getGitCommitDate(): String = ByteArrayOutputStream().use { stdout ->
+    exec {
+        commandLine("git", "log", "-1", "--format=%ad", "--date=format:%d/%m/%y %H:%M:%S")
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
 
+val npmVersion = "11"
 val npmUpgrade by tasks.registering(Exec::class) {
     inputs.file("$jsDir/package.json")
     outputs.file("$jsDir/node_modules/.bin/npm")
     workingDir = file(jsDir)
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
-    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+    if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
         commandLine("npx.cmd", "npm@${npmVersion}", "ci", "--save-dev", "npm@${npmVersion}")
     }
     else {
@@ -84,7 +89,7 @@ val npmInstall by tasks.registering(Exec::class) {
     outputs.dir("$jsDir/node_modules")
 
     workingDir = file(jsDir)
-    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+    if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
         commandLine("$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "ci")
     }
     else {
@@ -95,7 +100,7 @@ val npmInstall by tasks.registering(Exec::class) {
 val jsBuild by tasks.registering(Exec::class) {
     dependsOn(npmInstall)
     inputs.file("$jsDir/package.json")
-    inputs.file("$jsDir/vite.config.ts")
+    inputs.file("$jsDir/vite.config.mts")
     inputs.file("$jsDir/index.html")
     inputs.file("$jsDir/tsconfig.json")
     inputs.dir("$jsDir/src")
@@ -113,7 +118,7 @@ val jsBuild by tasks.registering(Exec::class) {
         "build-debug"
     }
     workingDir = file(jsDir)
-    if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+    if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
         commandLine("$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "run", buildCmd)
     }
     else {
@@ -137,19 +142,22 @@ tasks.named("preBuild").configure { dependsOn(buildLoaderJs) }
 tasks.named("check").configure { dependsOn(jsTests) }
 
 android {
-    compileSdk = 34
+    compileSdk = 36
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId = applicationIdStandard
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
-        buildConfigField("String", "BuildDate", "\"${SimpleDateFormat("dd/MM/YY HH:mm:ss").format(Date())}\"")
+        buildConfigField("String", "CommitDate", "\"${getGitCommitDate()}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "org.andbible.tests"
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 
     buildTypes {
@@ -282,14 +290,16 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
         resources.excludes.add("META-INF/LICENSE.txt")
         resources.excludes.add("META-INF/NOTICE.txt")
         resources.excludes.add("META-INF/DEPENDENCIES")
+        resources.excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     namespace = "net.bible.android.activity"
@@ -299,6 +309,15 @@ val jvmToolChainVersion: Int by rootProject.extra
 
 kotlin {
     jvmToolchain(jvmToolChainVersion)
+}
+
+if(gradle.startParameter.taskNames.any { it.contains("Fdroid") }) {
+    println("Fdroid build: excluding Google Drive stuff")
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        println("Excluding ${name}")
+        exclude("**/googledrive/*")
+        exclude("**/onyx/*")
+    }
 }
 
 androidComponents {
@@ -334,40 +353,43 @@ dependencies {
     val coreKtxVersion: String by rootProject.extra
     val sqliteAndroidVersion: String by rootProject.extra
 
-    implementation(project(":db"))
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    ksp("androidx.room:room-compiler:$roomVersion")
 
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("androidx.room:room-ktx:$roomVersion")
     implementation("androidx.core:core-ktx:$coreKtxVersion")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
-    implementation("androidx.media:media:1.6.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("androidx.media:media:1.7.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.1")
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.recyclerview:recyclerview:1.3.1")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.webkit:webkit:1.8.0")
+    implementation("androidx.webkit:webkit:1.14.0")
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
 
-
-    // Google Drive API
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
-    implementation ("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
-        exclude("org.apache.httpcomponents")
-        exclude("com.google.guava.guava")
+    for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei").map { "${it}Implementation" }) {
+        // Onyx SDK (e-ink devices)
+        variantImplementation("com.onyx.android.sdk:onyxsdk-device:1.2.32") // NOTE: remember to check its AndroidManifest.xml and remove unnecessary permissions in our AndroidManifest.xml
+        // Google Drive API
+        variantImplementation("com.google.android.gms:play-services-auth:20.7.0")
+        variantImplementation("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
+            exclude("org.apache.httpcomponents")
+            exclude("com.google.guava.guava")
+        }
+        variantImplementation("com.google.guava:guava:32.0.1-android")
+        variantImplementation("com.google.api-client:google-api-client-android:2.2.0") {
+            exclude("org.apache.httpcomponents")
+        }
     }
-    implementation("com.google.guava:guava:32.0.1-android")
-    implementation("com.google.api-client:google-api-client-android:2.2.0") {
-        exclude("org.apache.httpcomponents")
-    }
-
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 
     //implementation("com.jaredrummler:colorpicker:1.1.0")
     implementation("com.github.AndBible:ColorPicker:ab-fix-1")
 
-    implementation("com.google.android.material:material:1.10.0")
+    implementation("com.google.android.material:material:1.12.0")
 
     implementation("androidx.room:room-runtime:$roomVersion")
 
@@ -380,10 +402,10 @@ dependencies {
     //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
     //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    val daggerVersion = "2.48.1"
+    val daggerVersion = "2.56.2"
     implementation("com.google.dagger:dagger:$daggerVersion")
     annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
-    kapt("com.google.dagger:dagger-compiler:$daggerVersion")
+    ksp("com.google.dagger:dagger-compiler:$daggerVersion")
 
     implementation("de.greenrobot:eventbus:2.4.1")
 
@@ -394,12 +416,20 @@ dependencies {
         exclude("org.apache.httpcomponents")
     }
 
+    implementation("de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5")
+
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("jaxen:jaxen:2.0.0")
 
-    debugImplementation("com.facebook.stetho:stetho:1.6.0")
+    // Next cloud related dependencies
+    implementation("com.github.nextcloud:android-library:2.20.0") {
+        exclude(group = "org.ogce", module = "xpp3") // unused in Android and brings wrong Junit version
+    }
+    implementation("commons-httpclient:commons-httpclient:3.1@jar")  // Make sure this is same version as in NextCloud lib
+    implementation("org.apache.jackrabbit:jackrabbit-webdav:2.13.5") // Make sure this is same version as in NextCloud lib
 
-    testImplementation(project(":db"))
+
+    debugImplementation("com.facebook.stetho:stetho:1.6.0")
 
     // TESTS
     //testImplementation("com.github.AndBible:robolectric:4.3.1-andbible3")
@@ -444,5 +474,22 @@ dependencies {
     // dependency to appear on your APK's compile classpath or the test APK
     // classpath.
     androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.1")
+}
+
+configurations {
+    testImplementation {
+        exclude(group = "com.github.requery", module = "sqlite-android")
+    }
+}
+
+afterEvaluate {
+    android.applicationVariants.all { variant ->
+        if (listOf("Googleplay", "Github", "Amazon", "Samsung", "Huawei").find { variant.flavorName.endsWith(it) } != null) {
+            repositories {
+                maven { url = uri("https://repo.boox.com/repository/maven-public/") }
+            }
+        }
+        true
+    }
 }
 

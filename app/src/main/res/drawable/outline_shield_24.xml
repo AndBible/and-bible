@@ -1,0 +1,26 @@
+<!--
+  ~ Copyright (c) 2025 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:tint="@color/grey_500" android:viewportHeight="24" android:viewportWidth="24" android:width="24dp">
+      
+    <path android:fillColor="@android:color/white" android:fillType="evenOdd" android:pathData="M17,15.5m-1.12,0a1.12,1.12 0,1 1,2.24 0a1.12,1.12 0,1 1,-2.24 0"/>
+      
+    <path android:fillColor="@android:color/white" android:fillType="evenOdd" android:pathData="M17,17.5c-0.73,0 -2.19,0.36 -2.24,1.08c0.5,0.71 1.32,1.17 2.24,1.17s1.74,-0.46 2.24,-1.17C19.19,17.86 17.73,17.5 17,17.5z"/>
+      
+    <path android:fillColor="@android:color/white" android:fillType="evenOdd" android:pathData="M18,11.09V6.27L10.5,3L3,6.27v4.91c0,4.54 3.2,8.79 7.5,9.82c0.55,-0.13 1.08,-0.32 1.6,-0.55C13.18,21.99 14.97,23 17,23c3.31,0 6,-2.69 6,-6C23,14.03 20.84,11.57 18,11.09zM11,17c0,0.56 0.08,1.11 0.23,1.62c-0.24,0.11 -0.48,0.22 -0.73,0.3c-3.17,-1 -5.5,-4.24 -5.5,-7.74v-3.6l5.5,-2.4l5.5,2.4v3.51C13.16,11.57 11,14.03 11,17zM17,21c-2.21,0 -4,-1.79 -4,-4c0,-2.21 1.79,-4 4,-4s4,1.79 4,4C21,19.21 19.21,21 17,21z"/>
+    
+</vector>

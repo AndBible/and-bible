@@ -33,18 +33,17 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.DocumentSearchDao
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.DocumentSelectionBase
-import net.bible.android.view.activity.base.IntentHelper
-import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.hideFromSelector
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import java.util.*
 
 /**
@@ -85,7 +84,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
      */
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         Log.i(TAG, "get document list from source")
-        return SwordDocumentFacade.documents + FakeBookFactory.pseudoDocuments
+        return SwordDocumentFacade.documents + FakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
     }
 
     /**
@@ -103,6 +102,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     }
 
     override fun handleDocumentSelection(selectedDocument: Book) {
+        if(selectedDocument.bookCategory == BookCategory.AND_BIBLE) return
         lifecycleScope.launch(Dispatchers.Main) {
             if(selectedDocument.isLocked && !CommonUtils.unlockDocument(this@ChooseDocument, selectedDocument)) {
                 reloadDocuments()

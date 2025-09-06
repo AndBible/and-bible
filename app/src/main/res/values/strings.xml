@@ -35,7 +35,6 @@
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
-    <string name="search_in_andbible">Find in Bible</string>
     <string name="settings">Application preferences</string>
     <string name="history">History</string>
     <string name="speak">Speak</string>
@@ -66,6 +65,7 @@
     <string name="search_in">Find in %s</string>
     <string name="do_in_background">Continue in background</string>
     <string name="rebuild_index_button">Rebuild</string>
+    <string name="creating_index_for">Creating index for %s…</string>
     <!-- X results in module Y -->
     <string name="search_with_results2">%1s results in %2s</string>
 
@@ -79,6 +79,7 @@
     <string name="search_all_words">All words</string>
     <string name="search_any_word">Any word</string>
     <string name="search_phrase">Phrase</string>
+    <string name="search_fts_query">Raw query syntax</string>
     <string name="search_result_count">%d matches found</string>
     <string name="search_showing_first">Too many matches.  Showing first %d</string>
     <string name="search_bible_section_group_prompt">Search Where</string>
@@ -186,6 +187,8 @@
     <string name="prefs_margin_size_summary">Adjust left and right margin of the text view. You can also
         adjust maximum width of the text.
     </string>
+    <string name="prefs_margin_size_summary_2">Tip: You can tap margin area to jump one page up / down.</string>
+
     <string name="prefs_text_colors_summary">Adjust text and background colors and noise effect</string>
     <string name="text_display_settings_activity_title">Text display settings</string>
     <string name="workspace_text_display_settings_title">Text options - %s</string>
@@ -435,6 +438,7 @@
     <string name="add_bookmark_whole_verse">Bookmark Verse</string>
     <string name="add_bookmark_whole_verse1">Verses</string>
     <string name="add_bookmark_whole_verse2">Full verses</string>
+    <string name="add_paragraph_break">Paragraph break</string>
     <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
@@ -632,6 +636,9 @@
     <string name="mynotes">My Notes</string>
 
     <!-- Backup and restore -->
+    <string name="backup_backup_title">Backup to where?</string>
+    <string name="backup_backup_message">Backup to phone or elsewhere via Share function (email, Google Drive etc.)?</string>
+    <string name="backup_phone_storage">Phone storage</string>
     <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup_modules2">Backup Documents to…</string>
     <string name="backup_app_database2">Backup app database to…</string>
@@ -644,7 +651,11 @@
     <string name="backup_document_info">Bibles, commentaries, dictionaries, maps etc.</string>
     <string name="backup_to">Backup to…</string>
     <string name="backup_restore_from">Restore from…</string>
+    <!-- Restore = overwrite existing. Import = merge into existing -->
+    <string name="backup_restore_from2">Restore or Import from…</string>
     <string name="backup_restore">Restore</string>
+    <string name="backup_restore2">Restore or Import</string>
+    <string name="overwrite_something">Overwrite %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
     <string name="restore_what">What do you want to restore?</string>
@@ -664,11 +675,21 @@
 
     <string name="backup_email_subject_2">%s database backup</string>
     <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
+
+    <string name="exported_studypads_subject">Exported StudyPad(s)</string>
+    <string name="exported_studypads_message">Your %s database containing Bookmarks and Notes related to selected StudyPads is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <string name="restore_modules">Restore Documents from…</string>
     <string name="send_backup_file">Send a backup file</string>
     <string name="backup_modules_title">Select which modules to backup</string>
     <string name="install_zip_canceled">Module install cancelled</string>
+    <string name="ask_restore_or_import">Database for %s can be either restored (i.e. existing database is removed and selected database is loaded) or imported (selected database is imported into existing database). What do you want to do?</string>
+    <string name="restore">Restore</string>
+    <string name="import2">Import</string>
+    <string name="export_studypads_help">File containing exported StudyPads (i.e Labels and Bookmarks) can be imported via Main Menu -> Backup &amp; Restore.</string>
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+    <string name="bookmarks_db_stats">\"%1$s\" and %2$s other Label(s) / StudyPad/(s) and %3$s Bookmarks</string>
 
     <!-- About -->
     <string name="module_about_copyright">Copyright: %s</string>
@@ -768,6 +789,7 @@
 
     <!-- Beta notice -->
     <string name="beta_notice_title">This is beta version!</string>
+    <string name="beta_flag">BETA</string>
     <string name="beta_notice_content_1">
         In beta version, there are new features that are not yet properly tested,
         and thus using beta might introduce unexpected behavior, i.e. bugs.
@@ -821,9 +843,14 @@
     </string>
 
     <string name="help_search_title">Search</string>
+    <!-- TODO: to be removed -->
     <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
         (see "Apache Lucene - Query Parser Syntax" for more details)
     </string>
+    <string name="help_search_text2">Search text can include special characters like *, AND, OR, NOT</string>
+    <string name="help_search_details">Please see %s for more details.</string>
+    <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
+    <string name="help_fts5">FTS5 Full-text Query Syntax</string>
     <string name="help_workspaces_title">Workspaces</string>
     <string name="help_workspaces_text">
         Workspaces allow having multiple context-dependent working environments. Workspace functions
@@ -866,6 +893,8 @@
     <string name="format_mysword">MySword documents (*.mybible)</string>
     <string name="format_mybible">MyBible documents (*.SQLite3)</string>
     <string name="format_epub">EPUB documents (*.epub)</string>
+    <string name="format_ttf">TTF fonts (*.ttf)</string>
+    <string name="format_studypads">StudyPads from AndBible databases (*.abdb)</string>
     <string name="redownload_message">
         A list of previous books/documents was found. Click below to easily download them again.
     </string>
@@ -883,6 +912,7 @@
     <string name="journal_description">User-editable study pads with custom text and bookmarks</string>
     <string name="my_notes_description">User-editable notes attached to bookmarks</string>
     <string name="my_notes_abbreviation">My Notes</string>
+    <string name="studypad">Study Pad</string>
     <string name="studypads">Study Pads</string>
     <string name="multi_description">Multiple references</string>
     <string name="multi_abbreviation">Multiple</string>
@@ -899,6 +929,8 @@
     <string name="try_again_passphrase">Passphrase did not work, try again?</string>
     <string name="show_unlock_info">Module &amp; unlock info</string>
 
+    <string name="prefs_experimental_features_title">Experimental features</string>
+    <string name="prefs_experimental_features_summary">Enable experimental features that are still in development and may change or be removed</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
@@ -907,6 +939,9 @@
 
     <string name="how_to_contribute">How to contribute?</string>
     <string name="confirm_delete_bookmarks">Do you want to remove %d bookmarks and their notes?</string>
+    <string name="confirm_delete_orphaned_bookmarks">The selected label is attached to %d bookmarks that have no other labels. Do you want to delete these bookmarks along with the labels?</string>
+    <string name="delete_label_and_bookmarks">Delete label and bookmarks</string>
+    <string name="delete_label_only">Delete label only</string>
     <string name="module_size_megabytes">%.1f MB</string>
     <string name="tell_friend_title">Recommend to a friend</string>
     <string name="tell_friend_message1">I would like to recommend %s to you.</string>
@@ -914,6 +949,7 @@
     <string name="tell_friend_message3">Install it from Play Store: %s</string>
     <string name="tell_friend_message4">Read more &amp; more install options: %s</string>
     <string name="share_verse_ok">Share / Copy</string>
+    <string name="web_search">Web search</string>
     <string name="verse_action_copy">Copy</string>
     <string name="generic_share">Share</string>
     <string name="share_verse_menu_title">Share / copy…</string>
@@ -930,6 +966,7 @@
     <string name="show_version_name">Include version name</string>
     <string name="show_ellipsis">Show ellipsis (…)</string>
     <string name="show_quotes">Show quotes</string>
+    <string name="separate_verses_with_newlines">Separate verses with newlines</string>
 
     <string name="backup_button">Backup</string>
     <string name="back_button">Back</string>
@@ -1017,10 +1054,47 @@
     <string name="label_salvation">Salvation</string>
     <string name="label_underline">Underline</string>
     <string name="import_menu">Import &amp; Export</string>
+    <string name="export">Export</string>
+    <string name="csv_export_success">Exported %d bookmarks to CSV</string>
+    <string name="csv_import_success">Import completed: %d created, %d updated</string>
+    <string name="csv_import_errors">Import completed with errors: %d created, %d updated, %d errors</string>
+    <string name="csv_import_failed">CSV import failed: %s</string>
+    <string name="csv_export_failed">CSV export failed: %s</string>
+    <string name="csv_column_selection_title">Select CSV Columns</string>
+    <string name="choose_csv_file">Choose CSV file to import</string>
+    <string name="no_bookmarks_to_export">No bookmarks available to export</string>
     <string name="export_fileformat">Export as %s</string>
+    <string name="export_something">Export %s</string>
     <string name="import_items">Import %s</string>
     <string name="import_from_db">Import from App Database file</string>
     <string name="import_error">Importing from App Database failed. Database file could be wrong format or made with too old version of %s.</string>
+
+    <string name="export_bookmarks_csv">Export Bookmarks as %s</string>
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+    <string name="osis_reference">OSIS Reference</string>
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+    <string name="bible_reference">Bible Reference</string>
+    <string name="document">Document</string>
+    <string name="book">Book</string>
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+    <string name="chapter_start">Chapter Start</string>
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+    <string name="verse_start">Verse Start</string>
+    <string name="chapter_end">Chapter End</string>
+    <string name="verse_end">Verse End</string>
+    <string name="id">Identifier</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+    <string name="ordinal_start">Ordinal Start</string>
+    <string name="ordinal_end">Ordinal End</string>
+    <string name="created_at">Created At</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+    <string name="start_offset">Start Offset</string>
+    <string name="end_offset">End Offset</string>
+    <string name="custom_icon">Custom Icon</string>
+    <string name="last_updated_at">Last updated at</string>
+    <string name="bookmark_notes">Bookmark notes</string>
+
     <string name="chooser_range">Range</string>
     <string name="chooser_jump">Jump</string>
     <string name="chooser_OT_abbrev">OT</string>
@@ -1040,6 +1114,7 @@
     <string name="strongs_off">Off</string>
     <string name="strongs_links">Links</string>
     <string name="strongs_text_and_links">Text and Links</string>
+    <string name="strongs_hidden_links">Hidden Links</string>
     <string name="verse_tip">To select partial or many verses, you can long-press Bible text</string>
 
     <string name="permission_required">Permission needed</string>
@@ -1148,6 +1223,7 @@
     <string name="adapters_google_drive">Google Drive</string>
     <string name="adapters_next_cloud">Next Cloud</string>
     <string name="auth_title">Authentication to %s</string>
+    <string name="auth_server_uri">Server URL</string>
     <string name="auth_username">User name</string>
     <string name="auth_password">Password</string>
     <string name="auth_access_token">Access token</string>
@@ -1168,6 +1244,7 @@
     <string name="error_notification_channel_name">Error notifications</string>
     <string name="restore_from_cloud_description">If you have Device Synchronization enabled in another device, you can start by restoring database from Cloud.</string>
     <string name="enable_sync">Enable synchronization</string>
+    <string name="last_updated">Last updated: %s</string>
 
     <!-- MyBible/MySword module support -->
     <string name="sqlite_cant_read">Can not read the file</string>
@@ -1204,4 +1281,19 @@
     <string name="dont_show">
         Don\'t show this message again
     </string>
+    <string name="pref_font_size_multiplier_title">Font size multiplier</string>
+    <string name="pref_font_size_multiplier_summary_1">Multiply text font sizes by this number.</string>
+    <string name="pref_font_size_multiplier_summary_2">Useful if you have a synchronized device that is used with larger font.</string>
+    <string name="current_value">Current value: %s</string>
+    <string name="prefs_bible_view_swipe_mode_title">Action for swipe left / right gesture</string>
+    <string name="prefs_bible_view_swipe_mode_summary">Swipe left / right gesture can be used to go to next page / chapter.</string>
+    <string name="prefs_swipe_mode_chapter">Chapter</string>
+    <string name="prefs_swipe_mode_page">Page</string>
+    <string name="prefs_swipe_mode_none">Disabled</string>
+    <string name="page_number_title">Relative page number</string>
+    <string name="page_number_summary">Show page number overlay. Page number is relative to the starting position.</string>
+    <string name="select_custom_icon">Select custom marker icon</string>
+    <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
+    <string name="memorize_description">Memorize Bible verses</string>
+    <string name="memorize_abbreviation">Memorize</string>
 </resources>

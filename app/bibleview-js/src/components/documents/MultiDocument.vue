@@ -80,7 +80,7 @@ const hiddenOsisFragments = computed(() => {
 
 function link(frag: OsisFragmentType, compare = false) {
     const isBible = frag.bookCategory === "BIBLE"
-    const osis = (compare || !isBible) ? encodeURI(`${frag.bookInitials}:${frag.osisRef}`) + "&force-doc" : encodeURI(frag.osisRef);
+    const osis = (compare || !isBible) ? encodeURI(frag.osisRef) + "&doc=" + encodeURI(frag.bookInitials) + "&force-doc" : encodeURI(frag.osisRef);
     if(exportMode.value) {
         return formatExportLink({ref: osis, v11n: frag.v11n})
     } else {
@@ -92,7 +92,7 @@ const {android, sprintf, strings} = useCommon();
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .ref-link {
   padding-bottom: 0.5em;

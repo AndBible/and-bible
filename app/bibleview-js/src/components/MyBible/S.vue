@@ -59,7 +59,7 @@ function openLink(event: MouseEvent) {
 }
 </script>
 
-<style scoped>
+<style>
 .strongs {
     font-size: 0.6em;
     text-decoration: none;

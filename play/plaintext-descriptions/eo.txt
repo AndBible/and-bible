@@ -2,7 +2,7 @@ Ampleksa aplikaĵo por studi Biblion
 
 "AndBible: Studi Biblion" estas ampleksa, tamen facile uzebla ilo por studi la Sanktan Skribon por la operaciumo Android. Ĝi ne celas esti simpla legilo de Biblio, sed koncentriĝas esti spertula ilo por profunde persone studi Biblion.
 
-Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Biblio. Ĝia celo estas igi studadon de Biblio oportuna, profunda kaj amuza. La plej grava fakto de tiu ĉi neprofitcela komunuma projekto estas, ke ĝi estas malfermkoda, tute senpaga kaj enhavas neniun reklamon. Programita cele por Android, la aplikaĵo estas malgranda, do tre efika kaj rapida.
+Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Biblio. Ĝia celo estas igi studadon de Biblio oportuna, profunda kaj amuza. La plej grava fakto de tiu ĉi neprofitcela komunuma projekto estas, ke ĝi estas malfermkoda, tute senpaga kaj enhavas neniun reklamon.
 
 Esperanta Londona Biblio.
 
@@ -20,11 +20,11 @@ La aplikaĵo distingiĝas per pluraj sagaj, originalaj ebloj, kiuj plifaciligas 
  * “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
  * planoj de legado: difinu viajn celojn por legi Biblion
  * granda biblioteko de dokumentoj: tradukoj, teologiaj komentaroj, vortaroj, mapoj, kristanismaj libroj, pli ol 1500 dokumentoj en 700 lingvoj, laŭleĝe distribuataj de per CrossWire kaj per aliaj SWORD-deponejoj
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
+ * subteno por moduloj MyBible, MySword kaj dosieroj EPUB por eĉ pli plivastigi vian bibliotekon
 
 Ni kune faru la plej bonan apon por legi Biblion!
 
-And Biblio estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:
+AndBible estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:
 
  * programi novajn eblojn;
  * testi beta-eblojn;
@@ -33,16 +33,16 @@ And Biblio estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun n
 
 Se vi estas profesia programisto aŭ testanto, bonvolu konsideri kontribui al la projekto. Pliaj informoj pri kiel kontribui troviĝas ĉe https://git.io/JUnaj
 
-Support by buying development time!
+Subtenu per aĉeti labortempon de programisto!
 
-If you don't have time or skills for project contributions, you can also support  project by buying professional developer working time.
+Se mankas al vi tempo aŭ scipovoj por kontribui al la projekto, vi povas subteni ĝin per aĉeti labortempon de profesia programisto.
 
-See options: https://shop.andbible.org/
+Pliaj informoj: https://shop.andbible.org/
 
 Ligiloj
 
  * hejmpaĝo: https://andbible.org
- * ŝatu la apon Studi Biblion ĉe https://www.facebook.com/AndBible/
+ * ŝatu la apon AndBible ĉe https://www.facebook.com/AndBible/
  * nia YouTube-kanalo: https://www.youtube.com/c/AndBible
  * oftaj demandoj (en la angla) https://git.io/JJm8E
  * projekt-paĝo ĉe GitHub: https://github.com/AndBible/and-bible

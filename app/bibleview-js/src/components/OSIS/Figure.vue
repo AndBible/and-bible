@@ -31,7 +31,7 @@ const {bookInitials} = inject(osisFragmentKey)!;
 useCommon();
 </script>
 
-<style scoped>
+<style>
 .imageStyle {
     max-width: 100%;
 }
