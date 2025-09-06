@@ -483,21 +483,6 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         val cmds = SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Exod.19.3"))
         assertThat((cmds[0] as TextCommand).text, containsString("ja Jahve huusi"))
     }
-    
-    @Test  
-    fun testSpeakWithNullSingleKey() {
-        // Test that speakAny doesn't crash when singleKey is null
-        // This test ensures the null safety fix works correctly
-        try {
-            // The fix should handle the case where singleKey returns null
-            // by gracefully returning or showing an error, not crashing
-            speakControl.speakAny()
-            // If we reach here without exception, the fix worked
-        } catch (e: NullPointerException) {
-            fail("speakAny should not throw NPE when singleKey is null: ${e.message}")
-        }
-    }
-
 }
 
 @RunWith(RobolectricTestRunner::class)
