@@ -1,3 +1,4 @@
 [submodule "jsword"]
 	path = jsword
 	url = https://github.com/AndBible/jsword.git
+	shallow = true
