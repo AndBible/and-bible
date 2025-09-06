@@ -276,6 +276,7 @@
             android:name="net.bible.android.view.activity.installzip.InstallZip"
             android:label="@string/install_zip_module"
             android:screenOrientation="portrait"
+            android:exported="true"
             />
         <activity
             android:name="net.bible.android.view.activity.discrete.CalculatorActivity"

@@ -57,6 +57,8 @@
                 <data android:mimeType="application/x-zip" />
                 <data android:mimeType="application/zip" />
                 <data android:mimeType="application/epub+zip" />
+                <data android:mimeType="application/x-font-ttf" />
+                <data android:mimeType="font/ttf" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -65,6 +67,8 @@
                 <data android:mimeType="application/x-zip" />
                 <data android:mimeType="application/zip" />
                 <data android:mimeType="application/epub+zip" />
+                <data android:mimeType="application/x-font-ttf" />
+                <data android:mimeType="font/ttf" />
             </intent-filter>
         </activity>
 
