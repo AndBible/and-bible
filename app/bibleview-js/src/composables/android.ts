@@ -72,6 +72,8 @@ export type BibleJavascriptInterface = {
     copyVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
+    addParagraphBreakBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    addGenericParagraphBreakBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     memorize: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
@@ -382,6 +384,14 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.addGenericBookmark(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1, addNote);
     }
 
+    function addParagraphBreakBookmark(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.addParagraphBreakBookmark(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
+    function addGenericParagraphBreakBookmark(bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.addGenericParagraphBreakBookmark(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
     function compare(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
         window.android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
@@ -565,6 +575,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         copyVerse,
         addBookmark,
         addGenericBookmark,
+        addParagraphBreakBookmark,
+        addGenericParagraphBreakBookmark,
         compare,
         memorize,
         speak,

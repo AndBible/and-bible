@@ -399,6 +399,16 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        bibleView.addParagraphBreakBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+    }
+
+    @JavascriptInterface
+    fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
+        bibleView.addParagraphBreakBookmark(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+    }
+
+    @JavascriptInterface
     fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))

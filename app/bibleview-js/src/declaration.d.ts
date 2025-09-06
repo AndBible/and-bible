@@ -106,10 +106,12 @@ type TranslatedStrings = {
     verseMemorize: string
     verseNote: string
     verseMyNotes: string
+    verseParagraphBreak: string
     verseShareLong: string
     verseCompareLong: string
     verseMemorizeLong: string
     verseNoteLong: string
+    verseParagraphBreakLong: string
     addBookmark: string
     selectCustomIconTitle: string
     bookmarkSettingsTitle: string

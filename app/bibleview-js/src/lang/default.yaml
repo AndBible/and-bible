@@ -62,10 +62,12 @@ verseCompare: Compare
 verseMemorize: Memorize
 verseNote: Note
 verseMyNotes: My Notes
+verseParagraphBreak: Paragraph Break
 verseShareLong: Share this verse
 verseCompareLong: Compare verse
 verseMemorizeLong: Memorize Bible verses
 verseNoteLong: Write a note
+verseParagraphBreakLong: Add paragraph break
 addBookmark: Bookmark
 selectCustomIconTitle: Select custom marker icon
 bookmarkSettingsTitle: Configure bookmark settings
