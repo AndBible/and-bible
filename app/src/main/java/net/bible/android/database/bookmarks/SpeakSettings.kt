@@ -50,11 +50,21 @@ object VerseRangeSerializer: KSerializer<VerseRange?> {
 }
 
 @Serializable
+enum class VoiceSelectionMode {
+    LANGUAGE_SPECIFIC,
+    MANUAL_SELECTION
+}
+
+@Serializable
 data class PlaybackSettings (
     val speakChapterChanges: Boolean = true,
     val speakTitles: Boolean = true,
     val speakFootnotes: Boolean = false,
     var speed: Int = 100,
+    
+    // Voice settings
+    val voiceSelectionMode: VoiceSelectionMode = VoiceSelectionMode.LANGUAGE_SPECIFIC,
+    val selectedVoiceName: String? = null,
 
     // Bookmark related metadata.
     // Restoring bookmark from widget uses this.

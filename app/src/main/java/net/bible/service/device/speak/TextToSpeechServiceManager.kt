@@ -40,6 +40,7 @@ import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.android.database.bookmarks.VoiceSelectionMode
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
@@ -99,6 +100,7 @@ class TextToSpeechServiceManager @Inject constructor(
     private val mSpeakTiming: SpeakTiming
 
     private val ttsLanguageSupport = TTSLanguageSupport()
+    private val voiceManager = VoiceManager()
     private var uniqueUtteranceNo: Long = 0
 
     // tts.isSpeaking() returns false when multiple text is queued on some older versions of Android so maintain it manually
@@ -164,21 +166,55 @@ class TextToSpeechServiceManager @Inject constructor(
             tts.addEarcon(EARCON_PRE_BOOK_CHANGE, application.packageName, R.raw.long_pling)
 
             // set speech rate
-            setRate(SpeakSettings.load().playbackSettings.speed)
+            val speakSettings = SpeakSettings.load()
+            setRate(speakSettings.playbackSettings.speed)
 
-            var localeOK = false
+            var localeOK = true // Assume OK initially
             var locale: Locale? = null
-            var i = 0
-            while (i < localePreferenceList.size && !localeOK) {
-                locale = localePreferenceList[i]
-                Log.i(TAG, "Checking for locale:$locale")
-                val result = tts.setLanguage(locale)
-                localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
-                if (localeOK) {
-                    Log.i(TAG, "Successful locale:$locale")
-                    currentLocale = locale
+            
+            // Determine voice selection approach based on settings
+            val voiceSelectionMode = speakSettings.playbackSettings.voiceSelectionMode
+
+            when (voiceSelectionMode) {
+                VoiceSelectionMode.MANUAL_SELECTION -> {
+                    val selectedVoiceName = speakSettings.playbackSettings.selectedVoiceName
+                    if (selectedVoiceName != null) {
+                        Log.i(TAG, "Using manually selected voice: $selectedVoiceName")
+                        localeOK = voiceManager.setVoiceByName(tts, selectedVoiceName)
+                        if (localeOK) {
+                            // Get the locale of the selected voice
+                            currentLocale = tts.voice?.locale ?: Locale.getDefault()
+                            locale = currentLocale
+                        } else {
+                            Log.w(TAG, "Failed to set selected voice $selectedVoiceName, falling back to language-specific")
+                            // Fall back to language-specific mode
+                            localeOK = false
+                        }
+                    } else {
+                        Log.w(TAG, "Manual voice selection enabled but no voice selected, falling back to language-specific")
+                        localeOK = false
+                    }
                 }
-                i++
+                VoiceSelectionMode.LANGUAGE_SPECIFIC -> {
+                    // Original logic for setting specific language
+                    localeOK = false
+                }
+            }
+            
+            // If manual selection failed or language-specific mode, use original logic
+            if (!localeOK) {
+                var i = 0
+                while (i < localePreferenceList.size && !localeOK) {
+                    locale = localePreferenceList[i]
+                    Log.i(TAG, "Checking for locale:$locale")
+                    val result = tts.setLanguage(locale)
+                    localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
+                    if (localeOK) {
+                        Log.i(TAG, "Successful locale:$locale")
+                        currentLocale = locale
+                    }
+                    i++
+                }
             }
 
             if (!localeOK) {
@@ -252,6 +288,16 @@ class TextToSpeechServiceManager @Inject constructor(
 
     fun isLanguageAvailable(langCode: String): Boolean {
         return ttsLanguageSupport.isLangKnownToBeSupported(langCode)
+    }
+
+    fun getAvailableVoicesForLanguage(languageCode: String): List<VoiceManager.VoiceInfo> {
+        val tts = mTts ?: return emptyList()
+        return voiceManager.getAvailableVoicesForLanguage(tts, languageCode)
+    }
+    
+    fun getVoiceLanguage(voiceName: String): String? {
+        val tts = mTts ?: return null
+        return voiceManager.getVoiceLanguage(tts, voiceName)
     }
 
     @Synchronized
@@ -704,7 +750,66 @@ class TextToSpeechServiceManager @Inject constructor(
     fun updateSettings(ev: SpeakSettingsChangedEvent) {
         mSpeakTextProvider.updateSettings(ev)
         setRate(ev.speakSettings.playbackSettings.speed)
+        
+        // Apply voice changes if TTS is available
+        mTts?.let { tts ->
+            applyVoiceConfiguration(tts, ev.speakSettings)
+        }
+    }
+    
+    /**
+     * Apply voice configuration based on current settings
+     */
+    private fun applyVoiceConfiguration(tts: TextToSpeech, speakSettings: SpeakSettings) {
+        var localeOK: Boolean
+        var locale: Locale?
 
+        val voiceSelectionMode = speakSettings.playbackSettings.voiceSelectionMode
+
+        when (voiceSelectionMode) {
+            VoiceSelectionMode.MANUAL_SELECTION -> {
+                val selectedVoiceName = speakSettings.playbackSettings.selectedVoiceName
+                if (selectedVoiceName != null) {
+                    Log.i(TAG, "Applying manually selected voice: $selectedVoiceName")
+                    localeOK = voiceManager.setVoiceByName(tts, selectedVoiceName)
+                    if (localeOK) {
+                        // Get the locale of the selected voice
+                        currentLocale = tts.voice?.locale ?: Locale.getDefault()
+                    } else {
+                        Log.w(TAG, "Failed to set selected voice $selectedVoiceName, falling back to language-specific")
+                        // Fall back to language-specific mode
+                        localeOK = false
+                    }
+                } else {
+                    Log.w(TAG, "Manual voice selection enabled but no voice selected, falling back to language-specific")
+                    localeOK = false
+                }
+            }
+            VoiceSelectionMode.LANGUAGE_SPECIFIC -> {
+                // Use language-specific logic
+                localeOK = false
+            }
+        }
+        
+        // If manual selection failed or language-specific mode, use original logic
+        if (!localeOK) {
+            var i = 0
+            while (i < localePreferenceList.size && !localeOK) {
+                locale = localePreferenceList[i]
+                Log.i(TAG, "Checking for locale:$locale")
+                val result = tts.setLanguage(locale)
+                localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
+                if (localeOK) {
+                    Log.i(TAG, "Successful locale:$locale")
+                    currentLocale = locale
+                }
+                i++
+            }
+        }
+        
+        if (!localeOK) {
+            Log.w(TAG, "Could not apply voice configuration - TTS language not available")
+        }
     }
 
     companion object {

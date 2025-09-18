@@ -21,9 +21,9 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
-import androidx.appcompat.app.AlertDialog
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpeakSettingsBinding
 import net.bible.android.control.event.ABEventBus
@@ -57,7 +57,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             restoreSettingsFromBookmarks.setOnClickListener { updateSettings() }
         }
     }
-
+    
     override val sleepTimer: CheckBox? = null
 
     override fun onDestroy() {

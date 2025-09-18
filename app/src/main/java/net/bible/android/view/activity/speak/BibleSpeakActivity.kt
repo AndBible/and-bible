@@ -25,6 +25,7 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.*
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpeakBibleBinding
@@ -35,11 +36,13 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.android.database.bookmarks.VoiceSelectionMode
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.speakHelpVideo
+import net.bible.service.device.speak.VoiceManager
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
@@ -51,6 +54,11 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     @Inject lateinit var navigationControl: NavigationControl
 
     lateinit var binding: SpeakBibleBinding
+    
+    lateinit private var voiceAdapter: ArrayAdapter<String>
+    private var availableVoices: List<VoiceManager.VoiceInfo> = emptyList()
+    private var currentLanguageCode: String? = null
+    private var lastDocumentLanguageCode: String? = null
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +67,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         setContentView(binding.root)
         buildActivityComponent().inject(this)
         ABEventBus.register(this)
+        setupVoiceSelection()
         binding.apply {
             speakSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -75,8 +84,18 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             speakFootnotes.setOnClickListener { updateSettings() }
             repeatPassageCheckbox.setOnClickListener { setRepeatPassage() }
             sleepTimer.setOnClickListener { setSleepTime() }
+            customVoiceCheckbox.setOnClickListener {
+                updateVoiceSelectionUI()
+                updateSettings()
+            }
+            voiceSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    updateSettings()
+                }
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
         }
-
+        
         resetView(SpeakSettings.load())
     }
 
@@ -97,6 +116,88 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_set, settings.sleepTimer) else getString(R.string.conf_speak_sleep_timer)
         repeatPassageCheckbox.text = settings.playbackSettings.verseRange?.name?: getString(R.string.speak_verse_range_to_repeat)
         repeatPassageCheckbox.isChecked = settings.playbackSettings.verseRange != null
+        customVoiceCheckbox.isChecked = (settings.playbackSettings.voiceSelectionMode == VoiceSelectionMode.MANUAL_SELECTION)
+        // Check for language change that should disable custom voice
+        checkAndHandleLanguageChange()
+        
+        // Set selected voice in spinner
+        val selectedVoiceName = settings.playbackSettings.selectedVoiceName
+        if (selectedVoiceName != null) {
+            val voiceIndex = availableVoices.indexOfFirst { it.name == selectedVoiceName }
+            if (voiceIndex >= 0) {
+                voiceSpinner.setSelection(voiceIndex)
+            }
+        }
+        
+        updateVoiceSelectionUI()
+    }
+    
+    private fun setupVoiceSelection() {
+        voiceAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf<String>())
+        voiceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.voiceSpinner.adapter = voiceAdapter
+        
+        // Load available voices for current document language
+        loadAvailableVoices()
+    }
+    
+    private fun loadAvailableVoices() {
+        currentLanguageCode = speakControl.ttsServiceManager.currentlyPlayingBook?.language?.code ?: "en"
+        availableVoices = speakControl.ttsServiceManager.getAvailableVoicesForLanguage(currentLanguageCode!!)
+
+        voiceAdapter.clear()
+        voiceAdapter.addAll(availableVoices.map { it.displayName })
+        voiceAdapter.notifyDataSetChanged()
+            
+        // Show message if no voices available
+        if (availableVoices.isEmpty()) {
+            voiceAdapter.add(getString(R.string.no_voices_available))
+            binding.voiceSpinner.isEnabled = false
+        } else {
+            binding.voiceSpinner.isEnabled = true
+        }
+    }
+    
+    private fun updateVoiceSelectionUI() {
+        val showVoiceSelection = binding.customVoiceCheckbox.isChecked
+        binding.voiceSelectionLayout.visibility = if (showVoiceSelection) View.VISIBLE else View.GONE
+    }
+    
+    private fun checkAndHandleLanguageChange() {
+        try {
+            // Get current document language
+            val currentBook = speakControl.ttsServiceManager.currentlyPlayingBook
+            val newLanguageCode = currentBook?.language?.code ?: "en"
+            
+            // If language changed and custom voice is enabled, check if voice is compatible
+            if (lastDocumentLanguageCode != null && lastDocumentLanguageCode != newLanguageCode && binding.customVoiceCheckbox.isChecked) {
+                val settings = SpeakSettings.load()
+                val selectedVoiceName = settings.playbackSettings.selectedVoiceName
+                
+                if (selectedVoiceName != null) {
+                    val voiceLanguage = speakControl.ttsServiceManager.getVoiceLanguage(selectedVoiceName)
+                    
+                    // If voice language doesn't match document language, disable custom voice
+                    if (voiceLanguage != null && voiceLanguage != newLanguageCode) {
+                        Log.i(TAG, "Document language changed from $lastDocumentLanguageCode to $newLanguageCode, voice language is $voiceLanguage - disabling custom voice")
+                        binding.customVoiceCheckbox.isChecked = false
+                        updateVoiceSelectionUI()
+                        // Update settings will be called by the checkbox listener
+                        
+                        // Show toast to inform user
+                        Toast.makeText(this, "Custom voice disabled due to language change", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            
+            lastDocumentLanguageCode = newLanguageCode
+            currentLanguageCode = newLanguageCode
+            
+            // Reload voices for new language
+            loadAvailableVoices()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking language change", e)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -202,6 +303,21 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
 
 
     fun updateSettings() {
+        val voiceSelectionMode = if (binding.customVoiceCheckbox.isChecked) {
+            VoiceSelectionMode.MANUAL_SELECTION
+        } else {
+            VoiceSelectionMode.LANGUAGE_SPECIFIC
+        }
+        
+        // Get selected voice for manual selection
+        val selectedVoiceName = if (voiceSelectionMode == VoiceSelectionMode.MANUAL_SELECTION 
+            && binding.voiceSpinner.selectedItemPosition >= 0 
+            && binding.voiceSpinner.selectedItemPosition < availableVoices.size) {
+            availableVoices[binding.voiceSpinner.selectedItemPosition].name
+        } else {
+            null
+        }
+        
         val settings = SpeakSettings.load()
         settings.apply {
             playbackSettings = PlaybackSettings(
@@ -209,7 +325,9 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 speakTitles = binding.speakTitles.isChecked,
                 speakFootnotes = binding.speakFootnotes.isChecked,
                 speed = binding.speakSpeed.progress,
-                verseRange = settings.playbackSettings.verseRange
+                verseRange = settings.playbackSettings.verseRange,
+                voiceSelectionMode = voiceSelectionMode,
+                selectedVoiceName = selectedVoiceName
             )
             sleepTimer = currentSettings.sleepTimer
             lastSleepTimer = currentSettings.lastSleepTimer

@@ -41,6 +41,7 @@ import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.android.database.bookmarks.VoiceSelectionMode
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
@@ -1226,5 +1227,81 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range(), equalTo("Rom.6.1"))
         provider.forward(null)
         assertThat(range(), equalTo("Rom.7.1"))
+    }
+}
+
+@RunWith(RobolectricTestRunner::class)
+@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
+class SpeakVoiceCustomizationTests {
+    
+    @Test
+    fun testDefaultVoiceSettingValue() {
+        val defaultSettings = SpeakSettings()
+        // By default, useSystemDefaultVoice should be true
+        assertThat(defaultSettings.playbackSettings.useSystemDefaultVoice, equalTo(true))
+        // The new enum should default to LANGUAGE_SPECIFIC for new behavior
+        assertThat(defaultSettings.playbackSettings.voiceSelectionMode, equalTo(VoiceSelectionMode.LANGUAGE_SPECIFIC))
+    }
+    
+    @Test 
+    fun testVoiceSettingSerializationTrue() {
+        val settings = SpeakSettings(playbackSettings = PlaybackSettings(useSystemDefaultVoice = true))
+        val json = settings.toJson()
+        val restored = SpeakSettings.fromJson(json)
+        assertThat(restored.playbackSettings.useSystemDefaultVoice, equalTo(true))
+    }
+    
+    @Test
+    fun testVoiceSettingSerializationFalse() {
+        val settings = SpeakSettings(playbackSettings = PlaybackSettings(useSystemDefaultVoice = false))
+        val json = settings.toJson()
+        val restored = SpeakSettings.fromJson(json)
+        assertThat(restored.playbackSettings.useSystemDefaultVoice, equalTo(false))
+    }
+    
+    @Test
+    fun testVoiceSelectionModeSerializationSystemDefault() {
+        val settings = SpeakSettings(playbackSettings = PlaybackSettings(
+            voiceSelectionMode = VoiceSelectionMode.LANGUAGE_SPECIFIC,
+            selectedVoiceName = null
+        ))
+        val json = settings.toJson()
+        val restored = SpeakSettings.fromJson(json)
+        assertThat(restored.playbackSettings.voiceSelectionMode, equalTo(VoiceSelectionMode.LANGUAGE_SPECIFIC))
+        assertThat(restored.playbackSettings.selectedVoiceName, equalTo(null))
+    }
+    
+    @Test
+    fun testVoiceSelectionModeSerializationLanguageSpecific() {
+        val settings = SpeakSettings(playbackSettings = PlaybackSettings(
+            voiceSelectionMode = VoiceSelectionMode.LANGUAGE_SPECIFIC,
+            selectedVoiceName = null
+        ))
+        val json = settings.toJson()
+        val restored = SpeakSettings.fromJson(json)
+        assertThat(restored.playbackSettings.voiceSelectionMode, equalTo(VoiceSelectionMode.LANGUAGE_SPECIFIC))
+        assertThat(restored.playbackSettings.selectedVoiceName, equalTo(null))
+    }
+    
+    @Test
+    fun testVoiceSelectionModeSerializationManualSelection() {
+        val settings = SpeakSettings(playbackSettings = PlaybackSettings(
+            voiceSelectionMode = VoiceSelectionMode.MANUAL_SELECTION,
+            selectedVoiceName = "com.google.android.tts:en-US-Standard-B"
+        ))
+        val json = settings.toJson()
+        val restored = SpeakSettings.fromJson(json)
+        assertThat(restored.playbackSettings.voiceSelectionMode, equalTo(VoiceSelectionMode.MANUAL_SELECTION))
+        assertThat(restored.playbackSettings.selectedVoiceName, equalTo("com.google.android.tts:en-US-Standard-B"))
+    }
+    
+    @Test
+    fun testBackwardsCompatibilityWithOldBooleanField() {
+        // Test that the old boolean field is properly handled for backwards compatibility
+        val settingsWithOldTrue = SpeakSettings(playbackSettings = PlaybackSettings(useSystemDefaultVoice = true))
+        assertThat(settingsWithOldTrue.playbackSettings.useSystemDefaultVoice, equalTo(true))
+        
+        val settingsWithOldFalse = SpeakSettings(playbackSettings = PlaybackSettings(useSystemDefaultVoice = false))
+        assertThat(settingsWithOldFalse.playbackSettings.useSystemDefaultVoice, equalTo(false))
     }
 }

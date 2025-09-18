@@ -492,6 +492,13 @@
     <string name="rewind">Rewind</string>
     <string name="forward">Forward</string>
     <string name="tts_lang_not_available">Language is not available.</string>
+    <string name="conf_use_system_default_voice">Use system default voice</string>
+    <string name="conf_use_system_default_voice_desc">Use the voice you have configured in your device system settings</string>
+    <string name="speak_voice_settings_title">Voice Settings</string>
+    <string name="custom_voice">Custom voice</string>
+    <string name="select_voice">Select Voice</string>
+    <string name="no_voices_available">No voices available for this language</string>
+    <string name="voice_selection_explanation">Use a specific voice instead of automatic language-based selection</string>
     <string name="speak_queue">Queue</string>
     <string name="speak_repeat">Repeat</string>
 
