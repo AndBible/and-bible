@@ -1856,6 +1856,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
     fun scrollOrJumpToOrdinal(ordinal: OrdinalRange?, htmlId: String?, bookInitials: String?, osisRef: String?, forceNow: Boolean = false) {
         Log.i(TAG, "Scroll or jump to ordinal:$ordinal")
+        
+        // Return early if both ordinal and htmlId are null - nothing to scroll to
+        if (ordinal == null && htmlId == null) {
+            Log.w(TAG, "scrollOrJumpToOrdinal called with both ordinal and htmlId null - skipping")
+            return
+        }
+        
         val now = !contentVisible || forceNow
         fun boolString(value: Boolean?): String {
             if(value == null) return "null"
