@@ -238,6 +238,9 @@ class ZipHandler(
             InstallResult.INVALID_MODULE
         } catch (e: InvalidModule) {
             InstallResult.INVALID_MODULE
+        } catch (e: FileNotFound) {
+            Log.e(TAG, "File not found or could not be opened", e)
+            InstallResult.ERROR
         } catch (e: ModulesExists) {
             doInstall = suspendCoroutine {
                 AlertDialog.Builder(activity)
@@ -261,6 +264,9 @@ class ZipHandler(
                 InstallResult.ERROR
             } catch (e: IOException) {
                 Log.e(TAG, "Error occurred", e)
+                InstallResult.ERROR
+            } catch (e: FileNotFound) {
+                Log.e(TAG, "File not found or could not be opened during installation", e)
                 InstallResult.ERROR
             } catch (e: CantOverwrite) {
                 suspendCoroutine {
