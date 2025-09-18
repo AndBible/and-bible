@@ -172,11 +172,16 @@ class TextToSpeechServiceManager @Inject constructor(
             while (i < localePreferenceList.size && !localeOK) {
                 locale = localePreferenceList[i]
                 Log.i(TAG, "Checking for locale:$locale")
-                val result = tts.setLanguage(locale)
-                localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
-                if (localeOK) {
-                    Log.i(TAG, "Successful locale:$locale")
-                    currentLocale = locale
+                try {
+                    val result = tts.setLanguage(locale)
+                    localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
+                    if (localeOK) {
+                        Log.i(TAG, "Successful locale:$locale")
+                        currentLocale = locale
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error setting TTS language for locale:$locale", e)
+                    // Continue to next locale in the preference list
                 }
                 i++
             }
@@ -302,8 +307,14 @@ class TextToSpeechServiceManager @Inject constructor(
         //calculate preferred locales to use for speech
         // Set preferred language to the same language as the book.
         // Note that a language may not be available, and so we have a preference list
-        var bookLanguageCode = fromBook.language.code
+        var bookLanguageCode = fromBook.language?.code
         Log.i(TAG, "Book has language code:$bookLanguageCode")
+
+        // Validate and sanitize the language code to prevent TTS crashes
+        if (bookLanguageCode.isNullOrBlank() || bookLanguageCode.length < 2) {
+            Log.w(TAG, "Invalid book language code '$bookLanguageCode', falling back to default locale")
+            bookLanguageCode = Locale.getDefault().language
+        }
 
         val localePreferenceList = ArrayList<Locale>()
         if (bookLanguageCode == Locale.getDefault().language) {
