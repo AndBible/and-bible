@@ -17,11 +17,11 @@
 
 <template>
   <div :style="parentStyle" class="editable-text">
-    <div class="editor-container" :class="{constraintDisplayHeight}" v-if="editMode">
-      <TextEditor :text="editText || ''" @save="textChanged" @close="editMode = false"/>
+    <div class="editor-container" :class="{constraintDisplayHeight}" v-if="editMode" ref="editorContainer">
+      <TextEditor :text="editText || ''" @save="textChanged" @close="editMode = false" ref="textEditor"/>
     </div>
     <template v-else>
-      <div v-if="editText" class="notes-display" :class="{constraintDisplayHeight}" @click="handleClicks">
+      <div v-if="editText" class="notes-display" :class="{constraintDisplayHeight}" @click="handleClicks" ref="notesDisplay">
         <div v-html="editText"/>
       </div>
       <div class="placeholder" v-else-if="showPlaceholder" @click="handleClicks">
@@ -38,7 +38,7 @@ let cancelOpen = () => {}
 </script>
 
 <script lang="ts" setup>
-import {inject, ref, watch} from "vue";
+import {inject, nextTick, ref, watch} from "vue";
 import TextEditor from "@/components/TextEditor.vue";
 import {useCommon} from "@/composables";
 import {exportModeKey} from "@/types/constants";
@@ -64,21 +64,42 @@ const editMode = ref<boolean>(props.editDirectly);
 const parentStyle = ref(`--max-height: ${props.maxEditorHeight}; font-family: var(--font-family); font-size: var(--font-size);`);
 const editText = ref(props.text);
 const exportMode = inject(exportModeKey, ref(false));
+const notesDisplay = ref<HTMLElement | null>(null);
+const editorContainer = ref<HTMLElement | null>(null);
+const textEditor = ref<InstanceType<typeof TextEditor> | null>(null);
+let savedScrollPosition = 0;
 
 function cancelFunc() {
     editMode.value = false;
 }
 
-watch(editMode, (mode, oldValue) => {
+watch(editMode, async (mode, oldValue) => {
     if (!mode) {
         emit("closed", editText.value);
+        // Restore scroll position to notes display
+        await nextTick();
+        if (notesDisplay.value) {
+            notesDisplay.value.scrollTop = savedScrollPosition;
+        }
     }
     else {
+        // Save scroll position from notes display
+        if (notesDisplay.value) {
+            savedScrollPosition = notesDisplay.value.scrollTop;
+        }
         emit("opened")
         if (cancelFunc !== cancelOpen) {
             cancelOpen()
         }
         cancelOpen = cancelFunc
+        // Restore scroll position to editor
+        await nextTick();
+        if (editorContainer.value) {
+            const pellContent = editorContainer.value.querySelector('.pell-content') as HTMLElement;
+            if (pellContent) {
+                pellContent.scrollTop = savedScrollPosition;
+            }
+        }
     }
 }, {immediate: true})
 watch(() => props.text, t => {
