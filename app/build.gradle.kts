@@ -26,6 +26,7 @@ plugins {
     id("kotlinx-serialization")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("app.accrescent.tools.bundletool")
 }
 
 val jsDir = "bibleview-js"
@@ -478,6 +479,48 @@ dependencies {
     // dependency to appear on your APK's compile classpath or the test APK
     // classpath.
     androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.1")
+}
+
+// Bundletool configuration for Accrescent APK set building
+// Passwords are read from environment variables for security
+bundletool {
+    val propsFile = rootProject.file("local.properties")
+    if (propsFile.exists()) {
+        val props = Properties()
+        FileInputStream(propsFile).use { props.load(it) }
+
+        val storeFilePath: String? = props["accrescent.storeFile"] as String?
+        val keyAliasValue: String? = props["accrescent.keyAlias"] as String?
+        val storePasswordValue = System.getenv("ACCRESCENT_STORE_PASSWORD")
+        val keyPasswordValue = System.getenv("ACCRESCENT_KEY_PASSWORD")
+
+        if (storeFilePath != null && keyAliasValue != null &&
+            storePasswordValue != null && keyPasswordValue != null) {
+            signingConfig {
+                this.storeFile = file(storeFilePath)
+                this.storePassword = storePasswordValue
+                this.keyAlias = keyAliasValue
+                this.keyPassword = keyPasswordValue
+            }
+            println("✓ Accrescent signing configuration loaded successfully")
+        } else {
+            println("⚠ WARNING: Accrescent signing configuration incomplete")
+            if (storeFilePath == null || keyAliasValue == null) {
+                println("  Missing in local.properties:")
+                if (storeFilePath == null) println("    - accrescent.storeFile=/path/to/keystore.jks")
+                if (keyAliasValue == null) println("    - accrescent.keyAlias=yourKeyAlias")
+            }
+            if (storePasswordValue == null || keyPasswordValue == null) {
+                println("  Missing environment variables:")
+                if (storePasswordValue == null) println("    - ACCRESCENT_STORE_PASSWORD")
+                if (keyPasswordValue == null) println("    - ACCRESCENT_KEY_PASSWORD")
+                println("  Tip: Use 'make accrescent' to build with GPG-encrypted credentials")
+            }
+        }
+    } else {
+        println("⚠ WARNING: local.properties not found")
+        println("  Please create it with accrescent.storeFile and accrescent.keyAlias")
+    }
 }
 
 configurations {
