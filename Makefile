@@ -36,3 +36,13 @@ test:
 
 instrumented-tests:
 	./gradlew emulatorStandardGoogleplayDebugAndroidTest
+
+accrescent:
+	@echo "Building Accrescent APK set with GPG-encrypted credentials..."
+	./scripts/build-accrescent.sh standardAccrescentRelease
+
+accrescent-debug:
+	@echo "Building Accrescent Debug APK set with GPG-encrypted credentials..."
+	./scripts/build-accrescent.sh standardAccrescentDebug
+
+.PHONY: increment-version tx-push tx-pull fastlane-supply test instrumented-tests accrescent accrescent-debug

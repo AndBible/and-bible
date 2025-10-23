@@ -19,6 +19,7 @@
 
 plugins {
     id("com.google.devtools.ksp") version "2.2.0-2.0.2" apply false
+    id("app.accrescent.tools.bundletool") version "0.2.4" apply false
 }
 
 buildscript {
