@@ -234,6 +234,10 @@ android {
             dimension = dimDistributionChannelName
             minSdk = 21
         }
+
+        create("accrescent") {
+            dimension = dimDistributionChannelName
+        }
     }
 
     lint {
@@ -370,7 +374,7 @@ dependencies {
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
 
-    for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei").map { "${it}Implementation" }) {
+    for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
         // Onyx SDK (e-ink devices)
         variantImplementation("com.onyx.android.sdk:onyxsdk-device:1.2.32") // NOTE: remember to check its AndroidManifest.xml and remove unnecessary permissions in our AndroidManifest.xml
         // Google Drive API
@@ -484,7 +488,7 @@ configurations {
 
 afterEvaluate {
     android.applicationVariants.all { variant ->
-        if (listOf("Googleplay", "Github", "Amazon", "Samsung", "Huawei").find { variant.flavorName.endsWith(it) } != null) {
+        if (listOf("Googleplay", "Github", "Amazon", "Samsung", "Huawei", "Accrescent").find { variant.flavorName.endsWith(it) } != null) {
             repositories {
                 maven { url = uri("https://repo.boox.com/repository/maven-public/") }
             }
