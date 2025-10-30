@@ -60,10 +60,12 @@ verseCompare: Σύγκριση
 verseMemorize: Απομνημόνευση
 verseNote: Σημείωση
 verseMyNotes: Οι Σημειώσεις Μου
+verseParagraphBreak: Παράγραφος
 verseShareLong: Μοιράσου αυτό το στίχο
 verseCompareLong: Σύγκριση στίχου
 verseMemorizeLong: Απομνημόνευση Βιβλικών εδαφίων
 verseNoteLong: Γράψε μία σημείωση
+verseParagraphBreakLong: Νέα παράγραφος
 addBookmark: Σελιδοδείκτης
 selectCustomIconTitle: Επιλογή προσαρμοσμένου εικονιδίου δείκτη
 bookmarkSettingsTitle: Ρύθμιση επιλογών σελιδοδείκτη

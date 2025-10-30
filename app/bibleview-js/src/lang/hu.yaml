@@ -60,10 +60,12 @@ verseCompare: Összehasonlítás
 verseMemorize: ""
 verseNote: Jegyzet
 verseMyNotes: Jegyzeteim
+verseParagraphBreak: ""
 verseShareLong: Vers megosztása
 verseCompareLong: Vers összehasonlítása
 verseMemorizeLong: ""
 verseNoteLong: Jegyzet hozzáadása
+verseParagraphBreakLong: ""
 addBookmark: Könyvjelző
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

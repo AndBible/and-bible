@@ -60,10 +60,12 @@ verseCompare: Порівняти
 verseMemorize: ""
 verseNote: Примітка
 verseMyNotes: Мої примітки
+verseParagraphBreak: ""
 verseShareLong: Поділіться віршем
 verseCompareLong: Порівняти вірш
 verseMemorizeLong: ""
 verseNoteLong: Написати нотатку
+verseParagraphBreakLong: Абзац
 addBookmark: Закладка
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

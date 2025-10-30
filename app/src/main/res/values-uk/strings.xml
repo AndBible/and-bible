@@ -366,6 +366,7 @@
   <string name="add_bookmark_whole_verse">Додати вірш у закладки</string>
   <string name="add_bookmark_whole_verse1">Вірші</string>
   <string name="add_bookmark_whole_verse2">Повні вірші</string>
+  <string name="add_paragraph_break">Абзац</string>
   <string name="remove_bookmark">Видалити</string>
   <string name="bookmark_settings_hide_labels_title">Сховати вказані мітки</string>
   <string name="bookmark_settings_hide_labels_summary">Сховати закладки, позначені зазначеними мітками</string>
@@ -910,7 +911,12 @@
   <string name="document">Ресурс</string>
   <string name="book">Книга</string>
   <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Початок розділу</string>
   <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Початок вірша</string>
+  <string name="chapter_end">Кінець розділу</string>
+  <string name="verse_end">Кінець вірша</string>
+  <string name="id">Ідентифікатор</string>
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
   <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Діапазон</string>

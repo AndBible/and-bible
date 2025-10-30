@@ -60,10 +60,12 @@ verseCompare: Jämför
 verseMemorize: Memorera
 verseNote: Anteckning
 verseMyNotes: Egna anteckningar
+verseParagraphBreak: Stycke
 verseShareLong: Dela denna vers
 verseCompareLong: Jämför denna vers
 verseMemorizeLong: Memorera bibelverser
 verseNoteLong: Skriv en anteckning
+verseParagraphBreakLong: Styckebrytning
 addBookmark: Bokmärke
 selectCustomIconTitle: Välj en anpassad ikon
 bookmarkSettingsTitle: Konfigurera bokmärkesinställningar
@@ -76,16 +78,16 @@ editActionModeAppend: Infoga text efter
 editActionModePrepend: Infoga text före
 editActionContentLabel: Innehåll
 editActionContentPlaceholder: Ange text som ska läggas till i dokument...
-experimentalFeatureTitle: ""
+experimentalFeatureTitle: Experimentell
 experimentalFeatureHelpTitle: Om experimentella funktioner
-experimentalFeatureHelpContent: ""
+experimentalFeatureHelpContent: Experimentella funktioner utvecklas och testas fortfarande. De kanske inte fungerar perfekt och kan komma att ändras avsevärt eller tas bort i framtida appversioner.
 insertParagraphBreak: Infoga styckebrytning
 insertSubtitle: Infoga underrubrik
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
+xmlParseError: XML-läsningsfel
+invalidTag: Ogiltig tagg
+invalidClosingTag: Ogiltig sluttagg
+unmatchedClosingTag: Sluttagg ej matchad
+unclosedTag: Tagg ej stängd
 unknownError: Okänt fel
 blur: Sudda ut
 reset: Återställ

@@ -60,10 +60,12 @@ verseCompare: Сравнить
 verseMemorize: ""
 verseNote: Заметка
 verseMyNotes: Мои заметки
+verseParagraphBreak: ""
 verseShareLong: Поделиться этим стихом
 verseCompareLong: Сравнить стих
 verseMemorizeLong: ""
 verseNoteLong: Написать заметку
+verseParagraphBreakLong: ""
 addBookmark: Закладка
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

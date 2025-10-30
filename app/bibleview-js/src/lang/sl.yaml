@@ -57,39 +57,41 @@ openDownloads: Pojdite na Prenose dodatkov
 verseShare: Deli
 verseSpeak: Govor
 verseCompare: Primerjaj
-verseMemorize: ""
+verseMemorize: Zapomni si
 verseNote: Beležka
 verseMyNotes: Moje opombe
+verseParagraphBreak: Odstavek
 verseShareLong: Deli to vrstico
 verseCompareLong: Primerjaj vrstico
-verseMemorizeLong: ""
+verseMemorizeLong: Zapomni si svetopisemske vrstice
 verseNoteLong: Zapiši beležko
+verseParagraphBreakLong: Prelom odstavka
 addBookmark: Zaznamek
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-blur: ""
+selectCustomIconTitle: Izberite ikono označevanja po meri
+bookmarkSettingsTitle: Konfigurirajte nastavitve zaznamka
+subtitlePlaceholder: Besedilo s podnapisi
+customIconLabel: Ikona po meri
+editActionLabel: Popravek dejanja
+editActionModeLabel: Način
+editActionModeNone: Nič
+editActionModeAppend: Dodajanje besedila
+editActionModePrepend: Dodaj besedilo na začetku
+editActionContentLabel: Vsebina
+editActionContentPlaceholder: "Vnesite besedilo, ki ga želite dodati v dokument …"
+experimentalFeatureTitle: Eksperimentalno
+experimentalFeatureHelpTitle: O eksperimentalnih funkcijah
+experimentalFeatureHelpContent: "Eksperimentalne funkcije so nove zmogljivosti, ki se še vedno razvijajo in preizkušajo. Morda ne delujejo popolnoma in se lahko bistveno spremenijo ali pa se odstranijo v prihodnjih različicah aplikacij."
+insertParagraphBreak: Vstavite prelom odstavka
+insertSubtitle: Vstavite podnapise
+xmlParseError: Napaka pri razčlenjevanju XML
+invalidTag: Neveljavna oznaka
+invalidClosingTag: Neveljavna zaključna oznaka
+unmatchedClosingTag: Neskladna končna oznaka
+unclosedTag: Nezaprta oznaka
+unknownError: Neznana napaka
+blur: Zameglitev
 reset: Reset
-peek: ""
-wordBlur: ""
-wordScramble: ""
+peek: Izostritev
+wordBlur: Zameglitev besede
+wordScramble: Besedna premetavanka
 more: Več

@@ -739,6 +739,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="format_mysword">Έγγραφα MySword (*.mybible)</string>
   <string name="format_mybible">Έγγραφα MyBible (*.SQLite3)</string>
   <string name="format_epub">Έγγραφα EPUB (*.epub)</string>
+  <string name="format_ttf">Γραμματοσειρές TTF (*.ttf)</string>
   <string name="format_studypads">Μπλοκ μελέτης από βάσεις δεδομένων του AndBible (*.abdb)</string>
   <string name="redownload_message">
 Βρέθηκε μία λίστα προηγουμένων βιβλίων/εγγράφων. Πατήστε εδώ για να μεταφορτωθούν εύκολα πάλι.</string>
@@ -770,7 +771,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="try_again_passphrase">Η φράση πρόσβασης δεν έγινε δεκτή, άλλη μια προσπάθεια?</string>
   <string name="show_unlock_info">Πληροφορίες ξεκλειδώματος προσθέτου &amp;</string>
   <string name="prefs_experimental_features_title">Πειραματικες δυνατότητες</string>
-  <string name="prefs_experimental_features_summary">Ενεργοποιήστε πειραματικές δυνατότητες που βρίσκονται ακόμα υπό ανάπτυξη και μπορεί να αλλάξουν ή να αποσυρθούν</string>
+  <string name="prefs_experimental_features_summary">Επιλέξτε ποιές πειραματικές δυνατότητες θέλετε να ενεργοποιήσετε. Αυτές οι δυνατότητες βρίσκονται ακόμα υπό ανάπτυξη και μπορεί να αλλάξουν ή να καταργηθούν</string>
+  <string name="experimental_feature_bookmark_edit_actions">Ενέργειες επεξεργασίας σελιδοδείκτη</string>
+  <string name="experimental_feature_add_paragraph_break">Προσθήκη σελιδοδείκτη αλλαγής παραγράφου</string>
   <string name="prefs_show_error_box_title">Δείξε το παράθυρο σφάλματος javascript</string>
   <string name="prefs_show_error_box_summary">Χρήσιμο για προγραμματιστές όταν αποσφαλματώνουν τα σφάλματα javascript στην προβολή Βίβλου. Αυτό θα επιβραδύνει την εφαρμογή</string>
   <string name="active_window_indicator_title">Δείξε ένδειξη ενεργού παραθύρου</string>

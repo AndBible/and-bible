@@ -60,10 +60,12 @@ verseCompare: Упоредите
 verseMemorize: ""
 verseNote: Белешка
 verseMyNotes: Моје белешке
+verseParagraphBreak: ""
 verseShareLong: Подели овај стих
 verseCompareLong: Упореди стих
 verseMemorizeLong: ""
 verseNoteLong: Напиши белешку
+verseParagraphBreakLong: ""
 addBookmark: Обележивач
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

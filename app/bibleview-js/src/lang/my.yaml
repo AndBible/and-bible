@@ -60,10 +60,12 @@ verseCompare: နှိုင်းယှဉ်ပါ
 verseMemorize: ""
 verseNote: မှတ်စု
 verseMyNotes: ကိုယ်ပိုင်မှတ်စုများ
+verseParagraphBreak: ""
 verseShareLong: ဤအခန်းငယ်ကို ဝေမျှပါ
 verseCompareLong: အခန်းငယ်ကို နှိုင်းယှဉ်ပါ
 verseMemorizeLong: ""
 verseNoteLong: မှတ်စုတစ်ခု ရေးပါ
+verseParagraphBreakLong: ""
 addBookmark: စာညှပ်
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

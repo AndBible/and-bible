@@ -780,6 +780,7 @@ i GT och NT varje dag.
   <string name="format_mysword">MySword-dokument (*.mybible)</string>
   <string name="format_mybible">MyBible-dokument (*.SQLite3)</string>
   <string name="format_epub">EPUB-dokument (*.epub)</string>
+  <string name="format_ttf">TTF-typsnitt (*.ttf)</string>
   <string name="format_studypads">Studieblock från AndBible-databaser (*.abdb)</string>
   <string name="redownload_message">
         En lista över tidigare böcker/dokument hittades. Tryck här nedanför för att enkelt ladda ned dem igen.
@@ -812,7 +813,9 @@ i GT och NT varje dag.
   <string name="try_again_passphrase">Lösenordsfras funderade inte, försök igen?</string>
   <string name="show_unlock_info">Modul &amp; upplåsningsinfo</string>
   <string name="prefs_experimental_features_title">Experimentella funktioner</string>
-  <string name="prefs_experimental_features_summary">Aktivera experimentella funktioner som fortfarande utvecklas och kan ändras eller tas bort</string>
+  <string name="prefs_experimental_features_summary">Välj vilka experimentella funktioner du vill aktivera. Dessa funktioner utvecklas fortfarande och kan komma att ändras eller tas bort.</string>
+  <string name="experimental_feature_bookmark_edit_actions">Åtgärder vid bokmärkesredigering</string>
+  <string name="experimental_feature_add_paragraph_break">Lägg till bokmärke för styckebrytning</string>
   <string name="prefs_show_error_box_title">Visa Javascript error box</string>
   <string name="prefs_show_error_box_summary">Användbart för utvecklare vid felsökning av javascript-fel i BibleView. Detta gör appen långsammare.</string>
   <string name="active_window_indicator_title">Visa aktiv fönsterindekator</string>

@@ -60,10 +60,12 @@ verseCompare: Confronta
 verseMemorize: Memorizza
 verseNote: Nota
 verseMyNotes: Annotazioni
+verseParagraphBreak: Paragrafo
 verseShareLong: Condividi questo verso
 verseCompareLong: Confronta verso
 verseMemorizeLong: Memorizza versi della Bibbia
 verseNoteLong: Scrivi una nota
+verseParagraphBreakLong: Interruzione di paragrafo
 addBookmark: Segnalibro
 selectCustomIconTitle: Scegli icona per l'evidenziazione
 bookmarkSettingsTitle: Configura le impostazioni dei segnalibri

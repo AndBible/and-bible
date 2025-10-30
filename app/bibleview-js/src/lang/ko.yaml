@@ -60,10 +60,12 @@ verseCompare: 비교
 verseMemorize: ""
 verseNote: 노트
 verseMyNotes: 내 노트
+verseParagraphBreak: ""
 verseShareLong: 이 절을 공유
 verseCompareLong: 절 비교
 verseMemorizeLong: ""
 verseNoteLong: 노트 쓰기
+verseParagraphBreakLong: ""
 addBookmark: 북마크
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

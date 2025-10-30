@@ -60,10 +60,12 @@ verseCompare: Comparer
 verseMemorize: Mémoriser
 verseNote: Note
 verseMyNotes: Mes notes
+verseParagraphBreak: ""
 verseShareLong: Partager ce verset
 verseCompareLong: Comparer ce verset
 verseMemorizeLong: Mémoriser des versets bibliques
 verseNoteLong: Écrire une note
+verseParagraphBreakLong: Retour à la ligne
 addBookmark: Signets
 selectCustomIconTitle: "Sélection d'une icône de marqueur personnalisée "
 bookmarkSettingsTitle: Configurer les paramètres des étiquettes

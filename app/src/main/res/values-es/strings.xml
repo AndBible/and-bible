@@ -773,6 +773,7 @@ respaldo.
   <string name="format_mysword">Documentos MySword (*.mybible)</string>
   <string name="format_mybible">Documentos MyBible (.SQLite3)</string>
   <string name="format_epub">Documentos EPUB (*.epub)</string>
+  <string name="format_ttf">Fuentes TTF (*.ttf)</string>
   <string name="format_studypads">Pizarras de estudio de la base de datos AndBible (*.abdb)</string>
   <string name="redownload_message">
 Se encontró una lista de libros / documentos anteriores. Haga clic a continuación para volver a descargarlos fácilmente.
@@ -805,7 +806,9 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="try_again_passphrase">La contraseña no funcionó, ¿intentar de nuevo?</string>
   <string name="show_unlock_info">Módulo e información de desbloqueo</string>
   <string name="prefs_experimental_features_title">Funciones experimentales</string>
-  <string name="prefs_experimental_features_summary">Habilita funciones experimentales que aún están en desarrollo y pueden cambiar o eliminarse</string>
+  <string name="prefs_experimental_features_summary">Seleccione las funciones experimentales que desea habilitar. Estas funciones aún se encuentran en desarrollo y pueden cambiar o eliminarse</string>
+  <string name="experimental_feature_bookmark_edit_actions">Acciones de edición de marcadores</string>
+  <string name="experimental_feature_add_paragraph_break">Añadir marcador de salto de párrafo</string>
   <string name="prefs_show_error_box_title">Mostrar la caja de errores Javascript</string>
   <string name="prefs_show_error_box_summary">Útil para desarrolladores que están depurando errores javascript de BibleView. Esto ralentizará la aplicación.</string>
   <string name="active_window_indicator_title">Mostrar el indicador de ventana activa</string>

@@ -60,10 +60,12 @@ verseCompare: 比較
 verseMemorize: ""
 verseNote: 筆記
 verseMyNotes: 筆記列表
+verseParagraphBreak: ""
 verseShareLong: 分享此節
 verseCompareLong: 比較經文
 verseMemorizeLong: ""
 verseNoteLong: 增加筆記
+verseParagraphBreakLong: ""
 addBookmark: 書籤
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

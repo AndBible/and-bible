@@ -60,10 +60,12 @@ verseCompare: Võrdle
 verseMemorize: Õpi pähe
 verseNote: Märge
 verseMyNotes: Minu märkmed
+verseParagraphBreak: ""
 verseShareLong: Jaga seda salmi
 verseCompareLong: Võrdle salmi
 verseMemorizeLong: Õpi piiblisalme pähe
 verseNoteLong: Kirjuta märge
+verseParagraphBreakLong: ""
 addBookmark: Järjehoidja
 selectCustomIconTitle: Kohanda markeri ikooni
 bookmarkSettingsTitle: ""

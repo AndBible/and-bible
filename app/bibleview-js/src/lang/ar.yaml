@@ -60,10 +60,12 @@ verseCompare: مقارنة
 verseMemorize: ""
 verseNote: ملاحظة
 verseMyNotes: ملاحظاتي
+verseParagraphBreak: ""
 verseShareLong: مشاركة هذه الآية
 verseCompareLong: مقارنة الآية
 verseMemorizeLong: ""
 verseNoteLong: كتابة ملاحظة
+verseParagraphBreakLong: ""
 addBookmark: إشارة مرجعية
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

@@ -10,7 +10,7 @@
   <!--Main menu-->
   <string name="menu">Menü</string>
   <string name="chooseBook">Belge</string>
-  <string name="selectPassage">Kısım</string>
+  <string name="selectPassage">Parça</string>
   <string name="search">Ara</string>
   <string name="settings">Uygulama tercihleri</string>
   <string name="history">Geçmiş</string>
@@ -19,9 +19,9 @@
   <string name="information">Bilgi</string>
   <string name="other">Diğer</string>
   <string name="contact">İletişim</string>
-  <string name="help_and_tips">Yardım ve ipuçları</string>
+  <string name="help_and_tips">Yardım &amp; ipuçları</string>
   <string name="administration">Yönetici</string>
-  <string name="rate_application">Oyla ve Değerlendir</string>
+  <string name="rate_application">Puanla &amp; Değerlendir</string>
   <string name="chooce_document">Belge Seç</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitabı Seç</string>
@@ -40,6 +40,7 @@
   <string name="search_in">%s içinde bul</string>
   <string name="do_in_background">Arka planda devam et</string>
   <string name="rebuild_index_button">Yeniden oluştur</string>
+  <string name="creating_index_for">%s için dizin yeniden oluşturuluyor…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s içinde %2s sonuç</string>
   <!--Tasks-->
@@ -54,12 +55,12 @@
   <string name="search_result_count">%d sonuç bulundu</string>
   <string name="search_showing_first">Çok fazla sonuç bulundu. İlk %d gösteriliyor</string>
   <string name="search_bible_section_group_prompt">Arama Alını</string>
-  <string name="search_all_bible">Kutsal Kitap’ın Tümü</string>
+  <string name="search_all_bible">Tüm Kutsal Kitap</string>
   <string name="search_new_testament">Yeni Antlaşma</string>
   <string name="search_old_testament">Eski Antlaşma</string>
   <string name="search_current_book">Seçili Kitapta</string>
   <string name="error_executing_search">Arama metini geçersiz</string>
-  <string name="type_text_or_bible_reference">Metin veya ayet referansı yazın</string>
+  <string name="type_text_or_bible_reference">Metin ya da Kutsal Kitap referansı girin</string>
   <!--Open (bible reference X)-->
   <string name="go_to_ref">%s aç</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
@@ -139,6 +140,7 @@
   <string name="prefs_margin_size_summary">Metin görünümünün sol ve sağ kenar boşluklarını ayarlayın.
     Ayrıca metnin maksimum genişliğini de ayarlayabilirsiniz.
   </string>
+  <string name="prefs_margin_size_summary_2">İpucu: Bir sayfa yukarı/aşağı atlamak için kenar boşluğu alanına dokunabilirsiniz.</string>
   <string name="prefs_text_colors_summary">Metin ve arka plan renklerini ve parazit efektini ayarla</string>
   <string name="text_display_settings_activity_title">Metin görüntüleme ayarları</string>
   <string name="workspace_text_display_settings_title">Metin ayarları - %s</string>
@@ -368,6 +370,7 @@
   <string name="add_bookmark_whole_verse">Ayeti İşaretle</string>
   <string name="add_bookmark_whole_verse1">Ayetler</string>
   <string name="add_bookmark_whole_verse2">Tam ayetler</string>
+  <string name="add_paragraph_break">Paragraf sonu</string>
   <string name="remove_bookmark">Kaldır</string>
   <string name="bookmark_settings_hide_labels_title">Belirtilen etiketleri gizle</string>
   <string name="bookmark_settings_hide_labels_summary">Belirtilen etiket(ler)le işaretlenmiş yer imlerini gizle</string>
@@ -575,12 +578,14 @@
   <string name="backup_modules_email_message_2">Aşağıdaki modülleri içeren %1$s modülleri yedeğiniz ektedir: %2$s</string>
   <string name="backup_email_subject_2">%s veritabanını yedeklemek</string>
   <string name="backup_email_message_2">Yer imlerinizi, notlarınızı, okuma planlarınızı ve çalışma alanlarınızı içeren %s veritabanınız ektedir</string>
+  <string name="exported_studypads_subject">Dışa aktarılan ÇalışmaDefter(ler)</string>
   <string name="restore_unsuccessfull">Veritabanı geri yüklenemedi. Belki de geçersiz veritabanı dosyası verdiniz.</string>
   <string name="restore_modules">Belgeleri Geri Yükleme kaynağı…</string>
   <string name="send_backup_file">Yedekleme dosyasını gönder</string>
   <string name="backup_modules_title">Hangi modüllerin yedekleneceğini seçin</string>
   <string name="install_zip_canceled">Modül yüklemesi iptal edildi</string>
   <string name="restore">Yedekten geri yükle</string>
+  <string name="import2">İçe aktarın</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Telif hakkı: %s</string>
@@ -779,6 +784,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="journal_description">Özel metin ve yer imleriyle kullanıcı tarafından düzenlenebilir çalışma defterleri</string>
   <string name="my_notes_description">Yer imlerine eklenmiş kullanıcı tarafından düzenlenebilir notlar</string>
   <string name="my_notes_abbreviation">Notlarım</string>
+  <string name="studypad">Çalışma Defter</string>
   <string name="studypads">Çalışma Defterleri</string>
   <string name="multi_description">Çoklu referanslar</string>
   <string name="multi_abbreviation">Çoklu</string>
@@ -914,13 +920,20 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="import_from_db">Uygulama Veritabanı dosyasından içe aktar</string>
   <string name="import_error">Uygulama Veritabanından içe aktarma başarısız oldu. Veritabanı dosyası yanlış biçimde olabilir veya %suygulamasının çok eski sürümüyle yapılmış olabilir.</string>
   <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">OSIS Referansı</string>
   <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Ayet Referansı</string>
   <string name="document">Belge</string>
   <string name="book">Kitap</string>
   <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Bölüm Başlangıcı</string>
   <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Ayet Başlangıcı</string>
+  <string name="chapter_end">Bölüm Sonu</string>
+  <string name="verse_end">Ayet Sonu</string>
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
   <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="custom_icon">Özel Simge</string>
   <string name="chooser_range">Menzil</string>
   <string name="chooser_jump">Atla</string>
   <string name="chooser_OT_abbrev">EA</string>
@@ -940,6 +953,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="strongs_off">Kapalı</string>
   <string name="strongs_links">Bağlantılar</string>
   <string name="strongs_text_and_links">Metin ve Bağlantılar</string>
+  <string name="strongs_hidden_links">Gizli Bağlantılar</string>
   <string name="verse_tip">Kısmi veya çok sayıda ayet seçmek için İncil metnine uzun basabilirsiniz.</string>
   <string name="permission_required">İzin gerekli</string>
   <string name="labels_search_hint">Ara</string>
@@ -1039,6 +1053,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">%s’ye kimlik doğrulama</string>
+  <string name="auth_server_uri">Sunucu URL\'si</string>
   <string name="auth_username">Kullanıcı adı</string>
   <string name="auth_password">Şifre</string>
   <string name="auth_access_token">Erişim belirteci</string>
@@ -1094,5 +1109,13 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="dont_show">
     Bu mesajı bir daha gösterme
   </string>
+  <string name="prefs_bible_view_swipe_mode_title">Sola / sağa kaydırma hareketi için eylem</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Bir sonraki sayfaya / bölüme gitmek için sola / sağa kaydırma hareketi kullanılabilir.&lt;br&gt;</string>
   <string name="prefs_swipe_mode_chapter">Bölüm</string>
+  <string name="prefs_swipe_mode_page">Sayfa</string>
+  <string name="prefs_swipe_mode_none">Devre dışı</string>
+  <string name="page_number_title">Bağıl sayfa numarası</string>
+  <string name="page_number_summary">Sayfa numarası kaplamasını göster. Sayfa numarası başlangıç konumuna göredir.</string>
+  <string name="memorize_description">Kutsal Kitap ayetlerini ezberleyin</string>
+  <string name="memorize_abbreviation">Ezberleyin</string>
 </resources>

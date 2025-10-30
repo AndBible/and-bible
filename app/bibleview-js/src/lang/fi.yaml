@@ -60,10 +60,12 @@ verseCompare: Vertaa
 verseMemorize: Opettele
 verseNote: Muistiinpano
 verseMyNotes: Omat merkinnät
+verseParagraphBreak: ""
 verseShareLong: Jaa tämä jae
 verseCompareLong: Vertaa jaetta
 verseMemorizeLong: Opettele Raamatun jakeita
 verseNoteLong: Kirjoita muistiinpano
+verseParagraphBreakLong: ""
 addBookmark: Kirjanmerkki
 selectCustomIconTitle: Valitse oma kuvake
 bookmarkSettingsTitle: ""
