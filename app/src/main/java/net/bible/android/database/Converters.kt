@@ -260,4 +260,19 @@ class Converters {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
+
+    @TypeConverter
+    fun strToMapIdTypeInt(s: String?): MutableMap<IdType, Int> {
+        if(s == null) return mutableMapOf()
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing $s", e)
+            mutableMapOf()
+        }
+    }
+
+    @TypeConverter
+    fun mapIdTypeIntToStr(obj: Map<IdType, Int>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
 }

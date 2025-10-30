@@ -26,6 +26,10 @@
         <FontAwesomeIcon icon="plus-circle"/>
       </span>
     </div>
+    <div v-if="showCursor && cursorPosition === 0" class="studypad-cursor" @click="moveCursorTo(0)">
+      <div class="cursor-line"></div>
+      <span class="cursor-icon">▼</span>
+    </div>
     <draggable
         v-model="journalEntries"
         handle=".drag-handle"
@@ -33,7 +37,7 @@
         ghost-class="drag-ghost"
         chosen-class="drag-chosen"
     >
-      <template #item="{element: j}">
+      <template #item="{element: j, index}">
         <div
             :id="`o-${j.hashCode}`"
             :data-ordinal="studyPadOrdinal(j)"
@@ -47,6 +51,10 @@
                 :label="document.label"
                 @add="adding=true"
             />
+          </div>
+          <div v-if="showCursor && cursorPosition === index + 1" class="studypad-cursor" @click="moveCursorTo(index + 1)">
+            <div class="cursor-line"></div>
+            <span class="cursor-icon">▼</span>
           </div>
         </div>
       </template>
@@ -247,6 +255,24 @@ function studyPadOrdinal(journalEntry: StudyPadItem) {
     return journalEntry.hashCode
 }
 
+// Cursor position for auto-assign studypads
+const cursorPosition = computed(() => {
+    return appSettings.studyPadCursors?.[label.id] ?? journalEntries.value.length;
+});
+
+const isAutoAssignLabel = computed(() => {
+    // Check if this studypad is in the auto-assign list
+    return appSettings.autoAssignLabels?.includes(label.id) ?? false;
+});
+
+const showCursor = computed(() => {
+    return isAutoAssignLabel.value && !exportMode.value;
+});
+
+function moveCursorTo(orderNumber: number) {
+    android.setStudyPadCursor(label.id, orderNumber);
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -287,6 +313,39 @@ div.journal-name {
   text-indent: 5pt;
   margin-bottom: 2pt;
   font-style: italic;
+}
+
+.studypad-cursor {
+  position: relative;
+  height: 0;
+  margin: 5px 0;
+  cursor: pointer;
+  user-select: none;
+
+  .cursor-line {
+    height: 2px;
+    background-color: var(--accent-color, #4CAF50);
+    position: relative;
+    margin: 0 10px;
+  }
+
+  .cursor-icon {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    color: var(--accent-color, #4CAF50);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  &:hover .cursor-line {
+    height: 3px;
+    background-color: var(--accent-color-hover, #45a049);
+  }
+
+  &:hover .cursor-icon {
+    color: var(--accent-color-hover, #45a049);
+  }
 }
 
 </style>

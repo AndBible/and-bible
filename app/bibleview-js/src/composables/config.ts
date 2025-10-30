@@ -100,6 +100,7 @@ export type AppSettings = {
     errorBox: boolean,
     favouriteLabels: IdType[],
     recentLabels: IdType[],
+    studyPadCursors: Record<IdType, number>,
     frequentLabels: IdType[],
     hideCompareDocuments: string[],
     rightToLeft: boolean,

@@ -1372,6 +1372,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun getUpdateConfigCommand(initial: Boolean): String {
         val favouriteLabels = json.encodeToString(serializer(), bookmarkControl.favouriteLabels.map {it.id})
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
+        val studyPadCursors = json.encodeToString(serializer(), workspaceSettings.studyPadCursors)
         val hideCompareDocuments = json.encodeToString(serializer(), workspaceSettings.hideCompareDocuments)
         val limitAmbiguousModalSize = json.encodeToString(serializer(), workspaceSettings.limitAmbiguousModalSize)
         val disableBibleModalButtons = json.encodeToString(serializer(),
@@ -1389,11 +1390,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     appSettings: {
                         activeWindow: $isActive,
                         isBottomWindow: $isBottomWindow,
-                        hasActiveIndicator: $hasActiveIndicator, 
-                        nightMode: $nightMode, 
-                        errorBox: $showErrorBox, 
-                        favouriteLabels: $favouriteLabels, 
-                        recentLabels: $recentLabels, 
+                        hasActiveIndicator: $hasActiveIndicator,
+                        nightMode: $nightMode,
+                        errorBox: $showErrorBox,
+                        favouriteLabels: $favouriteLabels,
+                        recentLabels: $recentLabels,
+                        studyPadCursors: $studyPadCursors,
                         hideCompareDocuments: $hideCompareDocuments,
                         limitAmbiguousModalSize: $limitAmbiguousModalSize,
                         windowId: '${window.displayId}',

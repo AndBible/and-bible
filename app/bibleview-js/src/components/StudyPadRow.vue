@@ -45,6 +45,10 @@
           <FontAwesomeIcon :icon="bookmarkEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
         </div>
 
+        <div v-if="isAutoAssignLabel" class="journal-button" @click="moveCursorHere" title="Move cursor here">
+          <FontAwesomeIcon icon="arrow-down"/>
+        </div>
+
         <div class="journal-button" @click="deleteEntry">
           <FontAwesomeIcon icon="trash"/>
         </div>
@@ -111,10 +115,14 @@ const textEntry = computed(() => props.journalEntry as StudyPadTextItem)
 
 const android = inject(androidKey)!;
 const areYouSureDelete = ref<InstanceType<typeof AreYouSure> | null>(null);
-const {strings, sprintf} = useCommon();
+const {strings, sprintf, appSettings} = useCommon();
 const editor = ref<InstanceType<typeof EditableText> | null>(null);
 
 const exportMode = inject(exportModeKey, ref(false));
+
+const isAutoAssignLabel = computed(() => {
+    return appSettings.autoAssignLabels?.includes(props.label.id) ?? false;
+});
 
 const editMode = computed<boolean>({
     get() {
@@ -188,6 +196,10 @@ function indent(change: number) {
 
 function changeExpanded(newValue: boolean) {
     android.updateStudyPadEntry(props.journalEntry, {expandContent: newValue})
+}
+
+function moveCursorHere() {
+    android.setStudyPadCursor(props.label.id, props.journalEntry.orderNumber);
 }
 
 const bibleUrl = computed(

@@ -56,6 +56,7 @@ import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.DatabaseContainer
@@ -167,19 +168,46 @@ open class BookmarkControl @Inject constructor(
 
             dao.deleteLabelsFromBookmark(bookmark, toBeDeleted.map {it})
 
+            val workspaceSettings = windowControl.windowRepository?.workspaceSettings
             when(bookmark) {
                 is BibleBookmarkWithNotes -> {
-                    val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map {
-                        BibleBookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it))
+                    val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
+                        val cursor = workspaceSettings?.studyPadCursors?.get(labelId)
+                        val orderNumber = cursor ?: dao.countStudyPadEntities(labelId)
+
+                        // Update cursor position if it exists
+                        if (cursor != null && workspaceSettings != null) {
+                            workspaceSettings.studyPadCursors[labelId] = cursor + 1
+                        }
+
+                        BibleBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
                     dao.insertBookmarkToLabels(addBookmarkToLabels)
+                    // Sanitize order to handle insertions at cursor position
+                    toBeAdded.forEach { labelId -> sanitizeStudyPadOrder(labelId) }
                 }
                 is GenericBookmarkWithNotes -> {
-                    val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map {
-                        GenericBookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it))
+                    val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
+                        val cursor = workspaceSettings?.studyPadCursors?.get(labelId)
+                        val orderNumber = cursor ?: dao.countStudyPadEntities(labelId)
+
+                        // Update cursor position if it exists
+                        if (cursor != null && workspaceSettings != null) {
+                            workspaceSettings.studyPadCursors[labelId] = cursor + 1
+                        }
+
+                        GenericBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
                     dao.insertGenericBookmarkToLabels(addBookmarkToLabels)
+                    // Sanitize order to handle insertions at cursor position
+                    toBeAdded.forEach { labelId -> sanitizeStudyPadOrder(labelId) }
                 }
+            }
+
+            // Save updated workspace settings if cursor was modified
+            if (workspaceSettings != null && toBeAdded.any { workspaceSettings.studyPadCursors.containsKey(it) }) {
+                windowControl.windowRepository?.saveIntoDb()
+                ABEventBus.post(AppSettingsUpdated())
             }
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()

@@ -344,6 +344,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var recentLabels: MutableList<RecentLabel> = mutableListOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: IdType? = null,
+        @ColumnInfo(defaultValue = "NULL") var studyPadCursors: MutableMap<IdType, Int> = mutableMapOf(),
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
