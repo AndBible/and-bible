@@ -45,8 +45,8 @@
           <FontAwesomeIcon :icon="bookmarkEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
         </div>
 
-        <div v-if="isAutoAssignLabel" class="journal-button" @click="moveCursorHere" title="Move cursor here">
-          <FontAwesomeIcon icon="arrow-down"/>
+        <div v-if="isAutoAssignLabel" class="journal-button" @click="moveCursorHere">
+          <FontAwesomeIcon :icon="faArrowDown"/>
         </div>
 
         <div class="journal-button" @click="deleteEntry">
@@ -102,6 +102,7 @@ import {
     StudyPadTextItem
 } from "@/types/client-objects";
 import {AreYouSureButton} from "@/types/common";
+import {faArrowDown} from "@fortawesome/free-solid-svg-icons";
 
 const emit = defineEmits(['edit-opened', 'add'])
 const props = defineProps<{
@@ -199,7 +200,8 @@ function changeExpanded(newValue: boolean) {
 }
 
 function moveCursorHere() {
-    android.setStudyPadCursor(props.label.id, props.journalEntry.orderNumber);
+    // Move cursor after this item (orderNumber + 1)
+    android.setStudyPadCursor(props.label.id, props.journalEntry.orderNumber + 1);
 }
 
 const bibleUrl = computed(

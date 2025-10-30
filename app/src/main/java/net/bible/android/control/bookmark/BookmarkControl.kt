@@ -175,6 +175,11 @@ open class BookmarkControl @Inject constructor(
                         val cursor = workspaceSettings?.studyPadCursors?.get(labelId)
                         val orderNumber = cursor ?: dao.countStudyPadEntities(labelId)
 
+                        // If inserting at cursor position, increment orderNumbers of items at/after cursor
+                        if (cursor != null) {
+                            incrementOrderNumbersFrom(labelId, cursor)
+                        }
+
                         // Update cursor position if it exists
                         if (cursor != null && workspaceSettings != null) {
                             workspaceSettings.studyPadCursors[labelId] = cursor + 1
@@ -183,13 +188,19 @@ open class BookmarkControl @Inject constructor(
                         BibleBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
                     dao.insertBookmarkToLabels(addBookmarkToLabels)
-                    // Sanitize order to handle insertions at cursor position
-                    toBeAdded.forEach { labelId -> sanitizeStudyPadOrder(labelId) }
+                    // Update UI with new order
+                    toBeAdded.filter { workspaceSettings?.studyPadCursors?.containsKey(it) == true }
+                        .forEach { labelId -> sanitizeStudyPadOrder(labelId, updateAllInUi = true) }
                 }
                 is GenericBookmarkWithNotes -> {
                     val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
                         val cursor = workspaceSettings?.studyPadCursors?.get(labelId)
                         val orderNumber = cursor ?: dao.countStudyPadEntities(labelId)
+
+                        // If inserting at cursor position, increment orderNumbers of items at/after cursor
+                        if (cursor != null) {
+                            incrementOrderNumbersFrom(labelId, cursor)
+                        }
 
                         // Update cursor position if it exists
                         if (cursor != null && workspaceSettings != null) {
@@ -199,8 +210,9 @@ open class BookmarkControl @Inject constructor(
                         GenericBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
                     dao.insertGenericBookmarkToLabels(addBookmarkToLabels)
-                    // Sanitize order to handle insertions at cursor position
-                    toBeAdded.forEach { labelId -> sanitizeStudyPadOrder(labelId) }
+                    // Update UI with new order
+                    toBeAdded.filter { workspaceSettings?.studyPadCursors?.containsKey(it) == true }
+                        .forEach { labelId -> sanitizeStudyPadOrder(labelId, updateAllInUi = true) }
                 }
             }
 
@@ -736,6 +748,17 @@ open class BookmarkControl @Inject constructor(
         for (it in labelsForBookmark(bookmark)) {
             sanitizeStudyPadOrder(it.id)
         }
+    }
+
+    private fun incrementOrderNumbersFrom(labelId: IdType, fromOrder: Int) {
+        // Increment orderNumbers of all items at or after fromOrder
+        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
+        val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
+        val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
+
+        dao.updateBibleBookmarkToLabels(bookmarkToLabels)
+        dao.updateGenericBookmarkToLabels(genericBookmarkToLabels)
+        updateStudyPadTextEntries(studyPadTextEntries)
     }
 
     fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) {
