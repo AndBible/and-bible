@@ -1061,7 +1061,7 @@ object CommonUtils : CommonUtilsBase() {
                         )
                     } catch (e: android.content.ActivityNotFoundException) {
                         Log.e(TAG, "No activity found to handle link: $link", e)
-                        ABEventBus.post(ToastEvent(application.getString(R.string.error_occurred_with_link, link)))
+                        ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
                     }
                 }
             }
@@ -1072,7 +1072,7 @@ object CommonUtils : CommonUtilsBase() {
                 )
             } catch (e: android.content.ActivityNotFoundException) {
                 Log.e(TAG, "No activity found to handle link: $link", e)
-                ABEventBus.post(ToastEvent(application.getString(R.string.error_occurred_with_link, link)))
+                ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
             }
         }
     }
