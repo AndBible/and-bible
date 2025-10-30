@@ -514,6 +514,105 @@ Final line"""
         assertThat(result.errors, equalTo(2))
         assertThat(result.errorMessages.size, equalTo(2))
     }
+
+    @Test
+    fun testOrdinalRoundTripWithDifferentVersifications(): Unit = runBlocking {
+        // This test reproduces the bug where ordinals from document-specific versification
+        // are incorrectly interpreted as KJVA ordinals during import
+        
+        // Given - Create a bookmark with a specific verse in KJVA versification
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Acts.8.14-Acts.8.17")
+        
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = "Test bookmark for Acts 8:14-17"
+            new = true
+        }
+
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        
+        // Record the original KJVA ordinals and verse reference
+        val originalKjvOrdinalStart = savedBookmark.kjvOrdinalStart
+        val originalKjvOrdinalEnd = savedBookmark.kjvOrdinalEnd
+        val originalOsisRef = savedBookmark.verseRange.osisRef
+        
+        // When - Export and then reimport
+        val outputStream = ByteArrayOutputStream()
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Verify CSV contains KJVA ordinals (not document-specific ones)
+        assertTrue("CSV should contain kjvOrdinalStart", csvContent.contains(originalKjvOrdinalStart.toString()))
+        assertTrue("CSV should contain kjvOrdinalEnd", csvContent.contains(originalKjvOrdinalEnd.toString()))
+        
+        // Clean up for reimport
+        bookmarkControl.deleteBookmark(savedBookmark)
+        
+        // Import the CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+        
+        // Then - The bookmark should maintain the same verse reference
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Bookmark should be reimported", importedBookmark)
+        
+        // The key assertion: KJVA ordinals should match after round-trip
+        assertEquals("KJVA ordinal start should be preserved", originalKjvOrdinalStart, importedBookmark?.kjvOrdinalStart)
+        assertEquals("KJVA ordinal end should be preserved", originalKjvOrdinalEnd, importedBookmark?.kjvOrdinalEnd)
+        assertEquals("OSIS reference should be preserved", originalOsisRef, importedBookmark?.verseRange?.osisRef)
+        assertEquals("Notes should be preserved", "Test bookmark for Acts 8:14-17", importedBookmark?.notes)
+    }
+    
+    @Test
+    fun testOrdinalExportUsesKjvaOrdinals(): Unit = runBlocking {
+        // This test ensures that exported ordinals are always KJVA ordinals,
+        // not document-specific ordinals, even when bookmark has different v11n
+        
+        // Given - Create bookmark with Acts reference
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.1")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = "Test for ordinal export"
+            new = true
+        }
+        
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        
+        // When - Export to CSV
+        val outputStream = ByteArrayOutputStream()
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Then - CSV should contain KJVA ordinals
+        val lines = csvContent.split("\n")
+        val headerLine = lines[0]
+        val dataLine = lines[1]
+        
+        val headers = headerLine.split(";")
+        val values = dataLine.split(";")
+        val headerMap = headers.withIndex().associate { it.value to it.index }
+        
+        val ordinalStartIndex = headerMap["ordinalStart"]!!
+        val ordinalEndIndex = headerMap["ordinalEnd"]!!
+        
+        val exportedOrdinalStart = values[ordinalStartIndex].toInt()
+        val exportedOrdinalEnd = values[ordinalEndIndex].toInt()
+        
+        // The exported ordinals should be KJVA ordinals
+        assertEquals("Exported ordinalStart should be KJVA ordinal", savedBookmark.kjvOrdinalStart, exportedOrdinalStart)
+        assertEquals("Exported ordinalEnd should be KJVA ordinal", savedBookmark.kjvOrdinalEnd, exportedOrdinalEnd)
+    }
     
     // === MINIMAL CSV TESTS - Different essential field combinations ===
 
