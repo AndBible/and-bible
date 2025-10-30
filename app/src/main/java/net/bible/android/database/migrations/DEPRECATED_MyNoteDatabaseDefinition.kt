@@ -87,7 +87,6 @@ private constructor() {
 
     fun upgradeToVersion3(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading MyNote db to version 3")
-        // Ensure the mynote table exists before attempting to alter it
         if (!tableExists(db, Table.MYNOTE)) {
             Log.w(TAG, "MyNote table doesn't exist, creating it")
             onCreate(db)
@@ -97,8 +96,6 @@ private constructor() {
     }
 
     private fun tableExists(db: SupportSQLiteDatabase, tableName: String): Boolean {
-        // Validate table name to prevent SQL injection (tableName should only be internal constants)
-        require(tableName.matches(Regex("^[a-zA-Z_][a-zA-Z0-9_]*$"))) { "Invalid table name: $tableName" }
         val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf(tableName))
         val exists = cursor.count > 0
         cursor.close()

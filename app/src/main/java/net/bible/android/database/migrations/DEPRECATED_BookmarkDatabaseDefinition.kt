@@ -78,7 +78,6 @@ class DEPRECATED_BookmarkDatabaseDefinition {
 
     fun upgradeToVersion5(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading Bookmark db to version 5")
-        // Ensure the bookmark table exists before attempting to alter it
         if (!tableExists(db, Table.BOOKMARK)) {
             Log.w(TAG, "Bookmark table doesn't exist, creating it")
             onCreate(db)
@@ -89,7 +88,6 @@ class DEPRECATED_BookmarkDatabaseDefinition {
 
     fun upgradeToVersion4(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading Bookmark db to version 4")
-        // Ensure the label table exists before attempting to alter it
         if (!tableExists(db, Table.LABEL)) {
             Log.w(TAG, "Label table doesn't exist, creating all bookmark tables")
             onCreate(db)
@@ -100,7 +98,6 @@ class DEPRECATED_BookmarkDatabaseDefinition {
 
     fun upgradeToVersion3(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading Bookmark db to version 3")
-        // Ensure the bookmark table exists before attempting to alter it
         if (!tableExists(db, Table.BOOKMARK)) {
             Log.w(TAG, "Bookmark table doesn't exist, creating it")
             onCreate(db)
@@ -111,8 +108,6 @@ class DEPRECATED_BookmarkDatabaseDefinition {
     }
 
     private fun tableExists(db: SupportSQLiteDatabase, tableName: String): Boolean {
-        // Validate table name to prevent SQL injection (tableName should only be internal constants)
-        require(tableName.matches(Regex("^[a-zA-Z_][a-zA-Z0-9_]*$"))) { "Invalid table name: $tableName" }
         val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf(tableName))
         val exists = cursor.count > 0
         cursor.close()
