@@ -10,9 +10,9 @@ Lisätään studypadeihin "kursori", joka määrittää mihin kohtaan uudet kirj
 2. **Liikkuminen**: Kun kirjanmerkki lisätään, kursori siirtyy yhden paikan alas (jatkaa samasta kohdasta)
 3. **Konteksti**: Kursorin sijainti on workspace-kohtainen (eri workspacet voivat käyttää eri kursoreita)
 4. **Käyttöliittymä**:
-   - Mobiilikäyttäjä: Valikosta "Siirrä kursori tähän"
-   - Hiiri-käyttäjä: Kursoria voi raahata drag & drop -toiminnolla
-   - Kursori ei vie paljoa tilaa eikä vaikuta sivun renderöintiin
+   - Valikosta "Move cursor here" -painike jokaisessa itemissä
+   - Kursori on klikattava → klikkaus siirtää kursorin klikkauskohteen
+   - Kursori ei vie paljoa tilaa eikä vaikuta sivun renderöintiin (CSS: `height: 0`)
 
 ## Tekninen toteutus
 
@@ -22,7 +22,18 @@ Lisätään studypadeihin "kursori", joka määrittää mihin kohtaan uudet kirj
 
 Lisätään `AppSettings`-tyyppiin:
 ```typescript
-studyPadCursors: Record<IdType, number>  // labelId → orderNumber
+studyPadCursors: Record<IdType, number>,  // labelId → orderNumber
+autoAssignLabels: IdType[],  // lista auto-assign studypadeista
+```
+
+Lisätään default-arvot:
+```typescript
+const appSettings: AppSettings = reactive({
+    // ...
+    studyPadCursors: {},
+    autoAssignLabels: [],
+    // ...
+})
 ```
 
 ### 2. Backend: Tietorakenteet
@@ -39,27 +50,43 @@ var studyPadCursors: MutableMap<IdType, Int> = mutableMapOf()
 Päivitetään `getUpdateConfigCommand()` (~rivi 1372) sisällyttämään:
 ```kotlin
 val studyPadCursors = json.encodeToString(serializer(), workspaceSettings.studyPadCursors)
-// appSettings-objektissa: studyPadCursors: $studyPadCursors
+val autoAssignLabels = json.encodeToString(serializer(), workspaceSettings.autoAssignLabels.toList())
+// appSettings-objektissa:
+// studyPadCursors: $studyPadCursors,
+// autoAssignLabels: $autoAssignLabels,
 ```
 
 ### 3. Backend: Kirjanmerkin lisäyslogiikka
 
 **Tiedosto**: `app/src/main/java/net/bible/android/control/bookmark/BookmarkControl.kt`
 
-Muutetaan `addOrUpdateBookmark()` (~rivit 170-183):
+Muutetaan `addOrUpdateBookmark()` (~rivit 170-217):
 - Haetaan kursori: `workspaceSettings.studyPadCursors[labelId]`
 - Jos kursori löytyy:
-  - `orderNumber = cursor`
-  - Kasvatetaan myöhempien itemien orderNumbers
-  - Päivitetään kursori: `cursor + 1`
-- Jos ei: `orderNumber = dao.countStudyPadEntities(labelId)` (nykyinen toiminta)
-- Päivitetään workspace-tietokantaan
-- Lähetetään `AppSettingsUpdated` event
+  1. **Ensin** kasvatetaan kaikkien >= cursor orderNumberien arvoja: `incrementOrderNumbersFrom(labelId, cursor)`
+  2. Lisätään uusi bookmark orderNumberilla `cursor`
+  3. Päivitetään kursori: `cursor + 1`
+  4. Päivitetään UI: `sanitizeStudyPadOrder(labelId, updateAllInUi = true)`
+- Jos ei: `orderNumber = dao.countStudyPadEntities(labelId)` (lisätään loppuun)
+- Tallennetaan workspace-tietokantaan: `windowRepository.saveIntoDb()`
+- Lähetetään `AppSettingsUpdated` event (synkronoi ikkunat)
 
-Lisätään apufunktiot:
+Lisätään apufunktio:
 ```kotlin
-private fun insertAtCursor(labelId: IdType, cursorPos: Int)
-private fun incrementOrderNumbersFrom(labelId: IdType, fromOrder: Int)
+private fun incrementOrderNumbersFrom(labelId: IdType, fromOrder: Int) {
+    // Kasvatetaan kaikkien itemien (bookmarks + text entries) orderNumber++
+    // joilla orderNumber >= fromOrder
+    val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId)
+        .filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
+    val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId)
+        .filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
+    val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId)
+        .filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
+
+    dao.updateBibleBookmarkToLabels(bookmarkToLabels)
+    dao.updateGenericBookmarkToLabels(genericBookmarkToLabels)
+    updateStudyPadTextEntries(studyPadTextEntries)
+}
 ```
 
 ### 4. Backend: TypeConverter
@@ -102,39 +129,96 @@ fun setStudyPadCursor(labelId: String, orderNumber: Int) {
 }
 ```
 
-### 5. Frontend: Visualisointi
+### 7. Frontend: TypeScript-rajapinta
+
+**Tiedosto**: `app/bibleview-js/src/composables/android.ts`
+
+Lisätään `BibleJavascriptInterface`-tyyppiin:
+```typescript
+setStudyPadCursor: (labelId: IdType, orderNumber: number) => void,
+```
+
+Lisätään `useAndroid`-funktio ja `exposed`-objekti:
+```typescript
+function setStudyPadCursor(labelId: IdType, orderNumber: number) {
+    window.android.setStudyPadCursor(labelId, orderNumber);
+}
+
+const exposed = {
+    // ...
+    setStudyPadCursor,
+    // ...
+}
+```
+
+### 8. Frontend: Visualisointi
 
 **Tiedosto**: `app/bibleview-js/src/components/documents/StudyPadDocument.vue`
 
-- Lisää computed property kursorin sijaintiin:
-  ```typescript
-  const cursorPosition = computed(() =>
-    appSettings.studyPadCursors[label.id] ?? journalEntries.value.length
-  )
-  ```
-- Renderöi ohut viiva/ikoni itemien väliin cursor-position kohdalla
-- CSS: `position: absolute` tai vastaava, ei vaikuta layouttiin
-- Näytä vain jos `appSettings.autoAssignLabels.includes(label.id)`
+Lisätään computed propertyt:
+```typescript
+const cursorPosition = computed(() =>
+    appSettings.studyPadCursors?.[label.id] ?? journalEntries.value.length
+)
 
-**Kursorin drag & drop**:
-- Lisää draggable-elementti kursorille
-- Raahattaessa kutsuu: `android.setStudyPadCursor(labelId, newOrder)`
+const isAutoAssignLabel = computed(() =>
+    appSettings.autoAssignLabels?.includes(label.id) ?? false
+)
 
-### 6. Frontend: Valikko
+const showCursor = computed(() =>
+    isAutoAssignLabel.value && !exportMode.value
+)
+
+function moveCursorTo(orderNumber: number) {
+    android.setStudyPadCursor(label.id, orderNumber);
+}
+```
+
+Renderöinti:
+- Ohut vihreä viiva + ▼-ikoni itemien välissä
+- CSS: `position: relative; height: 0` - ei vaikuta layouttiin
+- Näytetään kahdessa paikassa:
+  1. Ennen ensimmäistä itemä jos `cursorPosition === 0`
+  2. Jokaisen itemin jälkeen jos `cursorPosition === index + 1`
+- Klikattava → kutsuu `moveCursorTo(orderNumber)`
+
+### 9. Frontend: Valikko
 
 **Tiedosto**: `app/bibleview-js/src/components/StudyPadRow.vue`
 
-Lisää itemin valikkoon:
-- "Siirrä kursori tähän" / "Move cursor here"
-- Kutsuu: `android.setStudyPadCursor(label.id, item.orderNumber)`
+Lisätään itemin valikkoon:
+```typescript
+const isAutoAssignLabel = computed(() =>
+    appSettings.autoAssignLabels?.includes(props.label.id) ?? false
+)
 
-### 7. Edge caset
+function moveCursorHere() {
+    // Move cursor after this item (orderNumber + 1)
+    android.setStudyPadCursor(props.label.id, props.journalEntry.orderNumber + 1);
+}
+```
 
-- **Kursori > items.length**: Näytä lopussa
-- **Item poistetaan kursorin kohdalta**: Kursori pysyy samassa orderNumberissa
-- **Label poistetaan auto-assign-listalta**: Kursori säilyy datassa, ei vain näy
-- **Studypad avataan ensimmäistä kertaa**: Ei kursoria → kirjanmerkit menevät loppuun
+HTML:
+```vue
+<div v-if="isAutoAssignLabel" class="journal-button" @click="moveCursorHere">
+  <FontAwesomeIcon :icon="faArrowDown"/>
+</div>
+```
+
+**Huom**: Kursori asetetaan `orderNumber + 1`:een, jolloin se menee itemin **jälkeen**, ei päälle.
+
+### 10. Edge caset
+
+- **Kursori > items.length**: Näytetään studypadin lopussa (fallback)
+- **Item poistetaan kursorin kohdalta**: Kursori pysyy samassa orderNumberissa (seuraava item tulee sen paikalle)
+- **Label poistetaan auto-assign-listalta**: Kursori säilyy datassa, mutta ei näy (ei poisteta)
+- **Studypad avataan ensimmäistä kertaa**: Ei kursoria → kirjanmerkit menevät loppuun (normaali toiminta)
 - **Drag & drop siirtää itemejä**: Kursori pysyy samassa orderNumberissa (ei liiku automaattisesti)
+- **Uusi item lisätään kursorin kohtaan**:
+  1. Ensin kasvatetaan myöhempien itemien orderNumberit
+  2. Uusi item saa kursorin orderNumberin
+  3. Kursori siirtyy yhden eteenpäin
+  4. UI päivittyy `sanitizeStudyPadOrder` + `StudyPadOrderEvent`
 
 ## Edut AppSettings-lähestymistavasta
 
@@ -146,15 +230,42 @@ Lisää itemin valikkoon:
 
 ## Toteutusjärjestys
 
-1. ✅ Backend: `WorkspaceSettings.studyPadCursors`
-2. ✅ Backend: Päivitä `getUpdateConfigCommand()`
-3. ✅ TypeScript: Päivitä `AppSettings` type
-4. ✅ Backend: Lisää TypeConverter Map<IdType, Int>:lle
-5. ✅ Backend: Tietokantamigraatio 6→7
-6. ✅ Backend: Muuta kirjanmerkin lisäys käyttämään kursoreita
-7. ✅ Bridge: `setStudyPadCursor()`
-8. ✅ Frontend: Kursorin visualisointi
-9. ✅ Frontend: Valikko-toiminto
+1. ✅ Backend: `WorkspaceSettings.studyPadCursors` (WorkspaceEntities.kt:347)
+2. ✅ Backend: TypeConverter Map<IdType, Int>:lle (Converters.kt:264-278)
+3. ✅ Backend: Tietokantamigraatio 6→7 (WorkspacesMigrations.kt:41-54)
+4. ✅ Backend: Päivitä `getUpdateConfigCommand()` + `autoAssignLabels` (BibleView.kt:1372-1410)
+5. ✅ Backend: Lisää `incrementOrderNumbersFrom()` (BookmarkControl.kt:747-756)
+6. ✅ Backend: Muuta `addOrUpdateBookmark()` käyttämään kursoreita (BookmarkControl.kt:170-217)
+7. ✅ Bridge: `setStudyPadCursor()` (BibleJavascriptInterface.kt:327-336)
+8. ✅ TypeScript: Päivitä `AppSettings` type + default-arvot (config.ts:95-192)
+9. ✅ TypeScript: Lisää `BibleJavascriptInterface.setStudyPadCursor` (android.ts:64, 449-451, 564)
+10. ✅ Frontend: Kursorin visualisointi (StudyPadDocument.vue:29-58, 250-274, 318-349)
+11. ✅ Frontend: Valikko-toiminto (StudyPadRow.vue:48-50, 105, 119-121, 201-204)
+12. ✅ Backend: Käännöksen testaus
+13. ✅ Frontend: TypeScript type-check
+
+## Tärkeimmät korjaukset toteutuksessa
+
+### Korjaus 1: Kursorin sijainti valikossa
+**Ongelma**: "Move cursor here" asetti kursorin itemin päälle (orderNumber), ei sen jälkeen.
+**Ratkaisu**: Muutettu `moveCursorHere()` asettamaan `orderNumber + 1`, jolloin kursori menee itemin jälkeen.
+
+### Korjaus 2: Insertin järjestys
+**Ongelma**: Kun kaksi itemä sai saman orderNumberin, `sanitizeStudyPadOrder` järjesti ne epädeterministisesti.
+**Ratkaisu**: Lisätty `incrementOrderNumbersFrom()` joka kasvattaa myöhempien itemien orderNumberit **ennen** uuden itemin insertiä.
+
+### Korjaus 3: autoAssignLabels puuttui frontendistä
+**Ongelma**: Frontend ei tiennyt mitkä studypadit ovat auto-assign, joten kursoria ei voitu näyttää oikein.
+**Ratkaisu**: Lisätty `autoAssignLabels` AppSettings-tyyppiin ja backendiin.
+
+## Testausohjeita
+
+1. **Aseta studypad auto-assigniksi**: Valitse studypad kirjanmerkkien automaattiseen lisäykseen
+2. **Tarkista kursorin näkyvyys**: Vihreä viiva + ▼ pitäisi näkyä studypadin lopussa
+3. **Lisää kirjanmerkki**: Uusi kirjanmerkki menee kursorin kohtaan, kursori siirtyy alas
+4. **Siirrä kursoria**: Klikkaa "Move cursor here" -painiketta itemin valikossa → kursori menee itemin jälkeen
+5. **Testaa synkronointia**: Avaa sama studypad toisessa ikkunassa → kursori näkyy samassa kohdassa
+6. **Testaa useampaa studypadia**: Aseta useampi studypad auto-assigniksi → jokaisella oma kursorinsa
 
 ## Huomioita
 
@@ -163,3 +274,4 @@ Lisää itemin valikkoon:
   - Päivitys on kevyt (vain Map<IdType, Int>)
   - AppSettings-mekanismi on jo käytössä tälle tyyppiseen synkronointiin
   - Ei aiheuta käyttäjälle havaittavaa viivettä tai rasitusta
+- Kursori säilyy workspace-kohtaisena, joten eri workspacet voivat käyttää eri kursoripositioita samaan studypadiin
