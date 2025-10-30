@@ -87,7 +87,20 @@ private constructor() {
 
     fun upgradeToVersion3(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading MyNote db to version 3")
+        // Ensure the mynote table exists before attempting to alter it
+        if (!tableExists(db, Table.MYNOTE)) {
+            Log.w(TAG, "MyNote table doesn't exist, creating it")
+            onCreate(db)
+            return // onCreate already creates the table with all columns including versification
+        }
         db.execSQL("ALTER TABLE " + Table.MYNOTE + " ADD COLUMN " + MyNoteColumn.VERSIFICATION + " TEXT;")
+    }
+
+    private fun tableExists(db: SupportSQLiteDatabase, tableName: String): Boolean {
+        val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='$tableName'")
+        val exists = cursor.count > 0
+        cursor.close()
+        return exists
     }
 
     companion object {
