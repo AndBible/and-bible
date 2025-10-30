@@ -327,7 +327,7 @@ object BookmarkCsvUtils {
             // Parse labels
             val labels = getValueOrNull(values, headerMap, HEADER_LABELS)?.let { labelsStr ->
                 if (labelsStr.isNotEmpty()) {
-                    labelsStr.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                    labelsStr.split(";").map { it.trim() }.filter { it.isNotEmpty() }
                 } else {
                     emptyList()
                 }
