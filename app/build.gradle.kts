@@ -40,6 +40,8 @@ val discreteFlavorName = "discrete"
 val applicationIdStandard = "net.bible.android.activity"
 // An alternative applicationId, to be used for the "discrete" flavor.
 val applicationIdDiscrete = "com.app.calculator"
+// An alternative applicationId, to be used for the "accrescent" flavor.
+val applicationIdAccrescent = "org.andbible.andbible"
 
 // The flavor dimension for the app's distribution channel
 val dimDistributionChannelName = "distchannel"
@@ -333,6 +335,16 @@ androidComponents {
     onVariants(discreteSelector) { variant ->
         val originalAppId = variant.applicationId.get()
         val alternateAppId = originalAppId.replace(applicationIdStandard, applicationIdDiscrete)
+        variant.applicationId.set(alternateAppId)
+        println("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
+    }
+    val accrescentSelector = selector().withFlavor(dimDistributionChannelName to "accrescent")
+    // Set the applicationId for Accrescent variant.
+    // Replace only the "standard" prefix, in order to preserve any
+    // suffixes that are contributed by the build types or product flavors.
+    onVariants(accrescentSelector) { variant ->
+        val originalAppId = variant.applicationId.get()
+        val alternateAppId = originalAppId.replace(applicationIdStandard, applicationIdAccrescent)
         variant.applicationId.set(alternateAppId)
         println("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
     }
