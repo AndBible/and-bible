@@ -61,6 +61,7 @@ export type BibleJavascriptInterface = {
     removeBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
     removeGenericBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
     updateOrderNumber: (labelId: IdType, data: JSONString) => void,
+    setStudyPadCursor: (labelId: IdType, orderNumber: number) => void,
     getActiveLanguages: () => string,
     toast: (text: string) => void,
     updateStudyPadTextEntry: (data: JSONString) => void,
@@ -445,6 +446,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         );
     }
 
+    function setStudyPadCursor(labelId: IdType, orderNumber: number) {
+        window.android.setStudyPadCursor(labelId, orderNumber);
+    }
+
     function toast(text: string) {
         window.android.toast(text);
     }
@@ -556,6 +561,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         deleteStudyPadEntry,
         removeBookmarkLabel,
         updateOrderNumber,
+        setStudyPadCursor,
         updateStudyPadEntry,
         getActiveLanguages,
         toast,

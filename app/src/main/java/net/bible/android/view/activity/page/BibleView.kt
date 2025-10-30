@@ -1373,6 +1373,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val favouriteLabels = json.encodeToString(serializer(), bookmarkControl.favouriteLabels.map {it.id})
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val studyPadCursors = json.encodeToString(serializer(), workspaceSettings.studyPadCursors)
+        val autoAssignLabels = json.encodeToString(serializer(), workspaceSettings.autoAssignLabels.toList())
         val hideCompareDocuments = json.encodeToString(serializer(), workspaceSettings.hideCompareDocuments)
         val limitAmbiguousModalSize = json.encodeToString(serializer(), workspaceSettings.limitAmbiguousModalSize)
         val disableBibleModalButtons = json.encodeToString(serializer(),
@@ -1396,6 +1397,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         favouriteLabels: $favouriteLabels,
                         recentLabels: $recentLabels,
                         studyPadCursors: $studyPadCursors,
+                        autoAssignLabels: $autoAssignLabels,
                         hideCompareDocuments: $hideCompareDocuments,
                         limitAmbiguousModalSize: $limitAmbiguousModalSize,
                         windowId: '${window.displayId}',
