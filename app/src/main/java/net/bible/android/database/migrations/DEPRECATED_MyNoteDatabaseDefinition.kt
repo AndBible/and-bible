@@ -97,6 +97,8 @@ private constructor() {
     }
 
     private fun tableExists(db: SupportSQLiteDatabase, tableName: String): Boolean {
+        // Validate table name to prevent SQL injection (tableName should only be internal constants)
+        require(tableName.matches(Regex("^[a-zA-Z_][a-zA-Z0-9_]*$"))) { "Invalid table name: $tableName" }
         val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='$tableName'")
         val exists = cursor.count > 0
         cursor.close()
