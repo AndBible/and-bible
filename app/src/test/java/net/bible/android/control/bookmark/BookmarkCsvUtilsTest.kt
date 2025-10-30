@@ -2012,4 +2012,80 @@ newlines
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Complex HTML with CSV edge cases should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
+
+    @Test
+    fun testImportBookmarksWithMultipleLabels(): Unit = runBlocking {
+        // Given - This reproduces the bug: export uses semicolon but import expects comma
+        // Create a bookmark with two labels "LabelA" and "LabelB"
+        val testVerseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.1")
+        val bookmark = BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = testVerseRange,
+            textRange = null,
+            wholeVerse = true,
+            book = null
+        ).apply {
+            notes = "Test bookmark with multiple labels"
+            new = true
+        }
+
+        val labelA = BookmarkEntities.Label(
+            name = "LabelA",
+            color = defaultLabelColor
+        ).apply { new = true }
+        
+        val labelB = BookmarkEntities.Label(
+            name = "LabelB",
+            color = defaultLabelColor
+        ).apply { new = true }
+
+        bookmarkControl.insertOrUpdateLabel(labelA)
+        bookmarkControl.insertOrUpdateLabel(labelB)
+        
+        val savedBookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+        bookmarkControl.setLabelsForBookmark(savedBookmark, listOf(labelA, labelB))
+
+        // When - Export and then reimport
+        val outputStream = ByteArrayOutputStream()
+        BookmarkCsvUtils.exportBookmarksToCsv(outputStream, listOf(savedBookmark), bookmarkControl)
+        val csvContent = outputStream.toString("UTF-8")
+        
+        // Verify CSV contains semicolon-separated labels
+        assertTrue("CSV should contain LabelA", csvContent.contains("LabelA"))
+        assertTrue("CSV should contain LabelB", csvContent.contains("LabelB"))
+        
+        // Clean up for reimport
+        bookmarkControl.deleteBookmark(savedBookmark)
+        bookmarkControl.deleteLabel(labelA)
+        bookmarkControl.deleteLabel(labelB)
+        
+        // Import the CSV
+        val inputStream = ByteArrayInputStream(csvContent.toByteArray(Charsets.UTF_8))
+        val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, bookmarkControl)
+
+        // Then - The bookmark should have both labels, not a single "LabelA;LabelB" label
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+        
+        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        assertNotNull("Bookmark should be reimported", importedBookmark)
+        
+        val importedLabels = bookmarkControl.labelsForBookmark(importedBookmark!!)
+        
+        // This should be 2 labels, not 1
+        assertEquals("Should have 2 labels", 2, importedLabels.size)
+        
+        val labelNames = importedLabels.map { it.name }.sorted()
+        assertTrue("Should have LabelA", labelNames.contains("LabelA"))
+        assertTrue("Should have LabelB", labelNames.contains("LabelB"))
+        
+        // Verify the labels are stored correctly in the database
+        val allLabels = bookmarkControl.allLabels.filter { !it.isSpecialLabel }
+        val labelAExists = allLabels.any { it.name == "LabelA" }
+        val labelBExists = allLabels.any { it.name == "LabelB" }
+        val combinedLabelExists = allLabels.any { it.name == "LabelA;LabelB" }
+        
+        assertTrue("LabelA should exist as separate label", labelAExists)
+        assertTrue("LabelB should exist as separate label", labelBExists)
+        assertFalse("Combined 'LabelA;LabelB' label should NOT exist", combinedLabelExists)
+    }
 }
