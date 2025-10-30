@@ -739,6 +739,7 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="format_mysword">Ficheiros MySword (*. mybible)</string>
   <string name="format_mybible">Ficheiros MyBible (*.SQLite3)</string>
   <string name="format_epub">Ficheiros EPUB (*.epub)</string>
+  <string name="format_ttf">Fontes TTF (*.ttf)</string>
   <string name="format_studypads">Áreas de Estudo da base de dados AndBible (*.abdb)</string>
   <string name="redownload_message">
 Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
@@ -770,7 +771,9 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="try_again_passphrase">A Palavra passe não foi reconhecida, tentar de novo?</string>
   <string name="show_unlock_info">Informação de módulo e de desbloqueamento</string>
   <string name="prefs_experimental_features_title">Recursos experimentais</string>
-  <string name="prefs_experimental_features_summary">Ativar funcionalidades experimentais que ainda estão em desenvolvimento e podem ser alteradas ou removidas</string>
+  <string name="prefs_experimental_features_summary">Selecione quais funcionalidades experimentais deseja ativar. Estas funcionalidades ainda estão em desenvolvimento e podem ser alteradas ou removidas</string>
+  <string name="experimental_feature_bookmark_edit_actions">Ações de edição de marcadores</string>
+  <string name="experimental_feature_add_paragraph_break">Adicionar marcador de quebra de parágrafo</string>
   <string name="prefs_show_error_box_title">Mostrar a caixa de erro Javascript</string>
   <string name="prefs_show_error_box_summary">Útil para programadores ao depurar erros secundários de BibleView javascript. Isso tornará o aplicação mais lenta.</string>
   <string name="active_window_indicator_title">Mostrar indicador de janela ativa</string>

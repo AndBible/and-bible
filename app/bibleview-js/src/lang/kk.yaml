@@ -61,10 +61,12 @@ verseCompare: Салыстыр
 verseMemorize: ""
 verseNote: Ескерту
 verseMyNotes: Менің Ескертпелерім
+verseParagraphBreak: ""
 verseShareLong: Осы аятпен бөлісу
 verseCompareLong: Аятты салыстыру
 verseMemorizeLong: ""
 verseNoteLong: Жазба жазу
+verseParagraphBreakLong: ""
 addBookmark: Бетбелгі
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

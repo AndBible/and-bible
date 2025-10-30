@@ -60,10 +60,12 @@ verseCompare: השוואה
 verseMemorize: שינון
 verseNote: הערה
 verseMyNotes: הערות אישיות
+verseParagraphBreak: ""
 verseShareLong: שתף פסוק זה
 verseCompareLong: השוואת פסוק
 verseMemorizeLong: שינון פסוקים
 verseNoteLong: כתיבת הערה
+verseParagraphBreakLong: ""
 addBookmark: סימניה
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

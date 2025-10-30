@@ -720,6 +720,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="format_mysword">Documenti MySword (*.mybible)</string>
   <string name="format_mybible">Documenti MyBible (*.SQLite3)</string>
   <string name="format_epub">Documenti EPUB (*.epub)</string>
+  <string name="format_ttf">Caratteri TTF (*.ttf)</string>
   <string name="format_studypads">Appunti di studio da database AndBible (*.abdb)</string>
   <string name="redownload_message">
         E\' stato trovato un elenco di libri/documenti precedenti. Tocca qui sotto per riscaricarli facilmente.
@@ -752,7 +753,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="try_again_passphrase">La password non ha funzionato, vuoi riprovare?</string>
   <string name="show_unlock_info">Info su modulo e sblocco</string>
   <string name="prefs_experimental_features_title">Funzionalità sperimentali</string>
-  <string name="prefs_experimental_features_summary">Abilita le funzionalità sperimentali che sono ancora in fase di sviluppo e potrebbero subire modifiche o essere rimosse</string>
+  <string name="prefs_experimental_features_summary">Scegli quali funzionalità sperimentali abilitare. Queste funzionalità sono ancora in fase di sviluppo e potrebbero subire modifiche o essere rimosse</string>
+  <string name="experimental_feature_bookmark_edit_actions">Azioni di modifica segnalibri</string>
+  <string name="experimental_feature_add_paragraph_break">Aggiungi segnalibro interruzione di paragrafo</string>
   <string name="prefs_show_error_box_title">Mostra finestra errori Javascript</string>
   <string name="prefs_show_error_box_summary">Utile agli sviluppatori per trovare gli errori javascript in BibleView. Questo rallenterà l\'app.</string>
   <string name="active_window_indicator_title">Mostra indicatore di finestra attiva</string>

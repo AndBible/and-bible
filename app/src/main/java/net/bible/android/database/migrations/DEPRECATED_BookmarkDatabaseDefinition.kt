@@ -78,18 +78,40 @@ class DEPRECATED_BookmarkDatabaseDefinition {
 
     fun upgradeToVersion5(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading Bookmark db to version 5")
+        if (!tableExists(db, Table.BOOKMARK)) {
+            Log.w(TAG, "Bookmark table doesn't exist, creating it")
+            onCreate(db)
+            return // onCreate already creates the table with all columns up to version 5
+        }
         db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.PLAYBACK_SETTINGS + " TEXT DEFAULT null;")
     }
 
     fun upgradeToVersion4(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading Bookmark db to version 4")
+        if (!tableExists(db, Table.LABEL)) {
+            Log.w(TAG, "Label table doesn't exist, creating all bookmark tables")
+            onCreate(db)
+            return // onCreate already creates the table with all columns up to version 5
+        }
         db.execSQL("ALTER TABLE " + Table.LABEL + " ADD COLUMN " + LabelColumn.BOOKMARK_STYLE + " TEXT;")
     }
 
     fun upgradeToVersion3(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading Bookmark db to version 3")
+        if (!tableExists(db, Table.BOOKMARK)) {
+            Log.w(TAG, "Bookmark table doesn't exist, creating it")
+            onCreate(db)
+            return // onCreate already creates the table with all columns up to version 5
+        }
         db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.VERSIFICATION + " TEXT;")
         db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0;")
+    }
+
+    private fun tableExists(db: SupportSQLiteDatabase, tableName: String): Boolean {
+        val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf(tableName))
+        val exists = cursor.count > 0
+        cursor.close()
+        return exists
     }
 
     private fun bootstrapDB(db: SupportSQLiteDatabase) {

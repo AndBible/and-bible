@@ -12,7 +12,7 @@
   <string name="chooseBook">Document</string>
   <string name="selectPassage">Passage</string>
   <string name="search">Rechercher</string>
-  <string name="settings">Paramètres de l’application</string>
+  <string name="settings">Préférences de l’application</string>
   <string name="history">Historique</string>
   <string name="speak">Lecture audio</string>
   <string name="help">Aide</string>
@@ -746,6 +746,7 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="format_mysword">Documents MySword (*.mybible)</string>
   <string name="format_mybible">Documents MyBible (*.SQLite3)</string>
   <string name="format_epub">Documents EPUB (*.epub)</string>
+  <string name="format_ttf">Polices TTF (*.ttf)</string>
   <string name="format_studypads">Bloc-notes des bases de données Andbible (*.abdb)</string>
   <string name="redownload_message">
         Une liste de livres/documents précédents a été trouvée. Cliquez ci-dessous pour les télécharger à nouveau facilement.
@@ -778,7 +779,9 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="try_again_passphrase">La phrase de passe n’a pas fonctionné, essayez à nouveau ?</string>
   <string name="show_unlock_info">Module et info de déverrouillage</string>
   <string name="prefs_experimental_features_title">Fonctionnalités expérimentales</string>
-  <string name="prefs_experimental_features_summary">Activer les fonctionnalités expérimentales qui sont toujours en développement et peut encore être modifier ou supprimer.</string>
+  <string name="prefs_experimental_features_summary">Sélectionner quelle fonctionnalités expérimentales à activer. Ces fonctionnalités sont toujours en développement et peuvent être modifiées ou supprimés.</string>
+  <string name="experimental_feature_bookmark_edit_actions">Actions d’édition des signets</string>
+  <string name="experimental_feature_add_paragraph_break">Ajouter un signet de retour à la ligne</string>
   <string name="prefs_show_error_box_title">Afficher la boîte d’erreur Javascript</string>
   <string name="prefs_show_error_box_summary">Utile pour les développeurs lors du débogage des erreurs javascript de BibleView. Cela rendra l’application plus lente.</string>
   <string name="active_window_indicator_title">Afficher l’indicateur de la fenêtre active</string>

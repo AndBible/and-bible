@@ -144,8 +144,8 @@ object BookmarkCsvUtils {
                         HEADER_CHAPTER_END to end.chapter.toString(),
                         HEADER_VERSE_END to end.verse.toString(),
                         HEADER_ID to bookmark.id.toString(),
-                        HEADER_ORDINAL_START to bookmark.ordinalStart.toString(),
-                        HEADER_ORDINAL_END to bookmark.ordinalEnd.toString(),
+                        HEADER_ORDINAL_START to bookmark.kjvOrdinalStart.toString(),
+                        HEADER_ORDINAL_END to bookmark.kjvOrdinalEnd.toString(),
                         HEADER_CREATED_AT to bookmark.createdAt.let { ISO_DATE_FORMAT.format(it) },
                         HEADER_LAST_UPDATED to bookmark.lastUpdatedOn.let { ISO_DATE_FORMAT.format(it) },
                         HEADER_START_OFFSET to (bookmark.startOffset?.toString() ?: ""),
@@ -327,7 +327,7 @@ object BookmarkCsvUtils {
             // Parse labels
             val labels = getValueOrNull(values, headerMap, HEADER_LABELS)?.let { labelsStr ->
                 if (labelsStr.isNotEmpty()) {
-                    labelsStr.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                    labelsStr.split(";").map { it.trim() }.filter { it.isNotEmpty() }
                 } else {
                     emptyList()
                 }

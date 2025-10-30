@@ -60,10 +60,12 @@ verseCompare: ஒப்பிடுக
 verseMemorize: ""
 verseNote: குறிப்பு
 verseMyNotes: என் குறிப்புகள்
+verseParagraphBreak: ""
 verseShareLong: இந்த வசனத்தை பகிர
 verseCompareLong: வசனத்தை ஒப்பிட
 verseMemorizeLong: ""
 verseNoteLong: குறிப்பு எழுதுக
+verseParagraphBreakLong: ""
 addBookmark: புக்மார்க்
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

@@ -60,10 +60,12 @@ verseCompare: Kompari
 verseMemorize: Parkerigi
 verseNote: Noto
 verseMyNotes: Notoj
+verseParagraphBreak: Alineo
 verseShareLong: Kunhavigi verson
 verseCompareLong: Kompari verson
 verseMemorizeLong: Parkerigi bibliajn versojn
 verseNoteLong: Skribi noton
+verseParagraphBreakLong: Aldoni novan linion
 addBookmark: Legosigno
 selectCustomIconTitle: Elekti propran emblemon de markilo
 bookmarkSettingsTitle: Alĝustigi legosignon

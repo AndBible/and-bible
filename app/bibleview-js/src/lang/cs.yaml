@@ -60,10 +60,12 @@ verseCompare: Porovnat
 verseMemorize: ""
 verseNote: Poznámka
 verseMyNotes: Poznámky
+verseParagraphBreak: ""
 verseShareLong: Sdílet verš
 verseCompareLong: Porovnat verš
 verseMemorizeLong: ""
 verseNoteLong: Napsat poznámku
+verseParagraphBreakLong: ""
 addBookmark: Záložka
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

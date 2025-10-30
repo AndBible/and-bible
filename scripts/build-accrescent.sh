@@ -70,6 +70,14 @@ echo -e "${GREEN}Building APK set for variant: ${VARIANT}${NC}"
 echo "Task: $GRADLE_TASK"
 echo ""
 
+# Clean up any existing apks file from previous builds
+SOURCE_APKS="app/build/outputs/apkset/${VARIANT}/app-${VARIANT}.apks"
+if [ -f "$SOURCE_APKS" ]; then
+    echo "Removing existing APK set file: $SOURCE_APKS"
+    rm -f "$SOURCE_APKS"
+fi
+echo ""
+
 # Run Gradle build
 if ./gradlew "$GRADLE_TASK" --no-daemon; then
     echo ""

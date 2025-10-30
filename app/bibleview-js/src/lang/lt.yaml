@@ -60,10 +60,12 @@ verseCompare: Lyginti
 verseMemorize: Išmokti mintinai
 verseNote: Pastaba
 verseMyNotes: Mano pastabos
+verseParagraphBreak: ""
 verseShareLong: Bendrinti šią eilutę
 verseCompareLong: Lyginti eilutę
 verseMemorizeLong: Išmokti mintinai Biblijos eilutes
 verseNoteLong: Rašyti pastabą
+verseParagraphBreakLong: ""
 addBookmark: Pridėti žymę
 selectCustomIconTitle: Pasirinkti tinkintą žymeklio piktogramą
 bookmarkSettingsTitle: ""

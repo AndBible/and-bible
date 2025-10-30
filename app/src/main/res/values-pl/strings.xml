@@ -704,6 +704,7 @@ Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym g�
   <string name="format_mysword">dokumenty MySword (*.mybible)</string>
   <string name="format_mybible">dokumenty MyBible (*.SQLite3)</string>
   <string name="format_epub">dokumenty EPUB (*.epub)</string>
+  <string name="format_ttf">kroje pisma TTF (*.ttf)</string>
   <string name="format_studypads">bloczki notatek z baz danych AndBible (*.abdb)</string>
   <string name="redownload_message">
 Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby pobrać je ponownie.</string>
@@ -735,7 +736,9 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="try_again_passphrase">Błędne hasło, czy spróbować ponownie?</string>
   <string name="show_unlock_info">O szyfrowanym module</string>
   <string name="prefs_experimental_features_title">Funkcje eksperymentalne</string>
-  <string name="prefs_experimental_features_summary">Aktywuje funkcje, które są w dalszym ciągu opracowywane i mogą ulec zmianom lub zostać usunięte</string>
+  <string name="prefs_experimental_features_summary">Wybierz funkcje eksperymentalne do aktywacji. Te funkcje są w dalszym ciągu opracowywane i mogą zostać zmienione lub usunięte.</string>
+  <string name="experimental_feature_bookmark_edit_actions">Edycja akcji zakładki</string>
+  <string name="experimental_feature_add_paragraph_break">Dodanie zakładki w formie nowej linii</string>
   <string name="prefs_show_error_box_title">Wyświetl konsolę błędów JavaScript</string>
   <string name="prefs_show_error_box_summary">Przydatne dla programistów do naprawy błędów JavaScript komponentu BibleView. Spowoduje spowolnienie aplikacji.</string>
   <string name="active_window_indicator_title">Wyświetl znacznik aktywnego okna</string>

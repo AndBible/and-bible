@@ -60,10 +60,12 @@ verseCompare: 比较
 verseMemorize: ""
 verseNote: 笔记
 verseMyNotes: 笔记列表
+verseParagraphBreak: ""
 verseShareLong: 分享此节
 verseCompareLong: 比较经文
 verseMemorizeLong: ""
 verseNoteLong: 增加笔记
+verseParagraphBreakLong: ""
 addBookmark: 书签
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

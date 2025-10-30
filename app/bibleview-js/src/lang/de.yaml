@@ -57,15 +57,17 @@ openDownloads: Zu Add-on Download gehen
 verseShare: Teilen
 verseSpeak: Vorlesen
 verseCompare: Vergleiche
-verseMemorize: ""
+verseMemorize: Auswendig lernen
 verseNote: Notiz
 verseMyNotes: Eigene Notizen
+verseParagraphBreak: ""
 verseShareLong: Diesen Vers teilen
 verseCompareLong: Vers vergleichen
-verseMemorizeLong: ""
+verseMemorizeLong: Bibelverse auswendig lernen
 verseNoteLong: Eine Notiz schreiben
+verseParagraphBreakLong: Absatzumbruch
 addBookmark: Lesezeichen
-selectCustomIconTitle: ""
+selectCustomIconTitle: Benutzerdefiniertes Markierungssymbol auswählen
 bookmarkSettingsTitle: ""
 subtitlePlaceholder: ""
 customIconLabel: ""

@@ -352,6 +352,7 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="add_bookmark_whole_verse">Lesezeichen f. Vers</string>
   <string name="add_bookmark_whole_verse1">Verse</string>
   <string name="add_bookmark_whole_verse2">Ganzen Vers als Lesezeichen speichern</string>
+  <string name="add_paragraph_break">Absatzumbruch</string>
   <string name="remove_bookmark">Entfernen</string>
   <string name="bookmark_settings_hide_labels_title">Bestimmte Kategorien verbergen</string>
   <string name="bookmark_settings_hide_labels_summary">Lesezeichen aus gekennzeichenten Kategorien verbergen</string>
@@ -647,6 +648,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="workspace_listing_with_current">%s (aktuell)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Das ist eine Beta-Version!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 In Beta-Versionen gibt es Funktionen, die noch nicht ausreichend getestet wurden.
 Daher können Beta-Versionen unerwartetes Verhalten aufweisen, wie z.B. Fehler.
@@ -718,6 +720,7 @@ Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster an
   <string name="format_mysword">MySword Dokumente (*.mybible)</string>
   <string name="format_mybible">MyBible Dokumente (*.sqlite3)</string>
   <string name="format_epub">EPUB Dokumente (*.epub)</string>
+  <string name="format_ttf">TTF fonts (*.ttf)</string>
   <string name="format_studypads">Studienmappen aus Bibel+ Datenbanken (*.abdb)</string>
   <string name="redownload_message">
 Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um sie auf einmal wieder herunterzuladen.</string>
@@ -748,6 +751,10 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="unlock_info">Information zum Entschlüsseln des Moduls</string>
   <string name="try_again_passphrase">Passwort fehlerhaft, neu probieren?</string>
   <string name="show_unlock_info">Informationen zum Modul &amp; zum Entschlüsseln</string>
+  <string name="prefs_experimental_features_title">Experimentelle Funktionen</string>
+  <string name="prefs_experimental_features_summary">Wählen Sie aus, welche experimentellen Funktionen aktiviert werden sollen. Diese Funktionen befinden sich noch in der Entwicklung und können sich ändern oder entfernt werden.</string>
+  <string name="experimental_feature_bookmark_edit_actions">Aktionen zum Editieren von Lesezeichen</string>
+  <string name="experimental_feature_add_paragraph_break">Absatzumbruch-Lesezeichen hinzufügen</string>
   <string name="prefs_show_error_box_title">Javascript Fehlerbox anzeigen</string>
   <string name="prefs_show_error_box_summary">Nützlich für Entwickler um BibleView Javascript Fehler zu korrigieren. Das wird die App verlangsamen.</string>
   <string name="active_window_indicator_title">Den Anzeige für das aktive Fenster einblenden</string>
@@ -755,6 +762,9 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="app_licence_title">Open Source License</string>
   <string name="how_to_contribute">Wie man beitragen kann</string>
   <string name="confirm_delete_bookmarks">Möchtest du %dLesezeichen und die dazugehörigen Notizen entfernen?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Das ausgewählte Stichwort ist mit %d Lesezeichen verknüpft, die keine anderen Kennzeichnung haben. Möchten Sie diese Lesezeichen zusammen mit den Stichwörtern löschen?</string>
+  <string name="delete_label_and_bookmarks">Stichwort und Lesezeichen löschen</string>
+  <string name="delete_label_only">Nur Stichwort löschen</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Einem Freund empfehlen</string>
   <string name="tell_friend_message1">Ich möchte dir %sempfehlen.</string>
@@ -779,6 +789,7 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="show_version_name">Versionsname inkludieren</string>
   <string name="show_ellipsis">Show ellipsis (…)</string>
   <string name="show_quotes">Zitate anzeigen</string>
+  <string name="separate_verses_with_newlines">Verse durch Zeilenumbruch separieren</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Zurück</string>
   <string name="upgrading_database">Datenbank wird erneuert. Bitte warten...</string>
@@ -855,19 +866,43 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="label_underline">Unterstreichung</string>
   <string name="import_menu">Import &amp; Export</string>
   <string name="export">Export</string>
+  <string name="csv_export_success">%dLesezeichen nach CSV exportiert</string>
+  <string name="csv_import_success">Import abgeschlossen: %d erzeugt, %d aktualisiert</string>
+  <string name="csv_import_errors">Import mit Fehlern abgeschlossen: %d erzeugt, %d aktualisiert, %d Fehler</string>
+  <string name="csv_import_failed">CSV-Import fehlgeschlagen: %s</string>
+  <string name="csv_export_failed">CSV-Export fehlgeschlagen: %s</string>
+  <string name="csv_column_selection_title">CSV-Spalten auswählen</string>
+  <string name="choose_csv_file">Wähle die CSV-Datei für den Import aus</string>
+  <string name="no_bookmarks_to_export">Keine Lesezeichen für den Export verfügbar</string>
   <string name="export_fileformat">Exportiere als %s</string>
   <string name="export_something">Export %s</string>
   <string name="import_items">Importiere %s</string>
   <string name="import_from_db">Importiere von der Datenbankdatei der Applikation</string>
   <string name="import_error">Das Importieren von der Datenbankdatei ist fehlgeschlagen. Evtl war die Datei im falschen Format oder wurde mit einer zu alten Version von %s erstellt.</string>
+  <string name="export_bookmarks_csv">Exportiere Lesezeichen als %s</string>
   <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">OSIS-Referenz</string>
   <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Bibelstelle</string>
   <string name="document">Dokument</string>
   <string name="book">Buch</string>
   <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Kapitelanfang</string>
   <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Versanfang</string>
+  <string name="chapter_end">Kapitelende</string>
+  <string name="verse_end">Versende</string>
+  <string name="id">Identifier</string>
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="ordinal_start">Indexanfang</string>
+  <string name="ordinal_end">Indexende</string>
+  <string name="created_at">Erstellt:</string>
   <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset">Start-Offset</string>
+  <string name="end_offset">End-Offset</string>
+  <string name="custom_icon">Benutzerdefiniertes Icon</string>
+  <string name="last_updated_at">Zuletzt aktualisiert:</string>
+  <string name="bookmark_notes">Lesezeichen-Notizen</string>
   <string name="chooser_range">Bereich</string>
   <string name="chooser_jump">Gehe zu</string>
   <string name="chooser_OT_abbrev">AT</string>
@@ -978,6 +1013,7 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Authentifizierung für %s</string>
+  <string name="auth_server_uri">Serveradresse</string>
   <string name="auth_username">Benutzer</string>
   <string name="auth_password">Passwort</string>
   <string name="auth_access_token">Access token</string>
@@ -1036,4 +1072,10 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="prefs_swipe_mode_chapter">Kapitel</string>
   <string name="prefs_swipe_mode_page">Seite</string>
   <string name="prefs_swipe_mode_none">Deaktiviert</string>
+  <string name="page_number_title">Relative Seitennummer</string>
+  <string name="page_number_summary">Seitenzahl-Overlay anzeigen. Die Seitenzahl bezieht sich auf die Startposition.</string>
+  <string name="select_custom_icon">Benutzerdefiniertes Markierungssymbol auswählen</string>
+  <string name="invalid_url_message">Die von Ihnen eingegebene URL ist ungültig. Bitte geben Sie eine gültige URL ein (z. B. https://nextcloud.example.com).</string>
+  <string name="memorize_description">Bibelverse auswendig lernen</string>
+  <string name="memorize_abbreviation">Auswendig lernen</string>
 </resources>

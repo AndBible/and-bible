@@ -57,13 +57,15 @@ openDownloads: Eklenti indirmelerine git
 verseShare: Paylaş
 verseSpeak: Sesli Oku
 verseCompare: Karşılaştır
-verseMemorize: ""
+verseMemorize: Ezberleyin<br>
 verseNote: Not
 verseMyNotes: Notlarım
+verseParagraphBreak: ""
 verseShareLong: Bu ayeti paylaş
 verseCompareLong: Ayet karşılaştırması
-verseMemorizeLong: ""
+verseMemorizeLong: Kutsal Kitap ayetlerini ezberleyin<br>
 verseNoteLong: Bir not yazın
+verseParagraphBreakLong: Paragraf sonu
 addBookmark: Yer imi
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

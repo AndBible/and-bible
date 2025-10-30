@@ -60,10 +60,12 @@ verseCompare: Comparar
 verseMemorize: ""
 verseNote: Nota
 verseMyNotes: Minhas notas
+verseParagraphBreak: ""
 verseShareLong: Compartilhar este versículo
 verseCompareLong: Comparar versículo
 verseMemorizeLong: ""
 verseNoteLong: Escrever uma nota
+verseParagraphBreakLong: ""
 addBookmark: Marcador
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

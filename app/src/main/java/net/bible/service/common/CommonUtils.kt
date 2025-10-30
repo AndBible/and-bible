@@ -1055,15 +1055,25 @@ object CommonUtils : CommonUtilsBase() {
                         title = net.bible.android.view.activity.page.application.getString(R.string.external_link),
                     )
                 ) {
-                    activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
-                        ActivityBase.STD_REQUEST_CODE
-                    )
+                    try {
+                        activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
+                            ActivityBase.STD_REQUEST_CODE
+                        )
+                    } catch (e: android.content.ActivityNotFoundException) {
+                        Log.e(TAG, "No activity found to handle link: $link", e)
+                        ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
+                    }
                 }
             }
         } else {
-            activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
-                ActivityBase.STD_REQUEST_CODE
-            )
+            try {
+                activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
+                    ActivityBase.STD_REQUEST_CODE
+                )
+            } catch (e: android.content.ActivityNotFoundException) {
+                Log.e(TAG, "No activity found to handle link: $link", e)
+                ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
+            }
         }
     }
 

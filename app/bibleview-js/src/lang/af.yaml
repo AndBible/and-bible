@@ -60,10 +60,12 @@ verseCompare: Vergelyk
 verseMemorize: ""
 verseNote: Nota
 verseMyNotes: My Notas
+verseParagraphBreak: ""
 verseShareLong: Deel hierdie vers
 verseCompareLong: Vergelyk vers
 verseMemorizeLong: ""
 verseNoteLong: Skryf 'n nota
+verseParagraphBreakLong: ""
 addBookmark: Boekmerke
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""

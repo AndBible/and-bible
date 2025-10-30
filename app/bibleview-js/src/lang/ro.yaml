@@ -60,33 +60,35 @@ verseCompare: Compară
 verseMemorize: Memorează
 verseNote: Notiță
 verseMyNotes: Notițele mele
+verseParagraphBreak: Paragraf
 verseShareLong: Trimite acest verset
 verseCompareLong: Compară versetele
 verseMemorizeLong: Memorează versete biblice
 verseNoteLong: Scrie o notiță
+verseParagraphBreakLong: Întrerupere de paragraf
 addBookmark: Semn de carte
 selectCustomIconTitle: Alege simbolul de evidențiere
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
+bookmarkSettingsTitle: Opțiuni pentru Semne de carte
+subtitlePlaceholder: Textul subtitlului
+customIconLabel: Simbol personalizat
+editActionLabel: Modifică
+editActionModeLabel: Mod
+editActionModeNone: Nimic
+editActionModeAppend: Adaugă text la final
+editActionModePrepend: Adaugă text la început
+editActionContentLabel: Conținut
+editActionContentPlaceholder: Introdu textul de adăugat la document...
+experimentalFeatureTitle: Experimental
+experimentalFeatureHelpTitle: Despre caracteristicile experimentale
+experimentalFeatureHelpContent: Caracteristicile experimentale sunt funcții noi care sunt încă în curs de dezvoltare și testare. Este posibil ca acestea să nu funcționeze perfect și să sufere modificări semnificative sau să fie eliminate în versiunile viitoare ale aplicației.
+insertParagraphBreak: Introdu o întrerupere de paragraf
+insertSubtitle: Introdu subtitlul
+xmlParseError: Eroare de procesare XML
+invalidTag: Etichetă greșită
+invalidClosingTag: Etichetă de închidere greșită
+unmatchedClosingTag: Etichetă de închidere fără pereche
+unclosedTag: Etichetă neînchisă
+unknownError: Eroare necunoscută
 blur: Neclar
 reset: Restabilește
 peek: Vezi
