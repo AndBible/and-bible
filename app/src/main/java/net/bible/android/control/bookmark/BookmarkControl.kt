@@ -733,13 +733,15 @@ open class BookmarkControl @Inject constructor(
     private fun incrementOrderNumbersFrom(labelId: IdType, fromOrder: Int, newStudyPadTextEntry: StudyPadTextEntryWithText? = null) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
         val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
-        val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
+        val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId)
+            .filter { it.orderNumber >= fromOrder && it.id != newStudyPadTextEntry?.id }
+            .onEach { it.orderNumber++ }
 
         dao.updateBibleBookmarkToLabels(bookmarkToLabels)
         dao.updateGenericBookmarkToLabels(genericBookmarkToLabels)
         updateStudyPadTextEntries(studyPadTextEntries)
 
-        if (bookmarkToLabels.isNotEmpty() || genericBookmarkToLabels.isNotEmpty() || studyPadTextEntries.isNotEmpty()) {
+        if (newStudyPadTextEntry != null || bookmarkToLabels.isNotEmpty() || genericBookmarkToLabels.isNotEmpty() || studyPadTextEntries.isNotEmpty()) {
             ABEventBus.post(StudyPadOrderEvent(
                 labelId = labelId,
                 newStudyPadTextEntry = newStudyPadTextEntry,
