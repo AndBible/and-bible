@@ -329,7 +329,6 @@ class BibleJavascriptInterface(
         val windowRepository = bookmarkControl.windowControl.windowRepository
         val workspaceSettings = windowRepository.workspaceSettings
         workspaceSettings.studyPadCursors[IdType(labelId)] = orderNumber
-        windowRepository.saveIntoDb()
         ABEventBus.post(AppSettingsUpdated())
     }
 
