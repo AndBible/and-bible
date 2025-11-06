@@ -120,7 +120,6 @@ class ManageLabels : ListActivityBase() {
     private var lastSelectedQuickSearchButton: Button? = null
     private var searchInsideText = false
     private var searchMode = SearchMode.NAME_START
-    private var searchResults: List<BookmarkEntities.StudyPadSearchResult>? = null
 
     private fun loadFilteringSettings() {
         searchInsideText = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
@@ -764,7 +763,6 @@ class ManageLabels : ListActivityBase() {
             lifecycleScope.launch(Dispatchers.IO) {
                 val results = bookmarkControl.searchStudyPadsByContent(searchText)
                 lifecycleScope.launch(Dispatchers.Main) {
-                    searchResults = results
                     shownLabels.clear()
                     shownLabels.addAll(results)
                     notifyDataSetChanged()
@@ -772,14 +770,12 @@ class ManageLabels : ListActivityBase() {
             }
         } else {
             // Less than 3 characters, show all labels
-            searchResults = null
             shownLabels.addAll(allLabels)
             addCategoriesToShownLabels()
         }
     }
 
     private fun performNameSearch() {
-        searchResults = null
         Log.i(TAG, "Parsing filter: $filterRegex")
 
         fun labelMatches(label: BookmarkEntities.Label): Boolean =
