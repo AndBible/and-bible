@@ -42,3 +42,9 @@ data class StudyPadSearchResult(
     val matchCount: Int,                  // Total number of matches in this Study Pad
     val matches: List<ContentMatch>       // List of all matches
 )
+
+data class StudyPadSearchResultTextSnippet(
+    val text: String,
+    val matchStart: Int,
+    val matchEnd: Int
+)

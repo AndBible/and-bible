@@ -379,13 +379,7 @@ open class BookmarkControl @Inject constructor(
         )
     }
 
-    private data class TextSnippet(
-        val text: String,
-        val matchStart: Int,
-        val matchEnd: Int
-    )
-
-    private fun generateTextSnippet(fullText: String, searchText: String, contextChars: Int = 50): TextSnippet {
+    private fun generateTextSnippet(fullText: String, searchText: String, contextChars: Int = 50): StudyPadSearchResultTextSnippet {
         val searchLower = searchText.lowercase()
         val fullTextLower = fullText.lowercase()
         val matchIndex = fullTextLower.indexOf(searchLower)
@@ -393,7 +387,7 @@ open class BookmarkControl @Inject constructor(
         if (matchIndex == -1) {
             // No match found (shouldn't happen), return beginning of text
             val snippet = fullText.take(contextChars * 2)
-            return TextSnippet(snippet, 0, 0)
+            return StudyPadSearchResultTextSnippet(snippet, 0, 0)
         }
 
         // Calculate snippet start and end positions
@@ -413,7 +407,7 @@ open class BookmarkControl @Inject constructor(
 
         snippet = prefix + snippet + suffix
 
-        return TextSnippet(snippet, matchStartInSnippet, matchEndInSnippet)
+        return StudyPadSearchResultTextSnippet(snippet, matchStartInSnippet, matchEndInSnippet)
     }
 
     fun labelsForBookmark(bookmark: BaseBookmarkWithNotes): List<Label> = dao.labelsForBookmark(bookmark)
