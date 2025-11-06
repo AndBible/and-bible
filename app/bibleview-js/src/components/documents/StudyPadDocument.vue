@@ -28,7 +28,6 @@
     </div>
     <div v-if="showCursor && cursorPosition === 0" class="studypad-cursor" @click="moveCursorTo(0)">
       <div class="cursor-line"></div>
-      <span class="cursor-icon">▼</span>
     </div>
     <draggable
         v-model="journalEntries"
@@ -54,7 +53,6 @@
           </div>
           <div v-if="showCursor && cursorPosition === index + 1" class="studypad-cursor" @click="moveCursorTo(index + 1)">
             <div class="cursor-line"></div>
-            <span class="cursor-icon">▼</span>
           </div>
         </div>
       </template>
@@ -327,22 +325,9 @@ div.journal-name {
     margin: 0 10px;
   }
 
-  .cursor-icon {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%) translateY(-8px);
-    color: var(--accent-color, #4CAF50);
-    font-size: 14px;
-    pointer-events: none;
-  }
-
   &:hover .cursor-line {
     height: 3px;
     background-color: var(--accent-color-hover, #45a049);
-  }
-
-  &:hover .cursor-icon {
-    color: var(--accent-color-hover, #45a049);
   }
 }
 
