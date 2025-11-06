@@ -61,6 +61,16 @@
         </div>
       </template>
     </draggable>
+    <div
+        v-if="showCursor"
+        class="studypad-cursor-last"
+        :class="{'has-cursor': showCursor && cursorPosition === journalEntries.length}"
+        @click="moveCursorTo(journalEntries.length)"/>
+    <div
+        v-if="showCursor"
+        class="cursor-click-area"
+        @click="moveCursorTo(journalEntries.length)"
+    ></div>
     <div v-if="journalEntries.length > 0 && !exportMode">
       <span v-if="isStudyPadBookmark(lastEntry) && !lastEntry.hasNote" class="journal-button"
             @click="editLastNote">
@@ -325,6 +335,7 @@ div.journal-name {
   height: 15px;
   cursor: pointer;
   z-index: 10;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .bible-text {
@@ -334,20 +345,27 @@ div.journal-name {
   font-style: italic;
 }
 
-.studypad-cursor {
+.studypad-cursor-last {
   position: relative;
   height: 0;
   margin: 4pt 2pt 2pt;
-  padding: 5pt 0 0 1pt;
+  padding-top: 0;
   cursor: pointer;
-  user-select: none;
-  border-style: dashed;
-  border-color: var(--accent-color, #4CAF50);
-  border-width: 2pt 0 0 0;
 
-  &:hover {
-    border-width: 3pt 0 0 0;
-    border-color: var(--accent-color-hover, #45a049);
+  border-style: dashed;
+  border-color: rgba(0, 0, 0, 0.15);
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  border-width: 1pt 0 0 0;
+
+  &.has-cursor {
+    border-style: solid;
+    border-color: var(--accent-color, #4CAF50);
+
+    &:hover {
+      border-color: var(--accent-color-hover, #45a049);
+    }
   }
 }
 
