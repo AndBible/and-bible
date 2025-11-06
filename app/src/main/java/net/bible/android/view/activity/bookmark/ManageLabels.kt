@@ -37,12 +37,16 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.ContentMatch
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -62,9 +66,9 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.widget.PopupMenu
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
-import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.installzip.InstallZip
@@ -112,14 +116,28 @@ class ManageLabels : ListActivityBase() {
     @Inject lateinit var windowControl: WindowControl
 
     enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS}
+    enum class SearchMode {NAME_START, NAME_CONTAINS, CONTENT}
 
     lateinit var data: ManageLabelsData
 
     private var lastSelectedQuickSearchButton: Button? = null
     private var searchInsideText = false
+    private var searchMode = SearchMode.NAME_START
+    private var currentSearchJob: Job? = null
 
     private fun loadFilteringSettings() {
         searchInsideText = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
+        if (data.mode == Mode.STUDYPAD) {
+            val modeOrdinal = CommonUtils.settings.getInt("labels_list_search_mode", SearchMode.NAME_START.ordinal)
+            searchMode = SearchMode.entries.getOrElse(modeOrdinal) { SearchMode.NAME_START }
+        }
+    }
+
+    private fun saveFilteringSettings() {
+        CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideText)
+        if (data.mode == Mode.STUDYPAD) {
+            CommonUtils.settings.setInt("labels_list_search_mode", searchMode.ordinal)
+        }
     }
 
     fun onEventMainThread(e: BookmarksUpdatedViaSyncEvent) {
@@ -172,12 +190,24 @@ class ManageLabels : ListActivityBase() {
 
     private fun setSearchInsideTextButtonBackground() = binding.run {
         val background = searchInsideTextButton.background as GradientDrawable
-        if (searchInsideText) {
-            searchInsideTextButton.text = getString(R.string.match_any_text)
-            background.setColor(getResourceColor(R.color.blue_200))
+
+        if (data.mode == Mode.STUDYPAD) {
+            val (text, isActive) = when (searchMode) {
+                SearchMode.NAME_START -> getString(R.string.match_start_of_text) to false
+                SearchMode.NAME_CONTAINS -> getString(R.string.match_any_text) to true
+                SearchMode.CONTENT -> getString(R.string.match_content) to true
+            }
+            searchInsideTextButton.text = text
+            background.setColor(getResourceColor(if (isActive) R.color.blue_200 else R.color.transparent))
         } else {
-            searchInsideTextButton.text = getString(R.string.match_start_of_text)
-            background.setColor(getResourceColor(R.color.transparent))
+            // For other modes, use old toggle behavior
+            if (searchInsideText) {
+                searchInsideTextButton.text = getString(R.string.match_any_text)
+                background.setColor(getResourceColor(R.color.blue_200))
+            } else {
+                searchInsideTextButton.text = getString(R.string.match_start_of_text)
+                background.setColor(getResourceColor(R.color.transparent))
+            }
         }
     }
 
@@ -249,14 +279,14 @@ class ManageLabels : ListActivityBase() {
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        loadFilteringSettings()
-
         super.onCreate(savedInstanceState)
         binding = ManageLabelsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         super.buildActivityComponent().inject(this)
 
         data = ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
+
+        loadFilteringSettings()
 
         allLabels.addAll(bookmarkControl.assignableLabels.filter {!it.isUnlabeledLabel})
 
@@ -287,7 +317,7 @@ class ManageLabels : ListActivityBase() {
                 updateLabelList(rePopulate = true)
             }
 
-           editSearchText.addTextChangedListener(object : TextWatcher {
+            editSearchText.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable) {
                     updateLabelList(rePopulate = true)
                     resetSearchButtonProperties()
@@ -298,9 +328,30 @@ class ManageLabels : ListActivityBase() {
 
             setSearchInsideTextButtonBackground()
             searchInsideTextButton.setOnClickListener {
-                searchInsideText = !searchInsideText
-                setSearchInsideTextButtonBackground()
-                updateLabelList(rePopulate = true)
+                if (data.mode == Mode.STUDYPAD) {
+                    // Show popup menu with three search mode options
+                    val popup = PopupMenu(this@ManageLabels, it)
+                    popup.menuInflater.inflate(R.menu.search_mode_menu, popup.menu)
+
+                    popup.setOnMenuItemClickListener { menuItem ->
+                        searchMode = when (menuItem.itemId) {
+                            R.id.search_mode_name_start -> SearchMode.NAME_START
+                            R.id.search_mode_name_contains -> SearchMode.NAME_CONTAINS
+                            R.id.search_mode_content -> SearchMode.CONTENT
+                            else -> searchMode
+                        }
+                        setSearchInsideTextButtonBackground()
+                        saveFilteringSettings()
+                        updateLabelList(rePopulate = true)
+                        true
+                    }
+                    popup.show()
+                } else {
+                    // Old toggle behavior for non-STUDYPAD modes
+                    searchInsideText = !searchInsideText
+                    setSearchInsideTextButtonBackground()
+                    updateLabelList(rePopulate = true)
+                }
             }
             editSearchText.requestFocus()
         }
@@ -435,10 +486,13 @@ class ManageLabels : ListActivityBase() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    private fun studyPadSelected(journal: BookmarkEntities.Label) {
+    private fun studyPadSelected(journal: BookmarkEntities.Label, firstMatch: ContentMatch? = null) {
         Log.i(TAG, "Journal selected:" + journal.name)
         try {
-            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
+            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
+                FakeBookFactory.journalDocument,
+                StudyPadKey(journal, bookmarkId = firstMatch?.entryId)
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show journal", e)
             Dialogs.showErrorMsg(R.string.error_occurred, e)
@@ -568,18 +622,18 @@ class ManageLabels : ListActivityBase() {
     // This is called by the listener, which is created and configured by the list adapter
     // It should only be called when the mode is STUDYPAD.  Nonetheless, I retained the mode check from the previous
     // onListItemClick() method as an additional sanity check.
-    fun selectStudyPadLabel(selected: BookmarkEntities.Label) {
+    fun selectStudyPadLabel(selected: BookmarkEntities.Label, firstMatch: ContentMatch? = null) {
         if (data.mode == Mode.STUDYPAD) {
-            saveAndExit(selected)
+            saveAndExit(selected, firstMatch)
         }
         else {
             Log.e(TAG, "Call to selectStudyPadLabel() is unexpected when mode is not STUDYPAD.  mode=${data.mode}")
         }
     }
 
-    private fun saveAndExit(selected: BookmarkEntities.Label? = null) = lifecycleScope.launch(Dispatchers.Main) {
+    private fun saveAndExit(selected: BookmarkEntities.Label? = null, firstMatch: ContentMatch? = null) = lifecycleScope.launch(Dispatchers.Main) {
         Log.i(TAG, "saveAndExit")
-        CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideText)
+        saveFilteringSettings()
 
         val deleteLabelIds = data.deletedLabels.toList()
         if(deleteLabelIds.isNotEmpty()) {
@@ -624,7 +678,7 @@ class ManageLabels : ListActivityBase() {
         setResult(Activity.RESULT_OK, Intent().apply { putExtra("data", this@ManageLabels.data.toJSON())})
 
         if(selected != null) {
-            studyPadSelected(selected)
+            studyPadSelected(selected, firstMatch)
         }
         finish()
     }
@@ -677,7 +731,16 @@ class ManageLabels : ListActivityBase() {
 
     private val filterRegex: Regex get() {
         val text = Regex.escape(searchText)
-        val regex = if (searchInsideText) text else "^$text"
+        // For STUDYPAD mode, use searchMode; for other modes, use searchInsideText
+        val regex = if (data.mode == Mode.STUDYPAD) {
+            when (searchMode) {
+                SearchMode.NAME_START -> "^$text"
+                SearchMode.NAME_CONTAINS -> text
+                SearchMode.CONTENT -> "" // Not used for regex filtering
+            }
+        } else {
+            if (searchInsideText) text else "^$text"
+        }
         return try {
             regex.toRegex(RegexOption.IGNORE_CASE)
         } catch (e: PatternSyntaxException) {
@@ -685,27 +748,94 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
+    private fun addCategoriesToShownLabels() {
+        val labelUnlabeledNotModified = data.changedLabels.find { it == bookmarkControl.labelUnlabelled.id } != null
+        if (data.showUnassigned && !labelUnlabeledNotModified) {
+            shownLabels.add(bookmarkControl.labelUnlabelled)
+        }
+        if(data.showActiveCategory && data.contextSelectedItems.isNotEmpty()) {
+            shownLabels.add(LabelCategory.ACTIVE)
+        }
+        if(!data.hideCategories) {
+            shownLabels.add(LabelCategory.RECENT)
+            shownLabels.add(LabelCategory.OTHER)
+        }
+    }
+
+    private fun performContentSearch() {
+        if (searchText.length >= 3) {
+            // Cancel previous search job to prevent race conditions
+            currentSearchJob?.cancel()
+
+            // Launch new search with debouncing and error handling
+            currentSearchJob = lifecycleScope.launch {
+                try {
+                    // Debounce: wait 300ms before executing search
+                    delay(300)
+
+                    // Perform search on IO dispatcher
+                    val results = withContext(Dispatchers.IO) {
+                        bookmarkControl.searchStudyPadsByContent(searchText)
+                    }
+
+                    // Update UI on Main dispatcher
+                    shownLabels.clear()
+                    shownLabels.addAll(results)
+                    notifyDataSetChanged()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Search failed", e)
+                    // Show all labels on error
+                    shownLabels.clear()
+                    shownLabels.addAll(allLabels)
+                    addCategoriesToShownLabels()
+                    notifyDataSetChanged()
+                }
+            }
+        } else {
+            // Cancel any ongoing search if less than 3 characters
+            currentSearchJob?.cancel()
+            currentSearchJob = null
+
+            // Less than 3 characters, show all labels
+            shownLabels.addAll(allLabels)
+            addCategoriesToShownLabels()
+        }
+    }
+
+    private fun performNameSearch() {
+        Log.i(TAG, "Parsing filter: $filterRegex")
+
+        fun labelMatches(label: BookmarkEntities.Label): Boolean =
+            searchText.isEmpty() ||
+                filterRegex.containsMatchIn(label.displayName) ||
+                data.selectedLabels.contains(label.id)
+
+        shownLabels.addAll(allLabels.filter { labelMatches(it) })
+        val labelUnlabeledNotModified = data.changedLabels.find { it == bookmarkControl.labelUnlabelled.id } != null
+        if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled) && !labelUnlabeledNotModified) {
+            shownLabels.add(bookmarkControl.labelUnlabelled)
+        }
+        if(data.showActiveCategory && data.contextSelectedItems.isNotEmpty()) {
+            shownLabels.add(LabelCategory.ACTIVE)
+        }
+        if(!data.hideCategories) {
+            shownLabels.add(LabelCategory.RECENT)
+            shownLabels.add(LabelCategory.OTHER)
+        }
+    }
+
     fun updateLabelList(rePopulate: Boolean = false, reOrder: Boolean = false) {
         if (rePopulate) {
             shownLabels.clear()
-            Log.i(TAG, "Parsing filter: $filterRegex")
 
-            fun labelMatches(label: BookmarkEntities.Label): Boolean =
-                searchText.isEmpty() ||
-                    filterRegex.containsMatchIn(label.displayName) ||
-                    data.selectedLabels.contains(label.id)
-
-            shownLabels.addAll(allLabels.filter { labelMatches(it) })
-            val labelUnlabeledNotModified = data.changedLabels.find { it == bookmarkControl.labelUnlabelled.id } != null
-            if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled) && !labelUnlabeledNotModified) {
-                shownLabels.add(bookmarkControl.labelUnlabelled)
-            }
-            if(data.showActiveCategory && data.contextSelectedItems.isNotEmpty()) {
-                shownLabels.add(LabelCategory.ACTIVE)
-            }
-            if(!data.hideCategories) {
-                shownLabels.add(LabelCategory.RECENT)
-                shownLabels.add(LabelCategory.OTHER)
+            // Handle content search mode separately
+            if (data.mode == Mode.STUDYPAD && searchMode == SearchMode.CONTENT) {
+                performContentSearch()
+                if (searchText.length >= 3) {
+                    return // Exit early, async operation will update list
+                }
+            } else {
+                performNameSearch()
             }
         }
 

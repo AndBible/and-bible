@@ -56,6 +56,7 @@ import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.DatabaseContainer
@@ -166,26 +167,45 @@ open class BookmarkControl @Inject constructor(
             val toBeAdded = labelIdsInDb.filterNot { existingLabels.contains(it) }
 
             dao.deleteLabelsFromBookmark(bookmark, toBeDeleted.map {it})
-
+            val workspaceSettings = windowControl.windowRepository?.workspaceSettings // for tests "?."
             when(bookmark) {
                 is BibleBookmarkWithNotes -> {
-                    val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map {
-                        BibleBookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it))
+                    val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
+                        val cursor = workspaceSettings?.studyPadCursors[labelId]
+                        val maxOrder = dao.countStudyPadEntities(labelId)
+                        val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
+                        if (cursor != null) {
+                            incrementOrderNumbersFrom(labelId, orderNumber)
+                            workspaceSettings.studyPadCursors[labelId] = orderNumber + 1
+                        }
+                        BibleBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
                     dao.insertBookmarkToLabels(addBookmarkToLabels)
                 }
                 is GenericBookmarkWithNotes -> {
-                    val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map {
-                        GenericBookmarkToLabel(bookmark.id, it, orderNumber = dao.countStudyPadEntities(it))
+                    val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
+                        val cursor = workspaceSettings?.studyPadCursors[labelId]
+                        val maxOrder = dao.countStudyPadEntities(labelId)
+                        val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
+                        if (cursor != null) {
+                            incrementOrderNumbersFrom(labelId, orderNumber)
+                            workspaceSettings.studyPadCursors[labelId] = orderNumber + 1
+                        }
+                        GenericBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
                     dao.insertGenericBookmarkToLabels(addBookmarkToLabels)
                 }
             }
+
+            if (toBeAdded.any { workspaceSettings?.studyPadCursors?.containsKey(it) == true}) {
+                ABEventBus.post(AppSettingsUpdated())
+            }
+
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
                 dao.update(bookmark.bookmarkEntity)
             }
-            windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests ?.
+            windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests "?."
         }
 
         addText(bookmark)
@@ -281,6 +301,113 @@ open class BookmarkControl @Inject constructor(
             addLabels(it)
         }
         return bookmarks
+    }
+
+    /**
+     * Search for study pads that contain the given search text in their text entries or bookmark notes.
+     * Returns a list of StudyPadSearchResult objects, each containing the matching label and list of matches.
+     */
+    fun searchStudyPadsByContent(searchText: String): List<StudyPadSearchResult> {
+        val searchPattern = "%$searchText%"
+        val results = mutableMapOf<IdType, MutableList<ContentMatch>>()
+
+        // Search in study pad text entries
+        val textEntries = dao.searchStudyPadTextEntriesByContent(searchPattern)
+        for (entry in textEntries) {
+            val matches = results.getOrPut(entry.labelId) { mutableListOf() }
+            val snippet = generateTextSnippet(entry.text, searchText)
+            matches.add(ContentMatch(
+                entryId = entry.id,
+                entryType = EntryType.TEXT_ENTRY,
+                textSnippet = snippet.text,
+                matchStart = snippet.matchStart,
+                matchEnd = snippet.matchEnd
+            ))
+        }
+
+        // Search in Bible bookmark notes
+        val bibleBookmarks = dao.searchBibleBookmarkNotesByContent(searchPattern)
+        for (bookmark in bibleBookmarks) {
+            val labels = dao.labelsForBookmark(bookmark)
+            for (label in labels) {
+                val matches = results.getOrPut(label.id) { mutableListOf() }
+                val snippet = generateTextSnippet(bookmark.notes ?: "", searchText)
+                matches.add(ContentMatch(
+                    entryId = bookmark.id,
+                    entryType = EntryType.BOOKMARK_NOTE,
+                    textSnippet = snippet.text,
+                    matchStart = snippet.matchStart,
+                    matchEnd = snippet.matchEnd
+                ))
+            }
+        }
+
+        // Search in generic bookmark notes
+        val genericBookmarks = dao.searchGenericBookmarkNotesByContent(searchPattern)
+        for (bookmark in genericBookmarks) {
+            val labels = dao.labelsForBookmark(bookmark)
+            for (label in labels) {
+                val matches = results.getOrPut(label.id) { mutableListOf() }
+                val snippet = generateTextSnippet(bookmark.notes ?: "", searchText)
+                matches.add(ContentMatch(
+                    entryId = bookmark.id,
+                    entryType = EntryType.BOOKMARK_NOTE,
+                    textSnippet = snippet.text,
+                    matchStart = snippet.matchStart,
+                    matchEnd = snippet.matchEnd
+                ))
+            }
+        }
+
+        // Create StudyPadSearchResult objects
+        val searchResults = mutableListOf<StudyPadSearchResult>()
+        for ((labelId, matches) in results) {
+            val label = dao.labelById(labelId) ?: continue
+            if (label.isSpecialLabel) continue // Skip special labels
+
+            searchResults.add(StudyPadSearchResult(
+                label = label,
+                matchCount = matches.size,
+                matches = matches
+            ))
+        }
+
+        // Sort by match count (descending), then by label name (ascending)
+        return searchResults.sortedWith(
+            compareByDescending<StudyPadSearchResult> { it.matchCount }
+                .thenBy { it.label.name.lowercase() }
+        )
+    }
+
+    internal fun generateTextSnippet(fullText: String, searchText: String, contextChars: Int = 50): StudyPadSearchResultTextSnippet {
+        val searchLower = searchText.lowercase()
+        val fullTextLower = fullText.lowercase()
+        val matchIndex = fullTextLower.indexOf(searchLower)
+
+        if (matchIndex == -1) {
+            // No match found (shouldn't happen), return beginning of text
+            val snippet = fullText.take(contextChars * 2)
+            return StudyPadSearchResultTextSnippet(snippet, 0, 0)
+        }
+
+        // Calculate snippet start and end positions
+        val snippetStart = maxOf(0, matchIndex - contextChars)
+        val snippetEnd = minOf(fullText.length, matchIndex + searchText.length + contextChars)
+
+        // Extract snippet
+        var snippet = fullText.substring(snippetStart, snippetEnd)
+
+        // Add ellipsis if needed
+        val prefix = if (snippetStart > 0) "..." else ""
+        val suffix = if (snippetEnd < fullText.length) "..." else ""
+
+        // Calculate match position in snippet
+        val matchStartInSnippet = prefix.length + (matchIndex - snippetStart)
+        val matchEndInSnippet = matchStartInSnippet + searchText.length
+
+        snippet = prefix + snippet + suffix
+
+        return StudyPadSearchResultTextSnippet(snippet, matchStartInSnippet, matchEndInSnippet)
     }
 
     fun labelsForBookmark(bookmark: BaseBookmarkWithNotes): List<Label> = dao.labelsForBookmark(bookmark)
@@ -710,19 +837,35 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) {
-        val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1)
-        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber > entryOrderNumber }.onEach {it.orderNumber++}
-        val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filter { it.orderNumber > entryOrderNumber }.onEach {it.orderNumber++}
-        val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId).filter { it.orderNumber > entryOrderNumber }.onEach { it.orderNumber++ }
+    private fun incrementOrderNumbersFrom(labelId: IdType, fromOrder: Int, newStudyPadTextEntry: StudyPadTextEntryWithText? = null) {
+        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
+        val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
+        val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId)
+            .filter { it.orderNumber >= fromOrder && it.id != newStudyPadTextEntry?.id }
+            .onEach { it.orderNumber++ }
 
         dao.updateBibleBookmarkToLabels(bookmarkToLabels)
         dao.updateGenericBookmarkToLabels(genericBookmarkToLabels)
         updateStudyPadTextEntries(studyPadTextEntries)
+
+        if (newStudyPadTextEntry != null || bookmarkToLabels.isNotEmpty() || genericBookmarkToLabels.isNotEmpty() || studyPadTextEntries.isNotEmpty()) {
+            ABEventBus.post(StudyPadOrderEvent(
+                labelId = labelId,
+                newStudyPadTextEntry = newStudyPadTextEntry,
+                bookmarkToLabelsOrderChanged = bookmarkToLabels,
+                genericBookmarkToLabelsOrderChanged = genericBookmarkToLabels,
+                studyPadOrderChanged = studyPadTextEntries
+            ))
+        }
+    }
+
+    fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) {
+        val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1)
+
         dao.insert(entry.studyPadTextEntryEntity)
         dao.insert(entry.studyPadTextEntryTextEntity)
 
-        ABEventBus.post(StudyPadOrderEvent(labelId, entry, bookmarkToLabels, genericBookmarkToLabels, studyPadTextEntries))
+        incrementOrderNumbersFrom(labelId, entryOrderNumber + 1, newStudyPadTextEntry = entry)
     }
 
     fun removeBibleBookmarkLabel(bookmarkId: IdType, labelId: IdType) {

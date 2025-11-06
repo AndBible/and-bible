@@ -408,7 +408,10 @@ class InstallZip : ActivityBase() {
             "font/ttf",
             "font/otf",
             "application/x-font-ttf",
-            "application/x-font-otf"
+            "application/x-font-otf",
+            "application/vnd.sqlite3",
+            "application/x-sqlite3",
+            "application/octet-stream"
         ))
         val result = awaitIntent(intent)
         if (result.resultCode == Activity.RESULT_OK) {

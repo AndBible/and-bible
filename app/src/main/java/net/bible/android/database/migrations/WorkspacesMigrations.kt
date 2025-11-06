@@ -38,12 +38,17 @@ private val addPageManagerJsState = makeMigration(5..6) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `jsState` TEXT DEFAULT NULL")
 }
 
+private val addStudyPadCursors = makeMigration(6..7) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `workspace_settings_studyPadCursors` TEXT DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
     addPageNumber,
     addCommentarySourceBookAndKey,
     addPageManagerJsState,
+    addStudyPadCursors,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 6
+const val WORKSPACE_DATABASE_VERSION = 7

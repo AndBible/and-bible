@@ -363,6 +363,7 @@ androidComponents {
 dependencies {
     val commonsTextVersion: String by rootProject.extra
     val jdomVersion: String by rootProject.extra
+    val jswordVersion: String by rootProject.extra
     val kotlinVersion: String by rootProject.extra
     val coroutinesVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
@@ -429,7 +430,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0") // make sure this is the same version that commons-text depends on
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
 
-    implementation(project(":jsword")) {
+    implementation("com.github.AndBible:jsword:$jswordVersion") {
         exclude("org.apache.httpcomponents")
     }
 
