@@ -267,19 +267,20 @@ function studyPadOrdinal(journalEntry: StudyPadItem) {
     return journalEntry.hashCode
 }
 
-const cursorPosition = computed(() => {
-    return appSettings.studyPadCursors?.[label.id] ?? journalEntries.value.length;
+const cursorPosition = computed<number>(() => {
+    const position = appSettings.studyPadCursors?.[label.id] ?? journalEntries.value.length;
+    return Math.max(0, Math.min(position, journalEntries.value.length))
 });
 
-const isAutoAssignLabel = computed(() => {
+const isAutoAssignLabel = computed<boolean>(() => {
     return appSettings.autoAssignLabels?.includes(label.id) ?? false;
 });
 
-const showCursor = computed(() => {
+const showCursor = computed<boolean>(() => {
     return isAutoAssignLabel.value && !exportMode.value;
 });
 
-function moveCursorTo(orderNumber: number) {
+function moveCursorTo(orderNumber: number): void {
     android.setStudyPadCursor(label.id, orderNumber);
 }
 
@@ -313,17 +314,14 @@ div.journal-name {
     left: 0;
   }
 }
+$cursorColor: 4CAF50;
 
 .studypad-container {
   @extend .note-container;
 
   &.has-cursor {
     border-style: solid;
-    border-color: var(--accent-color, #4CAF50);
-
-    &:hover {
-      border-color: var(--accent-color-hover, #45a049);
-    }
+    border-color: $cursorColor;
   }
 }
 
@@ -359,12 +357,8 @@ div.journal-name {
 
   &.has-cursor {
     border-style: solid;
-    border-color: var(--accent-color, #4CAF50);
+    border-color: $cursorColor;
     cursor: pointer;
-
-    &:hover {
-      border-color: var(--accent-color-hover, #45a049);
-    }
   }
 }
 
