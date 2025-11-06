@@ -314,7 +314,7 @@ div.journal-name {
     left: 0;
   }
 }
-$cursorColor: 4CAF50;
+$cursorColor: rgb(0, 161, 0);
 
 .studypad-container {
   @extend .note-container;
