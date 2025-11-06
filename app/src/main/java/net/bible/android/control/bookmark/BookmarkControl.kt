@@ -167,12 +167,11 @@ open class BookmarkControl @Inject constructor(
             val toBeAdded = labelIdsInDb.filterNot { existingLabels.contains(it) }
 
             dao.deleteLabelsFromBookmark(bookmark, toBeDeleted.map {it})
-
-            val workspaceSettings = windowControl.windowRepository.workspaceSettings
+            val workspaceSettings = windowControl.windowRepository?.workspaceSettings // for tests "?."
             when(bookmark) {
                 is BibleBookmarkWithNotes -> {
                     val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
-                        val cursor = workspaceSettings.studyPadCursors[labelId]
+                        val cursor = workspaceSettings?.studyPadCursors[labelId]
                         val maxOrder = dao.countStudyPadEntities(labelId)
                         val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
                         if (cursor != null) {
@@ -185,7 +184,7 @@ open class BookmarkControl @Inject constructor(
                 }
                 is GenericBookmarkWithNotes -> {
                     val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
-                        val cursor = workspaceSettings.studyPadCursors[labelId]
+                        val cursor = workspaceSettings?.studyPadCursors[labelId]
                         val maxOrder = dao.countStudyPadEntities(labelId)
                         val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
                         if (cursor != null) {
@@ -198,7 +197,7 @@ open class BookmarkControl @Inject constructor(
                 }
             }
 
-            if (toBeAdded.any { workspaceSettings.studyPadCursors.containsKey(it) }) {
+            if (toBeAdded.any { workspaceSettings?.studyPadCursors?.containsKey(it) == true}) {
                 ABEventBus.post(AppSettingsUpdated())
             }
 
@@ -206,7 +205,7 @@ open class BookmarkControl @Inject constructor(
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
                 dao.update(bookmark.bookmarkEntity)
             }
-            windowControl.windowRepository.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests ?.
+            windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests "?."
         }
 
         addText(bookmark)
