@@ -206,12 +206,10 @@ function changeExpanded(newValue: boolean) {
 }
 
 function moveCursorHere() {
-    // Move cursor after this item (orderNumber + 1)
     android.setStudyPadCursor(props.label.id, props.journalEntry.orderNumber + 1);
 }
 
 function moveCursorBefore() {
-    // Move cursor before this item (orderNumber)
     android.setStudyPadCursor(props.label.id, props.journalEntry.orderNumber);
 }
 
