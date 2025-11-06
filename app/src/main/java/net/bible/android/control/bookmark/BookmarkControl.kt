@@ -303,6 +303,113 @@ open class BookmarkControl @Inject constructor(
         return bookmarks
     }
 
+    /**
+     * Search for study pads that contain the given search text in their text entries or bookmark notes.
+     * Returns a list of StudyPadSearchResult objects, each containing the matching label and list of matches.
+     */
+    fun searchStudyPadsByContent(searchText: String): List<StudyPadSearchResult> {
+        val searchPattern = "%$searchText%"
+        val results = mutableMapOf<IdType, MutableList<ContentMatch>>()
+
+        // Search in study pad text entries
+        val textEntries = dao.searchStudyPadTextEntriesByContent(searchPattern)
+        for (entry in textEntries) {
+            val matches = results.getOrPut(entry.labelId) { mutableListOf() }
+            val snippet = generateTextSnippet(entry.text, searchText)
+            matches.add(ContentMatch(
+                entryId = entry.id,
+                entryType = EntryType.TEXT_ENTRY,
+                textSnippet = snippet.text,
+                matchStart = snippet.matchStart,
+                matchEnd = snippet.matchEnd
+            ))
+        }
+
+        // Search in Bible bookmark notes
+        val bibleBookmarks = dao.searchBibleBookmarkNotesByContent(searchPattern)
+        for (bookmark in bibleBookmarks) {
+            val labels = dao.labelsForBookmark(bookmark)
+            for (label in labels) {
+                val matches = results.getOrPut(label.id) { mutableListOf() }
+                val snippet = generateTextSnippet(bookmark.notes ?: "", searchText)
+                matches.add(ContentMatch(
+                    entryId = bookmark.id,
+                    entryType = EntryType.BOOKMARK_NOTE,
+                    textSnippet = snippet.text,
+                    matchStart = snippet.matchStart,
+                    matchEnd = snippet.matchEnd
+                ))
+            }
+        }
+
+        // Search in generic bookmark notes
+        val genericBookmarks = dao.searchGenericBookmarkNotesByContent(searchPattern)
+        for (bookmark in genericBookmarks) {
+            val labels = dao.labelsForBookmark(bookmark)
+            for (label in labels) {
+                val matches = results.getOrPut(label.id) { mutableListOf() }
+                val snippet = generateTextSnippet(bookmark.notes ?: "", searchText)
+                matches.add(ContentMatch(
+                    entryId = bookmark.id,
+                    entryType = EntryType.BOOKMARK_NOTE,
+                    textSnippet = snippet.text,
+                    matchStart = snippet.matchStart,
+                    matchEnd = snippet.matchEnd
+                ))
+            }
+        }
+
+        // Create StudyPadSearchResult objects
+        val searchResults = mutableListOf<StudyPadSearchResult>()
+        for ((labelId, matches) in results) {
+            val label = dao.labelById(labelId) ?: continue
+            if (label.isSpecialLabel) continue // Skip special labels
+
+            searchResults.add(StudyPadSearchResult(
+                label = label,
+                matchCount = matches.size,
+                matches = matches
+            ))
+        }
+
+        // Sort by match count (descending), then by label name (ascending)
+        return searchResults.sortedWith(
+            compareByDescending<StudyPadSearchResult> { it.matchCount }
+                .thenBy { it.label.name.lowercase() }
+        )
+    }
+
+    internal fun generateTextSnippet(fullText: String, searchText: String, contextChars: Int = 50): StudyPadSearchResultTextSnippet {
+        val searchLower = searchText.lowercase()
+        val fullTextLower = fullText.lowercase()
+        val matchIndex = fullTextLower.indexOf(searchLower)
+
+        if (matchIndex == -1) {
+            // No match found (shouldn't happen), return beginning of text
+            val snippet = fullText.take(contextChars * 2)
+            return StudyPadSearchResultTextSnippet(snippet, 0, 0)
+        }
+
+        // Calculate snippet start and end positions
+        val snippetStart = maxOf(0, matchIndex - contextChars)
+        val snippetEnd = minOf(fullText.length, matchIndex + searchText.length + contextChars)
+
+        // Extract snippet
+        var snippet = fullText.substring(snippetStart, snippetEnd)
+
+        // Add ellipsis if needed
+        val prefix = if (snippetStart > 0) "..." else ""
+        val suffix = if (snippetEnd < fullText.length) "..." else ""
+
+        // Calculate match position in snippet
+        val matchStartInSnippet = prefix.length + (matchIndex - snippetStart)
+        val matchEndInSnippet = matchStartInSnippet + searchText.length
+
+        snippet = prefix + snippet + suffix
+
+        return StudyPadSearchResultTextSnippet(snippet, matchStartInSnippet, matchEndInSnippet)
+    }
+
     fun labelsForBookmark(bookmark: BaseBookmarkWithNotes): List<Label> = dao.labelsForBookmark(bookmark)
 
     fun setLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labels: List<Label>) =
