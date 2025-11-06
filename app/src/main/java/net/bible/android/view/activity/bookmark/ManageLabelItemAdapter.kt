@@ -57,13 +57,10 @@ class ManageLabelItemAdapter(context: Context?,
         }
     }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val item = getItem(position)
-        val viewType = getItemViewType(position)
-
-        return when {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+        when (val item = getItem(position)) {
             // Handle search result items
-            viewType == VIEW_TYPE_SEARCH_RESULT && item is BookmarkEntities.StudyPadSearchResult -> {
+            is BookmarkEntities.StudyPadSearchResult -> {
                 val binding = if (convertView == null || convertView.tag != VIEW_TYPE_SEARCH_RESULT) {
                     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
                     ManageLabelsSearchResultItemBinding.inflate(inflater, parent, false).also {
@@ -111,7 +108,7 @@ class ManageLabelItemAdapter(context: Context?,
             }
 
             // Handle label category items
-            item is LabelCategory -> {
+            is LabelCategory -> {
                 bindings = if (convertView == null) {
                     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
                     ManageLabelsListItemBinding.inflate(inflater, parent, false)
@@ -133,7 +130,7 @@ class ManageLabelItemAdapter(context: Context?,
             }
 
             // Handle regular label items
-            item is BookmarkEntities.Label -> {
+            is BookmarkEntities.Label -> {
                 bindings = if (convertView == null) {
                     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
                     ManageLabelsListItemBinding.inflate(inflater, parent, false)
@@ -260,8 +257,11 @@ class ManageLabelItemAdapter(context: Context?,
                 bindings.root
             }
 
-            // Unknown item type
-            else -> throw IllegalStateException("Unknown item type: $item")
+            // Unknown item type - should not happen
+            else -> {
+                Log.e(TAG, "Unknown item type: ${item?.javaClass?.name}")
+                // Return empty view as fallback
+                View(context)
+            }
         }
-    }
 }
