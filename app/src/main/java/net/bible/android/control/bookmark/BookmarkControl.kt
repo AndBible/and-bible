@@ -196,11 +196,10 @@ open class BookmarkControl @Inject constructor(
                 }
             }
 
-            // Save updated workspace settings if cursor was modified
             if (toBeAdded.any { workspaceSettings.studyPadCursors.containsKey(it) }) {
-                windowControl.windowRepository.saveIntoDb()
                 ABEventBus.post(AppSettingsUpdated())
             }
+
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
                 dao.update(bookmark.bookmarkEntity)
