@@ -23,8 +23,6 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
-import net.bible.android.control.bookmark.EntryType
-import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -36,8 +34,6 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -51,7 +47,6 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class BookmarkControlSearchTest {
     private var bookmarkControl: BookmarkControl? = null
-    private var testLabelCounter = 0
     private val createdLabelIds = mutableListOf<IdType>()
     private val createdTextEntryIds = mutableListOf<IdType>()
     private val createdBibleBookmarkIds = mutableListOf<IdType>()
