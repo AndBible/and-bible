@@ -49,7 +49,7 @@
                 v-if="showCursor"
                 class="cursor-click-area"
                 @click="moveCursorTo(index)"
-            ></div>
+            />
             <StudyPadRow
                 :key="`studypad-${j.type}-${j.id}`"
                 :ref="setStudyPadRowRef"
@@ -69,7 +69,7 @@
       <div
           class="cursor-click-area"
           @click="moveCursorTo(journalEntries.length)"
-      ></div>
+      />
     </div>
     <div v-if="journalEntries.length > 0 && !exportMode">
       <span v-if="isStudyPadBookmark(lastEntry) && !lastEntry.hasNote" class="journal-button"
