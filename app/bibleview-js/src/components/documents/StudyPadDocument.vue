@@ -26,9 +26,7 @@
         <FontAwesomeIcon icon="plus-circle"/>
       </span>
     </div>
-    <div v-if="showCursor && cursorPosition === 0" class="studypad-cursor" @click="moveCursorTo(0)">
-      <div class="cursor-line"></div>
-    </div>
+    <div v-if="showCursor && cursorPosition === 0" class="studypad-cursor" @click="moveCursorTo(0)"></div>
     <draggable
         v-model="journalEntries"
         handle=".drag-handle"
@@ -42,7 +40,13 @@
             :data-ordinal="studyPadOrdinal(j)"
             class="ordinal"
         >
-          <div class="studypad-container" :style="indentStyle(j)" :id="`studypad-${j.type}-${j.id}`">
+          <div
+              class="studypad-container"
+              :class="{'has-cursor': showCursor && cursorPosition === index}"
+              :style="indentStyle(j)"
+              :id="`studypad-${j.type}-${j.id}`"
+              @click="onContainerClick($event, index)"
+          >
             <StudyPadRow
                 :key="`studypad-${j.type}-${j.id}`"
                 :ref="setStudyPadRowRef"
@@ -50,9 +54,6 @@
                 :label="document.label"
                 @add="adding=true"
             />
-          </div>
-          <div v-if="showCursor && cursorPosition === index + 1" class="studypad-cursor" @click="moveCursorTo(index + 1)">
-            <div class="cursor-line"></div>
           </div>
         </div>
       </template>
@@ -269,6 +270,19 @@ function moveCursorTo(orderNumber: number) {
     android.setStudyPadCursor(label.id, orderNumber);
 }
 
+function onContainerClick(event: MouseEvent, index: number) {
+    if (showCursor.value) {
+        // Check if click was on the border area (top 10px)
+        const target = event.currentTarget as HTMLElement;
+        const rect = target.getBoundingClientRect();
+        const clickY = event.clientY - rect.top;
+        if (clickY < 10) {
+            moveCursorTo(index);
+            event.stopPropagation();
+        }
+    }
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -302,6 +316,17 @@ div.journal-name {
 
 .studypad-container {
   @extend .note-container;
+
+  &.has-cursor {
+    border-color: var(--accent-color, #4CAF50);
+    border-width: 2pt 0 0 0;
+    cursor: pointer;
+
+    &:hover {
+      border-width: 3pt 0 0 0;
+      border-color: var(--accent-color-hover, #45a049);
+    }
+  }
 }
 
 .bible-text {
@@ -314,20 +339,17 @@ div.journal-name {
 .studypad-cursor {
   position: relative;
   height: 0;
-  margin: 5px 0;
+  margin: 4pt 2pt 2pt;
+  padding: 5pt 0 0 1pt;
   cursor: pointer;
   user-select: none;
+  border-style: dashed;
+  border-color: var(--accent-color, #4CAF50);
+  border-width: 2pt 0 0 0;
 
-  .cursor-line {
-    height: 2px;
-    background-color: var(--accent-color, #4CAF50);
-    position: relative;
-    margin: 0 10px;
-  }
-
-  &:hover .cursor-line {
-    height: 3px;
-    background-color: var(--accent-color-hover, #45a049);
+  &:hover {
+    border-width: 3pt 0 0 0;
+    border-color: var(--accent-color-hover, #45a049);
   }
 }
 
