@@ -480,14 +480,14 @@ class StudyPadCursorIntegrationTest {
         val newBookmark = createTestBookmark()
         bookmarkControl!!.setLabelsForBookmark(newBookmark, listOf(label))
 
-        // ACTUAL BEHAVIOR: When cursor is beyond study pad length, the system inserts at cursor position,
-        // but sanitizeStudyPadOrder() is called which reorders items sequentially (0, 1, 2...)
-        // This is safe behavior - prevents gaps in orderNumbers
-        assertBookmarkOrder(newBookmark, label, 2) // appended after sanitization
+        // ACTUAL BEHAVIOR: When cursor is beyond study pad length, the backend automatically
+        // coerces it to study pad length (10 -> 2) to prevent gaps in orderNumbers.
+        // This is safe behavior - the bookmark is appended at the end.
+        assertBookmarkOrder(newBookmark, label, 2) // appended at end
 
-        // Cursor is still incremented from its original value (10 -> 11)
-        // This means cursor needs to be reset by UI when it goes out of bounds
-        Assert.assertEquals("Cursor should be at 11", 11, workspaceSettings.studyPadCursors[label.id])
+        // Cursor is coerced to study pad length and then incremented (10 -> 2 -> 3)
+        // Backend handles out-of-bounds cursors automatically
+        Assert.assertEquals("Cursor should be at 3", 3, workspaceSettings.studyPadCursors[label.id])
     }
 
     @Test

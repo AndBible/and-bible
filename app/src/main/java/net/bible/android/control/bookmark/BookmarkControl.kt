@@ -173,10 +173,11 @@ open class BookmarkControl @Inject constructor(
                 is BibleBookmarkWithNotes -> {
                     val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
                         val cursor = workspaceSettings.studyPadCursors[labelId]
-                        val orderNumber = cursor ?: dao.countStudyPadEntities(labelId)
+                        val maxOrder = dao.countStudyPadEntities(labelId)
+                        val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
                         if (cursor != null) {
-                            incrementOrderNumbersFrom(labelId, cursor)
-                            workspaceSettings.studyPadCursors[labelId] = cursor + 1
+                            incrementOrderNumbersFrom(labelId, orderNumber)
+                            workspaceSettings.studyPadCursors[labelId] = orderNumber + 1
                         }
                         BibleBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
@@ -185,10 +186,11 @@ open class BookmarkControl @Inject constructor(
                 is GenericBookmarkWithNotes -> {
                     val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
                         val cursor = workspaceSettings.studyPadCursors[labelId]
-                        val orderNumber = cursor ?: dao.countStudyPadEntities(labelId)
+                        val maxOrder = dao.countStudyPadEntities(labelId)
+                        val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
                         if (cursor != null) {
-                            incrementOrderNumbersFrom(labelId, cursor)
-                            workspaceSettings.studyPadCursors[labelId] = cursor + 1
+                            incrementOrderNumbersFrom(labelId, orderNumber)
+                            workspaceSettings.studyPadCursors[labelId] = orderNumber + 1
                         }
                         GenericBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }

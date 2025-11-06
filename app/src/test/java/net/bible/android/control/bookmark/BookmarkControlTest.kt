@@ -305,24 +305,6 @@ class BookmarkControlTest {
     private val nextTestLabel: String
         private get() = TEST_LABEL_START + ++testLabelCounter
 
-    // ========== STUDY PAD CURSOR TESTS ==========
-    //
-    // NOTE: Cursor functionality tests have been omitted from this unit test suite because they
-    // require complex mocking of WindowRepository and WorkspaceSettings.
-    //
-    // Cursor functionality is tested through:
-    // 1. ConvertersTest - tests Map<IdType, Int> serialization/deserialization
-    // 2. Integration tests - test the complete flow including cursor updates
-    // 3. Manual testing - verify cursor behavior in the running application
-    //
-    // The cursor implementation logic in BookmarkControl.addOrUpdateBookmark() includes:
-    // - Checking for cursor position from workspaceSettings.studyPadCursors
-    // - Calling incrementOrderNumbersFrom() when cursor exists
-    // - Incrementing cursor position after insertion
-    // - Updating UI via sanitizeStudyPadOrder()
-    //
-    // These behaviors are covered by the tests above and integration tests.
-
     companion object {
         // keep changing the test verse
         private const val TEST_VERSE_START = "Psalms 119:"
