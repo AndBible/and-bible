@@ -181,9 +181,6 @@ open class BookmarkControl @Inject constructor(
                         BibleBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
                     dao.insertBookmarkToLabels(addBookmarkToLabels)
-                    // Update UI with new order
-                    toBeAdded.filter { workspaceSettings.studyPadCursors.containsKey(it) }
-                        .forEach { labelId -> sanitizeStudyPadOrder(labelId, updateAllInUi = true) }
                 }
                 is GenericBookmarkWithNotes -> {
                     val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
@@ -196,9 +193,6 @@ open class BookmarkControl @Inject constructor(
                         GenericBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
                     }
                     dao.insertGenericBookmarkToLabels(addBookmarkToLabels)
-                    // Update UI with new order
-                    toBeAdded.filter { workspaceSettings.studyPadCursors.containsKey(it) }
-                        .forEach { labelId -> sanitizeStudyPadOrder(labelId, updateAllInUi = true) }
                 }
             }
 
@@ -737,7 +731,6 @@ open class BookmarkControl @Inject constructor(
     }
 
     private fun incrementOrderNumbersFrom(labelId: IdType, fromOrder: Int) {
-        // Increment orderNumbers of all items at or after fromOrder
         val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
         val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
         val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
@@ -745,6 +738,16 @@ open class BookmarkControl @Inject constructor(
         dao.updateBibleBookmarkToLabels(bookmarkToLabels)
         dao.updateGenericBookmarkToLabels(genericBookmarkToLabels)
         updateStudyPadTextEntries(studyPadTextEntries)
+
+        if (bookmarkToLabels.isNotEmpty() || genericBookmarkToLabels.isNotEmpty() || studyPadTextEntries.isNotEmpty()) {
+            ABEventBus.post(StudyPadOrderEvent(
+                labelId = labelId,
+                newStudyPadTextEntry = null,
+                bookmarkToLabelsOrderChanged = bookmarkToLabels,
+                genericBookmarkToLabelsOrderChanged = genericBookmarkToLabels,
+                studyPadOrderChanged = studyPadTextEntries
+            ))
+        }
     }
 
     fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) {
