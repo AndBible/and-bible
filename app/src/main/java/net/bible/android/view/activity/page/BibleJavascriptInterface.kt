@@ -325,6 +325,14 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun setStudyPadCursor(labelId: String, orderNumber: Int) {
+        val windowRepository = bookmarkControl.windowControl.windowRepository
+        val workspaceSettings = windowRepository.workspaceSettings
+        workspaceSettings.studyPadCursors[IdType(labelId)] = orderNumber
+        ABEventBus.post(AppSettingsUpdated())
+    }
+
+    @JavascriptInterface
     fun getActiveLanguages(): String {
         //Get the languages for each of the installed bibles and return the language codes as a json list.
         val languages = SwordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
