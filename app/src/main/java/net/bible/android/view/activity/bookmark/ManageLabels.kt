@@ -62,6 +62,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.widget.PopupMenu
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import net.bible.android.control.backup.BackupControl
@@ -123,8 +124,7 @@ class ManageLabels : ListActivityBase() {
 
     private fun loadFilteringSettings() {
         searchInsideText = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
-        // Load search mode only for STUDYPAD mode
-        if (::data.isInitialized && data.mode == Mode.STUDYPAD) {
+        if (data.mode == Mode.STUDYPAD) {
             val modeOrdinal = CommonUtils.settings.getInt("labels_list_search_mode", SearchMode.NAME_START.ordinal)
             searchMode = SearchMode.entries.getOrElse(modeOrdinal) { SearchMode.NAME_START }
         }
@@ -188,12 +188,11 @@ class ManageLabels : ListActivityBase() {
     private fun setSearchInsideTextButtonBackground() = binding.run {
         val background = searchInsideTextButton.background as GradientDrawable
 
-        // For STUDYPAD mode, show current search mode
         if (data.mode == Mode.STUDYPAD) {
             val (text, isActive) = when (searchMode) {
-                SearchMode.NAME_START -> getString(R.string.search_mode_name_start_compact) to false
-                SearchMode.NAME_CONTAINS -> getString(R.string.search_mode_name_contains_compact) to true
-                SearchMode.CONTENT -> getString(R.string.search_mode_content_compact) to true
+                SearchMode.NAME_START -> getString(R.string.match_start_of_text) to false
+                SearchMode.NAME_CONTAINS -> getString(R.string.match_any_text) to true
+                SearchMode.CONTENT -> getString(R.string.match_content) to true
             }
             searchInsideTextButton.text = text
             background.setColor(getResourceColor(if (isActive) R.color.blue_200 else R.color.transparent))
@@ -284,7 +283,6 @@ class ManageLabels : ListActivityBase() {
 
         data = ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
 
-        // Load filtering settings after data is initialized
         loadFilteringSettings()
 
         allLabels.addAll(bookmarkControl.assignableLabels.filter {!it.isUnlabeledLabel})
@@ -329,7 +327,7 @@ class ManageLabels : ListActivityBase() {
             searchInsideTextButton.setOnClickListener {
                 if (data.mode == Mode.STUDYPAD) {
                     // Show popup menu with three search mode options
-                    val popup = androidx.appcompat.widget.PopupMenu(this@ManageLabels, it)
+                    val popup = PopupMenu(this@ManageLabels, it)
                     popup.menuInflater.inflate(R.menu.search_mode_menu, popup.menu)
 
                     popup.setOnMenuItemClickListener { menuItem ->
@@ -632,7 +630,6 @@ class ManageLabels : ListActivityBase() {
 
     private fun saveAndExit(selected: BookmarkEntities.Label? = null, firstMatch: BookmarkEntities.ContentMatch? = null) = lifecycleScope.launch(Dispatchers.Main) {
         Log.i(TAG, "saveAndExit")
-        CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideText)
         saveFilteringSettings()
 
         val deleteLabelIds = data.deletedLabels.toList()
@@ -764,7 +761,6 @@ class ManageLabels : ListActivityBase() {
 
     private fun performContentSearch() {
         if (searchText.length >= 3) {
-            // Perform content search asynchronously
             lifecycleScope.launch(Dispatchers.IO) {
                 val results = bookmarkControl.searchStudyPadsByContent(searchText)
                 lifecycleScope.launch(Dispatchers.Main) {
@@ -816,7 +812,6 @@ class ManageLabels : ListActivityBase() {
                     return // Exit early, async operation will update list
                 }
             } else {
-                // Name search (start or contains)
                 performNameSearch()
             }
         }
