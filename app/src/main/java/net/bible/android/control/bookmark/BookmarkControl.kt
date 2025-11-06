@@ -36,6 +36,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
@@ -301,6 +302,119 @@ open class BookmarkControl @Inject constructor(
             addLabels(it)
         }
         return bookmarks
+    }
+
+    /**
+     * Search for study pads that contain the given search text in their text entries or bookmark notes.
+     * Returns a list of StudyPadSearchResult objects, each containing the matching label and list of matches.
+     */
+    suspend fun searchStudyPadsByContent(searchText: String): List<BookmarkEntities.StudyPadSearchResult> {
+        val searchPattern = "%$searchText%"
+        val results = mutableMapOf<IdType, MutableList<BookmarkEntities.ContentMatch>>()
+
+        // Search in study pad text entries
+        val textEntries = dao.searchStudyPadTextEntriesByContent(searchPattern)
+        for (entry in textEntries) {
+            val matches = results.getOrPut(entry.labelId) { mutableListOf() }
+            val snippet = generateTextSnippet(entry.text, searchText)
+            matches.add(BookmarkEntities.ContentMatch(
+                entryId = entry.id,
+                entryType = BookmarkEntities.EntryType.TEXT_ENTRY,
+                textSnippet = snippet.text,
+                matchStart = snippet.matchStart,
+                matchEnd = snippet.matchEnd
+            ))
+        }
+
+        // Search in Bible bookmark notes
+        val bibleBookmarks = dao.searchBibleBookmarkNotesByContent(searchPattern)
+        for (bookmark in bibleBookmarks) {
+            val labels = dao.labelsForBookmark(bookmark)
+            for (label in labels) {
+                val matches = results.getOrPut(label.id) { mutableListOf() }
+                val snippet = generateTextSnippet(bookmark.notes ?: "", searchText)
+                matches.add(BookmarkEntities.ContentMatch(
+                    entryId = bookmark.id,
+                    entryType = BookmarkEntities.EntryType.BOOKMARK_NOTE,
+                    textSnippet = snippet.text,
+                    matchStart = snippet.matchStart,
+                    matchEnd = snippet.matchEnd
+                ))
+            }
+        }
+
+        // Search in generic bookmark notes
+        val genericBookmarks = dao.searchGenericBookmarkNotesByContent(searchPattern)
+        for (bookmark in genericBookmarks) {
+            val labels = dao.labelsForBookmark(bookmark)
+            for (label in labels) {
+                val matches = results.getOrPut(label.id) { mutableListOf() }
+                val snippet = generateTextSnippet(bookmark.notes ?: "", searchText)
+                matches.add(BookmarkEntities.ContentMatch(
+                    entryId = bookmark.id,
+                    entryType = BookmarkEntities.EntryType.BOOKMARK_NOTE,
+                    textSnippet = snippet.text,
+                    matchStart = snippet.matchStart,
+                    matchEnd = snippet.matchEnd
+                ))
+            }
+        }
+
+        // Create StudyPadSearchResult objects
+        val searchResults = mutableListOf<BookmarkEntities.StudyPadSearchResult>()
+        for ((labelId, matches) in results) {
+            val label = dao.labelById(labelId) ?: continue
+            if (label.isSpecialLabel) continue // Skip special labels
+
+            searchResults.add(BookmarkEntities.StudyPadSearchResult(
+                label = label,
+                matchCount = matches.size,
+                matches = matches
+            ))
+        }
+
+        // Sort by match count (descending), then by label name (ascending)
+        return searchResults.sortedWith(
+            compareByDescending<BookmarkEntities.StudyPadSearchResult> { it.matchCount }
+                .thenBy { it.label.name.lowercase() }
+        )
+    }
+
+    private data class TextSnippet(
+        val text: String,
+        val matchStart: Int,
+        val matchEnd: Int
+    )
+
+    private fun generateTextSnippet(fullText: String, searchText: String, contextChars: Int = 50): TextSnippet {
+        val searchLower = searchText.lowercase()
+        val fullTextLower = fullText.lowercase()
+        val matchIndex = fullTextLower.indexOf(searchLower)
+
+        if (matchIndex == -1) {
+            // No match found (shouldn't happen), return beginning of text
+            val snippet = fullText.take(contextChars * 2)
+            return TextSnippet(snippet, 0, 0)
+        }
+
+        // Calculate snippet start and end positions
+        val snippetStart = maxOf(0, matchIndex - contextChars)
+        val snippetEnd = minOf(fullText.length, matchIndex + searchText.length + contextChars)
+
+        // Extract snippet
+        var snippet = fullText.substring(snippetStart, snippetEnd)
+
+        // Add ellipsis if needed
+        val prefix = if (snippetStart > 0) "..." else ""
+        val suffix = if (snippetEnd < fullText.length) "..." else ""
+
+        // Calculate match position in snippet
+        val matchStartInSnippet = prefix.length + (matchIndex - snippetStart)
+        val matchEndInSnippet = matchStartInSnippet + searchText.length
+
+        snippet = prefix + snippet + suffix
+
+        return TextSnippet(snippet, matchStartInSnippet, matchEndInSnippet)
     }
 
     fun labelsForBookmark(bookmark: BaseBookmarkWithNotes): List<Label> = dao.labelsForBookmark(bookmark)

@@ -351,6 +351,26 @@ interface BookmarkDao {
     @Query("SELECT * from StudyPadTextEntryWithText WHERE id=:id")
     fun studyPadTextEntryById(id: IdType): BookmarkEntities.StudyPadTextEntryWithText?
 
+    // Search queries for study pad content
+    @Query("SELECT * from StudyPadTextEntryWithText WHERE text LIKE :search")
+    fun searchStudyPadTextEntriesByContent(search: String): List<BookmarkEntities.StudyPadTextEntryWithText>
+
+    @Query("""
+        SELECT DISTINCT BibleBookmarkWithNotes.*
+        FROM BibleBookmarkWithNotes
+        INNER JOIN BibleBookmarkToLabel ON BibleBookmarkWithNotes.id = BibleBookmarkToLabel.bookmarkId
+        WHERE BibleBookmarkWithNotes.notes LIKE :search
+    """)
+    fun searchBibleBookmarkNotesByContent(search: String): List<BibleBookmarkWithNotes>
+
+    @Query("""
+        SELECT DISTINCT GenericBookmarkWithNotes.*
+        FROM GenericBookmarkWithNotes
+        INNER JOIN GenericBookmarkToLabel ON GenericBookmarkWithNotes.id = GenericBookmarkToLabel.bookmarkId
+        WHERE GenericBookmarkWithNotes.notes LIKE :search
+    """)
+    fun searchGenericBookmarkNotesByContent(search: String): List<GenericBookmarkWithNotes>
+
     @Insert fun insert(entity: BookmarkEntities.StudyPadTextEntry)
     @Insert fun insert(entity: BookmarkEntities.StudyPadTextEntryText)
 

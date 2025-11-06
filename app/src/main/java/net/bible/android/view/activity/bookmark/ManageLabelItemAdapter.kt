@@ -18,6 +18,8 @@ package net.bible.android.view.activity.bookmark
 
 import android.content.Context
 import android.graphics.Typeface
+import android.text.SpannableString
+import android.text.style.BackgroundColorSpan
 import android.util.Log
 import android.widget.ArrayAdapter
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
@@ -26,8 +28,10 @@ import android.view.LayoutInflater
 import android.view.View
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsListItemBinding
+import net.bible.android.activity.databinding.ManageLabelsSearchResultItemBinding
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName
+import net.bible.service.common.CommonUtils.getResourceColor
 
 class ManageLabelItemAdapter(context: Context?,
                              items: List<Any>?,
@@ -38,8 +42,75 @@ class ManageLabelItemAdapter(context: Context?,
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
     private lateinit var bindings: ManageLabelsListItemBinding
 
+    companion object {
+        private const val TAG = "ManageLabelItemAdapter"
+        private const val VIEW_TYPE_LABEL = 0
+        private const val VIEW_TYPE_SEARCH_RESULT = 1
+    }
+
+    override fun getViewTypeCount(): Int = 2
+
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is BookmarkEntities.StudyPadSearchResult -> VIEW_TYPE_SEARCH_RESULT
+            else -> VIEW_TYPE_LABEL
+        }
+    }
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val label = getItem(position)
+        val item = getItem(position)
+        val viewType = getItemViewType(position)
+
+        // Handle search result items
+        if (viewType == VIEW_TYPE_SEARCH_RESULT && item is BookmarkEntities.StudyPadSearchResult) {
+            val binding = if (convertView == null || convertView.tag != VIEW_TYPE_SEARCH_RESULT) {
+                val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                ManageLabelsSearchResultItemBinding.inflate(inflater, parent, false).also {
+                    it.root.tag = VIEW_TYPE_SEARCH_RESULT
+                }
+            } else {
+                ManageLabelsSearchResultItemBinding.bind(convertView)
+            }
+
+            binding.apply {
+                labelIcon.setColorFilter(item.label.color)
+                labelName.text = item.label.displayName
+
+                // Set match count text
+                val matchText = if (item.matchCount == 1) {
+                    context.getString(R.string.search_results_match)
+                } else {
+                    context.getString(R.string.search_results_matches, item.matchCount)
+                }
+                matchCount.text = matchText
+
+                // Set first match snippet with highlighting
+                if (item.matches.isNotEmpty()) {
+                    val firstMatch = item.matches[0]
+                    val spannable = SpannableString(firstMatch.textSnippet)
+                    spannable.setSpan(
+                        BackgroundColorSpan(getResourceColor(R.color.yellow_200)),
+                        firstMatch.matchStart,
+                        firstMatch.matchEnd,
+                        SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    textSnippet.text = spannable
+                } else {
+                    textSnippet.text = ""
+                }
+
+                root.setOnClickListener {
+                    Log.i(TAG, "Search result clicked: ${item.label.displayName}")
+                    // Open the study pad and navigate to first match
+                    manageLabels.selectStudyPadLabel(item.label, item.matches.firstOrNull())
+                }
+            }
+
+            return binding.root
+        }
+
+        // Handle regular label items (existing code)
+        val label = item
         bindings = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             ManageLabelsListItemBinding.inflate(inflater, parent, false)
@@ -178,10 +249,5 @@ class ManageLabelItemAdapter(context: Context?,
             }
         }
         return convertView?: bindings.root
-    }
-
-
-    companion object {
-        private const val TAG = "ManageLabelItemAdapter"
     }
 }
