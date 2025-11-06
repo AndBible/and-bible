@@ -36,7 +36,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
-import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel

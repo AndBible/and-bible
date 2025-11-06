@@ -42,14 +42,3 @@ data class StudyPadSearchResult(
     val matchCount: Int,                  // Total number of matches in this Study Pad
     val matches: List<ContentMatch>       // List of all matches
 )
-
-// Helper class for bookmark search results with label information
-data class BookmarkWithLabel(
-    val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
-    val labelId: IdType
-)
-
-data class GenericBookmarkWithLabel(
-    val bookmark: BookmarkEntities.GenericBookmarkWithNotes,
-    val labelId: IdType
-)
