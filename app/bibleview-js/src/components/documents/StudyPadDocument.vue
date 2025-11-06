@@ -64,13 +64,13 @@
     <div
         v-if="showCursor"
         class="studypad-cursor-last"
-        :class="{'has-cursor': showCursor && cursorPosition === journalEntries.length}"
-        @click="moveCursorTo(journalEntries.length)"/>
-    <div
-        v-if="showCursor"
-        class="cursor-click-area"
-        @click="moveCursorTo(journalEntries.length)"
-    ></div>
+        :class="{'has-cursor': cursorPosition === journalEntries.length}"
+    >
+      <div
+          class="cursor-click-area"
+          @click="moveCursorTo(journalEntries.length)"
+      ></div>
+    </div>
     <div v-if="journalEntries.length > 0 && !exportMode">
       <span v-if="isStudyPadBookmark(lastEntry) && !lastEntry.hasNote" class="journal-button"
             @click="editLastNote">
@@ -335,7 +335,6 @@ div.journal-name {
   height: 15px;
   cursor: pointer;
   z-index: 10;
-  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .bible-text {
@@ -350,7 +349,6 @@ div.journal-name {
   height: 0;
   margin: 4pt 2pt 2pt;
   padding-top: 0;
-  cursor: pointer;
 
   border-style: dashed;
   border-color: rgba(0, 0, 0, 0.15);
@@ -362,6 +360,7 @@ div.journal-name {
   &.has-cursor {
     border-style: solid;
     border-color: var(--accent-color, #4CAF50);
+    cursor: pointer;
 
     &:hover {
       border-color: var(--accent-color-hover, #45a049);
