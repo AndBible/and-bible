@@ -191,9 +191,9 @@ class ManageLabels : ListActivityBase() {
         // For STUDYPAD mode, show current search mode
         if (data.mode == Mode.STUDYPAD) {
             val (text, isActive) = when (searchMode) {
-                SearchMode.NAME_START -> getString(R.string.search_mode_name_start) to false
-                SearchMode.NAME_CONTAINS -> getString(R.string.search_mode_name_contains) to true
-                SearchMode.CONTENT -> getString(R.string.search_mode_content) to true
+                SearchMode.NAME_START -> getString(R.string.search_mode_name_start_compact) to false
+                SearchMode.NAME_CONTAINS -> getString(R.string.search_mode_name_contains_compact) to true
+                SearchMode.CONTENT -> getString(R.string.search_mode_content_compact) to true
             }
             searchInsideTextButton.text = text
             background.setColor(getResourceColor(if (isActive) R.color.blue_200 else R.color.transparent))
