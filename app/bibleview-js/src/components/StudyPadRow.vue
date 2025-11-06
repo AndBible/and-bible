@@ -97,7 +97,6 @@ import {
     StudyPadTextItem
 } from "@/types/client-objects";
 import {AreYouSureButton} from "@/types/common";
-import {faArrowUp, faArrowDown} from "@fortawesome/free-solid-svg-icons";
 
 const emit = defineEmits(['edit-opened', 'add'])
 const props = defineProps<{

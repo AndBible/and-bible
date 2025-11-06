@@ -26,7 +26,7 @@
         <FontAwesomeIcon icon="plus-circle"/>
       </span>
     </div>
-    <div v-if="showCursor && cursorPosition === 0" class="studypad-cursor" @click="moveCursorTo(0)"></div>
+    <div v-if="showCursor && cursorPosition === 0" class="studypad-cursor-first" @click="moveCursorTo(0)"></div>
     <draggable
         v-model="journalEntries"
         handle=".drag-handle"
@@ -45,8 +45,12 @@
               :class="{'has-cursor': showCursor && cursorPosition === index}"
               :style="indentStyle(j)"
               :id="`studypad-${j.type}-${j.id}`"
-              @click="onContainerClick($event, index)"
           >
+            <div
+                v-if="showCursor"
+                class="cursor-click-area"
+                @click="moveCursorTo(index)"
+            ></div>
             <StudyPadRow
                 :key="`studypad-${j.type}-${j.id}`"
                 :ref="setStudyPadRowRef"
@@ -270,19 +274,6 @@ function moveCursorTo(orderNumber: number) {
     android.setStudyPadCursor(label.id, orderNumber);
 }
 
-function onContainerClick(event: MouseEvent, index: number) {
-    if (showCursor.value) {
-        // Check if click was on the border area (top 10px)
-        const target = event.currentTarget as HTMLElement;
-        const rect = target.getBoundingClientRect();
-        const clickY = event.clientY - rect.top;
-        if (clickY < 10) {
-            moveCursorTo(index);
-            event.stopPropagation();
-        }
-    }
-}
-
 </script>
 
 <style scoped lang="scss">
@@ -320,12 +311,47 @@ div.journal-name {
   &.has-cursor {
     border-color: var(--accent-color, #4CAF50);
     border-width: 2pt 0 0 0;
-    cursor: pointer;
 
     &:hover {
       border-width: 3pt 0 0 0;
       border-color: var(--accent-color-hover, #45a049);
     }
+  }
+}
+
+.cursor-click-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 15px;
+  cursor: pointer;
+  z-index: 10;
+
+  // Temporary: visible for design/debugging
+  background-color: rgba(0, 255, 0, 0.3);
+
+  &:hover {
+    background-color: rgba(0, 255, 0, 0.5);
+  }
+}
+
+.studypad-cursor-first {
+  position: relative;
+  margin: 4pt 2pt 2pt;
+  padding-top: 15px;
+  cursor: pointer;
+  border-style: dashed;
+  border-color: var(--accent-color, #4CAF50);
+  border-width: 2pt 0 0 0;
+
+  // Temporary: visible for design/debugging
+  background-color: rgba(0, 255, 0, 0.3);
+
+  &:hover {
+    border-width: 3pt 0 0 0;
+    border-color: var(--accent-color-hover, #45a049);
+    background-color: rgba(0, 255, 0, 0.5);
   }
 }
 
