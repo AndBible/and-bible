@@ -40,11 +40,13 @@ All core functionality has been implemented and the code compiles successfully. 
 
 ## Detailed Implementation
 
-### 1. Data Models (BookmarkEntities.kt)
+### 1. Data Models (StudyPadSearchModels.kt)
 
-Located at: `app/src/main/java/net/bible/android/database/bookmarks/BookmarkEntities.kt`
+Located at: `app/src/main/java/net/bible/android/control/bookmark/StudyPadSearchModels.kt`
 
-#### New Enums and Data Classes
+**Note**: These classes were originally placed in `BookmarkEntities.kt` but have been moved to a separate file since they are not Room entities but business logic models.
+
+#### Enums and Data Classes
 
 ```kotlin
 enum class EntryType {
@@ -808,36 +810,42 @@ CREATE INDEX idx_generic_bookmark_notes ON GenericBookmarkNotes(notes);
 
 ### Modified Files
 
-1. **BookmarkEntities.kt** (lines 690-720)
-   - New data models for search functionality
+1. **StudyPadSearchModels.kt** (NEW FILE)
+   - Data models for search functionality (moved from BookmarkEntities.kt)
 
-2. **BookmarksDao.kt** (lines 354-372)
+2. **BookmarkEntities.kt**
+   - Removed search-related classes (moved to StudyPadSearchModels.kt)
+
+3. **BookmarksDao.kt** (lines 354-372)
    - New DAO queries for content search
 
-3. **BookmarkControl.kt** (lines 306-417)
+4. **BookmarkControl.kt** (lines 306-417)
    - Search business logic implementation
    - Text snippet generation
+   - Updated imports to use StudyPadSearchModels
 
-4. **ManageLabels.kt** (lines 115-122, 188-210, 328-353, 620-622, 634-685, 727-803)
+5. **ManageLabels.kt** (lines 115-122, 188-210, 328-353, 620-622, 634-685, 727-803)
    - Search mode enum
    - Popup menu logic
    - Content search integration
    - Method signature updates
+   - Updated imports to use StudyPadSearchModels
 
-5. **ManageLabelItemAdapter.kt** (lines 45-110)
+6. **ManageLabelItemAdapter.kt** (lines 45-110)
    - View type support
    - Search result rendering
    - Highlighting implementation
+   - Updated imports to use StudyPadSearchModels
 
-6. **strings.xml** (lines 1124-1128)
+7. **strings.xml** (lines 1124-1128)
    - Localization strings
 
 ### Created Files
 
-7. **search_mode_menu.xml**
+8. **search_mode_menu.xml**
    - Popup menu definition
 
-8. **manage_labels_search_result_item.xml**
+9. **manage_labels_search_result_item.xml**
    - Search result item layout
 
 ---

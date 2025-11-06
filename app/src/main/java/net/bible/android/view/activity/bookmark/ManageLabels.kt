@@ -43,6 +43,7 @@ import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.ContentMatch
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -65,7 +66,6 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.PopupMenu
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
-import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.installzip.InstallZip
@@ -313,7 +313,7 @@ class ManageLabels : ListActivityBase() {
                 updateLabelList(rePopulate = true)
             }
 
-           editSearchText.addTextChangedListener(object : TextWatcher {
+            editSearchText.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable) {
                     updateLabelList(rePopulate = true)
                     resetSearchButtonProperties()
@@ -482,7 +482,7 @@ class ManageLabels : ListActivityBase() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    private fun studyPadSelected(journal: BookmarkEntities.Label, firstMatch: BookmarkEntities.ContentMatch? = null) {
+    private fun studyPadSelected(journal: BookmarkEntities.Label, firstMatch: ContentMatch? = null) {
         Log.i(TAG, "Journal selected:" + journal.name)
         try {
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
@@ -618,7 +618,7 @@ class ManageLabels : ListActivityBase() {
     // This is called by the listener, which is created and configured by the list adapter
     // It should only be called when the mode is STUDYPAD.  Nonetheless, I retained the mode check from the previous
     // onListItemClick() method as an additional sanity check.
-    fun selectStudyPadLabel(selected: BookmarkEntities.Label, firstMatch: BookmarkEntities.ContentMatch? = null) {
+    fun selectStudyPadLabel(selected: BookmarkEntities.Label, firstMatch: ContentMatch? = null) {
         if (data.mode == Mode.STUDYPAD) {
             saveAndExit(selected, firstMatch)
         }
@@ -627,7 +627,7 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    private fun saveAndExit(selected: BookmarkEntities.Label? = null, firstMatch: BookmarkEntities.ContentMatch? = null) = lifecycleScope.launch(Dispatchers.Main) {
+    private fun saveAndExit(selected: BookmarkEntities.Label? = null, firstMatch: ContentMatch? = null) = lifecycleScope.launch(Dispatchers.Main) {
         Log.i(TAG, "saveAndExit")
         saveFilteringSettings()
 

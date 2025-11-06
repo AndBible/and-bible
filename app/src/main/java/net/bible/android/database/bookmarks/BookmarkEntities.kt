@@ -686,35 +686,4 @@ class BookmarkEntities {
         val isParagraphBreakLabel get() = name == PARAGRAH_BREAK_LABEL_NAME
         val isSpecialLabel get() = isSpeakLabel || isUnlabeledLabel || isParagraphBreakLabel
     }
-
-    // Search-related data classes
-    enum class EntryType {
-        TEXT_ENTRY,
-        BOOKMARK_NOTE
-    }
-
-    data class ContentMatch(
-        val entryId: IdType,
-        val entryType: EntryType,
-        val textSnippet: String,
-        val matchStart: Int,
-        val matchEnd: Int
-    )
-
-    data class StudyPadSearchResult(
-        val label: Label,
-        val matchCount: Int,
-        val matches: List<ContentMatch>
-    )
-
-    // Helper class for bookmark search results with label information
-    data class BookmarkWithLabel(
-        val bookmark: BibleBookmarkWithNotes,
-        val labelId: IdType
-    )
-
-    data class GenericBookmarkWithLabel(
-        val bookmark: GenericBookmarkWithNotes,
-        val labelId: IdType
-    )
 }

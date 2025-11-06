@@ -308,18 +308,18 @@ open class BookmarkControl @Inject constructor(
      * Search for study pads that contain the given search text in their text entries or bookmark notes.
      * Returns a list of StudyPadSearchResult objects, each containing the matching label and list of matches.
      */
-    fun searchStudyPadsByContent(searchText: String): List<BookmarkEntities.StudyPadSearchResult> {
+    fun searchStudyPadsByContent(searchText: String): List<StudyPadSearchResult> {
         val searchPattern = "%$searchText%"
-        val results = mutableMapOf<IdType, MutableList<BookmarkEntities.ContentMatch>>()
+        val results = mutableMapOf<IdType, MutableList<ContentMatch>>()
 
         // Search in study pad text entries
         val textEntries = dao.searchStudyPadTextEntriesByContent(searchPattern)
         for (entry in textEntries) {
             val matches = results.getOrPut(entry.labelId) { mutableListOf() }
             val snippet = generateTextSnippet(entry.text, searchText)
-            matches.add(BookmarkEntities.ContentMatch(
+            matches.add(ContentMatch(
                 entryId = entry.id,
-                entryType = BookmarkEntities.EntryType.TEXT_ENTRY,
+                entryType = EntryType.TEXT_ENTRY,
                 textSnippet = snippet.text,
                 matchStart = snippet.matchStart,
                 matchEnd = snippet.matchEnd
@@ -333,9 +333,9 @@ open class BookmarkControl @Inject constructor(
             for (label in labels) {
                 val matches = results.getOrPut(label.id) { mutableListOf() }
                 val snippet = generateTextSnippet(bookmark.notes ?: "", searchText)
-                matches.add(BookmarkEntities.ContentMatch(
+                matches.add(ContentMatch(
                     entryId = bookmark.id,
-                    entryType = BookmarkEntities.EntryType.BOOKMARK_NOTE,
+                    entryType = EntryType.BOOKMARK_NOTE,
                     textSnippet = snippet.text,
                     matchStart = snippet.matchStart,
                     matchEnd = snippet.matchEnd
@@ -350,9 +350,9 @@ open class BookmarkControl @Inject constructor(
             for (label in labels) {
                 val matches = results.getOrPut(label.id) { mutableListOf() }
                 val snippet = generateTextSnippet(bookmark.notes ?: "", searchText)
-                matches.add(BookmarkEntities.ContentMatch(
+                matches.add(ContentMatch(
                     entryId = bookmark.id,
-                    entryType = BookmarkEntities.EntryType.BOOKMARK_NOTE,
+                    entryType = EntryType.BOOKMARK_NOTE,
                     textSnippet = snippet.text,
                     matchStart = snippet.matchStart,
                     matchEnd = snippet.matchEnd
@@ -361,12 +361,12 @@ open class BookmarkControl @Inject constructor(
         }
 
         // Create StudyPadSearchResult objects
-        val searchResults = mutableListOf<BookmarkEntities.StudyPadSearchResult>()
+        val searchResults = mutableListOf<StudyPadSearchResult>()
         for ((labelId, matches) in results) {
             val label = dao.labelById(labelId) ?: continue
             if (label.isSpecialLabel) continue // Skip special labels
 
-            searchResults.add(BookmarkEntities.StudyPadSearchResult(
+            searchResults.add(StudyPadSearchResult(
                 label = label,
                 matchCount = matches.size,
                 matches = matches
@@ -375,7 +375,7 @@ open class BookmarkControl @Inject constructor(
 
         // Sort by match count (descending), then by label name (ascending)
         return searchResults.sortedWith(
-            compareByDescending<BookmarkEntities.StudyPadSearchResult> { it.matchCount }
+            compareByDescending<StudyPadSearchResult> { it.matchCount }
                 .thenBy { it.label.name.lowercase() }
         )
     }

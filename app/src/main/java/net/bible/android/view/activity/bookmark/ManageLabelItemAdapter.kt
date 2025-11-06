@@ -29,6 +29,7 @@ import android.view.View
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsListItemBinding
 import net.bible.android.activity.databinding.ManageLabelsSearchResultItemBinding
+import net.bible.android.control.bookmark.StudyPadSearchResult
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName
 import net.bible.service.common.CommonUtils.getResourceColor
@@ -52,7 +53,7 @@ class ManageLabelItemAdapter(context: Context?,
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is BookmarkEntities.StudyPadSearchResult -> VIEW_TYPE_SEARCH_RESULT
+            is StudyPadSearchResult -> VIEW_TYPE_SEARCH_RESULT
             else -> VIEW_TYPE_LABEL
         }
     }
@@ -60,7 +61,7 @@ class ManageLabelItemAdapter(context: Context?,
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
         when (val item = getItem(position)) {
             // Handle search result items
-            is BookmarkEntities.StudyPadSearchResult -> {
+            is StudyPadSearchResult -> {
                 val binding = if (convertView == null || convertView.tag != VIEW_TYPE_SEARCH_RESULT) {
                     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
                     ManageLabelsSearchResultItemBinding.inflate(inflater, parent, false).also {
