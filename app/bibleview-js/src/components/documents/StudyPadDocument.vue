@@ -255,13 +255,11 @@ function studyPadOrdinal(journalEntry: StudyPadItem) {
     return journalEntry.hashCode
 }
 
-// Cursor position for auto-assign studypads
 const cursorPosition = computed(() => {
     return appSettings.studyPadCursors?.[label.id] ?? journalEntries.value.length;
 });
 
 const isAutoAssignLabel = computed(() => {
-    // Check if this studypad is in the auto-assign list
     return appSettings.autoAssignLabels?.includes(label.id) ?? false;
 });
 

@@ -45,6 +45,10 @@
           <FontAwesomeIcon :icon="bookmarkEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
         </div>
 
+        <div v-if="isAutoAssignLabel && isFirstItem" class="journal-button" @click="moveCursorBefore">
+          <FontAwesomeIcon :icon="faArrowUp"/>
+        </div>
+
         <div v-if="isAutoAssignLabel" class="journal-button" @click="moveCursorHere">
           <FontAwesomeIcon :icon="faArrowDown"/>
         </div>
@@ -102,7 +106,7 @@ import {
     StudyPadTextItem
 } from "@/types/client-objects";
 import {AreYouSureButton} from "@/types/common";
-import {faArrowDown} from "@fortawesome/free-solid-svg-icons";
+import {faArrowUp, faArrowDown} from "@fortawesome/free-solid-svg-icons";
 
 const emit = defineEmits(['edit-opened', 'add'])
 const props = defineProps<{
@@ -124,6 +128,8 @@ const exportMode = inject(exportModeKey, ref(false));
 const isAutoAssignLabel = computed(() => {
     return appSettings.autoAssignLabels?.includes(props.label.id) ?? false;
 });
+
+const isFirstItem = computed(() => props.journalEntry.orderNumber === 0);
 
 const editMode = computed<boolean>({
     get() {
@@ -202,6 +208,11 @@ function changeExpanded(newValue: boolean) {
 function moveCursorHere() {
     // Move cursor after this item (orderNumber + 1)
     android.setStudyPadCursor(props.label.id, props.journalEntry.orderNumber + 1);
+}
+
+function moveCursorBefore() {
+    // Move cursor before this item (orderNumber)
+    android.setStudyPadCursor(props.label.id, props.journalEntry.orderNumber);
 }
 
 const bibleUrl = computed(
