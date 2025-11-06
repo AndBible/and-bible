@@ -747,62 +747,76 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
+    private fun addCategoriesToShownLabels() {
+        val labelUnlabeledNotModified = data.changedLabels.find { it == bookmarkControl.labelUnlabelled.id } != null
+        if (data.showUnassigned && !labelUnlabeledNotModified) {
+            shownLabels.add(bookmarkControl.labelUnlabelled)
+        }
+        if(data.showActiveCategory && data.contextSelectedItems.isNotEmpty()) {
+            shownLabels.add(LabelCategory.ACTIVE)
+        }
+        if(!data.hideCategories) {
+            shownLabels.add(LabelCategory.RECENT)
+            shownLabels.add(LabelCategory.OTHER)
+        }
+    }
+
+    private fun performContentSearch() {
+        if (searchText.length >= 3) {
+            // Perform content search asynchronously
+            lifecycleScope.launch(Dispatchers.IO) {
+                val results = bookmarkControl.searchStudyPadsByContent(searchText)
+                lifecycleScope.launch(Dispatchers.Main) {
+                    searchResults = results
+                    shownLabels.clear()
+                    shownLabels.addAll(results)
+                    notifyDataSetChanged()
+                }
+            }
+        } else {
+            // Less than 3 characters, show all labels
+            searchResults = null
+            shownLabels.addAll(allLabels)
+            addCategoriesToShownLabels()
+        }
+    }
+
+    private fun performNameSearch() {
+        searchResults = null
+        Log.i(TAG, "Parsing filter: $filterRegex")
+
+        fun labelMatches(label: BookmarkEntities.Label): Boolean =
+            searchText.isEmpty() ||
+                filterRegex.containsMatchIn(label.displayName) ||
+                data.selectedLabels.contains(label.id)
+
+        shownLabels.addAll(allLabels.filter { labelMatches(it) })
+        val labelUnlabeledNotModified = data.changedLabels.find { it == bookmarkControl.labelUnlabelled.id } != null
+        if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled) && !labelUnlabeledNotModified) {
+            shownLabels.add(bookmarkControl.labelUnlabelled)
+        }
+        if(data.showActiveCategory && data.contextSelectedItems.isNotEmpty()) {
+            shownLabels.add(LabelCategory.ACTIVE)
+        }
+        if(!data.hideCategories) {
+            shownLabels.add(LabelCategory.RECENT)
+            shownLabels.add(LabelCategory.OTHER)
+        }
+    }
+
     fun updateLabelList(rePopulate: Boolean = false, reOrder: Boolean = false) {
         if (rePopulate) {
             shownLabels.clear()
 
             // Handle content search mode separately
             if (data.mode == Mode.STUDYPAD && searchMode == SearchMode.CONTENT) {
+                performContentSearch()
                 if (searchText.length >= 3) {
-                    // Perform content search asynchronously
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        val results = bookmarkControl.searchStudyPadsByContent(searchText)
-                        lifecycleScope.launch(Dispatchers.Main) {
-                            searchResults = results
-                            shownLabels.clear()
-                            shownLabels.addAll(results)
-                            notifyDataSetChanged()
-                        }
-                    }
                     return // Exit early, async operation will update list
-                } else {
-                    // Less than 3 characters, show all labels
-                    searchResults = null
-                    shownLabels.addAll(allLabels)
-                    val labelUnlabeledNotModified = data.changedLabels.find { it == bookmarkControl.labelUnlabelled.id } != null
-                    if (data.showUnassigned && !labelUnlabeledNotModified) {
-                        shownLabels.add(bookmarkControl.labelUnlabelled)
-                    }
-                    if(data.showActiveCategory && data.contextSelectedItems.isNotEmpty()) {
-                        shownLabels.add(LabelCategory.ACTIVE)
-                    }
-                    if(!data.hideCategories) {
-                        shownLabels.add(LabelCategory.RECENT)
-                        shownLabels.add(LabelCategory.OTHER)
-                    }
                 }
             } else {
                 // Name search (start or contains)
-                searchResults = null
-                Log.i(TAG, "Parsing filter: $filterRegex")
-
-                fun labelMatches(label: BookmarkEntities.Label): Boolean =
-                    searchText.isEmpty() ||
-                        filterRegex.containsMatchIn(label.displayName) ||
-                        data.selectedLabels.contains(label.id)
-
-                shownLabels.addAll(allLabels.filter { labelMatches(it) })
-                val labelUnlabeledNotModified = data.changedLabels.find { it == bookmarkControl.labelUnlabelled.id } != null
-                if (data.showUnassigned && labelMatches(bookmarkControl.labelUnlabelled) && !labelUnlabeledNotModified) {
-                    shownLabels.add(bookmarkControl.labelUnlabelled)
-                }
-                if(data.showActiveCategory && data.contextSelectedItems.isNotEmpty()) {
-                    shownLabels.add(LabelCategory.ACTIVE)
-                }
-                if(!data.hideCategories) {
-                    shownLabels.add(LabelCategory.RECENT)
-                    shownLabels.add(LabelCategory.OTHER)
-                }
+                performNameSearch()
             }
         }
 
