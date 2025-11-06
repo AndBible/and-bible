@@ -1050,10 +1050,6 @@ open class BookmarkControl @Inject constructor(
     companion object {
         const val LABEL_NO_EXTRA = "labelNo"
         private const val TAG = "BookmarkControl"
-
-        // Search result limits to prevent performance issues
-        private const val MAX_STUDY_PADS_IN_SEARCH = 100
-        private const val MAX_MATCHES_PER_STUDY_PAD = 10
     }
 
 }
