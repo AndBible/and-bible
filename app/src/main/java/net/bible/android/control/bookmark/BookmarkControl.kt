@@ -731,7 +731,7 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    private fun incrementOrderNumbersFrom(labelId: IdType, fromOrder: Int) {
+    private fun incrementOrderNumbersFrom(labelId: IdType, fromOrder: Int, newStudyPadTextEntry: StudyPadTextEntryWithText? = null) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
         val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
         val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
@@ -743,7 +743,7 @@ open class BookmarkControl @Inject constructor(
         if (bookmarkToLabels.isNotEmpty() || genericBookmarkToLabels.isNotEmpty() || studyPadTextEntries.isNotEmpty()) {
             ABEventBus.post(StudyPadOrderEvent(
                 labelId = labelId,
-                newStudyPadTextEntry = null,
+                newStudyPadTextEntry = newStudyPadTextEntry,
                 bookmarkToLabelsOrderChanged = bookmarkToLabels,
                 genericBookmarkToLabelsOrderChanged = genericBookmarkToLabels,
                 studyPadOrderChanged = studyPadTextEntries
@@ -753,17 +753,11 @@ open class BookmarkControl @Inject constructor(
 
     fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) {
         val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1)
-        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber > entryOrderNumber }.onEach {it.orderNumber++}
-        val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filter { it.orderNumber > entryOrderNumber }.onEach {it.orderNumber++}
-        val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId).filter { it.orderNumber > entryOrderNumber }.onEach { it.orderNumber++ }
 
-        dao.updateBibleBookmarkToLabels(bookmarkToLabels)
-        dao.updateGenericBookmarkToLabels(genericBookmarkToLabels)
-        updateStudyPadTextEntries(studyPadTextEntries)
         dao.insert(entry.studyPadTextEntryEntity)
         dao.insert(entry.studyPadTextEntryTextEntity)
 
-        ABEventBus.post(StudyPadOrderEvent(labelId, entry, bookmarkToLabels, genericBookmarkToLabels, studyPadTextEntries))
+        incrementOrderNumbersFrom(labelId, entryOrderNumber + 1, newStudyPadTextEntry = entry)
     }
 
     fun removeBibleBookmarkLabel(bookmarkId: IdType, labelId: IdType) {
