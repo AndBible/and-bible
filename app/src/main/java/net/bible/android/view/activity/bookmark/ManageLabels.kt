@@ -487,12 +487,10 @@ class ManageLabels : ListActivityBase() {
     private fun studyPadSelected(journal: BookmarkEntities.Label, firstMatch: BookmarkEntities.ContentMatch? = null) {
         Log.i(TAG, "Journal selected:" + journal.name)
         try {
-            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(FakeBookFactory.journalDocument, StudyPadKey(journal))
-            // TODO: Implement navigation to specific entry using firstMatch
-            // This would require posting an event to Vue.js side to scroll to the matching entry
-            if (firstMatch != null) {
-                Log.i(TAG, "TODO: Navigate to entry ${firstMatch.entryId} of type ${firstMatch.entryType}")
-            }
+            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
+                FakeBookFactory.journalDocument,
+                StudyPadKey(journal, bookmarkId = firstMatch?.entryId)
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show journal", e)
             Dialogs.showErrorMsg(R.string.error_occurred, e)
