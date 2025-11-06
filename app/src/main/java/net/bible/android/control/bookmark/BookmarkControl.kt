@@ -168,11 +168,11 @@ open class BookmarkControl @Inject constructor(
 
             dao.deleteLabelsFromBookmark(bookmark, toBeDeleted.map {it})
 
-            val workspaceSettings = windowControl.windowRepository?.workspaceSettings
+            val workspaceSettings = windowControl.windowRepository.workspaceSettings
             when(bookmark) {
                 is BibleBookmarkWithNotes -> {
                     val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
-                        val cursor = workspaceSettings?.studyPadCursors?.get(labelId)
+                        val cursor = workspaceSettings.studyPadCursors[labelId]
                         val orderNumber = cursor ?: dao.countStudyPadEntities(labelId)
 
                         // If inserting at cursor position, increment orderNumbers of items at/after cursor
@@ -181,7 +181,7 @@ open class BookmarkControl @Inject constructor(
                         }
 
                         // Update cursor position if it exists
-                        if (cursor != null && workspaceSettings != null) {
+                        if (cursor != null) {
                             workspaceSettings.studyPadCursors[labelId] = cursor + 1
                         }
 
@@ -189,12 +189,12 @@ open class BookmarkControl @Inject constructor(
                     }
                     dao.insertBookmarkToLabels(addBookmarkToLabels)
                     // Update UI with new order
-                    toBeAdded.filter { workspaceSettings?.studyPadCursors?.containsKey(it) == true }
+                    toBeAdded.filter { workspaceSettings.studyPadCursors.containsKey(it) }
                         .forEach { labelId -> sanitizeStudyPadOrder(labelId, updateAllInUi = true) }
                 }
                 is GenericBookmarkWithNotes -> {
                     val addBookmarkToLabels = toBeAdded.filter { !it.isEmpty }.map { labelId ->
-                        val cursor = workspaceSettings?.studyPadCursors?.get(labelId)
+                        val cursor = workspaceSettings.studyPadCursors[labelId]
                         val orderNumber = cursor ?: dao.countStudyPadEntities(labelId)
 
                         // If inserting at cursor position, increment orderNumbers of items at/after cursor
@@ -203,7 +203,7 @@ open class BookmarkControl @Inject constructor(
                         }
 
                         // Update cursor position if it exists
-                        if (cursor != null && workspaceSettings != null) {
+                        if (cursor != null) {
                             workspaceSettings.studyPadCursors[labelId] = cursor + 1
                         }
 
@@ -211,21 +211,21 @@ open class BookmarkControl @Inject constructor(
                     }
                     dao.insertGenericBookmarkToLabels(addBookmarkToLabels)
                     // Update UI with new order
-                    toBeAdded.filter { workspaceSettings?.studyPadCursors?.containsKey(it) == true }
+                    toBeAdded.filter { workspaceSettings.studyPadCursors.containsKey(it) }
                         .forEach { labelId -> sanitizeStudyPadOrder(labelId, updateAllInUi = true) }
                 }
             }
 
             // Save updated workspace settings if cursor was modified
-            if (workspaceSettings != null && toBeAdded.any { workspaceSettings.studyPadCursors.containsKey(it) }) {
-                windowControl.windowRepository?.saveIntoDb()
+            if (toBeAdded.any { workspaceSettings.studyPadCursors.containsKey(it) }) {
+                windowControl.windowRepository.saveIntoDb()
                 ABEventBus.post(AppSettingsUpdated())
             }
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
                 bookmark.primaryLabelId = labelIdsInDb.firstOrNull()
                 dao.update(bookmark.bookmarkEntity)
             }
-            windowControl.windowRepository?.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests ?.
+            windowControl.windowRepository.updateRecentLabels(toBeAdded.union(toBeDeleted).toList()) // for tests ?.
         }
 
         addText(bookmark)
