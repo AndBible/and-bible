@@ -352,6 +352,20 @@ class WorkspaceEntities {
         companion object {
             val default get() = WorkspaceSettings()
         }
+
+        fun deepCopy(): WorkspaceSettings = WorkspaceSettings(
+            enableTiltToScroll = enableTiltToScroll,
+            enableReverseSplitMode = enableReverseSplitMode,
+            autoPin = autoPin,
+            speakSettings = speakSettings?.copy(),
+            recentLabels = recentLabels.map { it.copy() }.toMutableList(),
+            autoAssignLabels = autoAssignLabels.toMutableSet(),
+            autoAssignPrimaryLabel = autoAssignPrimaryLabel,
+            studyPadCursors = studyPadCursors.toMutableMap(),
+            hideCompareDocuments = hideCompareDocuments.toMutableSet(),
+            limitAmbiguousModalSize = limitAmbiguousModalSize,
+            workspaceColor = workspaceColor
+        )
     }
 
     @Entity
@@ -379,7 +393,7 @@ class WorkspaceEntities {
             id = id,
             orderNumber = orderNumber,
             textDisplaySettings = textDisplaySettings?.copy(),
-            workspaceSettings = workspaceSettings?.copy(),
+            workspaceSettings = workspaceSettings?.deepCopy(),
             unPinnedWeight = unPinnedWeight,
             maximizedWindowId = maximizedWindowId,
             primaryTargetLinksWindowId = primaryTargetLinksWindowId

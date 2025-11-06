@@ -327,12 +327,10 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun setStudyPadCursor(labelId: String, orderNumber: Int) {
         val windowRepository = bookmarkControl.windowControl.windowRepository
-        val workspaceSettings = windowRepository?.workspaceSettings
-        if (workspaceSettings != null) {
-            workspaceSettings.studyPadCursors[IdType(labelId)] = orderNumber
-            windowRepository.saveIntoDb()
-            ABEventBus.post(AppSettingsUpdated())
-        }
+        val workspaceSettings = windowRepository.workspaceSettings
+        workspaceSettings.studyPadCursors[IdType(labelId)] = orderNumber
+        windowRepository.saveIntoDb()
+        ABEventBus.post(AppSettingsUpdated())
     }
 
     @JavascriptInterface
