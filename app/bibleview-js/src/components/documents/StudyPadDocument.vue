@@ -26,7 +26,6 @@
         <FontAwesomeIcon icon="plus-circle"/>
       </span>
     </div>
-    <div v-if="showCursor && cursorPosition === 0" class="studypad-cursor-first" @click="moveCursorTo(0)"></div>
     <draggable
         v-model="journalEntries"
         handle=".drag-handle"
@@ -309,11 +308,10 @@ div.journal-name {
   @extend .note-container;
 
   &.has-cursor {
+    border-style: solid;
     border-color: var(--accent-color, #4CAF50);
-    border-width: 2pt 0 0 0;
 
     &:hover {
-      border-width: 3pt 0 0 0;
       border-color: var(--accent-color-hover, #45a049);
     }
   }
@@ -321,38 +319,12 @@ div.journal-name {
 
 .cursor-click-area {
   position: absolute;
-  top: 0;
+  top: -7px;
   left: 0;
   right: 0;
   height: 15px;
   cursor: pointer;
   z-index: 10;
-
-  // Temporary: visible for design/debugging
-  background-color: rgba(0, 255, 0, 0.3);
-
-  &:hover {
-    background-color: rgba(0, 255, 0, 0.5);
-  }
-}
-
-.studypad-cursor-first {
-  position: relative;
-  margin: 4pt 2pt 2pt;
-  padding-top: 15px;
-  cursor: pointer;
-  border-style: dashed;
-  border-color: var(--accent-color, #4CAF50);
-  border-width: 2pt 0 0 0;
-
-  // Temporary: visible for design/debugging
-  background-color: rgba(0, 255, 0, 0.3);
-
-  &:hover {
-    border-width: 3pt 0 0 0;
-    border-color: var(--accent-color-hover, #45a049);
-    background-color: rgba(0, 255, 0, 0.5);
-  }
 }
 
 .bible-text {
