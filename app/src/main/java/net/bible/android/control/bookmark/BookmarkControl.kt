@@ -379,7 +379,7 @@ open class BookmarkControl @Inject constructor(
         )
     }
 
-    private fun generateTextSnippet(fullText: String, searchText: String, contextChars: Int = 50): StudyPadSearchResultTextSnippet {
+    internal fun generateTextSnippet(fullText: String, searchText: String, contextChars: Int = 50): StudyPadSearchResultTextSnippet {
         val searchLower = searchText.lowercase()
         val fullTextLower = fullText.lowercase()
         val matchIndex = fullTextLower.indexOf(searchLower)
