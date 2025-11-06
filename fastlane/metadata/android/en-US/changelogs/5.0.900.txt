@@ -1,7 +1,6 @@
 - Search studypads
 - Studypad edit position
 - Install TTF fonts
-- Allow removing label / studypad with its bookmarks
 - Import & Export Bookmarks & Notes as CSV
 - Memorize Bible verses game
 
