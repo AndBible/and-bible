@@ -277,14 +277,15 @@ class ManageLabels : ListActivityBase() {
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        loadFilteringSettings()
-
         super.onCreate(savedInstanceState)
         binding = ManageLabelsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         super.buildActivityComponent().inject(this)
 
         data = ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
+
+        // Load filtering settings after data is initialized
+        loadFilteringSettings()
 
         allLabels.addAll(bookmarkControl.assignableLabels.filter {!it.isUnlabeledLabel})
 
