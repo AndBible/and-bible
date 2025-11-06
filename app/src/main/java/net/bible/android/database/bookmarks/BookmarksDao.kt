@@ -44,6 +44,8 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import java.util.*
 
+const val MAX_SEARCH_RESULTS = 100
+
 const val orderBy = """
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.kjvOrdinalStart END,
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.startOffset END,
@@ -352,14 +354,14 @@ interface BookmarkDao {
     fun studyPadTextEntryById(id: IdType): BookmarkEntities.StudyPadTextEntryWithText?
 
     // Search queries for study pad content
-    @Query("SELECT * from StudyPadTextEntryWithText WHERE text LIKE :search")
+    @Query("SELECT * from StudyPadTextEntryWithText WHERE text LIKE :search LIMIT $MAX_SEARCH_RESULTS")
     fun searchStudyPadTextEntriesByContent(search: String): List<BookmarkEntities.StudyPadTextEntryWithText>
 
     @Query("""
         SELECT DISTINCT BibleBookmarkWithNotes.*
         FROM BibleBookmarkWithNotes
         INNER JOIN BibleBookmarkToLabel ON BibleBookmarkWithNotes.id = BibleBookmarkToLabel.bookmarkId
-        WHERE BibleBookmarkWithNotes.notes LIKE :search
+        WHERE BibleBookmarkWithNotes.notes LIKE :search LIMIT $MAX_SEARCH_RESULTS
     """)
     fun searchBibleBookmarkNotesByContent(search: String): List<BibleBookmarkWithNotes>
 
@@ -367,7 +369,7 @@ interface BookmarkDao {
         SELECT DISTINCT GenericBookmarkWithNotes.*
         FROM GenericBookmarkWithNotes
         INNER JOIN GenericBookmarkToLabel ON GenericBookmarkWithNotes.id = GenericBookmarkToLabel.bookmarkId
-        WHERE GenericBookmarkWithNotes.notes LIKE :search
+        WHERE GenericBookmarkWithNotes.notes LIKE :search LIMIT $MAX_SEARCH_RESULTS
     """)
     fun searchGenericBookmarkNotesByContent(search: String): List<GenericBookmarkWithNotes>
 

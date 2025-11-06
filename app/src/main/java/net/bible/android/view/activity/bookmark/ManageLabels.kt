@@ -37,7 +37,10 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.activity.R
@@ -120,6 +123,7 @@ class ManageLabels : ListActivityBase() {
     private var lastSelectedQuickSearchButton: Button? = null
     private var searchInsideText = false
     private var searchMode = SearchMode.NAME_START
+    private var currentSearchJob: Job? = null
 
     private fun loadFilteringSettings() {
         searchInsideText = CommonUtils.settings.getBoolean("labels_list_filter_searchInsideTextButtonActive", false)
@@ -760,15 +764,38 @@ class ManageLabels : ListActivityBase() {
 
     private fun performContentSearch() {
         if (searchText.length >= 3) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                val results = bookmarkControl.searchStudyPadsByContent(searchText)
-                lifecycleScope.launch(Dispatchers.Main) {
+            // Cancel previous search job to prevent race conditions
+            currentSearchJob?.cancel()
+
+            // Launch new search with debouncing and error handling
+            currentSearchJob = lifecycleScope.launch {
+                try {
+                    // Debounce: wait 300ms before executing search
+                    delay(300)
+
+                    // Perform search on IO dispatcher
+                    val results = withContext(Dispatchers.IO) {
+                        bookmarkControl.searchStudyPadsByContent(searchText)
+                    }
+
+                    // Update UI on Main dispatcher
                     shownLabels.clear()
                     shownLabels.addAll(results)
+                    notifyDataSetChanged()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Search failed", e)
+                    // Show all labels on error
+                    shownLabels.clear()
+                    shownLabels.addAll(allLabels)
+                    addCategoriesToShownLabels()
                     notifyDataSetChanged()
                 }
             }
         } else {
+            // Cancel any ongoing search if less than 3 characters
+            currentSearchJob?.cancel()
+            currentSearchJob = null
+
             // Less than 3 characters, show all labels
             shownLabels.addAll(allLabels)
             addCategoriesToShownLabels()
