@@ -308,7 +308,7 @@ open class BookmarkControl @Inject constructor(
      * Search for study pads that contain the given search text in their text entries or bookmark notes.
      * Returns a list of StudyPadSearchResult objects, each containing the matching label and list of matches.
      */
-    suspend fun searchStudyPadsByContent(searchText: String): List<BookmarkEntities.StudyPadSearchResult> {
+    fun searchStudyPadsByContent(searchText: String): List<BookmarkEntities.StudyPadSearchResult> {
         val searchPattern = "%$searchText%"
         val results = mutableMapOf<IdType, MutableList<BookmarkEntities.ContentMatch>>()
 
