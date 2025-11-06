@@ -110,9 +110,11 @@ class ManageLabelItemAdapter(context: Context?,
 
             // Handle label category items
             is LabelCategory -> {
-                bindings = if (convertView == null) {
+                bindings = if (convertView == null || convertView.tag != VIEW_TYPE_LABEL) {
                     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                    ManageLabelsListItemBinding.inflate(inflater, parent, false)
+                    ManageLabelsListItemBinding.inflate(inflater, parent, false).also {
+                        it.root.tag = VIEW_TYPE_LABEL
+                    }
                 } else {
                     ManageLabelsListItemBinding.bind(convertView)
                 }
@@ -132,9 +134,11 @@ class ManageLabelItemAdapter(context: Context?,
 
             // Handle regular label items
             is BookmarkEntities.Label -> {
-                bindings = if (convertView == null) {
+                bindings = if (convertView == null || convertView.tag != VIEW_TYPE_LABEL) {
                     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                    ManageLabelsListItemBinding.inflate(inflater, parent, false)
+                    ManageLabelsListItemBinding.inflate(inflater, parent, false).also {
+                        it.root.tag = VIEW_TYPE_LABEL
+                    }
                 } else {
                     ManageLabelsListItemBinding.bind(convertView)
                 }
