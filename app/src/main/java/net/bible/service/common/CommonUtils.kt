@@ -1728,33 +1728,53 @@ object CommonUtils : CommonUtilsBase() {
 
     fun parseAndBibleReference(uri: Uri): BookAndKey? {
         val urlRegex = Regex("""/(.*)""")
-        val docStr = uri.getQueryParameter("document")
-        val doc = if (docStr != null) Books.installed().getBook(docStr) else null
+        var docStr = uri.getQueryParameter("document")
+        val path = uri.path?.removePrefix("/") ?: return null
+        var keyStr = path
+
+        // Handle legacy JSword-style form, e.g. "StrongsGreek:5548"
+        if (path.contains(":")) {
+            val parts = path.split(":", limit = 2)
+            if (docStr == null) docStr = parts[0]  // derive document if missing
+            keyStr = parts[1]
+        }
+
+        // Try to load the document (SwordBook, Dictionary, etc.)
+        val doc = docStr?.let { Books.installed().getBook(it) }
 
         val defV11n = if (doc is SwordBook) doc.versification else KJVA
         val v11nStr = uri.getQueryParameter("v11n")
         val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
 
-        val match = urlRegex.find(uri.path.toString()) ?: return null
-        var keyStr = match.groups[1]?.value ?: return null
-        if (keyStr.contains(":")) {
-            keyStr = keyStr.split(":", limit = 2)[1]
+
+//        val match = urlRegex.find(uri.path.toString()) ?: return null
+
+        if (doc is SwordBook && doc.bookCategory == BookCategory.DICTIONARY) {
+            // Strong’s keys are just dictionary entry identifiers, not verse references
+            val key = doc.getKey(keyStr)
+            return BookAndKey(key, doc)
         }
 
-        val key: Passage = PassageKeyFactory.instance().getKey(v11n, keyStr)
+        return try {
+            val key = PassageKeyFactory.instance().getKey(v11n, keyStr)
+            val ordinalStr = uri.getQueryParameter("ordinal")
+            if (ordinalStr != null) {
+                val ord = ordinalStr.toInt()
+                return BookAndKey(key, doc, ordinal = OrdinalRange(ord))
+            }
+            return BookAndKey(key, doc)
+        } catch (e: Exception) {
+            Log.e(TAG, "Unexpected exception when parsing URI", e)
+            null
 
-        val ordinalStr = uri.getQueryParameter("ordinal")
-        if(ordinalStr != null) {
-            val ord = ordinalStr.toInt()
-            return BookAndKey(key, doc, ordinal = OrdinalRange(ord))
         }
-        return BookAndKey(key, doc)
+
     }
 
     fun parseAndBibleReference(uri: String): BookAndKey?
         = parseAndBibleReference(Uri.parse(uri))
 
-}
+
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
 
@@ -2000,3 +2020,4 @@ data class AndBibleBackupManifest(
         }
     }
 }
+    }
