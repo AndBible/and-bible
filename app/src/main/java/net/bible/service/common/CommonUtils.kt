@@ -100,6 +100,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -1725,7 +1726,13 @@ object CommonUtils : CommonUtilsBase() {
             }
         }
     }
+    fun appendZeros(keyStr: String): String {
+        val lengthDiff = 5 - keyStr.length
+        if(lengthDiff <= 0) return keyStr
 
+        return "0".repeat(lengthDiff) + keyStr
+
+    }
     fun parseAndBibleReference(uri: Uri): BookAndKey? {
         val urlRegex = Regex("""/(.*)""")
         var docStr = uri.getQueryParameter("document")
@@ -1736,7 +1743,7 @@ object CommonUtils : CommonUtilsBase() {
         if (path.contains(":")) {
             val parts = path.split(":", limit = 2)
             if (docStr == null) docStr = parts[0]  // derive document if missing
-            keyStr = parts[1]
+            keyStr = appendZeros(parts[1])
         }
 
         // Try to load the document (SwordBook, Dictionary, etc.)
@@ -1749,9 +1756,10 @@ object CommonUtils : CommonUtilsBase() {
 
 //        val match = urlRegex.find(uri.path.toString()) ?: return null
 
-        if (doc is SwordBook && doc.bookCategory == BookCategory.DICTIONARY) {
+        if (doc is SwordDictionary) {
 
             val key = doc.getKey(keyStr)
+            val linkey = LinkControl
             return BookAndKey(key, doc)
         }
 
