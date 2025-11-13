@@ -26,6 +26,7 @@ import {AsyncFunc, StudyPadEntryType, JSONString, LogEntry, Nullable} from "@/ty
 import {
     BaseBookmark,
     CombinedRange,
+    EditAction,
     StudyPadBibleBookmarkItem,
     StudyPadGenericBookmarkItem,
     StudyPadItem,
@@ -60,6 +61,7 @@ export type BibleJavascriptInterface = {
     removeBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
     removeGenericBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
     updateOrderNumber: (labelId: IdType, data: JSONString) => void,
+    setStudyPadCursor: (labelId: IdType, orderNumber: number) => void,
     getActiveLanguages: () => string,
     toast: (text: string) => void,
     updateStudyPadTextEntry: (data: JSONString) => void,
@@ -71,7 +73,10 @@ export type BibleJavascriptInterface = {
     copyVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
+    addParagraphBreakBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    addGenericParagraphBreakBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
+    memorize: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
     speak: (bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) => void,
@@ -84,11 +89,15 @@ export type BibleJavascriptInterface = {
     querySelection: (bookmarkId: IdType, value: boolean) => void,
     setBookmarkWholeVerse: (bookmarkId: IdType, value: boolean) => void,
     setGenericBookmarkWholeVerse: (bookmarkId: IdType, value: boolean) => void,
+    setBookmarkCustomIcon: (bookmarkId: IdType, value: Nullable<string>) => void,
+    setBookmarkEditAction: (bookmarkId: IdType, value: string) => void,
+    setGenericBookmarkCustomIcon: (bookmarkId: IdType, value: Nullable<string>) => void,
     toggleCompareDocument: (documentId: string) => void,
     helpDialog: (content: string, title: Nullable<string>) => void,
     shareHtml: (html: string) => void,
     helpBookmarks: () => void,
     onKeyDown: (key: string) => void,
+    saveState: (newState: string) => void,
 }
 
 export type UseAndroid = ReturnType<typeof useAndroid>
@@ -376,8 +385,20 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.addGenericBookmark(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1, addNote);
     }
 
+    function addParagraphBreakBookmark(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.addParagraphBreakBookmark(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
+    function addGenericParagraphBreakBookmark(bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.addGenericParagraphBreakBookmark(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
     function compare(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
         window.android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
+    function memorize(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.memorize(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
     function openStudyPad(labelId: IdType, bookmark: BaseBookmark) {
@@ -423,6 +444,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
                 studyPadTextItems: orderNumberPairs(studyPadTextItems)
             })
         );
+    }
+
+    function setStudyPadCursor(labelId: IdType, orderNumber: number) {
+        window.android.setStudyPadCursor(labelId, orderNumber);
     }
 
     function toast(text: string) {
@@ -472,6 +497,18 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         }
     }
 
+    function setCustomIcon(bookmark: BaseBookmark, value: Nullable<string>) {
+        if(isBibleBookmark(bookmark)) {
+            window.android.setBookmarkCustomIcon(bookmark.id, value);
+        } else {
+            window.android.setGenericBookmarkCustomIcon(bookmark.id, value);
+        }
+    }
+
+    function setEditAction(bookmark: BaseBookmark, value: EditAction) {
+        window.android.setBookmarkEditAction(bookmark.id, JSON.stringify(value));
+    }
+
     function reportModalState(value: boolean) {
         window.android.reportModalState(value)
     }
@@ -500,6 +537,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.onKeyDown(key);
     }
 
+    function saveState(newState: any) {
+        window.android.saveState(JSON.stringify(newState));
+    }
+
     const exposed = {
         shareHtml,
         helpBookmarks,
@@ -520,6 +561,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         deleteStudyPadEntry,
         removeBookmarkLabel,
         updateOrderNumber,
+        setStudyPadCursor,
         updateStudyPadEntry,
         getActiveLanguages,
         toast,
@@ -529,6 +571,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         toggleBookmarkLabel,
         reportModalState,
         setBookmarkWholeVerse,
+        setCustomIcon,
+        setEditAction,
         toggleCompareDocument,
         openMyNotes,
         openDownloads,
@@ -537,12 +581,16 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         copyVerse,
         addBookmark,
         addGenericBookmark,
+        addParagraphBreakBookmark,
+        addGenericParagraphBreakBookmark,
         compare,
+        memorize,
         speak,
         speakGeneric,
         helpDialog,
         onKeyDown,
         parseRef,
+        saveState,
     }
 
     if (config.developmentMode) return {

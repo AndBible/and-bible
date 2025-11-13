@@ -48,14 +48,14 @@ import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
 
 const props = withDefaults(defineProps<{
     bookmarkId: IdType
-    handleTouch: boolean
-    disableLinks: boolean
-    favourites: boolean
-    frequent: boolean
-    recent: boolean
-    inBookmark: boolean
-    onlyAssign: boolean
-    singleLine: boolean
+    handleTouch?: boolean
+    disableLinks?: boolean
+    favourites?: boolean
+    frequent?: boolean
+    recent?: boolean
+    inBookmark?: boolean
+    onlyAssign?: boolean
+    singleLine?: boolean
 }>(), {
     handleTouch: false,
     disableLinks: false,
@@ -161,7 +161,7 @@ defineExpose({openActions});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .icon {
   font-size: 10px;

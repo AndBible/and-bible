@@ -57,9 +57,41 @@ openDownloads: 애드온 다운로드로 이동
 verseShare: 공유
 verseSpeak: 읽기
 verseCompare: 비교
+verseMemorize: ""
 verseNote: 노트
 verseMyNotes: 내 노트
+verseParagraphBreak: ""
 verseShareLong: 이 절을 공유
 verseCompareLong: 절 비교
+verseMemorizeLong: ""
 verseNoteLong: 노트 쓰기
+verseParagraphBreakLong: ""
 addBookmark: 북마크
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: 재설정
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: 기타

@@ -27,8 +27,7 @@ import {
 } from "@/utils";
 import {setupEventBusListener} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
-import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
-import {Icon, icon} from "@fortawesome/fontawesome-svg-core";
+import {Icon} from "@fortawesome/fontawesome-svg-core";
 import {AppSettings, Config, testMode} from "@/composables/config";
 import {
     BaseBookmark,
@@ -46,6 +45,8 @@ import {
 } from "@/types/client-objects";
 import {ColorParam} from "@/types/common";
 import Color from "color";
+import {bookmarkIcon, customIconMap, editIcon, speakIcon} from "@/composables/fontawesome";
+import {EditActionMode} from "@/types/client-objects";
 
 type LabelId = IdType
 type LabelCountMap = Map<LabelId, number>
@@ -64,9 +65,17 @@ type StyleRange = {
 
 type LabelAndId = { id: IdType, label: LabelAndStyle }
 
-const speakIcon = icon(faHeadphones);
-const editIcon = icon(faEdit);
-const bookmarkIcon = icon(faBookmark);
+export function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle): Icon | null {
+    if (bookmark.customIcon != null) {
+        const custom = customIconMap.get(bookmark.customIcon);
+        if (custom) return custom;
+    }
+    if (label.customIcon != null) {
+        const custom = customIconMap.get(label.customIcon);
+        if (custom) return custom;
+    }
+    return null;
+}
 
 const allStyleRangeArrays = reactive<Set<Ref<StyleRange[]>>>(new Set());
 const allStyleRanges = computed(() => {
@@ -200,6 +209,14 @@ export function useGlobalBookmarks(config: Config) {
         labelsUpdated.value++;
     }
 
+    function deleteBookmarkLabels(inputData: IdType[]) {
+        if (!inputData.length) return
+        for (const v of inputData) {
+            bookmarkLabels.delete(v)
+        }
+        labelsUpdated.value++;
+    }
+
     function updateBookmarks(inputData: BaseBookmark[]) {
         for (const v of inputData) {
             const bmark = {...v, hasNote: !!v.notes};
@@ -241,6 +258,10 @@ export function useGlobalBookmarks(config: Config) {
 
     setupEventBusListener("update_labels", function updateLabels(labels: Label[]) {
         return updateBookmarkLabels(labels);
+    })
+
+    setupEventBusListener("delete_labels", function deleteLabels(labelIds: IdType[]) {
+        return deleteBookmarkLabels(labelIds);
     })
 
     window.bibleViewDebug.bookmarks = bookmarks;
@@ -547,13 +568,69 @@ export function useBookmarks(
     const undoHighlights: (() => void)[] = [];
     const undoMarkers: (() => void)[] = [];
 
-    function getIconElement(faIcon: Icon, iconColor: string) {
-        const icon = document.createElement("span")
-        icon.appendChild(faIcon.node[0])
-        icon.style.color = iconColor;
-        icon.classList.add("bookmark-marker");
-        icon.classList.add("skip-offset");
-        return icon;
+    function getIconElement(faIcon: Icon, iconColor: string, hasNote: boolean) {
+        const container = document.createElement("span")
+        container.appendChild(faIcon.node[0])
+        container.style.color = iconColor;
+        if (hasNote) {
+            const editContainer = document.createElement("span")
+            editContainer.classList.add("bookmark-marker-note");
+            editContainer.appendChild(editIcon.node[0]);
+            container.appendChild(editContainer);
+        }
+        container.classList.add("bookmark-marker");
+        container.classList.add("skip-offset");
+        return container;
+    }
+
+    function parseEditActionContent(content: string): DocumentFragment {
+        const fragment = document.createDocumentFragment();
+        
+        // Split content by XML tags while preserving the tags
+        const parts = content.split(/(<br\s*\/?>|<subtitle>.*?<\/subtitle>)/);
+        
+        for (const part of parts) {
+            if (!part) continue;
+            
+            if (part.match(/^<br\s*\/?>$/)) {
+                // Paragraph break
+                const spanElement = document.createElement("span");
+                spanElement.className = "paragraphBreak skip-offset";
+                fragment.appendChild(spanElement);
+            } else if (part.match(/^<subtitle>(.*?)<\/subtitle>$/)) {
+                // Subtitle
+                const match = part.match(/^<subtitle>(.*?)<\/subtitle>$/);
+                if (match) {
+                    const h3Element = document.createElement("h3");
+                    h3Element.className = "titleStyle skip-offset";
+                    h3Element.textContent = match[1];
+                    fragment.appendChild(h3Element);
+                }
+            } else {
+                // Regular text
+                if (part.trim()) {
+                    const textNode = document.createTextNode(part);
+                    fragment.appendChild(textNode);
+                }
+            }
+        }
+        
+        return fragment;
+    }
+
+    function createEditActionElement(bookmark: BaseBookmark): HTMLElement {
+        const editAction = bookmark.editAction;
+        if (!editAction.mode || !editAction.content) {
+            throw new Error("Edit action is missing mode or content");
+        }
+
+        const container = document.createElement("span");
+        container.classList.add("bookmark-edit-action", "skip-offset");
+        
+        const content = parseEditActionContent(editAction.content);
+        container.appendChild(content);
+        
+        return container;
     }
 
     function highlightStyleRange(styleRange: StyleRange) {
@@ -637,9 +714,10 @@ export function useBookmarks(
         if (config.showBookmarks) {
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
                 if (hasSpeakLabel(b)) {
-                    const color = adjustedColor(appSettings.monochromeMode ? "black" : "red").string()
-                    const iconElement = getIconElement(speakIcon, color);
-
+                    const label = getBookmarkStyleLabel(b);
+                    const color = adjustedColor(appSettings.monochromeMode ? "black" : "red").string();
+                    const resolvedIcon = resolveIcon(b, label) ?? speakIcon;
+                    const iconElement = getIconElement(resolvedIcon, color, false);
                     iconElement.addEventListener("click", event => addEventFunction(event,
                         null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
                     firstElement.parentElement!.insertBefore(iconElement, firstElement);
@@ -654,10 +732,13 @@ export function useBookmarks(
 
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = getBookmarkStyleLabel(b);
-                if ((config.showBookmarks && isMarkerBookmark(b, bookmarkLabel)) || (config.showMyNotes && b.hasNote)) {
-                    bookmarkList.push(b)
-                    if (b.hasNote) {
-                        hasNote = true;
+                if (!isHiddenBookmark(b, bookmarkLabel)) {
+                    if ((config.showBookmarks && (isMarkerBookmark(b, bookmarkLabel) || resolveIcon(b, bookmarkLabel) !== null))
+                        || (config.showMyNotes && b.hasNote)) {
+                        bookmarkList.push(b)
+                        if (b.hasNote) {
+                            hasNote = true;
+                        }
                     }
                 }
             }
@@ -666,7 +747,9 @@ export function useBookmarks(
             if (bookmark) {
                 const bookmarkLabel = getBookmarkStyleLabel(bookmark);
                 const color = adjustedColor(appSettings.monochromeMode ? "black" : bookmarkLabel.color).string();
-                const iconElement = getIconElement(hasNote ? editIcon : bookmarkIcon, color);
+                const defaultIcon = hasNote ? editIcon : bookmarkIcon;
+                const resolvedIcon = resolveIcon(bookmark, bookmarkLabel);
+                const iconElement = getIconElement(resolvedIcon ?? defaultIcon, color, resolvedIcon !== null && hasNote);
                 iconElement.addEventListener("click", event => {
                     for (const b of bookmarkList) {
                         addEventFunction(event, null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER});
@@ -679,6 +762,42 @@ export function useBookmarks(
                 undoHighlights.push(() => iconElement.remove());
             }
 
+        }
+        
+        // Handle edit actions (PREPEND, APPEND)
+        if (config.showBookmarks) {
+            for (const b of bookmarks) {
+                const bookmarkRange = combinedRange(b);
+                if (b.editAction.mode === EditActionMode.PREPEND && arrayEq(bookmarkRange[0], [startOrdinal, startOff])) {
+                    // PREPEND: Add content before the bookmark start
+                    const editElement = createEditActionElement(b);
+                    editElement.addEventListener("click", event => addEventFunction(event,
+                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                    firstElement.parentElement!.insertBefore(editElement, firstElement);
+                    undoHighlights.push(() => editElement.remove());
+                } else if (b.editAction.mode === EditActionMode.APPEND && arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
+                    // APPEND: Add content after the bookmark end
+                    const editElement = createEditActionElement(b);
+                    editElement.addEventListener("click", event => addEventFunction(event,
+                        null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                    lastElement!.parentNode!.insertBefore(editElement, lastElement!.nextSibling);
+                    undoHighlights.push(() => editElement.remove());
+                }
+
+                // Handle paragraph breaks by special label
+                const bookmarkLabel = getBookmarkStyleLabel(b);
+                if (bookmarkLabel.isParagraphBreak) {
+                    if (arrayEq(bookmarkRange[1], [endOrdinal, endOff])) {
+                        // Add paragraph break after the bookmark end
+                        const paragraphBreakElement = document.createElement("span");
+                        paragraphBreakElement.className = "paragraphBreak skip-offset";
+                        paragraphBreakElement.addEventListener("click", event => addEventFunction(event,
+                            null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER}));
+                        lastElement!.parentNode!.insertBefore(paragraphBreakElement, lastElement!.nextSibling);
+                        undoHighlights.push(() => paragraphBreakElement.remove());
+                    }
+                }
+            }
         }
     }
 
@@ -704,7 +823,8 @@ export function useBookmarks(
 
             // Marker will be put to the last verse, collect those to a map.
             const key = b.ordinalRange[1];
-            if (intersection(new Set(b.labels), hideLabels).size === 0) {
+            const bookmarkLabel = getBookmarkStyleLabel(b);
+            if (!isHiddenBookmark(b, bookmarkLabel) && intersection(new Set(b.labels), hideLabels).size === 0) {
                 const value = bookmarkMap.get(key) || [];
                 value.push(b);
                 bookmarkMap.set(key, value);
@@ -715,7 +835,9 @@ export function useBookmarks(
             const b = bookmarkList[0];
             const bookmarkLabel = getBookmarkStyleLabel(b);
             const color = adjustedColor(appSettings.monochromeMode ? "black" : bookmarkLabel.color).string();
-            const iconElement = getIconElement(b.hasNote ? editIcon : bookmarkIcon, color);
+            const defaultIcon = b.hasNote ? editIcon : bookmarkIcon;
+            const resolvedIcon = resolveIcon(b, bookmarkLabel);
+            const iconElement = getIconElement(resolvedIcon ?? defaultIcon, color, resolvedIcon != null && b.hasNote);
             iconElement.addEventListener("click", event => {
                 for (const b of bookmarkList) {
                     addEventFunction(event, null, {bookmarkId: b.id, priority: EventPriorities.BOOKMARK_MARKER});

@@ -35,7 +35,6 @@
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
-    <string name="search_in_andbible">Find in Bible</string>
     <string name="settings">Application preferences</string>
     <string name="history">History</string>
     <string name="speak">Speak</string>
@@ -440,6 +439,7 @@
     <string name="add_bookmark_whole_verse">Bookmark Verse</string>
     <string name="add_bookmark_whole_verse1">Verses</string>
     <string name="add_bookmark_whole_verse2">Full verses</string>
+    <string name="add_paragraph_break">Paragraph break</string>
     <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
@@ -790,6 +790,7 @@
 
     <!-- Beta notice -->
     <string name="beta_notice_title">This is beta version!</string>
+    <string name="beta_flag">BETA</string>
     <string name="beta_notice_content_1">
         In beta version, there are new features that are not yet properly tested,
         and thus using beta might introduce unexpected behavior, i.e. bugs.
@@ -893,6 +894,7 @@
     <string name="format_mysword">MySword documents (*.mybible)</string>
     <string name="format_mybible">MyBible documents (*.SQLite3)</string>
     <string name="format_epub">EPUB documents (*.epub)</string>
+    <string name="format_ttf">TTF fonts (*.ttf)</string>
     <string name="format_studypads">StudyPads from AndBible databases (*.abdb)</string>
     <string name="redownload_message">
         A list of previous books/documents was found. Click below to easily download them again.
@@ -928,6 +930,10 @@
     <string name="try_again_passphrase">Passphrase did not work, try again?</string>
     <string name="show_unlock_info">Module &amp; unlock info</string>
 
+    <string name="prefs_experimental_features_title">Experimental features</string>
+    <string name="prefs_experimental_features_summary">Select which experimental features to enable. These features are still in development and may change or be removed</string>
+    <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
+    <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
@@ -936,6 +942,9 @@
 
     <string name="how_to_contribute">How to contribute?</string>
     <string name="confirm_delete_bookmarks">Do you want to remove %d bookmarks and their notes?</string>
+    <string name="confirm_delete_orphaned_bookmarks">The selected label is attached to %d bookmarks that have no other labels. Do you want to delete these bookmarks along with the labels?</string>
+    <string name="delete_label_and_bookmarks">Delete label and bookmarks</string>
+    <string name="delete_label_only">Delete label only</string>
     <string name="module_size_megabytes">%.1f MB</string>
     <string name="tell_friend_title">Recommend to a friend</string>
     <string name="tell_friend_message1">I would like to recommend %s to you.</string>
@@ -960,6 +969,7 @@
     <string name="show_version_name">Include version name</string>
     <string name="show_ellipsis">Show ellipsis (…)</string>
     <string name="show_quotes">Show quotes</string>
+    <string name="separate_verses_with_newlines">Separate verses with newlines</string>
 
     <string name="backup_button">Backup</string>
     <string name="back_button">Back</string>
@@ -1048,11 +1058,46 @@
     <string name="label_underline">Underline</string>
     <string name="import_menu">Import &amp; Export</string>
     <string name="export">Export</string>
+    <string name="csv_export_success">Exported %d bookmarks to CSV</string>
+    <string name="csv_import_success">Import completed: %d created, %d updated</string>
+    <string name="csv_import_errors">Import completed with errors: %d created, %d updated, %d errors</string>
+    <string name="csv_import_failed">CSV import failed: %s</string>
+    <string name="csv_export_failed">CSV export failed: %s</string>
+    <string name="csv_column_selection_title">Select CSV Columns</string>
+    <string name="choose_csv_file">Choose CSV file to import</string>
+    <string name="no_bookmarks_to_export">No bookmarks available to export</string>
     <string name="export_fileformat">Export as %s</string>
     <string name="export_something">Export %s</string>
     <string name="import_items">Import %s</string>
     <string name="import_from_db">Import from App Database file</string>
     <string name="import_error">Importing from App Database failed. Database file could be wrong format or made with too old version of %s.</string>
+
+    <string name="export_bookmarks_csv">Export Bookmarks as %s</string>
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+    <string name="osis_reference">OSIS Reference</string>
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+    <string name="bible_reference">Bible Reference</string>
+    <string name="document">Document</string>
+    <string name="book">Book</string>
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+    <string name="chapter_start">Chapter Start</string>
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+    <string name="verse_start">Verse Start</string>
+    <string name="chapter_end">Chapter End</string>
+    <string name="verse_end">Verse End</string>
+    <string name="id">Identifier</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+    <string name="ordinal_start">Ordinal Start</string>
+    <string name="ordinal_end">Ordinal End</string>
+    <string name="created_at">Created At</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+    <string name="start_offset">Start Offset</string>
+    <string name="end_offset">End Offset</string>
+    <string name="custom_icon">Custom Icon</string>
+    <string name="last_updated_at">Last updated at</string>
+    <string name="bookmark_notes">Bookmark notes</string>
+
     <string name="chooser_range">Range</string>
     <string name="chooser_jump">Jump</string>
     <string name="chooser_OT_abbrev">OT</string>
@@ -1077,6 +1122,11 @@
 
     <string name="permission_required">Permission needed</string>
     <string name="labels_search_hint">Search</string>
+    <string name="search_mode_name_start">Name (from start)</string>
+    <string name="search_mode_name_contains">Name (contains)</string>
+    <string name="search_mode_content">Content</string>
+    <string name="search_results_matches">%d matches</string>
+    <string name="search_results_match">1 match</string>
     <string name="progress_status_permission">To show notifications (download status, processing, speak status), we need your permission. </string>
 
     <!-- Discrete mode settings -->
@@ -1181,6 +1231,7 @@
     <string name="adapters_google_drive">Google Drive</string>
     <string name="adapters_next_cloud">Next Cloud</string>
     <string name="auth_title">Authentication to %s</string>
+    <string name="auth_server_uri">Server URL</string>
     <string name="auth_username">User name</string>
     <string name="auth_password">Password</string>
     <string name="auth_access_token">Access token</string>
@@ -1247,4 +1298,10 @@
     <string name="prefs_swipe_mode_chapter">Chapter</string>
     <string name="prefs_swipe_mode_page">Page</string>
     <string name="prefs_swipe_mode_none">Disabled</string>
+    <string name="page_number_title">Relative page number</string>
+    <string name="page_number_summary">Show page number overlay. Page number is relative to the starting position.</string>
+    <string name="select_custom_icon">Select custom marker icon</string>
+    <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
+    <string name="memorize_description">Memorize Bible verses</string>
+    <string name="memorize_abbreviation">Memorize</string>
 </resources>

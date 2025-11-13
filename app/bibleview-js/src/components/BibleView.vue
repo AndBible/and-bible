@@ -54,10 +54,25 @@
       <div class="prev-page-button" @click.stop="scrollUpDown(true)" :style="{width: `${calculatedConfig.marginLeft}px`}"/>
       <div class="next-page-button" @click.stop="scrollUpDown()" :style="{width: `${calculatedConfig.marginRight}px`}" />
     </template>
+    <div class="pagenumber"
+         :style="{bottom: `${appSettings.bottomOffset}px`}"
+         v-if="config.showPageNumber"
+         @click="resetPageNumber()"
+    >
+      <div class="pagenumber-text">
+        {{ pageNumber }}
+      </div>
+    </div>
     <div
         v-if="appSettings.isBottomWindow"
         @touchmove.stop.prevent
+        :style="{height: `${appSettings.bottomOffset}px`}"
         class="bottom-touch-block"
+    />
+    <div
+        v-if="appSettings.isBottomWindow && !appSettings.bottomOffset"
+        @touchmove.stop.prevent
+        class="invisible-bottom-touch-block"
     />
     <div id="bottom"/>
   </div>
@@ -136,7 +151,7 @@ const customCss = useCustomCss();
 provide(customCssKey, customCss);
 
 const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
-const {doScrolling, scrollToId} = scroll;
+const {doScrolling, scrollToId, scrollYAtStart, scrollY} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
 const android = useAndroid(globalBookmarks, config);
@@ -168,7 +183,7 @@ const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, andro
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
 
-const {documentsCleared} = useInfiniteScroll(android, documents);
+const {documentsCleared} = useInfiniteScroll(android, scroll, documents);
 const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {
@@ -268,7 +283,6 @@ const contentStyle = computed(() => {
           margin-right: auto;
           color: ${textColor.hsl().string()};
           hyphens: ${config.hyphenation ? "auto" : "none"};
-          line-spacing: ${config.lineSpacing / 10}em;
           line-height: ${config.lineSpacing / 10}em;
           text-align: ${config.justifyText ? "justify" : "start"};
           font-family: ${config.fontFamily};
@@ -334,16 +348,25 @@ setupEventBusListener("adjust_loading_count", (a: number) => {
 });
 
 const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
-
-function scrollUpDown(up = false) {
-    let amount =
-        window.innerHeight
-        - calculatedConfig.value.topOffset
-        - appSettings.bottomOffset;
+const scrollAmount = computed(() => {
+    let amount = calculatedConfig.value.pageHeight;
     if (documentType.value !== "bible" || (documentType.value === "bible" && !config.topMargin)) {
         amount -= 1.5*lineHeight.value; // 1.5 times because last line might be otherwise displayed partially
     }
-    doScrolling(window.scrollY + (up ? -amount : amount), 0)
+    return amount;
+})
+
+function scrollUpDown(up = false) {
+    doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
+}
+
+const pageNumber = computed(() => {
+    const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
+    return num.toFixed(1);
+});
+
+function resetPageNumber() {
+    scrollYAtStart.value = scrollY.value
 }
 
 setupEventBusListener("scroll_down", () => scrollUpDown());
@@ -354,7 +377,7 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 
 </script>
 <style lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 $ring-size: 35px;
 $ring-thickness: calc(#{$ring-size} / 12);
@@ -527,9 +550,15 @@ a {
 
 .bookmark-marker {
   @extend .superscript;
-  font-size: 50%;
+  font-size: 60%;
   top: -0.8em;
   cursor: pointer;
+  > .bookmark-marker-note {
+    @extend .superscript;
+    font-size: 60%;
+    top: -0.5em;
+    padding-left: 2px;
+  }
 }
 
 .divider {
@@ -588,18 +617,61 @@ a {
   width: 0;
 }
 
+.pagenumber {
+  z-index: 5;
+  position: fixed;
+  right: 2mm;
+  margin-bottom: 2mm;
+  bottom: 0;
+  width: 1cm;
+  height: 0.5cm;
+  font-size: 70%;
+  font-weight: bold;
+  color: var(--text-color);
+  background: rgba(207, 207, 207, 0.71);
+  .noAnimation & {
+    background-color: var(--background-color);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--text-color);
+  }
+  border-radius: 0.5cm;
+  justify-content: center;
+  .pagenumber-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
 .prev-page-button {
   @extend .next-page-button;
   left: 0;
   right: unset;
 }
 
-.bottom-touch-block {
+.invisible-bottom-touch-block {
   position: fixed;
   bottom: 0;
   height: 1cm;
   width: 100%;
   background: transparent;
+  z-index: 10;
+}
+
+.bottom-touch-block {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: var(--background-color);
+
+  .noAnimation & {
+    background: var(--background-color);
+    border-color: var(--text-color);
+    border-top-style: dashed;
+    border-width: 1px;
+  }
   z-index: 10;
 }
 

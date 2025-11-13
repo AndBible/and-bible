@@ -65,6 +65,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleShowReferenceAtFront.isChecked =
                 CommonUtils.settings.getBoolean("share_show_reference_at_front", true)
             toggleShowQuotes.isChecked = CommonUtils.settings.getBoolean("share_show_quotes", false)
+            toggleSeparateVersesNewlines.isChecked = CommonUtils.settings.getBoolean("share_separate_verses_newlines", false)
 
             // update text when any toggle is clicked
             toggleVersenumbers.setOnClickListener { updateWidgetState() }
@@ -77,6 +78,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             toggleShowSelectionOnly.setOnClickListener { updateWidgetState() }
             toggleShowEllipsis.setOnClickListener { updateWidgetState() }
             toggleShowQuotes.setOnClickListener { updateWidgetState() }
+            toggleSeparateVersesNewlines.setOnClickListener { updateWidgetState() }
         }
 
         // update text automatically at end of share widget init
@@ -112,6 +114,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             setBoolean("show_ellipsis", bindings.toggleShowEllipsis.isChecked)
             setBoolean("share_show_reference_at_front", bindings.toggleShowReferenceAtFront.isChecked)
             setBoolean("share_show_quotes", bindings.toggleShowQuotes.isChecked)
+            setBoolean("share_separate_verses_newlines", bindings.toggleSeparateVersesNewlines.isChecked)
         }
 
         // disable dependent child checkboxes if the parent is not checked

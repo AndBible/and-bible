@@ -104,7 +104,7 @@ import {BaseBookmark} from "@/types/client-objects";
 import {Nullable, Optional, SelectionInfo} from "@/types/common";
 
 const props = withDefaults(
-    defineProps<{ blocking: boolean, doNotCloseModals: boolean }>(),
+    defineProps<{ blocking?: boolean, doNotCloseModals?: boolean }>(),
     {blocking: false, doNotCloseModals: false}
 );
 
@@ -388,7 +388,7 @@ defineExpose({handle});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 .buttons {
   @extend .visible-scrollbar;

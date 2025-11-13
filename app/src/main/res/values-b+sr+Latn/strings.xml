@@ -12,7 +12,6 @@
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Odeljak</string>
   <string name="search">Pronađi</string>
-  <string name="search_in_andbible">Pronađite u Bibliji</string>
   <string name="settings">Parametri aplikacije</string>
   <string name="history">Istorija</string>
   <string name="speak">Izgovori</string>
@@ -892,6 +891,14 @@ molimo prijavite problem održavaocima tekstova</string>
   <string name="import_items">Uvezi %s</string>
   <string name="import_from_db">Uvezi iz baze podataka aplikacije</string>
   <string name="import_error">Uvoz iz baze podataka aplikacije bezuspešan. Možda je fajl baze podataka pogrešnog formata ili je napravljen prestarom verzijom %s.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Dokument</string>
+  <string name="book">Knjiga</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Opseg</string>
   <string name="chooser_jump">Idi na</string>
   <string name="chooser_OT_abbrev">OT</string>

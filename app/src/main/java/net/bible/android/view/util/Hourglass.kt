@@ -40,14 +40,23 @@ class Hourglass(val context: Context) {
             hourglass.setMessage(application.getText(messageId))
             hourglass.isIndeterminate = true
             hourglass.setCancelable(false)
+            Log.e(TAG, "Show")
             hourglass.show()
         }
     }
 
     suspend fun dismiss() {
         withContext(Dispatchers.Main) {
+            if (hourglass == null) {
+                Log.e(TAG, "Hourglass already dismissed!")
+            } else {
+                Log.e(TAG, "Dismiss")
+            }
             hourglass?.dismiss()
             hourglass = null
         }
+    }
+    companion object {
+        private val TAG = "Hourglass"
     }
 }

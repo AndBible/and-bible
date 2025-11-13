@@ -12,7 +12,6 @@
   <string name="chooseBook">Ресурс</string>
   <string name="selectPassage">Уривок</string>
   <string name="search">Знайти</string>
-  <string name="search_in_andbible">Знайти в Біблії</string>
   <string name="settings">Параметри програми</string>
   <string name="history">Журнал</string>
   <string name="speak">Озвучити</string>
@@ -41,6 +40,7 @@
   <string name="search_in">Знайти в %s</string>
   <string name="do_in_background">Продовжити у фоновому режимі</string>
   <string name="rebuild_index_button">Відновити</string>
+  <string name="creating_index_for">Створення індексу для %s…</string>
   <!--X results in module Y-->
   <string name="search_with_results2">%1s результати у %2s</string>
   <!--Tasks-->
@@ -366,6 +366,7 @@
   <string name="add_bookmark_whole_verse">Додати вірш у закладки</string>
   <string name="add_bookmark_whole_verse1">Вірші</string>
   <string name="add_bookmark_whole_verse2">Повні вірші</string>
+  <string name="add_paragraph_break">Абзац</string>
   <string name="remove_bookmark">Видалити</string>
   <string name="bookmark_settings_hide_labels_title">Сховати вказані мітки</string>
   <string name="bookmark_settings_hide_labels_summary">Сховати закладки, позначені зазначеними мітками</string>
@@ -551,7 +552,10 @@
   <string name="backup_to">Резервне копіювання в ...</string>
   <string name="backup_restore_from">Відновити з...</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Відновити або Імпортувати з...</string>
   <string name="backup_restore">Відновлення</string>
+  <string name="backup_restore2">Відновити або Імпортувати</string>
+  <string name="overwrite_something">Імпортувати %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Що ви хочете відновити?</string>
   <string name="restore_app_database">Відновити базу даних додатку з…</string>
@@ -567,12 +571,14 @@
   <string name="backup_modules_email_message_2">Вкладено %1$s резервну копію ваших модулів, яка містить наступні модулі: %2$s</string>
   <string name="backup_email_subject_2">%s резервне копіювання бази даних</string>
   <string name="backup_email_message_2">Ваша %s база даних, що містить закладки, примітки, плани читання та робочі місця додана</string>
+  <string name="exported_studypads_subject">Експортовані блокноти</string>
   <string name="restore_unsuccessfull">Відновити базу даних не вдалося. Можливо, ви дали недійсний файл бази даних.</string>
   <string name="restore_modules">Відновити ресурси з…</string>
   <string name="send_backup_file">Надіслати файл резервної копії</string>
   <string name="backup_modules_title">Виберіть модулі для резервного копіювання</string>
   <string name="install_zip_canceled">Встановлення модуля скасовано</string>
   <string name="restore">Відновлення</string>
+  <string name="import2">Імпортувати</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Aвторські права: %s</string>
@@ -710,6 +716,7 @@
   <!--TODO: to be removed-->
   <string name="help_search_text">Текст пошуку може містити спеціальні символи, такі як *, ?, AND, OR, NOT
 (див. \"Apache Lucene - Query Parser Syntax\" для більш детальнішої інформації)</string>
+  <string name="help_search_details">Будь ласка, перегляньте %s для отримання додаткової інформації</string>
   <string name="help_workspaces_title">Робочі області</string>
   <string name="help_workspaces_text">
 Робочі області дозволяють мати кілька робочих середовищ, залежних від контексту. Доступ до функцій робочої області
@@ -761,6 +768,7 @@
   <string name="journal_description">Редаговані користувачем блокноти зі спеціальним текстом та закладками</string>
   <string name="my_notes_description">Нотатки редаговані користувачем, додані до закладок</string>
   <string name="my_notes_abbreviation">Мої примітки</string>
+  <string name="studypad">Блокноти</string>
   <string name="studypads">Блокноти</string>
   <string name="multi_description">Кілька посилань</string>
   <string name="multi_abbreviation">Кілька</string>
@@ -790,6 +798,7 @@
   <string name="tell_friend_message3">Встановіть його з Play Store: %s</string>
   <string name="tell_friend_message4">Детальніше та більше варіантів встановлення: %s</string>
   <string name="share_verse_ok">Поділитися / скопіювати</string>
+  <string name="web_search">Пошук в інтернеті</string>
   <string name="verse_action_copy">Скопіювати</string>
   <string name="generic_share">Поділитись</string>
   <string name="share_verse_menu_title">Поділитися / скопіювати...</string>
@@ -891,10 +900,25 @@
   <string name="label_salvation">Спасіння</string>
   <string name="label_underline">Підкреслити</string>
   <string name="import_menu">Імпорт та експорт</string>
+  <string name="export">Експортувати</string>
   <string name="export_fileformat">Експортувати як %s</string>
+  <string name="export_something">Експортувати %s</string>
   <string name="import_items">Імпортувати як %s</string>
   <string name="import_from_db">Імпорт із файлу бази даних програми</string>
   <string name="import_error">Не вдалося імпортувати з бази даних програми. Файл бази даних може бути неправильного формату або зроблений занадто старою версією %s.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Ресурс</string>
+  <string name="book">Книга</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Початок розділу</string>
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Початок вірша</string>
+  <string name="chapter_end">Кінець розділу</string>
+  <string name="verse_end">Кінець вірша</string>
+  <string name="id">Ідентифікатор</string>
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Діапазон</string>
   <string name="chooser_jump">Перейти</string>
   <string name="chooser_OT_abbrev">СЗ</string>
@@ -914,6 +938,7 @@
   <string name="strongs_off">Вимк.</string>
   <string name="strongs_links">Посилання</string>
   <string name="strongs_text_and_links">Текст і посилання</string>
+  <string name="strongs_hidden_links">Сховані посилання</string>
   <string name="verse_tip">Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії</string>
   <string name="permission_required">У доступі відмовлено</string>
   <string name="labels_search_hint">Пошук</string>
@@ -1065,5 +1090,10 @@
   <string name="dont_show">
         Більше не показувати це повідомлення
     </string>
+  <string name="pref_font_size_multiplier_title">Множник розміру шрифту</string>
+  <string name="pref_font_size_multiplier_summary_1">Помножити розмір шрифту на це число.</string>
+  <string name="current_value">  Поточне значення: %s</string>
   <string name="prefs_swipe_mode_chapter">Розділ</string>
+  <string name="prefs_swipe_mode_page">Сторінка</string>
+  <string name="prefs_swipe_mode_none">Вимкнено</string>
 </resources>

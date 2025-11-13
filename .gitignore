@@ -8,6 +8,7 @@
 /app/huawei
 /app/samsung
 /app/amazon
+/app/standardAccrescent
 /app/release
 /app/bibleview-js/node_modules/
 /app/bibleview-js/.idea/
@@ -19,3 +20,4 @@
 *.env.*
 /projectFilesBackup/
 /app/src/main/assets/web/bibleview-js/
+/jsword/

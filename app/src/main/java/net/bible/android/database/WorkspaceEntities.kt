@@ -70,6 +70,7 @@ class WorkspaceEntities {
     data class CommentaryPage(
         val document: String?,
         @ColumnInfo(defaultValue = "NULL") val anchorOrdinal: Int?,
+        @ColumnInfo(defaultValue = "NULL") val sourceBookAndKey: String?,
     )
 
     @Entity(
@@ -93,6 +94,7 @@ class WorkspaceEntities {
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings?,
+        var jsState: String?,
     ) {
         fun deepCopy(): PageManager = PageManager(
             windowId = windowId,
@@ -102,7 +104,8 @@ class WorkspaceEntities {
             generalBookPage = generalBookPage?.copy(),
             mapPage = mapPage?.copy(),
             currentCategoryName = currentCategoryName,
-            textDisplaySettings = textDisplaySettings?.copy()
+            textDisplaySettings = textDisplaySettings?.copy(),
+            jsState = jsState
         )
     }
 
@@ -164,6 +167,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var fontFamily: String? = null,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<IdType>? = null,
+        @ColumnInfo(defaultValue = "NULL") var showPageNumber: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -186,6 +190,7 @@ class WorkspaceEntities {
             BOOKMARKS_SHOW,
             BOOKMARKS_HIDELABELS,
             MYNOTES,
+            PAGENUMBER,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -209,6 +214,7 @@ class WorkspaceEntities {
             Types.FONTFAMILY -> fontFamily
             Types.BOOKMARKS_SHOW -> showBookmarks
             Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
+            Types.PAGENUMBER -> showPageNumber
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -233,6 +239,7 @@ class WorkspaceEntities {
                 Types.LINE_SPACING -> lineSpacing = value as Int?
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
                 Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<IdType>?
+                Types.PAGENUMBER -> showPageNumber = value as Boolean?
             }
         }
 
@@ -289,6 +296,7 @@ class WorkspaceEntities {
                 lineSpacing = 16,
                 showBookmarks = true,
                 bookmarksHideLabels = emptyList(),
+                showPageNumber = false
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
@@ -336,6 +344,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var recentLabels: MutableList<RecentLabel> = mutableListOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
         @ColumnInfo(defaultValue = "NULL") var autoAssignPrimaryLabel: IdType? = null,
+        @ColumnInfo(defaultValue = "NULL") var studyPadCursors: MutableMap<IdType, Int> = mutableMapOf(),
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
@@ -343,6 +352,20 @@ class WorkspaceEntities {
         companion object {
             val default get() = WorkspaceSettings()
         }
+
+        fun deepCopy(): WorkspaceSettings = WorkspaceSettings(
+            enableTiltToScroll = enableTiltToScroll,
+            enableReverseSplitMode = enableReverseSplitMode,
+            autoPin = autoPin,
+            speakSettings = speakSettings?.copy(),
+            recentLabels = recentLabels.map { it.copy() }.toMutableList(),
+            autoAssignLabels = autoAssignLabels.toMutableSet(),
+            autoAssignPrimaryLabel = autoAssignPrimaryLabel,
+            studyPadCursors = studyPadCursors.toMutableMap(),
+            hideCompareDocuments = hideCompareDocuments.toMutableSet(),
+            limitAmbiguousModalSize = limitAmbiguousModalSize,
+            workspaceColor = workspaceColor
+        )
     }
 
     @Entity
@@ -370,7 +393,7 @@ class WorkspaceEntities {
             id = id,
             orderNumber = orderNumber,
             textDisplaySettings = textDisplaySettings?.copy(),
-            workspaceSettings = workspaceSettings?.copy(),
+            workspaceSettings = workspaceSettings?.deepCopy(),
             unPinnedWeight = unPinnedWeight,
             maximizedWindowId = maximizedWindowId,
             primaryTargetLinksWindowId = primaryTargetLinksWindowId

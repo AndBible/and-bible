@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   run-unit-tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
       with:
@@ -68,7 +68,7 @@ jobs:
       run: ./gradlew --console plain testStandardGoogleplayRelease
 
     - name: Upload test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
         name: unit-test-results
@@ -122,7 +122,7 @@ jobs:
         script: ./gradlew --console plain connectedStandardGooglePlayDebugAndroidTest
 
     - name: Upload test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
         name: instrument-test-results

@@ -176,6 +176,16 @@ class MultiFragmentDocument(private val osisFragments: List<OsisFragment>, priva
         )
 }
 
+class MemorizeDocument(private val title: String, private val texts: List<Pair<String, String>>, private val state: String?): Document {
+    override val asHashMap: Map<String, Any>
+        get() = mapOf(
+            "id" to wrapString(randomUUID().toString()),
+            "type" to wrapString("memorize"),
+            "title" to wrapString(title),
+            "texts" to listToJson(texts.map { "{ 'key': " + wrapString(it.first) + ", 'text':" + wrapString(it.second) + "}" }),
+            "state" to (state ?: "undefined"),
+        )
+}
 
 class MyNotesDocument(val bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
                       val verseRange: VerseRange): Document
@@ -257,6 +267,8 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "type" to wrapString("bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
+            "customIcon" to wrapString(bookmark.customIcon),
+            "editAction" to json.encodeToString(serializer(), bookmark.editAction ?: BookmarkEntities.EditAction()),
         )
     }
 }
@@ -294,6 +306,8 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "type" to wrapString("generic-bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to bookmark.wholeVerse.toString(),
+            "customIcon" to wrapString(bookmark.customIcon),
+            "editAction" to json.encodeToString(serializer(), bookmark.editAction ?: BookmarkEntities.EditAction()),
         )
     }
 }
@@ -302,12 +316,14 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
 data class ClientBookmarkStyle(
     val color: Int,
     val isSpeak: Boolean,
+    val isParagraphBreak: Boolean,
     val underline: Boolean,
     val underlineWholeVerse: Boolean,
     val markerStyle: Boolean,
     val markerStyleWholeVerse: Boolean,
     val hideStyle: Boolean,
     val hideStyleWholeVerse: Boolean,
+    val customIcon: String?
 )
 
 @Serializable
@@ -315,7 +331,7 @@ data class ClientBookmarkLabel(
     val id: IdType,
     val name: String,
     val style: ClientBookmarkStyle,
-    val isRealLabel: Boolean
+    val isRealLabel: Boolean,
 ) {
     constructor(label: BookmarkEntities.Label): this(
         label.id,
@@ -329,8 +345,10 @@ data class ClientBookmarkLabel(
             markerStyleWholeVerse = label.markerStyleWholeVerse,
             hideStyle = label.hideStyle,
             hideStyleWholeVerse = label.hideStyleWholeVerse,
+            customIcon = label.customIcon,
+            isParagraphBreak = label.isParagraphBreakLabel,
         ),
-        !label.isSpecialLabel && !label.new
+        !label.isSpecialLabel && !label.new,
     )
 }
 

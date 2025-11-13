@@ -41,7 +41,7 @@ export function useParsers(android: ReturnType<typeof useAndroid>) {
     }
 
     async function initializeEnglish() {
-        const {bcv_parser: BcvParser} = await import("@/lib/en_bcv_parser");
+        const {bcv_parser: BcvParser} = await import("@/lib/en_bcv_parser.js");
         const enParser: BcvParserType = new BcvParser;
         enParser.include_apocrypha(true);
         parsers.push(enParser)

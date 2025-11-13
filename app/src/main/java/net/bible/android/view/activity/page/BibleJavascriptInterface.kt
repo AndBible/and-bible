@@ -17,21 +17,17 @@
 
 package net.bible.android.view.activity.page
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.widget.TextView
-import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
-import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
@@ -49,6 +45,8 @@ import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
+import net.bible.android.database.bookmarks.BookmarkEntities.EditActionMode
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -204,6 +202,12 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun setBookmarkEditAction(bookmarkId: String, valueStr: String) {
+        val editAction = json.decodeFromString<EditAction>(serializer(), valueStr)
+        bookmarkControl.updateBookmarkEditAction(IdType(bookmarkId), editAction)
+    }
+
+    @JavascriptInterface
     fun console(loggerName: String, message: String) {
         Log.i(TAG, "Console[$loggerName] $message")
     }
@@ -321,6 +325,14 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun setStudyPadCursor(labelId: String, orderNumber: Int) {
+        val windowRepository = bookmarkControl.windowControl.windowRepository
+        val workspaceSettings = windowRepository.workspaceSettings
+        workspaceSettings.studyPadCursors[IdType(labelId)] = orderNumber
+        ABEventBus.post(AppSettingsUpdated())
+    }
+
+    @JavascriptInterface
     fun getActiveLanguages(): String {
         //Get the languages for each of the installed bibles and return the language codes as a json list.
         val languages = SwordDocumentFacade.bibles.map { "\"" + it.bookMetaData.language.code + "\""}
@@ -395,10 +407,32 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun addParagraphBreakBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        bibleView.addParagraphBreakBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+    }
+
+    @JavascriptInterface
+    fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
+        bibleView.addParagraphBreakBookmark(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+    }
+
+    @JavascriptInterface
     fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
+    }
+
+    @JavascriptInterface
+    fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            bibleView.memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
+    fun saveState(newState: String) {
+        bibleView.window.pageManager.jsState = newState
     }
 
     @JavascriptInterface
@@ -478,6 +512,20 @@ class BibleJavascriptInterface(
     fun toggleGenericBookmarkLabel(bookmarkId: String, labelId: String) {
         val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
         return bookmarkControl.toggleBookmarkLabel(bookmark, labelId)
+    }
+
+    @JavascriptInterface
+    fun setBookmarkCustomIcon(bookmarkId: String, value: String?) {
+        val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId))!!
+        bookmark.customIcon = value
+        bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+    }
+
+    @JavascriptInterface
+    fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?) {
+        val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
+        bookmark.customIcon = value
+        bookmarkControl.addOrUpdateGenericBookmark(bookmark)
     }
 
     @JavascriptInterface
@@ -613,5 +661,11 @@ class BibleJavascriptInterface(
         }
     }
 
+    @JavascriptInterface
+    fun crash() {
+        scope.launch {
+            mainBibleActivity.bibleViewFactory.crashAll()
+        }
+    }
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.displayId}] JSInt"
 }

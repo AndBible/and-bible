@@ -12,7 +12,6 @@
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Passagem</string>
   <string name="search">Pesquisar</string>
-  <string name="search_in_andbible">Pesquisar na Bíblia</string>
   <string name="settings">Preferências do aplicativo</string>
   <string name="history">Histórico</string>
   <string name="speak">Escutar</string>
@@ -891,6 +890,14 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="import_items">Importar %s</string>
   <string name="import_from_db">Importar do banco de dados</string>
   <string name="import_error">A importação a partir do banco de dados do aplicativo falhou. O arquivo do banco de dados pode estar no formato errado ou ter uma versão muito antiga de %s.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Documento</string>
+  <string name="book">Livro</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Onde procurar</string>
   <string name="chooser_jump">Saltar para</string>
   <string name="chooser_OT_abbrev">AT</string>

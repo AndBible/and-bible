@@ -196,9 +196,15 @@ object Dialogs {
         return simpleInfoMessage(context, key, messageStr)
     }
 
-    suspend fun <T> multiselect(context: Context, title: String, items: List<T>, itemToString: ((arg: T) -> String)? = null): List<T> = suspendCoroutine {
+    suspend fun <T> multiselect(
+        context: Context,
+        title: String,
+        items: List<T>,
+        itemToString: ((arg: T) -> String)? = null,
+        preSelected: ((arg: T) -> Boolean)? = null
+    ): List<T> = suspendCoroutine {
         val itemNames = items.map { itemToString?.let { it1 -> it1(it) }?: it.toString() }.toTypedArray()
-        val checkedItems = itemNames.map { false }.toBooleanArray()
+        val checkedItems = items.map { item -> preSelected?.invoke(item) ?: false }.toBooleanArray()
         val dialog = AlertDialog.Builder(context)
             .setPositiveButton(R.string.okay) { d, _ ->
                 val selectedItems = items.filterIndexed { index, book -> checkedItems[index] }
@@ -233,7 +239,6 @@ object Dialogs {
         dialog.show()
         CommonUtils.fixAlertDialogButtons(dialog)
     }
-
     suspend fun <T> multiselect(context: Context, title: Int, items: List<T>, itemToString: ((arg: T) -> String)? = null): List<T> =
         multiselect(context, context.getString(title), items, itemToString)
 

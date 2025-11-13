@@ -57,9 +57,41 @@ openDownloads: Idite na Preuzimanje dodataka
 verseShare: Dijeli
 verseSpeak: Izgovori
 verseCompare: Usporedi
+verseMemorize: ""
 verseNote: Bilješka
 verseMyNotes: Moje bilješke
+verseParagraphBreak: ""
 verseShareLong: Podijeli ovaj redak
 verseCompareLong: Usporedi redak
+verseMemorizeLong: ""
 verseNoteLong: Napiši bilješku
+verseParagraphBreakLong: ""
 addBookmark: Straničnik
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: Poništi
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Više

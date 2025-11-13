@@ -21,6 +21,7 @@
   <MyNotesDocument v-else-if="document.type === 'notes'" :document="myNotes"/>
   <StudyPadDocument v-else-if="document.type === 'journal'" :document="studyPad"/>
   <MultiDocument v-else-if="document.type === 'multi'" :document="multi"/>
+  <MemorizeDocument v-else-if="document.type === 'memorize'" :document="memorize"/>
 </template>
 
 <script setup lang="ts">
@@ -30,6 +31,7 @@ import BibleDocument from "@/components/documents/BibleDocument.vue";
 import MyNotesDocument from "@/components/documents/MyNotesDocument.vue";
 import StudyPadDocument from "@/components/documents/StudyPadDocument.vue";
 import MultiDocument from "@/components/documents/MultiDocument.vue";
+import MemorizeDocument from "@/components/documents/MemorizeDocument.vue";
 import {BaseDocument, DocumentOfType} from "@/types/documents";
 
 const props = defineProps<{ document: BaseDocument }>()
@@ -40,6 +42,7 @@ const error = props.document as DocumentOfType<"error">
 const myNotes = props.document as DocumentOfType<"notes">
 const studyPad = props.document as DocumentOfType<"journal">
 const multi = props.document as DocumentOfType<"multi">
+const memorize = props.document as DocumentOfType<"memorize">
 
 </script>
 

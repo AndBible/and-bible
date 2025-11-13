@@ -149,12 +149,13 @@ class SettingsActivity: ActivityBase() {
                     "show_calculator",
                     "calculator_pin",
                     "google_drive_sync",
-                    "bible_bookmark_modal_buttons",
-                    "gen_bookmark_modal_buttons",
+                    "disable_bible_bookmark_modal_buttons",
+                    "disable_gen_bookmark_modal_buttons",
                     "monochrome_mode",
                     "disable_animations",
                     "font_size_multiplier",
-                    "bible_view_swipe_mode"
+                    "bible_view_swipe_mode",
+                    "experimental_features"
                 )
                 for(key in keys) {
                     editor.removeString(key)
@@ -175,13 +176,6 @@ class SettingsActivity: ActivityBase() {
 }
 
 class SettingsFragment : PreferenceFragmentCompat() {
-	override fun onDisplayPreferenceDialog(preference: Preference) {
-        if(parentFragmentManager.findFragmentByTag("customTag") != null)
-            return
-
-        super.onDisplayPreferenceDialog(preference)
-	}
-
     private fun setupDictionary(pref: MultiSelectListPreference, type: FeatureType): Boolean {
         val dicts = Books.installed().books.filter { it.hasFeature(type) }
 

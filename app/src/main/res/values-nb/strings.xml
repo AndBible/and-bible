@@ -9,7 +9,6 @@
   <string name="chooseBook">Moduler</string>
   <string name="selectPassage">Bibelvers</string>
   <string name="search">Søk</string>
-  <string name="search_in_andbible">Finn i Bibelen</string>
   <string name="settings">Applikasjonsinnstillinger</string>
   <string name="history">Historikk</string>
   <string name="speak">Høytlesing</string>
@@ -693,6 +692,14 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="export_fileformat">Eksporter som %s</string>
   <string name="import_items">Importer %s</string>
   <string name="import_from_db">Importer fra appens databasefil</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Moduler</string>
+  <string name="book">Bok</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_OT_abbrev">GT</string>
   <string name="chooser_NT_abbrev">NT</string>
   <string name="chooser_style_grid">Tabell</string>

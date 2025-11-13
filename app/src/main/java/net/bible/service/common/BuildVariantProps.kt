@@ -32,6 +32,7 @@ object BuildVariant {
         inline val isHuawei get() = FLAVOR_distchannel == "huawei"
         inline val isFdroid get() = FLAVOR_distchannel == "fdroid"
         inline val isAmazon get() = FLAVOR_distchannel == "amazon"
+        inline val isAccrescent get() = FLAVOR_distchannel == "accrescent"
     }
 }
 

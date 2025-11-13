@@ -100,6 +100,7 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<!-- No translation needed -->
 	<string name="match_any_text">*ab*</string>
 	<string name="match_start_of_text">Ab*</string>
+    <string name="match_content">📄</string>
 
 	<!-- English-only feature -->
 	<string name="easy_start_title">Easy start</string>
@@ -110,4 +111,5 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="crash_app">Crash app!</string>
 	<string name="crash_app_summary">Crash app after 10 seconds. Debugging feature, visible only in debug builds.</string>
 	<string name="apk_file">andbible.apk</string>
+	<string name="error_opening_link">Unable to open link. No app found to handle: %s</string>
 </resources>

@@ -500,14 +500,24 @@ object SwordContentFacade {
         showVersion: Boolean = true,
         showSelectionOnly: Boolean = true,
         showEllipsis: Boolean = true,
-        showQuotes: Boolean = true
+        showQuotes: Boolean = true,
+        separateVersesWithNewlines: Boolean = false,
     ): String {
 
         class VerseAndText(val verse: Verse, val text: String)
 
+        fun normalizeWhitespace(text: String): String {
+            return if (separateVersesWithNewlines) {
+                text.replace(Regex("\\s+"), " ").trim()
+            } else {
+                text
+            }
+        }
+
         val book = selection.swordBook
         val verseTexts = selection.verseRange?.map {
-            VerseAndText(it as Verse, getCanonicalText(book, it, true).trimEnd())
+            val rawText = getCanonicalText(book, it, true).trimEnd()
+            VerseAndText(it as Verse, normalizeWhitespace(rawText))
         }?: return ""
         val startOffset = selection.startOffset ?: 0
         var startVerse = verseTexts.first().text
@@ -516,7 +526,7 @@ object SwordContentFacade {
         val start = startVerse.slice(0 until min(startOffset, startVerse.length))
 
         var startVerseNumber = ""
-        if (showVerseNumbers && !showReferenceAtFront && verseTexts.size > 1) {
+        if (showVerseNumbers && verseTexts.size > 1 && (!showReferenceAtFront || separateVersesWithNewlines)) {
             startVerseNumber = "${selection.verseRange?.start?.verse}. "
         }
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
@@ -564,7 +574,13 @@ object SwordContentFacade {
                 val end = startVerse.slice(endOffset until startVerse.length)
                 val text = startVerse.slice(startOffset until min(endOffset, startVerse.length))
                 val post = if (showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
-                if (!showSelectionOnly) """$quotationStart$startVerseNumber$start$text$end$quotationEnd""" else "$quotationStart$startVerseNumber$text$post$quotationEnd"
+                if (!showSelectionOnly) {
+                    val beforeText = start
+                    val afterText = end
+                    """$quotationStart$startVerseNumber$beforeText$text$afterText$quotationEnd"""
+                } else {
+                    "$quotationStart$startVerseNumber$text$post$quotationEnd"
+                }
             }
             verseTexts.size > 1 -> {
                 startVerse = startVerse.slice(startOffset until startVerse.length)
@@ -572,26 +588,55 @@ object SwordContentFacade {
                 val endVerseNum = if (showVerseNumbers) "${lastVerse.verse.verse}. " else ""
                 val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
                 val end = lastVerse.text.slice(endOffset until lastVerse.text.length)
-                var middleVerses = if (verseTexts.size > 2) {
-                    verseTexts.slice(1 until verseTexts.size - 1).joinToString(" ") {
-                        if (showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
+                
+                val text = if (separateVersesWithNewlines) {
+                    var result = startVerse.trimEnd()
+                    if (verseTexts.size > 2) {
+                        val middleVerses = verseTexts.slice(1 until verseTexts.size - 1).map {
+                            if (showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
+                        }
+                        for (middleVerse in middleVerses) {
+                            result += "\n\n$middleVerse"
+                        }
                     }
-                } else ""
-                if (middleVerses.isNotEmpty()) {
-                    middleVerses += " "
+                    result += "\n\n$endVerseNum$endVerse"
+                    result.replace(Regex("\n{3,}"), "\n\n")
+                } else {
+                    var middleVerses = if (verseTexts.size > 2) {
+                        verseTexts.slice(1 until verseTexts.size - 1).joinToString(" ") {
+                            if (showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
+                        }
+                    } else ""
+                    if (middleVerses.isNotEmpty()) {
+                        middleVerses += " "
+                    }
+                    "${startVerse.trimEnd()} ${middleVerses.trimStart()}$endVerseNum$endVerse"
                 }
-                val text = "${startVerse.trimEnd()} ${middleVerses.trimStart()}$endVerseNum$endVerse"
+                
                 val post = if (showSelectionOnly && end.isNotEmpty() && showEllipsis) "..." else ""
 
-                if (!showSelectionOnly) """$quotationStart$startVerseNumber$start$text$end$post$quotationEnd""" else "$quotationStart$startVerseNumber$text$post$quotationEnd"
+                if (!showSelectionOnly) {
+                    val beforeText = start
+                    val afterText = end
+                    """$quotationStart$startVerseNumber$beforeText$text$afterText$post$quotationEnd"""
+                } else {
+                    "$quotationStart$startVerseNumber$text$post$quotationEnd"
+                }
             }
             else -> throw RuntimeException("what")
         }
         return if (showReference) {
             if (showReferenceAtFront) {
-                "${("$reference $versionText").trim()} $verseText$notes$advertise"
+                val refText = ("$reference $versionText").trim()
+                val separator = if (separateVersesWithNewlines) "\n\n" else " "
+                "$refText$separator$verseText$notes$advertise"
             } else {
-                "$verseText (${if (versionText == "") reference else "$reference, $versionText"})$notes$advertise"
+                val refText = if (versionText == "") reference else "$reference, $versionText"
+                if (separateVersesWithNewlines) {
+                    "$verseText\n\n$refText$notes$advertise"
+                } else {
+                    "$verseText ($refText)$notes$advertise"
+                }
             }
         } else {
             "$verseText$notes$advertise"
@@ -665,53 +710,6 @@ object SwordContentFacade {
             Log.e(TAG, "Error getting text from book", e)
             application.getString(R.string.error_occurred)
         }
-    }
-
-    /**
-     * Get just the canonical text of one or more book entries without any
-     * markup.
-     *
-     * @param book
-     * the book to use
-     * @param reference
-     * a reference, appropriate for the book, of one or more entries
-     */
-    @Throws(BookException::class, NoSuchKeyException::class)
-    fun getPlainText(book: Book?, reference: String?): String {
-        var plainText = ""
-        try {
-            if (book != null) {
-                val key = book.getKey(reference)
-                plainText = getPlainText(book, key)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting plain text", e)
-        }
-        return plainText
-    }
-
-    /**
-     * Get just the canonical text of one or more book entries without any
-     * markup.
-     *
-     * @param book
-     * the book to use
-     * @param key
-     * a reference, appropriate for the book, of one or more entries
-     */
-    @Throws(BookException::class, NoSuchKeyException::class)
-    fun getPlainText(book: Book?, key: Key?): String {
-        var plainText = ""
-        try {
-            if (book != null) {
-                plainText = getCanonicalText(book, key)
-                // trim any preceeding spaces that make the final output look uneven
-                plainText = plainText.trim { it <= ' ' }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting plain text", e)
-        }
-        return plainText
     }
 
     @Throws(BookException::class)

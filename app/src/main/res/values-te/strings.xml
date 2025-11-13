@@ -12,7 +12,6 @@
   <string name="chooseBook">డాక్యుమెంట్</string>
   <string name="selectPassage">వాక్యభాగము</string>
   <string name="search">వెతుకు</string>
-  <string name="search_in_andbible">బైబిల్లో కనుగొనండి</string>
   <string name="settings">అప్లికేషన్ ప్రాధాన్యతలు</string>
   <string name="history">చరిత్ర</string>
   <string name="speak">మాట్లాడు</string>
@@ -880,6 +879,14 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="import_items">%s దిగుమతి</string>
   <string name="import_from_db">యాప్ డేటాబేస్ ఫైల్ నుండి దిగుమతి చేయండి</string>
   <string name="import_error">యాప్ డేటాబేస్ నుండి దిగుమతి చేయడం విఫలమైంది. డేటాబేస్ ఫైల్ తప్పు ఫార్మాట్ కావచ్చు లేదా చాలా పాత వెర్షన్ %s తో తయారు చేయబడి ఉండవచ్చు.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">డాక్యుమెంట్</string>
+  <string name="book">పుస్తకము</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">పరిధి</string>
   <string name="chooser_jump">వెళ్లండి</string>
   <string name="chooser_OT_abbrev">పాత నిబంధన</string>

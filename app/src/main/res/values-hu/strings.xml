@@ -12,7 +12,6 @@
   <string name="chooseBook">Dokumentum</string>
   <string name="selectPassage">Igehely</string>
   <string name="search">Keresés</string>
-  <string name="search_in_andbible">Keresés a Bibliában</string>
   <string name="settings">Beálítások</string>
   <string name="history">Előzmények</string>
   <string name="speak">Felolvasás</string>
@@ -865,6 +864,14 @@ jelentse be az észlelt problémát</string>
   <string name="import_items">Import %s</string>
   <string name="import_from_db">Importálás App adatbázis fájlból</string>
   <string name="import_error">A adatbázis importálása sikertelen volt. Az adatbázis fájl formátuma rossz vagy a(z) %s túl régi verziójából származik.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Dokumentum</string>
+  <string name="book">Könyv</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Tartomány</string>
   <string name="chooser_jump">Ugrás</string>
   <string name="chooser_OT_abbrev">Ószövetség</string>

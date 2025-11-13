@@ -41,10 +41,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
+import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
 import net.bible.service.cloudsync.GZIP_MIMETYPE
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.TAG
 import net.bible.service.common.CommonUtils
 import java.io.File
@@ -57,7 +59,7 @@ import kotlin.coroutines.resumeWithException
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
 const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
 
-fun DriveFile.toSyncFile() = CloudFile(
+private fun DriveFile.toSyncFile() = CloudFile(
     id = id,
     name = name,
     size = getSize()?: 0,
@@ -65,7 +67,7 @@ fun DriveFile.toSyncFile() = CloudFile(
     parentId = parents.first()
 )
 
-fun Drive.Files.List.collectAll(): List<DriveFile> {
+private fun Drive.Files.List.collectAll(): List<DriveFile> {
     val result = mutableListOf<DriveFile>()
     var pageToken: String? = null
     do {
@@ -193,7 +195,7 @@ class GoogleDriveCloudAdapter: CloudAdapter {
         return true
     }
 
-    override fun get(id: String): CloudFile =
+    override suspend fun get(id: String): CloudFile =
         try {
             service.files()
                 .get(id)
@@ -207,7 +209,7 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             }
         }
 
-    override fun listFiles(
+    override suspend fun listFiles(
         parentsIds: List<String>?,
         name: String?,
         mimeType: String?,
@@ -247,18 +249,39 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             .map { it.toSyncFile() }
     }
 
-    override fun getFolders(parentId: String): List<CloudFile> =
+    override suspend fun getFolders(parentId: String): List<CloudFile> =
         listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
 
-    override fun delete(id: String) {
+    override suspend fun delete(id: String) {
         service.files().delete(id).execute()
     }
 
-    override fun download(id: String, outputStream: OutputStream) {
+    override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean {
+        // For Google Drive implementation, we just need to
+        // verify that id is found in Drive
+        try {
+            get(id)
+        } catch (e: FileNotFoundException) {
+            return false
+        }
+        return true
+    }
+
+    override suspend fun makeSyncFolderKnown(
+        dbDef: SyncableDatabaseAccessor<*>,
+        name: String,
+        id: String
+    )
+    // For Google Drive implementation, we don't need to do anything
+    {}
+
+    override fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = emptyList()
+
+    override suspend fun download(id: String, outputStream: OutputStream) {
        service.files().get(id).executeMediaAndDownloadTo(outputStream)
     }
 
-    override fun createNewFolder(name: String, parentId: String?): CloudFile =
+    override suspend fun createNewFolder(name: String, parentId: String?): CloudFile =
         service.files()
             .create(DriveFile().apply {
                 this.name = name
@@ -269,11 +292,11 @@ class GoogleDriveCloudAdapter: CloudAdapter {
             .execute()
             .toSyncFile()
 
-    override fun upload(name: String, file: File, parentId: String?): CloudFile =
+    override suspend fun upload(name: String, file: File, parentId: String): CloudFile =
         service.files().create(
             DriveFile().apply {
                 this.name = name
-                parents = listOf(parentId?: "appDataFolder")
+                parents = listOf(parentId)
             },
             FileContent(GZIP_MIMETYPE, file)
         )

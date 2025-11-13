@@ -19,9 +19,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="840"
-    android:versionName="5.0.840">
+    android:versionCode="900"
+    android:versionName="5.0.900">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" android:minSdkVersion="24"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -36,6 +37,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH" tools:node="remove" />
     <uses-permission android:name="android.permission.DUMP" tools:node="remove" />
 
+    <!-- Remove permissions added by nextcloud android library (we really don't need them!) -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" tools:node="remove" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" tools:node="remove" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" tools:node="remove" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" tools:node="remove" />
+
     <!-- allow use on Google TV -->
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -47,13 +54,14 @@
         android:fullBackupContent="@xml/backup_descriptor"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
-        tools:replace="android:label"
+        tools:replace="android:label,android:usesCleartextTraffic"
         android:label="@string/app_name_short"
         android:resizeableActivity="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         android:supportsRtl="true"
         android:exported="true"
+        android:usesCleartextTraffic="false"
         >
         <uses-library
             android:name="org.apache.http.legacy"
@@ -269,6 +277,7 @@
             android:name="net.bible.android.view.activity.installzip.InstallZip"
             android:label="@string/install_zip_module"
             android:screenOrientation="portrait"
+            android:exported="true"
             />
         <activity
             android:name="net.bible.android.view.activity.discrete.CalculatorActivity"
@@ -336,7 +345,7 @@
         </intent>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />
-            <data android:mimeType="text/plain"/>
+            <data android:mimeType="text/plain" />
         </intent>
     </queries>
 </manifest> 

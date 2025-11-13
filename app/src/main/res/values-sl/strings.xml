@@ -12,7 +12,6 @@
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Knjiga</string>
   <string name="search">Išči</string>
-  <string name="search_in_andbible">Najdi v Bibliji</string>
   <string name="settings">Nastavitve aplikacije</string>
   <string name="history">Zgodovina</string>
   <string name="speak">Govor</string>
@@ -142,6 +141,7 @@
   <string name="prefs_margin_size_summary">Prilagodite levi in desni rob prikaza besedila. Prilagodite
         lahko tudi največjo širino besedila.
     </string>
+  <string name="prefs_margin_size_summary_2">Nasvet: Lahko tapnete na rob ekrana, da skočite eno stran navzgor / navzdol.</string>
   <string name="prefs_text_colors_summary">Prilagodite barve besedila, ozadje in šum ozadja.</string>
   <string name="text_display_settings_activity_title">Nastavitve prikaza besedila</string>
   <string name="workspace_text_display_settings_title">Nastavitve besedila - %s</string>
@@ -370,6 +370,7 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="add_bookmark_whole_verse">Vrstica zaznamka</string>
   <string name="add_bookmark_whole_verse1">Vrstice</string>
   <string name="add_bookmark_whole_verse2">Celotne vrstice</string>
+  <string name="add_paragraph_break">Prelom odstavka</string>
   <string name="remove_bookmark">Odstrani</string>
   <string name="bookmark_settings_hide_labels_title">Skrij nekatere oznake</string>
   <string name="bookmark_settings_hide_labels_summary">Skrij zaznamke, ki so označeni z navedenimi oznakami</string>
@@ -678,6 +679,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="workspace_listing_with_current">%s (trenuten)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">To je beta različica!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         V beta različici so na voljo nove funkcije, ki še niso pravilno preizkušene
         in tako lahko uporaba beta različice privede do nepričakovanega obnašanja, to je napake.
@@ -763,6 +765,8 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="format_mysword">Dokumenti MySword (*.mybible)</string>
   <string name="format_mybible">Dokumenti MyBible (*.SQLite3)</string>
   <string name="format_epub">Dokumenti EPUB (*.epub)</string>
+  <string name="format_ttf">TTF fonti (*.ttf)</string>
+  <string name="format_studypads">Študijski zaznamki iz AndBible baze podatkov (*.abdb)</string>
   <string name="redownload_message">
         Najden je bil seznam prejšnjih knjig / dokumentov. Kliknite spodaj, da jih znova prenesete
     </string>
@@ -783,7 +787,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="multi_abbreviation">Več</string>
   <string name="compare_description">Primerjaj prevode</string>
   <string name="compare_abbreviation">Primerjaj</string>
-  <string name="compare">Primerjaj</string>
+  <string name="compare">PRIMERJAJ</string>
   <string name="http_forbidden">Prepovedano</string>
   <string name="http_not_found">Ni najti</string>
   <string name="http_unknown">Druga napaka</string>
@@ -793,6 +797,10 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="unlock_info">Informacije o odklepanju šifriranega modula</string>
   <string name="try_again_passphrase">Geslo ni bilo pravo, boste znova poskusiii?</string>
   <string name="show_unlock_info">Modul in informacije o odklepanju</string>
+  <string name="prefs_experimental_features_title">Eksperimentalne lastnosti</string>
+  <string name="prefs_experimental_features_summary">Izberite, katere eksperimentalne funkcije boste omogočili. Te funkcije so še vedno v razvoju in se lahko spremenijo ali odstranijo.</string>
+  <string name="experimental_feature_bookmark_edit_actions">Urejanje zaznamkov</string>
+  <string name="experimental_feature_add_paragraph_break">Dodajte zaznamek preloma odstavka</string>
   <string name="prefs_show_error_box_title">Pokaži okno z Javascript napako</string>
   <string name="prefs_show_error_box_summary">Koristno za razvijalce pri odpravljanju JavaScript napak v programu BibleView. Aplikacija bo počasnejša.</string>
   <string name="active_window_indicator_title">Indikator aktivnega okna</string>
@@ -800,6 +808,9 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="app_licence_title">Odprtokodna licenca</string>
   <string name="how_to_contribute">Kako prispevati?</string>
   <string name="confirm_delete_bookmarks">Ali želite odstraniti %d zaznamke in njihove zapiske?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Izbrana oznaka je priložena %d zaznamkom, ki nimajo drugih oznak. Želite izbrisati te zaznamke skupaj z oznakami?</string>
+  <string name="delete_label_and_bookmarks">Izbriši oznake in zaznamke</string>
+  <string name="delete_label_only">Izbriši samo oznake</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Priporočite prijatelju</string>
   <string name="tell_friend_message1">Rad bi vam priporočil: %s .</string>
@@ -807,6 +818,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="tell_friend_message3">Namestite jo iz Trgovine Play: %s</string>
   <string name="tell_friend_message4">Preberite več in več možnosti namestitve: %s</string>
   <string name="share_verse_ok">Skupna raba / kopiranje</string>
+  <string name="web_search">Spletno iskanje</string>
   <string name="verse_action_copy">Kopiraj</string>
   <string name="generic_share">Deli</string>
   <string name="share_verse_menu_title">Skupna raba / kopiranje…</string>
@@ -823,6 +835,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="show_version_name">Vključite ime različice</string>
   <string name="show_ellipsis">Prikaži elipso (...)</string>
   <string name="show_quotes">Prikaži citate</string>
+  <string name="separate_verses_with_newlines">Vrstice loči z novimi vrsticami</string>
   <string name="backup_button">Arhiv</string>
   <string name="back_button">Nazaj</string>
   <string name="upgrading_database">Nadgradnja baze podatkov. Prosim počakajte…</string>
@@ -908,11 +921,43 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="label_underline">Podčrtaj</string>
   <string name="import_menu">Uvoz in izvoz</string>
   <string name="export">Izvoz</string>
+  <string name="csv_export_success">Izvoženih %d zaznamko za CSV</string>
+  <string name="csv_import_success">Uvoz zaključen: %d ustvarjenih, %d posodobljenih</string>
+  <string name="csv_import_errors">Uvoz zaključen z napakami: %d ustvarjenih, %d posodobljenih, %d napak</string>
+  <string name="csv_import_failed">Uvoz CSV ni uspel: %s</string>
+  <string name="csv_export_failed">CSV izvoz ni uspel: %s</string>
+  <string name="csv_column_selection_title">Izberite CSV stolpce</string>
+  <string name="choose_csv_file">Izberite CSV datoteko za uvoz</string>
+  <string name="no_bookmarks_to_export">Za izvoz ni na voljo nobenih zaznamkov</string>
   <string name="export_fileformat">Izvozi kot %s</string>
   <string name="export_something">Izvoz %s</string>
   <string name="import_items">Uvozi %s</string>
   <string name="import_from_db">Uvoz iz podatkovne datoteke</string>
   <string name="import_error">Uvoz iz podatkovne datoteke ni uspel. Datoteka je lahko napačne oblike ali pa je narejena s prestaro različico%s.</string>
+  <string name="export_bookmarks_csv">Izvozi zaznamke kot %s</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">OSIS Sklic</string>
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Svetopisemska referenca</string>
+  <string name="document">Dokument</string>
+  <string name="book">Knjiga</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Začetek poglavja</string>
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Začetek vrstice</string>
+  <string name="chapter_end">Konec poglavja</string>
+  <string name="verse_end">Konec vrstice</string>
+  <string name="id">Identifikator</string>
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="ordinal_start">Začetek po vrstnem redu</string>
+  <string name="ordinal_end">Konec po vrstnem redu</string>
+  <string name="created_at">Ustvarjeno ob</string>
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset">Začetni odmik</string>
+  <string name="end_offset">Končni odmik</string>
+  <string name="custom_icon">Ikona po meri</string>
+  <string name="last_updated_at">Zadnja posodobitev ob</string>
+  <string name="bookmark_notes">Zapiski o zaznamkih</string>
   <string name="chooser_range">Razpon</string>
   <string name="chooser_jump">Skok</string>
   <string name="chooser_OT_abbrev">SZ</string>
@@ -1029,6 +1074,7 @@ lahko.
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Naslednji oblak</string>
   <string name="auth_title">Preverjanje pristnosti za%s</string>
+  <string name="auth_server_uri">URL strežnika</string>
   <string name="auth_username">Uporabniško ime</string>
   <string name="auth_password">Geslo</string>
   <string name="auth_access_token">Žeton za dostop</string>
@@ -1083,5 +1129,19 @@ Ne bo prejemala popravkov ali posodobitev.</string>
   <string name="dont_show">
 Tega sporočila ne prikaži več
     </string>
+  <string name="pref_font_size_multiplier_title">Pomnožitev velikosti pisave</string>
+  <string name="pref_font_size_multiplier_summary_1">Pomnožite velikosti pisave besedila s to številko.</string>
+  <string name="pref_font_size_multiplier_summary_2">Koristno, če imate sinhronizirano napravo, ki se uporablja z večjo pisavo.</string>
+  <string name="current_value">Trenutna vrednost: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Akcija za poteg levo / desno</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Poteg levo / desno lahko uporabite za naslednjo stran / poglavje.</string>
   <string name="prefs_swipe_mode_chapter">Poglavje</string>
+  <string name="prefs_swipe_mode_page">Stran</string>
+  <string name="prefs_swipe_mode_none">Onemogočeno</string>
+  <string name="page_number_title">Relativno število strani</string>
+  <string name="page_number_summary">Prikaži prekrivno številko strani. Številka strani je glede na začetni položaj.</string>
+  <string name="select_custom_icon">Izberite ikono označevanja po meri</string>
+  <string name="invalid_url_message">URL, ki ste ga vnesli, ni veljaven. Prosimo, vnesite veljaven URL (npr. https://nextcloud.example.com)</string>
+  <string name="memorize_description">Zapomni si svetopisemske vrstice</string>
+  <string name="memorize_abbreviation">Zapomni si</string>
 </resources>

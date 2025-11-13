@@ -12,7 +12,6 @@
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Passaggio</string>
   <string name="search">Trova</string>
-  <string name="search_in_andbible">Trova nella Bibbia</string>
   <string name="settings">Preferenze dell\'app</string>
   <string name="history">Cronologia</string>
   <string name="speak">Parla/Audio</string>
@@ -348,6 +347,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="add_bookmark_whole_verse">Segnalibro su verso</string>
   <string name="add_bookmark_whole_verse1">Versetti</string>
   <string name="add_bookmark_whole_verse2">Versetti completi</string>
+  <string name="add_paragraph_break">Interruzione di paragrafo</string>
   <string name="remove_bookmark">Rimuovi</string>
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
@@ -647,6 +647,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="workspace_listing_with_current">%s (corrente)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Questa è la versione beta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate del tutto, e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti o bug. Si consiglia ai normali lettori di utilizzare la versione stabile.</string>
   <string name="beta_notice_content_2">
@@ -719,6 +720,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="format_mysword">Documenti MySword (*.mybible)</string>
   <string name="format_mybible">Documenti MyBible (*.SQLite3)</string>
   <string name="format_epub">Documenti EPUB (*.epub)</string>
+  <string name="format_ttf">Caratteri TTF (*.ttf)</string>
   <string name="format_studypads">Appunti di studio da database AndBible (*.abdb)</string>
   <string name="redownload_message">
         E\' stato trovato un elenco di libri/documenti precedenti. Tocca qui sotto per riscaricarli facilmente.
@@ -750,6 +752,10 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="unlock_info">Info sullo sblocco del modulo cifrato</string>
   <string name="try_again_passphrase">La password non ha funzionato, vuoi riprovare?</string>
   <string name="show_unlock_info">Info su modulo e sblocco</string>
+  <string name="prefs_experimental_features_title">Funzionalità sperimentali</string>
+  <string name="prefs_experimental_features_summary">Scegli quali funzionalità sperimentali abilitare. Queste funzionalità sono ancora in fase di sviluppo e potrebbero subire modifiche o essere rimosse</string>
+  <string name="experimental_feature_bookmark_edit_actions">Azioni di modifica segnalibri</string>
+  <string name="experimental_feature_add_paragraph_break">Aggiungi segnalibro interruzione di paragrafo</string>
   <string name="prefs_show_error_box_title">Mostra finestra errori Javascript</string>
   <string name="prefs_show_error_box_summary">Utile agli sviluppatori per trovare gli errori javascript in BibleView. Questo rallenterà l\'app.</string>
   <string name="active_window_indicator_title">Mostra indicatore di finestra attiva</string>
@@ -757,6 +763,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="app_licence_title">Licenza Open Source</string>
   <string name="how_to_contribute">Come contribuire?</string>
   <string name="confirm_delete_bookmarks">Vuoi rimuovere %d segnalibri e le loro annotazioni?</string>
+  <string name="confirm_delete_orphaned_bookmarks">L\'etichetta selezionata è collegata a %d segnalibri che non hanno altre etichette. Vuoi eliminare questi segnalibri insieme alle etichette?</string>
+  <string name="delete_label_and_bookmarks">Elimina etichetta e segnalibri</string>
+  <string name="delete_label_only">Elimina solo l\'etichetta</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Consiglia a un amico</string>
   <string name="tell_friend_message1">Vorrei consigliarti %s</string>
@@ -781,6 +790,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="show_version_name">Includi nome della versione</string>
   <string name="show_ellipsis">Mostra tre puntini (…)</string>
   <string name="show_quotes">Mostra virgolette</string>
+  <string name="separate_verses_with_newlines">Separa i versi con nuove righe</string>
   <string name="backup_button">Backup</string>
   <string name="back_button">Indietro</string>
   <string name="upgrading_database">Sto aggiornando il database. Attendi...</string>
@@ -867,11 +877,43 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="label_underline">Sottolinea</string>
   <string name="import_menu">Importa &amp; esporta</string>
   <string name="export">Esporta</string>
+  <string name="csv_export_success">Esportati %d segnalibri in CSV</string>
+  <string name="csv_import_success">Importazione completata: %d creati, %d aggiornati</string>
+  <string name="csv_import_errors">Importazione completata con errori: %d creati, %d aggiornati, %d errori</string>
+  <string name="csv_import_failed">Importazione CSV fallita: %s</string>
+  <string name="csv_export_failed">Esportazione CSV fallita: %s</string>
+  <string name="csv_column_selection_title">Scelta colonne CSV</string>
+  <string name="choose_csv_file">Scegli le colonne CSV da importare</string>
+  <string name="no_bookmarks_to_export">Non sono disponibili segnalibri da esportare</string>
   <string name="export_fileformat">Esporta come %s</string>
   <string name="export_something">Esporta %s</string>
   <string name="import_items">Importa %s</string>
   <string name="import_from_db">Importa dal database dell\'applicazione</string>
   <string name="import_error">L\'importazione del database dell\'app non è riuscita. Il file di database potrebbe essere in un formato sbagliato o creato da una versione troppo vecchia di %s.</string>
+  <string name="export_bookmarks_csv">Esporta segnalibri come %s</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">Riferimento OSIS</string>
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Riferimento biblico</string>
+  <string name="document">Documento</string>
+  <string name="book">Libro</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Inizio capitolo</string>
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Inizio verso</string>
+  <string name="chapter_end">Fine capitolo</string>
+  <string name="verse_end">Fine verso</string>
+  <string name="id">Identificatore</string>
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="ordinal_start">Inizio ordinale</string>
+  <string name="ordinal_end">Fine ordinale</string>
+  <string name="created_at">Creato il</string>
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset">Offset iniziale</string>
+  <string name="end_offset">Offset finale</string>
+  <string name="custom_icon">Icona personalizzata</string>
+  <string name="last_updated_at">Ultimo aggiornamento il</string>
+  <string name="bookmark_notes">Note dei segnalibri</string>
   <string name="chooser_range">Intervallo</string>
   <string name="chooser_jump">Salta</string>
   <string name="chooser_OT_abbrev">AT</string>
@@ -980,7 +1022,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="cloud_fetch_and_restore_initial">Copia dal Cloud a questo dispositivo</string>
   <string name="cloud_create_new">Copia da questo dispositivo al Cloud</string>
   <string name="cloud_disable_sync">Annulla &amp; disattiva la sincronizzazione</string>
-  <string name="cloud_sync_title">Sincronizzazione dispositivo</string>
+  <string name="cloud_sync_title">Sincronizza dispositivo</string>
   <string name="reset_sync">Esci</string>
   <string name="prefs_reset_sync_summary">Disattiva la sincronizzazione e ripristina le relative impostazioni.</string>
   <string name="sync_confirmation">Sei sicuro di voler uscire e ripristinare le impostazioni di sincronizzazione?</string>
@@ -991,6 +1033,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Autenticazione a %s</string>
+  <string name="auth_server_uri">URL del server</string>
   <string name="auth_username">Nome utente</string>
   <string name="auth_password">Password</string>
   <string name="auth_access_token">Token di accesso</string>
@@ -1051,8 +1094,14 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="pref_font_size_multiplier_summary_2">Utile se hai un dispositivo sincronizzato che utilizzi con caratteri più grandi.</string>
   <string name="current_value">Valore attuale: %s</string>
   <string name="prefs_bible_view_swipe_mode_title">Azione per il gesto scorri a sinistra / destra</string>
-  <string name="prefs_bible_view_swipe_mode_summary">Il gesto scorri a sinistra / destra può essere usato per andare alla pagina o al carattere successivo.</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Il gesto scorri a sinistra / destra può essere usato per andare alla pagina o al capitolo successivo.</string>
   <string name="prefs_swipe_mode_chapter">Capitolo</string>
   <string name="prefs_swipe_mode_page">Pagina</string>
   <string name="prefs_swipe_mode_none">Disabilitato</string>
+  <string name="page_number_title">Numero di pagina relativo</string>
+  <string name="page_number_summary">Mostra il numero di pagina in sovraimpressione. Il numero di pagina è relativo alla posizione iniziale.</string>
+  <string name="select_custom_icon">Scegli icona per l\'evidenziazione</string>
+  <string name="invalid_url_message">L\'URL inserito non è valido. Inserisci un URL valido (ad esempio, https://nextcloud.example.com)</string>
+  <string name="memorize_description">Memorizza versi della Bibbia</string>
+  <string name="memorize_abbreviation">Memorizza</string>
 </resources>

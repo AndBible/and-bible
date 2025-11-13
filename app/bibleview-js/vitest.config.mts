@@ -15,10 +15,9 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {defineConfig, UserConfig} from 'vite'
 import { readFileSync } from 'fs';
-import {config} from "./vite.config";
-import "vitest";
+import {config} from "./vite.config.mts";
+import { defineConfig as defineVitestConfig } from 'vitest/config';
 
 
 function rawText() {
@@ -36,7 +35,7 @@ function rawText() {
   };
 }
 
-const testConfig: UserConfig = {
+const testConfig: any = {
   ...config,
   // @ts-ignore
   test: {
@@ -51,4 +50,4 @@ const testConfig: UserConfig = {
 
 testConfig.plugins!.push(rawText());
 
-export default defineConfig(testConfig)
+export default defineVitestConfig(testConfig)

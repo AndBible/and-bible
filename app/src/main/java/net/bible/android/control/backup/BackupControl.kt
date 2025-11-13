@@ -209,7 +209,8 @@ object BackupControl {
         val header = ByteArray(2)
         val gzHeaderBytes = byteArrayOf(0x1f.toByte(), 0x8b.toByte())
 
-        val bufferedInputStream = BufferedInputStream(application.contentResolver.openInputStream(uri))
+        val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+        val bufferedInputStream = BufferedInputStream(inputStream)
         bufferedInputStream.mark(2)
         bufferedInputStream.read(header)
         bufferedInputStream.reset()
@@ -516,7 +517,9 @@ object BackupControl {
             val uri = result.data?.data!!
             try {
                 restoreAppDatabaseFromUriWithUI(activity, uri)
-            } catch (e: FileNotFoundException) {null} ?: return
+            } catch (e: Exception) {
+                ErrorReportControl.showErrorDialog(activity, e.message ?: getString(R.string.error_occurred), exception = e)
+            }
         }
     }
 
@@ -585,13 +588,20 @@ object BackupControl {
 
         unzipFolder.mkdirs()
 
-        tmpFile.outputStream().use { application.contentResolver.openInputStream(uri)!!.copyTo(it) }
-        CommonUtils.unzipFile(tmpFile, unzipFolder)
+        try {
+            val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+            tmpFile.outputStream().use { inputStream.copyTo(it) }
+            CommonUtils.unzipFile(tmpFile, unzipFolder)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing backup file", e)
+            throw IOException("Failed to process backup file: ${e.message}")
+        }
 
         val restoredSelection =
             Closeable {
                 tmpFile.delete()
                 unzipFolder.deleteRecursively()
+                activity.lifecycleScope.launch(Dispatchers.Main) { hourglass.dismiss() }
             }.use {
                 val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
                     .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
@@ -637,7 +647,7 @@ object BackupControl {
                         } else true
                         if (!areYouSure) continue
                         Log.i(TAG, "Restoring $fileName")
-                        DatabaseContainer.instance.dbByFilename[fileName]?.close()
+                        if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
                         val targetFilePath = activity.getDatabasePath(fileName).path
                         val targetFile = File(targetFilePath)
                         f.copyTo(targetFile, overwrite = true)
@@ -651,6 +661,7 @@ object BackupControl {
                 DatabaseContainer.reset()
                 restoredSelection
             }
+        hourglass.show()
         if (DatabaseContainer.ready) {
             DatabaseContainer.instance
             afterRestore(restoredSelection)
@@ -662,7 +673,7 @@ object BackupControl {
     }
 
     suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
-        val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS) {
+        val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
             " (${bookmarksDbStats(category, backupFile)})"
         } else ""
         suspendCoroutine {

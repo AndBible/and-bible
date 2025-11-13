@@ -27,23 +27,23 @@ import {computed, inject, onMounted, provide, ref, toRefs, watch} from "vue";
 import {highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment.vue";
 import {useCommon} from "@/composables";
-import {customCssKey, osisFragmentKey} from "@/types/constants";
+import {customCssKey, osisFragmentKey, hideTitlesKey} from "@/types/constants";
 import {OffsetRange, OrdinalRange, OsisFragment} from "@/types/client-objects";
 
 const props = withDefaults(defineProps<{
     fragment: OsisFragment
     highlightOrdinalRange?: OrdinalRange
     highlightOffsetRange?: OffsetRange
-    hideTitles: boolean
-    doNotConvert: boolean
-    isEpub: boolean
+    hideTitles?: boolean
+    doNotConvert?: boolean
+    isEpub?: boolean
 }>(), {doNotConvert: false, hideTitles: false, isEpub: false})
 
 const {bookInitials, osisRef} = toRefs(props.fragment);
 const uniqueId = ref(Date.now().toString());
 
 if (props.hideTitles) {
-    provide("hideTitles", true);
+    provide(hideTitlesKey, true);
 }
 
 provide(osisFragmentKey, props.fragment)
@@ -82,6 +82,9 @@ useCommon();
 <style scoped>
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.1s ease;
+    .noAnimation & {
+        transition: none;
+    }
 }
 
 .fade-enter-from, .fade-leave-to {

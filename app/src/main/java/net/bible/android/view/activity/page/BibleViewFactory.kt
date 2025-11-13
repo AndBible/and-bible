@@ -93,6 +93,13 @@ class BibleViewFactory(val mainBibleActivity: MainBibleActivity) {
 
     }
 
+    fun crashAll() {
+        Log.i(TAG, "crashAll")
+        for (it in windowBibleViewMap) {
+            it.value.loadUrl("chrome://crash")
+        }
+    }
+
     fun clear() {
         Log.i(TAG, "clear")
         for (it in windowBibleViewMap) {

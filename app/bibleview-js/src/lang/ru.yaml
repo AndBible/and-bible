@@ -57,9 +57,41 @@ openDownloads: Перейти к загрузке дополнительных �
 verseShare: Поделиться
 verseSpeak: Прослушать
 verseCompare: Сравнить
+verseMemorize: ""
 verseNote: Заметка
 verseMyNotes: Мои заметки
+verseParagraphBreak: ""
 verseShareLong: Поделиться этим стихом
 verseCompareLong: Сравнить стих
+verseMemorizeLong: ""
 verseNoteLong: Написать заметку
+verseParagraphBreakLong: ""
 addBookmark: Закладка
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: Сброс настроек
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Еще

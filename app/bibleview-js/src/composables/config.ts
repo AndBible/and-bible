@@ -85,10 +85,12 @@ export type Config = {
         maxWidth: number,
     },
     topMargin: number,
+    showPageNumber: boolean,
 }
 
-export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"
-export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"
+export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_PARAGRAPH_BREAK"
+export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"|"ADD_PARAGRAPH_BREAK"
+export type ModalButtonId = BibleModalButtonId | GenericModalButtonId
 
 export type AppSettings = {
     isBottomWindow: boolean,
@@ -98,6 +100,8 @@ export type AppSettings = {
     errorBox: boolean,
     favouriteLabels: IdType[],
     recentLabels: IdType[],
+    studyPadCursors: Record<IdType, number>,
+    autoAssignLabels: IdType[],
     frequentLabels: IdType[],
     hideCompareDocuments: string[],
     rightToLeft: boolean,
@@ -107,11 +111,12 @@ export type AppSettings = {
     activeSince: number,
     limitAmbiguousModalSize: boolean,
     windowId: IdType,
-    bibleModalButtons: BibleModalButtonId[],
-    genericModalButtons: GenericModalButtonId[],
+    disableBibleModalButtons: BibleModalButtonId[],
+    disableGenericModalButtons: GenericModalButtonId[],
     monochromeMode: boolean,
     disableAnimations: boolean,
     fontSizeMultiplier: number,
+    enabledExperimentalFeatures: Feature[],
 }
 
 export type CalculatedConfig = Ref<{
@@ -169,6 +174,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
             maxWidth: 300,
         },
         topMargin: 0,
+        showPageNumber: false,
     });
     const rtl = new URLSearchParams(window.location.search).get("rtl") === "true";
     const nightMode = new URLSearchParams(window.location.search).get("night") === "true";
@@ -180,6 +186,8 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         errorBox: false,
         favouriteLabels: [],
         recentLabels: [],
+        studyPadCursors: {},
+        autoAssignLabels: [],
         frequentLabels: [],
         hideCompareDocuments: [],
         rightToLeft: rtl,
@@ -189,11 +197,12 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         activeSince: 0,
         limitAmbiguousModalSize: false,
         windowId: "",
-        bibleModalButtons: ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "COMPARE", "SHARE"],
-        genericModalButtons: ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK"],
+        disableBibleModalButtons: [],
+        disableGenericModalButtons: [],
         monochromeMode: false,
         disableAnimations: false,
         fontSizeMultiplier: 1.0,
+        enabledExperimentalFeatures: [],
     });
 
     function calcMmInPx() {
@@ -229,8 +238,9 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
 
         const marginLeft = margin + (leftPadding - rightPadding)/2;
         const marginRight = margin + (rightPadding - leftPadding)/2;
+        const pageHeight = window.innerHeight - topOffset - appSettings.bottomOffset;
 
-        return {topOffset, topMargin, marginLeft, marginRight};
+        return {topOffset, topMargin, marginLeft, marginRight, pageHeight};
     });
 
     window.bibleViewDebug.config = config;
@@ -340,4 +350,10 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         })
 
     return {config, appSettings, calculatedConfig};
+}
+
+type Feature = "add_paragraph_break" | "bookmark_edit_actions"
+
+export function isExperimentalFeatureEnabled(appSettings: AppSettings, feature: Feature): boolean {
+    return appSettings.enabledExperimentalFeatures.includes(feature);
 }

@@ -62,6 +62,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -89,7 +90,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.BuildConfig.BUILD_TYPE
-import net.bible.android.activity.BuildConfig.BuildDate
+import net.bible.android.activity.BuildConfig.CommitDate
 import net.bible.android.activity.BuildConfig.FLAVOR_appearance
 import net.bible.android.activity.BuildConfig.FLAVOR_distchannel
 import net.bible.android.activity.BuildConfig.GitHash
@@ -129,6 +130,7 @@ import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
+import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.IOUtil
 import org.crosswire.common.util.Version
@@ -250,6 +252,7 @@ val BookmarkEntities.Label.displayName get() =
     when {
         isSpeakLabel -> application.getString(R.string.speak)
         isUnlabeledLabel -> application.getString(R.string.label_unlabelled)
+        isParagraphBreakLabel -> application.getString(R.string.add_paragraph_break)
         else -> name
     }
 
@@ -332,7 +335,7 @@ object CommonUtils : CommonUtilsBase() {
                 versionName = "Error"
             }
 
-            return "$versionName#$GitHash $FLAVOR_distchannel $FLAVOR_appearance $BUILD_TYPE (built $BuildDate)"
+            return "$versionName#$GitHash $FLAVOR_distchannel $FLAVOR_appearance $BUILD_TYPE ($CommitDate)"
         }
 
     val mainVersion: String get() {
@@ -435,6 +438,12 @@ object CommonUtils : CommonUtilsBase() {
         val fontSizeMultiplier: Int get() = getInt("font_size_multiplier", 100)
         val fontSizeMultiplierFloat: Float get() = getInt("font_size_multiplier", 100) / 100F
         val bibleViewSwipeMode: BibleViewSwipeMode get() = BibleViewSwipeMode.valueOf(getString("bible_view_swipe_mode", "CHAPTER")!!)
+        
+        // Experimental features - all default to disabled
+        val enabledExperimentalFeatures: Set<String> get() = getStringSet("experimental_features", emptySet())
+        fun isExperimentalFeatureEnabled(feature: String): Boolean = enabledExperimentalFeatures.contains(feature)
+        val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
+        val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
     }
 
     private var _settings: AndBibleSettings? = null
@@ -488,21 +497,20 @@ object CommonUtils : CommonUtilsBase() {
                 .build()
     }
 
-    fun getShareableDocumentText(selection: Selection): String {
-        return SwordContentFacade.getSelectionText(
-            selection,
-            showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
-            advertiseApp = settings.getBoolean("share_show_add", true),
-            abbreviateReference = settings.getBoolean("share_abbreviate_reference", true),
-            showNotes = settings.getBoolean("show_notes", true),
-            showVersion = settings.getBoolean("share_show_version", true),
-            showReference = settings.getBoolean("share_show_reference", true),
-            showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
-            showSelectionOnly = settings.getBoolean("show_selection_only", true),
-            showEllipsis = settings.getBoolean("show_ellipsis", true),
-            showQuotes = settings.getBoolean("share_show_quotes", false)
-        )
-    }
+    fun getShareableDocumentText(selection: Selection): String = SwordContentFacade.getSelectionText(
+        selection,
+        showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
+        advertiseApp = settings.getBoolean("share_show_add", true),
+        abbreviateReference = settings.getBoolean("share_abbreviate_reference", true),
+        showNotes = settings.getBoolean("show_notes", true),
+        showVersion = settings.getBoolean("share_show_version", true),
+        showReference = settings.getBoolean("share_show_reference", true),
+        showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
+        showSelectionOnly = settings.getBoolean("show_selection_only", true),
+        showEllipsis = settings.getBoolean("show_ellipsis", true),
+        showQuotes = settings.getBoolean("share_show_quotes", false),
+        separateVersesWithNewlines = settings.getBoolean("share_separate_verses_newlines", false)
+    )
 
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)
@@ -1047,15 +1055,25 @@ object CommonUtils : CommonUtilsBase() {
                         title = net.bible.android.view.activity.page.application.getString(R.string.external_link),
                     )
                 ) {
-                    activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
-                        ActivityBase.STD_REQUEST_CODE
-                    )
+                    try {
+                        activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
+                            ActivityBase.STD_REQUEST_CODE
+                        )
+                    } catch (e: android.content.ActivityNotFoundException) {
+                        Log.e(TAG, "No activity found to handle link: $link", e)
+                        ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
+                    }
                 }
             }
         } else {
-            activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
-                ActivityBase.STD_REQUEST_CODE
-            )
+            try {
+                activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
+                    ActivityBase.STD_REQUEST_CODE
+                )
+            } catch (e: android.content.ActivityNotFoundException) {
+                Log.e(TAG, "No activity found to handle link: $link", e)
+                ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
+            }
         }
     }
 
@@ -1102,8 +1120,10 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
             buildActivityComponent().inject(this@CommonUtils)
-            ttsNotificationManager = TextToSpeechNotificationManager()
-            if(!BuildVariant.Appearance.isDiscrete) {
+            if (ttsNotificationManager == null) {
+                ttsNotificationManager = TextToSpeechNotificationManager()
+            }
+            if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
             initializeOnyx()
@@ -1111,6 +1131,7 @@ object CommonUtils : CommonUtilsBase() {
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
             addManuallyInstalledEpubBooks()
+            addManuallyInstalledTtfBooks()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1133,7 +1154,7 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     private fun initializeOnyx() {
-        if (FLAVOR_distchannel != "fdroid") {
+        if (!BuildVariant.DistributionChannel.isFdroid) {
             val adapter = Class.forName("net.bible.service.onyx.OnyxSupport")
             val constructor = adapter.getDeclaredConstructor()
             onyxSupport = constructor.newInstance() as OnyxSupportInterface
@@ -1153,8 +1174,10 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.instance
             withContext(Dispatchers.Main) {
                 buildActivityComponent().inject(this@CommonUtils)
-                ttsNotificationManager = TextToSpeechNotificationManager()
-                if(!BuildVariant.Appearance.isDiscrete) {
+                if (ttsNotificationManager == null) {
+                    ttsNotificationManager = TextToSpeechNotificationManager()
+                }
+                if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
                     ttsWidgetManager = SpeakWidgetManager()
                 }
             }
@@ -1162,6 +1185,7 @@ object CommonUtils : CommonUtilsBase() {
                 addManuallyInstalledMyBibleBooks()
                 addManuallyInstalledMySwordBooks()
                 addManuallyInstalledEpubBooks()
+                addManuallyInstalledTtfBooks()
             }
             initializeOnyx()
 
@@ -1381,11 +1405,41 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     fun fixAlertDialogButtons(dialog: AlertDialog) {
-        val container = dialog.findViewById<Button>(android.R.id.button1).parent
+        val positiveButton = dialog.findViewById<Button>(android.R.id.button1)
+        val negativeButton = dialog.findViewById<Button>(android.R.id.button2)
+        val neutralButton = dialog.findViewById<Button>(android.R.id.button3)
+        
+        val container = positiveButton?.parent
         if(container is FrameLayout) {
-            container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, 2)
+            container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
+        } else if(container is LinearLayout) {
+            // For LinearLayout (older Android versions), ensure proper orientation and layout
+            container.orientation = LinearLayout.HORIZONTAL
+            val layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
+            layoutParams.setMargins(convertDipsToPx(4), 0, convertDipsToPx(4), 0)
+            
+            // Apply equal weight to all visible buttons for even distribution
+            positiveButton.layoutParams = layoutParams
+            negativeButton?.layoutParams = layoutParams
+            neutralButton?.layoutParams = layoutParams
         }
-        // Some older devices Androids have LinearLayout. But they don't need this hack anyway.
+        
+        // Ensure buttons have appropriate text size and padding to prevent overflow
+        listOfNotNull(positiveButton, negativeButton, neutralButton).forEach { button ->
+            button.setPadding(convertDipsToPx(8), convertDipsToPx(4), convertDipsToPx(8), convertDipsToPx(4))
+            button.minHeight = convertDipsToPx(36)
+            
+            // Ensure proper text alignment and baseline alignment
+            button.gravity = Gravity.CENTER
+            button.includeFontPadding = false
+            button.setSingleLine(false)
+            button.maxLines = 2
+            
+            // Reduce text size slightly if there are 3 buttons to ensure they fit
+            if (listOfNotNull(positiveButton, negativeButton, neutralButton).size >= 3) {
+                button.textSize = 14f
+            }
+        }
     }
 
     suspend fun checkPoorTranslations(activity: ActivityBase): Boolean {
@@ -1521,12 +1575,7 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    val isCloudSyncAvailable get() = !(
-        BuildVariant.Appearance.isDiscrete
-            || BuildVariant.DistributionChannel.isFdroid
-            || Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1
-        )
-
+    val isCloudSyncAvailable get() = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
         else SyncableDatabaseDefinition.ALL.any { it.syncEnabled }
@@ -1602,17 +1651,22 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     suspend fun determineFileType(uri: Uri): BackupControl.AbDbFileType = withContext(Dispatchers.IO) {
-        application.contentResolver.openInputStream(uri)?.use { inputStream ->
-            val header = ByteArray(16)
-            inputStream.read(header)
-            val headerString = String(header)
-            if (headerString == "SQLite format 3\u0000")
-                BackupControl.AbDbFileType.SQLITE3
-            else if (headerString.startsWith("PK\u0003\u0004")) {
-                BackupControl.AbDbFileType.ZIP
-            } else
-                BackupControl.AbDbFileType.UNKNOWN
-        } ?: BackupControl.AbDbFileType.UNKNOWN
+        try {
+            application.contentResolver.openInputStream(uri)?.use { inputStream ->
+                val header = ByteArray(16)
+                inputStream.read(header)
+                val headerString = String(header)
+                if (headerString == "SQLite format 3\u0000")
+                    BackupControl.AbDbFileType.SQLITE3
+                else if (headerString.startsWith("PK\u0003\u0004")) {
+                    BackupControl.AbDbFileType.ZIP
+                } else
+                    BackupControl.AbDbFileType.UNKNOWN
+            } ?: BackupControl.AbDbFileType.UNKNOWN
+        } catch (e: Exception) {
+            Log.e(TAG, "Unexpected exception when determining file type", e)
+            BackupControl.AbDbFileType.UNKNOWN
+        }
     }
 
     fun makeAndBibleUrl(
@@ -1917,26 +1971,32 @@ data class AndBibleBackupManifest(
         content.copyTo(zipStream)
     }
     companion object {
+        private const val TAG = "ABBackupManifest"
         fun fromJson(jsonString: String): AndBibleBackupManifest {
             return CommonUtils.json.decodeFromString(serializer(), jsonString)
         }
 
-        fun fromUri(uri: Uri): AndBibleBackupManifest? {
-            val inputStream = application.contentResolver.openInputStream(uri) ?: return null
-            val manifest = ZipInputStream(inputStream).use {
-                val entry = it.nextEntry
-                if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
-                    val out = ByteArrayOutputStream()
-                    val buffer = ByteArray(1024)
-                    var len: Int
-                    while (it.read(buffer).also { len = it } > 0) {
-                        out.write(buffer, 0, len)
-                    }
-                    val outString = out.toString()
-                    fromJson(outString)
-                } else null
+        suspend fun fromUri(uri: Uri): AndBibleBackupManifest? = withContext(Dispatchers.IO) {
+            try {
+                val inputStream = application.contentResolver.openInputStream(uri) ?: return@withContext null
+                val manifest = ZipInputStream(inputStream).use {
+                    val entry = it.nextEntry
+                    if (entry?.name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
+                        val out = ByteArrayOutputStream()
+                        val buffer = ByteArray(1024)
+                        var len: Int
+                        while (it.read(buffer).also { len = it } > 0) {
+                            out.write(buffer, 0, len)
+                        }
+                        val outString = out.toString()
+                        fromJson(outString)
+                    } else null
+                }
+                return@withContext manifest
+            } catch (e: Exception) {
+                Log.e(TAG, "Error reading backup manifest from URI", e)
+                return@withContext null
             }
-            return manifest
         }
     }
 }

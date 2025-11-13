@@ -57,9 +57,41 @@ openDownloads: Ir a descargas de complementos
 verseShare: Compartir
 verseSpeak: Con voz
 verseCompare: Comparar
+verseMemorize: Memorizar
 verseNote: Nota
 verseMyNotes: Mis Notas
+verseParagraphBreak: Párrafo
 verseShareLong: Compartir este versículo
 verseCompareLong: Comparar versículo
+verseMemorizeLong: Memorizar versículos de la Biblia
 verseNoteLong: Escribir una nota
+verseParagraphBreakLong: Salto de párrafo
 addBookmark: Marcador
+selectCustomIconTitle: Seleccionar icono de marcador personalizado
+bookmarkSettingsTitle: Configurar los ajustes de marcadores
+subtitlePlaceholder: Texto del subtítulo
+customIconLabel: Icono personalizado
+editActionLabel: Editar acción
+editActionModeLabel: Modalidad
+editActionModeNone: Ninguno
+editActionModeAppend: Añadir texto
+editActionModePrepend: Anteponer texto
+editActionContentLabel: Contenido
+editActionContentPlaceholder: Introduzca el texto que desea añadir al documento...
+experimentalFeatureTitle: Experimental
+experimentalFeatureHelpTitle: Acerca de las funciones experimentales
+experimentalFeatureHelpContent: Las funciones experimentales son nuevas capacidades que aún se están desarrollando y probando. Es posible que no funcionen perfectamente y que cambien significativamente o se eliminen en futuras versiones de la aplicación.
+insertParagraphBreak: Insertar salto de párrafo
+insertSubtitle: Inserta subtítulo
+xmlParseError: Error de análisis XML
+invalidTag: Etiqueta no válida
+invalidClosingTag: Etiqueta de cierre no válida
+unmatchedClosingTag: Etiqueta de cierre no coincidente
+unclosedTag: Etiqueta sin cerrar
+unknownError: Error desconocido
+blur: Desenfoque
+reset: Restablecer
+peek: Mirar
+wordBlur: Desenfoque de palabras
+wordScramble: Revuelve las palabras
+more: Más

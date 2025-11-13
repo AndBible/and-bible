@@ -12,7 +12,6 @@
   <string name="chooseBook">Document</string>
   <string name="selectPassage">Pasaj</string>
   <string name="search">Caută</string>
-  <string name="search_in_andbible">Caută în Biblie</string>
   <string name="settings">Preferințe</string>
   <string name="history">Cronologia</string>
   <string name="speak">Audio</string>
@@ -142,6 +141,7 @@
   <string name="prefs_margin_size_summary">Reglează marginile din stînga și din dreapta textului.
         Poți ajusta lățimea maximă a textului.
     </string>
+  <string name="prefs_margin_size_summary_2">Sfat: Poți atinge zona de margine pentru a trece la pagina următoare / precedentă.</string>
   <string name="prefs_text_colors_summary">Reglează culorile textului și ale fondului și zgomotul fondului</string>
   <string name="text_display_settings_activity_title">Reglări pentru text</string>
   <string name="workspace_text_display_settings_title">Opțiuni de text - %s</string>
@@ -179,11 +179,11 @@
   <string name="choose_strongs_greek_morphology_title">Morfologia greacă a lui Robinson</string>
   <string name="choose_strongs_greek_morphology_summary">Alege dicționarul Robinson pentru definițiile morfologiei grecești</string>
   <string name="prefs_top_margin_title_mm">Marginea de sus (%d mm)</string>
-  <string name="font_size_title">Mărime caractere</string>
-  <string name="font_size_title_pt">Mărime caractere (%d pt)</string>
-  <string name="prefs_font_text_size_summary">Schimbă mărimea caracterelor</string>
-  <string name="pref_font_family_label_name">Caractere (%s)</string>
-  <string name="prefs_font_family_summary">Schimbă tipul de caractere. Sfat: mai multe caractere pot fi instalate prin Descarcă documente / Extensii.</string>
+  <string name="font_size_title">Mărime litere</string>
+  <string name="font_size_title_pt">Mărime litere (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Schimbă mărimea literelor</string>
+  <string name="pref_font_family_label_name">Tip de litere (%s)</string>
+  <string name="prefs_font_family_summary">Schimbă tipul de litere. Sfat: mai multe tipuri de litere pot fi instalate prin Descarcă documente / Extensii.</string>
   <string name="prefs_text_bookmarks_title">Semne de carte și Notițele mele</string>
   <string name="prefs_enable_bluetooth_title">Activează butoanele media Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Folosește butoanele media Bluetooth pentru a începe/opri vorbirea.</string>
@@ -371,6 +371,7 @@
   <string name="add_bookmark_whole_verse">Semn de carte la verset</string>
   <string name="add_bookmark_whole_verse1">Versete</string>
   <string name="add_bookmark_whole_verse2">Versete întregi</string>
+  <string name="add_paragraph_break">Întrerupere de paragraf</string>
   <string name="remove_bookmark">Elimină</string>
   <string name="bookmark_settings_hide_labels_title">Ascunde etichetele specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Ascunde semnele de carte care sînt marcate cu eticheta specificată(e)</string>
@@ -683,6 +684,7 @@
   <string name="workspace_listing_with_current">%s (actual)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Aceasta este versiunea beta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         În versiunea beta, există caracteristici noi care n-au fost încă testate corespunzător,
         deci utilizarea versiunii beta ar putea introduce un comportament neașteptat, adică erori.
@@ -780,6 +782,7 @@
   <string name="format_mysword">Documente MySword (*.mybible)</string>
   <string name="format_mybible">Documente MyBible (*.SQLite3)</string>
   <string name="format_epub">Documente EPUB (*.epub)</string>
+  <string name="format_ttf">Caractere TTF (*.ttf)</string>
   <string name="format_studypads">Notițe de studiu din bazele de date AndBible (*.abdb)</string>
   <string name="redownload_message">
         A fost găsită o listă de cărți/documente anterioare. Apasă mai jos pentru a le descărca din nou.
@@ -811,6 +814,10 @@
   <string name="unlock_info">Informații de deblocare a fișierelor cifrate</string>
   <string name="try_again_passphrase">Parola nu a funcționat, încerci din nou?</string>
   <string name="show_unlock_info">Informații despre fișier și descifrare</string>
+  <string name="prefs_experimental_features_title">Caracteristici experimentale</string>
+  <string name="prefs_experimental_features_summary">Alege caracteristicile experimentale pe care vrei să le activezi. Aceste caracteristici sunt încă în dezvoltare și pot fi modificate sau eliminate</string>
+  <string name="experimental_feature_bookmark_edit_actions">Modifică Semne de carte</string>
+  <string name="experimental_feature_add_paragraph_break">Adaugă semn de carte pentru întreruperea de paragraf</string>
   <string name="prefs_show_error_box_title">Arată fereastra de erori Javascript</string>
   <string name="prefs_show_error_box_summary">Utilă pentru programatori atunci cînd depanează erorile javascript în BibleView. Aceasta va face aplicația lentă.</string>
   <string name="active_window_indicator_title">Indică fereastra activă</string>
@@ -818,6 +825,9 @@
   <string name="app_licence_title">Licență liberă</string>
   <string name="how_to_contribute">Cum să contribui?</string>
   <string name="confirm_delete_bookmarks">Vrei să elimini %dsemne de carte și notițele lor?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Eticheta aleasă este atașată la %d semne de carte care nu au alte etichete. Vrei să ștergi aceste semne de carte împreună cu etichetele?</string>
+  <string name="delete_label_and_bookmarks">Șterge eticheta și semnele de carte</string>
+  <string name="delete_label_only">Șterge doar eticheta</string>
   <string name="module_size_megabytes">%.1f Mo</string>
   <string name="tell_friend_title">Recomandă unui prieten</string>
   <string name="tell_friend_message1">Îți recomand %s.</string>
@@ -842,6 +852,7 @@
   <string name="show_version_name">Include numele versiunii</string>
   <string name="show_ellipsis">Arată trei puncte (…)</string>
   <string name="show_quotes">Arată ghilimele</string>
+  <string name="separate_verses_with_newlines">Separă cu rânduri noi versetele</string>
   <string name="backup_button">Copie de rezervă</string>
   <string name="back_button">Înapoi</string>
   <string name="upgrading_database">Se actualizează baza de date. Așteaptă…</string>
@@ -928,11 +939,43 @@
   <string name="label_underline">Subliniat</string>
   <string name="import_menu">Importă și Exportă</string>
   <string name="export">Exportă</string>
+  <string name="csv_export_success">S-au exportat %d semne de carte în CSV</string>
+  <string name="csv_import_success">Importare completă: %d create, %d actualizate</string>
+  <string name="csv_import_errors">Importare completată cu erori: %d create, %d actualizate, %d erori</string>
+  <string name="csv_import_failed">Nu s-a reușit importarea CSV-ului: %s</string>
+  <string name="csv_export_failed">Nu s-s reușit exportarea CSV-ului: %s</string>
+  <string name="csv_column_selection_title">Alege coloanele CSV</string>
+  <string name="choose_csv_file">Alege fișierul CSV de importat</string>
+  <string name="no_bookmarks_to_export">Niciun semn de carte de exportat</string>
   <string name="export_fileformat">Exportă ca %s</string>
   <string name="export_something">Exportă %s</string>
   <string name="import_items">Importă %s</string>
   <string name="import_from_db">Importă din baza de date a aplicației</string>
   <string name="import_error">Importarea din baza de date a aplicației a eșuat. Fișierul bazei de date ar putea avea un format greșit sau a fost creat cu o versiune prea veche de %s.</string>
+  <string name="export_bookmarks_csv">Exportă semnele de carte ca %s</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">Trimitere OSIS</string>
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Trimitere biblică</string>
+  <string name="document">Document</string>
+  <string name="book">Carte</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Capitolul de început</string>
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Versetul de început</string>
+  <string name="chapter_end">Capitolul de sfârșit</string>
+  <string name="verse_end">Versetul de sfârșit</string>
+  <string name="id">Identificator</string>
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="ordinal_start">Numărul de început</string>
+  <string name="ordinal_end">Numărul de sfârșit</string>
+  <string name="created_at">Creat la</string>
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset">Poziția de început</string>
+  <string name="end_offset">Poziția de sfârșit</string>
+  <string name="custom_icon">Simbol personalizat</string>
+  <string name="last_updated_at">Ultima actualizare la</string>
+  <string name="bookmark_notes">Notițele semnului de carte</string>
   <string name="chooser_range">Interval</string>
   <string name="chooser_jump">Saltă</string>
   <string name="chooser_OT_abbrev">VT</string>
@@ -1052,6 +1095,7 @@
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Autentificare în %s</string>
+  <string name="auth_server_uri">URL-ul serverului</string>
   <string name="auth_username">Nume de utilizator</string>
   <string name="auth_password">Parola</string>
   <string name="auth_access_token">Dispozitiv de acces</string>
@@ -1107,5 +1151,19 @@
   <string name="dont_show">
         Nu mai arăta acest mesaj
     </string>
+  <string name="pref_font_size_multiplier_title">Multiplicator mărime litere</string>
+  <string name="pref_font_size_multiplier_summary_1">Multiplică mărimea literelor textului cu acest număr.</string>
+  <string name="pref_font_size_multiplier_summary_2">Util dacă ai un aparat sincronizat care este folosit cu litere mai mari.</string>
+  <string name="current_value">Valoarea actuală: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Acțiune pentru gestul de tragere în stânga / dreapta</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Gestul de tragere în stânga / dreapta poate fi utilizat pentru a trece la pagina / capitolul următor.</string>
   <string name="prefs_swipe_mode_chapter">Capitol</string>
+  <string name="prefs_swipe_mode_page">Pagina</string>
+  <string name="prefs_swipe_mode_none">Dezactivat</string>
+  <string name="page_number_title">Numărul aproximativ al paginii</string>
+  <string name="page_number_summary">Afișează numărul paginii prin suprapunere. Numărul paginii este raportat la poziția inițială.</string>
+  <string name="select_custom_icon">Alege simbolul personalizat de evidențiere</string>
+  <string name="invalid_url_message">URL-ul introdus este greșit. Iată un exemplu de URL corect (https://nextcloud.exemplu.com)</string>
+  <string name="memorize_description">Memorează versete biblice</string>
+  <string name="memorize_abbreviation">Memorează</string>
 </resources>

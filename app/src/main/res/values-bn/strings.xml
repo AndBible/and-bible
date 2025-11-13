@@ -12,7 +12,6 @@
   <string name="chooseBook">নথিপত্র</string>
   <string name="selectPassage">গ্রন্থ অংশ</string>
   <string name="search">সন্ধান</string>
-  <string name="search_in_andbible">বাইবেলে খুঁজুন</string>
   <string name="settings">প্রয়োগের পছন্দগুলি</string>
   <string name="history">ঘটনা বিবরণ</string>
   <string name="speak">কথাবলুন</string>
@@ -891,6 +890,14 @@ Google Play এ এগিয়ে যান</string>
   <string name="import_items">রপ্তানি%s</string>
   <string name="import_from_db">অ্যাপ ডাটাবেস ফাইল থেকে আমদানি করুন</string>
   <string name="import_error">অ্যাপ ডেটাবেস থেকে আমদানি ব্যর্থ হয়েছে৷ ডাটাবেস ফাইল ভুল ফরম্যাট হতে পারে বা এর খুব পুরানো সংস্করণ দিয়ে তৈরি হতে পারে%s</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">নথিপত্র</string>
+  <string name="book">বই </string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">পরিসর</string>
   <string name="chooser_jump">লাফ</string>
   <string name="chooser_OT_abbrev">পুরাতন নিয়ম</string>

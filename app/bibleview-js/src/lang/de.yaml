@@ -57,9 +57,41 @@ openDownloads: Zu Add-on Download gehen
 verseShare: Teilen
 verseSpeak: Vorlesen
 verseCompare: Vergleiche
+verseMemorize: Auswendig lernen
 verseNote: Notiz
 verseMyNotes: Eigene Notizen
+verseParagraphBreak: ""
 verseShareLong: Diesen Vers teilen
 verseCompareLong: Vers vergleichen
+verseMemorizeLong: Bibelverse auswendig lernen
 verseNoteLong: Eine Notiz schreiben
+verseParagraphBreakLong: Absatzumbruch
 addBookmark: Lesezeichen
+selectCustomIconTitle: Benutzerdefiniertes Markierungssymbol auswählen
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: Zurücksetzen
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Mehr

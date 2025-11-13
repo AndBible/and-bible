@@ -166,11 +166,16 @@ class SpeakControl @Inject constructor(
         val settings = SpeakSettings.load()
         val range = settings.playbackSettings.verseRange
         val page = windowControl.activeWindowPageManager.currentPage
-        val currentVerse = page.singleKey as Verse
+        val currentVerse = page.singleKey as? Verse
+        
+        // If singleKey is null or we don't have range playback mode, nothing to reset
+        if (currentVerse == null || range == null) {
+            return
+        }
 
         // If we have range playback mode set up, and user starts playback not from within the range,
         // let's cancel the range playback mode.
-        if(range != null && !(range.start.ordinal <= currentVerse.ordinal
+        if (!(range.start.ordinal <= currentVerse.ordinal
                 && range.end.ordinal >= currentVerse.ordinal)) {
             settings.playbackSettings.verseRange = null
             settings.save()
@@ -298,7 +303,13 @@ class SpeakControl @Inject constructor(
             ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
             return
         }
-        speakBible(page.singleKey as Verse)
+        val verse = page.singleKey as? Verse
+        if (verse == null) {
+            Log.e(TAG, "Cannot speak Bible - no valid verse key available")
+            ABEventBus.post(ToastEvent(R.string.speak_general_error))
+            return
+        }
+        speakBible(verse)
     }
 
     private fun speakBible(verse: Verse) {
@@ -306,8 +317,8 @@ class SpeakControl @Inject constructor(
     }
 
     private fun speakAny(bookRef: String, osisRef: String) {
-        val book = Books.installed().getBook(bookRef)
         try {
+            val book = Books.installed().getBook(bookRef)
             if((book as? SwordBook)?.bookCategory == BookCategory.BIBLE) {
                 val verse = (book.getKey(osisRef) as RangedPassage).getVerseAt(0)
                 speakBible(book, verse)
@@ -316,9 +327,13 @@ class SpeakControl @Inject constructor(
                 speakGeneric(key)
             }
         } catch (e: NoSuchKeyException) {
-            Log.e(TAG, "Key not found $osisRef in $currentBook")
+            Log.e(TAG, "Key not found $osisRef in $bookRef", e)
+            // Fall back to default behavior instead of crashing
+            startSpeakingFromDefault()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error restoring speaking position", e)
+            startSpeakingFromDefault()
         }
-
     }
 
     fun speakKeyListLegacy(book: Book, keyList: List<Key>, queue: Boolean) {

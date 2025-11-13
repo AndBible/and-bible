@@ -33,13 +33,23 @@
         ghost-class="drag-ghost"
         chosen-class="drag-chosen"
     >
-      <template #item="{element: j}">
+      <template #item="{element: j, index}">
         <div
             :id="`o-${j.hashCode}`"
             :data-ordinal="studyPadOrdinal(j)"
             class="ordinal"
         >
-          <div class="studypad-container" :style="indentStyle(j)" :id="`studypad-${j.type}-${j.id}`">
+          <div
+              class="studypad-container"
+              :class="{'has-cursor': showCursor && cursorPosition === index}"
+              :style="indentStyle(j)"
+              :id="`studypad-${j.type}-${j.id}`"
+          >
+            <div
+                v-if="showCursor"
+                class="cursor-click-area"
+                @click="moveCursorTo(index)"
+            />
             <StudyPadRow
                 :key="`studypad-${j.type}-${j.id}`"
                 :ref="setStudyPadRowRef"
@@ -51,6 +61,16 @@
         </div>
       </template>
     </draggable>
+    <div
+        v-if="showCursor"
+        class="studypad-cursor-last"
+        :class="{'has-cursor': cursorPosition === journalEntries.length}"
+    >
+      <div
+          class="cursor-click-area"
+          @click="moveCursorTo(journalEntries.length)"
+      />
+    </div>
     <div v-if="journalEntries.length > 0 && !exportMode">
       <span v-if="isStudyPadBookmark(lastEntry) && !lastEntry.hasNote" class="journal-button"
             @click="editLastNote">
@@ -69,7 +89,7 @@ import {useCommon} from "@/composables";
 import {setupEventBusListener} from "@/eventbus";
 import {groupBy, sortBy} from "lodash";
 import StudyPadRow from "@/components/StudyPadRow.vue";
-import {androidKey, exportModeKey, globalBookmarksKey, scrollKey} from "@/types/constants";
+import {androidKey, exportModeKey, globalBookmarksKey, scrollKey, journalKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {adjustedColorOrig} from "@/utils";
 import {useStudyPad} from "@/composables/journal";
@@ -102,7 +122,7 @@ const {
 const {strings, appSettings} = useCommon()
 
 const journal = useStudyPad(label);
-provide("journal", journal);
+provide(journalKey, journal);
 const {scrollToId} = inject(scrollKey)!;
 const android = inject(androidKey)!;
 
@@ -247,10 +267,27 @@ function studyPadOrdinal(journalEntry: StudyPadItem) {
     return journalEntry.hashCode
 }
 
+const cursorPosition = computed<number>(() => {
+    const position = appSettings.studyPadCursors?.[label.id] ?? journalEntries.value.length;
+    return Math.max(0, Math.min(position, journalEntries.value.length))
+});
+
+const isAutoAssignLabel = computed<boolean>(() => {
+    return appSettings.autoAssignLabels?.includes(label.id) ?? false;
+});
+
+const showCursor = computed<boolean>(() => {
+    return isAutoAssignLabel.value && !exportMode.value;
+});
+
+function moveCursorTo(orderNumber: number): void {
+    android.setStudyPadCursor(label.id, orderNumber);
+}
+
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
 
 div.journal-name {
   padding-top: 10px;
@@ -277,9 +314,25 @@ div.journal-name {
     left: 0;
   }
 }
+$cursorColor: rgb(0, 161, 0);
 
 .studypad-container {
   @extend .note-container;
+
+  &.has-cursor {
+    border-style: solid;
+    border-color: $cursorColor;
+  }
+}
+
+.cursor-click-area {
+  position: absolute;
+  top: -7px;
+  left: 0;
+  right: 0;
+  height: 15px;
+  cursor: pointer;
+  z-index: 10;
 }
 
 .bible-text {
@@ -287,6 +340,26 @@ div.journal-name {
   text-indent: 5pt;
   margin-bottom: 2pt;
   font-style: italic;
+}
+
+.studypad-cursor-last {
+  position: relative;
+  height: 0;
+  margin: 4pt 2pt 2pt;
+  padding-top: 0;
+
+  border-style: dashed;
+  border-color: rgba(0, 0, 0, 0.15);
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  border-width: 1pt 0 0 0;
+
+  &.has-cursor {
+    border-style: solid;
+    border-color: $cursorColor;
+    cursor: pointer;
+  }
 }
 
 </style>

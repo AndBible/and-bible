@@ -57,9 +57,41 @@ openDownloads: Ga naar uitbreiding downloads
 verseShare: Delen
 verseSpeak: Voorlezen
 verseCompare: Vergelijken
+verseMemorize: ""
 verseNote: Notitie
 verseMyNotes: Mijn notities
+verseParagraphBreak: ""
 verseShareLong: Dit vers delen
 verseCompareLong: Vers vergelijken
+verseMemorizeLong: ""
 verseNoteLong: Schrijf een notitie
+verseParagraphBreakLong: ""
 addBookmark: Bladwijzer
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: Reset
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Meer

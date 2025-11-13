@@ -12,7 +12,6 @@
   <string name="chooseBook">Document</string>
   <string name="selectPassage">Passage</string>
   <string name="search">Zoeken</string>
-  <string name="search_in_andbible">Zoek in Bijbel</string>
   <string name="settings">Applicatievoorkeuren</string>
   <string name="history">Geschiedenis</string>
   <string name="speak">Voorlezen</string>
@@ -887,6 +886,14 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="import_items">Importeer %s</string>
   <string name="import_from_db">Importeren van App Database bestand</string>
   <string name="import_error">Importeren vanuit App Database mislukt. Database bestand zou verkeerd formaat kunnen zijn of gemaakt zijn met een te oude versie van %s.</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="document">Document</string>
+  <string name="book">Boek</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Reikwijdte</string>
   <string name="chooser_jump">Verspring</string>
   <string name="chooser_OT_abbrev">OT</string>

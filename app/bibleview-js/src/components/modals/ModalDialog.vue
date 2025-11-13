@@ -62,11 +62,11 @@ import {modalKey} from "@/types/constants";
 const emit = defineEmits(["close"]);
 const props = withDefaults(
     defineProps<{
-        blocking: boolean
-        wide: boolean
-        edit: boolean
-        locateTop: boolean
-        limit: boolean
+        blocking?: boolean
+        wide?: boolean
+        edit?: boolean
+        locateTop?: boolean
+        limit?: boolean
     }>(),
     {
         blocking: false,
@@ -139,22 +139,7 @@ defineExpose({height});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
-
-.modal-backdrop {
-  display: block;
-  position: fixed;
-  z-index: 10;
-  padding-top: 10px;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  .monochrome & {
-    background-color: unset;
-  }
-}
+@use "@/common.scss" as *;
 
 $border-radius: 8pt;
 $border-radius2: $border-radius - 1.5pt;

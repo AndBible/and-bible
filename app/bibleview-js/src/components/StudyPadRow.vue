@@ -44,7 +44,6 @@
              @click="changeExpanded(!bookmarkEntry.expandContent)">
           <FontAwesomeIcon :icon="bookmarkEntry.expandContent ? 'compress-arrows-alt' : 'expand-arrows-alt'"/>
         </div>
-
         <div class="journal-button" @click="deleteEntry">
           <FontAwesomeIcon icon="trash"/>
         </div>
@@ -69,7 +68,7 @@
       <EditableText
           ref="editor"
           :show-placeholder="journalEntry.type === 'journal'"
-          :edit-directly="textEntry.new"
+          :edit-directly="textEntry.new ?? false"
           :text="journalText"
           @opened="$emit('edit-opened')"
           @save="journalTextChanged"
@@ -222,7 +221,8 @@ defineExpose({editor});
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "sass:color";
+@use "@/common.scss" as *;
 
 .notes {
   text-indent: 2pt;

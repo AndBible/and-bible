@@ -17,8 +17,6 @@
 
 import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import java.util.Properties
 
@@ -28,6 +26,7 @@ plugins {
     id("kotlinx-serialization")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("app.accrescent.tools.bundletool")
 }
 
 val jsDir = "bibleview-js"
@@ -42,6 +41,8 @@ val discreteFlavorName = "discrete"
 val applicationIdStandard = "net.bible.android.activity.next"
 // An alternative applicationId, to be used for the "discrete" flavor.
 val applicationIdDiscrete = "com.app.calculator"
+// An alternative applicationId, to be used for the "accrescent" flavor.
+val applicationIdAccrescent = "org.andbible.andbible"
 
 // The flavor dimension for the app's distribution channel
 val dimDistributionChannelName = "distchannel"
@@ -64,8 +65,15 @@ fun getGitDescribe(): String  = ByteArrayOutputStream().use { stdout ->
     return stdout.toString().trim()
 }
 
-val npmVersion = "10"
+fun getGitCommitDate(): String = ByteArrayOutputStream().use { stdout ->
+    exec {
+        commandLine("git", "log", "-1", "--format=%ad", "--date=format:%d/%m/%y %H:%M:%S")
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
 
+val npmVersion = "11"
 val npmUpgrade by tasks.registering(Exec::class) {
     inputs.file("$jsDir/package.json")
     outputs.file("$jsDir/node_modules/.bin/npm")
@@ -96,7 +104,7 @@ val npmInstall by tasks.registering(Exec::class) {
 val jsBuild by tasks.registering(Exec::class) {
     dependsOn(npmInstall)
     inputs.file("$jsDir/package.json")
-    inputs.file("$jsDir/vite.config.ts")
+    inputs.file("$jsDir/vite.config.mts")
     inputs.file("$jsDir/index.html")
     inputs.file("$jsDir/tsconfig.json")
     inputs.dir("$jsDir/src")
@@ -138,7 +146,7 @@ tasks.named("preBuild").configure { dependsOn(buildLoaderJs) }
 tasks.named("check").configure { dependsOn(jsTests) }
 
 android {
-    compileSdk = 34
+    compileSdk = 36
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
@@ -148,7 +156,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
-        buildConfigField("String", "BuildDate", "\"${SimpleDateFormat("dd/MM/YY HH:mm:ss").format(Date())}\"")
+        buildConfigField("String", "CommitDate", "\"${getGitCommitDate()}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testApplicationId = "org.andbible.tests"
         ksp {
@@ -229,6 +237,10 @@ android {
         create("github") {
             dimension = dimDistributionChannelName
         }
+
+        create("accrescent") {
+            dimension = dimDistributionChannelName
+        }
     }
 
     lint {
@@ -289,6 +301,7 @@ android {
         resources.excludes.add("META-INF/LICENSE.txt")
         resources.excludes.add("META-INF/NOTICE.txt")
         resources.excludes.add("META-INF/DEPENDENCIES")
+        resources.excludes.add("META-INF/versions/9/OSGI-INF/MANIFEST.MF")
     }
 
     buildFeatures {
@@ -325,6 +338,16 @@ androidComponents {
         variant.applicationId.set(alternateAppId)
         println("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
     }
+    val accrescentSelector = selector().withFlavor(dimDistributionChannelName to "accrescent")
+    // Set the applicationId for Accrescent variant.
+    // Replace only the "standard" prefix, in order to preserve any
+    // suffixes that are contributed by the build types or product flavors.
+    onVariants(accrescentSelector) { variant ->
+        val originalAppId = variant.applicationId.get()
+        val alternateAppId = originalAppId.replace(applicationIdStandard, applicationIdAccrescent)
+        variant.applicationId.set(alternateAppId)
+        println("Reconfigured variant ${variant.name} with applicationId '${alternateAppId}' (was ${originalAppId})")
+    }
     beforeVariants(selector()
         .withFlavor(dimAppearanceName to "discrete")
     ) { variant ->
@@ -349,21 +372,22 @@ dependencies {
 
     ksp("androidx.room:room-compiler:$roomVersion")
 
-    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.room:room-ktx:$roomVersion")
     implementation("androidx.core:core-ktx:$coreKtxVersion")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.media:media:1.7.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.1")
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.webkit:webkit:1.12.1")
+    implementation("androidx.webkit:webkit:1.14.0")
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
-    for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei").map { "${it}Implementation" }) {
+
+    for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
         // Onyx SDK (e-ink devices)
         variantImplementation("com.onyx.android.sdk:onyxsdk-device:1.2.32") // NOTE: remember to check its AndroidManifest.xml and remove unnecessary permissions in our AndroidManifest.xml
         // Google Drive API
@@ -377,7 +401,6 @@ dependencies {
             exclude("org.apache.httpcomponents")
         }
     }
-
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 
     //implementation("com.jaredrummler:colorpicker:1.1.0")
@@ -396,7 +419,7 @@ dependencies {
     //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
     //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    val daggerVersion = "2.51.1"
+    val daggerVersion = "2.56.2"
     implementation("com.google.dagger:dagger:$daggerVersion")
     annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
     ksp("com.google.dagger:dagger-compiler:$daggerVersion")
@@ -414,6 +437,14 @@ dependencies {
 
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("jaxen:jaxen:2.0.0")
+
+    // Next cloud related dependencies
+    implementation("com.github.nextcloud:android-library:2.20.0") {
+        exclude(group = "org.ogce", module = "xpp3") // unused in Android and brings wrong Junit version
+    }
+    implementation("commons-httpclient:commons-httpclient:3.1@jar")  // Make sure this is same version as in NextCloud lib
+    implementation("org.apache.jackrabbit:jackrabbit-webdav:2.13.5") // Make sure this is same version as in NextCloud lib
+
 
     debugImplementation("com.facebook.stetho:stetho:1.6.0")
 
@@ -462,9 +493,57 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.1")
 }
 
+// Bundletool configuration for Accrescent APK set building
+// Passwords are read from environment variables for security
+bundletool {
+    val propsFile = rootProject.file("local.properties")
+    if (propsFile.exists()) {
+        val props = Properties()
+        FileInputStream(propsFile).use { props.load(it) }
+
+        val storeFilePath: String? = props["accrescent.storeFile"] as String?
+        val keyAliasValue: String? = props["accrescent.keyAlias"] as String?
+        val storePasswordValue = System.getenv("ACCRESCENT_STORE_PASSWORD")
+        val keyPasswordValue = System.getenv("ACCRESCENT_KEY_PASSWORD")
+
+        if (storeFilePath != null && keyAliasValue != null &&
+            storePasswordValue != null && keyPasswordValue != null) {
+            signingConfig {
+                this.storeFile = file(storeFilePath)
+                this.storePassword = storePasswordValue
+                this.keyAlias = keyAliasValue
+                this.keyPassword = keyPasswordValue
+            }
+            println("✓ Accrescent signing configuration loaded successfully")
+        } else {
+            println("⚠ WARNING: Accrescent signing configuration incomplete")
+            if (storeFilePath == null || keyAliasValue == null) {
+                println("  Missing in local.properties:")
+                if (storeFilePath == null) println("    - accrescent.storeFile=/path/to/keystore.jks")
+                if (keyAliasValue == null) println("    - accrescent.keyAlias=yourKeyAlias")
+            }
+            if (storePasswordValue == null || keyPasswordValue == null) {
+                println("  Missing environment variables:")
+                if (storePasswordValue == null) println("    - ACCRESCENT_STORE_PASSWORD")
+                if (keyPasswordValue == null) println("    - ACCRESCENT_KEY_PASSWORD")
+                println("  Tip: Use 'make accrescent' to build with GPG-encrypted credentials")
+            }
+        }
+    } else {
+        println("⚠ WARNING: local.properties not found")
+        println("  Please create it with accrescent.storeFile and accrescent.keyAlias")
+    }
+}
+
+configurations {
+    testImplementation {
+        exclude(group = "com.github.requery", module = "sqlite-android")
+    }
+}
+
 afterEvaluate {
     android.applicationVariants.all { variant ->
-        if (listOf("Googleplay", "Github", "Amazon", "Samsung", "Huawei").find { variant.flavorName.endsWith(it) } != null) {
+        if (listOf("Googleplay", "Github", "Amazon", "Samsung", "Huawei", "Accrescent").find { variant.flavorName.endsWith(it) } != null) {
             repositories {
                 maven { url = uri("https://repo.boox.com/repository/maven-public/") }
             }
@@ -472,3 +551,4 @@ afterEvaluate {
         true
     }
 }
+

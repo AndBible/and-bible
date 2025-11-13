@@ -12,7 +12,6 @@
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Pasaje</string>
   <string name="search">Encuentra</string>
-  <string name="search_in_andbible">Encontrar en la Biblia</string>
   <string name="settings">Preferencias de aplicación</string>
   <string name="history">Historia</string>
   <string name="speak">Con voz</string>
@@ -142,6 +141,7 @@
   <string name="prefs_margin_size_summary">Ajuste el margen izquierdo y derecho de la vista de texto. Tú también puedes
         ajustar el ancho máximo del texto.
 </string>
+  <string name="prefs_margin_size_summary_2">Consejo: Puede tocar el área del margen para saltar una página arriba/abajo.</string>
   <string name="prefs_text_colors_summary">Ajuste el texto y los colores de fondo y el efecto de ruido.</string>
   <string name="text_display_settings_activity_title">Ajustes de visualización de texto</string>
   <string name="workspace_text_display_settings_title">Opciones de texto - %s</string>
@@ -371,6 +371,7 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <string name="add_bookmark_whole_verse">Marcar versículo</string>
   <string name="add_bookmark_whole_verse1">Versos</string>
   <string name="add_bookmark_whole_verse2">Versos completos</string>
+  <string name="add_paragraph_break">Salto de párrafo</string>
   <string name="remove_bookmark">Eliminar</string>
   <string name="bookmark_settings_hide_labels_title">Ocultar etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que se marcaron con la(s) etiqueta(s) especificada(s)</string>
@@ -677,6 +678,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="workspace_listing_with_current">%s (actual)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">¡Esta es la versión beta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 En la versión beta, hay nuevas características que aún no se han probado adecuadamente
 y, por lo tanto, el uso de beta podría introducir un comportamiento inesperado, es decir, errores.
@@ -771,6 +773,7 @@ respaldo.
   <string name="format_mysword">Documentos MySword (*.mybible)</string>
   <string name="format_mybible">Documentos MyBible (.SQLite3)</string>
   <string name="format_epub">Documentos EPUB (*.epub)</string>
+  <string name="format_ttf">Fuentes TTF (*.ttf)</string>
   <string name="format_studypads">Pizarras de estudio de la base de datos AndBible (*.abdb)</string>
   <string name="redownload_message">
 Se encontró una lista de libros / documentos anteriores. Haga clic a continuación para volver a descargarlos fácilmente.
@@ -802,6 +805,10 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="unlock_info">Información de desbloqueo de módulo cifrado</string>
   <string name="try_again_passphrase">La contraseña no funcionó, ¿intentar de nuevo?</string>
   <string name="show_unlock_info">Módulo e información de desbloqueo</string>
+  <string name="prefs_experimental_features_title">Funciones experimentales</string>
+  <string name="prefs_experimental_features_summary">Seleccione las funciones experimentales que desea habilitar. Estas funciones aún se encuentran en desarrollo y pueden cambiar o eliminarse</string>
+  <string name="experimental_feature_bookmark_edit_actions">Acciones de edición de marcadores</string>
+  <string name="experimental_feature_add_paragraph_break">Añadir marcador de salto de párrafo</string>
   <string name="prefs_show_error_box_title">Mostrar la caja de errores Javascript</string>
   <string name="prefs_show_error_box_summary">Útil para desarrolladores que están depurando errores javascript de BibleView. Esto ralentizará la aplicación.</string>
   <string name="active_window_indicator_title">Mostrar el indicador de ventana activa</string>
@@ -809,6 +816,9 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="app_licence_title">Licencia de software libre</string>
   <string name="how_to_contribute">¿Cómo contribuir?</string>
   <string name="confirm_delete_bookmarks">¿Desea eliminar %d marcadores y sus notas?</string>
+  <string name="confirm_delete_orphaned_bookmarks">La etiqueta seleccionada se adjunta a %d marcadores que no tienen otras etiquetas. ¿Desea eliminar estos marcadores junto con las etiquetas?</string>
+  <string name="delete_label_and_bookmarks">Eliminar etiqueta y marcadores</string>
+  <string name="delete_label_only">Eliminar solo la etiqueta</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recomendar a las amistades</string>
   <string name="tell_friend_message1">Me gustaría recomendarte %s.</string>
@@ -833,6 +843,7 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="show_version_name">Incluir el nombre de la versión</string>
   <string name="show_ellipsis">Mostrar puntos suspensivos (…)</string>
   <string name="show_quotes">Mostrar comillas</string>
+  <string name="separate_verses_with_newlines">Separa los versos con saltos de línea.</string>
   <string name="backup_button">Copia de seguridad</string>
   <string name="back_button">Atrás</string>
   <string name="upgrading_database">Actualizando la base de datos. Por favor espere…</string>
@@ -919,11 +930,43 @@ informe los problemas a los mantenedores de texto
   <string name="label_underline">Subrayar</string>
   <string name="import_menu">Importar &amp; Exportar</string>
   <string name="export">Exportar</string>
+  <string name="csv_export_success">%d favoritos exportados a CSV</string>
+  <string name="csv_import_success">Importación completada: %d creado, %d actualizado</string>
+  <string name="csv_import_errors">Importación completada con errores: %d creados, %d actualizados, %d errores</string>
+  <string name="csv_import_failed">La importación CSV ha fallado: %s</string>
+  <string name="csv_export_failed">Error al exportar CSV: %s</string>
+  <string name="csv_column_selection_title">Seleccionar columnas CSV</string>
+  <string name="choose_csv_file">Seleccione el archivo CSV que desea importar</string>
+  <string name="no_bookmarks_to_export">No hay marcadores disponibles para exportar</string>
   <string name="export_fileformat">Exportar cómo %s</string>
   <string name="export_something">Exportar %s</string>
   <string name="import_items">Importar %s</string>
   <string name="import_from_db">Importar desde el archivo de la base de datos de la aplicación</string>
   <string name="import_error">Error al importar desde la base de datos de la aplicación. El archivo de base de datos puede tener un formato incorrecto o estar hecho con una versión demasiado antigua de %s.</string>
+  <string name="export_bookmarks_csv">Exportar marcadores como %s</string>
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">Referencia OSIS</string>
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference">Referencia bíblica</string>
+  <string name="document">Documento</string>
+  <string name="book">Libro</string>
+  <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Inicio del capítulo</string>
+  <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Inicio del verso</string>
+  <string name="chapter_end">Fin del capítulo</string>
+  <string name="verse_end">Fin del verso</string>
+  <string name="id">Identificador</string>
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="ordinal_start">Inicio ordinal</string>
+  <string name="ordinal_end">Final ordinal</string>
+  <string name="created_at">Creado el</string>
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset">Desplazamiento inicial</string>
+  <string name="end_offset">Desplazamiento final</string>
+  <string name="custom_icon">Icono personalizado</string>
+  <string name="last_updated_at">Última actualización el</string>
+  <string name="bookmark_notes">Notas de marcadores</string>
   <string name="chooser_range">Distancia</string>
   <string name="chooser_jump">Saltar</string>
   <string name="chooser_OT_abbrev">AT</string>
@@ -1043,6 +1086,7 @@ informe los problemas a los mantenedores de texto
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Autenticación en %s</string>
+  <string name="auth_server_uri">URL del servidor</string>
   <string name="auth_username">Nombre de usuario</string>
   <string name="auth_password">Contraseña</string>
   <string name="auth_access_token">Token de acceso</string>
@@ -1098,5 +1142,19 @@ Próximamente habrá un nuevo lanzamiento. La fecha de lanzamiento prevista es %
   <string name="dont_show">
         No volver a mostrar este mensaje
     </string>
+  <string name="pref_font_size_multiplier_title">Multiplicador del tamaño de letra</string>
+  <string name="pref_font_size_multiplier_summary_1">Multiplique el tamaño de las fuentes de texto por este número.</string>
+  <string name="pref_font_size_multiplier_summary_2">Útil si tiene un dispositivo sincronizado que se utiliza con una fuente más grande.</string>
+  <string name="current_value">Valor actual: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Acción para el gesto de deslizar a izquierda / derecha</string>
+  <string name="prefs_bible_view_swipe_mode_summary">El gesto de deslizar a izquierda/derecha permite pasar a la página/capítulo siguiente.</string>
   <string name="prefs_swipe_mode_chapter">Capítulo</string>
+  <string name="prefs_swipe_mode_page">Página</string>
+  <string name="prefs_swipe_mode_none">Desactivado</string>
+  <string name="page_number_title">Número de página relativo</string>
+  <string name="page_number_summary">Mostrar superposición del número de página. El número de página es relativo a la posición inicial.</string>
+  <string name="select_custom_icon">Seleccionar icono de marcador personalizado</string>
+  <string name="invalid_url_message">La URL introducida no es válida. Por favor, introduzca una URL válida (por ejemplo, https://nextcloud.example.com)</string>
+  <string name="memorize_description">Memorizar versículos de la Biblia</string>
+  <string name="memorize_abbreviation">Memorizar</string>
 </resources>

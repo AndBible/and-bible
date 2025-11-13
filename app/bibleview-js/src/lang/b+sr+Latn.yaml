@@ -57,9 +57,41 @@ openDownloads: Idite na Preuzimanje dodataka
 verseShare: Deli
 verseSpeak: Izgovori
 verseCompare: Uporedite
+verseMemorize: ""
 verseNote: Beleška
 verseMyNotes: Moje beleške
+verseParagraphBreak: ""
 verseShareLong: Podeli ovaj stih
 verseCompareLong: Uporedi stih
+verseMemorizeLong: ""
 verseNoteLong: Napiši belešku
+verseParagraphBreakLong: ""
 addBookmark: Obeleživač
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: Povrati
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Više

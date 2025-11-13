@@ -57,9 +57,41 @@ openDownloads: Πήγαινε στις επιπρόσθετες λήψεις
 verseShare: Διαμοιρασμός
 verseSpeak: Μιλήστε
 verseCompare: Σύγκριση
+verseMemorize: Απομνημόνευση
 verseNote: Σημείωση
 verseMyNotes: Οι Σημειώσεις Μου
+verseParagraphBreak: Παράγραφος
 verseShareLong: Μοιράσου αυτό το στίχο
 verseCompareLong: Σύγκριση στίχου
+verseMemorizeLong: Απομνημόνευση Βιβλικών εδαφίων
 verseNoteLong: Γράψε μία σημείωση
+verseParagraphBreakLong: Νέα παράγραφος
 addBookmark: Σελιδοδείκτης
+selectCustomIconTitle: Επιλογή προσαρμοσμένου εικονιδίου δείκτη
+bookmarkSettingsTitle: Ρύθμιση επιλογών σελιδοδείκτη
+subtitlePlaceholder: Κείμενο υπότιτλου
+customIconLabel: Προσαρμοσμένο εικονίδιο
+editActionLabel: Επεξεργασία ενέργειας
+editActionModeLabel: Λειτουργία
+editActionModeNone: Κανένα
+editActionModeAppend: Προσθήκη κειμένου
+editActionModePrepend: Πρόθεμα κειμένου
+editActionContentLabel: Περιεχόμενο
+editActionContentPlaceholder: Εισάγετε το κείμενο που θα προστεθεί στο έγγραφο
+experimentalFeatureTitle: Πειραματικό
+experimentalFeatureHelpTitle: Σχετικά με τις πειραματικές δυνατότητες
+experimentalFeatureHelpContent: Οι πειραματικές δυνατότητες είναι νέες λειτουργίες που βρίσκονται ακόμα ύπο ανάπτυξη και δοκιμή. Μπορεί να μην λειτουργούν τέλεια και μπορεί να αλλάξουν ριζικά ή και να καταργηθούν σε μελλοντικές αναβαθμίσεις της εφαρμογής.
+insertParagraphBreak: Εισαγωγή νέας παραγράφου
+insertSubtitle: Εισαγωγή υπότιτλου
+xmlParseError: Σφάλμα ανάλυσης XML
+invalidTag: Εσφαλμένη ετικέτα
+invalidClosingTag: Μη έγκυρη ετικέτα κλεισίματος
+unmatchedClosingTag: Αναντίστοιχη ετικέτα κλεισίματος
+unclosedTag: Μη κλειστή ετικέτα
+unknownError: Άγνωστο σφάλμα
+blur: Θόλωμα
+reset: Επαναφορά
+peek: Γρήγορο κοίταγμα
+wordBlur: Θόλωμσ λέξης
+wordScramble: Ανακάτεμα λέξεων
+more: Περισσότερα

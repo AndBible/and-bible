@@ -41,6 +41,7 @@ export function useCommon() {
 
     function formatTimestamp(timestamp: number) {
         const options: Intl.DateTimeFormatOptions = {
+            weekday: 'short',
             year: 'numeric',
             month: 'numeric',
             day: 'numeric',

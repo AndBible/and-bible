@@ -44,6 +44,8 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import java.util.*
 
+const val MAX_SEARCH_RESULTS = 100
+
 const val orderBy = """
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.kjvOrdinalStart END,
 CASE WHEN :orderBy = 'BIBLE_ORDER' THEN BibleBookmarkWithNotes.startOffset END,
@@ -351,6 +353,26 @@ interface BookmarkDao {
     @Query("SELECT * from StudyPadTextEntryWithText WHERE id=:id")
     fun studyPadTextEntryById(id: IdType): BookmarkEntities.StudyPadTextEntryWithText?
 
+    // Search queries for study pad content
+    @Query("SELECT * from StudyPadTextEntryWithText WHERE text LIKE :search LIMIT $MAX_SEARCH_RESULTS")
+    fun searchStudyPadTextEntriesByContent(search: String): List<BookmarkEntities.StudyPadTextEntryWithText>
+
+    @Query("""
+        SELECT DISTINCT BibleBookmarkWithNotes.*
+        FROM BibleBookmarkWithNotes
+        INNER JOIN BibleBookmarkToLabel ON BibleBookmarkWithNotes.id = BibleBookmarkToLabel.bookmarkId
+        WHERE BibleBookmarkWithNotes.notes LIKE :search LIMIT $MAX_SEARCH_RESULTS
+    """)
+    fun searchBibleBookmarkNotesByContent(search: String): List<BibleBookmarkWithNotes>
+
+    @Query("""
+        SELECT DISTINCT GenericBookmarkWithNotes.*
+        FROM GenericBookmarkWithNotes
+        INNER JOIN GenericBookmarkToLabel ON GenericBookmarkWithNotes.id = GenericBookmarkToLabel.bookmarkId
+        WHERE GenericBookmarkWithNotes.notes LIKE :search LIMIT $MAX_SEARCH_RESULTS
+    """)
+    fun searchGenericBookmarkNotesByContent(search: String): List<GenericBookmarkWithNotes>
+
     @Insert fun insert(entity: BookmarkEntities.StudyPadTextEntry)
     @Insert fun insert(entity: BookmarkEntities.StudyPadTextEntryText)
 
@@ -477,6 +499,9 @@ interface BookmarkDao {
     @Query("SELECT * from Label WHERE name = '${SPEAK_LABEL_NAME}' LIMIT 1")
     fun speakLabelByName(): Label?
 
+    @Query("SELECT * from Label WHERE name = '${PARAGRAH_BREAK_LABEL_NAME}' LIMIT 1")
+    fun paragraphBreakLabelByName(): Label?
+
     @Query("SELECT * from Label WHERE name = '${UNLABELED_NAME}' LIMIT 1")
     fun unlabeledLabelByName(): Label?
 
@@ -511,4 +536,10 @@ interface BookmarkDao {
     fun genericBookmarksFor(document: String, key: String): List<GenericBookmarkWithNotes>
     fun genericBookmarksFor(document: Book, key: Key): List<GenericBookmarkWithNotes> =
         genericBookmarksFor(document.initials, key.osisRef)
+
+    @Query("SELECT * from BibleBookmarkWithNotes WHERE primaryLabelId IN (:labelIdList)")
+    fun bibleBookmarksWithPrimaryLabel(labelIdList: List<IdType>): List<BibleBookmarkWithNotes>
+
+    @Query("SELECT * from GenericBookmarkWithNotes WHERE primaryLabelId IN (:labelIdList)")
+    fun genericBookmarksWithPrimaryLabel(labelIdList: List<IdType>): List<GenericBookmarkWithNotes>
 }

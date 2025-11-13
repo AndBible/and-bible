@@ -44,7 +44,6 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.ErrorActivity
-import net.bible.android.view.activity.page.currentActivity
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
 import net.bible.service.common.BuildVariant
@@ -119,16 +118,18 @@ open class BibleApplication : Application() {
         BackupControl.setupDirs(this)
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
+            val crashTime = System.currentTimeMillis()
             BugReport.saveScreenshot()
             Log.e(TAG, "App crashed due to exception", e)
             BugReport.saveLogcat()
             BugReport.saveStackTrace(e)
+            BugReport.saveCrashData()
 
             val numCrashed = CommonUtils.realSharedPreferences.getInt("app-crashed-count", 0)
             CommonUtils.realSharedPreferences.edit().putInt("app-crashed-count", numCrashed + 1).commit()
 
             if(numCrashed == 0) {
-                CommonUtils.realSharedPreferences.edit().putLong("app-crashed-time", System.currentTimeMillis()).commit()
+                CommonUtils.realSharedPreferences.edit().putLong("app-crashed-time", crashTime).commit()
             }
             defaultExceptionHandler.uncaughtException(t, e)
         }
