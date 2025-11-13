@@ -1741,7 +1741,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         checkWindows = true
     }
 
-    private val isTopWindow
+    private val isTopWindow: Boolean
         get() {
             if (!mainBibleActivity.isSplitVertically) return true
             val visibleWindows = windowControl.windowRepository.visibleWindows
@@ -1751,7 +1751,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             return windowIndex == 0
         }
 
-    private val isBottomWindow
+    private val isBottomWindow: Boolean
         get() {
             if (!mainBibleActivity.isSplitVertically) return true
             val visibleWindows = windowControl.windowRepository.visibleWindows
