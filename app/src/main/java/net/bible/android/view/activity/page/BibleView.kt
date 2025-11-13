@@ -1742,10 +1742,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private val isTopWindow
-        get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
+        get() {
+            if (!mainBibleActivity.isSplitVertically) return true
+            val visibleWindows = windowControl.windowRepository.visibleWindows
+            val windowIndex = visibleWindows.indexOf(window)
+            // Only the first window in visual order should be the top window
+            // If window is not in visible windows, it's not the top window
+            return windowIndex == 0
+        }
 
     private val isBottomWindow
-        get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
+        get() {
+            if (!mainBibleActivity.isSplitVertically) return true
+            val visibleWindows = windowControl.windowRepository.visibleWindows
+            val windowIndex = visibleWindows.indexOf(window)
+            // Only the last window in visual order should be the bottom window
+            // If window is not in visible windows, it's not the bottom window
+            return windowIndex >= 0 && windowIndex == visibleWindows.size - 1
+        }
 
     val topOffset
         get() =
