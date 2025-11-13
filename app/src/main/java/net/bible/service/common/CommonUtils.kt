@@ -100,7 +100,6 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
-import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -1740,10 +1739,10 @@ object CommonUtils : CommonUtilsBase() {
         var keyStr = path
 
         // Handle legacy JSword-style form, e.g. "StrongsGreek:5548"
-        if (path.contains(":")) {
+        if (path.contains(":") && !docStr.isNullOrBlank()) {
             val parts = path.split(":", limit = 2)
             if (docStr == null) docStr = parts[0]  // derive document if missing
-            keyStr = appendZeros(parts[1])
+            keyStr = parts[1]
         }
 
         // Try to load the document (SwordBook, Dictionary, etc.)
@@ -1754,12 +1753,12 @@ object CommonUtils : CommonUtilsBase() {
         val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
 
 
-//        val match = urlRegex.find(uri.path.toString()) ?: return null
+
 
         if (doc is SwordDictionary) {
 
-            val key = doc.getKey(keyStr)
-            val linkey = LinkControl
+            val key = doc.getKey(appendZeros(keyStr))
+
             return BookAndKey(key, doc)
         }
 
