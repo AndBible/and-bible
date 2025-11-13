@@ -26,6 +26,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
@@ -65,6 +66,7 @@ class Window (
             return ownTargetLinksWindow
                 ?: if (isLinksWindow) windowRepository.addNewLinksWindow().also {
                     targetLinksWindowId = it.id
+                    ABEventBus.post(NumberOfWindowsChangedEvent())
                 } else windowRepository.primaryTargetLinksWindow
         }
 
