@@ -132,6 +132,27 @@ const documentType = computed<BibleViewDocumentType>(() => {
 });
 const {config, appSettings, calculatedConfig} = useConfig(documentType);
 
+// Android 15 WebView viewport fix for bottom-touch-block
+const visualViewportOffset = ref(0);
+if (window.visualViewport) {
+    const updateViewportOffset = () => {
+        if (window.visualViewport) {
+            // When keyboard opens, visual viewport shrinks
+            // Calculate offset from layout viewport bottom
+            const layoutHeight = document.documentElement.clientHeight;
+            const visualHeight = window.visualViewport.height;
+            visualViewportOffset.value = layoutHeight - visualHeight - window.visualViewport.offsetTop;
+        }
+    };
+
+    window.visualViewport.addEventListener('resize', updateViewportOffset);
+    window.visualViewport.addEventListener('scroll', updateViewportOffset);
+    onUnmounted(() => {
+        window.visualViewport?.removeEventListener('resize', updateViewportOffset);
+        window.visualViewport?.removeEventListener('scroll', updateViewportOffset);
+    });
+}
+
 const lineHeight = computed(() => {
     // Update also when font settings etc are changed
     config.fontSize; config.fontFamily; config.lineSpacing;
@@ -328,6 +349,7 @@ const topStyle = computed(() => {
     return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
+          --visual-viewport-offset: ${visualViewportOffset.value}px;
           --noise-opacity: ${noiseOpacity / 100};
           --text-max-width: ${config.marginSize.maxWidth}mm;
           --text-color: ${textColor.hsl().string()};
@@ -662,7 +684,7 @@ a {
 
 .bottom-touch-block {
   position: fixed;
-  bottom: 0;
+  bottom: calc(var(--visual-viewport-offset, 0px));
   width: 100%;
   background: var(--background-color);
 
