@@ -1739,9 +1739,9 @@ object CommonUtils : CommonUtilsBase() {
         var keyStr = path
 
         // Handle legacy JSword-style form, e.g. "StrongsGreek:5548"
-        if (path.contains(":") && !docStr.isNullOrBlank()) {
+        if (path.contains(":") && docStr.isNullOrBlank()) {
             val parts = path.split(":", limit = 2)
-            if (docStr == null) docStr = parts[0]  // derive document if missing
+            docStr = parts[0] // derive document if missing
             keyStr = parts[1]
         }
 
