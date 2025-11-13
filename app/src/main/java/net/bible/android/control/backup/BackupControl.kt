@@ -486,7 +486,7 @@ object BackupControl {
         val files = ALL_DB_FILENAMES.map {File(internalDbDir, it)}.filter {it.exists()}
         if(files.isEmpty()) return null
 
-        val manifest = CommonUtils.AndBibleBackupManifest(
+        val manifest = AndBibleBackupManifest(
             backupType = BackupType.DB_BACKUP, contains = setOf(
                 DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS
             )

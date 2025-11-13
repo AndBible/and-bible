@@ -1750,7 +1750,7 @@ object CommonUtils : CommonUtilsBase() {
 //        val match = urlRegex.find(uri.path.toString()) ?: return null
 
         if (doc is SwordBook && doc.bookCategory == BookCategory.DICTIONARY) {
-            // Strong’s keys are just dictionary entry identifiers, not verse references
+
             val key = doc.getKey(keyStr)
             return BookAndKey(key, doc)
         }
@@ -1774,7 +1774,7 @@ object CommonUtils : CommonUtilsBase() {
     fun parseAndBibleReference(uri: String): BookAndKey?
         = parseAndBibleReference(Uri.parse(uri))
 
-
+    }
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
 
@@ -2020,4 +2020,4 @@ data class AndBibleBackupManifest(
         }
     }
 }
-    }
+
