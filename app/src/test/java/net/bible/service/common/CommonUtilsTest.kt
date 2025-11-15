@@ -38,6 +38,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Assert
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -200,27 +201,29 @@ class CommonUtilsTest {
     fun `parseAndBibleReference should handle dictionary reference with colon format`() {
         // Format: StrongsGreek:5548
         val strongsGreek = Books.installed().getBook("StrongsGreek")
-        if (strongsGreek is SwordDictionary) {
+        assumeTrue(strongsGreek is SwordDictionary)
+        strongsGreek as SwordDictionary
             val result = parseAndBibleReference("https://read.andbible.org/StrongsGreek:5548")
 
             assertThat(result, notNullValue())
             assertThat(result!!.document, equalTo(strongsGreek))
             val entry = strongsGreek.getKey("05548")
             assertThat(result.key, equalTo(entry)) // Should be prepended with zeros
-        }
+
     }
 
     @Test
     fun `parseAndBibleReference should handle dictionary reference with explicit document parameter`() {
         val strongsGreek = Books.installed().getBook("StrongsGreek")
-        if (strongsGreek is SwordDictionary) {
+        assumeTrue(strongsGreek is SwordDictionary)
+        strongsGreek as SwordDictionary
             val result = parseAndBibleReference("https://read.andbible.org/5548?document=StrongsGreek")
 
             assertThat(result, notNullValue())
             assertThat(result!!.document, equalTo(strongsGreek))
             val entry = strongsGreek.getKey("05548")
             assertThat(result.key, equalTo(entry))  // Should be prepended with zeros
-        }
+
     }
 
     @Test
@@ -321,7 +324,8 @@ class CommonUtilsTest {
     fun `prependZeros integration with dictionary lookup`() {
         // This tests the actual use case: dictionary keys need padding
         val strongsGreek = Books.installed().getBook("StrongsGreek")
-        if (strongsGreek is SwordDictionary) {
+        assumeTrue(strongsGreek is SwordDictionary)
+        strongsGreek as SwordDictionary
             // Simulate what parseAndBibleReference does internally
             val keyStr = "5548"
             val paddedKey = prependZeros(keyStr)
@@ -331,7 +335,7 @@ class CommonUtilsTest {
             // Verify the key actually exists in the dictionary
             val key = strongsGreek.getKey(paddedKey)
             assertThat(key, notNullValue())
-        }
+
     }
 
     @Test
