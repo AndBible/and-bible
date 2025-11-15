@@ -1725,7 +1725,7 @@ object CommonUtils : CommonUtilsBase() {
             }
         }
     }
-    fun appendZeros(keyStr: String): String {
+    fun prependZeros(keyStr: String): String {
         val lengthDiff = 5 - keyStr.length
         if(lengthDiff <= 0) return keyStr
 
@@ -1738,7 +1738,7 @@ object CommonUtils : CommonUtilsBase() {
         val path = uri.path?.removePrefix("/") ?: return null
         var keyStr = path
 
-        // Handle legacy JSword-style form, e.g. "StrongsGreek:5548"
+        // Handle certain JSword-style form, e.g. "StrongsGreek:5548"
         if (path.contains(":") && docStr.isNullOrBlank()) {
             val parts = path.split(":", limit = 2)
             docStr = parts[0] // derive document if missing
@@ -1756,9 +1756,7 @@ object CommonUtils : CommonUtilsBase() {
 
 
         if (doc is SwordDictionary) {
-
-            val key = doc.getKey(appendZeros(keyStr))
-
+            val key = doc.getKey(prependZeros(keyStr))
             return BookAndKey(key, doc)
         }
 
