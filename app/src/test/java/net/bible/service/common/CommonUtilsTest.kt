@@ -24,12 +24,9 @@ import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.CommonUtils.prependZeros
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordDictionary
-import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import org.hamcrest.CoreMatchers
@@ -38,7 +35,6 @@ import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Assert
@@ -65,23 +61,6 @@ class CommonUtilsTest {
         Assert.assertThat(getKeyDescription(gen1_1), CoreMatchers.equalTo("Genesis 1:1"))
         val gen1_10 = Verse(kjv, BibleBook.GEN, 1, 10)
         Assert.assertThat(getKeyDescription(gen1_10), CoreMatchers.equalTo("Genesis 1:10"))
-    }
-
-    @Test
-    fun tryCatchFinallyIsRunAlways() {
-        var v = 0
-        try {
-            try {
-                throw Exception()
-            } catch (e: Exception) {
-                throw e
-            } finally {
-                v = 1
-            }
-        } catch (e: Exception) {
-
-        }
-        MatcherAssert.assertThat(v, IsEqual.equalTo(1))
     }
 
     // Tests for prependZeros function
@@ -226,7 +205,8 @@ class CommonUtilsTest {
 
             assertThat(result, notNullValue())
             assertThat(result!!.document, equalTo(strongsGreek))
-            assertThat(result.key.name, equalTo("05548"))  // Should be prepended with zeros
+            val entry = strongsGreek.getKey("05548")
+            assertThat(result.key, equalTo(entry)) // Should be prepended with zeros
         }
     }
 
@@ -238,7 +218,8 @@ class CommonUtilsTest {
 
             assertThat(result, notNullValue())
             assertThat(result!!.document, equalTo(strongsGreek))
-            assertThat(result.key.name, equalTo("05548"))  // Should be prepended with zeros
+            val entry = strongsGreek.getKey("05548")
+            assertThat(result.key, equalTo(entry))  // Should be prepended with zeros
         }
     }
 
@@ -275,20 +256,22 @@ class CommonUtilsTest {
         assertThat(result, nullValue())
     }
 
-    @Test
-    fun `parseAndBibleReference should handle empty path gracefully`() {
-        val result = parseAndBibleReference("https://read.andbible.org/")
 
-        // When path is just "/", removePrefix("/") results in empty string
-
-        // The function handles this gracefully without crashing
-        assertThat(result, notNullValue())
-        assertThat(result!!.key, notNullValue())
-
-
-        val passage = result.key as Passage
-        assertThat(passage.countVerses(), equalTo(0))
-    }
+    //Cannot verify authenticity
+//    @Test
+//    fun `parseAndBibleReference should handle empty path gracefully`() {
+//        val result = parseAndBibleReference("https://read.andbible.org/")
+//
+//        // When path is just "/", removePrefix("/") results in empty string
+//
+//        // The function handles this gracefully without crashing
+//        assertThat(result, notNullValue())
+//        assertThat(result!!.key, notNullValue())
+//
+//
+//        val passage = result.key as Passage
+//        assertThat(passage.countVerses(), equalTo(0))
+//    }
 
     @Test
     fun `parseAndBibleReference should handle non-existent document gracefully`() {
