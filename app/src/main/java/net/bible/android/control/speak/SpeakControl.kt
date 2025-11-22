@@ -156,7 +156,7 @@ class SpeakControl @Inject constructor(
         speakBook = event.book
         if (AdvancedSpeakSettings.synchronize || event.forceFollow) {
             val book = speakPageManager.currentPage.currentDocument
-            speakPageManager.setCurrentDocumentAndKey(book, event.key)
+            speakPageManager.setCurrentDocumentAndKey(book, event.key,false)
         }
     }
 
@@ -286,7 +286,7 @@ class SpeakControl @Inject constructor(
 
         prepareForSpeaking()
         if(AdvancedSpeakSettings.synchronize || force) {
-            speakPageManager.setCurrentDocumentAndKey(book, verse)
+            speakPageManager.setCurrentDocumentAndKey(book, verse,false)
         }
         try {
             ttsServiceManager.speakBible(book, verse)

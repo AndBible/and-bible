@@ -111,7 +111,7 @@ open class CurrentCommentaryPage internal constructor(
 
     private fun nextVerse() {
         originalVerseRange = null
-        setKey(getKeyPlus(1))
+        setKey(getKeyPlus(1),)
     }
 
     private fun previousVerse() {
