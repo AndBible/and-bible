@@ -533,6 +533,14 @@ class WindowPinningPreference :
 }
 
 class TranslateToPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.TRANSLATE_TO) {
+    private val languageCodes: Array<String> by lazy {
+        application.resources.getStringArray(R.array.prefs_interface_locale_values)
+    }
+
+    private val languageNames: Array<String> by lazy {
+        application.resources.getStringArray(R.array.prefs_interface_locale_descriptions)
+    }
+
     override val title: String get() {
         val lang = value as String?
         return if (lang == null) {
@@ -545,49 +553,25 @@ class TranslateToPreference(settings: SettingsBundle): Preference(settings, Text
     override val visible: Boolean get() = CommonUtils.settings.llmConfigured
 
     private fun getLanguageName(code: String): String {
-        return when(code) {
-            "fi" -> "Suomi"
-            "en" -> "English"
-            "de" -> "Deutsch"
-            "fr" -> "Français"
-            "es" -> "Español"
-            "it" -> "Italiano"
-            "pt" -> "Português"
-            "nl" -> "Nederlands"
-            "sv" -> "Svenska"
-            "no" -> "Norsk"
-            "da" -> "Dansk"
-            "ru" -> "Русский"
-            "pl" -> "Polski"
-            "uk" -> "Українська"
-            "zh" -> "中文"
-            "ja" -> "日本語"
-            "ko" -> "한국어"
-            else -> code
+        val index = languageCodes.indexOf(code)
+        return if (index >= 0 && index < languageNames.size) {
+            // Remove the "xx: " prefix from language name (e.g., "fi: Suomi" -> "Suomi")
+            languageNames[index].substringAfter(": ", languageNames[index])
+        } else {
+            code
         }
     }
 
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val languages = listOf(
-            null to application.getString(R.string.translate_to_disabled),
-            "fi" to "Suomi",
-            "en" to "English",
-            "de" to "Deutsch",
-            "fr" to "Français",
-            "es" to "Español",
-            "it" to "Italiano",
-            "pt" to "Português",
-            "nl" to "Nederlands",
-            "sv" to "Svenska",
-            "no" to "Norsk",
-            "da" to "Dansk",
-            "ru" to "Русский",
-            "pl" to "Polski",
-            "uk" to "Українська",
-            "zh" to "中文",
-            "ja" to "日本語",
-            "ko" to "한국어",
-        )
+        // Build language list: first "No translation", then all languages (skip first empty entry)
+        val languages = mutableListOf<Pair<String?, String>>()
+        languages.add(null to application.getString(R.string.translate_to_disabled))
+
+        for (i in 1 until languageCodes.size) {
+            val code = languageCodes[i]
+            val name = languageNames[i].substringAfter(": ", languageNames[i])
+            languages.add(code to name)
+        }
 
         val currentValue = value as? String
         val currentIndex = languages.indexOfFirst { it.first == currentValue }.coerceAtLeast(0)
