@@ -29,7 +29,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
-import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 
 private const val TAG = "LlmTranslationService"
@@ -43,13 +42,49 @@ object LlmTranslationService {
 
     private val dao get() = DatabaseContainer.instance.translationDb.translationDao()
 
-    fun computeHash(xmlContent: String, targetLanguage: String, modelId: String): String {
-        val input = "$xmlContent|$targetLanguage|$modelId"
-        val bytes = MessageDigest.getInstance("SHA-256").digest(input.toByteArray(Charsets.UTF_8))
-        return bytes.joinToString("") { "%02x".format(it) }
+    /**
+     * Result of checking cache for a translation.
+     * If cached translation exists, translatedXml contains it and documentNeeded is false.
+     * If not cached, translatedXml is null and documentNeeded is true.
+     */
+    data class CacheResult(
+        val translatedXml: String?,
+        val documentNeeded: Boolean
+    )
+
+    /**
+     * Check if a cached translation exists for the given document and key.
+     * This allows skipping document loading if translation is already cached.
+     */
+    fun getCached(documentInitials: String, keyName: String, targetLanguage: String): CacheResult {
+        val settings = CommonUtils.settings
+        if (!settings.llmConfigured) {
+            return CacheResult(null, true)
+        }
+
+        val modelId = settings.llmModel
+        val cached = dao.get(documentInitials, keyName, targetLanguage, modelId)
+
+        return if (cached != null) {
+            Log.d(TAG, "Cache hit for $documentInitials:$keyName -> $targetLanguage")
+            dao.updateLastAccessed(documentInitials, keyName, targetLanguage, modelId, System.currentTimeMillis())
+            CacheResult(cached.translatedXml, false)
+        } else {
+            Log.d(TAG, "Cache miss for $documentInitials:$keyName -> $targetLanguage")
+            CacheResult(null, true)
+        }
     }
 
-    suspend fun translateXml(xmlContent: String, targetLanguage: String): String {
+    /**
+     * Translate XML content and cache the result.
+     * Call this only when getCached() returns documentNeeded=true.
+     */
+    suspend fun translateAndCache(
+        documentInitials: String,
+        keyName: String,
+        xmlContent: String,
+        targetLanguage: String
+    ): String {
         val settings = CommonUtils.settings
         if (!settings.llmConfigured) {
             Log.d(TAG, "LLM not configured, returning original content")
@@ -57,27 +92,17 @@ object LlmTranslationService {
         }
 
         val modelId = settings.llmModel
-        val hash = computeHash(xmlContent, targetLanguage, modelId)
 
-        // Check cache first
-        val cached = dao.getByHash(hash)
-        if (cached != null) {
-            Log.d(TAG, "Cache hit for hash: $hash")
-            dao.updateLastAccessed(hash, System.currentTimeMillis())
-            return cached.translatedXml
-        }
-
-        // Call LLM API
-        Log.d(TAG, "Cache miss, calling LLM API for translation to $targetLanguage")
+        Log.d(TAG, "Calling LLM API for translation: $documentInitials:$keyName -> $targetLanguage")
         return try {
             val translated = callLlmApi(xmlContent, targetLanguage)
 
             // Save to cache
             dao.insert(TranslationCacheEntry(
-                contentHash = hash,
+                documentInitials = documentInitials,
+                keyName = keyName,
                 targetLanguage = targetLanguage,
                 modelId = modelId,
-                originalXml = xmlContent,
                 translatedXml = translated,
                 createdAt = System.currentTimeMillis(),
                 lastAccessedAt = System.currentTimeMillis()

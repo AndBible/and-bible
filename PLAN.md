@@ -10,7 +10,7 @@ LLM-pohjainen käännösominaisuus mahdollistaa Raamatun tekstien ja muiden doku
 
 ### Keskeiset ominaisuudet
 
-- ✅ Hash-pohjainen käännöscache (ei tuplakutsuja LLM:lle)
+- ✅ Dokumentti+avain -pohjainen käännöscache (välttää dokumentin latauksen cache-osumalla)
 - ✅ OpenAI-yhteensopiva API (tukee useita providereita)
 - ✅ Ikkunakohtainen käännös (periytyy Workspace-tasolta)
 - ✅ Automaattinen fallback alkuperäiseen tekstiin virhetilanteessa
@@ -27,18 +27,23 @@ LLM-pohjainen käännösominaisuus mahdollistaa Raamatun tekstien ja muiden doku
    ↓
 3. Tarkistetaan: translateTo != null && llmConfigured?
    ↓ (kyllä)
-4. LlmTranslationService.translateXml()
-   ├─ Laske SHA-256 hash (XML + kieli + malli)
-   ├─ Tarkista TranslationDatabase cache
-   ├─ Jos ei cachessa → kutsu LLM API
-   ├─ Tallenna käännös cacheen
+4. LlmTranslationService.getCached(documentInitials, keyName, targetLanguage)
+   ├─ Tarkista cache: documentInitials + keyName + targetLanguage + modelId
+   ├─ Cache hit → palauta käännetty XML (EI ladata dokumenttia!)
+   └─ Cache miss → palauta documentNeeded=true
+   ↓
+5. Jos cache miss:
+   ├─ Lataa dokumentti: SwordContentFacade.readOsisFragment()
+   ├─ LlmTranslationService.translateAndCache()
+   │   ├─ Kutsu LLM API
+   │   └─ Tallenna käännös cacheen
    └─ Palauta käännetty XML
    ↓
-5. Parse XML takaisin Element-objektiksi
+6. Parse XML String → Element-objektiksi
    ↓
-6. OsisFragment(translatedXml, key, book)
+7. OsisFragment(translatedXml, key, book)
    ↓
-7. Renderöidään Vue.js frontendissä
+8. Renderöidään Vue.js frontendissä
 ```
 
 ### Komponentit
@@ -52,20 +57,22 @@ LLM-pohjainen käännösominaisuus mahdollistaa Raamatun tekstien ja muiden doku
 
 **Schema:**
 ```kotlin
-@Entity
+@Entity(
+    primaryKeys = ["documentInitials", "keyName", "targetLanguage", "modelId"]
+)
 data class TranslationCacheEntry(
-    @PrimaryKey val contentHash: String,        // SHA-256(XML + targetLang + modelId)
-    val targetLanguage: String,                 // "fi", "en", "de", ...
-    val modelId: String,                        // "gpt-4o-mini", "claude-3-haiku", ...
-    val originalXml: String,                    // Alkuperäinen OSIS XML
-    val translatedXml: String,                  // Käännetty OSIS XML
-    val createdAt: Long,                        // Unix timestamp
-    val lastAccessedAt: Long                    // LRU eviction
+    val documentInitials: String,  // "KJV", "ESV", ...
+    val keyName: String,           // "Gen.1", "Matt.5", ... (OSIS ID)
+    val targetLanguage: String,    // "fi", "en", "de", ...
+    val modelId: String,           // "gpt-4o-mini", "claude-3-haiku", ...
+    val translatedXml: String,     // Käännetty OSIS XML
+    val createdAt: Long,           // Unix timestamp
+    val lastAccessedAt: Long       // LRU eviction
 )
 ```
 
 **Indeksit:**
-- `contentHash` (PRIMARY KEY)
+- `(documentInitials, keyName, targetLanguage, modelId)` (PRIMARY KEY)
 - `targetLanguage` (suodatus)
 - `createdAt` (vanhojen poisto)
 - `lastAccessedAt` (LRU)
@@ -113,11 +120,20 @@ WorkspaceSettings (default) → PageManager (window-specific override)
 **API:**
 ```kotlin
 object LlmTranslationService {
-    suspend fun translateXml(xmlContent: String, targetLanguage: String): String
-    fun computeHash(xmlContent: String, targetLanguage: String, modelId: String): String
+    // Tarkista onko käännös cachessa (ei lataa dokumenttia)
+    fun getCached(documentInitials: String, keyName: String, targetLanguage: String): CacheResult
+
+    // Käännä ja tallenna cacheen (kutsu vain jos getCached palauttaa documentNeeded=true)
+    suspend fun translateAndCache(documentInitials: String, keyName: String, xmlContent: String, targetLanguage: String): String
+
     fun clearCache()
     fun getCacheCount(): Int
     fun evictOldEntries(maxAgeDays: Int = 30)
+
+    data class CacheResult(
+        val translatedXml: String?,  // null jos ei cachessa
+        val documentNeeded: Boolean  // true jos dokumentti pitää ladata
+    )
 }
 ```
 
@@ -160,37 +176,54 @@ IMPORTANT RULES:
 
 **Muutos `getPageContent()`-metodissa:**
 ```kotlin
-val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
-
 val translateTo = pageManager.actualTextDisplaySettings.translateTo
-val translatedXml = if (translateTo != null && CommonUtils.settings.llmConfigured) {
-    translateXmlElement(originalXml, translateTo)
-} else {
-    originalXml
-}
 
-OsisFragment(translatedXml, key, currentDocument)
+if (translateTo != null && CommonUtils.settings.llmConfigured) {
+    // Tarkista cache ensin - EI lataa dokumenttia jos löytyy
+    val cacheResult = LlmTranslationService.getCached(
+        currentDocument.initials,
+        key.osisID,
+        translateTo
+    )
+
+    if (!cacheResult.documentNeeded && cacheResult.translatedXml != null) {
+        // Cache hit - parse suoraan cachesta
+        val translatedElement = SAXBuilder().build(StringReader(cacheResult.translatedXml)).rootElement
+        OsisFragment(translatedElement, key, currentDocument)
+    } else {
+        // Cache miss - lataa dokumentti ja käännä
+        val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
+        val translatedXml = translateXmlElement(currentDocument.initials, key.osisID, originalXml, translateTo)
+        OsisFragment(translatedXml, key, currentDocument)
+    }
+} else {
+    // Ei käännöstä
+    val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
+    OsisFragment(originalXml, key, currentDocument)
+}
 ```
 
 **Käännöslogiikka:**
-1. Serialisoi XML → String
-2. `LlmTranslationService.translateXml()` (suspend, runBlocking)
-3. Parse String → XML Element
-4. Virheenkäsittely: catch → palauta alkuperäinen
+1. Tarkista cache (dokumentInitials + keyName + targetLanguage + modelId)
+2. Cache hit → parse XML suoraan cachesta, EI lataa dokumenttia
+3. Cache miss → lataa dokumentti, serialisoi XML → String
+4. `LlmTranslationService.translateAndCache()` (suspend, runBlocking)
+5. Parse String → XML Element
+6. Virheenkäsittely: catch → palauta alkuperäinen
 
 ## Tekniset valinnat
 
-### 1. Cache-strategia: Hash-pohjainen
+### 1. Cache-strategia: Dokumentti+avain -pohjainen
 
-**Valinta:** SHA-256(XML + targetLanguage + modelId)
+**Valinta:** Composite key (documentInitials + keyName + targetLanguage + modelId)
 
 **Perustelut:**
-- ✅ Sama sisältö eri dokumenteissa = sama käännös (säästää API-kutsuja)
-- ✅ Yksinkertainen implementaatio
+- ✅ Cache-osumilla EI tarvitse ladata dokumenttia lainkaan (merkittävä suorituskykyparannus)
 - ✅ Nopea lookup (O(1) indeksoitu avain)
+- ✅ Selkeä rakenne - tiedetään mikä dokumentti ja kohta on käännetty
 
 **Vaihtoehdot hylätty:**
-- ❌ Dokumentti+avain: Duplikaatteja jos sama teksti eri kohdissa
+- ❌ Hash-pohjainen (SHA-256): Vaatii dokumentin latauksen hashin laskemiseen
 - ❌ Molemmat (hybridi): Liian monimutkainen MVP:lle
 
 ### 2. Käännösyksikkö: JSwordin fragmentti
@@ -249,12 +282,15 @@ OsisFragment(translatedXml, key, currentDocument)
 
 ## Tiedostorakenne
 
-### Uudet tiedostot (6)
+### Uudet tiedostot (7)
 
 ```
 app/src/main/java/net/bible/android/database/translation/
 ├── TranslationEntities.kt          # Room Entity
 └── TranslationDao.kt                # DAO interface
+
+app/src/main/java/net/bible/android/database/migrations/
+└── TranslationMigrations.kt        # Database migrations
 
 app/src/main/java/net/bible/service/llm/
 └── LlmTranslationService.kt        # API client + cache logic

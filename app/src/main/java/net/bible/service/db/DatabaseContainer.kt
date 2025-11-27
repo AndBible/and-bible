@@ -45,6 +45,7 @@ import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.migrations.bookmarkMigrations
 import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
+import net.bible.android.database.migrations.translationMigrations
 import net.bible.android.database.migrations.workspacesMigrations
 import net.bible.android.database.temporaryMigrations
 import net.bible.service.db.oldmigrations.oldMigrations
@@ -210,7 +211,7 @@ class DatabaseContainer {
             application, TranslationDatabase::class.java, TranslationDatabase.dbFileName
         )
             .allowMainThreadQueries()
-            .addMigrations()
+            .addMigrations(*translationMigrations)
             .openHelperFactory(dbFactory)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()

@@ -24,14 +24,26 @@ import androidx.room.Query
 
 @Dao
 interface TranslationDao {
-    @Query("SELECT * FROM TranslationCacheEntry WHERE contentHash = :hash")
-    fun getByHash(hash: String): TranslationCacheEntry?
+    @Query("""
+        SELECT * FROM TranslationCacheEntry
+        WHERE documentInitials = :documentInitials
+        AND keyName = :keyName
+        AND targetLanguage = :targetLanguage
+        AND modelId = :modelId
+    """)
+    fun get(documentInitials: String, keyName: String, targetLanguage: String, modelId: String): TranslationCacheEntry?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(entry: TranslationCacheEntry)
 
-    @Query("UPDATE TranslationCacheEntry SET lastAccessedAt = :time WHERE contentHash = :hash")
-    fun updateLastAccessed(hash: String, time: Long)
+    @Query("""
+        UPDATE TranslationCacheEntry SET lastAccessedAt = :time
+        WHERE documentInitials = :documentInitials
+        AND keyName = :keyName
+        AND targetLanguage = :targetLanguage
+        AND modelId = :modelId
+    """)
+    fun updateLastAccessed(documentInitials: String, keyName: String, targetLanguage: String, modelId: String, time: Long)
 
     @Query("DELETE FROM TranslationCacheEntry WHERE lastAccessedAt < :threshold")
     fun evictOlderThan(threshold: Long)

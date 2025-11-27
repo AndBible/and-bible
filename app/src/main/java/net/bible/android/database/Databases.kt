@@ -154,7 +154,7 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val TRANSLATION_DATABASE_VERSION = 1
+const val TRANSLATION_DATABASE_VERSION = 2
 
 @Database(
     entities = [

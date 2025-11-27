@@ -146,24 +146,50 @@ abstract class CurrentPageBase protected constructor(
 
     override fun getPageContent(key: Key): Document = try {
         val currentDocument = currentDocument!!
+        val translateTo = pageManager.actualTextDisplaySettings.translateTo
 
         val frag = synchronized(currentDocument) {
-            val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
+            // Check if we have a cached translation (avoids loading document)
+            if (translateTo != null && CommonUtils.settings.llmConfigured) {
+                val cacheResult = LlmTranslationService.getCached(
+                    currentDocument.initials,
+                    key.osisID,
+                    translateTo
+                )
 
-            // Check if translation is enabled
-            val translateTo = pageManager.actualTextDisplaySettings.translateTo
-            val translatedXml = if (translateTo != null && CommonUtils.settings.llmConfigured) {
-                try {
-                    translateXmlElement(originalXml, translateTo)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Translation failed, using original", e)
-                    originalXml
+                if (!cacheResult.documentNeeded && cacheResult.translatedXml != null) {
+                    // Cache hit - parse cached XML directly without loading document
+                    val translatedElement = try {
+                        val builder = SAXBuilder()
+                        builder.build(StringReader(cacheResult.translatedXml)).rootElement
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to parse cached translated XML", e)
+                        null
+                    }
+
+                    if (translatedElement != null) {
+                        OsisFragment(translatedElement, key, currentDocument)
+                    } else {
+                        // Fallback: load document if cached XML is corrupted
+                        val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
+                        OsisFragment(originalXml, key, currentDocument)
+                    }
+                } else {
+                    // Cache miss - load document and translate
+                    val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
+                    val translatedXml = try {
+                        translateXmlElement(currentDocument.initials, key.osisID, originalXml, translateTo)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Translation failed, using original", e)
+                        originalXml
+                    }
+                    OsisFragment(translatedXml, key, currentDocument)
                 }
             } else {
-                originalXml
+                // No translation requested
+                val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
+                OsisFragment(originalXml, key, currentDocument)
             }
-
-            OsisFragment(translatedXml, key, currentDocument)
         }
 
         annotateKey = frag.annotateRef
@@ -184,10 +210,15 @@ abstract class CurrentPageBase protected constructor(
         }
     }
 
-    private fun translateXmlElement(xml: org.jdom2.Element, targetLanguage: String): org.jdom2.Element {
+    private fun translateXmlElement(
+        documentInitials: String,
+        keyName: String,
+        xml: org.jdom2.Element,
+        targetLanguage: String
+    ): org.jdom2.Element {
         val xmlStr = net.bible.android.misc.elementToString(xml)
         val translatedXmlStr = runBlocking {
-            LlmTranslationService.translateXml(xmlStr, targetLanguage)
+            LlmTranslationService.translateAndCache(documentInitials, keyName, xmlStr, targetLanguage)
         }
 
         return if (translatedXmlStr != xmlStr) {

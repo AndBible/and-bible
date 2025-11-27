@@ -22,6 +22,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
+    primaryKeys = ["documentInitials", "keyName", "targetLanguage", "modelId"],
     indices = [
         Index("targetLanguage"),
         Index("createdAt"),
@@ -29,10 +30,10 @@ import androidx.room.PrimaryKey
     ]
 )
 data class TranslationCacheEntry(
-    @PrimaryKey val contentHash: String,  // SHA-256(XML + targetLanguage + modelId)
-    val targetLanguage: String,
-    val modelId: String,
-    val originalXml: String,
+    val documentInitials: String,  // e.g., "KJV", "ESV"
+    val keyName: String,           // e.g., "Gen.1", "Matt.5"
+    val targetLanguage: String,    // e.g., "fi", "en"
+    val modelId: String,           // e.g., "gpt-4o-mini"
     val translatedXml: String,
     val createdAt: Long,
     val lastAccessedAt: Long
