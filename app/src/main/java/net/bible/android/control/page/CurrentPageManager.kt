@@ -196,6 +196,7 @@ open class CurrentPageManager @Inject constructor(
 
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,
+                                 addHistoryItem: Boolean = true,
                                  anchorOrdinal: OrdinalRange? = null
     ): CurrentPage? {
         jsState = null
@@ -207,14 +208,14 @@ open class CurrentPageManager @Inject constructor(
                     nextPage.setCurrentDocument(currentBook)
                 }
                 if(key is BookAndKey) {
-                    nextPage.setKey(key.key)
+                    nextPage.setKey(key.key,addHistoryItem)
                     if (nextPage is CurrentCommentaryPage) {
                         nextPage.sourceBookAndKey = key
                     }
                     nextPage.anchorOrdinal = key.ordinal
                     nextPage.htmlId = key.htmlId
                 } else {
-                    nextPage.setKey(key)
+                    nextPage.setKey(key,addHistoryItem)
                     nextPage.anchorOrdinal = anchorOrdinal
                 }
                 currentPage = nextPage
