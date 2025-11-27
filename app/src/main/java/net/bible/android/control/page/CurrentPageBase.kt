@@ -151,7 +151,8 @@ abstract class CurrentPageBase protected constructor(
 
         val frag = synchronized(currentDocument) {
             // Check if we have a cached translation (avoids loading document)
-            if (translateTo != null && CommonUtils.settings.llmConfigured) {
+            // translateTo: null = inherit from workspace, "" = no translation, "fi"/"en"/etc = translate to that language
+            if (!translateTo.isNullOrEmpty() && CommonUtils.settings.llmConfigured) {
                 val cacheResult = LlmTranslationService.getCached(
                     currentDocument.initials,
                     key.osisID,

@@ -544,10 +544,10 @@ class TranslateToPreference(settings: SettingsBundle): Preference(settings, Text
 
     override val title: String get() {
         val lang = value as String?
-        return if (lang == null) {
-            application.getString(R.string.translate_to_title)
-        } else {
-            application.getString(R.string.translate_to_title) + ": " + getLanguageName(lang)
+        return when {
+            lang == null -> application.getString(R.string.translate_to_title)
+            lang.isEmpty() -> application.getString(R.string.translate_to_title) + ": " + application.getString(R.string.translate_to_disabled)
+            else -> application.getString(R.string.translate_to_title) + ": " + getLanguageName(lang)
         }
     }
 
@@ -564,9 +564,10 @@ class TranslateToPreference(settings: SettingsBundle): Preference(settings, Text
     }
 
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        // Build language list: first "No translation", then all languages (skip first empty entry)
-        val languages = mutableListOf<Pair<String?, String>>()
-        languages.add(null to application.getString(R.string.translate_to_disabled))
+        // Build language list: first "No translation" (empty string), then all languages (skip first empty entry)
+        // Note: null means "inherit from workspace", "" means "no translation"
+        val languages = mutableListOf<Pair<String, String>>()
+        languages.add("" to application.getString(R.string.translate_to_disabled))
 
         for (i in 1 until languageCodes.size) {
             val code = languageCodes[i]
@@ -574,22 +575,18 @@ class TranslateToPreference(settings: SettingsBundle): Preference(settings, Text
             languages.add(code to name)
         }
 
-        val currentValue = value as? String
+        val currentValue = value as? String ?: ""
         val currentIndex = languages.indexOfFirst { it.first == currentValue }.coerceAtLeast(0)
 
         AlertDialog.Builder(activity)
             .setTitle(R.string.translate_to_title)
             .setSingleChoiceItems(languages.map { it.second }.toTypedArray(), currentIndex) { dialog, which ->
                 val newValue = languages[which].first
-                if (newValue == null) {
-                    setNonSpecific()
-                    onReset?.invoke()
-                } else {
-                    value = newValue
-                    onChanged?.invoke(newValue)
-                }
+                value = newValue
+                onChanged?.invoke(newValue)
                 dialog.dismiss()
             }
+            .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); onReset?.invoke() }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
 

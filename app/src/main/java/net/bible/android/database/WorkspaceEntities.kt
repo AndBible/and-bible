@@ -301,7 +301,7 @@ class WorkspaceEntities {
                 showBookmarks = true,
                 bookmarksHideLabels = emptyList(),
                 showPageNumber = false,
-                translateTo = null
+                translateTo = ""
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
