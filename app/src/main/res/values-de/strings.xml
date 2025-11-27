@@ -17,7 +17,7 @@
   <string name="speak">Vorlesen</string>
   <string name="help">Hilfe</string>
   <string name="information">Information</string>
-  <string name="other">Anderes</string>
+  <string name="other">Sonstiges</string>
   <string name="contact">Kontakt</string>
   <string name="help_and_tips">Hilfe &amp; Tipps</string>
   <string name="administration">Verwaltung</string>
@@ -27,7 +27,7 @@
   <string name="choosePassageBookName">Buchauswahl</string>
   <string name="choosePassageChapterName">Kapitelauswahl</string>
   <string name="choosePassageVerseName">Versauswahl</string>
-  <string name="bible">Biblische Bücher</string>
+  <string name="bible">Bibel</string>
   <string name="deuterocanonical">Apokryphen</string>
   <!--Search-->
   <string name="search_index">Suchindex</string>
@@ -35,7 +35,7 @@
   <string name="create_index_for">Ein Index ist für die Suche nötig \n\nIndex für %serstellen?</string>
   <string name="rebuild_index_for">Index für %serneut erstellen?</string>
   <string name="indexing_wait_msg">Nach erfolgreicher Indexerstellung werden Sie zum Suchdialog weitergeleitet.</string>
-  <string name="index_create">Erzeugen</string>
+  <string name="index_create">Erstellen</string>
   <string name="rebuild_index">Index neu erstellen</string>
   <string name="search_in">Finde in %s</string>
   <string name="do_in_background">Im Hintergrund fertigstellen</string>
@@ -50,9 +50,9 @@
   <!--Search-->
   <string name="search_words_group_prompt">Suche nach Versen mit:</string>
   <string name="search_all_words">allen Wörtern</string>
-  <string name="search_any_word">einigen Wörtern</string>
+  <string name="search_any_word">beliebigen Wörtern</string>
   <string name="search_phrase">genauer Wortfolge</string>
-  <string name="search_fts_query">Raw query syntax</string>
+  <string name="search_fts_query">Abfragesyntax im Rohformat</string>
   <string name="search_result_count">%d Treffer gefunden</string>
   <string name="search_showing_first">Zu viele Treffer. Nur die ersten %d werden angezeigt</string>
   <string name="search_bible_section_group_prompt">Suchbereich</string>
@@ -63,39 +63,39 @@
   <string name="error_executing_search">Ungültige Suchabfrage</string>
   <string name="type_text_or_bible_reference">Text oder Querverweis einfügen</string>
   <!--Open (bible reference X)-->
-  <string name="go_to_ref">Öffne %s</string>
+  <string name="go_to_ref">%s öffnen</string>
   <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Finde \"%s\"</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Kapitel- &amp; Versnummern</string>
-  <string name="prefs_show_verseno_summary">Zeige Kapitel- &amp; Versnummern</string>
+  <string name="prefs_show_verseno_summary">Kapitel- &amp; Versnummern anzeigen</string>
   <string name="prefs_e_ink_mode_title">Schwarz/Weiß Modus</string>
   <string name="prefs_eink_mode_summary">Die Applikation im Monochrommodus (ohne Farben) benutzen, um sie bequemer auf E-Ink - Geräten benutzen zu können.</string>
   <string name="prefs_disable_animations_title">Animationen deaktivieren</string>
   <string name="prefs_disable_animations_summary">Verschiedene Animationen, wie etwa flüssigen Bildvorlauf, deaktivieren.</string>
   <string name="prefs_paragraph_spacing_title">Absatzabstand (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Den Absatzabstand anpassen.</string>
+  <string name="prefs_paragraph_spacing_summary">Absatzabstand anpassen.</string>
   <string name="prefs_show_verseno_title1">Versnummer</string>
   <string name="prefs_show_chapter_no_title">Kapitelnummerierung</string>
   <string name="prefs_show_chapter_no_summary">Kapitelnummern ein- oder ausblenden</string>
   <string name="prefs_verse_per_line_summary">Jeden Vers in einer neuen Zeile anzeigen</string>
-  <string name="prefs_show_bookmarks_summary">Anklicken um alle Lesezeichen zu verbergen</string>
+  <string name="prefs_show_bookmarks_summary">Abwählen, um alle Lesezeichen zu verbergen</string>
   <string name="prefs_show_mynotes_summary">Symbol in Versen mit eigenen Notizen anzeigen</string>
   <string name="prefs_show_notes_summary">Fußnoten und Querverweise anzeigen</string>
   <string name="prefs_show_strongs_summary">Verknüpfungen zu griechischen &amp; hebräischen Definitionen</string>
   <string name="prefs_show_morphology_summary">Griechische Morphologie nach Robinson anzeigen</string>
   <string name="prefs_section_title_summary">Außerkanonische Abschnittstitel anzeigen</string>
-  <string name="prefs_red_letter_summary">Zeige Worte Christi in roter Farbe</string>
+  <string name="prefs_red_letter_summary">Worte Christi in roter Farbe anzeigen</string>
   <string name="prefs_text_size_title">Schriftarteinstellungen</string>
   <string name="prefs_verse_per_line_title">Zeilenumbruch nach Vers</string>
   <string name="prefs_show_bookmarks_title">Lesezeichen anzeigen</string>
-  <string name="prefs_show_mynotes_title">Eigene Notizen</string>
+  <string name="prefs_show_mynotes_title">Eigene Notizen anzeigen</string>
   <string name="prefs_show_footnotes_title">Fußnoten</string>
   <string name="prefs_show_xrefs_title">Querverweise</string>
   <string name="prefs_show_footnotes_summary">Fußnummern anzeigen, sofern im Dokument vorhanden</string>
   <string name="prefs_show_xrefs_summary">Querverweise anzeigen, sofern im Dokument vorhanden</string>
   <string name="prefs_show_notes_title">Fußnoten &amp; Querverweise</string>
-  <string name="prefs_show_strongs_title">Strong\'s numbers</string>
+  <string name="prefs_show_strongs_title">Strong-Nummern</string>
   <string name="prefs_show_morphology_title">Morphologie anzeigen</string>
   <string name="prefs_section_title_title">Überschriften</string>
   <string name="prefs_red_letter_title">Jesu Worte markieren</string>

@@ -57,41 +57,41 @@ openDownloads: Перейти до завантаження додаткових
 verseShare: Поділитись
 verseSpeak: Озвучити
 verseCompare: Порівняти
-verseMemorize: ""
+verseMemorize: Завчити
 verseNote: Примітка
 verseMyNotes: Мої примітки
-verseParagraphBreak: ""
+verseParagraphBreak: Параграф
 verseShareLong: Поділіться віршем
 verseCompareLong: Порівняти вірш
-verseMemorizeLong: ""
+verseMemorizeLong: Завчити Біблійні вірші
 verseNoteLong: Написати нотатку
 verseParagraphBreakLong: Абзац
 addBookmark: Закладка
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-blur: ""
+selectCustomIconTitle: Обрати власну іконку маркера
+bookmarkSettingsTitle: Підлаштувати закладки
+subtitlePlaceholder: Текст підзаголовку
+customIconLabel: Своя іконка
+editActionLabel: Редагувати дію
+editActionModeLabel: Режим
+editActionModeNone: Жодне
+editActionModeAppend: Додати текст
+editActionModePrepend: Переддодати текст
+editActionContentLabel: Вміст
+editActionContentPlaceholder: Введіть текст для додавання у документ...
+experimentalFeatureTitle: Експериментальне
+experimentalFeatureHelpTitle: Про експериментальні функції
+experimentalFeatureHelpContent: "Експериментальні функції -- це нові можливості, які все ще розробляються і пробуються. Вони не є досконалими і можуть бути суттєво змінені або видалені у наступних версіях застосунку."
+insertParagraphBreak: Вставити перехід на новий абзац
+insertSubtitle: Вставити підзаголовок
+xmlParseError: Помилка читання XML
+invalidTag: Неправильний тег
+invalidClosingTag: Неправильний закриваючий тег
+unmatchedClosingTag: Недоданий закриваючий тег
+unclosedTag: Незакритий тег
+unknownError: Невідома помилка
+blur: Замилити
 reset: Скинути
-peek: ""
-wordBlur: ""
-wordScramble: ""
+peek: Підглянути
+wordBlur: Замилення слів
+wordScramble: Перемішка слів
 more: Більше

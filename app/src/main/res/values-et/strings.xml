@@ -514,6 +514,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="backup_database">Andmebaas</string>
   <string name="backup_documents">Dokumendid</string>
   <string name="backup_application_info">Rakenduse fail (.apk)</string>
+  <string name="backup_database_info">Järjehoidjad, sildid, märkmed, uurimise märkmikud, lugemiskavad, tööalad jne.</string>
   <string name="backup_document_info">Piiblitekstid, kommentaarid, sõnastikud, kaardid jne.</string>
   <string name="backup_to">Varunda kohta...</string>
   <string name="backup_restore_from">Taasta...</string>
