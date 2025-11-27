@@ -103,8 +103,13 @@ open class OsisDocument(
     val book: Book,
     val key: Key,
     val genericBookmarks: List<BookmarkEntities.GenericBookmarkWithNotes> = emptyList(),
-    val highlightRange: IntRange? = null
+    val highlightRange: IntRange? = null,
+    val docTranslated: String? = null,
 ): Document {
+    /** Compute bookInitials with translation suffix if docTranslated is set */
+    protected val effectiveBookInitials: String get() =
+        if (docTranslated != null) "${book.initials}/$docTranslated" else book.initials
+
     override val asHashMap: Map<String, String> get () {
         val highlightedOrdinalRange =
             if(highlightRange == null) "null"
@@ -118,11 +123,11 @@ open class OsisDocument(
             else json.encodeToString(serializer(), listOf(ordRange.first, ordRange.last))
 
         return mapOf(
-            "id" to wrapString(sanitizeId("${book.initials}-${key.uniqueId}")),
+            "id" to wrapString(sanitizeId("${effectiveBookInitials}-${key.uniqueId}")),
             "type" to wrapString("osis"),
             "osisFragment" to mapToJson(osisFragment.toHashMap),
             "ordinalRange" to ordinalRange,
-            "bookInitials" to wrapString(book.initials),
+            "bookInitials" to wrapString(effectiveBookInitials),
             "bookCategory" to wrapString(book.bookCategory.name),
             "bookAbbreviation" to wrapString(book.abbreviation),
             "bookName" to wrapString(book.name),
@@ -143,7 +148,8 @@ class BibleDocument(
     osisFragment: OsisFragment,
     val swordBook: SwordBook,
     val originalKey: Key?,
-): OsisDocument(osisFragment, swordBook, verseRange) {
+    docTranslated: String? = null,
+): OsisDocument(osisFragment, swordBook, verseRange, docTranslated = docTranslated) {
     override val asHashMap: Map<String, String> get () {
         val bookmarks = bookmarks.map { ClientBibleBookmark(it, swordBook.versification).asJson }
         val vrInV11n = verseRange.toV11n(swordBook.versification)
@@ -237,6 +243,12 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
         CommonUtils.buildActivityComponent().inject(this)
     }
 
+    /** Compute bookInitials with translation suffix if docTranslated is set */
+    private val effectiveBookInitials: String? get() {
+        val initials = bookmark.book?.initials ?: return null
+        return if (bookmark.docTranslated != null) "$initials/${bookmark.docTranslated}" else initials
+    }
+
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
         return mapOf(
@@ -248,7 +260,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
                 if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
             }),
-            "bookInitials" to wrapString(bookmark.book?.initials),
+            "bookInitials" to wrapString(effectiveBookInitials),
             "bookName" to wrapString(bookmark.book?.name),
             "bookAbbreviation" to wrapString(bookmark.book?.abbreviation),
             "createdAt" to bookmark.createdAt.time.toString(),
@@ -280,6 +292,10 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
         CommonUtils.buildActivityComponent().inject(this)
     }
 
+    /** Compute bookInitials with translation suffix if docTranslated is set */
+    private val effectiveBookInitials: String get() =
+        if (bookmark.docTranslated != null) "${bookmark.bookInitials}/${bookmark.docTranslated}" else bookmark.bookInitials
+
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
         return mapOf(
@@ -292,7 +308,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
                 if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
             }),
-            "bookInitials" to wrapString(bookmark.bookInitials),
+            "bookInitials" to wrapString(effectiveBookInitials),
             "bookName" to wrapString(bookmark.book?.name?: bookmark.bookInitials),
             "bookAbbreviation" to wrapString(bookmark.book?.abbreviation ?: bookmark.bookInitials),
             "createdAt" to bookmark.createdAt.time.toString(),

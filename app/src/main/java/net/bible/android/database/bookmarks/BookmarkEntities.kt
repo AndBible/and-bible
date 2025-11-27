@@ -196,6 +196,7 @@ class BookmarkEntities {
         var type: BookmarkType? = null,
         override var customIcon: String? = null,
         @Embedded(prefix="editAction_") override var editAction: EditAction? = null,
+        var docTranslated: String? = null,
 
         @Ignore override var new: Boolean = false,
     ): VerseRangeUser, BaseBookmarkWithNotes {
@@ -218,6 +219,7 @@ class BookmarkEntities {
             type: BookmarkType? = null,
             customIcon: String? = null,
             editAction: EditAction? = null,
+            docTranslated: String? = null,
         ): this(
             kjvOrdinalStart = kjvOrdinalStart,
             kjvOrdinalEnd = kjvOrdinalEnd,
@@ -238,9 +240,10 @@ class BookmarkEntities {
             customIcon = customIcon,
             new = false,
             editAction = editAction,
+            docTranslated = docTranslated,
         )
 
-        constructor(verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?): this(
+        constructor(verseRange: VerseRange, textRange: TextRange?, wholeVerse: Boolean, book: AbstractPassageBook?, docTranslated: String? = null): this(
             kjvOrdinalStart = verseRange.toV11n(KJVA).start.ordinal,
             kjvOrdinalEnd = verseRange.toV11n(KJVA).end.ordinal,
             ordinalStart = verseRange.start.ordinal,
@@ -252,6 +255,7 @@ class BookmarkEntities {
             endOffset = textRange?.end,
             wholeVerse = wholeVerse,
             new = true,
+            docTranslated = docTranslated,
         )
 
         override var textRange: TextRange?
@@ -334,6 +338,7 @@ class BookmarkEntities {
             type,
             customIcon,
             editAction,
+            docTranslated,
         )
         override val noteEntity get() = if(notes == null) null else BibleBookmarkNotes(id, notes!!)
     }
@@ -386,6 +391,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
         @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,
         @Embedded(prefix = "editAction_") override var editAction: EditAction? = null,
+        @ColumnInfo(defaultValue = "NULL") var docTranslated: String? = null,
     ): BaseBookmark
 
     @Entity(
@@ -431,6 +437,7 @@ class BookmarkEntities {
         override var playbackSettings: PlaybackSettings?,
         override var customIcon: String? = null,
         @Embedded(prefix="editAction_") override var editAction: EditAction? = null,
+        var docTranslated: String? = null,
 
         @Ignore override var new: Boolean = false,
     ): BaseBookmarkWithNotes {
@@ -450,6 +457,7 @@ class BookmarkEntities {
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
             customIcon: String? = null,
             editAction: EditAction? = null,
+            docTranslated: String? = null,
         ): this(
             id = id,
             key = key,
@@ -466,7 +474,8 @@ class BookmarkEntities {
             playbackSettings = playbackSettings,
             customIcon = customIcon,
             new = false,
-            editAction = editAction
+            editAction = editAction,
+            docTranslated = docTranslated,
         )
         constructor(
             id: IdType = IdType(),
@@ -482,7 +491,8 @@ class BookmarkEntities {
             wholeVerse: Boolean = false,
             playbackSettings: PlaybackSettings? = null,
             customIcon: String? = null,
-            new: Boolean = false
+            new: Boolean = false,
+            docTranslated: String? = null,
         ): this(
             id = id,
             key = key,
@@ -498,10 +508,11 @@ class BookmarkEntities {
             wholeVerse = wholeVerse,
             playbackSettings = playbackSettings,
             customIcon = customIcon,
-            new = new
+            new = new,
+            docTranslated = docTranslated,
         )
-        
-        constructor(key: Key, book: Book, textRange: TextRange?, ordinalStart: Int): this(
+
+        constructor(key: Key, book: Book, textRange: TextRange?, ordinalStart: Int, docTranslated: String? = null): this(
             key = key.osisRef,
             playbackSettings = null,
             ordinalStart = ordinalStart,
@@ -509,7 +520,8 @@ class BookmarkEntities {
             book = book,
             textRange = textRange,
             wholeVerse = true,
-            new = true,            
+            new = true,
+            docTranslated = docTranslated,
         )
 
         override var textRange: TextRange?
@@ -559,6 +571,7 @@ class BookmarkEntities {
             playbackSettings = playbackSettings,
             customIcon = customIcon,
             editAction = editAction,
+            docTranslated = docTranslated,
         )
         override val noteEntity get() = if(notes == null) null else GenericBookmarkNotes(id, notes!!)
     }
@@ -596,6 +609,7 @@ class BookmarkEntities {
         override var playbackSettings: PlaybackSettings? = null,
         @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,
         @Embedded(prefix="editAction_") override var editAction: EditAction? = null,
+        @ColumnInfo(defaultValue = "NULL") var docTranslated: String? = null,
     ): BaseBookmark
 
     @Entity(

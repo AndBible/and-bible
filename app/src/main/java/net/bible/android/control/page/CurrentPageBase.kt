@@ -200,7 +200,8 @@ abstract class CurrentPageBase protected constructor(
             book = currentDocument,
             key = key,
             osisFragment = frag,
-            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, annotateKey ?: key, withLabels = true)
+            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, annotateKey ?: key, withLabels = true),
+            docTranslated = translateTo,
         )
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)

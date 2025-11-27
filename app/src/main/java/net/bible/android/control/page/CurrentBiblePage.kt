@@ -76,7 +76,8 @@ class CurrentBiblePage(
             val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
             BibleDocument(
                 osisFragment = doc.osisFragment, swordBook = doc.book as SwordBook,
-                bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey
+                bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey,
+                docTranslated = doc.docTranslated,
             )
         } else doc
     }

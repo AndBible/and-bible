@@ -220,7 +220,13 @@ class Selection(
 
     val hasRange get() = startOffset != null && endOffset != null
 
-    val book: Book? get() = Books.installed().getBook(bookInitials)
+    /** Parse bookInitials to get the actual book initials (without /lang suffix) */
+    private val actualBookInitials: String? get() = bookInitials?.substringBefore("/")
+
+    /** Parse bookInitials to get the docTranslated suffix (if any) */
+    val docTranslated: String? get() = bookInitials?.substringAfter("/", "")?.takeIf { it.isNotEmpty() }
+
+    val book: Book? get() = Books.installed().getBook(actualBookInitials)
     val swordBook: SwordBook? get() =
         if(book is SwordBook)
             book as SwordBook? ?: windowControl.defaultBibleDoc(false)
@@ -415,7 +421,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmark: BookmarkEntities.BaseBookmarkWithNotes =
             if(selection.book?.bookCategory == BookCategory.BIBLE) {
                 val verseRange = selection.verseRange
-                BookmarkEntities.BibleBookmarkWithNotes(verseRange!!, textRange, wholeVerse, selection.swordBook)
+                BookmarkEntities.BibleBookmarkWithNotes(verseRange!!, textRange, wholeVerse, selection.swordBook, selection.docTranslated)
             } else {
                 BookmarkEntities.GenericBookmarkWithNotes(
                     key = selection.osisRef!!,
@@ -425,6 +431,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     textRange = textRange,
                     wholeVerse = wholeVerse,
                     new = true,
+                    docTranslated = selection.docTranslated,
                 )
             }
         if(primaryLabelId != null) {
@@ -454,7 +461,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmark: BookmarkEntities.BaseBookmarkWithNotes =
             if(selection.book?.bookCategory == BookCategory.BIBLE) {
                 val verseRange = selection.verseRange
-                BookmarkEntities.BibleBookmarkWithNotes(verseRange!!, textRange, false, selection.swordBook)
+                BookmarkEntities.BibleBookmarkWithNotes(verseRange!!, textRange, false, selection.swordBook, selection.docTranslated)
             } else {
                 BookmarkEntities.GenericBookmarkWithNotes(
                     key = selection.osisRef!!,
@@ -464,6 +471,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     textRange = textRange,
                     wholeVerse = false,
                     new = true,
+                    docTranslated = selection.docTranslated,
                 )
             }
         
