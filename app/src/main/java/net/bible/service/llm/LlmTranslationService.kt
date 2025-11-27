@@ -36,7 +36,7 @@ private const val TAG = "LlmTranslationService"
 object LlmTranslationService {
     private val client = OkHttpClient.Builder()
         .connectTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(120, TimeUnit.SECONDS)
+        .readTimeout(300, TimeUnit.SECONDS)  // 5 min for reasoning models
         .writeTimeout(60, TimeUnit.SECONDS)
         .build()
 
@@ -91,9 +91,12 @@ object LlmTranslationService {
 
         val modelId = settings.llmModel
 
-        Log.d(TAG, "Calling LLM API for translation: $documentInitials:$keyName -> $targetLanguage")
+        Log.d(TAG, "Calling LLM API for translation: $documentInitials:$keyName -> $targetLanguage (input size: ${xmlContent.length} chars)")
+        val startTime = System.currentTimeMillis()
         return try {
             val translated = callLlmApi(xmlContent, targetLanguage)
+            val duration = System.currentTimeMillis() - startTime
+            Log.d(TAG, "LLM API call completed in ${duration}ms (output size: ${translated.length} chars)")
 
             // Save to cache (replaces any existing translation for this document/key/language)
             dao.insert(TranslationCacheEntry(
