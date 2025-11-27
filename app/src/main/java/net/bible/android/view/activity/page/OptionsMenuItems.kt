@@ -211,6 +211,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.string.prefs_show_bookmarks_title
                 TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
                 TextDisplaySettings.Types.PAGENUMBER -> R.string.page_number_title
+                TextDisplaySettings.Types.TRANSLATE_TO -> R.string.translate_to_title
             }
             return application.getString(id)
         }
@@ -529,5 +530,85 @@ class WindowPinningPreference :
     }
 
     override val isBoolean = true
+}
+
+class TranslateToPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.TRANSLATE_TO) {
+    override val title: String get() {
+        val lang = value as String?
+        return if (lang == null) {
+            application.getString(R.string.translate_to_title)
+        } else {
+            application.getString(R.string.translate_to_title) + ": " + getLanguageName(lang)
+        }
+    }
+
+    override val visible: Boolean get() = CommonUtils.settings.llmConfigured
+
+    private fun getLanguageName(code: String): String {
+        return when(code) {
+            "fi" -> "Suomi"
+            "en" -> "English"
+            "de" -> "Deutsch"
+            "fr" -> "Français"
+            "es" -> "Español"
+            "it" -> "Italiano"
+            "pt" -> "Português"
+            "nl" -> "Nederlands"
+            "sv" -> "Svenska"
+            "no" -> "Norsk"
+            "da" -> "Dansk"
+            "ru" -> "Русский"
+            "pl" -> "Polski"
+            "uk" -> "Українська"
+            "zh" -> "中文"
+            "ja" -> "日本語"
+            "ko" -> "한국어"
+            else -> code
+        }
+    }
+
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        val languages = listOf(
+            null to application.getString(R.string.translate_to_disabled),
+            "fi" to "Suomi",
+            "en" to "English",
+            "de" to "Deutsch",
+            "fr" to "Français",
+            "es" to "Español",
+            "it" to "Italiano",
+            "pt" to "Português",
+            "nl" to "Nederlands",
+            "sv" to "Svenska",
+            "no" to "Norsk",
+            "da" to "Dansk",
+            "ru" to "Русский",
+            "pl" to "Polski",
+            "uk" to "Українська",
+            "zh" to "中文",
+            "ja" to "日本語",
+            "ko" to "한국어",
+        )
+
+        val currentValue = value as? String
+        val currentIndex = languages.indexOfFirst { it.first == currentValue }.coerceAtLeast(0)
+
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.translate_to_title)
+            .setSingleChoiceItems(languages.map { it.second }.toTypedArray(), currentIndex) { dialog, which ->
+                val newValue = languages[which].first
+                if (newValue == null) {
+                    setNonSpecific()
+                    onReset?.invoke()
+                } else {
+                    value = newValue
+                    onChanged?.invoke(newValue)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+
+        return true
+    }
 }
 

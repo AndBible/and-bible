@@ -196,6 +196,26 @@
 			android:icon="@drawable/ic_calc_pin"
 			/>
 	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/llm_settings_title">
+		<EditTextPreference android:key="llm_api_key"
+			android:title="@string/llm_api_key_title"
+			android:summary="@string/llm_api_key_summary"
+			android:inputType="textPassword"
+			android:icon="@drawable/ic_baseline_vpn_key_24"
+			/>
+		<EditTextPreference android:key="llm_endpoint"
+			android:title="@string/llm_endpoint_title"
+			android:summary="@string/llm_endpoint_summary"
+			android:defaultValue="https://api.openai.com/v1"
+			android:icon="@drawable/ic_baseline_cloud_24"
+			/>
+		<EditTextPreference android:key="llm_model"
+			android:title="@string/llm_model_title"
+			android:summary="@string/llm_model_summary"
+			android:defaultValue="gpt-4o-mini"
+			android:icon="@drawable/ic_baseline_smart_toy_24"
+			/>
+	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
 		<MultiSelectListPreference android:key="experimental_features"
 			android:title="@string/prefs_experimental_features_title"

@@ -42,6 +42,11 @@ private val addStudyPadCursors = makeMigration(6..7) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `workspace_settings_studyPadCursors` TEXT DEFAULT NULL")
 }
 
+private val addTranslateTo = makeMigration(7..8) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_translateTo` TEXT DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_translateTo` TEXT DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -49,6 +54,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addCommentarySourceBookAndKey,
     addPageManagerJsState,
     addStudyPadCursors,
+    addTranslateTo,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 7
+const val WORKSPACE_DATABASE_VERSION = 8

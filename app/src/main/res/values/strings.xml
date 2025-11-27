@@ -1303,4 +1303,16 @@
     <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
     <string name="memorize_description">Memorize Bible verses</string>
     <string name="memorize_abbreviation">Memorize</string>
+
+    <!-- LLM Translation Settings -->
+    <string name="llm_settings_title">LLM Translation</string>
+    <string name="llm_api_key_title">API Key</string>
+    <string name="llm_api_key_summary">OpenAI-compatible API key</string>
+    <string name="llm_endpoint_title">API Endpoint</string>
+    <string name="llm_endpoint_summary">Base URL for the API (e.g. https://api.openai.com/v1)</string>
+    <string name="llm_model_title">Model</string>
+    <string name="llm_model_summary">Model ID (e.g. gpt-4o-mini)</string>
+    <string name="translate_to_title">Translate document</string>
+    <string name="translate_to_summary">Use LLM to translate document content</string>
+    <string name="translate_to_disabled">No translation</string>
 </resources>

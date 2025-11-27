@@ -443,6 +443,22 @@ object CommonUtils : CommonUtilsBase() {
         fun isExperimentalFeatureEnabled(feature: String): Boolean = enabledExperimentalFeatures.contains(feature)
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
+
+        // LLM Translation Settings
+        var llmApiKey: String
+            get() = getString("llm_api_key", "") ?: ""
+            set(value) = setString("llm_api_key", value)
+
+        var llmEndpoint: String
+            get() = getString("llm_endpoint", "https://api.openai.com/v1") ?: "https://api.openai.com/v1"
+            set(value) = setString("llm_endpoint", value)
+
+        var llmModel: String
+            get() = getString("llm_model", "gpt-4o-mini") ?: "gpt-4o-mini"
+            set(value) = setString("llm_model", value)
+
+        val llmConfigured: Boolean
+            get() = llmApiKey.isNotBlank()
     }
 
     private var _settings: AndBibleSettings? = null

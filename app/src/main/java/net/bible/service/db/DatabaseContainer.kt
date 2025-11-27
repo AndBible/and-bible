@@ -34,6 +34,8 @@ import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SETTINGS_DATABASE_VERSION
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.TemporaryDatabase
+import net.bible.android.database.TranslationDatabase
+import net.bible.android.database.TRANSLATION_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
 import net.bible.service.common.CommonUtils
@@ -63,7 +65,8 @@ val ALL_DB_FILENAMES = arrayOf(
     ReadingPlanDatabase.dbFileName,
     WorkspaceDatabase.dbFileName,
     RepoDatabase.dbFileName,
-    SettingsDatabase.dbFileName
+    SettingsDatabase.dbFileName,
+    TranslationDatabase.dbFileName
 )
 
 class DataBaseNotReady: Exception()
@@ -202,6 +205,16 @@ class DatabaseContainer {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
+    val translationDb: TranslationDatabase =
+        Room.databaseBuilder(
+            application, TranslationDatabase::class.java, TranslationDatabase.dbFileName
+        )
+            .allowMainThreadQueries()
+            .addMigrations()
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
     private fun backupDatabaseIfNeeded() {
         if(application.isRunningTests) return
         val oldDb = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
@@ -252,7 +265,7 @@ class DatabaseContainer {
     }
 
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
-    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb)
+    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, translationDb)
 
     val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
 
@@ -306,6 +319,7 @@ class DatabaseContainer {
             WorkspaceDatabase.dbFileName -> WORKSPACE_DATABASE_VERSION
             RepoDatabase.dbFileName -> REPO_DATABASE_VERSION
             SettingsDatabase.dbFileName -> SETTINGS_DATABASE_VERSION
+            TranslationDatabase.dbFileName -> TRANSLATION_DATABASE_VERSION
             else -> throw IllegalStateException("Unknown database file: $filename")
         }
 

@@ -59,6 +59,7 @@ import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.RedLettersPreference
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
+import net.bible.android.view.activity.page.TranslateToPreference
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
@@ -127,6 +128,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.LINE_SPACING -> LineSpacingPreference(settings)
         Types.BOOKMARKS_HIDELABELS -> HideLabelsPreference(settings, Types.BOOKMARKS_HIDELABELS)
         Types.PAGENUMBER -> ItemPreference(settings, Types.PAGENUMBER)
+        Types.TRANSLATE_TO -> TranslateToPreference(settings)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {

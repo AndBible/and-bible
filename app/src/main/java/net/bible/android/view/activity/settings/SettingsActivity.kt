@@ -247,6 +247,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
             setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_NUMBER }
         }
 
+        // LLM API key should be hidden
+        preferenceScreen.findPreference<EditTextPreference>("llm_api_key")?.run {
+            setOnBindEditTextListener {
+                it.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
+        }
+
         (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).run {
             if (BuildVariant.Appearance.isDiscrete) {
                 isVisible = false

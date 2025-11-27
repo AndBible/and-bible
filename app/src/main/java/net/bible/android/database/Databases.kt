@@ -151,5 +151,21 @@ abstract class SettingsDatabase: RoomDatabase() {
     abstract fun doubleSettingDao(): DoubleSettingDao
     companion object {
         const val dbFileName = "settings.sqlite3"
-    }    
+    }
+}
+
+const val TRANSLATION_DATABASE_VERSION = 1
+
+@Database(
+    entities = [
+        net.bible.android.database.translation.TranslationCacheEntry::class,
+    ],
+    version = TRANSLATION_DATABASE_VERSION
+)
+@TypeConverters(Converters::class)
+abstract class TranslationDatabase: RoomDatabase() {
+    abstract fun translationDao(): net.bible.android.database.translation.TranslationDao
+    companion object {
+        const val dbFileName = "translations.sqlite3"
+    }
 }

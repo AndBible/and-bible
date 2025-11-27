@@ -36,6 +36,10 @@ import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.llm.LlmTranslationService
+import kotlinx.coroutines.runBlocking
+import org.jdom2.input.SAXBuilder
+import java.io.StringReader
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -144,8 +148,22 @@ abstract class CurrentPageBase protected constructor(
         val currentDocument = currentDocument!!
 
         val frag = synchronized(currentDocument) {
-            val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
-            OsisFragment(frag, key, currentDocument)
+            val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
+
+            // Check if translation is enabled
+            val translateTo = pageManager.actualTextDisplaySettings.translateTo
+            val translatedXml = if (translateTo != null && CommonUtils.settings.llmConfigured) {
+                try {
+                    translateXmlElement(originalXml, translateTo)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Translation failed, using original", e)
+                    originalXml
+                }
+            } else {
+                originalXml
+            }
+
+            OsisFragment(translatedXml, key, currentDocument)
         }
 
         annotateKey = frag.annotateRef
@@ -163,6 +181,25 @@ abstract class CurrentPageBase protected constructor(
             is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
             is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
             else -> ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)
+        }
+    }
+
+    private fun translateXmlElement(xml: org.jdom2.Element, targetLanguage: String): org.jdom2.Element {
+        val xmlStr = net.bible.android.misc.elementToString(xml)
+        val translatedXmlStr = runBlocking {
+            LlmTranslationService.translateXml(xmlStr, targetLanguage)
+        }
+
+        return if (translatedXmlStr != xmlStr) {
+            try {
+                val builder = SAXBuilder()
+                builder.build(StringReader(translatedXmlStr)).rootElement
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to parse translated XML, using original", e)
+                xml
+            }
+        } else {
+            xml
         }
     }
 
