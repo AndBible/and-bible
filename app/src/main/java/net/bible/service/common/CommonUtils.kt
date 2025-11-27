@@ -147,7 +147,6 @@ import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
-import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseKey
@@ -1725,7 +1724,7 @@ object CommonUtils : CommonUtilsBase() {
             }
         }
     }
-    fun prependZeros(keyStr: String): String {
+    fun prependDictionaryKeyWithZeros(keyStr: String): String {
         val lengthDiff = 5 - keyStr.length
         if(lengthDiff <= 0) return keyStr
 
@@ -1733,7 +1732,6 @@ object CommonUtils : CommonUtilsBase() {
 
     }
     fun parseAndBibleReference(uri: Uri): BookAndKey? {
-        val urlRegex = Regex("""/(.*)""")
         var docStr = uri.getQueryParameter("document")
         val path = uri.path?.removePrefix("/") ?: return null
         var keyStr = path
@@ -1752,11 +1750,8 @@ object CommonUtils : CommonUtilsBase() {
         val v11nStr = uri.getQueryParameter("v11n")
         val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
 
-
-
-
         if (doc is SwordDictionary) {
-            val key = doc.getKey(prependZeros(keyStr))
+            val key = doc.getKey(prependDictionaryKeyWithZeros(keyStr))
             return BookAndKey(key, doc)
         }
 
@@ -1771,15 +1766,12 @@ object CommonUtils : CommonUtilsBase() {
         } catch (e: Exception) {
             Log.e(TAG, "Unexpected exception when parsing URI", e)
             null
-
         }
-
     }
 
     fun parseAndBibleReference(uri: String): BookAndKey?
         = parseAndBibleReference(Uri.parse(uri))
-
-    }
+}
 
 const val CALC_NOTIFICATION_CHANNEL = "calc-notifications"
 
