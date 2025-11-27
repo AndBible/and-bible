@@ -997,6 +997,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="verse_tip">För att markera en del av en vers eller flera verser kan du långtrycka på bibeltexten.</string>
   <string name="permission_required">Rättigheter behövs</string>
   <string name="labels_search_hint">Sök</string>
+  <string name="search_mode_content">Innehåll</string>
   <string name="progress_status_permission">För att visa aviseringar (nedladdningsförlopp, bearbetning, uppläsningsstatus) behöver vi din tillåtelse.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Enkel kalkylator</string>

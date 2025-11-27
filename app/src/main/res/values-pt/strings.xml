@@ -945,6 +945,7 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="verse_tip">Para selecionar parte ou vários versículos, mantenha premido o texto da Bíblia</string>
   <string name="permission_required">Permissões necessárias</string>
   <string name="labels_search_hint">Procurar</string>
+  <string name="search_mode_content">Conteúdo</string>
   <string name="progress_status_permission">Para mostrar notificações (estado do download, processos, estado da fala), precisamos da sua permissão.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Calculadora simples</string>
