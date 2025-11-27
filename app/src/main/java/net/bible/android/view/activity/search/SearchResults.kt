@@ -26,6 +26,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -34,19 +35,16 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
-import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.BookAndKeyList
-import net.bible.service.sword.SwordContentFacade
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
@@ -109,6 +107,11 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
+                true
+            }
+            R.id.switchDocument -> {
+                val menuItemView = findViewById<View>(R.id.switchDocument)
+                menuForDocs(menuItemView ?: window.decorView)
                 true
             }
             R.id.openResultsInWindow -> {
@@ -251,6 +254,36 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         populateViewResultsAdapter()
         mKeyArrayAdapter!!.notifyDataSetChanged()
         searchResultsActionBarManager.setScriptureShown(isScriptureResultsCurrentlyShown)
+    }
+
+    private fun menuForDocs(v: View) {
+        val currentDoc = searchDocument ?: return
+        val documents = SwordDocumentFacade.bibles
+        val menu = PopupMenu(this, v)
+        val docs = documents.sortedWith(compareBy({ it.language.code }, { it.abbreviation }))
+
+        docs.forEachIndexed { i, book ->
+            val item = menu.menu.add(Menu.NONE, i, Menu.NONE,
+                getString(R.string.something_with_parenthesis, book.abbreviation, book.language.code))
+            if (currentDoc == book) {
+                item.isEnabled = false
+            }
+        }
+
+        menu.setOnMenuItemClickListener { item ->
+            switchDocument(docs[item.itemId] as SwordBook)
+            true
+        }
+        menu.show()
+    }
+
+    private fun switchDocument(newDocument: SwordBook) {
+        searchDocument = newDocument
+        val resultAmount = mSearchResultsHolder?.size?.let {
+            if (it > SearchControl.MAX_SEARCH_RESULTS) "$it+" else it.toString()
+        } ?: "0"
+        supportActionBar?.title = getString(R.string.search_with_results2, resultAmount, newDocument.abbreviation)
+        mKeyArrayAdapter?.notifyDataSetChanged()
     }
 
     companion object {
