@@ -49,6 +49,12 @@
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <DocumentBroker v-for="document in documents" :key="document.id" :document="document"/>
+      <div class="infinite-scroll-loading" v-if="loadingAtEnd">
+        <div v-if="appSettings.disableAnimations" class="loading-icon">
+          <FontAwesomeIcon icon="fa-regular fa-clock"/>
+        </div>
+        <div v-else class="lds-ring small"><div/><div/><div/><div/></div>
+      </div>
     </div>
     <template v-if="!modalOpen">
       <div class="prev-page-button" @click.stop="scrollUpDown(true)" :style="{width: `${calculatedConfig.marginLeft}px`}"/>
@@ -204,7 +210,7 @@ const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, andro
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
 
-const {documentsCleared} = useInfiniteScroll(android, scroll, documents);
+const {documentsCleared, loadingAtEnd} = useInfiniteScroll(android, scroll, documents);
 const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {
@@ -458,6 +464,25 @@ $ring-color: $button-grey;
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+.infinite-scroll-loading {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+
+  .lds-ring.small {
+    $small-size: 24px;
+    width: $small-size;
+    height: $small-size;
+
+    & div {
+      width: $small-size;
+      height: $small-size;
+      margin: 4px;
+      border-width: 2px;
+    }
   }
 }
 

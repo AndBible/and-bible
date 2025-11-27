@@ -111,7 +111,8 @@ object LlmTranslationService {
             Log.d(TAG, "Translation successful, saved to cache")
             translated
         } catch (e: Exception) {
-            Log.e(TAG, "Translation failed", e)
+            val duration = System.currentTimeMillis() - startTime
+            Log.e(TAG, "Translation failed after ${duration}ms: ${e.javaClass.simpleName}: ${e.message}")
             xmlContent // Return original on error
         }
     }

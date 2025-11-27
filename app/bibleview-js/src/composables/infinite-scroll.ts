@@ -21,7 +21,7 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-import {computed, nextTick, onMounted, watch} from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {filterNotNull, setupWindowEventListener, waitNextAnimationFrame} from "@/utils";
 import {UseAndroid} from "@/composables/android";
 import {AnyDocument, isOsisDocument} from "@/types/documents";
@@ -129,13 +129,18 @@ export function useInfiniteScroll(
         }
     }
 
+    const loadingAtEnd = ref(false);
+    const loadingAtTop = ref(false);
+
     function loadTextAtTop() {
-        addChaptersToTop.push(requestPreviousChapter())
+        loadingAtTop.value = true;
+        addChaptersToTop.push(requestPreviousChapter().finally(() => { loadingAtTop.value = false; }));
         processQueues();
     }
 
     async function loadTextAtEnd() {
-        addChaptersToEnd.push(requestNextChapter())
+        loadingAtEnd.value = true;
+        addChaptersToEnd.push(requestNextChapter().finally(() => { loadingAtEnd.value = false; }));
         await processQueues();
         await waitNextAnimationFrame();
 
@@ -237,5 +242,5 @@ export function useInfiniteScroll(
         bottomElem = document.getElementById("bottom")!;
     });
 
-    return {documentsCleared};
+    return {documentsCleared, loadingAtEnd, loadingAtTop};
 }
