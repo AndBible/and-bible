@@ -17,28 +17,4 @@
 
 package net.bible.android.database.migrations
 
-// Migration from hash-based cache to document+key based cache
-// Since the schema changes significantly (different primary key structure),
-// we drop and recreate the table, losing any cached translations.
-private val migrateToDocumentKeyCache = makeMigration(1..2) { db ->
-    db.execSQL("DROP TABLE IF EXISTS TranslationCacheEntry")
-    db.execSQL("""
-        CREATE TABLE IF NOT EXISTS TranslationCacheEntry (
-            documentInitials TEXT NOT NULL,
-            keyName TEXT NOT NULL,
-            targetLanguage TEXT NOT NULL,
-            modelId TEXT NOT NULL,
-            translatedXml TEXT NOT NULL,
-            createdAt INTEGER NOT NULL,
-            lastAccessedAt INTEGER NOT NULL,
-            PRIMARY KEY (documentInitials, keyName, targetLanguage, modelId)
-        )
-    """)
-    db.execSQL("CREATE INDEX IF NOT EXISTS index_TranslationCacheEntry_targetLanguage ON TranslationCacheEntry (targetLanguage)")
-    db.execSQL("CREATE INDEX IF NOT EXISTS index_TranslationCacheEntry_createdAt ON TranslationCacheEntry (createdAt)")
-    db.execSQL("CREATE INDEX IF NOT EXISTS index_TranslationCacheEntry_lastAccessedAt ON TranslationCacheEntry (lastAccessedAt)")
-}
-
-val translationMigrations: Array<Migration> = arrayOf(
-    migrateToDocumentKeyCache,
-)
+val translationMigrations: Array<Migration> = arrayOf()

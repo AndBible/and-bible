@@ -48,6 +48,7 @@ import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.VerseRange
+import org.jdom2.Element
 
 /** Common functionality for different document page types
  *
@@ -213,9 +214,9 @@ abstract class CurrentPageBase protected constructor(
     private fun translateXmlElement(
         documentInitials: String,
         keyName: String,
-        xml: org.jdom2.Element,
+        xml: Element,
         targetLanguage: String
-    ): org.jdom2.Element {
+    ): Element {
         val xmlStr = net.bible.android.misc.elementToString(xml)
         val translatedXmlStr = runBlocking {
             LlmTranslationService.translateAndCache(documentInitials, keyName, xmlStr, targetLanguage)
