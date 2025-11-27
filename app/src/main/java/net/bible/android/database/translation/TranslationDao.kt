@@ -29,28 +29,18 @@ interface TranslationDao {
         WHERE documentInitials = :documentInitials
         AND keyName = :keyName
         AND targetLanguage = :targetLanguage
-        AND modelId = :modelId
     """)
-    fun get(documentInitials: String, keyName: String, targetLanguage: String, modelId: String): TranslationCacheEntry?
+    fun get(documentInitials: String, keyName: String, targetLanguage: String): TranslationCacheEntry?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(entry: TranslationCacheEntry)
-
-    @Query("""
-        UPDATE TranslationCacheEntry SET lastAccessedAt = :time
-        WHERE documentInitials = :documentInitials
-        AND keyName = :keyName
-        AND targetLanguage = :targetLanguage
-        AND modelId = :modelId
-    """)
-    fun updateLastAccessed(documentInitials: String, keyName: String, targetLanguage: String, modelId: String, time: Long)
-
-    @Query("DELETE FROM TranslationCacheEntry WHERE lastAccessedAt < :threshold")
-    fun evictOlderThan(threshold: Long)
 
     @Query("SELECT COUNT(*) FROM TranslationCacheEntry")
     fun count(): Int
 
     @Query("DELETE FROM TranslationCacheEntry")
     fun deleteAll()
+
+    @Query("DELETE FROM TranslationCacheEntry WHERE modelId = :modelId")
+    fun deleteByModel(modelId: String)
 }

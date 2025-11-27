@@ -58,24 +58,22 @@ LLM-pohjainen käännösominaisuus mahdollistaa Raamatun tekstien ja muiden doku
 **Schema:**
 ```kotlin
 @Entity(
-    primaryKeys = ["documentInitials", "keyName", "targetLanguage", "modelId"]
+    primaryKeys = ["documentInitials", "keyName", "targetLanguage"]
 )
 data class TranslationCacheEntry(
     val documentInitials: String,  // "KJV", "ESV", ...
     val keyName: String,           // "Gen.1", "Matt.5", ... (OSIS ID)
     val targetLanguage: String,    // "fi", "en", "de", ...
-    val modelId: String,           // "gpt-4o-mini", "claude-3-haiku", ...
+    val modelId: String,           // Informaatio: millä mallilla käännetty (ei käytetä haussa)
     val translatedXml: String,     // Käännetty OSIS XML
-    val createdAt: Long,           // Unix timestamp
-    val lastAccessedAt: Long       // LRU eviction
+    val createdAt: Long            // Unix timestamp
 )
 ```
 
 **Indeksit:**
-- `(documentInitials, keyName, targetLanguage, modelId)` (PRIMARY KEY)
+- `(documentInitials, keyName, targetLanguage)` (PRIMARY KEY)
 - `targetLanguage` (suodatus)
-- `createdAt` (vanhojen poisto)
-- `lastAccessedAt` (LRU)
+- `modelId` (mahdollistaa tietyn mallin käännösten poiston tulevaisuudessa)
 
 #### 2. LLM-asetukset (CommonUtils.settings)
 
@@ -120,7 +118,7 @@ WorkspaceSettings (default) → PageManager (window-specific override)
 **API:**
 ```kotlin
 object LlmTranslationService {
-    // Tarkista onko käännös cachessa (ei lataa dokumenttia)
+    // Tarkista onko käännös cachessa (ei lataa dokumenttia, ei huomioi modelId:tä)
     fun getCached(documentInitials: String, keyName: String, targetLanguage: String): CacheResult
 
     // Käännä ja tallenna cacheen (kutsu vain jos getCached palauttaa documentNeeded=true)
@@ -128,7 +126,6 @@ object LlmTranslationService {
 
     fun clearCache()
     fun getCacheCount(): Int
-    fun evictOldEntries(maxAgeDays: Int = 30)
 
     data class CacheResult(
         val translatedXml: String?,  // null jos ei cachessa

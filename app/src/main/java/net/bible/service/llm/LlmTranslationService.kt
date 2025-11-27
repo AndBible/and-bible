@@ -55,19 +55,17 @@ object LlmTranslationService {
     /**
      * Check if a cached translation exists for the given document and key.
      * This allows skipping document loading if translation is already cached.
+     * Note: modelId is not used in lookup - any cached translation for this document/key/language is valid.
      */
     fun getCached(documentInitials: String, keyName: String, targetLanguage: String): CacheResult {
-        val settings = CommonUtils.settings
-        if (!settings.llmConfigured) {
+        if (!CommonUtils.settings.llmConfigured) {
             return CacheResult(null, true)
         }
 
-        val modelId = settings.llmModel
-        val cached = dao.get(documentInitials, keyName, targetLanguage, modelId)
+        val cached = dao.get(documentInitials, keyName, targetLanguage)
 
         return if (cached != null) {
-            Log.d(TAG, "Cache hit for $documentInitials:$keyName -> $targetLanguage")
-            dao.updateLastAccessed(documentInitials, keyName, targetLanguage, modelId, System.currentTimeMillis())
+            Log.d(TAG, "Cache hit for $documentInitials:$keyName -> $targetLanguage (model: ${cached.modelId})")
             CacheResult(cached.translatedXml, false)
         } else {
             Log.d(TAG, "Cache miss for $documentInitials:$keyName -> $targetLanguage")
@@ -97,15 +95,14 @@ object LlmTranslationService {
         return try {
             val translated = callLlmApi(xmlContent, targetLanguage)
 
-            // Save to cache
+            // Save to cache (replaces any existing translation for this document/key/language)
             dao.insert(TranslationCacheEntry(
                 documentInitials = documentInitials,
                 keyName = keyName,
                 targetLanguage = targetLanguage,
                 modelId = modelId,
                 translatedXml = translated,
-                createdAt = System.currentTimeMillis(),
-                lastAccessedAt = System.currentTimeMillis()
+                createdAt = System.currentTimeMillis()
             ))
 
             Log.d(TAG, "Translation successful, saved to cache")
@@ -183,10 +180,4 @@ IMPORTANT RULES:
     }
 
     fun getCacheCount(): Int = dao.count()
-
-    fun evictOldEntries(maxAgeDays: Int = 30) {
-        val threshold = System.currentTimeMillis() - (maxAgeDays * 24 * 60 * 60 * 1000L)
-        dao.evictOlderThan(threshold)
-        Log.i(TAG, "Evicted cache entries older than $maxAgeDays days")
-    }
 }

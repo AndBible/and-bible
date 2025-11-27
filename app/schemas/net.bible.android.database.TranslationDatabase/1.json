@@ -2,15 +2,21 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e46c3e50b5765b077cd925b562413acf",
+    "identityHash": "03557b74a1484ad14a94b703b9036d9e",
     "entities": [
       {
         "tableName": "TranslationCacheEntry",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`contentHash` TEXT NOT NULL, `targetLanguage` TEXT NOT NULL, `modelId` TEXT NOT NULL, `originalXml` TEXT NOT NULL, `translatedXml` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `lastAccessedAt` INTEGER NOT NULL, PRIMARY KEY(`contentHash`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`documentInitials` TEXT NOT NULL, `keyName` TEXT NOT NULL, `targetLanguage` TEXT NOT NULL, `modelId` TEXT NOT NULL, `translatedXml` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`documentInitials`, `keyName`, `targetLanguage`))",
         "fields": [
           {
-            "fieldPath": "contentHash",
-            "columnName": "contentHash",
+            "fieldPath": "documentInitials",
+            "columnName": "documentInitials",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "keyName",
+            "columnName": "keyName",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -27,12 +33,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "originalXml",
-            "columnName": "originalXml",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
             "fieldPath": "translatedXml",
             "columnName": "translatedXml",
             "affinity": "TEXT",
@@ -43,18 +43,14 @@
             "columnName": "createdAt",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "lastAccessedAt",
-            "columnName": "lastAccessedAt",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "contentHash"
+            "documentInitials",
+            "keyName",
+            "targetLanguage"
           ]
         },
         "indices": [
@@ -68,29 +64,20 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_TranslationCacheEntry_targetLanguage` ON `${TABLE_NAME}` (`targetLanguage`)"
           },
           {
-            "name": "index_TranslationCacheEntry_createdAt",
+            "name": "index_TranslationCacheEntry_modelId",
             "unique": false,
             "columnNames": [
-              "createdAt"
+              "modelId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_TranslationCacheEntry_createdAt` ON `${TABLE_NAME}` (`createdAt`)"
-          },
-          {
-            "name": "index_TranslationCacheEntry_lastAccessedAt",
-            "unique": false,
-            "columnNames": [
-              "lastAccessedAt"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_TranslationCacheEntry_lastAccessedAt` ON `${TABLE_NAME}` (`lastAccessedAt`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_TranslationCacheEntry_modelId` ON `${TABLE_NAME}` (`modelId`)"
           }
         ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e46c3e50b5765b077cd925b562413acf')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '03557b74a1484ad14a94b703b9036d9e')"
     ]
   }
 }
