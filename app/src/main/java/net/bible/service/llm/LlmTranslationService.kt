@@ -35,9 +35,9 @@ private const val TAG = "LlmTranslationService"
 
 object LlmTranslationService {
     private val client = OkHttpClient.Builder()
-        .connectTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(120, TimeUnit.SECONDS)
         .readTimeout(300, TimeUnit.SECONDS)  // 5 min for reasoning models
-        .writeTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(120, TimeUnit.SECONDS)
         .build()
 
     private val dao get() = DatabaseContainer.instance.translationDb.translationDao()
