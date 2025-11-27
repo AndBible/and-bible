@@ -201,12 +201,12 @@ class CommonUtilsTest {
         val strongsGreek = Books.installed().getBook("StrongsGreek")
         assumeTrue(strongsGreek is SwordDictionary)
         strongsGreek as SwordDictionary
-            val result = parseAndBibleReference("https://read.andbible.org/StrongsGreek:5548")
+        val result = parseAndBibleReference("https://read.andbible.org/StrongsGreek:5548")
 
-            assertThat(result, notNullValue())
-            assertThat(result!!.document, equalTo(strongsGreek))
-            val entry = strongsGreek.getKey("05548")
-            assertThat(result.key, equalTo(entry)) // Should be prepended with zeros
+        assertThat(result, notNullValue())
+        assertThat(result!!.document, equalTo(strongsGreek))
+        val entry = strongsGreek.getKey("05548")
+        assertThat(result.key, equalTo(entry)) // Should be prepended with zeros
 
     }
 
@@ -215,12 +215,12 @@ class CommonUtilsTest {
         val strongsGreek = Books.installed().getBook("StrongsGreek")
         assumeTrue(strongsGreek is SwordDictionary)
         strongsGreek as SwordDictionary
-            val result = parseAndBibleReference("https://read.andbible.org/5548?document=StrongsGreek")
+        val result = parseAndBibleReference("https://read.andbible.org/5548?document=StrongsGreek")
 
-            assertThat(result, notNullValue())
-            assertThat(result!!.document, equalTo(strongsGreek))
-            val entry = strongsGreek.getKey("05548")
-            assertThat(result.key, equalTo(entry))  // Should be prepended with zeros
+        assertThat(result, notNullValue())
+        assertThat(result!!.document, equalTo(strongsGreek))
+        val entry = strongsGreek.getKey("05548")
+        assertThat(result.key, equalTo(entry))  // Should be prepended with zeros
 
     }
 
@@ -322,15 +322,15 @@ class CommonUtilsTest {
         val strongsGreek = Books.installed().getBook("StrongsGreek")
         assumeTrue(strongsGreek is SwordDictionary)
         strongsGreek as SwordDictionary
-            // Simulate what parseAndBibleReference does internally
-            val keyStr = "5548"
-            val paddedKey = prependDictionaryKeyWithZeros(keyStr)
+        // Simulate what parseAndBibleReference does internally
+        val keyStr = "5548"
+        val paddedKey = prependDictionaryKeyWithZeros(keyStr)
 
-            assertThat(paddedKey, equalTo("05548"))
+        assertThat(paddedKey, equalTo("05548"))
 
-            // Verify the key actually exists in the dictionary
-            val key = strongsGreek.getKey(paddedKey)
-            assertThat(key, notNullValue())
+        // Verify the key actually exists in the dictionary
+        val key = strongsGreek.getKey(paddedKey)
+        assertThat(key, notNullValue())
 
     }
 
