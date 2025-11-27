@@ -1757,7 +1757,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     val bottomOffset
         get() =
             if(isBottomWindow)
-                (mainBibleActivity.bottomOffset3
+                (mainBibleActivity.bottomOffsetForWebView
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F
 

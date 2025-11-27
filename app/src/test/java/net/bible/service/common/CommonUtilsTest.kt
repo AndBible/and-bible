@@ -21,7 +21,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.CommonUtils.getKeyDescription
 import net.bible.service.common.CommonUtils.parseAndBibleReference
-import net.bible.service.common.CommonUtils.prependZeros
+import net.bible.service.common.CommonUtils.prependDictionaryKeyWithZeros
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordDictionary
@@ -33,9 +33,7 @@ import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
-import org.hamcrest.MatcherAssert
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume.assumeTrue
@@ -67,45 +65,45 @@ class CommonUtilsTest {
     // Tests for prependZeros function
     @Test
     fun `prependZeros should pad single digit to 5 characters`() {
-        assertThat(prependZeros("1"), equalTo("00001"))
+        assertThat(prependDictionaryKeyWithZeros("1"), equalTo("00001"))
     }
 
     @Test
     fun `prependZeros should pad two digits to 5 characters`() {
-        assertThat(prependZeros("42"), equalTo("00042"))
+        assertThat(prependDictionaryKeyWithZeros("42"), equalTo("00042"))
     }
 
     @Test
     fun `prependZeros should pad three digits to 5 characters`() {
-        assertThat(prependZeros("123"), equalTo("00123"))
+        assertThat(prependDictionaryKeyWithZeros("123"), equalTo("00123"))
     }
 
     @Test
     fun `prependZeros should pad four digits to 5 characters`() {
-        assertThat(prependZeros("5548"), equalTo("05548"))
+        assertThat(prependDictionaryKeyWithZeros("5548"), equalTo("05548"))
     }
 
     @Test
     fun `prependZeros should not pad exactly 5 characters`() {
-        assertThat(prependZeros("12345"), equalTo("12345"))
+        assertThat(prependDictionaryKeyWithZeros("12345"), equalTo("12345"))
     }
 
     @Test
     fun `prependZeros should not pad strings longer than 5 characters`() {
-        assertThat(prependZeros("123456"), equalTo("123456"))
-        assertThat(prependZeros("1234567890"), equalTo("1234567890"))
+        assertThat(prependDictionaryKeyWithZeros("123456"), equalTo("123456"))
+        assertThat(prependDictionaryKeyWithZeros("1234567890"), equalTo("1234567890"))
     }
 
     @Test
     fun `prependZeros should handle empty string`() {
-        assertThat(prependZeros(""), equalTo("00000"))
+        assertThat(prependDictionaryKeyWithZeros(""), equalTo("00000"))
     }
 
     @Test
     fun `prependZeros should handle alphanumeric strings`() {
         // Dictionary keys might have letters
-        assertThat(prependZeros("G123"), equalTo("0G123"))
-        assertThat(prependZeros("H1"), equalTo("000H1"))  // H1 is 2 chars, so 3 zeros needed
+        assertThat(prependDictionaryKeyWithZeros("G123"), equalTo("0G123"))
+        assertThat(prependDictionaryKeyWithZeros("H1"), equalTo("000H1"))  // H1 is 2 chars, so 3 zeros needed
     }
 
     // Tests for parseAndBibleReference function
@@ -203,12 +201,12 @@ class CommonUtilsTest {
         val strongsGreek = Books.installed().getBook("StrongsGreek")
         assumeTrue(strongsGreek is SwordDictionary)
         strongsGreek as SwordDictionary
-            val result = parseAndBibleReference("https://read.andbible.org/StrongsGreek:5548")
+        val result = parseAndBibleReference("https://read.andbible.org/StrongsGreek:5548")
 
-            assertThat(result, notNullValue())
-            assertThat(result!!.document, equalTo(strongsGreek))
-            val entry = strongsGreek.getKey("05548")
-            assertThat(result.key, equalTo(entry)) // Should be prepended with zeros
+        assertThat(result, notNullValue())
+        assertThat(result!!.document, equalTo(strongsGreek))
+        val entry = strongsGreek.getKey("05548")
+        assertThat(result.key, equalTo(entry)) // Should be prepended with zeros
 
     }
 
@@ -217,12 +215,12 @@ class CommonUtilsTest {
         val strongsGreek = Books.installed().getBook("StrongsGreek")
         assumeTrue(strongsGreek is SwordDictionary)
         strongsGreek as SwordDictionary
-            val result = parseAndBibleReference("https://read.andbible.org/5548?document=StrongsGreek")
+        val result = parseAndBibleReference("https://read.andbible.org/5548?document=StrongsGreek")
 
-            assertThat(result, notNullValue())
-            assertThat(result!!.document, equalTo(strongsGreek))
-            val entry = strongsGreek.getKey("05548")
-            assertThat(result.key, equalTo(entry))  // Should be prepended with zeros
+        assertThat(result, notNullValue())
+        assertThat(result!!.document, equalTo(strongsGreek))
+        val entry = strongsGreek.getKey("05548")
+        assertThat(result.key, equalTo(entry))  // Should be prepended with zeros
 
     }
 
@@ -260,21 +258,19 @@ class CommonUtilsTest {
     }
 
 
-    //Cannot verify authenticity
-//    @Test
-//    fun `parseAndBibleReference should handle empty path gracefully`() {
-//        val result = parseAndBibleReference("https://read.andbible.org/")
-//
-//        // When path is just "/", removePrefix("/") results in empty string
-//
-//        // The function handles this gracefully without crashing
-//        assertThat(result, notNullValue())
-//        assertThat(result!!.key, notNullValue())
-//
-//
-//        val passage = result.key as Passage
-//        assertThat(passage.countVerses(), equalTo(0))
-//    }
+    @Test
+    fun `parseAndBibleReference should handle empty path gracefully`() {
+        val result = parseAndBibleReference("https://read.andbible.org/")
+        // When path is just "/", removePrefix("/") results in empty string
+
+        // The function handles this gracefully without crashing
+        assertThat(result, notNullValue())
+        assertThat(result!!.key, notNullValue())
+
+
+        val passage = result.key as Passage
+        assertThat(passage.countVerses(), equalTo(0))
+    }
 
     @Test
     fun `parseAndBibleReference should handle non-existent document gracefully`() {
@@ -326,15 +322,15 @@ class CommonUtilsTest {
         val strongsGreek = Books.installed().getBook("StrongsGreek")
         assumeTrue(strongsGreek is SwordDictionary)
         strongsGreek as SwordDictionary
-            // Simulate what parseAndBibleReference does internally
-            val keyStr = "5548"
-            val paddedKey = prependZeros(keyStr)
+        // Simulate what parseAndBibleReference does internally
+        val keyStr = "5548"
+        val paddedKey = prependDictionaryKeyWithZeros(keyStr)
 
-            assertThat(paddedKey, equalTo("05548"))
+        assertThat(paddedKey, equalTo("05548"))
 
-            // Verify the key actually exists in the dictionary
-            val key = strongsGreek.getKey(paddedKey)
-            assertThat(key, notNullValue())
+        // Verify the key actually exists in the dictionary
+        val key = strongsGreek.getKey(paddedKey)
+        assertThat(key, notNullValue())
 
     }
 

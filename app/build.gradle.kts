@@ -307,7 +307,6 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
-
     }
 
     namespace = "net.bible.android.activity"

@@ -50,6 +50,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -231,14 +233,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Offsets with system insets only - will be updated by setupEdgeToEdge()
     private var topOffset1 = 0
     private var bottomOffset1 = 0
+    private var bottomOffset1WithoutIme = 0  // Always excludes IME (keyboard) height
     var rightOffset1 = 0
     var leftOffset1 = 0
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
 
-    // Bottom offset with navigation bar and transport bar and window buttons
-    val bottomOffset3 get() = bottomOffset2 + if (restoreButtonsVisible) windowButtonHeight else 0
+    // WebView UI-only offset (transport + buttons, no navigation bar)
+    val bottomOffsetForWebView get() =
+        (if (transportBarVisible) transportBarHeight else 0) +
+            (if (restoreButtonsVisible) windowButtonHeight else 0)
 
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
@@ -415,19 +420,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
                 val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
-                
+
                 systemInsets = systemBarInsets
 
-                // Store these values for use in offset calculations
+                // Store base system bar offsets (without IME)
                 topOffset1 = systemBarInsets.top
-                bottomOffset1 = systemBarInsets.bottom
+                bottomOffset1WithoutIme = systemBarInsets.bottom  // Always system bars only, never includes IME
                 leftOffset1 = systemBarInsets.left
                 rightOffset1 = systemBarInsets.right
 
-                // Handle keyboard (IME) insets for proper text input positioning
+                // bottomOffset1 includes IME when keyboard is visible (for Android UI positioning)
                 if (imeInsets.bottom > 0) {
                     // Keyboard is visible - adjust the bottom offset to account for it
                     bottomOffset1 = maxOf(systemBarInsets.bottom, imeInsets.bottom)
+                } else {
+                    bottomOffset1 = systemBarInsets.bottom
                 }
 
                 // Trigger any layout updates that depend on these offsets
@@ -1291,8 +1298,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.decorView.windowInsetsController?.apply {
-                hide(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
-                systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
         } else {
             var uiFlags = (
@@ -1323,11 +1330,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun showSystemUI(setNavBarColor: Boolean=true) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.decorView.windowInsetsController?.apply {
-                show(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
+                show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
                 if (!ScreenSettings.nightMode) {
                     setSystemBarsAppearance(
-                        android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-                        android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
                     )
                 }
             }

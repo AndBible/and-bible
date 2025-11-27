@@ -23,6 +23,9 @@ A powerful, yet easy to use, offline Bible study application for Android.
      alt="Get it on Github"
      height="55"
      style="border: 13px solid transparent;">](https://github.com/AndBible/and-bible/releases)
+[<img src="https://accrescent.app/badges/get-it-on.png"
+     alt="Get it on Accrescent"
+     height="80">](https://accrescent.app/app/org.andbible.andbible)
 
 ## 🎬 Promo Video
 

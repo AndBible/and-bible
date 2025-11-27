@@ -866,6 +866,13 @@ open class BookmarkControl @Inject constructor(
         dao.insert(entry.studyPadTextEntryTextEntity)
 
         incrementOrderNumbersFrom(labelId, entryOrderNumber + 1, newStudyPadTextEntry = entry)
+
+        val workspaceSettings = windowControl.windowRepository?.workspaceSettings
+        val cursor = workspaceSettings?.studyPadCursors?.get(labelId)?: return
+        if (cursor >= entryOrderNumber + 1) {
+            workspaceSettings.studyPadCursors[labelId] = cursor + 1
+            ABEventBus.post(AppSettingsUpdated())
+        }
     }
 
     fun removeBibleBookmarkLabel(bookmarkId: IdType, labelId: IdType) {

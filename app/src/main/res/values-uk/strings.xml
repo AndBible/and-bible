@@ -139,6 +139,7 @@
   <string name="prefs_behavior_customization_cat">Поведінка програми</string>
   <string name="prefs_margin_size_summary">Відрегулюйте лівий і правий край перегляду тексту. Ви також можете
 регулювати максимальну ширину тексту.</string>
+  <string name="prefs_margin_size_summary_2">Підказка: натисніть по порожньому місцю, щоб переміститися на розділ вниз / угору.</string>
   <string name="prefs_text_colors_summary">Налаштування кольору тексту, фону та шумового ефекту</string>
   <string name="text_display_settings_activity_title">Налаштування відображення тексту</string>
   <string name="workspace_text_display_settings_title">Параметри тексту - %s</string>
@@ -572,6 +573,7 @@
   <string name="backup_email_subject_2">%s резервне копіювання бази даних</string>
   <string name="backup_email_message_2">Ваша %s база даних, що містить закладки, примітки, плани читання та робочі місця додана</string>
   <string name="exported_studypads_subject">Експортовані блокноти</string>
+  <string name="exported_studypads_message">Під\'єднано вашу базу даних \"%s\", що містить Закладки та Нотатки, пов\'язані з вибраний StudyPad-ом</string>
   <string name="restore_unsuccessfull">Відновити базу даних не вдалося. Можливо, ви дали недійсний файл бази даних.</string>
   <string name="restore_modules">Відновити ресурси з…</string>
   <string name="send_backup_file">Надіслати файл резервної копії</string>
@@ -669,6 +671,7 @@
   <string name="workspace_listing_with_current">%s (поточн.)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Це бета-версія!</string>
+  <string name="beta_flag">БЕТА</string>
   <string name="beta_notice_content_1">
 У бета-версії є нові функції, які ще не перевірені належним чином, і, тому, використання
 бета-версії може спричинити несподівану поведінку, помилки. Звичайним читачам
@@ -1096,4 +1099,7 @@
   <string name="prefs_swipe_mode_chapter">Розділ</string>
   <string name="prefs_swipe_mode_page">Сторінка</string>
   <string name="prefs_swipe_mode_none">Вимкнено</string>
+  <string name="select_custom_icon">Обрати власну іконку маркера</string>
+  <string name="memorize_description">Завчити Біблійні вірші</string>
+  <string name="memorize_abbreviation">Завчити</string>
 </resources>
