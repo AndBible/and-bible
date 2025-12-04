@@ -162,10 +162,17 @@ object LlmProcessingService {
     ): Boolean {
         val settings = CommonUtils.settings
         if (!settings.llmConfirmBeforeCall) {
+            Log.d(TAG, "LLM confirmLlmCall: confirmation disabled, auto-approving for ${cacheKey.keyName}")
             return true  // No confirmation needed
         }
 
-        val activity = CurrentActivityHolder.currentActivity ?: return true  // No activity, allow
+        val activity = CurrentActivityHolder.currentActivity
+        if (activity == null) {
+            Log.d(TAG, "LLM confirmLlmCall: no activity, auto-approving for ${cacheKey.keyName}")
+            return true  // No activity, allow
+        }
+
+        Log.d(TAG, "LLM confirmLlmCall: showing dialog for ${cacheKey.keyName}")
 
         return withContext(Dispatchers.Main) {
             suspendCoroutine { continuation ->
@@ -182,13 +189,23 @@ object LlmProcessingService {
                 val dialog = AlertDialog.Builder(activity)
                     .setTitle(R.string.llm_confirm_dialog_title)
                     .setMessage(message)
-                    .setPositiveButton(R.string.okay) { _, _ -> continuation.resume(true) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> continuation.resume(false) }
-                    .setOnCancelListener { continuation.resume(false) }
+                    .setPositiveButton(R.string.okay) { _, _ ->
+                        Log.d(TAG, "LLM confirmLlmCall: user APPROVED for ${cacheKey.keyName}")
+                        continuation.resume(true)
+                    }
+                    .setNegativeButton(R.string.cancel) { _, _ ->
+                        Log.d(TAG, "LLM confirmLlmCall: user CANCELLED for ${cacheKey.keyName}")
+                        continuation.resume(false)
+                    }
+                    .setOnCancelListener {
+                        Log.d(TAG, "LLM confirmLlmCall: dialog DISMISSED for ${cacheKey.keyName}")
+                        continuation.resume(false)
+                    }
                     .create()
 
                 // Store dialog reference for cancellation
                 requestState.dialog = dialog
+                Log.d(TAG, "LLM confirmLlmCall: dialog created and stored in requestState for ${cacheKey.keyName}")
                 dialog.show()
             }
         }
@@ -219,9 +236,12 @@ object LlmProcessingService {
         // Document key (without keyName) for coordination
         val documentKey = "${cacheKey.documentInitials}:${cacheKey.processingType}:${cacheKey.processingParams}"
 
+        Log.d(TAG, "LLM processAndCache START: key=${cacheKey.keyName}, requestKey=$requestKey")
+        Log.d(TAG, "LLM processAndCache: pendingRequests.keys=${pendingRequests.keys}, documentStates.keys=${documentStates.keys}")
+
         // Check if exact same request is already in flight - reuse it
         pendingRequests[requestKey]?.let { existingRequest ->
-            Log.d(TAG, "Reusing existing request for $requestKey")
+            Log.d(TAG, "LLM processAndCache: REUSING existing request for $requestKey")
             return existingRequest.deferred.await()
         }
 
@@ -231,63 +251,99 @@ object LlmProcessingService {
                 try {
                     // Handle document-level coordination - cancel pre-API requests for different keys
                     documentStates[documentKey]?.let { currentState ->
-                        if (currentState.currentKeyName != cacheKey.keyName && !currentState.requestState.inApiCall) {
-                            // Different key, pre-API phase - cancel it
-                            Log.d(TAG, "Cancelling pre-API request for $documentKey (key: ${currentState.currentKeyName})")
-                            withContext(Dispatchers.Main) {
-                                currentState.requestState.dialog?.dismiss()
+                        Log.d(TAG, "LLM processAndCache: found existing documentState for $documentKey, currentKey=${currentState.currentKeyName}, inApiCall=${currentState.requestState.inApiCall}")
+                        if (currentState.currentKeyName != cacheKey.keyName) {
+                            if (!currentState.requestState.inApiCall) {
+                                // Different key, pre-API phase - cancel it
+                                Log.d(TAG, "LLM processAndCache: CANCELLING pre-API request for $documentKey (oldKey=${currentState.currentKeyName}, newKey=${cacheKey.keyName})")
+                                val dialogToClose = currentState.requestState.dialog
+                                Log.d(TAG, "LLM processAndCache: dialog to dismiss: $dialogToClose, isShowing=${dialogToClose?.isShowing}")
+                                withContext(Dispatchers.Main) {
+                                    if (dialogToClose != null && dialogToClose.isShowing) {
+                                        Log.d(TAG, "LLM processAndCache: calling dialog.dismiss()")
+                                        dialogToClose.dismiss()
+                                        Log.d(TAG, "LLM processAndCache: dialog.dismiss() called")
+                                    } else {
+                                        Log.d(TAG, "LLM processAndCache: dialog is null or not showing, skipping dismiss")
+                                    }
+                                }
+                                Log.d(TAG, "LLM processAndCache: calling job.cancel() on old request")
+                                currentState.requestState.job.cancel()
+                                Log.d(TAG, "LLM processAndCache: job.cancel() called")
+                            } else {
+                                Log.d(TAG, "LLM processAndCache: old request in API phase, letting it continue in background")
                             }
-                            currentState.requestState.job.cancel()
+                        } else {
+                            Log.d(TAG, "LLM processAndCache: same key, no action needed")
                         }
-                        // If inApiCall, let it continue in background - don't wait
+                    } ?: run {
+                        Log.d(TAG, "LLM processAndCache: no existing documentState for $documentKey")
                     }
 
                     // Register our request
                     val requestState = RequestState(resultDeferred, coroutineContext[Job]!!)
                     pendingRequests[requestKey] = requestState
                     documentStates[documentKey] = DocumentState(cacheKey.keyName, requestState)
+                    Log.d(TAG, "LLM processAndCache: registered request, pendingRequests.size=${pendingRequests.size}, documentStates.size=${documentStates.size}")
 
                     // Debounce delay only if confirmation is disabled
                     if (!settings.llmConfirmBeforeCall) {
                         val debounceMs = settings.llmDebounceMs.toLong()
                         if (debounceMs > 0) {
+                            Log.d(TAG, "LLM processAndCache: starting debounce delay ${debounceMs}ms for ${cacheKey.keyName}")
                             delay(debounceMs)
+                            Log.d(TAG, "LLM processAndCache: debounce delay completed for ${cacheKey.keyName}, checking if cancelled")
                             ensureActive()  // Check if cancelled during delay
+                            Log.d(TAG, "LLM processAndCache: still active after debounce for ${cacheKey.keyName}")
                         }
                     }
 
                     // Confirm with user if setting enabled
+                    Log.d(TAG, "LLM processAndCache: calling confirmLlmCall for ${cacheKey.keyName}")
                     if (!confirmLlmCall(processor, cacheKey, xmlContent.length, requestState)) {
+                        Log.d(TAG, "LLM processAndCache: confirmLlmCall returned false (user cancelled) for ${cacheKey.keyName}")
                         throw LlmProcessingError(application.getString(R.string.llm_user_cancelled))
                     }
+                    Log.d(TAG, "LLM processAndCache: confirmLlmCall returned true for ${cacheKey.keyName}")
 
+                    Log.d(TAG, "LLM processAndCache: checking ensureActive after confirm for ${cacheKey.keyName}")
                     ensureActive()
+                    Log.d(TAG, "LLM processAndCache: still active after confirm for ${cacheKey.keyName}")
 
                     // Mark as in API call phase (can't be cancelled anymore)
                     requestState.inApiCall = true
+                    Log.d(TAG, "LLM processAndCache: marked inApiCall=true, starting API call for ${cacheKey.keyName}")
 
                     // Proceed with actual API call
                     doProcessAndCache(processor, cacheKey, xmlContent)
                 } finally {
+                    Log.d(TAG, "LLM processAndCache: FINALLY block for ${cacheKey.keyName}")
                     pendingRequests.remove(requestKey)
                     // Only remove document state if we're still the current request
-                    if (documentStates[documentKey]?.currentKeyName == cacheKey.keyName) {
+                    val currentDocState = documentStates[documentKey]
+                    if (currentDocState?.currentKeyName == cacheKey.keyName) {
                         documentStates.remove(documentKey)
+                        Log.d(TAG, "LLM processAndCache: removed documentState for ${cacheKey.keyName}")
+                    } else {
+                        Log.d(TAG, "LLM processAndCache: NOT removing documentState, current=${currentDocState?.currentKeyName}, ours=${cacheKey.keyName}")
                     }
                 }
             }
 
             try {
+                Log.d(TAG, "LLM processAndCache: awaiting job result for ${cacheKey.keyName}")
                 val result = job.await()
+                Log.d(TAG, "LLM processAndCache: job completed successfully for ${cacheKey.keyName}")
                 resultDeferred.complete(result)
                 result
             } catch (e: CancellationException) {
-                Log.d(TAG, "Request cancelled for $requestKey")
+                Log.d(TAG, "LLM processAndCache: CancellationException caught for ${cacheKey.keyName}: ${e.message}")
                 resultDeferred.completeExceptionally(
                     LlmProcessingError(application.getString(R.string.llm_request_superseded))
                 )
                 throw LlmProcessingError(application.getString(R.string.llm_request_superseded))
             } catch (e: Exception) {
+                Log.d(TAG, "LLM processAndCache: Exception caught for ${cacheKey.keyName}: ${e.javaClass.simpleName}: ${e.message}")
                 resultDeferred.completeExceptionally(e)
                 throw e
             }
