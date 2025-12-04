@@ -36,6 +36,7 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
 import net.bible.service.llm.isLlmProcessedBook
+import net.bible.service.llm.LlmProcessingError
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.epub.xhtmlNamespace
@@ -381,6 +382,9 @@ object SwordContentFacade {
                 frag
             }
         } catch (e: OsisError) {
+            throw e
+        } catch (e: LlmProcessingError) {
+            // LLM errors (user cancellation, API failure) pass through to caller
             throw e
         } catch (e: Throwable) {
             if (e is Exception)
