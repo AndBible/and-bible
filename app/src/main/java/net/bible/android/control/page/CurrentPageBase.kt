@@ -32,6 +32,7 @@ import net.bible.service.download.isPseudoBook
 import net.bible.service.download.isRemoved
 import net.bible.service.history.AddHistoryItem
 import net.bible.service.llm.getOrCreateTranslatedBook
+import net.bible.service.llm.isLlmProcessedBook
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
@@ -213,6 +214,10 @@ abstract class CurrentPageBase protected constructor(
     override val currentDocument: Book?
         get() {
             val doc = rawDocument ?: return null
+            // Don't wrap if already an LLM-processed book
+            if (doc.isLlmProcessedBook) {
+                return doc
+            }
             val translateTo = pageManager.actualTextDisplaySettings.translateTo
             if (!translateTo.isNullOrEmpty() && CommonUtils.settings.llmConfigured) {
                 return getOrCreateTranslatedBook(doc, translateTo) ?: doc

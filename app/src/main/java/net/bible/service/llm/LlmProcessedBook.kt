@@ -83,11 +83,11 @@ class LlmProcessedBackend(
             ?: throw IllegalStateException("Wrapped book does not have accessible backend")
 
     /**
-     * Get the global key list from the wrapped backend.
-     * Used for delegating Key interface methods.
+     * Get the global key list from the wrapped book (not backend).
+     * Book.getGlobalKeyList() is always supported, unlike Backend.getGlobalKeyList().
      */
     private val wrappedKeyList: Key by lazy {
-        wrappedBackend.globalKeyList
+        state.wrappedBook.globalKeyList
     }
 
     override fun initState(): LlmProcessedBackendState {
