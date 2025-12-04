@@ -38,7 +38,7 @@ import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.llm.LlmTranslationService
 import kotlinx.coroutines.runBlocking
-import org.jdom2.input.SAXBuilder
+import net.bible.android.misc.elementToString
 import java.io.StringReader
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
@@ -49,6 +49,9 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.VerseRange
 import org.jdom2.Element
+import org.jdom2.input.DOMBuilder
+import org.xml.sax.InputSource
+import javax.xml.parsers.DocumentBuilderFactory
 
 /** Common functionality for different document page types
  *
@@ -163,8 +166,12 @@ abstract class CurrentPageBase protected constructor(
                 if (!cacheResult.documentNeeded && cacheResult.translatedXml != null) {
                     // Cache hit - parse cached XML directly without loading document
                     val translatedElement = try {
-                        val builder = SAXBuilder()
-                        builder.build(StringReader(cacheResult.translatedXml)).rootElement
+                        // Use DocumentBuilderFactory which works on Android (SAXBuilder has issues with ExpatReader)
+                        val factory = DocumentBuilderFactory.newInstance()
+                        val docBuilder = factory.newDocumentBuilder()
+                        val doc = docBuilder.parse(InputSource(StringReader(cacheResult.translatedXml)))
+                        val domBuilder = org.jdom2.input.DOMBuilder()
+                        domBuilder.build(doc).rootElement
                     } catch (e: Exception) {
                         Log.e(TAG, "Failed to parse cached translated XML", e)
                         null
@@ -220,20 +227,28 @@ abstract class CurrentPageBase protected constructor(
         xml: Element,
         targetLanguage: String
     ): Element {
-        val xmlStr = net.bible.android.misc.elementToString(xml)
+        val xmlStr = elementToString(xml)
         val translatedXmlStr = runBlocking {
             LlmTranslationService.translateAndCache(documentInitials, keyName, xmlStr, targetLanguage)
         }
 
+        Log.d(TAG, "translateXmlElement: original size=${xmlStr.length}, translated size=${translatedXmlStr.length}, same=${translatedXmlStr == xmlStr}")
         return if (translatedXmlStr != xmlStr) {
             try {
-                val builder = SAXBuilder()
-                builder.build(StringReader(translatedXmlStr)).rootElement
+                // Use DocumentBuilderFactory which works on Android (SAXBuilder has issues with ExpatReader)
+                val factory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+                val docBuilder = factory.newDocumentBuilder()
+                val doc = docBuilder.parse(org.xml.sax.InputSource(StringReader(translatedXmlStr)))
+                val domBuilder = DOMBuilder()
+                val parsed = domBuilder.build(doc).rootElement
+                Log.d(TAG, "translateXmlElement: successfully parsed translated XML")
+                parsed
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to parse translated XML, using original", e)
                 xml
             }
         } else {
+            Log.d(TAG, "translateXmlElement: no translation occurred, using original")
             xml
         }
     }

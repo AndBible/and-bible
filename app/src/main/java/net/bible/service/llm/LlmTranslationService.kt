@@ -145,7 +145,7 @@ IMPORTANT RULES:
                 put("temperature", 0.3)
             }
 
-            Log.d(TAG, "Calling LLM API at $endpoint with model ${settings.llmModel}")
+            Log.d(TAG, "LLM API: $endpoint, model: ${settings.llmModel}")
 
             val request = Request.Builder()
                 .url(endpoint)
