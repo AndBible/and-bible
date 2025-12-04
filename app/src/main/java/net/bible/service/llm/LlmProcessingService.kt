@@ -18,6 +18,8 @@
 package net.bible.service.llm
 
 import android.app.AlertDialog
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +28,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
@@ -34,20 +39,29 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.processors.TranslationProcessor
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.concurrent.CancellationException
+import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "LlmProcessingService"
+private const val CONNECT_TIMEOUT_SECONDS = 120L
+private const val READ_TIMEOUT_SECONDS = 300L  // 5 min for reasoning models
+private const val WRITE_TIMEOUT_SECONDS = 120L
+private const val LLM_TEMPERATURE = 0.3
 
 /** Event posted when LLM operations start or complete */
 class LlmEvent(val running: Boolean)
@@ -92,10 +106,14 @@ object LlmProcessingService {
     // Used for document-level coordination
     private val documentStates = ConcurrentHashMap<String, DocumentState>()
 
+    // Mutexes for coroutine-safe state management
+    private val requestsMutex = Mutex()
+    private val documentStatesMutex = Mutex()
+
     private val client = OkHttpClient.Builder()
-        .connectTimeout(120, TimeUnit.SECONDS)
-        .readTimeout(300, TimeUnit.SECONDS)  // 5 min for reasoning models
-        .writeTimeout(120, TimeUnit.SECONDS)
+        .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .build()
 
     private val dao get() = DatabaseContainer.instance.llmProcessingDb.llmProcessingDao()
@@ -244,7 +262,7 @@ object LlmProcessingService {
         // Atomically check/create request state to avoid race conditions
         // when multiple windows request the same content simultaneously
         var isNewRequest = false
-        var requestState = synchronized(pendingRequests) {
+        var requestState = requestsMutex.withLock {
             val existing = pendingRequests[requestKey]
             if (existing != null) {
                 Log.d(TAG, "LLM processAndCache: REUSING existing request for $requestKey")
@@ -273,7 +291,7 @@ object LlmProcessingService {
             val job = async {
                 try {
                     // Update requestState with actual job
-                    synchronized(pendingRequests) {
+                    requestsMutex.withLock {
                         val currentState = pendingRequests[requestKey]
                         if (currentState != null) {
                             // Update the job reference
@@ -282,21 +300,26 @@ object LlmProcessingService {
                         }
                     }
                     // Handle document-level coordination - cancel pre-API requests for different keys
-                    synchronized(documentStates) {
+                    var dialogToClose: AlertDialog? = null
+                    var jobToCancel: Job? = null
+                    documentStatesMutex.withLock {
                         documentStates[documentKey]?.let { currentState ->
                             if (currentState.currentKeyName != cacheKey.keyName) {
                                 if (!currentState.requestState.inApiCall) {
                                     // Different key, pre-API phase - cancel it
-                                    val dialogToClose = currentState.requestState.dialog
-                                    // Schedule dialog dismiss on main thread (can't do withContext inside synchronized)
-                                    dialogToClose?.dismiss()
-                                    currentState.requestState.job.cancel()
+                                    dialogToClose = currentState.requestState.dialog
+                                    jobToCancel = currentState.requestState.job
                                 }
                             }
                         }
                         // Register in documentStates
                         documentStates[documentKey] = DocumentState(cacheKey.keyName, requestState)
                     }
+                    // Dismiss dialog on main thread (outside mutex lock)
+                    dialogToClose?.let { dialog ->
+                        Handler(Looper.getMainLooper()).post { dialog.dismiss() }
+                    }
+                    jobToCancel?.cancel()
 
                     // Debounce delay only if confirmation is disabled
                     if (!settings.llmConfirmBeforeCall) {
@@ -314,7 +337,7 @@ object LlmProcessingService {
                     ensureActive()
 
                     // Mark as in API call phase (can't be cancelled anymore)
-                    synchronized(pendingRequests) {
+                    requestsMutex.withLock {
                         pendingRequests[requestKey]?.let {
                             pendingRequests[requestKey] = it.copy(inApiCall = true)
                         }
@@ -323,11 +346,11 @@ object LlmProcessingService {
                     // Proceed with actual API call
                     doProcessAndCache(processor, cacheKey, xmlContent)
                 } finally {
-                    synchronized(pendingRequests) {
+                    requestsMutex.withLock {
                         pendingRequests.remove(requestKey)
                     }
                     // Only remove document state if we're still the current request
-                    synchronized(documentStates) {
+                    documentStatesMutex.withLock {
                         val currentDocState = documentStates[documentKey]
                         if (currentDocState?.currentKeyName == cacheKey.keyName) {
                             documentStates.remove(documentKey)
@@ -387,10 +410,13 @@ object LlmProcessingService {
 
             Log.d(TAG, "Processing successful, saved to cache")
             processed
+        } catch (e: CancellationException) {
+            // Don't wrap cancellation - rethrow to preserve structured concurrency
+            throw e
         } catch (e: Exception) {
             val duration = System.currentTimeMillis() - startTime
             Log.e(TAG, "Processing failed after ${duration}ms: ${e.javaClass.simpleName}: ${e.message}")
-            throw LlmProcessingError("LLM processing failed: ${e.message}")
+            throw LlmProcessingError(application.getString(R.string.llm_processing_failed, e.message))
         } finally {
             if (activeRequests.decrementAndGet() == 0) {
                 ABEventBus.post(LlmEvent(running = false))
@@ -398,58 +424,84 @@ object LlmProcessingService {
         }
     }
 
-    private suspend fun callLlmApi(systemPrompt: String, userContent: String): String =
-        withContext(Dispatchers.IO) {
-            val settings = CommonUtils.settings
-            val endpoint = "${settings.llmEndpoint}/chat/completions"
+    private suspend fun callLlmApi(systemPrompt: String, userContent: String): String {
+        val settings = CommonUtils.settings
+        val endpoint = "${settings.llmEndpoint}/chat/completions"
 
-            val requestBody = JSONObject().apply {
-                put("model", settings.llmModel)
-                put("messages", JSONArray().apply {
-                    put(JSONObject().apply {
-                        put("role", "system")
-                        put("content", systemPrompt)
-                    })
-                    put(JSONObject().apply {
-                        put("role", "user")
-                        put("content", userContent)
-                    })
+        val requestBody = JSONObject().apply {
+            put("model", settings.llmModel)
+            put("messages", JSONArray().apply {
+                put(JSONObject().apply {
+                    put("role", "system")
+                    put("content", systemPrompt)
                 })
-                put("temperature", 0.3)
-            }
-
-            Log.d(TAG, "LLM API: $endpoint, model: ${settings.llmModel}")
-
-            val request = Request.Builder()
-                .url(endpoint)
-                .addHeader("Authorization", "Bearer ${settings.llmApiKey}")
-                .addHeader("Content-Type", "application/json")
-                .post(requestBody.toString().toRequestBody("application/json".toMediaType()))
-                .build()
-
-            val response = client.newCall(request).execute()
-            if (!response.isSuccessful) {
-                val errorBody = response.body?.string() ?: "No error body"
-                Log.e(TAG, "LLM API error: ${response.code} - $errorBody")
-                throw Exception("LLM API error: ${response.code}")
-            }
-
-            val responseBody = response.body?.string() ?: throw Exception("Empty response body")
-            val responseJson = JSONObject(responseBody)
-
-            val content = responseJson
-                .getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content")
-
-            // Clean up any markdown code blocks that the LLM might have added
-            content.trim()
-                .removePrefix("```xml")
-                .removePrefix("```")
-                .removeSuffix("```")
-                .trim()
+                put(JSONObject().apply {
+                    put("role", "user")
+                    put("content", userContent)
+                })
+            })
+            put("temperature", LLM_TEMPERATURE)
         }
+
+        Log.d(TAG, "LLM API: $endpoint, model: ${settings.llmModel}")
+
+        val request = Request.Builder()
+            .url(endpoint)
+            .addHeader("Authorization", "Bearer ${settings.llmApiKey}")
+            .addHeader("Content-Type", "application/json")
+            .post(requestBody.toString().toRequestBody("application/json".toMediaType()))
+            .build()
+
+        return suspendCancellableCoroutine { continuation ->
+            val call = client.newCall(request)
+
+            continuation.invokeOnCancellation {
+                call.cancel()
+            }
+
+            call.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.e(TAG, "LLM API call failed: ${e.message}")
+                    continuation.resumeWithException(e)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    response.use { resp ->
+                        if (!resp.isSuccessful) {
+                            val errorBody = resp.body?.string() ?: "No error body"
+                            Log.e(TAG, "LLM API error: ${resp.code} - $errorBody")
+                            continuation.resumeWithException(Exception("LLM API error: ${resp.code}"))
+                            return
+                        }
+
+                        try {
+                            val responseBody = resp.body?.string()
+                                ?: throw Exception("Empty response body")
+                            val responseJson = JSONObject(responseBody)
+
+                            val content = responseJson
+                                .getJSONArray("choices")
+                                .getJSONObject(0)
+                                .getJSONObject("message")
+                                .getString("content")
+
+                            // Clean up any markdown code blocks that the LLM might have added
+                            val cleanedContent = content.trim()
+                                .removePrefix("```xml")
+                                .removePrefix("```")
+                                .removeSuffix("```")
+                                .trim()
+
+                            continuation.resume(cleanedContent)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to parse LLM response: ${e.message}")
+                            continuation.resumeWithException(e)
+                        }
+                    }
+                }
+            })
+        }
+    }
 
     fun clearCache() {
         dao.deleteAll()
