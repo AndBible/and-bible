@@ -21,11 +21,9 @@ import android.util.Log
 import kotlinx.coroutines.runBlocking
 import net.bible.service.llm.processors.TranslationProcessor
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.basic.AbstractBook
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
-import org.crosswire.jsword.book.sword.Backend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordDictionary
@@ -78,12 +76,8 @@ class LlmProcessedBackend(
     metadata: SwordBookMetaData
 ) : AbstractKeyBackend<LlmProcessedBackendState>(metadata) {
 
-    private val wrappedBackend: Backend<*>
-        get() = (state.wrappedBook as? AbstractBook)?.backend
-            ?: throw IllegalStateException("Wrapped book does not have accessible backend")
-
     /**
-     * Get the global key list from the wrapped book (not backend).
+     * Get the global key list from the wrapped book.
      * Book.getGlobalKeyList() is always supported, unlike Backend.getGlobalKeyList().
      */
     private val wrappedKeyList: Key by lazy {
@@ -114,8 +108,8 @@ class LlmProcessedBackend(
             return cacheResult.processedXml
         }
 
-        // Get original content from wrapped book via its backend
-        val originalContent = wrappedBackend.getRawText(key)
+        // Get original content from wrapped book (use Book.getRawText, not Backend.getRawText)
+        val originalContent = state.wrappedBook.getRawText(key)
 
         // Process and cache
         return runBlocking {

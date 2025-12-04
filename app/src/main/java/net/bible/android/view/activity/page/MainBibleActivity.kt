@@ -142,6 +142,7 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.llm.LlmEvent
+import net.bible.service.llm.LlmProcessingService
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
@@ -299,6 +300,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         // register for passage change and appToBackground events
         ABEventBus.register(this)
+
+        // Check if LLM processing is already running (may have started before we registered)
+        binding.llmIcon.visibility = if(LlmProcessingService.isRunning) View.VISIBLE else View.INVISIBLE
 
         setupToolbarButtons()
         setupToolbarFlingDetection()

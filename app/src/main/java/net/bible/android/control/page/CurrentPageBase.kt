@@ -33,6 +33,7 @@ import net.bible.service.download.isRemoved
 import net.bible.service.history.AddHistoryItem
 import net.bible.service.llm.getOrCreateTranslatedBook
 import net.bible.service.llm.isLlmProcessedBook
+import net.bible.service.llm.LlmProcessingError
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
@@ -164,6 +165,7 @@ abstract class CurrentPageBase protected constructor(
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)
         when (e) {
+            is LlmProcessingError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
             is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
             is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
             else -> ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)

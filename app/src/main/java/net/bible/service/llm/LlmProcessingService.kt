@@ -39,6 +39,9 @@ private const val TAG = "LlmProcessingService"
 /** Event posted when LLM operations start or complete */
 class LlmEvent(val running: Boolean)
 
+/** Exception thrown when LLM processing fails */
+class LlmProcessingError(message: String) : Exception(message)
+
 /**
  * Generic service for processing document content through LLM.
  *
@@ -47,6 +50,9 @@ class LlmEvent(val running: Boolean)
  */
 object LlmProcessingService {
     private val activeRequests = AtomicInteger(0)
+
+    /** Check if any LLM processing is currently active */
+    val isRunning: Boolean get() = activeRequests.get() > 0
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(120, TimeUnit.SECONDS)
@@ -155,7 +161,7 @@ object LlmProcessingService {
         } catch (e: Exception) {
             val duration = System.currentTimeMillis() - startTime
             Log.e(TAG, "Processing failed after ${duration}ms: ${e.javaClass.simpleName}: ${e.message}")
-            xmlContent // Return original on error
+            throw LlmProcessingError("LLM processing failed: ${e.message}")
         } finally {
             if (activeRequests.decrementAndGet() == 0) {
                 ABEventBus.post(LlmEvent(running = false))
