@@ -281,8 +281,6 @@ object LlmProcessingService {
                             pendingRequests[requestKey] = requestState
                         }
                     }
-                    Log.d(TAG, "LLM processAndCache: updated requestState with actual job for ${cacheKey.keyName}")
-
                     // Handle document-level coordination - cancel pre-API requests for different keys
                     synchronized(documentStates) {
                         documentStates[documentKey]?.let { currentState ->
@@ -296,7 +294,6 @@ object LlmProcessingService {
                                 }
                             }
                         }
-
                         // Register in documentStates
                         documentStates[documentKey] = DocumentState(cacheKey.keyName, requestState!!)
                     }
