@@ -295,7 +295,7 @@ object LlmProcessingService {
                             }
                         }
                         // Register in documentStates
-                        documentStates[documentKey] = DocumentState(cacheKey.keyName, requestState!!)
+                        documentStates[documentKey] = DocumentState(cacheKey.keyName, requestState)
                     }
 
                     // Debounce delay only if confirmation is disabled
@@ -308,7 +308,7 @@ object LlmProcessingService {
                     }
 
                     // Confirm with user if setting enabled
-                    if (!confirmLlmCall(processor, cacheKey, xmlContent.length, requestState!!)) {
+                    if (!confirmLlmCall(processor, cacheKey, xmlContent.length, requestState)) {
                         throw LlmProcessingError(application.getString(R.string.llm_user_cancelled))
                     }
                     ensureActive()
