@@ -86,14 +86,6 @@ private val editActionMigration = makeMigration(9..10) { _db ->
     _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN editAction_content TEXT DEFAULT NULL")
 }
 
-private val docTranslatedMigration = makeMigration(10..11) { _db ->
-    // Add docTranslated field to BibleBookmark for LLM translation support
-    _db.execSQL("ALTER TABLE BibleBookmark ADD COLUMN docTranslated TEXT DEFAULT NULL")
-
-    // Add docTranslated field to GenericBookmark for LLM translation support
-    _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN docTranslated TEXT DEFAULT NULL")
-}
-
 val bookmarkMigrations: Array<Migration> = arrayOf(
     separateText,
     genericTables,
@@ -104,7 +96,6 @@ val bookmarkMigrations: Array<Migration> = arrayOf(
     labelFields,
     customIconMigration,
     editActionMigration,
-    docTranslatedMigration
 )
 
-const val BOOKMARK_DATABASE_VERSION = 11
+const val BOOKMARK_DATABASE_VERSION = 10
