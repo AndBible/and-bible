@@ -29,6 +29,7 @@ import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.migrations.makeMigration
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
+import net.bible.service.llm.LlmProcessingCacheEntry
 
 
 @Database(
@@ -158,7 +159,7 @@ const val LLM_PROCESSING_DATABASE_VERSION = 1
 
 @Database(
     entities = [
-        net.bible.service.llm.LlmProcessingCacheEntry::class,
+        LlmProcessingCacheEntry::class,
     ],
     version = LLM_PROCESSING_DATABASE_VERSION
 )
