@@ -56,6 +56,9 @@ class LlmEvent(val running: Boolean)
 /** Exception thrown when LLM processing fails */
 class LlmProcessingError(message: String) : Exception(message)
 
+/** Silent exception - request was superseded, no error display needed */
+class LlmRequestSuperseded : Exception("Request superseded")
+
 /** Tracks state of a pending request for a specific document:key */
 private data class RequestState(
     val deferred: CompletableDeferred<String>,
@@ -376,10 +379,10 @@ object LlmProcessingService {
                 result
             } catch (e: CancellationException) {
                 Log.d(TAG, "LLM processAndCache: CancellationException caught for ${cacheKey.keyName}: ${e.message}")
-                resultDeferred.completeExceptionally(
-                    LlmProcessingError(application.getString(R.string.llm_request_superseded))
-                )
-                throw LlmProcessingError(application.getString(R.string.llm_request_superseded))
+                // Use silent exception - no error display needed since newer request replaced this one
+                val superseded = LlmRequestSuperseded()
+                resultDeferred.completeExceptionally(superseded)
+                throw superseded
             } catch (e: Exception) {
                 Log.d(TAG, "LLM processAndCache: Exception caught for ${cacheKey.keyName}: ${e.javaClass.simpleName}: ${e.message}")
                 resultDeferred.completeExceptionally(e)

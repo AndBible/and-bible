@@ -42,6 +42,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.windowControl
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.event.SpeakProgressEvent
+import net.bible.service.llm.LlmRequestSuperseded
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
@@ -214,6 +215,14 @@ class Window (
             if(adjusted) {
                 b?.adjustLoadingCount(-1)
             }
+
+            // null means request was superseded - don't load anything
+            if (doc == null) {
+                if(notifyLocationChange)
+                    PassageChangeMediator.contentChangeFinished()
+                return@launch
+            }
+
             val checksum = if(pageManager.isCommentaryShown && doc is OsisDocument) {
                 val checksum = doc.osisFragment.xmlStr.hashCode()
                 if (lastChecksum == checksum && bibleView?.firstDocument != null) {
@@ -323,12 +332,16 @@ class Window (
         loadText(notifyLocationChange = true)
     }
 
-    private suspend fun fetchDocument(): Document = withContext(Dispatchers.IO) {
+    private suspend fun fetchDocument(): Document? = withContext(Dispatchers.IO) {
         val currentPage = pageManager.currentPage
         return@withContext try {
             val document = currentPage.currentDocument
             Log.i(TAG, "Loading document:$document key:${currentPage.key}")
             currentPage.currentPageContent
+        } catch (e: LlmRequestSuperseded) {
+            // Request was superseded by newer one - don't show any document
+            Log.d(TAG, "Request superseded, not loading document")
+            null
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()

@@ -34,6 +34,7 @@ import net.bible.service.history.AddHistoryItem
 import net.bible.service.llm.getOrCreateTranslatedBook
 import net.bible.service.llm.isLlmProcessedBook
 import net.bible.service.llm.LlmProcessingError
+import net.bible.service.llm.LlmRequestSuperseded
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError

@@ -373,6 +373,11 @@ setupEventBusListener("adjust_loading_count", (a: number) => {
         console.error("Loading count now below zero, setting to 0", loadingCount.value);
         loadingCount.value = 0;
     }
+    // Clear error documents when loading starts to avoid spinner on top of old error
+    // Only clear if first document is an error - preserve normal content during reload
+    if (a > 0 && documents.length > 0 && documents[0].type === "error") {
+        documents.splice(0);
+    }
 });
 
 const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
