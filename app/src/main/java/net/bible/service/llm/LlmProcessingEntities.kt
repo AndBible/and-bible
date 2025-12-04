@@ -15,24 +15,31 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.android.database.translation
+package net.bible.service.llm
 
 import androidx.room.Entity
 import androidx.room.Index
-import androidx.room.PrimaryKey
 
+/**
+ * Cache entry for LLM-processed document content.
+ *
+ * Supports multiple processing types (translation, summarization, etc.)
+ * through the processingType and processingParams fields.
+ */
 @Entity(
-    primaryKeys = ["documentInitials", "keyName", "targetLanguage"],
+    tableName = "LlmProcessingCacheEntry",
+    primaryKeys = ["documentInitials", "keyName", "processingType", "processingParams"],
     indices = [
-        Index("targetLanguage"),
+        Index("processingType"),
         Index("modelId")
     ]
 )
-data class TranslationCacheEntry(
-    val documentInitials: String,  // e.g., "KJV", "ESV"
-    val keyName: String,           // e.g., "Gen.1", "Matt.5"
-    val targetLanguage: String,    // e.g., "fi", "en"
-    val modelId: String,           // e.g., "gpt-4o-mini" (informational only, not used in lookup)
-    val translatedXml: String,
+data class LlmProcessingCacheEntry(
+    val documentInitials: String,   // e.g., "KJV", "ESV"
+    val keyName: String,            // e.g., "Gen.1", "Matt.5"
+    val processingType: String,     // e.g., "translations", "summaries"
+    val processingParams: String,   // e.g., "fi" for translation, "short" for summary
+    val modelId: String,            // e.g., "gpt-4o-mini" (informational only)
+    val processedXml: String,       // The processed content
     val createdAt: Long
 )

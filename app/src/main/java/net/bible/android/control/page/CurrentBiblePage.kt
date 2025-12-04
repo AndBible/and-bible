@@ -77,7 +77,6 @@ class CurrentBiblePage(
             BibleDocument(
                 osisFragment = doc.osisFragment, swordBook = doc.book as SwordBook,
                 bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey,
-                docTranslated = doc.docTranslated,
             )
         } else doc
     }

@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.android.database.translation
+package net.bible.service.llm
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -23,24 +23,39 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @Dao
-interface TranslationDao {
+interface LlmProcessingDao {
     @Query("""
-        SELECT * FROM TranslationCacheEntry
+        SELECT * FROM LlmProcessingCacheEntry
         WHERE documentInitials = :documentInitials
         AND keyName = :keyName
-        AND targetLanguage = :targetLanguage
+        AND processingType = :processingType
+        AND processingParams = :processingParams
     """)
-    fun get(documentInitials: String, keyName: String, targetLanguage: String): TranslationCacheEntry?
+    fun get(
+        documentInitials: String,
+        keyName: String,
+        processingType: String,
+        processingParams: String
+    ): LlmProcessingCacheEntry?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(entry: TranslationCacheEntry)
+    fun insert(entry: LlmProcessingCacheEntry)
 
-    @Query("SELECT COUNT(*) FROM TranslationCacheEntry")
+    @Query("SELECT COUNT(*) FROM LlmProcessingCacheEntry")
     fun count(): Int
 
-    @Query("DELETE FROM TranslationCacheEntry")
+    @Query("SELECT COUNT(*) FROM LlmProcessingCacheEntry WHERE processingType = :processingType")
+    fun countByType(processingType: String): Int
+
+    @Query("DELETE FROM LlmProcessingCacheEntry")
     fun deleteAll()
 
-    @Query("DELETE FROM TranslationCacheEntry WHERE modelId = :modelId")
+    @Query("DELETE FROM LlmProcessingCacheEntry WHERE modelId = :modelId")
     fun deleteByModel(modelId: String)
+
+    @Query("DELETE FROM LlmProcessingCacheEntry WHERE processingType = :processingType")
+    fun deleteByType(processingType: String)
+
+    @Query("DELETE FROM LlmProcessingCacheEntry WHERE documentInitials = :documentInitials")
+    fun deleteByDocument(documentInitials: String)
 }

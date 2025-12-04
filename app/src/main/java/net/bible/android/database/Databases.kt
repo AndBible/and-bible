@@ -154,18 +154,18 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val TRANSLATION_DATABASE_VERSION = 1
+const val LLM_PROCESSING_DATABASE_VERSION = 1
 
 @Database(
     entities = [
-        net.bible.android.database.translation.TranslationCacheEntry::class,
+        net.bible.service.llm.LlmProcessingCacheEntry::class,
     ],
-    version = TRANSLATION_DATABASE_VERSION
+    version = LLM_PROCESSING_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
-abstract class TranslationDatabase: RoomDatabase() {
-    abstract fun translationDao(): net.bible.android.database.translation.TranslationDao
+abstract class LlmProcessingDatabase: RoomDatabase() {
+    abstract fun llmProcessingDao(): net.bible.service.llm.LlmProcessingDao
     companion object {
-        const val dbFileName = "translations.sqlite3"
+        const val dbFileName = "llm_processing.sqlite3"
     }
 }

@@ -36,10 +36,6 @@ import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.service.llm.LlmTranslationService
-import kotlinx.coroutines.runBlocking
-import net.bible.android.misc.elementToString
-import java.io.StringReader
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -49,9 +45,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.VerseRange
 import org.jdom2.Element
-import org.jdom2.input.DOMBuilder
-import org.xml.sax.InputSource
-import javax.xml.parsers.DocumentBuilderFactory
 
 /** Common functionality for different document page types
  *
@@ -150,56 +143,11 @@ abstract class CurrentPageBase protected constructor(
 
     override fun getPageContent(key: Key): Document = try {
         val currentDocument = currentDocument!!
-        val translateTo = pageManager.actualTextDisplaySettings.translateTo
 
         val frag = synchronized(currentDocument) {
-            // Check if we have a cached translation (avoids loading document)
-            // translateTo: null = inherit from workspace, "" = no translation, "fi"/"en"/etc = translate to that language
-            Log.d(TAG, "getPageContent: key=${key.osisID}, translateTo=$translateTo, llmConfigured=${CommonUtils.settings.llmConfigured}")
-            if (!translateTo.isNullOrEmpty() && CommonUtils.settings.llmConfigured) {
-                val cacheResult = LlmTranslationService.getCached(
-                    currentDocument.initials,
-                    key.osisID,
-                    translateTo
-                )
-
-                if (!cacheResult.documentNeeded && cacheResult.translatedXml != null) {
-                    // Cache hit - parse cached XML directly without loading document
-                    val translatedElement = try {
-                        // Use DocumentBuilderFactory which works on Android (SAXBuilder has issues with ExpatReader)
-                        val factory = DocumentBuilderFactory.newInstance()
-                        val docBuilder = factory.newDocumentBuilder()
-                        val doc = docBuilder.parse(InputSource(StringReader(cacheResult.translatedXml)))
-                        val domBuilder = org.jdom2.input.DOMBuilder()
-                        domBuilder.build(doc).rootElement
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Failed to parse cached translated XML", e)
-                        null
-                    }
-
-                    if (translatedElement != null) {
-                        OsisFragment(translatedElement, key, currentDocument)
-                    } else {
-                        // Fallback: load document if cached XML is corrupted
-                        val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
-                        OsisFragment(originalXml, key, currentDocument)
-                    }
-                } else {
-                    // Cache miss - load document and translate
-                    val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
-                    val translatedXml = try {
-                        translateXmlElement(currentDocument.initials, key.osisID, originalXml, translateTo)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Translation failed, using original", e)
-                        originalXml
-                    }
-                    OsisFragment(translatedXml, key, currentDocument)
-                }
-            } else {
-                // No translation requested
-                val originalXml = SwordContentFacade.readOsisFragment(currentDocument, key)
-                OsisFragment(originalXml, key, currentDocument)
-            }
+            // Document may be a virtual LLM-processed book, which handles all processing internally
+            val xml = SwordContentFacade.readOsisFragment(currentDocument, key)
+            OsisFragment(xml, key, currentDocument)
         }
 
         annotateKey = frag.annotateRef
@@ -210,7 +158,6 @@ abstract class CurrentPageBase protected constructor(
             key = key,
             osisFragment = frag,
             genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, annotateKey ?: key, withLabels = true),
-            docTranslated = translateTo,
         )
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)
@@ -218,38 +165,6 @@ abstract class CurrentPageBase protected constructor(
             is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
             is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
             else -> ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)
-        }
-    }
-
-    private fun translateXmlElement(
-        documentInitials: String,
-        keyName: String,
-        xml: Element,
-        targetLanguage: String
-    ): Element {
-        val xmlStr = elementToString(xml)
-        val translatedXmlStr = runBlocking {
-            LlmTranslationService.translateAndCache(documentInitials, keyName, xmlStr, targetLanguage)
-        }
-
-        Log.d(TAG, "translateXmlElement: original size=${xmlStr.length}, translated size=${translatedXmlStr.length}, same=${translatedXmlStr == xmlStr}")
-        return if (translatedXmlStr != xmlStr) {
-            try {
-                // Use DocumentBuilderFactory which works on Android (SAXBuilder has issues with ExpatReader)
-                val factory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
-                val docBuilder = factory.newDocumentBuilder()
-                val doc = docBuilder.parse(org.xml.sax.InputSource(StringReader(translatedXmlStr)))
-                val domBuilder = DOMBuilder()
-                val parsed = domBuilder.build(doc).rootElement
-                Log.d(TAG, "translateXmlElement: successfully parsed translated XML")
-                parsed
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to parse translated XML, using original", e)
-                xml
-            }
-        } else {
-            Log.d(TAG, "translateXmlElement: no translation occurred, using original")
-            xml
         }
     }
 

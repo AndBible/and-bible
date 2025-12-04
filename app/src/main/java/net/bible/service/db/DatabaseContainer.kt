@@ -34,8 +34,8 @@ import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SETTINGS_DATABASE_VERSION
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.TemporaryDatabase
-import net.bible.android.database.TranslationDatabase
-import net.bible.android.database.TRANSLATION_DATABASE_VERSION
+import net.bible.android.database.LlmProcessingDatabase
+import net.bible.android.database.LLM_PROCESSING_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
 import net.bible.service.common.CommonUtils
@@ -45,7 +45,6 @@ import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.migrations.bookmarkMigrations
 import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
-import net.bible.android.database.migrations.translationMigrations
 import net.bible.android.database.migrations.workspacesMigrations
 import net.bible.android.database.temporaryMigrations
 import net.bible.service.db.oldmigrations.oldMigrations
@@ -67,7 +66,7 @@ val ALL_DB_FILENAMES = arrayOf(
     WorkspaceDatabase.dbFileName,
     RepoDatabase.dbFileName,
     SettingsDatabase.dbFileName,
-    TranslationDatabase.dbFileName
+    LlmProcessingDatabase.dbFileName
 )
 
 class DataBaseNotReady: Exception()
@@ -206,12 +205,11 @@ class DatabaseContainer {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
-    val translationDb: TranslationDatabase =
+    val llmProcessingDb: LlmProcessingDatabase =
         Room.databaseBuilder(
-            application, TranslationDatabase::class.java, TranslationDatabase.dbFileName
+            application, LlmProcessingDatabase::class.java, LlmProcessingDatabase.dbFileName
         )
             .allowMainThreadQueries()
-            .addMigrations(*translationMigrations)
             .openHelperFactory(dbFactory)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
@@ -266,7 +264,7 @@ class DatabaseContainer {
     }
 
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
-    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, translationDb)
+    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, llmProcessingDb)
 
     val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
 
@@ -320,7 +318,7 @@ class DatabaseContainer {
             WorkspaceDatabase.dbFileName -> WORKSPACE_DATABASE_VERSION
             RepoDatabase.dbFileName -> REPO_DATABASE_VERSION
             SettingsDatabase.dbFileName -> SETTINGS_DATABASE_VERSION
-            TranslationDatabase.dbFileName -> TRANSLATION_DATABASE_VERSION
+            LlmProcessingDatabase.dbFileName -> LLM_PROCESSING_DATABASE_VERSION
             else -> throw IllegalStateException("Unknown database file: $filename")
         }
 
