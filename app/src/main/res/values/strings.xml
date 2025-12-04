@@ -1315,4 +1315,5 @@
     <string name="translate_to_title">Translate document</string>
     <string name="translate_to_summary">Use LLM to translate document content</string>
     <string name="translate_to_disabled">No translation</string>
+    <string name="llm_working">AI processing</string>
 </resources>

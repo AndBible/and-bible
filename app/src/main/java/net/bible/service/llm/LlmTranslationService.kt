@@ -20,6 +20,7 @@ package net.bible.service.llm
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.translation.TranslationCacheEntry
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -30,10 +31,16 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 private const val TAG = "LlmTranslationService"
 
+/** Event posted when LLM operations start or complete */
+class LlmEvent(val running: Boolean)
+
 object LlmTranslationService {
+    private val activeRequests = AtomicInteger(0)
+
     private val client = OkHttpClient.Builder()
         .connectTimeout(120, TimeUnit.SECONDS)
         .readTimeout(300, TimeUnit.SECONDS)  // 5 min for reasoning models
@@ -93,6 +100,12 @@ object LlmTranslationService {
 
         Log.d(TAG, "Calling LLM API for translation: $documentInitials:$keyName -> $targetLanguage (input size: ${xmlContent.length} chars)")
         val startTime = System.currentTimeMillis()
+
+        // Track active requests and notify UI
+        if (activeRequests.incrementAndGet() == 1) {
+            ABEventBus.post(LlmEvent(running = true))
+        }
+
         return try {
             val translated = callLlmApi(xmlContent, targetLanguage)
             val duration = System.currentTimeMillis() - startTime
@@ -114,6 +127,10 @@ object LlmTranslationService {
             val duration = System.currentTimeMillis() - startTime
             Log.e(TAG, "Translation failed after ${duration}ms: ${e.javaClass.simpleName}: ${e.message}")
             xmlContent // Return original on error
+        } finally {
+            if (activeRequests.decrementAndGet() == 0) {
+                ABEventBus.post(LlmEvent(running = false))
+            }
         }
     }
 

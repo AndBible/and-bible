@@ -141,6 +141,7 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
+import net.bible.service.llm.LlmEvent
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
@@ -1184,6 +1185,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     fun onEventMainThread(event: CloudSyncEvent) {
         binding.syncIcon.visibility = if(event.running) View.VISIBLE else View.INVISIBLE
+    }
+
+    fun onEventMainThread(event: LlmEvent) {
+        binding.llmIcon.visibility = if(event.running) View.VISIBLE else View.INVISIBLE
     }
 
     private fun openLink(uri: Uri) {
