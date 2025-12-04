@@ -239,52 +239,82 @@ object LlmProcessingService {
         Log.d(TAG, "LLM processAndCache START: key=${cacheKey.keyName}, requestKey=$requestKey")
         Log.d(TAG, "LLM processAndCache: pendingRequests.keys=${pendingRequests.keys}, documentStates.keys=${documentStates.keys}")
 
-        // Check if exact same request is already in flight - reuse it
-        pendingRequests[requestKey]?.let { existingRequest ->
-            Log.d(TAG, "LLM processAndCache: REUSING existing request for $requestKey")
-            return existingRequest.deferred.await()
+        // Atomically check/create request state to avoid race conditions
+        // when multiple windows request the same content simultaneously
+        var isNewRequest = false
+        var requestState: RequestState? = null
+
+        synchronized(pendingRequests) {
+            val existing = pendingRequests[requestKey]
+            if (existing != null) {
+                Log.d(TAG, "LLM processAndCache: REUSING existing request for $requestKey")
+                requestState = existing
+            } else {
+                // Create new request state (will be populated with job later)
+                val deferred = CompletableDeferred<String>()
+                // Temporary placeholder job - will be replaced
+                val placeholderState = RequestState(deferred, Job(), false, null)
+                pendingRequests[requestKey] = placeholderState
+                requestState = placeholderState
+                isNewRequest = true
+                Log.d(TAG, "LLM processAndCache: created NEW request placeholder for $requestKey")
+            }
         }
 
+        // If we're reusing an existing request, just wait for it
+        if (!isNewRequest) {
+            Log.d(TAG, "LLM processAndCache: waiting for existing request result for ${cacheKey.keyName}")
+            return requestState!!.deferred.await()
+        }
+
+        val resultDeferred = requestState!!.deferred
+
         return coroutineScope {
-            val resultDeferred = CompletableDeferred<String>()
             val job = async {
                 try {
-                    // Handle document-level coordination - cancel pre-API requests for different keys
-                    documentStates[documentKey]?.let { currentState ->
-                        Log.d(TAG, "LLM processAndCache: found existing documentState for $documentKey, currentKey=${currentState.currentKeyName}, inApiCall=${currentState.requestState.inApiCall}")
-                        if (currentState.currentKeyName != cacheKey.keyName) {
-                            if (!currentState.requestState.inApiCall) {
-                                // Different key, pre-API phase - cancel it
-                                Log.d(TAG, "LLM processAndCache: CANCELLING pre-API request for $documentKey (oldKey=${currentState.currentKeyName}, newKey=${cacheKey.keyName})")
-                                val dialogToClose = currentState.requestState.dialog
-                                Log.d(TAG, "LLM processAndCache: dialog to dismiss: $dialogToClose, isShowing=${dialogToClose?.isShowing}")
-                                withContext(Dispatchers.Main) {
-                                    if (dialogToClose != null && dialogToClose.isShowing) {
-                                        Log.d(TAG, "LLM processAndCache: calling dialog.dismiss()")
-                                        dialogToClose.dismiss()
-                                        Log.d(TAG, "LLM processAndCache: dialog.dismiss() called")
-                                    } else {
-                                        Log.d(TAG, "LLM processAndCache: dialog is null or not showing, skipping dismiss")
-                                    }
-                                }
-                                Log.d(TAG, "LLM processAndCache: calling job.cancel() on old request")
-                                currentState.requestState.job.cancel()
-                                Log.d(TAG, "LLM processAndCache: job.cancel() called")
-                            } else {
-                                Log.d(TAG, "LLM processAndCache: old request in API phase, letting it continue in background")
-                            }
-                        } else {
-                            Log.d(TAG, "LLM processAndCache: same key, no action needed")
+                    // Update requestState with actual job
+                    synchronized(pendingRequests) {
+                        val currentState = pendingRequests[requestKey]
+                        if (currentState != null) {
+                            // Update the job reference
+                            pendingRequests[requestKey] = currentState.copy(job = coroutineContext[Job]!!)
+                            requestState = pendingRequests[requestKey]
                         }
-                    } ?: run {
-                        Log.d(TAG, "LLM processAndCache: no existing documentState for $documentKey")
                     }
+                    Log.d(TAG, "LLM processAndCache: updated requestState with actual job for ${cacheKey.keyName}")
 
-                    // Register our request
-                    val requestState = RequestState(resultDeferred, coroutineContext[Job]!!)
-                    pendingRequests[requestKey] = requestState
-                    documentStates[documentKey] = DocumentState(cacheKey.keyName, requestState)
-                    Log.d(TAG, "LLM processAndCache: registered request, pendingRequests.size=${pendingRequests.size}, documentStates.size=${documentStates.size}")
+                    // Handle document-level coordination - cancel pre-API requests for different keys
+                    synchronized(documentStates) {
+                        documentStates[documentKey]?.let { currentState ->
+                            Log.d(TAG, "LLM processAndCache: found existing documentState for $documentKey, currentKey=${currentState.currentKeyName}, inApiCall=${currentState.requestState.inApiCall}")
+                            if (currentState.currentKeyName != cacheKey.keyName) {
+                                if (!currentState.requestState.inApiCall) {
+                                    // Different key, pre-API phase - cancel it
+                                    Log.d(TAG, "LLM processAndCache: CANCELLING pre-API request for $documentKey (oldKey=${currentState.currentKeyName}, newKey=${cacheKey.keyName})")
+                                    val dialogToClose = currentState.requestState.dialog
+                                    Log.d(TAG, "LLM processAndCache: dialog to dismiss: $dialogToClose, isShowing=${dialogToClose?.isShowing}")
+                                    // Schedule dialog dismiss on main thread (can't do withContext inside synchronized)
+                                    if (dialogToClose != null) {
+                                        dialogToClose.dismiss()  // AlertDialog.dismiss() is safe from any thread
+                                        Log.d(TAG, "LLM processAndCache: dialog.dismiss() called")
+                                    }
+                                    Log.d(TAG, "LLM processAndCache: calling job.cancel() on old request")
+                                    currentState.requestState.job.cancel()
+                                    Log.d(TAG, "LLM processAndCache: job.cancel() called")
+                                } else {
+                                    Log.d(TAG, "LLM processAndCache: old request in API phase, letting it continue in background")
+                                }
+                            } else {
+                                Log.d(TAG, "LLM processAndCache: same key, no action needed")
+                            }
+                        } ?: run {
+                            Log.d(TAG, "LLM processAndCache: no existing documentState for $documentKey")
+                        }
+
+                        // Register in documentStates
+                        documentStates[documentKey] = DocumentState(cacheKey.keyName, requestState!!)
+                    }
+                    Log.d(TAG, "LLM processAndCache: registered in documentStates, size=${documentStates.size}")
 
                     // Debounce delay only if confirmation is disabled
                     if (!settings.llmConfirmBeforeCall) {
@@ -300,7 +330,7 @@ object LlmProcessingService {
 
                     // Confirm with user if setting enabled
                     Log.d(TAG, "LLM processAndCache: calling confirmLlmCall for ${cacheKey.keyName}")
-                    if (!confirmLlmCall(processor, cacheKey, xmlContent.length, requestState)) {
+                    if (!confirmLlmCall(processor, cacheKey, xmlContent.length, requestState!!)) {
                         Log.d(TAG, "LLM processAndCache: confirmLlmCall returned false (user cancelled) for ${cacheKey.keyName}")
                         throw LlmProcessingError(application.getString(R.string.llm_user_cancelled))
                     }
@@ -311,21 +341,29 @@ object LlmProcessingService {
                     Log.d(TAG, "LLM processAndCache: still active after confirm for ${cacheKey.keyName}")
 
                     // Mark as in API call phase (can't be cancelled anymore)
-                    requestState.inApiCall = true
+                    synchronized(pendingRequests) {
+                        pendingRequests[requestKey]?.let {
+                            pendingRequests[requestKey] = it.copy(inApiCall = true)
+                        }
+                    }
                     Log.d(TAG, "LLM processAndCache: marked inApiCall=true, starting API call for ${cacheKey.keyName}")
 
                     // Proceed with actual API call
                     doProcessAndCache(processor, cacheKey, xmlContent)
                 } finally {
                     Log.d(TAG, "LLM processAndCache: FINALLY block for ${cacheKey.keyName}")
-                    pendingRequests.remove(requestKey)
+                    synchronized(pendingRequests) {
+                        pendingRequests.remove(requestKey)
+                    }
                     // Only remove document state if we're still the current request
-                    val currentDocState = documentStates[documentKey]
-                    if (currentDocState?.currentKeyName == cacheKey.keyName) {
-                        documentStates.remove(documentKey)
-                        Log.d(TAG, "LLM processAndCache: removed documentState for ${cacheKey.keyName}")
-                    } else {
-                        Log.d(TAG, "LLM processAndCache: NOT removing documentState, current=${currentDocState?.currentKeyName}, ours=${cacheKey.keyName}")
+                    synchronized(documentStates) {
+                        val currentDocState = documentStates[documentKey]
+                        if (currentDocState?.currentKeyName == cacheKey.keyName) {
+                            documentStates.remove(documentKey)
+                            Log.d(TAG, "LLM processAndCache: removed documentState for ${cacheKey.keyName}")
+                        } else {
+                            Log.d(TAG, "LLM processAndCache: NOT removing documentState, current=${currentDocState?.currentKeyName}, ours=${cacheKey.keyName}")
+                        }
                     }
                 }
             }
