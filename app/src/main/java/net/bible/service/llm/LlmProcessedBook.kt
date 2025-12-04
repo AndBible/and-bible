@@ -41,12 +41,14 @@ private const val TAG = "LlmProcessedBook"
 class LlmProcessedBackendState(
     val wrappedBook: Book,
     val processor: LlmProcessor,
-    val processingParams: String
+    val processingParams: String,
+    private val ownMetadata: SwordBookMetaData
 ) : OpenFileState {
 
     private var _lastAccess: Long = 0L
 
-    override fun getBookMetaData(): SwordBookMetaData = wrappedBook.bookMetaData as SwordBookMetaData
+    // Return our OWN metadata, not the wrapped book's, to avoid state pooling conflicts
+    override fun getBookMetaData(): SwordBookMetaData = ownMetadata
 
     override fun releaseResources() {
         // The wrapped book manages its own resources
@@ -192,7 +194,7 @@ fun getOrCreateProcessedBook(originalBook: Book, processorId: String, processing
 
         // Create new processed book
         val metadata = createProcessedMetadata(originalBook, processor, processingParams)
-        val state = LlmProcessedBackendState(originalBook, processor, processingParams)
+        val state = LlmProcessedBackendState(originalBook, processor, processingParams, metadata)
         val backend = LlmProcessedBackend(state, metadata)
 
         // Create appropriate book type based on original
