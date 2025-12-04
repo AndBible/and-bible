@@ -1312,6 +1312,11 @@
     <string name="llm_endpoint_summary">Base URL for the API (e.g. https://api.openai.com/v1)</string>
     <string name="llm_model_title">Model</string>
     <string name="llm_model_summary">Model ID (e.g. gpt-4o-mini)</string>
+    <string name="llm_confirm_before_call_title">Confirm before API calls</string>
+    <string name="llm_confirm_before_call_summary">Ask for confirmation before each AI processing request</string>
+    <string name="llm_confirm_dialog_title">Confirm AI Processing</string>
+    <string name="llm_confirm_dialog_message">%1$s\n\nDocument: %2$s:%3$s\nContent size: %4$d characters\nModel: %5$s\n\nThis may take a while. Continue?</string>
+    <string name="llm_user_cancelled">AI processing cancelled by user</string>
     <string name="translate_to_title">Translate document</string>
     <string name="translate_to_summary">Use LLM to translate document content</string>
     <string name="translate_to_disabled">No translation</string>

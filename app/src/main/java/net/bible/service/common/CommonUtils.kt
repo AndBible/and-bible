@@ -457,6 +457,10 @@ object CommonUtils : CommonUtilsBase() {
             get() = getString("llm_model", "gpt-4o-mini") ?: "gpt-4o-mini"
             set(value) = setString("llm_model", value)
 
+        var llmConfirmBeforeCall: Boolean
+            get() = getBoolean("llm_confirm_before_call", true)
+            set(value) = setBoolean("llm_confirm_before_call", value)
+
         val llmConfigured: Boolean
             get() = llmApiKey.isNotBlank()
     }

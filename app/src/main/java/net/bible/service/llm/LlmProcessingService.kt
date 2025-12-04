@@ -17,10 +17,14 @@
 
 package net.bible.service.llm
 
+import android.app.AlertDialog
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.processors.TranslationProcessor
@@ -33,6 +37,8 @@ import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "LlmProcessingService"
 
@@ -116,6 +122,44 @@ object LlmProcessingService {
     }
 
     /**
+     * Show confirmation dialog before LLM API call if setting is enabled.
+     */
+    private suspend fun confirmLlmCall(
+        processor: LlmProcessor,
+        cacheKey: CacheKey,
+        contentSize: Int
+    ): Boolean {
+        val settings = CommonUtils.settings
+        if (!settings.llmConfirmBeforeCall) {
+            return true  // No confirmation needed
+        }
+
+        val activity = CurrentActivityHolder.currentActivity ?: return true  // No activity, allow
+
+        return withContext(Dispatchers.Main) {
+            suspendCoroutine { continuation ->
+                val description = processor.getDescription(cacheKey.processingParams)
+                val message = activity.getString(
+                    R.string.llm_confirm_dialog_message,
+                    description,
+                    cacheKey.documentInitials,
+                    cacheKey.keyName,
+                    contentSize,
+                    settings.llmModel
+                )
+
+                AlertDialog.Builder(activity)
+                    .setTitle(R.string.llm_confirm_dialog_title)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.okay) { _, _ -> continuation.resume(true) }
+                    .setNegativeButton(R.string.cancel) { _, _ -> continuation.resume(false) }
+                    .setOnCancelListener { continuation.resume(false) }
+                    .show()
+            }
+        }
+    }
+
+    /**
      * Process content using the specified processor and cache the result.
      */
     suspend fun processAndCache(
@@ -127,6 +171,13 @@ object LlmProcessingService {
         if (!settings.llmConfigured) {
             Log.d(TAG, "LLM not configured, returning original content")
             return xmlContent
+        }
+
+        // Confirm with user before making API call
+        if (!confirmLlmCall(processor, cacheKey, xmlContent.length)) {
+            throw LlmProcessingError(
+                application.getString(R.string.llm_user_cancelled)
+            )
         }
 
         val modelId = settings.llmModel

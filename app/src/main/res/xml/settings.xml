@@ -215,6 +215,12 @@
 			android:defaultValue="gpt-4o-mini"
 			android:icon="@drawable/ic_baseline_smart_toy_24"
 			/>
+		<SwitchPreferenceCompat android:key="llm_confirm_before_call"
+			android:title="@string/llm_confirm_before_call_title"
+			android:summary="@string/llm_confirm_before_call_summary"
+			android:defaultValue="true"
+			android:icon="@drawable/icon_circle_question"
+			/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
 		<MultiSelectListPreference android:key="experimental_features"
