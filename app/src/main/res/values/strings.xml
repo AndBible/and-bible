@@ -1317,6 +1317,9 @@
     <string name="llm_confirm_dialog_title">Confirm AI Processing</string>
     <string name="llm_confirm_dialog_message">%1$s\n\nDocument: %2$s:%3$s\nContent size: %4$d characters\nModel: %5$s\n\nThis may take a while. Continue?</string>
     <string name="llm_user_cancelled">AI processing cancelled by user</string>
+    <string name="llm_debounce_title">API call delay (ms)</string>
+    <string name="llm_debounce_summary">Delay before API call when confirmation is disabled (0-5000ms)</string>
+    <string name="llm_request_superseded">Request superseded by newer request</string>
     <string name="translate_to_title">Translate document</string>
     <string name="translate_to_summary">Use LLM to translate document content</string>
     <string name="translate_to_disabled">No translation</string>

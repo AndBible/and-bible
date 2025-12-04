@@ -461,6 +461,10 @@ object CommonUtils : CommonUtilsBase() {
             get() = getBoolean("llm_confirm_before_call", true)
             set(value) = setBoolean("llm_confirm_before_call", value)
 
+        var llmDebounceMs: Int
+            get() = getInt("llm_debounce_ms", 1000)
+            set(value) = setInt("llm_debounce_ms", value)
+
         val llmConfigured: Boolean
             get() = llmApiKey.isNotBlank()
     }
