@@ -33,8 +33,6 @@ import net.bible.service.common.CommonUtils.defaultVerse
 import net.bible.service.common.tinyName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.history.AddHistoryItem
-import net.bible.service.common.CommonUtils
-import net.bible.service.llm.getOrCreateTranslatedBook
 import net.bible.service.sword.BookAndKey
 
 import org.crosswire.jsword.book.Book
@@ -159,46 +157,30 @@ open class CurrentPageManager @Inject constructor(
         get() = currentMap == currentPage
 
 
-    /**
-     * Wraps the document with LLM processing if enabled in settings.
-     * Returns the original document if no processing is configured.
-     */
-    private fun wrapDocumentIfNeeded(document: Book?): Book? {
-        if (document == null) return null
-
-        val translateTo = actualTextDisplaySettings.translateTo
-        if (!translateTo.isNullOrEmpty() && CommonUtils.settings.llmConfigured) {
-            return getOrCreateTranslatedBook(document, translateTo) ?: document
-        }
-
-        return document
-    }
-
     /** display a new Document and return the new Page
      */
     fun setCurrentDocument(nextDocument: Book?) {
         var nextPage: CurrentPage? = null
-        val effectiveDocument = wrapDocumentIfNeeded(nextDocument)
-        if (effectiveDocument != null) {
+        if (nextDocument != null) {
             ABEventBus.post(AddHistoryItem(window))
-            nextPage = getBookPage(effectiveDocument, null)
+            nextPage = getBookPage(nextDocument, null)
 
             // is the next doc the same as the prev doc
             val prevDocInPage = nextPage!!.currentDocument
-            val sameDoc = effectiveDocument == prevDocInPage
+            val sameDoc = nextDocument == prevDocInPage
 
             if(currentPage.currentDocument == FakeBookFactory.multiDocument && nextPage == currentBible) {
-                currentBible.setCurrentDocument(effectiveDocument)
+                currentBible.setCurrentDocument(nextDocument)
                 currentPage = nextPage
                 PassageChangeMediator.onCurrentPageChanged(window)
             } else {
                 // must be in this order because History needs to grab the current doc before change
-                nextPage.setCurrentDocument(effectiveDocument)
+                nextPage.setCurrentDocument(nextDocument)
                 currentPage = nextPage
 
                 // page will change due to above
                 // if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
-                if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || (effectiveDocument.bookCategory != BookCategory.GENERAL_BOOK && effectiveDocument.contains(nextPage.key)))) {
+                if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || (nextDocument.bookCategory != BookCategory.GENERAL_BOOK && nextDocument.contains(nextPage.key)))) {
                     PassageChangeMediator.onCurrentPageChanged(window)
                 } else {
                     // pop up a key selection screen
@@ -218,13 +200,12 @@ open class CurrentPageManager @Inject constructor(
                                  anchorOrdinal: OrdinalRange? = null
     ): CurrentPage? {
         jsState = null
-        val effectiveBook = wrapDocumentIfNeeded(currentBook)
-        val nextPage = getBookPage(effectiveBook, key)
+        val nextPage = getBookPage(currentBook, key)
         if (nextPage != null) {
             try {
                 nextPage.isInhibitChangeNotifications = true
-                if(effectiveBook != null) {
-                    nextPage.setCurrentDocument(effectiveBook)
+                if(currentBook != null) {
+                    nextPage.setCurrentDocument(currentBook)
                 }
                 if(key is BookAndKey) {
                     nextPage.setKey(key.key,addHistoryItem)

@@ -31,6 +31,7 @@ import net.bible.service.download.doesNotExist
 import net.bible.service.download.isPseudoBook
 import net.bible.service.download.isRemoved
 import net.bible.service.history.AddHistoryItem
+import net.bible.service.llm.getOrCreateTranslatedBook
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
@@ -183,7 +184,11 @@ abstract class CurrentPageBase protected constructor(
 
     private var _currentDocument: Book? = null
 
-    override val currentDocument: Book?
+    /**
+     * Returns the raw document without any LLM processing wrapper.
+     * Use this for storage, settings, and operations that need the original document.
+     */
+    val rawDocument: Book?
         get() {
             if (_currentDocument == null) {
                 _currentDocument = getDefaultBook()
@@ -199,6 +204,20 @@ abstract class CurrentPageBase protected constructor(
                 _currentDocument = getDefaultBook()
             }
             return _currentDocument
+        }
+
+    /**
+     * Returns the effective document, wrapped with LLM processing if configured.
+     * This is what should be used for reading content.
+     */
+    override val currentDocument: Book?
+        get() {
+            val doc = rawDocument ?: return null
+            val translateTo = pageManager.actualTextDisplaySettings.translateTo
+            if (!translateTo.isNullOrEmpty() && CommonUtils.settings.llmConfigured) {
+                return getOrCreateTranslatedBook(doc, translateTo) ?: doc
+            }
+            return doc
         }
 
     private fun getDefaultBook(): Book? {
