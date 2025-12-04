@@ -147,10 +147,16 @@ abstract class CurrentPageBase protected constructor(
     override fun getPageContent(key: Key): Document = try {
         val currentDocument = currentDocument!!
 
-        val frag = synchronized(currentDocument) {
-            // Document may be a virtual LLM-processed book, which handles all processing internally
+        // LLM-processed books handle their own thread safety via LlmProcessingService.
+        // Regular books need synchronization for JSword thread safety.
+        val frag = if (currentDocument.isLlmProcessedBook) {
             val xml = SwordContentFacade.readOsisFragment(currentDocument, key)
             OsisFragment(xml, key, currentDocument)
+        } else {
+            synchronized(currentDocument) {
+                val xml = SwordContentFacade.readOsisFragment(currentDocument, key)
+                OsisFragment(xml, key, currentDocument)
+            }
         }
 
         annotateKey = frag.annotateRef

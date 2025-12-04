@@ -68,7 +68,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
     val scope get() = windowRepository.scope
     private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit
-        = debounce(200, scope) { sourceWindow -> immediateSynchronizeWindows(sourceWindow)}
+        = debounce(200, scope) { sourceWindow -> immediateSynchronizeWindows(sourceWindow) }
 
     private fun immediateSynchronizeWindows(sourceWindow: Window) = synchronized(this) {
         Log.i(TAG, "...delayedSynchronizeWindows $sourceWindow")

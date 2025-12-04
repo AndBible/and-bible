@@ -35,6 +35,7 @@ import net.bible.service.device.speak.TextCommand
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
+import net.bible.service.llm.isLlmProcessedBook
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.epub.xhtmlNamespace
@@ -166,13 +167,24 @@ object SwordContentFacade {
             }
         }
 
-        return synchronized(book) {
+        // LLM-processed books handle their own thread safety via LlmProcessingService.
+        // Regular books need synchronization for JSword thread safety.
+        return if (book.isLlmProcessedBook) {
             osisFragmentCache.get(cacheKey) ?: let {
-                Log.e(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
+                Log.d(TAG, "Cache key $cacheKey not found in cache (LLM book, no sync)")
                 readXmlTextStandardJSwordMethod(book, key)
             }.also {
                 osisFragmentCache.put(cacheKey, it)
-                Log.i(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
+            }
+        } else {
+            synchronized(book) {
+                osisFragmentCache.get(cacheKey) ?: let {
+                    Log.d(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
+                    readXmlTextStandardJSwordMethod(book, key)
+                }.also {
+                    osisFragmentCache.put(cacheKey, it)
+                    Log.d(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
+                }
             }
         }
     }
