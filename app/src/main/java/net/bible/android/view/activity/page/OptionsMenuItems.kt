@@ -583,14 +583,25 @@ class TranslateToPreference(settings: SettingsBundle): Preference(settings, Text
             .setSingleChoiceItems(languages.map { it.second }.toTypedArray(), currentIndex) { dialog, which ->
                 val newValue = languages[which].first
                 value = newValue
+                handle()
                 onChanged?.invoke(newValue)
                 dialog.dismiss()
             }
-            .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); onReset?.invoke() }
+            .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); handle(); onReset?.invoke() }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
 
         return true
+    }
+
+    override fun handle() {
+        if (window == null) {
+            // Workspace-level change: reload all windows
+            windowRepository.windowList.forEach { it.loadText() }
+        } else {
+            // Window-specific change: reload only this window
+            window.loadText()
+        }
     }
 }
 
