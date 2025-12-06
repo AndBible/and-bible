@@ -426,6 +426,14 @@ object LlmProcessingService {
 
     private suspend fun callLlmApi(systemPrompt: String, userContent: String): String {
         val settings = CommonUtils.settings
+
+        // Test mode: skip actual API call, simulate latency and return uppercase text
+        if (settings.llmTestMode) {
+            Log.d(TAG, "Test mode: simulating API call with 1s delay")
+            delay(1000)
+            return userContent.uppercase()
+        }
+
         val endpoint = "${settings.llmEndpoint}/chat/completions"
 
         val requestBody = JSONObject().apply {
