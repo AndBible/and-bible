@@ -138,9 +138,13 @@ class LlmProcessedBackend(
         Log.d(TAG, "readToOsis for $originalInitials key=${key.osisRef}")
 
         // Collect all individual keys to process
+        // Skip .0 keys (chapter titles) as they may cause duplicate headers
         val keysToProcess = mutableListOf<Key>()
         for (subKey in key) {
-            keysToProcess.add(subKey)
+            // Filter out verse 0 (chapter title) to avoid duplicates with generated titles
+            if (!subKey.osisRef.endsWith(".0")) {
+                keysToProcess.add(subKey)
+            }
         }
 
         if (keysToProcess.isEmpty()) {
